@@ -25,11 +25,17 @@ class system:
 
 
 dbconf = {
-    "dbHost"            : 'Server-URL',
+    "dbHost"            : '',
     "dbDatabaseName"    : '',
-    "dbUserName"        : 'SQL_user',
-    "dbPassword"        : 'SQL_pass',
+    "dbUserName"        : '',
+    "dbPassword"        : '',
     "dbTablePrefix"     : 'lucid_'
 }
 
 preferences = {}
+
+
+class search:
+    indexDBfile = "files/SearchIndex.bin"
+
+LogDatei = "log/%s.log"

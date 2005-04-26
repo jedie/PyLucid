@@ -5,6 +5,8 @@ PyLucid v0.0.1
 copyleft 2005 by Jens Diemer
 Wie all meine Programme, stehen auch dieses unter der GPL-Lizenz.
 
+Aktuelle Version auf meiner Homepage: http://www.jensdiemer.de
+
 
 Was ist PyLucid ?
 
@@ -12,6 +14,25 @@ Was ist PyLucid ?
 
 
 Welche Erweiterungen ?
+
+ Search.py + makePyLucidSearchIndex.py
+ -------------------------------------
+ Suche mit Index (noch nicht fertig!)
+
+
+ BackLinks.py
+ ------------
+ Generiert eine horizontale zurück-Linkleiste
+
+    Einzubinden über lucid-IncludeRemote-Tag:
+    <lucidFunction:IncludeRemote>/cgi-bin/PyLucid/BackLinks.py?page_name=<lucidTag:page_name/></lucidFunction>
+
+ Menu.py
+ -------
+ Generiert das komplette Hauptmenü mit Untermenüs
+
+    eingebunden kann es per lucid-"IncludeRemote"-Tag:
+    <lucidFunction:IncludeRemote>/cgi-bin/PyLucid/Menu.py?page_name=<lucidTag:page_name/></lucidFunction>
 
  ListOfNewSides.py
  -----------------
@@ -29,3 +50,12 @@ Wie benutzen ?
 
  Zum lokalen Testen muß in der "./system/config.py" die SQL-Konfig bei dict dbconf
  eingetragen werden. Diese werden dann nicht überschrieben, sondern genutzt.
+
+
+ History
+=========
+v0.0.2
+    - neue Module: Menu, Search, BackLinks
+    - ListOfNewSides: Nur Seiten Anzeigen, die auch permitViewPublic=1 sind (also Ã¶ffentlich)
+v0.0.1
+    - erste Version
