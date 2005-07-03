@@ -14,11 +14,12 @@ v0.0.1
     - erste Version
 """
 
+import cgitb;cgitb.enable()
+
 import time, sys, re, htmlentitydefs
 
 
-import config, preferences
-
+import config
 
 
 
@@ -129,3 +130,4 @@ def date( RAWsqlDate ):
 #~ import config, preferences, SQL
 #~ print date( "2005-04-21 12:27:03" )
 #~ sys.exit()
+
