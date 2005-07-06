@@ -62,7 +62,8 @@ import os, sys, md5
 from Cookie import SimpleCookie
 
 # eigene Module
-from system import config, crypt
+#~ from system import config, crypt
+import crypt
 
 
 ## Dynamisch geladene Module:
@@ -71,7 +72,7 @@ from system import config, crypt
 
 
 class auth:
-    def __init__( self, db_handler, log_class, CGIdata, session_class ):
+    def __init__( self, db_handler, log_class, CGIdata, session_class, config ):
         self.MyCookie = SimpleCookie()
 
         self.db         = db_handler
@@ -79,6 +80,7 @@ class auth:
         self.log.set_typ("login")
         self.session    = session_class
         self.CGIdata    = CGIdata
+        self.config     = config
 
     ####################################################
     # LogIn
@@ -94,10 +96,10 @@ class auth:
 
         try:
             login_form = login_form % {
-                    "md5"           : config.system.md5javascript,
-                    "md5manager"    : config.system.md5manager,
+                    "md5"           : self.config.system.md5javascript,
+                    "md5manager"    : self.config.system.md5manager,
                     "rnd"           : random.randint(10000,99999),
-                    "url"           : config.system.real_self_url + "?command=check_login"#os.environ['SCRIPT_NAME']
+                    "url"           : self.config.system.real_self_url + "?command=check_login"#os.environ['SCRIPT_NAME']
                 }
         except Exception, e:
             return "Error in login_form! Please check DB. (%s)" % e

@@ -3,7 +3,7 @@
 
 """
 Eine kleine Version vom textile Parser
-(GPL-License)
+(stehen unter der GPL-License)
 by jensdiemer.de
 
 http://jensdiemer.de/index.php?TinyTextile
@@ -16,9 +16,14 @@ http://www.solarorange.com/projects/textile/mtmanual_textile2.html
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.1.4"
+__version__="0.1.6"
 
 __history__="""
+v0.1.6
+    - neu: auch nummerierte Listen: <ol>...</ol>
+v0.1.5
+    - neu: interner PyLucid Link mit [[SeitenName]]
+    - neu: small Text: --klein-- -> <small>klein</small>
 v0.1.4
     - neu: img-Tag wird durch !/MeinBild.jpg! erzeugt
     - dank Joe, neue RE Regeln für das trennen einer Liste vom Text
@@ -35,13 +40,12 @@ v0.1.0
 __todo__ = """
     ToDo
     ----
-Sourcecode Hightligting mit SilverCity fertig stellen.
+mit [sc Datei] PyLucid/system/SourceCode.py benutzen
 """
 
-import sys, re
-import xml.sax.saxutils
+import sys, re, cgi
 
-
+SourceCodeParser = "/cgi-bin/PyLucid/system/SourceCode.py"
 
 
 
@@ -64,19 +68,27 @@ class parser:
 
         # Regeln für Inlineelemente
         self.inline_rules = self._compile_rules( [
-            [ # Fettschrift
+            [ # Kleiner Text - Bsp.: Ich bin ein --kleines-- Wort.
+                r"--(.+?)--",
+                r"<small>\1</small>"
+            ],
+            [ # Fettschrift - Bsp.: Das Wort ist in *fett* geschrieben.
                 r"\*([^* ]+?)\*(?uism)",
                 r"<strong>\1</strong>"
             ],
-            [ # img-Tag
+            [ # img-Tag - Bsp.: !/Bilder/MeinBild.jpg!
                 r'\!(.+?)\!(?uis)',
                 r'<img src="\1">'
             ],
-            [ # Link + LinkText
+            [ # Link + LinkText - Bsp.: "LinkText":http://www.beispiel.de
                 r'"(.+?)":(\S+)',
                 r'<a href="\2">\1</a>'
             ],
-            [ # Link alleine im Text
+            [ # interne PyLucid Links - Bsp.: Das ist ein [[InternerLink]] zur Seite InternerLink ;)
+                r'\[\[(.+?)\]\]',
+                r'<a href="?\1">\1</a>'
+            ],
+            [ # Link alleine im Text - Bsp.: Das wird ein Link: http://www.beispiel.de weil es eine URL ist
                 r'''
                     (?<!=") # Ist noch kein HTML-Link
                     (?P<url>(http|ftp)://(\S+))
@@ -127,7 +139,7 @@ class parser:
         self.make_paragraphs( txt )
 
     def escaping( self, matchobj ):
-        return xml.sax.saxutils.escape( matchobj.group(1) )
+        return cgi.escape( matchobj.group(1) )
 
     def pre_process( self, txt ):
         "Vorab Verarbeitung des Textes"
@@ -183,7 +195,7 @@ class parser:
 
         if block[0] in ("*","#"):
             # Aktueller Block ist eine eine Liste
-            self.build_li( block )
+            self.build_list( block )
             return
 
         for rule in self.block_rules:
@@ -199,10 +211,11 @@ class parser:
         self.out.write( "<p>%s</p>" % block + self.newline )
 
     def do_sourcecode( self, matchobj ):
-        "Source Code-File der mittels SiverCity dagestellt werden soll"
-        return "**** SilverCity: %s ****" % matchobj.group(1)
+        "Source Code-File der mittels PyLucid/system/SourceCode.py dagestellt werden soll"
+        # ist nocht nicht fertig :(
+        return "**** PyLucid/system/SourceCode.py %s ****" % matchobj.group(1)
 
-    def build_li( self, listitems ):
+    def build_list( self, listitems ):
         "Erzeugt eine Liste aus einem Absatz"
 
         def spacer( deep ): return " "* ( deep * 3 )
@@ -212,19 +225,28 @@ class parser:
                 self.out.write( spacer + Tag )
 
         deep = 0
-        for item in re.findall( "(\*+) (.*)", listitems ):
+        for item in re.findall( "([\*#]+) (.*)", listitems ):
             currentlen = len( item[0] )
+            if item[0][0] == "*":
+                # normale Aufzählungsliste
+                pre_tag  = "<ul>"
+                post_tag = "</ul>"
+            else:
+                # Nummerierte Liste
+                pre_tag  = "<ol>"
+                post_tag = "</ol>"
+
             if currentlen > deep:
-                write( currentlen - deep, "<ul>", spacer(deep) )
+                write( currentlen - deep, pre_tag, spacer(deep) )
                 deep = currentlen
             elif currentlen < deep:
-                write( deep - currentlen, "</ul>", spacer(deep) )
+                write( deep - currentlen, post_tag, spacer(deep) )
                 deep = currentlen
 
             self.out.write( "%s<li>%s</li>" % (spacer(deep), item[1]) )
 
         for i in range( deep ):
-            self.out.write( "</ul>" )
+            self.out.write( post_tag )
 
 
 
@@ -252,11 +274,13 @@ h2. h-2 Überschrift
 h1. Textformatierung
 
 <pre>
+Ich bin ein --kleines-- Wort mit ==<small>==-Tag
 Das wird ein *fettes* Wort mit ==<strong>==-Tag
 </pre>
 
 Ergibt:
 
+Ich bin ein --kleines-- Wort mit ==<small>==-Tag
 Das wird ein *fettes* Wort mit ==<strong>==-Tag
 
 <hr>
@@ -276,6 +300,7 @@ mailto:name@beispiel.dtl
 http://www.python-forum.de
 oder besser: "Das deutsche Python-Forum":http://www.python-forum.de
 Das wird auch ein "Link":?#unten
+Ein interner PyLucid Link zur Seite [[BeispielSeitenName]]!
 </pre>
 
 Ergibt:
@@ -285,12 +310,15 @@ mailto:name@beispiel.dtl
 http://www.python-forum.de
 oder besser: "Das deutsche Python-Forum":http://www.python-forum.de
 Das wird auch ein "Link":?#unten
+Ein interner PyLucid Link zur Seite [[BeispielSeitenName]]!
 
 <hr>
 
 h1. Listen
 
-Listen werden mit einem "*" eingeleitet und können verschachtelt werden:
+Normale Listen werden mit einem "*" und nummerierte Liste mit einem "#"
+eingeleitet. Diese können verschachtelt werden. Allerdings sollte man
+keine normale und nummerierte Listen zusammen mischen.
 
 <pre>
 * 1. Eintrag in der erste Ebene
@@ -298,6 +326,13 @@ Listen werden mit einem "*" eingeleitet und können verschachtelt werden:
 **** 1. Subunterpunkt in der vierter Ebene
 **** 2. Subunterpunkt in der vierter Ebene
 ** 2. Unterprunkt in der zweiten Ebene
+
+Nummerierte Liste:
+
+# Nummer eins
+# Nummer zweite
+## und so...
+## ...weiter...
 </pre>
 
 Ergibt:
@@ -307,6 +342,13 @@ Ergibt:
 **** 1. Subunterpunkt in der vierter Ebene
 **** 2. Subunterpunkt in der vierter Ebene
 ** 2. Unterprunkt in der zweiten Ebene
+
+Nummerierte Liste:
+
+# Nummer eins
+# Nummer zweite
+## und so...
+## ...weiter...
 
 <hr>
 

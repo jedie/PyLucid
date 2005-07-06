@@ -1,11 +1,17 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-"install additional PyLucid SQL-Tables"
+"""PyLucid "installer"
 
-__version__ = "v0.0.3"
+Evtl. muß der Pfad in dem sich PyLucid's "config.py" sich befindet
+per Hand angepasst werden!
+"""
+
+__version__ = "v0.0.4"
 
 __history__ = """
+v0.0.4
+    - Anpassung an neuer Verzeichnisstruktur
 v0.0.3
     - NEU: update internal pages
 v0.0.2
@@ -73,8 +79,11 @@ import os, sys, cgi
 
 
 # Interne PyLucid-Module einbinden
-from system import SQL, sessiondata, userhandling, config
-from system.config import dbconf
+# Verzeichnis in dem PyLucid's "config.py" sich befindet, in den Pfad aufnehmen
+sys.path.insert( 0, os.environ["DOCUMENT_ROOT"] )
+#~ sys.path.insert( 0, os.environ["DOCUMENT_ROOT"] + "cgi-bin/PyLucid" )
+import config # PyLucid's "config.py"
+from PyLucid_system import SQL, sessiondata, userhandling
 
 
 
@@ -137,8 +146,6 @@ internal_pages = [
     <noscript>Javascript is needed!</noscript>
     <form name="login" method="post" action="%(url)s">
     <p>
-        <input name="rnd" type="hidden" value="%(rnd)s">
-        <input name="use_md5login" type="hidden" value="0">
         User:
         <input name="user" type="text" value=""><br />
         Passwort:
@@ -147,9 +154,14 @@ internal_pages = [
         <input name="md5pass1" value="" type="text" size="34" maxlength="32" />
         <input name="md5pass2" value="" type="text" size="34" maxlength="32" />
         <br />
+        <input name="rnd" type="hidden" value="%(rnd)s">
+        <input name="use_md5login" type="hidden" value="0">
         <a href="javascript:md5login();">MD5 LogIn</a>
     </p>
     </form>
+    <script type="text/javascript">
+        document.login.user.focus();
+    </script>
 </p>"""
 },
 {
@@ -157,89 +169,92 @@ internal_pages = [
     "markup"    : "none",
     "content"   :
 """%(status_msg)s
+<style type="text/css">
+    .edit_page {
+        line-height:1.5em;
+    }
+    .edit_page input, .edit_page select {
+        position: absolute;
+        left: 28em;
+
+    }
+    .resize_buttons a {
+        text-decoration:none;
+    }
+    #hr_textarea {
+        clear: both;
+        margin: 1px;
+        padding: 1px;
+        border: none;
+    }
+</style>
 <form name="login" method="post" action="%(url)s">
-  <p>Page: &quot;%(name)s&quot;:<br>
-    <textarea name="content" cols="90" rows="20" wrap="VIRTUAL">%(content)s</textarea>
-    <br />
+  <p>Page: <strong>&quot;%(name)s&quot;</strong>:<br>
+    <textarea id="page_content" name="content" cols="90" rows="20" accept-charset="UTF-8">%(content)s</textarea>
+    <hr id="hr_textarea">
+    <span class="resize_buttons">
+        <a href="JavaScript:resize_big();" alt="bigger">&nbsp;+&nbsp;</a>
+        <a href="JavaScript:resize_small();">&nbsp;-&nbsp;</a>
+        &nbsp;&nbsp;
+    </span>
     <input type="submit" name="Submit" value="preview" />
     <input type="submit" name="Submit" value="save" />
     <input type="reset" name="abort" onClick="javacript:window.location.href='?%(name)s'" value="abort" />
-    Encoding: <select name="encoding" id="encoding">%(encoding_option)s</select>
-    <input type="submit" name="Submit" value="encode from DB" />
+    ||| <input type="submit" name="Submit" value="encode from DB" />
+    <select name="encoding" id="encoding">%(encoding_option)s</select>
   </p>
-  <table border="0" cellspacing="1" cellpadding="1">
-    <tr>
-      <td> trivial modifications:</td>
-      <td><input name="trivial" type="checkbox" id="trivial" value="1" />
-        ( If checked the side will not archived. )</td>
-    </tr>
-    <tr>
-      <td>Edit summary: </td>
-      <td><input name="summary" type="text" value="%(summary)s" id="summary" size="50" maxlength="50" /></td>
-    </tr>
-  </table>
+  <p>
+    trivial modifications: <input name="trivial" type="checkbox" id="trivial" value="1" />( If checked the side will not archived. )<br/>
+    Edit summary: <input name="summary" type="text" value="%(summary)s" id="summary" size="50" maxlength="50" />
+  </p>
   <h4>Page Details</h4>
-  <table border="0">
-    <tr>
-      <td>page name:</td>
-      <td><input name="name" type="text" value="%(name)s" size="50" maxlength="50"></td>
-    </tr>
-    <tr>
-      <td>page title:</td>
-      <td><input name="title" type="text" value="%(title)s" size="50" maxlength="50"></td>
-    </tr>
-    <tr>
-      <td>keywords: </td>
-      <td><input name="keywords" type="text" value="%(keywords)s" size="70" maxlength="255"></td>
-    </tr>
-    <tr>
-      <td>description: </td>
-      <td><input name="description" type="text" value="%(description)s" size="70" maxlength="255"></td>
-    </tr>
-  </table>
+  <p class="edit_page">
+    page name:    <input name="name" type="text" value="%(name)s" size="50" maxlength="50"><br/>
+    page title:   <input name="title" type="text" value="%(title)s" size="50" maxlength="50"><br/>
+    keywords:     <input name="keywords" type="text" value="%(keywords)s" size="70" maxlength="255"><br/>
+    description:  <input name="description" type="text" value="%(description)s" size="70" maxlength="255"><br/>
+  </p>
   <h4>Page Controls</h4>
-  <table border="0">
-    <tr>
-      <td>Parent Page: </td>
-      <td><select name="parent" id="parent">%(parent_option)s</select></td>
-    </tr>
-    <tr>
-      <td>Template:</td>
-      <td><select name="template" id="template">%(template_option)s</select></td>
-    </tr>
-    <tr>
-      <td>Style: </td>
-      <td><select name="style">%(style_option)s</select></td>
-    </tr>
-    <tr>
-      <td>Markup: </td>
-      <td><select name="markup">%(markup_option)s</select></td>
-    </tr>
-    <tr>
-      <td>Page Owner: </td>
-      <td><select name="ownerID" id="ownerID">%(ownerID_option)s</select></td>
-    </tr>
-  </table>
+  <p class="edit_page">
+    Parent Page:    <select name="parent" id="parent">%(parent_option)s</select><br/>
+    Template:       <select name="template" id="template">%(template_option)s</select><br/>
+    Style:          <select name="style">%(style_option)s</select><br/>
+    Markup:         <select name="markup">%(markup_option)s</select><br/>
+    Page Owner:     <select name="ownerID" id="ownerID">%(ownerID_option)s</select><br/>
+  </p>
   <h4>Page Permissions</h4>
-  <table border="0" cellspacing="1" cellpadding="1">
-    <tr>
-      <td>Editable by Group: </td>
-      <td><select name="permitEditGroupID" id="permitEditGroupID">%(permitEditGroupID_option)s</select></td>
-    </tr>
-    <tr>
-      <td>Viewable by Group:</td>
-      <td><select name="permitViewGroupID" id="permitViewGroupID">%(permitViewGroupID_option)s</select></td>
-    </tr>
-    <tr>
-      <td>showlinks</td>
-      <td><input name="showlinks" type="checkbox" id="showlinks" value="1"%(showlinks)s></td>
-    </tr>
-    <tr>
-      <td>permit view public</td>
-      <td><input name="permitViewPublic" type="checkbox" id="permitViewPublic" value="1"%(permitViewPublic)s></td>
-    </tr>
-  </table>
-</form>"""
+  <p class="edit_page">
+    Editable by Group:  <select name="permitEditGroupID" id="permitEditGroupID">%(permitEditGroupID_option)s</select><br/>
+    Viewable by Group:  <select name="permitViewGroupID" id="permitViewGroupID">%(permitViewGroupID_option)s</select><br/>
+    showlinks:          <input name="showlinks" type="checkbox" id="showlinks" value="1"%(showlinks)s><br/>
+    permit view public: <input name="permitViewPublic" type="checkbox" id="permitViewPublic" value="1"%(permitViewPublic)s><br/>
+  </p>
+</form>
+<script type="text/javascript">
+    // Skript zum größer und kleiner machen des Eingabefeldes
+    textarea = document.getElementById("page_content");
+    hr_textarea = document.getElementById("hr_textarea");
+    old_cols = textarea.cols;
+    old_rows = textarea.rows;
+    function resize_big() {
+        textarea.style.position = "absolute";
+        textarea.style.left = "1em";
+        textarea.style.top = "1em";
+        textarea.cols = textarea.cols*1.4;
+        textarea.rows = textarea.rows*1.75;
+
+        hr_textarea.style.margin = "26em";
+    }
+    function resize_small() {
+        textarea.style.position = "relative";
+        textarea.style.left = "0px";
+        textarea.style.top = "0px";
+        textarea.cols = old_cols;
+        textarea.rows = old_rows;
+        hr_textarea.style.margin = "1px";
+    }
+</script>
+"""
 }
 ]
 
@@ -278,7 +293,7 @@ class PyLucid_setup:
         self.actions = [
                 (self.setup_db,       "setup_db",    "setup database (create all Tables/internal pages)"),
                 (self.update_db,      "update_db",   "update internal pages (set all internal pages to default)"),
-                (self.add_admin,      "add_admin",   "add admin"),
+                (self.add_admin,      "add_admin",   "add admin (needed für secure MD5-Login!)"),
                 (self.sql_dump,       "sql_dump",    "SQL dump (experimental)"),
                 (self.convert_locals, "locals",      "convert locals (ony preview!)"),
             ]

@@ -20,13 +20,16 @@ import MySQLdb as DBlib
 
 import sessionhandling
 
+
 dbconf = {
     "dbHost"            : "localhost",
     "dbDatabaseName"    : '',
     "dbUserName"        : '',
     "dbPassword"        : '',
 }
+# Holt die db-Daten aus der aktuellen PyLucid-Configurationsdatei
 from config import dbconf
+
 
 #~ sql_tablename = "lucid_session_data"
 sql_tablename = "session_demo"

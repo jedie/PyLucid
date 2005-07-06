@@ -18,9 +18,11 @@ sparen. Das Klappt aus mit allen Browsern super, nur nicht mit dem IE ;(
 http://jensdiemer.de/?lucid_SourceCode
 """
 
-__version__="0.1.0"
+__version__="0.1.1"
 
 __history__="""
+v0.1.1
+    - Bug in Python-Highlighter: Zeilen mit einem "and /" am Ende wurden falsch dagestellt.
 v0.1.0
     - erste Version
 """
@@ -98,12 +100,11 @@ class Parser:
         # handle newlines
         if toktype in (token.NEWLINE, tokenize.NL):
             self.out.write('<br\>\n')
-            #~ self.out.write('\n')
             return
 
         # Spaces
         if newpos > oldpos:
-            self.out.write( "&nbsp;" * (newpos-oldpos) )
+            self.out.write( self.raw[oldpos:newpos].replace(" ","&nbsp;") )
 
         # map token type to a color group
         if token.LPAR <= toktype and toktype <= token.OP:

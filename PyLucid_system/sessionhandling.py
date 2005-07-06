@@ -68,9 +68,11 @@ den Client geschickt worden sein! Ansonsten zählt der Cookie-Print nicht mehr z
 einfach nur angezeigt ;)
 """
 
-__version__ = "v0.0.2"
+__version__ = "v0.0.3"
 
 __history__ = """
+v0.0.3
+    - __delitem__() hinzugefügt, um Session daten auch wieder löschen zu können
 v0.0.2
     - Fehlerbereinigt / verschönert
 v0.0.1
@@ -339,11 +341,24 @@ class sessionhandler:
     def __getitem__( self, key ):
         return self.session_data[key]
 
+    def __delitem__( self, key ):
+        del self.session_data[key]
+
     def has_key( self, key ):
         return self.session_data.has_key(key)
 
     def iteritems( self ):
         return self.session_data.iteritems()
+
+    def debug( self ):
+        "Zeigt alle Session Informationen an"
+        print "Content-type: text/html\n"
+        print "<h1>Session Debug:</h1>"
+        print "<pre>"
+        for k,v in self.session_data.iteritems():
+            print k,"-",v
+        print "</pre><hr>"
+
 
 
 

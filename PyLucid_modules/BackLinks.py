@@ -34,7 +34,7 @@ import cgitb;cgitb.enable()
 import re, os, sys
 
 # Interne PyLucid-Module einbinden
-from system import SQL, sessiondata
+#~ from system import SQL, sessiondata
 
 indexSide = "Start"
 indexlink = '<a href="/">Index</a>'

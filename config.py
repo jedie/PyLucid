@@ -38,37 +38,70 @@ class system:
     # Pfad zur Ralf Mieke's md5.js
     # http://www.miekenet.de
     # http://aktuell.de.selfhtml.org/artikel/javascript/md5/
-    md5javascript = "/PyLucid/md5.js"
+    md5javascript = "/PyLucid_JS/md5.js"
 
     # Pfad zur PyLucid md5manager.js Datei
     # Wird für den Login benötigt!!!
-    md5manager = "/PyLucid/md5manager.js"
+    md5manager = "/PyLucid_JS/md5manager.js"
 
     # Wird gesetzt sobald es erforderlich ist.
     # Ist die ID der Usergruppe "PyLucid_internal"
     # Damit sind die Internen Seiten in der DB makiert
     internal_group_id = -1
 
-    # Die Adresse zur PyLucid index Datei, der Pfad
-    # muß absolut gesetzt werden!
-    real_self_url = "/cgi-bin/PyLucid/index.py"
-
-    # Wenn eine schöne Adresse generiert werden soll
-    # und kein apache mod-rewrite zur verfügung steht,
-    # aber SSI, dann kann man sich damit eine schönere
-    # URL bauen:
+    ## real_self_url und poormans_url
+    # Bei manchen Webhostern sind CGI Programm nicht außerhalb
+    # des ./cgi-bin Verzeichnisses erlaubt :( Es ist sehr
+    # unwahrscheinlich das man dann aber Apache's mod_rewrite
+    # zur Verfügung hat.
+    # Um dennoch eine halbwegs "saubere" URL zu haben, hab ich mir
+    # da was ausgedacht. Mit Hilfe von SSI (Server Side Include)
+    # ist es möglich eine halbwegs schöne URL zu backen.
+    #
+    # Im Hauptverzeichnis seines WebSpace packt man eine Indexdatei
+    # mit folgendem Inhalt:
+    #
+    # ./index.shtml
+    # ------------------------------------------------------
     # <!--#exec cgi="/cgi-bin/PyLucid/index.py" -->
-    poormans_url = "/"
+    # ------------------------------------------------------
+    #
+    # Leider werden keine POST und GET Informationen mit so einer
+    # SSI-Ausführung an PyLucid weiter geleitet. Deshalb muß die
+    # real_self_url Variable auf die echte index.py weisen.
+    # Der Pfad muß absolut gesetzt werden!
+    #
+    # Zur generierung der schönen URL, also für alle normalen
+    # Seitenaufrufe dient die poormans_url Variable.
+    #
+    # Beispiel Konfiguration
+    # ----------------------
+    #   - nur /cgi-bin/ erlaubt
+    #   - SSI verfügbar: /index.shtml eingerichtet
+    # real_self_url = "/cgi-bin/PyLucid/index.py"
+    # poormans_url = "/"
+    #
+    #   - CGIs auch außerhalb von /cgi-bin/ erlaubt
+    #   - /index.python
+    # real_self_url = "/"
+    # poormans_url = "/"
+    #
+    real_self_url   = "/"
+    poormans_url    = "/"
 
 
 
 dbconf = {
-    "dbHost"            : 'localhost',
+    "dbHost"            : 'localhost', # Evtl. muß hier die Domain rein
     "dbDatabaseName"    : 'DatabaseName',
     "dbUserName"        : 'UserName',
     "dbPassword"        : 'Password',
     "dbTablePrefix"     : 'lucid_'
 }
+
+
+
+
 
 preferences = {
     # Für render.py, damit bei specialTags (z.B. <lucidFunction:IncludeRemote>) angegebenes Skripte
@@ -112,5 +145,19 @@ class search:
 LogDatei = "log/%s.log"
 
 
+
+def debug():
+    import cgi
+
+    print "Content-type: text/html\n"
+    print "<h1>config-Debug:</h1>"
+    print system
+    print "<hr>"
+    print "<h3>config.preferences:</h3>"
+    print "<pre>"
+    #~ print preferences
+    for k,v in preferences.iteritems():
+        print k,"-",cgi.escape( str(v) )
+    print "</pre>"
 
 

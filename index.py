@@ -32,9 +32,19 @@ permitEditGroupID   - Gruppe die die Seite verändern dürfen
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.2.0"
+__version__="0.2.3"
 
 __history__="""
+v0.2.3
+    - Komplette Verzeichnis-Struktur Umstellung:
+        .\index.py          - Index-Datei
+        .\config.py         - Konfigurationsdatei
+        .\PyLucid_CSS       - CSS-Datei-Cache (noch unfertig!)
+        .\PyLucid_JS        - JavaScripte für's MD5-Login
+        .\PyLucid_modules   - Eingebaute Erweiterungen (Menu,ListOfNewSides usw.)
+        .\PyLucid_system    - Grundlegende System Module
+v0.2.1
+    - keywords und description werden nun endlich eingefügt ;)
 v0.2.0
     - einige Umstellungen/Bugfixes
     - LogIn, PageEdit fertig
@@ -68,8 +78,9 @@ import cgitb;cgitb.enable()
 import os, sys
 
 # Interne PyLucid-Module einbinden
-from system import SQL, sessiondata, sessionhandling, config
-from system import lucid_tools, userhandling, SQL_logging, pagerender
+import config # PyLucid Konfiguration
+from PyLucid_system import SQL, sessiondata, sessionhandling
+from PyLucid_system import lucid_tools, userhandling, SQL_logging, pagerender
 
 pagerender.__info__ = __info__ # Versions-Information übertragen
 
@@ -98,6 +109,8 @@ class LucidRender:
         # lucid Einstellungen aus DB lesen
         config.readpreferences( self.db )
 
+        self.config = config
+
         # CGI Post/Get Daten
         self.CGIdata        = sessiondata.CGIdata( self.db )
         #~ self.CGIdata.debug()
@@ -110,10 +123,10 @@ class LucidRender:
         self.session        = sessionhandling.sessionhandler( self.db.cursor, "lucid_session_data", self.log )
 
         # Userverwaltung: LogIn/LogOut
-        self.auth           = userhandling.auth( self.db, self.log, self.CGIdata, self.session )
+        self.auth           = userhandling.auth( self.db, self.log, self.CGIdata, self.session, self.config )
 
         # Zum zusammenbau der HTML-Seiten
-        self.pagerender     = pagerender.pagerender( self.session, self.CGIdata, self.db, self.auth )
+        self.pagerender     = pagerender.pagerender( self.session, self.CGIdata, self.db, self.auth, self.config )
 
     def save_page_history( self ):
         """
@@ -136,9 +149,9 @@ class LucidRender:
 
 
     def make( self ):
-        "Baut die Seite zusammen und liefert sie zurÃ¼ck"
+        "Baut die Seite zusammen und liefert sie zurück"
         if self.CGIdata.has_key("command"):
-            # Ein Kommando soll ausgefÃ¼hrt werden
+            # Ein Kommando soll ausgeführt werden
             content = self.command( self.CGIdata["command"] )
 
             if self.session.has_key("page_history"):
@@ -169,7 +182,7 @@ class LucidRender:
             content = "<h1>Internal Contenttyp error (not String)!</h1><br/>Content:<hr/>" + str( content )
 
         if self.session.ID != False:
-            # User ist eingeloggt -> Einblenden des Admin-MenÃ¼'s
+            # User ist eingeloggt -> Einblenden des Admin-Menü's
             content = self.pagerender.admin_menu() + content
 
         # Parsen das Templates
@@ -184,7 +197,7 @@ class LucidRender:
         # Datenbank verbindung beenden
         self.db.close()
 
-        # SeitenInhalt in Template einfÃ¼gen
+        # SeitenInhalt in Template einfügen
         try:
             content = template.replace( "<lucidTag:page_body/>", content )
         except Exception, e:
@@ -205,18 +218,31 @@ class LucidRender:
         #~ sys.exit()
 
         self.log( "Special PyLuid command: '%s'" % order )
+
         if order == "login":
             # Der User will einloggen
             return self.auth.make_login_page()
+
         elif order == "logout":
             return self.auth.logout()
+
         elif order == "check_login":
             return self.auth.check_login()
-        elif order =="edit_page":
+
+        elif order == "edit_page":
             if self.session.ID == False:
                 return "<h1>ERROR!<h1><h2>Your not login!</h2>"
-            from system import pageadmin
-            return pageadmin.page_editor( self.CGIdata, self.session, self.db, self.auth ).get()
+            from PyLucid_modules import pageadmin
+            page_editor = pageadmin.page_editor( self.config, self.CGIdata, self.session, self.db, self.auth )
+            return page_editor.get()
+
+        elif order == "new_page":
+            if self.session.ID == False:
+                return "<h1>ERROR!<h1><h2>Your not login!</h2>"
+            from PyLucid_system import pageadmin
+            page_editor = pageadmin.page_editor( self.config, self.CGIdata, self.session, self.db, self.auth )
+            return page_editor.new_page()
+
         else:
             return "<h1>ERROR!</h1><br/>Command unknow!"
 

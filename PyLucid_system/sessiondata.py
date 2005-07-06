@@ -3,9 +3,11 @@
 
 "Stores every Session Data in pseudoclasses"
 
-__version__ = "v0.0.2"
+__version__ = "v0.0.3"
 
 __history__ = """
+v0.0.3
+    - Mehrfach connection vermieden.
 v0.0.2
     - Die Daten werden nun schon mal vorverarbeitet
     - os.environ['QUERY_STRING'] wird mit urllib.unquote() verarbeitet
@@ -18,9 +20,6 @@ v0.0.1
 import os, cgi, urllib
 
 
-# Eigene Module
-import SQL
-
 
 
 class CGIdata:
@@ -29,7 +28,7 @@ class CGIdata:
     Macht sich als dict verfügbar.
     Stellt fest, welche Seite abgefunden werden soll
     """
-    def __init__( self, db_handler = SQL.db(), detect_page = True ):
+    def __init__( self, db_handler, detect_page = True ):
         """
         CGIdata ist eine abgeleitetes Dictionary und kann
         somit wie ein Dict angesprochen werden.

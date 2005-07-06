@@ -1,0 +1,160 @@
+* {
+        /* übergreifende Schriftart */
+	color: #000000
+}
+body {
+        /* übergreifende Schriftart */
+	font-family: tahoma, arial, sans-serif;
+	color: #000000;
+	font-size: 0.9em;
+	background-color: #678FAD;
+}
+html, body {
+	margin: 0;
+	padding: 0;
+}
+pre, .code {
+	font-family: Courier New,Courier,monospace,mono;
+	background-color: #FAFAFD;
+	color: #000000;
+	padding: 10px;
+	border: 1px solid #678FAD;
+	font-size: 0.8em;
+}
+#headline {
+	/* Überschrift über die gesammte Seite */
+	font-size: 63px;
+	overflow:hidden;
+	height: 54px;
+	padding: 0px;
+	margin: 0px;
+	display: block;
+	padding-left: 25px;
+	position: relative;
+	bottom: 0px;
+	color: #FFFFFF;
+}
+#breadcrumbs {
+	/* Links aus dem breadcrumbs-Plugin */
+	width: 80%;
+	margin:1em auto;
+	text-align:left;
+	max-width: 1024px;
+}
+#sidebar {
+	/* das gesammte Menü */
+	float: left;
+	width: 15em;
+	margin-top: 3em;
+	padding: 5px;
+	background-color: #88A8BF;
+	border-top: 1px solid #8C8C96;
+	border-right: 1px solid #474763;
+	border-bottom: 1px solid #474763;
+	border-left: none;
+	margin-left: 0px;
+}
+#sidebar {
+	font-size: 0.9em;
+	color: #000000;
+	text-align:left;
+	padding:2px;
+}
+#sidebar a {
+	padding: 0px 0px 0px 4px;
+	display: block;
+	text-decoration:none;
+}
+#sidebar a:hover, #sidebar a.current {
+	/* hover + Aktuell angeklickter Menüpunkt */
+	background-color: #678FAD;
+	color: #FFFFFF;
+}
+#sidebar ul {
+	margin: 5px 0px 5px 10px;
+	padding: 5px 0px 5px 5px;
+	list-style-type: none;
+	border-bottom: 1px solid #678FAD;
+	border-top: 1px solid #678FAD;
+}
+#sidebar li {
+	margin: 0px;
+	padding: 0px;
+	padding-right: 5px;
+	padding-left: 5px;
+	border-top: 0px none;
+	border-right: 0px none;
+	border-left: 0px none;
+	white-space: nowrap;
+}
+#main {
+	/* Rahmen für main-content + footer_nav */
+	margin-left: 11em;
+	margin-right: 40px;
+	background-color: #F4F5FF;
+	padding: 1em 6em 0.5em;
+	max-width:1024px
+}
+#main-content {
+	min-height: 500px;
+}
+#main-content h2 {
+	border-bottom: 1px solid #000000;
+}
+#nav_footer, #nav_link {
+	font-size: 0.6em;
+}
+#nav_footer p, #nav_footer a, #nav_link a, #nav_link {
+	/*
+	nav_footer - Zusätzliche Navigation + Änderungs-Datum im Footer
+	nav_link   - Zusätzliche Navigation oben
+	*/
+	color: #7B8C99;
+}
+#nav_footer p {
+	/* Letzte Änderung */
+	text-align: right;
+}
+#nav_footer a {
+	/* top-Link */
+	text-align: right;
+}
+#footer a {
+	color: #A6BDCE;
+	text-decoration:none;
+}
+#footer {
+	color: #A6BDCE;
+	text-align: center;
+	font-size: 0.6em;
+	width: auto;
+	margin-top:35px;
+	border-top: 2px solid #88A8BF;
+}
+/*
+-----------------------------------------------------
+Zusatzmodule
+-----------------------------------------------------
+*/
+.Gallery ul {
+	text-align: center;
+	margin: 0px;
+	padding: 0px;
+}
+.Gallery li {
+	float: left;
+	border: 1px solid #EAECFF;
+	height: 150px;
+	width: auto;
+	text-align: center;
+	margin: 5px;
+	padding: 5px;
+	list-style-type: none;
+	background-color: #EDF1FF;
+}
+.clear {
+	clear: both;
+	margin: 5px;
+	padding: 5px;
+	border: none;
+}

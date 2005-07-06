@@ -10,9 +10,11 @@ Alles was mit dem �ndern von Inhalten zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.0.3"
+__version__="0.0.4"
 
 __history__="""
+v0.0.4
+    - NEU: erstellen einer Seite
 v0.0.3
     - NEU: encoding from DB (Daten werden in einem bestimmten Encoding aus der DB geholt)
 v0.0.2
@@ -108,6 +110,9 @@ class option_maker:
     #~ sys.exit()
 
 
+#######################################################################
+#######################################################################
+
 
 class parent_tree:
     """
@@ -168,14 +173,21 @@ class parent_tree:
     #~ sys.exit()
 
 
+#######################################################################
+#######################################################################
+
 
 class page_editor:
     """
     Editieren einer CMS-Seite mit Preview und Archivierung
     """
-    def __init__( self, CGIdata, session, db, auth ):
+    def __init__( self, config, CGIdata, session, db, auth ):
+        self.config     = config
+        #~ self.config.debug()
         self.CGIdata    = CGIdata
+        #~ self.CGIdata.debug()
         self.session    = session
+        #~ self.session.debug()
         self.db         = db
         self.auth       = auth
 
@@ -193,11 +205,43 @@ class page_editor:
 
         return self.edit_page()
 
+    def new_page( self ):
+        "Neue Seite soll angelegt werden"
+
+        if self.session["isadmin"] != 1:
+            return "<h1>Error: You can't create a new Side. You not an admin.</h1>"
+
+        id_of_parent_page = self.session["page_history"][0]
+        #~ self.session["edit_page_id"] = id_of_parent_page
+
+        core = self.config.preferences["core"]
+
+        page_data = {
+            "parent"            : id_of_parent_page,
+            "name"              : "NewSide",
+            "template"          : core["defaultTemplate"],
+            "style"             : core["defaultStyle"],
+            "markup"            : core["defaultMarkup"],
+            "showlinks"         : core["defaultShowLinks"],
+            "permitViewPublic"  : core["defaultPermitPublic"],
+            "ownerID"           : self.session["user_id"],
+            "permitViewGroupID" : 1,
+            "permitEditGroupID" : 1,
+            "title"             : "",
+            "content"           : "",
+            "keywords"          : "",
+            "description"       : "",
+        }
+
+        # Damit man bei self.save() noch weiß, das es eine neue Seite ist ;)
+        self.session["make_new_page"] = 1
+
+        return self.editor_page( page_data )
 
     def get_page_data( self, page_id ):
         "Liefert alle Daten die zum editieren einer Seite notwendig sind zurück"
         return self.db.page_items_by_id(
-                item_list   = ["parent", "name", "title", "parent", "template", "style",
+                item_list   = ["parent", "name", "title", "template", "style",
                                 "markup", "content", "keywords", "description",
                                 "showlinks", "permitViewPublic", "permitViewGroupID",
                                 "ownerID", "permitEditGroupID"],
@@ -356,8 +400,8 @@ class page_editor:
         # Preview der Seite erstellen
         content = "\n<h3>edit preview:</h3>\n"
         content += '<div id="page_edit_preview">\n'
-        import pagerender
-        pagerender = pagerender.pagerender( self.session, edit_page_data, self.db, self.auth )
+        from PyLucid_system import pagerender
+        pagerender = pagerender.pagerender( self.session, self.CGIdata, self.db, self.auth, self.config )
         content += pagerender.parse_content( edit_page_data["content"], edit_page_data["markup"] )
         content += "\n</div>\n"
 
@@ -366,38 +410,49 @@ class page_editor:
 
         return content
 
+    def _get_time_string( self ):
+        return time.strftime( "%Y-%m-%d %H:%M:%S", time.localtime() )
+
     def save_page( self ):
         "Abspeichern einer editierten Seite"
         if self.session["isadmin"] != 1:
             return "<strong>You can not edit this page! You have no permissions!</strong>"
 
+        # CGI-Daten holen und leere Form-Felder "einfügen"
+        new_page_data = self.set_default( self.CGIdata )
+
         content = ""
-        update_time = time.strftime( "%Y-%m-%d %H:%M:%S", time.localtime() )
 
-        if self.CGIdata.has_key( "trivial" ):
-            content += "<p>trivial modifications selected. The side will not archived.</p>"
-        else:
-            start_time = time.time()
-            old_page_data = self.get_page_data( self.session["edit_page_id"] )
+        if not self.session.has_key("make_new_page"):
+            # Nur beim editieren, wird evtl. die vorherige Seite Archiviert.
+            # Das wird allerdings nicht beim erstellen einer neuen Seite gemacht ;)
+            if self.CGIdata.has_key( "trivial" ):
+                content += "<p>trivial modifications selected. The side will not archived.</p>"
+            else:
+                # Nur bei einer nicht trivialen Änderung, wird das Datum aktualisiert
+                new_page_data["lastupdatetime"] = self._get_time_string()
 
-            #~ for k,v in old_page_data.iteritems():
-                #~ content += "%s - %s<br>" % (k,v)
-            #~ content += "<hr>"
+                start_time = time.time()
+                old_page_data = self.get_page_data( self.session["edit_page_id"] )
 
-            archiv_data = {
-                "userID"    : self.session["user_id"],
-                "type"      : "PyLucid,page",
-                "date"      : update_time,
-                "content"   : pickle.dumps( old_page_data )
-            }
-            if self.CGIdata.has_key( "summary" ):
-                archiv_data["comment"] = self.CGIdata["summary"]
+                #~ for k,v in old_page_data.iteritems():
+                    #~ content += "%s - %s<br>" % (k,v)
+                #~ content += "<hr>"
 
-            self.db.insert( "archive", archiv_data )
+                archiv_data = {
+                    "userID"    : self.session["user_id"],
+                    "type"      : "PyLucid,page",
+                    "date"      : self._get_time_string(),
+                    "content"   : pickle.dumps( old_page_data )
+                }
+                if self.CGIdata.has_key( "summary" ):
+                    archiv_data["comment"] = self.CGIdata["summary"]
 
-            end_time = time.time()
+                self.db.insert( "archive", archiv_data )
 
-            content += "<p>Archived old Sidedata in %.4fsec.</p>" % (end_time - start_time)
+                end_time = time.time()
+
+                content += "<p>Archived old Sidedata in %.4fsec.</p>" % (end_time - start_time)
 
         #~ for k,v in self.CGIdata.iteritems():
             #~ content += "%s - %s<br>" % (k,v)
@@ -420,19 +475,39 @@ class page_editor:
                 new_page_data[item] = self.CGIdata[item]
 
         # Daten ergänzen
-        new_page_data["lastupdatetime"] = update_time
         new_page_data["lastupdateby"]   = self.session["user_id"]
 
-        start_time = time.time()
-        self.db.update(
-                table   = "pages",
-                data    = new_page_data,
-                where   = ("id",self.session["edit_page_id"]),
-                limit   = 1
-            )
-        end_time = time.time()
+        if self.session.has_key("make_new_page"):
+            # Eine neue Seite soll gespeichert werden
+            new_page_data["datetime"] = self._get_time_string() # Seiten erstellungs Datum
+            new_page_data["position"] = 1
+            start_time = time.time()
+            try:
+                self.db.insert(
+                        table   = "pages",
+                        data    = new_page_data,
+                    )
+                del( self.session["make_new_page"] )
+            except Exception, e:
+                return "<h3>Error to insert new side:'%s'</h3><p>Use browser back botton!</p>" % e
 
-        content += "<p>Side data updated in %.4fsec.</p>" % (end_time - start_time)
+            end_time = time.time()
+            content += "<p>Saved new side in %.4fsec.</p>" % (end_time - start_time)
+        else:
+            # Eine Seite wurde editiert.
+            start_time = time.time()
+            try:
+                self.db.update(
+                        table   = "pages",
+                        data    = new_page_data,
+                        where   = ("id",self.session["edit_page_id"]),
+                        limit   = 1
+                    )
+            except Exception, e:
+                return "<h3>Error to update side data: '%s'</h3>" % e
+
+            end_time = time.time()
+            content += "<p>Side data updated in %.4fsec.</p>" % (end_time - start_time)
 
         content += '<a href="%s?%s">to the updated side</a>' % (
                 config.system.poormans_url,self.CGIdata["name"]

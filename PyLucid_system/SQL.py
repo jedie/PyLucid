@@ -78,7 +78,9 @@ class db( mySQL ):
         "Holt die nötigen Informationen über die aktuelle Seite"
 
         side_data = self.select(
-                select_items    = ["name", "title", "content", "markup", "lastupdatetime"],
+                select_items    = [
+                        "name", "title", "content", "markup", "lastupdatetime","keywords","description"
+                    ],
                 from_table      = "pages",
                 where           = ( "id", page_id )
             )[0]

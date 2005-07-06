@@ -31,7 +31,8 @@ import re
 
 
 # Interne PyLucid-Module einbinden
-from system import config, lucid_tools
+#~ from system import config, lucid_tools
+from PyLucid_system import lucid_tools
 
 class ListOfNewSides:
     def __init__( self, db_handler ):
@@ -52,7 +53,7 @@ class ListOfNewSides:
             linkTitle   = item["title"]
             linkName    = item["name"]
 
-            if linkTitle == None:
+            if linkTitle == None or linkTitle == "":
                 # Eine Seite muß nicht zwingent ein Title haben
                 linkTitle = item["name"]
 

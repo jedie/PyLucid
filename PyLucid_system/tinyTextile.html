@@ -1,0 +1,206 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>tinyTextile - Helpfile</title>
+<meta name="Author"                    content="Jens Diemer" />
+<meta http-equiv="content-language"    content="de" />
+<meta http-equiv="Content-Type"        content="text/html; charset=utf-8" />
+<meta name="MSSmartTagsPreventParsing" content="TRUE" />
+<meta http-equiv="imagetoolbar"        content="no" />
+</head>
+<body>
+<h1>Überschriften</h1>
+
+<p>Überschriften werden mit h1. eingeleitet:</p>
+
+<pre>
+h1. h-1 Überschrift
+
+h2. h-2 Überschrift
+</pre>
+
+<p>Ergibt:</p>
+
+<h1>h-1 Überschrift</h1>
+
+<h2>h-2 Überschrift</h2>
+
+<p>(Wichtig ist hierbei, das eine Leerzeile unter der Überschriftzeile bleibt.)</p>
+
+<hr>
+
+<h1>Textformatierung</h1>
+
+<pre>
+Ich bin ein --kleines-- Wort mit &lt;small&gt;-Tag
+Das wird ein *fettes* Wort mit &lt;strong&gt;-Tag
+</pre>
+
+<p>Ergibt:</p>
+
+<p>Ich bin ein <small>kleines</small> Wort mit &lt;small&gt;-Tag<br />
+Das wird ein <strong>fettes</strong> Wort mit &lt;strong&gt;-Tag</p>
+
+<hr>
+
+<h1>Links</h1>
+
+<p>Links werden nach folgendem Schema notiert:</p>
+
+<pre>
+"LinkText":URL
+
+Beispiele:
+----------
+http://keinserver.dtl
+ftp://keinserver.dtl
+mailto:name@beispiel.dtl
+http://www.python-forum.de
+oder besser: "Das deutsche Python-Forum":http://www.python-forum.de
+Das wird auch ein "Link":?#unten
+Ein interner PyLucid Link zur Seite [[BeispielSeitenName]]!
+</pre>
+
+<p>Ergibt:<br />
+<a href="http://keinserver.dtl">http://keinserver.dtl</a><br />
+<a href="ftp://keinserver.dtl">ftp://keinserver.dtl</a><br />
+<a href="mailto:name@beispiel.dtl">name@beispiel.dtl</a><br />
+<a href="http://www.python-forum.de">http://www.python-forum.de</a><br />
+oder besser: <a href="http://www.python-forum.de">Das deutsche Python-Forum</a><br />
+Das wird auch ein <a href="?#unten">Link</a><br />
+Ein interner PyLucid Link zur Seite <a href="?BeispielSeitenName">BeispielSeitenName</a>!</p>
+
+<hr>
+
+<h1>Listen</h1>
+
+<p>Listen werden mit einem "*" eingeleitet und können verschachtelt werden:</p>
+
+<pre>
+
+* 1. Eintrag in der erste Ebene
+** 1. Unterprunkt in der zweiten Ebene
+**** 1. Subunterpunkt in der vierter Ebene
+**** 2. Subunterpunkt in der vierter Ebene
+** 2. Unterprunkt in der zweiten Ebene
+Nummerierte Liste:
+# Nummer eins
+# Nummer zweite
+## und so...
+## ...weiter...
+</pre>
+
+<p>Ergibt:</p>
+
+<ul>
+   <li>1. Eintrag in der erste Ebene</li>
+   <ul>
+      <li>1. Unterprunkt in der zweiten Ebene</li>
+      <ul>
+      <ul>
+            <li>1. Subunterpunkt in der vierter Ebene</li>
+            <li>2. Subunterpunkt in der vierter Ebene</li>
+            </ul>
+            </ul>
+      <li>2. Unterprunkt in der zweiten Ebene</li>
+</ul>
+</ul>
+<p>Nummerierte Liste:</p>
+
+<ol>
+   <li>Nummer eins</li>
+   <li>Nummer zweite</li>
+   <ol>
+      <li>und so...</li>
+      <li>...weiter...</li>
+</ol>
+</ol>
+<hr>
+
+<h1>Bilder</h1>
+
+<p>Ein HTML-img-Tag wird erzeugt, wenn eine Adresse mit einem "!"-Zeichen<br />
+umschlossen ist.</p>
+
+<pre>
+!/Bilder/MeinBild.jpg!
+</pre>
+
+<p>Ergibt:</p>
+
+<p>&lt;img src="/Bilder/MeinBild.jpg"&gt;</p>
+
+<hr>
+
+<h1>SourceCode</h1>
+
+<p>SourceCode wird mittels <a href="http://silvercity.sourceforge.net">SiverCity</a> Dargestellt.<br />
+Dabei wird eine Lokale Datei geöffnet und geparsed:</p>
+
+<pre>
+[sc /htdocs/source/MyPythonFile.py]
+</pre>
+
+<p>Ergibt:</p>
+
+**** PyLucid/system/SourceCode.py /htdocs/source/MyPythonFile.py ****
+
+<hr>
+
+<h1>Escaping</h1>
+
+<p>In zwei "="-Zeichen eingeschlossener Text wird escaped.</p>
+
+<p>Beispiel:<br />
+<small>-</small>----<br />
+==<br />
+Table: &lt;table width="90%" border="0" align="center"&gt;<br />
+Link: &lt;a href="URL"&gt;txt&lt;/a&gt;<br />
+Input: &lt;input type="submit" value="preview" /&gt;<br />
+==</p>
+
+<p>Es geht aber auch innerhalb eines Fliesstextes:<br />
+Mit ==&lt;a href="URL"&gt;txt&lt;/a&gt;== wird kein Link erzeugt.</p>
+
+<hr>
+
+<h1>pre-Formarted-Text</h1>
+
+<p>In &lt;pre&gt;-Tag eingeschlossener Text wird nicht escaped und nicht formatiert.</p>
+
+<pre>
+Beispiel:
+---------
+h2. Dies wird zu keiner HTML-Überschrift
+<h3>Das ist eine manuell eingeleitete h3-Überschrift</h3>
+
+* Dies bleibt normaler Text...
+* ...und wird keine Liste
+</pre>
+
+<hr>
+
+<h1>HTML-Code</h1>
+
+<p>HTML-Code wird einfach so belassen wie es ist:</p>
+
+<h3>Dies ist eine Tabelle</h3>
+<ul>
+   <li>1. Eintrag in der erste Ebene</li>
+   <ul>
+      <li>1. Unterprunkt in der zweiten Ebene</li>
+      <ul>
+         <li>1. Subunterpunkt in der dritten Ebene</li>
+         <li>2. Subunterpunkt in der dritten Ebene</li>
+      </ul>
+      <li>2. Unterprunkt in der zweiten Ebene</li>
+   </ul>
+   <li>2. Eintrag in der erste Ebene</li>
+   <li>3. Eintrag in der erste Ebene</li>
+</ul>
+
+Hier kommt ein manueller Link zum: <a href="http://www.python-forum.de">Das deutsche Python-Forum</a>
+
+</body></html>

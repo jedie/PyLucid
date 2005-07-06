@@ -23,8 +23,9 @@ Wie man die Klasse benutzt, kann man unten sehen ;)
 
 ToDo
 ----
-    * update und insert benutzen das SQLdb-Escapeing. Die select-Funktion allerdings
+    * update und insert benutzen das SQLdb-Escaping. Die select-Funktion allerdings
       noch nicht!
+    * Es wird immer das paramstyle 'format' benutzt. Also mit %s escaped
 """
 
 __version__="0.0.4"
@@ -57,13 +58,19 @@ except ImportError:
     sys.exit(0)
 
 
-
+#~ connr=0
 
 class mySQL:
     """
     Klasse, die nur allgemeine SQL-Funktionen beinhaltet
     """
     def __init__( self, *args, **kwargs ):
+        #~ print "Content-type: text/html\n"
+        #~ global connr
+        #~ connr+=1
+        #~ print "<h1>Connect %s</h1>" % connr
+        #~ if connr ==1: raise "Fehler!"
+
         self.db             = MySQLdb.connect( *args, **kwargs )
         self.cursor         = self.db.cursor()
         self.tableprefix    = ""
@@ -224,18 +231,11 @@ class mySQL:
 
 if __name__ == "__main__":
     db = db(
-            host    = "192.168.6.2",
-            user    = "ftp62269",
-            passwd  = "7k4w+",
-            db      = "jensdiemer_de"
+            host    = "localhost",
+            user    = "SQL-DB-Username",
+            passwd  = "SQL-DB-Password",
+            db      = "SQL-DB-Name"
         )
-
-    #~ db = db(
-            #~ host    = "localhost",
-            #~ user    = "UserName",
-            #~ passwd  = "UserPassword",
-            #~ db      = "DatabaseName"
-        #~ )
 
     # Prefix for all SQL-commands:
     db.tableprefix = "test_"

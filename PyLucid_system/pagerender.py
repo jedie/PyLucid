@@ -26,74 +26,21 @@ import config
 import os, sys, re
 
 
+
+
+
 # Für Debug-print-Ausgaben
 #~ print "Content-type: text/html\n"
 #~ print "<pre>"
 
 
 class pagerender:
-    def __init__( self, session, CGIdata, db, auth ):
+    def __init__( self, session, CGIdata, db, auth, config ):
         self.session    = session
         self.CGIdata    = CGIdata
         self.db         = db
         self.auth       = auth
-
-    def make( self ):
-        "Baut die Seite zusammen und liefert sie zurück"
-
-        if self.CGIdata.has_key("command"):
-            # Ein Kommando soll ausgeführt werden
-            content = self.command( self.CGIdata["command"] )
-
-            if self.session.has_key("page_history"):
-                self.CGIdata["page_id"]     = self.session["page_history"][0]
-            else:
-                self.CGIdata.set_default_page()
-
-            self.CGIdata["page_name"]   = self.db.side_name_by_id( self.CGIdata["page_id"] )
-            # Information der Seite aus DB holen
-            self.side_data = self.get_page_data()
-        else:
-            if self.session.ID != False:
-                # User ist eingeloggt -> Es werden Informationen gespeichert.
-                self.save_page_history()
-
-            # Information der Seite aus DB holen
-            self.side_data = self.get_page_data()
-
-            if self.CGIdata.page_name_error:
-                # Seite existiert nicht
-                content = "<h1>Error!</h1><h3>Page not found!</h3>"
-                content += "<hr><pre>%s</pre><hr>" % self.CGIdata
-            else:
-                # Parsen des SeitenInhalt, der Aufgerufenen Seite
-                content = self.lucidTag_page_body()
-
-        if type(content) != str:
-            # Mit dem Inhalt stimmt was nicht!
-            content = "<h1>Internal Contenttyp error (not String)!</h1><br/>Content:<hr/>" + str( content )
-
-        if self.session.ID != False:
-            # User ist eingeloggt -> Einblenden des Admin-Menü's
-            content = self.admin_menu() + content
-
-        # Parsen das Templates
-        template = self.replace_lucidTags( self.side_data["template"] )
-
-        #############################
-        ## Die Arbeit ist erledigt ;)
-        #############################
-
-        # Sessiondaten in die Datenbank schreiben
-        self.session.update_session()
-        # Datenbank verbindung beenden
-        self.db.close()
-
-        # SeitenInhalt in Template einfügen
-        try:
-            return template.replace( "<lucidTag:page_body/>", content )
-        except Exception, e:
-            return "Page Content Error: '%s'<hr>content:<br />%s" % (e, content)
+        self.config     = config
 
     def admin_menu( self ):
         menu  = '<p class="adminmenu">[ '
@@ -103,6 +50,9 @@ class pagerender:
             menu += " | "
             menu += '<a href="?command=edit_page">Edit this page</a>'
 
+            menu += " | "
+            menu += '<a href="?command=new_page">New page</a>'
+
         menu += " ]</p>"
         return menu
 
@@ -111,13 +61,22 @@ class pagerender:
     # lucid-Tags
 
     def replace_lucidTags( self, content, side_data ):
+        #~ print "Content-type: text/html\n"
+        #~ print "<pre>"
+        #~ import cgi
+        #~ for k,v in side_data.iteritems(): print k#,"-",cgi.escape(v)
+        #~ print "</pre>"
+
         rules = [
             ( "<lucidTag:page_style_link/>",    self.lucidTag_page_style_link()     ),
             ( "<lucidTag:main_menu/>",          self.lucidTag_main_menu()           ),
+            ( "<lucidTag:sub_menu/>",           self.lucidTag_sub_menu()            ),
             ( "<lucidTag:back_links/>",         self.lucidTag_back_links()          ),
             ( "<lucidTag:script_login/>",       self.lucidTag_script_login()        ),
             ( "<lucidTag:page_last_modified/>", side_data["lastupdatetime"]         ),
             ( "<lucidTag:page_title/>",         side_data["title"]                  ),
+            ( "<lucidTag:page_keywords/>",      side_data["keywords"]               ),
+            ( "<lucidTag:page_description/>",   side_data["description"]            ),
             ( "<lucidTag:powered_by/>",         __info__                            )
         ]
         for rule in rules:
@@ -147,18 +106,24 @@ class pagerender:
         return "<style>%s</style>" % CSS_content
 
     def lucidTag_main_menu( self ):
-        "Baut das menü auf"
-        import Menu
-        MyMG = Menu.menugenerator( self.db, self.CGIdata )
+        "Baut das Menü auf"
+        from PyLucid_modules import Menu
+        MyMG = Menu.menugenerator( self.db, self.CGIdata, self.config )
         return MyMG.generate()
 
+    def lucidTag_sub_menu( self ):
+        "Baut das Untermenü zusammen"
+        from PyLucid_modules.Menu import sub_menu
+        MySM = sub_menu( self.db, self.CGIdata, self.config )
+        return MySM.generate()
+
     def lucidTag_back_links( self ):
-        import BackLinks
+        from PyLucid_modules import BackLinks
         MyBL = BackLinks.backlinks( self.db, self.CGIdata["page_name"] )
         return MyBL.make()
 
     def lucidTag_ListOfNewSides( self ):
-        import ListOfNewSides
+        from PyLucid_modules import ListOfNewSides
         return ListOfNewSides.start( self.db )
 
     def lucidTag_script_login( self ):

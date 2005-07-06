@@ -1,5 +1,5 @@
 
-PyLucid v0.2.0
+PyLucid v0.2.3
 ==============
 
 copyleft 2005 by Jens Diemer
@@ -9,6 +9,34 @@ Aktuelle Version auf meiner Homepage: http://www.jensdiemer.de
 
 
 !!! Diese Doku muß noch aktualisiert werden !!!
+
+
+Installation
+------------
+
+Es gibt noch keinen echten "installer".
+Folgendes machen:
+    1. lucidCMS einrichten: http://lucidcms.net/
+    2. PyLucid's config.py anpassen
+    3. Folgende Dateien auf Server Ausführungrechte (chmod 755) geben:
+        .\index.py
+        .\PyLucid_system\install_PyLucid.py
+    4. Mit install_PyLucid.py folgendes machen:
+        - setup database (create all Tables/internal pages)
+        - add admin (needed für secure MD5-Login!)
+
+Danach sollten die Seiten Angezeigt werden und man kann sich einloggen...
+
+
+
+
+
+
+
+
+
+
+
 
 
 Was ist PyLucid ?
