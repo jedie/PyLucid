@@ -31,9 +31,8 @@ import os
 
 
 class system:
-    # Pfad zur Konfigurations-Datei
-    # Absolut zum DocRoot-Verz.
-    #~ PHPdbconfig = "dbConfig.php"
+    # Zeigt zusätzlich an, in welchem Modul eine Page-Massage erzeugt wurde
+    page_msg_debug = False
 
     # Pfad zur Ralf Mieke's md5.js
     # http://www.miekenet.de
@@ -48,6 +47,11 @@ class system:
     # Ist die ID der Usergruppe "PyLucid_internal"
     # Damit sind die Internen Seiten in der DB makiert
     internal_group_id = -1
+
+    # Für render.py, damit bei specialTags (z.B. <lucidFunction:IncludeRemote>) angegebenes Skripte
+    # z.B. ListOfNewSides.py nicht wirklich per http gehohlt werden, sondern als Python-Module direkt
+    # ausgeführt werden.
+    LocalDomains = ( "http://localhost", )
 
     ## real_self_url und poormans_url
     # Bei manchen Webhostern sind CGI Programm nicht außerhalb
@@ -83,58 +87,45 @@ class system:
     #
     #   - CGIs auch außerhalb von /cgi-bin/ erlaubt
     #   - /index.python
-    # real_self_url = "/"
+    # real_self_url = "/index.py"
     # poormans_url = "/"
     #
-    real_self_url   = "/"
+    real_self_url   = "/index.py"
     poormans_url    = "/"
+    #
+    # Mit welchem Parameter sollen die Links gebildet werden
+    # Standart: "?p="
+    page_ident      = "?p="
+    #~ page_ident      = ""
+
+    ## poormans_modrewrite
+    # Um auch ohne apache's Modrewrite eine saubere URL *ohne* URL-Parameter
+    # zu erhalten kann man mittels "Customized error messages" in der
+    # .htaccess arbeiten. Dabei legt man für einen 404 Fehler (Seite nicht
+    # gefunden) das ErrorDocument auf die PyLucid's index.py Seite fest.
+    # Bsp .htaccess Eintrag:
+    # ErrorDocument 404 /index.py
+    #
+    # Ausgewertet wird dabei der os.environ-Eintrag "REQUEST_URI"
+    # Mit poormans_modrewrite muß page_ident="" sein!
+    #~ poormans_modrewrite = True
+    poormans_modrewrite = False
 
 
-
+## Hinweis
+# der Tabellen-Prefix sollte keine Leer-/Sonderzeichen erhalten.
 dbconf = {
     "dbHost"            : 'localhost', # Evtl. muß hier die Domain rein
     "dbDatabaseName"    : 'DatabaseName',
     "dbUserName"        : 'UserName',
     "dbPassword"        : 'Password',
-    "dbTablePrefix"     : 'lucid_'
+    "dbTablePrefix"     : 'lucid_',
+    "dbdatetime_format" : '%Y-%m-%d %H:%M:%S', # SQL-Datetime-String-Format
 }
 
 
 
-
-
-preferences = {
-    # Für render.py, damit bei specialTags (z.B. <lucidFunction:IncludeRemote>) angegebenes Skripte
-    # z.B. ListOfNewSides.py nicht wirklich per http gehohlt werden, sondern als Python-Module direkt
-    # ausgeführt werden.
-    "LocalDomain" : ( "http://localhost", "http://jensdiemer.de", "http://www.jensdiemer.de" )
-
-    # "internal_group_id" - dieser Key wird gesetzt, wenn der User
-    }
-
-class readpreferences:
-    """
-    lucid-preferences aus Datenbank lesen und im preferences-Dict eintragen
-    """
-
-    def __init__( self, db ):
-        self.db = db
-        #~ print "Content-type: text/html\n\n<pre>"
-        # Daten aus DB lesen
-        pref_data = self.db.get_preferences()
-
-        # Daten eintragen
-        self.put_to_config( pref_data )
-
-    def put_to_config( self, pref_data ):
-        for item in pref_data:
-            #~ {'varName': 'defaultPageName', 'section': 'core', 'value': '1'}
-            #~ print i
-            if not preferences.has_key( item["section"] ):
-                preferences[ item["section"] ] = {}
-
-            preferences[ item["section"] ][ item["varName"] ] = item["value"]
-
+available_markups = ["none","textile"]
 
 
 

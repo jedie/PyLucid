@@ -7,9 +7,14 @@
 Anbindung an die SQL-Datenbank
 """
 
-__version__="0.0.4"
+__version__="0.0.6"
 
 __history__="""
+v0.0.6
+    - Fehlerausgabe geändert
+    - Fehlerausgabe bei side_template_by_id() wenn Template nicht existiert.
+v0.0.5
+    - NEU: Funktionen für das editieren von Styles/Templates
 v0.0.4
     - SQL-wrapper ausgelagert in mySQL.py
 v0.0.3
@@ -26,7 +31,6 @@ v0.0.1
 # Interne PyLucid-Module einbinden
 from mySQL import mySQL
 from config import dbconf
-import lucid_tools
 
 
 
@@ -61,20 +65,26 @@ class db( mySQL ):
         # Table-Prefix for all SQL-commands:
         self.tableprefix = dbconf["dbTablePrefix"]
 
-    def type_error( self, itemname, item ):
+    def _error( self, type, txt ):
         print "Content-type: text/html\n"
-        print "<h1>SQL Error:</h1>"
-        print "<h2>%s is not String!</h2>" % itemname
-        import cgi
-        print "<p>It's %s<br/>" % cgi.escape( str( type(item) ) )
-        print "Check SQL-Table settings!</p>"
+        print "<h1>SQL error</h1>"
+        print "<h1>%s</h1>" % type
+        print "<p>%s</p>" % txt
+        print
         import sys
         sys.exit()
 
-    #################################################################
+    def _type_error( self, itemname, item ):
+        import cgi
+        self._error(
+            "%s is not String!" % itemname,
+            "It's %s<br/>Check SQL-Table settings!" % cgi.escape( str( type(item) ) )
+        )
+
+    #_____________________________________________________________________________
     # Spezielle lucidCMS Funktionen, die von Modulen gebraucht werden
 
-    def get_page_data( self, page_id ):
+    def get_side_data( self, page_id ):
         "Holt die nötigen Informationen über die aktuelle Seite"
 
         side_data = self.select(
@@ -85,18 +95,14 @@ class db( mySQL ):
                 where           = ( "id", page_id )
             )[0]
 
-        # Datum wandeln
-        side_data["lastupdatetime"] = lucid_tools.date( side_data["lastupdatetime"] )
-
         side_data["template"] = self.side_template_by_id( page_id )
 
         if side_data["title"] == None:
             side_data["title"] = side_data["name"]
 
         if type(side_data["content"]) != str:
-            self.type_error( "Sidecontent", side_data["content"] )
+            self._type_error( "Sidecontent", side_data["content"] )
 
-        #~ print side_data
         return side_data
 
     def side_template_by_id( self, page_id ):
@@ -106,23 +112,32 @@ class db( mySQL ):
                 from_table      = "pages",
                 where           = ("id",page_id)
             )[0]["template"]
-        page_template = self.select(
-                select_items    = ["content"],
-                from_table      = "templates",
-                where           = ("id",template_id)
-            )[0]["content"]
+
+        try:
+            page_template = self.select(
+                    select_items    = ["content"],
+                    from_table      = "templates",
+                    where           = ("id",template_id)
+                )[0]["content"]
+        except Exception, e:
+            self._error(
+                "Can't get Template",
+                "Page-ID: %s, Template-ID: %s" % (page_id, template_id)
+            )
 
         if type(page_template) != str:
-            self.type_error( "Template-Content", page_template )
+            self._type_error( "Template-Content", page_template )
 
         return page_template
 
-    def get_preferences( self ):
-        "Die Preferences aus der DB holen. Wird verwendet in config.readpreferences()"
-        return self.select(
-                select_items    = ["section", "varName", "value"],
-                from_table      = "preferences",
-            )
+    #~ def get_preferences( self ):
+        #~ "Die Preferences aus der DB holen. Wird verwendet in config.readpreferences()"
+        #~ value = self.select(
+                #~ select_items    = ["section", "varName", "value"],
+                #~ from_table      = "preferences",
+            #~ )
+
+
 
     def side_id_by_name( self, page_name ):
         "Liefert die Side-ID anhand des >page_name< zurück"
@@ -202,18 +217,111 @@ class db( mySQL ):
                 where           = ("id", page_id)
             )[0]
 
-    def preferences( self, section, varName ):
-        "Liefert Daten aus der Preferences-Tabelle anhand von >section< und >varName< zurück"
+    def get_all_preferences( self ):
+        """
+        Liefert Daten aus der Preferences-Tabelle
+        wird in PyLucid_system.preferences verwendet
+        """
         return self.select(
-                select_items    = ["name", "description", "value", "type"],
+                select_items    = ["section", "varName", "value"],
                 from_table      = "preferences",
-                where           = [("section",section), ("varName",varName)]
+            )
+
+
+    def get_page_link_by_id( self, page_id ):
+        """ Generiert den absolut-Link zur Seite """
+        data = []
+        while page_id != 0:
+            result = self.select(
+                    select_items    = ["name","parent"],
+                    from_table      = "pages",
+                    where           = ("id",page_id)
+                )[0]
+            page_id  = result["parent"]
+            data.append( result["name"] )
+
+        # Liste umdrehen
+        data.reverse()
+
+        return "/" + "/".join(data)
+
+    def get_sitemap_data( self ):
+        """ Alle Daten die für`s Sitemap benötigt werden """
+        return self.select(
+                select_items    = [ "id","name","title","parent"],
+                from_table      = "pages",
+                where           = [ ("showlinks",1), ("permitViewPublic",1) ],
+                order           = ("position","ASC"),
+            )
+
+    #_____________________________________________________________________________
+    ## Funktionen für das ändern des Looks (Styles, Templates usw.)
+
+    def get_style_list( self ):
+        return self.select(
+                select_items    = ["id","name","description"],
+                from_table      = "styles",
+            )
+
+    def get_style_data( self, style_id ):
+        return self.select(
+                select_items    = ["name","description","content"],
+                from_table      = "styles",
+                where           = ("id", style_id)
             )[0]
 
+    def update_style( self, style_id, style_data ):
+        self.update(
+            table   = "styles",
+            data    = style_data,
+            where   = ("id",style_id),
+            limit   = 1
+        )
 
+    def get_template_list( self ):
+        return self.select(
+                select_items    = ["id","name","description"],
+                from_table      = "templates",
+            )
 
-    ##----------------------------------------
+    def get_template_data( self, template_id ):
+        return self.select(
+                select_items    = ["name","description","content"],
+                from_table      = "templates",
+                where           = ("id", template_id)
+            )[0]
+
+    def update_template( self, template_id, template_data ):
+        self.update(
+            table   = "templates",
+            data    = template_data,
+            where   = ("id",template_id),
+            limit   = 1
+        )
+
+    #_____________________________________________________________________________
     ## InterneSeiten
+
+    def get_internal_page_list( self ):
+        return self.select(
+                select_items    = ["name","description","markup"],
+                from_table      = "pages_internal",
+            )
+
+    def get_internal_page_data( self, internal_page_name ):
+        return self.select(
+                select_items    = ["markup","content","description"],
+                from_table      = "pages_internal",
+                where           = ("name", internal_page_name)
+            )[0]
+
+    def update_internal_page( self, internal_page_name, page_data ):
+        self.update(
+            table   = "pages_internal",
+            data    = page_data,
+            where   = ("name",internal_page_name),
+            limit   = 1
+        )
 
     def get_internal_page( self, pagename ):
         #~ pagename = "__%s__" % pagename
@@ -243,10 +351,7 @@ class db( mySQL ):
                 where           = ("name", internal_group_name)
             )[0]["id"]
 
-
-
-
-    ##----------------------------------------
+    #_____________________________________________________________________________
     ## Userverwaltung
 
     def add_User( self, name, realname, email, password, admin ):

@@ -28,9 +28,19 @@ ToDo
     * Es wird immer das paramstyle 'format' benutzt. Also mit %s escaped
 """
 
-__version__="0.0.4"
+__version__="0.0.7"
 
 __history__="""
+v0.0.7
+    - Statt query_fetch_row() wird der Cursor jetzt mit MySQLdb.cursors.DictCursor erstellt.
+        Somit liefern alle Abfragen ein dict zurück! Das ganze funktioniert auch mit der uralten
+        MySQLdb v0.9.1
+    - DEL: query_fetch_row()
+    - NEU: fetchall()
+v0.0.6
+    - NEU: query_fetch_row() und exist_table_name()
+v0.0.5
+    - Stellt über self.conn das Connection-Objekt zur verfügung
 v0.0.4
     - Bugfixes
     - Debugfunktion eingefügt
@@ -50,10 +60,12 @@ v0.0.1
 
 try:
     import MySQLdb
-except ImportError:
+except ImportError, e:
     print "Content-type: text/html\n"
     print "<h1>Error</h1>"
     print "<h3>MySQLdb import error! Modul 'python-mysqldb' not installed???</h3>"
+    print "<p>Error Msg.:<br/>%s</p>" % e
+    print '<a href="http://sourceforge.net/projects/mysql-python/">MySQLdb project page</a>'
     import sys
     sys.exit(0)
 
@@ -71,16 +83,21 @@ class mySQL:
         #~ print "<h1>Connect %s</h1>" % connr
         #~ if connr ==1: raise "Fehler!"
 
-        self.db             = MySQLdb.connect( *args, **kwargs )
-        self.cursor         = self.db.cursor()
+        self.conn           = MySQLdb.connect( *args, **kwargs )
+        self.cursor         = self.conn.cursor( MySQLdb.cursors.DictCursor )
         self.tableprefix    = ""
         self.debug          = False
 
     def get( self, SQLcommand ):
-        "kombiniert execute und fetchall"
+        """kombiniert execute und fetchall mit Tabellennamenplatzhalter"""
         self.cursor.execute(
                 SQLcommand.replace("$tableprefix$", self.tableprefix)
             )
+        return self.cursor.fetchall()
+
+    def fetchall( self, SQLcommand ):
+        """ kombiniert execute und fetchall """
+        self.cursor.execute( SQLcommand )
         return self.cursor.fetchall()
 
     def _make_values( self, values ):
@@ -143,7 +160,7 @@ class mySQL:
 
         self.cursor.execute( SQLcommand, values )
 
-    def select( self, select_items, from_table, where=None, order=None, limit=None ):
+    def select( self, select_items, from_table, where=None, order=None, limit=None, maxrows=0, how=1 ):
         """
         Allgemeine SQL-SELECT Anweisung
         where, order und limit sind optional
@@ -157,6 +174,9 @@ class mySQL:
 
         mehrfache where Klausel:
         where=[("parent",0),("id",0)] ===> WHERE `parent`="0" and `id`="0"
+
+        maxrows - Anzahl der zurückgegebenen Datensätze, =0 alle Datensätze
+        how     - Form der zurückgegebenen Daten. =1 -> als Dict, =0 als Tuple
         """
 
         SQLcommand = "SELECT " + ",".join( select_items )
@@ -190,12 +210,12 @@ class mySQL:
             print "db.select - Debug:"
             print "SQLcommand:", SQLcommand
 
+        return self.get( SQLcommand )
         RAWresult = self.get( SQLcommand )
 
         if self.debug:
             print "RAWresult:", RAWresult
             print "-"*80
-
 
         if select_items == "*":
             # Spezielle Auswertung bei "SELECT *"-Anfragen
@@ -215,7 +235,42 @@ class mySQL:
                     temp[ select_items[i] ] = line[i]
             result.append( temp )
 
+        if result == []:
+            return ()
+
         return result
+
+
+    #~ def query_fetch_row( self, SQLcommand, values=() ):
+        #~ """
+        #~ Als ersartz für
+            #~ connection.query( SQLcommand )
+            #~ return connection.store_result().fetch_row( maxrows, how )
+        #~ Diese Methoden gibt es leider erst in neueren Versionen von MySQLdb...
+        #~ Bei meinem WebHoster läuft allerdings eine uralte Version :(
+
+        #~ Meine nachgebaute Version liefert desc_dict und SQLresult zurück.
+        #~ desc_dict ist ein Dict: [row-Name] = row-PositionsNr
+        #~ SQLresult ist der ganz normale fetchall()-Tuple
+        #~ """
+        #~ self.cursor.execute( SQLcommand, values )
+        #~ SQLresult   = self.cursor.fetchall()
+
+        #~ index = 0
+        #~ desc_dict = {}
+        #~ for description in self.cursor.description:
+            #~ desc_dict[ description[0] ] = index
+            #~ index += 1
+
+        #~ return desc_dict, SQLresult
+
+    def exist_table_name( self, table_name ):
+        """ Überprüft die existens eines Tabellen-Namens """
+        self.cursor.execute( "SHOW TABLES" )
+        for line in self.cursor.fetchall():
+            if line[0] == table_name:
+                return True
+        return False
 
     def dump_select_result( self, result ):
         print "*** dumb select result ***"
@@ -224,7 +279,7 @@ class mySQL:
 
     def close( self ):
         "Connection schließen"
-        self.db.close()
+        self.conn.close()
 
 
 

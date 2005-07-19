@@ -1,11 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-"Stores every Session Data in pseudoclasses"
 
-__version__ = "v0.0.3"
+
+__version__ = "v0.0.4"
 
 __history__ = """
+v0.0.4
+    - detect_page() zur index.py verschoben
 v0.0.3
     - Mehrfach connection vermieden.
 v0.0.2
@@ -19,6 +21,20 @@ v0.0.1
 # Python-Basis Module einbinden
 import os, cgi, urllib
 
+# PyLucid Module
+import config
+
+if config.system.page_msg_debug:
+    import inspect
+
+
+
+#~ from config import dbconf
+
+
+# Für Debug-print-Ausgaben
+#~ print "Content-type: text/html\n\n<pre>%s</pre>" % __file__
+#~ print "<pre>"
 
 
 
@@ -28,12 +44,15 @@ class CGIdata:
     Macht sich als dict verfügbar.
     Stellt fest, welche Seite abgefunden werden soll
     """
-    def __init__( self, db_handler, detect_page = True ):
+    def __init__( self, PyLucid ):
         """
         CGIdata ist eine abgeleitetes Dictionary und kann
         somit wie ein Dict angesprochen werden.
         """
-        self.db = db_handler
+        #~ self.PyLucid    = PyLucid
+        #~ self.db         = PyLucid["db"]
+        #~ self.config     = PyLucid["config"]
+        self.page_msg   = PyLucid["page_msg"]
 
         self.page_name_error = False
 
@@ -41,8 +60,7 @@ class CGIdata:
 
         self.get_CGIdata() # CGI-Daten ermitteln
 
-        if detect_page:
-            self.detect_page() # Herrausfinden, welche Seite aktuell ist
+        self.convert_types()
 
     def get_CGIdata( self ):
         "sammelt POST und GET Daten zusammen"
@@ -68,66 +86,15 @@ class CGIdata:
             #~ print "<!-- %s-%s -->" % (i,FieldStorageData.getvalue(i))
             self.data[i] = FieldStorageData.getvalue(i)
 
-    def detect_page( self ):
-        "Findet raus welches die aktuell anzuzeigende Seite ist"
-
-        if len( self.data ) == 0:
-            # keine CGI-Daten vorhanden
-            # `-> Keine Seite wurde angegeben -> default-Seite wird angezeigt
-            self.set_default_page()
-            return
-
-        if self.data.has_key( "page_name" ):
-            # Aufruf per <lucidFunction:IncludeRemote> mit der index.php
-            page_name = self.data["page_name"]
-            page_id = self.db.side_id_by_name( page_name )
-            self.data["page_id"]    = page_id
-            self.data["page_name"]  = page_name
-            return
-
-        if self.data.has_key( "command" ):
-            # Ein internes Kommando (LogIn, EditPage ect.) wurde ausgeführt
-            # `-> default-Seite wird angezeigt
-            #~ self.set_default_page()
-            return
-
-        # Sucht in den URL-Parametern nach einem Seitennamen, um zu
-        # bestimmen welches die aktuelle anzugeigenden Seite ist ;)
+    def convert_types( self ):
         for k,v in self.data.iteritems():
-            if v == "":
-                # Nur Key, kein Value -> könnte die Angabe der Seite sein
-                page_id = self.db.side_id_by_name( k )
+            try:
+                self.data[k] = int( v )
+            except ValueError:
+                pass
 
-                if page_id != False:    # Richtigen Eintrag gefunden
-                    page_name = k
-
-                    # Gefunden Eintrag löschen, da er in der Form nutzlos ist
-                    del( self.data[page_name] )
-
-                    # Gefundene Seite als aktuelle Seite speichern
-                    self.data["page_id"]    = page_id
-                    self.data["page_name"]  = page_name
-                    return
-
-        # Es konnte keine Seite in URL-Parametern gefunden werden, also
-        # wird die Standart-Seite genommen
-        self.page_name_error = True
-        self.set_default_page()
-
-    def set_default_page( self ):
-        "Setzt die default-Page als aktuelle Seite"
-        page_id = self.db.preferences( "core", "defaultPageName" )["value"]
-        try:
-            page_name = self.db.side_name_by_id( page_id )
-        except:
-            print "Content-type: text/html\n"
-            print "<h1>Error: Can't find default Page!</h1>"
-            print "Check SQL-Tables!"
-            import sys
-            sys.exit()
-
-        self.data["page_id"]    = page_id
-        self.data["page_name"]  = page_name
+    #______________________________________________________________________________
+    # Methoden um an die Daten zu kommen ;)
 
     def __getitem__( self, key ):
         return self.data[key]
@@ -144,18 +111,73 @@ class CGIdata:
     def __str__( self ):
         return str( self.data )
 
-    def debug( self ):
+    def keys( self ):
+        return self.data.keys()
+
+    def __len__( self ):
+        return len( self.data )
+
+    #______________________________________________________________________________
+
+    def error( self, txt1, txt2="" ):
         print "Content-type: text/html\n"
-        print "<pre>"
-        for k,v in self.data.iteritems(): print "%s - %s" % (k,v)
-        print "-"*80
-        print cgi.FieldStorage( keep_blank_values=True )
-        print "</pre>"
-        #~ import sys
-        #~ sys.exit()
+        print "<h1>Error: %s</h1>" % txt1
+        print txt2
+        import sys
+        sys.exit()
+
+    def debug( self ):
+        #~ print "Content-type: text/html\n"
+        #~ print "<pre>"
+        #~ for k,v in self.data.iteritems():
+            #~ self.page_msg( "%s - %s" % (k,v) )
+        #~ print cgi.FieldStorage( keep_blank_values=True )
+        #~ print "REQUEST_URI:",os.environ["REQUEST_URI"]
+        #~ print "</pre>"
+        self.page_msg( "CGIdata Debug:" )
+        for k,v in self.data.iteritems():
+            self.page_msg( "%s - %s" % (k,v) )
+        self.page_msg( "-"*10 )
+        self.page_msg( cgi.FieldStorage( keep_blank_values=True ) )
+        self.page_msg( "REQUEST_URI:",os.environ["REQUEST_URI"] )
 
 
 
+##_______________________________________________________________________________________
+
+
+
+
+class page_msg:
+    def __init__( self ):
+        if config.system.page_msg_debug:
+            self.data = "<p>[config.system.page_msg_debug = True!]</p>"
+        else:
+            self.data = ""
+
+    def __call__( self, *msg ):
+        if config.system.page_msg_debug:
+            #~ for line in inspect.stack(): self.data += "%s<br/>" % str( line )
+            self.data += "...%s line %s: " % (inspect.stack()[1][1][-20:], inspect.stack()[1][2] )
+
+        self.data += "-%s <br/>" % " ".join( [str(i) for i in msg] )
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    page_name = "/Programmieren/Python/PyLucid"
+    #~ page_name = "/Programmieren"
+    page_name = page_name.split("/")[1:]
+    #~ for name in page_name:
+
+    print page_name
 
 
 

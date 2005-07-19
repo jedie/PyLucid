@@ -28,6 +28,7 @@ dbconf = {
     "dbPassword"        : '',
 }
 # Holt die db-Daten aus der aktuellen PyLucid-Configurationsdatei
+sys.path.insert( 0, "../" )
 from config import dbconf
 
 

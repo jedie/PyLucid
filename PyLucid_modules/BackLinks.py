@@ -4,6 +4,7 @@
 # by jensdiemer.de (steht unter GPL-License)
 
 """
+<lucidTag:back_links/>
 Generiert eine horizontale zurück-Linkleiste
 
 Einzubinden über lucid-IncludeRemote-Tag:
@@ -12,9 +13,13 @@ Einzubinden über lucid-IncludeRemote-Tag:
 </p>
 """
 
-__version__="0.0.4"
+__version__="0.0.6"
 
 __history__="""
+v0.0.6
+    - Tag <lucidTag:back_links/> über Modul-Manager
+v0.0.5
+    - Fast ganz neu geschrieben, durch Seiten-Addressierungs-Umstellung
 v0.0.4
     - Anpassung an index.py (Rendern der CMS-Seiten mit Python'CGIs)
     - Umstellung: Neue Handhabung der CGI-Daten
@@ -33,94 +38,125 @@ import cgitb;cgitb.enable()
 # Python-Basis Module einbinden
 import re, os, sys
 
-# Interne PyLucid-Module einbinden
-#~ from system import SQL, sessiondata
-
 indexSide = "Start"
-indexlink = '<a href="/">Index</a>'
-backlink = '<a href="?%(name)s">%(title)s</a>'
 
+#_______________________________________________________________________
+# Module-Manager Daten
+
+class module_info:
+    """Pseudo Klasse: Daten für den Module-Manager"""
+    data = {
+        "back_links" : {
+            "lucidTag"      : "back_links",
+            "must_login"    : False,
+            "must_admin"    : False,
+        },
+    }
+
+
+#_______________________________________________________________________
 
 class backlinks:
-    def __init__( self, db_handler, current_page_name ):
-        self.db                 = db_handler
-        self.current_page_name  = current_page_name
+    def __init__( self, PyLucid ):
+        self.CGIdata        = PyLucid["CGIdata"]
+        self.db             = PyLucid["db"]
+        self.config         = PyLucid["config"]
+        self.preferences    = PyLucid["preferences"]
 
-        # Für die Link-Daten
-        self.data = []
+        self.indexlink = '<a href="%s">Index</a>' % self.config.system.poormans_url
+
+        self.backlink  = '<a href="'
+        self.backlink += self.config.system.poormans_url + self.config.system.page_ident
+        self.backlink += '%(url)s">%(title)s</a>'
+
+        #~ self.config.debug()
+        self.current_page_id  = self.CGIdata["page_id"]
 
     def make( self ):
         "Backlinks generieren"
-        if self.current_page_name == indexSide:
+        if self.current_page_id == self.preferences["core"]["defaultPageName"]:
             # Die aktuelle Seite ist die Index-Seite, also auch keinen
             # indexLink generieren
             return ""
 
         # aktuelle parent-ID ermitteln
-        parent_id = self.parent_id_by_page_name( self.current_page_name )
+        parent_id = self.db.select(
+                select_items    = ["parent"],
+                from_table      = "pages",
+                where           = ("id",self.current_page_id)
+            )[0]["parent"]
 
         if parent_id == 0:
             # Keine Unterseite vorhanden -> keine back-Links ;)
-            return indexlink
+            return self.indexlink
 
-        # Link-Daten aus der DB hohlen und in self.data abspeichern
-        self.backlink_data( parent_id )
+        # Link-Daten aus der DB hohlen
+        data = self.backlink_data( parent_id )
 
-        # Am Ende den Link zum Index anfügen
-        self.data.append( indexlink )
+        return self.make_links( data )
+
+    def backlink_data( self, page_id ):
+        """ Holt die Links von der aktuellen Seite bis zur Index-Seite aus der DB """
+        data = []
+        while page_id != 0:
+            result = self.db.select(
+                    select_items    = ["name","title","parent"],
+                    from_table      = "pages",
+                    where           = ("id",page_id)
+                )[0]
+            page_id  = result["parent"]
+            data.append( result )
 
         # Liste umdrehen
-        self.data.reverse()
+        data.reverse()
 
-        return " &lt; ".join( self.data )
+        return data
+
+    def make_links( self, data ):
+        """ Generiert aus den Daten eine Link-Zeile """
+        links = self.indexlink
+        oldurl = ""
+        for link_data in data:
+            url = oldurl + "/" + link_data["name"]
+            oldurl = url
+
+            title = link_data["title"]
+            if title == None or title == "":
+                title = link_data["name"]
+
+            links += " &lt; " + self.backlink % {
+                "url": url,
+                "title": title,
+            }
+
+        return links
 
 
-    def parent_id_by_page_name( self, page_name ):
-        "liefert die parend ID anhand des Namens zur�ck"
+#_______________________________________________________________________
+# Allgemeine Funktion, um die Aktion zu starten
 
-        result = self.db.select(
-                select_items    = ["parent"],
-                from_table      = "pages",
-                where           = ("name",page_name)
-            )
-        return result[0]["parent"]
-
-    def backlink_data( self, parent_id ):
-        "Holt die Links rekursiv von der aktuellen Seite bis zur Index-Seite aus der DB"
-        result = self.db.select(
-                select_items    = ["name","title","parent"],
-                from_table      = "pages",
-                where           = ("id",parent_id)
-            )
-        page_name  = result[0]["name"]
-        page_title = result[0]["title"]
-        parent_id  = result[0]["parent"]
-
-        if page_title == None:
-            # Kein Titel vorhanden, dann nehmen wir den Namen
-            page_title = page_name
-
-        link = backlink % {
-            "name"  : page_name,
-            "title" : page_title
-        }
-
-        self.data.append( link )
-
-        if parent_id != 0:
-            # Es sind noch unterseiten vorhanden
-            self.backlink_data( parent_id )
+def PyLucid_action( PyLucid_objects ):
+    # Aktion starten
+    return backlinks( PyLucid_objects ).make()
 
 
 
 if __name__ == "__main__":
-    # Aufruf per <lucidFunction:IncludeRemote>
-    print "Content-type: text/html\n"
-    db_handler = SQL.db()
-    CGIdata = sessiondata.CGIdata()
-    current_page_name = CGIdata["page_name"]
-    print backlinks( db_handler, current_page_name ).make()
-    db_handler.close()
+    # Lokaler Test
+    sys.path.insert( 0, "../" )
+    from PyLucid_system import SQL, sessiondata
+    import config
+
+    db = SQL.db()
+    config.readpreferences( db )
+
+    PyLucid = {
+        "CGIdata"   : sessiondata.CGIdata( db, config ),
+        "db"        : db,
+        "config"    : config,
+    }
+    print backlinks( PyLucid ).make()
+    db.close()
 
 
 

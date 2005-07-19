@@ -7,9 +7,13 @@ Evtl. muß der Pfad in dem sich PyLucid's "config.py" sich befindet
 per Hand angepasst werden!
 """
 
-__version__ = "v0.0.4"
+__version__ = "v0.0.6"
 
 __history__ = """
+v0.0.6
+    - Einige anpassungen
+v0.0.5
+    - NEU: convert_db: Convertiert Daten von PHP-LucidCMS nach PyLucid
 v0.0.4
     - Anpassung an neuer Verzeichnisstruktur
 v0.0.3
@@ -80,26 +84,50 @@ import os, sys, cgi
 
 # Interne PyLucid-Module einbinden
 # Verzeichnis in dem PyLucid's "config.py" sich befindet, in den Pfad aufnehmen
-sys.path.insert( 0, os.environ["DOCUMENT_ROOT"] )
+#~ sys.path.insert( 0, os.environ["DOCUMENT_ROOT"] )
 #~ sys.path.insert( 0, os.environ["DOCUMENT_ROOT"] + "cgi-bin/PyLucid" )
+
 import config # PyLucid's "config.py"
 from PyLucid_system import SQL, sessiondata, userhandling
 
 
+#__________________________________________________________________________
+## Konvertierungs-Daten (für convert_db)
 
+db_updates = [
+    {
+        "table"     : "preferences",
+        "data"      : {"value":"%d.%m.%Y"},
+        "where"     : ("varName","formatDate"),
+        "limit"     : 1
+    },
+    {
+        "table"     : "preferences",
+        "data"      : {"value":"%H:%M"},
+        "where"     : ("varName","formatTime"),
+        "limit"     : 1
+    },
+    {
+        "table"     : "preferences",
+        "data"      : {"value":"%d.%m.%Y - %H:%M"},
+        "where"     : ("varName","formatDateTime"),
+        "limit"     : 1
+    },
+]
 
-
-
+#__________________________________________________________________________
+## Tabellen Daten
 
 SQL_make_tables = [
 {
     "name"      : "pages_internal",
     "command"   :
-"""CREATE TABLE IF NOT EXISTS `%(dbTablePrefix)spages_internal` (
-`name` VARCHAR( 50 ) NOT NULL ,
-`markup` VARCHAR( 50 ) NOT NULL ,
-`content` TEXT NOT NULL ,
-PRIMARY KEY ( `name` )
+"""CREATE TABLE `%(dbTablePrefix)spages_internal` (
+name VARCHAR( 50 ) NOT NULL ,
+markup VARCHAR( 50 ) NOT NULL ,
+content TEXT NOT NULL ,
+description TEXT NOT NULL ,
+PRIMARY KEY ( name )
 ) COMMENT = 'PyLucid - internal Pages';"""
 },
 {
@@ -115,14 +143,14 @@ PRIMARY KEY ( `name` )
 `admin` TINYINT( 4 ) DEFAULT '0' NOT NULL ,
  PRIMARY KEY  (`id`),
  UNIQUE KEY `name` (`name`)
-) AUTO_INCREMENT=2 COMMENT = 'PyLucid - Userdata with md5-JavaScript-Password';"""
+) COMMENT = 'PyLucid - Userdata with md5-JavaScript-Password';"""
 },
 {
     "name"      : "session_data",
     "command"   :
-"""
-CREATE TABLE `%(dbTablePrefix)ssession_data` (
+"""CREATE TABLE `%(dbTablePrefix)ssession_data` (
 `session_id` varchar(32) NOT NULL default '',
+`user_nae` varchar(32) NOT NULL default '',
 `timestamp` int(15) NOT NULL default '0',
 `ip` varchar(15) NOT NULL default '',
 `domain_name` varchar(50) NOT NULL default '',
@@ -130,21 +158,39 @@ CREATE TABLE `%(dbTablePrefix)ssession_data` (
 PRIMARY KEY  (`session_id`),
 KEY `session_id` (`session_id`)
 ) COMMENT='Python-SQL-CGI-Sessionhandling';"""
+},
+{
+    "name"      : "lucid_log",
+    "command"   :
+"""CREATE TABLE `%(dbTablePrefix)slog` (
+  `id` int(11) NOT NULL auto_increment,
+  `timestamp` datetime,
+  `sid` varchar(50) NOT NULL default '-1',
+  `user_name` varchar(50) default NULL,
+  `ip` varchar(50) default NULL,
+  `domain` varchar(50) default NULL,
+  `message` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`id`)
+) COMMENT='PyLucid - Logging' ;"""
 }
 ]
 
 
+#__________________________________________________________________________
+## Seiten Daten
+
+
 internal_pages = [
 {
-    "name"      : "login_form",
-    "markup"    : "none",
-    "content"   :
-"""<p>
-    <h2>PyLucid - LogIn:</h2>
-    <script src="%(md5)s" type="text/javascript"></script>
-    <script src="%(md5manager)s" type="text/javascript"></script>
-    <noscript>Javascript is needed!</noscript>
-    <form name="login" method="post" action="%(url)s">
+    "name"        : "login_form",
+    "description" : "The Login Page.",
+    "markup"      : "none",
+    "content"     :
+"""<h2>PyLucid - LogIn:</h2>
+<script src="%(md5)s" type="text/javascript"></script>
+<script src="%(md5manager)s" type="text/javascript"></script>
+<noscript>Javascript is needed!</noscript>
+<form name="login" method="post" action="%(url)s">
     <p>
         User:
         <input name="user" type="text" value=""><br />
@@ -158,16 +204,73 @@ internal_pages = [
         <input name="use_md5login" type="hidden" value="0">
         <a href="javascript:md5login();">MD5 LogIn</a>
     </p>
-    </form>
-    <script type="text/javascript">
-        document.login.user.focus();
-    </script>
-</p>"""
+</form>
+<script type="text/javascript">
+    document.login.user.focus();
+</script>
+"""
 },
 {
-    "name"      : "edit_page",
-    "markup"    : "none",
-    "content"   :
+    "name"        : "admin_sub_menu",
+    "description" : "Administration sub menu",
+    "markup"      : "none",
+    "content"     :
+"""<h2>Administration Sub-Menu</h2>
+<lucidTag:admin_sub_menu_list/>"""
+},
+{
+    "name"        : "edit_style",
+    "description" : "Page to edit a stylesheet",
+    "markup"      : "none",
+    "content"     :
+"""<h2>Edit CSS stylesheet</h2>
+<form method="post" action="%(url)s">
+    <p>
+        Name: <strong>&quot;%(name)s&quot;</strong>:<br/>
+        <textarea wrap="off" id="edit_style" name="content" style="width: 100%%;" rows="20" accept-charset="UTF-8">%(content)s</textarea><br />
+        Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s"><br />
+        <input type="submit" name="Submit" value="save" />
+        <input type="reset" name="abort" onClick="javacript:window.location.href='%(back)s'" value="abort" />
+    </p>
+</form>"""
+},
+{
+    "name"        : "edit_template",
+    "description" : "Page to edit a template",
+    "markup"      : "none",
+    "content"     :
+"""<h2>Edit template</h2>
+<form method="post" action="%(url)s">
+    <p>
+        Name: <strong>&quot;%(name)s&quot;</strong>:<br/>
+        <textarea wrap="off" id="edit_style" name="content" style="width: 100%%;" rows="20" accept-charset="UTF-8">%(content)s</textarea><br />
+        Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s"><br />
+        <input type="submit" name="Submit" value="save" />
+        <input type="reset" name="abort" onClick="javacript:window.location.href='%(back)s'" value="abort" />
+    </p>
+</form>"""
+},
+{
+    "name"        : "edit_internal_page",
+    "description" : "Page to edit a internal page",
+    "markup"      : "none",
+    "content"     :
+"""<h2>Edit internal page</h2>
+<form method="post" action="%(url)s">
+    <p>
+        Name: <strong>&quot;%(name)s&quot;</strong>:<br/>
+        <textarea wrap="off" id="edit_internal_page" name="content" style="width: 100%%;" rows="20" accept-charset="UTF-8">%(content)s</textarea><br />
+        Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s"><br />
+        <input type="submit" name="Submit" value="save" />
+        <input type="reset" name="abort" onClick="javacript:window.location.href='%(back)s'" value="abort" />
+    </p>
+</form>"""
+},
+{
+    "name"        : "edit_page",
+    "description" : "Page to edit a normal Content-Page",
+    "markup"      : "none",
+    "content"     :
 """%(status_msg)s
 <style type="text/css">
     .edit_page {
@@ -190,7 +293,7 @@ internal_pages = [
 </style>
 <form name="login" method="post" action="%(url)s">
   <p>Page: <strong>&quot;%(name)s&quot;</strong>:<br>
-    <textarea id="page_content" name="content" cols="90" rows="20" accept-charset="UTF-8">%(content)s</textarea>
+    <textarea id="page_content" name="content" rows="20" accept-charset="UTF-8">%(content)s</textarea>
     <hr id="hr_textarea">
     <span class="resize_buttons">
         <a href="JavaScript:resize_big();" alt="bigger">&nbsp;+&nbsp;</a>
@@ -259,7 +362,7 @@ internal_pages = [
 ]
 
 
-SQL_insert_internal_pages = """INSERT INTO `%(dbTablePrefix)spages_internal` ( `name` , `markup` , `content` )
+SQL_insert_internal_pages = """INSERT INTO `%(dbTablePrefix)spages_internal` ( name, markup, content, description )
 VALUES (
 '%(name)s', '%(markup)s', '%(content)s'
 );"""
@@ -271,8 +374,8 @@ HTML_head = """<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>PyLucid Setup</title>
-<meta name="robots"                    content="noindex,nofollow" />
-<meta http-equiv="Content-Type"        content="text/html; charset=utf-8" />
+<meta name="robots"             content="noindex,nofollow" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <body>
 <h2>PyLucid Setup %s</h2>""" % __version__
@@ -281,16 +384,20 @@ HTML_head = """<?xml version="1.0" encoding="UTF-8"?>
 
 class PyLucid_setup:
     def __init__( self ):
-
-        self.db = SQL.db()
-
-        self.CGIdata        = sessiondata.CGIdata( self.db, detect_page = False )
-
         print HTML_head
+        try:
+            self.db = SQL.db()
+        except:
+            print "check config in 'config.py' first!"
+            sys.exit()
+
+
+        self.CGIdata = sessiondata.CGIdata( {"page_msg":""} )
 
         #~ print "<p>CGI-data debug: '%s'</p>" % self.CGIdata
 
         self.actions = [
+                (self.convert_db,     "convert_db",  "convert DB data from PHP-LucidCMS to PyLucid Format"),
                 (self.setup_db,       "setup_db",    "setup database (create all Tables/internal pages)"),
                 (self.update_db,      "update_db",   "update internal pages (set all internal pages to default)"),
                 (self.add_admin,      "add_admin",   "add admin (needed für secure MD5-Login!)"),
@@ -339,6 +446,23 @@ class PyLucid_setup:
     ###########################################################################################
     ###########################################################################################
 
+    def convert_db( self ):
+        print "<h3>convert PHP-LucidCMS data to PyLucid Format</h3>"
+        print "<pre>"
+
+        for item_data in db_updates:
+            print item_data
+            self.db.update(
+                table   = item_data["table"],
+                data    = item_data["data"],
+                where   = item_data["where"],
+                limit   = item_data["limit"],
+            )
+
+        print "</pre>"
+        print "<h4>OK</h4>"
+        print '<a href="?">back</a>'
+
     def add_admin( self ):
         print "<h3>Add Admin:</h3>"
 
@@ -376,9 +500,6 @@ class PyLucid_setup:
         print "<h3>Setup Database:</h3>"
         self.print_backlink()
         print "<pre>"
-        print "-"*80
-        print "If DB-connection fail check config in './system/config.py' first!"
-        print "test DB-connection use './DBtest.py'."
         print "="*80
 
         self.setup_tables()
@@ -393,9 +514,10 @@ class PyLucid_setup:
     def setup_tables( self ):
         for table in SQL_make_tables:
             SQLcommand = table["command"] % {
-                    "dbTablePrefix" : dbconf["dbTablePrefix"]
+                    "dbTablePrefix" : config.dbconf["dbTablePrefix"]
                 }
             print "Insert table '%s' in DB" % table["name"]
+            #~ print "***\n%s\n***" % SQLcommand
             self.execute( SQLcommand )
             print
 
@@ -416,15 +538,6 @@ class PyLucid_setup:
         self.print_backlink()
         print "<pre>"
         for page in internal_pages:
-            #~ page_id = self.db.side_id_by_name( page["name"] )
-            #~ print page_id
-            #~ page_id = self.db.select(
-                    #~ select_items    = ["id"],
-                    #~ from_table      = "pages_internal",
-                    #~ where           = ("name",page["name"])
-                #~ )[0]
-            #~ print page_id
-
             print "update page '%s' in table 'pages_internal'" % page["name"]
             try:
                 #~ self.db.update( "pages_internal", page )
@@ -558,5 +671,6 @@ class PyLucid_setup:
 if __name__ == "__main__":
     print "Content-type: text/html\n"
     PyLucid_setup()
+
 
 

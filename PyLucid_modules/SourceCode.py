@@ -29,8 +29,6 @@ v0.1.0
 
 
 import cgitb;cgitb.enable()
-print "Content-type: text/html\n"
-
 import sys, os, cgi
 
 # Imports für Parser()
@@ -137,6 +135,7 @@ class Parser:
 
 class coder:
     def __init__( self ):
+        print "Content-type: text/html\n"
         if os.environ["REMOTE_ADDR"] != os.environ["SERVER_ADDR"]:
             # Aufruf nur vom Server selber aus erlaubt.
             # Also von lucid's IncludeRemote aus!

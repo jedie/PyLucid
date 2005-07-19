@@ -1,0 +1,3 @@
+# Customized error messages for poormans_modrewrite
+#ErrorDocument 404 /index.py
+

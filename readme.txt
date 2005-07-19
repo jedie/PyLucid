@@ -1,5 +1,5 @@
 
-PyLucid v0.2.3
+PyLucid v0.2.8
 ==============
 
 copyleft 2005 by Jens Diemer
@@ -10,22 +10,40 @@ Aktuelle Version auf meiner Homepage: http://www.jensdiemer.de
 
 !!! Diese Doku muß noch aktualisiert werden !!!
 
+fertige Features
+
+Am besten schaust du dir meine Seite an, dann siehst du PyLucid Live ;)
+
+    * secure MD5 Login
+    * eigner schlanker tinyTextile
+    * Seiten editieren/erstellen
+    * "ListOfNewSides" Generiert eine Liste der Seiten die zuletzt geändert worden sind zu sehen auf meiner Start-Seite!
+    * SiteMap, Menu - Generiert ein Menübaum s.links ;)
+    * doppelte Seitennamen durch absoluten Pfad möglich
+    * Administration-Sub-Menü zum editieren von Templates, Stylesheets
+    * editieren von internen PyLucid-Seiten
+    * interna einsehen, inkl. SQL-Tabellen übersicht mit Optimierung der Tabellen
+
 
 Installation
-------------
 
 Es gibt noch keinen echten "installer".
 Folgendes machen:
-    1. lucidCMS einrichten: http://lucidcms.net/
-    2. PyLucid's config.py anpassen
-    3. Folgende Dateien auf Server Ausführungrechte (chmod 755) geben:
-        .\index.py
-        .\PyLucid_system\install_PyLucid.py
-    4. Mit install_PyLucid.py folgendes machen:
-        - setup database (create all Tables/internal pages)
-        - add admin (needed für secure MD5-Login!)
+
+    * lucidCMS einrichten: http://lucidcms.net/
+    * PyLucid's config.py anpassen
+    * Folgende Dateien auf Server Ausführungrechte (chmod 755) geben:
+          o index.py
+          o install_PyLucid.py
+
+    * Mit install_PyLucid.py folgendes machen:
+          o convert DB data from PHP-LucidCMS to PyLucid Format
+          o setup database (create all Tables/internal pages)
+          o add admin (needed für secure MD5-Login!)
 
 Danach sollten die Seiten Angezeigt werden und man kann sich einloggen...
+
+WICHTIG: install_PyLucid.py die Ausführungsrechte wieder entziehen!
 
 
 

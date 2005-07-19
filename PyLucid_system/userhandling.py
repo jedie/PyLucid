@@ -2,7 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 """
-Stores every Session Data in pseudoclasses
+Benutzerverwalung für secure-MD5-JavaScript login
+
+wird erstmal nur von install_PyLucid.py verwendet!
 
 Anmerkung zur User-Verwaltung von lucidCMS
 ==========================================
@@ -48,140 +50,26 @@ Anmerkung zur User-Verwaltung von lucidCMS
 
 """
 
-__version__ = "v0.0.1"
+__version__ = "v0.0.2"
 
 __history__ = """
+v0.0.2
+    - auth-Klasse nach PyLucid_modules.user_auth ausgelagert
 v0.0.1
     - erste Version
 """
 
 
+# Standart Python Module
 import cgitb;cgitb.enable()
-
 import os, sys, md5
-from Cookie import SimpleCookie
+
 
 # eigene Module
-#~ from system import config, crypt
-import crypt
-
-
-## Dynamisch geladene Module:
-## import random -> auth.make_login_page()
+from PyLucid_system import crypt
 
 
 
-class auth:
-    def __init__( self, db_handler, log_class, CGIdata, session_class, config ):
-        self.MyCookie = SimpleCookie()
-
-        self.db         = db_handler
-        self.log        = log_class
-        self.log.set_typ("login")
-        self.session    = session_class
-        self.CGIdata    = CGIdata
-        self.config     = config
-
-    ####################################################
-    # LogIn
-
-    def make_login_page( self ):
-        "Holt das LogIn-Formular aus der DB und stellt es zusammen"
-        import random
-
-        try:
-            login_form = self.db.get_internal_page( "login_form" )["content"]
-        except Exception, e:
-            return "Can't get internal page! Did you executed 'install_PyLucid.py' first ??? (%s)" % e
-
-        try:
-            login_form = login_form % {
-                    "md5"           : self.config.system.md5javascript,
-                    "md5manager"    : self.config.system.md5manager,
-                    "rnd"           : random.randint(10000,99999),
-                    "url"           : self.config.system.real_self_url + "?command=check_login"#os.environ['SCRIPT_NAME']
-                }
-        except Exception, e:
-            return "Error in login_form! Please check DB. (%s)" % e
-
-        return login_form
-
-    def check_login( self ):
-        "Überprüft die Daten vom abgeschickten LogIn-Formular und logt den User ein"
-
-        try:
-            username    = self.CGIdata["user"]
-            form_pass1  = self.CGIdata["md5pass1"]
-            form_pass2  = self.CGIdata["md5pass2"]
-            rnd         = self.CGIdata["rnd"]
-            md5login    = self.CGIdata["use_md5login"]
-        except KeyError:
-            # Formulardaten nicht vollständig
-            msg  = "<h1>Internal Error:</h1>"
-            #~ msg += "<p>CGI-data-debug: '%s'</p>" % self.CGIdata
-            msg += "<h3>Form data not complete!</h3>"
-            msg += "Did you run 'install_PyLucid.py'? Check login form in SQL table 'pages_internal'."
-            return msg
-
-        if md5login != "1":
-            return "Klartext passwort übermittlung noch nicht fertig!"
-
-        return self.check_md5_login( username, form_pass1, form_pass2, rnd )
-
-    def check_md5_login( self, username, form_pass1, form_pass2, rnd ):
-        "Überprüft die md5-JavaScript-Logindaten"
-
-        if (len( form_pass1 ) != 32) or (len( form_pass2 ) != 32):
-            self.log( "Error-0: len( form_pass ) != 32" )
-            return "<h1>LogIn Error!</h1>(errortype:0)"
-
-        try:
-            # Daten zum User aus der DB holen
-            db_userdata = self.db.md5_login_userdata( username )
-        except Exception, e:
-            # User exisiert nicht.
-            self.log("Error: User '%s' unknown %s" % (username,e) )
-            return "User '%s' unknown!" % username
-
-        # Ersten MD5 Summen vergleichen
-        if form_pass1 != db_userdata["pass1"]:
-            self.log( 'Error-1: form_pass1 != db_userdata["pass1"]' )
-            return "<h1>LogIn Error: Wrong Password!</h1>(errortype:1)"
-
-        try:
-            # Mit erster MD5 Summe den zweiten Teil des Passworts aus
-            # der DB entschlüsseln
-            db_pass2 = crypt.decrypt( db_userdata["pass2"], form_pass1 )
-        except Exception, e:
-            self.log( "Error-2: decrypt db_pass2 failt: %s" % e )
-            return "<h1>LogIn Error: Wrong Password!</h1>(errortype:2)"
-
-        # An den entschlüsselten, zweiten Teil des Passwortes, die Zufallszahl dranhängen...
-        db_pass2 += rnd
-        # ...daraus die zweite MD5 Summe bilden
-        db_pass2md5 = md5.new( db_pass2 ).hexdigest()
-
-        # Vergleichen der zweiten MD5 Summen
-        if db_pass2md5 != form_pass2:
-            self.log( 'Error-3: db_pass2md5 != form_pass2 |%s|' % db_pass2)
-            return "<h1>LogIn Error: Wrong Password!</h1>(errortype:3)"
-
-        # Alles in Ordnung, User wird nun eingeloggt:
-
-        self.session.makeSession() # Eine Session eröffnen
-
-        # Sessiondaten festhalten
-        self.session["user_id"] = db_userdata["id"]
-        self.session["user"]    = username
-        self.session["isadmin"] = db_userdata['admin']
-        self.session.update_session()
-
-        self.log.write( "OK:Session erstellt. User:'%s' sID:'%s'" % (username, self.session.ID) )
-        return "<h1>LogIn erfolgreich!</h1>"
-
-    def logout( self ):
-        self.session.delete_session()
-        return "<h1>LogOut</h1>"
 
 
 
