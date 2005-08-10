@@ -58,9 +58,13 @@ Module-Manager eingelesen werden und PyLucid zur ferfügung gestellt werden.
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 __url__ = "http://www.jensdiemer.de/Programmieren/Python/PyLucid"
 
-__version__="0.2.8"
+__version__="0.2.9"
 
 __history__="""
+v0.2.9
+    - NEU: check_request() - Frühzeitige Abhandlung von 404 Fehlern
+    - check_page_name() angepasst
+    - save_page_history() überarbeitet
 v0.2.8
     - aus sessiondata.py die detect_page Funktion nach hierhin verlagert
 v0.2.7
@@ -120,6 +124,16 @@ import cgitb;cgitb.enable()
 # Python-Basis Module einbinden
 import os, sys, urllib
 
+
+#~ print "Content-type: text/html; charset=utf-8\r\n\r\nDEBUG:"
+#~ sys.exit()
+
+#~ print sys.version
+if not sys.version.startswith("2.4"):
+    # Für alle Versionen von Python vor 2.4 werden die Backports importiert
+    from PyLucid_python_backports.utils import *
+
+
 # Interne PyLucid-Module einbinden
 import config # PyLucid Konfiguration
 from PyLucid_system import SQL, sessiondata, sessionhandling
@@ -146,7 +160,6 @@ pagerender.__info__ = __info__ # Versions-Information übertragen
 
 save_max_history_entries = 10
 
-
 class LucidRender:
     def __init__( self ):
         # Alle Objekte/Klassen, die für Module/Plugins nötig sein könnten, werden
@@ -154,9 +167,22 @@ class LucidRender:
         # Instanzierung von Modulen
         self.PyLucid = {}
 
+        # PyLucid's Konfiguration
+        self.config         = config
+        self.PyLucid["config"] = self.config
+
+        if self.config.system.poormans_modrewrite == True:
+            # Frühzeite überprüfung der URL
+            self.check_request()
+
         # Speichert Nachrichten die in der Seite angezeigt werden sollen
         self.page_msg       = sessiondata.page_msg()
         self.PyLucid["page_msg"] = self.page_msg
+
+        # CGI Post/Get Daten
+        self.CGIdata        = sessiondata.CGIdata( self.PyLucid )
+        #~ self.CGIdata.debug()
+        self.PyLucid["CGIdata"] = self.CGIdata
 
         # Anbindung an die SQL-Datenbank, mit speziellen PyLucid Methoden
         self.db             = SQL.db()
@@ -166,17 +192,8 @@ class LucidRender:
         self.preferences    = preferences.preferences( self.PyLucid )
         self.PyLucid["preferences"] = self.preferences
 
-        # PyLucid's Konfiguration
-        self.config         = config
-        self.PyLucid["config"] = self.config
-
         tools.PyLucid = self.PyLucid
         self.PyLucid["tools"] = tools
-
-        # CGI Post/Get Daten
-        self.CGIdata        = sessiondata.CGIdata( self.PyLucid )
-        #~ self.CGIdata.debug()
-        self.PyLucid["CGIdata"] = self.CGIdata
 
         # Log-Ausgaben in SQL-DB
         self.log            = SQL_logging.log( self.PyLucid )
@@ -187,6 +204,7 @@ class LucidRender:
             self.db.cursor, "lucid_session_data", self.log,
             CookieName="PyLucid_id"
         )
+        self.session.page_msg = self.page_msg
         #~ self.session.debug()
         self.PyLucid["session"] = self.session
 
@@ -194,6 +212,9 @@ class LucidRender:
         self.log.client_sID         = self.session.ID
         if self.session.has_key("user"):
             self.log.client_user_name   = self.session["user"]
+
+        # Aktuelle Seite ermitteln und festlegen
+        self.detect_page()
 
         # Verwaltung von erweiterungs Modulen/Plugins
         self.module_manager = module_manager.module_manager( self.PyLucid )
@@ -207,11 +228,115 @@ class LucidRender:
 
     #_____________________________________________________________________________________________________
 
+    def check_request( self ):
+        """
+        Überprüft die Anfrage, wenn mit poormans_modrewrite gearbeitet wird.
+
+        Wird mit Apache's "ErrorDocument 404" auf PyLucid's index.py verwiesen, solle dennoch
+        angezeigt werden, wenn eine echte falsche URL abgerufen wurde. z.B. die Anforderung
+        eines nicht existierenden Bildes! In dem Falle sollte nicht die Komplette Startseite des
+        CMS aufgebaut werden, sondern einfach nur eine kleine Fehler-Seite ;)
+        """
+        try:
+            request_uri = os.environ["REQUEST_URI"]
+        except KeyError:
+            self.error(
+                "Can't use 'poormans_modrewrite':",
+                'There is no REQUEST_URI in Environment!'
+            )
+
+        # URL Parameter abschneiden
+        try:
+            clean_url = request_uri[:request_uri.index("?")]
+        except ValueError:
+            # Kein URL Parameter vorhanden
+            clean_url = request_uri
+
+        if clean_url == self.config.system.real_self_url:
+            # Direkter Aufruf von PyLucid's index.py, also alles OK
+            return
+
+        # URL Parameter abschneiden
+
+        try:
+            file_ext = clean_url[clean_url.rindex(".")+1:]
+        except ValueError:
+            # Ist keine Datei, die angefordert wird, könnte alles OK sein
+            return
+
+        if len(file_ext) > 4:
+            # Der gefunde Punkt ist wohl kein Trennzeichen für ein Dateiende
+            return
+
+        if not file_ext in self.config.system.mod_rewrite_filter:
+            # Dateiendung ist nicht im Filter erhalten
+            return
+
+        ##
+        ## Die URL ist also nicht korrekt
+        ##
+
+        print "Content-Type: text/html\r\n"
+        print "<html><head><title>404 Not Found</title></head><body>"
+        print "<h1>Not Found</h1>"
+        print "<p>The requested URL %s was not found on this server.</p>" % clean_url
+
+        alternative_urls = []
+        # Aufteilen, Leere Einträge löschen sowie letzten Eintrag abschneiden:
+        # /bsp/bild.gif -> ['','bsp','bild.gif'] -> ['bsp','bild.gif'] -> ['bsp']
+        deep_url = [i for i in request_uri.split("/") if i!=""][:-1]
+        try:
+            # Server Adresse einfügen
+            deep_url.insert(0, os.environ["SERVER_NAME"] )
+            # URL zusammensetzten
+            deep_url = "http://%s" % "/".join( deep_url )
+        except KeyError:
+            # URL zusammensetzten
+            deep_url = "/%s" % "/".join( deep_url )
+
+        alternative_urls.append( deep_url )
+
+
+        try:
+            root_url = "http://%s%s" % (os.environ["SERVER_NAME"], self.config.system.poormans_url )
+        except KeyError:
+            root_url = self.config.system.poormans_url
+
+        alternative_urls.append( root_url )
+
+        # Doppelte Einträge per set() löschen
+        alternative_urls = set( alternative_urls )
+
+        # URLs zusammen bauen
+        urllist = ['<a href="%s">%s</a>' % (u,u) for u in alternative_urls]
+
+        # Alternative URLs Anzeigen
+        print "<p>try:</br>"
+        print "<br/>or</br>".join( urllist )
+        print "</p>"
+
+        #~ print "<pre>"
+        #~ print request_uri
+        #~ print clean_url
+        #~ print file_ext, len( file_ext )
+        #~ print "</pre>"
+        #~ import cgi ; cgi.print_environ()
+
+        print "<hr>"
+
+        try:
+            print os.environ["SERVER_SIGNATURE"]
+        except KeyError:
+            pass
+
+        print "</body></html>"
+
+        sys.exit()
+
+    #_____________________________________________________________________________________________________
+
     def make( self ):
         "Baut die Seite zusammen und liefert sie zurück"
-
-        # Aktuelle Seite ermitteln und festlegen
-        self.detect_page()
 
         if self.CGIdata.has_key("command"):
             # Ein Kommando soll ausgeführt werden
@@ -223,7 +348,7 @@ class LucidRender:
         try:
             side_data = self.db.get_side_data( self.CGIdata["page_id"] )
         except IndexError, e:
-            self.error( "Can get Page:", e, "page_id:", self.CGIdata["page_id"] )
+            self.error( "Can get Page: %s" % e, "page_id: %s" % self.CGIdata["page_id"] )
 
         if module_content != None:
             #~ self.page_msg( "module_content:",module_content )
@@ -235,6 +360,10 @@ class LucidRender:
                 # Einfacher rückgabe der Daten -> Markup ist immer none
                 side_data["content"]    = module_content
                 side_data["markup"]     = "none"
+
+        if self.session.ID != False:
+            # User ist eingeloggt -> Es werden Informationen gespeichert.
+            self.save_page_history()
 
         #~ self.page_msg( "Markup:",side_data["markup"] )
         return self.build_side( side_data )
@@ -251,10 +380,6 @@ class LucidRender:
             # Mit dem Inhalt stimmt was nicht!
             main_content = "<h1>Internal contenttyp error (not String)!</h1><br/>Content:<hr/>" + str( main_content )
 
-        if self.session.ID != False:
-            # User ist eingeloggt -> Es werden Informationen gespeichert.
-            self.save_page_history()
-
             # Einblenden des Admin-Menü's
             main_content = self.pagerender.admin_menu() + main_content
 
@@ -267,6 +392,7 @@ class LucidRender:
 
         # Sessiondaten in die Datenbank schreiben
         self.session.update_session()
+
         # Datenbank verbindung beenden
         self.db.close()
 
@@ -276,6 +402,8 @@ class LucidRender:
         except Exception, e:
             page = "Page Content Error: '%s'<hr>content:<br />%s" % (e, main_content)
 
+        ## gesammelte Seiten-Nachrichten einblenden
+        # s. sessiondata.page_msg()
         if self.page_msg.data != "":
             # Nachricht vorhanden -> wird eingeblendet
             page_msg = '<div id="page_msg">%s</div>' % self.page_msg.data
@@ -285,35 +413,32 @@ class LucidRender:
 
         return page.replace( "<lucidTag:script_duration/>", "%.2f" % (time.time() - start_time) )
 
+    #_____________________________________________________________________________________________________
+
     def error( self, txt1, *txt2 ):
-        txt2 = [str(i) for i in txt2]
-        txt2 = "<br/>".join( txt2 )
-        print "Content-type: text/html\n"
+        """ Allgemeine Fehler-Ausgabe """
+        print "Content-type: text/html; charset=utf-8\r\n\r\n"
         print "<h1>Internal Error!</h1>"
         print "<h2>%s</h2>" % txt1
-        print "<h3>%s</h3>" % txt2
+        print "<h3>%s</h3>" % "<br/>".join( [str(i) for i in txt2] )
         sys.exit()
 
     #_____________________________________________________________________________________________________
 
     def save_page_history( self ):
         """
-        Der User ist eingeloggt -> folgende Informationen werden gespeichert
-            session["page_history"]: History der Besuchten Seiten
+        Speichert in session["page_history"] die ID's der besuchten Seiten
         """
-        history = []
-        if self.session.has_key("page_history"):
-            # Es wurden schon Seiten besucht
-            history = self.session["page_history"]
-            if len(history)>save_max_history_entries:
-                # History kürzen ;)
-                history = history[:save_max_history_entries]
+        try:
+            # History kürzen
+            self.session["page_history"] = self.session["page_history"][:save_max_history_entries]
 
-        # Fügt die aktuelle Seite am Anfang der Liste ein
-        history.insert( 0, self.CGIdata["page_id"] )
+            # Fügt die aktuelle Seite am Anfang der Liste ein
+            self.session["page_history"].insert( 0, self.CGIdata["page_id"] )
+        except KeyError:
+            # Noch keinen History vorhanden (User gerad erst eingeloggt)
+            self.session["page_history"] = [ self.CGIdata["page_id"] ]
 
-        # Speichert die aktuell besuchte Seite
-        self.session["page_history"] = history
 
     #_____________________________________________________________________________________________________
 
@@ -359,8 +484,14 @@ class LucidRender:
 
         # Es konnte keine Seite in URL-Parametern gefunden werden, also
         # wird die Standart-Seite genommen
-        self.page_name_error = True
         self.set_default_page()
+
+    def set_history_page( self ):
+        if self.session.has_key("page_history"):
+            self.CGIdata["page_id"] = self.session["page_history"][0]
+        else:
+            self.page_msg( "Debug: History nicht vorhanden!" )
+            self.set_default_page()
 
     def check_page_id( self, page_id ):
         """ Testet ob die page_id auch richtig ist """
@@ -382,7 +513,19 @@ class LucidRender:
             self.set_default_page()
             return
 
-        page_name_split = page_name.split("/")[1:]
+        #~ # URL Parameter abschneiden
+        #~ try:
+            #~ clean_page_name = page_name[:page_name.index("?")]
+        #~ except ValueError:
+            #~ # Kein URL Parameter vorhanden
+            #~ clean_page_name = page_name
+
+        # Aufteilen: /bsp/ -> ['','bsp','']
+        page_name_split = page_name.split("/")
+
+        # Leere Einträge löschen: ['','bsp',''] -> ['bsp']
+        page_name_split = [i for i in page_name_split if i!=""]
+
         page_id = 0
         for name in page_name_split:
             try:
@@ -391,27 +534,30 @@ class LucidRender:
                         from_table      = "pages",
                         where           = [ ("name",name), ("parent",page_id) ]
                     )[0]["id"]
-            except IndexError,e:
-                self.page_msg( "404 - File not found: Page '%s' unknow." % name )
-                break
+            except Exception,e:
+                if self.config.system.real_self_url == os.environ["REQUEST_URI"]:
+                    # Aufruf der eigenen index.py Datei
+                    self.set_default_page()
+                    return
+                else:
+                    self.page_msg( "404 Not Found. The requested URL '%s' was not found on this server." % name )
+                    #~ self.page_msg( page_name_split )
+                    if page_id == 0:
+                        # Nur wenn nicht ein Teil der URL stimmt, wird auf die Hauptseite gesprunngen
+                        self.set_default_page()
+                        return
 
-        if page_id == 0:
-            #~ self.page_msg( "Page '%s' unknown." % page_name )
-            self.set_default_page()
-            return
-
-        self.CGIdata["page_id"] = page_id
-
-    def set_history_page( self ):
-        if self.session.has_key("page_history"):
-            self.CGIdata["page_id"] = self.session["page_history"][0]
-        else:
-            self.page_msg( "Debug: History nicht vorhanden!" )
-            self.set_default_page()
+        self.CGIdata["page_id"] = int( page_id )
 
     def set_default_page( self ):
         "Setzt die default-Page als aktuelle Seite"
-        self.CGIdata["page_id"] = self.preferences["core"]["defaultPageName"]
+        try:
+            self.CGIdata["page_id"] = self.preferences["core"]["defaultPageName"]
+        except KeyError:
+            self.error(
+                "Can'r read preferences from DB.",
+                "(Did you install PyLucid correctly?)"
+            )
 
 
     #_____________________________________________________________________________________________________
@@ -448,5 +594,5 @@ if __name__ == "__main__":
     #~ print "Content-type: text/html\n"
     MyLR = LucidRender()
     page_content = MyLR.make()
-    print "Content-type: text/html\n"
+    print "Content-type: text/html; charset=utf-8\r\n\r\n"
     print page_content

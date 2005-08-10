@@ -5,9 +5,11 @@
 Allgemeiner SQL-Logger
 """
 
-__version__ = "v0.0.3"
+__version__ = "v0.0.4"
 
 __history__ = """
+v0.0.4
+    - Mittels *log_message bei put() werden nun auch Komma-getrennte Log's aufgenommen
 v0.0.3
     - DEL: Es gibt kein log_typ mehr
     - Nutzt Zeitumwandlung aus PyLucid["tools"]
@@ -71,16 +73,18 @@ class log:
         "File like writing method"
         self.put( log_message )
 
-    def __call__( self, log_message ):
+    def __call__( self, *log_message ):
         # Direkter Call-Aufruf zum schreiben
-        self.put( log_message )
+        self.put( *log_message )
 
-    def put( self, log_message ):
+    def put( self, *log_message ):
         "Schreib einen Eintag in die SQL-Log-Tabelle"
         self.check_client_data()
 
         # Alte Log-Einträge löschen
         self.delete_old_logs()
+
+        log_message = " ".join( [str(i) for i in log_message] )
 
         self.db.insert(
                 table = "log",

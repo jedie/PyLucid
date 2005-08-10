@@ -23,14 +23,17 @@ Wie man die Klasse benutzt, kann man unten sehen ;)
 
 ToDo
 ----
-    * update und insert benutzen das SQLdb-Escaping. Die select-Funktion allerdings
-      noch nicht!
     * Es wird immer das paramstyle 'format' benutzt. Also mit %s escaped
 """
 
-__version__="0.0.7"
+__version__="0.0.9"
 
 __history__="""
+v0.0.9
+    - in update() wird nun auch die where-value SQL-Escaped
+v0.0.8
+    - bei select() werden nun auch die select-values mit der SQLdb escaped
+    - methode _make_values() gelöscht und einfach durch tuple() erstetzt ;)
 v0.0.7
     - Statt query_fetch_row() wird der Cursor jetzt mit MySQLdb.cursors.DictCursor erstellt.
         Somit liefern alle Abfragen ein dict zurück! Das ganze funktioniert auch mit der uralten
@@ -70,42 +73,43 @@ except ImportError, e:
     sys.exit(0)
 
 
-#~ connr=0
+
 
 class mySQL:
     """
     Klasse, die nur allgemeine SQL-Funktionen beinhaltet
     """
     def __init__( self, *args, **kwargs ):
-        #~ print "Content-type: text/html\n"
-        #~ global connr
-        #~ connr+=1
-        #~ print "<h1>Connect %s</h1>" % connr
-        #~ if connr ==1: raise "Fehler!"
-
         self.conn           = MySQLdb.connect( *args, **kwargs )
         self.cursor         = self.conn.cursor( MySQLdb.cursors.DictCursor )
         self.tableprefix    = ""
+
+        # Bei debug=True werden die SQL-Befehle aufgegeben
         self.debug          = False
 
-    def get( self, SQLcommand ):
+    def get( self, SQLcommand, SQL_values = () ):
         """kombiniert execute und fetchall mit Tabellennamenplatzhalter"""
         self.cursor.execute(
-                SQLcommand.replace("$tableprefix$", self.tableprefix)
+                SQLcommand.replace("$tableprefix$", self.tableprefix),
+                SQL_values
             )
         return self.cursor.fetchall()
 
-    def fetchall( self, SQLcommand ):
+    def fetchall( self, SQLcommand, SQL_values = () ):
         """ kombiniert execute und fetchall """
-        self.cursor.execute( SQLcommand )
+        self.cursor.execute( SQLcommand, SQL_values )
         return self.cursor.fetchall()
 
-    def _make_values( self, values ):
-        "Erstellt einen values-Tuple für cursor.execute()"
-        if len( values ) == 1:
-            return (values[0],)
-        else:
-            return tuple( values )
+    def get_tables( self ):
+        """
+        Liefert alle Tabellennamen die das self.tableprefix haben
+        """
+        tables = []
+        for table in self.fetchall( "SHOW TABLES" ):
+            tablename = table.values()[0]
+            if tablename.startswith( self.tableprefix ):
+                tables.append( tablename )
+        return tables
 
     def insert( self, table, data ):
         """
@@ -113,7 +117,7 @@ class mySQL:
         data ist ein Dict, wobei die SQL-Felder den Key-Namen im Dict entsprechen muß!
         """
         items   = data.keys()
-        values  = self._make_values( data.values() )
+        values = tuple( data.values() )
 
         SQLcommand = "INSERT INTO %(prefix)s%(table)s ( %(items)s ) VALUES ( %(values)s );" % {
                 "prefix"        : self.tableprefix,
@@ -135,8 +139,11 @@ class mySQL:
         """
         Vereinfachte SQL-update Funktion
         """
-        items   = data.keys()
-        values  = self._make_values( data.values() )
+        data_keys   = data.keys()
+
+        values      = data.values()
+        values.append( where[1] )
+        values      = tuple( values )
 
         if limit:
             limit = "LIMIT %s" % limit
@@ -146,8 +153,8 @@ class mySQL:
         SQLcommand = "UPDATE %(prefix)s%(table)s SET %(set)s WHERE %(where)s %(limit)s;" % {
                 "prefix"    : self.tableprefix,
                 "table"     : table,
-                "set"       : ",".join( [str(i)+"=%s" for i in items] ),
-                "where"     : "%s='%s'" % (where[0],where[1]),
+                "set"       : ",".join( [str(i)+"=%s" for i in data_keys] ),
+                "where"     : where[0] + "=%s",
                 "limit"     : limit
             }
 
@@ -180,7 +187,9 @@ class mySQL:
         """
 
         SQLcommand = "SELECT " + ",".join( select_items )
-        SQLcommand += " FROM `%s%s`" % ( self.tableprefix, from_table )
+        SQLcommand += " FROM %s%s" % ( self.tableprefix, from_table )
+
+        SQL_parameters_values = []
 
         if where != None:
             if type( where[0] ) == str:
@@ -190,17 +199,13 @@ class mySQL:
 
             where_string = []
             for item in where:
-                if type(item[1]) == int:
-                    where_string.append( '`%s`=%s' % (item[0],item[1]) )
-                else:
-                    where_string.append( '`%s`="%s"' % (item[0],item[1]) )
+                where_string.append( item[0] + "=%s" )
+                SQL_parameters_values.append( item[1] )
 
-            where_string = " and ".join( where_string )
-
-            SQLcommand += ' WHERE %s' % where_string
+            SQLcommand += ' WHERE %s' % " and ".join( where_string )
 
         if order != None:
-            SQLcommand += " ORDER BY `%s` %s" % order
+            SQLcommand += " ORDER BY %s %s" % order
 
         if limit != None:
             SQLcommand += " LIMIT %s,%s" % limit
@@ -210,59 +215,8 @@ class mySQL:
             print "db.select - Debug:"
             print "SQLcommand:", SQLcommand
 
-        return self.get( SQLcommand )
-        RAWresult = self.get( SQLcommand )
-
-        if self.debug:
-            print "RAWresult:", RAWresult
-            print "-"*80
-
-        if select_items == "*":
-            # Spezielle Auswertung bei "SELECT *"-Anfragen
-            # Erstellt ein Dict mit den Namen der Tabellen-Felder
-            select_items = self.cursor.description
-            select_items = [i[0] for i in select_items]
-
-        # Daten aufbereiten -> Packe alle Daten in ein Dict
-        result = []
-        itemlen = len(select_items)
-        for line in RAWresult:
-            temp = {}
-            for i in xrange( itemlen ):
-                if line[i] == None:
-                    temp[ select_items[i] ] = ""
-                else:
-                    temp[ select_items[i] ] = line[i]
-            result.append( temp )
-
-        if result == []:
-            return ()
-
-        return result
-
-
-    #~ def query_fetch_row( self, SQLcommand, values=() ):
-        #~ """
-        #~ Als ersartz für
-            #~ connection.query( SQLcommand )
-            #~ return connection.store_result().fetch_row( maxrows, how )
-        #~ Diese Methoden gibt es leider erst in neueren Versionen von MySQLdb...
-        #~ Bei meinem WebHoster läuft allerdings eine uralte Version :(
-
-        #~ Meine nachgebaute Version liefert desc_dict und SQLresult zurück.
-        #~ desc_dict ist ein Dict: [row-Name] = row-PositionsNr
-        #~ SQLresult ist der ganz normale fetchall()-Tuple
-        #~ """
-        #~ self.cursor.execute( SQLcommand, values )
-        #~ SQLresult   = self.cursor.fetchall()
-
-        #~ index = 0
-        #~ desc_dict = {}
-        #~ for description in self.cursor.description:
-            #~ desc_dict[ description[0] ] = index
-            #~ index += 1
-
-        #~ return desc_dict, SQLresult
+        self.cursor.execute( SQLcommand, tuple( SQL_parameters_values ) )
+        return self.cursor.fetchall()
 
     def exist_table_name( self, table_name ):
         """ Überprüft die existens eines Tabellen-Namens """
@@ -285,12 +239,24 @@ class mySQL:
 
 
 if __name__ == "__main__":
-    db = db(
+    db = mySQL(
             host    = "localhost",
             user    = "SQL-DB-Username",
             passwd  = "SQL-DB-Password",
             db      = "SQL-DB-Name"
         )
+
+    #~ #----[PyLucid]----------------------------
+    #~ import sys
+    #~ sys.path.insert( 0, "../" )
+    #~ from config import dbconf
+    #~ db = mySQL(
+            #~ host    = dbconf["dbHost"],
+            #~ user    = dbconf["dbUserName"],
+            #~ passwd  = dbconf["dbPassword"],
+            #~ db      = dbconf["dbDatabaseName"],
+        #~ )
+    #~ #-----------------------------------------
 
     # Prefix for all SQL-commands:
     db.tableprefix = "test_"
@@ -323,7 +289,6 @@ if __name__ == "__main__":
             table = "TestTable",
             data  = { "data1" : "Value B 1", "data2" : "Value B 2" }
         )
-
 
     print "\n\nSQL-select Function (db.select):"
     result = db.select(

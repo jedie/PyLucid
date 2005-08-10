@@ -7,9 +7,11 @@ Evtl. muß der Pfad in dem sich PyLucid's "config.py" sich befindet
 per Hand angepasst werden!
 """
 
-__version__ = "v0.0.6"
+__version__ = "v0.0.7"
 
 __history__ = """
+v0.0.7
+    - Neue Art die nötigen Tabellen anzulegen.
 v0.0.6
     - Einige anpassungen
 v0.0.5
@@ -78,7 +80,7 @@ Sicherheitslücke: Es sollte nur ein Admin angelegt werden können, wenn noch ke
 
 
 import cgitb;cgitb.enable()
-import os, sys, cgi
+import os, sys, cgi, re, zipfile
 
 
 
@@ -89,6 +91,14 @@ import os, sys, cgi
 
 import config # PyLucid's "config.py"
 from PyLucid_system import SQL, sessiondata, userhandling
+
+#__________________________________________________________________________
+
+
+
+install_zipfile = "PyLucid_SQL_install_data.zip"
+dump_filename   = "SQLdata.sql"
+
 
 
 #__________________________________________________________________________
@@ -115,258 +125,8 @@ db_updates = [
     },
 ]
 
-#__________________________________________________________________________
-## Tabellen Daten
-
-SQL_make_tables = [
-{
-    "name"      : "pages_internal",
-    "command"   :
-"""CREATE TABLE `%(dbTablePrefix)spages_internal` (
-name VARCHAR( 50 ) NOT NULL ,
-markup VARCHAR( 50 ) NOT NULL ,
-content TEXT NOT NULL ,
-description TEXT NOT NULL ,
-PRIMARY KEY ( name )
-) COMMENT = 'PyLucid - internal Pages';"""
-},
-{
-    "name"      : "md5users",
-    "command"   :
-"""CREATE TABLE `%(dbTablePrefix)smd5users` (
-`id` INT( 11 ) NOT NULL AUTO_INCREMENT,
-`name` VARCHAR( 50 ) NOT NULL ,
-`realName` VARCHAR( 50 ) NOT NULL ,
-`email` VARCHAR( 50 ) NOT NULL ,
-`pass1` VARCHAR( 32 ) NOT NULL ,
-`pass2` VARCHAR( 32 ) NOT NULL ,
-`admin` TINYINT( 4 ) DEFAULT '0' NOT NULL ,
- PRIMARY KEY  (`id`),
- UNIQUE KEY `name` (`name`)
-) COMMENT = 'PyLucid - Userdata with md5-JavaScript-Password';"""
-},
-{
-    "name"      : "session_data",
-    "command"   :
-"""CREATE TABLE `%(dbTablePrefix)ssession_data` (
-`session_id` varchar(32) NOT NULL default '',
-`user_nae` varchar(32) NOT NULL default '',
-`timestamp` int(15) NOT NULL default '0',
-`ip` varchar(15) NOT NULL default '',
-`domain_name` varchar(50) NOT NULL default '',
-`session_data` text NOT NULL,
-PRIMARY KEY  (`session_id`),
-KEY `session_id` (`session_id`)
-) COMMENT='Python-SQL-CGI-Sessionhandling';"""
-},
-{
-    "name"      : "lucid_log",
-    "command"   :
-"""CREATE TABLE `%(dbTablePrefix)slog` (
-  `id` int(11) NOT NULL auto_increment,
-  `timestamp` datetime,
-  `sid` varchar(50) NOT NULL default '-1',
-  `user_name` varchar(50) default NULL,
-  `ip` varchar(50) default NULL,
-  `domain` varchar(50) default NULL,
-  `message` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`)
-) COMMENT='PyLucid - Logging' ;"""
-}
-]
-
 
 #__________________________________________________________________________
-## Seiten Daten
-
-
-internal_pages = [
-{
-    "name"        : "login_form",
-    "description" : "The Login Page.",
-    "markup"      : "none",
-    "content"     :
-"""<h2>PyLucid - LogIn:</h2>
-<script src="%(md5)s" type="text/javascript"></script>
-<script src="%(md5manager)s" type="text/javascript"></script>
-<noscript>Javascript is needed!</noscript>
-<form name="login" method="post" action="%(url)s">
-    <p>
-        User:
-        <input name="user" type="text" value=""><br />
-        Passwort:
-        <input name="pass" type="password" value=""><br />
-        md5pass:
-        <input name="md5pass1" value="" type="text" size="34" maxlength="32" />
-        <input name="md5pass2" value="" type="text" size="34" maxlength="32" />
-        <br />
-        <input name="rnd" type="hidden" value="%(rnd)s">
-        <input name="use_md5login" type="hidden" value="0">
-        <a href="javascript:md5login();">MD5 LogIn</a>
-    </p>
-</form>
-<script type="text/javascript">
-    document.login.user.focus();
-</script>
-"""
-},
-{
-    "name"        : "admin_sub_menu",
-    "description" : "Administration sub menu",
-    "markup"      : "none",
-    "content"     :
-"""<h2>Administration Sub-Menu</h2>
-<lucidTag:admin_sub_menu_list/>"""
-},
-{
-    "name"        : "edit_style",
-    "description" : "Page to edit a stylesheet",
-    "markup"      : "none",
-    "content"     :
-"""<h2>Edit CSS stylesheet</h2>
-<form method="post" action="%(url)s">
-    <p>
-        Name: <strong>&quot;%(name)s&quot;</strong>:<br/>
-        <textarea wrap="off" id="edit_style" name="content" style="width: 100%%;" rows="20" accept-charset="UTF-8">%(content)s</textarea><br />
-        Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s"><br />
-        <input type="submit" name="Submit" value="save" />
-        <input type="reset" name="abort" onClick="javacript:window.location.href='%(back)s'" value="abort" />
-    </p>
-</form>"""
-},
-{
-    "name"        : "edit_template",
-    "description" : "Page to edit a template",
-    "markup"      : "none",
-    "content"     :
-"""<h2>Edit template</h2>
-<form method="post" action="%(url)s">
-    <p>
-        Name: <strong>&quot;%(name)s&quot;</strong>:<br/>
-        <textarea wrap="off" id="edit_style" name="content" style="width: 100%%;" rows="20" accept-charset="UTF-8">%(content)s</textarea><br />
-        Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s"><br />
-        <input type="submit" name="Submit" value="save" />
-        <input type="reset" name="abort" onClick="javacript:window.location.href='%(back)s'" value="abort" />
-    </p>
-</form>"""
-},
-{
-    "name"        : "edit_internal_page",
-    "description" : "Page to edit a internal page",
-    "markup"      : "none",
-    "content"     :
-"""<h2>Edit internal page</h2>
-<form method="post" action="%(url)s">
-    <p>
-        Name: <strong>&quot;%(name)s&quot;</strong>:<br/>
-        <textarea wrap="off" id="edit_internal_page" name="content" style="width: 100%%;" rows="20" accept-charset="UTF-8">%(content)s</textarea><br />
-        Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s"><br />
-        <input type="submit" name="Submit" value="save" />
-        <input type="reset" name="abort" onClick="javacript:window.location.href='%(back)s'" value="abort" />
-    </p>
-</form>"""
-},
-{
-    "name"        : "edit_page",
-    "description" : "Page to edit a normal Content-Page",
-    "markup"      : "none",
-    "content"     :
-"""%(status_msg)s
-<style type="text/css">
-    .edit_page {
-        line-height:1.5em;
-    }
-    .edit_page input, .edit_page select {
-        position: absolute;
-        left: 28em;
-
-    }
-    .resize_buttons a {
-        text-decoration:none;
-    }
-    #hr_textarea {
-        clear: both;
-        margin: 1px;
-        padding: 1px;
-        border: none;
-    }
-</style>
-<form name="login" method="post" action="%(url)s">
-  <p>Page: <strong>&quot;%(name)s&quot;</strong>:<br>
-    <textarea id="page_content" name="content" rows="20" accept-charset="UTF-8">%(content)s</textarea>
-    <hr id="hr_textarea">
-    <span class="resize_buttons">
-        <a href="JavaScript:resize_big();" alt="bigger">&nbsp;+&nbsp;</a>
-        <a href="JavaScript:resize_small();">&nbsp;-&nbsp;</a>
-        &nbsp;&nbsp;
-    </span>
-    <input type="submit" name="Submit" value="preview" />
-    <input type="submit" name="Submit" value="save" />
-    <input type="reset" name="abort" onClick="javacript:window.location.href='?%(name)s'" value="abort" />
-    ||| <input type="submit" name="Submit" value="encode from DB" />
-    <select name="encoding" id="encoding">%(encoding_option)s</select>
-  </p>
-  <p>
-    trivial modifications: <input name="trivial" type="checkbox" id="trivial" value="1" />( If checked the side will not archived. )<br/>
-    Edit summary: <input name="summary" type="text" value="%(summary)s" id="summary" size="50" maxlength="50" />
-  </p>
-  <h4>Page Details</h4>
-  <p class="edit_page">
-    page name:    <input name="name" type="text" value="%(name)s" size="50" maxlength="50"><br/>
-    page title:   <input name="title" type="text" value="%(title)s" size="50" maxlength="50"><br/>
-    keywords:     <input name="keywords" type="text" value="%(keywords)s" size="70" maxlength="255"><br/>
-    description:  <input name="description" type="text" value="%(description)s" size="70" maxlength="255"><br/>
-  </p>
-  <h4>Page Controls</h4>
-  <p class="edit_page">
-    Parent Page:    <select name="parent" id="parent">%(parent_option)s</select><br/>
-    Template:       <select name="template" id="template">%(template_option)s</select><br/>
-    Style:          <select name="style">%(style_option)s</select><br/>
-    Markup:         <select name="markup">%(markup_option)s</select><br/>
-    Page Owner:     <select name="ownerID" id="ownerID">%(ownerID_option)s</select><br/>
-  </p>
-  <h4>Page Permissions</h4>
-  <p class="edit_page">
-    Editable by Group:  <select name="permitEditGroupID" id="permitEditGroupID">%(permitEditGroupID_option)s</select><br/>
-    Viewable by Group:  <select name="permitViewGroupID" id="permitViewGroupID">%(permitViewGroupID_option)s</select><br/>
-    showlinks:          <input name="showlinks" type="checkbox" id="showlinks" value="1"%(showlinks)s><br/>
-    permit view public: <input name="permitViewPublic" type="checkbox" id="permitViewPublic" value="1"%(permitViewPublic)s><br/>
-  </p>
-</form>
-<script type="text/javascript">
-    // Skript zum größer und kleiner machen des Eingabefeldes
-    textarea = document.getElementById("page_content");
-    hr_textarea = document.getElementById("hr_textarea");
-    old_cols = textarea.cols;
-    old_rows = textarea.rows;
-    function resize_big() {
-        textarea.style.position = "absolute";
-        textarea.style.left = "1em";
-        textarea.style.top = "1em";
-        textarea.cols = textarea.cols*1.4;
-        textarea.rows = textarea.rows*1.75;
-
-        hr_textarea.style.margin = "26em";
-    }
-    function resize_small() {
-        textarea.style.position = "relative";
-        textarea.style.left = "0px";
-        textarea.style.top = "0px";
-        textarea.cols = old_cols;
-        textarea.rows = old_rows;
-        hr_textarea.style.margin = "1px";
-    }
-</script>
-"""
-}
-]
-
-
-SQL_insert_internal_pages = """INSERT INTO `%(dbTablePrefix)spages_internal` ( name, markup, content, description )
-VALUES (
-'%(name)s', '%(markup)s', '%(content)s'
-);"""
-
 
 
 HTML_head = """<?xml version="1.0" encoding="UTF-8"?>
@@ -380,6 +140,51 @@ HTML_head = """<?xml version="1.0" encoding="UTF-8"?>
 <body>
 <h2>PyLucid Setup %s</h2>""" % __version__
 
+
+class SQL_dump:
+
+    re_create_table = re.compile( r"(?ims)(CREATE TABLE.*?;)" )
+    re_insert_value = re.compile( r"(?ims)(INSERT INTO.*?;)" )
+
+    def __init__( self ):
+        self.in_create_table = False
+        self.in_insert = False
+
+        self.data = self._get_zip_dump()
+
+    def _get_zip_dump( self ):
+        print "Open '%s'..." % install_zipfile,
+        ziparchiv = zipfile.ZipFile( install_zipfile, "r" )
+        data = ziparchiv.read( dump_filename )
+        ziparchiv.close()
+        print "OK"
+
+        return data
+
+    def import_dump( self ):
+        print "<pre>"
+        create_tables = self.re_create_table.findall( self.data )
+        create_tables = [self._complete_prefix(i) for i in create_tables]
+        for command in create_tables:
+            print command
+            print
+
+        insert_values = self.re_insert_value.findall( self.data )
+        insert_values = [self._complete_prefix(i) for i in insert_values]
+        for command in insert_values:
+            print command
+            print
+
+    def _complete_prefix( self, line ):
+        return line % { "table_prefix" : config.dbconf["dbTablePrefix"] }
+
+    def dump_data( self ):
+        print "<h2>SQL Dump data:</h2>"
+        print
+        print "<pre>"
+        for line in self.data.splitlines():
+            print cgi.escape( self._complete_prefix( line )  )
+        print "</pre>"
 
 
 class PyLucid_setup:
@@ -397,12 +202,12 @@ class PyLucid_setup:
         #~ print "<p>CGI-data debug: '%s'</p>" % self.CGIdata
 
         self.actions = [
-                (self.convert_db,     "convert_db",  "convert DB data from PHP-LucidCMS to PyLucid Format"),
-                (self.setup_db,       "setup_db",    "setup database (create all Tables/internal pages)"),
-                (self.update_db,      "update_db",   "update internal pages (set all internal pages to default)"),
-                (self.add_admin,      "add_admin",   "add admin (needed für secure MD5-Login!)"),
-                (self.sql_dump,       "sql_dump",    "SQL dump (experimental)"),
-                (self.convert_locals, "locals",      "convert locals (ony preview!)"),
+                (self.install_PyLucid,  "install",              "Install PyLucid from scratch"),
+                (self.add_admin,        "add_admin",            "add a admin user"),
+                (self.default_internals,"default_internals",    "set all internal pages to default"),
+                (self.convert_db,       "convert_db",           "convert DB data from PHP-LucidCMS to PyLucid Format"),
+                #~ (self.sql_dump,         "sql_dump",             "SQL dump (experimental)"),
+                #~ (self.convert_locals,   "locals",               "convert locals (ony preview!)"),
             ]
 
         for action in self.actions:
@@ -444,6 +249,93 @@ class PyLucid_setup:
         print "</ul>"
 
     ###########################################################################################
+
+    def install_PyLucid( self ):
+        """ Installiert PyLucid von Grund auf """
+        print "<h3>Install PyLucid:</h3>"
+        self.print_backlink()
+
+        d = SQL_dump()
+        d.import_dump()
+        #~ d.dump_data()
+
+
+
+    #__________________________________________________________________________________________
+
+    def setup_db( self ):
+        print "<pre>"
+        for SQLcommand in SQL_table_data.split("----"):
+            SQLcommand = SQLcommand.strip() % {
+                "dbTablePrefix" : config.dbconf["dbTablePrefix"]
+            }
+            SQLcommand = SQLcommand.replace("\n"," ")
+            table_name = re.findall( "TABLE(.*?)\(", SQLcommand )[0]
+            comment = re.findall( "COMMENT.*?'(.*?)'", SQLcommand )[0]
+
+            print "Create table '%s' (%s) in DB" % (table_name,comment)
+            #~ print SQLcommand
+            self.execute( SQLcommand )
+            print
+        print "</pre>"
+
+    #__________________________________________________________________________________________
+
+    def base_content( self ):
+        print "<pre>"
+        old_table_name = ""
+        for SQLcommand in base_content.split("INSERT"):
+            SQLcommand = SQLcommand.strip()
+            if SQLcommand == "":
+                continue
+
+            SQLcommand = "INSERT " + SQLcommand
+
+            # Mit einem String-Formatter kann man leider nicht arbeiten, weil
+            # In den Inhalten mehr Platzhalter vorkommen können!
+            SQLcommand = SQLcommand.replace( "%(dbTablePrefix)s", config.dbconf["dbTablePrefix"] )
+
+            #~ print cgi.escape( SQLcommand ).encode( "String_Escape" )
+
+            table_name = re.findall( "INTO `(.*?)` VALUES", SQLcommand )[0]
+            if table_name != old_table_name:
+                print "put base content into table:", table_name
+                old_table_name = table_name
+
+            self.execute( SQLcommand )
+        print "</pre>"
+
+    #__________________________________________________________________________________________
+
+    def add_admin( self ):
+        if not self._has_all_keys( self.CGIdata, ["username","email","pass"] ):
+            print '<form name="login" method="post" action="?add_admin">'
+            print '<p>'
+            print 'Username: <input name="username" type="text" value=""><br />'
+            print 'email: <input name="email" type="text" value=""><br />'
+            print 'Realname: <input name="realname" type="text" value=""><br />'
+            print 'Passwort: <input name="pass" type="password" value="">(len min.8!)<br />'
+            print '<strong>(Note: all fields required!)</strong><br />'
+            print '<input type="submit" name="Submit" value="add admin" />'
+            print '</p></form>'
+            return
+
+        print "<h3>Add Admin:</h3>"
+        self.print_backlink( "add_admin" )
+        print "<pre>"
+        if not self.CGIdata.has_key("realname"):
+            self.CGIdata["realname"] = None
+        #~ print self.CGIdata["username"]
+        #~ print self.CGIdata["pass"]
+
+        usermanager = userhandling.usermanager( self.db )
+        usermanager.add_user( self.CGIdata["username"], self.CGIdata["email"], self.CGIdata["pass"], self.CGIdata["realname"], admin=1 )
+
+        print "User '%s' add." % self.CGIdata["username"]
+        print "</pre>"
+        self.print_saftey_info()
+        print '<a href="?">back</a>'
+
     ###########################################################################################
 
     def convert_db( self ):
@@ -463,63 +355,34 @@ class PyLucid_setup:
         print "<h4>OK</h4>"
         print '<a href="?">back</a>'
 
-    def add_admin( self ):
-        print "<h3>Add Admin:</h3>"
 
-        if not self._has_all_keys( self.CGIdata, ["username","email","pass"] ):
-            self.print_backlink()
-            print '<form name="login" method="post" action="?add_admin">'
-            print '<p>'
-            print 'Username: <input name="username" type="text" value=""><br />'
-            print 'email: <input name="email" type="text" value=""><br />'
-            print 'Realname: <input name="realname" type="text" value=""><br />'
-            print 'Passwort: <input name="pass" type="password" value="">(len min.8!)<br />'
-            print '<strong>(Note: all fields required!)</strong><br />'
-            print '<input type="submit" name="Submit" value="send" />'
-            print '</p></form>'
-            sys.exit()
+    #__________________________________________________________________________________________
 
-        self.print_backlink( "add_admin" )
-        print "<pre>"
-        if not self.CGIdata.has_key("realname"):
-            self.CGIdata["realname"] = None
-        #~ print self.CGIdata["username"]
-        #~ print self.CGIdata["pass"]
-
-        usermanager = userhandling.usermanager( self.db )
-        usermanager.add_user( self.CGIdata["username"], self.CGIdata["email"], self.CGIdata["pass"], self.CGIdata["realname"], admin=1 )
-
-        print "User '%s' add." % self.CGIdata["username"]
-        print "</pre>"
-        print '<a href="?">back</a>'
-
-    ###########################################################################################
-    ###########################################################################################
-
-    def setup_db( self ):
-        print "<h3>Setup Database:</h3>"
+    def default_internals( self ):
+        print "<h3>set all internal pages to default.</h3>"
         self.print_backlink()
         print "<pre>"
-        print "="*80
 
-        self.setup_tables()
-        self.setup_internal_pages()
+        self.make_default_internals()
 
-        print "="*80
-        print "Setup finally!"
         print "</pre>"
         self.print_backlink()
-        self.print_saftey_info()
 
-    def setup_tables( self ):
-        for table in SQL_make_tables:
-            SQLcommand = table["command"] % {
-                    "dbTablePrefix" : config.dbconf["dbTablePrefix"]
-                }
-            print "Insert table '%s' in DB" % table["name"]
-            #~ print "***\n%s\n***" % SQLcommand
-            self.execute( SQLcommand )
+    def make_default_internals( self ):
+        for page in internal_pages:
+            print "update page '%s' in table 'pages_internal'" % page["name"]
+            try:
+                self.db.update(
+                    table   = "pages_internal",
+                    data    = page,
+                    where   = ("name",page["name"]),
+                    limit   = 1
+                )
+            except Exception, e:
+                print "Error: '%s'" % e
             print
+
+    #__________________________________________________________________________________________
 
     def setup_internal_pages( self ):
         for page in internal_pages:
@@ -530,30 +393,6 @@ class PyLucid_setup:
                 print "Error: '%s'" % e
             print
 
-    ###########################################################################################
-    ###########################################################################################
-
-    def update_db( self ):
-        print "<h3>set all internal pages to default.</h3>"
-        self.print_backlink()
-        print "<pre>"
-        for page in internal_pages:
-            print "update page '%s' in table 'pages_internal'" % page["name"]
-            try:
-                #~ self.db.update( "pages_internal", page )
-                self.db.update(
-                    table   = "pages_internal",
-                    data    = page,
-                    where   = ("name",page["name"]),
-                    limit   = 1
-                )
-            except Exception, e:
-                print "Error: '%s'" % e
-            print
-        print "</pre>"
-
-    ###########################################################################################
-    ###########################################################################################
 
     def sql_dump( self ):
         print "<h3>SQL (experimental!)</h3>"
@@ -561,7 +400,7 @@ class PyLucid_setup:
             self.print_backlink()
             print '<form name="sql_dump" method="post" action="?sql_dump">'
             print '<p>SQL command:<br/>'
-            print '<textarea name="sql_commands" cols="90" rows="20"></textarea><br/>'
+            print '<textarea name="sql_commands" cols="90" rows="25"></textarea><br/>'
             print '<input type="submit" name="Submit" value="send" />'
             print '</p></form>'
             sys.exit()
@@ -665,7 +504,7 @@ class PyLucid_setup:
     def print_saftey_info( self ):
         print "<hr>"
         print "<h3>For safety reasons:</h3>"
-        print "<h3>After setup: Delete this file (%s) on the server !!!</h3>" % os.environ["SCRIPT_NAME"]
+        print "<h4>After setup: Delete this file (%s) on the server !!!</h4>" % os.environ["SCRIPT_NAME"]
 
 
 if __name__ == "__main__":

@@ -9,9 +9,11 @@ Module Manager
 
 """
 
-__version__="0.0.4"
+__version__="0.0.5"
 
 __history__="""
+v0.0.5
+    - Debug mit page_msg
 v0.0.4
     - "must_login" und "must_admin" muß nun in jedem Modul definiert worden sein.
     - Fehlerabfrage beim Module/Aktion starten
@@ -25,6 +27,7 @@ v0.0.1
 
 
 import sys, os, glob
+import cgitb;cgitb.enable()
 
 
 # Für Debug-print-Ausgaben
@@ -52,18 +55,22 @@ class package_info:
 
     def get_module_data( self, package_name, module_name ):
         """Daten aus der pseudo Klasse 'module_info' holen"""
+        #~ try:
         return __import__(
             "%s.%s" % (package_name,module_name),
             globals(), locals(),
             ["module_info"]
         ).module_info.data
+        #~ except Exception,e:
 
 
 class module_manager:
-    def __init__( self, PyLucid_objects ):
-        self.PyLucid_objects    = PyLucid_objects
-        self.session            = PyLucid_objects["session"]
-        self.log                = PyLucid_objects["log"]
+    def __init__( self, PyLucid ):
+        self.PyLucid    = PyLucid
+        self.session            = PyLucid["session"]
+        self.log                = PyLucid["log"]
+        self.config             = PyLucid["config"]
+        self.page_msg           = PyLucid["page_msg"]
 
         self.modul_data = {}
 
@@ -172,12 +179,17 @@ class module_manager:
         )
 
         # Module/Aktion starten
-        try:
-            result_page_data = module.PyLucid_action( self.PyLucid_objects )
-        except Exception, e:
-            return "Modul '%s.%s' Error: %s" % (
-                module_data['package_name'], module_data['module_name'], e
-            )
+        if self.config.system.ModuleManager_error_handling == True:
+            # Fehler sollen abgefangen werden
+            try:
+                result_page_data = module.PyLucid_action( self.PyLucid )
+            except Exception, e:
+                return "Modul '%s.%s' Error: %s" % (
+                    module_data['package_name'], module_data['module_name'], e
+                )
+        else:
+            # Fehler sollen zu einem CGI-Traceback führen ( cgitb.enable() )
+            result_page_data = module.PyLucid_action( self.PyLucid )
 
         # Letzte Aktion festhalten
         self.session["last_action"] = module_data['module_name']
@@ -189,16 +201,14 @@ class module_manager:
 
     def debug( self ):
         """Für Debugging Zwecke werden alle Daten angezeigt"""
-        print "Content-type: text/html\n"
-        print "<h1>Modul Manager Debug:</h1>"
-        print "<pre>"
+        self.page_msg( "Modul Manager Debug:" )
+        self.page_msg( "-"*30 )
         for order,data in self.modul_data.iteritems():
-            print order
+            self.page_msg( ">>>",order )
             for k,v in data.iteritems():
-                print "\t%s - %s" % (k,v)
-            print "-"*80
-        print "</pre>"
-
+                self.page_msg( "%s - %s" % (k,v) )
+            self.page_msg( "-"*10 )
+        self.page_msg( "-"*30 )
 
 
 #~ if __name__ == "__main__":

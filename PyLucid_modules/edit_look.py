@@ -288,16 +288,29 @@ class edit_look:
 
     def save_internal_page( self, internal_page_name ):
         """ Speichert einen editierte interne Seite """
-        page_data = {
-            "content"       : self.CGIdata["content"],
-            "description"   : self.CGIdata["description"],
-            "markup"        : self.CGIdata["markup"],
-        }
+        try:
+            page_data = {
+                "content"       : self.CGIdata["content"],
+                "description"   : self.CGIdata["description"],
+                #~ "markup"        : self.CGIdata["markup"],
+            }
+        except KeyError,e:
+            return self.error(
+                "Formdata not complete.", e, "set internal Pages to default with install_PyLucid.py",
+                "use back-Button!"
+            )
         self.db.update_internal_page( internal_page_name, page_data )
         page = "<h3>internal page saved!</h3>"
         page += self.edit_internal_page_select()
         return page
 
+    #_______________________________________________________________________
+    ## Allgemeine Funktionen
+
+    def error( *msg ):
+        page  = "<h2>Error.</h2>"
+        page += "<p>%s</p>" % "<br/>".join( [str(i) for i in msg] )
+        return page
 
 #_______________________________________________________________________
 # Allgemeine Funktion, um die Aktion zu starten

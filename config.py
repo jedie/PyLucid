@@ -1,9 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-__version__="0.0.2"
+__version__="0.0.3"
 
 __history__="""
+v0.0.3
+    - NEU: system.robots_tag
+    - NEU: system.ModuleManager_error_handling
+    - NEU: system.mod_rewrite_filter
 v0.0.2
     - Kleine if-Abfrage nach dbconf ermöglicht das dynamische Modifizieren
         der db-Daten, damit ein lokaler Test einfacher ist.
@@ -34,6 +38,20 @@ class system:
     # Zeigt zusätzlich an, in welchem Modul eine Page-Massage erzeugt wurde
     page_msg_debug = False
 
+    # Fehlerabfrage bei Module/Plugins über den Module-Manager
+    # =False -> Fehler in einem Modul führen zu einem CGI-Traceback ( cgitb.enable() )
+    # =True -> Fehler in einem Modul werden in einem Satz zusammen gefasst
+    ModuleManager_error_handling = False
+
+    # Damit Suchmaschienen nicht auch interne Seiten indexieren, passt PyLucid den
+    # Inhalt des '<lucidTag:robots/>'-Tag je nach Typ der Seite an.
+    # Dazu sollte im Header der Seite eine folgende Zeile stehen:
+    # <meta name="robots" content="<lucidTag:robots/>" />
+    robots_tag = {
+        "content_pages"     : "index",  # Alle Seiten die ein ?command=xyz haben
+        "internal_pages"    : "noindex" # Normale CMS-Seiten
+    }
+
     # Pfad zur Ralf Mieke's md5.js
     # http://www.miekenet.de
     # http://aktuell.de.selfhtml.org/artikel/javascript/md5/
@@ -51,7 +69,7 @@ class system:
     # Für render.py, damit bei specialTags (z.B. <lucidFunction:IncludeRemote>) angegebenes Skripte
     # z.B. ListOfNewSides.py nicht wirklich per http gehohlt werden, sondern als Python-Module direkt
     # ausgeführt werden.
-    LocalDomains = ( "http://localhost", )
+    #~ LocalDomains = ( "http://localhost", "http://jensdiemer.de", "http://www.jensdiemer.de" )
 
     ## real_self_url und poormans_url
     # Bei manchen Webhostern sind CGI Programm nicht außerhalb
@@ -91,12 +109,12 @@ class system:
     # poormans_url = "/"
     #
     real_self_url   = "/index.py"
-    poormans_url    = "/"
     #
     # Mit welchem Parameter sollen die Links gebildet werden
-    # Standart: "?p="
-    page_ident      = "?p="
-    #~ page_ident      = ""
+    # Standart: "p="
+    #~ page_ident      = "?p="
+    page_ident      = ""
+    poormans_url    = ""
 
     ## poormans_modrewrite
     # Um auch ohne apache's Modrewrite eine saubere URL *ohne* URL-Parameter
@@ -108,8 +126,13 @@ class system:
     #
     # Ausgewertet wird dabei der os.environ-Eintrag "REQUEST_URI"
     # Mit poormans_modrewrite muß page_ident="" sein!
-    #~ poormans_modrewrite = True
-    poormans_modrewrite = False
+    poormans_modrewrite = True
+    #~ poormans_modrewrite = False
+    #
+    # Für eine schnellere Abarbeitung echter "404 Not Found" Fehler
+    # beim "poormans_modrewrite = True" werden Requests auf Dateien
+    # mit den angegebenen Endungen direkt am Anfang abgehandelt.
+    mod_rewrite_filter = ("py","php","js","css","gif","png","jpg","jpeg")
 
 
 ## Hinweis
@@ -122,7 +145,6 @@ dbconf = {
     "dbTablePrefix"     : 'lucid_',
     "dbdatetime_format" : '%Y-%m-%d %H:%M:%S', # SQL-Datetime-String-Format
 }
-
 
 
 available_markups = ["none","textile"]

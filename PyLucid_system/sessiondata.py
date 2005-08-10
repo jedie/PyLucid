@@ -49,12 +49,7 @@ class CGIdata:
         CGIdata ist eine abgeleitetes Dictionary und kann
         somit wie ein Dict angesprochen werden.
         """
-        #~ self.PyLucid    = PyLucid
-        #~ self.db         = PyLucid["db"]
-        #~ self.config     = PyLucid["config"]
         self.page_msg   = PyLucid["page_msg"]
-
-        self.page_name_error = False
 
         self.data = {} # Dict in dem die CGIdaten gespeichert werden
 
@@ -134,12 +129,21 @@ class CGIdata:
         #~ print cgi.FieldStorage( keep_blank_values=True )
         #~ print "REQUEST_URI:",os.environ["REQUEST_URI"]
         #~ print "</pre>"
+        import cgi
         self.page_msg( "CGIdata Debug:" )
+        self.page_msg( "-"*30 )
         for k,v in self.data.iteritems():
-            self.page_msg( "%s - %s" % (k,v) )
-        self.page_msg( "-"*10 )
-        self.page_msg( cgi.FieldStorage( keep_blank_values=True ) )
-        self.page_msg( "REQUEST_URI:",os.environ["REQUEST_URI"] )
+            self.page_msg( "%s - %s" % ( k, cgi.escape(str(v)) ) )
+        self.page_msg( "FieldStorage:", cgi.FieldStorage( keep_blank_values=True ) )
+        try:
+            self.page_msg( 'os.environ["QUERY_STRING"]:', os.environ['QUERY_STRING'] )
+        except:
+            pass
+        try:
+            self.page_msg( 'os.environ["REQUEST_URI"]:', os.environ["REQUEST_URI"] )
+        except:
+            pass
+        self.page_msg( "-"*30 )
 
 
 
@@ -149,6 +153,14 @@ class CGIdata:
 
 
 class page_msg:
+    """
+    Kleine Klasse um die Seiten-Nachrichten zu verwalten
+    page_msg wird in index.py den PyLucid-Objekten hinzugefugt.
+    mit PyLucid["page_msg"]( "Eine neue Nachrichtenzeile" ) wird Zeile
+    für Zeile Nachrichten eingefügt.
+    Die Nachrichten werden ganz zum Schluß in der index.py in die
+    generierten Seite eingeblendet. Dazu dient der Tag <lucidTag:page_msg/>
+    """
     def __init__( self ):
         if config.system.page_msg_debug:
             self.data = "<p>[config.system.page_msg_debug = True!]</p>"
@@ -156,11 +168,12 @@ class page_msg:
             self.data = ""
 
     def __call__( self, *msg ):
+        """ Fügt eine neue Zeile mit einer Nachricht hinzu """
         if config.system.page_msg_debug:
             #~ for line in inspect.stack(): self.data += "%s<br/>" % str( line )
             self.data += "...%s line %s: " % (inspect.stack()[1][1][-20:], inspect.stack()[1][2] )
 
-        self.data += "-%s <br/>" % " ".join( [str(i) for i in msg] )
+        self.data += "%s <br/>" % " ".join( [str(i) for i in msg] )
 
 
 

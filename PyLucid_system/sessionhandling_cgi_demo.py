@@ -6,16 +6,19 @@ Ein kleiner Test f�r den Session-Handler (sessionhandling.py)
 by JensDiemer.de
 """
 
-__version__ = "v0.0.1"
+__version__ = "v0.0.2"
 
 __history__ = """
+v0.0.2
+    - MySQLdb.cursors.DictCursor
 v0.0.1
     - erste Version
 """
 
 import cgitb;cgitb.enable()
+#~ print "Content-type: text/html\n"
 import sys, os, cgi
-import MySQLdb as DBlib
+import MySQLdb
 
 
 import sessionhandling
@@ -32,9 +35,11 @@ sys.path.insert( 0, "../" )
 from config import dbconf
 
 
-#~ sql_tablename = "lucid_session_data"
+sql_tablename = "lucid_session_data"
 sql_tablename = "session_demo"
 log_typ = "sessionhandling_DEMO"
+
+#_______________________________________________________________________________________________
 
 class db:
     """
@@ -44,25 +49,48 @@ class db:
         self.connect()
 
     def connect( self ):
-        self.connection = DBlib.connect(
+        self.connection = MySQLdb.connect(
             dbconf["dbHost"],
             dbconf["dbUserName"],
             dbconf["dbPassword"],
             dbconf["dbDatabaseName"]
         )
-        self.cursor = self.connection.cursor()
+        self.cursor = self.connection.cursor( MySQLdb.cursors.DictCursor )
+
+#_______________________________________________________________________________________________
+
+class log:
+    """
+    Miminale Log-Klasse
+    """
+    def __init__( self ):
+        self.data = []
+
+    def write( self, *txt ):
+        self.data.append(
+            " ".join( [str(i) for i in txt] )
+        )
+
+    def __call__( self, *txt ):
+        self.write( *txt )
+
+    def get( self ):
+        return "<br/>".join( self.data )
 
 
-import SQL_logging
+#_______________________________________________________________________________________________
+
 
 class sessiontest:
     def __init__( self ):
         Mydb = db()
-        self.log = SQL_logging.log( Mydb.cursor )
-        self.log.set_typ( log_typ )
-        self.session = sessionhandling.sessionhandler( Mydb.cursor, sql_tablename, self.log )
+        self.log = log()
+        #~ self.log.set_typ( log_typ )
+        self.session = sessionhandling.sessionhandler(
+            Mydb.cursor, sql_tablename, self.log, CookieName="DEMO", verbose_log = True
+        )
+        self.session.page_msg = self.log
         self.session.log_typ = log_typ
-        #~ self.session = sessionhandler( Mydb.cursor, sql_tablename )
 
         self.cgidata = self.getCGIdata()
 
@@ -88,6 +116,7 @@ class sessiontest:
                     name = self.cgidata["name"]
                     data = self.cgidata["data"]
                     self.session[name] = data
+                    self.session["test"] = [3,2,43]
                     self.session.update_session() # Schreibt session-Daten in die DB
                 except KeyError:
                     print "<strong>Form error! Please fill out all fields.</strong>"
@@ -108,10 +137,10 @@ class sessiontest:
         print "<hr />"
         print "<strong>Session-Data:</strong>"
         print "<pre>"
-        #~ print "cgi_daten.....:", self.cgidata
+        print "cgi_daten.....:", self.cgidata
         print "Session-ID....:", self.session.ID
         print "Session-Data..:", self.session
-        #~ print "länge in DB...: %sBytes" % self.session.RAW_session_data_len
+        print "länge in DB...: %sBytes" % self.session.RAW_session_data_len
         print "</pre>"
         print "<hr />"
 
@@ -128,11 +157,12 @@ class sessiontest:
         print "<strong>Your DB-Log-Data:</strong>"
 
         print "<pre>"
-        print self.log.get_by_IP(
-                os.environ["REMOTE_ADDR"],
-                log_typ="sessionhandling_DEMO",
-                plaintext=True
-            )
+        #~ print self.log.get_by_IP(
+                #~ os.environ["REMOTE_ADDR"],
+                #~ log_typ="sessionhandling_DEMO",
+                #~ plaintext=True
+            #~ )
+        print self.log.get()
         print "</pre>"
 
         print "<hr />"
@@ -170,7 +200,7 @@ class sessiontest:
         print '<meta name="Author"                    content="Jens Diemer" />'
         print '<meta http-equiv="Content-Type"        content="text/html; charset=utf-8" />'
         print '</head><body>'
-        print '<h3>Python CGI-Cookie-SQL Session Handling DEMO</h3>'
+        print '<h3>Python CGI-Cookie-SQL Session Handling DEMO %s</h3>' % __version__
 
 
 

@@ -9,9 +9,18 @@ Ist f�r die Darstellung der Seiten zust�ndig
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.0.3"
+__version__="0.0.6"
 
 __history__="""
+v0.0.6
+    - NEU: modify_body_tag(): Damit ist es möglich das ein Modul den Body-Tag verändert.
+        Wenn dert Wert 'self.CGIdata["modify_body"]' gesetzt wurde.
+v0.0.5
+    - lucidFunction_IncludeRemote() filtert auf einfache Weise Stylesheets und JavaScripte raus,
+        außerdem wird der Inhalt nach UTF-8 gewandelt
+v0.0.4
+    - NEU: <lucidTag:front_menu/>
+    - das admin_sub_menu wird jetzt komplett vom Modul admin_sub_menu.py erstellt
 v0.0.3
     - main_menu, sub_menu und back_links mit Modul-Manager
 v0.0.2
@@ -47,7 +56,109 @@ class pagerender:
         self.tools          = PyLucid["tools"]
         self.page_msg       = PyLucid["page_msg"]
 
-    def admin_menu( self ):
+    #____________________________________________________________________________
+    # lucid-Tags
+
+    def replace_lucidTags( self, content, side_data ):
+        if type( content ) != str:
+            return "pagerender.replace_lucidTags - Error: content invalid:" + str( content )
+            return "pagerender.replace_lucidTags - Error: content invalid!"
+
+        #~ print "Content-type: text/html\n"
+        #~ print content
+        #~ print "<pre>"
+        #~ import cgi
+        #~ for k,v in side_data.iteritems(): print k,"-",cgi.escape(str(v))
+        #~ print "</pre>"
+
+        if side_data["description"]==None:
+            side_data["description"] = ""
+
+        # Fest eingebaute Regeln
+        rules = [
+            ( "<lucidTag:page_style_link/>",    self.lucidTag_page_style_link       ),
+            ( "<lucidTag:script_login/>",       self.lucidTag_script_login          ),
+            ( "<lucidTag:robots/>",             self.lucidTag_robots                ),
+            ( "<lucidTag:page_name/>",          side_data["name"]                   ),
+            ( "<lucidTag:page_title/>",         side_data["title"]                  ),
+            ( "<lucidTag:page_keywords/>",      side_data["keywords"]               ),
+            ( "<lucidTag:page_description/>",   side_data["description"]            ),
+            ( "<lucidTag:powered_by/>",         __info__                            ),
+            (
+                "<lucidTag:page_last_modified/>",
+                self.tools.convert_date_from_sql( side_data["lastupdatetime"] )
+            ),
+        ]
+
+        if self.session.ID != False:
+            # User ist eingeloggt
+            rules.append(
+                ( "<lucidTag:front_menu/>", self.front_menu ),
+            )
+
+        # Regeln mit dynamischen Modulerweiterungen ergänzen
+        lucidTags_modules_data = self.module_manager.get_lucidTags()
+        for tag_module, data in lucidTags_modules_data.iteritems():
+            tag = "<lucidTag:%s/>" % data["lucidTag"]
+            rules.append(
+                ( tag, self.module_manager.start_module(data) )
+            )
+
+        #~ self.page_msg( "Debug, verwendete lucidTag's in der Seite:", re.findall("<lucidTag:(.*?)/>", content) )
+
+        for rule in rules:
+            if content.find(rule[0]) != -1: # Ersatz für "rule[0] in content"
+                if rule[1] == None:
+                    # None Objekte enstehen, wenn es in der DB ein NULL Wert hat
+                    continue
+
+                if type( rule[1] ) == str:
+                    # Ist ein normaler String
+                    content = content.replace( rule[0], rule[1] )
+                else:
+                    # Ist eine Funktion
+                    content = content.replace( rule[0], rule[1]() )
+
+        rules = [
+            ( "<lucidFunction:IncludeRemote>(.*?)</lucidFunction>(?uism)", self.lucidFunction_IncludeRemote ),
+            ( "<body(.*?)>(?uism)",                                        self.modify_body_tag             ),
+        ]
+        for rule in rules:
+            try:
+                content = re.sub( rule[0], rule[1], content )
+            except Exception, e:
+                return "pagerender.replace_lucidTags - Error: '%s' Tag:'%s'" % ( e, rule[0] )
+
+        return content
+
+    def lucidTag_page_style_link( self ):
+        CSS_content = self.db.side_style_by_id( self.CGIdata["page_id"] )
+        return "<style>%s</style>" % CSS_content
+
+    def lucidTag_script_login( self ):
+        if self.session.has_key("user"):
+            return '<a href="%s?page_id=%s&command=logout">logout [%s]</a>' % (
+                self.config.system.real_self_url, self.CGIdata["page_id"], self.session["user"]
+            )
+        else:
+            return '<a href="%s?page_id=%s&command=login">login</a>' % (
+                self.config.system.real_self_url, self.CGIdata["page_id"]
+            )
+
+    def lucidTag_robots( self ):
+        if self.CGIdata.has_key("command"):
+            # Ein Kommando soll ausgeführt werden -> Interne Seite
+            return self.config.system.robots_tag["internal_pages"]
+        else:
+            return self.config.system.robots_tag["content_pages"]
+
+    #~ def lucidTag_lastupdatetime( self ):
+        #~ return self.tools.convert_date_from_sql( side_data["lastupdatetime"] )
+
+    #____________________________________________________________________________
+    # lucid-Tags für eingeloggte User
+
+    def front_menu( self ):
         """Baut das Front-Menü zusammen"""
         menu = '<p class="adminmenu">[ '
         menu += self.lucidTag_script_login()
@@ -72,110 +183,6 @@ class pagerender:
         menu += " ]</p>"
         return menu
 
-
-    #____________________________________________________________________________
-    # lucid-Tags
-
-    def replace_lucidTags( self, content, side_data ):
-        if type( content ) != str:
-            return "pagerender.replace_lucidTags - Error: content invalid:" + str( content )
-            return "pagerender.replace_lucidTags - Error: content invalid!"
-
-        #~ print "Content-type: text/html\n"
-        #~ print content
-        #~ print "<pre>"
-        #~ import cgi
-        #~ for k,v in side_data.iteritems(): print k,"-",cgi.escape(str(v))
-        #~ print "</pre>"
-
-        if side_data["description"]==None:
-            side_data["description"] = ""
-
-        # Fest eingebaute Regeln
-        rules = [
-            ( "<lucidTag:page_style_link/>",    self.lucidTag_page_style_link       ),
-            ( "<lucidTag:script_login/>",       self.lucidTag_script_login          ),
-            ( "<lucidTag:page_name/>",          side_data["name"]                   ),
-            ( "<lucidTag:page_title/>",         side_data["title"]                  ),
-            ( "<lucidTag:page_keywords/>",      side_data["keywords"]               ),
-            ( "<lucidTag:page_description/>",   side_data["description"]            ),
-            ( "<lucidTag:powered_by/>",         __info__                            ),
-            (
-                "<lucidTag:page_last_modified/>",
-                self.tools.convert_date_from_sql( side_data["lastupdatetime"] )
-            ),
-        ]
-
-        # Regeln mit dynamischen Modulerweiterungen ergänzen
-        lucidTags_modules_data = self.module_manager.get_lucidTags()
-        for tag_module, data in lucidTags_modules_data.iteritems():
-            tag = "<lucidTag:%s/>" % data["lucidTag"]
-            rules.append(
-                ( tag, self.module_manager.start_module(data) )
-            )
-
-        if self.session.ID != False:
-            # User ist eingeloggt, nur dann werden folgende Tags ersetzt:
-            rules.append(
-                ( "<lucidTag:admin_sub_menu_list/>",self.lucidTag_admin_sub_menu_list() )
-            )
-
-        for rule in rules:
-            if content.find(rule[0]) != -1: # Ersatz für "rule[0] in content"
-                if rule[1] == None:
-                    # None Objekte enstehen, wenn es in der DB ein NULL Wert hat
-                    continue
-
-                if type( rule[1] ) == str:
-                    # Ist ein normaler String
-                    content = content.replace( rule[0], rule[1] )
-                else:
-                    # Ist eine Funktion
-                    content = content.replace( rule[0], rule[1]() )
-
-        rules = [
-            ( "<lucidFunction:IncludeRemote>(.*?)</lucidFunction>(?uism)", self.lucidFunction_IncludeRemote ),
-        ]
-        for rule in rules:
-            try:
-                content = re.sub( rule[0], rule[1], content )
-            except Exception, e:
-                return "pagerender.replace_lucidTags - Error: '%s' Tag:'%s'" % ( e, rule[0] )
-
-        return content
-
-    def lucidTag_page_style_link( self ):
-        CSS_content = self.db.side_style_by_id( self.CGIdata["page_id"] )
-        return "<style>%s</style>" % CSS_content
-
-    def lucidTag_script_login( self ):
-        if self.session.has_key("user"):
-            return '<a href="%s?page_id=%s&command=logout">logout [%s]</a>' % (
-                self.config.system.real_self_url, self.CGIdata["page_id"], self.session["user"]
-            )
-        else:
-            return '<a href="%s?page_id=%s&command=login">login</a>' % (
-                self.config.system.real_self_url, self.CGIdata["page_id"]
-            )
-
-    #~ def lucidTag_lastupdatetime( self ):
-        #~ return self.tools.convert_date_from_sql( side_data["lastupdatetime"] )
-
-    #____________________________________________________________________________
-    # lucid-Tags für eingeloggte User
-
-    def lucidTag_admin_sub_menu_list( self ):
-        """ Erstellt das admin-sub-Menü """
-        menu = ""
-        menu_data = self.module_manager.get_menu_data( "admin sub menu" )
-        menu = '<ul class="admin_sub_menu">'
-        for order,data in menu_data.iteritems():
-            menu += '<li><a href="?command=%s" title="%s">%s</a></li>' % (
-                order, data['txt_long'], data['txt_menu']
-            )
-        menu += "</ul>"
-        return menu
-
     #____________________________________________________________________________
     # lucid-Function
 
@@ -183,8 +190,6 @@ class pagerender:
         """
         Unterscheidet zwischen Lokalen PyLucid-Skripten und echten URL-Abfragen
         """
-
-        #~ return "TEST"
 
         import urllib2
         URL = matchobj.group(1)
@@ -198,10 +203,37 @@ class pagerender:
                 error:'%s'</p>" % ( URL, e )
 
         try:
+            # Stylesheets rausfiltern
+            sidecontent = re.sub('(<link.*?rel.*?stylesheet.*?>)(?uism)',"",sidecontent)
+        except:
+            pass
+        try:
+            # JavaScripte rausfiltern
+            sidecontent = re.sub('(<script.*?<\/script>)(?uism)',"",sidecontent)
+        except:
+            pass
+
+        try:
+            # Inhalt nach UTF-8 wandeln
+            charset = re.findall('<meta.*?Content-Type.*?charset=(.*?)"', sidecontent)[0]
+            sidecontent = sidecontent.decode( charset ).encode( "utf_8" )
+        except:
+            pass
+
+        try:
             return re.findall("<body.*?>(.*?)</body>(?uism)", sidecontent)[0]
         except:
             return sidecontent
 
+    def modify_body_tag( self, matchobj ):
+        """
+        Ergänzt den body-Tag im Template, mit Werten die von Modulen in self.CGIdata["modify_body"]
+        geschrieben wurde. Bsp. Modul 'DBdump.py'
+        """
+        data = matchobj.group(1)
+        if self.CGIdata.has_key( "modify_body" ):
+            data += " %s" % self.CGIdata["modify_body"]
+        return "<body%s>" % data
 
     #____________________________________________________________________________
     # Render Page

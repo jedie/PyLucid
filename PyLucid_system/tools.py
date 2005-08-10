@@ -5,9 +5,11 @@
 Verschiedene Tools f�r den Umgang mit lucid
 """
 
-__version__="0.0.3"
+__version__="0.0.4"
 
 """History
+v0.0.4
+    - NEU: out_buffer()
 v0.0.3
     - Komplettumbau
 v0.0.2
@@ -18,8 +20,12 @@ v0.0.1
 
 import cgitb;cgitb.enable()
 
-import time, sys, re, htmlentitydefs
+import os, sys, time, re, htmlentitydefs, threading, signal
 
+try:
+    import subprocess
+except ImportError:
+    from PyLucid_python_backports import subprocess
 
 # Für Debug-print-Ausgaben
 #~ print "Content-type: text/html\n\n<pre>%s</pre>" % __file__
@@ -172,6 +178,158 @@ class html_option_maker:
 #________________________________________________________________________________________________
 
 
+class out_buffer:
+    """
+    Hilfsklasse um Ausgaben erst zwischen zu speichern und dann gesammelt zu erhalten
+    """
+    def __init__( self ):
+        self.data = ""
+        self.sep = "\n"
+
+    def set_sep( self, sep ):
+        self.sep = sep
+
+    def write( self, *txt ):
+        txt = [str(i) for i in txt]
+        self.data += self.sep + " ".join( txt )
+
+    def __call__( self, *txt ):
+        self.write( *txt )
+
+    def get( self ):
+        return self.data
+
+    def flush( self ):
+        return
+
+
+#________________________________________________________________________________________________
+
+
+class subprocess2_OLD:
+    def __init__( self, command, cwd, out_obj, timeout=2, cycle_time=0.5 ):
+        self.out_obj    = out_obj
+
+        self.run( command, cwd ) # Prozess starten
+        self.process.wait()
+        #~ self.wait( timeout, cycle_time )
+        self.stdout = self.process.stdout
+
+    def run( self, command, cwd ):
+        "Führt per subprocess einen den Befehl 'self.command' aus."
+        self.process = subprocess.Popen(
+                command,
+                cwd     = cwd,
+                shell   = True,
+                stdout  = subprocess.PIPE,
+                stderr  = subprocess.STDOUT
+            )
+
+    #~ def stop( self, maintained_time ):
+        #~ """
+        #~ Testet ob der Prozess noch läuft, wenn ja, wird er mit
+        #~ os.kill() (nur unter UNIX verfügbar!) abgebrochen.
+        #~ """
+        #~ if self.process.poll() != None:
+            #~ return
+
+        #~ self.out_obj.write( "(Prozess wird nach %ssec abgebrochen)" % maintained_time )
+        #~ try:
+        #~ os.kill( self.process.pid, signal.SIGQUIT )
+        #~ except
+
+    #~ def wait( self, timeout, cycle_time ):
+        #~ wait_time = 0
+        #~ while wait_time < timeout:
+            #~ self.out_obj.write( "JO", wait_time, self.process.poll() )
+            #~ self.out_obj.write( self.stdout.read() )
+            #~ time.sleep( cycle_time )
+            #~ if self.process.poll() != None:
+                #~ # Der Prozess ist von alleine beendet
+                #~ return
+
+            #~ wait_time += cycle_time
+
+        #~ self.out_obj.write( wait_time, cycle_time, timeout )
+
+        #~ # Prozess abbrechen
+        #~ self.stop( wait_time )
+
+    #~ def get_process_obj( self ):
+        #~ return self.process
+
+
+class subprocess2(threading.Thread):
+    """
+    Allgemeine Klasse um subprocess mit einem Timeout zu vesehen.
+
+    Da os.kill() nur unter Linux und Mac verfügbar ist, funktioniert das
+    ganze nicht unter Windows :(
+
+    Beispiel Aufruf:
+    ---------------------------------------------------------
+    import os, subprocess, threading, signal
+
+    process = subprocess2( "top", "/", timeout = 2 )
+
+    if process.killed == True:
+        print "Timout erreicht! Prozess wurde gekillt."
+    print "Exit-Status:", process.returncode
+    print "Ausgaben:", process.out_data
+    ---------------------------------------------------------
+    """
+    def __init__( self, command, cwd, timeout ):
+        self.command    = command
+        self.cwd        = cwd
+        self.timeout    = timeout
+
+        self.killed = False # Wird True, wenn der Process gekillt wurde
+        self.out_data = "" # Darin werden die Ausgaben gespeichert
+
+        threading.Thread.__init__(self)
+
+        self.start()
+        self.join( self.timeout )
+        self.stop()
+
+        # Rückgabewert verfügbar machen
+        self.returncode = self.process.returncode
+
+    def run(self):
+        "Führt per subprocess den Befehl 'self.command' aus."
+        self.process = subprocess.Popen(
+                self.command,
+                cwd     = self.cwd,
+                shell   = True,
+                stdout  = subprocess.PIPE,
+                stderr  = subprocess.STDOUT
+            )
+
+        # Ausgaben speichern
+        while 1:
+            line = self.process.stdout.readline()
+            if line == "": break
+            self.out_data += line
+
+    def stop( self ):
+        """
+        Testet ob der Prozess noch läuft, wenn ja, wird er mit
+        os.kill() (nur unter UNIX verfügbar!) abgebrochen.
+        """
+        if self.process.poll() != None:
+            # Prozess ist schon beendet
+            return
+
+        self.killed = True
+        try:
+            os.kill( self.process.pid, signal.SIGQUIT )
+        except:
+            pass
+
+
+#________________________________________________________________________________________________
+
+
 
 class convertdateformat:
     """
@@ -249,6 +407,8 @@ class convertdateformat:
 #~ formatDateTime = convertdateformat().convert( formatDateTime )
 #~ print formatDateTime
 #~ sys.exit()
+
+
 
 
 

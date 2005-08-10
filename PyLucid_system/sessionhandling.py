@@ -68,9 +68,12 @@ den Client geschickt worden sein! Ansonsten zÃ¤hlt der Cookie-Print nicht mehr z
 einfach nur angezeigt ;)
 """
 
-__version__ = "v0.0.5"
+__version__ = "v0.0.6"
 
 __history__ = """
+v0.0.6
+    - Optionales base64 encoding der Sessiondaten
+    - PyLucid's page_msg wird bei debug() genutzt, wenn vorhanden
 v0.0.5
     - Umstellung auf MySQLdb.cursors.DictCursor
 v0.0.4
@@ -90,6 +93,11 @@ from Cookie import SimpleCookie
 
 # Bestimmt den Log-Typ
 log_typ = "sessionhandling"
+
+# Sollen die Daten im base64 Format in die Datenbank geschrieben werden
+base64format = False
+if base64format == True:
+    import base64
 
 
 class sessionhandler:
@@ -156,7 +164,7 @@ class sessionhandler:
         except Exception, e:
             # Es gibt keine Daten zur ID / Falsche Daten vorhanden
             self.deleteCookie()
-            self.log.write( "error;read_session error: %s" % e )
+            self.log.write( "error;read_session for id '%s' error: %s" % (cookie_id,e) )
             return
 
         # Aktualisiert Cookie
@@ -242,6 +250,8 @@ class sessionhandler:
         self.delete_old_sessions() # Löschen veralteter Sessions in der DB
 
         session_data = pickle.dumps( self.session_data )
+        if base64format == True:
+            session_data = base64.b64encode( session_data )
         self.RAW_session_data_len = len( session_data )
 
         SQLcommand  = " INSERT INTO %s" % self.sql_tablename
@@ -256,9 +266,12 @@ class sessionhandler:
 
     def update_session( self ):
         "Aktualisiert die Session-Daten"
-        self.delete_old_sessions() # Löschen veralteter Sessions in der DB
+        self.delete_old_sessions() # LÃ¶schen veralteter Sessions in der DB
 
         session_data = pickle.dumps( self.session_data )
+        if base64format == True:
+            session_data = base64.b64encode( session_data )
+
         self.RAW_session_data_len = len( session_data )
 
         SQLcommand  = " UPDATE %s" % self.sql_tablename
@@ -271,7 +284,6 @@ class sessionhandler:
         )
         if self.verbose_log == True:
             self.log.write( "OK;update Session." )
-
 
     def read_from_DB( self, session_id ):
         "Liest Sessiondaten des Users mit der >session_id<"
@@ -286,6 +298,8 @@ class sessionhandler:
 
         self.RAW_session_data_len = len( DB_data["session_data"] )
 
+        if base64format == True:
+            DB_data["session_data"] = base64.b64decode( DB_data["session_data"] )
         DB_data["session_data"] = pickle.loads( DB_data["session_data"] )
 
         return DB_data
@@ -354,12 +368,25 @@ class sessionhandler:
 
     def debug( self ):
         "Zeigt alle Session Informationen an"
-        print "Content-type: text/html\n"
-        print "<h1>Session Debug:</h1>"
-        print "<pre>"
-        for k,v in self.session_data.iteritems():
-            print k,"-",v
-        print "</pre><hr>"
+        self.debugging = True # Damit
+        try:
+            # PyLucid's page_msg nutzen
+            self.page_msg( "-"*30 )
+            self.page_msg( "Session Debug:" )
+            self.page_msg( "len:", len( self.session_data ) )
+            for k,v in self.session_data.iteritems():
+                self.page_msg( "%s - %s" % (k,v) )
+            self.page_msg( "-"*30 )
+        except:
+            # Normale Debug-Informationen
+            print "Content-type: text/html\n"
+            print "<h1>Session Debug:</h1>"
+            print "<pre>"
+            for k,v in self.session_data.iteritems():
+                print k,"-",v
+            print "</pre><hr>"
+
+
 
 
 

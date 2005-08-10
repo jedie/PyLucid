@@ -12,6 +12,8 @@ __author__ = "Jens Diemer (www.jensdiemer.de)"
 __version__="0.0.2"
 
 __history__="""
+v0.0.2
+    - Fehlerabfrage beim Zugriff auf die SQL DB
 v0.0.1
     - erste Version
 """
@@ -44,7 +46,15 @@ class preferences:
     def read_from_sql( self ):
         """ Preferences aus der DB lesen und in self.data speichern """
 
-        RAWdata = self.db.get_all_preferences()
+        try:
+            RAWdata = self.db.get_all_preferences()
+        except Exception, e:
+            print "Content-type: text/html; charset=utf-8\r\n\r\n"
+            print "<h1>Error: Can't read preferences:</h1>"
+            print e
+            print "<p>(Did you install PyLucid correctly?)</p>"
+            import sys
+            sys.exit()
         #~ "section", "varName", "value"
 
         for line in RAWdata:

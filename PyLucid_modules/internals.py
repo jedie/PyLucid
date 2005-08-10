@@ -123,6 +123,15 @@ class internals:
             #~ page += "%s:%s\n" % (k,v)
             page += "</tr>"
         page += "</table>"
+
+        result = self.db.select(
+                select_items    = ["session_data"],
+                from_table      = "session_data",
+                where           = [("session_id",self.session.ID)]
+            )
+        for line in result:
+            page += str( line ).replace("\\n","<br/>")
+
         return page
 
     def system_info( self ):
