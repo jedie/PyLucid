@@ -7,9 +7,11 @@ Evtl. muß der Pfad in dem sich PyLucid's "config.py" sich befindet
 per Hand angepasst werden!
 """
 
-__version__ = "v0.0.7"
+__version__ = "v0.0.8"
 
 __history__ = """
+v0.0.8
+    - Fehler in SQL_dump(): Zeigte SQL-Befehle nur an, anstatt sie auszuführen :(
 v0.0.7
     - Neue Art die nötigen Tabellen anzulegen.
 v0.0.6
@@ -144,9 +146,11 @@ HTML_head = """<?xml version="1.0" encoding="UTF-8"?>
 class SQL_dump:
 
     re_create_table = re.compile( r"(?ims)(CREATE TABLE.*?;)" )
-    re_insert_value = re.compile( r"(?ims)(INSERT INTO.*?;)" )
+    re_insert_value = re.compile( r"(?ims)(INSERT INTO.*?;)\n" )
 
-    def __init__( self ):
+    def __init__( self, db ):
+        self.db = db
+
         self.in_create_table = False
         self.in_insert = False
 
@@ -161,19 +165,26 @@ class SQL_dump:
 
         return data
 
+    def execute_SQL_list( self, command_list ):
+        count = 0
+        for command in command_list:
+            status = self.execute( command )
+            if status == True:
+                count += 1
+        return count
+
     def import_dump( self ):
         print "<pre>"
         create_tables = self.re_create_table.findall( self.data )
         create_tables = [self._complete_prefix(i) for i in create_tables]
-        for command in create_tables:
-            print command
-            print
+        count = self.execute_SQL_list( create_tables )
+        print count, "Tables created."
+        print
 
         insert_values = self.re_insert_value.findall( self.data )
         insert_values = [self._complete_prefix(i) for i in insert_values]
-        for command in insert_values:
-            print command
-            print
+        count = self.execute_SQL_list( insert_values )
+        print count, "items insert."
 
     def _complete_prefix( self, line ):
         return line % { "table_prefix" : config.dbconf["dbTablePrefix"] }
@@ -185,6 +196,15 @@ class SQL_dump:
         for line in self.data.splitlines():
             print cgi.escape( self._complete_prefix( line )  )
         print "</pre>"
+
+    def execute( self, SQLcommand ):
+        try:
+            self.db.cursor.execute( SQLcommand )
+        except Exception, e:
+            print "Error: '%s'" % cgi.escape( str(e) )
+            return False
+        else:
+            return True
 
 
 class PyLucid_setup:
@@ -255,7 +275,7 @@ class PyLucid_setup:
         print "<h3>Install PyLucid:</h3>"
         self.print_backlink()
 
-        d = SQL_dump()
+        d = SQL_dump( self.db )
         d.import_dump()
         #~ d.dump_data()
 
