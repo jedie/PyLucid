@@ -109,12 +109,11 @@ class system:
     # poormans_url = "/"
     #
     real_self_url   = "/index.py"
+    poormans_url    = "/"
     #
     # Mit welchem Parameter sollen die Links gebildet werden
-    # Standart: "p="
-    #~ page_ident      = "?p="
-    page_ident      = ""
-    poormans_url    = ""
+    # Standart: "?p="
+    page_ident      = "?p="
 
     ## poormans_modrewrite
     # Um auch ohne apache's Modrewrite eine saubere URL *ohne* URL-Parameter
@@ -145,6 +144,7 @@ dbconf = {
     "dbTablePrefix"     : 'lucid_',
     "dbdatetime_format" : '%Y-%m-%d %H:%M:%S', # SQL-Datetime-String-Format
 }
+
 
 
 available_markups = ["none","textile"]

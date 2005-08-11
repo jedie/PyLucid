@@ -58,9 +58,17 @@ Module-Manager eingelesen werden und PyLucid zur ferfügung gestellt werden.
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 __url__ = "http://www.jensdiemer.de/Programmieren/Python/PyLucid"
 
-__version__="0.2.9"
+__info__ = """<a href="%s">PyLucid v0.3.0</a>""" % __url__
+
+__version__="0.2.10"
 
 __history__="""
+v0.2.10
+    - Umstellung: __version__ hier in der index.py ist nicht mehr die Versionsnummer von
+        PyLucid allgemein! Dafür ist nun der String __info__ alleine zuständig
+        *Diese History ist ab jetzt auch nur noch für die index.py zuständig.
+        *Die globare History wird auf der Webseite gepflegt.
+    - Bug: In check_page_name() wurde config.system.page_ident nicht beachtet
 v0.2.9
     - NEU: check_request() - Frühzeitige Abhandlung von 404 Fehlern
     - check_page_name() angepasst
@@ -112,7 +120,7 @@ rendern:
     per print rausgeschrieben werden.
 """
 
-__info__ = """<a href="%s">PyLucid v%s</a>""" % (__url__,__version__)
+
 
 
 # Als erstes Mal die Zeit stoppen ;)
@@ -140,8 +148,8 @@ from PyLucid_system import SQL, sessiondata, sessionhandling
 from PyLucid_system import userhandling, SQL_logging, pagerender
 from PyLucid_system import module_manager, tools, preferences
 
-
 pagerender.__info__ = __info__ # Versions-Information übertragen
+
 
 ## Dynamisch geladene Module:
 ## urllib2 -> LucidRender.lucidFunction_IncludeRemote()
@@ -508,17 +516,13 @@ class LucidRender:
         """ ermittelt anhand des page_name die page_id """
         page_name = urllib.unquote( page_name )
 
-        if page_name == "/":
+        if page_name == "/" or page_name == "":
             # Index Seite wurde aufgerufen. Zumindest bei poor-modrewrite
             self.set_default_page()
             return
 
-        #~ # URL Parameter abschneiden
-        #~ try:
-            #~ clean_page_name = page_name[:page_name.index("?")]
-        #~ except ValueError:
-            #~ # Kein URL Parameter vorhanden
-            #~ clean_page_name = page_name
+        # Evtl. vorhanden page_ident abschneiden (also z.B. "?p=" )
+        page_name = page_name[len(self.config.system.page_ident):]
 
         # Aufteilen: /bsp/ -> ['','bsp','']
         page_name_split = page_name.split("/")

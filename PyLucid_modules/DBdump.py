@@ -155,8 +155,8 @@ class sql_dump:
             self.out( "Error Reading dumpfile: '%s'!" % temp_filename )
             return
 
-        print 'Content-Disposition: attachment; filename=%s_%s.sql' % (
-            time.strftime( "%Y%m%d" ), self.config.dbconf["dbDatabaseName"]
+        print 'Content-Disposition: attachment; filename=%s_%s%s.sql' % (
+            time.strftime( "%Y%m%d" ), self.config.dbconf["dbTablePrefix"], self.config.dbconf["dbDatabaseName"]
         )
         print 'Content-Transfer-Encoding: binary'
         print 'Content-Type: application/octet-stream; charset=utf-8\n'

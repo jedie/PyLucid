@@ -34,6 +34,7 @@ from config import dbconf
 
 
 
+
 class db( mySQL ):
     """
     Erweitert den allgemeinen SQL-Wrapper (mySQL.py) um

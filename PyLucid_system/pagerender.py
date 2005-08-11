@@ -79,11 +79,12 @@ class pagerender:
             ( "<lucidTag:page_style_link/>",    self.lucidTag_page_style_link       ),
             ( "<lucidTag:script_login/>",       self.lucidTag_script_login          ),
             ( "<lucidTag:robots/>",             self.lucidTag_robots                ),
+            ( "<lucidTag:powered_by/>",         __info__                            ),
             ( "<lucidTag:page_name/>",          side_data["name"]                   ),
             ( "<lucidTag:page_title/>",         side_data["title"]                  ),
             ( "<lucidTag:page_keywords/>",      side_data["keywords"]               ),
             ( "<lucidTag:page_description/>",   side_data["description"]            ),
-            ( "<lucidTag:powered_by/>",         __info__                            ),
+
             (
                 "<lucidTag:page_last_modified/>",
                 self.tools.convert_date_from_sql( side_data["lastupdatetime"] )
@@ -151,9 +152,6 @@ class pagerender:
             return self.config.system.robots_tag["internal_pages"]
         else:
             return self.config.system.robots_tag["content_pages"]
-
-    #~ def lucidTag_lastupdatetime( self ):
-        #~ return self.tools.convert_date_from_sql( side_data["lastupdatetime"] )
 
     #____________________________________________________________________________
     # lucid-Tags für eingeloggte User
