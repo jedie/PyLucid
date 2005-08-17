@@ -58,11 +58,16 @@ Module-Manager eingelesen werden und PyLucid zur ferfügung gestellt werden.
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 __url__ = "http://www.jensdiemer.de/Programmieren/Python/PyLucid"
 
-__info__ = """<a href="%s">PyLucid v0.3.0</a>""" % __url__
+__info__ = """<a href="%s">PyLucid v0.3.1</a>""" % __url__
 
-__version__="0.2.10"
+__version__="0.2.11"
 
 __history__="""
+v0.2.11
+    - Bug: Die Tabelle session_data hatte einen hardcoded prefix gehabt :( Somit funktionierte
+        das ganze System nicht, wenn man als Tabellen-Pefix was anderes außer "lucid_" wählte :(
+    - Bug: Fälschlicherweise wurde der page_ident zweimal abgeschnitten, wenn poormans_modrewrite
+        nicht benutzt wurde.
 v0.2.10
     - Umstellung: __version__ hier in der index.py ist nicht mehr die Versionsnummer von
         PyLucid allgemein! Dafür ist nun der String __info__ alleine zuständig
@@ -209,7 +214,9 @@ class LucidRender:
 
         # Allgemeiner CGI Sessionhandler auf mySQL-Basis
         self.session        = sessionhandling.sessionhandler(
-            self.db.cursor, "lucid_session_data", self.log,
+            self.db.cursor,
+            "%ssession_data" % self.config.dbconf["dbTablePrefix"],
+            self.log,
             CookieName="PyLucid_id"
         )
         self.session.page_msg = self.page_msg
@@ -521,9 +528,6 @@ class LucidRender:
             self.set_default_page()
             return
 
-        # Evtl. vorhanden page_ident abschneiden (also z.B. "?p=" )
-        page_name = page_name[len(self.config.system.page_ident):]
-
         # Aufteilen: /bsp/ -> ['','bsp','']
         page_name_split = page_name.split("/")
 
@@ -596,7 +600,10 @@ class LucidRender:
 
 if __name__ == "__main__":
     #~ print "Content-type: text/html\n"
+    #~ print "<pre>"
     MyLR = LucidRender()
     page_content = MyLR.make()
-    print "Content-type: text/html; charset=utf-8\r\n\r\n"
+    #~ print "</pre>"
+
+    print "Content-type: text/html; charset=utf-8\r\n"#\r\n"
     print page_content

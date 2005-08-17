@@ -133,8 +133,13 @@ class pagerender:
         return content
 
     def lucidTag_page_style_link( self ):
-        CSS_content = self.db.side_style_by_id( self.CGIdata["page_id"] )
-        return "<style>%s</style>" % CSS_content
+        try:
+            CSS_content = self.db.side_style_by_id( self.CGIdata["page_id"] )
+        except IndexError:
+            self.page_msg( "Style (ID:%s) not found!" )
+            return ""
+        else:
+            return "<style>%s</style>" % CSS_content
 
     def lucidTag_script_login( self ):
         if self.session.has_key("user"):
@@ -251,7 +256,11 @@ class pagerender:
         return side_data["content"]
 
     def apply_markup( self, content, markup ):
-        "Wendet das passende Markup an"
+        """
+        Wendet das passende Markup an
+        ToDo:
+            page_msg verwenden!
+        """
 
         if markup == "textile":
             try:

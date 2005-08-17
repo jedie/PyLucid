@@ -6,16 +6,17 @@ Erzeugt einen Download des SQL Dumps
 http://dev.mysql.com/doc/mysql/de/mysqldump.html
 """
 
-__version__="0.0.1"
+__version__="0.0.2"
 
 __history__="""
+v0.0.2
+    - Großer Umbau: Anderes Menü, anderer Aufruf von mysqldump, Möglichkeiten Dump-Parameter anzugeben
 v0.0.1
     - Erste Version
 """
 
 import cgitb;cgitb.enable()
 import os,sys,cgi, time
-import tempfile
 
 
 
@@ -24,17 +25,12 @@ import tempfile
 # Module-Manager Daten für den page_editor
 
 URL_parameter       = "DB_dump"
-make_dump_url       = "?command=%s&action=make_dump" % URL_parameter
-display_help_url    = "?command=%s&action=help" % URL_parameter
-download_dump_url   = "?command=%s&action=download_dump" % URL_parameter
-
-back_link = '<a href="?command=%s">back</a>' % URL_parameter
 
 class module_info:
     """Pseudo Klasse: Daten f���den Module-Manager"""
     data = {
         URL_parameter : {
-            "txt_menu"      : "DB dump",
+            "txt_menu"      : URL_parameter,
             "txt_long"      : "dump all DB data",
             "section"       : "admin sub menu",
             "category"      : "administation",
@@ -60,6 +56,13 @@ class sql_dump:
 
         self.out = self.tools.out_buffer()
 
+        self.actions = [
+            ( "make_dump",      "make SQL dump",            self.make_dump ),
+            ( "display_dump",   "display SQL dump, only",   self.display_dump ),
+            ( "help",           "display mysqldump help",   self.display_help ),
+            #~ ( "download_dump",  "download dump",            self.download_dump )
+        ]
+
     def action( self ):
         try:
             action = self.CGIdata["action"]
@@ -67,46 +70,66 @@ class sql_dump:
             self.menu()
             return self.out.get()
 
-        if action == "make_dump":
-            self.make_dump()
-        elif action == "download_dump":
-            self.download_dump()
-        elif action == "help":
-            self.display_help()
-        else:
-            return "action '%s' unknown!" % cgi.escape( action )
+        # Das Menü wird immer angezeigt
+        self.menu()
+        self.out( "<hr>" )
 
-        return self.out.get()
+        for item in self.actions:
+            if action == item[0]:
+                # Aktion ausführen
+                item[2]()
+                # Ausgabewerte zurückliefern
+                return self.out.get()
 
-    def _make_tempname( self, basename ):
-        """ Generiert einen TEMP-Dateinamen inkl. Pfad """
-        return os.path.join(
-            tempfile.gettempdir(), basename + "." + tempfile.gettempprefix()
-        )
+        return "action '%s' unknown!" % cgi.escape( action )
+
 
     def menu( self ):
         """ Menü für Aktionen generieren """
         self.out( "<h3>DB dump v%s</h3>" %  __version__ )
-        self.out( '<a href="%s">download SQL dump</a><br>' % make_dump_url )
-        self.out( '<a href="%s">Archive a SQL dump on FTP-Server</a><br>' % make_dump_url )
-        self.out( '<a href="%s">display mysqldump --help</a><br>' % display_help_url )
+
+        self.out( '<form name="login" method="post" action="%s?command=%s&page_id=%s">' % (
+            self.config.system.real_self_url, URL_parameter, self.CGIdata["page_id"]
+        ))
+        self.out( '<p class="db_dump">' )
+        self.out( 'character set:' )
+        self.out( '<select name="character-set" size="1">' )
+        self.out( self.tools.html_option_maker().build_from_list(
+            ["latin1","utf8"],
+            selected_item = "latin1" )
+        )
+        self.out( '</select>' )
+        self.out( '<br/>' )
+
+        self.out( 'compatible:' )
+        self.out( '<select name="compatible" size="1">' )
+        self.out( self.tools.html_option_maker().build_from_list(
+            ["ansi", "mysql323", "mysql40", "postgresql", "oracle", "mssql", "db2", "maxdb",
+            "no_key_options", "no_table_options", "no_field_options"],
+            selected_item = "mysql40" )
+        )
+        self.out( '</select>' )
+        self.out( "<br/>(Requires MySQL server v4.1.0 or higher)<br/>" )
+
+        self.out( '<br/>' )
+
+        self.out( 'other options:' )
+        self.out( '<input name="options" value="--extended-insert --skip-opt" size="50" maxlength="50" type="text">' )
+
+        self.out( '</p>' )
+
+        self.out( '<p>' )
+        for action in self.actions:
+            self.out(
+                '<button type="submit" name="action" value="%s">%s</button>&nbsp;&nbsp;' % (
+                    action[0], action[1]
+                )
+            )
+        self.out('</p>')
+
+        self.out('</form>')
 
     #_______________________________________________________________________
-
-    def check_dumpfile( self, tmpfilename ):
-        """
-        Prüft ob die Temp-Datei schon existiert, wenn ja wird versucht diese zu löschen
-        """
-        if os.path.isfile( tmpfilename ):
-            self.out( "Notice: Temp-File '%s' exists." % tmpfilename )
-            try:
-                os.remove( tmpfilename )
-            except Exception, e:
-                self.out( "ERROR: Can't delete Temp-File:", e )
-                self.out( "</pre>" )
-                return False
-
-        return True
 
     def make_dump( self ):
         """
@@ -116,43 +139,11 @@ class sql_dump:
 
         self.out( "<pre>" )
 
-        temp_filename = self._make_tempname( "sqldump" )
-
-        if self.check_dumpfile( temp_filename ) == False:
-            # Vorhandene Temp-Datei konnte nicht gelöscht werden :(
-            return self.out.get()
-
-        tablenames = " ".join( self.db.get_tables() )
-
-        command = "/usr/bin/mysqldump --extended-insert --skip-opt -v -u%(u)s -p%(p)s -h%(h)s %(n)s --tables %(tn)s --result-file=%(tf)s" % {
-            "u"  : self.config.dbconf["dbUserName"],
-            "p"  : self.config.dbconf["dbPassword"],
-            "h"  : self.config.dbconf["dbHost"],
-            "n"  : self.config.dbconf["dbDatabaseName"],
-            "tn" : tablenames,
-            "tf" : temp_filename,
-        }
+        command = self._get_sql_command()
 
         out_data = self._process( command, "/usr/bin/", timeout = 10 )
         if out_data == False:
             # Fehler beim ausführen aufgetreten -> Abbruch, Seite wird angezeigt
-            return
-
-        # von mysqldump erzeuge Datei "prüfen"
-        try:
-            dumpsize = os.path.getsize( temp_filename )
-        except OSError, e:
-            self.out( "ERROR:", e )
-            return
-        else:
-            if dumpsize == 0:
-                self.out( "Error with Dumpfile (size 0 Bytes) !" )
-                return
-
-        try:
-            tf = file( temp_filename, "r" )
-        except IOError:
-            self.out( "Error Reading dumpfile: '%s'!" % temp_filename )
             return
 
         print 'Content-Disposition: attachment; filename=%s_%s%s.sql' % (
@@ -162,38 +153,38 @@ class sql_dump:
         print 'Content-Type: application/octet-stream; charset=utf-8\n'
 
         # Zusatzinfo's in den Dump "einblenden"
-        sys.stdout.write( self.additional_dump_info() )
-
-        while 1:
-            data = tf.read( 8192 )
-            if data == "": break
-            sys.stdout.write( data )
-        tf.close()
-
-        os.remove( temp_filename )
+        sys.stdout.write( self.additional_dump_info( command.replace( self.config.dbconf["dbPassword"], "***" ) ) )
+        sys.stdout.write( out_data )
 
         sys.exit()
 
-    def error( self, *txt ):
-        print "Content-type: text/html; charset=utf-8\r\n\r\n"
-        print "<h1>SQL dump Fehler:</h1>"
-        print "<br/>".join( [cgi.escape(str(i)) for i in txt] )
-        sys.exit()
+    #_______________________________________________________________________
 
-    def additional_dump_info( self ):
-        txt = "-- ------------------------------------------------------\n"
-        txt += "-- Dump created %s with PyLucid's %s v%s\n" % (
-            time.strftime("%d.%m.%Y, %H:%M"), os.path.split(__file__)[1], __version__
-            )
-        txt += "-- ------------------------------------------------------\n"
-        return txt
+    def display_dump( self ):
+        """
+        Erstellt den SQL Dump und zeigt ihn im Browser
+        """
+        self.out( "<h3>display SQL dump</h3>" )
+
+        command = self._get_sql_command()
+
+        self.out( "<p>SQL-Command:</p><pre>%s</pre>" % command.replace( self.config.dbconf["dbPassword"], "***" ) )
+
+        self.out( "<pre>" )
+
+        out_data = self._process( command, "/usr/bin/", timeout = 10 )
+        if out_data == False:
+            # Fehler beim ausführen aufgetreten -> Abbruch, Seite wird angezeigt
+            return
+
+        self.out( cgi.escape(out_data) )
+
+        self.out( "</pre>" )
 
     #_______________________________________________________________________
 
     def display_help( self ):
         self.out( "<h3>mysqldump --help</h3>" )
-
-        self.out( back_link )
 
         self.out( "<pre>" )
 
@@ -205,7 +196,40 @@ class sql_dump:
         self.out( out_data )
         self.out( "</pre>" )
 
-        self.out( back_link )
+    #_______________________________________________________________________
+
+    def error( self, *txt ):
+        print "Content-type: text/html; charset=utf-8\r\n\r\n"
+        print "<h1>SQL dump Fehler:</h1>"
+        print "<br/>".join( [cgi.escape(str(i)) for i in txt] )
+        sys.exit()
+
+    def additional_dump_info( self, sql_command ):
+        txt = "-- ------------------------------------------------------\n"
+        txt += "-- Dump created %s with PyLucid's %s v%s\n" % (
+            time.strftime("%d.%m.%Y, %H:%M"), os.path.split(__file__)[1], __version__
+            )
+        txt += "--\n"
+        txt += "-- The SQLcommand:\n"
+        txt += "-- %s\n" % sql_command
+        txt += "--\n"
+        txt += "-- This file should be encoded in utf8 !\n"
+        txt += "-- ------------------------------------------------------\n"
+        return txt
+
+    def _get_sql_command( self ):
+        tablenames = " ".join( self.db.get_tables() )
+        #~ tablenames = "%spages" % self.config.dbconf["dbTablePrefix"]
+        return "/usr/bin/mysqldump --default-character-set=%(cs)s --compatible=%(cp)s %(op)s -u%(u)s -p%(p)s -h%(h)s %(n)s --tables %(tn)s" % {
+            "cs" : self.CGIdata["character-set"],
+            "cp" : self.CGIdata["compatible"],
+            "op" : self.CGIdata["options"],
+            "u"  : self.config.dbconf["dbUserName"],
+            "p"  : self.config.dbconf["dbPassword"],
+            "h"  : self.config.dbconf["dbHost"],
+            "n"  : self.config.dbconf["dbDatabaseName"],
+            "tn" : tablenames,
+        }
 
     #_______________________________________________________________________
 
@@ -238,4 +262,5 @@ class sql_dump:
 def PyLucid_action( PyLucid ):
     # Aktion starten
     return sql_dump( PyLucid ).action()
+
 

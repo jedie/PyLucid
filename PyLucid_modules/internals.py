@@ -28,6 +28,8 @@ __todo__ = """
 # Python-Basis Module einbinden
 import os, sys, cgi
 
+# Dynamisch geladene Module
+## import locale - internals.system_info()
 
 
 
@@ -140,8 +142,21 @@ class internals:
 
         page += '<dl id="system_info">'
         if hasattr(os,"uname"):
-            page += "<dt>os.uname</dt>"
+            page += "<dt>os.uname():</dt>"
             page += "<dd>%s</dd>" % " - ".join( os.uname() )
+
+        import locale
+
+        page += "<dt>locale.getlocale():</dt>"
+        page += "<dd>%s</dd>" % str( locale.getlocale() )
+        page += "<dt>locale.getdefaultlocale():</dt>"
+        page += "<dd>%s</dd>" % str( locale.getdefaultlocale() )
+        page += "<dt>locale.getpreferredencoding():</dt>"
+        try:
+            page += "<dd>%s</dd>" % str( locale.getpreferredencoding() )
+        except Exception, e:
+            page += "<dd>Error: %s</dd>" % e
+
         page += "</dl>"
 
         return page

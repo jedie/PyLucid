@@ -96,6 +96,12 @@ class system:
     # Zur generierung der schönen URL, also für alle normalen
     # Seitenaufrufe dient die poormans_url Variable.
     #
+    # Das klappt allerdings nur, wenn Apache als Index ein Python
+    # Skript benutzen würde.
+    # http://httpd.apache.org/docs/2.0/mod/mod_dir.html#directoryindex
+    # DirectoryIndex index.py
+    #
+    #
     # Beispiel Konfiguration
     # ----------------------
     #   - nur /cgi-bin/ erlaubt
@@ -109,11 +115,14 @@ class system:
     # poormans_url = "/"
     #
     real_self_url   = "/index.py"
-    poormans_url    = "/"
+    poormans_url    = ""
     #
     # Mit welchem Parameter sollen die Links gebildet werden
     # Standart: "?p="
     page_ident      = "?p="
+    #~ page_ident      = ""
+    #~ poormans_url    = "/PyLucid_tarball"
+    #~ poormans_url    = "/PyLucid_tarball/index.py"
 
     ## poormans_modrewrite
     # Um auch ohne apache's Modrewrite eine saubere URL *ohne* URL-Parameter
@@ -125,8 +134,8 @@ class system:
     #
     # Ausgewertet wird dabei der os.environ-Eintrag "REQUEST_URI"
     # Mit poormans_modrewrite muß page_ident="" sein!
-    poormans_modrewrite = True
-    #~ poormans_modrewrite = False
+    #~ poormans_modrewrite = True
+    poormans_modrewrite = False
     #
     # Für eine schnellere Abarbeitung echter "404 Not Found" Fehler
     # beim "poormans_modrewrite = True" werden Requests auf Dateien

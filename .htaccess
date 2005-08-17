@@ -1,2 +1,12 @@
 # Customized error messages for poormans_modrewrite
-ErrorDocument 404 /index.py
+# Hier muß der Pfad angepasst werden zur PyLucid's index.py
+
+#ErrorDocument 404 /cgi-bin/PyLucid/index.py
+
+
+# Damit man auch die index.py aus der URL verschwinden kann, muß
+# der DirectoryIndex die index.py ausführen
+
+#DirectoryIndex /cgi-bin/PyLucid/index.py
+
+Options +ExecCGI

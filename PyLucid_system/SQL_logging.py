@@ -5,9 +5,11 @@
 Allgemeiner SQL-Logger
 """
 
-__version__ = "v0.0.4"
+__version__ = "v0.0.5"
 
 __history__ = """
+v0.0.5
+    - Bug: Tabellenname (sql_tablename) war Hardcoded.
 v0.0.4
     - Mittels *log_message bei put() werden nun auch Komma-getrennte Log's aufgenommen
 v0.0.3
@@ -22,12 +24,11 @@ v0.0.1
 import time, os
 from socket import getfqdn
 
-# Legt fest wie alt Log-Eintr�ge max sein d�rfen
+# Legt fest wie alt Log-Einträge max sein dürfen
 # 3 Tage ==> 3Tage * 24Std * 60Min * 60Sec = 259200sec
 enty_timeout_sec = 259200
 
-sql_tablename = "lucid_log"
-
+sql_tablename = "log"
 
 dbconf = {
     "dbHost"            : "localhost",
@@ -87,7 +88,7 @@ class log:
         log_message = " ".join( [str(i) for i in log_message] )
 
         self.db.insert(
-                table = "log",
+                table = "log", # Prefix wird bei db.insert eingefügt
                 data  = {
                     "timestamp" : self.tools.convert_time_to_sql( time.time() ),
                     "sid"       : self.client_sID,
@@ -101,7 +102,7 @@ class log:
     def delete_old_logs( self ):
         "Löscht veraltete Log-Einträge in der DB"
 
-        SQLcommand  = "DELETE FROM %s" % sql_tablename
+        SQLcommand  = "DELETE FROM %s%s" % ( dbconf["dbTablePrefix"], sql_tablename )
         SQLcommand += " WHERE timestamp < %s"
 
         current_timeout = time.time() - enty_timeout_sec
@@ -153,7 +154,7 @@ class log:
         """ Liefert die letzten >limit< Logeinträge zurück """
         return self.db.select(
             select_items    = ["timestamp", "sid", "user_name", "ip", "domain", "message"],
-            from_table      = "log",
+            from_table      = sql_tablename,
             order           = ("id","DESC"),
             limit           = (0,limit)
         )
