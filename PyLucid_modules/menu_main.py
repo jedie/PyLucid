@@ -4,16 +4,17 @@
 # by jensdiemer.de (steht unter GPL-License)
 
 """
-<lucidTag:main_menu/>
-Generiert das komplette Seitenmenü mit Untermenüs
+Generiert das komplette Seitenmenü mit Untermenüs in eine Baumansicht
 
-eingebunden kann es per lucid-"IncludeRemote"-Tag:
-<lucidFunction:IncludeRemote>/cgi-bin/PyLucid/Menu.py?page_name=<lucidTag:page_name/></lucidFunction>
+Das Menü wird eingebunden mit dem lucid-Tag:
+<lucidTag:main_menu/>
 """
 
-__version__="0.0.8"
+__version__="0.0.9"
 
 __history__="""
+v0.0.9
+    - Neue Methode 'where_filter()' zum berücksichtigen des Rechtemanagement
 v0.0.8
     - Aufteilung in menu_sub.py und menu_main.python
     - Tag <lucidTag:main_menu/> wird über den Modul_Manager gesetzt
@@ -117,6 +118,15 @@ class menugenerator:
         # Generiert das Menü aus self.menudata
         return self.make_menu()
 
+    def where_filter( self, where_rules ):
+        """
+        Erweitert das SQL-where Statement um das Rechtemanagement zu berücksichtigen
+        """
+        if not self.session.has_key( "isadmin" ):
+            where_rules.append( ("permitViewPublic",1) )
+
+        return where_rules
+
     def check_submenu( self, parentID, internal=False ):
         """
         Damit sich das evtl. vorhandene Untermenüpunkt "aufklappt" wird
@@ -126,7 +136,7 @@ class menugenerator:
         result = self.db.select(
                 select_items    = ["parent"],
                 from_table      = "pages",
-                where           = [ ("parent",self.current_page_id), ("permitViewPublic",1) ],
+                where           = self.where_filter( [("parent",self.current_page_id)] ),
                 limit           = (0,1)
             )
         if result == ():
@@ -144,7 +154,7 @@ class menugenerator:
         parents = self.db.select(
                 select_items    = ["id","name","title","parent"],
                 from_table      = "pages",
-                where           = [ ("parent",parentID), ("permitViewPublic",1) ],
+                where           = self.where_filter( [("parent",parentID)] ),
                 order           = ("position","ASC")
             )
         self.menudata.append( parents )

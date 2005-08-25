@@ -53,6 +53,7 @@ class module_info:
         "check_login" : {
             "must_login"    : False,
             "must_admin"    : False,
+            "direct_out"    : True,
         },
     }
 
@@ -201,6 +202,7 @@ class auth:
         # Sessiondaten festhalten
         self.session["user_id"]     = db_userdata["id"]
         self.session["user"]        = username
+        #~ sefl.session["user_group"]
         self.session["last_action"] = "login"
         if db_userdata['admin'] == 1:
             self.session["isadmin"] = True

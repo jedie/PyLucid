@@ -192,17 +192,9 @@ class mySQL:
         SQL_parameters_values = []
 
         if where != None:
-            if type( where[0] ) == str:
-                # es ist nur eine where-Regel vorhanden.
-                # Damit die folgenden Anweisungen auch gehen
-                where = [ where ]
+            where_string, SQL_parameters_values = self._make_where( where )
 
-            where_string = []
-            for item in where:
-                where_string.append( item[0] + "=%s" )
-                SQL_parameters_values.append( item[1] )
-
-            SQLcommand += ' WHERE %s' % " and ".join( where_string )
+            SQLcommand += where_string
 
         if order != None:
             SQLcommand += " ORDER BY %s %s" % order
@@ -217,6 +209,48 @@ class mySQL:
 
         self.cursor.execute( SQLcommand, tuple( SQL_parameters_values ) )
         return self.cursor.fetchall()
+
+    def delete( self, table, where, limit=1 ):
+        """
+        DELETE FROM table WHERE id=1 LIMIT 1
+        """
+        SQLcommand = "DELETE FROM %s%s" % ( self.tableprefix, table )
+
+        where_string, values = self._make_where( where )
+
+        SQLcommand += where_string
+        SQLcommand += " LIMIT %s" % limit
+
+        if self.debug:
+            print "-"*80
+            print "db.delete - Debug:"
+            print "SQLcommand:", SQLcommand
+            print "values.....:",values
+            print "-"*80
+
+        self.cursor.execute( SQLcommand, tuple( values ) )
+        return self.cursor.fetchall()
+
+    def _make_where( self, where ):
+        """
+        Baut ein where-Statemant und die passenden SQL-Values zusammen
+        """
+        if type( where[0] ) == str:
+            # es ist nur eine where-Regel vorhanden.
+            # Damit die folgenden Anweisungen auch gehen
+            where = [ where ]
+
+        where_string            = []
+        SQL_parameters_values   = []
+
+        for item in where:
+            where_string.append( item[0] + "=%s" )
+            SQL_parameters_values.append( item[1] )
+
+        where_string = ' WHERE %s' % " and ".join( where_string )
+
+        return where_string, SQL_parameters_values
+
 
     def exist_table_name( self, table_name ):
         """ Überprüft die existens eines Tabellen-Namens """
@@ -240,23 +274,12 @@ class mySQL:
 
 if __name__ == "__main__":
     db = mySQL(
-            host    = "localhost",
-            user    = "SQL-DB-Username",
-            passwd  = "SQL-DB-Password",
-            db      = "SQL-DB-Name"
+            #~ host    = "localhost",
+            host    = "192.168.6.2",
+            user    = "UserName",
+            passwd  = "Password",
+            db      = "DatabaseName"
         )
-
-    #~ #----[PyLucid]----------------------------
-    #~ import sys
-    #~ sys.path.insert( 0, "../" )
-    #~ from config import dbconf
-    #~ db = mySQL(
-            #~ host    = dbconf["dbHost"],
-            #~ user    = dbconf["dbUserName"],
-            #~ passwd  = dbconf["dbPassword"],
-            #~ db      = dbconf["dbDatabaseName"],
-        #~ )
-    #~ #-----------------------------------------
 
     # Prefix for all SQL-commands:
     db.tableprefix = "test_"
@@ -298,6 +321,11 @@ if __name__ == "__main__":
         )
     db.dump_select_result( result )
 
+    print "\n\ndelete a value:"
+    db.delete(
+            table = "TestTable",
+            where = ("id",1)
+        )
 
     print "\n\nUpdate an item (db.update)."
     data = { "data1" : "NewValue1!"}

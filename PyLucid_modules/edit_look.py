@@ -4,7 +4,7 @@
 # by jensdiemer.de (steht unter GPL-License)
 
 """
-Editor f�r alles was mit aussehen zu tun hat:
+Editor für alles was mit aussehen zu tun hat:
     - edit_style
     - edit_template
     - edit_internal_page
@@ -12,9 +12,15 @@ Editor f�r alles was mit aussehen zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.0.1"
+__version__="0.0.3"
 
 __history__="""
+v0.0.3
+    - Bug: Edit Template: http://sourceforge.net/tracker/index.php?func=detail&aid=1273348&group_id=146328&atid=764837
+v0.0.2
+    - NEU: Clonen von Stylesheets und Templates nun möglich
+    - NEU: Löschen von Stylesheets und Templates geht nun
+    - Änderung der "select"-Tabellen, nun Anpassung per CSS möglich
 v0.0.1
     - erste Version
 """
@@ -54,7 +60,7 @@ class module_info:
             "txt_menu"      : "edit internal page",
             "txt_long"      : "edit the HTML-code of the internal page",
             "section"       : "admin sub menu",
-            "category"      : "misc",
+            "category"      : "edit look",
             "must_login"    : True,
             "must_admin"    : True,
         },
@@ -73,32 +79,37 @@ class edit_look:
         #~ self.CGIdata.debug()
         self.db         = PyLucid["db"]
         self.tools      = PyLucid["tools"]
+        self.page_msg   = PyLucid["page_msg"]
 
     def action( self ):
         """Führt anhand der CGI-Daten die richtige Methode aus"""
         # Unteraktionen
         actions = {
             "edit_style" : [
-                ( "edit",    self.edit_style ),
-                ( "del",     self.del_style  ),
-                ( "save",    self.save_style ),
+                ( "edit",       self.edit_style ),
+                ( "del",        self.del_style  ),
+                ( "duplicate",  self.copy_style ),
+                ( "save",       self.save_style ),
             ],
             "edit_template" : [
-                ( "edit",    self.edit_template ),
-                ( "del",     self.del_template  ),
-                ( "save",    self.save_template ),
+                ( "edit",       self.edit_template ),
+                ( "del",        self.del_template  ),
+                ( "duplicate",  self.copy_template ),
+                ( "save",       self.save_template ),
             ],
             "edit_internal_page" : [
-                ( "edit",    self.edit_internal_page ),
-                ( "save",    self.save_internal_page ),
+                ( "edit",       self.edit_internal_page ),
+                ( "save",       self.save_internal_page ),
             ],
         }
 
+        # Unteraktion starten
         for command,data in actions.iteritems():
             if self.CGIdata["command"] == command:
                 for sub_action,method in data:
                     if self.CGIdata.has_key( sub_action ):
-                        return method( self.CGIdata[sub_action] )
+                        method( self.CGIdata[sub_action] )
+                        return
 
         # Start-Aktion soll ausgeführt werden
         actions = [
@@ -108,35 +119,58 @@ class edit_look:
         ]
         for action,method in actions:
             if self.CGIdata["command"] == action:
-                return method()
-        return "<h1>internal error!</h1>"
+                method()
+                return
 
+        print "<h1>internal error!</h1>"
+        return
 
     #_______________________________________________________________________
     ## Stylesheet
 
     def edit_style_select_page( self ):
         """ generiert Tabelle zur Style Auswahl """
-        page  = "<h2>Edit styles</h2>"
-        page += self.select_table(
+        print "<h2>Edit styles</h2>"
+        self.select_table(
             type        = "style",
             table_data  = self.db.get_style_list()
         )
-        return page
 
     def edit_style( self, style_id ):
         """ Seite zum editieren eines Stylesheet """
         try:
             edit_data = self.db.get_style_data( style_id )
         except IndexError:
-            return "bad style id!"
+            print "bad style id!"
+            return
 
-        return self.make_edit_page(
+        self.make_edit_page(
             edit_data           = edit_data,
             internal_page_name  = "edit_style",
             order               = "edit_style",
             id                  = style_id,
         )
+
+    def copy_style( self, dummy ):
+        """ Ein Stylesheet soll kopiert werden """
+        try:
+            clone_name  = self.CGIdata["clone_name"]
+            new_name    = self.CGIdata["new_name"]
+        except KeyError:
+            print "Error in Data!"
+            return
+
+        style_content = self.db.get_style_data_by_name( clone_name )["content"]
+
+        style_data = {
+            "name"          : new_name,
+            "description"   : "clone of '%s'" % clone_name,
+            "content"       : style_content,
+        }
+        self.db.new_style( style_data )
+
+        self.page_msg( "style '%s' duplicated to '%s'" % (clone_name, new_name) )
+        self.edit_style_select_page()
 
     def save_style( self, style_id ):
         """ Speichert einen editierten Stylesheet """
@@ -145,38 +179,61 @@ class edit_look:
             "content"       : self.CGIdata["content"]
         }
         self.db.update_style( style_id, style_data )
-        page = "<h3>Style saved!</h3>"
-        page += self.edit_style_select_page()
-        return page
+        self.page_msg( "Style saved!" )
+        self.edit_style_select_page()
 
     def del_style( self, style_id ):
-        return "del_style not ready!"
+        """ Lösche ein Stylesheet """
+        self.page_msg( "Delete Style (id:'%s')" % style_id )
+        self.db.delete_style( style_id )
+        self.edit_style_select_page()
 
     #_______________________________________________________________________
     ## Template
 
     def edit_template_select_page( self ):
         """ generiert eine Tabelle zur Template Auswahl """
-        page  = "<h2>Edit template</h2>"
-        page += self.select_table(
+        print "<h2>Edit template</h2>"
+        self.select_table(
             type        = "template",
             table_data  = self.db.get_template_list()
         )
-        return page
 
     def edit_template( self, template_id ):
         """ Seite zum editieren eines template """
         try:
             edit_data = self.db.get_template_data( template_id )
         except IndexError:
-            return "bad template id!"
+            print "bad template id!"
+            return
 
-        return self.make_edit_page(
+        self.make_edit_page(
             edit_data           = edit_data,
             internal_page_name  = "edit_template",
             order               = "edit_template",
             id                  = template_id,
         )
+
+    def copy_template( self, dummy ):
+        """ Ein Template soll kopiert werden """
+        try:
+            clone_name  = self.CGIdata["clone_name"]
+            new_name    = self.CGIdata["new_name"]
+        except KeyError:
+            print "Error in Data!"
+            return
+
+        template_content = self.db.get_template_data_by_name( clone_name )["content"]
+
+        template_data = {
+            "name"          : new_name,
+            "description"   : "clone of '%s'" % clone_name,
+            "content"       : template_content,
+        }
+        self.db.new_template( template_data )
+
+        self.page_msg( "template '%s' duplicated to '%s'" % (clone_name, new_name) )
+        self.edit_template_select_page()
 
     def save_template( self, template_id ):
         """ Speichert einen editierten template """
@@ -185,12 +242,14 @@ class edit_look:
             "content"       : self.CGIdata["content"]
         }
         self.db.update_template( template_id, template_data )
-        page = "<h3>template saved!</h3>"
-        page += self.edit_template_select_page()
-        return page
+        print "<h3>template saved!</h3>"
+        self.edit_template_select_page()
 
     def del_template( self, template_id ):
-        return "del_template not ready!"
+        """ Lösche ein Template """
+        self.page_msg( "Delete Template (id:'%s')" % template_id )
+        self.db.delete_template( template_id )
+        self.edit_template_select_page()
 
     #_______________________________________________________________________
     ## Methoden für Stylesheet- und Template-Editing
@@ -204,7 +263,7 @@ class edit_look:
         form_url =            "%s&save=%s" % ( back_url, id )
 
         try:
-            internal_page = internal_page % {
+            print internal_page % {
                 "name"          : edit_data["name"],
                 "url"           : form_url,
                 "content"       : cgi.escape( edit_data["content"] ),
@@ -212,48 +271,63 @@ class edit_look:
                 "back"          : back_url,
             }
         except KeyError, e:
-            return "<h1>generate internal Page fail:</h1><h4>KeyError:'%s'</h4>" % e
-
-        return internal_page
+            print "<h1>generate internal Page fail:</h1><h4>KeyError:'%s'</h4>" % e
+            return
 
     def select_table( self, type, table_data ):
         """ Erstellt die Tabelle zum auswählen eines Style/Templates """
-        page = '<table id="edit_%s_select" class="edit_table">' % type
-        for item in table_data:
-            page += "<tr>"
-            page += "<td>%s</td>" % item["name"]
 
-            page += '<td><a href="%s?command=edit_%s&edit=%s">edit</a></td>' % (
-                self.config.system.real_self_url, type, item["id"]
+        form_tag = '<form name="edit_%s" method="post" action="%s?command=edit_%s">' % (
+            type, self.config.system.real_self_url, type#, self.CGIdata["page_id"]
+        )
+
+        print form_tag
+        print 'Duplicate <select name="clone_name">'
+        print self.tools.html_option_maker().build_from_list( [i["name"] for i in table_data] )
+        print '</select> to a new %s named: ' % type
+        print '<input name="new_name" value="" size="20" maxlength="50" type="text">'
+        print '<button type="submit" name="duplicate" value="True">clone</button>'
+        print '</form>'
+
+        print form_tag
+        print '<table id="edit_%s_select" class="edit_table">' % type
+
+        JS = '''onclick="return confirm('Are you sure to delete the item ?')"'''
+
+        for item in table_data:
+            print "<tr>"
+            print '<td>'
+            print '<span class="name">%s</span><br/>' % item["name"]
+            print '<span class="description">%s</span>' % item["description"]
+            print "</td>"
+
+            print '<td><button type="submit" name="edit" value="%s">edit</button></td>' % item["id"]
+            print '<td><button type="submit" name="del" value="%s" %s>del</button></td>' % (
+                item["id"], JS
             )
-            page += '<td><a href="%s?command=edit_%s&del=%s">del</a></td>' % (
-                self.config.system.real_self_url, type, item["id"]
-            )
-            page += "<td>%s</td>" % item["description"]
-            page += "</tr>"
-        page += "</table>"
-        return page
+
+            print "</tr>"
+        print '</table></form>'
 
     #_______________________________________________________________________
     ## Interne Seiten editieren
 
     def edit_internal_page_select( self ):
         """ Tabelle zum auswählen einer Internen-Seite zum editieren """
+        print "<h2>Edit internal page</h2>"
+        print '<table id="edit_internal_pages_select" class="edit_table">'
+
         page_list = self.db.get_internal_page_list()
-
-        page  = "<h2>Edit internal page</h2>"
-        page += '<table id="edit_internal_pages_select" class="edit_table">'
         for item in page_list:
-            page += "<tr>"
-            page += "<td>%s</td>" % item["name"]
+            print "<tr>"
+            print "<td>%s</td>" % item["name"]
 
-            page += '<td><a href="%s?command=edit_internal_page&edit=%s">edit</a></td>' % (
+            print '<td><a href="%s?command=edit_internal_page&edit=%s">edit</a></td>' % (
                 self.config.system.real_self_url, item["name"]
             )
-            page += "<td>%s</td>" % item["description"]
-            page += "</tr>"
-        page += "</table>"
-        return page
+            print "<td>%s</td>" % item["description"]
+            print "</tr>"
+        print "</table>"
 
     def edit_internal_page( self, internal_page_name ):
         """ Formular zum editieren einer internen Seite """
@@ -300,9 +374,9 @@ class edit_look:
                 "use back-Button!"
             )
         self.db.update_internal_page( internal_page_name, page_data )
-        page = "<h3>internal page saved!</h3>"
-        page += self.edit_internal_page_select()
-        return page
+
+        print "<h3>internal page saved!</h3>"
+        print self.edit_internal_page_select()
 
     #_______________________________________________________________________
     ## Allgemeine Funktionen

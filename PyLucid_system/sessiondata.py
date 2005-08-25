@@ -130,7 +130,14 @@ class CGIdata:
         #~ print "REQUEST_URI:",os.environ["REQUEST_URI"]
         #~ print "</pre>"
         import cgi
-        self.page_msg( "CGIdata Debug:" )
+
+        import inspect
+        # PyLucid's page_msg nutzen
+        self.page_msg( "-"*30 )
+        self.page_msg(
+            "CGIdata Debug (from '%s' line %s):" % (inspect.stack()[1][1][-20:], inspect.stack()[1][2])
+        )
+
         self.page_msg( "-"*30 )
         for k,v in self.data.iteritems():
             self.page_msg( "%s - %s" % ( k, cgi.escape(str(v)) ) )
@@ -174,6 +181,9 @@ class page_msg:
             self.data += "...%s line %s: " % (inspect.stack()[1][1][-20:], inspect.stack()[1][2] )
 
         self.data += "%s <br/>" % " ".join( [str(i) for i in msg] )
+
+    def write( self, *msg ):
+        self.__call__( *msg )
 
 
 

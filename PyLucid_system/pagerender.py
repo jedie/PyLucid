@@ -97,7 +97,7 @@ class pagerender:
                 ( "<lucidTag:front_menu/>", self.front_menu ),
             )
 
-        # Regeln mit dynamischen Modulerweiterungen ergänzen
+        # Regeln mit dynamischen Modulerweiterungen ergänzen "<lucidTag:.../>"
         lucidTags_modules_data = self.module_manager.get_lucidTags()
         for tag_module, data in lucidTags_modules_data.iteritems():
             tag = "<lucidTag:%s/>" % data["lucidTag"]
@@ -124,11 +124,25 @@ class pagerender:
             ( "<lucidFunction:IncludeRemote>(.*?)</lucidFunction>(?uism)", self.lucidFunction_IncludeRemote ),
             ( "<body(.*?)>(?uism)",                                        self.modify_body_tag             ),
         ]
+
         for rule in rules:
             try:
                 content = re.sub( rule[0], rule[1], content )
             except Exception, e:
                 return "pagerender.replace_lucidTags - Error: '%s' Tag:'%s'" % ( e, rule[0] )
+
+        # dynamischen Modulerweiterungen: <lucidFunction:...>(.*?)</lucidFunction>
+        lucidTags_modules_data = self.module_manager.get_lucidFunctions()
+
+        for tag_module, data in lucidTags_modules_data.iteritems():
+            tag = "<lucidFunction:(%s)>(.*?)</lucidFunction>(?uism)" % data["lucidFunction"]
+            if self.config.system.ModuleManager_error_handling == True:
+                try:
+                    content = re.sub( tag, self.module_manager.start_lucidFunction, content )
+                except Exception, e:
+                    return "pagerender.replace_lucidTags - Error: '%s' Tag:'%s'" % ( e, tag )
+            else:
+                content = re.sub( tag, self.module_manager.start_lucidFunction, content )
 
         return content
 
@@ -292,6 +306,7 @@ class fileobj_save:
         self.data += txt
     def get( self ):
         return self.data
+
 
 
 

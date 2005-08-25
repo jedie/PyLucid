@@ -169,7 +169,8 @@ class sessionhandler:
 
         # Aktualisiert Cookie
         self.writeCookie( self.ID )
-        #~ self.log.write( "OK;found Session." )
+        if self.verbose_log==True:
+            self.log.write( "OK;found Session: %s" % self.ID )
 
     def read_session_data( self, cookie_id ):
         "Liest Session-Daten zur angegebenen ID aus der DB"
@@ -184,10 +185,14 @@ class sessionhandler:
 
         # Session ist OK
 
+        if self.verbose_log==True:
+            self.log.write( "OK;Session is OK" )
+
         self.ID                 = cookie_id
         self.client_IP          = current_IP
         self.client_domain_name = current_domain_name
         self.session_data       = DB_data["session_data"]
+
 
     def makeSession( self ):
         """
@@ -370,9 +375,13 @@ class sessionhandler:
         "Zeigt alle Session Informationen an"
         self.debugging = True # Damit
         try:
+            import inspect
             # PyLucid's page_msg nutzen
             self.page_msg( "-"*30 )
-            self.page_msg( "Session Debug:" )
+            self.page_msg(
+                "Session Debug (from '%s' line %s):" % (inspect.stack()[1][1][-20:], inspect.stack()[1][2])
+            )
+
             self.page_msg( "len:", len( self.session_data ) )
             for k,v in self.session_data.iteritems():
                 self.page_msg( "%s - %s" % (k,v) )

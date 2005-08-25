@@ -13,9 +13,11 @@ Einzubinden über lucid-IncludeRemote-Tag:
 </p>
 """
 
-__version__="0.0.6"
+__version__="0.0.7"
 
 __history__="""
+v0.0.7
+    - Index-Link war falsch
 v0.0.6
     - Tag <lucidTag:back_links/> über Modul-Manager
 v0.0.5
@@ -63,7 +65,9 @@ class backlinks:
         self.config         = PyLucid["config"]
         self.preferences    = PyLucid["preferences"]
 
-        self.indexlink = '<a href="%s">Index</a>' % self.config.system.poormans_url
+        self.indexlink = '<a href="%s">Index</a>' % (
+            self.config.system.poormans_url + self.config.system.page_ident
+        )
 
         self.backlink  = '<a href="'
         self.backlink += self.config.system.poormans_url + self.config.system.page_ident

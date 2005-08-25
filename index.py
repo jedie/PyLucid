@@ -55,14 +55,17 @@ Klasse werden Informationen über das Module/Plugin festgehalten, die vom
 Module-Manager eingelesen werden und PyLucid zur ferfügung gestellt werden.
 """
 
-__author__ = "Jens Diemer (www.jensdiemer.de)"
-__url__ = "http://www.jensdiemer.de/Programmieren/Python/PyLucid"
+__author__  = "Jens Diemer (www.jensdiemer.de)"
+__license__ = "GNU General Public License (GPL)"
+__url__     = "http://www.PyLucid.org"
 
-__info__ = """<a href="%s">PyLucid v0.3.1</a>""" % __url__
+__info__ = """<a href="%s" title="PyLucid - A OpenSource CMS in pure Python CGI by Jens Diemer">PyLucid</a> v0.3.2""" % __url__
 
-__version__="0.2.11"
+__version__="0.2.12"
 
 __history__="""
+v0.2.12
+    - NEU: verify_page(): Überprüft die Rechte, ob der aktuelle Benutzer die Seite sehen darf, oder nicht
 v0.2.11
     - Bug: Die Tabelle session_data hatte einen hardcoded prefix gehabt :( Somit funktionierte
         das ganze System nicht, wenn man als Tabellen-Pefix was anderes außer "lucid_" wählte :(
@@ -153,7 +156,9 @@ from PyLucid_system import SQL, sessiondata, sessionhandling
 from PyLucid_system import userhandling, SQL_logging, pagerender
 from PyLucid_system import module_manager, tools, preferences
 
-pagerender.__info__ = __info__ # Versions-Information übertragen
+# Versions-Information übertragen
+pagerender.__info__     = __info__
+preferences.__info__    = __info__
 
 
 ## Dynamisch geladene Module:
@@ -217,7 +222,8 @@ class LucidRender:
             self.db.cursor,
             "%ssession_data" % self.config.dbconf["dbTablePrefix"],
             self.log,
-            CookieName="PyLucid_id"
+            CookieName="PyLucid_id",
+            #~ verbose_log = True
         )
         self.session.page_msg = self.page_msg
         #~ self.session.debug()
@@ -230,6 +236,8 @@ class LucidRender:
 
         # Aktuelle Seite ermitteln und festlegen
         self.detect_page()
+        # Überprüfe Rechte der Seite
+        self.verify_page()
 
         # Verwaltung von erweiterungs Modulen/Plugins
         self.module_manager = module_manager.module_manager( self.PyLucid )
@@ -344,6 +352,7 @@ class LucidRender:
         except KeyError:
             pass
 
+        print "<address>%s</adress>" % __info__
         print "</body></html>"
 
         sys.exit()
@@ -436,6 +445,7 @@ class LucidRender:
         print "<h1>Internal Error!</h1>"
         print "<h2>%s</h2>" % txt1
         print "<h3>%s</h3>" % "<br/>".join( [str(i) for i in txt2] )
+        print "<hr><address>%s</address>" % __info__
         sys.exit()
 
     #_____________________________________________________________________________________________________
@@ -522,6 +532,7 @@ class LucidRender:
     def check_page_name( self, page_name ):
         """ ermittelt anhand des page_name die page_id """
         page_name = urllib.unquote( page_name )
+        self.CGIdata["REQUEST_URI"] = page_name
 
         if page_name == "/" or page_name == "":
             # Index Seite wurde aufgerufen. Zumindest bei poor-modrewrite
@@ -567,18 +578,45 @@ class LucidRender:
                 "(Did you install PyLucid correctly?)"
             )
 
+    def verify_page( self ):
+        """
+        Überprüft die Rechte, ob der aktuelle Benutzer die Seite sehen darf, oder nicht
+        """
+        #~ self.CGIdata.debug()
+
+        page_id = self.CGIdata["page_id"]
+        page_permitViewPublic = self.db.get_permitViewPublic( page_id )
+        #~ self.page_msg( "page_permitViewPublic:",page_permitViewPublic )
+
+        if self.session.has_key("isadmin"):
+            # User ist eingeloggt
+
+            if self.session["isadmin"] == True:
+                # Administratoren dürfen immer alle Seiten sehen
+                return
+
+            else:
+                self.page_msg("JO")
+
+        else:
+            # User ist nicht eingeloggt
+
+            if page_permitViewPublic != 1:
+                self.page_msg( "401 Unauthorized. You must login to see '%s'" % self.CGIdata["REQUEST_URI"] )
+            else:
+                # Seite ist öffentlich
+                return
+
+        # Die Aktuelle Seite darf nicht angezeigt werden -> Zeige die default Seite
+        self.set_default_page()
+
 
     #_____________________________________________________________________________________________________
 
 
     def command( self, order ):
         """ Behandelt alle URL-"command="-Parameter """
-        #~ print "Content-type: text/html\n"
-        #~ print "<pre>"
-        #~ for k,v in self.CGIdata.iteritems(): print "%s - %s" % (k,v)
-        #~ print "</pre>"
-        #~ sys.exit()
-
+        #~ self.CGIdata.debug()
         self.log( "Special PyLuid command: '%s'" % order )
 
         #~ print "Content-type: text/html\n"

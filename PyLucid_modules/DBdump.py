@@ -6,9 +6,12 @@ Erzeugt einen Download des SQL Dumps
 http://dev.mysql.com/doc/mysql/de/mysqldump.html
 """
 
-__version__="0.0.2"
+__version__="0.0.3"
 
 __history__="""
+v0.0.3
+    - Module-Manager Angabe "direct_out" hinzugefügt, damit der Download des
+      Dumps auch funktioniert.
 v0.0.2
     - Großer Umbau: Anderes Menü, anderer Aufruf von mysqldump, Möglichkeiten Dump-Parameter anzugeben
 v0.0.1
@@ -34,6 +37,7 @@ class module_info:
             "txt_long"      : "dump all DB data",
             "section"       : "admin sub menu",
             "category"      : "administation",
+            "direct_out"    : True,
             "must_login"    : True,
             "must_admin"    : True,
         },

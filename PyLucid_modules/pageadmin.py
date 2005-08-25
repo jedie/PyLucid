@@ -349,7 +349,7 @@ class page_editor:
         aber für die weiterverarbeitung im Dict als keys mit leeren (="") value
         erscheinen.
         """
-        key_list = ("name", "title", "content", "keywords", "description")
+        key_list = ("name", "title", "content", "keywords", "description", "showlinks", "permitViewPublic")
         for key in key_list:
             if not dictionary.has_key( key ):
                 dictionary[key] = ""

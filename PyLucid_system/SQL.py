@@ -271,10 +271,30 @@ class db( mySQL ):
                 where           = ("id", style_id)
             )[0]
 
+    def get_style_data_by_name( self, style_name ):
+        return self.select(
+                select_items    = ["description","content"],
+                from_table      = "styles",
+                where           = ("name", style_name)
+            )[0]
+
     def update_style( self, style_id, style_data ):
         self.update(
             table   = "styles",
             data    = style_data,
+            where   = ("id",style_id),
+            limit   = 1
+        )
+
+    def new_style( self, style_data ):
+        self.insert(
+            table   = "styles",
+            data    = style_data,
+        )
+
+    def delete_style( self, style_id ):
+        self.delete(
+            table   = "styles",
             where   = ("id",style_id),
             limit   = 1
         )
@@ -292,10 +312,30 @@ class db( mySQL ):
                 where           = ("id", template_id)
             )[0]
 
+    def get_template_data_by_name( self, template_name ):
+        return self.select(
+                select_items    = ["description","content"],
+                from_table      = "templates",
+                where           = ("name", template_name)
+            )[0]
+
     def update_template( self, template_id, template_data ):
         self.update(
             table   = "templates",
             data    = template_data,
+            where   = ("id",template_id),
+            limit   = 1
+        )
+
+    def new_template( self, template_data ):
+        self.insert(
+            table   = "templates",
+            data    = template_data,
+        )
+
+    def delete_template( self, template_id ):
+        self.delete(
+            table   = "templates",
             where   = ("id",template_id),
             limit   = 1
         )
@@ -385,6 +425,15 @@ class db( mySQL ):
                 where           = ("name", username)
             )[0]
 
+    #_____________________________________________________________________________
+    ## Rechteverwaltung
+
+    def get_permitViewPublic( self, page_id ):
+        return self.select(
+                select_items    = [ "permitViewPublic" ],
+                from_table      = "pages",
+                where           = ("id", page_id),
+            )[0]["permitViewPublic"]
 
 
 

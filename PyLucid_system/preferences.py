@@ -21,7 +21,6 @@ v0.0.1
 
 
 
-
 # Für Debug-print-Ausgaben
 #~ print "Content-type: text/html\n\n<pre>%s</pre>" % __file__
 #~ print "<pre>"
@@ -53,6 +52,7 @@ class preferences:
             print "<h1>Error: Can't read preferences:</h1>"
             print e
             print "<p>(Did you install PyLucid correctly?)</p>"
+            print "<hr><address>%s</address>" % __info__
             import sys
             sys.exit()
         #~ "section", "varName", "value"

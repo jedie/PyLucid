@@ -37,11 +37,17 @@ import os
 class system:
     # Zeigt zusätzlich an, in welchem Modul eine Page-Massage erzeugt wurde
     page_msg_debug = False
+    #~ page_msg_debug = True
 
     # Fehlerabfrage bei Module/Plugins über den Module-Manager
     # =False -> Fehler in einem Modul führen zu einem CGI-Traceback ( cgitb.enable() )
-    # =True -> Fehler in einem Modul werden in einem Satz zusammen gefasst
-    ModuleManager_error_handling = False
+    # =True  -> Fehler in einem Modul werden in einem Satz zusammen gefasst
+    ModuleManager_error_handling = True
+
+    # Fehlerabfrage beim importieren von Modulen im Module-Manager
+    # =True  -> Import-Fehler werden immer angezeigt
+    # =False -> Import-Fehler sehen nur eingeloggte Administratoren
+    ModuleManager_import_error = False
 
     # Damit Suchmaschienen nicht auch interne Seiten indexieren, passt PyLucid den
     # Inhalt des '<lucidTag:robots/>'-Tag je nach Typ der Seite an.
@@ -65,11 +71,6 @@ class system:
     # Ist die ID der Usergruppe "PyLucid_internal"
     # Damit sind die Internen Seiten in der DB makiert
     internal_group_id = -1
-
-    # Für render.py, damit bei specialTags (z.B. <lucidFunction:IncludeRemote>) angegebenes Skripte
-    # z.B. ListOfNewSides.py nicht wirklich per http gehohlt werden, sondern als Python-Module direkt
-    # ausgeführt werden.
-    #~ LocalDomains = ( "http://localhost", "http://jensdiemer.de", "http://www.jensdiemer.de" )
 
     ## real_self_url und poormans_url
     # Bei manchen Webhostern sind CGI Programm nicht außerhalb
@@ -115,14 +116,11 @@ class system:
     # poormans_url = "/"
     #
     real_self_url   = "/index.py"
-    poormans_url    = ""
+    poormans_url    = "/"
     #
     # Mit welchem Parameter sollen die Links gebildet werden
     # Standart: "?p="
     page_ident      = "?p="
-    #~ page_ident      = ""
-    #~ poormans_url    = "/PyLucid_tarball"
-    #~ poormans_url    = "/PyLucid_tarball/index.py"
 
     ## poormans_modrewrite
     # Um auch ohne apache's Modrewrite eine saubere URL *ohne* URL-Parameter
@@ -153,7 +151,6 @@ dbconf = {
     "dbTablePrefix"     : 'lucid_',
     "dbdatetime_format" : '%Y-%m-%d %H:%M:%S', # SQL-Datetime-String-Format
 }
-
 
 
 available_markups = ["none","textile"]
