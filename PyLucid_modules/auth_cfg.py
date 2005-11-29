@@ -11,17 +11,6 @@ __long_description__ = """"""
 __essential_buildin__ = True
 
 #___________________________________________________________________________________________________
-
-internal_pages = [
-{
-    "name"          : "login_form",
-    "description"   : "The Login Page",
-    "category"      : "user handling",
-    "markup"        : "string formatting",
-}
-]
-
-#___________________________________________________________________________________________________
 # Module-Manager Daten
 
 #~ module_manager_debug = True
@@ -31,6 +20,10 @@ module_manager_data = {
     "login" : {
         "must_login"    : False,
         "direct_out"    : True,
+        "internal_page_info" : {
+            "description"   : "The Login html-form Page",
+            "markup"        : "string formatting",
+        },
     },
     "logout" : {
         "must_login"    : False,
