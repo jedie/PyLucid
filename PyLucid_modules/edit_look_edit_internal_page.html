@@ -1,0 +1,33 @@
+<h2>Edit internal page</h2>
+<a href="%(url)s">&lt;&lt; back</a>
+
+<form method="post" action="%(url)s">
+    <p>
+    Name: <strong>&quot;%(name)s&quot;</strong>:<br />
+    <textarea wrap="off" id="edit_internal_page" name="content" style="width: 100%%;" rows="25" accept-charset="UTF-8">%(content)s</textarea><br />
+
+    <span class="resize_buttons">
+      <a href="JavaScript:resize_big();" alt="bigger">&nbsp;+&nbsp;</a>
+      <a href="JavaScript:resize_small();">&nbsp;-&nbsp;</a><br />
+      <script type="text/javascript">
+        // Skript zum größer und kleiner machen des Eingabefeldes
+        textarea = document.getElementById("edit_internal_page");
+        function resize_big()   { textarea.rows = textarea.rows*1.5; }
+        function resize_small() { textarea.rows = textarea.rows/1.5; }
+      </script>
+    </span>
+
+    Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s"><br />
+    Markup: <select name="markup">%(markup_option)s</select><br />
+    <input name="internal_page_name" type="hidden" value="%(name)s">
+    <input type="submit" value="save" name="save" />
+    <button type="reset" onClick="self.location.href='%(url)s'">abort</button>
+  </p>
+</form>
+
+<h4>Node:</h4>
+<ul>
+  <li>You may not delete internal Python tags, like: '%%(name)s'</li>
+  <li>Normal percent sign must be quoted: '%%' -&gt; '%%%%'</li>
+  <li>Markup doesn't work with every page, don't change it.</li>
+</ul>

@@ -1,0 +1,22 @@
+#forum_summary {
+    width:100%;
+    background-color:#DDDDDD;
+}
+#forum_summary .headline {
+    background-color:#EEEEEE;
+}
+#forum_summary .cat_header {
+    background-color:#CCCCFF;
+}
+#forum_summary .forums {
+    background-color:#EEEEEE;
+}
+.color0 {
+    background-color:#EEEEEE;
+}
+.color1 {
+    background-color:#DDDDDD;
+}
+.nav {
+    background-color:#DDDDDD;
+}

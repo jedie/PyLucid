@@ -1,0 +1,19 @@
+<h2>Select CSS stylesheet to edit</h2>
+
+<form name="edit_style" method="post" action="%(main_action_url)s">
+Duplicate <select name="clone_name">%(clone_select)s</select> to a new named: <input name="new_name" value="" size="20" maxlength="50" type="text">
+<input type="submit" name="clone" value="clone" />
+</form>
+
+<span class="select">
+%(select_table)s
+</span>
+
+<style type="text/css">
+.select table td {
+  padding: 0.2em;
+}
+.select table td.name {
+  font-weight:bold;
+}
+</style>

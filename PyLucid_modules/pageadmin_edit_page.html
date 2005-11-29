@@ -1,0 +1,107 @@
+%(status_msg)s
+<form name="login" method="post" action="%(url)s">
+  <p>Page: <strong>&quot;%(name)s&quot;</strong>:<br>
+    <textarea id="page_content" name="content" rows="25" accept-charset="UTF-8">%(content)s</textarea>
+    <hr id="hr_textarea">
+  </p>
+<span class="resize_buttons">
+  <a href="JavaScript:resize_big();" alt="bigger">&nbsp;+&nbsp;</a>
+  <a href="JavaScript:resize_small();">&nbsp;-&nbsp;</a><br />
+  <script type="text/javascript">
+    // Skript zum größer und kleiner machen des Eingabefeldes
+    textarea = document.getElementById("page_content");
+    function resize_big()   { textarea.rows = textarea.rows*1.2; }
+    function resize_small() { textarea.rows = textarea.rows/1.2; }
+  </script>
+</span>
+
+<fieldset><legend><b>send</b></legend>
+ <table>
+  <tr>
+   <td colspan="2">
+    <input name="page_id" type="hidden" value="%(page_id)s" />
+    <input type="submit" value="save" name="save" />
+    <input type="submit" value="preview" name="preview" />
+    <input type="reset" onClick="self.location.href='%(abort_url)s'" name="abort" value="abort" />
+    |||
+    <input type="submit" value="encode" name="encode" /><select name="encoding" id="encoding">%(encoding_option)s</select> from DB
+   </td>
+  </tr>
+  <tr>
+   <td class="description">trivial modifications:</td>
+   <td><input name="trivial" type="checkbox" id="trivial" value="1" />( If checked the side will not archived. )</td>
+  </tr>
+  <tr>
+   <td class="description">Edit summary:</td>
+   <td><input name="summary" type="text" value="%(summary)s" id="summary" size="50" maxlength="50" />
+  </tr>
+ </table>
+</fieldset>
+
+<fieldset><legend><b>Page Details</b></legend>
+ <table>
+  <tr>
+   <td class="description">page name:</td>
+   <td><input name="name" type="text" value="%(name)s" size="50" maxlength="50"></td>
+  </tr>
+  <tr>
+   <td class="description">page title:</td>
+   <td><input name="title" type="text" value="%(title)s" size="50" maxlength="50"></td>
+  </tr>
+  <tr>
+   <td class="description">keywords:</td>
+   <td><input name="keywords" type="text" value="%(keywords)s" size="70" maxlength="255"></td>
+  </tr>
+  <tr>
+   <td class="description">description:</td>
+   <td><input name="description" type="text" value="%(description)s" size="70" maxlength="255"></td>
+  </tr>
+ </table>
+</fieldset>
+
+<fieldset><legend><b>Page Controls</b></legend>
+ <table>
+  <tr>
+   <td class="description">Parent Page:</td>
+   <td><select name="parent" id="parent">%(parent_option)s</select></td>
+  </tr>
+  <tr>
+   <td class="description">Template:</td>
+   <td><select name="template" id="template">%(template_option)s</select></td>
+  </tr>
+  <tr>
+   <td class="description">Style:</td>
+   <td><select name="style">%(style_option)s</select></td>
+  </tr>
+  <tr>
+   <td class="description">Markup:</td>
+   <td><select name="markup">%(markup_option)s</select></td>
+  </tr>
+  <tr>
+   <td class="description">Page Owner:</td>
+   <td><select name="ownerID" id="ownerID">%(ownerID_option)s</select></td>
+  </tr>
+ </table>
+</fieldset>
+
+<fieldset><legend><b>Page Permissions</b></legend>
+ <table>
+  <tr>
+   <td class="description">Editable by Group:</td>
+   <td><select name="permitEditGroupID" id="permitEditGroupID">%(permitEditGroupID_option)s</select></td>
+  </tr>
+  <tr>
+   <td class="description">Viewable by Group:</td>
+   <td><select name="permitViewGroupID" id="permitViewGroupID">%(permitViewGroupID_option)s</select></td>
+  </tr>
+  <tr>
+   <td class="description">showlinks:</td>
+   <td><input name="showlinks" type="checkbox" id="showlinks" value="1"%(showlinks)s></td>
+  </tr>
+  <tr>
+   <td class="description">permit view public:</td>
+   <td><input name="permitViewPublic" type="checkbox" id="permitViewPublic" value="1"%(permitViewPublic)s></td>
+  </tr>
+ </table>
+</fieldset>
+</form>

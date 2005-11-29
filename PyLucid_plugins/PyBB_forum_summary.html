@@ -1,0 +1,25 @@
+<p class="nav">
+<a tal:attributes="href back_link/url;title back_link/name" tal:content="back_link/name"></a></p>
+<table id="forum_summary">
+<tr class="headline">
+    <th>Nr</th>
+    <th>Themen</th>
+    <th>Antworten</th>
+    <th>Author</th>
+    <th>Aufrufe</th>
+    <th>Letzter Beitrag</th>
+</tr>
+<tr tal:repeat="topics table">
+    <td tal:content="repeat/topics/number"></td>
+    <td tal:content="topics/topic_title"></td>
+    <td tal:content="topics/topic_replies"></td>
+    <td><a tal:attributes="href topics/link;title topics/name" tal:content="topics/name"></a></td>
+    <td tal:content="topics/topic_views"></td>
+    <td>
+        <p>
+            <b tal:replace="topics/last_post_time"></b><br />
+            <a tal:attributes="href topics/link;title topics/name" tal:content="topics/name"></a>
+        </p>
+    </td>
+</tr>
+</table>
