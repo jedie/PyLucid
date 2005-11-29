@@ -1,0 +1,20 @@
+# Customized error messages for poormans_modrewrite
+# Hier muß der Pfad angepasst werden zur PyLucid's index.py
+# wenn poormans_modrewrite verwendet werden soll.
+# http://httpd.apache.org/docs/2.0/mod/core.html#errordocument
+#ErrorDocument 404 /index.py
+
+
+# Damit man auch die index.py aus der URL verschwinden kann, muß
+# der DirectoryIndex die index.py ausführen
+# http://httpd.apache.org/docs/2.0/mod/mod_dir.html#directoryindex
+#DirectoryIndex /index.py
+
+# Damit allgemein CGI's ausgeführt werden
+# http://httpd.apache.org/docs/2.0/mod/core.html#options
+Options +ExecCGI
+
+# Damit Python-Skripte auch außerhalb von /cgi-bin/ ausgeführt
+# werden.
+# http://httpd.apache.org/docs/2.0/mod/mod_mime.html#addhandler
+AddHandler cgi-script .py
