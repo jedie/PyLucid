@@ -117,6 +117,9 @@ v0.1.0
     - erste Version
 """
 
+#~ print "Content-type: text/html; charset=utf-8\r\n\r\nDEBUG:"
+
+
 # Als erstes Mal die Zeit stoppen ;)
 import time
 start_time = time.time()
@@ -124,14 +127,14 @@ start_clock = time.clock()
 
 
 import cgitb;cgitb.enable()
+#~ from system import debug
+#~ debug.cgi_debug()
 
 
 
 # Python-Basis Module einbinden
 import os, sys, urllib, cgi
 
-
-#~ print "Content-type: text/html; charset=utf-8\r\n\r\nDEBUG:"
 
 if not sys.version.startswith("2.4"):
     # Damit werden erst die "backports" gefunden, wenn Python älter als v2.4 ist

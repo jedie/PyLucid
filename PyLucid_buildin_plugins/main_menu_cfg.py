@@ -7,6 +7,7 @@
 __author__              = "Jens Diemer"
 __url__                 = "http://www.PyLucid.org"
 __description__         = "A tree main menu"
+__important_buildin__   = True
 
 #___________________________________________________________________________________________________
 # Module-Manager Daten

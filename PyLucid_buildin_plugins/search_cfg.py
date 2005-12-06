@@ -10,6 +10,7 @@ __description__ = "The builtin search"
 __long_description__ = """
 A small search engine with rating for your CMS.
 """
+__important_buildin__   = True
 
 #___________________________________________________________________________________________________
 # Module-Manager Daten
@@ -23,7 +24,7 @@ module_manager_data = {
         "must_admin"    : False,
         "get_CGI_data"  : {"search_string": str},
         "internal_page_info" : {
-            "name"          : "search_form",
+            "name"          : "input_form",
             "description"   : "The HTML form of the search module.",
             "markup"        : "TAL",
         },

@@ -8,6 +8,9 @@ PyLucid "installer"
 __version__ = "v0.3.1"
 
 __history__ = """
+v0.4
+    - Anderer Aufbau der actions: In Sektionen unterteilt.
+    - Neu: db_info
 v0.3.1
     - Packports Pfad hinzugefügt
 v0.3
@@ -181,8 +184,11 @@ pre {
     padding: 1em;
 }
 #menu li, #menu li a {
-    list-style-type: square;
+    list-style-type: none;
     padding: 0.3em;
+}
+#menu h4 {
+    margin: 0px;
 }
 a {
     color:#00BBEE;
@@ -197,153 +203,8 @@ a:hover {
 HTML_bottom = "</body></html>"
 
 
-class SQL_dump:
-    """
-    Klasse zum "verwalten" des SQL-install-Dumps
-    """
-    def __init__( self, db ):
-        self.db = db
-
-        self.in_create_table = False
-        self.in_insert = False
-
-        self.ziparchiv = zipfile.ZipFile( install_zipfile, "r" )
-
-    def import_dump( self ):
-        table_names = self.get_table_names()
-        print "<pre>"
-        for current_table in table_names:
-            print "install DB table '%s'..." % current_table,
-            command = self.get_table_data(current_table)
-
-            try:
-                counter = self.execute_many(command)
-            except Exception,e:
-                print "ERROR:", e
-            else:
-                print "OK"
-
-        print "</pre>"
-
-    def _complete_prefix( self, data ):
-        return data % { "table_prefix" : config.dbconf["dbTablePrefix"] }
-
-    def install_tables( self, table_names ):
-        """ Installiert nur die Tabellen mit angegebenen Namen """
-        print "<pre>"
-        reinit_tables = list(table_names)
-        for current_table in table_names:
-            print "re-initialisation DB table '%s':" % current_table
-            command = self.get_table_data(current_table)
-
-            print " - Drop table...",
-            try:
-                status = self.execute(
-                    "DROP TABLE `%s%s`;" % (config.dbconf["dbTablePrefix"],current_table)
-                )
-            except Exception, e:
-                print "Error:", e
-            else:
-                print "OK"
-
-            print " - recreate Table and insert values...",
-            try:
-                counter = self.execute_many(command)
-            except Exception,e:
-                print "ERROR:", e
-                sys.exit()
-            else:
-                print "OK"
-
-            reinit_tables.remove(current_table)
-            print
-
-        if reinit_tables != []:
-            print "Error, Tables remaining:"
-            print table_names
-        print "</pre>"
-
-
-    #__________________________________________________________________________________________
-    # Zugriff auf ZIP-Datei
-
-    def get_table_data(self, table_name):
-        try:
-            data = self.ziparchiv.read( table_name+".sql" )
-        except Exception, e:
-            print "Can't get data for '%s': %s" % (table_name, e)
-            sys.exit()
-
-        return self._complete_prefix( data )
-
-    def get_table_names(self):
-        """
-        Die Tabellen namen sind die Dateinamen, außer info.txt
-        """
-        table_names = []
-        for fileinfo in self.ziparchiv.infolist():
-            if fileinfo.filename.endswith("/"):
-                # Ist ein Verzeichniss
-                continue
-            filename = fileinfo.filename
-            if filename == "info.txt":
-                continue
-            filename = os.path.splitext(filename)[0]
-            table_names.append(filename)
-        table_names.sort()
-        return table_names
-
-    #__________________________________________________________________________________________
-    # SQL
-
-    def execute_many(self, command):
-        """
-        In der Install-Data-Datei sind in jeder Zeile ein SQL-Kommando,
-        diese werden nach einander ausgeführt
-        """
-        counter = 0
-        for line in command.split("\n"):
-            if line=="": # Leere Zeilen überspringen
-                continue
-            self.execute(line)
-            counter += 1
-        return counter
-
-    def execute( self, SQLcommand ):
-        #~ try:
-        self.db.cursor.execute( SQLcommand )
-        #~ except Exception, e:
-            #~ print "Error: '%s' in SQL-command:" % cgi.escape( str(e) )
-            #~ print "'%s'" % SQLcommand
-            #~ print
-            #~ return False
-        #~ else:
-            #~ return True
-
-    #__________________________________________________________________________________________
-
-    def dump_data( self ):
-        print "<h2>SQL Dump data:</h2>"
-        print
-        print "<pre>"
-        for line in self.data.splitlines():
-            print cgi.escape( self._complete_prefix( line )  )
-        print "</pre>"
-
-
-
-
-
-
-
-
-
 
 ##__________________________________________________________________________________________
-
-
-
-
 
 
 
@@ -400,20 +261,38 @@ class PyLucid_setup:
             sys.exit()
 
         self.actions = [
-                (self.install_PyLucid,  "install",              "Install PyLucid from scratch"),
-                (self.add_admin,        "add_admin",            "add a admin user"),
-                (self.re_init,          "re_init",              "partially re-initialisation DB tables"),
-                (self.module_admin,     "module_admin",         "Module/Plugin Administration"),
-                (self.convert_markups,  "convert_markups",      "Convert Markup Names to IDs (PyLucid v0.x -&gt; 0.5)"),
-                #~ (self.convert_db,       "convert_db",           "convert DB data from PHP-LucidCMS to PyLucid Format"),
-                #~ (self.convert_locals,   "locals",               "convert locals (ony preview!)"),
-            ]
+            ("install PyLucid from scratch",[
+                    (self.init_DB,          "init_DB",              "1. init Database tables"),
+                    (self.init_modules,     "init_modules",         "2. init basic Modules"),
+                    (self.add_admin,        "add_admin",            "3. add a admin user"),
+                ]
+            ),
+            ("low level Admin", [
+                    (self.module_admin,     "module_admin",         "Module/Plugin Administration"),
+                    (self.re_init,          "re_init",              "partially re-initialisation DB tables"),
+                ]
+            ),
+            ("update", [
+                    (self.convert_markups,  "convert_markups",      "Convert Markup Names to IDs (PyLucid v0.x -&gt; 0.5)"),
+                    #~ (self.convert_db,       "convert_db",           "convert DB data from PHP-LucidCMS to PyLucid Format"),
+                    #~ (self.convert_locals,   "locals",               "convert locals (ony preview!)"),
+                ]
+            ),
+            ("info / tests", [
+                    (self.db_info,          "db_info",              "DB connection Information"),
+                ]
+            ),
+        ]
 
-        for action in self.actions:
-            if self.CGIdata.has_key( action[1] ):
-                # Ruft die Methode auf, die in self.actions definiert wurde
-                action[0]()
-                self.end()
+        for section_data in self.actions:
+            for action in section_data[1]:
+                if self.CGIdata.has_key( action[1] ):
+                    # Ruft die Methode auf, die in self.actions definiert wurde
+                    print "<h3>%s</h3>" % action[2]
+                    self.print_backlink()
+                    action[0]() # Methode ausführen
+                    self.print_backlink()
+                    self.end()
 
         self.print_actionmenu()
         print "<hr>"
@@ -448,19 +327,25 @@ class PyLucid_setup:
         print '<a href="http://www.pylucid.org/index.py?p=/Download/update+instructions">update instructions</a></p>'
 
     def print_actionmenu( self ):
+        """Baut das Menü auf"""
         print "Please select:"
         print '<ul id="menu">'
-        for i in self.actions :
-            print '<li><a href="?%s">%s</a></li>' % (i[1], i[2])
+        for section_data in self.actions:
+            print "<li><h4>%s</h4>" % section_data[0]
+            print "\t<ul>"
+            for i in section_data[1]:
+                print '\t\t<li><a href="?%s">%s</a></li>' % (i[1], i[2])
+            print "\t</ul>"
+            print "</li>"
 
         print "</ul>"
 
     #__________________________________________________________________________________________
 
-    def install_PyLucid( self ):
+    def init_DB(self):
         """ Installiert PyLucid von Grund auf """
-        print "<h3>Install PyLucid:</h3>"
-        self.print_backlink()
+        #~ print "<h3>Install PyLucid:</h3>"
+        #~ self.print_backlink()
 
         d = SQL_dump( self.db )
         d.import_dump()
@@ -468,9 +353,9 @@ class PyLucid_setup:
 
     #__________________________________________________________________________________________
 
-    def re_init( self ):
-        print "<h3>partially re-initialisation DB tables</h3>"
-        self.print_backlink()
+    def re_init(self):
+        #~ print "<h3>partially re-initialisation DB tables</h3>"
+        #~ self.print_backlink()
         d = SQL_dump( self.db )
 
         print '<form action="?action=re_init_tables" method="post">'
@@ -501,17 +386,30 @@ class PyLucid_setup:
 
         d.install_tables( table_names )
 
-        self.print_backlink()
-
     #__________________________________________________________________________________________
 
-    def module_admin(self):
-        self.PyLucid["URLs"]["action"] = "?action=module_admin&sub_action="
-
+    def init_modules(self):
+        """
+        1. Erstellt die Tabellen für den Module/Plugin-Manager
+        2. installiert die Basic Module
+        3. aktiviert die Module
+        """
+        module_admin = self._get_module_admin()
+        module_admin.first_time_install()
         self.print_backlink()
 
+    def _get_module_admin(self):
+        self.PyLucid["URLs"]["action"] = "?action=module_admin&sub_action="
+
         from PyLucid_modules import module_admin
+
         module_admin = module_admin.module_admin(self.PyLucid, call_from_install_PyLucid = True)
+
+        return module_admin
+
+    def module_admin(self):
+
+        module_admin = self._get_module_admin()
 
         sub_action = self.CGIdata.get("sub_action", None)
 
@@ -546,12 +444,9 @@ class PyLucid_setup:
 
         module_admin.administation_menu()
 
-        self.print_backlink()
-
     #__________________________________________________________________________________________
 
     def convert_markups(self):
-        print "<h3>Convert Markup Names to Markup IDs in DB</h3>"
         self.print_backlink()
 
         try:
@@ -647,8 +542,7 @@ class PyLucid_setup:
 
     def add_admin( self ):
         """ Einen neuen Admin anlegen """
-        print "<h3>Add Admin:</h3>"
-        self.print_backlink()
+        #~ self.print_backlink()
 
         if self.db.exists_admin() == True:
             print "<h3>Sorry, an admin already exists.</h3>"
@@ -785,6 +679,17 @@ class PyLucid_setup:
             #~ print side["name"].decode( source_local )
             #~ print side["name"].encode( destination_local )
 
+    #__________________________________________________________________________________________
+
+    def db_info(self):
+        print "<pre>"
+        for k,v in self.PyLucid["config"].dbconf.iteritems():
+            if k == "dbPassword":
+                v = "***"
+            print "%-20s: %s" % (k,v)
+        print "</pre>"
+
+
     ###########################################################################################
     ###########################################################################################
 
@@ -808,6 +713,166 @@ class PyLucid_setup:
         print "<hr>"
         print "<h3>For safety reasons:</h3>"
         print "<h4>After setup: Delete this file (%s) on the server !!!</h4>" % os.environ["SCRIPT_NAME"]
+
+
+
+
+
+
+
+##__________________________________________________________________________________________
+
+
+
+
+
+
+class SQL_dump:
+    """
+    Klasse zum "verwalten" des SQL-install-Dumps
+    """
+    def __init__( self, db ):
+        self.db = db
+
+        self.in_create_table = False
+        self.in_insert = False
+
+        try:
+            self.ziparchiv = zipfile.ZipFile( install_zipfile, "r" )
+        except Exception, e:
+            print "<h2>Can't open install-file:</h2>"
+            print e
+            sys.exit()
+
+    def import_dump( self ):
+        table_names = self.get_table_names()
+        print "<pre>"
+        for current_table in table_names:
+            print "install DB table '%s'..." % current_table,
+            command = self.get_table_data(current_table)
+
+            try:
+                counter = self.execute_many(command)
+            except Exception,e:
+                print "ERROR:", e
+            else:
+                print "OK"
+
+        print "</pre>"
+
+    def _complete_prefix( self, data ):
+        return data % { "table_prefix" : config.dbconf["dbTablePrefix"] }
+
+    def install_tables( self, table_names ):
+        """ Installiert nur die Tabellen mit angegebenen Namen """
+        print "<pre>"
+        reinit_tables = list(table_names)
+        for current_table in table_names:
+            print "re-initialisation DB table '%s':" % current_table
+            command = self.get_table_data(current_table)
+
+            print " - Drop table...",
+            try:
+                status = self.execute(
+                    "DROP TABLE `%s%s`;" % (config.dbconf["dbTablePrefix"],current_table)
+                )
+            except Exception, e:
+                print "Error:", e
+            else:
+                print "OK"
+
+            print " - recreate Table and insert values...",
+            try:
+                counter = self.execute_many(command)
+            except Exception,e:
+                print "ERROR:", e
+                sys.exit()
+            else:
+                print "OK"
+
+            reinit_tables.remove(current_table)
+            print
+
+        if reinit_tables != []:
+            print "Error, Tables remaining:"
+            print table_names
+        print "</pre>"
+
+
+    #__________________________________________________________________________________________
+    # Zugriff auf ZIP-Datei
+
+    def get_table_data(self, table_name):
+        try:
+            data = self.ziparchiv.read( table_name+".sql" )
+        except Exception, e:
+            print "Can't get data for '%s': %s" % (table_name, e)
+            sys.exit()
+
+        return self._complete_prefix( data )
+
+    def get_table_names(self):
+        """
+        Die Tabellen namen sind die Dateinamen, außer info.txt
+        """
+        table_names = []
+        for fileinfo in self.ziparchiv.infolist():
+            if fileinfo.filename.endswith("/"):
+                # Ist ein Verzeichniss
+                continue
+            filename = fileinfo.filename
+            if filename == "info.txt":
+                continue
+            filename = os.path.splitext(filename)[0]
+            table_names.append(filename)
+        table_names.sort()
+        return table_names
+
+    #__________________________________________________________________________________________
+    # SQL
+
+    def execute_many(self, command):
+        """
+        In der Install-Data-Datei sind in jeder Zeile ein SQL-Kommando,
+        diese werden nach einander ausgeführt
+        """
+        counter = 0
+        for line in command.split("\n"):
+            if line=="": # Leere Zeilen überspringen
+                continue
+            self.execute(line)
+            counter += 1
+        return counter
+
+    def execute( self, SQLcommand ):
+        #~ try:
+        self.db.cursor.execute( SQLcommand )
+        #~ except Exception, e:
+            #~ print "Error: '%s' in SQL-command:" % cgi.escape( str(e) )
+            #~ print "'%s'" % SQLcommand
+            #~ print
+            #~ return False
+        #~ else:
+            #~ return True
+
+    #__________________________________________________________________________________________
+
+    def dump_data( self ):
+        print "<h2>SQL Dump data:</h2>"
+        print
+        print "<pre>"
+        for line in self.data.splitlines():
+            print cgi.escape( self._complete_prefix( line )  )
+        print "</pre>"
+
+
+
+
+##__________________________________________________________________________________________
+
+
+
+
 
 
 if __name__ == "__main__":

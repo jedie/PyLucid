@@ -7,7 +7,7 @@
 __author__              = "Jens Diemer"
 __url__                 = "http://www.PyLucid.org"
 __description__         = "A small Backlink generator"
-__essential_buildin__   = False
+__important_buildin__   = True
 
 #_______________________________________________________________________
 # Module-Manager Daten

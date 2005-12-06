@@ -108,6 +108,7 @@ class module_admin:
             self.db.cursor.execute("TRUNCATE TABLE %splugindata" % self.db.tableprefix)
         except Exception, e:
             print "Error:", e
+            print "You must first init the table!!!"
             return
         else:
             print "OK"
@@ -116,16 +117,22 @@ class module_admin:
         data = self._read_packages()
         data = self._filter_cfg(data)
         data = self._read_all_moduledata(data)
+
+        sorted_data = []
         for module in data:
-            if not module["essential_buildin"] == True:
+            if (module["essential_buildin"] != True) and (module["important_buildin"] != True):
                 continue
 
             try:
                 self.install(module['package_name'], module['module_name'], print_info=False)
-                print "Activate plugin with ID:",self.registered_plugin_id
-                self.activate(self.registered_plugin_id, print_info=False)
             except Exception, e:
                 print "*** Error:", e
+
+            # essential_buildin werden automatisch aktiviert mit active = -1
+            # important_buildin müßen normal aktiviert werden (active = 1)
+            if module["important_buildin"] == True:
+                print "Activate plugin with ID:",self.registered_plugin_id
+                self.activate(self.registered_plugin_id, print_info=False)
 
         print "</pre>"
 
@@ -140,7 +147,7 @@ class module_admin:
             for k,v in method_data.iteritems():
                 print "***", k, "-", v
 
-        print "Find id from registred plugin...",
+        print "Find id for %s.%s..." % (package, module_name),
         try:
             plugin_id = self.db.get_plugin_id(package, module_name)
         except Exception, e:
@@ -221,6 +228,9 @@ class module_admin:
             self.link("administation_menu")
             print "<h3>Install %s.%s</h3>" % (package, module_name)
             print "<pre>"
+        else:
+            print "_"*80
+            print "Install %s.%s" % (package, module_name)
 
         module_data = self._get_module_data(package, module_name)
 
@@ -283,7 +293,7 @@ class module_admin:
         for method_name, method_data in module_data["module_manager_data"].iteritems():
             self._install_internal_page(method_data, package, module_name, method_name)
 
-            if method_data.has_key("CGI_dependent_actions"):
+            if type(method_data) == dict and method_data.has_key("CGI_dependent_actions"):
                 for method_name, CGI_dependent_method_data in method_data["CGI_dependent_actions"].iteritems():
                     self._install_internal_page(CGI_dependent_method_data, package, module_name, method_name)
         print
@@ -308,7 +318,7 @@ class module_admin:
         Eintragen der internal_page
         Wird von self.install() benutzt
         """
-        if not method_data.has_key("internal_page_info"):
+        if type(method_data) != dict or method_data.has_key("internal_page_info") != True:
             return
 
         data = method_data["internal_page_info"]
@@ -471,8 +481,8 @@ class module_admin:
 
     def activate(self, id, print_info=True):
         self.db.activate_module(id)
-        self.page_msg("Enable Module/Plugin (ID: %s)" % id)
         if print_info==True:
+            self.page_msg("Enable Module/Plugin (ID: %s)" % id)
             self.administation_menu()
 
     def deactivate(self, id):
@@ -584,7 +594,7 @@ class module_admin:
             result[attr] = get_striped_attr(module_cfg_object, attr)
 
         # meta Attribute holen
-        for attr in ("author", "url", "description", "long_description", "essential_buildin"):
+        for attr in ("author", "url", "description", "long_description", "essential_buildin", "important_buildin"):
             result[attr] = get_striped_attr(module_cfg_object, "__%s__" % attr)
 
         # Versions-Information aus dem eigentlichen Module holen
@@ -627,7 +637,14 @@ class module_admin:
     # Informationen über in der DB installierte Module / Plugins
 
     def get_installed_modules_info(self):
-        installed_modules_info = self.db.get_installed_modules_info()
+        try:
+            installed_modules_info = self.db.get_installed_modules_info()
+        except Exception, e:
+            print "Content-type: text/html; charset=utf-8\r\n\r\n"
+            print "<h1>Can't get installed module data from DB:</h1>"
+            print "<h4>%s</h4>" % e
+            print "<h3>Did you run install_PyLucid.py ???</h3>"
+            sys.exit()
         return installed_modules_info
 
     #________________________________________________________________________________________

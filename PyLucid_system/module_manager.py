@@ -84,7 +84,15 @@ class plugin_data:
         self.plugindata = {}
 
         # Daten der Installierten Module holen
-        self.plugins = self.db.get_active_module_data()
+        try:
+            self.plugins = self.db.get_active_module_data()
+        except Exception, e:
+            print "Content-type: text/html; charset=utf-8\r\n\r\n"
+            print "<h1>Can't get module data from DB:</h1>"
+            print "<h4>%s</h4>" % e
+            print "<h3>Did you run install_PyLucid.py ???</h3>"
+            sys.exit()
+
         if debug:
             self.page_msg("Available Modules:",self.plugins.keys())
 
@@ -110,7 +118,10 @@ class plugin_data:
             except IndexError:
                 raise run_module_error("[Method '%s' for Module '%s' unknown!]" % (self.main_method, module_name))
             except Exception, e:
-                raise "setup_module Error:", e
+                raise Exception(
+                    "Can't get method properties from DB: %s - "
+                    "Did you init the basic modules with install_PyLucid???" % e
+                )
 
             self.plugindata[module_name][main_method] = method_properties
             self.plugindata[module_name][main_method]["CGI_dependent_data"] = CGI_dependent_data
