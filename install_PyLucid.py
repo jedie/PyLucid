@@ -3,6 +3,8 @@
 
 """
 PyLucid "installer"
+
+Test
 """
 
 __version__ = "v0.4.1"
