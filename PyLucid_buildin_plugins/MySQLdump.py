@@ -2,13 +2,15 @@
 # -*- coding: UTF-8 -*-
 
 """
-Erzeugt einen Download des SQL Dumps
+Erzeugt einen Download des MySQL Dumps
 http://dev.mysql.com/doc/mysql/de/mysqldump.html
 """
 
-__version__="0.2.2"
+__version__="0.3"
 
 __history__="""
+v0.3
+    - Anpassung an neuen ModuleManager, auslagern der Config.
 v0.2.2
     - Nutzt die module_manager Einstelung "sys_exit", damit der Dumpdownload richtig beendet wird
     - In additional_dump_info ist in sys.version ein \n Zeichen, welches nun rausfliegt.
@@ -36,39 +38,12 @@ v0.0.1
     - Erste Version
 """
 
-__todo__ = """
-verwendet noch Buttons!
-"""
 
-import cgitb;cgitb.enable()
-import os,sys,cgi, time
-
+import os, sys, cgi, time
 
 
 
 class MySQLdump:
-
-    global_rights = {
-            "must_login"    : True,
-            "must_admin"    : True,
-    }
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "menu" : global_rights,
-
-        "display_help"      : global_rights,
-        "display_dump"      : global_rights,
-        "display_command"   : global_rights,
-        "download_dump" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "direct_out"    : True,
-            "sys_exit"      : True, # Damit ein sys.exit() auch wirklich fuktioniert
-        }
-    }
 
     def __init__( self, PyLucid ):
         self.CGIdata    = PyLucid["CGIdata"]
@@ -76,6 +51,8 @@ class MySQLdump:
         self.config     = PyLucid["config"]
         self.db         = PyLucid["db"]
         self.tools      = PyLucid["tools"]
+        self.page_msg   = PyLucid["page_msg"]
+        self.URLs       = PyLucid["URLs"]
 
     def menu( self ):
         """ Menü für Aktionen generieren """
@@ -119,7 +96,7 @@ class MySQLdump:
             page_dict           = {
                 "version"       : __version__,
                 "tables"        : table_data,
-                "url"           : self.command_url,
+                "url"           : self.URLs["command"],
                 "buttons"       : buttons
             }
         )
