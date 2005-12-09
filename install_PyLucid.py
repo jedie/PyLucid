@@ -5,9 +5,11 @@
 PyLucid "installer"
 """
 
-__version__ = "v0.3.1"
+__version__ = "v0.4.1"
 
 __history__ = """
+v0.4.1
+    - Ein wenig Aufgeräumt
 v0.4
     - Anderer Aufbau der actions: In Sektionen unterteilt.
     - Neu: db_info
@@ -343,19 +345,20 @@ class PyLucid_setup:
     #__________________________________________________________________________________________
 
     def init_DB(self):
-        """ Installiert PyLucid von Grund auf """
-        #~ print "<h3>Install PyLucid:</h3>"
-        #~ self.print_backlink()
-
-        d = SQL_dump( self.db )
+        """
+        Richtet die DB ein, indem der Install-DUMP eingespielt wird
+        """
+        d = SQL_dump(self.db)
         d.import_dump()
         #~ d.dump_data()
 
     #__________________________________________________________________________________________
 
     def re_init(self):
-        #~ print "<h3>partially re-initialisation DB tables</h3>"
-        #~ self.print_backlink()
+        """
+        Auswahl der Tabellen, die re-initialisiert werden sollen
+        """
+
         d = SQL_dump( self.db )
 
         print '<form action="?action=re_init_tables" method="post">'
@@ -369,6 +372,9 @@ class PyLucid_setup:
         print '</form>'
 
     def re_init_tables( self ):
+        """
+        Einzelne Tabellen aus dem Install-DUMP neu einspielen
+        """
         print "<h3>partially re-initialisation DB tables</h3>"
         self.print_backlink()
 
@@ -390,6 +396,8 @@ class PyLucid_setup:
 
     def init_modules(self):
         """
+        Installiert die wichtisten Basis-Module
+
         1. Erstellt die Tabellen für den Module/Plugin-Manager
         2. installiert die Basic Module
         3. aktiviert die Module
@@ -408,7 +416,9 @@ class PyLucid_setup:
         return module_admin
 
     def module_admin(self):
-
+        """
+        Startet den Module-Animistrator, zum verwalten der Module/Plugins
+        """
         module_admin = self._get_module_admin()
 
         sub_action = self.CGIdata.get("sub_action", None)
@@ -441,6 +451,8 @@ class PyLucid_setup:
                 module_admin.deactivate(self.CGIdata["id"])
             except KeyError, e:
                 print "KeyError:", e
+        else:
+            self.print_backlink()
 
         module_admin.administation_menu()
 
