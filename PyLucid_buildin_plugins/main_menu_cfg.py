@@ -16,9 +16,6 @@ __important_buildin__   = True
 module_manager_debug = False
 
 module_manager_data = {
-    #~ "debug" : True,
-    "debug" : False,
-
     "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,

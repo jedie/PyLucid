@@ -55,16 +55,6 @@ import re, os, sys, urllib, cgi
 
 class main_menu:
 
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "lucidTag" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        }
-    }
-
     def __init__( self, PyLucid ):
         self.PyLucid = PyLucid
 
@@ -79,9 +69,11 @@ class main_menu:
         self.config         = PyLucid["config"]
         self.preferences    = PyLucid["preferences"]
 
+        self.URLs           = PyLucid["URLs"]
+
 
         self.menulink  = '<a%(style)s class="level%(level)s" href="'
-        self.menulink += self.config.system.poormans_url + self.config.system.page_ident
+        self.menulink += self.URLs["link"]
         self.menulink += '%(link)s" title="%(title)s">%(name)s</a>'
 
         self.current_page_id  = self.CGIdata["page_id"]

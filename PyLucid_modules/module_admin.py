@@ -5,6 +5,41 @@
 Module Admin
 
 Einrichten/Konfigurieren von Modulen und Plugins
+
+CREATE TABLE `lucid_plugindata` (
+  `id` int(11) NOT NULL auto_increment,
+  `plugin_id` int(11) NOT NULL default '0',
+  `method_name` varchar(50) NOT NULL default '',
+  `parent_method_id` int(11) default NULL,
+  `CGI_laws` varchar(255) default NULL,
+  `get_CGI_data` varchar(255) default NULL,
+  `internal_page_info` varchar(255) default NULL,
+  `menu_section` varchar(128) default NULL,
+  `menu_description` varchar(255) default NULL,
+  `must_admin` int(11) NOT NULL default '1',
+  `must_login` int(11) NOT NULL default '1',
+  `has_Tags` int(11) NOT NULL default '0',
+  `no_rights_error` int(11) NOT NULL default '0',
+  `direct_out` int(11) NOT NULL default '0',
+  `sys_exit` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `combinedKey` (`plugin_id`,`method_name`)
+);
+
+CREATE TABLE `lucid_plugins` (
+  `id` int(11) NOT NULL auto_increment,
+  `package_name` varchar(30) NOT NULL default '',
+  `module_name` varchar(30) NOT NULL default '',
+  `version` varchar(15) default NULL,
+  `author` varchar(50) default NULL,
+  `url` varchar(128) default NULL,
+  `description` varchar(255) default NULL,
+  `long_description` text,
+  `active` int(1) NOT NULL default '0',
+  `debug` int(1) NOT NULL default '0',
+  `SQL_deinstall_commands` text,
+  PRIMARY KEY  (`id`)
+);
 """
 
 __version__="0.1.1"
@@ -25,8 +60,11 @@ __todo__="""
 
 import sys, os, glob, imp, cgi, urllib, pickle
 
-available_packages = ("PyLucid_modules","PyLucid_buildin_plugins","PyLucid_plugins")
 
+debug = False
+#~ debug = True
+error_handling = False
+available_packages = ("PyLucid_modules","PyLucid_buildin_plugins","PyLucid_plugins")
 internal_page_file = "PyLucid_modules/module_admin_administation_menu.html"
 
 
@@ -37,6 +75,7 @@ class module_admin:
     def __init__(self, PyLucid, call_from_install_PyLucid=False):
         self.page_msg       = PyLucid["page_msg"]
         self.db             = PyLucid["db"]
+        if debug == True: self.db.debug = True
         self.URLs           = PyLucid["URLs"]
         self.module_manager = PyLucid["module_manager"]
         self.call_from_install_PyLucid = call_from_install_PyLucid
@@ -53,7 +92,8 @@ class module_admin:
         Module/Plugins installieren
         """
         self.installed_modules_info = self.get_installed_modules_info()
-        #~ print self.installed_modules_info
+        if debug:
+            self.page_msg(self.installed_modules_info)
 
         data = self._read_packages()
         data = self._filter_cfg(data)
@@ -151,6 +191,7 @@ class module_admin:
         try:
             plugin_id = self.db.get_plugin_id(package, module_name)
         except Exception, e:
+            if not error_handling: raise Exception(e)
             print "ERROR:", e
         else:
             print "OK, id is:", plugin_id
@@ -163,7 +204,7 @@ class module_admin:
             method_cfg = module_data["module_manager_data"][method_name]
 
             if type(method_cfg) != dict:
-                print "Error in data!!!"
+                print "- Error, %s-value, in module_manager_data, is not typed dict!!!" % method_name
                 continue
 
             method_cfg = method_cfg.copy()
@@ -244,6 +285,8 @@ class module_admin:
         ##_____________________________________________
         # In Tabelle "plugins" eintragen
         print "register plugin %s.%s..." % (package, module_name),
+        #~ print package, module_name
+        #~ print module_data
         try:
             self.registered_plugin_id = self.db.install_plugin(module_data)
         except Exception, e:
