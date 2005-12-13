@@ -247,7 +247,7 @@ class userhandling:
         except Exception, e:
             self.page_msg("Can't insert! (%s)\n" % e)
         else:
-            self.page_msg("User '%s' add." % username)
+            self.page_msg("User '%s' added." % username)
 
         if self.CGIdata.has_key("install_PyLucid"):
             # wurde aus install_PyLucid aufgerufen, dann gibt es kein Menü!
