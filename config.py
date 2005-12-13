@@ -41,6 +41,20 @@ der Tabelle preferences gespeichert.
 import os
 
 
+## Database connection settings
+# der Tabellen-Prefix sollte keine Leer-/Sonderzeichen erhalten.
+dbconf = {
+    #~ "dbTyp"             : "sqlite",
+    "dbHost"            : 'localhost', # Evtl. muß hier die Domain rein
+    "dbDatabaseName"    : 'DatabaseName',
+    "dbUserName"        : 'UserName',
+    "dbPassword"        : 'Password',
+    "dbTablePrefix"     : 'lucid_',
+    "dbdatetime_format" : '%Y-%m-%d %H:%M:%S', # SQL-Datetime-String-Format
+}
+
+
+
 class system:
     # Zeigt zusätzlich an, in welchem Modul eine Page-Massage erzeugt wurde
     page_msg_debug = False
@@ -125,17 +139,7 @@ class system:
     mod_rewrite_user_agents = ("Gecko","Mozilla","Opera")
 
 
-## Hinweis
-# der Tabellen-Prefix sollte keine Leer-/Sonderzeichen erhalten.
-dbconf = {
-    #~ "dbTyp"             : "sqlite",
-    "dbHost"            : 'localhost', # Evtl. muß hier die Domain rein
-    "dbDatabaseName"    : 'DatabaseName',
-    "dbUserName"        : 'UserName',
-    "dbPassword"        : 'Password',
-    "dbTablePrefix"     : 'lucid_',
-    "dbdatetime_format" : '%Y-%m-%d %H:%M:%S', # SQL-Datetime-String-Format
-}
+
 
 
 
