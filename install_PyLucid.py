@@ -3,8 +3,6 @@
 
 """
 PyLucid "installer"
-
-Test
 """
 
 __version__ = "v0.4.1"
@@ -453,8 +451,8 @@ class PyLucid_setup:
                 module_admin.deactivate(self.CGIdata["id"])
             except KeyError, e:
                 print "KeyError:", e
-        else:
-            self.print_backlink()
+        #~ else:
+            #~ self.print_backlink()
 
         module_admin.administation_menu()
 
@@ -572,7 +570,7 @@ class PyLucid_setup:
         if not self.CGIdata.has_key("realname"):
             self.CGIdata["realname"] = None
 
-        usermanager = userhandling.userhandling( self.PyLucid )
+        usermanager = userhandling.userhandling(self.PyLucid)
         try:
             usermanager.add_user(
                 username    = self.CGIdata["username"],
