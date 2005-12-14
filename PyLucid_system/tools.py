@@ -5,9 +5,11 @@
 Verschiedene Tools für den Umgang mit PyLucid
 """
 
-__version__="0.0.6"
+__version__="0.1"
 
-"""History
+__history__ = """
+v0.1
+    - NEU: make_table_from_sql_select()
 v0.0.6
     - subprocess2(): Feststellen des self.killed (Ob der Timeout erreicht wurde) über den
         vergleich der Ausführungszeit mit der Timeout-Zeit
@@ -446,6 +448,29 @@ class email:
 
 #________________________________________________________________________________________________
 
+
+def make_table_from_sql_select(select_results, id, css_class):
+    """ Allgemeine Information um SQL-SELECT Ergebnisse als Tabelle zu erhalten """
+    result = '<table id="%s" class="%s">\n' % (id,css_class)
+
+    # Tabellen überschriften generieren
+    result += "<tr>\n"
+    for key in select_results[0].keys():
+        result += "\t<th>%s</th>\n" % key
+    result += "</tr>\n"
+
+    # eigentlichen Tabellen Daten erzeugen
+    for line in select_results:
+        result += "<tr>\n"
+        for value in line.values():
+            result += "\t<td>%s</td>\n" % value
+        result += "</tr>\n"
+
+    result += "</table>\n"
+    return result
+
+
+#________________________________________________________________________________________________
 
 class convertdateformat:
     """
