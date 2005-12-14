@@ -9,9 +9,11 @@ Administration Sub-Menü : "show internals"
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.1.4"
+__version__="0.2"
 
 __history__="""
+v0.2
+    - NEU: system info "PyLucid environ information"
 v0.1.4
     - Anpassung an neuen ModuleManager
 v0.1.3
@@ -90,7 +92,7 @@ class show_internals:
 
         print "%s Modules found in %.2fsec.:" % (len( modulelist ), duration_time )
         print '<table>'
-        Link = '<a href="%s' % self.action_url
+        Link = '<a href="%s' % self.URLs["action"]
         Link += '%s">more Info</a>'
 
         modulelist.sort()
@@ -99,13 +101,13 @@ class show_internals:
             print "<tr>"
             print "<td>%s</td>" % modulename
             print '<td><a href="%smodule_info&modulename=%s">more info</a></td>' % (
-                self.action_url, modulename
+                self.URLs["action"], modulename
             )
             print "</tr>"
         print "</table>"
 
     def module_info( self ):
-        back_link = '<a href="%spython_modules">back</a>' % self.action_url
+        back_link = '<a href="%spython_modules">back</a>' % self.URLs["action"]
         print back_link
         try:
             module_name = self.CGIdata["modulename"]
@@ -219,6 +221,14 @@ class show_internals:
         """ Allgemeine System Informationen """
         self.menu()
         print "<hr>"
+
+        print "<h3>PyLucid environ information</h3>"
+        print '<fieldset id="system_info"><legend>PyLucid["URLs"]:</legend>'
+        print "<pre>"
+        for k,v in self.URLs.iteritems():
+            print "%18s:%s" % (k,v)
+        print "</pre>"
+        print "</fieldset>"
 
         print "<h3>system info</h3>"
 
