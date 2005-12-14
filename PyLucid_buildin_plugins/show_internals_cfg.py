@@ -1,14 +1,22 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# by jensdiemer.de (steht unter GPL-License)
+#___________________________________________________________________________________________________
+# Meta-Angaben
 
+__author__      = "Jens Diemer"
+__url__         = "http://www.PyLucid.org"
+__description__ = "Shows internal information"
+__long_description__ = """
+Shows internal, system and python information.
 """
-Einstellungsdaten zu "show internals"
-"""
+__important_buildin__   = True
 
-__author__ = "Jens Diemer"
+#___________________________________________________________________________________________________
+# Module-Manager Daten
 
+#~ module_manager_debug = True
+module_manager_debug = False
 
 module_manager_data = {
 

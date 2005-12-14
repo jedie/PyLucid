@@ -9,9 +9,11 @@ Administration Sub-Menü : "show internals"
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.1.3"
+__version__="0.1.4"
 
 __history__="""
+v0.1.4
+    - Anpassung an neuen ModuleManager
 v0.1.3
     - NEU: who-Befehl
 v0.1.2
@@ -54,65 +56,6 @@ import os, sys, cgi, imp, glob, time
 
 
 class show_internals:
-
-    global_rights = {
-            "must_login"    : True,
-            "must_admin"    : True,
-    }
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "link" : global_rights,
-        "menu" : global_rights,
-
-        "system_info" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "menu_info"     : {
-                "section"       : "system",
-                "description"   : "System Info",
-            },
-        },
-        "session_data" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "menu_info"     : {
-                "section"       : "system",
-                "description"   : "Session data",
-            },
-        },
-        "log_data" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "menu_info"     : {
-                "section"       : "system",
-                "description"   : "LOG data",
-            },
-        },
-        "sql_status" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "menu_info"     : {
-                "section"       : "SQL",
-                "description"   : "SQL table status",
-            },
-        },
-        "optimize_sql_tables" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-        },
-        "python_modules" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "menu_info"     : {
-                "section"       : "misc",
-                "description"   : "Display all Python Modules",
-            },
-        },
-        "module_info" : global_rights,
-    }
 
     def __init__( self, PyLucid ):
         self.CGIdata        = PyLucid["CGIdata"]

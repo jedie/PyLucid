@@ -34,29 +34,9 @@ import cgitb;cgitb.enable()
 # Python-Basis Module einbinden
 import cgi, re
 
-if __name__ == "__main__":
-    # Für einen Lokalen Test
-    import sys
-    sys.path.insert( 0, "../" )
-
 
 
 class list_of_new_sides:
-
-    #_______________________________________________________________________
-    # Module-Manager Daten
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "lucidTag" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        }
-    }
-
-    #_______________________________________________________________________
 
     def __init__( self, PyLucid ):
         #~ self.CGIdata        = PyLucid["CGIdata"]

@@ -12,9 +12,11 @@ somit alle zusätzlichen " " -> "&nbsp;" und "\n" -> "<br/>" umwandlung
 sparen. Das Klappt aus mit allen Browsern super, nur nicht mit dem IE ;(
 """
 
-__version__="0.2.4"
+__version__="0.2.5"
 
 __history__="""
+v0.2.5
+    - Anpassung an neuen ModuleManager
 v0.2.4
     - lucidFunction() erwartet nun auch function_info vom ModulManager
 v0.2.3
@@ -41,27 +43,6 @@ import sys, os, cgi, sys
 
 
 class SourceCode:
-
-    #_______________________________________________________________________
-    # Module-Manager Daten
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "lucidFunction" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        },
-        "download" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-            "get_CGI_data"  : {"file": str},
-            "direct_out"    : True,
-        },
-    }
-
-    #_______________________________________________________________________
 
     def __init__( self, PyLucid ):
         self.tools  = PyLucid["tools"]

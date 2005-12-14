@@ -7,9 +7,11 @@ Bsp.:
 <lucidFunction:IncludeRemote>http://...</lucidFunction>
 """
 
-__version__="0.0.2"
+__version__="0.1.0"
 
 __history__="""
+v0.1.0
+    - Anpassung an neuen ModuleManager
 v0.0.2
     - Bug 1315600: ModuleManager änderung: "lucidFunction" Parameter übergabe erfolgt immer mit function_info!
 v0.0.1
@@ -23,21 +25,6 @@ import socket, urllib2, re
 
 
 class IncludeRemote:
-
-    #_______________________________________________________________________
-    # Module-Manager Daten
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "lucidFunction" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        }
-    }
-
-    #_______________________________________________________________________
 
     def __init__( self, PyLucid ):
         # Es werden keine PyLucid-Objekte ben�tigt...

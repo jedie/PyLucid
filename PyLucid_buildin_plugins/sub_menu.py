@@ -11,9 +11,11 @@ eingebunden kann es per lucid-"IncludeRemote"-Tag:
 <lucidFunction:IncludeRemote>/cgi-bin/PyLucid/Menu.py?page_name=<lucidTag:page_name/></lucidFunction>
 """
 
-__version__="0.0.12"
+__version__="0.1.0"
 
 __history__="""
+v0.1.0
+    - Anpassung an neuen ModuleManger
 v0.0.12
     - where_filter aus main_menu übernommen, zum beachten von "showlinks" und "permitViewPublic"
 v0.0.11
@@ -54,21 +56,6 @@ import re, os, sys, urllib, cgi
 
 
 class sub_menu:
-
-    #_______________________________________________________________________
-    # Module-Manager Daten
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "lucidTag" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        }
-    }
-
-    #_______________________________________________________________________
 
     def __init__( self, PyLucid ):
         #~ self.PyLucid = PyLucid

@@ -8,9 +8,11 @@ Generiert das SiteMap
 <lucidTag:SiteMap/>
 """
 
-__version__="0.0.5"
+__version__="0.0.6"
 
 __history__="""
+v0.0.6
+    - Anpassung an neuen ModuleManager
 v0.0.5
     - Link wird nun auch vom ModulManager verwendet.
     - Testet page-title auch auf None
@@ -31,21 +33,6 @@ import cgi, urllib
 
 
 class SiteMap:
-
-    #_______________________________________________________________________
-    # Module-Manager Daten
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "lucidTag" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        }
-    }
-
-    #_______________________________________________________________________
 
     def __init__( self, PyLucid ):
         self.db         = PyLucid["db"]
