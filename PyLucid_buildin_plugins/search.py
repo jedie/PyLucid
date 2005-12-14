@@ -30,23 +30,6 @@ import cgi, time, urllib
 
 
 class search:
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "lucidTag" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-            "get_CGI_data"  : {"search_string": str},
-        },
-        "do_search"       : {
-            "must_login"    : False,
-            "must_admin"    : False,
-            "get_CGI_data"  : {"search_string": str},
-        },
-    }
-
     def __init__(self, PyLucid):
         self.db         = PyLucid["db"]
         self.CGIdata    = PyLucid["CGIdata"]
@@ -59,7 +42,7 @@ class search:
         search_string = cgi.escape(search_string).replace('"',"'")
 
         self.db.print_internal_page(
-            internal_page_name = "search_form",
+            internal_page_name = "input_form",
             page_dict = {
                 "url"               : self.URLs["action"] + "do_search",
                 "old_search_string" : search_string
