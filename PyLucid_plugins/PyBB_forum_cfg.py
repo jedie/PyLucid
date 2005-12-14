@@ -6,7 +6,7 @@
 
 __author__      = "Jens Diemer"
 __url__         = "http://www.PyLucid.org"
-__description__ = "PyBB a phpBB clone"
+__description__ = "PyBB a phpBB clone (Alpha Version, one does not develop further)"
 __long_description__ = """
 This is just an experiment ;)
 And not a complete Forumsoft...
