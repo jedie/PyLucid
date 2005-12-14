@@ -7,9 +7,12 @@
 Anbindung an die SQL-Datenbank
 """
 
-__version__="0.1"
+__version__="0.2"
 
 __history__="""
+v0.2
+    - NEU: get_last_logs()
+    - Bug in delete_style
 v0.1
     - NEU: new_internal_page()
 v0.0.11
@@ -354,6 +357,8 @@ class db( mySQL ):
                 from_table      = "styles",
                 where           = ("name", style)
             )[0]["id"]
+        else:
+            style_id = style
 
         self.delete(
             table   = "styles",
@@ -858,6 +863,17 @@ class db( mySQL ):
             select_items    = ["parent_method_id", "method_name", "menu_section", "menu_description"],
             from_table      = "plugindata",
             where           = [("plugin_id", plugin_id)]#,("parent_method_id", None)],
+        )
+
+    #_____________________________________________________________________________
+    ## LOG
+
+    def get_last_logs(self, limit=10):
+        return self.select(
+            select_items    = ["timestamp", "sid", "user_name", "domain", "message","typ","status"],
+            from_table      = "log",
+            order           = ("timestamp","DESC"),
+            limit           = (0,limit)
         )
 
     #_____________________________________________________________________________
