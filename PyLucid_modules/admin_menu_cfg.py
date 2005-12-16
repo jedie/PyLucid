@@ -30,8 +30,8 @@ module_manager_data = {
         "no_rights_error" : True, # Fehlermeldung, wenn der User nicht eingeloggt ist, wird nicht angezeigt
         "internal_page_info" : {
             "name"          : "admin_menu",
-            "description"   : "The Module/Plugin Administration page",
-            "markup"        : "TAL",
+            "description"   : "Administration front menu",
+            "markup"        : "none",
         },
     },
     "edit_page_link"    : global_rights,
@@ -42,5 +42,10 @@ module_manager_data = {
         "must_login"    : True,
         "must_admin"    : True,
         "has_Tags"      : True,
+        "internal_page_info" : {
+            "name"          : "admin_sub_menu",
+            "description"   : "Administration sub menu",
+            "markup"        : "textile",
+        },
     },
 }
