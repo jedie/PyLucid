@@ -112,7 +112,7 @@ class auth:
             self.session.debug()
 
         return self.db.get_internal_page(
-            internal_page_name = "login_form",
+            internal_page_name = "login",
             page_dict = {
                 "user"          : username,
                 "rnd"           : rnd_login,
