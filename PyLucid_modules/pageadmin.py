@@ -188,10 +188,10 @@ class pageadmin:
         """
 
         return self.db.get_internal_page(
-            internal_page_name = "select_page_to_edit",
+            internal_page_name = "select_edit_page",
             page_dict={
                 "url"         : "%s?command=pageadmin&action=edit_page" % self.config.system.real_self_url,
-                "site_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
+                "side_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
             }
         )
 

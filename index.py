@@ -117,7 +117,7 @@ v0.1.0
     - erste Version
 """
 
-#~ print "Content-type: text/html; charset=utf-8\r\n\r\nDEBUG:"
+#~ print "Content-type: text/html; charset=utf-8\r\n\r\nDEBUG:<pre>"
 
 
 # Als erstes Mal die Zeit stoppen ;)
@@ -201,15 +201,80 @@ class cgitb_addon:
     Damit bei einem Trackback-Fehler mit cgitb die page_msg Ausgaben
     erscheinen, wird die reset()-Funktion in cgitb überschrieben.
     """
-    def __init__(self, page_msg):
-        self.page_msg = page_msg
+    def __init__(self, PyLucid):
+        self.PyLucid    = PyLucid
+        self.page_msg   = PyLucid["page_msg"]
         self.default_reset_code = cgitb.reset()
 
     def __call__(self):
         print "Content-type: text/html; charset=utf-8\r\n"
-        print "<h1>An Script Error occurred</h1>"
+        print '<h1 style="background-color:#6622aa;color:#ffffff;padding:0.75em;">An Script Error occurred</h1>'
+
+        print "sys.exc_info:", sys.exc_info()
+
+        try:
+            self.PyLucid_information()
+        except Exception, e:
+            self.page_msg("Error:", e)
+
         print self.page_msg.get()
         return self.default_reset_code
+
+    def PyLucid_information(self):
+        """
+        Einige interne Informationen einfügen
+        """
+        print "<h3>PyLucid-Object dict-keys:</h3>"
+        print self.PyLucid.keys()
+
+        try:
+            print "<h3>Error handling:</h3>"
+            print "<pre>"
+            print "ModuleManager_error_handling..:", self.PyLucid["config"].system.ModuleManager_error_handling
+            print "ModuleManager_import_error....:", self.PyLucid["config"].system.ModuleManager_import_error
+            print "</pre>"
+        except Exception, e:
+            print "</pre>not available:", e
+
+        try:
+            self.PyLucid["CGIdata"].debug() # Debug-Ausgaben in page_msg
+        except KeyError:
+            pass
+
+        try:
+            print "<h3>session data:</h3>"
+            data = self.PyLucid["session"].iteritems()
+            print "<pre>"
+            for k,v in data:
+                print "%20s:%s" % (k,v)
+            print "</pre>"
+        except Exception, e:
+            print "not available:", e
+
+        try:
+            print "<h3>Last 3 logs:</h3>"
+            data = self.PyLucid["db"].get_last_logs(3)
+            print self.PyLucid["tools"].make_table_from_sql_select(
+                data,
+                id          = "internals_log_data",
+                css_class   = "internals_table"
+            )
+        except Exception, e:
+            print "not available:", e
+
+        try:
+            print "<h3>self.URLs:</h3>"
+
+            values = [(len(v),k,v) for k,v in self.PyLucid["URLs"].iteritems()]
+            values.sort()
+
+            print "<pre>"
+            for _,k,v in values:
+                print "%15s:%s" % (k,v)
+            print "</pre>"
+        except Exception, e:
+            print "not available:", e
+
 
 
 save_max_history_entries = 10
@@ -229,7 +294,7 @@ class LucidRender:
 
         # Überschreiben der reset() Funktion in cgitb, damit die page_msg angezeigt
         # werden.
-        cgitb.reset = cgitb_addon(self.page_msg)
+        cgitb.reset = cgitb_addon(self.PyLucid)
 
         # PyLucid's Konfiguration
         self.config         = config
@@ -538,6 +603,8 @@ class LucidRender:
 
         # Alle Tags ausfüllen und Markup anwenden
         side_content = self.render.render( side_data )
+
+
         # Alle Tags im Template ausfüllen und dabei die Seite in Template einbauen
         page = self.render.apply_template( side_content, side_data["template"] )
 
@@ -550,6 +617,10 @@ class LucidRender:
 
         # Datenbank verbindung beenden
         self.db.close()
+
+        #~ # Debug für die Pfade
+        #~ for k,v in self.PyLucid["URLs"].iteritems():
+            #~ self.page_msg("%15s: %s" % (k,v))
 
         ## gesammelte Seiten-Nachrichten einblenden
         # s. sessiondata.page_msg()

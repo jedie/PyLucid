@@ -7,9 +7,11 @@
 Anbindung an die SQL-Datenbank
 """
 
-__version__="0.2"
+__version__="0.2.1"
 
 __history__="""
+v0.2.1
+    - Bessere Fehlerbehandlung beim Zugriff auf die Internen seiten.
 v0.2
     - NEU: get_last_logs()
     - Bug in delete_style
@@ -460,14 +462,18 @@ class db( mySQL ):
                 where           = ("name", internal_page_name)
             )[0]
         except Exception, e:
-            raise KeyError("Can't get internal page '%s'" % internal_page_name )
+            raise KeyError("Internal page '%s' not found!" % internal_page_name )
 
     def print_internal_page(self, internal_page_name, page_dict={}):
         """
         Interne Seite aufgeüllt mit Daten ausgeben. Diese Methode sollte immer
         verwendet werden, weil sie eine gescheite Fehlermeldung anzeigt.
         """
-        content = self._get_internal_page_data(internal_page_name)["content"]
+        try:
+            content = self._get_internal_page_data(internal_page_name)["content"]
+        except Exception, e:
+            print "[Can't print internal page '%s': %s]" % (internal_page_name, e)
+            return
 
         try:
             print content % page_dict
@@ -532,12 +538,52 @@ class db( mySQL ):
                 #~ where           = ("name", internal_group_name)
             #~ )[0]["id"]
 
-    def get_internal_page_category_id(self, name):
-        return self.select(
-            select_items    = ["id"],
+    def get_internal_page_category_id(self, category_name):
+        """
+        Liefert die ID anhand des Kategorie-Namens zurück
+        Existiert die Kategorie nicht, wird sie in die Tabelle eingefügt.
+        """
+        try:
+            return self.select(
+                select_items    = ["id"],
+                from_table      = "pages_internal_category",
+                where           = ("name", category_name)
+            )[0]["id"]
+        except IndexError:
+            # Kategorier existiert noch nicht -> wird erstellt
+            self.insert(
+                table = "pages_internal_category",
+                data  = {"name": category_name}
+            )
+            return self.cursor.lastrowid
+
+    def delete_blank_pages_internal_categories(self):
+        """
+        Löscht automatisch überflüssige Kategorieren.
+        d.h. wenn es keine interne Seite mehr gibt, die in
+        der Kategorie vorkommt, wird sie gelöscht
+        """
+        used_categories = self.select(
+            select_items    = ["category_id"],
+            from_table      = "pages_internal",
+        )
+        used_categories = [i["category_id"] for i in used_categories]
+
+        existing_categories = self.select(
+            select_items    = ["id","name"],
             from_table      = "pages_internal_category",
-            where           = ("name", name)
-        )[0]["id"]
+        )
+
+        deleted_categories = []
+        for line in existing_categories:
+            if not line["id"] in used_categories:
+                self.delete(
+                    table = "pages_internal_category",
+                    where = ("id", line["id"]),
+                    limit = 99,
+                )
+                deleted_categories.append(line["name"])
+        return deleted_categories
 
     def new_internal_page(self, data, lastupdatetime=None):
         """
@@ -545,12 +591,15 @@ class db( mySQL ):
         """
 
         markup_id = self.get_markup_id(data["markup"])
+        category_id = self.get_internal_page_category_id(data["category"])
+        #~ print "category_id:", category_id
 
         self.insert(
             table = "pages_internal",
             data  = {
                 "name"              : data["name"],
                 "plugin_id"         : data["plugin_id"],
+                "category_id"       : category_id,
                 "markup"            : markup_id,
                 "lastupdatetime"    : self.tools.convert_time_to_sql(lastupdatetime),
                 "content"           : data["content"],
@@ -564,14 +613,16 @@ class db( mySQL ):
             where = ("name", name),
             limit = 1,
         )
-        self.delete_blank_pages_internal_categories()
+        #~ self.delete_blank_pages_internal_categories()
 
     def delete_internal_page_by_plugin_id(self, plugin_id):
+        #~ print "plugin_id:", plugin_id
         page_names = self.select(
             select_items    = ["name"],
             from_table      = "pages_internal",
             where           = ("plugin_id", plugin_id),
         )
+        #~ print "page_names:", page_names
         self.delete(
             table = "pages_internal",
             where = ("plugin_id", plugin_id),
@@ -657,6 +708,13 @@ class db( mySQL ):
             where   = ("id", id),
             limit   = 1
         )
+
+    def user_info_by_id(self, id):
+        return self.select(
+            select_items    = ["id","name","realname","email","admin"],
+            from_table      = "md5users",
+            where           = ("id", id)
+        )[0]
 
     #_____________________________________________________________________________
     ## Module / Plugins
@@ -758,7 +816,7 @@ class db( mySQL ):
                 "description"               : module_data["description"],
                 "long_description"          : module_data["long_description"],
                 "active"                    : active,
-                "debug"                     : 0,
+                "debug"                     : module_data["module_manager_debug"],
                 "SQL_deinstall_commands"    : module_data["SQL_deinstall_commands"],
             }
         )
@@ -858,12 +916,41 @@ class db( mySQL ):
             limit = 999,
         )
 
+    def get_plugindata(self, plugin_id):
+        """
+        Liefert plugindata Daten zurück.
+        """
+        return self.select(
+            select_items    = ["*"],
+            from_table      = "plugindata",
+            where           = [("plugin_id", plugin_id)],
+            #~ order           = ("parent_method_id","ASC"),
+        )
+
     def get_plugin_menu_data(self, plugin_id):
         return self.select(
             select_items    = ["parent_method_id", "method_name", "menu_section", "menu_description"],
             from_table      = "plugindata",
             where           = [("plugin_id", plugin_id)]#,("parent_method_id", None)],
         )
+
+    def get_internal_pages_info_by_module(self, plugin_id):
+        """
+        Informationen zu allen internen-Seiten von einem Plugin.
+        Dabei werden die IDs von markup und lastupdateby direkt aufgelöst
+        """
+        pages_info = self.select(
+            select_items    = ["name", "markup", "lastupdatetime", "lastupdateby", "description"],
+            from_table      = "pages_internal",
+            where           = [("plugin_id", plugin_id)]
+        )
+        for page_info in pages_info:
+            page_info["markup"] = self.get_markup_name(page_info["markup"])
+            try:
+                page_info["lastupdateby"] = self.user_info_by_id(page_info["lastupdateby"])["name"]
+            except IndexError:
+                pass
+        return pages_info
 
     #_____________________________________________________________________________
     ## LOG
@@ -929,7 +1016,6 @@ class db( mySQL ):
                 )
             )
 
-
     def get_markupname_by_id(self, markup_id):
         """ Markup-Name anhand der ID """
         try:
@@ -941,7 +1027,6 @@ class db( mySQL ):
         except IndexError:
             self.page_msg("Can't get markupname from markup id '%s' please edit this page and change markup!" % markup_id)
             return "none"
-
 
     def get_available_markups(self):
         """
@@ -956,7 +1041,6 @@ class db( mySQL ):
         for markup in markups:
             result.append([markup["id"], markup["name"]])
 
-        result.append([None, None])
         return result
 
 

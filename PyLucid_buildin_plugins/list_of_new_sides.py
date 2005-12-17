@@ -43,6 +43,7 @@ class list_of_new_sides:
         self.db             = PyLucid["db"]
         self.config         = PyLucid["config"]
         self.tools          = PyLucid["tools"]
+        self.URL            = PyLucid["URL"]
 
     def lucidTag( self ):
         """
@@ -59,7 +60,7 @@ class list_of_new_sides:
         print '<ul id="ListOfNewSides">'
 
         self.url_entry  = '<li>%(date)s - <a href="'
-        self.url_entry += self.link_url
+        self.url_entry += self.URL["link"]
         self.url_entry += '%(link)s">%(title)s</a></li>\n'
 
         for item in SQLresult:

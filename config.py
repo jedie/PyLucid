@@ -70,8 +70,8 @@ class system:
     # Fehlerabfrage beim importieren von Modulen im Module-Manager
     # =True  -> Import-Fehler werden immer angezeigt
     # =False -> Import-Fehler sehen nur eingeloggte Administratoren
-    ModuleManager_import_error = False
-    #~ ModuleManager_import_error = True
+    #~ ModuleManager_import_error = False
+    ModuleManager_import_error = True
 
     # Damit Suchmaschienen nicht auch interne Seiten indexieren, passt PyLucid den
     # Inhalt des '<lucidTag:robots/>'-Tag je nach Typ der Seite an.

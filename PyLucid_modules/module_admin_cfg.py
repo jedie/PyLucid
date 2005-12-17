@@ -37,19 +37,23 @@ module_manager_data = {
             "markup"        : "TAL",
         },
     },
-    "debug_data" : {
+    "debug_installed_modules_info" : {
         "must_login"        : True,
         "must_admin"        : True,
         "menu_section"      : "misc",
-        "menu_description"  : "debug all Modules/Plugins config data (broken!)",
+        "menu_description"  : "debug install Modules/Plugins config data",
     },
 
     "first_time_install" : {
         "must_login"        : True,
         "must_admin"        : True,
         "menu_section"      : "misc",
-        "menu_description"  : "first_time_install",
-        #~ "direct_out"        : True,
+        "menu_description"  : "first time install (deletes existing tables!)",
+        "CGI_dependent_actions": {
+            "first_time_install_confirmed": {
+                "CGI_laws"      : {"confirm": "yes"},
+            },
+        },
     },
 
     "install" : {

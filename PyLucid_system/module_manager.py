@@ -9,9 +9,12 @@ Module Manager
 
 """
 
-__version__="0.2.5"
+__version__="0.2.6"
 
 __history__="""
+v0.2.6
+    - Andere Fehlerbehandlung, wenn noch nicht von v0.5 geupdated wurde bzw. wenn die Plugin-Tabellen
+        noch nicht (in der neuen Form) existieren.
 v0.2.5
     - ModuleManager_error_handling auch bei _get_module()
 v0.2.4
@@ -87,11 +90,9 @@ class plugin_data:
         try:
             self.plugins = self.db.get_active_module_data()
         except Exception, e:
-            print "Content-type: text/html; charset=utf-8\r\n\r\n"
-            print "<h1>Can't get module data from DB:</h1>"
-            print "<h4>%s</h4>" % e
-            print "<h3>Did you run install_PyLucid.py ???</h3>"
-            sys.exit()
+            self.page_msg("<strong>Can't get module data from DB</strong>: %s" % e)
+            self.page_msg("You must update PyLucid with install_PyLucid.py!")
+            self.plugins = {}
 
         if debug:
             self.page_msg("Available Modules:",self.plugins.keys())
@@ -137,7 +138,13 @@ class plugin_data:
             self.page_msg("current_method:", self.current_method)
 
     def check_CGI_dependent(self):
+        """
+        Ändert die self.current_method abhängig von den CGI_dependent-Angaben und
+        den tatsälich vorhandenen CGIdaten
+        """
         self.current_method = self.main_method
+
+        if self.plugin_debug(): self.CGIdata.debug()
 
         if self.current_properties["CGI_dependent_data"] == ():
             # Es gibt keine CGI-Abhängigkeiten
@@ -146,14 +153,19 @@ class plugin_data:
             return
 
         for dependent_data in self.current_properties["CGI_dependent_data"]:
-            if self.plugin_debug(): self.page_msg("dependent_data:",dependent_data)
+            if self.plugin_debug(): self.page_msg("dependent_data:",cgi.escape(str(dependent_data)))
             for k,v in dependent_data["CGI_laws"].iteritems():
                 if self.CGIdata.has_key(k) and self.CGIdata[k] == v:
                     self.current_method = dependent_data["method_name"]
                     self.current_properties.update(dependent_data)
                     return
+            if self.plugin_debug(): self.page_msg("no method change in CGIdata!")
 
     def setup_get_CGI_data(self):
+        """
+        Bereitet die CGI-Daten bei "get_CGI_data" vor, indem die Daten
+        in den verlangten Typ gewandert wird.
+        """
         self.get_CGI_data = {}
         if not self.current_properties.has_key("get_CGI_data") or \
             self.current_properties["get_CGI_data"] == None:
@@ -180,6 +192,9 @@ class plugin_data:
         Liefert die Method Properties zurück
         """
         return self.current_properties[key]
+
+    def keys(self):
+        return self.current_properties.keys()
 
     def plugin_debug(self):
         return self.plugins[self.module_name]["debug"]
@@ -273,6 +288,11 @@ class module_manager:
 
         self.plugin_data = plugin_data(PyLucid)
 
+        # Alle Angaben werden bei run_tag oder run_function ausgefüllt...
+        self.module_name    = "undefined"
+        self.main_method    = "undefined"
+        self.current_method = "undefined"
+
     def run_tag( self, tag ):
         """
         Ausführen von:
@@ -281,8 +301,10 @@ class module_manager:
         if tag.find(".") != -1:
             self.module_name, self.main_method = tag.split(".",1)
         else:
+
             self.module_name = tag
             self.main_method = "lucidTag"
+            self.current_method = "lucidTag"
 
         try:
             return self._run_module_method()
@@ -300,8 +322,9 @@ class module_manager:
         Ausführen von:
         <lucidFunction:'function_name'>'function_info'</lucidFunction>
         """
-        self.module_name = function_name
-        self.main_method = "lucidFunction"
+        self.module_name    = function_name
+        self.main_method    = "lucidFunction"
+        self.current_method = "lucidFunction"
 
         try:
             return self._run_module_method( function_info )
@@ -338,12 +361,13 @@ class module_manager:
         self.page_msg( "Error run command:", e )
         return str(e)
 
-    def _run_module_method(self, function_info={}):
+    def _run_module_method(self, method_arguments={}):
         """
         Führt eine Methode eines Module aus.
         Kommt es irgendwo zu einem Fehler, ist es die selbsterstellte
         "run_module_error"-Exception mit einer passenden Fehlermeldung.
         """
+
         #~ try:
         self.plugin_data.setup_module(self.module_name, self.main_method)
         #~ except KeyError:
@@ -351,12 +375,17 @@ class module_manager:
                 #~ "[module name '%s' unknown (method: %s)]" % (self.module_name, self.main_method)
             #~ )
 
+        #~ self.page_msg(self.module_name, self.main_method, self.plugin_data.keys())
+
+        if self.plugin_data.plugin_debug():
+            self.page_msg("JOOO")
+
         self.plugin_data.setup_URLs()
         self.plugin_data.check_rights()
 
         module_class = self._get_module_class()
 
-        return self._run_method(module_class)
+        return self._run_method(module_class, method_arguments)
 
 
     def _get_module_class(self):
@@ -432,7 +461,7 @@ class module_manager:
             )
 
 
-    def _run_method(self, module_class):
+    def _run_method(self, module_class, method_arguments={}):
         """
         Startet die Methode und verarbeitet die Ausgaben
         """
@@ -466,7 +495,9 @@ class module_manager:
                 unbound_method = getattr( class_instance, self.plugin_data.current_method )
             except Exception, e:
                 raise run_module_error(
-                    "[Can't get method '%s' from module '%s': %s]" % (self.plugin_data.current_method, self.module_name, e)
+                    "[Can't get method '%s' from module '%s': %s]" % (
+                        self.plugin_data.current_method, self.module_name, e
+                    )
                 )
         else:
             unbound_method = getattr( class_instance, self.plugin_data.current_method )
@@ -477,12 +508,17 @@ class module_manager:
             redirector = self.tools.redirector()
 
         # Methode "ausführen"
-        if self.config.system.ModuleManager_error_handling == False:
-            #~ try:
-            direct_output = unbound_method(**self.plugin_data.get_CGI_data)
-            #~ except Exception, e:
-                #~ self.page_msg("Error:", e)
-                #~ direct_output = ""
+        if self.config.system.ModuleManager_error_handling == True:
+            # Wenn ModuleManager_error_handling == False aber der stdout, verbogen ist, dann kann man
+            # keine Fehlerseite, bei einem Traceback sehen!!!
+            if self.plugin_data["direct_out"] != True:
+                try:
+                    direct_output = unbound_method(**self.plugin_data.get_CGI_data)
+                except Exception, e:
+                    redirect_out = redirector.get() # stdout wiederherstellen
+                    raise Exception("(Note: this is a real Traceback!!!) Original Error: %s" % e)
+            else:
+                direct_output = unbound_method(**self.plugin_data.get_CGI_data)
         else:
             try:
                 direct_output = self._run_with_error_handling(unbound_method, method_arguments)
@@ -492,7 +528,11 @@ class module_manager:
                     sys.exit()
                 if direct_out != True: redirect_out = redirector.get() # stdout wiederherstellen
                 # Beim z.B. page_style_link.print_current_style() wird ein sys.exit() ausgeführt
-                self.page_msg("Error in Modul %s.%s: A Module can't use sys.exit()!" % (self.module_name, self.current_methodd))
+                self.page_msg(
+                    "Error in Modul %s.%s: A Module can't use sys.exit()!" % (
+                        self.module_name, self.current_method
+                    )
+                )
                 direct_output = ""
             except KeyError, e:
                 run_error("KeyError: %s" % e)

@@ -22,7 +22,7 @@ import os, sys, re, time, zipfile, zlib
 zlib.Z_DEFAULT_COMPRESSION = 9
 
 
-infilename      = "20051213_lucid_DatabaseName.sql"
+infilename      = "install_data.sql"
 #~ TablePrefix     = "PyLucid_base_"
 TablePrefix     = "lucid_"
 

@@ -359,39 +359,16 @@ class show_internals:
 
         limit = 100 # Anzahl der Einträge die angezeigt werden sollen
 
-        result = self.db.select(
-            select_items    = ["timestamp", "sid", "user_name", "domain", "message","typ","status"],
-            from_table      = "log",
-            order           = ("timestamp","DESC"),
-            limit           = (0,limit)
-        )
-
+        result = self.db.get_last_logs(limit)
 
         print "<h3>log information (last %i)</h3>" % limit
-        print self.make_table_from_sql_select(
+        print self.tools.make_table_from_sql_select(
             result,
             id          = "internals_log_data",
             css_class   = "internals_table"
         )
 
-    def make_table_from_sql_select( self, select_results, id, css_class ):
-        """ Allgemeine Information um SQL-SELECT Ergebnisse als Tabelle zu erhalten """
-        print '<table id="%s" class="%s">' % (id,css_class)
 
-        # Tabellen überschriften generieren
-        print "<tr>"
-        for key in select_results[0].keys():
-            print "<th>%s</th>" % key
-        print "</tr>"
-
-        # eigentlichen Tabellen Daten erzeugen
-        for line in select_results:
-            print "<tr>"
-            for value in line.values():
-                print "<td>%s</td>" % value
-            print "</tr>"
-
-        print "</table>"
 
     #_______________________________________________________________________
     # Funktionen

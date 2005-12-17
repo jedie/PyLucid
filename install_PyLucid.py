@@ -5,9 +5,12 @@
 PyLucid "installer"
 """
 
-__version__ = "v0.4.1"
+__version__ = "v0.5"
 
 __history__ = """
+v0.5
+    - Neu: "Information about installed modules"
+    - ein paar "confirm"-Dialoge eingebaut...
 v0.4.1
     - Ein wenig Aufgeräumt
 v0.4
@@ -100,7 +103,7 @@ Sicherheitslücke: Es sollte nur ein Admin angelegt werden können, wenn noch ke
 print "Content-type: text/html; charset=utf-8\r\n"
 
 
-import cgitb;cgitb.enable()
+#~ import cgitb;cgitb.enable()
 import os, sys, cgi, re, zipfile
 
 
@@ -281,7 +284,9 @@ class PyLucid_setup:
                 ]
             ),
             ("info / tests", [
-                    (self.db_info,          "db_info",              "DB connection Information"),
+                    (self.db_info,              "db_info",              "DB connection Information"),
+                    (self.module_admin_info,    "module_admin_info",    "Information about installed modules"),
+                    (self.path_info,            "path_info",            "Path/URL check"),
                 ]
             ),
         ]
@@ -315,8 +320,8 @@ class PyLucid_setup:
     def print_info( self ):
         print "<h4>Path in config.py:</h4>"
         print "<pre>"
-        print "script_filename:", config.system.script_filename
-        print "document_root:", config.system.document_root
+        print "script_filename..:", config.system.script_filename
+        print "document_root....:", config.system.document_root
         print "</pre>"
         try:
             print 'Check this link to your PyLucid CMS: <a href="%(url)s">%(url)s</a>' % {"url": config.system.poormans_url}
@@ -348,6 +353,12 @@ class PyLucid_setup:
         """
         Richtet die DB ein, indem der Install-DUMP eingespielt wird
         """
+        if self.CGIdata.get("confirm","no") == "yes":
+            self.init_DB_confirmed()
+            return
+        print '<p>Init Database tables? <a href="?init_DB&amp;confirm=yes">confirm</a></p>'
+
+    def init_DB_confirmed(self):
         d = SQL_dump(self.db)
         d.import_dump()
         #~ d.dump_data()
@@ -367,7 +378,7 @@ class PyLucid_setup:
         for name in d.get_table_names():
             print '<input type="checkbox" name="table" value="%s">%s<br />' % (name,name)
 
-        print "<h4>WARNING: The specified tables lost all Data!</h4>"
+        print "<h4><strong>WARNING:</strong> The specified tables lost all Data!</h4>"
         print '<button type="submit">submit</button>'
         print '</form>'
 
@@ -402,9 +413,9 @@ class PyLucid_setup:
         2. installiert die Basic Module
         3. aktiviert die Module
         """
+        self.PyLucid["URLs"]["current_action"] = "?action=module_admin&sub_action=init_modules"
         module_admin = self._get_module_admin()
         module_admin.first_time_install()
-        self.print_backlink()
 
     def _get_module_admin(self):
         self.PyLucid["URLs"]["action"] = "?action=module_admin&sub_action="
@@ -451,10 +462,26 @@ class PyLucid_setup:
                 module_admin.deactivate(self.CGIdata["id"])
             except KeyError, e:
                 print "KeyError:", e
-        #~ else:
-            #~ self.print_backlink()
+        elif sub_action == "module_admin_info":
+            self.module_admin_info()
+            return
+        elif sub_action == "administation_menu":
+            self.print_backlink()
+        elif sub_action == "init_modules":
+            self.print_backlink()
+            if self.CGIdata.get("confirm","no") == "yes":
+                module_admin = self._get_module_admin()
+                module_admin.first_time_install_confirmed()
+            self.print_backlink()
+            return
 
         module_admin.administation_menu()
+
+    def module_admin_info(self, module_id=False):
+        self.PyLucid["URLs"]["current_action"] = "?action=module_admin&sub_action=module_admin_info"
+        module_admin = self._get_module_admin()
+        module_admin.debug_installed_modules_info()
+
 
     #__________________________________________________________________________________________
 
@@ -700,6 +727,17 @@ class PyLucid_setup:
                 v = "***"
             print "%-20s: %s" % (k,v)
         print "</pre>"
+
+    #__________________________________________________________________________________________
+
+    def path_info(self):
+        print "<h4>generates automatically:</h4>"
+        print "<pre>"
+        for k,v in self.PyLucid["URLs"].iteritems():
+            print "%15s: %s" % (k,v)
+        print "</pre>"
+        print "<hr/>"
+        self.print_info()
 
 
     ###########################################################################################

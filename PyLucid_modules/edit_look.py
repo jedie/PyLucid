@@ -43,81 +43,8 @@ import sys, cgi
 
 
 
-#_______________________________________________________________________
-
 
 class edit_look:
-
-    #_______________________________________________________________________
-    # Module-Manager Daten
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "stylesheet" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "CGI_dependent_actions": {
-                "edit_style": {
-                    "CGI_laws"      : {"edit": "edit"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"id": int}
-                },
-                "del_style": {
-                    "CGI_laws"      : {"del": "del"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"id": int}
-                },
-                "clone_style": {
-                    "CGI_laws"      : {"clone": "clone"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"clone_name": str, "new_name": str},
-                },
-                "save_style": {
-                    "CGI_laws"      : {"save": "save"},
-                    "get_CGI_data"  : {"id": int, "name": str, "description": str, "content": str},
-                },
-            }
-        },
-
-        "template": {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "CGI_dependent_actions" : {
-                "edit_template": {
-                    "CGI_laws"      : {"edit": "edit"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"id": int}
-                },
-                "del_template": {
-                    "CGI_laws"      : {"del": "del"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"id": int}
-                },
-                "clone_template": {
-                    "CGI_laws"      : {"clone": "clone"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"clone_name": str, "new_name": str},
-                },
-                "save_template": {
-                    "CGI_laws"      : {"save": "save"},
-                    "get_CGI_data"  : {"id": int, "name": str, "description": str, "content": str},
-                },
-            }
-        },
-
-        "internal_page" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "CGI_dependent_actions" : {
-                "edit_internal_page_form": {
-                    "CGI_laws"      : {"edit": "edit"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"internal_page_name": str},
-                },
-                "save_internal_page"        : {
-                    "CGI_laws"      : {"save": "save"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"internal_page_name": str, "content": str, "description": str, "markup": int},
-                },
-            }
-        },
-    }
-
-    #_______________________________________________________________________
 
     def __init__( self, PyLucid ):
         self.config     = PyLucid["config"]
@@ -377,7 +304,7 @@ class edit_look:
 
         print "<p><small>(edit_look v%s)</small></p>" % __version__
 
-    def edit_internal_page_form(self, internal_page_name):
+    def edit_internal_page(self, internal_page_name):
         """ Formular zum editieren einer internen Seite """
         try:
             # Daten der internen Seite, die editiert werden soll
@@ -389,8 +316,6 @@ class edit_look:
 
         OptionMaker = self.tools.html_option_maker()
         markup_option   = OptionMaker.build_from_list(self.db.get_available_markups(), edit_data["markup"])
-
-        self.page_msg(markup_option)
 
         self.db.print_internal_page(
             internal_page_name  = "edit_internal_page",

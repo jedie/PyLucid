@@ -31,7 +31,7 @@ module_manager_data = {
         "internal_page_info" : {
             "name"          : "admin_menu",
             "description"   : "Administration front menu",
-            "markup"        : "none",
+            "markup"        : None,
         },
     },
     "edit_page_link"    : global_rights,

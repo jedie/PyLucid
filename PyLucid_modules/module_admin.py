@@ -42,9 +42,12 @@ CREATE TABLE `lucid_plugins` (
 );
 """
 
-__version__="0.1.1"
+__version__="0.2"
 
 __history__="""
+v0.2
+    - NEU: debug_installed_modules_info() - Für einen besseren Überblick, welche Methoden
+        in der DB registriert sind.
 v0.1.1
     - NEU: reinit
 v0.1
@@ -73,11 +76,13 @@ internal_page_file = "PyLucid_modules/module_admin_administation_menu.html"
 class module_admin:
 
     def __init__(self, PyLucid, call_from_install_PyLucid=False):
+        self.PyLucid        = PyLucid
         self.page_msg       = PyLucid["page_msg"]
         self.db             = PyLucid["db"]
         if debug == True: self.db.debug = True
         self.URLs           = PyLucid["URLs"]
         self.module_manager = PyLucid["module_manager"]
+        self.CGIdata        = PyLucid["CGIdata"]
         self.call_from_install_PyLucid = call_from_install_PyLucid
 
     def menu(self):
@@ -128,30 +133,38 @@ class module_admin:
             self.db.print_internal_TAL_page("administation_menu", context_dict)
             self.link("menu")
 
-    def debug_data(self):
-        data = self._read_packages()
-        data, installed_data = self._filter_cfg(data)
-        data = self._read_all_moduledata(data)
+    #~ def print_tags_information(self):
 
-        self.link("menu")
-        self.debug_package_data(data)
-        self.link("menu")
 
     #________________________________________________________________________________________
 
     def first_time_install(self):
-        print "First Time Install!!!"
+        """
+        Abfrage ob wirklich installiert werden soll
+        Das sind alle Module, bei denen:
+        "essential_buildin" == True oder "important_buildin" == True
+        """
+        print "<h2>First time install</h2>"
+        print "<p><strong>Note:</strong> All plugin-config and all internal pages would reseted!</p>"
+        print '<a href="%s&amp;confirm=yes">confirm</a>' % self.URLs['current_action']
+
+    def first_time_install_confirmed(self):
+        """
+        Installiert alle wichtigen Module/Plugins
+        """
+        print "<h2>First time install:</h2>"
         print "<pre>"
-        print "truncate table plugins and plugindata...",
-        try:
-            self.db.cursor.execute("TRUNCATE TABLE %splugins" % self.db.tableprefix)
-            self.db.cursor.execute("TRUNCATE TABLE %splugindata" % self.db.tableprefix)
-        except Exception, e:
-            print "Error:", e
-            print "You must first init the table!!!"
-            return
-        else:
-            print "OK"
+        for table in ("plugins", "plugindata", "pages_internal", "pages_internal_category"):
+            tablename = self.db.tableprefix + table
+            print "truncate table %s..." % tablename,
+            try:
+                self.db.cursor.execute("TRUNCATE TABLE %s" % tablename)
+            except Exception, e:
+                print sys.exc_info()[0],":", e
+                print "(Have you first init the tables?)"
+                return
+            else:
+                print "OK"
 
         self.installed_modules_info = [] # Wir tun mal so, als wenn es keine installierten Module gibt
         data = self._read_packages()
@@ -192,7 +205,7 @@ class module_admin:
             plugin_id = self.db.get_plugin_id(package, module_name)
         except Exception, e:
             if not error_handling: raise Exception(e)
-            print "ERROR:", e
+            print sys.exc_info()[0],":", e
         else:
             print "OK, id is:", plugin_id
         print
@@ -215,7 +228,7 @@ class module_admin:
             try:
                 self.db.register_plugin_method(plugin_id, method_name, method_cfg)
             except Exception, e:
-                print "Error:", e
+                print sys.exc_info()[0],":", e
             else:
                 print "OK"
         print
@@ -253,7 +266,7 @@ class module_admin:
                 try:
                     self.db.register_plugin_method(plugin_id, method_name, cfg, parent_method_id)
                 except Exception, e:
-                    print "Error:", e
+                    print sys.exc_info()[0],":", e
                 else:
                     print "OK"
             print
@@ -267,11 +280,12 @@ class module_admin:
         """
         if print_info:
             self.link("administation_menu")
-            print "<h3>Install %s.%s</h3>" % (package, module_name)
+            print "<h3>Install %s.<strong>%s</strong></h3>" % (package, module_name)
             print "<pre>"
         else:
             print "_"*80
-            print "Install %s.%s" % (package, module_name)
+            print "Install %s.<strong>%s</strong>" % (package, module_name)
+            print
 
         module_data = self._get_module_data(package, module_name)
 
@@ -290,7 +304,7 @@ class module_admin:
         try:
             self.registered_plugin_id = self.db.install_plugin(module_data)
         except Exception, e:
-            print "ERROR:", e
+            print sys.exc_info()[0],":", e
             # Wahscheinlich ist das Plugin schon installiert.
             try:
                 self.registered_plugin_id = self.db.get_plugin_id(module_data['package_name'], module_data['module_name'])
@@ -325,7 +339,7 @@ class module_admin:
                         style["plugin_id"] = self.registered_plugin_id
                         self.db.new_style(style)
                     except Exception, e:
-                        print "Error:", e
+                        print sys.exc_info()[0],":", e
                     else:
                         print "OK"
             print
@@ -369,6 +383,7 @@ class module_admin:
         internal_page = {
             "name"          : data.get("name",method_name),
             "plugin_id"     : self.registered_plugin_id,
+            "category"      : module_name,
             "description"   : data["description"],
             "markup"        : data["markup"]
         }
@@ -394,7 +409,7 @@ class module_admin:
             try:
                 self.db.new_internal_page(internal_page, lastupdatetime)
             except Exception, e:
-                print "Error:", e
+                print sys.exc_info()[0],":", e
             else:
                 print "OK"
 
@@ -447,7 +462,7 @@ class module_admin:
         try:
             self.db.delete_plugindata(id)
         except Exception, e:
-            print "Error:", e
+            print sys.exc_info()[0],":", e
         else:
             print "OK"
 
@@ -457,7 +472,7 @@ class module_admin:
         try:
             self.db.delete_plugin(id)
         except Exception, e:
-            print "Error:", e
+            print sys.exc_info()[0],":", e
         else:
             print "OK"
 
@@ -469,7 +484,7 @@ class module_admin:
         try:
             deleted_styles = self.db.delete_style_by_plugin_id(id)
         except Exception, e:
-            print "ERROR:", e
+            print sys.exc_info()[0],":", e
         else:
             print "OK, deleted:", deleted_styles
         print
@@ -480,10 +495,18 @@ class module_admin:
         try:
             deleted_pages = self.db.delete_internal_page_by_plugin_id(id)
         except Exception, e:
-            print "ERROR:", e
+            print sys.exc_info()[0],":", e
         else:
             print "OK, deleted pages: %s" % deleted_pages
         print
+
+        print "Cleanup internal page categories...",
+        try:
+            deleted_categories = self.db.delete_blank_pages_internal_categories()
+        except Exception, e:
+            print sys.exc_info()[0],":", e
+        else:
+            print "deleted_categories:", deleted_categories
 
         ##_____________________________________________
         # SQL Kommandos ausführen
@@ -596,7 +619,7 @@ class module_admin:
 
     def _get_module_data(self, package, module_name):
         """
-        Liefert alle Daten zu einem Modul.
+        Liefert alle Daten zu einem Modul, aus der zugehörigen config-Datei.
         """
         def _import(package_name, module_name):
             #~ print package_name, module_name
@@ -705,6 +728,92 @@ class module_admin:
                 print "Error: %s" % e
             else:
                 print "OK"
+
+    def debug_installed_modules_info(self):
+        """
+        Listet alle Module/Plugins, mit ihren registrierten Methoden und CGI-depent-Daten auf
+        """
+        print "<h3>Registered Methods of all installed Plugins</h3>"
+        print "<p>select Module to get more Infomation</p>"
+
+        self.link("menu")
+
+        plugins_data = self.get_installed_modules_info()
+
+        data_dict = {}
+
+        print "<ul>"
+        for plugin in plugins_data:
+            data_dict[plugin['id']] = plugin["package_name"], plugin['module_name']
+            print '<li><a href="%s&amp;module_id=%s">' % (self.URLs['current_action'], plugin['id'])
+            print '%s.<strong style="color:blue">%s</strong> <small style="color:grey">(plugin id: %s)</small>' % (
+                plugin["package_name"], plugin['module_name'], plugin['id']
+            )
+            print "</a></li>"
+        print "</ul>"
+
+        print "<pre>"
+        module_id = self.CGIdata.get("module_id",False)
+        if module_id != False:
+            print '%s.<strong>%s</strong> <small>(plugin id:%s)</small>' % (
+                data_dict[module_id][0], data_dict[module_id][1], module_id
+            )
+            #~ print data_dict[module_id]
+            self.debug_module_info(module_id)
+        print "</pre>"
+
+    def debug_module_info(self, module_id):
+
+        plugindata_temp = self.db.get_plugindata(module_id)
+
+        # Daten in eine andere Form bringen
+        plugindata = {}
+        data = {}
+        for method in plugindata_temp:
+            plugindata[method['id']] = method
+            data[method['id']] = [method['parent_method_id'], method['id'], method['method_name']]
+
+        # Methoden mit Untermethoden verknüpfen
+        for id, methoddata in data.iteritems():
+            #~ print id, methoddata
+            parent_method_id, method_id, methodname = methoddata[:3]
+            if parent_method_id != None:
+                data[parent_method_id].append([method_id, methodname])#methodname)
+
+        # Daten Ausgeben
+        for id, methoddata in data.iteritems():
+            if methoddata[0] != None:
+                continue
+            print ' * <em style="color:blue">%s</em> <small style="color:grey">(method id: %s)</small>' % (methoddata[2], id) #Main-Method
+            #~ print "+++", methoddata
+            if len(methoddata)>3:
+                for id,methodname in methoddata[3:]:
+                    #~ print i
+                    print '     ^- <em style="color:blue">%s</em> <small style="color:grey">(method id:%s)</small>' % (methodname, id)
+
+                    for item in ("CGI_laws", "get_CGI_data"):
+                        data = plugindata[id][item]
+                        if data != None:
+                            print "%25s:" % item,
+                            try:
+                                print "<var>%s</var>" % cgi.escape(str(pickle.loads(data)))
+                            except Exception, e:
+                                print "pickle.loads ERROR: %s" % s
+
+                    #~ print plugindata[id]["get_CGI_data"]
+                    #~ print plugindata[id]
+                print
+        print
+        print "_"*80
+        print "<em>Internal pages info:</em>"
+        print
+        for page_info in self.db.get_internal_pages_info_by_module(module_id):
+            #~ print page_info
+            print "<strong>%s</strong> - %s" % (page_info['name'], page_info['description'])
+            print "   ^- <small>markup: '%s', updated by: %s, last update: %s</small>" % (
+                page_info['markup'], page_info['lastupdateby'], page_info['lastupdatetime']
+            )
+
 
     def debug_package_data(self, data):
         print "<h3>Debug package data:</h3>"

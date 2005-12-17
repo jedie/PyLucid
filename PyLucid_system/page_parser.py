@@ -46,20 +46,30 @@ class parser:
         # Tags die nicht bearbeitet werden:
         self.ignore_tag = ("page_msg","script_duration")
 
+
     def parse( self, content ):
         """
         Die Hauptfunktion.
         per re.sub() werden die Tags ersetzt
         """
+        #~ print "OK", content
         if type(content)!=str:
             return "page_parser Error! Content not string. Content is type %s" % cgi.escape(str(type(content)))
 
         #~ start_time = time.time()
+        #~ try:
         content = re.sub( "<lucidTag:(.*?)/?>", self.handle_tag, content )
+        #~ except Exception, e:
+            #~ print "ERROR:", e, content
+            #~ return "ERROR:", e
         #~ self.page_msg( "Zeit (re.sub-lucidTag) :", time.time()-start_time )
 
         #~ start_time = time.time()
+        #~ try:
         content = re.sub( "<lucidFunction:(.*?)>(.*?)</lucidFunction>", self.handle_function, content )
+        #~ except Exception, e:
+            #~ print "ERROR:", e, content
+            #~ return "ERROR:", e
         #~ self.page_msg( "Zeit (re.sub-lucidFunction) :", time.time()-start_time )
 
         return content
@@ -68,6 +78,7 @@ class parser:
         """
         Abarbeiten eines <lucidTag:... />
         """
+        #~ print matchobj.group(1)
         return_string = self.appy_tag( matchobj )
         if type(return_string) != str:
             self.page_msg("result of tag '%s' is not type string! Result: '%s'" % (
@@ -76,7 +87,7 @@ class parser:
             )
 
             return_string = str(return_string)
-
+        #~ print "OK"
         return return_string
 
     def appy_tag( self, matchobj ):
@@ -103,11 +114,14 @@ class parser:
         function_name = matchobj.group(1)
         function_info = matchobj.group(2)
 
+        #~ print function_name, function_info
+
         content = self.module_manager.run_function( function_name, function_info )
         if type(content) != str:
             content = "<p>[Content from module '%s' is not type string!] Content:</p>%s" % (
                 function_name, str(content)
             )
+        #~ print "OK"
         return content
 
 
@@ -185,7 +199,7 @@ class render:
 
     def apply_template( self, side_content, template ):
         """
-        Alle Taps im Template ausfüllen und dabei die Seite in Template einbauen
+        Alle Tags im Template ausfüllen und dabei die Seite in Template einbauen
         """
         self.parser.tag_data["page_body"]    = side_content
 
