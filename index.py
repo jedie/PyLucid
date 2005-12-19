@@ -126,10 +126,8 @@ start_time = time.time()
 start_clock = time.clock()
 
 
-import cgitb;cgitb.enable()
-#~ from system import debug
-#~ debug.cgi_debug()
 
+import cgitb;cgitb.enable()
 
 
 # Python-Basis Module einbinden
@@ -207,6 +205,7 @@ class cgitb_addon:
         self.default_reset_code = cgitb.reset()
 
     def __call__(self):
+        sys.stdout = sys.__stdout__ # Evtl. redirectered stdout wiederherstellen
         print "Content-type: text/html; charset=utf-8\r\n"
         print '<h1 style="background-color:#6622aa;color:#ffffff;padding:0.75em;">An Script Error occurred</h1>'
 
