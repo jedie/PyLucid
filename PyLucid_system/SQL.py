@@ -457,7 +457,7 @@ class db( mySQL ):
     def _get_internal_page_data(self, internal_page_name):
         try:
             return self.select(
-                select_items    = ["markup","content","description"],
+                select_items    = ["template_engine","markup","content","description"],
                 from_table      = "pages_internal",
                 where           = ("name", internal_page_name)
             )[0]
@@ -469,6 +469,7 @@ class db( mySQL ):
         Interne Seite aufgeüllt mit Daten ausgeben. Diese Methode sollte immer
         verwendet werden, weil sie eine gescheite Fehlermeldung anzeigt.
         """
+
         try:
             content = self._get_internal_page_data(internal_page_name)["content"]
         except Exception, e:
@@ -477,13 +478,46 @@ class db( mySQL ):
 
         try:
             print content % page_dict
-        except KeyError, e:
-            import re
-            placeholder = re.findall(r"%\((.*?)\)s", content)
-            raise KeyError(
-                "KeyError '%s': Can't fill internal page '%s'. \
-                placeholder in internal page: %s given placeholder for that page: %s" % (
-                    e, internal_page_name, placeholder, page_dict.keys()
+        except Exception, e:
+            self.page_msg("Error information:")
+
+            s = self.tools.Find_StringOperators(content)
+            if s.incorrect_hit_pos != []:
+                self.page_msg(" -"*40)
+                self.page_msg("There are incorrect %-chars in the internal_page:")
+                self.page_msg("Text summary:")
+                for line in s.get_incorrect_text_summeries():
+                    self.page_msg(line)
+                self.page_msg(" -"*40)
+
+            l = s.correct_tags
+            # doppelte Einträge löschen (auch mit Python >2.3)
+            content_placeholder = [l[i] for i in xrange(len(l)) if l[i] not in l[:i]]
+            content_placeholder.sort()
+            self.page_msg("*** %s content placeholder:" % len(content_placeholder))
+            self.page_msg(content_placeholder)
+
+            l = page_dict.keys()
+            given_placeholder = [l[i] for i in xrange(len(l)) if l[i] not in l[:i]]
+            given_placeholder.sort()
+            self.page_msg("*** %s given placeholder:" % len(given_placeholder))
+            self.page_msg(given_placeholder)
+
+            diff_placeholders = []
+            for i in content_placeholder:
+                if (not i in given_placeholder) and (not i in diff_placeholders):
+                    diff_placeholders.append(i)
+            for i in given_placeholder:
+                if (not i in content_placeholder) and (not i in diff_placeholders):
+                    diff_placeholders.append(i)
+
+            diff_placeholders.sort()
+            self.page_msg("*** placeholder diffs:", diff_placeholders)
+
+            raise Exception(
+                "%s: '%s': Can't fill internal page '%s'. \
+                *** More information above in page message ***" % (
+                    sys.exc_info()[0], e, internal_page_name,
                 )
             )
 
@@ -1030,12 +1064,27 @@ class db( mySQL ):
 
     def get_available_markups(self):
         """
-        Bilded eine Liste aller verfügbaren Markups. Jeder Listeneintrag ist wieder
+        Bildet eine Liste aller verfügbaren Markups. Jeder Listeneintrag ist wieder
         eine Liste aus [ID,name]. Das ist ideal für tools.html_option_maker().build_from_list()
         """
         markups = self.select(
             select_items    = ["id","name"],
             from_table      = "markups",
+        )
+        result = []
+        for markup in markups:
+            result.append([markup["id"], markup["name"]])
+
+        return result
+
+    def get_available_template_engines(self):
+        """
+        Bildet eine Liste aller verfügbaren template_engines. Jeder Listeneintrag ist wieder
+        eine Liste aus [ID,name]. Das ist ideal für tools.html_option_maker().build_from_list()
+        """
+        markups = self.select(
+            select_items    = ["id","name"],
+            from_table      = "template_engines",
         )
         result = []
         for markup in markups:

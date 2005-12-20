@@ -5,9 +5,11 @@
 Verschiedene Tools für den Umgang mit PyLucid
 """
 
-__version__="0.1"
+__version__="0.2"
 
 __history__ = """
+v0.2
+    - NEU: Find_StringOperators
 v0.1
     - NEU: make_table_from_sql_select()
 v0.0.6
@@ -599,7 +601,119 @@ def build_menu(module_manager_data, action_url):
 
 
 
+class Find_StringOperators:
+    """
+    Sucht in einem String nach %-StringOperatoren.
+    Dabei wird zwischen richtigen und falschen unterschieden.
 
+    Dient zur besseren Fehlerausgabe, bei String Operationen.
+
+    Test-Text:
+    ----------
+    Hier ist ein Beispieltext mit %(richtigen)s Platzhaltern.
+    Aber auch mit %(falschen, da die hier Klammer nicht geschlossen ist.
+    Außerdem müßen einzelne %-Zeichen, immer escaped werden. Das wird
+    mit doppelten %% Zeichen gemacht, die nach dem String-Operation,
+    bei dem die %(Platzhalter)s durch Daten aus einem Dict ersetzt werden,
+    wieder zu einfachen %-Zeichen umgewandelt werden.
+    """
+
+    cutout = 20
+
+    def __init__(self, txt):
+        self.correct_hit_pos = []
+        self.correct_tags = []
+        self.incorrect_hit_pos = []
+        self.txt = txt
+
+        # alle %-Zeichen, die nicht mit %%-Escaped sind
+        pattern = re.compile(r"([^%]%[^%])")
+        pattern.sub(self._incorrect_hit, txt)
+
+        # Richtig %(formatierte)s String
+        pattern = re.compile(r"([^%]%\((.*?)\)s)")
+        pattern.sub(self._correct_hit, txt)
+
+    def _incorrect_hit(self, matchobj):
+        self.incorrect_hit_pos.append(matchobj.start())
+
+    def _correct_hit(self, matchobj):
+        self.incorrect_hit_pos.remove(matchobj.start())
+        self.correct_hit_pos.append(matchobj.start())
+        self.correct_tags.append(matchobj.group(2))
+
+    #_______________________________________________________________________
+    # Zugriff auf die Daten
+
+    def get_incorrect_pos(self):
+        "Start- & End-Liste der falschen %-Operatoren"
+        return self.get_pos(self.incorrect_hit_pos)
+
+    def get_correct_pos(self):
+        "Start- & End-Liste der richtigen %-Operatoren"
+        return self.get_pos(self.correct_hit_pos)
+
+    def get_incorrect_text_summeries(self):
+        "Textstellen mit falschen %-Operatoren"
+        return self.slice_pos_list(self.get_incorrect_pos())
+
+    def get_correct_text_summeries(self):
+        "Textstellen mit richtigen %-Operatoren"
+        return self.slice_pos_list(self.get_correct_pos())
+
+    def get_pos(self, poslist):
+        """
+        Wandelt aus der Positionsliste eine Liste mit
+        Start- und End-Positionen für einen Text-Slice
+        """
+        results = []
+        for pos in poslist:
+            start = pos - self.cutout
+            end = pos + self.cutout
+            if start<0:
+                start = 0
+            if end>len(self.txt):
+                end = len(self.txt)
+
+            results.append((start, end))
+        return results
+
+    def slice_pos_list(self, pos_list):
+        """
+        Liefert eine Liste der Textstellen zurück.
+        """
+        result = []
+        for start,end in pos_list:
+            result.append(
+                "...%s..." % self.txt[start:end].encode("String_Escape")
+            )
+        return result
+
+    #_______________________________________________________________________
+    # Debug
+
+    def debug_results(self):
+        print "self.incorrect_hit_pos:", self.incorrect_hit_pos
+        print "incorrect_pos:", self.get_incorrect_pos()
+        print ">>> Textstellen mit falsche %-Zeichen im Text:"
+        for i in self.get_incorrect_text_summeries():
+            print i
+
+        print
+        print "self.correct_hit_pos:", self.correct_hit_pos
+        print "correct_pos:", self.get_correct_pos()
+        print ">>> Textstellen mit richtige %-StringOperatoren:"
+        for i in self.get_correct_text_summeries():
+            print i
+
+#~ doc = Find_StringOperators.__doc__
+#~ print doc
+#~ print "-"*80
+#~ s = Find_StringOperators(doc)
+#~ print "incorrect_pos:", s.get_incorrect_pos()
+#~ print "correct_pos:", s.get_correct_pos()
+#~ print "-"*80
+#~ s.debug_results()
 
 
 
