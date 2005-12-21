@@ -315,17 +315,23 @@ class edit_look:
             return
 
         OptionMaker = self.tools.html_option_maker()
-        markup_option   = OptionMaker.build_from_list(self.db.get_available_markups(), edit_data["markup"])
+        markup_option = OptionMaker.build_from_list(
+            self.db.get_available_markups(), edit_data["markup"]
+        )
+        template_engine_option = OptionMaker.build_from_list(
+            self.db.get_available_template_engines(), edit_data["template_engine"]
+        )
 
         self.db.print_internal_page(
             internal_page_name  = "edit_internal_page",
-            page_dict           = {
-                "name"          : internal_page_name,
-                "url"           : self.URLs["main_action"],
-                "content"       : cgi.escape( edit_data["content"] ),
-                "description"   : cgi.escape( edit_data["description"] ),
-                "markup_option" : markup_option,
-                "back"          : "%sedit_internal_page" % self.URLs["action"],
+            page_dict = {
+                "name"                      : internal_page_name,
+                "url"                       : self.URLs["main_action"],
+                "content"                   : cgi.escape( edit_data["content"] ),
+                "description"               : cgi.escape( edit_data["description"] ),
+                "template_engine_option"    : template_engine_option,
+                "markup_option"             : markup_option,
+                "back"                      : "%sedit_internal_page" % self.URLs["action"],
             }
         )
 
