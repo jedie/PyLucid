@@ -33,16 +33,18 @@ module_manager_data = {
             },
         },
         "internal_page_info" : {
-            "description"   : "HTML form to edit a CMS Page",
-            "markup"        : "string formatting",
+            "description"       : "HTML form to edit a CMS Page",
+            "template_engine"   : "string formatting",
+            "markup"            : None,
         },
     },
     "select_edit_page" : {
         "must_login"    : True,
         "must_admin"    : False,
         "internal_page_info" : {
-            "description"   : "select a page to edit it",
-            "markup"        : "string formatting",
+            "description"       : "select a page to edit it",
+            "template_engine"   : "string formatting",
+            "markup"            : None,
         },
     },
     "new_page" : {
@@ -68,16 +70,18 @@ module_manager_data = {
             },
         },
         "internal_page_info" : {
-            "description"   : "select a page to delete it",
-            "markup"        : "string formatting",
+            "description"       : "select a page to delete it",
+            "template_engine"   : "string formatting",
+            "markup"            : None,
         },
     },
     "sequencing" : {
         "must_login"    : True,
         "must_admin"    : False,
         "internal_page_info" : {
-            "description"   : "change the position of every page",
-            "markup"        : "string formatting",
+            "description"       : "change the position of every page",
+            "template_engine"   : "string formatting",
+            "markup"            : None,
         },
     },
     "save_positions" : {

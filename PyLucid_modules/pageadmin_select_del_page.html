@@ -1,14 +1,13 @@
-h2. Delete Page
-
-Here are all pages available.
-Select a page to delete it:
-
+<h2>Delete Page</h2>
+<p>
+  Here are all pages available.<br />
+  Select a page to delete it:
+</p>
 <form name="del_page" method="post" action="%(url)s">
-
-  select page: <select name="side_id_to_del" id="side_option">%(side_option)s</select>
-  comment: <input name="comment" type="text" value="" size="50" maxlength="254">
+  <p>
+  select page: <select name="side_id_to_del" id="side_option">%(side_option)s</select><br />
+  comment: <input name="comment" type="text" value="" size="50" maxlength="254"><br />
   <input type="submit" name="delete page" value="delete page" />
-
+  </p>
 </form>
-
-*Note:* You can only delete pages with no parents!
+<p><strong>Note:</strong> You can only delete pages with no parents!</p>

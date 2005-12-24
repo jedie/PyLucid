@@ -33,8 +33,9 @@ module_manager_data = {
         "menu_section"      : "Admin",
         "menu_description"  : "Administation menu",
         "internal_page_info" : {
-            "description"   : "The Module/Plugin Administration page",
-            "markup"        : "TAL",
+            "description"       : "The Module/Plugin Administration page",
+            "template_engine"   : "TAL",
+            "markup"            : None
         },
     },
     "debug_installed_modules_info" : {

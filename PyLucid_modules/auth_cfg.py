@@ -21,8 +21,9 @@ module_manager_data = {
         "must_login"    : False,
         "direct_out"    : True,
         "internal_page_info" : {
-            "description"   : "The Login html-form Page",
-            "markup"        : "string formatting",
+            "description"       : "The Login html-form Page",
+            "template_engine"   : "string formatting",
+            "markup"            : None
         },
     },
     "logout" : {

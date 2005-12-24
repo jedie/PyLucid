@@ -27,8 +27,9 @@ module_manager_data = {
                 "CGI_laws"      : {"edit": "edit"}, # Wert vom angeklicken Button
                 "get_CGI_data"  : {"id": int},
                 "internal_page_info" : {
-                    "description"   : "edit a CSS stylesheet",
-                    "markup"        : "string formatting",
+                    "description"       : "edit a CSS stylesheet",
+                    "template_engine"   : "string formatting",
+                    "markup"            : None
                 },
             },
             "del_style": {
@@ -45,9 +46,10 @@ module_manager_data = {
             },
         },
         "internal_page_info" : {
-            "name"          : "select_style",
-            "description"   : "select a stylesheet to edit it",
-            "markup"        : "string formatting",
+            "name"              : "select_style",
+            "description"       : "select a stylesheet to edit it",
+            "template_engine"   : "string formatting",
+            "markup"            : None
         },
     },
 
@@ -59,8 +61,9 @@ module_manager_data = {
                 "CGI_laws"      : {"edit": "edit"}, # Wert vom angeklicken Button
                 "get_CGI_data"  : {"id": int},
                 "internal_page_info" : {
-                    "description"   : "edit a page template",
-                    "markup"        : "string formatting",
+                    "description"       : "edit a page template",
+                    "template_engine"   : "string formatting",
+                    "markup"            : None
                 },
             },
             "del_template": {
@@ -77,9 +80,10 @@ module_manager_data = {
             },
         },
         "internal_page_info" : {
-            "name"          : "select_template",
-            "description"   : "select a template to edit it",
-            "markup"        : "string formatting",
+            "name"              : "select_template",
+            "description"       : "select a template to edit it",
+            "template_engine"   : "string formatting",
+            "markup"            : None
         },
     },
 
@@ -91,8 +95,9 @@ module_manager_data = {
                 "CGI_laws"      : {"edit": "edit"}, # Wert vom angeklicken Button
                 "get_CGI_data"  : {"internal_page_name": str},
                 "internal_page_info" : {
-                    "description"   : "edit a internal page",
-                    "markup"        : "string formatting",
+                    "description"       : "edit a internal page",
+                    "template_engine"   : "string formatting",
+                    "markup"            : None
                 },
             },
             "save_internal_page"        : {
@@ -101,9 +106,10 @@ module_manager_data = {
             },
         },
         "internal_page_info" : {
-            "name"          : "select_internal_page",
-            "description"   : "select a internal page to edit it",
-            "markup"        : "string formatting",
+            "name"              : "select_internal_page",
+            "description"       : "select a internal page to edit it",
+            "template_engine"   : "string formatting",
+            "markup"            : None
         },
     },
 }
