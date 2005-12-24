@@ -24,9 +24,10 @@ module_manager_data = {
         "must_admin"    : False,
         "get_CGI_data"  : {"search_string": str},
         "internal_page_info" : {
-            "name"          : "input_form",
-            "description"   : "The HTML form of the search module.",
-            "markup"        : "TAL",
+            "name"              : "input_form",
+            "description"       : "The HTML form of the search module.",
+            "template_engine"   : "TAL",
+            "markup"            : None
         },
     },
     "do_search"       : {
