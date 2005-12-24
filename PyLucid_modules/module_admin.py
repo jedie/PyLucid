@@ -381,11 +381,12 @@ class module_admin:
         data = method_data["internal_page_info"]
         #~ print "X", data
         internal_page = {
-            "name"          : data.get("name",method_name),
-            "plugin_id"     : self.registered_plugin_id,
-            "category"      : module_name,
-            "description"   : data["description"],
-            "markup"        : data["markup"]
+            "name"              : data.get("name",method_name),
+            "plugin_id"         : self.registered_plugin_id,
+            "category"          : module_name,
+            "description"       : data["description"],
+            "template_engine"   : data["template_engine"],
+            "markup"            : data["markup"],
         }
 
         print "* %-25s" % internal_page["name"],
