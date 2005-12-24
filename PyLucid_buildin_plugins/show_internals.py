@@ -225,8 +225,10 @@ class show_internals:
         print "<h3>PyLucid environ information</h3>"
         print '<fieldset id="system_info"><legend>PyLucid["URLs"]:</legend>'
         print "<pre>"
-        for k,v in self.URLs.iteritems():
-            print "%18s:%s" % (k,v)
+        values = [(len(v),k,v) for k,v in self.URLs.iteritems()]
+        values.sort()
+        for _,k,v in values:
+            print "%15s:%s" % (k,v)
         print "</pre>"
         print "</fieldset>"
 
