@@ -7,9 +7,11 @@
 Anbindung an die SQL-Datenbank
 """
 
-__version__="0.2.1"
+__version__="0.2.2"
 
 __history__="""
+v0.2.2
+    - Umstellung bei Internen Seiten: Markup/Template
 v0.2.1
     - Bessere Fehlerbehandlung beim Zugriff auf die Internen seiten.
 v0.2
@@ -437,7 +439,10 @@ class db( mySQL ):
 
     def get_internal_page_list( self ):
         return self.select(
-                select_items    = ["name","plugin_id","description","markup"],
+                select_items    = [
+                    "name","plugin_id","description",
+                    "markup","template_engine","markup"
+                ],
                 from_table      = "pages_internal",
             )
 
@@ -454,15 +459,34 @@ class db( mySQL ):
                 order           = ("module_name","ASC"),
             )
 
-    def _get_internal_page_data(self, internal_page_name):
+    def get_template_engine(self, id):
+        """ Liefert den template_engine-Namen anhand der ID """
         try:
             return self.select(
+                select_items    = ["name"],
+                from_table      = "template_engines",
+                where           = ("id", id)
+            )[0]["name"]
+        except IndexError:
+            self.page_msg("Can't get template engine name for id '%s'. " % id)
+            return "none"
+
+    def get_internal_page_data(self, internal_page_name, replace=True):
+        try:
+            data = self.select(
                 select_items    = ["template_engine","markup","content","description"],
                 from_table      = "pages_internal",
                 where           = ("name", internal_page_name)
             )[0]
         except Exception, e:
             raise KeyError("Internal page '%s' not found!" % internal_page_name )
+
+        if replace==True:
+            data["template_engine"] = self.get_template_engine(data["template_engine"])
+            data["markup"] = self.get_markup_id(data["markup"])
+
+        return data
+
 
     def print_internal_page(self, internal_page_name, page_dict={}):
         """
@@ -471,7 +495,7 @@ class db( mySQL ):
         """
 
         try:
-            content = self._get_internal_page_data(internal_page_name)["content"]
+            content = self.get_internal_page_data(internal_page_name)["content"]
         except Exception, e:
             print "[Can't print internal page '%s': %s]" % (internal_page_name, e)
             return
@@ -526,7 +550,7 @@ class db( mySQL ):
         Interne Seite aufgeüllt mit Daten ausgeben. Diese Methode sollte immer
         verwendet werden, weil sie eine gescheite Fehlermeldung anzeigt.
         """
-        internal_page = self._get_internal_page_data(internal_page_name)
+        internal_page = self.get_internal_page_data(internal_page_name)
 
         try:
             internal_page["content"] = internal_page["content"] % page_dict
@@ -542,12 +566,29 @@ class db( mySQL ):
         return internal_page
 
     def print_internal_TAL_page(self, internal_page_name, context_dict):
+
+        internal_page_data = self._get_internal_page_data(internal_page_name)
+        internal_page_content = internal_page_data["content"]
+        if internal_page_data["template_engine"] != "TAL":
+            self.page_msg(
+                "Warning: Internal page '%s' is not marked as a TAL page! "
+                "(Marked as:'%s')" % (
+                    internal_page_name, internal_page_data["template_engine"]
+                )
+            )
+
+        if internal_page_data["markup"] != None:
+            self.page_msg(
+                "Warning: A TAL page should never have markup! "
+                "(internal page name: '%s', Markup:'%s')" % (
+                    internal_page_name, internal_page_data["markup"]
+                )
+            )
+
         from PyLucid_simpleTAL import simpleTAL, simpleTALES
 
         context = simpleTALES.Context(allowPythonPath=1)
         context.globals.update(context_dict) # context.addGlobal()
-
-        internal_page_content = self._get_internal_page_data(internal_page_name)["content"]
 
         template = simpleTAL.compileHTMLTemplate(internal_page_content, inputEncoding="UTF-8")
         template.expand(context, sys.stdout, outputEncoding="UTF-8")
@@ -974,7 +1015,10 @@ class db( mySQL ):
         Dabei werden die IDs von markup und lastupdateby direkt aufgelöst
         """
         pages_info = self.select(
-            select_items    = ["name", "markup", "lastupdatetime", "lastupdateby", "description"],
+            select_items    = [
+                "name", "template_engine", "markup",
+                "lastupdatetime", "lastupdateby", "description"
+            ],
             from_table      = "pages_internal",
             where           = [("plugin_id", plugin_id)]
         )
@@ -1096,10 +1140,3 @@ class db( mySQL ):
 
 class IntegrityError(Exception):
     pass
-
-
-
-
-
-
-
