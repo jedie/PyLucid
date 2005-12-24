@@ -65,7 +65,7 @@ v0.0.1
 """
 
 
-import cgitb;cgitb.enable()
+#~ import cgitb;cgitb.enable()
 import sys, os, glob, imp, cgi, urllib
 
 #~ print "Content-type: text/html; charset=utf-8\r\n\r\n" # Hardcore-Debugging ;)
@@ -432,6 +432,7 @@ class module_manager:
             import inspect
             args = inspect.getargspec(unbound_method)
             real_method_arguments = args[0][1:]
+            real_method_arguments.sort()
             argcount = len(real_method_arguments)
 
             #~ if not self.plugin_data method_properties.has_key("get_CGI_data"):
@@ -448,6 +449,12 @@ class module_manager:
 
             # Bessere Fehlermeldung generieren, wenn die von der Methode per get_CGI_data definierten Argumente
             # nicht in den CGI-Daten vorhanden sind.
+            plugin_data_keys = self.plugin_data["get_CGI_data"].keys()
+            plugin_data_keys.sort()
+
+            method_arguments_keys = method_arguments.keys()
+            method_arguments_keys.sort()
+
             raise run_module_error(
                 "ModuleManager >get_CGI_data<-error: \
                 %s() takes exactly %s arguments %s, \
@@ -455,8 +462,8 @@ class module_manager:
                 and %s given from CGI data: %s \
                 --- Compare the html form (internal page?), the get_CGI_data config and the real arguments in the method!" % (
                     unbound_method.__name__, argcount, real_method_arguments,
-                    len(self.plugin_data["get_CGI_data"]), str(self.plugin_data["get_CGI_data"].keys()),
-                    len(method_arguments), str(method_arguments.keys()),
+                    len(plugin_data_keys), plugin_data_keys,
+                    len(method_arguments_keys), method_arguments_keys,
                 )
             )
 
@@ -509,16 +516,7 @@ class module_manager:
 
         # Methode "ausführen"
         if self.config.system.ModuleManager_error_handling == True:
-            # Wenn ModuleManager_error_handling == False aber der stdout, verbogen ist, dann kann man
-            # keine Fehlerseite, bei einem Traceback sehen!!!
-            if self.plugin_data["direct_out"] != True:
-                try:
-                    direct_output = unbound_method(**self.plugin_data.get_CGI_data)
-                except Exception, e:
-                    redirect_out = redirector.get() # stdout wiederherstellen
-                    raise Exception("(Note: this is a real Traceback!!!) Original Error: %s" % e)
-            else:
-                direct_output = unbound_method(**self.plugin_data.get_CGI_data)
+            direct_output = unbound_method(**self.plugin_data.get_CGI_data)
         else:
             try:
                 direct_output = self._run_with_error_handling(unbound_method, method_arguments)
