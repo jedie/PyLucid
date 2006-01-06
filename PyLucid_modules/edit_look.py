@@ -308,7 +308,7 @@ class edit_look:
         """ Formular zum editieren einer internen Seite """
         try:
             # Daten der internen Seite, die editiert werden soll
-            edit_data = self.db._get_internal_page_data( internal_page_name )
+            edit_data = self.db.get_internal_page_data( internal_page_name )
         except IndexError:
             self.page_msg( "bad internal-page name: '%s' !" % cgi.escape(internal_page_name) )
             self.internal_page() # Auswahl wieder anzeigen lassen
