@@ -1,5 +1,5 @@
 ﻿%(status_msg)s
-<form name="login" method="post" action="%(url)s">
+<form class="internalpage" name="login" method="post" action="%(url)s">
   <p>Page <strong>&quot;%(name)s&quot;</strong>:<br />
     <textarea id="page_content" name="content" rows="25">%(content)s</textarea>
   </p>
@@ -105,18 +105,18 @@ form br {
 label, select, input {
   cursor: pointer;
 }
-input[type=text] {
-  width: 80%%;
+.internalpage input[type=text] {
+  width: 75%%;
   cursor: text;
 }
 
-input, select, textarea {
+.internalpage input, .internalpage select, .internalpage textarea {
   margin: 2px;
   border: 1px solid grey;
   color: #000;
   background: #fafafa;
 }
-input:focus, select:focus, textarea:focus {
+.internalpage input:focus, .internalpage select:focus, .internalpage textarea:focus {
   border: 1px solid back;
   background: #fff;
 }
