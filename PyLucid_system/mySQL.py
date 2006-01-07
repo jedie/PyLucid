@@ -26,9 +26,12 @@ ToDo
     * Es wird immer das paramstyle 'format' benutzt. Also mit %s escaped
 """
 
-__version__="0.2"
+__version__="0.3"
 
 __history__="""
+v0.3
+    - Wenn fetchall verwendet wird, werden in self.last_SQLcommand und self.last_SQL_values die
+        letzten SQL-Aktionen festgehalten. Dies kann gut, für Fehlerausgaben verwendet werden.
 v0.2
     - insert() filtert nun automatisch Keys im Daten-Dict raus, die nicht als Spalte in der Tabelle vorkommen
     - NEU: get_table_field_information() und get_table_fields()
@@ -72,7 +75,7 @@ import cgitb;cgitb.enable()
 from config import dbconf
 
 
-def error( msg, e ):
+def error( msg, e):
     print "Content-type: text/html\n"
     print "<h1>Error</h1>"
     print "<h3>%s</h3>" % msg
@@ -86,8 +89,12 @@ class mySQL:
     """
     Klasse, die nur allgemeine SQL-Funktionen beinhaltet
     """
-    def __init__( self, PyLucid, debug=False ):
+    def __init__(self, PyLucid, debug=False):
         self.config = PyLucid["config"]
+
+        # Zum speichern der letzten SQL-Statements (evtl. für Fehlerausgabe)
+        self.last_SQLcommand = ""
+        self.last_SQL_values = ()
 
         self.debug = debug
         self.tableprefix = self.config.dbconf["dbTablePrefix"]
@@ -176,10 +183,7 @@ class mySQL:
         except Exception, e:
             error( "Can't connect to database!", e )
 
-
-
-
-    def get( self, SQLcommand, SQL_values = (), table_prefix=None ):
+    def get(self, SQLcommand, SQL_values = (), table_prefix=None):
         """kombiniert execute und fetchall mit Tabellennamenplatzhalter"""
         if table_prefix == None: table_prefix = self.tableprefix
         self.cursor.execute(
@@ -190,23 +194,39 @@ class mySQL:
 
     def fetchall(self, SQLcommand, SQL_values = ()):
         """ kombiniert execute und fetchall """
-        self.cursor.execute(SQLcommand, SQL_values)
-        return self.cursor.fetchall()
+        self.last_SQLcommand = SQLcommand
+        self.last_SQL_values = SQL_values
+        try:
+            self.cursor.execute(SQLcommand, SQL_values)
+        except Exception, e:
+            raise Exception("execute Error: %s --- SQL-command: %s --- SQL-values: %s" % (
+                e, SQLcommand, SQL_values
+                )
+            )
+        try:
+            result = self.cursor.fetchall()
+        except Exception, e:
+            raise Exception("fetchall Error: %s --- SQL-command: %s --- SQL-values: %s" % (
+                e, SQLcommand, SQL_values
+                )
+            )
 
-    def get_tables( self, table_prefix=None ):
+        return result
+
+    def get_tables(self, table_prefix=None):
         """
         Liefert alle Tabellennamen die das self.tableprefix haben
         """
         if table_prefix == None: table_prefix = self.tableprefix
 
         tables = []
-        for table in self.fetchall( "SHOW TABLES" ):
+        for table in self.fetchall( "SHOW TABLES"):
             tablename = table.values()[0]
-            if tablename.startswith( table_prefix ):
+            if tablename.startswith( table_prefix):
                 tables.append( tablename )
         return tables
 
-    def insert( self, table, data, table_prefix=None, debug=False ):
+    def insert(self, table, data, table_prefix=None, debug=False):
         """
         Vereinfachter Insert, per dict
         data ist ein Dict, wobei die SQL-Felder den Key-Namen im Dict entsprechen muß, dabei werden Keys, die nicht
@@ -226,7 +246,7 @@ class mySQL:
             index += 1
 
         items  = data.keys()
-        values = tuple( data.values() )
+        values = tuple(data.values())
 
         SQLcommand = "INSERT INTO %(prefix)s%(table)s ( %(items)s ) VALUES ( %(values)s );" % {
                 "prefix"        : table_prefix,
@@ -238,13 +258,13 @@ class mySQL:
         if debug or self.debug:
             print "-"*80
             print "db.insert - Debug:"
-            print "SQLcommand.:",SQLcommand
-            print "values.....:",values
+            print "SQLcommand.:", SQLcommand
+            print "values.....:", values
             print "-"*80
 
-        self.cursor.execute( SQLcommand, values )
+        return self.fetchall(SQLcommand, values)
 
-    def update( self, table, data, where, limit=False, table_prefix=None ):
+    def update(self, table, data, where, limit=False, table_prefix=None):
         """
         Vereinfachte SQL-update Funktion
         """
@@ -253,8 +273,8 @@ class mySQL:
         data_keys   = data.keys()
 
         values      = data.values()
-        values.append( where[1] )
-        values      = tuple( values )
+        values.append(where[1])
+        values      = tuple(values)
 
         if limit:
             limit = "LIMIT %s" % limit
@@ -272,14 +292,14 @@ class mySQL:
         if self.debug:
             print "-"*80
             print "db.update - Debug:"
-            print "SQLcommand.:",SQLcommand
-            print "values.....:",values
+            print "SQLcommand.:", SQLcommand
+            print "values.....:", values
             print "-"*80
 
-        self.cursor.execute( SQLcommand, values )
+        return self.fetchall(SQLcommand, values)
 
-    def select( self, select_items, from_table, where=None, order=None, limit=None, table_prefix=None,
-            maxrows=0, how=1, debug=False ):
+    def select(self, select_items, from_table, where=None, order=None, limit=None, table_prefix=None,
+            maxrows=0, how=1, debug=False):
         """
         Allgemeine SQL-SELECT Anweisung
         where, order und limit sind optional
@@ -306,7 +326,6 @@ class mySQL:
 
         if where != None:
             where_string, SQL_parameters_values = self._make_where( where )
-
             SQLcommand += where_string
 
         if order != None:
@@ -324,20 +343,19 @@ class mySQL:
             print "-"*80
             print "db.select - Debug:"
             print "SQLcommand.:", SQLcommand
-            print "values.....:", tuple( SQL_parameters_values )
+            print "values.....:", SQL_parameters_values
 
-        self.cursor.execute( SQLcommand, tuple( SQL_parameters_values ) )
-        return self.cursor.fetchall()
+        return self.fetchall(SQLcommand, SQL_parameters_values)
 
-    def delete( self, table, where, limit=1, table_prefix=None, debug=False ):
+    def delete(self, table, where, limit=1, table_prefix=None, debug=False):
         """
         DELETE FROM table WHERE id=1 LIMIT 1
         """
         if table_prefix == None: table_prefix = self.tableprefix
 
-        SQLcommand = "DELETE FROM %s%s" % ( table_prefix, table )
+        SQLcommand = "DELETE FROM %s%s" % (table_prefix, table)
 
-        where_string, values = self._make_where( where )
+        where_string, SQL_parameters_values = self._make_where(where)
 
         SQLcommand += where_string
         SQLcommand += " LIMIT %s" % limit
@@ -346,15 +364,14 @@ class mySQL:
             print "-"*80
             print "db.delete - Debug:"
             print "SQLcommand:", SQLcommand
-            print "values.....:",values
+            print "values.....:", SQL_parameters_values
             print "-"*80
 
-        self.cursor.execute( SQLcommand, tuple( values ) )
-        return self.cursor.fetchall()
+        return self.fetchall(SQLcommand, SQL_parameters_values)
 
     #_____________________________________________________________________________________________
 
-    def _make_where( self, where ):
+    def _make_where(self, where):
         """
         Baut ein where-Statemant und die passenden SQL-Values zusammen
         """
@@ -372,7 +389,7 @@ class mySQL:
 
         where_string = ' WHERE %s' % " and ".join( where_string )
 
-        return where_string, SQL_parameters_values
+        return where_string, tuple(SQL_parameters_values)
 
     #_____________________________________________________________________________________________
 
@@ -413,7 +430,7 @@ class mySQL:
             result.append(column["Field"])
         return result
 
-    def exist_table_name( self, table_name ):
+    def exist_table_name(self, table_name):
         """ Überprüft die existens eines Tabellen-Namens """
         self.cursor.execute( "SHOW TABLES" )
         for line in self.cursor.fetchall():
@@ -442,12 +459,12 @@ class mySQL:
 
     #_____________________________________________________________________________________________
 
-    def dump_select_result( self, result ):
+    def dump_select_result(self, result):
         print "*** dumb select result ***"
-        for i in xrange( len(result) ):
+        for i in xrange( len(result)):
             print "%s - %s" % (i, result[i])
 
-    def close( self ):
+    def close(self):
         "Connection schließen"
         self.conn.close()
 
