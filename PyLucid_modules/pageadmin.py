@@ -87,16 +87,13 @@ class pageadmin:
     def new_page(self):
         "Neue Seite soll angelegt werden"
 
-        self.page_msg("neue seite!")
-        self.page_msg(dir(self.db.cursor))
-
         core = self.preferences["core"] # Basiseinstellungen
 
         page_data = {
             "parent"            : int(self.CGIdata["page_id"]),
             "page_id"           : -1, # Damit man beim speichern weiß, das die Seite neu ist.
-            "name"              : "Newsite",
-            "title"             : "Newsite",
+            "name"              : "Newpage",
+            "title"             : "Newpage",
             "template"          : core["defaultTemplate"],
             "style"             : core["defaultStyle"],
             "markup"            : core["defaultMarkup"],
@@ -137,10 +134,10 @@ class pageadmin:
         """
 
         return self.db.get_internal_page(
-            internal_page_name = "select_edit_page",
+            internal_page_name = "pageadmin_select_edit_page",
             page_dict={
                 "url"         : "%s?command=pageadmin&action=edit_page" % self.config.system.real_self_url,
-                "site_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
+                "page_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
             }
         )
 
@@ -222,7 +219,7 @@ class pageadmin:
         #~ self.page_msg( edit_page_data )
 
         self.db.print_internal_page(
-            internal_page_name = "edit_page",
+            internal_page_name = "pageadmin_edit_page",
             page_dict = {
                 "status_msg"                : status_msg, # Nachricht beim encodieren
                 # Textfelder
@@ -304,7 +301,7 @@ class pageadmin:
 
         # Archivieren der alten Daten
         if self.CGIdata.has_key("trivial"):
-            self.page_msg("trivial modifications selected. Old site is not archived.")
+            self.page_msg("trivial modifications selected. Old page is not archived.")
         else:
             if self.CGIdata.has_key("summary"):
                 comment = self.CGIdata["summary"]
@@ -314,9 +311,9 @@ class pageadmin:
             try:
                 self.archive_page(page_id, "old page data", comment)
             except Exception, e:
-                self.page_msg("Can't archive old site data: '%s'" % e)
+                self.page_msg("Can't archive old page data: '%s'" % e)
             else:
-                self.page_msg("Archived old sitedata.")
+                self.page_msg("Archived old pagedata.")
 
         # Daten speichern
         try:
@@ -327,9 +324,9 @@ class pageadmin:
                     limit   = 1
                 )
         except Exception, e:
-            print "<h3>Error to update site data: '%s'</h3>" % e
+            print "<h3>Error to update page data: '%s'</h3>" % e
 
-        self.page_msg( "New site data updated." )
+        self.page_msg( "New page data updated." )
 
     def save_new(self):
         """ Abspeichern einer neu erstellten Seite """
@@ -341,7 +338,7 @@ class pageadmin:
                     data    = page_data,
                 )
         except Exception, e:
-            print "<h3>Error to insert new site:'%s'</h3><p>Use browser back botton!</p>" % e
+            print "<h3>Error to insert new page:'%s'</h3><p>Use browser back botton!</p>" % e
 
         # Setzt die aktuelle Seite auf die neu erstellte. Das herrausfinden der ID ist
         # nicht ganz so einfach, weil Seitennamen doppelt vorkommen können. Allerdings
@@ -359,7 +356,7 @@ class pageadmin:
         except Exception, e:
             print "Can't get ID from new created page?!?! Error: %s" % e
 
-        self.page_msg( "New site saved." )
+        self.page_msg( "New page saved." )
 
     def _get_edit_data(self):
         """
@@ -394,23 +391,23 @@ class pageadmin:
         Auswahl welche Seite gelöscht werden soll
         """
         return self.db.get_internal_page(
-            internal_page_name = "select_del_page",
+            internal_page_name = "pageadmin_select_del_page",
             page_dict = {
                 "url"         : self.URLs["action"] + "select_del_page",
-                "site_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
+                "page_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
             }
         )
-        self.db.print_internal_TAL_page(
-            internal_page_name = "module_admin",
-            context_dict = {
-                "version"       : __version__,
-                "package_data"  : data,
-                "installed_data": self.installed_modules_info,
-                "action_url"    : self.URLs["action"],
-            }
-        )
+        #~ self.db.print_internal_TAL_page(
+            #~ internal_page_name = "module_admin",
+            #~ context_dict = {
+                #~ "version"       : __version__,
+                #~ "package_data"  : data,
+                #~ "installed_data": self.installed_modules_info,
+                #~ "action_url"    : self.URLs["action"],
+            #~ }
+        #~ )
 
-    def delete_page(self, site_id_to_del):
+    def delete_page(self, page_id_to_del):
         """
         Löscht die Seite, die ausgewählt wurde
         """
@@ -423,7 +420,7 @@ class pageadmin:
         parents = self.db.select(
                 select_items    = ["name"],
                 from_table      = "pages",
-                where           = [ ("parent",site_id_to_del) ]
+                where           = [ ("parent",page_id_to_del) ]
             )
         if parents != ():
             # Hat noch Unterseiten
@@ -432,24 +429,24 @@ class pageadmin:
             print "h3. %s" % msg
             print
             print "Page has parent pages:"
-            for site in parents:
-                print "* %s" % cgi.escape( site["name"] )
+            for page in parents:
+                print "* %s" % cgi.escape( page["name"] )
             print "Please move parents."
 
             # "Menü" wieder anzeigen
             return self.select_del_page()
 
         try:
-            self.archive_page( site_id_to_del, "delete page", comment )
+            self.archive_page( page_id_to_del, "delete page", comment )
         except Exception, e:
             self.page_msg( "Delete page error:" )
-            self.page_msg( "Can't archive site with ID %s: %s" % (site_id_to_del, e) )
+            self.page_msg( "Can't archive page with ID %s: %s" % (page_id_to_del, e) )
             return
 
-        if self.CGIdata["page_id"] == site_id_to_del:
+        if self.CGIdata["page_id"] == page_id_to_del:
             # Die aktuelle Seite wird gelöscht, also kann sie nicht mehr angezeigt werden.
             # Deswegen gehen wir halt zu parent Seite ;)
-            self.CGIdata["page_id"] = self.db.parentID_by_id( site_id_to_del )
+            self.CGIdata["page_id"] = self.db.parentID_by_id( page_id_to_del )
             if self.CGIdata["page_id"] == 0:
                 # Die oberste Ebene hat ID 0, obwohl es evtl. keine Seite gibt, die ID 0 hat :(
                 # Da nehmen wir doch lieber die default-Seite...
@@ -458,12 +455,12 @@ class pageadmin:
         start_time = time.time()
         self.db.delete(
             table = "pages",
-            where = ("id",site_id_to_del),
+            where = ("id",page_id_to_del),
             limit=1
         )
         duration_time = time.time()-start_time
         self.page_msg(
-            "site with ID %s deleted in %.2fsec." % ( site_id_to_del, duration_time )
+            "page with ID %s deleted in %.2fsec." % ( page_id_to_del, duration_time )
         )
 
         # "Menü" wieder anzeigen
@@ -489,7 +486,7 @@ class pageadmin:
         )
         duration_time = time.time()-start_time
         self.page_msg(
-            "Archived site in %.2fsec." % duration_time
+            "Archived page in %.2fsec." % duration_time
         )
 
     #_______________________________________________________________________
@@ -504,11 +501,11 @@ class pageadmin:
         position_option = MyOptionMaker.build_from_list( position_list, "" )
 
         table = '<table id="sequencing">\n'
-        for site in self.db.get_sequencing_data():
+        for page in self.db.get_sequencing_data():
             table += '<tr>\n'
-            table += '  <td class="name">%s</td>\n' % cgi.escape( site["name"] )
-            table += '  <td>weight: <strong>%s</strong></td>\n' % site["position"]
-            table += '  <td><select name="page_id_%s">%s</select></td>\n' % (site["id"], position_option)
+            table += '  <td class="name">%s</td>\n' % cgi.escape( page["name"] )
+            table += '  <td>weight: <strong>%s</strong></td>\n' % page["position"]
+            table += '  <td><select name="page_id_%s">%s</select></td>\n' % (page["id"], position_option)
             table += '  </td>\n'
             table += "</tr>\n"
         table += "</table>\n"
