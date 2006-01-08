@@ -25,56 +25,56 @@
     <input type="submit" value="encode" name="encode" /><select name="encoding" id="encoding">%(encoding_option)s</select> from DB
 </p>
    <label class="left" for="trivial">trivial modifications:</label>
-   <input class="right" name="trivial" type="checkbox" id="trivial" value="1" />
+   <input class="right" id="trivial" name="trivial" type="checkbox" value="1" />
    <small>( If checked the side will not archived. )</small>
    <br />
    <label class="left" for="summary">Edit summary:</label>
-   <input class="right" name="summary" type="text" value="%(summary)s" id="summary" size="50" maxlength="50" />
+   <input class="right" id="summary" name="summary" type="text" value="%(summary)s" size="50" maxlength="50" />
 </fieldset>
 
 <fieldset><legend>Page Details</legend>
    <label class="left" for="name">page name:</label>
-   <input class="right" id="name" type="text" value="%(name)s" size="50" maxlength="50" />
+   <input class="right" id="name" name="name" type="text" value="%(name)s" size="50" maxlength="50" />
    <br />
    <label class="left" for="title">page title:</label>
-   <input class="right" id="title" type="text" value="%(title)s" size="50" maxlength="50" />
+   <input class="right" id="title" name="title" type="text" value="%(title)s" size="50" maxlength="50" />
    <br />
    <label class="left" for="keywords">keywords:</label>
-   <input class="right" id="keywords" type="text" value="%(keywords)s" size="70" maxlength="255" />
+   <input class="right" id="keywords" name="keywords" type="text" value="%(keywords)s" size="70" maxlength="255" />
    <br />
    <label class="left" for="description">description:</label>
-   <input class="right" id="description" type="text" value="%(description)s" size="70" maxlength="255" />
+   <input class="right" id="description" name="description" type="text" value="%(description)s" size="70" maxlength="255" />
 </fieldset>
 
 <fieldset><legend>Page Controls</legend>
    <label class="left" for="parent">Parent Page:</label>
-   <select class="right" id="parent">%(parent_option)s</select>
+   <select class="right" id="parent" name="parent">%(parent_option)s</select>
    <br />
    <label class="left" for="template">Template:</label>
-   <select class="right" id="template">%(template_option)s</select>
+   <select class="right" id="template" name="template">%(template_option)s</select>
    <br />
    <label class="left" for="style">Style:</label>
-   <select class="right" id="style">%(style_option)s</select>
+   <select class="right" id="style" name="style">%(style_option)s</select>
    <br />
    <label class="left" for="markup">Markup:</label>
-   <select class="right" id="markup">%(markup_option)s</select>
+   <select class="right" id="markup" name="markup">%(markup_option)s</select>
    <br />
    <label class="left" for="ownerID">Page Owner:</label>
-   <select class="right" id="ownerID">%(ownerID_option)s</select>
+   <select class="right" id="ownerID" name="ownerID">%(ownerID_option)s</select>
 </fieldset>
 
 <fieldset><legend>Page Permissions</legend>
    <label class="left" for="permitEditGroupID">Editable by Group:</label>
-   <select class="right" id="permitEditGroupID">%(permitEditGroupID_option)s</select>
+   <select class="right" id="permitEditGroupID" name="permitEditGroupID">%(permitEditGroupID_option)s</select>
    <br />
    <label class="left" for="permitViewGroupID">Viewable by Group:</label>
-   <select class="right" id="permitViewGroupID">%(permitViewGroupID_option)s</select>
+   <select class="right" id="permitViewGroupID" name="permitViewGroupID">%(permitViewGroupID_option)s</select>
    <br />
    <label class="left" for="showlinks">showlinks:</label>
-   <input class="right" id="showlinks" type="checkbox" value="1"%(showlinks)s />
+   <input class="right" id="showlinks" name="showlinks" type="checkbox" value="1"%(showlinks)s />
    <br />
    <label class="left" for="permitViewPublic">permit view public:</label>
-   <input class="right" id="permitViewPublic" type="checkbox" value="1"%(permitViewPublic)s />
+   <input class="right" id="permitViewPublic" name="permitViewPublic" type="checkbox" value="1"%(permitViewPublic)s />
 </fieldset>
 </form>
 

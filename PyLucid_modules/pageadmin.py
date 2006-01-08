@@ -65,60 +65,6 @@ class pageadmin:
     """
     Editieren einer CMS-Seite mit Preview und Archivierung
     """
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "edit_page" : {
-            "must_login"    : True,
-            "must_admin"    : False,
-            "CGI_dependent_actions" : {
-                "preview"   : {
-                    "CGI_laws"      : {"preview": "preview"}, # Submit-input-Button
-                    "get_CGI_data"  : {"page_id": int},
-                },
-                "save"      : {
-                    "CGI_laws"      : {"save": "save"}, # Submit-input-Button
-                    "get_CGI_data"  : {"page_id": int},
-                },
-            }
-        },
-        "select_edit_page" : {
-            "must_login"    : True,
-            "must_admin"    : False,
-        },
-        "new_page" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "CGI_dependent_actions" : {
-                "preview": {
-                    "CGI_laws"      : {"preview": "preview"}, # Submit-input-Button
-                    "get_CGI_data"  : {"page_id": int},
-                },
-                "save_new": {
-                    "CGI_laws"      : {"save": "save"}, # Submit-input-Button
-                },
-            }
-        },
-        "select_del_page" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "CGI_dependent_actions" : {
-                "delete_page"       : {
-                    "CGI_laws"      : {"delete page":"delete page"}, # Submit-input-Button
-                    "CGI_must_have" : ("site_id_to_del",),
-                },
-            }
-        },
-        "sequencing" : {
-            "must_login"    : True,
-            "must_admin"    : False,
-        },
-        "save_positions" : {
-            "must_login"    : True,
-            "must_admin"    : False,
-        },
-    }
 
     def __init__( self, PyLucid ):
         self.PyLucid    = PyLucid
@@ -138,13 +84,16 @@ class pageadmin:
         self.render         = PyLucid["render"]
         self.URLs           = PyLucid["URLs"]
 
-    def new_page( self ):
+    def new_page(self):
         "Neue Seite soll angelegt werden"
 
-        core = self.preferences["core"]
+        self.page_msg("neue seite!")
+        self.page_msg(dir(self.db.cursor))
+
+        core = self.preferences["core"] # Basiseinstellungen
 
         page_data = {
-            "parent"            : int( self.CGIdata["page_id"] ),
+            "parent"            : int(self.CGIdata["page_id"]),
             "page_id"           : -1, # Damit man beim speichern weiß, das die Seite neu ist.
             "name"              : "Newsite",
             "title"             : "Newsite",
@@ -178,10 +127,10 @@ class pageadmin:
     #_______________________________________________________________________
     # Edit a page
 
-    def select_edit_page( self ):
+    def select_edit_page(self):
         """
         Wenn eine Seite showlinks ausgeschaltet hat, kommt sie nicht mehr im Menü und
-        im SiteMap vor. Um sie dennoch editieren zu können, kann man es hierrüber erledigen ;)
+        im siteMap vor. Um sie dennoch editieren zu können, kann man es hierrüber erledigen ;)
 
         *Wichtig* "url" darf keine Modulemaneger Link nutzen, weil page_id= schon
         enthalten ist. Dieser wird jedoch von der select-Box bestimmt!!!
@@ -191,11 +140,11 @@ class pageadmin:
             internal_page_name = "select_edit_page",
             page_dict={
                 "url"         : "%s?command=pageadmin&action=edit_page" % self.config.system.real_self_url,
-                "side_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
+                "site_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
             }
         )
 
-    def edit_page( self, encode_from_db=False ):
+    def edit_page(self, encode_from_db=False):
         page_id = self.CGIdata["page_id"]
         page_data = self.get_page_data( page_id )
         page_data["page_id"] = page_id
@@ -440,12 +389,12 @@ class pageadmin:
     #_______________________________________________________________________
     # Delete a page
 
-    def select_del_page( self ):
+    def select_del_page(self):
         """
         Auswahl welche Seite gelöscht werden soll
         """
         return self.db.get_internal_page(
-            internal_page_name = "select_page_to_del",
+            internal_page_name = "select_del_page",
             page_dict = {
                 "url"         : self.URLs["action"] + "select_del_page",
                 "site_option" : self.tools.forms().siteOptionList( with_id = True, select = self.CGIdata["page_id"] )
@@ -545,7 +494,7 @@ class pageadmin:
 
     #_______________________________________________________________________
 
-    def sequencing( self ):
+    def sequencing(self):
         """
         Formular zum ändern der Seiten-Reihenfolge
         """
@@ -572,7 +521,7 @@ class pageadmin:
             }
         )
 
-    def save_positions( self ):
+    def save_positions(self):
         """
         Positionsänderungen speichern
         """

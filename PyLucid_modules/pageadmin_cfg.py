@@ -66,7 +66,7 @@ module_manager_data = {
         "CGI_dependent_actions" : {
             "delete_page"       : {
                 "CGI_laws"      : {"delete page":"delete page"}, # Submit-input-Button
-                "get_CGI_data"  : {"site_id_to_del": int},
+                "get_CGI_data"  : {"side_id_to_del": int},
             },
         },
         "internal_page_info" : {
