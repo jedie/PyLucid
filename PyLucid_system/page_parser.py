@@ -190,7 +190,7 @@ class render:
                 out = self.tools.out_buffer()
                 tinyTextile.parser( out, self.PyLucid ).parse( content )
                 return out.get()
-        elif markup == "none" or markup == "string formatting":
+        elif markup == "none" or markup == None or markup == "string formatting":
             return content
         else:
             self.page_msg( "Markup '%s' not supported yet :(" % markup )
