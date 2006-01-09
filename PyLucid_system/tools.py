@@ -5,9 +5,12 @@
 Verschiedene Tools für den Umgang mit PyLucid
 """
 
-__version__="0.2"
+__version__="0.2.1"
 
 __history__ = """
+v0.2.1
+    - html_option_maker.build_from_list hat nun den zusätzlichen Parameter "select_value", damit
+        kann entweder "value" oder "txt" für selected-Item herrangezogen werden. (s. Beispiel)
 v0.2
     - NEU: Find_StringOperators
 v0.1
@@ -210,7 +213,7 @@ class html_option_maker:
         return self.build_from_list( data_list, select_item )
 
 
-    def build_from_list( self, data, select_item="" ):
+    def build_from_list(self, data, select_item="", select_value=True):
         """
         Generiert aus >data< html-option-zeilen
 
@@ -229,6 +232,14 @@ class html_option_maker:
         ==>
         <option value="1" selected="selected">eins</option>
         <option value="2">zwei</option>
+
+        data als tupel-Liste und select_value=False
+        -------------------------------------------
+        data = [ (1,"eins"), (2,"zwei") ]
+        selected_item = "zwei"
+        ==>
+        <option value="1">eins</option>
+        <option value="2" selected="selected">zwei</option>
         """
 
         try:
@@ -240,7 +251,7 @@ class html_option_maker:
         result = ""
         for value, txt in data:
 
-            if value == select_item:
+            if (select_value==True and value==select_item) or (select_value==False and txt==select_item):
                 selected = ' selected="selected"'
             else:
                 selected = ""
@@ -260,6 +271,10 @@ class html_option_maker:
     #~ data = [ (1,"eins"), (2,"zwei") ]
     #~ selected_item = 1
     #~ print html_option_maker().build_from_list( data, selected_item )
+    #~ print "-"*80
+    #~ data = [ (1,"eins"), (2,"zwei") ]
+    #~ selected_item = "zwei"
+    #~ print html_option_maker().build_from_list( data, selected_item, select_value=False )
     #~ sys.exit()
 
 
@@ -474,76 +489,76 @@ def make_table_from_sql_select(select_results, id, css_class):
 
 #________________________________________________________________________________________________
 
-class convertdateformat:
-    """
-    !!!OBSOLETE!!!
+#~ class convertdateformat:
+    #~ """
+    #~ !!!OBSOLETE!!!
 
-    Wandelt das PHP-date Format in's Python-Format
-    z.B. PHP-date "j.m.Y G:i" -> "%d.%m.%Y - %H:%M"
+    #~ Wandelt das PHP-date Format in's Python-Format
+    #~ z.B. PHP-date "j.m.Y G:i" -> "%d.%m.%Y - %H:%M"
 
-    PHP-Format:
-    selfphp.info/funktionsreferenz/datums_und_zeit_funktionen/date.php#beschreibung
+    #~ PHP-Format:
+    #~ selfphp.info/funktionsreferenz/datums_und_zeit_funktionen/date.php#beschreibung
 
-    Python-Format:
-    docs.python.org/lib/module-time.html#l2h-1941
+    #~ Python-Format:
+    #~ docs.python.org/lib/module-time.html#l2h-1941
 
-    nicht eingebaute PHP-Formate:
-    --------------------------------------------------------------------
-    B - Tage bis Jahresende
-    I - (großes i) 1 bei Sommerzeit, 0 bei Winterzeit
-    L - Schaltjahr = 1, kein Schaltjahr = 0
-    O - Zeitunterschied gegenüber Greenwich (GMT) in Stunden (z.B.: +0100)
-    r - Formatiertes Datum (z.B.: Tue, 6 Jul 2004 22:58:15 +0200)
-    S - Englische Aufzählung (th für 2(second))
-    t - Anzahl der Tage des Monats (28 – 31)
-    T - Zeitzoneneinstellung des Rechners (z.B. CEST)
-    U - Sekunden seit Beginn der UNIX-Epoche (1.1.1970)
-    Z - Offset der Zeitzone gegenüber GTM (-43200 – 43200) in Minuten
+    #~ nicht eingebaute PHP-Formate:
+    #~ --------------------------------------------------------------------
+    #~ B - Tage bis Jahresende
+    #~ I - (großes i) 1 bei Sommerzeit, 0 bei Winterzeit
+    #~ L - Schaltjahr = 1, kein Schaltjahr = 0
+    #~ O - Zeitunterschied gegenüber Greenwich (GMT) in Stunden (z.B.: +0100)
+    #~ r - Formatiertes Datum (z.B.: Tue, 6 Jul 2004 22:58:15 +0200)
+    #~ S - Englische Aufzählung (th für 2(second))
+    #~ t - Anzahl der Tage des Monats (28 – 31)
+    #~ T - Zeitzoneneinstellung des Rechners (z.B. CEST)
+    #~ U - Sekunden seit Beginn der UNIX-Epoche (1.1.1970)
+    #~ Z - Offset der Zeitzone gegenüber GTM (-43200 – 43200) in Minuten
 
-    nicht eingebaute Python-Formate:
-    --------------------------------------------------------------------
-    %c 	Locale's appropriate date and time representation.
-    %x 	Locale's appropriate date representation.
-    %X 	Locale's appropriate time representation.
-    %Z 	Time zone name (no characters if no time zone exists).
-    """
-    def __init__( self ):
-        self.PHP2Python_date = {
-            "d" : "%d", # Tag des Monats *( 01 – 31 )
-            "j" : "%d", # Tag des Monats (1-31)
-            "D" : "%a", # Tag der Woche (3stellig:Mon)
-            "l" : "%A", # Tag der Woche (ausgeschrieben:Monday)
+    #~ nicht eingebaute Python-Formate:
+    #~ --------------------------------------------------------------------
+    #~ %c 	Locale's appropriate date and time representation.
+    #~ %x 	Locale's appropriate date representation.
+    #~ %X 	Locale's appropriate time representation.
+    #~ %Z 	Time zone name (no characters if no time zone exists).
+    #~ """
+    #~ def __init__( self ):
+        #~ self.PHP2Python_date = {
+            #~ "d" : "%d", # Tag des Monats *( 01 – 31 )
+            #~ "j" : "%d", # Tag des Monats (1-31)
+            #~ "D" : "%a", # Tag der Woche (3stellig:Mon)
+            #~ "l" : "%A", # Tag der Woche (ausgeschrieben:Monday)
 
-            "m" : "%m", # Monat *(01-12)
-            "n" : "%m", # Monat (1-12)
-            "F" : "%B", # Monatsangabe (December – ganzes Wort)
-            "M" : "%b", # Monatsangabe (Feb – 3stellig)
+            #~ "m" : "%m", # Monat *(01-12)
+            #~ "n" : "%m", # Monat (1-12)
+            #~ "F" : "%B", # Monatsangabe (December – ganzes Wort)
+            #~ "M" : "%b", # Monatsangabe (Feb – 3stellig)
 
-            "y" : "%y", # Jahreszahl, zweistellig (01)
-            "Y" : "%Y", # Jahreszahl, vierstellig (2001)
+            #~ "y" : "%y", # Jahreszahl, zweistellig (01)
+            #~ "Y" : "%Y", # Jahreszahl, vierstellig (2001)
 
-            "g" : "%I", # Stunde im 12-Stunden-Format (1-12 )
-            "G" : "%H", # Stunde im 24-Stunden-Format (0-23 )
-            "h" : "%I", # Stunde im 12-Stunden-Format *(01-12 )
-            "H" : "%H", # Stunde im 24-Stunden-Format *(00-23 )
-            "i" : "%M", # Minuten *(00-59)
-            "s" : "%S", # Sekunden *(00 – 59)
+            #~ "g" : "%I", # Stunde im 12-Stunden-Format (1-12 )
+            #~ "G" : "%H", # Stunde im 24-Stunden-Format (0-23 )
+            #~ "h" : "%I", # Stunde im 12-Stunden-Format *(01-12 )
+            #~ "H" : "%H", # Stunde im 24-Stunden-Format *(00-23 )
+            #~ "i" : "%M", # Minuten *(00-59)
+            #~ "s" : "%S", # Sekunden *(00 – 59)
 
-            "a" : "%p", # "am" oder "pm"
-            "A" : "%p", # "AM" oder "PM"
+            #~ "a" : "%p", # "am" oder "pm"
+            #~ "A" : "%p", # "AM" oder "PM"
 
-            "w" : "%w", # Wochentag als Zahl (0(Sonntag) bis 6(Samstag))
-            "W" : "%W", # Wochennummer des Jahres (z.B. 28)
-            "z" : "%j"  # Tag des Jahres als Zahl (z.B. 148 (entspricht 29.05.2001))
-        }
+            #~ "w" : "%w", # Wochentag als Zahl (0(Sonntag) bis 6(Samstag))
+            #~ "W" : "%W", # Wochennummer des Jahres (z.B. 28)
+            #~ "z" : "%j"  # Tag des Jahres als Zahl (z.B. 148 (entspricht 29.05.2001))
+        #~ }
 
-    def convert( self, formatDateTime ):
-        "PHP-date Format in Python-Format umwandeln"
+    #~ def convert( self, formatDateTime ):
+        #~ "PHP-date Format in Python-Format umwandeln"
 
-        for item in re.findall(r"\w", formatDateTime ):
-            formatDateTime = formatDateTime.replace( item, self.PHP2Python_date[item] )
+        #~ for item in re.findall(r"\w", formatDateTime ):
+            #~ formatDateTime = formatDateTime.replace( item, self.PHP2Python_date[item] )
 
-        return formatDateTime
+        #~ return formatDateTime
 
 #~ formatDateTime = "j.m.Y G:i"
 #~ print formatDateTime
