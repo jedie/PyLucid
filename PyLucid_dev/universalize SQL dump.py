@@ -27,7 +27,7 @@ infilename      = "install_data.sql"
 TablePrefix     = "lucid_"
 
 # Diese Angaben müßen mit den in der install_PyLucid.py übereinstimmen!
-outfilename     = "PyLucid_SQL_install_data.zip"
+outfilename     = "../PyLucid_SQL_install_data.zip"
 zip_filename    = "SQLdata.sql"
 
 
@@ -114,7 +114,7 @@ class universalize_dump:
         infile.close()
         print "OK"
 
-        print "Write zipfile...",
+        print "Write zipfile '%s'..." % outfilename,
         outfile = zipfile.ZipFile( outfilename, "w", zipfile.ZIP_DEFLATED)
         for filename,data in outdata.iteritems():
             outfile.writestr(filename,data)
