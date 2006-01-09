@@ -64,8 +64,8 @@ class system:
     # Markup Parsern
     # =False -> Fehler in einem Modul führen zu einem CGI-Traceback ( cgitb.enable() )
     # =True  -> Fehler in einem Modul werden in einem Satz zusammen gefasst
-    #~ ModuleManager_error_handling = True
-    ModuleManager_error_handling = False
+    ModuleManager_error_handling = True
+    #~ ModuleManager_error_handling = False
 
     # Fehlerabfrage beim importieren von Modulen im Module-Manager
     # =True  -> Import-Fehler werden immer angezeigt
