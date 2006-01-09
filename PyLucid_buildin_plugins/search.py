@@ -42,7 +42,7 @@ class search:
         search_string = cgi.escape(search_string).replace('"',"'")
 
         self.db.print_internal_page(
-            internal_page_name = "input_form",
+            internal_page_name = "search_input_form",
             page_dict = {
                 "url"               : self.URLs["action"] + "do_search",
                 "old_search_string" : search_string

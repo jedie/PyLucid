@@ -461,6 +461,10 @@ class db( mySQL ):
 
     def get_template_engine(self, id):
         """ Liefert den template_engine-Namen anhand der ID """
+        if id==None:
+            # Existiert auch als ID
+            id = "None"
+
         try:
             return self.select(
                 select_items    = ["name"],
@@ -471,6 +475,27 @@ class db( mySQL ):
             self.page_msg("Can't get template engine name for id '%s'. " % id)
             return "none"
 
+    def get_template_engine_id(self, name):
+        if type(name)==int:
+            # Ist wohl schon die ID-Zahl
+            return name
+
+        if name==None:
+            # None existiert auch als ID
+            name="None"
+        else:
+            name = name.replace("_", " ")
+
+        try:
+            return self.select(
+                select_items    = ["id"],
+                from_table      = "template_engines",
+                where           = ("name", name)
+            )[0]["id"]
+        except IndexError:
+            self.page_msg("Warning: Can't get ID for template engine namend '%s'" % name)
+            return None
+
     def get_internal_page_data(self, internal_page_name, replace=True):
         try:
             data = self.select(
@@ -479,7 +504,12 @@ class db( mySQL ):
                 where           = ("name", internal_page_name)
             )[0]
         except Exception, e:
-            raise KeyError("Internal page '%s' not found!" % internal_page_name )
+            import inspect
+            raise KeyError(
+                "Internal page '%s' not found (from '...%s' line %s): %s" % (
+                    internal_page_name, inspect.stack()[1][1][-20:], inspect.stack()[1][2], e
+                )
+            )
 
         if replace==True:
             data["template_engine"] = self.get_template_engine(data["template_engine"])
@@ -492,13 +522,34 @@ class db( mySQL ):
         """
         Interne Seite aufgeüllt mit Daten ausgeben. Diese Methode sollte immer
         verwendet werden, weil sie eine gescheite Fehlermeldung anzeigt.
+
+        Wird für template-engine = "None" und = "string formatting" verwendet.
         """
 
         try:
-            content = self.get_internal_page_data(internal_page_name)["content"]
+            internal_page_data = self.get_internal_page_data(internal_page_name)
         except Exception, e:
-            print "[Can't print internal page '%s': %s]" % (internal_page_name, e)
+            import inspect
+            print "[Can't print internal page '%s' (from '...%s' line %s): %s]" % (
+                internal_page_name, inspect.stack()[1][1][-20:], inspect.stack()[1][2], e
+            )
             return
+
+        # Wenn kein oder ein leeres Dict angegeben wurde, kann es keine "string formatting" Seite sein.
+        if page_dict=={}:
+            template_engine = "None"
+        else:
+            template_engine = "string formatting"
+
+        if internal_page_data["template_engine"] != template_engine:
+            self.page_msg(
+                "Warning: Internal page '%s' is not marked as a '%s' page! "
+                "(Marked as:'%s')" % (
+                    internal_page_name, template_engine, internal_page_data["template_engine"]
+                )
+            )
+
+        content = internal_page_data["content"]
 
         try:
             print content % page_dict
@@ -567,7 +618,7 @@ class db( mySQL ):
 
     def print_internal_TAL_page(self, internal_page_name, context_dict):
 
-        internal_page_data = self._get_internal_page_data(internal_page_name)
+        internal_page_data = self.get_internal_page_data(internal_page_name)
         internal_page_content = internal_page_data["content"]
         if internal_page_data["template_engine"] != "TAL":
             self.page_msg(
@@ -667,6 +718,7 @@ class db( mySQL ):
 
         markup_id = self.get_markup_id(data["markup"])
         category_id = self.get_internal_page_category_id(data["category"])
+        template_engine_id = self.get_template_engine_id(data["template_engine"])
         #~ print "category_id:", category_id
 
         self.insert(
@@ -675,6 +727,7 @@ class db( mySQL ):
                 "name"              : data["name"],
                 "plugin_id"         : data["plugin_id"],
                 "category_id"       : category_id,
+                "template_engine"   : template_engine_id,
                 "markup"            : markup_id,
                 "lastupdatetime"    : self.tools.convert_time_to_sql(lastupdatetime),
                 "content"           : data["content"],

@@ -92,7 +92,7 @@ class MySQLdump:
                 )
 
         self.db.print_internal_page(
-            internal_page_name  = "MySQL_dump",
+            internal_page_name  = "MySQLdump_Menu",
             page_dict           = {
                 "version"       : __version__,
                 "tables"        : table_data,

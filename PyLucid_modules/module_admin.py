@@ -130,7 +130,7 @@ class module_admin:
             template.expand(context, sys.stdout, outputEncoding="UTF-8")
         else:
             # Normal als Modul aufgerufen
-            self.db.print_internal_TAL_page("administation_menu", context_dict)
+            self.db.print_internal_TAL_page("module_admin_administation_menu", context_dict)
             self.link("menu")
 
     #~ def print_tags_information(self):
@@ -379,7 +379,8 @@ class module_admin:
             return
 
         data = method_data["internal_page_info"]
-        #~ print "X", data
+
+        # Hinweis: template_engine und markup werden von self.db umgewandelt in IDs!
         internal_page = {
             "name"              : "%s_%s" % (module_name, data.get("name",method_name)),
             "plugin_id"         : self.registered_plugin_id,

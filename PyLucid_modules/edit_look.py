@@ -321,10 +321,10 @@ class edit_look:
 
         OptionMaker = self.tools.html_option_maker()
         markup_option = OptionMaker.build_from_list(
-            self.db.get_available_markups(), edit_data["markup"]
+            self.db.get_available_markups(), edit_data["markup"], select_value=False
         )
         template_engine_option = OptionMaker.build_from_list(
-            self.db.get_available_template_engines(), edit_data["template_engine"]
+            self.db.get_available_template_engines(), edit_data["template_engine"], select_value=False
         )
 
         self.db.print_internal_page(

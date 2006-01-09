@@ -15,17 +15,29 @@ __important_buildin__   = True
 #~ module_manager_debug = True
 module_manager_debug = False
 
-global_rights = {
+module_manager_data = {
+    "menu" : {
         "must_login"    : True,
         "must_admin"    : True,
-}
-
-module_manager_data = {
-    "menu" : global_rights,
-
-    "display_help"      : global_rights,
-    "display_dump"      : global_rights,
-    "display_command"   : global_rights,
+        "internal_page_info" : {
+            "name"              : "menu",
+            "description"       : "MySQL dump Menu",
+            "template_engine"   : "string formatting",
+            "markup"            : None
+        },
+    },
+    "display_help"      : {
+        "must_login"    : True,
+        "must_admin"    : True,
+    },
+    "display_dump"      : {
+        "must_login"    : True,
+        "must_admin"    : True,
+    },
+    "display_command"   : {
+        "must_login"    : True,
+        "must_admin"    : True,
+    },
     "download_dump" : {
         "must_login"    : True,
         "must_admin"    : True,
