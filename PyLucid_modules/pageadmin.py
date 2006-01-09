@@ -511,7 +511,7 @@ class pageadmin:
         table += "</table>\n"
 
         self.db.print_internal_page(
-            internal_page_name = "sequencing",
+            internal_page_name = "pageadmin_sequencing",
             page_dict = {
                 "url"       : self.URLs["action"] + "save_positions",
                 "table_data" : table,

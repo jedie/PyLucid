@@ -381,7 +381,7 @@ class module_admin:
         data = method_data["internal_page_info"]
         #~ print "X", data
         internal_page = {
-            "name"              : data.get("name",method_name),
+            "name"              : "%s_%s" % (module_name, data.get("name",method_name)),
             "plugin_id"         : self.registered_plugin_id,
             "category"          : module_name,
             "description"       : data["description"],
@@ -392,7 +392,7 @@ class module_admin:
         print "* %-25s" % internal_page["name"],
 
         internal_page_filename = os.path.join(
-            package, "%s_%s.html" % (module_name, internal_page["name"])
+            package, "%s.html" % internal_page["name"]
         )
         print "%s..." % internal_page_filename,
         try:
@@ -406,13 +406,14 @@ class module_admin:
             f.close()
         except Exception, e:
             print "Error reading Template-File: %s" % e
+            return
+
+        try:
+            self.db.new_internal_page(internal_page, lastupdatetime)
+        except Exception, e:
+            print sys.exc_info()[0],":", e
         else:
-            try:
-                self.db.new_internal_page(internal_page, lastupdatetime)
-            except Exception, e:
-                print sys.exc_info()[0],":", e
-            else:
-                print "OK"
+            print "OK"
 
 
     def check_module_data(self, data):

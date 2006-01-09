@@ -48,7 +48,7 @@ class admin_menu:
         Front menu anzeigen
         """
         try:
-            self.db.print_internal_page("admin_menu")
+            self.db.print_internal_page("admin_menu_top_menu")
         except Exception, e:
             print "[Error: Can't print internal page: %s]" % e
 
@@ -62,4 +62,4 @@ class admin_menu:
         print '<a href="%ssub_menu">sub menu</a>' % self.URLs["action"]
 
     def sub_menu( self ):
-        return self.db.get_internal_page("admin_sub_menu")
+        return self.db.get_internal_page("admin_menu_sub_menu")

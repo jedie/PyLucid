@@ -29,7 +29,7 @@ module_manager_data = {
         "has_Tags"      : True,
         "no_rights_error" : True, # Fehlermeldung, wenn der User nicht eingeloggt ist, wird nicht angezeigt
         "internal_page_info" : {
-            "name"              : "admin_menu",
+            "name"              : "top_menu",
             "description"       : "Administration front menu",
             "template_engine"   : None,
             "markup"            : None,
@@ -44,7 +44,7 @@ module_manager_data = {
         "must_admin"    : True,
         "has_Tags"      : True,
         "internal_page_info" : {
-            "name"              : "admin_sub_menu",
+            "name"              : "sub_menu",
             "description"       : "Administration sub menu",
             "template_engine"   : None,
             "markup"            : "textile",

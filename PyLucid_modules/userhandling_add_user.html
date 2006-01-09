@@ -1,0 +1,82 @@
+<form name="data" method="post" action="%(url)s" onSubmit="return check()">
+<p>
+   <label class="left" for="username">Username:</label>
+   <input name="username" id="username" type="text" value="" />
+   is admin: <input type="checkbox" name="is_admin" value="1">
+   <br />
+   <label class="left" for="email">email:</label>
+   <input name="email" id="email" type="text" value="" />
+   <br />
+   <label class="left" for="realname">Realname:</label>
+   <input name="realname" id="realname" type="text" value="" />
+   <br />
+   <label class="left" for="pass1">Password 1:</label>
+   <input name="pass1" id="pass1" type="password" value="" />(len min. 8!)
+   <br />
+   <label class="left" for="pass2">Password 2:</label>
+   <input name="pass2" id="pass2" type="password" value="" />(verification)
+   <br />
+   <input type="submit" name="add user" value="add user" />
+</p></form>
+
+<script type="text/javascript">
+function check() {
+  if (document.data.pass1.value != document.data.pass2.value) {
+    alert("Passwort verfication fail! password 1 != password 2");
+    return false;
+  }
+  if (document.data.pass1.value.length <= 7) {
+    alert("For security, min. password length is 8 chars!");
+    return false;
+  }
+  if (document.data.email.value.indexOf("@") == -1) {
+    alert("Need a valid eMail adress (for password recovery.)");
+    return false;
+  }
+  return true;
+}
+</script>
+
+<style type="text/css">
+label, input, select, textarea {
+  vertical-align: middle;
+  margin-top, margin-bottom: 5px;
+}
+label.left {
+  float: left;
+  text-align: right;
+
+  width: 10em;
+  margin-right: .3em;
+  padding: 0px;
+}
+.rightonly {
+  /* Eingabefelder mit Text dahinter */
+  margin-left: 10.3em;
+  padding: 0px;
+}
+
+form br {
+  /*  floats nach dem Forumlar aufheben */
+  clear: both;
+}
+
+label, select, input {
+  cursor: pointer;
+}
+.internalpage input[type=text] {
+  width: 75%%;
+  cursor: text;
+}
+
+.internalpage input, .internalpage select, .internalpage textarea {
+  margin: 2px;
+  border: 1px solid grey;
+  color: #000;
+  background: #fafafa;
+}
+.internalpage input:focus, .internalpage select:focus, .internalpage textarea:focus {
+  border: 1px solid back;
+  background: #fff;
+}
+</style>

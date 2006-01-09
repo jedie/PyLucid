@@ -52,24 +52,6 @@ Debug = False
 
 class auth:
 
-    module_manager_data = {
-        "debug" : False,
-
-        "login" : {
-            "must_login"    : False,
-            "direct_out"    : True,
-        },
-        "logout" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-            "direct_out"    : True,
-        },
-        "check_login" : {
-            "must_login"    : False,
-            "direct_out"    : True,
-        },
-    }
-
     def __init__( self, PyLucid ):
         self.MyCookie = SimpleCookie()
 
@@ -112,7 +94,7 @@ class auth:
             self.session.debug()
 
         return self.db.get_internal_page(
-            internal_page_name = "login",
+            internal_page_name = "auth_login",
             page_dict = {
                 "user"          : username,
                 "rnd"           : rnd_login,

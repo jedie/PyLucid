@@ -211,9 +211,9 @@ class edit_look:
     def make_edit_page( self, edit_data, name, order, id ):
         """ Erstellt die Seite zum Stylesheet/Template editieren """
         self.db.print_internal_page(
-            internal_page_name  = name,
+            internal_page_name  = "edit_look_%s" % name,
             page_dict           = {
-                "name"          : edit_data["name"],
+                "name"          : "%s%s" % ("edit_look", edit_data["name"]),
                 "url"           : self.URLs["main_action"],
                 "content"       : cgi.escape( edit_data["content"] ),
                 "description"   : cgi.escape( edit_data["description"] ),
@@ -243,7 +243,7 @@ class edit_look:
 
         # Seite anzeigen
         self.db.print_internal_page(
-            internal_page_name  = "select_%s" % type,
+            internal_page_name  = "edit_look_select_%s" % type,
             page_dict           = {
                 "main_action_url"   : self.URLs["main_action"],
                 "clone_select"      : clone_select,
@@ -272,7 +272,12 @@ class edit_look:
                     select_table += '  <form name="internal_page" method="post" action="%s">\n' % self.URLs["main_action"]
                     select_table += '  <input name="internal_page_name" type="hidden" value="%s" />\n' % page_name
                     select_table += '  <td><input type="submit" value="edit" name="edit" /></td>\n'
-                    select_table += '  <td class="name">%s</td>\n' % page["name"]
+
+                    short_page_name = page_name
+                    if short_page_name.startswith("%s_" % category['module_name']):
+                        short_page_name = short_page_name[len(category['module_name'])+1:]
+                    select_table += '  <td class="name">%s</td>\n' % short_page_name
+
                     select_table += '  <td>%s</td>\n' % page["description"]
                     select_table += '  </form>\n'
                     select_table += "</tr>\n"
@@ -296,7 +301,7 @@ class edit_look:
             select_table += "</table>\n"
 
         self.db.print_internal_page(
-            internal_page_name = "select_internal_page",
+            internal_page_name = "edit_look_select_internal_page",
             page_dict = {
                 "select_table" : select_table,
             }
@@ -323,7 +328,7 @@ class edit_look:
         )
 
         self.db.print_internal_page(
-            internal_page_name  = "edit_internal_page",
+            internal_page_name  = "edit_look_edit_internal_page",
             page_dict = {
                 "name"                      : internal_page_name,
                 "url"                       : self.URLs["main_action"],

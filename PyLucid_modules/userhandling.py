@@ -110,42 +110,6 @@ class userhandling:
         4.4. vergleichen der zweiten MD5 summe vom Client und der gebilteten
     """
 
-    module_manager_data = {
-        "debug" : False,
-        #~ "debug" : True,
-
-        "manage_user": {
-            "must_login"    : True,
-            "must_admin"    : True,
-            "CGI_dependent_actions": {
-                "save_changes": {
-                    "CGI_laws"      : {"save": "save"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"id": int, "name": str, "email": str, "realname": str, "admin": int}
-                },
-                "add_user": {
-                    "CGI_laws"      : {"add user": "add user"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"username": str, "email": str, "realname": str, "admin": int}
-                },
-                "del_user": {
-                    "CGI_laws"      : {"del": "del"}, # Wert vom angeklicken Button
-                    "get_CGI_data"  : {"id": int}
-                },
-            }
-        },
-        "add_user" : {
-            "must_login"    : True,
-            "must_admin"    : True,
-        },
-        "pass_recovery" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        },
-        "send_email" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        },
-    }
-
     def __init__( self, PyLucid ):
         self.db         = PyLucid["db"]
         self.CGIdata    = PyLucid["CGIdata"]
@@ -158,7 +122,7 @@ class userhandling:
 
         # Eingabemaske für einen neuen user
         add_user_form = self.db.get_internal_page(
-            internal_page_name = "add_user_form",
+            internal_page_name = "userhandling_add_user",
             page_dict = {
                 "url": self.URLs["main_action"],
             }
@@ -166,7 +130,7 @@ class userhandling:
 
         # Interne Seite anzeigen
         self.db.print_internal_page(
-            internal_page_name = "manage_user",
+            internal_page_name = "userhandling_manage_user",
             page_dict = {
                 "user_table"    : self.get_user_table(),
                 "add_user_form" : add_user_form,
