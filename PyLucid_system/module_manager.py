@@ -301,7 +301,6 @@ class module_manager:
         if tag.find(".") != -1:
             self.module_name, self.main_method = tag.split(".",1)
         else:
-
             self.module_name = tag
             self.main_method = "lucidTag"
             self.current_method = "lucidTag"
@@ -377,9 +376,6 @@ class module_manager:
 
         #~ self.page_msg(self.module_name, self.main_method, self.plugin_data.keys())
 
-        if self.plugin_data.plugin_debug():
-            self.page_msg("JOOO")
-
         self.plugin_data.setup_URLs()
         self.plugin_data.check_rights()
 
@@ -396,6 +392,11 @@ class module_manager:
             return __import__(
                 "%s.%s" % (self.plugin_data.package_name, self.module_name),
                 {}, {}, [self.module_name]
+            )
+
+        if self.plugin_data.plugin_debug():
+            self.page_msg(
+                "Import module mit error handling: %s" % self.config.system.ModuleManager_error_handling
             )
 
         if self.config.system.ModuleManager_error_handling == False:
@@ -515,7 +516,7 @@ class module_manager:
             redirector = self.tools.redirector()
 
         # Methode "ausführen"
-        if self.config.system.ModuleManager_error_handling == True:
+        if self.config.system.ModuleManager_error_handling == False:
             direct_output = unbound_method(**self.plugin_data.get_CGI_data)
         else:
             try:
