@@ -8,10 +8,12 @@
 Generiert eine Liste der "letzten Änderungen"
 """
 
-__version__="0.0.6"
+__version__="0.1.1"
 
 __history__="""
-v0.0.6
+v0.1.1
+    - Bugfix: URLs heißt das und nicht URL
+v0.1.0
     - Anpassung an neuen Modul-Manager
 v0.0.5
     - Anpassung an neuer Absolute-Seiten-Addressierung
@@ -43,7 +45,7 @@ class list_of_new_sides:
         self.db             = PyLucid["db"]
         self.config         = PyLucid["config"]
         self.tools          = PyLucid["tools"]
-        self.URL            = PyLucid["URL"]
+        self.URLs           = PyLucid["URLs"]
 
     def lucidTag( self ):
         """
@@ -60,7 +62,7 @@ class list_of_new_sides:
         print '<ul id="ListOfNewSides">'
 
         self.url_entry  = '<li>%(date)s - <a href="'
-        self.url_entry += self.URL["link"]
+        self.url_entry += self.URLs["link"]
         self.url_entry += '%(link)s">%(title)s</a></li>\n'
 
         for item in SQLresult:

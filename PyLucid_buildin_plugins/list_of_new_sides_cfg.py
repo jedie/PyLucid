@@ -8,7 +8,7 @@ __author__      = "Jens Diemer"
 __url__         = "http://www.PyLucid.org"
 __description__ = "List of new sides"
 __long_description__ = """
-Generate a list of the last updates.
+Generate a list of the last page updates.
 """
 __important_buildin__   = True
 
