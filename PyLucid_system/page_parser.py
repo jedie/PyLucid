@@ -101,12 +101,12 @@ class parser:
             # Als "Statische" Information vorhanden
             return self.tag_data[tag]
 
-        try:
-            return self.module_manager.run_tag( tag )
-        except KeyError:
-            # Kein Modul für das Tag vorhanden
-            self.page_msg( "Unknown Tag: %s" % tag )
-            pass
+        content = self.module_manager.run_tag(tag)
+        if type(content) != str:
+            content = "<p>[Content from module '%s' is not type string!] Content:</p>%s" % (
+                function_name, str(content)
+            )
+        return content
 
         return matchobj.group(0)
 
@@ -121,7 +121,6 @@ class parser:
             content = "<p>[Content from module '%s' is not type string!] Content:</p>%s" % (
                 function_name, str(content)
             )
-        #~ print "OK"
         return content
 
 
