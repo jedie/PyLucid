@@ -1,5 +1,5 @@
 -- ------------------------------------------------------
--- Dump created 09.01.2006, 12:19 with PyLucid's MySQLdump.py v0.3
+-- Dump created 10.01.2006, 09:23 with PyLucid's MySQLdump.py v0.3
 --
 -- Linux - PIII700 - 2.6.12-10-686 - #1 Thu Dec 22 11:55:07 UTC 2005 - i686
 -- Python v2.4.2 (#2, Sep 30 2005, 21:19:01) [GCC 4.0.2 20050808 (prerelease) (Ubuntu 4.0.1-4ubuntu8)]
@@ -17,7 +17,7 @@ CREATE TABLE `lucid_archive` (
   `comment` varchar(255) NOT NULL default '',
   `content` text NOT NULL,
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM COMMENT='Achive system, in common use';
 CREATE TABLE `lucid_log` (
   `id` int(11) NOT NULL auto_increment,
   `timestamp` datetime default NULL,
@@ -29,7 +29,7 @@ CREATE TABLE `lucid_log` (
   `typ` varchar(50) NOT NULL default '',
   `status` varchar(12) NOT NULL default '-1',
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM COMMENT='logging storage';
 CREATE TABLE `lucid_md5users` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(50) NOT NULL default '',
@@ -40,7 +40,7 @@ CREATE TABLE `lucid_md5users` (
   `admin` tinyint(4) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-);
+) TYPE=MyISAM COMMENT='User data';
 CREATE TABLE `lucid_pages_internal` (
   `name` varchar(50) NOT NULL default '',
   `plugin_id` tinyint(4) default NULL,
@@ -52,13 +52,13 @@ CREATE TABLE `lucid_pages_internal` (
   `content` text NOT NULL,
   `description` text NOT NULL,
   PRIMARY KEY  (`name`)
-);
+) TYPE=MyISAM COMMENT='internal page storage';
 CREATE TABLE `lucid_pages_internal_category` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(50) NOT NULL default '',
   `position` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM COMMENT='internal page categories (linked with IDs)';
 CREATE TABLE `lucid_plugindata` (
   `id` int(11) NOT NULL auto_increment,
   `plugin_id` int(11) NOT NULL default '0',
@@ -76,7 +76,7 @@ CREATE TABLE `lucid_plugindata` (
   `direct_out` int(11) NOT NULL default '0',
   `sys_exit` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM COMMENT='Module/plugin methods configuration';
 CREATE TABLE `lucid_plugins` (
   `id` int(11) NOT NULL auto_increment,
   `package_name` varchar(30) NOT NULL default '',
@@ -90,7 +90,7 @@ CREATE TABLE `lucid_plugins` (
   `debug` int(1) NOT NULL default '0',
   `SQL_deinstall_commands` text,
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM COMMENT='global module/plugin configuration';
 CREATE TABLE `lucid_session_data` (
   `session_id` varchar(32) NOT NULL default '',
   `timestamp` int(15) NOT NULL default '0',
@@ -99,14 +99,14 @@ CREATE TABLE `lucid_session_data` (
   `session_data` text NOT NULL,
   PRIMARY KEY  (`session_id`),
   KEY `session_id` (`session_id`)
-);
+) TYPE=MyISAM COMMENT='session management data';
 CREATE TABLE `lucid_appconfig` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(30) NOT NULL default '',
   `value` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-);
+) TYPE=MyISAM COMMENT='not used yet!';
 INSERT INTO `lucid_appconfig` VALUES (1,'version','1.0.11');
 CREATE TABLE `lucid_groups` (
   `id` int(11) NOT NULL auto_increment,
@@ -116,7 +116,7 @@ CREATE TABLE `lucid_groups` (
   `description` varchar(50) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-);
+) TYPE=MyISAM COMMENT='not used yet!';
 INSERT INTO `lucid_groups` VALUES (1,0,'managePages','core','This group is able to add/edit/delete pages.');
 INSERT INTO `lucid_groups` VALUES (2,0,'manageStyles','core','This group is able to add/edit/delete stylesheets.');
 INSERT INTO `lucid_groups` VALUES (3,0,'manageTemplates','core','This group is able to add/edit/delete templates.');
@@ -125,7 +125,7 @@ CREATE TABLE `lucid_markups` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(50) NOT NULL default '',
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM COMMENT='Liste of available markups (manually created!)';
 INSERT INTO `lucid_markups` VALUES (1,'None');
 INSERT INTO `lucid_markups` VALUES (2,'textile');
 CREATE TABLE `lucid_pages` (
@@ -149,7 +149,7 @@ CREATE TABLE `lucid_pages` (
   `ownerID` int(11) NOT NULL default '0',
   `permitEditGroupID` int(11) default NULL,
   PRIMARY KEY  (`id`)
-);
+) TYPE=MyISAM COMMENT='CMS page storage';
 INSERT INTO `lucid_pages` VALUES (1,'index','index',0,0,1,1,NULL,'2','h2. Welcome to your PyLucid CMS =;-)\r\n\r\nNote:\r\n\r\n* Do not delete this page: edit it!\r\n* check the right\'s of install_PyLucid.py!','','','2005-12-19 15:54:31',2,1,1,1,2,1);
 CREATE TABLE `lucid_preferences` (
   `id` int(11) NOT NULL auto_increment,
@@ -162,7 +162,7 @@ CREATE TABLE `lucid_preferences` (
   `type` varchar(30) NOT NULL default 'text',
   PRIMARY KEY  (`id`),
   KEY `section` (`section`)
-);
+) TYPE=MyISAM COMMENT='old cfg values, used partially';
 INSERT INTO `lucid_preferences` VALUES (1,0,'core','defaultPageName','Default Page','This This is the default page that a site visitor will see if they arrive at your index.php without specifying a particular page.','1','pageSelect');
 INSERT INTO `lucid_preferences` VALUES (2,0,'core','defaultMarkup','Preferred Text Markup','This specifies what the default text markup parser will be for new pages. You can set it to the name of a plugin markup parser (\"textile\" and \"markdown\" are currently available), or \"none\".','textile','markupSelect');
 INSERT INTO `lucid_preferences` VALUES (3,0,'core','defaultTemplate','Default Template Name','This is the template that will be assigned to new pages when they are created.','1','templateSelect');
@@ -208,7 +208,7 @@ CREATE TABLE `lucid_styles` (
   `content` text NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-);
+) TYPE=MyISAM COMMENT='CSS stylesheet storage';
 INSERT INTO `lucid_styles` VALUES (1,NULL,'main','main Stylesheet','/* Farben:\r\n\r\n#C9C573;\r\n#B1B08B;\r\n#FFFFDB;\r\n\r\n*/\r\n\r\n* { color: #000000 }\r\nbody {\r\n  font-family: tahoma, arial, sans-serif;\r\n  color: #000000;\r\n  font-size: 0.9em;\r\n  background-color: #C9C573;\r\n}\r\nhtml, body {\r\n  margin: 5px;\r\n  padding: 0;\r\n}\r\ntextarea {\r\n  background-color: #FFFFF5;\r\n}\r\n#page_msg, pre, .code, .SourceCode, fieldset legend {\r\n  font-family: Courier New,Courier,monospace,mono;\r\n  background-color: #FAFAFD;\r\n  color: #000000;\r\n  padding: 10px;\r\n  border: 1px solid #C9C573;\r\n  font-size: 0.8em;\r\n}\r\n.SourceCode {\r\n  white-space:nowrap;\r\n}\r\nfieldset legend {\r\n  font-size: 1em;\r\n  padding: 3px;\r\n}\r\n#page_msg {\r\n  border-color: #FF0000;\r\n  color: #AA0000;\r\n}\r\n\r\n/* -----------------------------------------------------\r\n Überschrift über die gesammte Seite\r\n----------------------------------------------------- */\r\n#headline h2 {\r\n  font-size: 2em;\r\n  margin: 0.5em;\r\n  padding-left: 1.5em;\r\n  color: #FFFFFF;\r\n}\r\n\r\n/* -----------------------------------------------------\r\n Menu\r\n----------------------------------------------------- */\r\n#sidebar {\r\n  position:absolute;\r\n  top: 100px;\r\n  left: 3px;\r\n  width: 17em;\r\n  height: auto;\r\n  z-index: 10;\r\n  padding: 1em;\r\n  background-color: #FFFFDB;\r\n  border: 1px solid #B1B08B;\r\n  font-size: 0.9em;\r\n  color: #000000;\r\n  text-align:left;\r\n  padding: 0px;\r\n  margin: 0px;\r\n  padding-top: 10px;\r\n  padding-left: 5px;\r\n}\r\n#sidebar a {\r\n  text-decoration:none;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  padding-left: 0.5em;\r\n  padding-right: 0.5em;\r\n}\r\n#sidebar a:hover, #sidebar a.current {\r\n  /* hover + Aktuell angeklickter Menüpunkt */\r\n  background-color: #C9C573;\r\n  color: #FFFFFF;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  padding-left: 0.5em;\r\n  padding-right: 0.5em;\r\n}\r\n#sidebar ul {\r\n  margin: 1.5em;\r\n  margin-right: 0px;\r\n  margin-top: 0.2em;\r\n  margin-bottom: 1.5em;\r\n\r\n  padding: 0px;\r\n\r\n  list-style-type: none;\r\n  border:0px;\r\n}\r\n#sidebar li {\r\n  white-space: nowrap;\r\n  margin: 0px;\r\n  margin-right: 0px;\r\n  padding: 0px;\r\n}\r\n#sidebar img {\r\n  margin: 5px 0px 5px 5px;\r\n  padding: 5px 0px 5px 5px;\r\n}\r\n\r\n/* -----------------------------------------------------\r\n CMS Page\r\n----------------------------------------------------- */\r\n#main-content {\r\n  /* Rahmen für main-content + footer_nav */\r\n  position:absolute;\r\n  top: 55px;\r\n  left: 10em;\r\n  width: 70%;\r\n  min-height: 600px;\r\n  z-index: 1;\r\n  margin: 0px;\r\n  padding: 5px;\r\n  padding-left: 6em;\r\n  background-color: #FFFFE5;\r\n  border:15px solid #FFFFE5;\r\n}\r\n#main-content h2 {\r\n  border-bottom: 1px solid #000000;\r\n}\r\n#nav_footer, #nav_link {\r\n  font-size: 0.6em;\r\n}\r\n#nav_footer, #nav_footer a, #nav_link, #nav_link a {\r\n  border-top: 1px solid #B1B08B;\r\n  color: #B1B08B;\r\n  text-decoration:none;\r\n  text-align: right;\r\n}\r\n#nav_link, #nav_link a {\r\n  text-align: left;\r\n  border: 0px;\r\n}\r\n\r\n/* -----------------------------------------------------\r\n Admin Menu\r\n----------------------------------------------------- */\r\n.adminmenu {\r\n  padding: 5px;\r\n  background-color: #C9C573;\r\n}\r\n\r\n/* -----------------------------------------------------\r\n Links aus dem breadcrumbs-Plugin\r\n----------------------------------------------------- */\r\n#breadcrumbs {\r\n  width: 80%;\r\n  margin:1em auto;\r\n  text-align:left;\r\n  max-width: 1024px;\r\n}\r\n\r\n/* -----------------------------------------------------\r\nZusatzmodule\r\n----------------------------------------------------- */\r\n.Gallery ul {\r\n  text-align: center;\r\n  margin: 0px;\r\n  padding: 0px;\r\n}\r\n.Gallery li {\r\n  float: left;\r\n  border: 1px solid #EAECFF;\r\n  height: 150px;\r\n  width: auto;\r\n  text-align: center;\r\n  margin: 5px;\r\n  padding: 5px;\r\n  list-style-type: none;\r\n  background-color: #EDF1FF;\r\n}\r\n.clear {\r\n  clear: both;\r\n  margin: 5px;\r\n  padding: 5px;\r\n  border: none;\r\n}\r\n\r\n/* -----------------------------------------------------\r\n  Edit Look\r\n----------------------------------------------------- */\r\n#edit_style_select, #edit_template_select {\r\n  border-spacing: 0.5em;\r\n}\r\n#edit_style_select .name, #edit_template_select .name {\r\n  font-weight:bold\r\n\r\n}\r\n#edit_style_select .description, #edit_template_select .description {\r\n  font-style:italic;\r\n}\r\n#page_edit_preview {\r\n  border: 1px solid #C9C573;\r\n}\r\n.resize_buttons a {\r\n  text-decoration:none;\r\n}\r\n\r\n/* -----------------------------------------------------\r\nPage Edit\r\n----------------------------------------------------- */\r\n#page_content {\r\n    width: 100%;\r\n}\r\n\r\n/* -----------------------------------------------------\r\nSite Map\r\n----------------------------------------------------- */\r\n\r\n#SiteMap ul {\r\n  margin-top: 5px;\r\n  margin-bottom: 5px;\r\n  list-style-type: none;\r\n}\r\n#SiteMap li {\r\n  margin-top: 2px;\r\n  margin-bottom: 2px;\r\n}\r\n#SiteMap a {\r\n  text-decoration:underline;\r\n}\r\n#SiteMap li.deep_0 {\r\n  margin-top: 4em;\r\n  font-size: 1.2em;\r\n  border-bottom: 1px solid #C9C573;\r\n}\r\n#SiteMap li.deep_0 a {\r\n  text-decoration:none;\r\n}\r\n#SiteMap .deep_1 {\r\n  margin-top: 1em;\r\n}\r\n\r\n\r\n/* -----------------------------------------------------\r\nsearch\r\n----------------------------------------------------- */\r\n#search_form input, #search_form button {\r\n  font-size: 0.9em;\r\n  border: 1px solid #44444;\r\n  padding: 1px;\r\n}\r\n\r\n/* -----------------------------------------------------\r\nlucidFunction:RSS\r\n----------------------------------------------------- */\r\n.RSS {\r\n  margin: 1em;\r\n  padding: 1em;\r\n  border: 1px solid;\r\n}\r\n.RSS li {\r\n  list-style-type: none;\r\n}\r\n.RSS h1 {\r\n  font-size: 1em;\r\n  font-style: strong;\r\n  margin: 0px;\r\n}');
 INSERT INTO `lucid_styles` VALUES (2,NULL,'none','This is a blank stylesheet.','');
 INSERT INTO `lucid_styles` VALUES (34,127,'PyBB','PyBB module styles','#forum_summary {\n    width:100%;\n    background-color:#DDDDDD;\n}\n#forum_summary .headline {\n    background-color:#EEEEEE;\n}\n#forum_summary .cat_header {\n    background-color:#CCCCFF;\n}\n#forum_summary .forums {\n    background-color:#EEEEEE;\n}\n.color0 {\n    background-color:#EEEEEE;\n}\n.color1 {\n    background-color:#DDDDDD;\n}\n.nav {\n    background-color:#DDDDDD;\n}');
@@ -216,10 +216,10 @@ CREATE TABLE `lucid_template_engines` (
   `id` tinyint(1) NOT NULL auto_increment,
   `name` varchar(50) NOT NULL default '',
   PRIMARY KEY  (`id`)
-);
-INSERT INTO `lucid_template_engines` VALUES (0,'None');
-INSERT INTO `lucid_template_engines` VALUES (1,'string formatting');
-INSERT INTO `lucid_template_engines` VALUES (2,'TAL');
+) TYPE=MyISAM COMMENT='Liste of available template engines (manually created!)';
+INSERT INTO `lucid_template_engines` VALUES (1,'None');
+INSERT INTO `lucid_template_engines` VALUES (2,'string formatting');
+INSERT INTO `lucid_template_engines` VALUES (3,'TAL');
 CREATE TABLE `lucid_templates` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(50) NOT NULL default '',
@@ -227,9 +227,8 @@ CREATE TABLE `lucid_templates` (
   `content` text NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-);
+) TYPE=MyISAM COMMENT='page template storage';
 INSERT INTO `lucid_templates` VALUES (1,'basic','default template','<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>PyLucid - <lucidTag:page_title/></title>\r\n<meta name=\"robots\"                    content=\"<lucidTag:robots/>\" />\r\n<meta name=\"keywords\"                  content=\"<lucidTag:page_keywords/>\" />\r\n<meta name=\"description\"               content=\"<lucidTag:page_description/>\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"<lucidTag:page_last_modified/>\" />\r\n<meta name=\"DC.Date.created\"           content=\"<lucidTag:page_datetime/>\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"contents\" title=\"Inhaltsverzeichnis\" href=\"?p=/SiteMap\" />\r\n<lucidTag:page_style/>\r\n</head>\r\n<body>\r\n<div id=\"headline\"><h2>PyLucid CMS</h2></div>\r\n<div id=\"sidebar\">\r\n<lucidTag:main_menu/>\r\n<ul>\r\n  <li>\r\n    <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\"><img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge.net\" /></a>\r\n  </li>\r\n  <li>\r\n    <a href=\"http://sourceforge.net/donate/index.php?group_id=146328\"><img src=\"http://images.sourceforge.net/images/project-support.jpg\" width=\"88\" height=\"32\" border=\"0\" alt=\"Support This Project\" /></a>\r\n  </li>\r\n  <li>\r\n    <lucidTag:search/>\r\n  </li>\r\n</ul>\r\n</div>\r\n\r\n<div id=\"main-content\">\r\n  <h2><lucidTag:page_title/></h2>\r\n  <lucidTag:page_msg/><lucidTag:admin_menu/>\r\n  <p id=\"nav_link\">\r\n    <lucidTag:back_links/>\r\n  </p>\r\n  <lucidTag:page_body/>\r\n  <p id=\"nav_footer\">\r\n    <lucidTag:page_last_modified/> | <lucidTag:script_login/> | Rendered in <lucidTag:script_duration/> sec. | <lucidTag:powered_by/>\r\n  </p>\r\n</div>\r\n</body>\r\n</html>');
-INSERT INTO `lucid_templates` VALUES (2,'none','This is a blank template -- which is actually kind of useful for some purposes.','');
 CREATE TABLE `lucid_user_group` (
   `id` int(11) NOT NULL auto_increment,
   `userID` int(11) NOT NULL default '0',
@@ -237,4 +236,4 @@ CREATE TABLE `lucid_user_group` (
   PRIMARY KEY  (`id`),
   KEY `groupID` (`groupID`),
   KEY `userID` (`userID`)
-);
+) TYPE=MyISAM COMMENT='not used yet!';

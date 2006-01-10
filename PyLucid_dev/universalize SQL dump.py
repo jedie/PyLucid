@@ -7,11 +7,16 @@ damit er zur erst installation taugt ;)
     - Tauscht den Tabellen-Prefix-String mit Python's String Formatting Operator
     - Filtert unnötige Informationen (Archiv, Session-Daten, User-Passwörter)
     - erstellt eine ZIP-Datei mit den relevaten SQL-Daten
+
+Kommando Optionen zum erstellen des Dumps:
+--extended-insert --skip-opt --compact --create-options
 """
 
-__version__="0.0.1"
+__version__="0.1"
 
 __history__="""
+v0.1
+    - Debug switch
 v0.0.1
     - Erste Version
 """
@@ -21,6 +26,7 @@ import os, sys, re, time, zipfile, zlib
 
 zlib.Z_DEFAULT_COMPRESSION = 9
 
+debug = True
 
 infilename      = "install_data.sql"
 #~ TablePrefix     = "PyLucid_base_"
@@ -52,6 +58,7 @@ crate_table_filters = (
     "COLLATE=%s" % pattern,
     "character set %s" % pattern,
     "DEFAULT CHARSET=%s" % pattern,
+    " TYPE=MyISAM(?<! COMMENT)" # (?<!\))
 )
 
 cleaning_filters = (
@@ -117,6 +124,12 @@ class universalize_dump:
         print "Write zipfile '%s'..." % outfilename,
         outfile = zipfile.ZipFile( outfilename, "w", zipfile.ZIP_DEFLATED)
         for filename,data in outdata.iteritems():
+            if debug:
+                print "\n","-"*80
+                print filename
+                print "- "*40
+                print data
+                print "-"*80
             outfile.writestr(filename,data)
         outfile.close()
         print "OK"

@@ -590,7 +590,7 @@ class PyLucid_setup:
             self.end()
 
         if not self._has_all_keys( self.CGIdata, ["username","email","pass1"] ):
-            self.db.print_internal_page("add_user_form", {"url":"?add_admin"})
+            self.db.print_internal_page("userhandling_add_user", {"url":"?add_admin"})
             print "<strong>Note:</strong> Is admin checkbox ignored. Always create a admin account!"
             return
 
