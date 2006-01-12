@@ -526,7 +526,7 @@ class PyLucid_setup:
         except Exception, e:
             print "Error: %s" % e
         else:
-            if status == ():
+            if not status:
                 print "OK"
             else:
                 print "Error:", status

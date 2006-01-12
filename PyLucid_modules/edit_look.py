@@ -118,7 +118,7 @@ class edit_look:
             from_table      = "pages",
             where           = ("style", id)
         )
-        if page_names != ():
+        if page_names:
             names = [cgi.escape(i["name"]) for i in page_names]
             self.page_msg("Can't delete stylesheet, the following pages used it: %s" % names)
         else:
@@ -192,7 +192,7 @@ class edit_look:
             from_table      = "pages",
             where           = ("template", id)
         )
-        if page_names != ():
+        if page_names:
             names = [cgi.escape(i["name"]) for i in page_names]
             self.page_msg("Can't delete template, the following pages used it: %s" % names)
         else:

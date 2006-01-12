@@ -295,7 +295,7 @@ class show_internals:
 
         print "<h3>SQL table status</h3>"
 
-        SQLresult = self.db.fetchall( "SHOW TABLE STATUS" )
+        SQLresult = self.db.fetchall("SHOW TABLE STATUS")
 
         print '<table id="internals_log_information" class="internals_table">'
 

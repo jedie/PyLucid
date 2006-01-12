@@ -57,19 +57,15 @@ class main_menu:
 
     def __init__( self, PyLucid ):
         self.PyLucid = PyLucid
-
         self.CGIdata        = PyLucid["CGIdata"]
         #~ self.CGIdata.debug()
-
         self.db             = PyLucid["db"]
-
         self.session        = PyLucid["session"]
         #~ self.session.debug()
-
         self.config         = PyLucid["config"]
         self.preferences    = PyLucid["preferences"]
-
         self.URLs           = PyLucid["URLs"]
+        self.page_msg       = PyLucid["page_msg"]
 
 
         self.menulink  = '<a%(style)s class="level%(level)s" href="'
@@ -124,7 +120,7 @@ class main_menu:
                 where           = self.where_filter( [("parent",self.current_page_id)] ),
                 limit           = (0,1)
             )
-        if result == ():
+        if not result:
             # Es gibt keine höhere Ebene (keine Untermenupunkte)
             return parentID
         else:
@@ -150,7 +146,7 @@ class main_menu:
                 from_table      = "pages",
                 where           = [ ("id",parentID) ]
             )
-        if parent != ():
+        if parent:
             # Unterste Ebene noch nicht erreicht -> rekursiver Aufruf
             self.create_menudata( parent[0]["parent"] )
 

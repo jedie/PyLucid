@@ -5,7 +5,7 @@ __author__  = "Jens Diemer (www.jensdiemer.de)"
 __license__ = "GNU General Public License http://www.opensource.org/licenses/gpl-license.php"
 __url__     = "http://www.PyLucid.org"
 
-__info__ = """<a href="%s" title="PyLucid - A OpenSource CMS in pure Python CGI by Jens Diemer">PyLucid</a> v0.6""" % __url__
+__info__ = """<a href="%s" title="PyLucid - A OpenSource CMS in pure Python CGI by Jens Diemer">PyLucid</a> v0.6.0RC1""" % __url__
 
 """
 Rendert eine komplette Seite

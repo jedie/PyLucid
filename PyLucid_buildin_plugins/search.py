@@ -61,7 +61,7 @@ class search:
             return
 
         search_words = self.filter_search_string(search_string)
-        if search_words == []:
+        if not search_words:
             # Alle Wörter waren doof
             print "<p>Sorry, no search Strings remaining</p>"
             # Suchmaske anzeigen

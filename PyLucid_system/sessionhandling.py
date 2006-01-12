@@ -410,7 +410,7 @@ class sessionhandler:
                 from_table      = self.sql_tablename,
                 where           = ("session_id",session_id)
             )
-        #~ if DB_data == ():
+        #~ if not DB_data:
 
         #~ if self.page_msg_debug == True: self.page_msg( "DB_data:",DB_data )
         #~ if len(DB_data) != 1:

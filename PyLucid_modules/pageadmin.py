@@ -422,7 +422,7 @@ class pageadmin:
                 from_table      = "pages",
                 where           = [ ("parent",page_id_to_del) ]
             )
-        if parents != ():
+        if parents:
             # Hat noch Unterseiten
             msg = "Can't delete Page!"
             self.page_msg( msg )

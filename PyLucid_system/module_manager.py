@@ -146,7 +146,7 @@ class plugin_data:
 
         if self.plugin_debug(): self.CGIdata.debug()
 
-        if self.current_properties["CGI_dependent_data"] == ():
+        if not self.current_properties["CGI_dependent_data"]:
             # Es gibt keine CGI-Abhängigkeiten
             if self.plugin_debug():
                 self.page_msg("There is no CGI dependent data for %s.%s" % (self.module_name,self.main_method))

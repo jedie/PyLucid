@@ -178,7 +178,7 @@ class db( mySQL ):
                 from_table      = "pages",
                 where           = ("name",page_name)
             )
-        if result == []:
+        if not result:
             return False
 
         if result[0].has_key("id"):
@@ -808,7 +808,7 @@ class db( mySQL ):
             from_table      = "md5users",
             limit           = (1,1)
         )
-        if result!=():
+        if result:
             return True
         else:
             return False
@@ -957,7 +957,7 @@ class db( mySQL ):
         if parent_method_id != None:
             where.append(("parent_method_id", parent_method_id))
 
-        if self.select(["id"], "plugindata", where) != ():
+        if self.select(["id"], "plugindata", where):
             raise IntegrityError("Duplicate entry '%s'!" % method_name)
 
         # True und False in 1 und 0 wandeln
