@@ -74,22 +74,25 @@ v0.0.1
 """
 
 from __future__ import generators
+import sys
 
-try:
-    from utils import *
-except ImportError:
-    # Beim direkten Aufruf, zum Modul-Test!
-    import sys
-    sys.path.insert(0,"../PyLucid_python_backports")
-    from utils import *
+if not sys.version.startswith("2.4"):
+    # Damit werden erst die "backports" gefunden, wenn Python älter als v2.4 ist
+    try:
+        from utils import *
+    except ImportError:
+        # Beim direkten Aufruf, zum Modul-Test!
+        import sys
+        sys.path.insert(0,"../PyLucid_python_backports")
+        from utils import *
 
-def error( msg, e):
-    print "Content-type: text/html\n"
-    print "<h1>Error</h1>"
-    print "<h3>%s</h3>" % msg
-    print "<p>Error Msg.:<br/>%s</p>" % e
-    import sys
-    sys.exit(0)
+    def error( msg, e):
+        print "Content-type: text/html\n"
+        print "<h1>Error</h1>"
+        print "<h3>%s</h3>" % msg
+        print "<p>Error Msg.:<br/>%s</p>" % e
+        import sys
+        sys.exit(0)
 
 
 
@@ -240,8 +243,8 @@ class mySQL:
         tables = []
         for table in self.fetchall("SHOW TABLES"):
             tablename = table.values()[0]
-            if tablename.startswith( table_prefix):
-                tables.append( tablename )
+            if tablename.startswith(self.tableprefix):
+                tables.append(tablename)
         return tables
 
     def insert(self, table, data, debug=False):
@@ -523,6 +526,12 @@ class IterableDictCursor(object):
         if values:
             args.append(values)
         self._cursor.execute(*tuple(args))
+
+    def execute_unescaped(self, sql):
+        """
+        Only vor install_PyLucid...
+        """
+        self._cursor.execute(sql)
 
     def fetchone(self):
         row = self._cursor.fetchone()

@@ -958,7 +958,9 @@ class db( mySQL ):
             where.append(("parent_method_id", parent_method_id))
 
         if self.select(["id"], "plugindata", where):
-            raise IntegrityError("Duplicate entry '%s'!" % method_name)
+            raise IntegrityError(
+                "Duplicate entry '%s' with ID %s!" % (method_name, plugin_id)
+            )
 
         # True und False in 1 und 0 wandeln
         for k,v in method_cfg.iteritems():

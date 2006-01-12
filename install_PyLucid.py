@@ -103,7 +103,7 @@ Sicherheitslücke: Es sollte nur ein Admin angelegt werden können, wenn noch ke
 print "Content-type: text/html; charset=utf-8\r\n"
 
 
-#~ import cgitb;cgitb.enable()
+import cgitb;cgitb.enable()
 import os, sys, cgi, re, zipfile
 
 
@@ -896,7 +896,8 @@ class SQL_dump:
 
     def execute( self, SQLcommand ):
         #~ try:
-        self.db.cursor.execute( SQLcommand )
+        print "execute:", SQLcommand
+        self.db.cursor.execute_unescaped(SQLcommand)
         #~ except Exception, e:
             #~ print "Error: '%s' in SQL-command:" % cgi.escape( str(e) )
             #~ print "'%s'" % SQLcommand
