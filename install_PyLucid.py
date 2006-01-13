@@ -5,9 +5,11 @@
 PyLucid "installer"
 """
 
-__version__ = "v0.5"
+__version__ = "v0.6"
 
 __history__ = """
+v0.6
+    - Neu: update_db()
 v0.5
     - Neu: "Information about installed modules"
     - ein paar "confirm"-Dialoge eingebaut...
@@ -278,6 +280,7 @@ class PyLucid_setup:
                 ]
             ),
             ("update", [
+                    (self.update_db,        "update_db",            "update DB tables (PyLucid v0.x -&gt; 0.6)"),
                     (self.convert_markups,  "convert_markups",      "Convert Markup Names to IDs (PyLucid v0.x -&gt; 0.5)"),
                     #~ (self.convert_db,       "convert_db",           "convert DB data from PHP-LucidCMS to PyLucid Format"),
                     #~ (self.convert_locals,   "locals",               "convert locals (ony preview!)"),
@@ -362,6 +365,22 @@ class PyLucid_setup:
         d = SQL_dump(self.db)
         d.import_dump()
         #~ d.dump_data()
+
+    #__________________________________________________________________________________________
+
+    def update_db(self):
+        """
+        Bei Änderungen an dem DB-Style, werden diese bei einem Update hier vorgenommen.
+        """
+        print "<pre>"
+        print "Update style-table...",
+        try:
+            self.db.cursor.execute("ALTER TABLE $$styles ADD plugin_id TINYINT(4) AFTER id;")
+        except Exception, e:
+            print "ERROR:", e
+        else:
+            print "OK"
+        print "</pre>"
 
     #__________________________________________________________________________________________
 
