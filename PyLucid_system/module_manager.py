@@ -99,14 +99,14 @@ class plugin_data:
 
     def setup_module(self, module_name, main_method):
         self.module_name = module_name
-        if self.plugin_debug():
-            self.page_msg("Plugin Debug for %s:" % module_name)
-
         self.main_method = main_method
         try:
             self.module_id = self.plugins[module_name]["id"]
         except KeyError:
-            raise run_module_error("[Module/Plugin unknown: %s]" % module_name)
+            raise run_module_error("[Module/Plugin unknown or not installed/activated: %s]" % module_name)
+
+        if self.plugin_debug():
+            self.page_msg("Plugin Debug for %s:" % module_name)
 
         if not self.plugindata.has_key(module_name):
             # Module neu
@@ -197,7 +197,11 @@ class plugin_data:
         return self.current_properties.keys()
 
     def plugin_debug(self):
-        return self.plugins[self.module_name]["debug"]
+        try:
+            return self.plugins[self.module_name]["debug"]
+        except KeyError,e:
+            self.page_msg("KeyError in plugindata:", e)
+            return False
 
     def setup_URLs(self):
         """
