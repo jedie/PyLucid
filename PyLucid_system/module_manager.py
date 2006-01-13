@@ -329,8 +329,11 @@ class module_manager:
         self.main_method    = "lucidFunction"
         self.current_method = "lucidFunction"
 
+        #~ if debug: self.page_msg("function_name:", function_name, "function_info:", function_info)
+
+        function_info = {"function_info": function_info}
         try:
-            return self._run_module_method( function_info )
+            return self._run_module_method(function_info)
         except run_module_error, e:
             pass
         except rights_error, e:
@@ -370,6 +373,7 @@ class module_manager:
         Kommt es irgendwo zu einem Fehler, ist es die selbsterstellte
         "run_module_error"-Exception mit einer passenden Fehlermeldung.
         """
+        #~ if debug: self.page_msg("method_arguments:", method_arguments)
 
         #~ try:
         self.plugin_data.setup_module(self.module_name, self.main_method)
@@ -426,8 +430,10 @@ class module_manager:
             self.page_msg("method_arguments for method '%s': %s" % (self.current_method, method_arguments))
         try:
             # Dict-Argumente übergeben
-            return unbound_method(**self.plugin_data.get_CGI_data)
+            return unbound_method(**method_arguments)
         except TypeError, e:
+            sys.stdout = sys.__stdout__ # Evtl. redirectered stdout wiederherstellen
+
             if not str(e).startswith(unbound_method.__name__):
                 # Der Fehler ist nicht hier, bei der Dict übergabe zur unbound_method() aufgetretten, sondern
                 # irgendwo im Modul selber!
@@ -440,25 +446,19 @@ class module_manager:
             real_method_arguments.sort()
             argcount = len(real_method_arguments)
 
-            #~ if not self.plugin_data method_properties.has_key("get_CGI_data"):
-                #~ # Fehler bei lucidFunction-Parameter übergabe
-                #~ raise run_module_error(
-                    #~ "ModuleManager error: \
-                    #~ %s() takes exactly %s arguments %s, \
-                    #~ but %s given: %s \
-                    #~ --- Check the real arguments in the method!" % (
-                        #~ unbound_method.__name__, argcount, real_method_arguments,
-                        #~ len(method_arguments), str(method_arguments.keys()),
-                    #~ )
-                #~ )
-
             # Bessere Fehlermeldung generieren, wenn die von der Methode per get_CGI_data definierten Argumente
             # nicht in den CGI-Daten vorhanden sind.
-            plugin_data_keys = self.plugin_data["get_CGI_data"].keys()
-            plugin_data_keys.sort()
+            try:
+                plugin_data_keys = self.plugin_data["get_CGI_data"].keys()
+                plugin_data_keys.sort()
+            except:
+                plugin_data_keys=[]
 
-            method_arguments_keys = method_arguments.keys()
-            method_arguments_keys.sort()
+            try:
+                method_arguments_keys = method_arguments.keys()
+                method_arguments_keys.sort()
+            except:
+                method_arguments_keys=[]
 
             raise run_module_error(
                 "ModuleManager >get_CGI_data<-error: \
@@ -477,6 +477,9 @@ class module_manager:
         """
         Startet die Methode und verarbeitet die Ausgaben
         """
+        if method_arguments=={}:
+            method_arguments = self.plugin_data.get_CGI_data
+        #~ if debug: self.page_msg("method_arguments:", method_arguments)
         def run_error(msg):
             if self.plugin_data["direct_out"] != True:
                 redirector.get() # stdout wiederherstellen
@@ -521,7 +524,12 @@ class module_manager:
 
         # Methode "ausführen"
         if self.config.system.ModuleManager_error_handling == False:
-            direct_output = unbound_method(**self.plugin_data.get_CGI_data)
+            #~ self.page_msg(self.plugin_data.get_CGI_data)
+            #~ direct_output = unbound_method(**self.plugin_data.get_CGI_data)
+            #~ try:
+            direct_output = self._run_with_error_handling(unbound_method, method_arguments)
+            #~ except:
+                #~ raise
         else:
             try:
                 direct_output = self._run_with_error_handling(unbound_method, method_arguments)
