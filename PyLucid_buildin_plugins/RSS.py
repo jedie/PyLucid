@@ -88,7 +88,6 @@ class RSS:
             return
 
         rssDocument = xml.dom.minidom.parse( rss_data )
-        print rssDocument.getElementsByTagName("item")
 
         for node in self.getElementsByTagName(rssDocument, 'item'):
             print '<ul class="RSS">'
