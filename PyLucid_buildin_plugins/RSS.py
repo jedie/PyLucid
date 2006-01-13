@@ -8,9 +8,12 @@ Bsp.:
 <lucidFunction:RSS>http://sourceforge.net/export/rss2_projnews.php?group_id=146328</lucidFunction>
 """
 
-__version__="0.2.5"
+__version__="0.2.7"
 
 __history__="""
+v0.2.7
+    - Zeit die response time an
+    - Aufgeräumt
 v0.2.6
     - lucidFunction() erwartet nun auch function_info vom ModulManager
 v0.2.5
