@@ -915,7 +915,7 @@ class SQL_dump:
 
     def execute( self, SQLcommand ):
         #~ try:
-        print "execute:", SQLcommand
+        #~ print "execute:", SQLcommand
         self.db.cursor.execute_unescaped(SQLcommand)
         #~ except Exception, e:
             #~ print "Error: '%s' in SQL-command:" % cgi.escape( str(e) )
