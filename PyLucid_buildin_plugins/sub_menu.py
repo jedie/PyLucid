@@ -11,9 +11,11 @@ eingebunden kann es per lucid-"IncludeRemote"-Tag:
 <lucidFunction:IncludeRemote>/cgi-bin/PyLucid/Menu.py?page_name=<lucidTag:page_name/></lucidFunction>
 """
 
-__version__="0.1.0"
+__version__="0.1.1"
 
 __history__="""
+v0.1.1
+    - Bugfix URLs
 v0.1.0
     - Anpassung an neuen ModuleManger
 v0.0.12
@@ -59,17 +61,14 @@ class sub_menu:
 
     def __init__( self, PyLucid ):
         #~ self.PyLucid = PyLucid
-
         self.CGIdata        = PyLucid["CGIdata"]
         #~ self.CGIdata.debug()
-
         self.db             = PyLucid["db"]
-
         self.session        = PyLucid["session"]
         #~ self.session.debug()
-
         self.config         = PyLucid["config"]
         self.preferences    = PyLucid["preferences"]
+        self.URLs           = PyLucid["URLs"]
 
     def where_filter( self, where_rules ):
         """
@@ -84,7 +83,7 @@ class sub_menu:
 
     def lucidTag( self ):
         self.url_entry  = self.preferences["subMenu"]["before"] # List Item Anfang, default: <li>
-        self.url_entry += '<a href="%s' % self.link_url
+        self.url_entry += '<a href="%s' % self.URLs["link"]
         self.url_entry += '%(link)s">%(title)s</a>'
         self.url_entry += self.preferences["subMenu"]["after"] + "\n"# List Item ende, default: </li>
 
