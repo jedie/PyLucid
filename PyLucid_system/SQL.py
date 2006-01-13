@@ -152,10 +152,28 @@ class db( mySQL ):
                     where           = ("id",template_id)
                 )[0]["content"]
         except Exception, e:
-            self._error(
-                "Can't get Template: %s" % e,
-                "Page-ID: %s, Template-ID: %s" % (page_id, template_id)
+            # Fehlerausgabe
+            self.page_msg(
+                "Can't get Template: %s - Page-ID: %s, Template-ID: %s" % (
+                    e, page_id, template_id
+                )
             )
+            self.page_msg("Please edit the page and change the template!")
+            # Bevor garnichts geht, holen wir uns das erst beste Template
+            try:
+                page_template = self.select(
+                        select_items    = ["content"],
+                        from_table      = "templates",
+                        limit           = (0,1)
+                    )[0]["content"]
+                return page_template
+            except Exception, e:
+                # Ist wohl überhaupt nicht's da, dann kommen wir jetzt zum
+                # Hardcore Fehlermeldung :(
+                self._error(
+                    "Can't get Template: %s" % e,
+                    "Page-ID: %s, Template-ID: %s" % (page_id, template_id)
+                )
 
         if type(page_template) != str:
             self._type_error( "Template-Content", page_template )
