@@ -32,7 +32,7 @@ v0.1
 
 #~ import cgitb; cgitb.enable()
 import xml.dom.minidom
-import sys,os, urllib
+import sys, os, urllib, time
 
 
 
@@ -41,22 +41,6 @@ import sys,os, urllib
 
 
 class RSS:
-
-    #_______________________________________________________________________
-    # Module-Manager Daten
-
-    module_manager_data = {
-        #~ "debug" : True,
-        "debug" : False,
-
-        "lucidFunction" : {
-            "must_login"    : False,
-            "must_admin"    : False,
-        }
-    }
-
-    #_______________________________________________________________________
-
 
     DEFAULT_NAMESPACES = (
         None, # RSS 0.91, 0.92, 0.93, 0.94, 2.0
@@ -81,11 +65,14 @@ class RSS:
             # Geht erst ab Python 2.3 :(
             pass
 
+        start_time = time.time()
         try:
             rss_data = urllib.urlopen( url )
         except Exception, e:
             print "[Can't get RSS feed '%s' Error:'%s']" % ( url, e )
             return
+        duration_time = time.time() - start_time
+        print '<small class="RSS_info">(response time: %0.2fsec.)</small>' % duration_time
 
         rssDocument = xml.dom.minidom.parse( rss_data )
 
