@@ -213,7 +213,7 @@ class edit_look:
         self.db.print_internal_page(
             internal_page_name  = "edit_look_%s" % name,
             page_dict           = {
-                "name"          : "%s%s" % ("edit_look", edit_data["name"]),
+                "name"          : edit_data["name"],
                 "url"           : self.URLs["main_action"],
                 "content"       : cgi.escape( edit_data["content"] ),
                 "description"   : cgi.escape( edit_data["description"] ),
