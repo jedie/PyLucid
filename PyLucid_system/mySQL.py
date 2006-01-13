@@ -26,9 +26,11 @@ ToDo
     * Es wird immer das paramstyle 'format' benutzt. Also mit %s escaped
 """
 
-__version__="0.4"
+__version__="0.4.1"
 
 __history__="""
+v0.4.1
+    - Work-a-round für fehlendes lastrowid (s. PEP-0249) http://www.python-forum.de/viewtopic.php?p=28819#28819
 v0.4
     - Verwendet nun einen eigenen Dict-Cursor ( http://pythonwiki.pocoo.org/Dict_Cursor )
     - Nur mit MySQLdb getestet!
@@ -509,12 +511,22 @@ class IterableDictCursor(object):
         self._placeholder = placeholder
         self._prefix = prefix
 
-    def __getattr__(self, attr):
-        if attr == 'lastrowid':
+        if not hasattr(self._cursor, "lastrowid"):
+            # Patch, wenn die DB-API kein lastrowid (s. PEP-0249) hat
             if hasattr(self._cursor, 'insert_id'):
-                # Patch für alte MySQLdb Version, die kein lastrowid (s. PEP-0249)
-                # besitzt, aber eine insert_id() Methode hat
-                return self._cursor.insert_id()
+                # Ältere MySQLdb Versionen haben eine insert_id() Methode
+                IterableDictCursor.lastrowid = property(IterableDictCursor._insert_id)
+            else:
+                # Manuelle Abfrage
+                IterableDictCursor.lastrowid = property(IterableDictCursor._manual_lastrowid)
+
+    def _insert_id(self):
+        return self._cursor.insert_id()
+
+    def _manual_lastrowid(self):
+        return self._cursor.execute("SELECT LAST_INSERT_ID() AS id;")
+
+    def __getattr__(self, attr):
         return getattr(self._cursor, attr)
 
     def prepare_sql(self, sql):
