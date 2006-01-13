@@ -7,9 +7,11 @@ Bsp.:
 <lucidFunction:IncludeRemote>http://...</lucidFunction>
 """
 
-__version__="0.1.0"
+__version__="0.2"
 
 __history__="""
+v0.2
+    - Anzeigen der response time ;)
 v0.1.0
     - Anpassung an neuen ModuleManager
 v0.0.2
@@ -21,7 +23,7 @@ v0.0.1
 """
 
 
-import socket, urllib2, re
+import socket, urllib2, re, time
 
 
 class IncludeRemote:
@@ -41,6 +43,7 @@ class IncludeRemote:
             # Geht erst ab Python 2.3 :(
             pass
 
+        start_time = time.time()
         try:
             f = urllib2.urlopen( URL )
             sidecontent = f.read()
@@ -48,6 +51,7 @@ class IncludeRemote:
         except Exception, e:
             return "<p>IncludeRemote error! Can't get '%s'<br /> \
                 error:'%s'</p>" % ( URL, e )
+        duration_time = time.time() - start_time
 
         try:
             # Stylesheets rausfiltern
@@ -72,3 +76,5 @@ class IncludeRemote:
             print re.findall("<body.*?>(.*?)</body>(?is)", sidecontent)[0]
         except:
             print sidecontent
+
+        print '<small class="IncludeRemote_info">(response time: %0.2fsec.)</small>' % duration_time
