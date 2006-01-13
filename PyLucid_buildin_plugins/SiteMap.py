@@ -8,10 +8,11 @@ Generiert das SiteMap
 <lucidTag:SiteMap/>
 """
 
-__version__="0.0.6"
+__version__="0.1"
 
 __history__="""
-v0.0.6
+v0.1
+    - PyLucid["URLs"]
     - Anpassung an neuen ModuleManager
 v0.0.5
     - Link wird nun auch vom ModulManager verwendet.
@@ -38,6 +39,7 @@ class SiteMap:
         self.db         = PyLucid["db"]
         self.config     = PyLucid["config"]
         self.page_msg   = PyLucid["page_msg"]
+        self.URLs       = PyLucid["URLs"]
 
     def lucidTag( self ):
         """ Baut die SiteMap zusammen """
@@ -47,7 +49,7 @@ class SiteMap:
         #~ return str( self.parent_l    ist )
 
         self.link  = '<a href="'
-        self.link += self.link_url
+        self.link += self.URLs["link"]
         self.link += '%(link)s">%(name)s</a>'
 
         print '<div id="SiteMap">'
