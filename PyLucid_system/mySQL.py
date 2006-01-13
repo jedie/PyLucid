@@ -492,15 +492,10 @@ class WrappedConnection(object):
         return IterableDictCursor(self.cnx, self.placeholder, self.prefix)
 
     def __getattr__(self, attr):
-        #~ try:
+        """
+        Attribute/Methoden des original Connection-Objekt durchreichen
+        """
         return getattr(self.cnx, attr)
-        #~ except AttributeError, e:
-            #~ raise
-        #~ except Exception, e:
-            #~ print "XXXX:", e.__class__
-            #~ print e
-            #~ print "---"
-            #~ raise
 
 
 
@@ -527,6 +522,9 @@ class IterableDictCursor(object):
         return self._cursor.execute("SELECT LAST_INSERT_ID() AS id;")
 
     def __getattr__(self, attr):
+        """
+        Attribute/Methoden des original Cursor-Objekt durchreichen
+        """
         return getattr(self._cursor, attr)
 
     def prepare_sql(self, sql):
