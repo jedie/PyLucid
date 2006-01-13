@@ -537,11 +537,11 @@ class PyLucid_setup:
             )
         print "</pre>"
         print "<h4>Convert table field</h4>"
-        SQLcommand = "ALTER TABLE `$tableprefix$pages` CHANGE `markup` `markup` SMALLINT(1) NULL DEFAULT '1';"
+        SQLcommand = "ALTER TABLE $$pages CHANGE markup markup SMALLINT(1) NULL DEFAULT '1';"
         print "<pre>"
         print SQLcommand
         try:
-            status = self.db.get( SQLcommand )
+            status = self.db.fetchall(SQLcommand)
         except Exception, e:
             print "Error: %s" % e
         else:
