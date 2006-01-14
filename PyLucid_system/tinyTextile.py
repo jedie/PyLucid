@@ -16,9 +16,12 @@ http://www.solarorange.com/projects/textile/mtmanual_textile2.html
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.2.3"
+__version__="0.2.4"
 
 __history__="""
+v0.2.3
+    - Bilder-Links dürfen nun keine Leerzeichen enthalten, damit mehrere Fragezeichen nicht
+        irrümlich zu einem Link werden! Wie hier!
 v0.2.3
     - Bug 1328496: Fehler im inline-Python-Highlighter. Nun wird Python-Source als kompletter
         Block durch den Highlighter gejagt.
@@ -92,7 +95,7 @@ class parser:
                 r"<strong>\1</strong>"
             ],
             [ # img-Tag - Bsp.: !/Bilder/MeinBild.jpg!
-                r'\!([^!\n]+?)\!(?uis)',
+                r'\!([^!\n ]+?)\!(?uis)',
                 r'<img src="\1">'
             ],
             [ # Link + LinkText - Bsp.: "LinkText":http://www.beispiel.de
