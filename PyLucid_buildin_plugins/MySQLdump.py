@@ -6,9 +6,11 @@ Erzeugt einen Download des MySQL Dumps
 http://dev.mysql.com/doc/mysql/de/mysqldump.html
 """
 
-__version__="0.3"
+__version__="0.3.1"
 
 __history__="""
+v0.3.1
+    - Bugfix: options kann nun auch leer sein
 v0.3
     - Anpassung an neuen ModuleManager, auslagern der Config.
 v0.2.2
@@ -194,16 +196,23 @@ class MySQLdump:
         Erstellt die Kommandoliste anhand der CGI-Daten bzw. des Formulars ;)
         """
         try:
+            options = self.CGIdata["options"]
+        except KeyError:
+            options = ""
+        else:
+            options = " %s" % options
+
+        try:
             compatible = self.CGIdata["compatible"]
         except KeyError:
             compatible = ""
         else:
             compatible = " --compatible=%s" % compatible
 
-        default_command = "mysqldump --default-character-set=%(cs)s%(cp)s %(op)s -u%(u)s -p%(p)s -h%(h)s %(n)s" % {
+        default_command = "mysqldump --default-character-set=%(cs)s%(cp)s%(op)s -u%(u)s -p%(p)s -h%(h)s %(n)s" % {
             "cs" : self.CGIdata["character-set"],
             "cp" : compatible,
-            "op" : self.CGIdata["options"],
+            "op" : options,
             "u"  : self.config.dbconf["dbUserName"],
             "p"  : self.config.dbconf["dbPassword"],
             "h"  : self.config.dbconf["dbHost"],
