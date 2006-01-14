@@ -6,9 +6,11 @@ Erzeugt einen Download des MySQL Dumps
 http://dev.mysql.com/doc/mysql/de/mysqldump.html
 """
 
-__version__="0.3.1"
+__version__="0.3.2"
 
 __history__="""
+v0.3.2
+    - Quick hack to display mysql version informations
 v0.3.1
     - Bugfix: options kann nun auch leer sein
 v0.3
@@ -87,7 +89,14 @@ class MySQLdump:
             ( "display_help",   "mysqldump help" ),
             ( "display_command","display mysqldump command" ),
         ]
-        buttons = ""
+
+        try:
+            version_info = self.tools.subprocess2("mysql --version", ".", timeout=1).out_data
+        except Exection, e:
+            version_info = "ERROR:", e
+
+        buttons = "<p>mysql version: %s</p>" % version_info
+
         for action in self.actions:
             buttons += '<button type="submit" name="action" value="%s">%s</button>&nbsp;&nbsp;\n' % (
                     action[0], action[1]
