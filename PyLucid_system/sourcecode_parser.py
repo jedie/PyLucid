@@ -4,28 +4,34 @@
 """
 Source Code Parser
 
-Based on J�rgen Hermann's "MoinMoin - Python Source Parser"
+Based on Jürgen Hermann's "MoinMoin - Python Source Parser"
 http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52298/
 """
 
-__version__="0.2.0"
+__version__="0.2.1"
 
 __history__="""
+v0.2.1
+    - Work-A-Round für Bug 1328496: ERROR in inline python highlighter
+        ( http://sourceforge.net/tracker/index.php?func=detail&aid=1328496&group_id=146328&atid=764837 )
+        Zeigt "nur" eine Warnung an.
 v0.2.0
     - Einige Optimierungen
     - Bug mit den speziellen Zeilenumbrüche mit \ am ende (kein Zeilenumbruch) behoben
 v0.1.0
-    - aus SourceCode.py Plugin entnommen, damit er auch f�r tinyTextile genutzt werden kann
+    - aus SourceCode.py Plugin entnommen, damit er auch für tinyTextile genutzt werden kann
 """
 
-import sys, cgi, cStringIO, \
-    keyword, token, tokenize
+import sys, cgi, keyword, token, tokenize, StringIO
 
 token.KEYWORD = token.NT_OFFSET + 1
 
 class python_source_parser:
 
-    def parse( self, raw_txt ):
+    def __init__(self, PyLucid):
+        self.page_msg = PyLucid["page_msg"]
+
+    def parse(self, raw_txt):
         """
         Parse and send the colored source.
         """
@@ -36,23 +42,25 @@ class python_source_parser:
         self.lines = [0, 0]
         pos = 0
         while 1:
-            pos = self.raw.find( '\n', pos ) + 1
+            pos = self.raw.find('\n', pos) + 1
             if not pos: break
-            self.lines.append( pos )
-        self.lines.append( len(self.raw) )
+            self.lines.append(pos)
+        self.lines.append(len(self.raw))
 
         # parse the source and write it
         self.pos = 0
-        text = cStringIO.StringIO( self.raw )
+        text = StringIO.StringIO(self.raw)
 
         try:
             tokenize.tokenize(text.readline, self)
         except tokenize.TokenError, ex:
             msg = ex[0]
             line = ex[1][0]
-            print "<h3>ERROR: %s</h3>%s\n" % (
+            ErrorMsg = "tokenize TokenError: %s - %s" % (
                 msg, self.raw[self.lines[line]:]
             )
+            print "<!-- %s -->" % ErrorMsg
+            self.page_msg("WARNING: %s" % ErrorMsg)
 
         print "<br />\n"
 
@@ -60,6 +68,8 @@ class python_source_parser:
     def __call__(self, toktype, toktext, (srow,scol), (erow,ecol), line):
         """ Token handler.
         """
+        #~ print toktype, toktext, (srow,scol), (erow,ecol), line
+
         # calculate new positions
         oldpos = self.pos
         newpos = self.lines[srow] + scol
@@ -73,8 +83,8 @@ class python_source_parser:
             print "\\<br />\n"
 
         # handle newlines
-        if toktype in (token.NEWLINE, tokenize.NL):
-            sys.stdout.write( '<br />\n' )
+        if toktype in [token.NEWLINE, tokenize.NL]:
+            sys.stdout.write("<br />\n")
             return
 
         # Spaces
@@ -121,7 +131,7 @@ class python_source_parser:
 
 if __name__ == '__main__':
     import re
-    import tools
+    #~ import tools
 
     clean_re1=re.compile(r'\<span class=".*?"\>')
     clean_re2=re.compile(r'\</span\>')
@@ -134,8 +144,15 @@ if __name__ == '__main__':
         txt = clean_re2.sub(r"", txt)
         print txt
 
-    redirector = tools.redirector()
-    python_source_parser().parse(open(__file__).read())
-    print_clean(redirector.get())
+    #~ test_code = '''c="):\n"'''
+    #~ test_code = "("
+    test_code = ")"
+    #~ redirector = tools.redirector()
+    python_source_parser().parse(test_code)
+    #~ print_clean(redirector.get())
+
+    #~ redirector = tools.redirector()
+    #~ python_source_parser().parse(open(__file__).read())
+    #~ print_clean(redirector.get())
 
     #~ python_source_parser().parse( open(__file__).read() )

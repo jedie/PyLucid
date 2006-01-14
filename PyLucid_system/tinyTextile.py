@@ -68,6 +68,7 @@ SourceCodeParser = "/cgi-bin/PyLucid/system/SourceCode.py"
 class parser:
     def __init__(self, out_obj, PyLucid, newline="\n"):
         self.out        = out_obj
+        self.PyLucid    = PyLucid
         self.page_msg   = PyLucid["page_msg"]
         self.tools      = PyLucid["tools"]
         self.newline    = newline
@@ -268,6 +269,8 @@ class parser:
         """
         self.out.write(block + self.newline)
 
+    #___________________________________________________________________________
+
     def python_area_start(self, block):
         """
         Python-Source-Code area
@@ -280,7 +283,7 @@ class parser:
     def python_area_end(self, dummy):
         from PyLucid_system import sourcecode_parser
 
-        p = sourcecode_parser.python_source_parser()
+        p = sourcecode_parser.python_source_parser(self.PyLucid)
         self.out.write(p.get_CSS())
         self.out.write('<div class="SourceCode">')
 
