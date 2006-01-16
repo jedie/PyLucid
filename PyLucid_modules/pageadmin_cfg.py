@@ -31,9 +31,9 @@ module_manager_data = {
                 "CGI_laws"      : {"save": "save"}, # Submit-input-Button
                 "get_CGI_data"  : {"page_id": int},
             },
-            "encode"    : {
+            "encode_from_db"    : {
                 "CGI_laws"      : {"encode": "encode"}, # Submit-input-Button
-                "get_CGI_data"  : {"page_id": int, "encoding": str},
+                "get_CGI_data"  : {"page_id": int, "decode_from": str, "encode_to": str},
             },
         },
         "internal_page_info" : {

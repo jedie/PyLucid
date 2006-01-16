@@ -58,8 +58,34 @@ das Archiv nicht mehr angezeigt :(
 # Python-Basis Module einbinden
 import sys, cgi, time, pickle, urllib
 
+# Der Name, bei dem kein encoding stattfindet (normal Einstellung)
+default_code_name = 'default'
 
-
+codecs = [
+    default_code_name,
+    'utf_8',
+    'raw_unicode_escape', 'string_escape', # Könnte nütztlich sein
+    'utf_16', 'utf_16_be', 'utf_16_le', 'utf_7',
+    'ascii', 'big5', 'big5hkscs', 'cp037', 'cp424', 'cp437', 'cp500',
+    'cp737', 'cp775', 'cp850', 'cp852', 'cp855', 'cp856', 'cp857', 'cp860',
+    'cp861', 'cp862', 'cp863', 'cp864', 'cp865', 'cp866', 'cp869', 'cp874',
+    'cp875', 'cp932', 'cp949', 'cp950', 'cp1006', 'cp1026', 'cp1140', 'cp1250',
+    'cp1251', 'cp1252', 'cp1253', 'cp1254', 'cp1255', 'cp1256', 'cp1257', 'cp1258',
+    'euc_jp', 'euc_jis_2004', 'euc_jisx0213', 'euc_kr', 'gb2312', 'gbk', 'gb18030',
+    'hz', 'iso2022_jp', 'iso2022_jp_1', 'iso2022_jp_2', 'iso2022_jp_2004',
+    'iso2022_jp_3', 'iso2022_jp_ext', 'iso2022_kr', 'latin_1', 'iso8859_2',
+    'iso8859_3', 'iso8859_4', 'iso8859_5', 'iso8859_6', 'iso8859_7', 'iso8859_8',
+    'iso8859_9', 'iso8859_10', 'iso8859_13', 'iso8859_14', 'iso8859_15', 'johab',
+    'koi8_r', 'koi8_u', 'mac_cyrillic', 'mac_greek', 'mac_iceland', 'mac_latin2',
+    'mac_roman', 'mac_turkish', 'ptcp154', 'shift_jis', 'shift_jis_2004',
+    'shift_jisx0213', 'idna', 'mbcs', 'palmos',
+]
+# Codecs die eigentlich keine Zeichensätze sind:
+#~ codecs += [
+    #~ 'base64_codec', 'bz2_codec', 'hex_codec', 'punycode',
+    #~ 'rot_13','quopri_codec', 'zlib_codec', 'uu_codec',
+    #~ 'undefined', 'unicode_escape', 'unicode_internal'
+#~ ]
 
 
 
@@ -149,25 +175,7 @@ class pageadmin:
         page_data["page_id"] = page_id
         self.editor_page(page_data)
 
-    def encode(self, page_id, encoding):
-        # Daten aus der DB sollen convertiert werden
-        content = self.db.page_items_by_id(["content"], page_id)["content"]
-        try:
-            #~ edit_page_data["content"] = edit_page_data["content"].decode(encoding).encode("utf8")
-            self.CGIdata["content"] = content.decode(encoding).encode("utf8")
-            #~ self.CGIdata["content"] = self.CGIdata["content"].decode(encoding).encode("utf8")
-            self.page_msg("Encoded from DB with '%s'" % encoding)
-        except Exception, e:
-            self.page_msg("Encoding Error: %s" % e)
-
-        self.preview(page_id)
-
     def editor_page(self, edit_page_data):
-        #~ print "Content-type: text/html\n\n<pre>"
-        #~ for k,v in edit_page_data.iteritems(): print k," - ",v," ",cgi.escape( str(type(v)) )
-        #~ print "</pre>"
-        #~ self.CGIdata.debug()
-
         if str( edit_page_data["showlinks"] ) == "1":
             showlinks = " checked"
         else:
@@ -184,7 +192,14 @@ class pageadmin:
 
         MyOptionMaker = self.tools.html_option_maker()
 
-        encoding_option = MyOptionMaker.build_from_list(["utf8","iso-8859-1"], "utf8")
+        decode_option = MyOptionMaker.build_from_list(
+            codecs,
+            select_item=self.CGIdata.get("decode_from", "")
+        )
+        encode_option = MyOptionMaker.build_from_list(
+            codecs,
+            select_item=self.CGIdata.get("encode_to", "")
+        )
 
         markup_option   = MyOptionMaker.build_from_list(
             self.db.get_available_markups(),
@@ -237,7 +252,8 @@ class pageadmin:
                 "showlinks"                 : showlinks,
                 "permitViewPublic"          : permitViewPublic,
                 # List-Optionen
-                "encoding_option"           : encoding_option,
+                "decode_option"             : decode_option,
+                "encode_option"             : encode_option,
                 "markup_option"             : markup_option,
                 "parent_option"             : parent_option,
                 "template_option"           : template_option,
@@ -283,13 +299,60 @@ class pageadmin:
         # Möchte der rendere gern wissen ;)
         edit_page_data['lastupdatetime'] = "now"
 
+        preview_page_data = edit_page_data.copy() # Damit das encoding nur beim preview-Angezeigt wird.
+        preview_page_data["content"] = self.encode_content(preview_page_data["content"])
+
         # Alle Tags ausfüllen und Markup anwenden
-        print self.render.render( edit_page_data )
+        try:
+            print self.render.render(preview_page_data)
+        except Exception, e:
+            print "<h4>Can't render preview: %s</h4>" % e
+            print "<h3>Don't save this changes!</h3>"
 
         print "\n</div>\n"
 
         # Formular der Seite zum ändern wieder dranhängen
         self.editor_page( edit_page_data )
+
+    #_______________________________________________________________________
+    # new encoding
+
+    def encode_from_db(self, page_id, decode_from=False, encode_to=False):
+        """
+        Encodiert den content, nach den aufgewählten Codecs
+        """
+        def decode_encode(content, codec, method):
+            if codec == False or codec==default_code_name:
+                return content
+
+            if method == "decode":
+                msg = "decode from '%s'..." % codec
+            else:
+                msg = "encode to '%s'..." % codec
+            try:
+                if method == "decode":
+                    content = content.decode(codec)
+                else:
+                    content = content.encode(codec)
+            except Exception, e:
+                msg += "Error: %s" % e
+            else:
+                msg += "OK"
+
+            self.page_msg(msg)
+
+            return content
+
+        page_data = self.get_page_data(page_id)
+        page_data["page_id"] = page_id
+
+        # decode
+        page_data["content"] = decode_encode(page_data["content"], decode_from, "decode")
+        # encode
+        page_data["content"] = decode_encode(page_data["content"], encode_to, "encode")
+
+        self.editor_page(page_data)
+
 
     #_______________________________________________________________________
     # SAVE
@@ -299,6 +362,8 @@ class pageadmin:
 
         # Daten, aufbereitet, holen
         page_data = self._get_edit_data()
+
+        page_data["content"] = self.encode_content(page_data["content"])
 
         # Archivieren der alten Daten
         if self.CGIdata.has_key("trivial"):
