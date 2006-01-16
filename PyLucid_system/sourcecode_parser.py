@@ -131,7 +131,7 @@ class python_source_parser:
 
 if __name__ == '__main__':
     import re
-    #~ import tools
+    import tools # PyLucid-Tools
 
     clean_re1=re.compile(r'\<span class=".*?"\>')
     clean_re2=re.compile(r'\</span\>')
@@ -144,11 +144,13 @@ if __name__ == '__main__':
         txt = clean_re2.sub(r"", txt)
         print txt
 
-    #~ test_code = '''c="):\n"'''
-    #~ test_code = "("
-    test_code = ")"
+    test_code = """for i in os.environ:
+   print i
+
+print "fertig!"
+"""
     #~ redirector = tools.redirector()
-    python_source_parser().parse(test_code)
+    python_source_parser({"page_msg":""}).parse(test_code)
     #~ print_clean(redirector.get())
 
     #~ redirector = tools.redirector()

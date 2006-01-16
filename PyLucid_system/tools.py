@@ -34,6 +34,8 @@ v0.0.1
 import os, sys, cgi, time, re, htmlentitydefs, threading, signal
 import subprocess
 
+from PyLucid_python_backports.utils import *
+
 # Für Debug-print-Ausgaben
 #~ print "Content-type: text/html\n\n<pre>%s</pre>" % __file__
 #~ print "<pre>"
@@ -731,4 +733,16 @@ class Find_StringOperators:
 #~ s.debug_results()
 
 
+#________________________________________________________________________________________
+
+def get_codecs():
+    """
+    Liefert eine Liste aller unterstützter Codecs zurück
+    Wird im pageadmin verwendet, für "encode from db"
+    """
+    from encodings import aliases
+    return sorted(list(set(aliases.aliases.values())))
+
+
+#~ print get_codecs()
 

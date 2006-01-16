@@ -133,11 +133,7 @@ import cgitb;cgitb.enable()
 # Python-Basis Module einbinden
 import os, sys, urllib, cgi
 
-
-if not sys.version.startswith("2.4"):
-    # Damit werden erst die "backports" gefunden, wenn Python älter als v2.4 ist
-    sys.path.insert(0, "PyLucid_python_backports")
-    from utils import *
+from PyLucid_python_backports.utils import *
 
 
 # Interne PyLucid-Module einbinden
