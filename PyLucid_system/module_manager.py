@@ -437,7 +437,7 @@ class module_manager:
             if not str(e).startswith(unbound_method.__name__):
                 # Der Fehler ist nicht hier, bei der Dict übergabe zur unbound_method() aufgetretten, sondern
                 # irgendwo im Modul selber!
-                raise run_module_error("Fehler im Modul: %s" % e)
+                raise # Vollen Traceback ausführen
 
             # Ermitteln der Argumente die wirklich von der unbound_method() verlangt werden
             import inspect
