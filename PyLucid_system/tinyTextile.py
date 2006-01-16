@@ -16,10 +16,12 @@ http://www.solarorange.com/projects/textile/mtmanual_textile2.html
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.2.4"
+__version__="0.2.5"
 
 __history__="""
-v0.2.3
+v0.2.5
+    - Bugfix beim Handle von <pre>-Areas
+v0.2.4
     - Bilder-Links dürfen nun keine Leerzeichen enthalten, damit mehrere Fragezeichen nicht
         irrümlich zu einem Link werden! Wie hier!
 v0.2.3
@@ -138,10 +140,26 @@ class parser:
                 """,
                 r"\1\n\2",
             ],
+            [ # Text vor einem <python> mit noch einem \n trennen
+                r"""
+                    (^[^(<python>)\n].+?$) # Text-Zeile vor einer Liste
+                    (\n^\<python>) # Absatz
+                    (?uimx)
+                """,
+                r"\1\n\2",
+            ],
+            [ # Text vor einem <pre> mit noch einem \n trennen
+                r"""
+                    (^[^(<pre>)\n].+?$) # Text-Zeile vor einer Liste
+                    (\n^\<pre>) # Absatz
+                    (?uimx)
+                """,
+                r"\1\n\2",
+            ],
         ])
 
         self.area_rules = (
-            ["<pre>", "</pre>",         self.pre_area,          self.pre_area,      self.pre_area],
+            ["<pre>", "</pre>",         self.pre_area_start,    self.pre_area,      self.pre_area_end],
             ["<python>", "</python>",   self.python_area_start, self.python_area,   self.python_area_end],
         )
 
@@ -214,6 +232,8 @@ class parser:
         """
         Areas anhandeln
         """
+        #~ self.page_msg(current_area, "--", cgi.escape(block))
+
         def handle_end(current_area, block):
             if block.endswith(current_area[1]):
                 # Die aktuelle Area ist zuende
@@ -237,7 +257,9 @@ class parser:
             # In der area bleiben
             return current_area
 
+        #~ self.page_msg("handle:", cgi.escape(block))
         for current_area in self.area_rules:
+            #~ self.page_msg(cgi.escape(current_area[0]), block)
             if block.startswith(current_area[0]): # Start einer neuen area
                 area_tag = current_area[0]
 
@@ -266,11 +288,20 @@ class parser:
         # Wir sind nicht in einer Area
         return None
 
+    def pre_area_start(self, block):
+        #~ self.page_msg("pre START")
+        self.pre_area_data = ""
+
     def pre_area(self, block):
         """
         Daten innerhalb von <pre>...</pre> werden direkt "ausgegeben"
         """
-        self.out.write(block + self.newline)
+        #~ self.page_msg("pre-Area:", cgi.escape(block))
+        self.pre_area_data += self.newline + block + self.newline
+
+    def pre_area_end(self, block):
+        #~ self.page_msg("pre END:", cgi.escape(self.pre_area_data))
+        self.out.write("<pre>%s</pre>" % self.pre_area_data.strip())
 
     #___________________________________________________________________________
 
@@ -281,7 +312,7 @@ class parser:
         self.python_source_data = ""
 
     def python_area(self, block):
-        self.python_source_data += block
+        self.python_source_data += self.newline + block + self.newline
 
     def python_area_end(self, dummy):
         from PyLucid_system import sourcecode_parser
@@ -291,7 +322,7 @@ class parser:
         self.out.write('<div class="SourceCode">')
 
         self.redirector = self.tools.redirector()
-        p.parse(self.python_source_data)
+        p.parse(self.python_source_data.strip())
         self.out.write(self.redirector.get())
 
         self.out.write("</div>")
