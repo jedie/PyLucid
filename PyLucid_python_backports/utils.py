@@ -1,5 +1,11 @@
 """Provide some widely useful utilities. Safe for "from utils import *".
 http://aima.cs.berkeley.edu/python/utils.html
+
+Bugfixes by Jens Diemer:
+v1.1
+    - sorted(): seq2 = copy.copy(seq) ==> seq2 = list(seq)
+v1.0
+    - init Version from http://aima.cs.berkeley.edu/python/utils.html
 """
 
 from __future__ import generators
@@ -69,7 +75,8 @@ except NameError:
         >>> sorted([3, 1, 2])
         [1, 2, 3]
         """
-        seq2 = copy.copy(seq)
+        #~ seq2 = copy.copy(seq)
+        seq2 = list(seq)
         if key:
             if cmp == None:
                 cmp = __builtins__.cmp
