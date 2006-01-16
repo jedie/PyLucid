@@ -208,15 +208,6 @@ class mySQL:
         else:
             raise ImportError("Unknow DB-Modul '%s' (look at config.py!):" % db_module)
 
-    #~ def get(self, SQLcommand, SQL_values = (), table_prefix=None):
-        #~ """kombiniert execute und fetchall mit Tabellennamenplatzhalter"""
-        #~ if table_prefix == None: table_prefix = self.tableprefix
-        #~ self.cursor.execute(
-                #~ SQLcommand.replace("$tableprefix$", self.tableprefix),
-                #~ tuple(SQL_values)
-            #~ )
-        #~ return self.cursor.fetchall()
-
     def fetchall(self, SQLcommand, SQL_values = ()):
         """ kombiniert execute und fetchall """
         self.last_SQLcommand = SQLcommand
