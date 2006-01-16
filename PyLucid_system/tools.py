@@ -32,7 +32,6 @@ v0.0.1
 """
 
 import os, sys, cgi, time, re, htmlentitydefs, threading, signal
-import subprocess
 
 from PyLucid_python_backports.utils import *
 
@@ -403,6 +402,13 @@ class subprocess2(threading.Thread):
 
     def run(self):
         "Führt per subprocess den Befehl 'self.command' aus."
+
+        try:
+            import subprocess
+        except ImportError:
+            # subprocess gibt's erst mit Python 2.4
+            from PyLucid_python_backports import subprocess
+
         self.process = subprocess.Popen(
                 self.command,
                 cwd     = self.cwd,

@@ -78,24 +78,21 @@ v0.0.1
 from __future__ import generators
 import sys
 
-if not sys.version.startswith("2.4"):
-    # Damit werden erst die "backports" gefunden, wenn Python älter als v2.4 ist
-    try:
-        from utils import *
-    except ImportError:
-        # Beim direkten Aufruf, zum Modul-Test!
-        import sys
-        sys.path.insert(0,"../PyLucid_python_backports")
-        from utils import *
+try:
+    from PyLucid_python_backports.utils import *
+except ImportError:
+    # Beim direkten Aufruf, zum Modul-Test!
+    import sys
+    sys.path.insert(0,"../")
+    from PyLucid_python_backports.utils import *
 
-    def error( msg, e):
-        print "Content-type: text/html\n"
-        print "<h1>Error</h1>"
-        print "<h3>%s</h3>" % msg
-        print "<p>Error Msg.:<br/>%s</p>" % e
-        import sys
-        sys.exit(0)
-
+def error( msg, e):
+    print "Content-type: text/html\n"
+    print "<h1>Error</h1>"
+    print "<h3>%s</h3>" % msg
+    print "<p>Error Msg.:<br/>%s</p>" % e
+    import sys
+    sys.exit(0)
 
 
 class mySQL:
