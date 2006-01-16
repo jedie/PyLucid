@@ -12,9 +12,11 @@ somit alle zusätzlichen " " -> "&nbsp;" und "\n" -> "<br/>" umwandlung
 sparen. Das Klappt aus mit allen Browsern super, nur nicht mit dem IE ;(
 """
 
-__version__="0.2.5"
+__version__="0.2.6"
 
 __history__="""
+v0.2.6
+    - Anpassung an änderung im SourceCode-Parser
 v0.2.5
     - Anpassung an neuen ModuleManager
 v0.2.4
@@ -45,7 +47,8 @@ import sys, os, cgi, sys
 class SourceCode:
 
     def __init__( self, PyLucid ):
-        self.tools  = PyLucid["tools"]
+        self.tools      = PyLucid["tools"]
+        self.PyLucid    = PyLucid
 
     def lucidFunction( self, function_info ):
         filename = function_info # Daten aus dem <lucidFunction>-Tag
@@ -68,7 +71,7 @@ class SourceCode:
 
         if os.path.splitext( filename )[1] == ".py":
             from PyLucid_system import sourcecode_parser
-            parser = sourcecode_parser.python_source_parser()
+            parser = sourcecode_parser.python_source_parser(self.PyLucid)
             print parser.get_CSS()
             print '<fieldset class="SourceCode"><legend>%s</legend>' % filename
             parser.parse( source.strip() )
