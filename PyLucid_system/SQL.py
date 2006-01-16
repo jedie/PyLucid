@@ -568,12 +568,11 @@ class db( mySQL ):
             )
 
         content = internal_page_data["content"]
-
         try:
             print content % page_dict
-        except UnicodeEncodeError, e:
+        except UnicodeError, e:
             print "<h4>Can't render internal page:</h4>"
-            print "<h3>UnicodeEncodeError: %s</h3>" % e
+            print "<h3>UnicodeError: %s</h3>" % e
             print "<p>Use possibly the back Button of the Browser!</p>"
         except Exception, e:
             self.page_msg("Error information:")
