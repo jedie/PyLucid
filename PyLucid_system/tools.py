@@ -747,8 +747,7 @@ def get_codecs():
     Wird im pageadmin verwendet, für "encode from db"
     """
     from encodings import aliases
-    return sorted(list(set(aliases.aliases.values())))
-
+    return sorted(set(aliases.aliases.values()))
 
 #~ print get_codecs()
 
