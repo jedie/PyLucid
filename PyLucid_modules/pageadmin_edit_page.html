@@ -1,4 +1,3 @@
-﻿%(status_msg)s
 <form class="internalpage" name="login" method="post" action="%(url)s">
   <p>Page <strong>&quot;%(name)s&quot;</strong>:<br />
     <textarea id="page_content" name="content" rows="25">%(content)s</textarea>
@@ -15,6 +14,13 @@
   </script>
 </span>
 
+<script type="text/javascript">
+function OpenInWindow(URL) {
+  win1 = window.open(URL, "", "width=1000, height=600, dependent=yes, resizable=yes, scrollbars=yes, location=no, menubar=no, status=no, toolbar=no");
+  win1.focus();
+}
+</script>
+
 <fieldset><legend>send</legend>
 <p>
     <input name="page_id" type="hidden" value="%(page_id)s" />
@@ -22,7 +28,9 @@
     <input type="submit" value="preview" name="preview" />
     <input type="reset" onClick="self.location.href='%(abort_url)s'" name="abort" value="abort" />
     |||
-    <input type="submit" value="encode" name="encode" /><select name="encoding" id="encoding">%(encoding_option)s</select> from DB
+    <input type="submit" value="encode" name="encode" onclick="return confirm('Made changes are lost! Continue?');"/><select name="encoding" id="encoding">%(encoding_option)s</select> from DB
+    |||
+    <a href="http://pylucid.org/index.py?p=/Doku/Markup/example" onclick="OpenInWindow(this.href); return false">tinyTextile Help</a>
 </p>
    <label class="left" for="trivial">trivial modifications:</label>
    <input class="right" id="trivial" name="trivial" type="checkbox" value="1" />

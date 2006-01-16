@@ -10,9 +10,11 @@ Alles was mit dem ändern von Inhalten zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.3.1"
+__version__="0.3.2"
 
 __history__="""
+v0.3.2
+    - Änderungen, damit das "encode from DB" besser funktioniert
 v0.3.1
     - "CGI_dependent_actions" bei new_page waren falsch.
 v0.3
@@ -141,26 +143,26 @@ class pageadmin:
             }
         )
 
-    def edit_page(self, encode_from_db=False):
+    def edit_page(self):
         page_id = self.CGIdata["page_id"]
-        page_data = self.get_page_data( page_id )
+        page_data = self.get_page_data(page_id)
         page_data["page_id"] = page_id
+        self.editor_page(page_data)
 
-        status_msg = "" # Nachricht für encodieren
+    def encode(self, page_id, encoding):
+        # Daten aus der DB sollen convertiert werden
+        content = self.db.page_items_by_id(["content"], page_id)["content"]
+        try:
+            #~ edit_page_data["content"] = edit_page_data["content"].decode(encoding).encode("utf8")
+            self.CGIdata["content"] = content.decode(encoding).encode("utf8")
+            #~ self.CGIdata["content"] = self.CGIdata["content"].decode(encoding).encode("utf8")
+            self.page_msg("Encoded from DB with '%s'" % encoding)
+        except Exception, e:
+            self.page_msg("Encoding Error: %s" % e)
 
-        if encode_from_db:
-            # Daten aus der DB sollen convertiert werden
-            encoding = self.CGIdata["encoding"]
+        self.preview(page_id)
 
-            try:
-                page_data["content"] = page_data["content"].decode( encoding ).encode( "utf8" )
-                status_msg = "<h3>[Encoded from DB with '%s']</h3>" % encoding
-            except Exception, e:
-                status_msg = "<h3>%s</h3>" % e
-
-        self.editor_page( page_data, status_msg )
-
-    def editor_page( self, edit_page_data, status_msg="" ):
+    def editor_page(self, edit_page_data):
         #~ print "Content-type: text/html\n\n<pre>"
         #~ for k,v in edit_page_data.iteritems(): print k," - ",v," ",cgi.escape( str(type(v)) )
         #~ print "</pre>"
@@ -221,7 +223,6 @@ class pageadmin:
         self.db.print_internal_page(
             internal_page_name = "pageadmin_edit_page",
             page_dict = {
-                "status_msg"                : status_msg, # Nachricht beim encodieren
                 # Textfelder
                 "url"                       : self.URLs["main_action"],
                 "abort_url"                 : self.URLs["base"],

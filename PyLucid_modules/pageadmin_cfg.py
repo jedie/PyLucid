@@ -31,6 +31,10 @@ module_manager_data = {
                 "CGI_laws"      : {"save": "save"}, # Submit-input-Button
                 "get_CGI_data"  : {"page_id": int},
             },
+            "encode"    : {
+                "CGI_laws"      : {"encode": "encode"}, # Submit-input-Button
+                "get_CGI_data"  : {"page_id": int, "encoding": str},
+            },
         },
         "internal_page_info" : {
             "description"       : "HTML form to edit a CMS Page",
@@ -51,14 +55,15 @@ module_manager_data = {
         "must_login"    : True,
         "must_admin"    : True,
         "CGI_dependent_actions" : {
-            "preview": {
+            "preview"   : {
                 "CGI_laws"      : {"preview": "preview"}, # Submit-input-Button
                 "get_CGI_data"  : {"page_id": int},
             },
-            "save_new": {
+            "save"      : {
                 "CGI_laws"      : {"save": "save"}, # Submit-input-Button
+                "get_CGI_data"  : {"page_id": int},
             },
-        }
+        },
     },
     "select_del_page" : {
         "must_login"    : True,
