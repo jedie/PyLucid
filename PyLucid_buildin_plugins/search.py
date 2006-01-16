@@ -9,10 +9,12 @@ __author__  = "Jens Diemer (www.jensdiemer.de)"
 __license__ = "GNU General Public License (GPL)"
 __url__     = "http://www.PyLucid.org"
 
-__version__="0.2.1"
+__version__="0.3"
 
 __history__="""
-v0.2.1
+v0.3
+    - Updates für die neue SQL- und URL-Klasse
+v0.3
     - Nutzt nun self.db.print_internal_page()
     - Nutzt "get_CGI_data"
 v0.2
@@ -142,8 +144,8 @@ class search:
         partial_result = {}
 
         # UND suche im Text aller CMS Seiten
-        result = self.db.get(
-            SQLcommand = "SELECT id,content FROM $tableprefix$pages WHERE content LIKE %s",
+        result = self.db.fetchall(
+            SQLcommand = "SELECT id,content FROM $$pages WHERE content LIKE %s",
             SQL_values = ( "%%%s%%" % "%".join(search_words), )
         )
         for line in result:
@@ -156,8 +158,8 @@ class search:
         # ODER suche in Meta-Daten
         for column in ("keywords","description","name","title"):
             where_string = " OR ".join( [column+" LIKE %s" for i in xrange(len(search_words))] )
-            result = self.db.get(
-                SQLcommand = "SELECT id FROM $tableprefix$pages WHERE %s" % where_string,
+            result = self.db.fetchall(
+                SQLcommand = "SELECT id FROM $$pages WHERE %s" % where_string,
                 SQL_values = tuple( ["%%%s%%" % i for i in search_words] )
             )
             for line in result:
@@ -185,8 +187,8 @@ class search:
         result = []
         for points in point_list:
             for id in result_IDs[points]:
-                side_info = self.db.get(
-                    SQLcommand = "SELECT id,name,title,content FROM $tableprefix$pages WHERE id=%s",
+                side_info = self.db.fetchall(
+                    SQLcommand = "SELECT id,name,title,content FROM $$pages WHERE id=%s",
                     SQL_values = (id,)
                 )[0]
                 side_info["points"] = points # Punkte hinzufügen
@@ -203,7 +205,7 @@ class search:
         for hit in result:
             print "<li>"
             print '<p><a href="%s%s"><strong>%s</strong>' % (
-                self.link_url, self.db.get_page_link_by_id(hit["id"]), cgi.escape(hit["name"])
+                self.URLs["link"], self.db.get_page_link_by_id(hit["id"]), cgi.escape(hit["name"])
             )
             if (hit["title"] != "") and (hit["title"] != None) and hit["title"] != hit["name"]:
                 print " - %s" % cgi.escape(hit["title"])
