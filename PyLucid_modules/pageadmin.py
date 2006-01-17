@@ -275,12 +275,9 @@ class pageadmin:
         # Möchte der rendere gern wissen ;)
         edit_page_data['lastupdatetime'] = "now"
 
-        preview_page_data = edit_page_data.copy() # Damit das encoding nur beim preview-Angezeigt wird.
-        preview_page_data["content"] = self.encode_content(preview_page_data["content"])
-
         # Alle Tags ausfüllen und Markup anwenden
         try:
-            print self.render.render(preview_page_data)
+            print self.render.render(edit_page_data)
         except Exception, e:
             print "<h4>Can't render preview: %s</h4>" % e
             print "<h3>Don't save this changes!</h3>"
@@ -338,8 +335,6 @@ class pageadmin:
 
         # Daten, aufbereitet, holen
         page_data = self._get_edit_data()
-
-        page_data["content"] = self.encode_content(page_data["content"])
 
         # Archivieren der alten Daten
         if self.CGIdata.has_key("trivial"):

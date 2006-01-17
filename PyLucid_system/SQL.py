@@ -87,6 +87,7 @@ class db( mySQL ):
         self.page_msg   = PyLucid["page_msg"]
         self.CGIdata    = PyLucid["CGIdata"]
         self.tools      = PyLucid["tools"]
+        self.config     = PyLucid["config"]
 
         # Table-Prefix for all SQL-commands:
         self.tableprefix = dbconf["dbTablePrefix"]
@@ -551,6 +552,7 @@ class db( mySQL ):
             print "[Can't print internal page '%s' (from '...%s' line %s): %s]" % (
                 internal_page_name, inspect.stack()[1][1][-20:], inspect.stack()[1][2], e
             )
+            if not self.config.system.ModuleManager_error_handling: raise
             return
 
         # Wenn kein oder ein leeres Dict angegeben wurde, kann es keine "string formatting" Seite sein.
@@ -571,9 +573,19 @@ class db( mySQL ):
         try:
             print content % page_dict
         except UnicodeError, e:
-            print "<h4>Can't render internal page:</h4>"
-            print "<h3>UnicodeError: %s</h3>" % e
-            print "<p>Use possibly the back Button of the Browser!</p>"
+            self.page_msg("UnicodeError: Can't render internal page: %s" % e)
+            self.page_msg("(Try to go around.)")
+            try:
+                for k,v in page_dict.iteritems():
+                    try:
+                        page_dict[k] = v.encode("utf_8", 'replace')
+                    except AttributeError: # z.B. bei Zahlen
+                        pass
+
+                print content.encode("utf_8", 'replace') % page_dict
+            except:
+                print "<h4>Can't go around the UnicodeError!</h4>"
+                if not self.config.system.ModuleManager_error_handling: raise
         except Exception, e:
             self.page_msg("Error information:")
 
