@@ -86,9 +86,9 @@ except ImportError:
     sys.path.insert(0,"../")
     from PyLucid_python_backports.utils import *
 
-def error( msg, e):
+def error(msg, e):
     print "Content-type: text/html\n"
-    print "<h1>Error</h1>"
+    print "<h1>SQL Error</h1>"
     print "<h3>%s</h3>" % msg
     print "<p>Error Msg.:<br/>%s</p>" % e
     import sys
@@ -136,16 +136,23 @@ class mySQL:
                 msg += "not installed???"""
                 error( msg, e )
 
-            self.conn = WrappedConnection(
-                dbapi.connect(
-                    host    = self.config.dbconf["dbHost"],
-                    user    = self.config.dbconf["dbUserName"],
-                    passwd  = self.config.dbconf["dbPassword"],
-                    db      = self.config.dbconf["dbDatabaseName"],
-                ),
-                placeholder = '%s',
-                prefix = self.tableprefix
-            )
+            try:
+                self.conn = WrappedConnection(
+                    dbapi.connect(
+                        host    = self.config.dbconf["dbHost"],
+                        user    = self.config.dbconf["dbUserName"],
+                        passwd  = self.config.dbconf["dbPassword"],
+                        db      = self.config.dbconf["dbDatabaseName"],
+                    ),
+                    placeholder = '%s',
+                    prefix = self.tableprefix
+                )
+            except Exception, e:
+                msg = "Can't connect"
+                if e[1].startswith("Can't connect to local MySQL server through socket"):
+                    msg += ", probably the server '%s' is wrong!" % self.config.dbconf["dbHost"]
+                error(msg, e)
+
             self.cursor = self.conn.cursor()
 
         #_____________________________________________________________________________________________
