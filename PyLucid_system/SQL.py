@@ -111,6 +111,17 @@ class db( mySQL ):
     #_____________________________________________________________________________
     # Spezielle lucidCMS Funktionen, die von Modulen gebraucht werden
 
+    def get_first_page_id(self):
+        """
+        Liefert die erste existierende page_id zurück
+        """
+        return self.select(
+            select_items    = ["id"],
+            from_table      = "pages",
+            order           = ("parent","ASC"),
+            limit           = 1
+        )[0]["id"]
+
     def get_side_data( self, page_id ):
         "Holt die nötigen Informationen über die aktuelle Seite"
 
@@ -124,17 +135,13 @@ class db( mySQL ):
 
         side_data["template"] = self.side_template_by_id( page_id )
 
+        # None in "" konvertieren
+        for key in ("content", "name", "keywords", "description"):
+            if side_data[key] == None:
+                side_data[key] = ""
+
         if side_data["title"] == None:
             side_data["title"] = side_data["name"]
-
-        if type(side_data["content"]) != str:
-            self._type_error( "Sidecontent", side_data["content"] )
-
-        if side_data["keywords"] == None:
-            side_data["keywords"] = ""
-
-        if side_data["description"] == None:
-            side_data["description"] = ""
 
         return side_data
 
@@ -224,7 +231,7 @@ class db( mySQL ):
                 where           = ("name",page_name)
             )[0]["parent"]
 
-    def parentID_by_id( self, page_id ):
+    def parentID_by_id(self, page_id):
         """
         Die parent ID zur >page_id<
         """
@@ -242,13 +249,28 @@ class db( mySQL ):
                 where           = ("id",page_id)
             )[0]["title"]
 
-    def side_style_by_id( self, page_id ):
+    def side_style_by_id(self, page_id):
         "Liefert die CSS-ID und CSS für die Seite mit der >page_id< zurück"
-        CSS_id = self.select(
-                select_items    = ["style"],
-                from_table      = "pages",
-                where           = ("id",page_id)
+        def get_id(page_id):
+            return self.select(
+                    select_items    = ["style"],
+                    from_table      = "pages",
+                    where           = ("id",page_id)
             )[0]["style"]
+        try:
+            CSS_id = get_id(page_id)
+        except (IndexError, KeyError):
+            # Beim löschen einer Seite kann es zu einem KeyError kommen
+            print "/* Index Error with page_id = %s */" % page_id
+            try:
+                # versuchen wir es mit dem parent
+                CSS_id = get_id(self.parentID_by_id(page_id))
+                print "/* Use the styles from parent page! */"
+            except (IndexError, KeyError):
+                # Letzter Versuch
+                CSS_id = get_id(self.get_first_page_id())
+                print "/* Use the styles from the first page! */"
+
         CSS_content = self.select(
                 select_items    = ["content"],
                 from_table      = "styles",
@@ -328,6 +350,20 @@ class db( mySQL ):
                 where           = ("parent", parend_id),
                 order           = ("position","ASC"),
             )
+
+    #_____________________________________________________________________________
+    ## Funktionen für das ändern der Seiten
+
+    def delete_page(self, page_id_to_del):
+        first_page_id = self.get_first_page_id()
+        if page_id_to_del == first_page_id:
+            raise IndexError("The last page cannot be deleted!")
+
+        self.delete(
+            table = "pages",
+            where = ("id",page_id_to_del),
+            limit=1
+        )
 
     #_____________________________________________________________________________
     ## Funktionen für das ändern des Looks (Styles, Templates usw.)

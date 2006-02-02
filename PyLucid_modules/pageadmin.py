@@ -10,9 +10,13 @@ Alles was mit dem ändern von Inhalten zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.3.2"
+__version__="0.3.3"
 
 __history__="""
+v0.3.3
+    - Ein sehr übler Fehler bei der Unterscheidung, zwischen dem editieren einer
+        bestehenden Seite oder dem anlegen einer neuen Seite.
+    - Bugfixes beim erstellen und löschen von Seiten
 v0.3.2
     - Änderungen, damit das "encode from DB" besser funktioniert
 v0.3.1
@@ -92,7 +96,7 @@ class pageadmin:
 
         page_data = {
             "parent"            : int(self.CGIdata["page_id"]),
-            "page_id"           : -1, # Damit man beim speichern weiß, das die Seite neu ist.
+            "new_page"          : 1, # Damit man beim speichern weiß, das die Seite neu ist.
             "name"              : "Newpage",
             "title"             : "Newpage",
             "template"          : core["defaultTemplate"],
@@ -143,12 +147,18 @@ class pageadmin:
         )
 
     def edit_page(self):
+        """
+        Einstiegs Methode wenn man auf "edit page" klickt
+        """
         page_id = self.CGIdata["page_id"]
         page_data = self.get_page_data(page_id)
-        page_data["page_id"] = page_id
+        page_data["new_page"] = "" # Es ist keine neue Seite, sondern ein editieren einer bestehenden
         self.editor_page(page_data)
 
     def editor_page(self, edit_page_data):
+        """
+        Erstellt die HTML-Seite zum erstellen oder editieren einer Seite
+        """
         if str( edit_page_data["showlinks"] ) == "1":
             showlinks = " checked"
         else:
@@ -214,10 +224,11 @@ class pageadmin:
         self.db.print_internal_page(
             internal_page_name = "pageadmin_edit_page",
             page_dict = {
+                # hidden Felder
+                "new_page"                  : edit_page_data.get("new_page",""),
                 # Textfelder
                 "url"                       : self.URLs["main_action"],
                 "abort_url"                 : self.URLs["base"],
-                "page_id"                   : edit_page_data["page_id"],
                 "summary"                   : edit_page_data["summary"],
                 "name"                      : cgi.escape( edit_page_data["name"] ),
                 "title"                     : cgi.escape( edit_page_data["title"] ),
@@ -261,8 +272,6 @@ class pageadmin:
 
         # CGI-Daten holen und leere Form-Felder "einfügen"
         edit_page_data = self._set_default( self.CGIdata )
-
-        edit_page_data["page_id"] = page_id
 
         # CGI daten sind immer vom type str, die parent ID muß allerdings eine Zahl sein.
         # Ansonsten wird in MyOptionMaker.build_html_option() kein 'selected'-Eintrag gesetzt :(
@@ -336,6 +345,13 @@ class pageadmin:
         # Daten, aufbereitet, holen
         page_data = self._get_edit_data()
 
+        if page_data.get("new_page", False):
+            # Eine neue Seite muß mit einem INSERT eingefügt werden
+            self.save_new(page_data)
+            return
+
+        #~ self.page_msg(page_data)
+
         # Archivieren der alten Daten
         if self.CGIdata.has_key("trivial"):
             self.page_msg("trivial modifications selected. Old page is not archived.")
@@ -352,6 +368,11 @@ class pageadmin:
             else:
                 self.page_msg("Archived old pagedata.")
 
+        if page_data["parent"] == page_id:
+            # Zur Sicherheit
+            self.page_msg("Error in page data. Parent-ID == page_id ! (ID: %s)" % page_id)
+            return
+
         # Daten speichern
         try:
             self.db.update(
@@ -361,13 +382,15 @@ class pageadmin:
                     limit   = 1
                 )
         except Exception, e:
-            print "<h3>Error to update page data: '%s'</h3>" % e
+            self.page_msg("Error to update page data: %s" % e)
+        else:
+            self.page_msg( "New page data updated." )
 
-        self.page_msg( "New page data updated." )
-
-    def save_new(self):
+    def save_new(self, page_data):
         """ Abspeichern einer neu erstellten Seite """
-        page_data = self._get_edit_data()
+
+        # Diente nur zur Info, das es kein UPDATE sondern ein INSERT einer neuen Seite ist
+        del(page_data["new_page"])
 
         try:
             self.db.insert(
@@ -376,24 +399,12 @@ class pageadmin:
                 )
         except Exception, e:
             print "<h3>Error to insert new page:'%s'</h3><p>Use browser back botton!</p>" % e
+        else:
+            self.page_msg( "New page saved." )
 
-        # Setzt die aktuelle Seite auf die neu erstellte. Das herrausfinden der ID ist
-        # nicht ganz so einfach, weil Seitennamen doppelt vorkommen können. Allerdings
-        # ist es doch sehr unwahrscheinlich das auch "lastupdatetime" doppelt ist...
-        # Na, und wenn schon, dann wird halt die erste genommen ;)
-        try:
-            self.CGIdata["page_id"] = self.db.select(
-                select_items    = ["id"],
-                from_table      = "pages",
-                where           = [
-                    ("name", page_data["name"]),
-                    ("lastupdatetime", page_data["lastupdatetime"])
-                ]
-            )[0]["id"]
-        except Exception, e:
-            print "Can't get ID from new created page?!?! Error: %s" % e
+        # Setzt die aktuelle Seite auf die neu erstellte.
+        self.CGIdata["page_id"] = self.db.cursor.lastrowid
 
-        self.page_msg( "New page saved." )
 
     def _get_edit_data(self):
         """
@@ -403,7 +414,7 @@ class pageadmin:
         CGIdata = self._set_default( self.CGIdata )
 
         item_list = (
-            "parent", "name", "title", "parent", "template", "style",
+            "new_page", "parent", "name", "title", "parent", "template", "style",
             "markup", "content", "keywords", "description", "showlinks",
             "permitViewPublic", "permitViewGroupID", "ownerID", "permitEditGroupID"
         )
@@ -448,17 +459,15 @@ class pageadmin:
         """
         Löscht die Seite, die ausgewählt wurde
         """
-        try:
-            comment = self.CGIdata["comment"]
-        except KeyError:
-            comment = ""
+
+        comment = self.CGIdata.get("comment", "")
 
         # Hat die Seite noch Unterseiten?
         parents = self.db.select(
-                select_items    = ["name"],
-                from_table      = "pages",
-                where           = [ ("parent",page_id_to_del) ]
-            )
+            select_items    = ["name"],
+            from_table      = "pages",
+            where           = [ ("parent",page_id_to_del) ]
+        )
         if parents:
             # Hat noch Unterseiten
             msg = "Can't delete Page!"
@@ -483,22 +492,24 @@ class pageadmin:
         if self.CGIdata["page_id"] == page_id_to_del:
             # Die aktuelle Seite wird gelöscht, also kann sie nicht mehr angezeigt werden.
             # Deswegen gehen wir halt zu parent Seite ;)
-            self.CGIdata["page_id"] = self.db.parentID_by_id( page_id_to_del )
+            self.CGIdata["page_id"] = self.db.parentID_by_id(page_id_to_del)
             if self.CGIdata["page_id"] == 0:
                 # Die oberste Ebene hat ID 0, obwohl es evtl. keine Seite gibt, die ID 0 hat :(
                 # Da nehmen wir doch lieber die default-Seite...
                 self.CGIdata["page_id"] = self.preferences["core"]["defaultPageName"]
 
         start_time = time.time()
-        self.db.delete(
-            table = "pages",
-            where = ("id",page_id_to_del),
-            limit=1
-        )
-        duration_time = time.time()-start_time
-        self.page_msg(
-            "page with ID %s deleted in %.2fsec." % ( page_id_to_del, duration_time )
-        )
+        try:
+            self.db.delete_page(page_id_to_del)
+        except Exception, e:
+            self.page_msg(
+                "Can't delete page with ID %s: %s" % (page_id_to_del, e)
+            )
+        else:
+            duration_time = time.time()-start_time
+            self.page_msg(
+                "page with ID %s deleted in %.2fsec." % ( page_id_to_del, duration_time )
+            )
 
         # "Menü" wieder anzeigen
         return self.select_del_page()

@@ -288,16 +288,11 @@ class mySQL:
         values.append(where[1])
         values      = tuple(values)
 
-        if limit:
-            limit = "LIMIT %s" % limit
-        else:
-            limit = ""
-
         SQLcommand = "UPDATE $$%(table)s SET %(set)s WHERE %(where)s %(limit)s;" % {
                 "table"     : table,
                 "set"       : ",".join( [str(i)+"=%s" for i in data_keys] ),
                 "where"     : where[0] + "=%s",
-                "limit"     : limit
+                "limit"     : self._make_limit(limit)
             }
 
         if self.debug:
@@ -333,20 +328,17 @@ class mySQL:
 
         SQL_parameters_values = []
 
-        if where != None:
+        if where:
             where_string, SQL_parameters_values = self._make_where( where )
             SQLcommand += where_string
 
-        if order != None:
+        if order:
             try:
                 SQLcommand += " ORDER BY %s %s" % order
             except TypeError,e:
                 raise TypeError("Error in db.select() ORDER statement (must be a tuple or List): %s" % e)
-        if limit != None:
-            try:
-                SQLcommand += " LIMIT %s,%s" % limit
-            except TypeError,e:
-                raise TypeError("Error in db.select() LIMIT statement (must be a tuple or List): %s" % e)
+
+        SQLcommand += self._make_limit(limit)
 
         if self.debug or debug:
             print "-"*80
@@ -365,7 +357,7 @@ class mySQL:
         where_string, SQL_parameters_values = self._make_where(where)
 
         SQLcommand += where_string
-        SQLcommand += " LIMIT %s" % limit
+        SQLcommand += self._make_limit(limit)
 
         if self.debug or debug:
             print "-"*80
@@ -380,9 +372,9 @@ class mySQL:
 
     def _make_where(self, where):
         """
-        Baut ein where-Statemant und die passenden SQL-Values zusammen
+        Baut ein WHERE-Statemant und die passenden SQL-Values zusammen
         """
-        if type( where[0] ) == str:
+        if isinstance(where[0], str):
             # es ist nur eine where-Regel vorhanden.
             # Damit die folgenden Anweisungen auch gehen
             where = [ where ]
@@ -394,9 +386,23 @@ class mySQL:
             where_string.append( item[0] + "=%s" )
             SQL_parameters_values.append( item[1] )
 
-        where_string = ' WHERE %s' % " and ".join( where_string )
+        where_string = ' WHERE %s' % " and ".join(where_string)
 
         return where_string, tuple(SQL_parameters_values)
+
+    def _make_limit(self, limit):
+        """
+        Baut den LIMIT Teil zusammen.
+        """
+        if not limit: return ""
+
+        if isinstance(limit,(str,int)):
+            return " LIMIT %s" % limit
+
+        try:
+            return " LIMIT %s,%s" % limit
+        except TypeError,e:
+            raise TypeError("db Wrapper Error: LIMIT statement (must be a tuple or List): %s" % e)
 
     #_____________________________________________________________________________________________
 
