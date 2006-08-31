@@ -8,7 +8,7 @@ __license__ = """GNU General Public License v2 or above -
  http://www.opensource.org/licenses/gpl-license.php"""
 __url__     = "http://www.PyLucid.org"
 
-__version__ = "0.7.0"
+__version__ = "0.7.1alpha"
 __info__ = """<a href="%s" title="\
 PyLucid - A OpenSource CMS in pure Python CGI by Jens Diemer">PyLucid</a> \
 v%s""" % (__url__, __version__)
@@ -20,10 +20,10 @@ debug = False
 
 
 import cgi, os, time
-import sys #Debug
 
 
 
+#~ import sys
 #~ class PrintLocator(object):
     #~ """
     #~ Very slow! But in some case very helpfully ;)
@@ -343,6 +343,7 @@ class PyLucidApp(BaseApplication):
 
 
     def debug(self, *txt):
+        #~ import sys
         #~ sys.stderr.write(
         self.page_msg(
             "%s\n" % " ".join([str(i) for i in txt])
