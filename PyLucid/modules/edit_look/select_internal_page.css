@@ -21,18 +21,18 @@
     display:inline;
 }
 
-/* Edit-Link für interne Seite */
-.ipage a:link, .ipage * {    /* noch nicht besuchter Link */
-	color: #000;
+.ipage li *, .ipage a:link {
+    text-decoration:none;
+    color: #000;
     background-color: #f5f5f5;
 }
-.ipage a:visited { /* schon besuchter Link */
+.ipage a:visited {
 	color: #000000;
 }
-.ipage a:hover * {   /* Maus ?em Link */
+.ipage a:hover * {
 	color: #00f;
 	background-color: #eee;
 }
-.ipage a:active {  /* Link wird angeklickt */
+.ipage a:active {
 	color: #f00;
 }

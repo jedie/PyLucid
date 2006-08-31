@@ -15,15 +15,17 @@
             <ul class="ipage">
             {% for internal_page in plugin.data %}
                 <li>
-                <a href="{{ url }}{{ internal_page.name }}" class="ipage"
-                    title="click to edit the '{{ internal_page.name }}'-internal page">
                     <fieldset class="ipage"><legend>{{ internal_page.name }}</legend>
+                     <a href="{{ url }}{{ internal_page.name }}"
+                        title="click to edit the '{{ internal_page.name }}'-internal page">
+                        {{ internal_page.description }}
+                        <br />
                         <small>
-                        <em>{{ internal_page.description }}</em>
-                        (last update {{ internal_page.lastupdatetime }} by {{ internal_page.lastupdateby }})
+                        (last update {{ internal_page.lastupdatetime }} by {{ internal_page.lastupdateby }})<br />
+                     </a>
+                        {* (<a href="#">download files as zip</a>) *}
                         </small>
                     </fieldset>
-                </a>
                 </li>
             {% endfor %}
             </ul>

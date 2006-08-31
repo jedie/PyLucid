@@ -12,9 +12,11 @@ Editor für alles was mit aussehen zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.3"
+__version__="0.3.1"
 
 __history__="""
+v0.3.1
+    - Neu: Apply Button bei "edit internal page"
 v0.3
     - Anpassung an PyLucid v0.7
 v0.2
@@ -321,6 +323,12 @@ class edit_look(PyLucidBaseModule):
         if "save" in self.request.form:
             # Zuvor editierte interne Seite speichern
             self.save_internal_page()
+        elif "apply" in self.request.form:
+            # Editierte Daten speichern aber wieder den Editor öffnen
+            internal_page_name = self.request.form['internal_page_name']
+            self.save_internal_page()
+            self.edit_internal_page([internal_page_name])
+            return
 
         select_items = [
             "name","plugin_id","description","lastupdatetime","lastupdateby"
