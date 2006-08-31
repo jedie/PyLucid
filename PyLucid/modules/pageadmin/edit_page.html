@@ -1,0 +1,93 @@
+<form class="internalpage" name="edit_page" method="post" action="%(url)s">
+  <p>Page <strong>&quot;%(name)s&quot;</strong>:<br />
+    <textarea id="page_content" name="content" rows="25" onchange="page_content_changed=1;">%(content)s</textarea>
+  </p>
+
+<span class="resize_buttons">
+  <a href="JavaScript:resize_big();" title="makes the textarea bigger">&nbsp;+&nbsp;</a>
+  <a href="JavaScript:resize_small();" title="makes the textarea smaller">&nbsp;-&nbsp;</a><br />
+</span>
+
+<fieldset><legend>send</legend>
+<p>
+    <input name="page_id" type="hidden" value="%(page_id)s" />
+
+    <input type="submit" value="save" name="save" />
+    <input type="submit" value="preview" name="preview" />
+    <input type="reset" onClick="self.location.href='%(abort_url)s'" name="abort" value="abort" />
+    |||
+    <a href="http://www.pylucid.org/index.py/TinyTextileExample/" onclick="OpenInWindow(this.href); return false">tinyTextile Help</a>
+    |||
+    <a href="%(list_url)s" onclick="OpenInWindow(this.href); return false" title="Liste available PyLucid tags and functions">tags/functions</a>
+</p>
+   <label class="left" for="trivial">trivial modifications:</label>
+   <input class="right" id="trivial" name="trivial" type="checkbox" value="1" />
+   <small>( If checked the page will not archived. )</small>
+   <br />
+   <label class="left" for="summary">Edit summary:</label>
+   <input class="right" id="summary" name="summary" type="text" value="%(summary)s" size="50" maxlength="50" />
+</fieldset>
+
+<fieldset><legend>Page Details</legend>
+   <label class="left" for="name">page name:</label>
+   <input class="right" id="name" name="name" type="text" value="%(name)s" size="50" maxlength="50" />
+   <br />
+   <label class="left" for="shortcut">page shortcut:</label>
+   <input class="right" id="shortcut" name="shortcut" type="text" value="%(shortcut)s" size="50" maxlength="50" />
+   <br />
+   <label class="left" for="title">page title:</label>
+   <input class="right" id="title" name="title" type="text" value="%(title)s" size="50" maxlength="50" />
+   <br />
+   <label class="left" for="keywords">keywords:</label>
+   <input class="right" id="keywords" name="keywords" type="text" value="%(keywords)s" size="70" maxlength="255" />
+   <br />
+   <label class="left" for="description">description:</label>
+   <input class="right" id="description" name="description" type="text" value="%(description)s" size="70" maxlength="255" />
+</fieldset>
+
+<fieldset><legend>Page Controls</legend>
+   <label class="left" for="parent">Parent Page:</label>
+   <select class="right" id="parent" name="parent">%(parent_option)s</select>
+   <br />
+   <label class="left" for="template">Template:</label>
+   <select class="right" id="template" name="template">%(template_option)s</select>
+   <br />
+   <label class="left" for="style">Style:</label>
+   <select class="right" id="style" name="style">%(style_option)s</select>
+   <br />
+   <label class="left" for="markup">Markup:</label>
+   <select class="right" id="markup" name="markup">%(markup_option)s</select>
+   <br />
+   <label class="left" for="ownerID">Page Owner:</label>
+   <select class="right" id="ownerID" name="ownerID">%(ownerID_option)s</select>
+</fieldset>
+
+<fieldset><legend>Page Permissions</legend>
+   <label class="left" for="permitEditGroupID">Editable by Group:</label>
+   <select class="right" id="permitEditGroupID" name="permitEditGroupID">%(permitEditGroupID_option)s</select>
+   <br />
+   <label class="left" for="permitViewGroupID">Viewable by Group:</label>
+   <select class="right" id="permitViewGroupID" name="permitViewGroupID">%(permitViewGroupID_option)s</select>
+   <br />
+   <label class="left" for="showlinks">showlinks:</label>
+   <input class="right" id="showlinks" name="showlinks" type="checkbox" value="1"%(showlinks)s />
+   <br />
+   <label class="left" for="permitViewPublic">permit view public:</label>
+   <input class="right" id="permitViewPublic" name="permitViewPublic" type="checkbox" value="1"%(permitViewPublic)s />
+</fieldset>
+
+<!--
+Obsolete???
+<fieldset><legend>Encoding</legend>
+  <small>Character set conversion, from the data base.</small>
+  <br />
+  <label class="left" for="decode_from">decode from:</label>
+  <select class="right" name="decode_from" id="decode_from">%(decode_option)s</select>
+  <br />
+  <label class="left" for="encode_to">encode to:</label>
+  <select class="right" name="encode_to" id="encode_to">%(encode_option)s</select>
+  <br />
+  <input type="submit" value="encode" name="encode" onclick="return encoding_warning();" />
+</fieldset>
+-->
+</form>

@@ -1,0 +1,6 @@
+.select table td {
+  padding: 0.2em;
+}
+.select table td.name {
+  font-weight:bold;
+}

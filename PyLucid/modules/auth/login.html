@@ -1,0 +1,17 @@
+<h2>PyLucid - LogIn:</h2>
+<noscript><h3>NOTE: Javascript is needed!</h3></noscript>
+<input id="rnd" type="hidden" value="%(rnd)s" />
+<form name="login" id="login" method="post" action="%(url)s">
+  User:
+  <input id="user" name="user" type="text" value="%(user)s" />
+  Passwort:
+  <input id="plaintext_pass" type="password" value="" onChange="md5login();" />
+  <!--<a href="?command=userhandling&action=pass_recovery">password recovery</a>-->
+  <br />
+  <span id="md5info">md5pass:
+    <input id="md5pass1" name="md5pass1" value="" type="text" size="40" maxlength="32" readonly="readonly" />
+    <input id="md5pass2" name="md5pass2" value="" type="text" size="40" maxlength="32" readonly="readonly" />
+    <br />
+  </span>
+  <input type="button" onClick="md5login();" name="MD5 LogIn" value="MD5 LogIn"/>
+</form>

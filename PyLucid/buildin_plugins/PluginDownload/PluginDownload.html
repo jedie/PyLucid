@@ -1,0 +1,19 @@
+{% for item in PluginList %}
+<fieldset><legend>{{ item.module_name|escapexml }} v{{ item.version }}</legend>
+    <ul id="PluginList">
+        <li><small>description:</small> {{ item.description }}</li>
+        <li>
+            <small>author:</small>
+            <a href="{{ item.url }}" title="{{ item.url|escapexml }}">
+                {{ item.author }}
+            </a>
+        </li>
+        <li>
+            <small>download:</small>
+            <a href="{{ item.download_url }}" title="{{ item.filename }}">
+                {{ item.filename|escapexml }}
+            </a>
+        </li>
+    </ul> 
+</fieldset>
+{% endfor %}

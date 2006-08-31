@@ -1,0 +1,11 @@
+#main_menu {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+#main_menu li {
+  list-style-type: none;
+}
+#main_menu a {
+  text-decoration:none;
+}
+

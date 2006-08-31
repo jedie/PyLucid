@@ -1,0 +1,66 @@
+label, input, select, textarea {
+  vertical-align: middle;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+label.left {
+  float: left;
+  text-align: right;
+  width: 10em;
+  margin-right: .3em;
+  padding: 0px;
+}
+.rightonly {
+  /* Eingabefelder mit Text dahinter */
+  margin-left: 10.3em;
+  padding: 0px;
+}
+
+form br {
+  /*  floats nach dem Forumlar aufheben */
+  clear: both;
+}
+
+label, select, input {
+  cursor: pointer;
+}
+textarea.ipage_edit {
+	width: 100%;
+}
+
+.internalpage input[type=text] {
+  width: 75%;
+  cursor: text;
+}
+
+.internalpage input, .internalpage select, textarea.ipage_edit {
+  margin: 2px;
+  border: 1px solid grey;
+  color: #000;
+  background: #fafafa;
+}
+.internalpage input:focus, .internalpage select:focus, textarea.ipage_edit:focus  {
+  border: 1px solid black;
+  background: #fff;
+}
+
+a.toggleLink, #resize_buttons * {
+    text-decoration:none;
+    margin: 0px;
+    padding: 0.1em 2em 0.1em 2em;
+    font-family:Verdana;
+    font-weight:bold;
+    line-height:2em;
+}
+
+a.toggleLink:link, #resize_buttons a:link {    /* noch nicht besuchter Link */
+	color: #000;
+    background-color: #f5f5f5;
+    border: 1px solid;
+    border-color: #ddd #555 #555 #ddd;
+}
+a.toggleLink:hover, #resize_buttons a:hover{   /* Maus ?em Link */
+	color: #fff;
+    background-color: #aaa;
+    border-color: #555 #ddd #ddd #555;
+}

@@ -1,0 +1,30 @@
+<h2>Manage user</h2>
+
+<fieldset><legend>edit user</legend>
+{% if user_list %}
+    <table>
+    <tr>
+        <th>name</th>
+        <th>realname</th>
+        <th>email</th>
+        <th>admin</th>
+    </tr>
+
+    {% for user in user_list %}
+        <tr>
+                <form method="post" action="{{ url }}">
+                <input name="id" type="hidden" value="{{ user.id }}" />
+                <td><input name="name" type="text" value="{{ user.name }}" size="15" maxlength="50" /></td>
+                <td><input name="realname" type="text" value="{{ user.realname }}" size="20" maxlength="50" /></td>
+                <td><input name="email" type="text" value="{{ user.email }}" size="30" maxlength="50" /></td>
+                <td><input type="checkbox" name="admin" value="1" {% if user.admin %}checked="checked"{% else %}{% endif %} /></td>
+                <td><input type="submit" value="save" name="save" /><input type="submit" value="delete" name="delete" /></td>
+                </form>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    No users found!
+{% endif %}
+</fieldset>
+

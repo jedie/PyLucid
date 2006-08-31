@@ -1,0 +1,13 @@
+#login * {
+  vertical-align:middle;
+}
+#md5info * {
+  font-size: 0.7em;
+  padding: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+#md5info input {
+  background-color: #EEEEEE;
+  border: 0px;
+}

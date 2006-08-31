@@ -1,0 +1,45 @@
+<h2>Edit internal page</h2>
+
+<form method="post" action="%(url)s">
+    <p>
+      Name: <strong>&quot;%(name)s&quot;</strong>:<br />
+      <a href="javascript: show_html();" id="html_toggle" class="toggleLink">internal page</a>
+      <a href="javascript: show_css();" id="css_toggle" class="toggleLink">CSS</a>
+      <a href="javascript: show_js();" id="js_toggle" class="toggleLink">JS</a><br />
+    </p>
+
+    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_html" name="content_html" >%(content_html)s</textarea>
+    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_css" name="content_css">%(content_css)s</textarea>
+    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_js" name="content_js">%(content_js)s</textarea>
+
+    <span id="resize_buttons">
+        <a href="JavaScript:resize_big();" title="click to make the editor window bigger">&nbsp;+&nbsp;</a>
+        <a href="JavaScript:resize_small();" title="click to make the editor window smaller">&nbsp;-&nbsp;</a>
+    </span>
+
+    <fieldset id="ipage_details">
+    <legend>details</legend>
+       <label class="left" for="description">Description:</label>
+       <input id="description" name="description" type="text" value="%(description)s">
+       <br />
+       <label class="left" for="template_engine">Template engine:</label>
+       <select id="template_engine" name="template_engine">%(template_engine_option)s</select>
+       <br />
+       <label class="left" for="markup">Markup:</label>
+       <select id="markup" name="markup">%(markup_option)s</select>
+    </fieldset>
+    <p>
+      <input name="internal_page_name" type="hidden" value="%(name)s">
+      <input type="submit" value="save" name="save" />
+      <input type="reset" onClick="self.location.href='%(url)s'" value="abort" />
+    </p>
+</form>
+
+<h4>Node:</h4>
+<ul>
+  <li>You may not delete internal Python tags, like: '%(name)s'</li>
+  <li>Normal percent sign must be quoted: '%%' -&gt; '%%%%'</li>
+  <li>Markup doesn't work with every page, don't change it.</li>
+</ul>
+
+<script type="text/javascript">show_html();</script>

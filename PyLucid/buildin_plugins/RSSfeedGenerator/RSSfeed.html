@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<rss version='2.0'>
+<channel>
+    <title>host Newsfeed RSS 2.0</title>
+    <link>%s</link>
+    <description>This is the News Feed of host</description>
+    <image>
+        <title>Title of the Image</title>
+        <url>http://host/favicon.png</url>
+        <link>http://host/</link>
+    </image>
+    {% for item in page_updates %}
+    <item>
+        <title>{{ item.date }} updated by {{ item.user }}</title>
+        <link>{{ item.link }}</link>
+        <description>{{ item.title|escapexml }}</description>
+    </item>
+    {% endfor %}
+</channel>
+</rss>

@@ -1,0 +1,38 @@
+.ipage_package legend {
+    font-size: 1em;
+    font-weight: normal;
+}
+.ipage fieldset {
+    border: 0px;
+}
+.ipage legend {
+    font-weight: bold;
+}
+.ipage li {
+    margin: 0.5em;
+}
+.ipage, .ipage_package {
+    list-style-type: none;
+    background-color: #fff;
+}
+
+.ipage legend {
+    border: 0px;
+    display:inline;
+}
+
+/* Edit-Link für interne Seite */
+.ipage a:link, .ipage * {    /* noch nicht besuchter Link */
+	color: #000;
+    background-color: #f5f5f5;
+}
+.ipage a:visited { /* schon besuchter Link */
+	color: #000000;
+}
+.ipage a:hover * {   /* Maus ?em Link */
+	color: #00f;
+	background-color: #eee;
+}
+.ipage a:active {  /* Link wird angeklickt */
+	color: #f00;
+}

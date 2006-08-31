@@ -1,0 +1,19 @@
+<h2>Edit CSS stylesheet</h2>
+
+<form method="post" action="%(url)s">
+    <p>
+    Name: <input name="name" type="text" style="width: 50%%;" value="%(name)s" /><br/>
+    <textarea wrap="off" id="edit_style" name="content" style="width: 100%%;" rows="25" accept-charset="UTF-8">%(content)s</textarea><br />
+
+    <span id="resize_buttons">
+        <a href="JavaScript:resize_big();" title="click to make the editor window bigger">&nbsp;+&nbsp;</a>
+        <a href="JavaScript:resize_small();" title="click to make the editor window smaller">&nbsp;-&nbsp;</a>
+    </span>
+    <script type="text/javascript">init();</script>
+
+    Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s" /><br />
+    <input name="id" type="hidden" value="%(id)s" />
+    <input type="submit" value="save" name="save" />
+    <input type="reset" onClick="self.location.href='%(url)s'" name="abort" value="abort" />
+    </p>
+</form>

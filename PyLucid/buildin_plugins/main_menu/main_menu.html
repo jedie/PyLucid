@@ -1,0 +1,16 @@
+<ul id="main_menu">
+{% for item in menu_data %}
+  <li>
+    <a href="{{ item.href }}" class="level_{{ item.level }}" title="{{ item.title|escapexml }}">
+        {% if item.is_current_page %}
+            <span class="current">{{ item.name|escapexml }}</span>
+        {% else %}
+            {{ item.name|escapexml }}
+        {% endif %}
+    </a>
+    {% if item.subitems %}
+        <ul>{% recurse item.subitems %}</ul>
+    {% endif %}
+  </li>
+{% endfor %}
+</ul>

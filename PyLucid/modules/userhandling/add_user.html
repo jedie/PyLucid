@@ -1,0 +1,26 @@
+<fieldset><legend>add new user</legend>
+    <form name="data" method="post" action="{{ url }}" onSubmit="return check()">
+        <p>
+        <label class="left" for="username">Username:</label>
+        <input name="username" id="username" type="text" value="" />
+
+        <label for="is_admin">is admin:</lable>
+        <input type="checkbox" {% if runlevel_is_install %}checked="checked"{% endif %} id="is_admin" name="is_admin" value="1">
+
+        <br />
+        <label class="left" for="email">email:</label>
+        <input name="email" id="email" type="text" value="" />
+        <br />
+        <label class="left" for="realname">Realname:</label>
+        <input name="realname" id="realname" type="text" value="" />
+        <br />
+        <label class="left" for="pass1">Password 1:</label>
+        <input name="pass1" id="pass1" type="password" value="" />(len min. 8!)
+        <br />
+        <label class="left" for="pass2">Password 2:</label>
+        <input name="pass2" id="pass2" type="password" value="" />(verification)
+        <br />
+        <input type="submit" name="add user" value="add user" />
+        </p>
+    </form>
+</fieldset>
