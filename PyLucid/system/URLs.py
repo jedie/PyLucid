@@ -7,9 +7,11 @@ Verwaltung der verfügbaren URLs
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.1"
+__version__="0.2"
 
 __history__="""
+v0.2
+    - currentAction kann nun auch args entgegen nehmen
 v0.1
     - erste Version
 """
@@ -226,8 +228,7 @@ class URLs(dict):
         return link
 
     def actionLink(self, methodname, args=""):
-        if isinstance(args, list):
-            args = "/".join(args)
+        args = self._prepage_args(args)
         if self.runlevel.is_command():
             link = posixpath.join(
                 self["scriptRoot"], self.preferences["commandURLprefix"],
@@ -247,18 +248,19 @@ class URLs(dict):
         link = self.addSlash(link)
         return link
 
-    def currentAction(self):
+    def currentAction(self, args=""):
+        args = self._prepage_args(args)
         if self.runlevel.is_command():
             link = posixpath.join(
                 self["scriptRoot"], self.preferences["commandURLprefix"],
-                self["command"], self['action']
+                self["command"], self['action'], args
             )
         elif self.runlevel.is_install():
             if self["command"] == None:
                 # Wir sind im root also /_install/ ohne Kommando
                 self.actionLinkRuntimeError("currentAction()")
             link = posixpath.join(
-                self["scriptRoot"], self["pathInfo"]
+                self["scriptRoot"], self["pathInfo"], args
             )
         else:
             self.actionLinkRuntimeError("currentAction() wrong runlevel!")
@@ -273,6 +275,11 @@ class URLs(dict):
             "command: '%s', action: '%s' (runlevel: '%s', Error: %s)"
         ) % (self["command"], self['action'], self.runlevel.state, e)
         raise RuntimeError, msg
+
+    def _prepage_args(self, args):
+        if isinstance(args, list):
+            args = "/".join(args)
+        return args
 
     #_________________________________________________________________________
     # install Links

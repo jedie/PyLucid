@@ -91,4 +91,5 @@ module_manager_data = {
         },
     },
     "save_internal_page": global_rights,
+    "download_internal_page": global_rights,
 }

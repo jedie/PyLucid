@@ -10,7 +10,7 @@ __version__="0.4.2"
 
 __history__="""
 v0.4.2
-    - Bugfixes, now it realy works undern Windows too
+    - Bugfixes, now it realy works under Windows too
 v0.4.1
     - Nutzt nun response.startFileResponse() (s. sendFile()-Methode)
 v0.4
@@ -153,6 +153,10 @@ class MySQLdump(PyLucidBaseModule):
                 '%s</button>&nbsp;&nbsp;\n'
             ) % (action[0], action[1])
 
+        #~ raw_downloads = [
+            #~ ("url1", "title1"),
+            #~ ("url2", "title2"),
+        #~ ]
         context = {
             "version"       : __version__,
             "tables"        : table_data,

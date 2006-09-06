@@ -291,217 +291,25 @@ class edit_look(PyLucidBaseModule):
     ## Interne Seiten editieren
 
     def internal_page(self):
-        """
-        Tabelle zum auswählen einer Internen-Seite zum editieren
-
-        jinja context:
-
-        context = [
-            {
-                "package":"buildin_plugins",
-                "data": [
-                    {
-                        "module_name":"plugin1",
-                        "data": [
-                            {"name": "internal page1",
-                            ...},
-                            {"name": "internal page2",
-                            ...},
-                        ],
-                    {
-                        "module_name":"plugin2",
-                        "data": [...]
-                    },
-                ]
-            },
-            {
-                "package":"modules",
-                "data": [...]
-            }
-        ]
-        """
-        if "save" in self.request.form:
-            # Zuvor editierte interne Seite speichern
-            self.save_internal_page()
-        elif "apply" in self.request.form:
-            # Editierte Daten speichern aber wieder den Editor öffnen
-            internal_page_name = self.request.form['internal_page_name']
-            self.save_internal_page()
-            self.edit_internal_page([internal_page_name])
-            return
-
-        select_items = [
-            "name","plugin_id","description","lastupdatetime","lastupdateby"
-        ]
-        internal_pages = self.db.internalPageList(select_items)
-
-        select_items = ["id", "package_name", "module_name"]
-        plugin_data = self.db.pluginsList(select_items)
-
-        users = self.db.userList(select_items=["id", "name"])
-        #~ print users
-
-        # Den ID Benzug auflösen und Daten zusammenfügen
-        for page_name, data in internal_pages.iteritems():
-            # Username ersetzten. Wenn die Daten noch nie editiert wurden,
-            # dann ist die ID=0 und der user existiert nicht in der DB!
-            lastupdateby = data["lastupdateby"]
-            user = users.get(lastupdateby, {"name":"<em>[nobody]</em>"})
-            data["lastupdateby"] = user["name"]
-
-            # Plugindaten
-            plugin_id = data["plugin_id"]
-            try:
-                plugin = plugin_data[plugin_id]
-            except KeyError:
-                # Plugin wurde schon aus der Db gelöscht, allerdings ist die
-                # interne Seite noch da, was nicht richtig ist!
-                self.page_msg("orphaned internal page '%s' found!" % page_name)
-                #~ del(internal_pages[page_name])
-                continue
-
-            data.update(plugin)
-
-        # Baut ein Dict zusammen um an alle Daten über die Keys zu kommen
-        contextDict = {}
-        for page_name, data in internal_pages.iteritems():
-            try:
-                package_name = data["package_name"]
-            except KeyError:
-                # Verwaiste interne Seite, wird ignoriert
-                continue
-            package_name = package_name.split(".")
-            package_name = package_name[1]
-            data["package_name"] = package_name
-            module_name = data["module_name"]
-
-            if not package_name in contextDict:
-                contextDict[package_name] = {}
-
-            if not module_name in contextDict[package_name]:
-                contextDict[package_name][module_name] = []
-
-            contextDict[package_name][module_name].append(data)
-
-        # Baut eine Liste für jinja zusammen
-        context_list = []
-        package_list = contextDict.keys()
-        package_list.sort()
-        for package_name in package_list:
-            package_data = contextDict[package_name]
-
-            plugins_keys = package_data.keys()
-            plugins_keys.sort()
-
-            plugin_list = []
-            for plugin_name in plugins_keys:
-                plugin_data = package_data[plugin_name]
-
-                internal_page_list = []
-                for internal_page in plugin_data:
-                    module_name = internal_page["module_name"]
-                    del(internal_page["module_name"])
-                    del(internal_page["package_name"])
-                    del(internal_page["plugin_id"])
-                    del(internal_page["id"])
-                    internal_page_list.append(internal_page)
-
-                internal_page = {
-                    "module_name": module_name,
-                    "data": internal_page_list
-                }
-                plugin_list.append(internal_page)
-
-            context_list.append({
-                "package_name": package_name,
-                "data": plugin_list
-            })
-
-        context = {
-            "version": __version__,
-            "itemsList": context_list,
-            #~ "url": self.URLs.currentAction(),
-            "url": self.URLs.actionLink("edit_internal_page"),
-        }
-
-        # Seite anzeigen
-        self.templates.write("select_internal_page", context)
+        editor = self.__get_editor()
+        editor.internal_page()
 
     def edit_internal_page(self, function_info):
         """ Formular zum editieren einer internen Seite """
+        editor = self.__get_editor()
+        editor.edit_internal_page(function_info)
 
-        internal_page_name = function_info[0]
+    def download_internal_page(self, function_info):
+        editor = self.__get_editor()
+        editor.download_internal_page(function_info)
 
-        try:
-            # Daten der internen Seite, die editiert werden soll
-            edit_data = self.db.get_internal_page_data(internal_page_name)
-        except IndexError:
-            msg = (
-                "bad internal-page name: '%s' !"
-            ) % cgi.escape(internal_page_name)
-            self.page_msg(msg)
-            self.internal_page() # Auswahl wieder anzeigen lassen
-            return
+    def __get_editor(self):
+        from PyLucid.modules.edit_look.edit_internal_page \
+                                                        import EditInternalPage
 
-        OptionMaker = self.tools.html_option_maker()
-        markup_option = OptionMaker.build_from_list(
-            self.db.get_available_markups(), edit_data["markup"],
-            select_value=False
-        )
-        template_engine_option = OptionMaker.build_from_list(
-            self.db.get_available_template_engines(),
-            edit_data["template_engine"], select_value=False
-        )
+        editor = EditInternalPage(self.request, self.response)
+        return editor
 
-        context = {
-            "name"          : internal_page_name,
-            "back_url"      : self.URLs.actionLink("internal_page"),
-            "url"           : self.URLs.actionLink("internal_page"),
-            "content_html"  : cgi.escape(edit_data["content_html"]),
-            "content_css"   : cgi.escape(edit_data["content_css"]),
-            "content_js"    : cgi.escape(edit_data["content_js"]),
-            "description"            : cgi.escape(edit_data["description"]),
-            "template_engine_option" : template_engine_option,
-            "markup_option"          : markup_option,
-        }
-
-        self.templates.write("edit_internal_page", context)
-
-    def save_internal_page(self):
-        """ Speichert einen editierte interne Seite """
-        internal_page_name = self.request.form['internal_page_name']
-
-        page_data = self._get_filteredFormDict(
-            strings = (
-                "content_html", "content_css", "content_js", "description"
-            ),
-            numbers = ("markup", "template_engine"),
-            default = ""
-        )
-
-        # HTML abspeichern
-        page_data = {
-            "lastupdateby"      : self.session['user_id'],
-            "content_html"      : page_data["content_html"],
-            "content_css"       : page_data.get("content_css",""),
-            "content_js"        : page_data.get("content_js",""),
-            "description"       : page_data.get("description",""),
-            "markup"            : page_data["markup"],
-            "template_engine"   : page_data["template_engine"],
-        }
-        escaped_name = cgi.escape(internal_page_name)
-        try:
-            self.db.update_internal_page(
-                internal_page_name, page_data
-            )
-        except Exception, e:
-            msg = "Error saving code from internal page '%s': %s" % (
-                escaped_name, e
-            )
-        else:
-            msg = "code for internal page '%s' saved!" % escaped_name
-
-        self.page_msg(msg)
 
     #_______________________________________________________________________
     ## Allgemeine Funktionen
@@ -511,15 +319,5 @@ class edit_look(PyLucidBaseModule):
         page += "<p>%s</p>" % "<br/>".join( [str(i) for i in msg] )
         return page
 
-    def _get_filteredFormDict(self, strings=None, numbers=None, default=False):
-        result = {}
-        for name in strings:
-            if default!=False:
-                result[name] = self.request.form.get(name, default)
-            else:
-                result[name] = self.request.form[name]
-        for name in numbers:
-            result[name] = int(self.request.form[name])
 
-        return result
 
