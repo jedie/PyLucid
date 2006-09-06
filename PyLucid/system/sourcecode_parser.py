@@ -8,9 +8,11 @@ Based on Jürgen Hermann's "MoinMoin - Python Source Parser"
 http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52298/
 """
 
-__version__="0.3"
+__version__="0.3.1"
 
 __history__="""
+v0.3.1
+    - Geändert, sowas der Code einfach in <pre>-Tags eingeschlossen werden kann
 v0.3
     - Anpassung an PyLucid v0.7
 v0.2.1
@@ -67,7 +69,7 @@ class python_source_parser:
             self.response.write("<!-- %s -->" % ErrorMsg)
             self.page_msg("WARNING: %s" % ErrorMsg)
 
-        self.response.write("<br />\n")
+        self.response.write("\n")
 
 
     def __call__(self, toktype, toktext, (srow,scol), (erow,ecol), line):
@@ -85,16 +87,16 @@ class python_source_parser:
             self.special_not_newline = True
         elif self.special_not_newline == True:
             self.special_not_newline = False
-            self.response.write("\\<br />\n")
+            self.response.write("\\\n")
 
         # handle newlines
         if toktype in [token.NEWLINE, tokenize.NL]:
-            self.response.write("<br />\n")
+            self.response.write("\n")
             return
 
         # Spaces
         if newpos > oldpos:
-            self.response.write("&nbsp;" * (newpos-oldpos))
+            self.response.write(" " * (newpos-oldpos))
 
         if toktext=="":
             return
@@ -106,13 +108,7 @@ class python_source_parser:
             toktype = token.KEYWORD
 
         # Text Escapen
-        toktext = cgi.escape( toktext )
-
-        # Non-Breaking-Spaces
-        toktext = toktext.replace(" ","&nbsp;")
-
-        # Zeilenumbrüche umwandeln
-        toktext = toktext.replace("\n","<br />\n")
+        toktext = cgi.escape(toktext)
 
         if toktype==token.NAME:
             self.response.write(toktext)
@@ -145,7 +141,7 @@ if __name__ == '__main__':
 
     def print_clean(txt):
         txt = txt.encode("String_Escape")
-        txt = txt.replace("&nbsp;"," ")
+        #~ txt = txt.replace("&nbsp;"," ")
         txt = txt.replace("<br />","\n")
         txt = clean_re1.sub(r"", txt)
         txt = clean_re2.sub(r"", txt)

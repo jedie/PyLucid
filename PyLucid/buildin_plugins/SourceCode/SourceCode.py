@@ -12,9 +12,11 @@ somit alle zusätzlichen " " -> "&nbsp;" und "\n" -> "<br/>" umwandlung
 sparen. Das Klappt aus mit allen Browsern super, nur nicht mit dem IE ;(
 """
 
-__version__="0.3"
+__version__="0.3.1"
 
 __history__="""
+v0.3.1
+    - Nutzt <pre>
 v0.3
     - Anpassung an PyLucid v0.7
 v0.2.6
@@ -85,21 +87,26 @@ class SourceCode(PyLucidBaseModule):
             #~ self.action_url, filename, filename
         #~ )
 
+        html = (
+            '<fieldset class="SourceCode">'
+            '<legend>%s</legend>\n'
+        ) % filename
+
         if os.path.splitext( filename )[1] == ".py":
             from PyLucid.system import sourcecode_parser
             parser = sourcecode_parser.python_source_parser(
                 self.request, self.response
             )
             self.response.write(parser.get_CSS())
-            self.response.write(
-                '<fieldset class="SourceCode"><legend>%s</legend>\n' % filename
-            )
+            self.response.write(html)
+            self.response.write('<pre class="sourcecode">\n')
             parser.parse(source.strip())
+            self.response.write("</pre>\n")
         else:
-            self.response.write(
-                '<fieldset class="SourceCode"><legend>%s</legend>\n' % filename
-            )
-            self.format_code( source )
+            self.response.write(html)
+            self.response.write('<pre class="sourcecode">\n')
+            self.format_code(source)
+            self.response.write("</pre>\n")
 
         self.response.write('</fieldset>\n')
 
@@ -108,10 +115,9 @@ class SourceCode(PyLucidBaseModule):
         Source-Code außer Python-Source anzeigen
         """
         for line in source.split("\n"):
-            line = cgi.escape( line )
+            line = cgi.escape(line)
             line = line.replace("\t","    ") # Tabulatoren nach Leerzeilen
-            line = line.replace(" ","&nbsp;") # Leerzeilen nach non-breaking-Spaces
-            self.response.write("%s<br />\n" % line)
+            self.response.write("%s\n" % line)
 
     #~ def download(self, file):
         #~ print "Location: %s\n" % file
