@@ -10,9 +10,11 @@ Alles was mit dem ändern von Inhalten zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.4"
+__version__="0.4.1"
 
 __history__="""
+v0.4.1
+    - def tag_list() nutzt nun self.response.startFreshResponse()
 v0.4
     - Zeigt nun auch die verfügbaren lucid-Tags/Functions an
 v0.3.3
@@ -691,6 +693,8 @@ class pageadmin(PyLucidBaseModule):
         """
         Generiert eine Seite mit allen verfügbaren lucid-Tags/Function
         """
+        self.response.startFreshResponse()
+
         tag_list = self.db.get_tag_list()
         #~ self.page_msg(tag_list)
         context = {
@@ -699,7 +703,7 @@ class pageadmin(PyLucidBaseModule):
 
         self.templates.write("tag_list", context)
 
-
+        return self.response
 
 
 
