@@ -5,9 +5,11 @@
 Einheitliche Schnittstelle zu den Templates Engines
 """
 
-__version__="0.1"
+__version__="0.1.1"
 
 __history__="""
+v0.1.1
+    - addCode: Unicode->str Umwandlung in replacer.py verlagert
 v0.1
     - erste Version
 """
@@ -225,16 +227,6 @@ class TemplateEngines(object):
         """
         Fügt den Code an response.addCode an
         """
-        try:
-            code = code.encode("utf8")
-        except UnicodeError, e:
-            msg = (
-                "UnicodeError in %s add data for internal page '%s'"
-                " (Error: %s)"
-            ) % (content_type, internal_page_name, e)
-            self.page_msg(msg)
-            code = code.encode("utf8", "replace")
-
         # Tag anwenden
         code = tag % (internal_page_name, code)
 

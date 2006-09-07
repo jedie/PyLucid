@@ -7,9 +7,14 @@ Verwaltung der verfügbaren URLs
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.2"
+__version__="0.2.1"
 
 __history__="""
+v0.2.1
+    - debug() - wahlweise auch nach response statt nach page_msg
+    - optimierungen bei pageLink()
+    - neu: absoluteLink() (z.B. für RSS Generator)
+    - neu: self.URLs["absoluteIndex"]
 v0.2
     - currentAction kann nun auch args entgegen nehmen
 v0.1
@@ -39,6 +44,7 @@ class URLs(dict):
 
         # shorthands
         self.request        = request
+        self.response       = response
         self.environ        = request.environ
         self.runlevel       = request.runlevel
         self.preferences    = request.preferences
@@ -105,6 +111,8 @@ class URLs(dict):
         )
 
         self["scriptRoot"] = self.environ.get("SCRIPT_ROOT", "/")
+
+        self["absoluteIndex"] = self["hostname"] + self["scriptRoot"]
 
     def setup_runlevel(self):
         """
@@ -202,10 +210,20 @@ class URLs(dict):
     #_________________________________________________________________________
 
     def pageLink(self, url):
+        link = self.__make_link(self["scriptRoot"], url)
+        return link
+
+    def absoluteLink(self, url):
+        link = self.__make_link(
+            self["hostname"] + self["scriptRoot"], url
+        )
+        return link
+
+    def __make_link(self, base, url):
         if url[0] == "/": # .lstrip("/") gibt es in Python 2.2 so nicht
             url = url[1:]
 
-        link = posixpath.join(self["scriptRoot"], url)
+        link = posixpath.join(base, url)
         link = self.addSlash(link)
         return link
 
@@ -298,9 +316,15 @@ class URLs(dict):
 
     #_________________________________________________________________________
 
-    def debug(self):
+    def debug(self, response_out=False):
 
         #~ self.response.debug()
+        def out(*txt):
+            if response_out:
+                self.response.write("%s\n" % " ".join([str(i) for i in txt]))
+            else:
+                self.page_msg(*txt)
+
 
         try:
             import inspect
@@ -310,17 +334,15 @@ class URLs(dict):
         except Exception, e:
             fileinfo = "(inspect error: '%s')" % e
 
-        self.page_msg("path debug [%s]:" % fileinfo)
-        self.page_msg('request.runlevel:', self.runlevel)
-        self.page_msg('environ["PATH_INFO"]:', self.environ["PATH_INFO"])
-        self.page_msg('environ["SCRIPT_ROOT"]:', self.environ["SCRIPT_ROOT"])
+        out("path debug [%s]:" % fileinfo)
+        out('request.runlevel:', self.runlevel)
+        out('environ["PATH_INFO"]:', self.environ["PATH_INFO"])
+        out('environ["SCRIPT_ROOT"]:', self.environ["SCRIPT_ROOT"])
         #~ for k,v in self.iteritems():
-            #~ self.page_msg(k,v)
-        #~ self.page_msg(self)
+            #~ out(k,v)
+        #~ out(self)
         for k,v in self.items():
-            self.page_msg(
-                "- %15s: '%s'" % (k,v)
-            )
+            out(" - %15s: '%s'" % (k,v))
 
     #_________________________________________________________________________
 

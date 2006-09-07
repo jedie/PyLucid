@@ -83,7 +83,23 @@ class AddCode(object):
     def get(self):
         data = self.data
         self.data = ""
+
+        try:
+            data = data.encode("utf8")
+        except UnicodeError, e:
+            # FIXME: Wie einen UnicodeError hier ausgeben??? nach stderr???
+
+            #~ msg = (
+                #~ "UnicodeError in %s add data for internal page '%s'"
+                #~ " (Error: %s)"
+            #~ ) % (content_type, internal_page_name, e)
+            #~ self.page_msg(msg)
+            data = data.encode("utf8", "replace")
+
         return data
+
+    def insert(self, code):
+        self.data = code + self.data
 
     def add(self, code):
         self.data += code

@@ -5,9 +5,11 @@
 
 """
 
-__version__="0.2"
+__version__="0.3"
 
 __history__="""
+v0.3
+    - Neu: startFreshResponse()
 v0.2
     - Neu: startFileResponse()
 v0.1
@@ -130,6 +132,25 @@ class HttpResponse(HttpResponse):
         if contentLen:
             self.headers['Content-Length'] = '%s' % contentLen
         self.headers['Content-Transfer-Encoding'] = '8bit' #'binary'
+        self.headers['Content-Type'] = content_type
+
+    def startFreshResponse(self, content_type='text/html; charset=utf-8'):
+        """
+        Eine neue leere Seite ausgeben
+
+        Bsp:
+        self.response.startFreshResponse()
+        self.response.write(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'
+            ' "xhtml1-strict.dtd">\n'
+            '<html xmlns="http://www.w3.org/1999/xhtml">\n'
+            '<head><title>BSP</title></head>\n'
+            '<body><h1>Text</h1></body></html>\n'
+        )
+        return self.response
+        """
+        self.response = [] # Evtl. schon gemachte "Ausgaben" verwerfen
         self.headers['Content-Type'] = content_type
 
 
