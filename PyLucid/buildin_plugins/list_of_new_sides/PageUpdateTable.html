@@ -1,13 +1,13 @@
 <table id="page_updates">
   <tr>
     <th>update time</th>
-    <th>page name</th>
+    <th>page</th>
     <th>update by</th>
   </tr>
 {% for item in page_updates %}
   <tr>
     <td>{{ item.date }}</td>
-    <td><a href="{{ item.link }}">{{ item.title|escapexml }}</td>
+    <td><a href="{{ item.link }}">{{ item.name_title|escapexml }}</td>
     <td>{{ item.user }}</td>
   </tr>
 {% endfor %}

@@ -214,10 +214,20 @@ class URLs(dict):
         return link
 
     def absoluteLink(self, url):
-        link = self.__make_link(
-            self["hostname"] + self["scriptRoot"], url
-        )
-        return link
+        if url.startswith(self["absoluteIndex"]):
+            # Ist schon ein absoluter Link
+            return url
+        elif url.startswith(self["scriptRoot"]):
+            # Nur der hostname fehlt noch zu einem absoluten Link
+            if url[0] == "/":
+                return self["hostname"] + url
+            else:
+                return self["hostname"] + "/" + url
+        else:
+            link = self.__make_link(
+                self["absoluteIndex"], url
+            )
+            return link
 
     def __make_link(self, base, url):
         if url[0] == "/": # .lstrip("/") gibt es in Python 2.2 so nicht

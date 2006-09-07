@@ -8,9 +8,11 @@
 Generiert eine Liste der "letzten Änderungen"
 """
 
-__version__="0.3"
+__version__="0.4"
 
 __history__="""
+v0.4
+    - nutzt nun self.db.get_page_update_info() (nutzt auch der RSS Generator!)
 v0.3
     - Erweitert: zeigt nun an, wer die Änderunen vorgenommen hat.
     - Nutzt ein jinja Template.
@@ -51,59 +53,7 @@ class list_of_new_sides(PyLucidBaseModule):
         """
         Aufruf über <lucidTag:list_of_new_sides />
         """
-        SQLresult = self.db.select(
-            select_items    = [
-                "id", "name", "title", "lastupdatetime", "lastupdateby"
-            ],
-            from_table      = "pages",
-            where           = ( "permitViewPublic", 1 ),
-            order           = ( "lastupdatetime", "DESC" ),
-            limit           = ( 0, 10 )
-        )
-
-        userlist = [item["lastupdateby"] for item in SQLresult]
-        tmp = {}
-        for user in userlist:
-            tmp[user] = None
-        userlist = tmp.keys()
-
-        where = ["(id=%s)" for i in userlist]
-        where = " or ".join(where)
-
-        SQLcommand = "SELECT id,name FROM $$md5users WHERE %s" % where
-        users = self.db.process_statement(SQLcommand, userlist)
-        #~ self.page_msg(users)
-        users = self.db.indexResult(users, "id")
-        #~ self.page_msg(users)
-
-        #~ self.page_msg(SQLresult)
-
-        page_updates = []
-        for item in SQLresult:
-            prelink = self.db.get_page_link_by_id(item["id"])
-            linkTitle   = item["title"]
-
-            if (linkTitle == None) or (linkTitle == ""):
-                # Eine Seite muß nicht zwingent ein Title haben
-                linkTitle = item["name"]
-
-            lastupdate = self.tools.convert_date_from_sql(
-                item["lastupdatetime"]
-            )
-            user_id = item["lastupdateby"]
-            try:
-                user = users[user_id]["name"]
-            except KeyError:
-                user = "unknown id %s" % user_id
-
-            page_updates.append(
-                {
-                    "date"  : lastupdate,
-                    "link"  : prelink,# + item["name"],
-                    "title" : cgi.escape( linkTitle ),
-                    "user"  : user,
-                }
-            )
+        page_updates = self.db.get_page_update_info(10)
 
         context = {
             "page_updates" : page_updates

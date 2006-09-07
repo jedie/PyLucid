@@ -11,9 +11,11 @@ If this plugin is installed, you can insert this Link in the global Template:
 href="/_command/RSSfeedGenerator/download/RSS.xml" />
 """
 
-__version__="0.2.1"
+__version__="0.2.2"
 
 __history__="""
+v0.2.2
+    - NEW: using self.db.get_page_update_info()
 v0.2.1
     - It's running!
 v0.2
@@ -26,6 +28,9 @@ v0.1
 import sys, os, cgi, time
 
 RSS_filename = "RSS.xml"
+
+#~ debug = True
+debug = False
 
 from PyLucid.system.BaseModule import PyLucidBaseModule
 
@@ -53,60 +58,7 @@ class RSSfeedGenerator(PyLucidBaseModule):
         Generiert den feed und sendet ihn zum Client.
         (function_info wird ignoriert)
         """
-        SQLresult = self.db.select(
-            select_items    = [
-                "id", "name", "title", "lastupdatetime", "lastupdateby"
-            ],
-            from_table      = "pages",
-            where           = ( "permitViewPublic", 1 ),
-            order           = ( "lastupdatetime", "DESC" ),
-            limit           = ( 0, 10 )
-        )
-
-        userlist = [item["lastupdateby"] for item in SQLresult]
-        tmp = {}
-        for user in userlist:
-            tmp[user] = None
-        userlist = tmp.keys()
-
-        where = ["(id=%s)" for i in userlist]
-        where = " or ".join(where)
-
-        SQLcommand = "SELECT id,name FROM $$md5users WHERE %s" % where
-        users = self.db.process_statement(SQLcommand, userlist)
-        #~ self.page_msg(users)
-        users = self.db.indexResult(users, "id")
-        #~ self.page_msg(users)
-
-        #~ self.page_msg(SQLresult)
-
-        page_updates = []
-        for item in SQLresult:
-            prelink = self.db.get_page_link_by_id(item["id"])
-            link = self.URLs.absoluteLink(prelink)
-            linkTitle   = item["title"]
-
-            if linkTitle in (None, ""):
-                # Eine Seite muß nicht zwingent ein Title haben
-                linkTitle = item["name"]
-
-            lastupdate = self.tools.convert_date_from_sql(
-                item["lastupdatetime"]
-            )
-            user_id = item["lastupdateby"]
-            try:
-                user = users[user_id]["name"]
-            except KeyError:
-                user = "unknown id %s" % user_id
-
-            page_updates.append(
-                {
-                    "date"  : lastupdate,
-                    "link"  : link,# + item["name"],
-                    "title" : cgi.escape( linkTitle ),
-                    "user"  : user,
-                }
-            )
+        page_updates = self.db.get_page_update_info(15)
 
         context = {
             "page_updates" : page_updates,
@@ -114,7 +66,9 @@ class RSSfeedGenerator(PyLucidBaseModule):
             "hostname": self.URLs["hostname"],
             "pubDate": time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()),
         }
-        #~ self.page_msg(context)
+        if debug:
+            self.page_msg("RSSfeedGenerator - Debug context:")
+            self.page_msg(context)
 
         content = self.templates.get("RSSfeed", context)
 
@@ -123,7 +77,12 @@ class RSSfeedGenerator(PyLucidBaseModule):
         #~ self.response.write(content)
         #~ return self.response
 
-        self.response.startFreshResponse(content_type="application/xml")
-        self.response.write(content)
-        return self.response
-
+        if debug:
+            self.response.write("<h2>Debug:</h2><pre>")
+            self.response.write(cgi.escape(content))
+            self.response.write("</pre>")
+        else:
+            # XML Datei senden
+            self.response.startFreshResponse(content_type="application/xml")
+            self.response.write(content)
+            return self.response

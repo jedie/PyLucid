@@ -76,6 +76,61 @@ class passive_statements(SQL_wrapper):
     #_________________________________________________________________________
     # Spezielle lucidCMS Funktionen, die von Modulen gebraucht werden
 
+    def get_page_update_info(self, count=10):
+        """
+        Informationen über die letzten >count< Seiten updates.
+        Nutzt: list_of_new_sides und der RSSfeedGenerator
+        """
+        page_updates = self.select(
+            select_items    = [
+                "id", "name", "title", "lastupdatetime", "lastupdateby"
+            ],
+            from_table      = "pages",
+            where           = ( "permitViewPublic", 1 ),
+            order           = ( "lastupdatetime", "DESC" ),
+            limit           = ( 0, 10 )
+        )
+        #~ self.page_msg(page_updates)
+
+        # Nur die user aus der DB holen, die auch updates gemacht haben:
+        userlist = [item["lastupdateby"] for item in page_updates]
+        tmp = {}
+        for user in userlist:
+            tmp[user] = None
+        userlist = tmp.keys()
+
+        where = ["(id=%s)" for i in userlist]
+        where = " or ".join(where)
+
+        SQLcommand = "SELECT id,name FROM $$md5users WHERE %s" % where
+        users = self.process_statement(SQLcommand, userlist)
+        users = self.indexResult(users, "id")
+
+        # Daten ergänzen
+        for item in page_updates:
+            item["link"] = self.get_page_link_by_id(item["id"])
+            item["absoluteLink"] = self.URLs.absoluteLink(item["link"])
+
+            pageName = item["name"]
+            pageTitle = item["title"]
+            if pageTitle in (None, "", pageName):
+                # Eine Seite muß nicht zwingent ein Title haben
+                # oder title == name :(
+                item["name_title"] = pageTitle
+            else:
+                item["name_title"] = "%s - %s" % (pageName, pageTitle)
+
+            item["date"] = self.tools.convert_date_from_sql(
+                item["lastupdatetime"]
+            )
+            user_id = item["lastupdateby"]
+            try:
+                item["user"] = users[user_id]["name"]
+            except KeyError:
+                item["user"] = "(unknown userid %s)" % user_id
+
+        return page_updates
+
     def get_first_page_id(self):
         """
         Liefert die erste existierende page_id zurück
@@ -309,7 +364,7 @@ class passive_statements(SQL_wrapper):
                 where           = ("id", page_id)
             )[0]
 
-        data = self.db.None_convert(data, ("content",), "")
+        data = self.None_convert(data, ("content",), "")
 
         return data
 
@@ -811,12 +866,12 @@ class passive_statements(SQL_wrapper):
         for method in method_list:
             #~ self.page_msg(method)
             plugin_id = method['plugin_id']
-            
+
             if not plugin_id in plugin_dict:
                 # Sollte eigentlich nie vorkommen
                 self.page_msg("Warning: obsolete method found!")
                 continue
-                
+
             plugin_data = dict(plugin_dict[plugin_id]) # make a copy
 
             method_name = method["method_name"]
@@ -824,7 +879,7 @@ class passive_statements(SQL_wrapper):
                 plugin_data["is_lucidTag"] = True
             elif method_name == 'lucidFunction':
                 plugin_data["is_lucidFunction"] = True
-                
+
             tag_list.append(plugin_data)
 
         #self.page_msg(tag_list)
