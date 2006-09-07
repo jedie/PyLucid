@@ -35,6 +35,10 @@ module_manager_data = {
         "menu_section"      : "system",
         "menu_description"  : "System Info",
     },
+    "colubrid_debug": {
+        "must_login"        : True,
+        "must_admin"        : True,
+    },
     "session_data": {
         "must_login"        : True,
         "must_admin"        : True,

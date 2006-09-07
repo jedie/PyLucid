@@ -9,9 +9,11 @@ Administration Sub-Menü : "show internals"
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.2"
+__version__="0.2.1"
 
 __history__="""
+v0.2.1
+    - colubrid debug-Informationen werden nun in einem Fenster angezeigt
 v0.2
     - NEU: system info "PyLucid environ information"
 v0.1.4
@@ -194,6 +196,20 @@ class show_internals(PyLucidBaseModule):
         self.menu()
         s = system_info(self.request, self.response)
         s.display_all()
+
+    def colubrid_debug(self):
+        self.response.startFreshResponse()
+
+        self.response.write("<h3>Colubrid debug information</h3>")
+        self.response.write('<fieldset id="system_info"><legend>colubrid:</legend>')
+        try:
+            from colubrid.debug import debug_info
+            self.response.write(debug_info(self.request))
+        except Exception, e:
+            self.response.write("(Error: %s)" % e)
+        self.response.write("</fieldset>")
+
+        return self.response
 
     #_______________________________________________________________________
 
@@ -428,7 +444,7 @@ class system_info(PyLucidBaseModule):
         self.system_info()
         self.encoding_info()
         self.envion_info()
-        self.colubird_debug()
+        self.colubrid_debug_link()
 
     #_________________________________________________________________________
 
@@ -483,12 +499,30 @@ class system_info(PyLucidBaseModule):
             self.response.write("<dd>%s</dd>" % value)
         self.response.write("</dl>")
 
-    def colubird_debug(self):
+    def colubrid_debug_link(self):
         self.response.write("<h3>Colubrid debug information</h3>")
-        self.response.write('<fieldset id="system_info"><legend>colubrid:</legend>')
-        from colubrid.debug import debug_info
-        self.response.write(debug_info(self.request))
-        self.response.write("</fieldset>")
+        # FIXME: Das JS sollte anders eingebunden werden!
+        url = self.URLs.actionLink("colubrid_debug")
+        self.response.write(
+            '<script type="text/javascript">'
+            '/* <![CDATA[ */'
+            'function OpenInWindow(URL) {'
+            '  win1 = window.open('
+            'URL, "", "width=1000, height=600, dependent=yes, resizable=yes,'
+            ' scrollbars=yes, location=no, menubar=no, status=no,'
+            ' toolbar=no");'
+            '  win1.focus();'
+            '}'
+            '/* ]]> */'
+            '</script>'
+        )
+        html = (
+            '<a href="%s" onclick="OpenInWindow(this.href); return false"'
+            ' title="colubrid debug">'
+            'show colubrid debug'
+            '</a>'
+        ) % url
+        self.response.write(html)
 
     #_________________________________________________________________________
 
