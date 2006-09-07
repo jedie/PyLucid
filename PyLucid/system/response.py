@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 """
-
+Erweitert das colubrid response Objekt um ein paar Methoden.
 """
 
 __version__="0.3"
