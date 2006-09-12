@@ -7,7 +7,7 @@
 {% for item in page_updates %}
   <tr>
     <td>{{ item.date }}</td>
-    <td><a href="{{ item.link }}">{{ item.name_title|escapexml }}</td>
+    <td><a href="{{ item.link }}">{{ item.name_title|escapexml }}</a></td>
     <td>{{ item.user }}</td>
   </tr>
 {% endfor %}
