@@ -5,6 +5,13 @@
 Information und Tests
 """
 
+__history__ == """
+v0.2
+    - update db tables (PyLucid v0.7.0 -> 0.7.1)
+v0.1
+    - erste Version
+"""
+
 import cgi, time
 
 from PyLucid.install.ObjectApp_Base import ObjectApp_Base
@@ -15,11 +22,35 @@ from PyLucid.install.ObjectApp_Base import ObjectApp_Base
 
 class update(ObjectApp_Base):
     "3. update"
-    def update_db(self):
+    def update1_db(self):
+        "update db tables (PyLucid v0.7.0 -> 0.7.1)"
+        self._write_info()
+
+        if not self._confirm("update db tables ?"):
+            # Abfrage wurde nicht bestätigt
+            return
+
+        self.response.write("<h4>Delete obsolete TAL entry:</h4>\n")
+        self.response.write("<pre>\n")
+        try:
+            self._db.delete(
+                table = "template_engines",
+                where = ("name","TAL"),
+                limit = 1,
+                debug = False
+            )
+        except Exception, e:
+            self.response.write("ERROR: %s" % e)
+        else:
+            self.response.write("OK")
+        self.response.write("</pre>\n")
+
+
+    def update2_db(self):
         "update db tables (PyLucid v0.6.x -> 0.7)"
         self._write_info()
 
-        if not self._confirm("update db tables (PyLucid v0.6.x -> 0.7) ?"):
+        if not self._confirm("update db tables ?"):
             # Abfrage wurde nicht bestätigt
             return
 
