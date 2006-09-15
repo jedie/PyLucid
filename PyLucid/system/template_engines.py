@@ -5,9 +5,11 @@
 Einheitliche Schnittstelle zu den Templates Engines
 """
 
-__version__="0.1.1"
+__version__="0.2"
 
 __history__="""
+v0.2
+    - Neu: Bessere Fehlerbehandlung mit _fill_string_context()
 v0.1.1
     - addCode: Unicode->str Umwandlung in replacer.py verlagert
 v0.1
@@ -61,6 +63,7 @@ class TemplateEngines(object):
         self.render     = request.render
         self.page_msg   = response.page_msg
         self.addCode    = response.addCode
+        self.tools      = request.tools
 
     def write(self, internal_page_name, context):
         try:
@@ -232,14 +235,41 @@ class TemplateEngines(object):
 
         self.addCode.add(code)
 
+    def _fill_string_context(self, internal_page_name, content, context):
+        """
+        Mach die Python-String-Operation. Wenn ein key im context fehlt, wird
+        der Fehler mit page_msg ausgegeben, gleichzeitig wird der fehlende Key
+        in den context eingefügt und nochmals probiert...
+        """
+        try:
+            return content % context
+        except KeyError, key:
+            key = key[0]
+            self.page_msg(
+                "Key-Error: '%s' in internal page '%s'!" % (
+                    key, internal_page_name
+                )
+            )
+            context[key] = "" # Fehlenden Key im context einfügen
 
-    def render_stringFormatting(self, internal_page_name, internal_page_data, context):
+            # String-Operation nochmals versuchen:
+            content = self._fill_string_context(
+                internal_page_name, content, context
+            )
+            return content
+
+    def render_stringFormatting(
+                        self, internal_page_name, internal_page_data, context):
+        """
+        schreibt eine interne "String-Formatter"-Seite raus.
+        """
+
         content = internal_page_data["content_html"]
 
-        content = content % context
-
         try:
-            a=1#content = content % context
+            content = self._fill_string_context(
+                internal_page_name, content, context
+            )
         except UnicodeError, e:
             self.page_msg("UnicodeError: Can't render internal page: %s" % e)
             self.page_msg("(Try to go around.)")
@@ -251,7 +281,9 @@ class TemplateEngines(object):
                         pass
 
                 content = content.encode("utf_8", 'replace')
-                content = content % context
+                content = self._fill_string_context(
+                    internal_page_name, content, context
+                )
                 self.response.write(content)
             except:
                 self.response.write(
@@ -259,48 +291,6 @@ class TemplateEngines(object):
                 )
                 if self.preferences["ModuleManager_error_handling"] != True:
                     raise
-        except Exception, e:
-            self.page_msg("Error information:")
-
-            s = self.tools.Find_StringOperators(content)
-            if s.incorrect_hit_pos != []:
-                self.page_msg(" -"*40)
-                self.page_msg("There are incorrect %-chars in the internal_page:")
-                self.page_msg("Text summary:")
-                for line in s.get_incorrect_text_summeries():
-                    self.page_msg(line)
-                self.page_msg(" -"*40)
-
-            l = s.correct_tags
-            # doppelte Einträge löschen (auch mit Python >2.3)
-            content_placeholder = [l[i] for i in xrange(len(l)) if l[i] not in l[:i]]
-            content_placeholder.sort()
-            self.page_msg("*** %s content placeholder:" % len(content_placeholder))
-            self.page_msg(content_placeholder)
-
-            l = context.keys()
-            given_placeholder = [l[i] for i in xrange(len(l)) if l[i] not in l[:i]]
-            given_placeholder.sort()
-            self.page_msg("*** %s given placeholder:" % len(given_placeholder))
-            self.page_msg(given_placeholder)
-
-            diff_placeholders = []
-            for i in content_placeholder:
-                if (not i in given_placeholder) and (not i in diff_placeholders):
-                    diff_placeholders.append(i)
-            for i in given_placeholder:
-                if (not i in content_placeholder) and (not i in diff_placeholders):
-                    diff_placeholders.append(i)
-
-            diff_placeholders.sort()
-            self.page_msg("*** placeholder diffs:", diff_placeholders)
-
-            raise Exception(
-                "%s: '%s': Can't fill internal page '%s'. \
-                *** More information above in page message ***" % (
-                    sys.exc_info()[0], e, internal_page_name,
-                )
-            )
 
         content = self.render.apply_markup(
             content, internal_page_data["markup"]
