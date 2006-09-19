@@ -340,15 +340,40 @@ class parser:
         self.python_source_data += self.newline + block + self.newline
 
     def python_area_end(self, dummy):
-        from PyLucid.system import sourcecode_parser
+        from pykleur import highlight
+        from pykleur.lexers import PythonLexer
+        from pykleur.formatters import HtmlFormatter
 
-        self.out.page_msg = self.response.page_msg
-        p = sourcecode_parser.python_source_parser(self.request, self.out)
+        sourcecode = self.python_source_data.strip()
 
-        self.out.write(p.get_CSS())
-        self.out.write('<div class="SourceCode">')
-        p.parse(self.python_source_data.strip())
-        self.out.write("</div>")
+        CSS = """<style type="text/css">
+.syntax .cm { color: #008800; } /* Comment */
+.syntax .kw { color: #AA22FF; font-weight: bold; } /* Keyword */
+.syntax .bn { color: #AA22FF; } /* Builtin */
+.syntax .st { color: #bb4444; } /* String */
+.syntax .op { color: black; }   /* Operator */
+.syntax .nb { color: black; }   /* Number */
+.syntax .var { color: #b8860b; } /* Variable name */
+.syntax .int { color: #bb6666; } /* String interpolation */
+.syntax .esc { color: #bb6622; } /* String escape */
+.syntax .dec { font-weight: normal; } /* Decorator */
+.syntax .fun { color: green; } /* Function name */
+.syntax .cls { color: blue; } /* Class name */
+.syntax .exc { color: #d2413a; font-weight: bold; } /* Exceptions */
+.syntax .proc { color: #008800; } /* Preprocessor */
+.syntax .ostr { color: green; } /* Other Strings (q{...}) */
+
+.syntax .err { border: 1px solid red; }
+</style>
+"""
+        wrap = (
+            '<pre class="syntax">',
+            "</pre>"
+        )
+        self.out.write(CSS)
+        self.out.write(
+            highlight(sourcecode, PythonLexer(),HtmlFormatter(wrap))
+        )
 
     #_________________________________________________________________________
 
