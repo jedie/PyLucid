@@ -5,9 +5,11 @@
 Verschiedene Tools für den Umgang mit PyLucid
 """
 
-__version__="0.2.1"
+__version__="0.3"
 
 __history__ = """
+v0.3
+    - neu: StringIOzipper
 v0.2.1
     - html_option_maker.build_from_list hat nun den zusätzlichen Parameter
         "select_value", damit kann entweder "value" oder "txt" für
@@ -918,4 +920,134 @@ def get_codecs():
     return codec_list
 
 #~ print get_codecs()
+
+
+
+
+#_____________________________________________________________________________
+
+class StringIOzipper(object):
+    """
+    A StringIO ZIP file maker.
+    """
+    def __init__(self, out_err):
+        """
+        out_err kann z.B. sys.stdout sein :)
+        """
+        import StringIO, zipfile
+
+        self.out_err = out_err
+
+        self._buffer = StringIO.StringIO()
+        self.zip = zipfile.ZipFile(self._buffer, "w", zipfile.ZIP_DEFLATED)
+
+    def add_file(self, arcname, data):
+        """
+        Fügt Dateien in's ZIP Archiv hinzu.
+        """
+        if not isinstance(arcname, unicode):
+            self.out_err.write("Warning arcname is not unicode!")
+        else:
+            # Namen in ZIP-Dateien werden immer mit dem codepage 437
+            # gespeichert, siehe Kommentare im Python-Bug 878120:
+            #https://sourceforge.net/tracker/?func=detail&atid=105470&aid=878120&group_id=5470
+            try:
+                arcname = arcname.encode("cp437", "strict")
+            except UnicodeError, e:
+                self.out_err.write(
+                    "arcname encode error: %s (Use replace error handling)" % e
+                )
+                arcname = arcname.encode("cp437", "replace")
+
+        if isinstance(data, unicode):
+            try:
+                data = data.encode("UTF8", "strict")
+            except UnicodeError, e:
+                self.out_err.write(
+                    "data encode error: %s (Use replace error handling)" % e
+                )
+                data = data.encode("UTF8", "replace")
+
+        self.zip.writestr(arcname, data)
+
+    def close(self):
+        """
+        Schließen der ZIP Datei.
+
+        Wenn alle Dateien in die ZIP Datei geschrieben wurden, müssen wir
+        die Datei schließen ist ganz wichtig, das erst dann der ZIP Header
+        geschrieben wird!
+        """
+        self.zip.close()
+
+        # Größe feststellen:
+        self._buffer.seek(0,2) # Am Ende der Daten springen
+        self._buffer_len = self._buffer.tell() # Aktuelle Position
+        self._buffer.seek(0) # An den Anfang springen
+
+    def get_StringIO(self):
+        return self._buffer
+    def get_len(self):
+        return self._buffer_len
+
+    def block_write(self, out_object, block_size):
+        """
+        Schreibt die ZIP Datei blockweise in's out-Objekt
+        """
+        while True:
+            block = self._buffer(block_size)
+            if not block:
+                break
+            out_object.write(block)
+
+        # Aufräumen:
+        del(self._buffer)
+
+    def debug(self, out):
+        """
+        out kann z.B. sys.stdout sein
+        """
+        def calc_ratio(file_size, compress_size):
+            try:
+                return float(compress_size)/file_size*100
+            except ZeroDivisionError:
+                return 100.0
+
+        out.write("_"*79)
+        out.write("StringIOzipper Debug:")
+        out.write("-"*79)
+        total_compress_size = 0
+        for fileinfo in self.zip.infolist():
+            filename = fileinfo.filename
+            if filename.endswith("/"):
+                # Ist ein Verzeichniss
+                out.write("dir: %s" % filename)
+                continue
+
+            out.write("file: %s" % fileinfo.filename)
+
+            total_compress_size += fileinfo.compress_size
+            ratio = calc_ratio(fileinfo.file_size, fileinfo.compress_size)
+
+            out.write(
+                "compress size: %s - file_size: %s (ratio: %.2f%%)" % (
+                    fileinfo.compress_size, fileinfo.file_size, ratio
+                )
+            )
+
+            d = fileinfo.date_time
+            out.write(
+                "file date: %0.2i.%0.2i.%i %0.2i:%0.2i:%0.2i" % (
+                    d[2],d[1],d[0],d[3],d[4],d[5]
+                )
+            )
+            out.write("-"*79)
+
+        out.write("zip len: %s" % self._buffer_len)
+        out.write("total compress size: %s" % total_compress_size)
+
+        ratio = calc_ratio(self._buffer_len, total_compress_size)
+        out.write("total ratio: %.2f%%" % ratio)
+
+        out.write("-"*79)
 
