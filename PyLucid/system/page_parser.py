@@ -4,14 +4,15 @@
 # by jensdiemer.de (steht unter GPL-License)
 
 """
-Der Parser füllt eine CMS Seite mit leben ;)
-Parsed die lucid-Tags/Funktionen, führt diese aus und fügt das Ergebnis in die
-Seite ein.
+-Parsen der Seite und wendet das Markup an.
+-Schnittstelle zu PyKleur
 """
 
-__version__="0.1.4"
+__version__="0.2"
 
 __history__="""
+v0.2
+    - Neu: highlight() - Schnittstelle zu PyKleur
 v0.1.4
     - apply_markup kommt mit markup id oder richtigen namen klar
 v0.1.3
@@ -41,9 +42,25 @@ import sys, cgi, re, time
 
 
 class render(object):
-    """
-    Parsed die Seite und wendes das Markup an.
-    """
+
+    PyKleurLexers = {
+        'python':       ('Python',                  'py', "PythonLexer"),
+        'py':           ('Python',                  'py', "PythonLexer"),
+        'php':          ('PHP',                     'php', "PhpLexer"),
+        'c':            ('C',                       'c', "CppLexer"),
+        'c++':          ('C++',                     'cpp', "CppLexer"),
+        'cpp':          ('C++',                     'cpp', "CppLexer"),
+        'delphi':       ('Delphi',                  'delphi', "DelphiLexer"),
+        'java':         ('Java',                    'java', "JavaLexer"),
+        'html':         ('HTML',                    'html', "HtmlLexer"),
+        'xml':          ('XML',                     'html', "XmlLexer"),
+        'javascript':   ('JavaScript',              'js', "JavascriptLexer"),
+        'js':           ('JavaScript',              'js', "JavascriptLexer"),
+        'css':          ('Cascading Style Sheets',  'css', "CssLexer"),
+        'ini':          ('INI',                     'ini', "IniLexer"),
+        'sql':          ('SQL',                     'sql', "SqlLexer"),
+    }
+
     def init2(self, request, response):
         self.request = request
         self.response = response
@@ -109,3 +126,39 @@ class render(object):
             self.page_msg("Markup '%s' not supported yet :(" % markup)
             return content
 
+    #_________________________________________________________________________
+
+    def highlight(self, ext, code, out_object=None):
+        """
+        Schnittstelle zu PyKleur
+        """
+        if out_object == None:
+            out_object = self.response
+
+        html_fieldset = (
+            '<fieldset class="syntax"><legend class="syntax">%s</legend>\n',
+            '</fieldset>'
+        )
+        wrap = ('<pre class="syntax">',"</pre>")
+
+        try:
+            legend, ext, lexer_name = self.PyKleurLexers[ext.lower()]
+        except KeyError, e:
+            # Kein Lexter gefunden
+            legend = "%s <small>[no highlight lexer available.]</small>" % ext
+            out_object.write(html_fieldset[0] % legend)
+            out_object.write(wrap[0])
+            out_object.write(code)
+            out_object.write(wrap[1])
+            out_object.write(html_fieldset[1])
+            return
+
+        from pykleur import highlight
+        from pykleur.formatters import HtmlFormatter
+        from pykleur import highlight, lexers
+
+        lexer = getattr(lexers, lexer_name)
+
+        out_object.write(html_fieldset[0] % legend)
+        highlight(code, lexer(), HtmlFormatter(wrap), out_object)
+        out_object.write(html_fieldset[1])

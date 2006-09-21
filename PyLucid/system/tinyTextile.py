@@ -84,6 +84,7 @@ class parser:
         self.URLs       = request.URLs
         self.tools      = request.tools
         self.page_msg   = response.page_msg
+        self.render     = self.request.render
 
         self.newline    = newline
 
@@ -347,8 +348,8 @@ class parser:
         self.sourcecode_data += self.newline + block + self.newline
 
     def python_area_end(self, dummy):
-        self.sourcecode_type = "python"
-        self.code_area_end(None)
+        code = self.sourcecode_data.strip()
+        self.render.highlight("python", code, self.out)
 
     #_________________________________________________________________________
 
@@ -374,44 +375,10 @@ class parser:
         Wir sind, beim Endtag angekommen, dann zeigen wir mal den
         sourcecode... :)
         """
-        sourcecode = self.sourcecode_data.strip()
+        code = self.sourcecode_data.strip()
 
-        from pykleur import highlight
-        from pykleur.formatters import HtmlFormatter
-        from pykleur import highlight, lexers
+        self.render.highlight(self.sourcecode_type, code, self.out)
 
-        LEXERS = {
-            'python':       ('Python', 'py', lexers.PythonLexer),
-            'py':           ('Python', 'py', lexers.PythonLexer),
-            'php':          ('PHP', 'php', lexers.PhpLexer),
-            'c':            ('C', 'c', lexers.CppLexer),
-            'c++':          ('C++', 'cpp', lexers.CppLexer),
-            'cpp':          ('C++', 'cpp', lexers.CppLexer),
-            'delphi':       ('Delphi', 'delphi', lexers.DelphiLexer),
-            'java':         ('Java', 'java', lexers.JavaLexer),
-            'html':         ('HTML', 'html', lexers.HtmlLexer),
-            'xml':          ('XML', 'html', lexers.XmlLexer),
-            'javascript':   ('JavaScript', 'js', lexers.JavascriptLexer),
-            'js':           ('JavaScript', 'js', lexers.JavascriptLexer),
-            'css':          ('Cascading Style Sheets', 'css', lexers.CssLexer),
-            'ini':          ('INI', 'ini', lexers.IniLexer),
-            'sql':          ('SQL', 'sql', lexers.SqlLexer),
-        }
-        try:
-            lexer = LEXERS[self.sourcecode_type][2]()
-        except KeyError, e:
-            # Kein Lexter gefunden
-            self.page_msg("Lexer %s unknown." % cgi.escape(str(e)))
-            self.out("<pre>\n%s\n</pre>\n" % sourcecode)
-            return
-
-        formatter = HtmlFormatter(
-            wrap = (
-                '<pre class="syntax">',
-                "</pre>"
-            )
-        )
-        highlight(sourcecode, lexer, formatter, self.out)
 
     #_________________________________________________________________________
 

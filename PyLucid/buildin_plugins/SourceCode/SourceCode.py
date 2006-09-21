@@ -12,9 +12,11 @@ somit alle zusätzlichen " " -> "&nbsp;" und "\n" -> "<br/>" umwandlung
 sparen. Das Klappt aus mit allen Browsern super, nur nicht mit dem IE ;(
 """
 
-__version__="0.3.1"
+__version__="0.4"
 
 __history__="""
+v0.4
+    - Nutzt nun PyKleur, durch self.render.highlight()
 v0.3.1
     - Nutzt <pre>
 v0.3
@@ -44,7 +46,6 @@ v0.1.0
 """
 
 
-import cgitb;cgitb.enable()
 import sys, os, cgi, sys
 
 
@@ -83,32 +84,10 @@ class SourceCode(PyLucidBaseModule):
             )
             return
 
-        #~ print '<a href="%sdownload&file=%s" class="SourceCodeFilename">%s</a>' % (
-            #~ self.action_url, filename, filename
-        #~ )
+        ext = os.path.splitext(filename)[1] # blabla.py -> .py
+        ext = ext[1:] # .py -> py
 
-        html = (
-            '<fieldset class="SourceCode">'
-            '<legend>%s</legend>\n'
-        ) % filename
-
-        if os.path.splitext( filename )[1] == ".py":
-            from PyLucid.system import sourcecode_parser
-            parser = sourcecode_parser.python_source_parser(
-                self.request, self.response
-            )
-            self.response.write(parser.get_CSS())
-            self.response.write(html)
-            self.response.write('<pre class="sourcecode">\n')
-            parser.parse(source.strip())
-            self.response.write("</pre>\n")
-        else:
-            self.response.write(html)
-            self.response.write('<pre class="sourcecode">\n')
-            self.format_code(source)
-            self.response.write("</pre>\n")
-
-        self.response.write('</fieldset>\n')
+        self.render.highlight(ext, source.strip())
 
     def format_code( self, source ):
         """
