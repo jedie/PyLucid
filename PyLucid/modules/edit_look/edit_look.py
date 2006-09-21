@@ -12,9 +12,11 @@ Editor für alles was mit aussehen zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.3.1"
+__version__="0.3.2"
 
 __history__="""
+v0.3.2
+    - Neu: Apply Button auch für edit template/stylesheet
 v0.3.1
     - Neu: Apply Button bei "edit internal page"
 v0.3
@@ -66,6 +68,9 @@ class StyleAndTemplate(PyLucidBaseModule):
             self._cloneItem()
         elif self.request.form.has_key("del"):
             self._delItem()
+        elif self.request.form.has_key("apply"):
+            self._applyItem()
+            return
         elif self.request.form.has_key("save"):
             self._updateItem()
 
@@ -110,6 +115,14 @@ class StyleAndTemplate(PyLucidBaseModule):
 
         self.page_msg(msg)
 
+    def _applyItem(self):
+        """
+        Apply-Button
+        Speichern und direkt wieder im Editor öffnen
+        """
+        self._updateItem()
+        self._makeEditPage()
+
     def _updateItem(self):
         """
         Speichert die Änderungen vom template oder stylesheet editieren.
@@ -146,6 +159,7 @@ class StyleAndTemplate(PyLucidBaseModule):
         context = {
             "name"          : edit_data["name"],
             "url"           : self.URLs.currentAction(),
+            "list_url"      : self.URLs.commandLink("pageadmin", "tag_list"),
             "content"       : cgi.escape( edit_data["content"] ),
             "description"   : cgi.escape( edit_data["description"] ),
             "id"            : id,
@@ -211,6 +225,10 @@ class StyleAndTemplate(PyLucidBaseModule):
         return id
 
 
+
+
+#_____________________________________________________________________________
+
 class Style(StyleAndTemplate):
     """
     Namen und Methoden zur Stylesheet Verabreitung
@@ -241,6 +259,9 @@ class Style(StyleAndTemplate):
         # delete
         self.db_deleteItem = self.db.delete_style
 
+
+
+#_____________________________________________________________________________
 
 class Template(StyleAndTemplate):
     """
@@ -273,6 +294,8 @@ class Template(StyleAndTemplate):
         self.db_deleteItem = self.db.delete_template
 
 
+
+#_____________________________________________________________________________
 
 class edit_look(PyLucidBaseModule):
 

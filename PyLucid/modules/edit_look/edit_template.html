@@ -10,10 +10,16 @@
         <a href="JavaScript:resize_small();" title="click to make the editor window smaller">&nbsp;-&nbsp;</a>
     </span>
     <script type="text/javascript">init();</script>
-
-    Description: <input name="description" type="text" style="width: 100%%;" value="%(description)s" /><br />
+    <br />
     <input name="id" type="hidden" value="%(id)s" />
+    <input type="submit" value="apply" name="apply" />
     <input type="submit" value="save" name="save" />
     <input type="reset" onClick="self.location.href='%(url)s'" name="abort" value="abort" />
     </p>
+
+    <fieldset id="ipage_details">
+    <legend>details</legend>
+       <label class="left" for="description">Description:</label>
+       <input id="description" name="description" type="text" style="width: 70%%;" value="%(description)s" />
+    </fieldset>
 </form>
