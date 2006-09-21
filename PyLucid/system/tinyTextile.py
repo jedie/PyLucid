@@ -16,9 +16,12 @@ http://www.solarorange.com/projects/textile/mtmanual_textile2.html
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.3"
+__version__="0.4"
 
 __history__="""
+v0.4
+    - Neu: <code=css>...</code> - Nutzt nun pykleur (LGPL) :)
+        http://trac.pocoo.org/wiki/PyKleur
 v0.3
     - NEU: shortcut Link - Bsp.: [[ShortCut]]
 v0.2.5
@@ -177,6 +180,10 @@ class parser:
                 "<python>", "</python>",
                 self.python_area_start, self.python_area, self.python_area_end
             ],
+            [
+                "<code=", "</code>",
+                self.code_area_start, self.code_area, self.code_area_end
+            ],
         )
 
     def _compile_rules(self, rules):
@@ -334,46 +341,77 @@ class parser:
         """
         Python-Source-Code area
         """
-        self.python_source_data = ""
+        self.sourcecode_data = ""
 
     def python_area(self, block):
-        self.python_source_data += self.newline + block + self.newline
+        self.sourcecode_data += self.newline + block + self.newline
 
     def python_area_end(self, dummy):
+        self.sourcecode_type = "python"
+        self.code_area_end(None)
+
+    #_________________________________________________________________________
+
+    def code_area_start(self, block):
+        """
+        Sourcecode mit pykleur
+        """
+        self.first_sourcecode_block = True
+        self.sourcecode_type = None
+        self.sourcecode_data = ""
+
+    def code_area(self, block):
+        if self.first_sourcecode_block:
+            # Aus der ersten Zeile den Typ des Sourcecodes ermitteln:
+            # <code=sql>
+            self.first_sourcecode_block = False
+            self.sourcecode_type, block = block.split(">",1)
+
+        self.sourcecode_data += self.newline + block + self.newline
+
+    def code_area_end(self, dummy):
+        """
+        Wir sind, beim Endtag angekommen, dann zeigen wir mal den
+        sourcecode... :)
+        """
+        sourcecode = self.sourcecode_data.strip()
+
         from pykleur import highlight
-        from pykleur.lexers import PythonLexer
         from pykleur.formatters import HtmlFormatter
+        from pykleur import highlight, lexers
 
-        sourcecode = self.python_source_data.strip()
+        LEXERS = {
+            'python':       ('Python', 'py', lexers.PythonLexer),
+            'py':           ('Python', 'py', lexers.PythonLexer),
+            'php':          ('PHP', 'php', lexers.PhpLexer),
+            'c':            ('C', 'c', lexers.CppLexer),
+            'c++':          ('C++', 'cpp', lexers.CppLexer),
+            'cpp':          ('C++', 'cpp', lexers.CppLexer),
+            'delphi':       ('Delphi', 'delphi', lexers.DelphiLexer),
+            'java':         ('Java', 'java', lexers.JavaLexer),
+            'html':         ('HTML', 'html', lexers.HtmlLexer),
+            'xml':          ('XML', 'html', lexers.XmlLexer),
+            'javascript':   ('JavaScript', 'js', lexers.JavascriptLexer),
+            'js':           ('JavaScript', 'js', lexers.JavascriptLexer),
+            'css':          ('Cascading Style Sheets', 'css', lexers.CssLexer),
+            'ini':          ('INI', 'ini', lexers.IniLexer),
+            'sql':          ('SQL', 'sql', lexers.SqlLexer),
+        }
+        try:
+            lexer = LEXERS[self.sourcecode_type][2]()
+        except KeyError, e:
+            # Kein Lexter gefunden
+            self.page_msg("Lexer %s unknown." % cgi.escape(str(e)))
+            self.out("<pre>\n%s\n</pre>\n" % sourcecode)
+            return
 
-        CSS = """<style type="text/css">
-.syntax .cm { color: #008800; } /* Comment */
-.syntax .kw { color: #AA22FF; font-weight: bold; } /* Keyword */
-.syntax .bn { color: #AA22FF; } /* Builtin */
-.syntax .st { color: #bb4444; } /* String */
-.syntax .op { color: black; }   /* Operator */
-.syntax .nb { color: black; }   /* Number */
-.syntax .var { color: #b8860b; } /* Variable name */
-.syntax .int { color: #bb6666; } /* String interpolation */
-.syntax .esc { color: #bb6622; } /* String escape */
-.syntax .dec { font-weight: normal; } /* Decorator */
-.syntax .fun { color: green; } /* Function name */
-.syntax .cls { color: blue; } /* Class name */
-.syntax .exc { color: #d2413a; font-weight: bold; } /* Exceptions */
-.syntax .proc { color: #008800; } /* Preprocessor */
-.syntax .ostr { color: green; } /* Other Strings (q{...}) */
-
-.syntax .err { border: 1px solid red; }
-</style>
-"""
-        wrap = (
-            '<pre class="syntax">',
-            "</pre>"
+        formatter = HtmlFormatter(
+            wrap = (
+                '<pre class="syntax">',
+                "</pre>"
+            )
         )
-        self.out.write(CSS)
-        self.out.write(
-            highlight(sourcecode, PythonLexer(),HtmlFormatter(wrap))
-        )
+        highlight(sourcecode, lexer, formatter, self.out)
 
     #_________________________________________________________________________
 
