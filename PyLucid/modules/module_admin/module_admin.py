@@ -357,13 +357,14 @@ class InternalPage(object):
         # Als Grundlage dient das neuste Datum
         lastupdatetime = max(lastupdatetime_list)
 
-        # Hinweis: template_engine und markup werden von self.db umgewandelt
-        # in IDs!
+        # Hinweis: self.db übernimmt folgendes:
+        # -template_engine und markup in IDs wandeln.
+        # -createtime, lastupdateby eingetragen.
         internal_page = {
             "name"              : self.name,
             "plugin_id"         : self.plugin_id,
             "method_id"         : self.method_id,
-            "category"          : self.module_name,
+            #~ "category"          : self.module_name,
             "description"       : self.data["description"],
             "content_html"      : html,
             "content_css"       : css,

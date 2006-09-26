@@ -5,7 +5,7 @@
 Information und Tests
 """
 
-__history__ == """
+__history__="""
 v0.2
     - update db tables (PyLucid v0.7.0 -> 0.7.1)
 v0.1
@@ -30,6 +30,8 @@ class update(ObjectApp_Base):
             # Abfrage wurde nicht bestätigt
             return
 
+        self.response.write("<h3>(some errors are normal!!!)</h3>\n")
+
         self.response.write("<h4>Delete obsolete TAL entry:</h4>\n")
         self.response.write("<pre>\n")
         try:
@@ -44,6 +46,63 @@ class update(ObjectApp_Base):
         else:
             self.response.write("OK")
         self.response.write("</pre>\n")
+
+        self._execute(
+            title = "add 'lastupdateby' column in templates table",
+            SQLcommand = (
+                "ALTER TABLE $$templates ADD lastupdateby"
+                " int(11) NOT NULL default '0' AFTER name;"
+            )
+        )
+
+        # lastupdatetime einfügen
+        for table in ("groups", "md5users", "templates", "user_group"):
+            SQLcommand = (
+                "ALTER TABLE $$%s ADD lastupdatetime"
+                " datetime NOT NULL default '0000-00-00 00:00:00';"
+            ) % table
+            msg = (
+                "add 'lastupdatetime' column in '%s'-table"
+            ) % table
+            self._execute(msg,SQLcommand)
+
+        # lastupdateby einfügen
+        for table in ("groups", "md5users", "templates", "user_group"):
+            SQLcommand = (
+                "ALTER TABLE $$%s ADD lastupdateby"
+                " int(11) default NULL;"
+            ) % table
+            msg = (
+                "add 'lastupdatetime' column in '%s'-table"
+            ) % table
+            self._execute(msg,SQLcommand)
+
+        # createtime einfügen
+        tables = (
+            "md5users", "pages_internal", "groups", "templates", "user_group"
+        )
+        for table in tables:
+            SQLcommand = (
+                "ALTER TABLE $$%s ADD createtime"
+                " datetime NOT NULL default '0000-00-00 00:00:00';"
+            ) % table
+            msg = (
+                "add 'createtime' column in '%s'-table"
+            ) % table
+            self._execute(msg,SQLcommand)
+
+        # datetime nach createtime umbenennen
+        for table in ("pages", "styles", "templates", "pages_internal"):
+            SQLcommand = (
+                "ALTER TABLE $$%s"
+                " CHANGE datetime createtime"
+                " datetime NOT NULL default '0000-00-00 00:00:00';"
+            ) % table
+            msg = (
+                "change column name 'datetime' to 'createtime' in '%s'-table"
+            ) % table
+            self._execute(msg,SQLcommand)
+
 
 
     def update2_db(self):

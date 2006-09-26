@@ -8,9 +8,14 @@ Alle vorgefertigten Methoden, die aktiv Daten in der DB verändern und
 über einfache SELECT Befehle hinausgehen
 """
 
-__version__="0.1"
+__version__="0.2"
 
 __history__="""
+v0.2
+    - Neu: __add_data zum hinzufügen von "lastupdatetime", "createtime" und
+        "lastupdateby"
+    - Bugfix: update_internal_page, update_template und update_style speichern
+        alle auch lastupdatetime und lastupdateby
 v0.1
     - erste Release
 """
@@ -87,14 +92,9 @@ class active_statements(passive_statements):
     ## Funktionen für das ändern des Looks (Styles, Templates usw.)
 
     def update_style(self, style_id, style_data):
-        lastupdatetime = self.tools.convert_time_to_sql(time.time())
-        style_data["lastupdatetime"] = lastupdatetime
-        try:
-            style_data["lastupdateby"] = self.session['user_id']
-        except AttributeError:
-            # Wärend der installation gibt es kein session-Objekt!
-            #~ style_data["lastupdateby"] = 0
-            pass
+
+        # lastupdatetime, lastupdateby hinzufügen:
+        style_data = self.__add_data(style_data, add_createtime=False)
 
         self.update(
             table   = "styles",
@@ -104,14 +104,12 @@ class active_statements(passive_statements):
         )
 
     def new_style(self, style_data):
-        self.insert(
-            table   = "styles",
-            data    = {
-                "name"          : style_data["name"],
-                "description"   : style_data.get("description", None),
-                "content"       : style_data["content"],
-            },
-        )
+        # createtime, lastupdatetime, lastupdateby hinzufügen:
+        style_data = self.__add_data(style_data)
+
+        style_data["description"] = style_data.get("description", None)
+
+        self.insert("styles", style_data)
 
     def delete_style(self, style):
         if type(style) == str:
@@ -145,6 +143,10 @@ class active_statements(passive_statements):
         return style_names
 
     def update_template(self, template_id, template_data):
+
+        # lastupdatetime, lastupdateby hinzufügen:
+        template_data = self.__add_data(template_data, add_createtime=False)
+
         self.update(
             table   = "templates",
             data    = template_data,
@@ -153,10 +155,11 @@ class active_statements(passive_statements):
         )
 
     def new_template(self, template_data):
-        self.insert(
-            table   = "templates",
-            data    = template_data,
-        )
+
+        # createtime, lastupdatetime, lastupdateby hinzufügen:
+        template_data = self.__add_data(template_data)
+
+        self.insert("templates", template_data)
 
     def delete_template(self, template_id):
         self.delete(
@@ -178,6 +181,10 @@ class active_statements(passive_statements):
 
     def update_internal_page(self, internal_page_name, page_data):
 
+        # lastupdatetime, lastupdateby hinzufügen:
+        page_data = self.__add_data(page_data, add_createtime=False)
+
+        # Speichern
         self.update(
             table   = "pages_internal",
             data    = page_data,
@@ -191,32 +198,15 @@ class active_statements(passive_statements):
         (installation!)
         """
 
-        markup_id = self.get_markup_id(data["markup"])
+        # Zu IDs Auflösen
+        data["markup"] = self.get_markup_id(data["markup"])
+        data["template_engine"] = \
+                        self.get_template_engine_id(data["template_engine"])
 
-        template_engine_id = self.get_template_engine_id(data["template_engine"])
+        # createtime, lastupdatetime, lastupdateby hinzufügen:
+        data = self.__add_data(data)
 
-        #~ self.page_msg(
-            #~ "new internal page '%s': markup_id: %s, \
-            #~ category_id: %s, template_engine_id: %s" % (
-                #~ data["name"], markup_id, category_id, template_engine_id
-            #~ )
-        #~ )
-
-        self.insert(
-            table = "pages_internal",
-            data  = {
-                "name"              : data["name"],
-                "plugin_id"         : data["plugin_id"],
-                "method_id"         : data["method_id"],
-                "template_engine"   : template_engine_id,
-                "markup"            : markup_id,
-                "lastupdatetime"    : self.tools.convert_time_to_sql(lastupdatetime),
-                "content_html"      : data["content_html"],
-                "content_css"       : data["content_css"],
-                "content_js"        : data["content_js"],
-                "description"       : data["description"],
-            },
-        )
+        self.insert("pages_internal", data)
 
     def delete_internal_page(self, name):
         self.delete(
@@ -247,27 +237,32 @@ class active_statements(passive_statements):
 
     def add_md5_User(self, name, realname, email, pass1, pass2, admin):
         "Hinzufügen der Userdaten in die PyLucid's JD-md5-user-Tabelle"
-        self.insert(
-                table = "md5users",
-                data  = {
-                    "name"      : name,
-                    "realname"  : realname,
-                    "email"     : email,
-                    "pass1"     : pass1,
-                    "pass2"     : pass2,
-                    "admin"     : admin
-                }
-            )
+        data  = {
+            "name"          : name,
+            "realname"      : realname,
+            "email"         : email,
+            "pass1"         : pass1,
+            "pass2"         : pass2,
+            "admin"         : admin
+        }
+
+        # createtime, lastupdatetime, lastupdateby hinzufügen:
+        data = self.__add_data(data)
+
+        self.insert("md5users", data)
 
     def update_userdata(self, id, name, realname, email, admin):
         """ Editierte Userdaten wieder speichern """
-        user_data={
-            "name": name, "realname": realname, "email": email, "admin": admin
+        data={
+            "name": name, "realname": realname,
+            "email": email, "admin": admin
         }
 
+        # lastupdatetime, lastupdateby hinzufügen:
+        data = self.__add_data(data, add_createtime=False)
+
         self.update(
-            table   = "md5users",
-            data    = user_data,
+            "md5users", data,
             where   = ("id",id),
             limit   = 1
         )
@@ -391,4 +386,34 @@ class active_statements(passive_statements):
             where = ("plugin_id", plugin_id),
             limit = 999,
         )
+
+    #_________________________________________________________________________
+    ## Allgemeine Funktionen
+
+    def __add_data(self, data_dict, add_createtime=True):
+        """
+        Fügt in data_dict "lastupdatetime", "createtime" und "lastupdateby"
+        hinzu.
+
+        # createtime, lastupdatetime, lastupdateby hinzufügen:
+        data = self.__add_data(data)
+
+        # lastupdatetime, lastupdateby hinzufügen:
+        data = self.__add_data(data, add_createtime=False)
+
+        """
+        # Daten einfügen
+        timestamp = self.tools.convert_time_to_sql(time.time())
+        data_dict["lastupdatetime"] = timestamp
+        if add_createtime:
+            data_dict["createtime"] = timestamp
+
+        try:
+            data_dict["lastupdateby"] = self.session['user_id']
+        except AttributeError:
+            # Wärend der installation gibt es kein session-Objekt!
+            pass
+
+        #~ self.page_msg(data_dict["lastupdatetime"], data_dict["lastupdateby"])
+        return data_dict
 

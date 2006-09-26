@@ -18,16 +18,15 @@ __important_buildin__   = True
 #~ module_manager_debug = True
 module_manager_debug = False
 
-module_manager_data = {
+global_rights = {
+    "must_login"    : True,
+    "must_admin"    : True,
+}
 
-    "link": {
-        "must_login"    : True,
-        "must_admin"    : True,
-    },
-    "menu": {
-        "must_login"    : True,
-        "must_admin"    : True,
-    },
+module_manager_data = {
+    "lucidTag"  : global_rights,
+    "link"      : global_rights,
+    "menu"      : global_rights,
 
     "system_info": {
         "must_login"        : True,

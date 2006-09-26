@@ -126,6 +126,7 @@ class HttpResponse(HttpResponse):
             msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
         self.response = [] # Evtl. schon gemachte "Ausgaben" verwerfen
+        print "reset:", self.response
 
         self.headers['Content-Disposition'] = \
             'attachment; filename="%s"' % filename

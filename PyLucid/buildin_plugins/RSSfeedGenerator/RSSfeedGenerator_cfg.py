@@ -6,8 +6,9 @@
 
 __author__      = "Jens Diemer"
 __url__         = "http://www.PyLucid.org"
-__description__ = "Create a RSS news feed NOT READY FOR USE!"
+__description__ = "Create a RSS news feed."
 __long_description__ = """
+Create a RSS news feed from the last 15 page updates.
 """
 
 #___________________________________________________________________________________________________

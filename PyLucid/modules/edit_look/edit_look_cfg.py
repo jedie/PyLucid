@@ -92,4 +92,6 @@ module_manager_data = {
     },
     "save_internal_page": global_rights,
     "download_internal_page": global_rights,
+    "save_all_local": global_rights,
+    "internal_page_diff": global_rights,
 }

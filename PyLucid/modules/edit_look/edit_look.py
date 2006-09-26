@@ -314,24 +314,32 @@ class edit_look(PyLucidBaseModule):
     ## Interne Seiten editieren
 
     def internal_page(self):
-        editor = self.__get_editor()
-        editor.internal_page()
+        EditInternalPage = self.__get_EditInternalPage()
+        EditInternalPage.internal_page()
 
     def edit_internal_page(self, function_info):
         """ Formular zum editieren einer internen Seite """
-        editor = self.__get_editor()
-        editor.edit_internal_page(function_info)
+        EditInternalPage = self.__get_EditInternalPage()
+        EditInternalPage.edit_internal_page(function_info)
 
     def download_internal_page(self, function_info):
-        editor = self.__get_editor()
-        editor.download_internal_page(function_info)
+        EditInternalPage = self.__get_EditInternalPage()
+        return EditInternalPage.download_internal_page(function_info)
 
-    def __get_editor(self):
+    def save_all_local(self):
+        EditInternalPage = self.__get_EditInternalPage()
+        EditInternalPage.save_all_local()
+
+    def internal_page_diff(self, function_info):
+        EditInternalPage = self.__get_EditInternalPage()
+        EditInternalPage.internal_page_diff(function_info)
+
+    def __get_EditInternalPage(self):
         from PyLucid.modules.edit_look.edit_internal_page \
                                                         import EditInternalPage
 
-        editor = EditInternalPage(self.request, self.response)
-        return editor
+        EditInternalPage = EditInternalPage(self.request, self.response)
+        return EditInternalPage
 
 
     #_______________________________________________________________________

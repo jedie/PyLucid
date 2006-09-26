@@ -556,29 +556,33 @@ class pageadmin(PyLucidBaseModule):
         comment = self.request.form.get("comment", "")
 
         # Hat die Seite noch Unterseiten?
-        parents = self.db.select(
+        childs = self.db.select(
             select_items    = ["name"],
             from_table      = "pages",
             where           = [ ("parent",page_id_to_del) ]
         )
-        if parents:
+        if childs:
             # Hat noch Unterseiten
             msg = "Can't delete Page!"
             self.page_msg( msg )
             self.response.write("<h3>%s</h3>\n" % msg)
-            self.response.write("<p>Page has parent pages:</p><ul>\n")
-            for page in parents:
+            self.response.write("<p>Page has child pages:</p><ul>\n")
+            for page in childs:
                 self.response.write(
                     "<li>%s</li>\n" % cgi.escape(page["name"])
                 )
-            self.response.write("</ul><p>Please move parents first.</p>\n")
+            self.response.write(
+                "</ul><p>Please move/delete the child pages first.</p>\n"
+            )
             return
 
         try:
             self.archive_page(page_id_to_del, "delete page", comment)
         except Exception, e:
-            self.page_msg( "Delete page error:" )
-            self.page_msg( "Can't archive page with ID %s: %s" % (page_id_to_del, e) )
+            self.page_msg("Delete page error:")
+            self.page_msg(
+                "Can't archive page with ID %s: %s" % (page_id_to_del, e)
+            )
             return
 
         self.session.delete_from_pageHistory(page_id_to_del)
@@ -596,7 +600,9 @@ class pageadmin(PyLucidBaseModule):
         else:
             duration_time = time.time()-start_time
             self.page_msg(
-                "page with ID %s deleted in %.2fsec." % ( page_id_to_del, duration_time )
+                "page with ID %s deleted in %.2fsec." % (
+                    page_id_to_del, duration_time
+                )
             )
 
     #_______________________________________________________________________

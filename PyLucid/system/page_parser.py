@@ -43,6 +43,7 @@ import sys, cgi, re, time
 
 class render(object):
 
+    # http://trac.pocoo.org/browser/pocoo/trunk/pocoo/pkg/highlight/components.py
     PyKleurLexers = {
         'python':       ('Python',                  'py', "PythonLexer"),
         'py':           ('Python',                  'py', "PythonLexer"),
@@ -139,7 +140,8 @@ class render(object):
             '<fieldset class="syntax"><legend class="syntax">%s</legend>\n',
             '</fieldset>'
         )
-        wrap = ('<pre class="syntax">',"</pre>")
+        html_pre = '<pre class="syntax">'
+        html_post = "</pre>"
 
         try:
             legend, ext, lexer_name = self.PyKleurLexers[ext.lower()]
@@ -147,9 +149,9 @@ class render(object):
             # Kein Lexter gefunden
             legend = "%s <small>[no highlight lexer available.]</small>" % ext
             out_object.write(html_fieldset[0] % legend)
-            out_object.write(wrap[0])
+            out_object.write(html_pre)
             out_object.write(code)
-            out_object.write(wrap[1])
+            out_object.write(html_post)
             out_object.write(html_fieldset[1])
             return
 
@@ -158,7 +160,8 @@ class render(object):
         from pykleur import highlight, lexers
 
         lexer = getattr(lexers, lexer_name)
+        formatter = HtmlFormatter(pre=html_pre, post=html_post)
 
         out_object.write(html_fieldset[0] % legend)
-        highlight(code, lexer(), HtmlFormatter(wrap), out_object)
+        highlight(code, lexer(), formatter, out_object)
         out_object.write(html_fieldset[1])

@@ -60,6 +60,10 @@ class show_internals(PyLucidBaseModule):
 
     #_______________________________________________________________________
 
+    def lucidTag(self):
+        url = self.URLs.actionLink("menu")
+        self.response.write('<a href="%s">show internals</a>' % url)
+
     def menu( self ):
         self.response.write(
             "<h4>show internals v%s</h4>" % __version__

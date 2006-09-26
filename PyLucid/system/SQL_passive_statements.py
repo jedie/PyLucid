@@ -570,12 +570,17 @@ class passive_statements(SQL_wrapper):
             )
             return None
 
-    def get_internal_page_data(self, internal_page_name, replace=True):
-        data = self.select(
-            select_items    = [
-                "content_html", "content_css", "content_js",
-                "template_engine","markup","description"
-            ],
+    def get_internal_page_data(
+                self, internal_page_name, select_items=None, replace=True):
+
+        if not select_items:
+            # Default Werte setzten
+            select_items = [
+                "content_html", "content_css", "content_js", "template_engine",
+                "markup", "description"
+            ]
+
+        data = self.select(select_items,
             from_table      = "pages_internal",
             where           = ("name", internal_page_name)
         )
@@ -728,11 +733,14 @@ class passive_statements(SQL_wrapper):
         # Daten der Methode holen
         method_properties = self.select(
             select_items    = [
-                "id", "must_login", "must_admin", "menu_section", "menu_description",
-                "direct_out", "sys_exit", "has_Tags", "no_rights_error"
+                "id", "must_login", "must_admin", "menu_section",
+                "menu_description", "direct_out", "sys_exit", "has_Tags",
+                "no_rights_error"
             ],
             from_table      = "plugindata",
-            where           = [("plugin_id", plugin_id), ("method_name",method_name)],
+            where           = [
+                ("plugin_id", plugin_id), ("method_name",method_name)
+            ],
         )
         #~ method_properties = unpickle(method_properties)[0]
 
@@ -743,7 +751,9 @@ class passive_statements(SQL_wrapper):
         return self.select(
             select_items    = ["id"],
             from_table      = "plugindata",
-            where           = [("plugin_id", plugin_id), ("method_name", method_name)],
+            where           = [
+                ("plugin_id", plugin_id), ("method_name", method_name)
+            ],
         )[0]["id"]
 
     def get_plugin_id(self, package, module):
@@ -751,7 +761,9 @@ class passive_statements(SQL_wrapper):
         return self.select(
             select_items    = ["id"],
             from_table      = "plugins",
-            where           = [("package_name", package), ("module_name", module)],
+            where           = [
+                ("package_name", package), ("module_name", module)
+            ],
         )[0]["id"]
 
     def get_package_name(self, module_name):
@@ -762,21 +774,24 @@ class passive_statements(SQL_wrapper):
             where           = ("module_name", module_name),
         )[0]["package_name"]
 
-    def get_plugin_data_by_id(self, plugin_id):
-        result = self.select(
-            select_items    = [
+    def get_plugin_data_by_id(self, plugin_id, select_items=None):
+        if not select_items:
+            # Default Keys
+            select_items = [
                 "id", "module_name", "package_name", "SQL_deinstall_commands",
                 "active"
-            ],
+            ]
+
+        result = self.select(select_items,
             from_table      = "plugins",
             where           = ("id", plugin_id),
         )[0]
         return result
 
     def get_installed_modules_info(self):
-    	"""
-    	Für ModulAdmin und PluginDownload
-    	"""
+        """
+        Für ModulAdmin und PluginDownload
+        """
         return self.select(
             select_items    = [
                 "module_name", "package_name", "id","version","author",

@@ -1,4 +1,4 @@
-// Skript zum größer und kleiner machen des Eingabefeldes
+// Skript zum grï¿½ und kleiner machen des Eingabefeldes
 function init() {
     textarea = document.getElementById("edit_template");
 }

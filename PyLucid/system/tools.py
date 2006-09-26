@@ -187,6 +187,21 @@ def convert_date_from_sql( RAWsqlDate, format="preferences" ):
     else:
         return time.strftime( "%x", date )
 
+
+def strftime(epoch_time, format="preferences"):
+    t = time.localtime(epoch_time)
+    if format == "preferences":
+        # Python-time-Format zu einem String laut preferences wandeln
+        return time.strftime(
+            request.preferences["core"]["formatDateTime"],
+            t
+        )
+    elif format == "DCTERMS.W3CDTF":
+        return time.strftime("%Y-%m-%d", t)
+    else:
+        return time.strftime("%x", t)
+
+
 def convert_time_to_sql( time_value ):
     """
     Formatiert einen Python-time-Wert zu einem SQL-datetime-String
@@ -990,12 +1005,12 @@ class StringIOzipper(object):
     def get_len(self):
         return self._buffer_len
 
-    def block_write(self, out_object, block_size):
+    def block_write(self, out_object, block_size=8192):
         """
         Schreibt die ZIP Datei blockweise in's out-Objekt
         """
         while True:
-            block = self._buffer(block_size)
+            block = self._buffer.read(block_size)
             if not block:
                 break
             out_object.write(block)

@@ -255,7 +255,7 @@ class URLs(dict):
         link = self.addSlash(link)
         return link
 
-    def actionLink(self, methodname, args=""):
+    def actionLink(self, methodname, args="", addSlash=True):
         args = self._prepage_args(args)
         if self.runlevel.is_command():
             link = posixpath.join(
@@ -273,7 +273,8 @@ class URLs(dict):
         else:
             self.actionLinkRuntimeError("actionLink() wrong runlevel!")
 
-        link = self.addSlash(link)
+        if addSlash:
+            link = self.addSlash(link)
         return link
 
     def currentAction(self, args=""):

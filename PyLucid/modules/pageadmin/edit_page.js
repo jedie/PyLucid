@@ -10,7 +10,7 @@ function resize_small() {
     textarea.rows = textarea.rows/1.2;
 }
 
-// tinyTextile help in a window
+// tinyTextile help and TagList in a window
 function OpenInWindow(URL) {
   win1 = window.open(URL, "", "width=1000, height=600, dependent=yes, resizable=yes, scrollbars=yes, location=no, menubar=no, status=no, toolbar=no");
   win1.focus();
