@@ -8,9 +8,11 @@
 -Schnittstelle zu PyKleur
 """
 
-__version__="0.2"
+__version__="0.2.1"
 
 __history__="""
+v0.2.1
+    - Quick Hack for Python 2.2
 v0.2
     - Neu: highlight() - Schnittstelle zu PyKleur
 v0.1.4
@@ -155,13 +157,22 @@ class render(object):
             out_object.write(html_fieldset[1])
             return
 
-        from pykleur import highlight
-        from pykleur.formatters import HtmlFormatter
-        from pykleur import highlight, lexers
-
-        lexer = getattr(lexers, lexer_name)
-        formatter = HtmlFormatter(pre=html_pre, post=html_post)
-
         out_object.write(html_fieldset[0] % legend)
-        highlight(code, lexer(), formatter, out_object)
+
+        try:
+            from pykleur import highlight
+            from pykleur.formatters import HtmlFormatter
+            from pykleur import highlight, lexers
+
+            lexer = getattr(lexers, lexer_name)
+            formatter = HtmlFormatter(pre=html_pre, post=html_post)
+
+            highlight(code, lexer(), formatter, out_object)
+        except Exception, e:
+            # Quick Hack for Python 2.2
+            self.page_msg("[PyKleur Error: %s]" % e)
+            out_object.write(html_pre)
+            out_object.write(code)
+            out_object.write(html_post)
+
         out_object.write(html_fieldset[1])
