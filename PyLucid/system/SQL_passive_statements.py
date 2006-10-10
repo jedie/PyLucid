@@ -9,9 +9,12 @@ ein normaler SELECT Befehl ist. Also nur Methoden die nur Daten aus
 der DB bereitstellen.
 """
 
-__version__="0.2"
+__version__="0.2.1"
 
 __history__="""
+v0.2.1
+    - get_page_update_info achtet auf "showlinks" und "permitViewPublic"
+        Allerdings nicht rekursiv!
 v0.2
     - Bugfix in get_tag_list()
 v0.1
@@ -81,12 +84,17 @@ class passive_statements(SQL_wrapper):
         Informationen über die letzten >count< Seiten updates.
         Nutzt: list_of_new_sides und der RSSfeedGenerator
         """
+        where_rules = [("showlinks",1)]
+        if not self.session.get("isadmin", False):
+            # Ist kein Admin -> darf nur öffentliche Seiten sehen.
+            where_rules.append(("permitViewPublic",1))
+
         page_updates = self.select(
             select_items    = [
                 "id", "name", "title", "lastupdatetime", "lastupdateby"
             ],
             from_table      = "pages",
-            where           = ( "permitViewPublic", 1 ),
+            where           = where_rules,
             order           = ( "lastupdatetime", "DESC" ),
             limit           = ( 0, 10 )
         )
