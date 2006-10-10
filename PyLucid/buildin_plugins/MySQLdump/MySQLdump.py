@@ -163,7 +163,7 @@ class MySQLdump(PyLucidBaseModule):
             "path"          : self.get_mysqldump_path(),
             "url"           : self.URLs.currentAction(),
             "buttons"       : buttons,
-            "character-set" : "utf8",#self.db.encoding,
+            "character_set" : "utf8",#self.db.encoding,
         }
 
         self.templates.write("Menu", context)
