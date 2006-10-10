@@ -6,9 +6,12 @@ Erzeugt einen Download des MySQL Dumps
 http://dev.mysql.com/doc/mysql/de/mysqldump.html
 """
 
-__version__="0.4.2"
+__version__="0.4.3"
 
 __history__="""
+v0.4.3
+    - better mysqldump parameter handle
+    - "default-character-set" is optional now
 v0.4.2
     - Bugfixes, now it realy works under Windows too
 v0.4.1
@@ -320,26 +323,25 @@ class MySQLdump(PyLucidBaseModule):
         """
         Erstellt die Kommandoliste anhand der CGI-Daten bzw. des Formulars ;)
         """
-        try:
-            options = self.request.form["options"]
-        except KeyError:
-            options = ""
-        else:
-            options = " %s" % options
+        def get_option(form_key, format_string):
+            value = self.request.form.get(form_key, "")
+            value = value.strip()
+            if value != "":
+                value = format_string % value
+            return value
 
-        try:
-            compatible = self.request.form["compatible"]
-        except KeyError:
-            compatible = ""
-        else:
-            compatible = " --compatible=%s" % compatible
+        options         = get_option("options", " %s")
+        compatible      = get_option("compatible", " --compatible=%s")
+        character_set   = get_option(
+            "character-set", " --default-character-set=%s"
+        )
 
         default_command = (
-            "%(fn)s --default-character-set=%(cs)s%(cp)s%(op)s"
+            "%(fn)s%(cs)s%(cp)s%(op)s"
             " -u%(u)s -p%(p)s -h%(h)s %(n)s"
         ) % {
             "fn" : self.mysqldump_name,
-            "cs" : self.request.form["character-set"],
+            "cs" : character_set,
             "cp" : compatible,
             "op" : options,
             "u"  : self.preferences["dbUserName"],
