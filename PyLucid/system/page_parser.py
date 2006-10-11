@@ -135,6 +135,7 @@ class render(object):
         """
         Schnittstelle zu PyKleur
         """
+        ext = ext.lower()
         if out_object == None:
             out_object = self.response
 
@@ -142,37 +143,40 @@ class render(object):
             '<fieldset class="syntax"><legend class="syntax">%s</legend>\n',
             '</fieldset>'
         )
-        html_pre = '<pre class="syntax">'
-        html_post = "</pre>"
 
-        try:
-            legend, ext, lexer_name = self.PyKleurLexers[ext.lower()]
-        except KeyError, e:
-            # Kein Lexter gefunden
-            legend = "%s <small>[no highlight lexer available.]</small>" % ext
-            out_object.write(html_fieldset[0] % legend)
-            out_object.write(html_pre)
+        ## Für das automatische Generieren des Styles
+        ## Die Daten kommen aus PyKleur und werden in die Seite
+        ## eingeblendet. Dann kann man das ganze per Copy&Paste in's
+        ## PyLucid Style einbauen
+        #~ from pykleur.formatters import HtmlFormatter
+        #~ from pykleur.styles import get_style_by_name
+        #~ css_style = HtmlFormatter(style='friendly').get_style_defs('.syntax')
+        #~ self.response.write("<pre>")
+        #~ self.response.write(css_style)
+        #~ self.response.write("</pre>")
+
+        def write_raw_code(code, legend_info):
+            out_object.write(html_fieldset[0] % legend_info)
+            out_object.write("<pre>")
             out_object.write(code)
-            out_object.write(html_post)
-            out_object.write(html_fieldset[1])
-            return
-
-        out_object.write(html_fieldset[0] % legend)
+            out_object.write("</pre>")
 
         try:
-            from pykleur import highlight
-            from pykleur.formatters import HtmlFormatter
-            from pykleur import highlight, lexers
+            import pykleur
+            lexer = pykleur.lexers.get_lexer_by_name(ext)
 
-            lexer = getattr(lexers, lexer_name)
-            formatter = HtmlFormatter(pre=html_pre, post=html_post)
+            out_object.write(html_fieldset[0] % lexer.name)
 
-            highlight(code, lexer(), formatter, out_object)
+            formatter = pykleur.formatters.HtmlFormatter(linenos=True)
+            pykleur.highlight(code, lexer, formatter, out_object)
+        except ValueError:
+            # pykleur.lexers.get_lexer_by_name schmeist den ValueError
+            # -> Kein Lexer für das Format vorhanden
+            legend_info = "%s (unknown format)" % ext
+            write_raw_code(code, legend_info)
         except Exception, e:
             # Quick Hack for Python 2.2
-            self.page_msg("[PyKleur Error: %s]" % e)
-            out_object.write(html_pre)
-            out_object.write(code)
-            out_object.write(html_post)
+            legend_info = "%s [PyKleur Error: %s]" % (ext, e)
+            write_raw_code(code, legend_info)
 
         out_object.write(html_fieldset[1])
