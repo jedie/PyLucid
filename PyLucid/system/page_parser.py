@@ -45,25 +45,6 @@ import sys, cgi, re, time
 
 class render(object):
 
-    # http://trac.pocoo.org/browser/pocoo/trunk/pocoo/pkg/highlight/components.py
-    PyKleurLexers = {
-        'python':       ('Python',                  'py', "PythonLexer"),
-        'py':           ('Python',                  'py', "PythonLexer"),
-        'php':          ('PHP',                     'php', "PhpLexer"),
-        'c':            ('C',                       'c', "CppLexer"),
-        'c++':          ('C++',                     'cpp', "CppLexer"),
-        'cpp':          ('C++',                     'cpp', "CppLexer"),
-        'delphi':       ('Delphi',                  'delphi', "DelphiLexer"),
-        'java':         ('Java',                    'java', "JavaLexer"),
-        'html':         ('HTML',                    'html', "HtmlLexer"),
-        'xml':          ('XML',                     'html', "XmlLexer"),
-        'javascript':   ('JavaScript',              'js', "JavascriptLexer"),
-        'js':           ('JavaScript',              'js', "JavascriptLexer"),
-        'css':          ('Cascading Style Sheets',  'css', "CssLexer"),
-        'ini':          ('INI',                     'ini', "IniLexer"),
-        'sql':          ('SQL',                     'sql', "SqlLexer"),
-    }
-
     def init2(self, request, response):
         self.request = request
         self.response = response
@@ -134,6 +115,13 @@ class render(object):
     def highlight(self, ext, code, out_object=None):
         """
         Schnittstelle zu PyKleur
+
+        zu benutzten i.d.R.:
+
+        self.render.highlight(ext, sourcecode)
+
+            ext..: Typische Dateiendung (Bsp.: py, css, html)
+            code.: der Sourcecode als String
         """
         ext = ext.lower()
         if out_object == None:

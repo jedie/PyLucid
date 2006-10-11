@@ -9,9 +9,12 @@ Administration Sub-Menü : "show internals"
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.2.1"
+__version__="0.2.2"
 
 __history__="""
+v0.2.2
+    - bugfixes: "Python Module Info" Anpassung an PyLucid v0.7
+    - module_info used PyKleur :)
 v0.2.1
     - colubrid debug-Informationen werden nun in einem Fenster angezeigt
 v0.2
@@ -72,7 +75,7 @@ class show_internals(PyLucidBaseModule):
 
     #_______________________________________________________________________
 
-    def python_modules( self ):
+    def python_modules(self):
         self.response.write("<h3>Python Module Info</h3>")
 
         start_time = time.time()
@@ -92,29 +95,28 @@ class show_internals(PyLucidBaseModule):
             self.response.write("<tr>")
             self.response.write("<td>%s</td>" % modulename)
             self.response.write(
-                '<td><a href="%smodule_info&modulename=%s">more info</a></td>' % (
-                    self.URLs["action"], modulename
+                '<td><a href="%s">more info</a></td>' % (
+                    self.URLs.actionLink("module_info", modulename)
                 )
             )
             self.response.write("</tr>")
         self.response.write("</table>")
 
-    def module_info( self ):
-        back_link = '<a href="%spython_modules">back</a>' % self.URLs["action"]
+    def module_info(self, function_info):
+        module_name = function_info[0]
+
+        back_link = (
+            '<a href="%s">back</a>'
+        ) % self.URLs.actionLink("python_modules")
         self.response.write(back_link)
-        try:
-            module_name = self.request.args["modulename"]
-        except KeyError, e:
-            self.response.write("Error:", e)
-            return
 
         self.response.write("<h3>Modul info: '%s'</h3>" % module_name)
 
         try:
-            t = imp.find_module( module_name )
+            t = imp.find_module(module_name)
         except Exception,e:
             self.response.write("Can't import '%s':" % module_name)
-            self.response.write(e)
+            self.response.write(str(e))
             return
 
         try:
@@ -146,21 +148,35 @@ class show_internals(PyLucidBaseModule):
         else:
             self.response.write("<h4>help:</h4>")
             self.response.write("<pre>")
-            help( module )
+
+            old_stdout = sys.stdout
+            try:
+                sys.stdout = self.response
+                help(module)
+            finally:
+                sys.stdout = old_stdout
+
             self.response.write("</pre>")
 
         if t[2][1] == "rb":
-            self.response.write("<p>(SourceCode not available. It's a binary module.)</p>")
+            self.response.write(
+                "<p>(SourceCode not available. It's a binary module.)</p>"
+            )
+            return
+
+        try:
+            sourcecode = []
+            filehandle = t[0]
+            for i in filehandle:
+                sourcecode.append(i)
+            sourcecode = "".join(sourcecode)
+        except Exception, e:
+            self.response.write("Can't read Source:", e)
         else:
-            try:
-                self.response.write("<h4>SourceCode:</h4>")
-                filehandle = t[0]
-                self.response.write("<pre>")
-                for i in filehandle:
-                    sys.stdout.write( i )
-                self.response.write("</pre>")
-            except Exception, e:
-                self.response.write("Can't read Source:", e)
+            self.response.write("<h4>SourceCode:</h4>")
+
+            ext = t[2][0][1:] # Endung "extrahieren"
+            self.render.highlight(ext, sourcecode)
 
 
     #_______________________________________________________________________
@@ -172,8 +188,12 @@ class show_internals(PyLucidBaseModule):
         self.response.write("<hr>")
 
         self.response.write("<h3>session data</h3>")
-        self.response.write('<fieldset id="system_info"><legend>your session data:</legend>')
-        self.response.write('<table id="internals_session_data" class="internals_table">')
+        self.response.write(
+            '<fieldset id="system_info"><legend>your session data:</legend>'
+        )
+        self.response.write(
+            '<table id="internals_session_data" class="internals_table">'
+        )
         for k,v in self.session.iteritems():
             self.response.write("<tr>")
             self.response.write("<td>%s</td>" % k)
@@ -277,7 +297,9 @@ class show_internals(PyLucidBaseModule):
 
         self.response.write('<tr style="font-weight:bold">')
         self.response.write("<td></td>")
-        self.response.write('<td style="text-align: right;">%s</td>' % total_rows)
+        self.response.write(
+            '<td style="text-align: right;">%s</td>' % total_rows
+        )
         self.response.write("<td></td>")
         self.response.write(
             '<td style="text-align: right;">%sKB</td>' % \
@@ -294,7 +316,7 @@ class show_internals(PyLucidBaseModule):
 
         self.response.write(
             '<p><a href="%s">optimize SQL tables</a></p>' % \
-                self.URLs.make_action_link("optimize_sql_tables")
+                self.URLs.actionLink("optimize_sql_tables")
         )
 
 
@@ -326,7 +348,7 @@ class show_internals(PyLucidBaseModule):
 
     def optimize_sql_tables( self ):
 
-        SQLresult = self.db.fetchall( "SHOW TABLE STATUS" )
+        SQLresult = self.db.process_statement("SHOW TABLE STATUS")
 
         # Tabellen mit Überhang rausfiltern
         tables_to_optimize = []
@@ -340,9 +362,13 @@ class show_internals(PyLucidBaseModule):
 
             tables_to_optimize = ",".join( tables_to_optimize )
 
-            SQLresult = self.db.fetchall( "OPTIMIZE TABLE %s" % tables_to_optimize )
+            SQLresult = self.db.process_statement(
+                "OPTIMIZE TABLE %s" % tables_to_optimize
+            )
 
-            self.response.write('<table id="optimize_table" class="internals_table">')
+            self.response.write(
+                '<table id="optimize_table" class="internals_table">'
+            )
 
             # Überschriften
             self.response.write("<tr>")
