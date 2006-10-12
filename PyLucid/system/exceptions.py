@@ -15,6 +15,8 @@ from colubrid.exceptions import HttpException
 
 
 
+
+
 ERROR_PAGE_TEMPLATE = """\
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <html>
@@ -64,8 +66,6 @@ class PyLucidException(HttpException):
             'title':    self.title,
             'msg':      self.msg,
         }
-
-
 
 class DBerror(PyLucidException):
     """HTTP 404."""
@@ -146,7 +146,11 @@ class LogInError(PyLucidException):
     """
     Fehler beim Login
     """
-    code = 403
+    #~ code = 403
+    # Mit 403 erhält man oft nur eine Apache-Fehlerseite und nicht
+    # die hier generierte.
+    # TODO: Abklären, warum man 403 nicht nehmen kann
+    code = 500
     title = 'Access denied.'
 
     def __init__(self, origErrMsg):

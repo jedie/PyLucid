@@ -32,3 +32,17 @@ if __name__ == "__main__":
     sys.stdout = oldstdout
 
     CGIHandler().run(app)
+
+else:
+    # Kann passieren, wenn das Skript nicht als CGI läuft, sondern
+    # evtl. über modPython
+    print "<h1>Error:</h1>"
+    print "<p>__name__ == %s (should be __main__!)</p>" % __name__
+    gateway = os.environ.get(
+        "GATEWAY_INTERFACE", "[Error: GATEWAY_INTERFACE not in os.environ!]"
+    )
+    if gateway!="CGI/1.1":
+        print "<h3>Running not as CGI!</h3>"
+        print "<p>You should use an other WSGI Handler!</p>"
+
+    print "<p>GATEWAY_INTERFACE: <strong>%s</strong></p>" % gateway
