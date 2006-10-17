@@ -1,10 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# for Python 2.2:
-from __future__ import generators
-
-
 """
 Einfache Middelware um Tags in den
 Ausgaben zu ersetzten.

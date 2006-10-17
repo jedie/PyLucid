@@ -2,12 +2,10 @@
 # -*- coding: UTF-8 -*-
 
 """
-This CGI-Handler is for Python v2.2 and v2.3!
+This CGI-Handler is for Python v2.3!
 
 with debugged application, sould be only used for testing!
 """
-
-from __future__ import generators
 
 #~ print "Content-type: text/html; charset=utf-8\r\n\r\n<pre>DEBUG:"
 import cgitb;cgitb.enable()
@@ -25,12 +23,8 @@ except Exception, e:
     #~ print e
 
 
-try:
-    from PyLucid.python_backports import backports
-except Exception, e:
-    raise CGI_Error(
-        e, "Can't import PyLucid.python_backports.backports!"
-    )
+# Backport for some Python v2.4 features (subprocess.py)
+sys.path.insert(0,"PyLucid/python_backports")
 
 
 try:

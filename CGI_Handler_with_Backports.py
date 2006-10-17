@@ -1,13 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python -O
 # -*- coding: UTF-8 -*-
 
 """
-This CGI-Handler is for Python v2.2 and v2.3, without 'debugged application'!
+This CGI-Handler is for Python v2.3, without 'debugged application'!
 
 You can rename this file! For example to 'index.py'
 """
-
-from __future__ import generators
 
 #~ print "Content-type: text/html; charset=utf-8\r\n\r\n<pre>DEBUG:"
 #~ import cgitb;cgitb.enable()
@@ -15,7 +13,9 @@ from __future__ import generators
 
 import sys
 
-from PyLucid.python_backports import backports
+# Backport for some Python v2.4 features (subprocess.py)
+sys.path.insert(0,"PyLucid/python_backports")
+
 from wsgiref.handlers import CGIHandler
 
 
