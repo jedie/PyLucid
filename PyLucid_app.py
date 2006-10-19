@@ -8,7 +8,7 @@ __license__ = """GNU General Public License v2 or above -
  http://www.opensource.org/licenses/gpl-license.php"""
 __url__     = "http://www.PyLucid.org"
 
-__version__ = "0.7.1alpha"
+__version__ = "0.7.1beta"
 __info__ = """<a href="%s" title="\
 PyLucid - A OpenSource CMS in pure Python CGI by Jens Diemer">PyLucid</a> \
 v%s""" % (__url__, __version__)
@@ -20,10 +20,10 @@ debug = False
 
 
 import cgi, os, time
+import sys #Debug
 
 
 
-#~ import sys
 #~ class PrintLocator(object):
     #~ """
     #~ Very slow! But in some case very helpfully ;)
@@ -67,7 +67,6 @@ WSGIrequestKey = "colubrid.request."
 from PyLucid.system import response
 from PyLucid.system import tools
 from PyLucid.system import URLs
-from PyLucid.system import jinjaRenderer
 
 # init2
 #~ from PyLucid.system import staticTags
@@ -188,8 +187,6 @@ class PyLucidApp(BaseApplication):
         # Jinja-Context anhängen
         self.request.context = {}
 
-        #~ self.request.jinjaRenderer = jinjaRenderer.jinjaRenderer(self.request)
-
         # Anbindung an die SQL-Datenbank, mit speziellen PyLucid Methoden
         self.db = self.request.db = environ['PyLucid.database']
 
@@ -263,6 +260,7 @@ class PyLucidApp(BaseApplication):
 
         # Übertragen von Objekten
         self.db.render = self.render
+        self.db.session = self.session
 
         self.response.module_manager = self.module_manager
         self.response.staticTags = self.staticTags
@@ -343,7 +341,6 @@ class PyLucidApp(BaseApplication):
 
 
     def debug(self, *txt):
-        #~ import sys
         #~ sys.stderr.write(
         self.page_msg(
             "%s\n" % " ".join([str(i) for i in txt])
