@@ -8,9 +8,11 @@
 -Schnittstelle zu PyKleur
 """
 
-__version__="0.2.1"
+__version__="0.2.2"
 
 __history__="""
+v0.2.2
+    - PyKleur was renamed to pygments
 v0.2.1
     - Quick Hack for Python 2.2
 v0.2
@@ -143,6 +145,7 @@ class render(object):
         #~ self.response.write(css_style)
         #~ self.response.write("</pre>")
 
+
         def write_raw_code(code, legend_info):
             out_object.write(html_fieldset[0] % legend_info)
             out_object.write("<pre>")
@@ -150,13 +153,14 @@ class render(object):
             out_object.write("</pre>")
 
         try:
-            import pykleur
-            lexer = pykleur.lexers.get_lexer_by_name(ext)
+            import pygments
+            lexer = pygments.lexers.get_lexer_by_name(ext)
 
             out_object.write(html_fieldset[0] % lexer.name)
+            fieldset_written = True
 
-            formatter = pykleur.formatters.HtmlFormatter(linenos=True)
-            pykleur.highlight(code, lexer, formatter, out_object)
+            formatter = pygments.formatters.HtmlFormatter(linenos=True)
+            pygments.highlight(code, lexer, formatter, out_object)
         except ValueError:
             # pykleur.lexers.get_lexer_by_name schmeist den ValueError
             # -> Kein Lexer für das Format vorhanden
@@ -164,7 +168,7 @@ class render(object):
             write_raw_code(code, legend_info)
         except Exception, e:
             # Quick Hack for Python 2.2
-            legend_info = "%s [PyKleur Error: %s]" % (ext, e)
+            legend_info = "%s [Pygments Error: %s]" % (ext, e)
             write_raw_code(code, legend_info)
 
         out_object.write(html_fieldset[1])

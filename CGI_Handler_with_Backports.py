@@ -1,4 +1,4 @@
-#!/usr/bin/python -OO
+#!/usr/bin/python -O
 # -*- coding: UTF-8 -*-
 
 """
