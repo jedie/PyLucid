@@ -3,10 +3,15 @@
 
 """
     PyLucid own Exception's
+
+HTTP/1.1 - Status Code Definitions:
+http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 """
 
 
-#~ __all__ = ["DBerror","ConnectionError","ProbablyNotInstalled"]
+__ToDo__ = """
+Apache and other error codes than 200 OK
+"""
 
 
 import cgi
@@ -98,7 +103,7 @@ class ProbablyNotInstalled(PyLucidException):
     Tritt auf, wenn versucht wird auf SQL-Daten zurück zu greifen, wenn
     die Tabellen überhaupt noch nicht eingerichtet wurden.
     """
-    code = 500
+    code = 200
     title = 'Database Error'
 
     def __init__(self, txt, origErrMsg=""):
@@ -124,7 +129,7 @@ class NoInstallLockFile(PyLucidException):
     Der User möchte in die Install-Sektion, aber die InstallLock-Datei, mit
     dem Passwort, ist nicht vorhanden
     """
-    code = 403
+    code = 200
     title = 'Access denied.'
     msg = '<p>install lock file "install_lock.txt" not found!</p>'
     msg += installInfo
@@ -133,7 +138,7 @@ class WrongInstallLockCode(PyLucidException):
     """
     Falscher "install Lock Code" in der URL
     """
-    code = 403
+    code = 200
     title = 'Access denied.'
 
     def __init__(self, origErrMsg):
@@ -150,7 +155,7 @@ class LogInError(PyLucidException):
     # Mit 403 erhält man oft nur eine Apache-Fehlerseite und nicht
     # die hier generierte.
     # TODO: Abklären, warum man 403 nicht nehmen kann
-    code = 500
+    code = 200
     title = 'Access denied.'
 
     def __init__(self, origErrMsg):
