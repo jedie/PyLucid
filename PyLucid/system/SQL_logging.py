@@ -5,9 +5,11 @@
 Allgemeiner SQL-Logger
 """
 
-__version__ = "v0.1"
+__version__ = "v0.1.1"
 
 __history__ = """
+v0.1.1
+    - auf 80 Zeichen gekürzt
 v0.1
     - Neu: items-Methode für die Debug-Ausgabe
 v0.0.6
@@ -40,9 +42,11 @@ class log:
     PyLucid SQL-Logging Klasse
     """
     def __init__ (self):
-        # auf Default-Werte setzten
-        # Nachdem eine Session erstellt wurde, werden diese Werte von index.py
-        # gesetzt
+        """
+        Default-Werte setzten
+        Nachdem eine Session erstellt wurde, werden diese Werte von index.py
+        gesetzt
+        """
         self.client_sID         = "unknown"
         self.client_user_name   = "unknown"
         self.client_ip          = "unknown"
@@ -73,7 +77,7 @@ class log:
 
         return type
 
-    #________________________________________________________________________________________
+    #_________________________________________________________________________
     ## Log-Datei schreiben / verwalten
 
     def write(self, log_message, type=False, status="-1"):
@@ -121,11 +125,13 @@ class log:
 
         self.db.cursor.execute(SQLcommand, (current_timeout,))
 
-    #________________________________________________________________________________________
+    #_________________________________________________________________________
     ## Log-Datei lesen
 
     def items(self):
-        """ Generiert eine Liste der letzten 5 Logeinträge für die Debug Anzeige """
+        """
+        Generiert eine Liste der letzten 5 Logeinträge für die Debug Anzeige
+        """
         #~ self.page_msg("lastLog: %s" % self.get_last_logs())
 
         try:
@@ -147,7 +153,10 @@ class log:
     def get_last_logs( self, limit=10 ):
         """ Liefert die letzten >limit< Logeinträge zurück """
         return self.db.select(
-            select_items    = ["timestamp", "sid", "user_name", "ip", "domain", "message","typ","status"],
+            select_items    = [
+                "timestamp", "sid", "user_name", "ip", "domain",
+                "message", "typ", "status"
+            ],
             from_table      = sql_tablename,
             order           = ("id","DESC"),
             limit           = (0,limit)
@@ -157,7 +166,9 @@ class log:
     def debug_last(self):
         import inspect
         self.page_msg(
-            "Log Debug (from '%s' line %s):" % (inspect.stack()[1][1][-20:], inspect.stack()[1][2])
+            "Log Debug (from '%s' line %s):" % (
+                inspect.stack()[1][1][-20:], inspect.stack()[1][2]
+            )
         )
         for item in self.get_last_logs(limit=10):
             self.page_msg(item["timestamp"], item["sid"], item["message"])
