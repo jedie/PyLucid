@@ -9,6 +9,14 @@ http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 """
 
 
+__version__ = """
+v0.1.1
+    - Bugfix: http://pylucid.net/trac/ticket/18
+        - args fehlte als Attribut der Exception Klassen
+v0.1
+    - erste Version
+"""
+
 __ToDo__ = """
 Apache and other error codes than 200 OK
 """
@@ -65,6 +73,14 @@ ERROR_PAGE_TEMPLATE = """\
 
 class PyLucidException(HttpException):
     """Base for HTTP exceptions. Not to be used directly."""
+    args="" # FixMe: Warum muß es args hier geben???
+    """
+    args wird benötigt, wenn eine PyLucidException angafangen wird. z.b.:
+        try:
+            raise LogInError("TEST")
+        except Exception, e:
+            self.page_msg(Exception, e)
+    """
     def get_error_page(self):
         return ERROR_PAGE_TEMPLATE % {
             'code':     self.code,
