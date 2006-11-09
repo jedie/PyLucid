@@ -2,80 +2,15 @@
 # -*- coding: UTF-8 -*-
 
 """
-Allgemeiner CGI-Session-handler
-auf Cookie + SQL basis
-
-benötigte SQL-Tabelle:
--------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `lucid_session_data` (
-  `session_id` varchar(32) NOT NULL default '',
-  `timestamp` int(15) NOT NULL default '0',
-  `ip` varchar(15) NOT NULL default '',
-  `domain_name` varchar(50) NOT NULL default '',
-  `session_data` text NOT NULL,
-  PRIMARY KEY  (`session_id`),
-  KEY `session_id` (`session_id`)
-) COMMENT='Python-SQL-CGI-Sessionhandling';
--------------------------------------------------------
-
-Information
-===========
-Session-Handling ermöglicht es, Variablen (ein dict) zwischen verschiedene
-Anfragen hinweg pro User zu speichern.
-Damit ist es einfacher Web-Applikationen in Python-CGI zu schreiben, ohne Daten
-ständig per Formular weiter zu transportieren ;)
-
-Ein Besucher der Webseite wird mit einer eindeutigen Session-ID per Cookie
-gekennzeichnet. Variablen werden in ein Dictioary gespeichert. Dieses Dict wird
-mittelt pickle serialisiert und zusammen mit der Session-ID in die
-SQL-Datenbank gespeichert. Beim nächsten Aufruf stehen die speicherten Daten
-wieder zu verfügung.
-
-Grober Ablauf:
-==============
-
-session = sessionhandling.sessionhandler( mySQLdb.cursor, sql_tablename,
-file_like_log )
-# mySQLdb.cursor => Cursor-Objekt der Datenbank-API
-# sql_tablename  => Name der Tabelle, in der die Sessiondaten verwaltet werden
-                        soll (s.SQL-Dump oben)
-# file_like_log  => Ein LOG-Objekt, welches eine write()-Methode besitzt
-
-# Erst nach der Instanzierung kann der HTML-Header an den Client geschickt
-werden
-print "Content-type: text/html\n"
-
-if self.session["session_id"] == False:
-    # Keine Session vorhanden
-else:
-    # eine Session ist vorhanden
-    if aktion == "LogOut":
-        # ein LogOut wird durchgeführt
-        self.session.delete_session()
-    else:
-        # Schreibe Informationen in das Dictionary
-        self.session[key] = data
-        self.session["UserName"] = username
-
-    # Sessiondaten in die Datenbank schreiben
-    self.session.update_session()
-
-    # Session-Daten anzeigen:
-    print self.session
-
-
-Hinweis
--------
-Da das Sessionhandling auf Cookies basiert, ist folgendes wichtig:
-For dem Instanzieren der sessionhandler-Klasse darf noch kein Header
-(print "Content-type: text/html\n") an den Client geschickt worden sein!
-Ansonsten zählt der Cookie-Print nicht mehr zum Header und wird im Browser
-einfach nur angezeigt ;)
+PyLucid CGI-Session-handler auf Cookie + SQL basis
 """
 
-__version__ = "v0.2"
+__version__ = "v0.2.1"
 
 __history__ = """
+v0.2.1
+    - getfqdn() Bugfix Trac ticket:19
+    - alte DocString gelöscht
 v0.2
     - NEU: Klasse erbt von dict
 v0.1.1
@@ -90,7 +25,7 @@ v0.0.6
 v0.0.5
     - Umstellung auf MySQLdb.cursors.DictCursor
 v0.0.4
-    - NEU: verbose_log: damit nicht die Log-Ausgaben zuviele sind ;)
+    - NEU: VERBOSE_LOG: damit nicht die Log-Ausgaben zuviele sind ;)
 v0.0.3
     - __delitem__() hinzugefügt, um Session daten auch wieder löschen zu können
 v0.0.2
@@ -107,10 +42,11 @@ from Cookie import SimpleCookie
 #~ debug = True
 debug = False
 
+#~ VERBOSE_LOG    = True
+VERBOSE_LOG    = False
 
 # Bestimmt den Log-Typ
-log_typ = "sessionhandling"
-verbose_log    = True
+LOG_TYPE = "sessionhandling"
 
 # Sollen die Daten im base64 Format in die Datenbank geschrieben werden
 base64format = False
@@ -156,8 +92,8 @@ class cookieHandler:
         if cookie_id == False:
             # Es gibt kein Session-Cookie, also gibt es keine gültige Session
             msg = "no client cookie found."
-            if verbose_log == True:
-                self.log.write( msg, "sessionhandling", "error" )
+            if VERBOSE_LOG == True:
+                self.log.write( msg, LOG_TYPE, "error" )
             if debug == True:
                 self.page_msg( msg )
                 self.page_msg( "-"*30 )
@@ -165,16 +101,16 @@ class cookieHandler:
 
         if cookie_id == "":
             self.status = "deleted Cookie found / Client not LogIn!"
-            if verbose_log==True:
-                self.log.write(self.status, "sessionhandling", "error" )
+            if VERBOSE_LOG==True:
+                self.log.write(self.status, LOG_TYPE, "error" )
             return False
 
         if len(cookie_id) != 32:
             # Mit dem Cookie stimmt wohl was nicht ;)
             self.deleteCookie(self.CookieName)
             msg = "wrong Cookie len: %s !" % len(cookie_id)
-            if verbose_log == True:
-                self.log.write( msg, "sessionhandling", "error" )
+            if VERBOSE_LOG == True:
+                self.log.write( msg, LOG_TYPE, "error" )
             if debug == True:
                 self.page_msg( msg )
                 self.page_msg( "-"*30 )
@@ -238,8 +174,8 @@ class cookieHandler:
     def writeCookie(self, Text, expires=None):
         """
         speichert Cookie
-        Es wird kein 'expires' gesetzt, somit ist der Cookie gültig/vorhanden bis der
-        Browser beendet wurde.
+        Es wird kein 'expires' gesetzt, somit ist der Cookie gültig/vorhanden
+        bis der Browser beendet wurde.
         """
         #~ if expires==None: expires=self.timeout_sec
         #~ self.Cookie[self.CookieName]["path"] = self.preferences["poormans_url"]
@@ -337,8 +273,16 @@ class sessionhandler(dict):
         """
         self.state = "no session" # Keine Session vorhanden
 
-        self["client_IP"] = self.request.environ.get("REMOTE_ADDR","unknown")
-        self["client_domain_name"] = "[not detected]"
+        try:
+            self["client_IP"] = self.request.environ["REMOTE_ADDR"]
+        except KeyError:
+            self["client_IP"] = "unknown"
+            self["client_domain_name"] = "[IP Addr. unknown]"
+        else:
+            try:
+                self["client_domain_name"] = getfqdn(self["client_IP"])
+            except Exception, e:
+                self["client_domain_name"] = "[getfqdn Error: %s]" % e
 
         self["session_id"] = False
         self["isadmin"] = False
@@ -392,7 +336,7 @@ class sessionhandler(dict):
         try:
             checkSessiondata(DB_data)
         except BrokenSessionData, msg:
-            self.log.write(msg, "sessionhandling", "error")
+            self.log.write(msg, LOG_TYPE, "error")
             if debug == True:
                 self.page_msg(msg)
                 self.debug_session_data()
@@ -404,12 +348,12 @@ class sessionhandler(dict):
         self.update(DB_data)
 
         # Session ist OK
-        if verbose_log == True or debug == True:
+        if VERBOSE_LOG == True or debug == True:
             msg = "Session is OK\nSession-Data %.2fSec old" % (
                 time.time()-DB_data["timestamp"]
             )
-            if verbose_log == True:
-                self.log.write(msg, "sessionhandling", "OK")
+            if VERBOSE_LOG == True:
+                self.log.write(msg, LOG_TYPE, "OK")
             if debug == True:
                 self.page_msg(msg)
                 self.debug()
@@ -424,12 +368,6 @@ class sessionhandler(dict):
         """
         if debug == True:
             self.page_msg("makeSession!")
-
-        # Stellt Client-Domain-Name fest
-        try:
-            self["client_domain_name"] = getfqdn(self["client_IP"])
-        except Exception, e:
-            self["client_domain_name"] = "[getfqdn Error: %s]" % e
 
         # Muß beim commit in die DB eingetragen werden
         self.state = "new session"
@@ -509,7 +447,7 @@ class sessionhandler(dict):
             )
             self.db.commit()
 
-            self.log.write( "created Session.", "sessionhandling", "OK" )
+            self.log.write( "created Session.", LOG_TYPE, "OK" )
             if debug == True:
                 self.page_msg("insert session data for:", self["session_id"])
                 self.debug_session_data()
@@ -528,8 +466,11 @@ class sessionhandler(dict):
             self.db.commit()
             #~ self.debug_session_data()
 
-            if verbose_log == True:
-                self.log.write( "update Session: ID:%s" % self["session_id"], "sessionhandling", "OK" )
+            if VERBOSE_LOG == True:
+                self.log.write(
+                    "update Session: ID:%s" % self["session_id"],
+                    LOG_TYPE, "OK"
+                )
             if debug == True:
                 self.page_msg("update Session: ID:%s" % self["session_id"])
                 self.debug_session_data()
@@ -564,7 +505,10 @@ class sessionhandler(dict):
         self._delete_old_sessions() # Löschen veralteter Sessions in der DB
 
         DB_data = self.db.select(
-                select_items    = ["session_id", "timestamp", "ip", "domain_name", "session_data"],
+                select_items    = [
+                    "session_id", "timestamp", "ip",
+                    "domain_name", "session_data"
+                ],
                 from_table      = self.sql_tablename,
                 where           = ("session_id",session_id)
             )
@@ -628,7 +572,7 @@ class sessionhandler(dict):
     #_________________________________________________________________________
 
     def debug_session_data(self):
-        if verbose_log != True:
+        if VERBOSE_LOG != True:
             return
 
         import inspect
@@ -640,7 +584,9 @@ class sessionhandler(dict):
                 from_table      = self.sql_tablename,
                 where           = [("session_id",self["session_id"])]
             )
-            self.page_msg( "Debug from %s: %s<br />" % (stack_info, RAW_db_data) )
+            self.page_msg(
+                "Debug from %s: %s<br />" % (stack_info, RAW_db_data)
+            )
         except Exception, e:
             self.page_msg( "Debug-Error from %s: %s" % (stack_info,e) )
             #~ for i in inspect.stack(): self.page_msg( i )
@@ -655,7 +601,9 @@ class sessionhandler(dict):
         # PyLucid's page_msg nutzen
         self.page_msg( "-"*30 )
         self.page_msg(
-            "Session Debug (from '%s' line %s):" % (inspect.stack()[1][1][-20:], inspect.stack()[1][2])
+            "Session Debug (from '%s' line %s):" % (
+                inspect.stack()[1][1][-20:], inspect.stack()[1][2]
+            )
         )
 
         self.page_msg("len:", len(self))
@@ -668,7 +616,9 @@ class sessionhandler(dict):
         """ Zeigt die letzten Einträge an """
         import inspect
         self.page_msg(
-            "Session Debug (from '%s' line %s):" % (inspect.stack()[1][1][-20:], inspect.stack()[1][2])
+            "Session Debug (from '%s' line %s):" % (
+                inspect.stack()[1][1][-20:], inspect.stack()[1][2]
+            )
         )
         info = self.db.select( ["timestamp","session_id"], "session_data",
             limit=(0,5),
