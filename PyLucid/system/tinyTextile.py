@@ -182,7 +182,7 @@ class parser:
                 self.python_area_start, self.python_area, self.python_area_end
             ],
             [
-                "<code=", "</code>",
+                "<code", "</code>",
                 self.code_area_start, self.code_area, self.code_area_end
             ],
         )
@@ -355,7 +355,7 @@ class parser:
 
     def code_area_start(self, block):
         """
-        Sourcecode mit pykleur
+        Sourcecode mit pygments
         """
         self.first_sourcecode_block = True
         self.sourcecode_type = None
@@ -364,9 +364,10 @@ class parser:
     def code_area(self, block):
         if self.first_sourcecode_block:
             # Aus der ersten Zeile den Typ des Sourcecodes ermitteln:
-            # <code=sql>
+            # <code=sql> oder <code=.sh> oder <code>
             self.first_sourcecode_block = False
-            self.sourcecode_type, block = block.split(">",1)
+            code_type, block = block.split(">",1)
+            self.sourcecode_type = code_type.lstrip("=.")
 
         self.sourcecode_data += self.newline + block + self.newline
 

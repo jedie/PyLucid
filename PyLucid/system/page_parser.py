@@ -88,6 +88,7 @@ class render(object):
         Wendet das Markup auf den Seiteninhalt an
         """
         if markup == "textile":
+            #~ self.page_msg("Debug: use textile")
             # textile Markup anwenden
             if self.preferences["ModuleManager_error_handling"] == True:
                 try:
@@ -131,7 +132,7 @@ class render(object):
 
         html_fieldset = (
             '<fieldset class="syntax"><legend class="syntax">%s</legend>\n',
-            '</fieldset>'
+            '</fieldset><br />'
         )
 
         ## Für das automatische Generieren des Styles
@@ -146,29 +147,46 @@ class render(object):
         #~ self.response.write("</pre>")
 
 
-        def write_raw_code(code, legend_info):
+        def fallback_write(code, legend_info):
             out_object.write(html_fieldset[0] % legend_info)
             out_object.write("<pre>")
             out_object.write(code)
             out_object.write("</pre>")
+            out_object.write(html_fieldset[1])
+
 
         try:
+            #~ raise ImportError("TEST")
             import pygments
+        except ImportError, e:
+            legend_info = "%s [Pygments ImportError: %s]" % (ext, e)
+            fallback_write(code, legend_info)
+            return
+
+        try:
+            #~ raise Exception("TEST")
             lexer = pygments.lexers.get_lexer_by_name(ext)
-
-            out_object.write(html_fieldset[0] % lexer.name)
-            fieldset_written = True
-
-            formatter = pygments.formatters.HtmlFormatter(linenos=True)
-            pygments.highlight(code, lexer, formatter, out_object)
         except ValueError:
             # pykleur.lexers.get_lexer_by_name schmeist den ValueError
             # -> Kein Lexer für das Format vorhanden
-            legend_info = "%s (unknown format)" % ext
-            write_raw_code(code, legend_info)
+            lexer = pygments.lexers.get_lexer_by_name("text")
+            legend_info = (
+                "%s <small>(unknown format, use TextLexer)</small>"
+            ) % ext
+            out_object.write(html_fieldset[0] % legend_info)
         except Exception, e:
-            # Quick Hack for Python 2.2
-            legend_info = "%s [Pygments Error: %s]" % (ext, e)
-            write_raw_code(code, legend_info)
+            legend_info = "%s [Pygments get_lexer error: %s]" % (ext, e)
+            fallback_write(code, legend_info)
+            return
+        else:
+            out_object.write(html_fieldset[0] % lexer.name)
 
-        out_object.write(html_fieldset[1])
+        try:
+            #~ raise Exception("TEST")
+            formatter = pygments.formatters.HtmlFormatter(linenos=True)
+            pygments.highlight(code, lexer, formatter, out_object)
+        except Exception, e:
+            self.page_msg("Pygments Error: %s" % e)
+            out_object.write("<pre>%s</pre>\n" % code)
+        else:
+            out_object.write(html_fieldset[1])
