@@ -7,9 +7,11 @@ Module Manager
 # by jensdiemer.de (steht unter GPL-License)
 """
 
-__version__="0.3"
+__version__="0.3.1"
 
 __history__="""
+v0.3.1
+    - New error handling: "Wrong command path"
 v0.3
     - Anpassung an colubrid 1.0
     - Funktion "CGI_dependency Methoden" rausgeschmissen
@@ -140,9 +142,15 @@ class plugin_data:
         if not self.plugindata[module_name].has_key(method_name):
             # Die Methode ist noch unbekannt.
             try:
-                method_properties = self.db.get_method_properties(self.module_id, self.method_name)
+                method_properties = self.db.get_method_properties(
+                    self.module_id, self.method_name
+                )
             except IndexError:
-                raise run_module_error("[Method '%s' for Module '%s' unknown!]" % (self.method_name, module_name))
+                raise run_module_error(
+                    "[Method '%s' for Module '%s' unknown!]" % (
+                        self.method_name, module_name
+                    )
+                )
             except Exception, e:
                 raise Exception(
                     "Can't get method properties from DB: %s - "
@@ -359,8 +367,13 @@ class module_manager:
         pathInfo = pathInfo.strip("/")
         pathInfo = pathInfo.split("/")[1:]
 
-        self.module_name = pathInfo[0]
-        self.method_name = pathInfo[1]
+        try:
+            self.module_name = pathInfo[0]
+            self.method_name = pathInfo[1]
+        except IndexError:
+            self.page_msg("Wrong command path!")
+            return
+
         function_info = pathInfo[2:]
 
         if function_info == []:
