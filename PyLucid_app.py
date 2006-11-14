@@ -402,7 +402,10 @@ if __name__ == '__main__':
     # Eine Aufwendigere Variante, damit der Standalone-Entwicklungsserver
     # auch funktioniert, s. http://trac.pocoo.org/ticket/87
     def start():
-        print "\n", "="*79, "\nStarting local test server...\n"
+        host = "localhost"
+        port = 8080
+        print "\n", "="*79
+        print "Starting developer server on: '%s:%s'...\n" % (host, port)
 
         # with 'debugged application':
         from colubrid.debug import DebuggedApplication
@@ -411,7 +414,7 @@ if __name__ == '__main__':
 
         # usind the new wsgiref (from Python 2.5)
         from wsgiref.simple_server import WSGIServer, WSGIRequestHandler
-        server = WSGIServer(('localhost', 8080), WSGIRequestHandler)
+        server = WSGIServer((host, port), WSGIRequestHandler)
         server.set_app(app)
         server.serve_forever()
 
