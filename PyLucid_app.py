@@ -159,6 +159,10 @@ class PyLucidApp(BaseApplication):
 
         # Speichert Nachrichten die in der Seite angezeigt werden sollen
         self.page_msg = self.response.page_msg = environ['PyLucid.page_msg']
+        #~ self.page_msg("page_msg - NORMAL")
+        #~ self.page_msg.red("page_msg - RED")
+        #~ self.page_msg.green("page_msg - GREEN")
+        #~ self.page_msg.debug("page_msg - DEBUG")
 
         # Allgemeiner CGI Sessionhandler auf mySQL-Basis
         self.session = self.request.session = sessionhandling.sessionhandler()

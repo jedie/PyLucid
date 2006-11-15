@@ -10,14 +10,22 @@ Seite eingesetzt.
 """
 
 
-__version__="0.2"
+__version__="0.3"
 
 __history__="""
+v0.3
+    - self.data ist nun eine Liste und wird per "".join() am Ende verarbeitet
+    - Es gibt nun Farbige ausgaben!
 v0.2
     - used pprint for dicts and lists
 v0.1
     - init
 """
+
+__ToDo__ = """
+"""
+
+
 
 import cgi, pprint
 
@@ -36,27 +44,55 @@ class page_msg_Container(object):
     """
     def __init__(self, debug = False):
         self.raw = False
-        self.debug = debug
-        self.data = ""
+        self.debug_mode = debug
+        self.data = []
+
+    #_________________________________________________________________________
+
+    def write(self, *msg):
+        self.append_color_data("blue", *msg)
 
     def __call__(self, *msg):
+        """ Alte Methode um Daten "auszugeben", Text ist dann schwarz """
+        self.append_color_data("blue", *msg)
+
+    def debug(self, *msg):
+        self.append_color_data("gray", *msg)
+
+    def black(self, *msg):
+        self.append_color_data("black", *msg)
+
+    def green(self, *msg):
+        self.append_color_data("green", *msg)
+
+    def red(self, *msg):
+        self.append_color_data("red", *msg)
+
+    #_________________________________________________________________________
+
+    def append_color_data(self, color, *msg):
+        self.data.append('<span style="color:%s;">\n' % color)
+        self.append_data(*msg)
+        self.data.append('</span>\n')
+
+    def append_data(self, *msg):
         """ Fügt eine neue Zeile mit einer Nachricht hinzu """
         if self.raw:
-            self.add_data(
+            self.encode_and_append_data(
                 "%s\n" % " ".join([str(i) for i in msg])
             )
             return
 
-        if self.debug:
+        if self.debug_mode:
             try:
                 import inspect
                 # Angaben zur Datei, Zeilennummer, aus dem die Nachricht stammt
                 stack = inspect.stack()[1]
                 filename = stack[1].split("/")[-1][-20:]
                 fileinfo = "%-20s line %3s: " % (filename, stack[2])
-                self.data += fileinfo.replace(" ","&nbsp;")
+                self.data.append(fileinfo.replace(" ","&nbsp;"))
             except Exception, e:
-                self.data += "<small>(inspect Error: %s)</small> " % e
+                self.data.append("<small>(inspect Error: %s)</small> " % e)
 
         for item in msg:
             if isinstance(item, dict) or isinstance(item, list):
@@ -65,31 +101,30 @@ class page_msg_Container(object):
                 for line in item:
                     line = cgi.escape(line)
                     line = line.replace(" ","&nbsp;")
-                    self.add_data("%s<br />\n" % line)
+                    self.encode_and_append_data("%s<br />\n" % line)
             else:
-                self.add_data(item)
-                self.data += " "
+                self.encode_and_append_data(item)
+                self.data.append(" ")
 
-        self.data += "<br />\n"
+        self.data.append("<br />\n")
 
-    def add_data(self, txt):
+    def encode_and_append_data(self, txt):
         # FIXME: Das ist mehr schlecht als recht... Die Behandlung von unicode
         # muß irgendwie anders gehen!
         if isinstance(txt, unicode):
             txt = txt.encode("UTF-8", "replace")
-        self.data += str(txt)
+        self.data.append(str(txt))
 
-    def write(self, *msg):
-        self.__call__(*msg)
+    #_________________________________________________________________________
 
     def get(self):
-        if self.data != "":
+        if self.data != []:
             # Nachricht vorhanden -> wird eingeblendet
             return (
                 '\n<fieldset id="page_msg"><legend>page message</legend>\n'
                 '%s'
                 '\n</fieldset>'
-            ) % self.data
+            ) % "".join(self.data)
         else:
             return ""
 
@@ -101,9 +136,9 @@ class page_msg(object):
     """
     def __init__(self, app, debug):
         self.app = app
-        self.debug = debug
+        self.debug_mode = debug
 
     def __call__(self, environ, start_response):
-        environ['PyLucid.page_msg'] = page_msg_Container(self.debug)
+        environ['PyLucid.page_msg'] = page_msg_Container(self.debug_mode)
         return self.app(environ, start_response)
 
