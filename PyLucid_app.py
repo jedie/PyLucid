@@ -67,9 +67,9 @@ WSGIrequestKey = "colubrid.request."
 from PyLucid.system import response
 from PyLucid.system import tools
 from PyLucid.system import URLs
+from PyLucid.system import preferences
 
 # init2
-#~ from PyLucid.system import staticTags
 from PyLucid.system import sessionhandling
 from PyLucid.system import SQL_logging
 from PyLucid.system import module_manager
@@ -150,8 +150,9 @@ class PyLucidApp(BaseApplication):
         self.runlevel = self.request.runlevel = runlevel()
 
         # Verwaltung für Einstellungen aus der DB (Objekt aus der Middleware)
-        self.preferences = self.request.preferences = \
-                                                environ['PyLucid.preferences']
+        self.preferences = self.request.preferences = preferences.Preferences(
+            environ['PyLucid.config']
+        )
 
         # 'Speicher' für CSS/JS Daten, die erst am Ende in die CMS Seite
         # eingefügt wird
@@ -242,6 +243,7 @@ class PyLucidApp(BaseApplication):
         Dazu sind die restilichen Objekte garnicht nötig.
         """
         # Preferences aus der DB lesen
+        self.preferences.init2(self.request, self.response)
         self.preferences.update_from_sql(self.db)
 
         # Log-Ausgaben in SQL-DB
@@ -388,9 +390,9 @@ app = PyLucidApp
 from PyLucid.middlewares import database
 app = database.DatabaseMiddleware(app)
 
-# preferences
-from PyLucid.middlewares.preferences import preferencesMiddleware
-app = preferencesMiddleware(app)
+# Configuration
+from PyLucid.middlewares.configuration import configMiddleware
+app = configMiddleware(app)
 
 # Middleware Page-Message-Object
 from PyLucid.middlewares.page_msg import page_msg
