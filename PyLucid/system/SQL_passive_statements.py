@@ -437,6 +437,13 @@ class passive_statements(SQL_wrapper):
             order           = ("name","ASC"),
         )
 
+    def get_stylename_by_id(self, id):
+        return self.select(
+            select_items    = "name",
+            from_table      = "styles",
+            where           = ("id", id)
+        )[0]["name"]
+
     def get_stylenames(self):
         stylenames = self.select(
             select_items    = ["name"],

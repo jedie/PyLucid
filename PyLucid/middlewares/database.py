@@ -117,7 +117,7 @@ class DatabaseMiddleware(object):
         self.environ = environ
 
         page_msg    = environ['PyLucid.page_msg']
-        preferences = environ['PyLucid.preferences']
+        preferences = environ['PyLucid.config']
 
         db_encoding = preferences["db_encoding"]
 
