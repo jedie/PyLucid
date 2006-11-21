@@ -12,9 +12,11 @@ Editor für alles was mit aussehen zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.3.2"
+__version__="0.4"
 
 __history__="""
+v0.4
+    - Neu: Man kann nun das default Style/Template setzten
 v0.3.2
     - Neu: Apply Button auch für edit template/stylesheet
 v0.3.1
@@ -61,17 +63,22 @@ class StyleAndTemplate(PyLucidBaseModule):
 
     def action(self):
 
-        if self.request.form.has_key("edit"):
+        #~ self.response.debug()
+        #~ self.page_msg.debug(self.request.form)
+
+        if "edit" in self.request.form:
             self._makeEditPage()
             return
-        elif self.request.form.has_key("clone"):
+        elif "clone" in self.request.form:
             self._cloneItem()
-        elif self.request.form.has_key("del"):
+        elif "del" in self.request.form:
             self._delItem()
-        elif self.request.form.has_key("apply"):
+        elif "apply" in self.request.form:
             self._applyItem()
             return
-        elif self.request.form.has_key("save"):
+        elif "default" in self.request.form and "set" in self.request.form:
+            self._set_default()
+        elif "save" in self.request.form:
             self._updateItem()
 
         # Styles/Templates Auswahl anzeigen:
@@ -170,13 +177,17 @@ class StyleAndTemplate(PyLucidBaseModule):
     def _select_table(self):
         """ Erstellt die Tabelle zum auswählen eines Style/Templates """
 
+        # default Style/Template, stored in the preferences
+        default_name = self.get_default()
+
         table_data = self.db_getItemList()
         nameList = [i["name"] for i in table_data]
 
         context = {
-            "url": self.URLs.currentAction(),
-            "nameList": nameList,
-            "itemsDict": table_data,
+            "url"           : self.URLs.currentAction(),
+            "nameList"      : nameList,
+            "itemsDict"     : table_data,
+            "default_name"  : default_name,
         }
         internalPageName = "select_%s" % self.type
         self.templates.write(internalPageName, context)
@@ -224,6 +235,11 @@ class StyleAndTemplate(PyLucidBaseModule):
 
         return id
 
+    def _set_default(self):
+        default_name = self.request.form["default"]
+        self.set_default(default_name)
+
+
 
 
 
@@ -259,6 +275,10 @@ class Style(StyleAndTemplate):
         # delete
         self.db_deleteItem = self.db.delete_style
 
+        # default
+        self.get_default = self.preferences.get_default_style_name
+        self.set_default = self.preferences.set_default_style
+
 
 
 #_____________________________________________________________________________
@@ -292,6 +312,10 @@ class Template(StyleAndTemplate):
 
         # delete
         self.db_deleteItem = self.db.delete_template
+
+        # default
+        self.get_default = self.preferences.get_default_template_name
+        self.set_default = self.preferences.set_default_template
 
 
 

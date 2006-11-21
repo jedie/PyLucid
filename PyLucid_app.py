@@ -397,11 +397,15 @@ app = configMiddleware(app)
 # Middleware Page-Message-Object
 from PyLucid.middlewares.page_msg import page_msg
 app = page_msg(app, debug=False)
+#~ app = page_msg(app, debug=True)
 
 # Middleware, die die Tags "script_duration" und "page_msg" ersetzt
 from PyLucid.middlewares import replacer
 app = replacer.AddCode(app) # Middleware, für addCode
 app = replacer.Replacer(app)
+
+
+
 
 
 if __name__ == '__main__':

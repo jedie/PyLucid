@@ -78,7 +78,12 @@ class TemplateEngines(object):
             ) % (internal_page_name, stack[1][-30:], stack[2], e)
             raise KeyError(msg)
 
-        engine = internal_page_data["template_engine"]
+
+        # ID Auflösen
+        engine = self.db.get_template_engine_name(
+            internal_page_data["template_engine"]
+        )
+
         if engine == "string formatting":
             self.render_stringFormatting(
                 internal_page_name, internal_page_data, context
@@ -89,7 +94,7 @@ class TemplateEngines(object):
             self.response.write(content)
         else:
             msg = "Template Engine '%s' not implemented!" % engine
-            raise NotImplemented, msg
+            raise NotImplementedError(msg)
 
         # CSS/JS behandeln:
         self.addCSS(internal_page_data["content_css"], internal_page_name)

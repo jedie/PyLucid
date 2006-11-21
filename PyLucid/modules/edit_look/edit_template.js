@@ -1,4 +1,4 @@
-// Skript zum gr� und kleiner machen des Eingabefeldes
+// Skript zum gr? und kleiner machen des Eingabefeldes
 function init() {
     textarea = document.getElementById("edit_template");
 }

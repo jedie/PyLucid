@@ -1,45 +1,53 @@
-<form method="post" action="%(url)s">
-  You edit the internal page: &quot;<strong>%(name)s</strong>&quot;
-  <br />
-  <a href="javascript:show_html();" id="html_toggle" class="toggleLink">internal page</a>
-  <a href="javascript:show_css();" id="css_toggle" class="toggleLink">CSS</a>
-  <a href="javascript:show_js();" id="js_toggle" class="toggleLink">JS</a>
-  <br />
+<form method="post" action="{{ url }}">
+  You edit the internal page: &quot;<strong>{{ name }}</strong>&quot;:
 
-    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_html" name="content_html" >%(content_html)s</textarea>
-    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_css" name="content_css">%(content_css)s</textarea>
-    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_js" name="content_js">%(content_js)s</textarea>
-
-    <span id="resize_buttons">
-        <a href="JavaScript:resize_big();" title="click to make the editor window bigger">&nbsp;+&nbsp;</a>
-        <a href="JavaScript:resize_small();" title="click to make the editor window smaller">&nbsp;-&nbsp;</a>
-    </span>
-    |||
-    <a href="%(list_url)s" onclick="OpenInWindow(this.href); return false" title="Liste available PyLucid tags and functions">tags/functions</a>
-    <br />
-      <input name="internal_page_name" type="hidden" value="%(name)s" />
+    <p id="action_buttons">
       <input type="submit" value="apply" name="apply" />
       <input type="submit" value="save" name="save" />
-      <input type="reset" onClick="self.location.href='%(url)s'" value="abort" />
-    <br />
+      <input type="reset" onClick="self.location.href='{{ url }}'" value="abort" />
+      <span class="separator">|||</span>
+      <a href="javascript:show_html();" id="html_toggle">html</a>
+      <a href="javascript:show_css();" id="css_toggle">css</a>
+      <a href="javascript:show_js();" id="js_toggle">js</a>
+      <span class="separator">|||</span>
+      <a href="JavaScript:resize_big();" title="click to make the editor window bigger">&nbsp;+&nbsp;</a>
+      <a href="JavaScript:resize_small();" title="click to make the editor window smaller">&nbsp;-&nbsp;</a>
+      <span class="separator">|||</span>
+      <a href="{{ list_url }}" onclick="OpenInWindow(this.href); return false" title="Liste available PyLucid tags and functions">tags/functions</a>
+    </p>
+
+    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_html" name="content_html" >{{ content_html }}</textarea>
+    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_css" name="content_css">{{ content_css }}</textarea>
+    <textarea wrap="off" class="ipage_edit" rows="25" accept-charset="UTF-8" id="ipage_js" name="content_js">{{ content_js }}</textarea>
+
+    <input name="internal_page_name" type="hidden" value="{{ name }}" />
+
     <br />
     <fieldset id="ipage_details">
     <legend>details</legend>
        <label class="left" for="description">Description:</label>
-       <input id="description" name="description" type="text" style="width: 70%%;" value="%(description)s" />
+       <input id="description" name="description" type="text" style="width: 70%;" value="{{ description }}" />
        <br />
        <label class="left" for="template_engine">Template engine:</label>
-       <select id="template_engine" name="template_engine">%(template_engine_option)s</select>
+       <select class="right" id="template_engine" name="template_engine">
+          {% for item in engines %}
+             <option value="{{ item.id }}" {% if item.id equals current_engine %}selected="selected"{% endif %}>{{ item.name }}</option>
+          {% endfor %}
+       </select>
        <br />
        <label class="left" for="markup">Markup:</label>
-       <select id="markup" name="markup">%(markup_option)s</select>
+       <select class="right" id="markup" name="markup">
+          {% for item in markups %}
+             <option value="{{ item.id }}" {% if item.id equals current_markup %}selected="selected"{% endif %}>{{ item.name }}</option>
+          {% endfor %}
+       </select>
     </fieldset>
 </form>
 
 <h4>Node:</h4>
 <ul>
-  <li>You may not delete internal Python tags, like: '%(name)s'</li>
-  <li>Normal percent sign must be quoted: '%%' -&gt; '%%%%'</li>
+  <li>You may not delete internal jinja tags, like: '{{ name }}'</li>
+  <li>Normal percent sign must be quoted: '%' -&gt; '%%'</li>
   <li>Markup doesn't work with every page, don't change it.</li>
 </ul>
 

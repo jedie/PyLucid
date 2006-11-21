@@ -96,14 +96,12 @@ class pageadmin(PyLucidBaseModule):
         """
         Einstiegs Methode wenn man auf "edit page" klickt
         """
-        if debug:
-            from colubrid.debug import debug_info
-            self.page_msg(debug_info(self.request))
+        if debug: self.debug()
 
-        if self.request.form.has_key("preview"):
+        if "preview" in self.request.form:
             # Preview der aktuellen Seite
             self.preview()
-        elif self.request.form.has_key("save"):
+        elif "save" in self.request.form:
             # Abspeichern der Änderungen
             self.save()
             # Die geänderte Seite soll nach dem speichern angezeigt werden:
@@ -119,7 +117,7 @@ class pageadmin(PyLucidBaseModule):
         Menü und im siteMap vor. Um sie dennoch editieren zu können, kann man
         es hierrüber erledigen ;)
         """
-        if self.request.form.has_key("page_id"):
+        if "page_id" in self.request.form:
             page_id = int(self.request.form["page_id"])
             try:
                 page_data = self.get_page_data(page_id)
@@ -143,111 +141,55 @@ class pageadmin(PyLucidBaseModule):
         """
         Erstellt die HTML-Seite zum erstellen oder editieren einer Seite
         """
-        if str( edit_page_data["showlinks"] ) == "1":
-            showlinks = " checked"
-        else:
-            showlinks = ""
+        context = edit_page_data
 
-        if str( edit_page_data["permitViewPublic"] ) == "1":
-            permitViewPublic = " checked"
-        else:
-            permitViewPublic = ""
-
-        if not edit_page_data.has_key( "summary"):
-            # Information kommt nicht von der Seite,
-            # ist aber beim Preview schon vorhanden!
-            edit_page_data["summary"] = ""
-
-        MyOptionMaker = self.tools.html_option_maker()
-
-        codecs = self.tools.get_codecs()
-        codecs.insert(0, self.default_code_name)
-
-        decode_option = MyOptionMaker.build_from_list(
-            codecs,
-            select_item=self.request.form.get("decode_from", "")
+        musthave_keys = (
+            "page_id", "summary"
         )
-        encode_option = MyOptionMaker.build_from_list(
-            codecs,
-            select_item=self.request.form.get("encode_to", "")
-        )
+        #~ context["trivial"] = edit_page_data.get("trivial", 0)
 
-        markup_option   = MyOptionMaker.build_from_list(
-            self.db.get_available_markups(),
-            self.db.get_markup_id(edit_page_data["markup"])
-        )
+        # URLs
+        context["url_action"] = self.URLs.actionLink("edit_page")
+        context["url_taglist"] = self.URLs.actionLink("tag_list")
+        context["url_abort"] = self.URLs.actionLink("scriptRoot")
 
-        parent_option = self.tools.forms().siteOptionList(
-            select=int(edit_page_data["parent"])
-        )
-
-
-        def make_option( table_name, select_item):
-            """ Speziallfall: Select Items sind immer "id" und "name" """
-            return MyOptionMaker.build_from_dict(
-                data            = self.db.select(("id","name"), table_name),
-                value_name      = "id",
-                txt_name        = "name",
-                select_item     = select_item
-            )
-
-        template_option = make_option(
-            "templates", edit_page_data["template"]
-        )
-        style_option = make_option(
-            "styles",    edit_page_data["style"]
-        )
-        ownerID_option = make_option(
-            "md5users",  edit_page_data["ownerID"]
-        )
-        permitEditGroupID_option = make_option(
-            "groups",    edit_page_data["permitEditGroupID"]
-        )
-        permitViewGroupID_option = make_option(
-            "groups",    edit_page_data["permitViewGroupID"]
-        )
-
-        if edit_page_data["content"] == None:
+        # Textfelder
+        if context["content"] == None:
             # Wenn eine Seite mit lucidCMS frisch angelegt wurde und noch kein
-            # Text eingegeben wurde, ist "content" == None -> Das Produziert
-            # beim cgi.escape( edit_page_data["content"] ) einen traceback :(
-            # und so nicht:
-            edit_page_data["content"] = ""
+            # Text eingegeben wurde, ist "content" == None
+            context["content"] = ""
 
-        #~ edit_page_data["content"] += "\n\n" + str( edit_page_data )
-        #~ form_url = "%s?command=pageadmin&page_id=%s" % (self.config.system.real_self_url, self.request.form["page_id"] )
-        #~ self.page_msg( edit_page_data )
+        escape_keys = (
+            "name", "shortcut", "title", "keywords","description","content"
+        )
+        for key in escape_keys:
+            context[key] = cgi.escape(context[key])
 
-        context = {
-            # hidden Felder
-            "page_id"                   : edit_page_data["page_id"],
-            # URls
-            "url"                       : self.URLs.actionLink("edit_page"),
-            "list_url"                  : self.URLs.actionLink("tag_list"),
-            "abort_url"                 : self.URLs["scriptRoot"],
-            # Textfelder
-            "summary"                   : edit_page_data["summary"],
-            "name"                      : cgi.escape(edit_page_data["name"]),
-            "shortcut"                  : edit_page_data["shortcut"],
-            "title"                     : cgi.escape(edit_page_data["title"]),
-            "keywords"                  : edit_page_data["keywords"],
-            "description"               : edit_page_data["description"],
-            "content"                   : cgi.escape(edit_page_data["content"]),
-            # Checkboxen
-            "showlinks"                 : showlinks,
-            "permitViewPublic"          : permitViewPublic,
-            # List-Optionen
-            "decode_option"             : decode_option,
-            "encode_option"             : encode_option,
-            "markup_option"             : markup_option,
-            "parent_option"             : parent_option,
-            "template_option"           : template_option,
-            "style_option"              : style_option,
-            "ownerID_option"            : ownerID_option,
-            "permitEditGroupID_option"  : permitEditGroupID_option,
-            "permitViewGroupID_option"  : permitViewGroupID_option,
-        }
+        int_keys = (
+            "markup", "ownerID", "page_id", "parent",
+            "permitEditGroupID", "permitViewGroupID",
+            "style", "template"
+        )
+        for key in int_keys:
+            try:
+                context[key] = int(context[key])
+            except KeyError, key:
+                self.page_msg.red("Form Error: Key '%s' not found!" % key)
+                return
 
+        def get_name_and_id(table_name):
+            return self.db.select(("id","name"), table_name)
+
+        # List-Optionen
+        context["markups"] = get_name_and_id("markups")
+        context["templates"] = get_name_and_id("templates")
+        context["styles"] = get_name_and_id("styles")
+        context["users"] = get_name_and_id("md5users")
+
+        parent_data = self.tools.parent_tree_maker().make_parent_option()
+        context["parent_data"] = parent_data
+
+        #~ self.page_msg(context)
         self.templates.write("edit_page", context)
 
     def preview(self):
@@ -351,16 +293,16 @@ class pageadmin(PyLucidBaseModule):
     def update_page(self, page_id, page_data):
         """Abspeichern einer editierten Seite"""
 
+        #~ self.page_msg(page_data)
+        #~ self.page_msg(self.request.form)
+
         # Archivieren der alten Daten
-        if self.request.form.has_key("trivial"):
+        if "trivial" in self.request.form:
             self.page_msg(
                 "trivial modifications selected. Old page is not archived."
             )
         else:
-            if self.request.form.has_key("summary"):
-                comment = self.request.form["summary"]
-            else:
-                comment = ""
+            comment = self.request.form.get("summary", "")
 
             try:
                 self.archive_page(page_id, "old page data", comment)
@@ -371,6 +313,7 @@ class pageadmin(PyLucidBaseModule):
 
         if page_data["parent"] == page_id:
             # Zur Sicherheit
+            # ToDo: Müßte auch andere ungültige Angaben überprüfen
             self.page_msg(
                 "Error in page data. Parent-ID == page_id ! (ID: %s)" % \
                 self.session["page_id"]
@@ -380,11 +323,11 @@ class pageadmin(PyLucidBaseModule):
         # Daten speichern
         try:
             self.db.update(
-                    table   = "pages",
-                    data    = page_data,
-                    where   = ("id",page_id),
-                    limit   = 1
-                )
+                table   = "pages",
+                data    = page_data,
+                where   = ("id",page_id),
+                limit   = 1
+            )
         except Exception, e:
             self.page_msg("Error to update page data: %s" % e)
         else:
@@ -449,12 +392,7 @@ class pageadmin(PyLucidBaseModule):
         wird auch von self.archive_page() verwendet
         """
         page_data = self.db.page_items_by_id(
-            item_list   = [
-                "parent", "name", "shortcut", "title", "template",
-                "style", "markup", "content", "keywords", "description",
-                "showlinks", "permitViewPublic", "permitViewGroupID",
-                "ownerID", "permitEditGroupID"
-            ],
+            item_list   = ["*"],
             page_id     = page_id
         )
         page_data["page_id"] = page_id
@@ -470,11 +408,13 @@ class pageadmin(PyLucidBaseModule):
         speichern benötigt.
         """
         default_dict = {
-            "name":"", "shortcut":"", "title":"", "content":"", "keywords":"",
-            "description":"", "showlinks":0, "permitViewPublic":0
+            "name":"", "shortcut":"", "title":"",
+            "content":"", "keywords":"", "description":"",
+            "showlinks":0, "permitViewPublic":0,
         }
+
         for key, value in default_dict.iteritems():
-            if not page_data.has_key(key):
+            if not key in page_data:
                 page_data[key] = value
 
         if page_data["shortcut"] == "":
@@ -504,10 +444,10 @@ class pageadmin(PyLucidBaseModule):
         )
 
         number_items = (
-            "page_id", "parent", "parent", "template", "style",
-            "markup", "showlinks",
-            "permitViewPublic", "permitViewGroupID", "ownerID",
-            "permitEditGroupID"
+            "page_id", "parent",
+            "template", "style", "markup",
+            "showlinks", "permitViewPublic",
+            "permitViewGroupID", "permitEditGroupID", "ownerID",
         )
         # CGI-Daten filtern -> nur Einträge die SeitenInformationen enthalten
         page_data = {}
@@ -534,7 +474,7 @@ class pageadmin(PyLucidBaseModule):
         """
         Auswahl welche Seite gelöscht werden soll
         """
-        if self.request.form.has_key("page_id_to_del"):
+        if "page_id_to_del" in self.request.form:
             page_id_to_del = int(self.request.form["page_id_to_del"])
             self.delete_page(page_id_to_del)
 
@@ -636,7 +576,7 @@ class pageadmin(PyLucidBaseModule):
         """
         Formular zum ändern der Seiten-Reihenfolge
         """
-        if self.request.form.has_key("save"):
+        if "save" in self.request.form:
             self.save_positions()
 
         MyOptionMaker = self.tools.html_option_maker()

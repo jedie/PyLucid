@@ -3,7 +3,39 @@
 *}
 <h2>Select template to edit</h2>
 
-<form name="edit_style" method="post" action="{{ url }}">
+<fieldset class="select"><legend>edit/delete existing template:</legend>
+<table>
+    <tr>
+        <th>name</th>
+        <th>description</th>
+        <th>action</th>
+    </tr>
+{% for item in itemsDict %}
+    {% cycle rowclass through "odd", "even" %}
+
+    <tr>
+        <form name="edit_{{ item.name }}" method="post" action="{{ url }}">
+            <input name="id" type="hidden" value="{{ item.id }}">
+            <td>
+               {% if item.name equals default_name %}
+                   <strong>{{ item.name|escapexml }}</strong> <small>(default)</small>
+               {% else %}
+                   {{ item.name|escapexml }}
+               {% endif %}
+            </td>
+            <td class="description">{{ item.description }}</td>
+            <td><input type="submit" value="edit" name="edit" /> <input type="submit" value="del" name="del" /></td>
+        </form>
+    </tr>
+{% endfor %}
+</table>
+</fieldset>
+
+<fieldset class="make_new_css"><legend>make a new templatesheet:</legend>
+<p>
+  If you wont to make a new templatesheet, you should clone a existing one and edit the cloned css.
+</p>
+<form name="edit_template" method="post" action="{{ url }}">
     Duplicate <select name="clone_name">
     {% for item in nameList %}
         <option value="{{ item }}">{{ item }}</option>
@@ -12,26 +44,21 @@
     </select> to a new named: <input name="new_name" value="" size="20" maxlength="50" type="text">
     <input type="submit" name="clone" value="clone" />
 </form>
+</fieldset>
 
-<span class="select">
-<table>
-    <tr>
-        <th>name</th>
-        <th>description</th>
-        <th colspan="2">action</th>
-    </tr>
-{% for item in itemsDict %}
-    {% cycle rowclass through "odd", "even" %}
+<fieldset class="set_default_css"><legend>mark a template to the default one:</legend>
+<p>
+  If you make a new page, the template who marked as the default template would be used.
+</p>
+<form name="edit_template" method="post" action="{{ url }}">
+    Set <select name="default">
+    {% for item in itemsDict %}
+        <option value="{{ item.name }}" {% if item.name equals default_name %}selected="selected"{% endif %}>
+           {{ item.name }}
+        </option>
+    {% endfor %}
+    </select> to the default template.
 
-    <tr>
-        <form name="edit_{{ item.name }}" method="post" action="{{ url }}">
-            <input name="id" type="hidden" value="{{ item.id }}">
-            <td class="name">{{ item.name|escapexml }}</td>
-            <td class="description">{{ item.description }}</td>
-            <td><input type="submit" value="edit" name="edit" /></td>
-            <td><input type="submit" value="del" name="del" /></td>
-        </form>
-    </tr>
-{% endfor %}
-</table>
-</span>
+    <input type="submit" name="set" value="set" />
+</form>
+</fieldset>

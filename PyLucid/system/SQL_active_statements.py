@@ -176,6 +176,22 @@ class active_statements(passive_statements):
             limit   = 1
         )
 
+    #_____________________________________________________________________________
+    ## Preferences
+
+    def set_preferences(self, section, varName, value):
+        id = self.select(
+            select_items    = ["id"],
+            from_table      = "preferences",
+            where           = [("section",section), ("varName",varName)]
+        )[0]["id"]
+        self.update(
+            table   = "preferences",
+            data    = {"value": value},
+            where   = ("id",id),
+            limit   = 1
+        )
+
     #_________________________________________________________________________
     ## InterneSeiten
 

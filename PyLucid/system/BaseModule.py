@@ -44,7 +44,6 @@ class PyLucidBaseModule(object):
         self.module_manager = request.module_manager
         self.tools          = request.tools
         self.render         = request.render
-        #~ self.tag_parser     = request.tag_parser
         self.staticTags     = request.staticTags
         self.templates      = request.templates
 
@@ -56,4 +55,4 @@ class PyLucidBaseModule(object):
         """
         Aktiviert colobrid's debug-Ausgabe in die page_msg rein.
         """
-        self.request.debug()
+        self.response.debug()

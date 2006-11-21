@@ -273,13 +273,6 @@ class passive_statements(SQL_wrapper):
 
         return page_template
 
-    #~ def get_preferences(self):
-        #~ "Die Preferences aus der DB holen. Wird verwendet in config.readpreferences()"
-        #~ value = self.select(
-                #~ select_items    = ["section", "varName", "value"],
-                #~ from_table      = "preferences",
-            #~ )
-
     def side_id_by_name(self, page_name):
         "Liefert die Side-ID anhand des >page_name< zurück"
         result = self.select(
@@ -389,25 +382,6 @@ class passive_statements(SQL_wrapper):
                 page_items[i]=""
         return page_items
 
-    def get_all_preferences(self):
-        """
-        Liefert Daten aus der Preferences-Tabelle
-        wird in PyLucid_system.preferences verwendet
-        """
-        try:
-            result = self.select(
-                select_items    = ["section", "varName", "value"],
-                from_table      = "preferences",
-            )
-        except Exception, e:
-            msg = str(e)
-            if msg.find("doesn't exist"):
-                # PyLucid ist wahrscheinlich noch nicht installiert
-                raise ProbablyNotInstalled("Can't get Preferences from DB", e)
-            raise Exception(e)
-
-        return result
-
     def get_sitemap_data(self):
         """ Alle Daten die für`s Sitemap benötigt werden """
         return self.select(
@@ -427,7 +401,29 @@ class passive_statements(SQL_wrapper):
             order           = ("position","ASC"),
         )
 
-    #_____________________________________________________________________________
+    #_________________________________________________________________________
+    ## Preferences
+
+    def get_all_preferences(self):
+        """
+        Liefert Daten aus der Preferences-Tabelle
+        wird in PyLucid_system.preferences verwendet
+        """
+        try:
+            result = self.select(
+                select_items    = ["section", "varName", "value"],
+                from_table      = "preferences",
+            )
+        except Exception, e:
+            msg = str(e)
+            if msg.find("doesn't exist"):
+                # PyLucid ist wahrscheinlich noch nicht installiert
+                raise ProbablyNotInstalled("Can't get Preferences from DB", e)
+            raise Exception(e)
+
+        return result
+
+    #_________________________________________________________________________
     ## Funktionen für Styles, Templates usw.
 
     def get_style_list(self, getItems = ("id","name","description")):
@@ -443,6 +439,14 @@ class passive_statements(SQL_wrapper):
             from_table      = "styles",
             where           = ("id", id)
         )[0]["name"]
+
+
+    def get_style_id_by_name(self, style_name):
+        return self.select(
+            select_items    = "id",
+            from_table      = "styles",
+            where           = ("name", style_name)
+        )[0]["id"]
 
     def get_stylenames(self):
         stylenames = self.select(
@@ -484,6 +488,20 @@ class passive_statements(SQL_wrapper):
                 order           = ("name","ASC"),
             )
 
+    def get_templatename_by_id(self, id):
+        return self.select(
+            select_items    = "name",
+            from_table      = "templates",
+            where           = ("id", id)
+        )[0]["name"]
+
+    def get_template_id_by_name(self, template_name):
+        return self.select(
+            select_items    = "id",
+            from_table      = "templates",
+            where           = ("name", template_name)
+        )[0]["id"]
+
     def get_template_data(self, template_id):
         try:
             template_id = int(template_id)
@@ -520,7 +538,7 @@ class passive_statements(SQL_wrapper):
         )
         return uniqueName
 
-    #_____________________________________________________________________________
+    #_________________________________________________________________________
     ## InterneSeiten
 
 
@@ -546,7 +564,7 @@ class passive_statements(SQL_wrapper):
                 #~ order           = ("module_name","ASC"),
             #~ )
 
-    def get_template_engine(self, id):
+    def get_template_engine_name(self, id):
         """ Liefert den template_engine-Namen anhand der ID """
         if id==None:
             # Existiert auch als ID
@@ -585,8 +603,7 @@ class passive_statements(SQL_wrapper):
             )
             return None
 
-    def get_internal_page_data(
-                self, internal_page_name, select_items=None, replace=True):
+    def get_internal_page_data(self, internal_page_name, select_items=None):
 
         if not select_items:
             # Default Werte setzten
@@ -605,11 +622,11 @@ class passive_statements(SQL_wrapper):
             msg = "Internal page %s not found in db!" % internal_page_name
             raise IndexError, msg
 
-        if replace==True:
-            data["template_engine"] = self.get_template_engine(
-                data["template_engine"]
-            )
-            data["markup"] = self.get_markup_name(data["markup"])
+        #~ if replace==True:
+            #~ data["template_engine"] = self.get_template_engine(
+                #~ data["template_engine"]
+            #~ )
+            #~ data["markup"] = self.get_markup_name(data["markup"])
 
         return data
 
@@ -653,7 +670,7 @@ class passive_statements(SQL_wrapper):
             #~ )
             #~ return self.cursor.lastrowid
 
-    #_____________________________________________________________________________
+    #_________________________________________________________________________
     ## Userverwaltung
 
     def normal_login_userdata(self, username):
@@ -707,7 +724,7 @@ class passive_statements(SQL_wrapper):
             where           = ("id", id)
         )[0]
 
-    #_____________________________________________________________________________
+    #_________________________________________________________________________
     ## Module / Plugins
 
     def get_active_module_data(self):
@@ -915,18 +932,19 @@ class passive_statements(SQL_wrapper):
         #self.page_msg(tag_list)
         return tag_list
 
-    #_____________________________________________________________________________
+    #_________________________________________________________________________
     ## LOG
 
     def get_last_logs(self, limit=10):
         return self.select(
-            select_items    = ["timestamp", "sid", "user_name", "domain", "message","typ","status"],
+            select_items    = ["timestamp", "sid", "user_name", "domain",
+                                                "message", "typ", "status"],
             from_table      = "log",
             order           = ("timestamp","DESC"),
             limit           = (0,limit)
         )
 
-    #_____________________________________________________________________________
+    #_________________________________________________________________________
     ## Rechteverwaltung
 
     def get_permitViewPublic(self, page_id):
@@ -936,7 +954,7 @@ class passive_statements(SQL_wrapper):
                 where           = ("id", page_id),
             )[0]["permitViewPublic"]
 
-    #_____________________________________________________________________________
+    #_________________________________________________________________________
     ## Markup
 
     def get_markup_name(self, id_or_name):
@@ -1000,26 +1018,18 @@ class passive_statements(SQL_wrapper):
             select_items    = ["id","name"],
             from_table      = "markups",
         )
-        result = []
-        for markup in markups:
-            result.append([markup["id"], markup["name"]])
-
-        return result
+        return markups
 
     def get_available_template_engines(self):
         """
         Bildet eine Liste aller verfügbaren template_engines. Jeder Listeneintrag ist wieder
         eine Liste aus [ID,name]. Das ist ideal für tools.html_option_maker().build_from_list()
         """
-        markups = self.select(
+        engines = self.select(
             select_items    = ["id","name"],
             from_table      = "template_engines",
         )
-        result = []
-        for markup in markups:
-            result.append([markup["id"], markup["name"]])
-
-        return result
+        return engines
 
 
 

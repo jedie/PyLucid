@@ -29,7 +29,7 @@ module_manager_data = {
         "must_admin"    : False,
         "internal_page_info" : {
             "description"       : "HTML form to edit a CMS Page",
-            "template_engine"   : "string formatting",
+            "template_engine"   : "jinja",
             "markup"            : None,
         },
     },

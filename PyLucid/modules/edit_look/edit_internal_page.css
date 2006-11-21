@@ -17,7 +17,7 @@ label.left {
 }
 
 form br {
-  /*  floats nach dem Forumlar aufheben */
+  /*  floats nach dem Formular aufheben */
   clear: both;
 }
 
@@ -25,7 +25,7 @@ label, select, input {
   cursor: pointer;
 }
 textarea.ipage_edit {
-	width: 100%;
+  width: 100%;
 }
 
 .internalpage input[type=text] {
@@ -44,23 +44,29 @@ textarea.ipage_edit {
   background: #fff;
 }
 
-a.toggleLink, #resize_buttons * {
+#action_buttons {
+    padding: 0 1em 0 1em;
+    background-color: #09C;
+}
+#action_buttons a {
     text-decoration:none;
     margin: 0px;
     padding: 0.1em 2em 0.1em 2em;
     font-family:Verdana;
-    font-weight:bold;
     line-height:2em;
+    font-size:0.75em;
 }
-
-a.toggleLink:link, #resize_buttons a:link {    /* noch nicht besuchter Link */
-	color: #000;
+#action_buttons a:link {    /* noch nicht besuchter Link */
+    color: black;
     background-color: #f5f5f5;
     border: 1px solid;
     border-color: #ddd #555 #555 #ddd;
 }
-a.toggleLink:hover, #resize_buttons a:hover{   /* Maus ?em Link */
-	color: #fff;
+#action_buttons a:hover {   /* Maus über Link */
+    color: white;
     background-color: #aaa;
     border-color: #555 #ddd #ddd #555;
+}
+#action_buttons .separator {
+    padding: 0 1em 0 1em;
 }

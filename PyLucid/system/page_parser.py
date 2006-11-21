@@ -87,6 +87,9 @@ class render(object):
         """
         Wendet das Markup auf den Seiteninhalt an
         """
+        if isinstance(markup, int):
+            markup = self.db.get_markup_name(markup)
+
         if markup == "textile":
             #~ self.page_msg("Debug: use textile")
             # textile Markup anwenden

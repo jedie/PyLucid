@@ -86,7 +86,7 @@ module_manager_data = {
         "must_admin"    : True,
         "internal_page_info" : {
             "description"       : "edit a internal page",
-            "template_engine"   : "string formatting",
+            "template_engine"   : "jinja",
             "markup"            : None
         },
     },

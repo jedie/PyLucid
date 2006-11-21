@@ -296,7 +296,7 @@ class parent_tree_maker:
             else:
                 tmp[parent] = [ id_name ]
 
-        self.tree = [ (0, "_| root") ]
+        self.tree = [ {"id": 0, "name":"_| root"} ]
         self.build( tmp, tmp.keys() )
         return self.tree
 
@@ -308,24 +308,14 @@ class parent_tree_maker:
 
         for id, name in tmp[parent]:
             # Aktuelle Seite vermerken
-            self.tree.append( (id, "%s| %s" % ("_"*(deep*3),name) ) )
+            self.tree.append({
+                "id": id,
+                "name": "%s| %s" % ("_"*(deep*3),name)
+            })
             #~ print "_"*(deep*3) + name
             deep = self.build( tmp, keys, id, deep+1 )
 
         return deep-1
-
-#~ if __name__ == "__main__":
-    #~ testdaten = {
-        #~ 0: [(1, "eins"), (13, "zwei"), (9, "drei")],
-        #~ 13: [(14, "zwei 1"), (15, "zwei 2")],
-        #~ 14: [(16, "zwei 2 drunter")]
-    #~ }
-    #~ pt = parent_tree("")
-    #~ pt.tree = []
-    #~ pt.build( testdaten, testdaten.keys() )
-    #~ for id,name in pt.tree:
-        #~ print "%2s - %s" % (id,name)
-    #~ sys.exit()
 
 
 

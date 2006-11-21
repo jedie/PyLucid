@@ -32,7 +32,7 @@ class EditInternalPage(PyLucidBaseModule):
 
     def internal_page(self):
         """
-        Tabelle zum auswÃ¤hlen einer Internen-Seite zum editieren
+        Tabelle zum auswählen einer Internen-Seite zum editieren
 
         jinja context:
 
@@ -199,15 +199,11 @@ class EditInternalPage(PyLucidBaseModule):
             self.internal_page() # Auswahl wieder anzeigen lassen
             return
 
-        OptionMaker = self.tools.html_option_maker()
-        markup_option = OptionMaker.build_from_list(
-            self.db.get_available_markups(), edit_data["markup"],
-            select_value=False
-        )
-        template_engine_option = OptionMaker.build_from_list(
-            self.db.get_available_template_engines(),
-            edit_data["template_engine"], select_value=False
-        )
+        markups = self.db.get_available_markups()
+        current_markup = edit_data["markup"]
+
+        engines = self.db.get_available_template_engines()
+        current_engine = edit_data["template_engine"]
 
         context = {
             "name"          : internal_page_name,
@@ -217,11 +213,13 @@ class EditInternalPage(PyLucidBaseModule):
             "content_html"  : cgi.escape(edit_data["content_html"]),
             "content_css"   : cgi.escape(edit_data["content_css"]),
             "content_js"    : cgi.escape(edit_data["content_js"]),
-            "description"            : cgi.escape(edit_data["description"]),
-            "template_engine_option" : template_engine_option,
-            "markup_option"          : markup_option,
+            "description"       : cgi.escape(edit_data["description"]),
+            "markups"           : markups,
+            "current_markup"    : current_markup,
+            "engines"         : engines,
+            "current_engine"  : current_engine,
         }
-
+        #~ self.page_msg(context)
         self.templates.write("edit_internal_page", context)
 
     def save_internal_page(self):
