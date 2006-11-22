@@ -74,9 +74,7 @@ class auth(PyLucidBaseModule):
 
         self.staticTags = self.request.staticTags
 
-
-    ####################################################
-    # LogIn
+    #_________________________________________________________________________
 
     def login(self):
         """
@@ -107,9 +105,10 @@ class auth(PyLucidBaseModule):
 
         self.templates.write("login", context)
 
-    def check_login( self ):
+    def check_login(self):
         """
-        Überprüft die Daten vom abgeschickten LogIn-Formular und logt den User ein
+        Überprüft die Daten vom abgeschickten LogIn-Formular und logt den User
+        ein
         """
         try:
             username    = self.request.form["user"]
@@ -130,7 +129,8 @@ class auth(PyLucidBaseModule):
 
         self.check_md5_login(username, form_pass1, form_pass2)
 
-    def _error( self, log_msg, public_msg ):
+
+    def _error(self, log_msg, public_msg):
         """Fehler werden abhängig vom Debug-Status angezeigt/gespeichert"""
         self.log(log_msg)
 
@@ -145,6 +145,7 @@ class auth(PyLucidBaseModule):
             msg = "<p>%s</p>" % public_msg
 
         raise LogInError(msg)
+
 
     def check_md5_login(self, username, form_pass1, form_pass2):
         """
@@ -241,7 +242,9 @@ class auth(PyLucidBaseModule):
         # Seite angezeigt werden, ansonsten wäre die Seite leer.
         self.session["render follow"] = True
 
-    def logout( self ):
+    #_________________________________________________________________________
+
+    def logout(self):
         self.session.delete_session()
         self.page_msg( "You are logged out." )
 

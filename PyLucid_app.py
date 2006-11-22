@@ -131,9 +131,12 @@ class PyLucidApp(BaseApplication):
     """
     Klasse die die Programmlogik zusammenstellt
     """
+
+    # Angaben für colubrid:
     charset = 'utf-8'
     #~ slash_append = True
     slash_append = False
+
 
     def __init__(self, environ, start_response):
         super(PyLucidApp, self).__init__(environ, start_response)
@@ -200,7 +203,7 @@ class PyLucidApp(BaseApplication):
             self.request, self.response
         )
 
-        # FIXME:
+        # FIXME: Übertragen von Objekten in den DBwrapper
         self.db.page_msg    = self.page_msg
         self.db.tools       = self.tools
         self.db.URLs        = self.URLs
@@ -274,8 +277,6 @@ class PyLucidApp(BaseApplication):
         # Statische-Tag-Informationen setzten:
         self.staticTags.setup()
 
-        #~ self.page_msg("addCode.tag:", self.response.addCode.tag)
-
 
     def process_request(self):
         try:
@@ -327,7 +328,7 @@ class PyLucidApp(BaseApplication):
 
         else:
             # Kann eigentlich nie passieren ;)
-            raise RuntimeError, "unknown runlevel!!!"
+            raise RuntimeError("unknown runlevel!!!")
 
         # Evtl. vorhandene Sessiondaten in DB schreiben
         self.session.commit()
@@ -352,12 +353,6 @@ class PyLucidApp(BaseApplication):
             "%s\n" % " ".join([str(i) for i in txt])
         )
 
-    #~ def process_normal_request(self):
-        #~ """
-        #~ Entweder wird ein "_command" ausgeführt oder eine
-        #~ normale CMS Seite angezeigt.
-        #~ """
-
     def installPyLucid(self):
         """
         Der aktuelle request ist im "_install"-Bereich
@@ -365,18 +360,6 @@ class PyLucidApp(BaseApplication):
         from PyLucid.install.install import InstallApp
         InstallApp.__info__ = __info__
         InstallApp(self.request, self.response).process_request()
-
-    #~ def DBerror(self, txt, advice=""):
-        #~ self.response.write(
-            #~ ('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">\n'
-            #~ '<html><head><title>Database Error</title></head><body>'
-            #~ '<h1>ERROR!</h1>\n')
-        #~ )
-        #~ self.response.write("<p>%s</p>\n" % txt)
-        #~ self.response.write("<h2>%s</h2>\n" % advice)
-        #~ self.response.write("<hr />\n")
-        #~ self.response.write("<address>%s</address>\n" % __info__)
-        #~ self.response.write("</body></html>\n")
 
 
 
