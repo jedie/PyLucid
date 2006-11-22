@@ -7,9 +7,12 @@ Module Manager
 # by jensdiemer.de (steht unter GPL-License)
 """
 
-__version__="0.3.1"
+__version__="0.3.2"
 
 __history__="""
+v0.3.2
+    - Bugfix: Eigene Fehlerseiten und ModuleManager_error_handling = True
+        siehe ticket:3
 v0.3.1
     - New error handling: "Wrong command path"
 v0.3
@@ -75,10 +78,10 @@ v0.0.1
 """
 
 
-#~ import cgitb;cgitb.enable()
 import sys, os, glob, imp, cgi, urllib
 
-#~ print "Content-type: text/html; charset=utf-8\r\n\r\n" # Hardcore-Debugging ;)
+from PyLucid.system.exceptions import PyLucidException
+
 
 debug = False
 #~ debug = True
@@ -130,7 +133,7 @@ class plugin_data:
             #~ if self.runlevel.is_normal():
                 #~ msg = "<!-- %s -->" % msg
 
-            raise run_module_error(msg)
+            raise RunModuleError(msg)
 
         if self.plugin_debug():
             self.page_msg("Plugin Debug for %s:" % module_name)
@@ -146,7 +149,7 @@ class plugin_data:
                     self.module_id, self.method_name
                 )
             except IndexError:
-                raise run_module_error(
+                raise RunModuleError(
                     "[Method '%s' for Module '%s' unknown!]" % (
                         self.method_name, module_name
                     )
@@ -229,7 +232,7 @@ class plugin_data:
 
         if must_login == True:
             if self.session["user"] == False:
-                raise rights_error(
+                raise RightsError(
                     "[You must login to use %s.%s]" % (
                         self.module_name, self.method_name
                     )
@@ -246,7 +249,7 @@ class plugin_data:
                 )
 
             if (must_admin == True) and (self.session["isadmin"] == False):
-                raise rights_error(
+                raise RightsError(
                     "You must be an admin to use method %s from module %s!" % (
                         self.method_name, self.module_name
                     )
@@ -330,9 +333,9 @@ class module_manager:
 
         try:
             return self._run_module_method()
-        except run_module_error, e:
+        except RunModuleError, e:
             pass
-        except rights_error, e:
+        except RightsError, e:
             if self.plugin_data["no_rights_error"] == 1:
                 return ""
 
@@ -352,9 +355,9 @@ class module_manager:
         function_info = {"function_info": function_info}
         try:
             return self._run_module_method(function_info)
-        except run_module_error, e:
+        except RunModuleError, e:
             self.page_msg(e)
-        except rights_error, e:
+        except RightsError, e:
             if self.plugin_data["no_rights_error"] == 1:
                 return ""
             self.page_msg(e)
@@ -387,9 +390,9 @@ class module_manager:
 
         try:
             moduleOutput = self._run_module_method(function_info)
-        except run_module_error, e:
+        except RunModuleError, e:
             pass
-        except rights_error, e:
+        except RightsError, e:
             if self.plugin_data["no_rights_error"] == 1:
                 return ""
         else:
@@ -402,13 +405,13 @@ class module_manager:
         """
         Führt eine Methode eines Module aus.
         Kommt es irgendwo zu einem Fehler, ist es die selbsterstellte
-        "run_module_error"-Exception mit einer passenden Fehlermeldung.
+        "RunModuleError"-Exception mit einer passenden Fehlermeldung.
         """
         #~ if debug: self.page_msg("method_arguments:", method_arguments)
         #~ try:
         self.plugin_data.setup_module(self.module_name, self.method_name)
         #~ except KeyError:
-            #~ raise run_module_error(
+            #~ raise RunModuleError(
                 #~ "[module name '%s' unknown (method: %s)]" % (self.module_name, self.method_name)
             #~ )
 
@@ -451,14 +454,14 @@ class module_manager:
         try:
             import_object = _import(package_name, module_name)
         except Exception, e:
-            raise run_module_error(
+            raise RunModuleError(
                 "[Can't import Modul '%s': %s]" % ( self.module_name, e )
             )
 
         try:
             return getattr(import_object, self.module_name)
         except Exception, e:
-            raise run_module_error(
+            raise RunModuleError(
                 "[Can't get class '%s' from module '%s': %s]" % (
                     self.module_name, self.module_name, e
                 )
@@ -501,7 +504,7 @@ class module_manager:
                 len(method_arguments), method_arguments
             )
 
-            raise run_module_error(msg)
+            raise RunModuleError(msg)
 
 
     def _run_method(self, module_class, method_arguments={}):
@@ -520,7 +523,7 @@ class module_manager:
             )
 
             if self.preferences["ModuleManager_error_handling"] == True:
-                raise run_module_error(msg)
+                raise RunModuleError(msg)
             else:
                 raise Exception(msg)
 
@@ -539,7 +542,7 @@ class module_manager:
             try:
                 class_instance = module_class(self.request, self.response)
             except Exception, e:
-                raise run_module_error(
+                raise RunModuleError(
                     "[Can't make class intance from module '%s': %s]" % (
                         self.module_name, e
                     )
@@ -561,7 +564,7 @@ class module_manager:
                     class_instance, self.plugin_data.method_name
                 )
             except Exception, e:
-                raise run_module_error(
+                raise RunModuleError(
                     "[Can't get method '%s' from module '%s': %s]" % (
                         self.plugin_data.method_name, self.module_name, e
                     )
@@ -583,6 +586,11 @@ class module_manager:
                 )
             except KeyError, e:
                 run_error("KeyError: %s" % e)
+            except PyLucidException, e:
+                # Interne Fehlerseite wurde geforfen, aber Fehler sollen
+                # als Satz zusammen gefasst werden.
+                # Bei config.ModuleManager_error_handling = True
+                raise RunModuleError(e.get_error_page_msg())
             except Exception, e:
                 run_error(e)
 
@@ -621,10 +629,14 @@ class module_manager:
         self.page_msg("Module Manager debug:")
         self.page_msg(self.plugin_data.debug_data())
 
-class run_module_error(Exception):
+
+class ModuleManagerError(Exception):
     pass
 
-class rights_error(Exception):
+class RunModuleError(ModuleManagerError):
+    pass
+
+class RightsError(ModuleManagerError):
     """
     Ausführungsrechte Stimmen nicht
     """

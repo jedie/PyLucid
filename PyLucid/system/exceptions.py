@@ -10,6 +10,8 @@ http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 
 
 __version__ = """
+v0.1.2
+    - Neue Methode get_error_page_msg() für ticket:3
 v0.1.1
     - Bugfix: http://pylucid.net/trac/ticket/18
         - args fehlte als Attribut der Exception Klassen
@@ -73,7 +75,9 @@ ERROR_PAGE_TEMPLATE = """\
 
 class PyLucidException(HttpException):
     """Base for HTTP exceptions. Not to be used directly."""
-    args="" # FixMe: Warum muß es args hier geben???
+    args="[undefined args]" # FixMe: Warum muß es args hier geben???
+    code=500
+    msg="[undefined msg]"
     """
     args wird benötigt, wenn eine PyLucidException angafangen wird. z.b.:
         try:
@@ -81,7 +85,26 @@ class PyLucidException(HttpException):
         except Exception, e:
             self.page_msg(Exception, e)
     """
+    def __init__(self, code, args, msg):
+        self.code = code
+        self.args = args
+        self.msg = msg
+
+    def get_error_page_msg(self):
+        """
+        Der Fehler wird als page_msg Angezeigt und nicht als eigene Seite.
+        Wird vom ModuleManager angefordert,
+        wenn config.ModuleManager_error_handling = True
+        """
+        msg = "%s\n%s" % (self.title, self.msg)
+        msg = msg.replace("<p>","")
+        msg = msg.replace("</p>","\n")
+        return msg
+
     def get_error_page(self):
+        """
+        Liefert die Fehler-HTML-Seite zurück, die colubrid dann anzeigt.
+        """
         return ERROR_PAGE_TEMPLATE % {
             'code':     self.code,
             'title':    self.title,
