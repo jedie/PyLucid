@@ -36,9 +36,11 @@ d.h.:
     SQL_wrapper erbt von Database
 """
 
-__version__="0.5"
+__version__="0.5.1"
 
 __history__="""
+v0.5.1
+    - remove obsolete datetimefix (now Python 2.3 needed)
 v0.5
     - Neu: dbKeyWordsArgs
 v0.4
@@ -95,7 +97,6 @@ class db(active_statements):
     def connect(self, preferences):
 
         self.tableprefix    = preferences["dbTablePrefix"]
-        self.datetimefix    = preferences["dbDatetimeFix"]
         self.db_date_format = preferences["dbDatetimeFormat"]
 
         self.connect_mysqldb(

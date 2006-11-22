@@ -76,9 +76,6 @@ config = {
 
     "dbDatetimeFormat" : '%Y-%m-%d %H:%M:%S', # SQL-Datetime-String-Format
 
-    # Der datetimefix ist nur für Python >v2.3 erforderlich.
-    "dbDatetimeFix": True,
-
     # Zeigt zusätzlich an, in welchem Modul eine Page-Massage erzeugt wurde
     "page_msg_debug"    : False,
     #~ "page_msg_debug"    : True,
