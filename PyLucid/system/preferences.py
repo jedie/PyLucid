@@ -101,6 +101,12 @@ class Preferences(UserDict.UserDict):
 
     #_________________________________________________________________________
 
+    def get_default_markup_id(self):
+        id = self["core"]["defaultMarkup"]
+        return id
+
+    #_________________________________________________________________________
+
 
     def set(self, section, varName, value):
         self[section][varName] = value

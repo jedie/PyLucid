@@ -124,6 +124,7 @@ class log:
         current_timeout = time.time() - enty_timeout_sec
 
         self.db.cursor.execute(SQLcommand, (current_timeout,))
+        self.db.commit()
 
     #_________________________________________________________________________
     ## Log-Datei lesen
@@ -152,16 +153,18 @@ class log:
 
     def get_last_logs( self, limit=10 ):
         """ Liefert die letzten >limit< Logeinträge zurück """
-        return self.db.select(
-            select_items    = [
-                "timestamp", "sid", "user_name", "ip", "domain",
-                "message", "typ", "status"
-            ],
-            from_table      = sql_tablename,
-            order           = ("id","DESC"),
-            limit           = (0,limit)
-        )
-
+        try:
+            return self.db.select(
+                select_items    = [
+                    "timestamp", "sid", "user_name", "ip", "domain",
+                    "message", "typ", "status"
+                ],
+                from_table      = sql_tablename,
+                order           = ("id","DESC"),
+                limit           = (0,limit)
+            )
+        except Exception, e:
+            return []
 
     def debug_last(self):
         import inspect

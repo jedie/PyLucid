@@ -214,11 +214,7 @@ class detect_page(PyLucidBaseModule):
                 )[0]["id"]
             except IndexError:
                 # Es gibt wohl überhaupt keine Seite???
-                #~ raise NoExistingPage(self.URLs)
-                self.page_msg.red("It does not exist any cms page!")
-                self.page_msg.red("Please log in and make a page.")
-                self.session["page_id"] = None
-                #~ raise ProbablyNotInstalled("Can't find any cms page!")
+                raise NoPageExists("No page in DB.")
 
         if debug:
             self.page_msg(

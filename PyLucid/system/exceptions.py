@@ -154,7 +154,12 @@ class ProbablyNotInstalled(PyLucidException):
             'PyLucid.org - Install</a></p>'
         ) % (txt, origErrMsg)
 
+class NoPageExists(PyLucidException):
+    code = 200
+    title = "No existing CMS page"
 
+    def __init__(self, msg):
+        self.msg = msg
 
 
 installInfo = (

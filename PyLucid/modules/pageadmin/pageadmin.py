@@ -338,53 +338,76 @@ class pageadmin(PyLucidBaseModule):
     def insert_new_page(self, page_data):
         """ Abspeichern einer neu erstellten Seite """
 
-        try:
-            self.db.insert(
-                    table   = "pages",
-                    data    = page_data,
-                )
-        except Exception, e:
-            msg = (
-                "<h3>Error to insert new page:'%s'</h3>\n"
-                "<p>Use browser back botton!</p>"
-            ) % e
-            self.response.write(msg)
-        else:
-            self.db.commit()
-            self.page_msg( "New page saved." )
+        #~ try:
+        self.db.insert(
+            table   = "pages",
+            data    = page_data,
+        )
+        #~ except Exception, e:
+            #~ msg = (
+                #~ "<h3>Error to insert new page:'%s'</h3>\n"
+                #~ "<p>Use browser back botton!</p>"
+            #~ ) % e
+            #~ self.response.write(msg)
+        #~ else:
+
+        self.db.commit()
+            #~ self.page_msg( "New page saved." )
 
         # Setzt die aktuelle Seite auf die neu erstellte.
-        #~ self.request.form["page_id"] = self.db.cursor.lastrowid
         self.session["page_id"] = self.db.cursor.lastrowid
 
 
     def new_page(self):
         "Neue Seite soll angelegt werden"
+        new_page_data = self.get_new_page_data()
 
+        # Damit man beim speichern weiß, das die Seite neu ist:
+        new_page_data["page_id"] = "-1"
+
+        self.editor_page(new_page_data)
+
+    def get_new_page_data(self):
+        """
+        Liefert ein dict mit allen nötigen Werten zurück, damit der page_editor
+        die "Neue Seite Anlegen" Anzeigen kann
+        """
         core = self.preferences["core"] # Basiseinstellungen
 
+        parent = self.session["page_id"]
+        if parent == None:
+            # Es gibt noch keine andere Seite
+            parent = 0
+
         page_data = {
-            "parent"            : self.session["page_id"],
-
-            # Damit man beim speichern weiß, das die Seite neu ist:
-            "page_id"           : "-1",
-
+            "parent"            : parent,
             "name"              : "Newpage",
             "shortcut"          : "",
             "title"             : "Newpage",
             "template"          : core["defaultTemplate"],
             "style"             : core["defaultStyle"],
-            "markup"            : core["defaultMarkup"],
+            "markup"            : self.preferences.get_default_markup_id(),
             "showlinks"         : core["defaultShowLinks"],
             "permitViewPublic"  : core["defaultPermitPublic"],
-            "ownerID"           : self.session["user_id"],
+            "ownerID"           : self.session.get("user_id",0),
             "permitViewGroupID" : 1,
             "permitEditGroupID" : 1,
             "content"           : "",
             "keywords"          : "",
             "description"       : "",
         }
-        self.editor_page(page_data)
+        return page_data
+
+    def create_first_page(self):
+        """
+        In der db existiert noch keine CMS Seite, diese soll nun automatisch
+        angelegt werden, damit PyLucid überhaupt funktioniert.
+        Wird von PyLucid_app.py aufgerufen.
+        """
+        new_page_data = self.get_new_page_data()
+        new_page_data["shortcut"]="Newpage"
+        self.insert_new_page(new_page_data)
+        print "JAU!"
 
     def get_page_data(self, page_id):
         """

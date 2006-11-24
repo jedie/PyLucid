@@ -264,7 +264,11 @@ class PyLucidApp(BaseApplication):
         #~ self.request.module_manager.debug()
 
         # Aktuelle Seite ermitteln und festlegen
-        detect_page.detect_page(self.request, self.response).detect_page()
+        try:
+            detect_page.detect_page(self.request, self.response).detect_page()
+        except NoPageExists:
+            # Es existiert noch keine CMS Seite
+            self.create_first_page()
         # Überprüfe Rechte der Seite
         #~ self.verify_page()
 
@@ -278,6 +282,15 @@ class PyLucidApp(BaseApplication):
         # Statische-Tag-Informationen setzten:
         self.staticTags.setup()
 
+    def create_first_page(self):
+        from PyLucid.modules.pageadmin import pageadmin
+        p = pageadmin.pageadmin(self.request, self.response)
+        p.create_first_page()
+        msg = (
+            '<p>No Page exists.</p>\n'
+            '<p>First page created now, please reload :)</p>\n'
+        )
+        raise NoPageExists(msg)
 
     def process_request(self):
         try:
