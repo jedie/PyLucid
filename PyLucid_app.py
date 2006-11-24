@@ -207,6 +207,7 @@ class PyLucidApp(BaseApplication):
         self.db.page_msg    = self.page_msg
         self.db.tools       = self.tools
         self.db.URLs        = self.URLs
+        self.db.preferences = self.preferences
 
     def request_debug(self):
         try:

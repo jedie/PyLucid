@@ -173,7 +173,15 @@ class passive_statements(SQL_wrapper):
                     where           = ( "id", page_id )
                 )
 
-        side_data = side_data[0]
+        try:
+            side_data = side_data[0]
+        except IndexError:
+            #~ if page_id == None:
+            side_data = {
+                "markup": None,
+                "lastupdatetime": 0,
+            }
+            #~ return side_data
 
         if (not "shortcut" in side_data) or side_data["shortcut"] == "" or \
                                                 side_data["shortcut"] == None:
@@ -186,10 +194,10 @@ class passive_statements(SQL_wrapper):
 
         # None in "" konvertieren
         for key in ("name", "keywords", "description"):
-            if side_data[key] == None:
+            if (not key in side_data) or side_data[key] == None:
                 side_data[key] = ""
 
-        if side_data["title"] == None:
+        if (not "title" in side_data) or side_data["title"] == None:
             side_data["title"] = side_data["name"]
 
         return side_data
@@ -231,12 +239,23 @@ class passive_statements(SQL_wrapper):
         return data
 
     def side_template_by_id(self, page_id):
-        "Liefert den Inhalt des Template-ID und Templates für die Seite mit der >page_id< zurück"
+        """
+        Liefert den Inhalt des Template-ID und Templates für die Seite mit
+        der >page_id< zurück
+        """
+
+
         template_id = self.select(
-                select_items    = ["template"],
-                from_table      = "pages",
-                where           = ("id",page_id)
-            )[0]["template"]
+            select_items    = ["template"],
+            from_table      = "pages",
+            where           = ("id",page_id)
+        )
+        try:
+            template_id = template_id[0]["template"]
+        except IndexError:
+            #~ if page_id == None:
+            # Es existiert keine CMS Seite -> default Template
+            template_id = self.preferences["core"]["defaultTemplate"]
 
         try:
             page_template = self.select(
