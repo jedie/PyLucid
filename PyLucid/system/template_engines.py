@@ -78,11 +78,7 @@ class TemplateEngines(object):
             ) % (internal_page_name, stack[1][-30:], stack[2], e)
             raise KeyError(msg)
 
-
-        # ID Auflösen
-        engine = self.db.get_template_engine_name(
-            internal_page_data["template_engine"]
-        )
+        engine = internal_page_data["template_engine"]
 
         if engine == "string formatting":
             self.render_stringFormatting(
@@ -114,10 +110,23 @@ class TemplateEngines(object):
     def get_internal_page_data(self, internal_page_name):
         if self.runlevel.is_install():
             # Beim installieren holen wir uns die Daten direkt von der Platte
-            return self.get_internal_page_data_from_disk(internal_page_name)
+            internal_page_data = self.get_internal_page_data_from_disk(
+                internal_page_name
+            )
         else:
-            return self.get_internal_page_data_from_db(internal_page_name)
             # Der Normalfall, die Daten werden aus der DB geholt
+
+            internal_page_data = self.get_internal_page_data_from_db(
+                internal_page_name
+            )
+
+            # ID Auflösen
+            engine = self.db.get_template_engine_name(
+                internal_page_data["template_engine"]
+            )
+            internal_page_data["template_engine"] = engine
+
+        return internal_page_data
 
 
     def get_internal_page_data_from_db(self, internal_page_name):
