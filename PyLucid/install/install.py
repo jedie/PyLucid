@@ -126,7 +126,7 @@ a:hover {
 %(addCodeTag)s
 </head>
 <body>
-<h3>%(info)s - Setup</h3>
+<h3>%(info)s - Setup @ <a href="%(base_url)s">%(base_url)s</a></h3>
 <lucidTag:page_msg/>
 """
 HTML_bottom = """
@@ -279,6 +279,7 @@ class InstallApp(object):
         """ HTML Kopf schreiben """
         head = HTML_head % {
             "info": self.__info__,
+            "base_url": self.URLs.absoluteLink("/"),
 
             # Schreibt den addCode-Tag, damit am Ende noch die CSS/JS Daten
             # von Modulen eingefügt werden können
