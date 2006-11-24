@@ -173,13 +173,26 @@ class auth(PyLucidBaseModule):
 
         try:
             # Daten zum User aus der DB holen
-            db_userdata = self.db.md5_login_userdata( username )
+            db_userdata = self.db.md5_login_userdata(username)
         except Exception, e:
             # User exisiert nicht.
-            self._error(
-                "Error: User '%s' unknown %s" % (username,e) ,
-                "User '%s' unknown!" % username
+
+            test = self.db.select(
+                select_items    = ["id"],
+                from_table      = "md5users",
+                limit           = (1,1),
             )
+            if test == []:
+                # Es existieren überhaupt keine User!
+                log_msg = public_msg = (
+                    "There exist no User!"
+                    " Please add a User in the _install section first."
+                )
+            else:
+                log_msg = "Error: User '%s' unknown %s" % (username,e)
+                public_msg = "User '%s' unknown!" % username
+
+            self._error(log_msg, public_msg)
             return
 
         # Ersten MD5 Summen vergleichen
@@ -233,7 +246,7 @@ class auth(PyLucidBaseModule):
                 username, self.session["session_id"]
             )
         )
-        self.page_msg( "You are logged in." )
+        self.page_msg.green("You are logged in.")
 
         # Login/Logout-Link aktualisieren
         self.staticTags.setup_login_link()
@@ -246,7 +259,7 @@ class auth(PyLucidBaseModule):
 
     def logout(self):
         self.session.delete_session()
-        self.page_msg( "You are logged out." )
+        self.page_msg.green("You are logged out.")
 
         # Damit der Logout-Link zu einem Login-Link wird...
         self.staticTags.setup()
