@@ -627,7 +627,7 @@ class EditInternalPage(PyLucidBaseModule):
         try:
             # Daten der internen Seite, die editiert werden soll
             internalpage_data = self.db.get_internal_page_data(
-                internal_page_name, select_items=select_items, replace=False
+                internal_page_name, select_items=select_items#, replace=False
             )
         except IndexError:
             msg = (
