@@ -44,7 +44,7 @@ module_manager_data = {
         "must_admin"    : False,
         "internal_page_info" : {
             "description"       : "select a page to edit it",
-            "template_engine"   : "string formatting",
+            "template_engine"   : "jinja",
             "markup"            : None,
         },
     },
@@ -54,7 +54,7 @@ module_manager_data = {
         "must_admin"    : True,
         "internal_page_info" : {
             "description"       : "select a page to delete it",
-            "template_engine"   : "string formatting",
+            "template_engine"   : "jinja",
             "markup"            : None,
         },
     },
@@ -64,7 +64,7 @@ module_manager_data = {
         "must_admin"    : False,
         "internal_page_info" : {
             "description"       : "change the position of every page",
-            "template_engine"   : "string formatting",
+            "template_engine"   : "jinja",
             "markup"            : None,
         },
     },

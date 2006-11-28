@@ -1,67 +1,27 @@
+{*
+    Jinja Template
+    <pre>{% debug %}</pre>
+*}
 <h2>Delete Page</h2>
 
-<form name="del_page" method="post" action="%(url)s">
-
-<fieldset class="internalpage">
-<legend>Select a page to delete it:</legend>
-
-<p>Here are all pages available.</p>
-
+<form name="del_page" method="post" action="{{ url }}">
+<fieldset class="internalpage"><legend>Select a page to delete it:</legend>
+  <p>
+    Here are all pages available.
+  </p>
   <label class="left" for="page_id_to_del">select page:</label>
-  <select id="page_id_to_del" name="page_id_to_del">%(page_option)s</select>
+  <select id="page_id_to_del" name="page_id_to_del">
+    {% for item in pages_tree %}
+       <option value="{{ item.id }}" {% if item.id equals parent %}selected="selected"{% endif %}>{{ item.name|escapexml }}</option>
+    {% endfor %}
+  </select>
   <br />
   <label class="left" for="comment">comment:</label>
   <input id="comment" name="comment" type="text" value="" size="50" maxlength="254">
   <br />
   <input type="submit" name="delete page" value="delete page" />
-
-<p><strong>Note:</strong> You can only delete pages with no parents!</p>
-
+  <p>
+    <strong>Note:</strong> You can only delete pages with no parents!
+  </p>
 </fieldset>
-
 </form>
-
-
-<style type="text/css">
-label, input, select, textarea {
-  vertical-align: middle;
-  margin-top, margin-bottom: 5px;
-}
-label.left {
-  float: left;
-  text-align: right;
-
-  width: 10em;
-  margin-right: .3em;
-  padding: 0px;
-}
-.rightonly {
-  /* Eingabefelder mit Text dahinter */
-  margin-left: 10.3em;
-  padding: 0px;
-}
-
-form br {
-  /*  floats nach dem Forumlar aufheben */
-  clear: both;
-}
-
-label, select, input {
-  cursor: pointer;
-}
-.internalpage input[type=text] {
-  width: 75%%;
-  cursor: text;
-}
-
-.internalpage input, .internalpage select, .internalpage textarea {
-  margin: 2px;
-  border: 1px solid grey;
-  color: #000;
-  background: #fafafa;
-}
-.internalpage input:focus, .internalpage select:focus, .internalpage textarea:focus {
-  border: 1px solid back;
-  background: #fff;
-}
-</style>

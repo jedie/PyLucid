@@ -54,7 +54,7 @@
    <label class="left" for="parent">Parent Page:</label>
    <select class="right" id="parent" name="parent">
       {% for item in parent_data %}
-         <option value="{{ item.id }}" {% if item.id equals parent %}selected="selected"{% endif %}>{{ item.name }}</option>
+         <option value="{{ item.id }}" {% if item.id equals parent %}selected="selected"{% endif %}>{{ item.name|escapexml }}</option>
       {% endfor %}
    </select>
    <br />
@@ -62,14 +62,14 @@
        <label class="left" for="template">Template engine:</label>
        <select class="right" id="template" name="template">
           {% for item in templates %}
-             <option value="{{ item.id }}" {% if item.id equals template %}selected="selected"{% endif %}>{{ item.name }}</option>
+             <option value="{{ item.id }}" {% if item.id equals template %}selected="selected"{% endif %}>{{ item.name|escapexml }}</option>
           {% endfor %}
        </select>
        <br />
        <label class="left" for="style">Stylesheet:</label>
        <select class="right" id="style" name="style">
           {% for item in styles %}
-             <option value="{{ item.id }}" {% if item.id equals style %}selected="selected"{% endif %}>{{ item.name }}</option>
+             <option value="{{ item.id }}" {% if item.id equals style %}selected="selected"{% endif %}>{{ item.name|escapexml }}</option>
           {% endfor %}
        </select>
        <br />
@@ -77,7 +77,7 @@
        <label class="left" for="markup">Markup:</label>
        <select class="right" id="markup" name="markup">
           {% for item in markups %}
-             <option value="{{ item.id }}" {% if item.id equals markup %}selected="selected"{% endif %}>{{ item.name }}</option>
+             <option value="{{ item.id }}" {% if item.id equals markup %}selected="selected"{% endif %}>{{ item.name|escapexml }}</option>
           {% endfor %}
        </select>
    <br />
@@ -85,7 +85,7 @@
    <label class="left" for="ownerID">Page Owner:</label>
    <select class="right" id="ownerID" name="ownerID">
       {% for item in users %}
-         <option value="{{ item.id }}" {% if item.id equals ownerID %}selected="selected"{% endif %}>{{ item.name }}</option>
+         <option value="{{ item.id }}" {% if item.id equals ownerID %}selected="selected"{% endif %}>{{ item.name|escapexml }}</option>
       {% endfor %}
    </select>
 </fieldset>

@@ -123,17 +123,25 @@ class pageadmin(PyLucidBaseModule):
                 page_data = self.get_page_data(page_id)
             except IndexError:
                 # Die Seite gibt es nicht!
-                self.page_msg("Page '%s' unknown!" % cgi.escape(str(page_id)))
+                if page_id == 0:
+                    self.page_msg("The virtual page 'root' can't be edit :)")
+                else:
+                    self.page_msg(
+                        "Page '%s' unknown!" % cgi.escape(str(page_id))
+                    )
             else:
                 self.editor_page(page_data)
                 return
 
+        # Generiert eine Liste aller Seiten für einen html-select
+        pages_tree = self.tools.parent_tree_maker().make_parent_option()
+
         context = {
             "url": self.URLs.actionLink("select_edit_page"),
-            "page_option": self.tools.forms().siteOptionList(
-                with_id = True, select = self.session["page_id"]
-            )
+            "pages_tree": pages_tree,
         }
+        #~ self.page_msg(context)
+
 
         self.templates.write("select_edit_page", context)
 
@@ -501,13 +509,14 @@ class pageadmin(PyLucidBaseModule):
             page_id_to_del = int(self.request.form["page_id_to_del"])
             self.delete_page(page_id_to_del)
 
+        # Generiert eine Liste aller Seiten für einen html-select
+        pages_tree = self.tools.parent_tree_maker().make_parent_option()
+
         context = {
             "url": self.URLs.actionLink("select_del_page"),
-            "page_option": self.tools.forms().siteOptionList(
-                with_id = True, select = self.session["page_id"]
-            )
+            "pages_tree": pages_tree,
         }
-
+        #~ self.page_msg(context)
         self.templates.write("select_del_page", context)
 
 
@@ -602,29 +611,15 @@ class pageadmin(PyLucidBaseModule):
         if "save" in self.request.form:
             self.save_positions()
 
-        MyOptionMaker = self.tools.html_option_maker()
-
-        position_list = [""] + [str(i) for i in xrange(-10,11)]
-        position_option = MyOptionMaker.build_from_list( position_list, "" )
-
         # Daten in der aktuellen Ebene
         sequencing_data = self.db.get_sequencing_data(self.session["page_id"])
 
-        table = '<table id="sequencing">\n'
-        for page in sequencing_data:
-            table += '<tr>\n'
-            table += '  <td class="name">%s</td>\n' % cgi.escape( page["name"] )
-            table += '  <td>weight: <strong>%s</strong></td>\n' % page["position"]
-            table += '  <td><select name="page_id_%s">%s</select></td>\n' % (page["id"], position_option)
-            table += '  </td>\n'
-            table += "</tr>\n"
-        table += "</table>\n"
-
         context = {
             "url"       : self.URLs.currentAction(),
-            "table_data" : table,
+            "sequencing_data" : sequencing_data,
+            "weights"   : [i for i in xrange(-10,11)]
         }
-
+        #~ self.page_msg(context)
         self.templates.write("sequencing", context)
 
     def save_positions(self):
