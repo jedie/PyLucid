@@ -272,9 +272,10 @@ class forms:
 
 class parent_tree_maker:
     """
-    OBSOLETE ???
     Generiert eine Auswahlliste aller Seiten
-    Wird beim editieren für die parent-Seiten-Auswahl benötigt
+        Wird benötigt bei:
+            -parent Auswahl beim editieren einer CMS Seite
+            -select page to edit/delete
     """
     def __init__( self ):
         self.db = request.db
@@ -282,7 +283,7 @@ class parent_tree_maker:
     def make_parent_option( self ):
         # Daten aus der DB holen
         data = self.db.select(
-            select_items    = ["id", "name", "parent"],
+            select_items    = ["id", "name", "title", "parent"],
             from_table      = "pages",
             order           = ("position","ASC"),
         )
@@ -291,13 +292,13 @@ class parent_tree_maker:
         tmp = {}
         for line in data:
             parent  = line["parent"]
-            id_name = ( line["id"], line["name"] )
+            id_name = (line["id"], line["name"])
             if line["parent"] in tmp:
-                tmp[parent].append( id_name )
+                tmp[parent].append(id_name)
             else:
-                tmp[parent] = [ id_name ]
+                tmp[parent] = [id_name]
 
-        self.tree = [ {"id": 0, "name":"_| root"} ]
+        self.tree = [{"id": 0, "name":"_| root"}]
         self.build( tmp, tmp.keys() )
         return self.tree
 
