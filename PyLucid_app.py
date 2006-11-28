@@ -326,7 +326,7 @@ class PyLucidApp(BaseApplication):
             # auch, wie alle anderen Module ins response-Object ;)
             content = self.response.get()
 
-            if self.session.has_key("render follow"):
+            if "render follow" in self.session:
                 # Eintrag löschen, damit der nicht in die DB für den nächsten
                 # request gespeichert wird:
                 del(self.session["render follow"])

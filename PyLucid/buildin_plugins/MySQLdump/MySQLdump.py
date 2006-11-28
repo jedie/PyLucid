@@ -559,7 +559,7 @@ class universalize_dump:
                 if find_name != []:
                     category = find_name[0]+".sql"
 
-            if not outdata.has_key(category):
+            if not category in outdata:
                 outdata[category] = ""
 
             if line=="": continue # Leere Zeilen brauchen wir nicht

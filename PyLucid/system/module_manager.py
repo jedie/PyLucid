@@ -138,11 +138,11 @@ class plugin_data:
         if self.plugin_debug():
             self.page_msg("Plugin Debug for %s:" % module_name)
 
-        if not self.plugindata.has_key(module_name):
+        if not module_name in self.plugindata:
             # Module neu
             self.plugindata[module_name] = {}
 
-        if not self.plugindata[module_name].has_key(method_name):
+        if not method_name in self.plugindata[module_name]:
             # Die Methode ist noch unbekannt.
             try:
                 method_properties = self.db.get_method_properties(
@@ -262,7 +262,7 @@ class plugin_data:
         result = {}
         for item in self.db.get_plugin_menu_data(self.module_id):
             if item["menu_section"] != None:
-                if not result.has_key(item["menu_section"]):
+                if not item["menu_section"] in result:
                     result[item["menu_section"]] = []
                 result[item["menu_section"]].append(item)
         return result
@@ -322,7 +322,7 @@ class module_manager:
         Ausführen von:
         <lucidTag:'tag'/>
         """
-        if self.staticTags.has_key(tag):
+        if tag in elf.staticTags:
             return self.staticTags[tag]
 
         if tag.find(".") != -1:

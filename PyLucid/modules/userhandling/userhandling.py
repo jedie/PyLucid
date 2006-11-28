@@ -132,12 +132,12 @@ class userhandling(PyLucidBaseModule):
 
     def manage_user(self):
         """ Verwaltung von Usern """
-        if self.request.form.has_key("add user"):
+        if "add user" in self.request.form:
             # Es wurde das Formular abgeschickt
             self.add_user_action()
-        elif self.request.form.has_key("save"):
+        elif "save" in self.request.form:
             self.save_changes()
-        elif self.request.form.has_key("delete"):
+        elif "delete" in self.request.form:
             self.delete_user()
 
         self.user_table()

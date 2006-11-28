@@ -42,14 +42,14 @@ class detect_page(PyLucidBaseModule):
     def detect_page(self):
         "Findet raus welches die aktuell anzuzeigende Seite ist"
 
-        if self.request.args.has_key("page_id"):
+        if "page_id" in self.request.args:
             # Bei Modulen kann die ID schon in der URL mitgeschickt werden.
             self.check_page_id(self.request.args["page_id"])
             return
 
         if self.runlevel.is_command():
             # Ein internes Kommando (LogIn, EditPage ect.) wurde ausgeführt
-            if self.session.has_key("page_id"):
+            if "page_id" in self.session:
                 self.check_page_id(self.session["page_id"])
             else:
                 self.set_history_page()
@@ -83,7 +83,7 @@ class detect_page(PyLucidBaseModule):
         self.set_default_page()
 
     def set_history_page( self ):
-        if self.session.has_key("page_history"):
+        if "page_history" in self.session:
             self.session["page_id"] = self.session["page_history"][0]
             self.check_page_id(self.session["page_id"])
         else:

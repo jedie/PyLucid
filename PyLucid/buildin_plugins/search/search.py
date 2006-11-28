@@ -182,7 +182,7 @@ class search(PyLucidBaseModule):
             )
             for line in result:
                 id = line["id"]
-                if partial_result.has_key(id):
+                if id in partial_result:
                     partial_result[id] *= 1.5
                 else:
                     partial_result[id] = 1
@@ -191,7 +191,7 @@ class search(PyLucidBaseModule):
         # IDs der Seiten, die die Punkte Zahl haben
         result_IDs = {}
         for id,points in partial_result.iteritems():
-            if result_IDs.has_key(points):
+            if points in result_IDs:
                 result_IDs[points].append(id)
             else:
                 result_IDs[points] = [id]

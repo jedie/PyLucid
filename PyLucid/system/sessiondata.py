@@ -2,6 +2,11 @@
 # -*- coding: UTF-8 -*-
 
 
+"""
+obsolete???
+"""
+
+
 
 __version__ = "v0.1"
 
@@ -64,7 +69,7 @@ class CGIdata(UserDict.UserDict):
         gemacht ;)
         """
 
-        if os.environ.has_key("CONTENT_LENGTH"):
+        if "CONTENT_LENGTH" in os.environ:
             # Ist nur vorhanden, wenn der Client POST Daten schickt.
             length = int(os.environ["CONTENT_LENGTH"])
             if length>65534:
@@ -81,7 +86,7 @@ class CGIdata(UserDict.UserDict):
             for i in FieldStorageData.keys():
                 self.data[i] = FieldStorageData.getvalue(i)
 
-        if os.environ.has_key('QUERY_STRING'):
+        if 'QUERY_STRING' in os.environ:
             # GET URL-Parameter parsen
             for item in os.environ['QUERY_STRING'].split("&"):
                 size = len(item)

@@ -317,8 +317,7 @@ class active_statements(passive_statements):
             mehr Keys sind, als in diese Tabelle gehören!!!
         """
         active = module_data["active"]
-        if module_data.has_key("essential_buildin") and \
-                                    module_data["essential_buildin"] == True:
+        if module_data.get("essential_buildin", False) == True:
             active = -1
         elif active == True:
             active = 1

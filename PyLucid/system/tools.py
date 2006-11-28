@@ -272,6 +272,7 @@ class forms:
 
 class parent_tree_maker:
     """
+    OBSOLETE ???
     Generiert eine Auswahlliste aller Seiten
     Wird beim editieren für die parent-Seiten-Auswahl benötigt
     """
@@ -291,7 +292,7 @@ class parent_tree_maker:
         for line in data:
             parent  = line["parent"]
             id_name = ( line["id"], line["name"] )
-            if tmp.has_key( line["parent"] ):
+            if line["parent"] in tmp:
                 tmp[parent].append( id_name )
             else:
                 tmp[parent] = [ id_name ]
@@ -302,7 +303,7 @@ class parent_tree_maker:
 
     def build( self, tmp, keys, parent=0, deep=1 ):
         "Bildet aus den Aufbereiteten Daten"
-        if not tmp.has_key( parent ):
+        if not parent in tmp:
             # Seite hat keine Unterseiten
             return deep-1
 
@@ -761,7 +762,7 @@ def build_menu(module_manager_data, action_url):
             self.page_msg( "Error in menu_info:", e )
             continue
 
-        if not menu_data.has_key( section ):
+        if not section in menu_data:
             menu_data[section] = []
 
         menu_data[section].append(

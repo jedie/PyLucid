@@ -175,7 +175,7 @@ class update(ObjectApp_Base):
 
         # shortcut auf unique setzten, falls das nicht schon der Fall ist
         table_keys = self._db.get_table_keys("pages")
-        if not table_keys.has_key("shortcut"):
+        if not "shortcut" in table_keys:
             SQLcommand = "ALTER TABLE $$pages ADD UNIQUE (shortcut)"
             self._execute(
                 "set 'shortcut' in pages table to unique",
@@ -210,7 +210,7 @@ class update(ObjectApp_Base):
 
         # Verbesserung in der Tabelle, weil die Namen eindeutig sein sollen!
         table_keys = self._db.get_table_keys("template_engines")
-        if not table_keys.has_key("name"):
+        if not "name" in table_keys:
             SQLcommand = "ALTER TABLE $$template_engines ADD UNIQUE (name)"
             self._execute(
                 "set 'name' in template_engines table to unique",

@@ -19,7 +19,7 @@ class cookie:
         self.load()
 
     def load( self ):
-        if not os.environ.has_key("HTTP_COOKIE"):
+        if not "HTTP_COOKIE" in os.environ:
             # Kein Cookie vorhanden
             return
 
@@ -30,7 +30,7 @@ class cookie:
             # Gibt kein Cookie
             return False
 
-        if self.cookieObj.has_key(CookieName):
+        if CookieName in self.cookieObj:
             return self.cookieObj[CookieName].value
         else:
             return False
@@ -38,7 +38,7 @@ class cookie:
     def debug( self ):
         print "Cookie-Debug:"
         print "<hr><pre>"
-        if not os.environ.has_key("HTTP_COOKIE"):
+        if not "HTTP_COOKIE" in os.environ:
             print "There is no HTTP_COOKIE in os.environ:\n"
             for k,v in os.environ.iteritems(): print k,v
         else:

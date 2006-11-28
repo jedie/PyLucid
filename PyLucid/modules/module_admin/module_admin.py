@@ -818,7 +818,7 @@ class Modules(object):
         self.read_packages()
 
     def addModule(self, module_name, package_dir_list):
-        if self.data.has_key(module_name):
+        if module_name in self.data:
             # Daten sind schon aus der DB da.
             return
 

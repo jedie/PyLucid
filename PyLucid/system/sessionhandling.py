@@ -328,7 +328,7 @@ class sessionhandler(dict):
 
             # Session-Daten auf Vollständigkeit prüfen
             for key in ("isadmin","session_id","user"):
-                if not DB_data.has_key(key):
+                if not key in DB_data:
                     # Mit den Session-Daten stimmt was nicht :(
                     msg = "Error in Session Data: Key %s not exists." % key
                     raise BrokenSessionData, msg
@@ -634,8 +634,8 @@ class sessionhandler(dict):
         """
         Seite zur page_history hinzufügen
         """
-        if not self.has_key("page_history") or \
-                    not isinstance(self["page_history"], list):
+        if not "page_history" in self or \
+                                not isinstance(self["page_history"], list):
             self["page_history"] = [page_id]
             return
 

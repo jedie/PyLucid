@@ -67,7 +67,7 @@ class ObjectApp_Base(object):
             # ein echtes True:
             self.request.form["simulation"] = True
 
-        if self.request.form.has_key("confirm"):
+        if "confirm" in self.request.form:
             # confirm-POST-Form wurde schon bestätigt
             return True
 

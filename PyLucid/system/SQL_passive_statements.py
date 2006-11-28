@@ -302,7 +302,7 @@ class passive_statements(SQL_wrapper):
         if not result:
             return False
 
-        if result[0].has_key("id"):
+        if "id" in result[0]:
             return result[0]["id"]
         else:
             return False
@@ -397,7 +397,7 @@ class passive_statements(SQL_wrapper):
         )
         page_items = page_items[0]
         for i in ("name", "title", "content", "keywords", "description"):
-            if page_items.has_key(i) and page_items[i]==None:
+            if i in page_items and page_items[i]==None:
                 page_items[i]=""
         return page_items
 
