@@ -57,9 +57,9 @@ class HttpResponse(HttpResponse):
                 # tag  => Tag:page_body/
                 # post => <p>jau</p>
 
-                tag = tag[4:]
-                if tag[-1]=="/": # .rstrip("/") gibt es in Python 2.2 so nicht
-                    tag = tag[:-1]
+                tag = tag[4:].rstrip("/")
+                #~ if tag[-1]=="/": # .rstrip("/") gibt es in Python 2.2 so nicht
+                    #~ tag = tag[:-1]
 
                 # Tag über Module-Manager ausführen
                 self.handleTag(tag)
