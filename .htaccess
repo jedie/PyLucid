@@ -9,9 +9,11 @@
 # http://httpd.apache.org/docs/2.0/mod/mod_dir.html#directoryindex
 #DirectoryIndex PyLucid_CGI_Handler.py
 
+
 # Damit allgemein CGI's ausgeführt werden
 # http://httpd.apache.org/docs/2.0/mod/core.html#options
-Options +ExecCGI
+#Options +ExecCGI
+
 
 # Damit Python-Skripte auch außerhalb von /cgi-bin/ ausgeführt
 # werden.
@@ -20,7 +22,8 @@ Options +ExecCGI
 # http://www.python-forum.de/topic-6484.html
 #
 # http://httpd.apache.org/docs/2.0/mod/mod_mime.html#addhandler
-AddHandler cgi-script .py
+#AddHandler cgi-script .py
+
 
 # Sehr wichtig! Damit niemand einfach per URL das install-Passwort
 # vom Apache angezeigt bekommt!
