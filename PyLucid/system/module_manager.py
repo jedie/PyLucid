@@ -322,7 +322,7 @@ class module_manager:
         Ausführen von:
         <lucidTag:'tag'/>
         """
-        if tag in elf.staticTags:
+        if tag in self.staticTags:
             return self.staticTags[tag]
 
         if tag.find(".") != -1:
