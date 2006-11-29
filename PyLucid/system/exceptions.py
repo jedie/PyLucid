@@ -162,7 +162,10 @@ class NoPageExists(PyLucidException):
         self.msg = msg
 
 
-installInfo = (
+
+
+
+INSTALL_INFO = (
     '<p>More info at:'
     ' <a href="http://www.pylucid.org/index.py/InstallAccess/">'
     'PyLucid.org - install access</a></p>'
@@ -175,8 +178,10 @@ class NoInstallLockFile(PyLucidException):
     """
     code = 200
     title = 'Access denied.'
-    msg = '<p>install lock file "install_lock.txt" not found!</p>'
-    msg += installInfo
+
+    def __init__(self):
+        self.msg = '<p>install lock file "install_lock.txt" not found!</p>'
+        self.msg += INSTALL_INFO
 
 class WrongInstallLockCode(PyLucidException):
     """
@@ -186,7 +191,10 @@ class WrongInstallLockCode(PyLucidException):
     title = 'Access denied.'
 
     def __init__(self, origErrMsg):
-        self.msg = "<p>%s</p>\n%s" % (origErrMsg, installInfo)
+        self.msg = "<p>%s</p>\n%s" % (origErrMsg, INSTALL_INFO)
+
+
+
 
 
 
