@@ -415,7 +415,6 @@ class pageadmin(PyLucidBaseModule):
         new_page_data = self.get_new_page_data()
         new_page_data["shortcut"]="Newpage"
         self.insert_new_page(new_page_data)
-        print "JAU!"
 
     def get_page_data(self, page_id):
         """
