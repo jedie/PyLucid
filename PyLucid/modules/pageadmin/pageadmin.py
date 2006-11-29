@@ -10,9 +10,11 @@ Alles was mit dem ändern von Inhalten zu tun hat:
 
 __author__ = "Jens Diemer (www.jensdiemer.de)"
 
-__version__="0.4.1"
+__version__="0.5"
 
 __history__="""
+v0.5
+    - Neu: create_first_page()
 v0.4.1
     - def tag_list() nutzt nun self.response.startFreshResponse()
 v0.4
@@ -413,7 +415,8 @@ class pageadmin(PyLucidBaseModule):
         Wird von PyLucid_app.py aufgerufen.
         """
         new_page_data = self.get_new_page_data()
-        new_page_data["shortcut"]="Newpage"
+        new_page_data["shortcut"]   = "Newpage"
+        new_page_data["parent"]     = 0
         self.insert_new_page(new_page_data)
 
     def get_page_data(self, page_id):
