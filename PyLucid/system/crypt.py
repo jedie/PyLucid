@@ -64,10 +64,14 @@ def decrypt(txt, password):
     # Hashwert testen
     try:
         hash_value, txt = txt.split("_", 1)
+    except Exception, e:
+        raise ValueError("hash value split failed (%s)" % e)
+
+    try:
         if hash_value != str(hash(txt)):
             raise ValueError("hash-test incorrect")
-    except:
-        raise ValueError("hash-test failed")
+    except Exception, e:
+        raise ValueError("hash test failed (%s)" % e)
 
     return txt
 
