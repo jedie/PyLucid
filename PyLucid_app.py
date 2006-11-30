@@ -412,7 +412,7 @@ if __name__ == '__main__':
         host = "localhost"
         port = 8080
         print "\n", "="*79
-        print "Starting developer server on: '%s:%s'...\n" % (host, port)
+        print "Starting development server on: '%s:%s'...\n" % (host, port)
 
         # with 'debugged application':
         from colubrid.debug import DebuggedApplication
