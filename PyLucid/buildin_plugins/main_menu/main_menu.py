@@ -107,7 +107,7 @@ class main_menu(PyLucidBaseModule):
         Selbe Funktion ist auch bei sub_menu vorhanden
         """
         where_rules.append(("showlinks",1))
-        if self.session.get("isadmin", False):
+        if not self.session.get("isadmin", False):
             where_rules.append(("permitViewPublic",1))
 
         return where_rules
