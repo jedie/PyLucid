@@ -3,22 +3,23 @@
 
 """
 encryption for userpassword
-"""
 
-__version__ = "v0.0.1"
-
-__history__ = """
-v0.0.1
-    - erste Version
+based on http://www.python-forum.de/viewtopic.php?p=7127#7127
 """
 
 
 
-import md5, random, base64
+import md5, random, base64, bz2
 
 
 # Soll verschlüsselten Daten mit base64 encodiert werden?
 USE_BASE64 = True
+#~ USE_BASE64 = False
+
+# Sollen die zu verschlüsselde Daten komprimiert werden?
+# Info: Macht in kombination mit base64 keinen Sinn, wenn Textdaten vorliegen!
+#~ USE_BZ2 = True
+USE_BZ2 = False
 
 
 def crypten(txt, password):
@@ -45,7 +46,13 @@ def encrypt(txt, password):
     txt=str(txt)
 
     # Hash-Wert hinzufügen
-    txt=str(hash(txt))+"_"+txt
+    checksum = md5.new(txt).digest()
+    txt = checksum + txt
+
+    if USE_BZ2:
+        #~ print len(txt), txt
+        txt = bz2.compress(txt, 9)
+        #~ print len(txt), txt
 
     txt = crypten(txt, password)
 
@@ -61,17 +68,23 @@ def decrypt(txt, password):
 
     txt = crypten(txt, password)
 
+    if USE_BZ2:
+        txt = bz2.decompress(txt)
+
     # Hashwert testen
     try:
-        hash_value, txt = txt.split("_", 1)
+        checksum = txt[:16]
+        txt = txt[16:]
     except Exception, e:
-        raise ValueError("hash value split failed (%s)" % e)
+        raise ValueError("checksum split failed (%s)" % e)
 
     try:
-        if hash_value != str(hash(txt)):
-            raise ValueError("hash-test incorrect")
+        hast_test = checksum == md5.new(txt).digest()
     except Exception, e:
-        raise ValueError("hash test failed (%s)" % e)
+        raise ValueError("checksum test failed (%s)" % e)
+    else:
+        if hast_test != True:
+            raise ValueError("checksum incorrect")
 
     return txt
 
@@ -92,6 +105,7 @@ if __name__=="__main__":
 
     encryptedString = encrypt(asciitest, password)
     print "encryptedString:",encryptedString
+    print "encryptedString len:", len(encryptedString)
 
     if decrypt(encryptedString, password) == asciitest:
         print "Test OK!"
@@ -116,6 +130,7 @@ if __name__=="__main__":
     teststring = "Das Modul funktioniert wohl! :) time:" + str(time.time())
     encryptedString = encrypt(teststring, password)
     print "encryptedString:",encryptedString
+    print "encryptedString len:", len(encryptedString)
     print "decrypteddtring:",decrypt(encryptedString, password)
 
 
