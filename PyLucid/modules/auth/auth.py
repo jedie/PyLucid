@@ -139,7 +139,7 @@ class auth(PyLucidBaseModule):
         # Soll beim commit aktualisiert werden:
         self.session.state = "update session"
 
-        if debug:
+        if self.preferences["ModuleManager_error_handling"] == False:
             msg = "<p>%s</p><p>Debug: %s</p>" % (public_msg, log_msg)
         else:
             msg = "<p>%s</p>" % public_msg
