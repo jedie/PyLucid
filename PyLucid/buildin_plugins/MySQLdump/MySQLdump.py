@@ -4,57 +4,22 @@
 """
 Erzeugt einen Download des MySQL Dumps
 http://dev.mysql.com/doc/mysql/de/mysqldump.html
+
+Last commit info:
+----------------------------------
+LastChangedDate: $LastChangedDate$
+Revision.......: $Rev$
+Author.........: $Author$
+date...........: $Date$
 """
 
-__version__="0.4.3"
+__version__ = "$Rev$"
 
-__history__="""
-v0.4.3
-    - better mysqldump parameter handle
-    - "default-character-set" is optional now
-v0.4.2
-    - Bugfixes, now it realy works under Windows too
-v0.4.1
-    - Nutzt nun response.startFileResponse() (s. sendFile()-Methode)
-v0.4
-    - Anpassung an PyLucid v0.7
-v0.3.2
-    - Quick hack to display mysql version informations
-v0.3.1
-    - Bugfix: options kann nun auch leer sein
-v0.3
-    - Anpassung an neuen ModuleManager, auslagern der Config.
-v0.2.2
-    - Nutzt die module_manager Einstelung "sys_exit", damit der Dumpdownload
-        richtig beendet wird
-    - In additional_dump_info ist in sys.version ein \n Zeichen, welches nun
-        rausfliegt.
-v0.2.1
-    - Anpassung an self.db.print_internal_page()
-v0.2.0
-    - HTML-Ausgaben nun über interne Seite
-v0.1.2
-    - Umbenennung in MySQLdump, weil's ja nur für MySQL geht...
-    - NEU: Nun kann man auch den Pfad zu mysqldump angeben.
-        Standard ist "." (aktuelles Verzeichnis) damit wird mysqldump im Pfad
-        gesucht. Das klappt nun auch unter Windows
-v0.1.1
-    - NEU: Man kann nun genau auswählen was von welcher Tabelle man haben will
-v0.1.0
-    - Anpassung an Module-Manager
-    - Umau an einigen Stellen
-v0.0.4
-    - Es ist nun möglich kein "--compatible=" Parameter zu benutzen
-        (wichtig bei MySQL server <v4.1.0)
-v0.0.3
-    - Module-Manager Angabe "direct_out" hinzugefügt, damit der Download des
-      Dumps auch funktioniert.
-v0.0.2
-    - Großer Umbau: Anderes Menü, anderer Aufruf von mysqldump, Möglichkeiten
-        Dump-Parameter anzugeben
-v0.0.1
-    - Erste Version
-"""
+__author__  = "Jens Diemer (www.jensdiemer.de)"
+__license__ = """GNU General Public License v2 or above -
+ http://www.opensource.org/licenses/gpl-license.php"""
+__url__     = "http://www.PyLucid.org"
+
 
 __todo__ = """
     Using jinja!!!
@@ -176,11 +141,15 @@ class MySQLdump(PyLucidBaseModule):
             return "[ERROR: No 'PATH' in environ!]"
 
         path = os.environ["PATH"]
-        if path.find(";")!=-1:
-            # Unter Windows wird mit : getrennt
-            path = path.replace(";", ":")
+        if ";" in path:
+            # Unter Windows wird mit ; getrennt
+            path_list = path.split(";")
+            path_list = [d.strip('"') for d in path_list]
+        else:
+            # Linux
+            path_list = path.split(":")
 
-        path_list = path.split(":")
+        #~ self.page_msg("path_list:", path_list)
 
         for test_path in path_list:
             if os.path.isfile(os.path.join(test_path, self.mysqldump_name)):
