@@ -408,8 +408,15 @@ class module_manager:
         "RunModuleError"-Exception mit einer passenden Fehlermeldung.
         """
         #~ if debug: self.page_msg("method_arguments:", method_arguments)
-        #~ try:
-        self.plugin_data.setup_module(self.module_name, self.method_name)
+        try:
+            self.plugin_data.setup_module(self.module_name, self.method_name)
+        except Exception, e:
+            raise RunModuleError(
+                "[setup module '%s.%s' unknown Error: %s]" % (
+                    self.module_name, self.method_name, e
+                )
+            )
+
         #~ except KeyError:
             #~ raise RunModuleError(
                 #~ "[module name '%s' unknown (method: %s)]" % (self.module_name, self.method_name)
