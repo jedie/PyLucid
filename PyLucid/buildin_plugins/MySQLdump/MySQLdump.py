@@ -141,14 +141,9 @@ class MySQLdump(PyLucidBaseModule):
             return "[ERROR: No 'PATH' in environ!]"
 
         path = os.environ["PATH"]
-        if ";" in path:
-            # Unter Windows wird mit ; getrennt
-            path_list = path.split(";")
-            path_list = [d.strip('"') for d in path_list]
-        else:
-            # Linux
-            path_list = path.split(":")
+        path_list = path.split(os.pathsep)
 
+        path_list = [d.strip('"') for d in path_list] # Windows
         #~ self.page_msg("path_list:", path_list)
 
         for test_path in path_list:
