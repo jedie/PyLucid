@@ -350,6 +350,13 @@ class PyLucidApp(BaseApplication):
         if debug:
             self.response.debug()
 
+        try:
+            self.db.close()
+        except Exception, e:
+            self.page_msg.red("WARNING: Can't disconnect from DB: %s" % e)
+        #~ else:
+            #~ self.page_msg.green("DB disconnect ok")
+
         return self.response
 
 
