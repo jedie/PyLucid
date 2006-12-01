@@ -113,7 +113,15 @@ class log:
                 }
             )
         except Exception, e:
-            self.page_msg("Can't write to SQL log table: %s" % e)
+            self.page_msg.red("Can't write to SQL log table: %s" % e)
+            try:
+                self.db.rollback()
+            except Exception, e:
+                self.page_msg.red("Can't make DB rollback: %s" % e)
+            else:
+                self.page_msg.green("make db rollback, OK")
+        else:
+            self.db.commit()
 
     def delete_old_logs(self):
         "Löscht veraltete Log-Einträge in der DB"
@@ -123,8 +131,18 @@ class log:
 
         current_timeout = time.time() - enty_timeout_sec
 
-        self.db.cursor.execute(SQLcommand, (current_timeout,))
-        self.db.commit()
+        try:
+            self.db.cursor.execute(SQLcommand, (current_timeout,))
+        except Exception, e:
+            self.page_msg.red("Can't delete old logs: %s" % e)
+            try:
+                self.db.rollback()
+            except Exception, e:
+                self.page_msg.red("Can't make DB rollback: %s" % e)
+            else:
+                self.page_msg.green("make db rollback, OK")
+        else:
+            self.db.commit()
 
     #_________________________________________________________________________
     ## Log-Datei lesen
