@@ -6,25 +6,30 @@ http://www.pylucid.org
 http://www.sourceforge.net/projects/pylucid/
 
 trac SourceCode Browser:
-https://opensvn.csie.org/traccgi/PyLucid/browser/branches/0.7
+For version 0.7 visit:
+https://pylucid.net/trac/browser/branches/0.7?order=name
+
+For the development version visit:
+https://pylucid.net/trac/browser/trunk?order=name
 
 
 -= DE =-
 
 PyLucid ist ein leichtgewichtiges, OpenSource ( GPL 2.x oder neuer ) Content
-Management System ( CMS ). Es ist in Python CGI geschrieben. Man kann fast
-alle Ausgaben individuell gestalten. Es ist kein Shell-Account nötig. Zum
+Management System ( CMS ). Es ist in Python geschrieben. Man kann fast
+alle Ausgaben individuell gestalten. Es ist kein Shell-Account nï¿½tig. Zum
 Betrieb ist lediglich ein Standard Webserver mit Python (min. v2.2.1) CGI und
-MySQL nötig. Das Python ModulmySQLdb ist i.d.R. bei jedem WebHoster
+MySQL nï¿½tig. Das Python Modul MySQLdb ist i.d.R. bei jedem WebHoster
 vorinstalliert.
 
 
 -= EN =-
 
 PyLucid is a lightweight, OpenSource ( GPL 2.x or newer ) content management
-system ( CMS ) written in pure Python CGI. Nearly all output can be
-customized. No shell account is needed. To run PyLucid you need a standard
-Webserver with Python (at least v2.2.1) CGI and MySQL ( mySQLdb ).
+system ( CMS ) written in pure Python. Nearly all output can be
+customized. To run PyLucid you need a standard
+Webserver with Python (at least v2.2.1) CGI and MySQL ( mySQLdb ). A shell account
+isn't necessary
 
 
 
