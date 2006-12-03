@@ -3,7 +3,7 @@
     <pre>{% debug %}</pre>
 *}
 
-<form class="internalpage" name="edit_page" method="post" action="{{ url }}">
+<form class="internalpage" name="edit_page" method="post" action="{{ url_action }}">
   <p>Page <strong>"{{ name }}"</strong>:<br \>
     <textarea id="page_content" name="content" rows="25" onchange="page_content_changed=1;">{{ content }}</textarea>
   </p>
@@ -18,11 +18,11 @@
     <input value="save" name="save" type="submit">
     <input value="preview" name="preview" type="submit">
 
-    <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="abort" type="reset">
+    <input onclick="self.location.href='{{ url_abort }}'" name="abort" value="abort" type="reset">
     |||
     <a href="http://www.pylucid.org/index.py/TinyTextileHelp/" onclick="OpenInWindow(this.href); return false">tinyTextile Help</a>
     |||
-    <a href="{{ list_url }}" onclick="OpenInWindow(this.href); return false" title="Liste available PyLucid tags and functions">tags/functions</a>
+    <a href="{{ url_taglist }}" onclick="OpenInWindow(this.href); return false" title="Liste available PyLucid tags and functions">tags/functions</a>
 </p>
    <label class="left" for="trivial">trivial modifications:</label>
    <input class="right" id="trivial" name="trivial" value="1" type="checkbox" {% if trivial %}checked="checked"{% endif %}>
