@@ -44,6 +44,8 @@ def encrypt(txt, password, use_base64=True, use_bz2=False):
     use_base64  - verschlüsselter String wird mit base64 encodiert
     use_bz2     - die Daten werden mit bz2 komprimiert
     """
+    # ''txt'' in utf-8 umwandeln --> BugFix (http://pylucid.net/trac/ticket/52)
+    txt = txt.encode('utf-8')
     # Hash-Wert hinzufügen
     checksum = md5.new(txt).digest()
     #~ print "encrypt checksum:", checksum
