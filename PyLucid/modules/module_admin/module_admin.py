@@ -653,11 +653,8 @@ class Module(object):
             version = __import__(
                 packagePath, {}, {}, [self.name]
             ).__version__
-        except ImportError, e:
-            msg = "Can't import __version__ from Module '%s' (Error: %s)" % (
-                packagePath, e
-            )
-            raise ImportError, msg
+        except (ImportError, AttributeError):
+            version = "[no __version__ set in Module %s]" % packagePath
 
         return version
 
