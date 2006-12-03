@@ -5,6 +5,13 @@
 encryption for userpassword
 
 based on http://www.python-forum.de/viewtopic.php?p=7127#7127
+
+Created by Jens Diemer
+Modified by Christopher Grebs
+
+
+ToDo:
+    Better handling unicode and not unicode data
 """
 
 
@@ -12,6 +19,8 @@ based on http://www.python-forum.de/viewtopic.php?p=7127#7127
 import md5, random, base64, bz2, time
 
 
+
+CHARSET = "utf-8"
 
 
 
@@ -45,7 +54,11 @@ def encrypt(txt, password, use_base64=True, use_bz2=False):
     use_bz2     - die Daten werden mit bz2 komprimiert
     """
     # ''txt'' in utf-8 umwandeln --> BugFix (http://pylucid.net/trac/ticket/52)
-    txt = txt.encode('utf-8')
+    if isinstance(txt, unicode):
+        txt = txt.encode(CHARSET)
+    if isinstance(password, unicode):
+        password = password.encode(CHARSET)
+
     # Hash-Wert hinzufügen
     checksum = md5.new(txt).digest()
     #~ print "encrypt checksum:", checksum
