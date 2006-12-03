@@ -1,41 +1,15 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# by jensdiemer.de (steht unter GPL-License)
-
 """
 <lucidTag:back_links/>
 Generiert eine horizontale zurück-Linkleiste
 
-Einzubinden über lucid-IncludeRemote-Tag:
-<p id=Backlinks>
-<lucidFunction:IncludeRemote>/cgi-bin/PyLucid/BackLinks.py?page_name=<lucidTag:page_name/></lucidFunction>
-</p>
+Created by Jens Diemer
+
+GPL-License
 """
 
-__version__="0.0.8"
-
-__history__="""
-v0.0.8
-    - Anpassung an neuen ModuleManager
-    - Links werden richtig gequotet.
-v0.0.7
-    - Index-Link war falsch
-v0.0.6
-    - Tag <lucidTag:back_links/> über Modul-Manager
-v0.0.5
-    - Fast ganz neu geschrieben, durch Seiten-Addressierungs-Umstellung
-v0.0.4
-    - Anpassung an index.py (Rendern der CMS-Seiten mit Python'CGIs)
-    - Umstellung: Neue Handhabung der CGI-Daten
-    - SQL-Connection wird nun auch beendet
-v0.0.3
-    - Links werden statt mit print mit sys.stdout.write() geschrieben, damit kein Zeilenumbruch vorkommt
-v0.0.2
-    - Anpassung an neuer SQL.py Version
-v0.0.1
-    - erste Version
-"""
 
 
 import cgitb;cgitb.enable()
@@ -78,8 +52,12 @@ class back_links(PyLucidBaseModule):
             # Keine Unterseite vorhanden -> keine back-Links ;)
             return self.indexlink
 
-        # Link-Daten aus der DB hohlen
-        data = self.backlink_data( parent_id )
+        try:
+            # Link-Daten aus der DB hohlen
+            data = self.backlink_data( parent_id )
+        except IndexError, e:
+            self.response.write("[back links error: %s]" % e)
+            return
 
         self.make_links( data )
 
