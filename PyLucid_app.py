@@ -1,12 +1,23 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# copyleft: jensdiemer.de (GPL v2 or above)
+"""
+PyLucid - WSGI app
 
-__author__  = "Jens Diemer (www.jensdiemer.de)"
-__license__ = """GNU General Public License v2 or above -
- http://www.opensource.org/licenses/gpl-license.php"""
-__url__     = "http://www.PyLucid.org"
+Last commit info:
+----------------------------------
+LastChangedDate: $LastChangedDate$
+Revision.......: $Rev$
+Author.........: $Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
+more info at http://www.PyLucid.org
+"""
 
 __version__ = "0.7.1beta"
 __info__ = """<a href="%s" title="\
