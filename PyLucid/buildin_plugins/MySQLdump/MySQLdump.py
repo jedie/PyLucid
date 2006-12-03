@@ -273,14 +273,22 @@ class MySQLdump(PyLucidBaseModule):
         self.response.write("<h3>Display command only:</h3>")
         self.response.write("<pre>")
         for command in self._get_sql_commands():
-            self.response.write(
-                "%s>%s" % (
-                    mysqldump_path,
-                    command.replace(self.preferences["dbPassword"],"***")
-                )
-            )
+            command = self._cleanup_sql_command(command)
+            self.response.write("%s>%s\n" % (mysqldump_path, command))
         self.response.write("</pre>")
         self.response.write('<a href="JavaScript:history.back();">back</a>')
+
+
+    def _cleanup_sql_command(self, command):
+        """
+        Löschen des Passwortes aus dem Kommando, damit man es in den Dump
+        einbauen kann
+        """
+        if self.preferences["dbPassword"].strip() == "":
+            # Es gibt kein Passwort, was gelöscht werden kann ;)
+            return command
+        else:
+            return command.replace(self.preferences["dbPassword"],"***")
 
 
     def _get_sql_commands( self ):
@@ -302,17 +310,20 @@ class MySQLdump(PyLucidBaseModule):
 
         default_command = (
             "%(fn)s%(cs)s%(cp)s%(op)s"
-            " -u%(u)s -p%(p)s -h%(h)s %(n)s"
+            " -h%(h)s %(n)s -u%(u)s"
         ) % {
             "fn" : self.mysqldump_name,
             "cs" : character_set,
             "cp" : compatible,
             "op" : options,
             "u"  : self.preferences["dbUserName"],
-            "p"  : self.preferences["dbPassword"],
             "h"  : self.preferences["dbHost"],
             "n"  : self.preferences["dbDatabaseName"],
         }
+
+        if self.preferences["dbPassword"].strip() != "":
+            # Es gibt ein Passwort
+            default_command += " -p%s" % self.preferences["dbPassword"]
 
         tablenames = self.db.get_tables()
         structure_tables = []
@@ -431,9 +442,8 @@ class MySQLdump(PyLucidBaseModule):
         txt += "-- command list:\n"
         command_list = self._get_sql_commands()
         for cmd in command_list:
-            txt += (
-                "-- %s\n"
-            ) % cmd.replace(self.preferences["dbPassword"],"***")
+            cmd = self._cleanup_sql_command(cmd)
+            txt += "-- %s\n" % cmd
 
         txt += "--\n"
         txt += "-- This file should be encoded in utf8 !\n"
