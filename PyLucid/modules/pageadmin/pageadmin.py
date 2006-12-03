@@ -175,6 +175,12 @@ class pageadmin(PyLucidBaseModule):
         for key in escape_keys:
             context[key] = cgi.escape(context[key])
 
+        if isinstance(context["markup"], basestring):
+            # Sollte eigentlich die ID des Markups sein!
+            markup_id = self.db.get_markup_id(context["markup"])
+            context["markup"] = markup_id
+
+
         int_keys = (
             "markup", "ownerID", "page_id", "parent",
             "permitEditGroupID", "permitViewGroupID",
