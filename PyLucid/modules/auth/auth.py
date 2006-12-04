@@ -3,44 +3,21 @@
 
 """
 Abwicklung von Login/Logout
+
+Last commit info:
+----------------------------------
+LastChangedDate: $LastChangedDate:$
+Revision.......: $Rev:$
+Author.........: $Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
-__version__ = "0.2.2"
-
-__history__ = """
-v0.2.2
-    - Nutzt raise-Fehlerseite
-v0.2.1
-    - Login-Fehler-Bug behoben
-v0.2
-    - Security-Fix: Die Zufallszahl zur MD5 Bildung, wird nun in den
-        Sessiondaten in der Datenbank zwischengespeichert und nicht mehr aus
-        den zurück geschickten Formulardaten genommen. Somit wird abgesichert,
-        das die Login-Anfrage von einem gleichen Client kommt.
-v0.1.2
-    - Verbesserungen:
-        - Für Rückmeldungen wird nun page_msg benutzt
-        - Nach einem Fehlgeschlagenen Login, wird das login Form mit dem alten
-            Usernamen angezeigt
-v0.1.1
-    - logout benötigt auch "direct_out": True, damit der Cookie auch gelöscht
-        wird ;)
-v0.1.0
-    - Anpassung an neuen Module-Manager
-v0.0.2
-    - time.sleep() bei falschem Login
-    - Fehleranzeige beim Login mit Variable "Debug" veränderbar
-v0.0.1
-    - Umgebaut für den Module-Manager
-    - aus der Klasse PyLucid_system.userhandling rausgenommen
-"""
-
-__todo__ = """
-    -Bug: Direkt nach logout kann man sich nicht neu einloggen (erst beim
-        nächsten Request geht's wieder)
-    -Bann-Liste: Nach drei falschen Loginversuchen, sollte die IP für eine
-        gewisse Zeit gesperrt werden!!!
-"""
+__version__ = "$Rev:$"
 
 
 
@@ -180,7 +157,7 @@ class auth(PyLucidBaseModule):
             test = self.db.select(
                 select_items    = ["id"],
                 from_table      = "md5users",
-                limit           = (1,1),
+                limit           = 1,
             )
             if test == []:
                 # Es existieren überhaupt keine User!
