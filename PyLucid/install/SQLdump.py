@@ -247,8 +247,6 @@ class SQLdump(object):
                 self.response.write("Unicode Error: %s" % e)
                 SQLcommand = unicode(SQLcommand, "utf8", errors="replace")
 
-        print type(SQLcommand)
-
         if debug:
             self.db.cursor.execute(SQLcommand, do_prepare=False)
         else:
@@ -265,11 +263,10 @@ class SQLdump(object):
 
     def dump_data( self ):
         self.response.write("<h2>SQL Dump data:</h2>")
-        print
         self.response.write("<pre>")
         for line in self.data.splitlines():
             self.response.write(cgi.escape(line))
-        print "</pre>"
+        self.response.write("</pre>")
 
 
 
