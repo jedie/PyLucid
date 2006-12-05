@@ -45,12 +45,10 @@ import os
 
 config = {
     ## Database connection settings
-    # sqlite not supported yet!
-    "dbTyp"             : "MySQLdb", # "sqlite"
+    "dbTyp"             : "MySQLdb", # Only MySQL supported yet!
 
     # Instead of 'localhost' you must possibly use the domain name or IP
     "dbHost"            : 'localhost',
-    #~ "dbHost"            : '192.168.6.2',
 
     "dbDatabaseName"    : 'DatabaseName',
     "dbUserName"        : 'UserName',
@@ -105,7 +103,7 @@ config = {
     # Wird gesetzt sobald es erforderlich ist.
     # Ist die ID der Usergruppe "PyLucid_internal"
     # Damit sind die Internen Seiten in der DB makiert
-    # Keine änderung nötig
+    # Keine Änderung nötig
     "internal_group_id" : -1,
 
     # Important URL prefix for special sections:
