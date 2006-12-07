@@ -6,9 +6,9 @@ PyLucid - WSGI app
 
 Last commit info:
 ----------------------------------
-LastChangedDate: $LastChangedDate$
-Revision.......: $Rev$
-Author.........: $Author$
+$LastChangedDate$
+$Rev$
+$Author$
 
 Created by Jens Diemer
 

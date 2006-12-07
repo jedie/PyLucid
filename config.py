@@ -1,28 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-__version__="0.0.6"
-
-__history__="""
-v0.0.6
-    - Obsolete: "available_markups" wird unnötig, weil es in der Tabelle
-        'markups' steht.
-v0.0.5
-    - Änderung: Pfade müßen nun nicht mehr per Hand eingetragen werden!
-v0.0.4
-    - NEU: mod_rewrite_user_agents
-    - Änderung: page_ident muß in jedem Fall gesetzt werden
-v0.0.3
-    - NEU: system.robots_tag
-    - NEU: system.ModuleManager_error_handling
-    - NEU: system.mod_rewrite_filter
-v0.0.2
-    - Kleine if-Abfrage nach dbconf ermöglicht das dynamische Modifizieren
-        der db-Daten, damit ein lokaler Test einfacher ist.
-v0.0.1
-    - erste Version
-"""
-
 """configuration
 
  dbconf
@@ -36,12 +14,26 @@ kann, wird hierbei schon mal die Werte für den SQL-Connect hinterlegt.
 -------------
 Hier werden von preferences.py Einstellungen von
 der Tabelle preferences gespeichert.
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author: jensdiemer $
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
+__version__= "$Rev:$"
 
-import os
 
-# request als Objekt, wird hier rein gepflanzt
+
 
 config = {
     ## Database connection settings
@@ -62,15 +54,6 @@ config = {
     "dbKeyWordsArgs" : {
         #~ "unix_socket": "/usr/local/pd-admin2/var/mysql.run/mysql.sock",
     },
-
-    # Encoding between SQL-Server and PyLucid
-    #   - only supported with MySQL-Server >=v4.1 with <v4.1 sould be 'None'!
-    #   - if it 'None', then PyLucid use the Server default encondig
-    "db_encoding"       : "utf8",
-    #~ "db_encoding"       : None,
-
-    # Only for testing! (MySQL can't use utf_16_be)
-    #~ "db_encoding"       : "utf_16_be",
 
     "dbDatetimeFormat" : '%Y-%m-%d %H:%M:%S', # SQL-Datetime-String-Format
 

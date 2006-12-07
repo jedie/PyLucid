@@ -3,14 +3,18 @@
 
 """
 SQL_dump Klasse zum "verwalten" des SQL-install-Dumps
+
+$LastChangedDate:$
+$Rev:$
+$Author: jensdiemer $
 """
 
 
 install_zipfileName = "PyLucid/PyLucid_SQL_install_data.zip"
 
 
-debug = True
-#~ debug = False
+#~ debug = True
+debug = False
 
 
 import os, sys, cgi, time, zipfile
@@ -232,20 +236,11 @@ class SQLdump(object):
         SQLcommand = SQLcommand.replace("$$", self.db.tableprefix)
 
         if self.simulation:
-            SQLcommand = str(SQLcommand) # Unicode wandeln
-
-            SQLcommand = SQLcommand.encode("String_Escape")
+            SQLcommand = repr(SQLcommand)
 
             SQLcommand = cgi.escape(SQLcommand)
             self.response.write("%s\n" % SQLcommand)
             return
-
-        if isinstance(SQLcommand, str):
-            try:
-                SQLcommand = unicode(SQLcommand, "utf8")
-            except UnicodeDecodeError, e:
-                self.response.write("Unicode Error: %s" % e)
-                SQLcommand = unicode(SQLcommand, "utf8", errors="replace")
 
         if debug:
             self.db.cursor.execute(SQLcommand, do_prepare=False)
@@ -254,7 +249,7 @@ class SQLdump(object):
                 self.db.cursor.execute(SQLcommand, do_prepare=False)
             except Exception, e:
                 self.response.write(
-                    "Error: '%s' in SQL-command:" % cgi.escape(str(e))
+                    "Error: '%s' in SQL-command!" % cgi.escape(str(e))
                 )
                 return False
         return True
