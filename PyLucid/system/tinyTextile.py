@@ -3,75 +3,34 @@
 
 """
 Eine kleine Version vom textile Parser
-(stehen unter der GPL-License)
-by jensdiemer.de
 
-http://pylucid.org/index.py?p=/Doku/details/Markup
+http://www.pylucid.org/index.py/Markup/
 
 Links
 -----
 http://dealmeida.net/en/Projects/PyTextile/
 http://www.solarorange.com/projects/textile/mtmanual_textile2.html
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__author__ = "Jens Diemer (www.jensdiemer.de)"
-
-__version__="0.4"
-
-__history__="""
-v0.4
-    - Neu: <code=css>...</code> - Nutzt nun pykleur (LGPL) :)
-        http://trac.pocoo.org/wiki/PyKleur
-v0.3
-    - NEU: shortcut Link - Bsp.: [[ShortCut]]
-v0.2.5
-    - Bugfix beim Handle von <pre>-Areas
-v0.2.4
-    - Bilder-Links dürfen nun keine Leerzeichen enthalten, damit mehrere
-        Fragezeichen nicht irrümlich zu einem Link werden! Wie hier!
-v0.2.3
-    - Bug 1328496: Fehler im inline-Python-Highlighter. Nun wird Python-Source
-        als kompletter Block durch den Highlighter gejagt.
-v0.2.2
-    - *Fettschrift* nun auch bei *Teilen mit Leerzeichen* erlaubt, aber nicht
-        über mehrere Zeilen
-    - Durch bessere Erkennung des Ende einer URL sind kombination möglich mit
-        <small> möglich
-        Bsp.: --"text":http://wow.de-- oder --http://www.heise.de--
-v0.2.1
-    - Codeerzeugung bei Listen etwas verbessert (newline eingefügt)
-v0.2.0
-    - NEU: area_rules, die jetzt das direkte einbinden von Python-Code mit
-        PyLucid_system.sourcecode_parser ermöglichen
-    - Verbesserung bei dem <small>-Tag erkennung.
-    - Detailverbesserungen einiger Regeln
-v0.1.7
-    - Bug Erkennung ob der Block schon HTML ist, war nicht ganz richtig. Hab
-        es nun vereinfacht
-v0.1.6
-    - neu: auch nummerierte Listen: <ol>...</ol>
-v0.1.5
-    - neu: interner PyLucid Link mit [[SeitenName]]
-    - neu: small Text: --klein-- -> <small>klein</small>
-v0.1.4
-    - neu: img-Tag wird durch !/MeinBild.jpg! erzeugt
-    - dank Joe, neue RE Regeln für das trennen einer Liste vom Text
-v0.1.3
-    - Im Pre-Process wird eine Liste direkt nach einem Text getrennt
-v0.1.2
-    - Fehler in generierung von Listen behoben
-v0.1.1
-    - Links werden nun richtig umgesetz: Dank an BlackJack
-v0.1.0
-    - erste Version
-"""
+__version__= "$Rev:$"
 
 __todo__ = """
 """
 
 import sys, re, cgi
-
-SourceCodeParser = "/cgi-bin/PyLucid/system/SourceCode.py"
 
 
 
@@ -98,6 +57,10 @@ class parser:
 
         # Regeln für Inlineelemente
         self.inline_rules = self._compile_rules([
+            [ # HTML-Escaping
+                r"={2,2}(.+?)={2,2}(?usm)",
+                self.escaping
+            ],
             [ # Kleiner Text - Bsp.: Ich bin ein --kleines-- Wort.
                 r"-{2,2}([^-]+?)-{2,2}",
                 r"<small>\1</small>"
@@ -141,10 +104,6 @@ class parser:
                 # Windows "\r\n" oder MacOS "\r" -->> "\n"
                 r"\r\n{0,1}",
                 r"\n"
-            ],
-            [ # HTML-Escaping
-                r"={2,2}(.+?)={2,2}(?usm)",
-                self.escaping
             ],
             [ # Text vor einer Liste mit noch einem \n trennen
                 r"""
@@ -196,10 +155,10 @@ class parser:
     def parse(self, txt):
         "Parsed den Text in's out_obj"
 
-        #~ import cgi
         #~ self.page_msg(cgi.escape(txt))
 
         txt = self.pre_process(txt)
+        #~ self.page_msg(cgi.escape(txt))
         self.make_paragraphs(txt)
 
     def escaping(self, matchobj):
@@ -219,7 +178,10 @@ class parser:
 
         # Preprocess rules anwenden
         for rule in self.pre_process_rules:
+            #~ self.page_msg(rule)
+            #~ self.page_msg(txt)
             txt = rule[0].sub(rule[1], txt)
+            #~ self.page_msg(txt)
         return txt
 
     def make_paragraphs(self, txt):
