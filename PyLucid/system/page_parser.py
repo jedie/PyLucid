@@ -82,16 +82,16 @@ class render(object):
             #~ self.page_msg("Debug: use textile")
             # textile Markup anwenden
             if self.preferences["ModuleManager_error_handling"] == True:
-                try:
-                    from PyLucid.system import tinyTextile
-                    out = self.tools.out_buffer()
-                    t = tinyTextile.parser(out, self.request, self.response)
-                    t.parse(content)
-                    return out.get()
-                except Exception, e:
-                    msg = "Can't use textile-Markup (%s)" % e
-                    self.page_msg(msg)
-                    return msg
+                #~ try:
+                from PyLucid.system import tinyTextile
+                out = self.tools.out_buffer()
+                t = tinyTextile.parser(out, self.request, self.response)
+                t.parse(content)
+                return out.get()
+                #~ except Exception, e:
+                    #~ msg = "Can't use textile-Markup (%s)" % e
+                    #~ self.page_msg(msg)
+                    #~ return msg
             else:
                 from PyLucid.system import tinyTextile
                 out = self.tools.out_buffer()
@@ -117,13 +117,6 @@ class render(object):
             ext..: Typische Dateiendung (Bsp.: py, css, html)
             code.: der Sourcecode als String
         """
-        #~ print code, type(code)
-
-        #~ if isinstance(code, unicode):
-            #~ code = code.encode("utf8")
-
-        print code, type(code)
-
         ext = ext.lower()
         if out_object == None:
             out_object = self.response
