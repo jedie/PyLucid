@@ -3,36 +3,24 @@
 
 """
 Verschiedene Tools für den Umgang mit PyLucid
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.3"
+__version__= "$Rev:$"
 
-__history__ = """
-v0.3
-    - neu: StringIOzipper
-v0.2.1
-    - html_option_maker.build_from_list hat nun den zusätzlichen Parameter
-        "select_value", damit kann entweder "value" oder "txt" für
-        selected-Item herrangezogen werden. (s. Beispiel)
-v0.2
-    - NEU: Find_StringOperators
-v0.1
-    - NEU: make_table_from_sql_select()
-v0.0.6
-    - subprocess2(): Feststellen des self.killed (Ob der Timeout erreicht
-        wurde) über den vergleich der Ausführungszeit mit der Timeout-Zeit
-v0.0.5
-    - Änderungen an subprocess2(): zusätzliche Exception's abgefangen
-    - out_buffer() fügt kein sep mehr ein
-v0.0.4
-    - NEU: out_buffer()
-v0.0.3
-    - Komplettumbau
-v0.0.2
-    - einbindung der preferences
-v0.0.1
-    - erste Version
-"""
 
 import os, sys, cgi, time, re, htmlentitydefs, threading, signal
 
@@ -414,12 +402,12 @@ class html_option_maker:
 #_____________________________________________________________________________
 
 
-class out_buffer:
+class out_buffer(object):
     """
     Hilfsklasse um Ausgaben erst zwischen zu speichern und dann gesammelt zu erhalten
     """
     def __init__( self ):
-        self.data = ""
+        self.data = []
         self.sep = "\n"
 
     def set_sep( self, sep ):
@@ -427,15 +415,19 @@ class out_buffer:
 
     def write( self, *txt ):
         for i in txt:
-            if not isinstance(i, basestring):
-                i = unicode(i)
-            self.data += i
+            if isinstance(i, str):
+                try:
+                    i = unicode(i, encoding="utf-8")
+                except UnicodeError, e:
+                    response.page_msg.red("UnicodeError:", e)
+                    i = unicode(i, encoding="utf-8", errors="replace")
+            self.data.append(i)
 
     def __call__( self, *txt ):
         self.write( *txt )
 
     def get( self ):
-        return self.data
+        return "".join(self.data)
 
     def flush( self ):
         return

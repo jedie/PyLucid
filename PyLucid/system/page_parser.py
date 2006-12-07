@@ -5,35 +5,23 @@
 
 """
 -Parsen der Seite und wendet das Markup an.
--Schnittstelle zu PyKleur
+-Schnittstelle zu Pygments
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.2.2"
-
-__history__="""
-v0.2.2
-    - PyKleur was renamed to pygments
-v0.2.1
-    - Quick Hack for Python 2.2
-v0.2
-    - Neu: highlight() - Schnittstelle zu PyKleur
-v0.1.4
-    - apply_markup kommt mit markup id oder richtigen namen klar
-v0.1.3
-    - textile Parser erhält nun auch die PyLucid-Objekt. page_msg ist
-        hilfreich zum debuggen des Parsers ;)
-v0.1.2
-    - Bug 1297263:
-        "Can't use textile-Markup (maximum recursion limit exceeded)":
-        Nun wird zuerst das Markup angewendet und dann erst die lucidTag's
-        aufgelöst
-v0.1.1
-    - parser.handle_function(): toleranter wenn kein String vom Modul zurück
-        kommt
-    - Versionsnummer geändert
-v0.1.0
-    - Erste Version: Komplett neugeschrieben. Nachfolge vom pagerender.py
-"""
+__version__= "$Rev:$"
 
 __todo__ = """
 in apply_markup sollte nur noch mit markup IDs erwartet werden. Solange aber
@@ -129,6 +117,13 @@ class render(object):
             ext..: Typische Dateiendung (Bsp.: py, css, html)
             code.: der Sourcecode als String
         """
+        #~ print code, type(code)
+
+        #~ if isinstance(code, unicode):
+            #~ code = code.encode("utf8")
+
+        print code, type(code)
+
         ext = ext.lower()
         if out_object == None:
             out_object = self.response
@@ -157,6 +152,8 @@ class render(object):
             out_object.write("</pre>")
             out_object.write(html_fieldset[1])
 
+        #~ fallback_write(code, "DEBUG!!")
+        #~ return
 
         try:
             #~ raise ImportError("TEST")
@@ -186,7 +183,9 @@ class render(object):
 
         try:
             #~ raise Exception("TEST")
-            formatter = pygments.formatters.HtmlFormatter(linenos=True)
+            formatter = pygments.formatters.HtmlFormatter(
+                linenos=True, encoding="utf-8"
+            )
             pygments.highlight(code, lexer, formatter, out_object)
         except Exception, e:
             self.page_msg("Pygments Error: %s" % e)
