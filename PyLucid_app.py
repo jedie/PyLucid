@@ -19,7 +19,7 @@ license:
 more info at http://www.PyLucid.org
 """
 
-__version__ = "0.7.1beta"
+__version__ = "0.7.1"
 __info__ = """<a href="http://www.PyLucid.org" title="\
 PyLucid - A OpenSource CMS in pure Python CGI by Jens Diemer">PyLucid</a> \
 v%s""" % __version__
