@@ -6,8 +6,16 @@ config Middelware
 """
 
 from PyLucid.system.exceptions import *
+from PyLucid.system.exceptions_LowLevel import CGI_Error
 
-import config # PyLucid Grundconfiguration aus "./config.py"
+try:
+    import config # PyLucid Grundconfiguration aus "./config.py"
+except ImportError, e:
+    txt = (
+        "No config.py exists. You must copy config-example.py to config.py and"
+        " edit the database settings."
+    )
+    raise CGI_Error(e, txt)
 
 
 class configMiddleware(object):
