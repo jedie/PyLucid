@@ -6,8 +6,8 @@ Abwicklung von Login/Logout
 
 Last commit info:
 ----------------------------------
-LastChangedDate: $LastChangedDate:$
-Revision.......: $Rev:$
+LastChangedDate: $LastChangedDate$
+Revision.......: $Rev$
 Author.........: $Author$
 
 Created by Jens Diemer
@@ -17,7 +17,7 @@ license:
     http://www.opensource.org/licenses/gpl-license.php
 """
 
-__version__ = "$Rev:$"
+__version__ = "$Rev$"
 
 
 
@@ -31,8 +31,6 @@ from Cookie import SimpleCookie
 
 # eigene Module -> DoTo -> crypt irgendwie anders hinterlegen!
 from PyLucid.system import crypt
-
-from PyLucid.system.exceptions import LogInError
 
 
 # =True: Login-Fehler sind aussagekräftiger: Sollte allerdings
@@ -75,7 +73,7 @@ class auth(PyLucidBaseModule):
             self.session.debug()
 
         context = {
-            "user"          : str(username), #FIXME Unicode <-> str
+            "user"          : username,
             "rnd"           : rnd_login,
             "url"           : url
         }
@@ -93,18 +91,17 @@ class auth(PyLucidBaseModule):
             form_pass2  = self.request.form["md5pass2"]
         except KeyError, e:
             # Formulardaten nicht vollständig
-            msg = (
-                "<h1>Login Error:</h1>"
-                "<h3>Form data not complete: '%s'</h3>"
-                "<p>Have you enabled JavaScript?</p>"
-                "<p>Did you run 'install_PyLucid.py'?"
-                " Check login form in SQL table 'pages_internal'.</p>"
-            ) % e
-            if debug: msg += "CGI-Keys: " + str(self.request.form.keys())
-            self.response.write(msg)
+            self.page_msg.red("Form data not complete! KeyError: '%s'" % e)
+            if debug:
+                self.page_msg("CGI-Keys: ", self.request.form.keys())
+            self.login() # Login Seite wieder anzeigen
             return
 
-        self.check_md5_login(username, form_pass1, form_pass2)
+        try:
+            self.check_md5_login(username, form_pass1, form_pass2)
+        except LogInError, e:
+            self.page_msg.red(*e.args)
+            self.login() # Login Seite wieder anzeigen
 
 
     def _error(self, log_msg, public_msg):
@@ -117,12 +114,30 @@ class auth(PyLucidBaseModule):
         self.session.state = "update session"
 
         if self.preferences["ModuleManager_error_handling"] == False:
-            msg = "<p>%s</p><p>Debug: %s</p>" % (public_msg, log_msg)
+            msg = "%s - Debug: %s" % (public_msg, log_msg)
         else:
-            msg = "<p>%s</p>" % public_msg
+            msg = public_msg
 
         raise LogInError(msg)
 
+    def exist_one_user_test(self):
+        """
+        Schaut nach ob überhaupt irgendein User existiert.
+        """
+        test = self.db.select(
+            select_items    = ["id"],
+            from_table      = "md5users",
+            limit           = 1,
+        )
+        if test != []:
+            return
+
+        # Es existieren überhaupt keine User!
+        log_msg = public_msg = (
+            "There exist no User!"
+            " Please add a User in the _install section first."
+        )
+        self._error(log_msg, public_msg)
 
     def check_md5_login(self, username, form_pass1, form_pass2):
         """
@@ -151,26 +166,19 @@ class auth(PyLucidBaseModule):
         try:
             # Daten zum User aus der DB holen
             db_userdata = self.db.md5_login_userdata(username)
-        except Exception, e:
+        except KeyError:
             # User exisiert nicht.
-
-            test = self.db.select(
-                select_items    = ["id"],
-                from_table      = "md5users",
-                limit           = 1,
-            )
-            if test == []:
-                # Es existieren überhaupt keine User!
-                log_msg = public_msg = (
-                    "There exist no User!"
-                    " Please add a User in the _install section first."
-                )
-            else:
-                log_msg = "Error: User '%s' unknown %s" % (username,e)
-                public_msg = "User '%s' unknown!" % username
-
+            self.exist_one_user_test()
+            log_msg = "Error: User '%s' unknown %s" % (username,e)
+            public_msg = "User '%s' unknown!" % username
             self._error(log_msg, public_msg)
-            return
+        except Exception, e:
+            # Unbekannter Fehler
+            self.exist_one_user_test()
+            log_msg = "Unknown error: Can't get Userdata: %s" % e
+            public_msg = "User '%s' unknown!" % username
+            self._error(log_msg, public_msg)
+
 
         # Ersten MD5 Summen vergleichen
         if form_pass1 != db_userdata["pass1"]:
@@ -246,4 +254,7 @@ class auth(PyLucidBaseModule):
         self.session["render follow"] = True
 
 
+
+class LogInError(Exception):
+    pass
 
