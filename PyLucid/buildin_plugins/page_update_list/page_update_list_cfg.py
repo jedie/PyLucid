@@ -6,7 +6,7 @@
 
 __author__      = "Jens Diemer"
 __url__         = "http://www.PyLucid.org"
-__description__ = "List of new sides"
+__description__ = "page update list"
 __long_description__ = """
 Generate a list of the last page updates.
 """
@@ -28,5 +28,9 @@ module_manager_data = {
             "template_engine"   : "jinja",
             "markup"            : None
         },
+    },
+    "lucidFunction": {
+        "must_login"    : False,
+        "must_admin"    : False,
     }
 }
