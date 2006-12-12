@@ -5,21 +5,23 @@
 Module Admin
 
 Einrichten/Konfigurieren von Modulen und Plugins
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.3"
-
-__history__="""
-v0.3
-    - Anpassung an PyLucid v0.7
-v0.2
-    - NEU: debug_installed_modules_info() - Für einen besseren Überblick,
-        welche Methoden in der DB registriert sind.
-v0.1.1
-    - NEU: reinit
-v0.1
-    - erste Version
-"""
+__version__= "$Rev:$"
 
 __todo__="""
 Diese aktuelle Version ist Mist! Aber es funktioniert ;(
@@ -636,12 +638,8 @@ class Module(object):
                 packagePath, {}, {}, [self.data["config_name"]]
             )
         except SyntaxError, e:
-            msg = "Can't import %s.%s: %s" % (
-                packagePath, self.data["module_name"], e
-            )
-            raise SyntaxError, msg
+            raise SyntaxError("Can't import %s: %s" % (packagePath, e))
         else:
-            #~ cfg = module_cfg_object
             return module_cfg_object
 
     def _getVersionInfo(self):
@@ -810,6 +808,12 @@ class Modules(object):
 
         self.data = {}
 
+        try:
+            self.isadmin = self.request.session.get("isadmin", False)
+        except AttributeError:
+            # In der install Sektion gibts keine Session
+            self.isadmin = False
+
     def readAllModules(self):
         self._get_from_db()
         self.read_packages()
@@ -873,11 +877,23 @@ class Modules(object):
                 continue
 
             module = os.path.join(itemDir, "%s.py" % item)
-            if os.path.isfile(module):
+            if not os.path.isfile(module):
+                continue
+
+            try:
                 self.addModule(
                     module_name = item,
                     package_dir_list = [package_basedir, package_name, item]
                 )
+            except Exception, e:
+                if self.isadmin:
+                    raise Exception(e)
+                else:
+                    self.page_msg(
+                        "Can't use Module %s.%s - Error: %s" % (
+                            package_basedir, package_name, e
+                        )
+                    )
 
     #_________________________________________________________________________
     # install
