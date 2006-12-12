@@ -7,27 +7,30 @@ Middelware
 Speichert Nachrichten die in der Seite angezeigt werden sollen
 Wird am Ende des Reuqestes durch ein Replace Middleware in die
 Seite eingesetzt.
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-
-__version__="0.3"
-
-__history__="""
-v0.3
-    - self.data ist nun eine Liste und wird per "".join() am Ende verarbeitet
-    - Es gibt nun Farbige ausgaben!
-v0.2
-    - used pprint for dicts and lists
-v0.1
-    - init
-"""
+__version__= "$Rev:$"
 
 __ToDo__ = """
 """
 
 
 
-import cgi, pprint
+import os, cgi, pprint
 
 
 class page_msg_Container(object):
@@ -90,11 +93,11 @@ class page_msg_Container(object):
                 for stack_frame in inspect.stack():
                     # Im stack vorwärts gehen, bis außerhalb dieser Datei
                     filename = stack_frame[1]
-                    if filename.rsplit("/",1)[1] != "page_msg.py":
+                    if os.path.split(filename)[1] != "page_msg.py":
                         lineno = stack_frame[2]
                         break
 
-                filename = "...%s" % filename[-20:]
+                filename = "...%s" % filename[-25:]
                 fileinfo = "%-20s line %3s: " % (filename, lineno)
                 self.data.append(fileinfo.replace(" ","&nbsp;"))
             except Exception, e:
