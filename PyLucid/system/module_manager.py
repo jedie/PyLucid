@@ -309,8 +309,6 @@ class module_manager:
         pathInfo = pathInfo.strip("/")
         pathInfo = pathInfo.split("/")[1:]
 
-        print pathInfo
-
         try:
             self.module_name = pathInfo[1]
             self.method_name = pathInfo[2]
