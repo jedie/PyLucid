@@ -19,7 +19,7 @@ license:
 more info at http://www.PyLucid.org
 """
 
-__version__ = "0.7.1"
+__version__ = "0.7.2beta"
 __info__ = """<a href="http://www.PyLucid.org" title="\
 PyLucid - A OpenSource CMS in pure Python CGI by Jens Diemer">PyLucid</a> \
 v%s""" % __version__
@@ -174,6 +174,7 @@ class PyLucidApp(BaseApplication):
 
         # Speichert Nachrichten die in der Seite angezeigt werden sollen
         self.page_msg = self.response.page_msg = environ['PyLucid.page_msg']
+        self.page_msg.debug_mode = self.preferences["page_msg_debug"]
         #~ self.page_msg("page_msg - NORMAL")
         #~ self.page_msg.red("page_msg - RED")
         #~ self.page_msg.green("page_msg - GREEN")
