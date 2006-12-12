@@ -3,36 +3,24 @@
 
 """
 PyLucid CGI-Session-handler auf Cookie + SQL basis
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__ = "v0.2.1"
+__version__= "$Rev:$"
 
-__history__ = """
-v0.2.1
-    - getfqdn() Bugfix Trac ticket:19
-    - alte DocString gelöscht
-v0.2
-    - NEU: Klasse erbt von dict
-v0.1.1
-    - Umstallung auf neue Art Log-Ausgaben zu machen
-v0.1.0
-    - Großer Umbau: Diese Klasse ist nun nicht mehr allgemein Nutzbar, sondern
-        an PyLucid angepasst, da es die PyLucid-Objekte direkt benutzt.
-    - Umstellung bei den LOG-Ausgaben.
-v0.0.6
-    - Optionales base64 encoding der Sessiondaten
-    - PyLucid's page_msg wird bei debug() genutzt, wenn vorhanden
-v0.0.5
-    - Umstellung auf MySQLdb.cursors.DictCursor
-v0.0.4
-    - NEU: VERBOSE_LOG: damit nicht die Log-Ausgaben zuviele sind ;)
-v0.0.3
-    - __delitem__() hinzugefügt, um Session daten auch wieder löschen zu können
-v0.0.2
-    - Fehlerbereinigt / verschönert
-v0.0.1
-    - erste Version
-"""
 
 import os, sys, md5, time
 from socket import getfqdn
@@ -538,14 +526,10 @@ class sessionhandler(dict):
 
         if isinstance(sessionData, unicode):
             sessionData = sessionData.encode("utf-8")
-            #~ print sessionData
-            print "JO"
 
         if base64format == True:
             sessionData = base64.decodestring(sessionData)
         sessionData = pickle.loads(sessionData)
-
-        #~ print sessionData
 
         sessionData["user"]=u"testäöüß"
 
