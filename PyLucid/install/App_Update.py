@@ -22,7 +22,26 @@ from PyLucid.install.ObjectApp_Base import ObjectApp_Base
 
 class update(ObjectApp_Base):
     "3. update"
-    def update1_db(self):
+    def update3_db(self):
+        "update db tables (PyLucid v0.7.1 -> 0.7.2)"
+        self._write_info()
+
+        if not self._confirm("update db tables ?"):
+            # Abfrage wurde nicht bestätigt
+            return
+
+        self.response.write("<h3>(some errors are normal!!!)</h3>\n")
+
+        self.response.write("<h4>Change Sessionhandling table:</h4>\n")
+        SQLcommand = (
+            "ALTER TABLE $$session_data"
+            " CHANGE session_data session_data LONGBLOB NOT NULL;"
+        )
+        msg = "change column 'session_data' to a LONGBLOB value"
+        self._execute(msg,SQLcommand)
+
+
+    def update2_db(self):
         "update db tables (PyLucid v0.7.0 -> 0.7.1)"
         self._write_info()
 
@@ -105,7 +124,7 @@ class update(ObjectApp_Base):
 
 
 
-    def update2_db(self):
+    def update1_db(self):
         "update db tables (PyLucid v0.6.x -> 0.7)"
         self._write_info()
 
