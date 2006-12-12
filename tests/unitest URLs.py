@@ -119,10 +119,7 @@ class testURLs(unittest.TestCase):
         self.url.setup_page_id()
         #~ self.url.debug()
 
-        self.assertEqual(
-            self.url["hostname"],
-            'http://domain.tld/DocRoot/Handler.py'
-        )
+        self.assertEqual(self.url["hostname"], 'http://domain.tld')
         self.assertEqual(
             self.url["scriptRoot"], '/DocRoot/Handler.py'
         )
@@ -135,11 +132,20 @@ class testURLs(unittest.TestCase):
             "/DocRoot/Handler.py/_command/32/modulename/methodname/"
         )
 
-        self.assertEqual(self.url.pageLink("level1/level2"),   "/level1/level2/")
-        self.assertEqual(self.url.pageLink("/level1/level2"),  "/level1/level2/")
-        self.assertEqual(self.url.pageLink("/level1/level2/"), "/level1/level2/")
+        self.assertEqual(
+            self.url.pageLink("level1/level2"),
+            "/DocRoot/Handler.py/level1/level2/"
+        )
+        self.assertEqual(
+            self.url.pageLink("/level1/level2"),
+            "/DocRoot/Handler.py/level1/level2/"
+        )
+        self.assertEqual(
+            self.url.pageLink("/level1/level2/"),
+            "/DocRoot/Handler.py/level1/level2/"
+        )
 
-    def testURLs_normal2(self):
+    def testURLs_normal3(self):
         """
         PyLucid liegt in einem Unterverzeichnis
         +GET-Parameter
@@ -167,9 +173,18 @@ class testURLs(unittest.TestCase):
             self.url.commandLink("modulename", "methodname"),
             "/DocRoot/Handler.py/_command/32/modulename/methodname/"
         )
-        self.assertEqual(self.url.pageLink("level1/level2"),   "/DocRoot/Handler.py/level1/level2/")
-        self.assertEqual(self.url.pageLink("/level1/level2"),  "/DocRoot/Handler.py/level1/level2/")
-        self.assertEqual(self.url.pageLink("/level1/level2/"), "/DocRoot/Handler.py/level1/level2/")
+        self.assertEqual(
+            self.url.pageLink("level1/level2"),
+            "/DocRoot/Handler.py/level1/level2/"
+        )
+        self.assertEqual(
+            self.url.pageLink("/level1/level2"),
+            "/DocRoot/Handler.py/level1/level2/"
+        )
+        self.assertEqual(
+            self.url.pageLink("/level1/level2/"),
+            "/DocRoot/Handler.py/level1/level2/"
+        )
 
     #_________________________________________________________________________
 
@@ -273,6 +288,132 @@ class testURLs(unittest.TestCase):
         self.assertEqual(
             self.url.pageLink("/level1/level2/"),
             "/DocRoot/Handler.py/level1/level2/"
+        )
+
+    def testURLs_command3(self):
+        """
+        command mit verschienen Zusätzen
+        """
+        self.fake_requestObj.environ = {
+            "HTTP_HOST": "domain.tld",
+            "PATH_INFO": "/_command/32/current_command/current_method/",
+            "SCRIPT_ROOT": "/",
+        }
+        self.setURLclass()
+        self.fake_requestObj.runlevel.set_command()
+        self.url.setup_runlevel()
+        self.url.setup_page_id()
+        #~ self.url.debug()
+
+        # Wird vom Module-Manager festgelegt:
+        self.url.lock = False
+        self.url["command"] = "current_command"
+        self.url["action"] = "current_method"
+        self.url.lock = True
+
+        #---------------------------------------------------------------------
+
+        self.assertEqual(
+            self.url.currentAction(),
+            "/_command/32/current_command/current_method/"
+        )
+        self.assertEqual(
+            self.url.currentAction("zusatz"),
+            "/_command/32/current_command/current_method/zusatz/"
+        )
+        self.assertEqual(
+            self.url.currentAction(64),
+            "/_command/32/current_command/current_method/64/"
+        )
+        self.assertEqual(
+            self.url.currentAction(["zusatz", 64]),
+            "/_command/32/current_command/current_method/zusatz/64/"
+        )
+        self.assertEqual(
+            self.url.currentAction(
+                ["zusatz", 64, "datei.txt"], addSlash=False
+            ),
+            "/_command/32/current_command/current_method/zusatz/64/datei.txt"
+        )
+        self.assertEqual(
+            self.url.currentAction("datei.txt", addSlash=False),
+            "/_command/32/current_command/current_method/datei.txt"
+        )
+
+        #---------------------------------------------------------------------
+
+        self.assertEqual(
+            self.url.actionLink("new_methodname"),
+            "/_command/32/current_command/new_methodname/"
+        )
+        self.assertEqual(
+            self.url.actionLink("new_methodname", "zusatz"),
+            "/_command/32/current_command/new_methodname/zusatz/"
+        )
+        self.assertEqual(
+            self.url.actionLink("new_methodname", "datei.txt", addSlash=False),
+            "/_command/32/current_command/new_methodname/datei.txt"
+        )
+        self.assertEqual(
+            self.url.actionLink("new_methodname", 64),
+            "/_command/32/current_command/new_methodname/64/"
+        )
+        self.assertEqual(
+            self.url.actionLink("new_methodname", ["liste", 64]),
+            "/_command/32/current_command/new_methodname/liste/64/"
+        )
+        self.assertEqual(
+            self.url.actionLink(
+                "new_methodname", ["zusatz", 64, "datei.txt"], addSlash=False
+            ),
+            "/_command/32/current_command/new_methodname/zusatz/64/datei.txt"
+        )
+
+        #---------------------------------------------------------------------
+
+        self.assertEqual(
+            self.url.commandLink("new_modulename", "new_methodname"),
+            "/_command/32/new_modulename/new_methodname/"
+        )
+        self.assertEqual(
+            self.url.commandLink("new_modulename", "new_methodname", "zusatz"),
+            "/_command/32/new_modulename/new_methodname/zusatz/"
+        )
+        self.assertEqual(
+            self.url.commandLink(
+                "new_modulename", "new_methodname",
+                "datei.txt", addSlash=False
+            ),
+            "/_command/32/new_modulename/new_methodname/datei.txt"
+        )
+        self.assertEqual(
+            self.url.commandLink("new_modulename", "new_methodname", 64),
+            "/_command/32/new_modulename/new_methodname/64/"
+        )
+        self.assertEqual(
+            self.url.commandLink(
+                "new_modulename", "new_methodname", ["liste", 64]
+            ),
+            "/_command/32/new_modulename/new_methodname/liste/64/"
+        )
+        self.assertEqual(
+            self.url.commandLink(
+                "new_modulename", "new_methodname",
+                ["zusatz", 64, "datei.txt"], addSlash=False
+            ),
+            "/_command/32/new_modulename/new_methodname/zusatz/64/datei.txt"
+        )
+
+        #---------------------------------------------------------------------
+
+        self.assertEqual(
+            self.url.pageLink("level1/level2"),   "/level1/level2/"
+        )
+        self.assertEqual(
+            self.url.pageLink("/level1/level2"),  "/level1/level2/"
+        )
+        self.assertEqual(
+            self.url.pageLink("/level1/level2/"), "/level1/level2/"
         )
 
     #_________________________________________________________________________

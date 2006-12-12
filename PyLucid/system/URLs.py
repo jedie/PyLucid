@@ -250,7 +250,8 @@ class URLs(dict):
         link = self.addSlash(link)
         return link
 
-    def commandLink(self, modulename, methodname=""):
+    def commandLink(self, modulename, methodname="", args="", addSlash=True):
+        args = self._prepage_args(args)
         #~ if self.runlevel.is_install():
             #~ link = posixpath.join(
                 #~ self["scriptRoot"], self["commandBase"],
@@ -261,10 +262,11 @@ class URLs(dict):
                 #~ self["commandBase"], modulename, methodname
             #~ )
         link = posixpath.join(
-            self["commandBase"], modulename, methodname
+            self["commandBase"], modulename, methodname, args
         )
 
-        link = self.addSlash(link)
+        if addSlash:
+            link = self.addSlash(link)
         return link
 
     def actionLink(self, methodname, args="", addSlash=True):
@@ -287,7 +289,7 @@ class URLs(dict):
             link = self.addSlash(link)
         return link
 
-    def currentAction(self, args=""):
+    def currentAction(self, args="", addSlash=True):
         args = self._prepage_args(args)
         if self.runlevel.is_command():
             link = posixpath.join(
@@ -303,7 +305,8 @@ class URLs(dict):
         else:
             self.actionLinkRuntimeError("currentAction() wrong runlevel!")
 
-        link = self.addSlash(link)
+        if addSlash:
+            link = self.addSlash(link)
         return link
 
     def actionLinkRuntimeError(self, e):
@@ -316,8 +319,9 @@ class URLs(dict):
 
     def _prepage_args(self, args):
         if isinstance(args, list):
-            args = "/".join(args)
-        return args
+            return "/".join([str(i) for i in args])
+        else:
+            return str(args)
 
     #_________________________________________________________________________
     # install Links
