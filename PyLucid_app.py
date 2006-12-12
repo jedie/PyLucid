@@ -284,6 +284,9 @@ class PyLucidApp(BaseApplication):
         # Überprüfe Rechte der Seite
         #~ self.verify_page()
 
+        # Packt die aktuelle page_id in die _command URLs:
+        self.URLs.setup_page_id()
+
         # Übertragen von Objekten
         self.db.render = self.render
         self.db.session = self.session

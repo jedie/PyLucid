@@ -3,16 +3,31 @@
 
 """
 Unitest für \PyLucid\system\URLs.py
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
+
+__version__= "$Rev:$"
 
 
 import sys, unittest
 
 
-sys.path.insert(0, "../system")
-from URLs import URLs
+sys.path.insert(0, "../") # PyLucid-Root
 
-sys.path.insert(0, "../../") # PyLucid-Root
+from PyLucid.system.URLs import URLs
 from PyLucid_app import runlevel
 
 
@@ -26,6 +41,7 @@ class FakeRequest(object):
     runlevel = None
     environ = {}
     preferences = {}
+    session = {"page_id": 32}
 
 
 class FakeResponse(object):
@@ -57,13 +73,14 @@ class testURLs(unittest.TestCase):
     def testURLs_normal1(self):
         self.fake_requestObj.environ = {
             "HTTP_HOST": "domain.tld",
-            "PATH_INFO": "/_command/current_command/current_method/",
+            "PATH_INFO": "/_command/32/current_command/current_method/",
             "SCRIPT_ROOT": "/",
         }
         self.setURLclass()
         self.fake_requestObj.runlevel.set_normal()
         self.fake_requestObj.runlevel.set_normal()
         self.url.setup_runlevel()
+        self.url.setup_page_id()
         #~ self.url.debug()
 
         self.assertEqual(
@@ -79,7 +96,7 @@ class testURLs(unittest.TestCase):
 
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
-            "/_command/modulename/methodname/"
+            "/_command/32/modulename/methodname/"
         )
 
         self.assertEqual(self.url.pageLink("level1/level2"),   "/level1/level2/")
@@ -99,6 +116,8 @@ class testURLs(unittest.TestCase):
         self.setURLclass()
         self.fake_requestObj.runlevel.set_normal()
         self.url.setup_runlevel()
+        self.url.setup_page_id()
+        #~ self.url.debug()
 
         self.assertEqual(
             self.url["hostname"],
@@ -113,7 +132,7 @@ class testURLs(unittest.TestCase):
 
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
-            "/DocRoot/Handler.py/_command/modulename/methodname/"
+            "/DocRoot/Handler.py/_command/32/modulename/methodname/"
         )
 
         self.assertEqual(self.url.pageLink("level1/level2"),   "/level1/level2/")
@@ -133,6 +152,7 @@ class testURLs(unittest.TestCase):
         self.setURLclass()
         self.fake_requestObj.runlevel.set_normal()
         self.url.setup_runlevel()
+        self.url.setup_page_id()
         #~ self.url.debug()
 
         self.assertEqual(self.url["hostname"], 'http://domain.tld')
@@ -145,7 +165,7 @@ class testURLs(unittest.TestCase):
 
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
-            "/DocRoot/Handler.py/_command/modulename/methodname/"
+            "/DocRoot/Handler.py/_command/32/modulename/methodname/"
         )
         self.assertEqual(self.url.pageLink("level1/level2"),   "/DocRoot/Handler.py/level1/level2/")
         self.assertEqual(self.url.pageLink("/level1/level2"),  "/DocRoot/Handler.py/level1/level2/")
@@ -156,12 +176,14 @@ class testURLs(unittest.TestCase):
     def testURLs_command1(self):
         self.fake_requestObj.environ = {
             "HTTP_HOST": "domain.tld",
-            "PATH_INFO": "/_command/current_command/current_method/",
+            "PATH_INFO": "/_command/32/current_command/current_method/",
             "SCRIPT_ROOT": "/",
         }
         self.setURLclass()
         self.fake_requestObj.runlevel.set_command()
         self.url.setup_runlevel()
+        self.url.setup_page_id()
+        #~ self.url.debug()
 
         # Wird vom Module-Manager festgelegt:
         self.url.lock = False
@@ -175,17 +197,17 @@ class testURLs(unittest.TestCase):
 
         self.assertEqual(
             self.url.currentAction(),
-            "/_command/current_command/current_method/"
+            "/_command/32/current_command/current_method/"
         )
 
         self.assertEqual(
             self.url.actionLink("new_methodname"),
-            "/_command/current_command/new_methodname/"
+            "/_command/32/current_command/new_methodname/"
         )
 
         self.assertEqual(
             self.url.commandLink("new_modulename", "new_methodname"),
-            "/_command/new_modulename/new_methodname/"
+            "/_command/32/new_modulename/new_methodname/"
         )
         self.assertEqual(
             self.url.pageLink("level1/level2"),   "/level1/level2/"
@@ -205,7 +227,7 @@ class testURLs(unittest.TestCase):
         self.fake_requestObj.environ = {
             "HTTP_HOST": "domain.tld",
             "PATH_INFO": (
-                "/_command/current_command/current_method/url2args1/url2args2/"
+                "/_command/32/current_command/current_method/url2args1/url2args2/"
                 "?GetParam=1&Param2=jau"
             ),
             "SCRIPT_ROOT": "/DocRoot/Handler.py",
@@ -213,6 +235,8 @@ class testURLs(unittest.TestCase):
         self.setURLclass()
         self.fake_requestObj.runlevel.set_command()
         self.url.setup_runlevel()
+        self.url.setup_page_id()
+        #~ self.url.debug()
 
         # Wird vom Module-Manager festgelegt:
         self.url.lock = False
@@ -226,17 +250,17 @@ class testURLs(unittest.TestCase):
 
         self.assertEqual(
             self.url.currentAction(),
-            "/DocRoot/Handler.py/_command/current_command/current_method/"
+            "/DocRoot/Handler.py/_command/32/current_command/current_method/"
         )
 
         self.assertEqual(
             self.url.actionLink("new_methodname"),
-            "/DocRoot/Handler.py/_command/current_command/new_methodname/"
+            "/DocRoot/Handler.py/_command/32/current_command/new_methodname/"
         )
 
         self.assertEqual(
             self.url.commandLink("new_modulename", "new_methodname"),
-            "/DocRoot/Handler.py/_command/new_modulename/new_methodname/"
+            "/DocRoot/Handler.py/_command/32/new_modulename/new_methodname/"
         )
         self.assertEqual(
             self.url.pageLink("level1/level2"),
@@ -265,6 +289,8 @@ class testURLs(unittest.TestCase):
         self.setURLclass()
         self.fake_requestObj.runlevel.set_install()
         self.url.setup_runlevel()
+        # im _install Bereich wird self.url.setup_page_id() nicht ausgeführt!
+        #~ self.url.debug()
 
         self.assertEqual(self.url["hostname"], 'http://domain.tld')
         self.assertEqual(self.url["scriptRoot"], '/')
@@ -309,6 +335,8 @@ class testURLs(unittest.TestCase):
         self.setURLclass()
         self.fake_requestObj.runlevel.set_install()
         self.url.setup_runlevel()
+        # im _install Bereich wird self.url.setup_page_id() nicht ausgeführt!
+        #~ self.url.debug()
 
         self.assertEqual(self.url["hostname"], 'http://domain.tld')
         self.assertEqual(self.url["scriptRoot"], '/DocRoot/Handler.py')
@@ -360,6 +388,8 @@ class testURLs(unittest.TestCase):
         self.setURLclass()
         self.fake_requestObj.runlevel.set_normal()
         self.url.setup_runlevel()
+        self.url.setup_page_id()
+        #~ self.url.debug()
 
         # Wird normalerweise von detect_page aufgerufen:
         self.url.handle404errors(
@@ -381,7 +411,7 @@ class testURLs(unittest.TestCase):
 
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
-            "/DocRoot/Handler.py/_command/modulename/methodname/"
+            "/DocRoot/Handler.py/_command/32/modulename/methodname/"
         )
 
         self.assertEqual(
@@ -396,6 +426,10 @@ class testURLs(unittest.TestCase):
             self.url.pageLink("/level1/level2/"),
             "/DocRoot/Handler.py/level1/level2/"
         )
+
+
+
+
 
 
 

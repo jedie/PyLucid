@@ -3,23 +3,23 @@
 
 """
 Verwaltung der verfügbaren URLs
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__author__ = "Jens Diemer (www.jensdiemer.de)"
-
-__version__="0.2.1"
-
-__history__="""
-v0.2.1
-    - debug() - wahlweise auch nach response statt nach page_msg
-    - optimierungen bei pageLink()
-    - neu: absoluteLink() (z.B. für RSS Generator)
-    - neu: self.URLs["absoluteIndex"]
-v0.2
-    - currentAction kann nun auch args entgegen nehmen
-v0.1
-    - erste Version
-"""
+__version__= "$Rev:$"
 
 
 import os, posixpath, urllib
@@ -48,6 +48,7 @@ class URLs(dict):
         self.environ        = request.environ
         self.runlevel       = request.runlevel
         self.preferences    = request.preferences
+        self.session        = request.session
         self.page_msg       = response.page_msg
 
         self._setup_pathInfo()
@@ -122,6 +123,7 @@ class URLs(dict):
         ----> self["pathInfo"] = /_install/tests/table_info
         ----> self["actionArgs"] = ["columns", "lucid_pages"]
         """
+
         self.lock = False
         self["commandBase"] = posixpath.join(
             self["scriptRoot"], self.preferences["commandURLprefix"]
@@ -148,8 +150,19 @@ class URLs(dict):
                     self["action"] = None
 
         self["pathInfo"] = "/".join(path[:3])
-        self["actionArgs"] = path[3:]
 
+        if self.runlevel.is_install():
+            # Im _install Bereich ist keine page_id in der URL
+            self["actionArgs"] = path[3:]
+        else:
+            self["actionArgs"] = path[4:]
+
+        self.lock = True
+
+    def setup_page_id(self):
+        page_id = str(self.session["page_id"])
+        self.lock = False
+        self["commandBase"] = posixpath.join(self["commandBase"], page_id)
         self.lock = True
 
 
@@ -247,7 +260,6 @@ class URLs(dict):
             #~ link = posixpath.join(
                 #~ self["commandBase"], modulename, methodname
             #~ )
-
         link = posixpath.join(
             self["commandBase"], modulename, methodname
         )
@@ -259,16 +271,14 @@ class URLs(dict):
         args = self._prepage_args(args)
         if self.runlevel.is_command():
             link = posixpath.join(
-                self["scriptRoot"], self.preferences["commandURLprefix"],
-                self["command"], methodname, args
+                self["commandBase"], self["command"], methodname, args
             )
         elif self.runlevel.is_install():
             if self["command"] == None:
                 # Wir sind im root also /_install/ ohne Kommando
                 self.actionLinkRuntimeError("actionLink()")
             link = posixpath.join(
-                self["scriptRoot"], self["commandBase"], self["command"],
-                methodname, args
+                self["commandBase"], self["command"], methodname, args
             )
         else:
             self.actionLinkRuntimeError("actionLink() wrong runlevel!")
@@ -281,8 +291,7 @@ class URLs(dict):
         args = self._prepage_args(args)
         if self.runlevel.is_command():
             link = posixpath.join(
-                self["scriptRoot"], self.preferences["commandURLprefix"],
-                self["command"], self['action'], args
+                self["commandBase"], self["command"], self['action'], args
             )
         elif self.runlevel.is_install():
             if self["command"] == None:

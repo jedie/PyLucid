@@ -4,20 +4,23 @@
 """
 Durch poormans_modrewrite ist es nicht ganz so einfach festzustellen, welche
 Seite die aktuelle ist :)
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-
-__version__="0.2"
-
-__history__="""
-v0.2
-    - Unterstützung für direkte shortcut-Links, d.h. es ist nur der Shortcut
-        einer Seite in der URL, die sich in einer tieferen Ebene befindet.
-v0.1
-    - Ausgekoppelt aus der index.py
-    - Speichert die aktuelle Seite nicht mehr in CGIdata["page_id"] sondern in
-        session["page_id"]
-"""
+__version__= "$Rev:$"
 
 import urllib, cgi
 
@@ -47,16 +50,16 @@ class detect_page(PyLucidBaseModule):
             self.check_page_id(self.request.args["page_id"])
             return
 
-        if self.runlevel.is_command():
-            # Ein internes Kommando (LogIn, EditPage ect.) wurde ausgef�hrt
-            if "page_id" in self.session:
-                self.check_page_id(self.session["page_id"])
-            else:
-                self.set_history_page()
-            return
-
-
         pathInfo = self.environ.get("PATH_INFO","/")
+
+            #~ if "page_id" in self.session:
+                #~ self.check_page_id(self.session["page_id"])
+                #~ return
+
+            #~ self.set_history_page()
+            #~ return
+
+
         self.check_page_name(pathInfo)
         return
 
@@ -105,6 +108,22 @@ class detect_page(PyLucidBaseModule):
 
         # bsp/und%2Foder -> ['bsp', 'und%2Foder']
         page_name_split = page_name.split("/")
+
+
+        if self.runlevel.is_command():
+            # Ein internes Kommando (LogIn, EditPage ect.) wurde aufgerufen
+            try:
+                page_id = page_name_split[1]
+            except ValueError:
+                self.set_default_page()
+                return
+
+            self._set_page_id(page_id)
+            return
+
+            print "XXX:", page_id, "|||", page_name_split
+
+
         if len(page_name_split) == 1:
             self._singleShortcut(page_name_split[0])
         else:

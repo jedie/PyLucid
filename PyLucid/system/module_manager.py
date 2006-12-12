@@ -6,8 +6,8 @@ Module Manager
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -18,7 +18,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 import sys, os, glob, imp, cgi, urllib
@@ -271,6 +271,7 @@ class module_manager:
         Ausführen von:
         <lucidTag:'tag'/>
         """
+
         if tag in self.staticTags:
             return self.staticTags[tag]
 
@@ -308,14 +309,16 @@ class module_manager:
         pathInfo = pathInfo.strip("/")
         pathInfo = pathInfo.split("/")[1:]
 
+        print pathInfo
+
         try:
-            self.module_name = pathInfo[0]
-            self.method_name = pathInfo[1]
+            self.module_name = pathInfo[1]
+            self.method_name = pathInfo[2]
         except IndexError:
             self.page_msg("Wrong command path!")
             return
 
-        function_info = pathInfo[2:]
+        function_info = pathInfo[3:]
 
         if function_info == []:
             function_info = {}
