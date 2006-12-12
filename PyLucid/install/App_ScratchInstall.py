@@ -3,7 +3,23 @@
 
 """
 Installation von PyLucid
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
+
+__version__= "$Rev:$"
 
 
 
@@ -44,8 +60,6 @@ class install(ObjectApp_Base):
         self._confirm("Init all basic modules?")
 
         simulation = self.request.form.get("simulation",False)
-
-        self._page_msg(simulation)
 
         module_admin = self._get_module_admin()
         module_admin.first_time_install(simulation)
