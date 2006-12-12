@@ -4,11 +4,19 @@
 """
 PyLucid CGI-Session-handler auf Cookie + SQL basis
 
+TODO:
+-----
+In sessionhandler.read_session() ist ein schneller Work-a-round gemacht, der
+anders gelöst werden sollte!
+Wir brauchen einen anderen Cookie Handler, der es ermöglicht Cookies zu
+löschen und direkt wieder neu zu setzten. Das scheint z.Z. nicht zu gehen.
+* Generell muß der cookieHandler aufgeräumt werden!
+
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -19,7 +27,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 import os, sys, md5, time
@@ -36,17 +44,14 @@ except ImportError:
 #~ debug = True
 debug = False
 
+#~ cookie_debug = True
+cookie_debug = False
+
 #~ VERBOSE_LOG    = True
 VERBOSE_LOG    = False
 
 # Bestimmt den Log-Typ
 LOG_TYPE = "sessionhandling"
-
-# Sollen die Daten im base64 Format in die Datenbank geschrieben werden
-#~ base64format = False
-base64format = True
-if base64format == True:
-    import base64
 
 
 class cookieHandler:
@@ -125,24 +130,41 @@ class cookieHandler:
     # Zusätzliche Daten als seperater Cookie
 
     def set_dataCookie(self, key, value):
-        key = self._get_key(key)
-        if debug:
+        key = self._prepare_cookie_name(key)
+        if cookie_debug:
             self.page_msg("Set dataCookie %s with %s" % (key, value))
+            self._print_inspect()
         self.response.set_cookie(key, value)
 
     def get_dataCookie(self, key):
-        key = self._get_key(key)
+        key = self._prepare_cookie_name(key)
+        if cookie_debug:
+            self.page_msg("All Cookies:", self.request.cookies)
+            self.page_msg("Get '%s' cookie" % key)
+            self._print_inspect()
         if not key in self.request.cookies:
             return False
         else:
             return self.request.cookies[key].value
 
     def del_dataCookie(self, key):
-        key = self._get_key(key)
+        key = self._prepare_cookie_name(key)
+        if cookie_debug:
+            self.page_msg("Delete '%s' cookie" % key)
+            self._print_inspect()
         self.deleteCookie(key)
 
-    def _get_key(self, key):
+    def _prepare_cookie_name(self, key):
         return "%s_%s" % (self.CookieName, key)
+
+    def _print_inspect(self):
+        import inspect
+        stack = inspect.stack()[2]
+        self.page_msg(
+            "Cookie action from '...%s' line %s" % (
+                stack[1][-30:], stack[2]
+            )
+        )
 
     #_________________________________________________________________________
     # Allgemeine Cookie-Funktionen
@@ -239,6 +261,7 @@ class sessionhandler(dict):
         self.log            = request.log
         self.page_msg       = response.page_msg
         self.preferences    = request.preferences
+        self.URLs           = request.URLs
 
         self.sql_tablename  = "session_data"
         self.timeout_sec    = 1800
@@ -295,6 +318,13 @@ class sessionhandler(dict):
             die Session aber bestehen. Somit haben Suchmaschinen-Bots eine
             Session, wenn sie einmal auf Login kommen :(
         """
+        if "auth/login" in self.request.environ["PATH_INFO"]:
+            # FIXME: Quick Patch!!!
+            # Wenn ein User einloggen will, dann darf der Cookie "is_login"
+            # nicht erst vorher gelöscht werden. Danach wird er auch nicht
+            # mehr geschrieben!!!
+            return
+
         isLogin = self.cookie.get_dataCookie("is_login")
         if isLogin != "true":
             # Kein Cookie, dann brauchen wir erst garnicht nachzusehen ;)
@@ -482,8 +512,6 @@ class sessionhandler(dict):
         del(session_data["client_domain_name"])
 
         session_data = pickle.dumps(session_data, pickle.HIGHEST_PROTOCOL)
-        if base64format == True:
-            session_data = base64.encodestring(session_data)
         self.RAW_session_data_len = len(session_data)
 
         return session_data
@@ -524,14 +552,16 @@ class sessionhandler(dict):
 
         self.RAW_session_data_len = len(sessionData)
 
-        if isinstance(sessionData, unicode):
-            sessionData = sessionData.encode("utf-8")
+        #~ if isinstance(sessionData, unicode):
+            #~ sessionData = sessionData.encode("utf-8")
 
-        if base64format == True:
-            sessionData = base64.decodestring(sessionData)
-        sessionData = pickle.loads(sessionData)
-
-        sessionData["user"]=u"testäöüß"
+        sessionData = sessionData.tostring() # Aus der DB kommt ein array Objekt!
+        try:
+            sessionData = pickle.loads(sessionData)
+        except Exception, e:
+            self.page_msg("Can't read sessiondata: %s" % e)
+            self.debug_session_data()
+            return False
 
         DB_data.update(sessionData)
 
