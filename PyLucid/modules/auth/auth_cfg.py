@@ -22,7 +22,7 @@ module_manager_data = {
         "direct_out"    : True,
         "internal_page_info" : {
             "description"       : "The Login html-form Page",
-            "template_engine"   : "string formatting",
+            "template_engine"   : "jinja",
             "markup"            : None
         },
     },
@@ -34,5 +34,9 @@ module_manager_data = {
     "check_login" : {
         "must_login"    : False,
         "direct_out"    : True,
+    },
+    "pass_reset_form" : {
+        "must_login"    : False,
+        "must_admin"    : False,
     },
 }

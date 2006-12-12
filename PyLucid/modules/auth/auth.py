@@ -22,7 +22,7 @@ __version__ = "$Rev$"
 
 
 # Standart Python Module
-import os, sys, md5, time
+import os, sys, md5, time, random
 from Cookie import SimpleCookie
 
 ## Dynamisch geladene Module:
@@ -51,15 +51,14 @@ class auth(PyLucidBaseModule):
 
     #_________________________________________________________________________
 
-    def login(self):
+    def login(self, display_reset_link=False):
         """
         Der User will einloggen.
         Holt das LogIn-Formular aus der DB und stellt es zusammen
         """
-        import random
         rnd_login = random.randint(10000,99999)
 
-        url = self.URLs.commandLink("auth", "check_login")
+        url = self.URLs.actionLink("check_login")
 
         # Alten Usernamen, nach einem Fehlgeschlagenen Login, wieder anzeigen
         username = self.request.form.get("user", "")
@@ -75,9 +74,12 @@ class auth(PyLucidBaseModule):
         context = {
             "user"          : username,
             "rnd"           : rnd_login,
-            "url"           : url
+            "url"           : url,
         }
+        if display_reset_link:
+            context["reset_link"] = self.URLs.actionLink("pass_reset_form")
 
+        self.page_msg(context)
         self.templates.write("login", context)
 
     def check_login(self):
@@ -101,7 +103,7 @@ class auth(PyLucidBaseModule):
             self.check_md5_login(username, form_pass1, form_pass2)
         except LogInError, e:
             self.page_msg.red(*e.args)
-            self.login() # Login Seite wieder anzeigen
+            self.login(display_reset_link=True) # Login Seite wieder anzeigen
 
 
     def _error(self, log_msg, public_msg):
@@ -239,6 +241,11 @@ class auth(PyLucidBaseModule):
         # Nach dem Ausführen durch den ModuleManager, soll die aktuelle CMS
         # Seite angezeigt werden, ansonsten wäre die Seite leer.
         self.session["render follow"] = True
+
+    #_________________________________________________________________________
+
+    def pass_reset_form(self):
+        raise To be continued...
 
     #_________________________________________________________________________
 
