@@ -11,8 +11,8 @@ Seite eingesetzt.
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -23,7 +23,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 __ToDo__ = """
 """
@@ -122,7 +122,11 @@ class page_msg_Container(object):
         # muß irgendwie anders gehen!
         if isinstance(txt, unicode):
             txt = txt.encode("UTF-8", "replace")
-        self.data.append(str(txt))
+        try:
+            txt = str(txt)
+        except:
+            txt = repr(txt)
+        self.data.append(txt)
 
     #_________________________________________________________________________
 
