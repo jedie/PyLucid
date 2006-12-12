@@ -87,6 +87,7 @@ from PyLucid.system import module_manager
 from PyLucid.system import page_parser
 from PyLucid.system import detect_page
 from PyLucid.system import template_engines
+from PyLucid.system import db_cache
 
 
 response.__info__ = __info__ # Übertragen
@@ -267,6 +268,7 @@ class PyLucidApp(BaseApplication):
         #~ self.request.log.debug_last()
 
         self.session.init2(self.request, self.response)
+        #~ self.session.debug()
 
         self.staticTags.init2(self.request, self.response)
 
@@ -296,6 +298,8 @@ class PyLucidApp(BaseApplication):
 
         # Statische-Tag-Informationen setzten:
         self.staticTags.setup()
+
+        self.response.db_cache = db_cache.db_cache(self.request, self.response)
 
     def create_first_page(self):
         from PyLucid.modules.pageadmin import pageadmin
