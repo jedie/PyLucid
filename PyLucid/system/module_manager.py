@@ -4,78 +4,21 @@
 """
 Module Manager
 
-# by jensdiemer.de (steht unter GPL-License)
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.3.2"
-
-__history__="""
-v0.3.2
-    - Bugfix: Eigene Fehlerseiten und ModuleManager_error_handling = True
-        siehe ticket:3
-v0.3.1
-    - New error handling: "Wrong command path"
-v0.3
-    - Anpassung an colubrid 1.0
-    - Funktion "CGI_dependency Methoden" rausgeschmissen
-v0.2.6
-    - Andere Fehlerbehandlung, wenn noch nicht von v0.5 geupdated wurde bzw.
-        wenn die Plugin-Tabellen noch nicht (in der neuen Form) existieren.
-v0.2.5
-    - ModuleManager_error_handling auch bei _get_module()
-v0.2.4
-    - ModuleManager_error_handling wird auch bei _make_class_instance()
-        beachtet. Damit Fehler im Module's __init__ auch als echter
-        Traceback zu sehen ist
-v0.2.3
-    - Anderer Aufruf des Module, wenn
-        config.system.ModuleManager_error_handling damit Traceback
-        Aussagekräftiger ist.
-v0.2.2
-    - Bessere Fehlerausgabe bei einem Fehler in der
-        lucidFunction-Parameterübergabe
-v0.2.1
-    - NEU: ModulManager config "sys_exit": Damit ein Modul auch wirklich einen
-        sys.exit() ausführen kann.
-v0.2
-    - NEU: ModulManager config "get_CGI_data": Zur direkten Übergabe von
-        CGI-Daten an die gestartete Methode.
-    - Bessere Fehlerausgabe bei _run_method() und _make_class_instance()
-v0.1.3
-    - Die Regel "must_login" wird nun anhand von self.session.has_key("user")
-        ermittelt
-v0.1.2
-    - Ein paar mehr debug Ausgaben
-    - CGI_dependency Methoden können nun anderen Einstellungen ("direct_out",
-        "apply_markup" usw.) haben, diese werden nun berücksichtigt
-v0.1.1
-    - Module können nun auch Seiten produzieren, die noch durch einen Parser
-        laufen sollen.
-v0.1.0
-    - Komplett neu Programmiert!
-v0.0.8
-    - Andere Handhabung von Modul-Ausgaben auf stderr. Diese sehen nur
-        eingeloggte User als page_msg.
-v0.0.7
-    - NEU: Module können nun auch nur normale print Ausgaben machen, die dann
-        in die Seite "eingeblendet" werden sollen
-    - NEU: "direct_out"-Parameter, wird z.B. für das schreiben des Cookies in
-        user_auth.py verwendet. Dann werden print-Ausgaben nicht
-        zwischengespeichert.
-v0.0.6
-    - Fehler beim import sehen nur Admins
-v0.0.5
-    - Debug mit page_msg
-v0.0.4
-    - "must_login" und "must_admin" muß nun in jedem Modul definiert worden sein.
-    - Fehlerabfrage beim Module/Aktion starten
-v0.0.3
-    - NEU: start_module()
-v0.0.2
-    - Großer Umbau :)
-v0.0.1
-    - erste Version
-"""
+__version__= "$Rev:$"
 
 
 import sys, os, glob, imp, cgi, urllib
@@ -107,15 +50,12 @@ class plugin_data:
         try:
             self.plugins = self.db.get_active_module_data()
         except Exception, e:
-            self.page_msg("<strong>Can't get module data from DB</strong>: %s" % e)
-            self.page_msg("You must update PyLucid with install_PyLucid.py!")
+            msg = (
+                "<strong>Can't get module data from DB</strong>: %s\n"
+                "You must update PyLucid with install_PyLucid.py!"
+            ) % e
+            self.page_msg(msg)
             self.plugins = {}
-
-        # Fast Patch to new Filesystem (v0.7)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        for k,v in self.plugins.iteritems():
-            v['package_name'] = v['package_name'].replace("PyLucid_", "PyLucid.")
-            v['package_name'] = v['package_name'].replace("PyLucid/", "PyLucid.")
-            #~ self.page_msg(k,v)
 
         if debug:
             self.page_msg("Available Modules:",self.plugins.keys())
@@ -130,10 +70,7 @@ class plugin_data:
             msg = (
                 "[Module/Plugin unknown or not installed/activated: %s]"
             ) % module_name
-            #~ if self.runlevel.is_normal():
-                #~ msg = "<!-- %s -->" % msg
-
-            raise RunModuleError(msg)
+            raise PluginMethodUnknown(msg)
 
         if self.plugin_debug():
             self.page_msg("Plugin Debug for %s:" % module_name)
@@ -149,22 +86,24 @@ class plugin_data:
                     self.module_id, self.method_name
                 )
             except IndexError:
-                raise RunModuleError(
+                raise PluginMethodUnknown(
                     "[Method '%s' for Module '%s' unknown!]" % (
                         self.method_name, module_name
                     )
                 )
             except Exception, e:
-                raise Exception(
+                msg = (
                     "Can't get method properties from DB: %s - "
-                    "Did you init the basic modules with install_PyLucid???" % e
-                )
+                    "Did you init the basic modules with install_PyLucid???"
+                ) % e
+                raise RunModuleError(msg)
 
             self.plugindata[module_name][method_name] = method_properties
 
         self.package_name = self.plugins[module_name]["package_name"]
 
-        self.current_properties = self.plugindata[self.module_name][self.method_name]
+        self.current_properties = \
+                        self.plugindata[self.module_name][self.method_name]
 
         if self.plugin_debug():
             self.page_msg("method_name:", self.method_name)
@@ -316,6 +255,16 @@ class module_manager:
 
         self.plugin_data = plugin_data(request, response)
 
+        self.isadmin = self.session.get("isadmin", False)
+        if self.preferences["ModuleManager_error_handling"] == False or \
+                                                        self.isadmin == True:
+            # Fehler führen zu einem CGI-Traceback
+            self.error_handling = False
+        else:
+            # Fehler werden in einem Satz zusammen gefasst
+            self.error_handling = True
+
+    #_________________________________________________________________________
 
     def run_tag(self, tag):
         """
@@ -331,16 +280,8 @@ class module_manager:
             self.module_name = tag
             self.method_name = "lucidTag"
 
-        try:
-            return self._run_module_method()
-        except RunModuleError, e:
-            pass
-        except RightsError, e:
-            if self.plugin_data["no_rights_error"] == 1:
-                return ""
+        return self._run_module_method()
 
-        self.page_msg("run tag %s, error '%s'" % (tag,e))
-        return str(e)
 
     def run_function( self, function_name, function_info ):
         """
@@ -350,17 +291,14 @@ class module_manager:
         self.module_name = function_name
         self.method_name = "lucidFunction"
 
-        #~ if debug: self.page_msg("function_name:", function_name, "function_info:", function_info)
+        #~ if debug:
+        #~ self.page_msg(
+            #~ "function_name:", function_name, "function_info:", function_info
+        #~ )
 
         function_info = {"function_info": function_info}
-        try:
-            return self._run_module_method(function_info)
-        except RunModuleError, e:
-            self.page_msg(e)
-        except RightsError, e:
-            if self.plugin_data["no_rights_error"] == 1:
-                return ""
-            self.page_msg(e)
+        return self._run_module_method(function_info)
+
 
     def run_command(self):
         """
@@ -388,18 +326,10 @@ class module_manager:
             self.module_name, self.method_name
         )
 
-        try:
-            moduleOutput = self._run_module_method(function_info)
-        except RunModuleError, e:
-            pass
-        except RightsError, e:
-            if self.plugin_data["no_rights_error"] == 1:
-                return ""
-        else:
-            return moduleOutput
+        return self._run_module_method(function_info)
 
-        self.page_msg(e)
-        return str(e)
+
+    #_________________________________________________________________________
 
     def _run_module_method(self, method_arguments={}):
         """
@@ -410,21 +340,36 @@ class module_manager:
         #~ if debug: self.page_msg("method_arguments:", method_arguments)
         try:
             self.plugin_data.setup_module(self.module_name, self.method_name)
-        except Exception, e:
-            raise RunModuleError(
-                "[setup module '%s.%s' unknown Error: %s]" % (
-                    self.module_name, self.method_name, e
-                )
+        except PluginMethodUnknown, e:
+            # Fehler nur anzeigen
+            msg = "run %s.%s, error '%s'" % (
+                self.module_name, self.method_name,e
             )
-
-        #~ except KeyError:
-            #~ raise RunModuleError(
-                #~ "[module name '%s' unknown (method: %s)]" % (self.module_name, self.method_name)
-            #~ )
+            self.page_msg(msg)
+            return msg
+        except RunModuleError, e:
+            msg = "[setup module '%s.%s' unknown Error: %s]" % (
+                self.module_name, self.method_name, e
+            )
+            if self.error_handling == False:
+                # Traceback erzeugen
+                raise RunModuleError(msg)
+            else:
+                # Fehler nur anzeigen
+                self.page_msg(msg)
+                return str(msg)
 
         #~ self.page_msg(self.module_name, self.method_name, self.plugin_data.keys())
 
-        self.plugin_data.check_rights()
+        try:
+            self.plugin_data.check_rights()
+        except RightsError, e:
+            if self.plugin_data["no_rights_error"] == 1:
+                # Rechte Fehler sollen nicht angezeigt werden
+                return ""
+            else:
+                self.page_msg(e)
+                return ""
 
         module_class = self._get_module_class()
 
@@ -462,7 +407,7 @@ class module_manager:
             import_object = _import(package_name, module_name)
         except Exception, e:
             raise RunModuleError(
-                "[Can't import Modul '%s': %s]" % ( self.module_name, e )
+                "[Can't import Modul '%s': %s]" % (self.module_name, e)
             )
 
         try:
@@ -528,11 +473,12 @@ class module_manager:
             msg = "[Can't run '%s.%s': %s]" % (
                 self.module_name, self.method_name, msg
             )
-
-            if self.preferences["ModuleManager_error_handling"] == True:
-                raise RunModuleError(msg)
-            else:
+            if self.error_handling == False:
+                # Traceback erzeugen
                 raise Exception(msg)
+            else:
+                # Fehler nur anzeigen
+                raise RunModuleError(msg) # Wird später abgefangen
 
 
         #~ if self.plugin_data["direct_out"] == True:
@@ -545,7 +491,8 @@ class module_manager:
         #~ self.response = self.tools.out_buffer()
 
         # Instanz erstellen und PyLucid-Objekte übergeben
-        if self.preferences["ModuleManager_error_handling"] == True:
+        if self.error_handling == True:
+            # Fehler nur anzeigen
             try:
                 class_instance = module_class(self.request, self.response)
             except Exception, e:
@@ -555,6 +502,7 @@ class module_manager:
                     )
                 )
         else:
+            # Traceback erzeugen
             try:
                 class_instance = module_class(self.request, self.response)
             except TypeError, e:
@@ -565,7 +513,7 @@ class module_manager:
                 raise TypeError(msg)
 
         # Methode aus Klasse erhalten
-        if self.preferences["ModuleManager_error_handling"] == True:
+        if self.error_handling == True: # Fehler nur anzeigen
             try:
                 unbound_method = getattr(
                     class_instance, self.plugin_data.method_name
@@ -582,13 +530,9 @@ class module_manager:
             )
 
         # Methode "ausführen"
-        if self.preferences["ModuleManager_error_handling"] == False:
-            moduleOutput = self._run_with_error_handling(
-                unbound_method, method_arguments
-            )
-        else:
+        if self.error_handling == True: # Fehler nur anzeigen
             try:
-                moduleOutput = self._run_with_error_handling(
+                return self._run_with_error_handling(
                     unbound_method, method_arguments
                 )
             except KeyError, e:
@@ -600,8 +544,10 @@ class module_manager:
                 raise RunModuleError(e.get_error_page_msg())
             except Exception, e:
                 run_error(e)
-
-        return moduleOutput
+        else:
+            return self._run_with_error_handling(
+                unbound_method, method_arguments
+            )
 
 
     #_________________________________________________________________________
@@ -641,6 +587,12 @@ class ModuleManagerError(Exception):
     pass
 
 class RunModuleError(ModuleManagerError):
+    pass
+
+class PluginMethodUnknown(ModuleManagerError):
+    """
+    Das Module/Plugin oder die Methode ist unbekannt, steht nicht in der DB
+    """
     pass
 
 class RightsError(ModuleManagerError):
