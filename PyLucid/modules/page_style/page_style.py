@@ -5,26 +5,28 @@
 
 """
 CSS in die CMS Seite einfügen
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.2"
+__version__= "$Rev:$"
 
-__history__="""
-v0.2
-    - Anpassung an PyLucid v0.7
-    - NEU: nun können die CSS Daten als Link in die Seite eingefügt werden,
-        dabei wird auch eine "Browsercache-Anfrage" berücksichtigt.
-v0.1.0
-    -  erste Version
-"""
 
-import sys, os
-
-import datetime
+import sys, os, datetime
 
 from colubrid import HttpResponse
-
-
 from PyLucid.system.BaseModule import PyLucidBaseModule
 
 
@@ -34,33 +36,33 @@ class page_style(PyLucidBaseModule):
         #~ super(page_style, self).__init__(*args, **kwargs)
 
     def lucidTag(self):
-        cssTag = (
-            '<link rel="stylesheet" type="text/css"'
-            ' href="%sstylesheet.css" />\n'
-        ) % self.URLs.actionLink("sendStyle")
-        self.response.write(cssTag)
-
         # Schreibt den addCode-Tag, damit am Ende noch die CSS/JS Daten
         # von Modulen eingefügt werden können
         self.response.write(self.response.addCode.tag)
+
+        url = self.URLs.actionLink(
+            "sendStyle", "stylesheet.css", addSlash=False
+        )
+        cssTag = '<link rel="stylesheet" type="text/css" href="%s" />\n' % url
+
+        self.response.write(cssTag)
 
     def print_current_style(self):
         """
         CSS direkt in die Seite einfügen
         """
-        self.response.write('<style type="text/css">')
+        # Schreibt den addCode-Tag, damit am Ende noch die CSS/JS Daten
+        # von Modulen eingefügt werden können
+        self.response.write(self.response.addCode.tag)
 
         page_id = self.session["page_id"]
         getItems = ["content"]
         css = self.db.side_style_by_id(page_id, getItems)
         css = css["content"]
+
+        self.response.write('<style type="text/css">')
         self.response.write(css)
-
         self.response.write('</style>')
-
-        # Schreibt den addCode-Tag, damit am Ende noch die CSS/JS Daten
-        # von Modulen eingefügt werden können
-        self.response.write(self.response.addCode.tag)
 
     def sendStyle(self, function_info):
         """
