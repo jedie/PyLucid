@@ -34,9 +34,15 @@ v0.0.1
     - erste Version
 """
 
-import os, sys, md5, time, pickle
+import os, sys, md5, time
 from socket import getfqdn
 from Cookie import SimpleCookie
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 
 
 #~ debug = True
@@ -49,7 +55,8 @@ VERBOSE_LOG    = False
 LOG_TYPE = "sessionhandling"
 
 # Sollen die Daten im base64 Format in die Datenbank geschrieben werden
-base64format = False
+#~ base64format = False
+base64format = True
 if base64format == True:
     import base64
 
@@ -486,9 +493,9 @@ class sessionhandler(dict):
         del(session_data["client_IP"])
         del(session_data["client_domain_name"])
 
-        session_data = pickle.dumps(session_data)
+        session_data = pickle.dumps(session_data, pickle.HIGHEST_PROTOCOL)
         if base64format == True:
-            session_data = base64.b64encode(session_data)
+            session_data = base64.encodestring(session_data)
         self.RAW_session_data_len = len(session_data)
 
         return session_data
@@ -529,12 +536,18 @@ class sessionhandler(dict):
 
         self.RAW_session_data_len = len(sessionData)
 
-        if type(sessionData) == unicode:
-            sessionData = str(sessionData)
+        if isinstance(sessionData, unicode):
+            sessionData = sessionData.encode("utf-8")
+            #~ print sessionData
+            print "JO"
 
         if base64format == True:
-            sessionData = base64.b64decode(sessionData)
+            sessionData = base64.decodestring(sessionData)
         sessionData = pickle.loads(sessionData)
+
+        #~ print sessionData
+
+        sessionData["user"]=u"testäöüß"
 
         DB_data.update(sessionData)
 
