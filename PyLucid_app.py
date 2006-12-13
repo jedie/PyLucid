@@ -206,7 +206,7 @@ class PyLucidApp(BaseApplication):
         self.response.echo = tools.echo() # Echo Methode an response anhängen
 
         # Jinja-Context anhängen
-        self.request.context = {}
+        self.request.context = {} # OBSOLETE???
 
         # Anbindung an die SQL-Datenbank, mit speziellen PyLucid Methoden
         self.db = self.request.db = environ['PyLucid.database']
@@ -215,6 +215,8 @@ class PyLucidApp(BaseApplication):
         self.request.templates = template_engines.TemplateEngines(
             self.request, self.response
         )
+
+        self.response.db_cache = db_cache.db_cache(self.request, self.response)
 
         # FIXME: Übertragen von Objekten in den DBwrapper
         self.db.page_msg    = self.page_msg
@@ -298,8 +300,6 @@ class PyLucidApp(BaseApplication):
 
         # Statische-Tag-Informationen setzten:
         self.staticTags.setup()
-
-        self.response.db_cache = db_cache.db_cache(self.request, self.response)
 
     def create_first_page(self):
         from PyLucid.modules.pageadmin import pageadmin
