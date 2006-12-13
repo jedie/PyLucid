@@ -98,15 +98,25 @@ class testURLs(unittest.TestCase):
             self.url.commandLink("modulename", "methodname"),
             "/_command/32/modulename/methodname/"
         )
+        self.assertEqual(
+            self.url.absolute_command_link("modulename", "methodname"),
+            "http://domain.tld/_command/32/modulename/methodname/"
+        )
         self.assertEqual(self.url.absoluteLink(), "http://domain.tld/")
         self.assertEqual(
             self.url.absoluteLink("test1/test2"),
             "http://domain.tld/test1/test2/"
         )
 
-        self.assertEqual(self.url.pageLink("level1/level2"),   "/level1/level2/")
-        self.assertEqual(self.url.pageLink("/level1/level2"),  "/level1/level2/")
-        self.assertEqual(self.url.pageLink("/level1/level2/"), "/level1/level2/")
+        self.assertEqual(
+            self.url.pageLink("level1/level2"),   "/level1/level2/"
+        )
+        self.assertEqual(
+            self.url.pageLink("/level1/level2"),  "/level1/level2/"
+        )
+        self.assertEqual(
+            self.url.pageLink("/level1/level2/"), "/level1/level2/"
+        )
 
 
     def testURLs_normal2(self):
@@ -135,6 +145,14 @@ class testURLs(unittest.TestCase):
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
             "/DocRoot/Handler.py/_command/32/modulename/methodname/"
+        )
+
+        self.assertEqual(
+            self.url.absolute_command_link("modulename", "methodname"),
+            (
+                "http://domain.tld/DocRoot/Handler.py/"
+                "_command/32/modulename/methodname/"
+            )
         )
 
         self.assertEqual(
@@ -186,6 +204,33 @@ class testURLs(unittest.TestCase):
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
             "/DocRoot/Handler.py/_command/32/modulename/methodname/"
+        )
+        self.assertEqual(
+            self.url.absolute_command_link(
+                "modulename", "methodname", "test1"
+            ),
+            (
+                "http://domain.tld/DocRoot/Handler.py/"
+                "_command/32/modulename/methodname/test1/"
+            )
+        )
+        self.assertEqual(
+            self.url.absolute_command_link(
+                "modulename", "methodname", "test1", addSlash=False
+            ),
+            (
+                "http://domain.tld/DocRoot/Handler.py/"
+                "_command/32/modulename/methodname/test1"
+            )
+        )
+        self.assertEqual(
+            self.url.absolute_command_link(
+                "modulename", "methodname", ["test1", 2], addSlash=False
+            ),
+            (
+                "http://domain.tld/DocRoot/Handler.py/"
+                "_command/32/modulename/methodname/test1/2"
+            )
         )
         self.assertEqual(
             self.url.absoluteLink("test1/test2"),

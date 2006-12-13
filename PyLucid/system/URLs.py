@@ -268,6 +268,18 @@ class URLs(dict):
             link = self.addSlash(link)
         return link
 
+    def absolute_command_link(self, modulename, methodname="", args="",
+                                                                addSlash=True):
+        args = self._prepage_args(args)
+        link = posixpath.join(
+            self["hostname"], self["commandBase"].strip("/"),
+            modulename, methodname, args
+        )
+
+        if addSlash:
+            link = self.addSlash(link)
+        return link
+
     def actionLink(self, methodname, args="", addSlash=True):
         args = self._prepage_args(args)
         if self.runlevel.is_command():
