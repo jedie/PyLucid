@@ -5,15 +5,24 @@
 Editieren der internen Seiten.
 
 Ausgelagerter Teil von edit_look.
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__history__ = """
-v0.2
-    - Neu: downloaden als ZIP
-    - Neu: speichern in lokalen Dateien
-v0.1
-    - ausgelagert von edit_look.py
-"""
+__version__= "$Rev:$"
+
 
 import os, cgi, time, stat
 
@@ -546,19 +555,27 @@ class EditInternalPage(PyLucidBaseModule):
 
     def display_diff(self, filepath, content):
         f = file(filepath, "rU")
-        file_content = f.readlines()
+        file_content = f.read()
         f.close()
 
-        db_content = content.splitlines()
-
-        #~ file_content = [i.decode("utf8") for i in file_content]
-        db_content = [i.encode("utf8") for i in db_content]
+        file_content = file_content.splitlines()
+        db_content = [i.encode("utf8") for i in content.splitlines()]
 
         import difflib
 
-        #~ nd = difflib.ndiff(file_content, db_content)
+        try:
+            d = difflib.HtmlDiff()
+        except AttributeError:
+            # HtmlDiff gibt es erst ab Python 2.4!
+            d = difflib.Differ()
+            diff = d.compare(file_content, db_content)
 
-        d = difflib.HtmlDiff()
+            for line, i in enumerate(diff):
+                if i[0] in ("+","-","?"): # Geänderte Zeile
+                    self.response.write("%5s %s\n" % (line, cgi.escape(i)))
+            return
+
+
         diff_table = d.make_table(
             file_content, db_content,
             filepath.encode("UTF8"), "db",
@@ -574,29 +591,6 @@ class EditInternalPage(PyLucidBaseModule):
         # CSS Klassen sind zwar auch hier schon vorgegeben, lassen sich aber
         # durch eigene CSS angaben ändern. (Ist auch nötig)
         self.response.write(diff_table)
-        return
-
-
-        #~ d = difflib.Differ()
-
-        #~ self.response.write("<pre>")
-
-        #~ line = 0
-        #~ sep_printed = False
-        #~ for i in d.compare(file_content, db_content):
-            #~ line += 1
-            #~ if i[0] in ("+","-","?"): # Geänderte Zeile
-                #~ sep_printed = False
-                #~ i = i.rstrip("\n")
-                #~ self.response.write("%5s %s\n" % (line, cgi.escape(i)))
-                #~ oldline = line
-            #~ else:
-                #~ if sep_printed==False:
-                    #~ sep_printed = True
-                    #~ self.response.write("-"*79)
-                    #~ self.response.write("\n")
-
-        #~ self.response.write("</pre>")
 
 
     #_______________________________________________________________________
