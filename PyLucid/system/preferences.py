@@ -7,7 +7,23 @@ preferences
 Hält die Grundeinstellungen vor, die in der config middleware gespeichert sind.
 
 Bietet Methoden an um die Einstellungen in der DB zu ändern.
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
+
+__version__= "$Rev:$"
 
 import UserDict
 
@@ -107,11 +123,17 @@ class Preferences(UserDict.UserDict):
 
     #_________________________________________________________________________
 
-
     def set(self, section, varName, value):
         self[section][varName] = value
         self.db.set_preferences(section, varName, value)
 
+    #_________________________________________________________________________
 
+    def debug(self):
+        self.page_msg("preferences Debug:")
+        self.page_msg("-"*30)
+        for k,v in self.data.iteritems():
+            self.page_msg("%s - %s" % (k,cgi.escape(repr(v))))
+        self.page_msg("-"*30)
 
 
