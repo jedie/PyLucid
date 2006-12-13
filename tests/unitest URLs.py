@@ -7,8 +7,8 @@ Unitest für \PyLucid\system\URLs.py
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -19,7 +19,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 import sys, unittest
@@ -98,6 +98,10 @@ class testURLs(unittest.TestCase):
             self.url.commandLink("modulename", "methodname"),
             "/_command/32/modulename/methodname/"
         )
+        self.assertEqual(
+            self.url.absoluteLink("test1/test2"),
+            "http://domain.tld/test1/test2/"
+        )
 
         self.assertEqual(self.url.pageLink("level1/level2"),   "/level1/level2/")
         self.assertEqual(self.url.pageLink("/level1/level2"),  "/level1/level2/")
@@ -130,6 +134,10 @@ class testURLs(unittest.TestCase):
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
             "/DocRoot/Handler.py/_command/32/modulename/methodname/"
+        )
+        self.assertEqual(
+            self.url.absoluteLink("test1/test2"),
+            "http://domain.tld/DocRoot/Handler.py/test1/test2/"
         )
 
         self.assertEqual(
@@ -172,6 +180,10 @@ class testURLs(unittest.TestCase):
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
             "/DocRoot/Handler.py/_command/32/modulename/methodname/"
+        )
+        self.assertEqual(
+            self.url.absoluteLink("test1/test2"),
+            "http://domain.tld/DocRoot/Handler.py/test1/test2/"
         )
         self.assertEqual(
             self.url.pageLink("level1/level2"),
@@ -274,6 +286,11 @@ class testURLs(unittest.TestCase):
         )
 
         self.assertEqual(
+            self.url.absoluteLink("test1/test2"),
+            "http://domain.tld/DocRoot/Handler.py/test1/test2/"
+        )
+
+        self.assertEqual(
             self.url.commandLink("new_modulename", "new_methodname"),
             "/DocRoot/Handler.py/_command/32/new_modulename/new_methodname/"
         )
@@ -341,6 +358,11 @@ class testURLs(unittest.TestCase):
         )
 
         #---------------------------------------------------------------------
+
+        self.assertEqual(
+            self.url.absoluteLink("test1/test2"),
+            "http://domain.tld/test1/test2/"
+        )
 
         self.assertEqual(
             self.url.actionLink("new_methodname"),
@@ -553,6 +575,11 @@ class testURLs(unittest.TestCase):
         self.assertEqual(
             self.url.commandLink("modulename", "methodname"),
             "/DocRoot/Handler.py/_command/32/modulename/methodname/"
+        )
+
+        self.assertEqual(
+            self.url.absoluteLink("test1/test2"),
+            "http://domain.tld/DocRoot/Handler.py/test1/test2/"
         )
 
         self.assertEqual(
