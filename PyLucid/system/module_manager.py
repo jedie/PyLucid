@@ -376,7 +376,11 @@ class module_manager:
 
         self.plugin_data.setup_URLs()
 
-        moduleOutput = self._run_method(module_class, method_arguments)
+        try:
+            moduleOutput = self._run_method(module_class, method_arguments)
+        except RunModuleError, e:
+            self.page_msg(e)
+            moduleOutput = ""
 
         self.plugin_data.restore_URLs()
 
@@ -474,12 +478,12 @@ class module_manager:
             msg = "[Can't run '%s.%s': %s]" % (
                 self.module_name, self.method_name, msg
             )
-            if self.error_handling == False:
-                # Traceback erzeugen
-                raise Exception(msg)
-            else:
+            if self.error_handling == True:
                 # Fehler nur anzeigen
                 raise RunModuleError(msg) # Wird später abgefangen
+            else:
+                # Traceback erzeugen
+                raise Exception(msg)
 
 
         #~ if self.plugin_data["direct_out"] == True:
