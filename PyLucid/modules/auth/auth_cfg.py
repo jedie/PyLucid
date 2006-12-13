@@ -19,9 +19,9 @@ module_manager_debug = False
 module_manager_data = {
     "login" : {
         "must_login"    : False,
-        "direct_out"    : True,
+        "must_admin"    : False,
         "internal_page_info" : {
-            "description"       : "The Login html-form Page",
+            "description"       : "The Login html form page",
             "template_engine"   : "jinja",
             "markup"            : None
         },
@@ -29,14 +29,38 @@ module_manager_data = {
     "logout" : {
         "must_login"    : False,
         "must_admin"    : False,
-        "direct_out"    : True,
     },
     "check_login" : {
         "must_login"    : False,
-        "direct_out"    : True,
+        "must_admin"    : False,
     },
     "pass_reset_form" : {
         "must_login"    : False,
         "must_admin"    : False,
+        "internal_page_info" : {
+            "description"       : "The password reset html form page",
+            "template_engine"   : "jinja",
+            "markup"            : None
+        },
+    },
+    "check_pass_reset" : {
+        "must_login"    : False,
+        "must_admin"    : False,
+        "internal_page_info" : {
+            "name"              : "pass_reset_email",
+            "description"       : "The email with the password reset link",
+            "template_engine"   : "jinja",
+            "markup"            : None
+        },
+    },
+    "pass_reset" : {
+        "must_login"    : False,
+        "must_admin"    : False,
+        "internal_page_info" : {
+            "name"              : "new_pass_form",
+            "description"       : "Form to send the new password",
+            "template_engine"   : "jinja",
+            "markup"            : None
+        },
     },
 }

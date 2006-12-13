@@ -22,7 +22,7 @@ __version__ = "$Rev$"
 
 
 # Standart Python Module
-import os, sys, md5, time, random
+import os, sys, md5, time, random, datetime
 from Cookie import SimpleCookie
 
 ## Dynamisch geladene Module:
@@ -36,8 +36,11 @@ from PyLucid.system import crypt
 # =True: Login-Fehler sind aussagekräftiger: Sollte allerdings
 # wirklich nur zu Debug-Zwecke eingesetzt werden!!!
 # Gleichzeitig wird Modul-Manager Debug ein/aus geschaltet
-#~ debug = True
-debug = False
+debug = True
+#~ debug = False
+# WICHTIG:
+# Ist debug eingeschaltet, wird keine Password-Reset Email verschickt,
+# sondern direkt angezeigt!
 
 
 from PyLucid.system.BaseModule import PyLucidBaseModule
@@ -56,7 +59,7 @@ class auth(PyLucidBaseModule):
         Der User will einloggen.
         Holt das LogIn-Formular aus der DB und stellt es zusammen
         """
-        rnd_login = random.randint(10000,99999)
+        rnd_login = self._make_salt()
 
         url = self.URLs.actionLink("check_login")
 
@@ -79,7 +82,7 @@ class auth(PyLucidBaseModule):
         if display_reset_link:
             context["reset_link"] = self.URLs.actionLink("pass_reset_form")
 
-        self.page_msg(context)
+        #~ self.page_msg(context)
         self.templates.write("login", context)
 
     def check_login(self):
@@ -244,8 +247,214 @@ class auth(PyLucidBaseModule):
 
     #_________________________________________________________________________
 
-    def pass_reset_form(self):
-        raise To be continued...
+    def pass_reset_form(self, function_info=""):
+        """
+        User möchte sein Passwort zurück setzten.
+        """
+        try:
+            old_username = function_info[0]
+        except IndexError:
+            old_username = ""
+
+        context = {
+            "user"  : old_username,
+            "url"   : self.URLs.actionLink("check_pass_reset"),
+        }
+        self.page_msg(context)
+        self.templates.write("pass_reset_form", context)
+
+    def check_pass_reset(self):
+        """
+        Abgeschickes "password reset" form überprüfen.
+        Sind alle Daten korrekt, wird die reset mail verschickt.
+        """
+        # Form daten holen
+        try:
+            username    = self.request.form["user"]
+            email       = self.request.form["email"]
+            if username=="": raise KeyError("username")
+            if email=="": raise KeyError("email")
+        except KeyError, e:
+            # Formulardaten nicht vollständig
+            self.page_msg.red("Form data not complete! (KeyError: %s)" % e)
+            if debug: self.page_msg("form data:", self.request.form)
+            self.pass_reset_form([self.request.form.get("user","")])
+            return
+
+        try:
+            userdata = self.db.userdata(username)
+        except Exception, e:
+            self.page_msg.red("User unknown!")
+            if debug: self.page_msg(Exception, e)
+            self.pass_reset_form([username])
+            return
+
+        if userdata["email"] != email:
+            self.page_msg.red("Wrong email adress!")
+            if debug: self.page_msg("userdata:", userdata)
+            self.pass_reset_form([username])
+            return
+
+        ##____________________________________________________________________
+        ## Username und Mail OK
+
+        reset_data = self._reset_data()
+        reset_data["username"] = username
+
+        formatDateTime = self.preferences["core"]["formatDateTime"]
+        formatDateTime = formatDateTime.encode("utf8") # FIXME
+        request_time = datetime.datetime.now().strftime(formatDateTime)
+
+        if debug: self.page_msg("reset_data:", reset_data)
+
+        ##____________________________________________________________________
+        ## reset request merken
+
+        seed = "%s%s" % (time.clock(), reset_data["ip"])
+        reset_key = md5.new(seed).hexdigest()
+
+        expiry_time = 24 * 60 * 60
+        try:
+            self.db_cache.put_object(reset_key, expiry_time, reset_data)
+        except Exception, e:
+            #~ msg = e.args
+            #~ Duplicate entry
+            self.page_msg.red("Sorry, can't insert data in db: %s" % e)
+            return
+
+        ##____________________________________________________________________
+        ## EMail verschicken
+
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(seconds=expiry_time)
+        expiry_date = now + delta
+        expiry_date = expiry_date.strftime(formatDateTime)
+
+        reset_link = self.URLs.absolute_command_link(
+            "auth", "pass_reset", reset_key, addSlash=False
+        )
+        #~ reset_data["request_time"] = request_time
+        context = reset_data
+        context.update({
+            "base_url"      : self.URLs.absoluteLink(),
+            "reset_link"    : reset_link,
+            "expiry_date"   : expiry_date,
+        })
+
+        if debug:
+            self.page_msg(context)
+            #~ self.session.debug()
+            #~ self.preferences.debug()
+            self.response.write("<strong>Debug - The mail:</strong>")
+
+            self.response.write("<pre>")
+            self.templates.write("pass_reset_email", context)
+            self.response.write("</pre><hr />")
+
+        ##____________________________________________________________________
+        ## Info Seite über die verschickte email anzeigen:
+
+        context = {
+            "submited"      : True,
+            "expiry_time"  : "%sSec." % expiry_time,
+            "expiry_date"   : expiry_date,
+        }
+        #~ self.page_msg(context)
+        self.templates.write("pass_reset_form", context)
+
+    def pass_reset(self, function_info=""):
+        """
+        Überprüft eine Passwort reset Anforderung
+        Es ist der direkte Link aus der EMail, die bei check_pass_reset()
+        versendet wurde.
+        Ist der reset-Link ok, wird die HTML-Form zum setzten eines neues
+        Passwortes angezeigt.
+
+        macht folgendes:
+            - Gibt ein Formular zur eingabe des neuen Passwortes aus
+            - Nimmt das Ergebnis des Formulars entgegen
+        """
+        try:
+            reset_key = function_info[0]
+        except KeyError:
+            self.page_msg.red("Wrong reset url!")
+            return
+
+        if debug: self.page_msg("reset-Key:", reset_key)
+
+        try:
+            reset_data = self.db_cache.get_object(reset_key)
+        except Exception, e:
+            #~ msg = e.args
+            self.page_msg.red("Sorry, can't get reset data from db: %s" % e)
+            return
+
+        current_reset_data = self._reset_data()
+
+        if debug:
+            self.page_msg("reset data:", reset_data)
+            self.page_msg("current_reset_data:", current_reset_data)
+            self.page_msg("form data:", self.request.form)
+
+        for key in ("user_agent", "ip", "domain"):
+            if reset_data[key] != current_reset_data[key]:
+                self.page_msg.red("reset data check failt!")
+                return
+
+        if 'md5pass' in self.request.form:
+            # Formular wurde abgeschickt!
+            self.__set_new_password(reset_data["username"])
+        else:
+            # Formular für Passwort eingabe senden
+            context = {
+                "salt": self._make_salt(),
+                "url": self.URLs.currentAction(reset_key),
+            }
+            self.page_msg(context)
+            self.templates.write("new_pass_form", context)
+
+    def __set_new_password(self, username, salt):
+        """
+        Setzt das neue Passwort für den User
+        Wird von pass_reset() aufgerufen, wenn reset_data ok ist.
+        """
+        md5pass = self.request.form["md5pass"]
+        pass1 = self.request.form.get("pass1", "")
+        pass2 = self.request.form.get("pass2", "")
+        if pass1!="" or pass2!="":
+            self.page_msg.red(
+                "Security node: The Plain Text Password was send back!!!"
+            )
+
+        if len(md5pass)!=32:
+            self.page_msg.red("md5pass brocken?!?!")
+            return
+
+        self.page_msg("ok:", md5pass)
+        md5_a = md5pass[:16]
+        md5_b = md5pass[16:]
+
+        # Ersten Teil der MD5 mit dem zweiten Zeil verschlüsseln
+        md5checksum = crypt.encrypt(md5_a, md5_b)
+
+        raise "Der salt fehlt hier noch!!!"
+
+
+    def _reset_data(self):
+        """
+        """
+        reset_data = {
+            "user_agent": self.request.environ.get('HTTP_USER_AGENT', \
+                                                                    "unknown"),
+            "ip"        : self.session["ip"],
+            "domain"    : self.session["client_domain_name"],
+        }
+        return reset_data
+
+    def _make_salt(self):
+        seed = "%s%s" % (time.clock(), self.session["ip"])
+        salt = random.Random(seed).randint(10000,99999)
+        return salt
 
     #_________________________________________________________________________
 

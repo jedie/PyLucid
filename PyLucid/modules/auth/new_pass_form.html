@@ -1,0 +1,21 @@
+{*
+  Jinja-Template
+  <pre>{% debug %}</pre>
+*}
+<input id="salt" type="hidden" value="{{ salt }}" />
+
+<fieldset id="new_pass_form"><legend>Set a new password:</legend>
+<form name="passreset_form" id="passreset_form" method="post" action="" onSubmit="return check()">
+
+    <label class="left" for="pass1">Password 1:</label>
+    <input name="pass1" id="pass1" type="password" value="" />(len min. 8!)
+    <br />
+    <label class="left" for="pass2">Password 2:</label>
+    <input name="pass2" id="pass2" type="password" value="" onchange="check();" />(verification)
+    <br />
+    <input id="md5pass" name="md5pass" value="" type="text" size="40" maxlength="32" readonly="readonly" />
+    <br />
+    <input type="button" value="save new password" onclick="check();" />
+</form>
+</fieldset>
+<script type="text/javascript">prepare('{{ url }}');</script>
