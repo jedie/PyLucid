@@ -7,8 +7,8 @@ Verwaltung der verfügbaren URLs
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -19,7 +19,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 import os, posixpath, urllib
@@ -226,7 +226,7 @@ class URLs(dict):
         link = self.__make_link(self["scriptRoot"], url)
         return link
 
-    def absoluteLink(self, url):
+    def absoluteLink(self, url=""):
         if url.startswith(self["absoluteIndex"]):
             # Ist schon ein absoluter Link
             return url
@@ -243,8 +243,7 @@ class URLs(dict):
             return link
 
     def __make_link(self, base, url):
-        if url[0] == "/": # .lstrip("/") gibt es in Python 2.2 so nicht
-            url = url[1:]
+        url = url.lstrip("/")
 
         link = posixpath.join(base, url)
         link = self.addSlash(link)
