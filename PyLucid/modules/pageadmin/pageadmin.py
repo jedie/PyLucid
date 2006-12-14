@@ -1,73 +1,26 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# by jensdiemer.de (steht unter GPL-License)
-
 """
 Alles was mit dem ändern von Inhalten zu tun hat:
     -edit_page
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__author__ = "Jens Diemer (www.jensdiemer.de)"
+__version__= "$Rev:$"
 
-__version__="0.5"
-
-__history__="""
-v0.5
-    - Neu: create_first_page()
-v0.4.1
-    - def tag_list() nutzt nun self.response.startFreshResponse()
-v0.4
-    - Zeigt nun auch die verfügbaren lucid-Tags/Functions an
-v0.3.3
-    - Ein sehr übler Fehler bei der Unterscheidung, zwischen dem editieren
-        einer bestehenden Seite oder dem anlegen einer neuen Seite.
-    - Bugfixes beim erstellen und löschen von Seiten
-v0.3.2
-    - Änderungen, damit das "encode from DB" besser funktioniert
-v0.3.1
-    - "CGI_dependent_actions" bei new_page waren falsch.
-v0.3
-    - page_edit/save nutzt nun die allg. Archivierungs Methode archive_page()
-    - Vereinheitlichung bei den HTML-Form-Buttons
-    - Ob eine neue Seite angelegt werden soll, oder eine bestehende nur
-        editiert wird, erkennt das Skript nun an der Page-ID und nicht mehr
-        aus den Session-Daten.
-    - Trennung zwischen normalem editieren/speichern und neu/speichern
-v0.2
-    - NEU: "sequencing" - Ändern der Seiten-Reihenfolge
-    - select_del_page benutzt nun CGI_dependent_actions (vereinheitlichung im
-        Ablauf mit anderen Modulen)
-v0.1.1
-    - NEU: select_edit_page: Editieren einer Seite mit Select-Box in denen
-        _alle_ Seiten angezeigt werden.
-    - Bug 1275807 gefixed: "showlinks" und "permitViewPublic" werden nun
-        richtig auf 0 gesetzt statt ""
-v0.1.0
-    - NEU: Das löschen von Seiten geht nun auch ;)
-    - Anpassung an neuen Module-Manager
-    - Beim erstellen einer neuen Seite, wird direkt zu dieser "hingesprungen"
-v0.0.7
-    - "must_admin" für Module-Manager definiert
-    - Nutzt Zeitumwandlung aus PyLucid["tools"]
-v0.0.6
-    - vereinfachung in parent_tree.make_parent_option() durch
-        MySQLdb.cursors.DictCursor
-v0.0.5
-    - NEU: Pseudo Klasse 'module_info' liefert Daten für den Module-Manager
-v0.0.4
-    - NEU: erstellen einer Seite
-v0.0.3
-    - NEU: encoding from DB (Daten werden in einem bestimmten Encoding aus
-        der DB geholt)
-v0.0.2
-    - Fehler behoben: parend-ID wird nach einem Preview auf 'root' gesetzt
-v0.0.1
-    - erste Version
-"""
-
-__todo__ = """
-"""
 
 # Python-Basis Module einbinden
 import sys, cgi, time, pickle, urllib
@@ -162,6 +115,7 @@ class pageadmin(PyLucidBaseModule):
         context["url_action"] = self.URLs.actionLink("edit_page")
         context["url_taglist"] = self.URLs.actionLink("tag_list")
         context["url_abort"] = self.URLs.actionLink("scriptRoot")
+        context["url_textile_help"] = self.URLs.actionLink("tinyTextile_help")
 
         # Textfelder
         if context["content"] == None:
@@ -584,6 +538,16 @@ class pageadmin(PyLucidBaseModule):
                     page_id_to_del, duration_time
                 )
             )
+
+    #_______________________________________________________________________
+
+    def tinyTextile_help(self):
+        """
+        tinyTextile Hilfe Seite ausgeben
+        """
+        self.response.startFreshResponse()
+        self.templates.write("tinyTextile_help", context={})
+        return self.response
 
     #_______________________________________________________________________
 

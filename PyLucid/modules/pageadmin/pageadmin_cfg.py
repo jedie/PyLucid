@@ -39,6 +39,16 @@ module_manager_data = {
     "save"              : global_rights,
     "encode_from_db"    : global_rights,
 
+    "tinyTextile_help" : {
+        "must_login"    : False,
+        "must_admin"    : False,
+        "internal_page_info" : {
+            "description"       : "the tinyTextile help page",
+            "template_engine"   : None,
+            "markup"            : "textile",
+        },
+    },
+
     "select_edit_page" : {
         "must_login"    : True,
         "must_admin"    : False,
