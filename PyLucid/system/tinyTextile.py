@@ -13,8 +13,8 @@ http://www.solarorange.com/projects/textile/mtmanual_textile2.html
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -25,7 +25,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 __todo__ = """
 """
@@ -82,11 +82,11 @@ class parser:
                 self.shortcutLink
             ],
             [
-                # http/ftp Links allein im Text
+                # Links allein im Text
                 # Bsp.: Das wird ein Link: http://www.beispiel.de
                 r'''
                     (?<!=") # Ist noch kein HTML-Link
-                    (?P<url>(http|ftp)://([^\s\<]+))
+                    (?P<url>(http|ftp|svn|irc)://([^\s\<]+))
                     (?uimx)
                 ''',
                 r'<a href="\g<url>">\g<url></a>'
@@ -99,13 +99,7 @@ class parser:
 
         # Pre-Process Regeln
         self.pre_process_rules = self._compile_rules([
-            [
-                # NewLines vereinheitlichen
-                # Windows "\r\n" oder MacOS "\r" -->> "\n"
-                r"\r\n{0,1}",
-                r"\n"
-            ],
-            [ # Text vor einer Liste mit noch einem \n trennen
+            [ # Text vor einer "*"-Liste mit noch einem \n trennen
                 r"""
                     (^[^*\n].+?$) # Text-Zeile vor einer Liste
                     (\n^\*) # Absatz + erstes List-Zeichen
@@ -113,25 +107,33 @@ class parser:
                 """,
                 r"\1\n\2",
             ],
-            [ # Text vor einem <python> mit noch einem \n trennen
+            [ # Text vor einer "#"-Liste mit noch einem \n trennen
                 r"""
-                    (^[^(<python>)\n].+?$) # Text-Zeile vor einer Liste
-                    (\n^\<python>) # Absatz
+                    (^[^#\n].+?$) # Text-Zeile vor einer Liste
+                    (\n^\#) # Absatz + erstes List-Zeichen
                     (?uimx)
                 """,
                 r"\1\n\2",
             ],
-            [ # Text vor einem <pre> mit noch einem \n trennen
-                r"""
-                    (^[^(<pre>)\n].+?$) # Text-Zeile vor einer Liste
-                    (\n^\<pre>) # Absatz
-                    (?uimx)
-                """,
-                r"\1\n\2",
+            [
+                # Text *vor* einem <pre>, <python> oder <code> Block mit noch
+                # einem \n trennen
+                r"\n(?P<tag><(pre|python|code)>)\n",
+                r"\n\n\g<tag>\n",
+            ],
+            [
+                # Text *nach* einem <pre>, <python> oder <code> Block mit noch
+                # einem \n trennen
+                r"\n(?P<tag></(pre|python|code)>)\n",
+                r"\n\g<tag>\n\n",
             ],
         ])
 
         self.area_rules = (
+            [
+                "==", "==",
+                self.escape_area_start, self.escape_area, self.escape_area_end
+            ],
             [
                 "<pre>", "</pre>",
                 self.pre_area_start, self.pre_area, self.pre_area_end
@@ -154,11 +156,13 @@ class parser:
 
     def parse(self, txt):
         "Parsed den Text in's out_obj"
-
-        #~ self.page_msg(cgi.escape(txt))
-
+        #~ print "-"*80
+        #~ print txt
+        #~ print "-"*80
         txt = self.pre_process(txt)
-        #~ self.page_msg(cgi.escape(txt))
+        #~ print txt
+        #~ print "-"*80
+
         self.make_paragraphs(txt)
 
     def escaping(self, matchobj):
@@ -173,6 +177,10 @@ class parser:
 
     def pre_process(self, txt):
         "Vorab Verarbeitung des Textes"
+
+        # Zeilenenden vereinheitlichen
+        txt = txt.replace("\r\n", "\n").replace("\r","\n")
+
         # Leerzeilen vorn und hinten abschneiden
         txt = txt.strip()
 
@@ -190,6 +198,7 @@ class parser:
         Wendet Blockelement-Regeln und Inlineelement-Regeln an.
         """
         blocks = re.split("\n{2,}", txt)
+        #~ print repr(blocks)
         #~ self.page_msg(cgi.escape(str(blocks)))
         text = ""
         current_area = None
@@ -283,20 +292,37 @@ class parser:
         # Wir sind nicht in einer Area
         return None
 
+    #_________________________________________________________________________
+
+    def escape_area_start(self, block):
+        self.escape_area_first_line = True
+        pass
+
+    def escape_area(self, block):
+        if self.escape_area_first_line == True:
+            block = block.strip()
+            self.escape_area_first_line = False
+
+        block = block.splitlines()
+        block = "".join(["%s<br />\n" % cgi.escape(line) for line in block])
+        self.out.write(block)
+
+    def escape_area_end(self, block):
+        pass
+
+    #_________________________________________________________________________
+
     def pre_area_start(self, block):
-        #~ self.page_msg("pre START")
         self.pre_area_data = ""
 
     def pre_area(self, block):
         """
         Daten innerhalb von <pre>...</pre> werden direkt "ausgegeben"
         """
-        #~ self.page_msg("pre-Area:", cgi.escape(block))
         self.pre_area_data += self.newline + block + self.newline
 
     def pre_area_end(self, block):
-        #~ self.page_msg("pre END:", cgi.escape(self.pre_area_data))
-        self.out.write("<pre>%s</pre>" % self.pre_area_data.strip())
+        self.out.write("<pre>\n%s\n</pre>\n" % self.pre_area_data.strip())
 
     #_________________________________________________________________________
 
@@ -307,7 +333,7 @@ class parser:
         self.sourcecode_data = ""
 
     def python_area(self, block):
-        self.sourcecode_data += self.newline + block + self.newline
+        self.sourcecode_data += block + self.newline
 
     def python_area_end(self, dummy):
         code = self.sourcecode_data.strip()
@@ -401,5 +427,7 @@ class parser:
 
         for i in range(deep):
             self.out.write(post_tag)
+
+
 
 
