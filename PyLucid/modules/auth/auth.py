@@ -446,13 +446,13 @@ class auth(PyLucidBaseModule):
         reset_data = {
             "user_agent": self.request.environ.get('HTTP_USER_AGENT', \
                                                                     "unknown"),
-            "ip"        : self.session["ip"],
+            "ip"        : self.session["client_IP"],
             "domain"    : self.session["client_domain_name"],
         }
         return reset_data
 
     def _make_salt(self):
-        seed = "%s%s" % (time.clock(), self.session["ip"])
+        seed = "%s%s" % (time.clock(), self.session["client_IP"])
         salt = random.Random(seed).randint(10000,99999)
         return salt
 
