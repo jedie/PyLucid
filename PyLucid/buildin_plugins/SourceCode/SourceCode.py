@@ -10,40 +10,24 @@ Anmerkung:
 Eigentlich könnte man prima mit CSS's "white-space:pre;" arbeiten und
 somit alle zusätzlichen " " -> "&nbsp;" und "\n" -> "<br/>" umwandlung
 sparen. Das Klappt aus mit allen Browsern super, nur nicht mit dem IE ;(
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.4"
+__version__= "$Rev:$"
 
-__history__="""
-v0.4
-    - Nutzt nun PyKleur, durch self.render.highlight()
-v0.3.1
-    - Nutzt <pre>
-v0.3
-    - Anpassung an PyLucid v0.7
-v0.2.6
-    - Anpassung an änderung im SourceCode-Parser
-v0.2.5
-    - Anpassung an neuen ModuleManager
-v0.2.4
-    - lucidFunction() erwartet nun auch function_info vom ModulManager
-v0.2.3
-    - Python Source Code Parser ausgelagert nach sourcecode_parser.py, damit
-        er auch mit tinyTextile genutzt werden kann
-v0.2.2
-    - Falscher <br>-Tag korrigiert
-v0.2.1
-    - zwei print durch sys.stdout.write() ersetzt, da ansonsten ein \n
-        eingefügt wurde, der im Browser eine zusätzliches Leerzeichen
-        produzierte und somit den Source-Code unbrauchbar machte :(
-v0.2.0
-    - Anpassung damit es mit lucidFunction funktioniert.
-v0.1.1
-    - Bug in Python-Highlighter: Zeilen mit einem "and /" am Ende wurden
-        falsch dagestellt.
-v0.1.0
-    - erste Version
-"""
 
 
 import sys, os, cgi, sys
@@ -56,7 +40,15 @@ class SourceCode(PyLucidBaseModule):
 
     def lucidFunction( self, function_info ):
         filepath = function_info # Daten aus dem <lucidFunction>-Tag
-        filename = os.path.split(filepath)[1]
+        try:
+            filename = os.path.split(filepath)[1]
+        except Exception, e:
+            msg = (
+                "SourcCode Plugin Error:"
+                " wrong path '%s'! (%s)"
+            ) % (cgi.escape(repr(function_info)), cgi.escape(e.args[0]))
+            self.page_msg.red(msg)
+            return
 
         if not os.path.isfile(filepath):
             test_path = "%s%s" % (os.environ["DOCUMENT_ROOT"], filepath)
