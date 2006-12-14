@@ -3,21 +3,23 @@
 
 """
 Erweitert das colubrid response Objekt um ein paar Methoden.
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.3"
+__version__= "$Rev:$"
 
-__history__="""
-v0.3
-    - Neu: startFreshResponse()
-v0.2
-    - Neu: startFileResponse()
-v0.1
-    - erste Version
-"""
-
-__todo__="""
-"""
 
 # Colubrid
 from colubrid import HttpResponse
@@ -70,16 +72,25 @@ class HttpResponse(HttpResponse):
                 # Bsp part:
                 # Function:IncludeRemote>http://www.google.de</lucidFunction><p>jau</p>
 
-                function, post = part.split("</lucidFunction>")
-                # function  => Function:IncludeRemote>http://www.google.de
-                # post      => <p>jau</p>
+                try:
+                    function, post = part.split("</lucidFunction>",1)
+                    # function  => Function:IncludeRemote>http://www.google.de
+                    # post      => <p>jau</p>
+                except ValueError:
+                    # Der End-Tag wurde vergessen -> work-a-round
+                    function, post = part.split(">",1)
+                    function = function.split(":")[1]
+                    function_info = None
+                    self.page_msg(
+                        "End tag not found for lucidFunction '%s'" % function
+                    )
+                else:
+                    function, function_info = function.split(">")
+                    # function      => Function:IncludeRemote
+                    # function_info => http://www.google.de
 
-                function, function_info = function.split(">")
-                # function      => Function:IncludeRemote
-                # function_info => http://www.google.de
-
-                function = function.split(":")[1]
-                # function => IncludeRemote
+                    function = function.split(":")[1]
+                    # function => IncludeRemote
 
                 self.module_manager.run_function(function, function_info)
 
