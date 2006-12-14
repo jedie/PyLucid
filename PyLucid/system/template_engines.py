@@ -6,8 +6,8 @@ Einheitliche Schnittstelle zu den Templates Engines
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -18,7 +18,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 __todo__ = """
 Muß umgebaut werden, sodas man auch eine get-Methode benutzten kann.
@@ -85,18 +85,22 @@ class TemplateEngines(object):
         engine = internal_page_data["template_engine"]
 
         if engine == "string formatting":
-            self.render_stringFormatting(
+            content = self.render_stringFormatting(
                 internal_page_name, internal_page_data, context
             )
         elif engine == "jinja":
             content = internal_page_data["content_html"]
             content = render_jinja(content, context)
-            self.response.write(content)
         elif engine == None or engine == "None":
-            self.response.write(internal_page_data["content_html"])
+            content = internal_page_data["content_html"]
         else:
             msg = "Template Engine '%s' not implemented!" % engine
             raise NotImplementedError(msg)
+
+        content = self.render.apply_markup(
+            content, internal_page_data["markup"]
+        )
+        self.response.write(content)
 
         # CSS/JS behandeln:
         self.addCSS(internal_page_data["content_css"], internal_page_name)
@@ -312,11 +316,7 @@ class TemplateEngines(object):
                 if self.preferences["ModuleManager_error_handling"] != True:
                     raise
 
-        content = self.render.apply_markup(
-            content, internal_page_data["markup"]
-        )
-
-        self.response.write(content)
+        return content
 
 
 
