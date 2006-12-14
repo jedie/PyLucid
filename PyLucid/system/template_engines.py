@@ -3,18 +3,22 @@
 
 """
 Einheitliche Schnittstelle zu den Templates Engines
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.2"
-
-__history__="""
-v0.2
-    - Neu: Bessere Fehlerbehandlung mit _fill_string_context()
-v0.1.1
-    - addCode: Unicode->str Umwandlung in replacer.py verlagert
-v0.1
-    - erste Version
-"""
+__version__= "$Rev:$"
 
 __todo__ = """
 Muß umgebaut werden, sodas man auch eine get-Methode benutzten kann.
@@ -88,6 +92,8 @@ class TemplateEngines(object):
             content = internal_page_data["content_html"]
             content = render_jinja(content, context)
             self.response.write(content)
+        elif engine == None or engine == "None":
+            self.response.write(internal_page_data["content_html"])
         else:
             msg = "Template Engine '%s' not implemented!" % engine
             raise NotImplementedError(msg)
