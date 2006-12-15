@@ -37,6 +37,17 @@ connection = MySQLdb.Connect(
 cursor=connection.cursor()
 
 try:
+    print "drop existing demo_data table...",
+    try:
+        cursor.execute(
+            "DROP TABLE %sdemo_data;" % dbTablePrefix
+        )
+    except Exception, e:
+        print "Error:", e
+    else:
+        print "OK"
+
+
     print "create demo_data table...",
     try:
         cursor.execute(
@@ -46,7 +57,8 @@ try:
         print "Error:", e
     else:
         print "OK"
-        
+
+
     print "insert current reset time...",
     SQLcommand = (
         "INSERT INTO %sdemo_data (reset_time) VALUES (%%s);"
