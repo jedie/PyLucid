@@ -9,8 +9,8 @@ CSS in die CMS Seite einfügen
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -21,7 +21,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 import sys, os, datetime
@@ -135,9 +135,12 @@ class page_style(PyLucidBaseModule):
 
         # force Windows input/output to binary
         if sys.platform == "win32":
-            import msvcrt
-            msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
-            msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+            try:
+                import msvcrt
+                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+                msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+            except:
+                pass
 
         return response
 

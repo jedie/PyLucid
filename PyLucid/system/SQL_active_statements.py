@@ -289,7 +289,20 @@ class active_statements(passive_statements):
         Ändern des Username. Die Username-MD5 sum wird gleich mit geändet
         """
         import md5
-        username_md5 = md5.new(new_username).hexdigest()
+
+        def convert(username):
+            if not isinstance(username, unicode):
+                return username
+            try:
+                return username.encode("utf-8")
+            except UnicodeError:
+                self.page_msg("Unicode Error in change_username()!")
+                return username.encode("utf-8", errors="replace")
+
+        # md5 kann kein unicode ;)
+        new_username_str = convert(new_username)
+
+        username_md5 = md5.new(new_username_str).hexdigest()
         data = {
             "name": new_username,
             "username_md5": username_md5,

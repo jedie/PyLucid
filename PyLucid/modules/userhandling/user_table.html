@@ -1,30 +1,47 @@
 <h2>Manage user</h2>
 
+{% if user_details %}
+<fieldset><legend>user details</legend>
+<dl>
+  {% for line in user_details %}
+  <dt>{{ line.key }}</dt>
+  <dd>{{ line.value }}</dd>
+  {% endfor %}
+</dl>
+</fieldset>
+{% endif %}
+
 <fieldset><legend>edit user</legend>
 {% if user_list %}
-    <table>
-    <tr>
-        <th>name</th>
-        <th>realname</th>
-        <th>email</th>
-        <th>admin</th>
-    </tr>
+  <table>
+  <tr>
+    <th>name</th>
+    <th>realname</th>
+    <th>email</th>
+    <th>admin</th>
+    <th>actions</th>
+  </tr>
 
-    {% for user in user_list %}
-        <tr>
-                <form method="post" action="{{ url }}">
-                <input name="id" type="hidden" value="{{ user.id }}" />
-                <td><input name="name" type="text" value="{{ user.name }}" size="15" maxlength="50" /></td>
-                <td><input name="realname" type="text" value="{{ user.realname }}" size="20" maxlength="50" /></td>
-                <td><input name="email" type="text" value="{{ user.email }}" size="30" maxlength="50" /></td>
-                <td><input type="checkbox" name="admin" value="1" {% if user.admin %}checked="checked"{% else %}{% endif %} /></td>
-                <td><input type="submit" value="save" name="save" /><input type="submit" value="delete" name="delete" /></td>
-                </form>
-        </tr>
-    {% endfor %}
-    </table>
+  {% for user in user_list %}
+  <tr>
+    <form method="post" action="{{ url }}">
+    <input name="id" type="hidden" value="{{ user.id }}" />
+    <td><input name="name" type="text" value="{{ user.name }}" size="15" maxlength="50" /></td>
+    <td><input name="realname" type="text" value="{{ user.realname }}" size="20" maxlength="50" /></td>
+    <td><input name="email" type="text" value="{{ user.email }}" size="30" maxlength="50" /></td>
+    <td><input type="checkbox" name="admin" value="1" {% if user.admin %}checked="checked"{% endif %}  title="checked if the user is an admin."/></td>
+    <td>
+      <input type="submit" value="new password" name="new password" />
+      <input type="submit" value="save" name="save" />
+      <input type="submit" value="delete" name="delete" />
+      <input type="submit" value="details" name="details" />
+    </td>
+    </form>
+  </tr>
+  {% endfor %}
+  </table>
 {% else %}
-    No users found!
+  No users found!
 {% endif %}
 </fieldset>
 

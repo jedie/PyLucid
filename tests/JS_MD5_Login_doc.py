@@ -9,7 +9,7 @@ from md5 import new as md5_new
 ##____________________________________________________________________________
 
 password = "321654987"
-salt = "20711"
+salt = "87080"
 challenge = "12345"
 
 ##____________________________________________________________________________
@@ -19,18 +19,19 @@ def md5(txt):
     return md5_new(txt).hexdigest()
 
 def encrypt(txt, key): # Pseudo encrypt
-    return "encrypted %s with %s" % (txt, key)
+    return "%s encrypted with %s" % (txt, key)
 
 def decrypt(txt, key): # Pseudo decrypt
-    txt, _, key2 = txt.split(" ", 3)[1:]
-    if key!=key2:
-        raise AssertionError("key '%s' != key2 '%s'" % (key, key2))
+    decrypted = txt.split(" ")
+    txt = decrypted[0]
+    key2 = decrypted[-1]
+    assert key == key2, "Decrypt Fehler: key '%s' != key2 '%s'" % (key, key2)
     return txt
 
-# Die echten crypt Module von PyLucid nutzten:
-import sys
-sys.path.insert(0,"..")
-from PyLucid.system.crypt import encrypt, decrypt
+#~ # Die echten crypt Module von PyLucid nutzten:
+#~ import sys
+#~ sys.path.insert(0,"..")
+#~ from PyLucid.system.crypt import encrypt, decrypt
 
 ##____________________________________________________________________________
 
@@ -71,8 +72,9 @@ def create_new_user():
 def user_login(md5checksum):
     print "\n\n------------ 3. Login eines Users------------"
 
-    print "\n 3.1. Server sendet salt '%s' + challenge zum client:" % salt,
-    print "'%s'" % challenge
+    print "\n 3.1. Server sendet salt '%s' und challenge '%s' zum client." % (
+        salt, challenge
+    )
 
     print "\n 3.2. Eingabe des Passwortes auf dem Client:",
     print "'%s'" % password
@@ -100,20 +102,21 @@ def user_login(md5checksum):
     print "\n 4.1. aus der DB md5checksum: '%s'" % md5checksum
 
     print "\n 4.2. decrypt(md5checksum, key=md5_b):",
-    md5checksum = decrypt(md5checksum, md5_b)
+    decrypted_checksum = decrypt(md5checksum, md5_b)
     print "'%s'" % md5checksum
 
-    print "\n 4.3. md5(md5checksum + challenge):",
-    md5check = md5(md5checksum + challenge)
-    print "'%s'" % md5check
+    print "\n 4.3. md5(challenge + decrypted_checksum):",
+    md5_challenge = md5(challenge + decrypted_checksum)
+    print "'%s'" % md5_challenge
 
-    print "\n 4.4. Vergleich: %s == %s" % (md5check, md5_a2)
+    print "\n 4.4. Vergleich: %s == %s" % (md5_challenge, md5_a2)
+    assert md5_challenge == md5_a2, "Da ist wohl ein Logik Fehler!"
 
 ##____________________________________________________________________________
 
 if __name__ == "__main__":
-    #~ checksum_from_db = create_new_user() # Neuer User in der DB anlegen
+    checksum_from_db = create_new_user() # Neuer User in der DB anlegen
 
-    checksum_from_db = "mi4lvvfGMCR/1eLG2ncq4hG2OQI8K0QWIgQqESUISicIOiFk"
+    #~ checksum_from_db = "mi4lvvfGMCR/1eLG2ncq4hG2OQI8K0QWIgQqESUISicIOiFk"
 
     user_login(checksum_from_db) # User will einloggen

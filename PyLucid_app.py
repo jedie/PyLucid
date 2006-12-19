@@ -272,10 +272,10 @@ class PyLucidApp(BaseApplication):
         self.session.init2(self.request, self.response)
         #~ self.session.debug()
 
-        self.session["session_id"] = 123
-        self.session["isadmin"] = True
-        self.session["user"] = "test"
-        self.session["user_id"] = 1
+        #~ self.session["session_id"] = 123
+        #~ self.session["isadmin"] = True
+        #~ self.session["user"] = "test"
+        #~ self.session["user_id"] = 1
 
         self.staticTags.init2(self.request, self.response)
 
@@ -443,7 +443,6 @@ if __name__ == '__main__':
         host = "localhost"
         port = 8080
         print "\n", "="*79
-        print "Starting development server on: '%s:%s'...\n" % (host, port)
 
         # with 'debugged application':
         from colubrid.debug import DebuggedApplication
@@ -454,6 +453,8 @@ if __name__ == '__main__':
         from wsgiref.simple_server import WSGIServer, WSGIRequestHandler
         server = WSGIServer((host, port), WSGIRequestHandler)
         server.set_app(app)
+
+        print "Starting development server on: '%s:%s'...\n" % (host, port)
         server.serve_forever()
 
     from colubrid import reloader

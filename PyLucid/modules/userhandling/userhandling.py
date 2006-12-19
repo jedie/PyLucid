@@ -37,6 +37,8 @@ from PyLucid.system.exceptions import *
 from PyLucid.system.BaseModule import PyLucidBaseModule
 
 
+debug = True
+#~ debug = False
 
 
 class userhandling(PyLucidBaseModule):
@@ -52,6 +54,11 @@ class userhandling(PyLucidBaseModule):
 
     def manage_user(self):
         """ Verwaltung von Usern """
+        if debug:
+            self.page_msg(self.request.form)
+
+        additional_context=None
+
         if "add user" in self.request.form:
             # Es wurde das Formular abgeschickt
             self.add_user_action()
@@ -59,11 +66,31 @@ class userhandling(PyLucidBaseModule):
             self.save_changes()
         elif "delete" in self.request.form:
             self.delete_user()
+        elif "details" in self.request.form:
+            additional_context = {"user_details": self.user_details()}
+        elif "new password" in self.request.form:
+            self.new_password()
+            return
 
-        self.user_table()
+        self.write_userlist_page(additional_context)
 
-        context = {"url": self.URLs.currentAction()}
+    def write_userlist_page(self, additional_context=None):
+        context = {
+            "url": self.URLs.currentAction()
+        }
 
+        if additional_context:
+            context.update(additional_context)
+
+        ## User Tabelle
+        select_items = ["id","name","realname","email","admin"]
+        user_list = self.db.get_all_userdata(select_items)
+        context["user_list"] = user_list
+        if debug:
+            self.page_msg(context)
+        self.templates.write("user_table", context)
+
+        ## neuer User Form
         # Bei _install soll i.d.R. ein admin erstellt werden, deswegen soll
         # der Admin-Button "checked" sein
         if self.runlevel.is_install():
@@ -74,13 +101,6 @@ class userhandling(PyLucidBaseModule):
         #~ self.page_msg(context)
         self.templates.write("add_user", context)
 
-    def user_table(self):
-        user_list = self.db.user_data_list()
-        context = {
-            "url" : self.URLs.currentAction(),
-            "user_list": user_list,
-        }
-        self.templates.write("user_table", context)
 
     def save_changes(self):
         try:
@@ -174,68 +194,107 @@ class userhandling(PyLucidBaseModule):
 
         self.page_msg(msg)
 
+    def user_details(self):
+        user_id = self.request.form['id']
+        user_details = self.db.get_userdata_by_userid(
+            user_id, select_items=["*"]
+        )
+        if debug:
+            self.page_msg("User Data Details:", user_details)
+        user_details = [
+            {"key":k, "value":v} for k,v in user_details.iteritems()
+        ]
+        return user_details
 
-    def create_md5_pass( self, password ):
-        """Erstellt das JS-MD5 Passwort-Paar"""
+    def _pass_reset_class(self):
+        from PyLucid.modules.auth import pass_reset
+        p = pass_reset.PassReset(self.request, self.response)
+        return p
 
-        # Teilt Passwort auf
-        pass1 = ""
-        pass2 = ""
-        switcher = False
-        for current_char in password:
-            if switcher == False:
-                pass1 += current_char
-                switcher = True
-            else:
-                pass2 += current_char
-                switcher = False
+    def new_password(self):
+        """
+        Setzten eines neuen Passwortes für einen bestehenden User
+        """
+        user_id = self.request.form["id"]
+        url = self.URLs.actionLink("set_new_password")
 
-        # Berechnet MD5 Summe aus dem ersten Teil des Passwortes
-        pass1 = md5.new( pass1 ).hexdigest()
+        self._pass_reset_class().new_password_form(url, user_id)
 
-        # Verschlüsselt zweiten Teil der Passwortes mit der MD5 des ersten Teiles
-        pass2 = crypt.encrypt( pass2, pass1 )
-
-        return pass1, pass2
-
-    def pass_recovery(self, old_user="", old_email=""):
-        print self.db.get_internal_page("pass_recovery")["content"] % {
-            "url"   : self.action_url + "send_email",
-            "user"  : cgi.escape(old_user),
-            "email" : cgi.escape(old_email),
-        }
-
-    def send_email( self ):
-        try:
-            username    = self.CGIdata["user"]
-            email_adr   = self.CGIdata["email"]
-        except KeyError, e:
-            self.page_msg( "Form error. No Key %s" % e )
-            # Eingabe wieder anzeigen
-            self.pass_recovery()
-            return
+    def set_new_password(self):
+        if debug:
+            self.page_msg(self.request.form)
 
         try:
-            userdata = self.db.userdata( username )
-        except Exception, e:
-            self.page_msg( "Unknown user." )
-            self.page_msg( e )
-            # Eingabe wieder anzeigen
-            self.pass_recovery( username, email_adr )
+            user_id = int(self.request.form['user_id'])
+        except (ValueError, KeyError):
+            self.page_msg.red("Form Error!")
             return
+        else:
+            self._pass_reset_class().set_userpassword_by_userid(user_id)
 
-        if userdata["email"] != email_adr:
-            self.page_msg( "Wrong email Adress." )
-            # Eingabe wieder anzeigen
-            self.pass_recovery( username, email_adr )
-            return
+        self.write_userlist_page()
 
-        # Username und email stimmen überein. Also wird eine Mail
-        # geschickt.
+    #~ def create_md5_pass( self, password ):
+        #~ """Erstellt das JS-MD5 Passwort-Paar"""
 
-        self.CGIdata.debug()
+        #~ # Teilt Passwort auf
+        #~ pass1 = ""
+        #~ pass2 = ""
+        #~ switcher = False
+        #~ for current_char in password:
+            #~ if switcher == False:
+                #~ pass1 += current_char
+                #~ switcher = True
+            #~ else:
+                #~ pass2 += current_char
+                #~ switcher = False
 
-        email_text = self.db.get_internal_page("pass_recovery_email1")
+        #~ # Berechnet MD5 Summe aus dem ersten Teil des Passwortes
+        #~ pass1 = md5.new( pass1 ).hexdigest()
+
+        #~ # Verschlüsselt zweiten Teil der Passwortes mit der MD5 des ersten Teiles
+        #~ pass2 = crypt.encrypt( pass2, pass1 )
+
+        #~ return pass1, pass2
+
+    #~ def pass_recovery(self, old_user="", old_email=""):
+        #~ print self.db.get_internal_page("pass_recovery")["content"] % {
+            #~ "url"   : self.action_url + "send_email",
+            #~ "user"  : cgi.escape(old_user),
+            #~ "email" : cgi.escape(old_email),
+        #~ }
+
+    #~ def send_email( self ):
+        #~ try:
+            #~ username    = self.CGIdata["user"]
+            #~ email_adr   = self.CGIdata["email"]
+        #~ except KeyError, e:
+            #~ self.page_msg( "Form error. No Key %s" % e )
+            #~ # Eingabe wieder anzeigen
+            #~ self.pass_recovery()
+            #~ return
+
+        #~ try:
+            #~ userdata = self.db.userdata( username )
+        #~ except Exception, e:
+            #~ self.page_msg( "Unknown user." )
+            #~ self.page_msg( e )
+            #~ # Eingabe wieder anzeigen
+            #~ self.pass_recovery( username, email_adr )
+            #~ return
+
+        #~ if userdata["email"] != email_adr:
+            #~ self.page_msg( "Wrong email Adress." )
+            #~ # Eingabe wieder anzeigen
+            #~ self.pass_recovery( username, email_adr )
+            #~ return
+
+        #~ # Username und email stimmen überein. Also wird eine Mail
+        #~ # geschickt.
+
+        #~ self.CGIdata.debug()
+
+        #~ email_text = self.db.get_internal_page("pass_recovery_email1")
 
         #~ email_text = email_text % {
             #~ "cms_name" : "test",
@@ -249,11 +308,10 @@ class userhandling(PyLucidBaseModule):
             #~ text    = "Your Password"
         #~ )
 
-        print "OK"
-        return
+        #~ print "OK"
+        #~ return
 
 
 
-#~ usermanager("").create_password( "dasisteintest" )
 
 

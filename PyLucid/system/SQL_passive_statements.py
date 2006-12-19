@@ -695,31 +695,47 @@ class passive_statements(SQL_wrapper):
     #_________________________________________________________________________
     ## Userverwaltung
 
-    def get_userdata_by_md5username(self, md5username, select_items=["*"]):
+    def _get_userdata(self, where, select_items):
         """
-        Generische Methode um Userdaten anhand des md5username zu bekommen
+        Generische Methode für die Userdaten-Methoden
         """
         data = self.select(
             select_items    = select_items,
             from_table      = "md5users",
-            where           = ("username_md5", md5username),
+            where           = where,
             limit           = 1,
         )[0]
         return data
+
+    def get_userdata_by_md5username(self, md5username, select_items=["*"]):
+        """
+        Generische Methode um Userdaten anhand des md5username zu bekommen
+        """
+        where           = ("username_md5", md5username)
+        return self._get_userdata(where, select_items)
 
     def get_userdata_by_username(self, username, select_items=["*"]):
         """
         Generische Methode um Userdaten anhand des normalen Username zu
         bekommen
         """
+        where = ("name", username)
+        return self._get_userdata(where, select_items)
+
+    def get_userdata_by_userid(self, userid, select_items=["*"]):
+        """
+        Generische Methode um Userdaten anhand des normalen Username zu
+        bekommen
+        """
+        where = ("id", userid)
+        return self._get_userdata(where, select_items)
+
+    def get_all_userdata(self, select_items=["*"]):
         data = self.select(
             select_items    = select_items,
             from_table      = "md5users",
-            where           = ("name", username),
-            limit           = 1,
-        )[0]
+        )
         return data
-
 
     #~ def normal_login_userdata(self, username):
         #~ "Userdaten die bei einem normalen Login benötigt werden"

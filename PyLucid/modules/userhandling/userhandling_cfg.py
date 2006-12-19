@@ -39,12 +39,8 @@ module_manager_data = {
             "markup"            : None,
         },
     },
-    "pass_recovery" : {
-        "must_login"    : False,
-        "must_admin"    : False,
-    },
-    "send_email" : {
-        "must_login"    : False,
-        "must_admin"    : False,
+    "set_new_password" : {
+        "must_login"    : True,
+        "must_admin"    : True,
     },
 }

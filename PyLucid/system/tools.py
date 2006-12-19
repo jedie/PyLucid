@@ -1054,19 +1054,17 @@ class StringIOzipper(object):
 #_____________________________________________________________________________
 
 
-class MD5Checker(object):
-    """
-    Überprüft mit check() ob es sich um eine MD5-hexdigest Summe handeln
-    könnte wirft einen ValueError, wenn es keine MD5 Summe sein kann
-    """
+class ChecksumChecker(object):
     def __init__(self):
-        from string import ascii_lowercase, digits
+        from string import hexdigits
+        self.allow_chars = set(hexdigits)
 
-        self.allow_chars = set(ascii_lowercase)
-        self.allow_chars.update(digits)
-
-    def check(self, md5value):
-        if len(md5value) != 32:
+    def check(self, md5value, should_len=32):
+        """
+        Überprüft ob es sich um eine hexdigest-hash Summe handeln könnte
+        wirft einen ValueError, wenn es keine sein kann
+        """
+        if len(md5value) != should_len:
             raise ValueError("len error")
 
         md5value_set = set(md5value)

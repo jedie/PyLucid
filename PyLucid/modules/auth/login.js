@@ -9,9 +9,10 @@ if (navigator.cookieEnabled) {
 }
 
 
-debug_msg = true;
+// debug_msg = true;
+debug_msg = false;
 
-if (debug) {
+if (debug_msg == true) {
    property = "width=350,height=400,top=1,left=" + window.outerWidth;
    debug_window = window.open("about:blank", "Debug", property);
    debug_win = debug_window.document
@@ -29,6 +30,7 @@ function debug_confirm() {
    debug_window.focus();
    debug_win.writeln("---[DEBUG END]---");
    alert('OK for submit.');
+   debug_window.close();
 }
 
 function set_focus(object_id) {
@@ -92,7 +94,7 @@ function check() {
 
     // Passwort aufteilen
     md5_a = md5pass.substr(0, 16);
-    md5_b = md5pass.substr(15, 16);
+    md5_b = md5pass.substr(16, 16);
     debug("substr: md5_a:|"+md5_a+"| md5_b:|"+md5_b+"|");
 
     md5_a2 = MD5(challenge + md5_a)

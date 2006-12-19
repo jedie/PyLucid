@@ -4,8 +4,9 @@
 *}
 <input id="salt" type="hidden" value="{{ salt }}" />
 
-<fieldset id="new_pass_form"><legend>Set a new password:</legend>
+<fieldset id="new_pass_form"><legend>Set a new password {% if user_id %}(user id: {{ user_id }}){% endif %}:</legend>
 <form name="passreset_form" id="passreset_form" method="post" action="">
+    {% if user_id %}<input name="user_id" type="hidden" value="{{ user_id }}" />{% endif %}
 
     <label class="left" for="pass1">Password 1:</label>
     <input name="pass1" id="pass1" type="password" value="" />(len min. 8!)
