@@ -122,6 +122,17 @@ class db_cache(object):
         object = pickle.loads(object)
         return object
 
+    def delete_object(self, id):
+        """
+        Löscht einen bestimmten Eintrag
+        """
+        self.db.delete(
+            table   = "object_cache",
+            where   = ("id", id),
+            limit   = 1
+        )
+        self.db.commit()
+
     def delete_old_entries(self):
         """
         Löscht alte Einträge

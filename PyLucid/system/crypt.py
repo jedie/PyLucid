@@ -12,11 +12,26 @@ Modified by Christopher Grebs
 
 ToDo:
     Better handling unicode and not unicode data
+
+
+Last commit info:
+----------------------------------
+LastChangedDate: $LastChangedDate$
+Revision.......: $Rev$
+Author.........: $Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
+__version__ = "$Rev$"
 
 
-import md5, random, base64, bz2, time
+
+import sha, random, base64, bz2, time
 
 
 
@@ -28,8 +43,8 @@ def crypten(txt, password):
     """
     einfache XOR Verschlüsselung
     """
-    password = md5.new(password).digest()
-    maxSeedLen  = len(password)
+    password = sha.new(password).digest()
+    maxSeedLen = len(password)
 
     i = 0
     crypted = []
@@ -60,7 +75,7 @@ def encrypt(txt, password, use_base64=True, use_bz2=False):
         password = password.encode(CHARSET)
 
     # Hash-Wert hinzufügen
-    checksum = md5.new(txt).digest()
+    checksum = sha.new(txt).digest()
     #~ print "encrypt checksum:", checksum
 
     txt = "".join([checksum, txt])
@@ -81,46 +96,6 @@ def encrypt(txt, password, use_base64=True, use_bz2=False):
 #_____________________________________________________________________________
 
 
-def __md5sum_test(txt):
-    """
-    md5 checksum testen und value ohne md5sum zurück liefern
-    """
-    try:
-        checksum = txt[:16]
-        txt = txt[16:]
-    except Exception, e:
-        raise WrongChecksum("checksum split failed (%s)" % e)
-
-    try:
-        hast_test = checksum == md5.new(txt).digest()
-    except Exception, e:
-        raise WrongChecksum("checksum test failed (%s)" % e)
-    else:
-        if hast_test != True:
-            #~ print checksum, "-", md5.new(txt).digest()
-            raise WrongChecksum("checksum incorrect")
-
-    return txt
-
-
-def __old_hast_test(txt):
-    """
-    Testet den veralteten hast() test
-    """
-    try:
-        hash_value, txt = txt.split("_", 1)
-    except Exception, e:
-        raise WrongChecksum("hash value split failed (%s)" % e)
-
-    try:
-        if hash_value != str(hash(txt)):
-            raise WrongChecksum("hash-test incorrect")
-    except Exception, e:
-        raise WrongChecksum("hash test failed (%s)" % e)
-
-    return txt
-
-
 def decrypt(txt, password, use_base64=True, use_bz2=False):
     """
     String >txt< mittels password entschlüsseln
@@ -129,7 +104,7 @@ def decrypt(txt, password, use_base64=True, use_bz2=False):
         try:
             txt=base64.decodestring(txt)
         except Exception, e:
-            raise WrongChecksum("base64 decoding error: %s" % e)
+            raise DeCryptError("base64 decoding error: %s" % e)
 
     txt = crypten(txt, password)
 
@@ -137,15 +112,24 @@ def decrypt(txt, password, use_base64=True, use_bz2=False):
         try:
             txt = bz2.decompress(txt)
         except IOError, e:
-            raise WrongChecksum("bz2 decompress error: %s" % e)
+            raise DeCryptError("bz2 decompress error: %s" % e)
 
+    # checksum und Nachricht trennen
     try:
-        txt = __md5sum_test(txt)
-    except:
-        # Pass passwort ist entweder falsch, oder die Daten wurde noch mit dem
-        # alten hast() verfahren gespeichert.
-        txt = __old_hast_test(txt)
-        #~ print "Note: old hash() implementation used!"
+        checksum = txt[:20]
+        txt = txt[20:]
+    except Exception, e:
+        raise DeCryptError("checksum split failed (%s)" % e)
+
+    # sha checksum testen vergleichen
+    try:
+        hast_test = checksum == sha.new(txt).digest()
+    except Exception, e:
+        raise DeCryptError("checksum test failed (%s)" % e)
+    else:
+        if hast_test != True:
+            #~ print checksum, "-", sha.new(txt).digest()
+            raise DeCryptError("checksum incorrect")
 
     return txt
 
@@ -153,7 +137,16 @@ def decrypt(txt, password, use_base64=True, use_bz2=False):
 #_____________________________________________________________________________
 
 
-class WrongChecksum(Exception):
+class CryptError(Exception):
+    """ Alle Fehler beim crypten """
+    pass
+
+#~ class EnCryptError(CryptError):
+    #~ """ Alle Fehler beim verschlüsseln """
+    #~ pass
+
+class DeCryptError(CryptError):
+    """ Alle Fehler beim entschlüsseln """
     pass
 
 
@@ -171,24 +164,6 @@ def __get_ascii_testdata__():
     test_string    = "".join([chr(i) for i in xrange(128)])
     password       = "".join([chr(i) for i in xrange(0, 128, 128 / 19)])
     return test_string, password
-
-def __test_old_decrypt__():
-    print "__________________________________________________________________"
-    print "\told decrypt implementation test:"
-
-    test_string, password = __get_ascii_testdata__()
-
-    # Bei alten encrypteten Strings wurde hash() zur Überprüfung genommen.
-    old_crypt_value = (
-        "aAsQBAlzDisjZ3w2JXU3G0A/Iz43SDYVH18sJjVlJwtQLzMuJ1gmBQ9PPBYFVRc7YB8D"
-        "HhdoFjU/fwwGFUUHK3APEw4HeAYlL28cdmU1d1sAf2N+dwh2VV8fbGZ1JWdLEG9zbmcY"
-        "ZkVPD3xWRRVXeyBfQ15XKFZ1fz9MRlUFR2swT1NORzhGZW8vXA=="
-    )
-    print "Test Data ok:", \
-    "e0ef6a55ff0742bc88cc4631c88a8998" == md5.new(old_crypt_value).hexdigest()
-
-    d = decrypt(old_crypt_value, password, use_bz2=False)
-    print "encrypt test:", d == test_string
 
 
 
@@ -226,7 +201,7 @@ def __test_utf8__():
 
     e = encrypt(test_string, password, use_base64=False, use_bz2=False)
     print "encrypt test 1:",
-    print "be4544ddd25e1068e697062d169790fd" == md5.new(e).hexdigest()
+    print "be4544ddd25e1068e697062d169790fd" == sha.new(e).hexdigest()
     d = decrypt(e, password, use_base64=False, use_bz2=False)
     print "decrypt test 1:", d == test_string
 
@@ -266,9 +241,11 @@ def __test_checksum__(use_base64, use_bz2):
 
     # Falsches Passwort
     print "invalid password test:",
+    #~ print "correct password is: %s" % repr(password)
     try:
         for i in xrange(len(password)):
             invalid_pass = password[:i] + "_" + password[i+1:]
+            #~ print "test with invalid password: %s" % repr(invalid_pass)
             test(encrypted, invalid_pass)
     except TestFailed:
         print "failed!"
@@ -297,9 +274,8 @@ def __test__(method):
 
 
 def __test_all__():
-    __test_old_decrypt__()
     __test__(__test_ascii__)
-    __test_utf8__()
+    #~ __test_utf8__()
     __test__(__test_checksum__)
 
 

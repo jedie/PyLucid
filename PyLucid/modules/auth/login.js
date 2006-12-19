@@ -1,24 +1,6 @@
-/*____________________________________________________________________________
- * PyLucid - md5manager
- *
- * version = v0.2.1
- *
- * history:
- * v0.2.1
- *   - verschoben aus den einzelnen Dateien direkt in login_form
- *   - JS Abfrage, ob Cookies erlaubt sind
- *   - Anpassung an neues HTML-Formular
- * v0.2
- *   - Passwörter werden nun Zeichen für Zeichen aufgeteilt.
- * v0.1
- *   - erste Version
- */
-//~ alert(document.cookie);
 if (!document.getElementById) {
   alert("Your Browser is not supported!");
-} /*else {
-  document.getElementById("user").focus();
-}*/
+}
 
 if (navigator.cookieEnabled) {
   if (navigator.cookieEnabled != true) {
@@ -26,59 +8,109 @@ if (navigator.cookieEnabled) {
   }
 }
 
-function md5login() {
+
+debug_msg = true;
+
+if (debug) {
+   property = "width=350,height=400,top=1,left=" + window.outerWidth;
+   debug_window = window.open("about:blank", "Debug", property);
+   debug_win = debug_window.document
+   debug_win.writeln("<style>* { font-size: 0.85em; }</style>");
+   debug_win.writeln("<h1>JS Debug:</h1>");
+   debug_win.writeln("---[DEBUG START]---");
+   debug_win.writeln("cookie:" + document.cookie +"<br />");
+}
+function debug(msg) {
+   if (debug_msg != true) { return; }
+   debug_win.writeln(msg + "<br />");
+}
+function debug_confirm() {
+   if (debug_msg != true) { return; }
+   debug_window.focus();
+   debug_win.writeln("---[DEBUG END]---");
+   alert('OK for submit.');
+}
+
+function set_focus(object_id) {
+   debug("set focus on id:" + object_id);
+   document.getElementById(object_id).focus();
+}
+
+/* ___________________________________________________________________________
+ *  username input
+ */
+function username(url) {
+    debug("user url:" + url);
+    user = document.getElementById("user").value;
+    debug("user:"+ user);
+    if (user.length<4) {
+        alert("Username min len 4 chars! - current len:" + user.length);
+        return;
+    }
+
+    user = MD5(user);
+    debug("user md5:" + user);
+    debug_confirm();
+    window.location.href = url + user;
+}
+
+/* ___________________________________________________________________________
+ *  password input
+ */
+function prepare(url) {
+    check_ok = false;
+
+    submit_url = url;
+    debug("submit_url:" + submit_url);
+    if (submit_url=="") { alert("submit url from Server fail!"); return false; }   
+
+    salt = document.getElementById("salt").value;
+    debug("salt:" + salt);
+    if (salt.length<5) { alert("salt from Server fail!"); return false; }
+
+    challenge = document.getElementById("challenge").value;
+    debug("challenge:" + challenge);
+    if (challenge.length<5) { alert("challenge from Server fail!"); return false; }
+}
+
+function check() {
+    if (check_ok == true) {
+       // check() wird bei onsubmit gestartet
+       return true;
+    }
+
     in_pass = document.getElementById("plaintext_pass").value;
-
-    if (document.getElementById("md5pass1").value.length==32 &&
-      document.getElementById("md5pass2").value.length==32 &&
-      in_pass=="") {
-      // Tritt ein wenn auf den Button geklickt wurde,
-      // denn alles ist schon per onChange erledigt ;)
-      return
-    }
-
-
-    rnd_value = document.getElementById("rnd").value;
-    if (rnd_value=="") { alert("rnd from Server fail!"); return false; }
-
+    debug("in_pass:" + in_pass);
     if (in_pass.length<8) {
-        alert("Password min len 8!"); return false;
-    }
-
-    // Passwort aufteilen
-    pass1 = "";
-    pass2 = "";
-    switcher = false;
-    for (var i = 0; i <= in_pass.length; i++) {
-        current_char = in_pass.substr(i, 1);
-        if (switcher==false) {
-            pass1 += current_char;
-            switcher = true;
-        } else {
-            pass2 += current_char;
-            switcher = false;
-        }
-    }
-    // Zufallszahl vom Server dran hängen
-    pass2 += rnd_value;
-
-    pass1 = MD5(pass1);
-    if (pass1.length != 32) { alert("MD5 error!"); return false; }
-
-    pass2 = MD5(pass2);
-    if (pass2.length != 32) { alert("MD5 error!"); return false; }
-
-    // MD5 setzten
-    document.getElementById("md5pass1").value = pass1;
-    document.getElementById("md5pass2").value = pass2;
-
-    // Klartext Passwort löschen
-    document.getElementById("plaintext_pass").value = "";
-
-    if (document.getElementById("plaintext_pass").value != "") {
-        alert("JavaScipt error!");
+        alert("Password min len 8! - current len:" + in_pass.length);
         return false;
     }
+
+    md5pass = MD5(salt + in_pass);
+    debug("md5pass - MD5(salt + in_pass):" + md5pass);
+    if (md5pass.length!=32) { alert("MD5 salt error!"); return false; }
+
+    // Passwort aufteilen
+    md5_a = md5pass.substr(0, 16);
+    md5_b = md5pass.substr(15, 16);
+    debug("substr: md5_a:|"+md5_a+"| md5_b:|"+md5_b+"|");
+
+    md5_a2 = MD5(challenge + md5_a)
+    debug("md5_a2 - MD5(challenge + md5_a): " + md5_a2);
+
+    // MD5 setzten
+    document.getElementById("md5_a2").value = md5_a2;
+    document.getElementById("md5_b").value = md5_b;
+
+    document.getElementById("salt").value = "";
+    document.getElementById("challenge").value = "";
+    document.getElementById("plaintext_pass").value = "";
+
+    document.login.action = submit_url;
+
+    check_ok = true;
+
+    debug_confirm();
     document.login.submit();
 }
 

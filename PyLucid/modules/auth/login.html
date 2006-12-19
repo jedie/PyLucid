@@ -1,19 +1,39 @@
-<h2>PyLucid - LogIn:</h2>
+{*
+  Jinja-Template
+  <pre>{% debug %}</pre>
+*}
+<h2>PyLucid - MD5-LogIn</h2>
 <noscript><h3>NOTE: Javascript is needed!</h3></noscript>
-<input id="rnd" type="hidden" value="{{ rnd }}" />
-<form name="login" id="login" method="post" action="{{ url }}">
-  <label class="left" for="user">Username:</label>
-  <input id="user" name="user" type="text" value="{{ user }}" />
-  <label class="left" for="plaintext_pass">Password:</label>
-  <input id="plaintext_pass" type="password" value="" onChange="md5login();" />
-  <br />
-  <span id="md5info">md5pass:
-    <input id="md5pass1" name="md5pass1" value="" type="text" size="40" maxlength="32" readonly="readonly" />
-    <input id="md5pass2" name="md5pass2" value="" type="text" size="40" maxlength="32" readonly="readonly" />
-    <br />
-  </span>
-  <input type="button" onClick="md5login();" name="MD5 LogIn" value="MD5 LogIn"/>
-  {% if reset_link %}
-     <p><a href="{{ reset_link }}{{ user }}">Would you like reset your forgotten password?</a></p>
-  {% endif %}
-</form>
+
+{% if username_input %}
+    <label class="left" for="user">Username:</label>
+    <input id="user" name="user" type="text" value="{{ user }}" onchange="username('{{ url }}');" />
+
+    <input type="button" value="request Login" onclick="username('{{ url }}');" />
+    <script type="text/javascript">set_focus("user");</script>
+{% else %}
+    <input id="challenge" type="hidden" value="{{ challenge }}" />
+    <input id="salt" type="hidden" value="{{ salt }}" />
+
+    <form name="login" id="login" method="post" action="{{ default_action }}" onsubmit="check();">
+      <label class="left" for="plaintext_pass">Password:</label>
+      <input id="plaintext_pass" type="password" value="" onchange="check();" onload="focus_me(this);" />
+      <br />
+      <span id="md5info">md5pass:
+        <input id="md5_a2" name="md5_a2" value="" type="text" size="40" maxlength="32" readonly="readonly" />
+        <input id="md5_b" name="md5_b" value="" type="text" size="40" maxlength="32" readonly="readonly" />
+        <br />
+      </span>
+
+      <br />
+      <input type="button" value="MD5 LogIn" onclick="check();" />
+
+      {% if reset_link %}
+         <p><a href="{{ reset_link }}{{ user }}">Would you like reset your forgotten password?</a></p>
+      {% endif %}
+    </form>
+    <script type="text/javascript">
+        prepare('{{ url }}');
+        set_focus("plaintext_pass");
+    </script>
+{% endif %}

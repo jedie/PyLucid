@@ -4,100 +4,20 @@
 """
 Benutzerverwalung für secure-MD5-JavaScript login
 
-wird erstmal nur von install_PyLucid.py verwendet!
+Last commit info:
+----------------------------------
+LastChangedDate: $LastChangedDate$
+Revision.......: $Rev$
+Author.........: $Author$
 
-Anmerkung zur User-Verwaltung von lucidCMS
-==========================================
+Created by Jens Diemer
 
-    -= Die SQL-Tabellen zur Userverwaltung =-
-
-"lucid_users" bzw. "lucid_md5users"
------------------------------------
-    Hier werden die forhandenen User gespeichert.
-
-    "lucid_users" ist die original Tabelle von ludidCMS
-    "lucid_md5users" ist die JS-md5-Tabellenversion von PyLucid
-
-    Bisher gibt es keinen sync-Modus zwischen den beiden Tabellen!!!
-    Mit "install_PyLucid.py" - "add-Admin" werden in beiden Tabellen
-    die User angelegt.
-
-    Informationen gespeichert werden:
-        - Username u. realname
-        - email-Adresse
-        - Passwort
-        - Admin =1 o. =0
-
-    Admin sagt nur darüber aus, ob er alle Rechte hat (=1) oder ein
-    normaler User (=0) ist.
-
-"lucid_user_group"-Tabelle
---------------------------
-    Hierdrin wird festgehalten, welcher Gruppe ein User angehört
-    Das ganze funktioniert nur über die IDs.
-
-"lucid_groups"-Tabelle
-----------------------
-    Speichert die User-Gruppen.
-
-    gepsicherte Infos:
-        - Gruppen-ID
-        - pluginID
-        - Gruppenname
-        - Sektion
-        - Beschreibung
-
-
-
-
-Auth.Verfahren - User erstellen:
-================================
-1. Client:
-    1.1. User füllt Formular mit Name und Passwort aus.
-    1.2. per JS: bilden aus ersten vier Zeichen eine MD5 Summe
-    1.3. MD5 Summe + rechlichen Zeichen des Passworts zum Server schicken
-2. Server:
-    2.1. restliche Zeichen des Passworts mit geschickter MD5 Summe verschlüsseln
-    2.2. verschlüßeltes Passwort und sonstige Userdaten in DB eintragen
-
-Ist noch nicht implementiert!
-
-
-Auth.Verfahren - Client Login:
-==============================
-1. Client: schickt login-Anfrage
-2. Server:
-    2.1. setzt SessionID per Cookie
-    2.2. generiert Random-Zahl
-    2.3. speichert Random-Zahl mit SessionID in DB
-    2.4. schickt LogIn-Form mit Random-Zahl zum Client
-3. Client:
-    3.1. eingetipptes Passwort wird aufgeteilt ersten vier
-        Zeichen | rechtlichen zeichen
-    3.2. erstellung der MD5 Summen:
-        - MD5( ersten vier Zeichen )
-        - MD5( rechlichen Zeichen + die Random-Zahl vom Server )
-    3.3. senden des Usernamens (Klartext) + beide MD5-Summen
-4. Server:
-    4.1. mit der ersten MD5 Summe wird das Passwort aus der DB entschlüsselt
-    4.2. Random-Zahl per SessionID aus der DB holen
-    4.3. mit dem entschlüsselten Klartext-Passwort und der Random-Zahl wird
-        eine MD5 Summe gebildet
-    4.4. vergleichen der zweiten MD5 summe vom Client und der gebilteten
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
-__version__ = "0.2"
-
-__history__ = """
-v0.2
-    - Anderes Handling wenn self.runlevel.is_install()
-v0.1
-    - Anpassung an PyLucid v0.7
-v0.0.2
-    - auth-Klasse nach PyLucid_modules.user_auth ausgelagert
-v0.0.1
-    - erste Version
-"""
+__version__ = "$Rev$"
 
 __todo__ = """
     - Warum nicht das Template "user_table.html" und "add_user.html" direkt

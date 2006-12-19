@@ -6,19 +6,22 @@
 """
 Alle vorgefertigten Methoden, die aktiv Daten in der DB verändern und
 über einfache SELECT Befehle hinausgehen
+
+Last commit info:
+----------------------------------
+LastChangedDate: $LastChangedDate$
+Revision.......: $Rev$
+Author.........: $Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
-__version__="0.2"
+__version__ = "$Rev$"
 
-__history__="""
-v0.2
-    - Neu: __add_data zum hinzufügen von "lastupdatetime", "createtime" und
-        "lastupdateby"
-    - Bugfix: update_internal_page, update_template und update_style speichern
-        alle auch lastupdatetime und lastupdateby
-v0.1
-    - erste Release
-"""
 
 import pickle, sys, time
 
@@ -34,8 +37,6 @@ class active_statements(passive_statements):
     """
     #~ def __init__(self, *args, **kwargs):
         #~ super(active_statements, self).__init__(*args, **kwargs)
-
-
 
     #_________________________________________________________________________
 
@@ -283,6 +284,37 @@ class active_statements(passive_statements):
             limit   = 1
         )
 
+    def change_username(self, old_username, new_username):
+        """
+        Ändern des Username. Die Username-MD5 sum wird gleich mit geändet
+        """
+        import md5
+        username_md5 = md5.new(new_username).hexdigest()
+        data = {
+            "name": new_username,
+            "username_md5": username_md5,
+        }
+        self.update(
+            "md5users", data,
+            where   = ("name", old_username),
+            limit   = 1
+        )
+
+    def update_userdata_by_name(self, **kwargs):
+        """ Editierte Userdaten wieder speichern """
+        data = kwargs
+        username = data.pop("name")
+
+        # lastupdatetime, lastupdateby hinzufügen:
+        data = self.__add_data(data, add_createtime=False)
+
+        self.update(
+            "md5users", data,
+            where   = ("name",username),
+            limit   = 1,
+            #~ debug = True,
+        )
+
     def del_user(self, id):
         """ Löschen eines Users """
         self.delete(
@@ -420,6 +452,7 @@ class active_statements(passive_statements):
         # Daten einfügen
         timestamp = self.tools.convert_time_to_sql(time.time())
         data_dict["lastupdatetime"] = timestamp
+
         if add_createtime:
             data_dict["createtime"] = timestamp
 

@@ -2,15 +2,23 @@
 # -*- coding: UTF-8 -*-
 
 """
-Information und Tests
+Update PyLucid
+
+Last commit info:
+----------------------------------
+LastChangedDate: $LastChangedDate$
+Revision.......: $Rev$
+Author.........: $Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
-__history__="""
-v0.2
-    - update db tables (PyLucid v0.7.0 -> 0.7.1)
-v0.1
-    - erste Version
-"""
+__version__ = "$Rev$"
+
 
 import cgi, time
 
@@ -32,6 +40,66 @@ class update(ObjectApp_Base):
 
         self.response.write("<h3>(some errors are normal!!!)</h3>\n")
 
+
+        #_____________________________________________________________________
+        # md5users Tabelle
+        self.response.write("<h4>Change md5users table:</h4>\n")
+        SQLcommand = (
+            "ALTER TABLE $$md5users"
+            " DROP pass2;"
+        )
+        msg = "Drop colum 'pass2'."
+        self._execute(msg,SQLcommand)
+
+        SQLcommand = (
+            "ALTER TABLE $$md5users"
+            " ADD username_md5 VARCHAR(32) NOT NULL AFTER realname;"
+        )
+        msg = "Insert colum 'username_md5'."
+        self._execute(msg,SQLcommand)
+
+        SQLcommand = (
+            "ALTER TABLE $$md5users"
+            " CHANGE pass1 md5checksum VARCHAR(64) NOT NULL"
+        )
+        msg = "Change 'pass1' colum, rename it to 'md5checksum'."
+        self._execute(msg,SQLcommand)
+
+        SQLcommand = (
+            "ALTER TABLE $$md5users"
+            " ADD salt INTEGER NOT NULL AFTER md5checksum;"
+        )
+        msg = "Add 'salt' colum."
+        self._execute(msg,SQLcommand)
+
+        # Daten in md5users Tabelle updaten
+        self.response.write("<h4>Update data in md5users table:</h4>\n")
+        self.response.write("<pre>\n")
+        user_list = self._db.userList("name")
+        for id in user_list:
+            username = user_list[id]["name"]
+            self.response.write("update user '%s'\n" % username)
+            self._db.change_username(username,username)
+        self.response.write("</pre>\n")
+
+        #_____________________________________________________________________
+        # Neue object_cache Tabelle
+        self.response.write("<h4>Create new object_cache table:</h4>\n")
+        SQLcommand = (
+            "CREATE TABLE $$object_cache ("
+            " id VARCHAR(40) NOT NULL,"
+            " expiry_time INT(15) NOT NULL,"
+            " request_ip VARCHAR(15) DEFAULT NULL,"
+            " user_id INT(11) DEFAULT NULL,"
+            " pickled_data LONGBLOB,"
+            " PRIMARY KEY (id)"
+            ' ) COMMENT = "Object cache for pickled data objects";'
+        )
+        msg = "Create new object_cache table"
+        self._execute(msg,SQLcommand)
+
+
+        # Sessionhandling mit LONGBLOB
         self.response.write("<h4>Change Sessionhandling table:</h4>\n")
         SQLcommand = (
             "ALTER TABLE $$session_data"

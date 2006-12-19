@@ -44,72 +44,36 @@ debug = True
 
 
 from PyLucid.system.BaseModule import PyLucidBaseModule
+from PyLucid.system.tools import MD5Checker
 
-class auth(PyLucidBaseModule):
 
+class AuthData(object):
+    md5username = None
+    salt = None
+    challenge = None
+
+    def __init__(self, seed=None):
+        self.seed = seed
+
+    def _make_salt(self):
+        seed = "%s%s" % (time.clock(), self.seed)
+        salt = random.Random(seed).randint(10000,99999)
+        return salt
+
+    def make_new_salt(self):
+        self.salt = self._make_salt()
+
+    def make_new_challenge(self):
+        self.challenge = self._make_challenge()
+
+
+class LoginVerifier(PyLucidBaseModule):
     def __init__(self, *args, **kwargs):
-        super(auth, self).__init__(*args, **kwargs)
+        super(LoginVerifier, self).__init__(*args, **kwargs)
 
-        self.staticTags = self.request.staticTags
+        self.md5check = MD5Checker()
 
-    #_________________________________________________________________________
-
-    def login(self, display_reset_link=False):
-        """
-        Der User will einloggen.
-        Holt das LogIn-Formular aus der DB und stellt es zusammen
-        """
-        rnd_login = self._make_salt()
-
-        url = self.URLs.actionLink("check_login")
-
-        # Alten Usernamen, nach einem Fehlgeschlagenen Login, wieder anzeigen
-        username = self.request.form.get("user", "")
-
-        self.session.makeSession() # Eine Session eröffnen
-
-        # Zufallszahl "merken"
-        self.session["rnd_login"] = rnd_login
-
-        if debug == True:
-            self.session.debug()
-
-        context = {
-            "user"          : username,
-            "rnd"           : rnd_login,
-            "url"           : url,
-        }
-        if display_reset_link:
-            context["reset_link"] = self.URLs.actionLink("pass_reset_form")
-
-        #~ self.page_msg(context)
-        self.templates.write("login", context)
-
-    def check_login(self):
-        """
-        Überprüft die Daten vom abgeschickten LogIn-Formular und logt den User
-        ein
-        """
-        try:
-            username    = self.request.form["user"]
-            form_pass1  = self.request.form["md5pass1"]
-            form_pass2  = self.request.form["md5pass2"]
-        except KeyError, e:
-            # Formulardaten nicht vollständig
-            self.page_msg.red("Form data not complete! KeyError: '%s'" % e)
-            if debug:
-                self.page_msg("CGI-Keys: ", self.request.form.keys())
-            self.login() # Login Seite wieder anzeigen
-            return
-
-        try:
-            self.check_md5_login(username, form_pass1, form_pass2)
-        except LogInError, e:
-            self.page_msg.red(*e.args)
-            self.login(display_reset_link=True) # Login Seite wieder anzeigen
-
-
-    def _error(self, log_msg, public_msg):
+    def _error_msg(self, log_msg, public_msg):
         """Fehler werden abhängig vom Debug-Status angezeigt/gespeichert"""
         self.log(log_msg)
 
@@ -125,97 +89,282 @@ class auth(PyLucidBaseModule):
 
         raise LogInError(msg)
 
-    def exist_one_user_test(self):
+    def check_md5_login(self):
         """
-        Schaut nach ob überhaupt irgendein User existiert.
-        """
-        test = self.db.select(
-            select_items    = ["id"],
-            from_table      = "md5users",
-            limit           = 1,
-        )
-        if test != []:
-            return
-
-        # Es existieren überhaupt keine User!
-        log_msg = public_msg = (
-            "There exist no User!"
-            " Please add a User in the _install section first."
-        )
-        self._error(log_msg, public_msg)
-
-    def check_md5_login(self, username, form_pass1, form_pass2):
-        """
-        Überprüft die md5-JavaScript-Logindaten
+        Überprüfen der md5-JavaScript-Logindaten
+        - Der Username wurde schon in "Step 1" eingegeben.
+            - Die MD5 Summe des Usernamens steckt in einem Cookie
+            - Der md5username wird nochmal überprüft
         """
         if debug:
             self.session.debug()
-        try:
-            # Die Zufallszahl beim login, wird aus der Datenbank geholt, nicht
-            # aus den zurück geschickten Formular-Daten
-            rnd_login = self.session["rnd_login"]
-        except KeyError:
-            self._error(
-                "Error-0: Can't get rnd_login number from session",
-                "LogIn Error! (error:0)"
-            )
-            return
 
-        if (len( form_pass1 ) != 32) or (len( form_pass2 ) != 32):
-            self._error(
-                "Error-1: len( form_pass ) != 32",
-                "LogIn Error! (error:1)"
+        if debug:
+            self.page_msg("form data:", self.request.form)
+        try:
+            md5_a2  = self.request.form["md5_a2"]
+            md5_b  = self.request.form["md5_b"]
+        except KeyError, e:
+            # Formulardaten nicht vollständig
+            if debug:
+                self.page_msg("CGI-Keys: ", self.request.form.keys())
+            msg = self._error_msg(
+                "Form data not complete! KeyError: '%s'" % e,
+                "LogIn Error!"
             )
-            return
+            raise PasswordError(msg)
 
         try:
-            # Daten zum User aus der DB holen
-            db_userdata = self.db.md5_login_userdata(username)
-        except KeyError:
-            # User exisiert nicht.
-            self.exist_one_user_test()
-            log_msg = "Error: User '%s' unknown %s" % (username,e)
-            public_msg = "User '%s' unknown!" % username
-            self._error(log_msg, public_msg)
-        except Exception, e:
-            # Unbekannter Fehler
-            self.exist_one_user_test()
-            log_msg = "Unknown error: Can't get Userdata: %s" % e
-            public_msg = "User '%s' unknown!" % username
-            self._error(log_msg, public_msg)
-
-
-        # Ersten MD5 Summen vergleichen
-        if form_pass1 != db_userdata["pass1"]:
-            self._error(
-                'Error-2: form_pass1 != db_userdata["pass1"]',
-                "LogIn Error: Wrong Password! (error:2)"
+            md5username = self.request.cookies["md5username"].value
+            self.md5check(md5username) # Falls falsch -> ValueError
+        except (KeyError, ValueError):
+            msg = self._error_msg(
+                "Can't get md5username from cookie!",
+                "LogIn Error!"
             )
-            return
+            raise PasswordError(msg)
+
+
+#~ print "\n 4.1. aus der DB md5checksum: '%s'" % md5checksum
+
+#~ print "\n 4.2. decrypt(md5checksum, key=md5_b):",
+#~ md5checksum = decrypt(md5checksum, key=md5_b)
+#~ print "'%s'" % md5checksum
+
+#~ print "\n 4.3. md5(md5checksum + challenge):",
+#~ md5check = md5(md5checksum + challenge)
+#~ print "'%s'" % md5check
+
+#~ print "\n 4.4. Vergleich: %s == %s" % (md5check, md5_a2)
 
         try:
-            # Mit erster MD5 Summe den zweiten Teil des Passworts aus
-            # der DB entschlüsseln
-            db_pass2 = crypt.decrypt( db_userdata["pass2"], form_pass1 )
-        except Exception, e:
-            self._error(
-                "Error-3: decrypt db_pass2 failt: %s" % e ,
-                "LogIn Error: Wrong Password! (error:3)"
-            )
+            md5checksum = crypt.decrypt(md5_a2, md5_b)
+        except crypt.CryptError, e:
+            raise LogInError(e)
+
+        challenge = self.session["challenge"]
+        md5checksum = md5.new(md5checksum + challenge).hexdigest()
+
+
+        self.page_msg("OK:", db_md5checksum, md5checksum)
+        #~ return
+
+        #~ try:
+            #~ # Die Zufallszahl beim login, wird aus der Datenbank geholt, nicht
+            #~ # aus den zurück geschickten Formular-Daten
+            #~ rnd_login = self.session["rnd_login"]
+        #~ except KeyError:
+            #~ self._error(
+                #~ "Error-0: Can't get rnd_login number from session",
+                #~ "LogIn Error! (error:0)"
+            #~ )
+            #~ return
+
+        #~ if (len( md5_a2 ) != 32) or (len( md5_b ) != 32):
+            #~ self._error(
+                #~ "Error-1: len( form_pass ) != 32",
+                #~ "LogIn Error! (error:1)"
+            #~ )
+            #~ return
+
+        #~ try:
+            #~ # Daten zum User aus der DB holen
+            #~ db_userdata = self.db.md5_login_userdata(username)
+        #~ except KeyError:
+            #~ # User exisiert nicht.
+            #~ self.exist_one_user_test()
+            #~ log_msg = "Error: User '%s' unknown %s" % (username,e)
+            #~ public_msg = "User '%s' unknown!" % username
+            #~ self._error(log_msg, public_msg)
+        #~ except Exception, e:
+            #~ # Unbekannter Fehler
+            #~ self.exist_one_user_test()
+            #~ log_msg = "Unknown error: Can't get Userdata: %s" % e
+            #~ public_msg = "User '%s' unknown!" % username
+            #~ self._error(log_msg, public_msg)
+
+
+        #~ # Ersten MD5 Summen vergleichen
+        #~ if md5_a2 != db_userdata["pass1"]:
+            #~ self._error(
+                #~ 'Error-2: md5_a2 != db_userdata["pass1"]',
+                #~ "LogIn Error: Wrong Password! (error:2)"
+            #~ )
+            #~ return
+
+        #~ try:
+            #~ # Mit erster MD5 Summe den zweiten Teil des Passworts aus
+            #~ # der DB entschlüsseln
+            #~ db_pass2 = crypt.decrypt( db_userdata["pass2"], md5_a2 )
+        #~ except Exception, e:
+            #~ self._error(
+                #~ "Error-3: decrypt db_pass2 failt: %s" % e ,
+                #~ "LogIn Error: Wrong Password! (error:3)"
+            #~ )
+            #~ return
+
+        #~ # An den entschlüßelten, zweiten Teil des Passwortes, die Zufallszahl
+        #~ # dranhängen...
+        #~ db_pass2 += str( rnd_login )
+        #~ # ...daraus die zweite MD5 Summe bilden
+        #~ db_pass2md5 = md5.new( db_pass2 ).hexdigest()
+
+        #~ # Vergleichen der zweiten MD5 Summen
+        #~ if db_pass2md5 != md5_b:
+            #~ self._error(
+                #~ 'Error-4: db_pass2md5 != md5_b |%s|' % db_pass2 ,
+                #~ "LogIn Error: Wrong Password! (error:4)"
+            #~ )
+            #~ return
+
+
+
+    #_________________________________________________________________________
+
+
+
+
+
+#=============================================================================
+#=============================================================================
+#=============================================================================
+
+
+
+class auth(PyLucidBaseModule):
+
+    def __init__(self, *args, **kwargs):
+        super(auth, self).__init__(*args, **kwargs)
+
+        self.staticTags = self.request.staticTags
+
+        self.auth_data = AuthData(self.session["client_IP"])
+
+    #_________________________________________________________________________
+
+    def login(self, function_info=None):
+        """
+        Login Step 1
+
+        Er muß erstmal den Usernamen eingeben.
+        """
+        if debug:
+            self.page_msg("form data:", self.request.form)
+            self.page_msg("cookie data:", self.request.cookies)
+
+        if function_info != None:
+            # In der URL steckt evtl. der Username?
+            md5username = function_info[0]
+            if len(md5username) != 32:
+                self.page_msg.red("URL error!")
+            else:
+                # Formular zum eingeben des Passwortes:
+                self.password_input(md5username)
+                return
+
+        # Formular zum eingeben des Usernamens:
+        context = {
+            "username_input" : True,
+            "url": self.URLs.actionLink("login"),
+        }
+        #~ self.page_msg(context)
+        self.templates.write("login", context)
+
+    def password_input(self, md5username, display_reset_link=False):
+        """
+        Login Step 2
+
+        -Anhand des Usernamens (als MD5 Summe) wird der Passwort 'salt' Wert
+        aus der DB geholt.
+        -Der User kann nun das Passwort eingeben
+        """
+        #~ if debug:
+            #~ self.page_msg("form data:", self.request.form)
+        #~ if function_info != None:
+            #~ # Das Formular wurde irgendwie falsch abgeschickt
+            #~ self.page_msg("submit error!")
+
+        try:
+            salt = self.db.get_userdata_by_md5username(md5username, "salt")
+            salt = salt["salt"]
+        except (KeyError, IndexError):
+            self.page_msg.red("Username unknown!")
+            self.login()
             return
 
-        # An den entschlüßelten, zweiten Teil des Passwortes, die Zufallszahl
-        # dranhängen...
-        db_pass2 += str( rnd_login )
-        # ...daraus die zweite MD5 Summe bilden
-        db_pass2md5 = md5.new( db_pass2 ).hexdigest()
+        # Der Username ist ok -> Als cookie "speichern"
+        self.response.set_cookie("md5username", md5username)
 
-        # Vergleichen der zweiten MD5 Summen
-        if db_pass2md5 != form_pass2:
+        if salt<10000 or salt>99999:
+            self.page_msg.red("Internal Error: Salt value out of range.")
+            if debug:
+                self.page_msg("salt value from db: '%s'" % salt)
+            self.page_msg("You must reset your password!")
+            self.pass_reset_form()
+            return
+        else:
+            self.auth_data.salt = salt
+
+        #~ self.auth_data.challenge = self._make_salt()
+        self.auth_data.challenge = "12345"
+
+        self.session.makeSession() # Eine Session eröffnen
+
+        # Zufallszahl "merken"
+        self.session["challenge"] = challenge
+
+        if debug == True:
+            self.session.debug()
+
+        context = {
+            "salt"          : self.auth_data.salt,
+            "challenge"     : self.auth_data.challenge,
+            "default_action": self.URLs.currentAction("error"),
+            "url"           : self.URLs.actionLink("check_login"),
+        }
+        if display_reset_link:
+            context["reset_link"] = self.URLs.actionLink("pass_reset_form")
+
+        if debug:
+            self.page_msg("jinja context:", context)
+        self.templates.write("login", context)
+
+    def check_login(self):
+        """
+        Überprüft die Daten vom abgeschickten LogIn-Formular und logt den User
+        ein.
+        - Der Username wurde vorher schon eingebenen und verifiziert.
+
+        """
+        verifier = LoginVerifier(self.request, self.response)
+        try:
+            verifier.check_md5_login()
+        except PasswordError, e:
+            self.password_input()
+            return
+
+
+
+
+        # Wenn wir schon die Userdaten aus der DB holen, können wir gleich
+        # alle holen, die nötig sind, wenn der login auch klappt
+        select_items = ["id", "name", "md5checksum", "admin"]
+        userdata = self.db.get_userdata_by_md5username(
+            md5username, select_items
+        )
+
+        db_md5checksum = userdata["md5checksum"]
+
+        try:
+            self.check_md5_login(db_md5checksum, md5_a2, md5_b)
+        except LogInError, e:
+            # Login war nicht erfolgreich
             self._error(
-                'Error-4: db_pass2md5 != form_pass2 |%s|' % db_pass2 ,
-                "LogIn Error: Wrong Password! (error:4)"
+                "check_md5_login() Error: %s" % e.args,
+                "LogIn Error!"
             )
+            self.password_input(md5username, display_reset_link=True)
+            #~ self.login() # Login Seite wieder anzeigen
             return
 
         # Alles in Ordnung, User wird nun eingeloggt:
@@ -244,6 +393,28 @@ class auth(PyLucidBaseModule):
         # Nach dem Ausführen durch den ModuleManager, soll die aktuelle CMS
         # Seite angezeigt werden, ansonsten wäre die Seite leer.
         self.session["render follow"] = True
+
+
+
+
+    def exist_one_user_test(self):
+        """
+        Schaut nach ob überhaupt irgendein User existiert.
+        """
+        test = self.db.select(
+            select_items    = ["id"],
+            from_table      = "md5users",
+            limit           = 1,
+        )
+        if test != []:
+            return
+
+        # Es existieren überhaupt keine User!
+        log_msg = public_msg = (
+            "There exist no User!"
+            " Please add a User in the _install section first."
+        )
+        self._error(log_msg, public_msg)
 
     #_________________________________________________________________________
 
@@ -281,11 +452,13 @@ class auth(PyLucidBaseModule):
             self.pass_reset_form([self.request.form.get("user","")])
             return
 
+        select_items=["email"]
         try:
-            userdata = self.db.userdata(username)
+            userdata = self.db.get_userdata_by_username(username, select_items)
         except Exception, e:
-            self.page_msg.red("User unknown!")
-            if debug: self.page_msg(Exception, e)
+            msg = "User unknown!"
+            if debug: msg += " (Debug: %s)" % e
+            self.page_msg.red(msg)
             self.pass_reset_form([username])
             return
 
@@ -312,6 +485,8 @@ class auth(PyLucidBaseModule):
 
         seed = "%s%s" % (time.clock(), reset_data["ip"])
         reset_key = md5.new(seed).hexdigest()
+
+        #~ self.db_cache.create_table()
 
         expiry_time = 24 * 60 * 60
         try:
@@ -387,6 +562,7 @@ class auth(PyLucidBaseModule):
         except Exception, e:
             #~ msg = e.args
             self.page_msg.red("Sorry, can't get reset data from db: %s" % e)
+            self.pass_reset_form()
             return
 
         current_reset_data = self._reset_data()
@@ -403,22 +579,40 @@ class auth(PyLucidBaseModule):
 
         if 'md5pass' in self.request.form:
             # Formular wurde abgeschickt!
-            self.__set_new_password(reset_data["username"])
-        else:
-            # Formular für Passwort eingabe senden
-            context = {
-                "salt": self._make_salt(),
-                "url": self.URLs.currentAction(reset_key),
-            }
-            self.page_msg(context)
-            self.templates.write("new_pass_form", context)
+            try:
+                self.__set_new_password(reset_data["username"])
+            except SetNewPassError, e:
+                self.page_msg.red(e)
+                return
 
-    def __set_new_password(self, username, salt):
+            self.page_msg.green("Update password successful.")
+            self.db_cache.delete_object(reset_key)
+            self.login() # Loginformular anzeigen
+            return
+
+        # Formular für Passwort eingabe senden
+        context = {
+            "salt": self._make_salt(),
+            "url": self.URLs.currentAction(reset_key),
+        }
+        self.page_msg(context)
+        self.templates.write("new_pass_form", context)
+
+    def __set_new_password(self, username):
         """
         Setzt das neue Passwort für den User
         Wird von pass_reset() aufgerufen, wenn reset_data ok ist.
         """
-        md5pass = self.request.form["md5pass"]
+        try:
+            md5pass = self.request.form["md5pass"]
+            salt, md5pass = md5pass.split("_")
+            salt = int(salt)
+        except Exception, e:
+            raise SetNewPassError("Form Error: %s" % e)
+
+        if salt<10000 or salt>99999:
+            raise SetNewPassError("Form Error! Salt out of range.")
+
         pass1 = self.request.form.get("pass1", "")
         pass2 = self.request.form.get("pass2", "")
         if pass1!="" or pass2!="":
@@ -427,18 +621,27 @@ class auth(PyLucidBaseModule):
             )
 
         if len(md5pass)!=32:
-            self.page_msg.red("md5pass brocken?!?!")
-            return
+            raise SetNewPassError("md5pass brocken?!?!")
 
-        self.page_msg("ok:", md5pass)
         md5_a = md5pass[:16]
         md5_b = md5pass[16:]
 
         # Ersten Teil der MD5 mit dem zweiten Zeil verschlüsseln
         md5checksum = crypt.encrypt(md5_a, md5_b)
 
-        raise "Der salt fehlt hier noch!!!"
+        data = {
+            "name": username,
+            "md5checksum": md5checksum,
+            "salt": salt,
+        }
+        if debug:
+            self.page_msg("new user data:", data)
+        try:
+            self.db.update_userdata_by_name(**data)
+        except Exception, e:
+            raise SetNewPassError("Error, update db data: %s" % e)
 
+    #_________________________________________________________________________
 
     def _reset_data(self):
         """
@@ -451,10 +654,7 @@ class auth(PyLucidBaseModule):
         }
         return reset_data
 
-    def _make_salt(self):
-        seed = "%s%s" % (time.clock(), self.session["client_IP"])
-        salt = random.Random(seed).randint(10000,99999)
-        return salt
+
 
     #_________________________________________________________________________
 
@@ -471,6 +671,11 @@ class auth(PyLucidBaseModule):
 
 
 
-class LogInError(Exception):
+class AuthError(Exception):
     pass
 
+class PasswordError(AuthError):
+    pass
+
+class SetNewPassError(AuthError):
+    pass

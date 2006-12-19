@@ -242,6 +242,9 @@ class SQLdump(object):
             self.response.write("%s\n" % SQLcommand)
             return
 
+        #~ print repr(SQLcommand)
+        #~ unicode(TEST_STRING, "utf8", errors="replace")
+
         if debug:
             self.db.cursor.execute(SQLcommand, do_prepare=False)
         else:

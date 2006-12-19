@@ -7,20 +7,23 @@
 Hier sind alle vorgefertigen Module zu finden, die eigentlich nur
 ein normaler SELECT Befehl ist. Also nur Methoden die nur Daten aus
 der DB bereitstellen.
+
+
+Last commit info:
+----------------------------------
+LastChangedDate: $LastChangedDate$
+Revision.......: $Rev$
+Author.........: $Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
-__version__="0.2.1"
+__version__ = "$Rev$"
 
-__history__="""
-v0.2.1
-    - get_page_update_info achtet auf "showlinks" und "permitViewPublic"
-        Allerdings nicht rekursiv!
-v0.2
-    - Bugfix in get_tag_list()
-v0.1
-    - erste Release nach aufteilung
-    - Allgemeine History nach __init__ verschoben
-"""
 
 import urllib, pickle, sys, time
 
@@ -692,56 +695,82 @@ class passive_statements(SQL_wrapper):
     #_________________________________________________________________________
     ## Userverwaltung
 
-    def normal_login_userdata(self, username):
-        "Userdaten die bei einem normalen Login benötigt werden"
-        return self.select(
-                select_items    = ["id", "password", "admin"],
-                from_table      = "md5users",
-                where           = ("name", username)
-            )[0]
-
-    def userdata(self, username):
-        return self.select(
-                select_items    = ["id", "name","realname","email","admin"],
-                from_table      = "md5users",
-                where           = ("name", username)
-            )[0]
-
-    def md5_login_userdata(self, username):
-        "Userdaten die beim JS-md5 Login benötigt werden"
-        return self.select(
-                select_items    = ["id", "pass1", "pass2", "admin"],
-                from_table      = "md5users",
-                where           = ("name", username)
-            )[0]
-
-    def exists_admin(self):
+    def get_userdata_by_md5username(self, md5username, select_items=["*"]):
         """
-        Existiert schon ein Admin?
+        Generische Methode um Userdaten anhand des md5username zu bekommen
         """
-        result = self.select(
-            select_items    = ["id"],
+        data = self.select(
+            select_items    = select_items,
             from_table      = "md5users",
-            limit           = (1,1)
-        )
-        if result:
-            return True
-        else:
-            return False
-
-    def user_data_list(self):
-        """ wird in userhandling verwendet """
-        return self.select(
-            select_items = ["id","name","realname","email","admin"],
-            from_table = "md5users"
-        )
-
-    def user_info_by_id(self, id):
-        return self.select(
-            select_items    = ["id","name","realname","email","admin"],
-            from_table      = "md5users",
-            where           = ("id", id)
+            where           = ("username_md5", md5username),
+            limit           = 1,
         )[0]
+        return data
+
+    def get_userdata_by_username(self, username, select_items=["*"]):
+        """
+        Generische Methode um Userdaten anhand des normalen Username zu
+        bekommen
+        """
+        data = self.select(
+            select_items    = select_items,
+            from_table      = "md5users",
+            where           = ("name", username),
+            limit           = 1,
+        )[0]
+        return data
+
+
+    #~ def normal_login_userdata(self, username):
+        #~ "Userdaten die bei einem normalen Login benötigt werden"
+        #~ return self.select(
+                #~ select_items    = ["id", "password", "admin"],
+                #~ from_table      = "md5users",
+                #~ where           = ("name", username)
+            #~ )[0]
+
+    #~ def userdata(self, username):
+        #~ return self.select(
+                #~ select_items    = ["id", "name","realname","email","admin"],
+                #~ from_table      = "md5users",
+                #~ where           = ("name", username)
+            #~ )[0]
+
+    #~ def md5_login_userdata(self, username):
+        #~ "Userdaten die beim JS-md5 Login benötigt werden"
+        #~ return self.select(
+                #~ select_items    = ["id", "pass1", "pass2", "admin"],
+                #~ from_table      = "md5users",
+                #~ where           = ("name", username)
+            #~ )[0]
+
+    #~ def exists_admin(self):
+        #~ """
+        #~ Existiert schon ein Admin?
+        #~ """
+        #~ result = self.select(
+            #~ select_items    = ["id"],
+            #~ from_table      = "md5users",
+            #~ limit           = (1,1)
+        #~ )
+        #~ if result:
+            #~ return True
+        #~ else:
+            #~ return False
+
+    #~ def user_data_list(self):
+        #~ """ wird in userhandling verwendet """
+        #~ return self.select(
+            #~ select_items = ["id","name","realname","email","admin"],
+            #~ from_table = "md5users"
+        #~ )
+
+    #~ def user_info_by_id(self, id):
+        #~ return self.select(
+            #~ select_items    = ["id","name","realname","email","admin"],
+            #~ from_table      = "md5users",
+            #~ where           = ("id", id)
+        #~ )[0]
 
     #_________________________________________________________________________
     ## Module / Plugins

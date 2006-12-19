@@ -7,8 +7,8 @@ Verschiedene Tools für den Umgang mit PyLucid
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -19,7 +19,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 import os, sys, cgi, time, re, htmlentitydefs, threading, signal
@@ -1050,3 +1050,27 @@ class StringIOzipper(object):
 
         out.write("-"*79)
 
+
+#_____________________________________________________________________________
+
+
+class MD5Checker(object):
+    """
+    Überprüft mit check() ob es sich um eine MD5-hexdigest Summe handeln
+    könnte wirft einen ValueError, wenn es keine MD5 Summe sein kann
+    """
+    def __init__(self):
+        from string import ascii_lowercase, digits
+
+        self.allow_chars = set(ascii_lowercase)
+        self.allow_chars.update(digits)
+
+    def check(self, md5value):
+        if len(md5value) != 32:
+            raise ValueError("len error")
+
+        md5value_set = set(md5value)
+        if not md5value_set.issubset(self.allow_chars):
+            diff = md5value_set.difference(self.allow_chars)
+            diff = ", ".join(diff)
+            raise ValueError("Char error. (Char %s not allowed.)" % diff)

@@ -21,7 +21,7 @@ module_manager_data = {
         "must_login"    : False,
         "must_admin"    : False,
         "internal_page_info" : {
-            "description"       : "The Login html form page",
+            "description"       : "Login: Username/Password input form",
             "template_engine"   : "jinja",
             "markup"            : None
         },

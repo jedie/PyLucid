@@ -29,11 +29,16 @@ function check() {
 
     if (pass1 != pass2) {
         alert("Password verification failt! Please correct passwords");
+        document.getElementById("pass1").value = "";
+        document.getElementById("pass2").value = "";
+        document.getElementById("pass1").focus();
         return;
     }
 
     md5pass = MD5(salt + pass1);
     if (md5pass.length!=32) { alert("MD5 error!"); return false; }
+
+    md5pass = salt + "_" + md5pass;
 
     // MD5 setzten
     document.getElementById("md5pass").value = md5pass;

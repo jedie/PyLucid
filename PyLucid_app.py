@@ -19,7 +19,7 @@ license:
 more info at http://www.PyLucid.org
 """
 
-__version__ = "0.7.2beta"
+__version__ = "0.7.2alpha"
 __info__ = """<a href="http://www.PyLucid.org" title="\
 PyLucid - A OpenSource CMS in pure Python CGI by Jens Diemer">PyLucid</a> \
 v%s""" % __version__
@@ -271,6 +271,11 @@ class PyLucidApp(BaseApplication):
 
         self.session.init2(self.request, self.response)
         #~ self.session.debug()
+
+        self.session["session_id"] = 123
+        self.session["isadmin"] = True
+        self.session["user"] = "test"
+        self.session["user_id"] = 1
 
         self.staticTags.init2(self.request, self.response)
 
