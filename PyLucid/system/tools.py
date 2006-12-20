@@ -1049,26 +1049,3 @@ class StringIOzipper(object):
         out.write("total ratio: %.2f%%" % ratio)
 
         out.write("-"*79)
-
-
-#_____________________________________________________________________________
-
-
-class ChecksumChecker(object):
-    def __init__(self):
-        from string import hexdigits
-        self.allow_chars = set(hexdigits)
-
-    def check(self, md5value, should_len=32):
-        """
-        Überprüft ob es sich um eine hexdigest-hash Summe handeln könnte
-        wirft einen ValueError, wenn es keine sein kann
-        """
-        if len(md5value) != should_len:
-            raise ValueError("len error")
-
-        md5value_set = set(md5value)
-        if not md5value_set.issubset(self.allow_chars):
-            diff = md5value_set.difference(self.allow_chars)
-            diff = ", ".join(diff)
-            raise ValueError("Char error. (Char %s not allowed.)" % diff)

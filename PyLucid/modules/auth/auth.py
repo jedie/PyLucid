@@ -43,7 +43,6 @@ debug = False
 
 
 from PyLucid.system.BaseModule import PyLucidBaseModule
-from PyLucid.system.tools import ChecksumChecker
 
 from PyLucid.modules.auth.exceptions import *
 from PyLucid.modules.auth.login_verifier import LoginVerifier
@@ -60,33 +59,43 @@ class auth(PyLucidBaseModule):
         super(auth, self).__init__(*args, **kwargs)
 
         self.staticTags = self.request.staticTags
-        self.checksum_checker = ChecksumChecker().check
         self.auth_data = AuthData(self.session["client_IP"])
-
 
     def login(self, function_info=None):
         """
-        Login Step 1
+        Login Step 1 - Usernamen eingeben
 
-        Er muß erstmal den Usernamen eingeben.
+        Er muß erstmal den Usernamen eingeben werden.
         """
         if debug:
             self.page_msg("form data:", self.request.form)
             self.page_msg("cookie data:", self.request.cookies)
 
-        if function_info != None:
-            # In der URL steckt evtl. der Username?
-            md5username = function_info[0]
+        if function_info != None: # In der URL steckt evtl. der Username?
             try:
-                self.checksum_checker(md5username)
+                if len(function_info[0]) != 32:
+                    raise ValueError
+                int(function_info[0], 16)
             except ValueError, e:
+                # Kann keine gültige MD5 Summe sein, also kein Username
                 if debug:
                     self.page_msg.red("Checksum check error: %s" % e)
                 else:
                     self.page_msg.red("URL Error.")
             else:
+                self.auth_data.md5username = function_info[0]
+                if debug:
+                    self.page_msg(
+                        "md5username in URL, ok:", self.auth_data.md5username
+                    )
+
+        if self.auth_data.md5username != None:
+            if "md5_a2" in self.request.form and "md5_b" in self.request.form:
+                # Passwort wurde eingegeben
+                self.check_login()
+                return
+            else:
                 # Formular zum eingeben des Passwortes:
-                self.auth_data.md5username = md5username
                 self.password_input()
                 return
 
@@ -100,7 +109,7 @@ class auth(PyLucidBaseModule):
 
     def password_input(self, display_reset_link=False):
         """
-        Login Step 2
+        Login Step 2 - Passwort eingeben
 
         -Anhand des Usernamens (als MD5 Summe) wird der Passwort 'salt' Wert
         aus der DB geholt.
@@ -145,11 +154,13 @@ class auth(PyLucidBaseModule):
         if debug == True:
             self.session.debug()
 
+        url = self.URLs.actionLink("login", self.auth_data.md5username)
+
         context = {
             "salt"          : self.auth_data.salt,
             "challenge"     : self.auth_data.challenge,
             "default_action": self.URLs.currentAction("error"),
-            "url"           : self.URLs.actionLink("check_login"),
+            "url"           : url,
         }
         if display_reset_link:
             context["reset_link"] = self.URLs.actionLink("pass_reset_form")
@@ -160,24 +171,22 @@ class auth(PyLucidBaseModule):
 
     def check_login(self):
         """
+        Login Step 2 - Passwort überprüfen
+
         Überprüft die Daten vom abgeschickten LogIn-Formular und logt den User
         ein.
         - Der Username wurde vorher schon eingebenen und verifiziert.
 
         """
-        verifier = LoginVerifier(
-            self.request, self.response, self.checksum_checker
-        )
+        verifier = LoginVerifier(self.request, self.response)
         try:
             userdata = verifier.check_md5_login()
-        except PasswordError, e:
+        except PasswordError, e: # Das eingegebene Passwort war falsch
             msg = "LogInError!"
             if debug:
                 msg += " (%s)" % e
             self.page_msg.red(msg)
-            self.auth_data.md5username = md5username
             self.password_input(display_reset_link=True)
-            raise "To be continue..."
             return
         else:
             if debug:
@@ -230,7 +239,6 @@ class auth(PyLucidBaseModule):
             " Please add a User in the _install section first."
         )
         self._error(log_msg, public_msg)
-
 
     #_________________________________________________________________________
 

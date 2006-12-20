@@ -37,8 +37,8 @@ from PyLucid.system.exceptions import *
 from PyLucid.system.BaseModule import PyLucidBaseModule
 
 
-debug = True
-#~ debug = False
+#~ debug = True
+debug = False
 
 
 class userhandling(PyLucidBaseModule):
@@ -69,8 +69,9 @@ class userhandling(PyLucidBaseModule):
         elif "details" in self.request.form:
             additional_context = {"user_details": self.user_details()}
         elif "new password" in self.request.form:
-            self.new_password()
-            return
+            self.new_password_form()
+        elif "md5pass" in self.request.form:
+            self.set_new_password()
 
         self.write_userlist_page(additional_context)
 
@@ -211,12 +212,12 @@ class userhandling(PyLucidBaseModule):
         p = pass_reset.PassReset(self.request, self.response)
         return p
 
-    def new_password(self):
+    def new_password_form(self):
         """
         Setzten eines neuen Passwortes für einen bestehenden User
         """
         user_id = self.request.form["id"]
-        url = self.URLs.actionLink("set_new_password")
+        url = self.URLs.actionLink("manage_user")
 
         self._pass_reset_class().new_password_form(url, user_id)
 
@@ -229,89 +230,10 @@ class userhandling(PyLucidBaseModule):
         except (ValueError, KeyError):
             self.page_msg.red("Form Error!")
             return
-        else:
+
+        try:
             self._pass_reset_class().set_userpassword_by_userid(user_id)
-
-        self.write_userlist_page()
-
-    #~ def create_md5_pass( self, password ):
-        #~ """Erstellt das JS-MD5 Passwort-Paar"""
-
-        #~ # Teilt Passwort auf
-        #~ pass1 = ""
-        #~ pass2 = ""
-        #~ switcher = False
-        #~ for current_char in password:
-            #~ if switcher == False:
-                #~ pass1 += current_char
-                #~ switcher = True
-            #~ else:
-                #~ pass2 += current_char
-                #~ switcher = False
-
-        #~ # Berechnet MD5 Summe aus dem ersten Teil des Passwortes
-        #~ pass1 = md5.new( pass1 ).hexdigest()
-
-        #~ # Verschlüsselt zweiten Teil der Passwortes mit der MD5 des ersten Teiles
-        #~ pass2 = crypt.encrypt( pass2, pass1 )
-
-        #~ return pass1, pass2
-
-    #~ def pass_recovery(self, old_user="", old_email=""):
-        #~ print self.db.get_internal_page("pass_recovery")["content"] % {
-            #~ "url"   : self.action_url + "send_email",
-            #~ "user"  : cgi.escape(old_user),
-            #~ "email" : cgi.escape(old_email),
-        #~ }
-
-    #~ def send_email( self ):
-        #~ try:
-            #~ username    = self.CGIdata["user"]
-            #~ email_adr   = self.CGIdata["email"]
-        #~ except KeyError, e:
-            #~ self.page_msg( "Form error. No Key %s" % e )
-            #~ # Eingabe wieder anzeigen
-            #~ self.pass_recovery()
-            #~ return
-
-        #~ try:
-            #~ userdata = self.db.userdata( username )
-        #~ except Exception, e:
-            #~ self.page_msg( "Unknown user." )
-            #~ self.page_msg( e )
-            #~ # Eingabe wieder anzeigen
-            #~ self.pass_recovery( username, email_adr )
-            #~ return
-
-        #~ if userdata["email"] != email_adr:
-            #~ self.page_msg( "Wrong email Adress." )
-            #~ # Eingabe wieder anzeigen
-            #~ self.pass_recovery( username, email_adr )
-            #~ return
-
-        #~ # Username und email stimmen überein. Also wird eine Mail
-        #~ # geschickt.
-
-        #~ self.CGIdata.debug()
-
-        #~ email_text = self.db.get_internal_page("pass_recovery_email1")
-
-        #~ email_text = email_text % {
-            #~ "cms_name" : "test",
-            #~ "from_info" :
-            #~ "recovery_link"
-        #~ }
-
-        #~ self.tools.email().send(
-            #~ to      = email_adr,
-            #~ subject = "Request Password recovery.",
-            #~ text    = "Your Password"
-        #~ )
-
-        #~ print "OK"
-        #~ return
-
-
-
-
-
+        except Exception, e:
+            self.page_msg.red("Can't save new password:", e)
+        else:
+            self.page_msg.green("New Password saved.")

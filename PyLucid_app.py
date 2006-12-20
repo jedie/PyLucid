@@ -272,11 +272,6 @@ class PyLucidApp(BaseApplication):
         self.session.init2(self.request, self.response)
         #~ self.session.debug()
 
-        #~ self.session["session_id"] = 123
-        #~ self.session["isadmin"] = True
-        #~ self.session["user"] = "test"
-        #~ self.session["user_id"] = 1
-
         self.staticTags.init2(self.request, self.response)
 
         self.render.init2(self.request, self.response)

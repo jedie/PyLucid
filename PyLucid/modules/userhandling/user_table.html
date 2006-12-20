@@ -1,16 +1,5 @@
 <h2>Manage user</h2>
 
-{% if user_details %}
-<fieldset><legend>user details</legend>
-<dl>
-  {% for line in user_details %}
-  <dt>{{ line.key }}</dt>
-  <dd>{{ line.value }}</dd>
-  {% endfor %}
-</dl>
-</fieldset>
-{% endif %}
-
 <fieldset><legend>edit user</legend>
 {% if user_list %}
   <table>
@@ -45,3 +34,13 @@
 {% endif %}
 </fieldset>
 
+{% if user_details %}
+<fieldset><legend>user details</legend>
+<dl>
+  {% for line in user_details %}
+  <dt>{{ line.key }}</dt>
+  <dd>{{ line.value }}</dd>
+  {% endfor %}
+</dl>
+</fieldset>
+{% endif %}

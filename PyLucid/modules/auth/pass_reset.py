@@ -20,17 +20,18 @@ license:
 """
 
 
+import time, datetime, md5
+
 
 # =True: Login-Fehler sind aussagekräftiger: Sollte allerdings
 # wirklich nur zu Debug-Zwecke eingesetzt werden!!!
-debug = True
-#~ debug = False
+#~ debug = True
+debug = False
 
 
 
 from PyLucid.system import crypt
 from PyLucid.system.BaseModule import PyLucidBaseModule
-from PyLucid.system.tools import MD5Checker
 from PyLucid.modules.auth.auth_data import AuthData
 
 from PyLucid.modules.auth.exceptions import *
@@ -45,7 +46,6 @@ class PassReset(PyLucidBaseModule):
         super(PassReset, self).__init__(*args, **kwargs)
 
         self.auth_data = AuthData(self.session["client_IP"])
-        self.md5check = MD5Checker()
 
 
     def pass_reset_form(self, function_info=""):
@@ -181,10 +181,14 @@ class PassReset(PyLucidBaseModule):
             - Nimmt das Ergebnis des Formulars entgegen
         """
         try:
-            reset_key = function_info[0]
-        except KeyError:
+            if len(function_info[0]) != 32:
+                raise ValueError
+            int(function_info[0], 16) # Ist eine Hex-Zahl?
+        except (KeyError, ValueError):
             self.page_msg.red("Wrong reset url!")
             return
+        else:
+            reset_key = function_info[0]
 
         if debug: self.page_msg("reset-Key:", reset_key)
 
@@ -218,7 +222,7 @@ class PassReset(PyLucidBaseModule):
 
             self.page_msg.green("Update password successful.")
             self.db_cache.delete_object(reset_key)
-            self.login() # Loginformular anzeigen
+            #~ self.login() # Loginformular anzeigen
             return
         else:
             self.new_password_form(self.URLs.currentAction(reset_key))
@@ -234,7 +238,7 @@ class PassReset(PyLucidBaseModule):
             "url": url,
             "user_id": user_id,
         }
-        self.page_msg(context)
+        #~ self.page_msg(context)
         self.templates.write("new_pass_form", context)
 
     def set_userpassword_by_userid(self, user_id):
@@ -255,7 +259,9 @@ class PassReset(PyLucidBaseModule):
         try:
             md5pass = self.request.form["md5pass"]
             salt, md5pass = md5pass.split("_")
-            self.md5check(md5pass)
+            if len(salt) != 5 or len(md5pass) != 32:
+                raise ValueError("Length incorrect")
+            int(md5pass, 16) # Ist Hex-Zahl?
             salt = int(salt)
         except Exception, e:
             raise SetNewPassError("Form Error: %s" % e)
@@ -269,9 +275,6 @@ class PassReset(PyLucidBaseModule):
             self.page_msg.red(
                 "Security node: The Plain Text Password was send back!!!"
             )
-
-        if len(md5pass)!=32:
-            raise SetNewPassError("md5pass brocken?!?!")
 
         md5_a = md5pass[:16]
         md5_b = md5pass[16:]
@@ -289,7 +292,9 @@ class PassReset(PyLucidBaseModule):
         try:
             self.db.update_userdata_by_name(**data)
         except Exception, e:
-            raise SetNewPassError("Error, update db data: %s" % e)
+            raise SetNewPassError(
+                "Error, update db data! %s - %s" % (e.__class__, e)
+            )
 
     #_________________________________________________________________________
 

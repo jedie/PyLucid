@@ -1,16 +1,16 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-#___________________________________________________________________________________________________
+#_____________________________________________________________________________
 # Meta-Angaben
 
 __author__      = "Jens Diemer"
 __url__         = "http://www.PyLucid.org"
-__description__ = "Login/Logout"
-__long_description__ = """"""
+__description__ = "JS-MD5-Login/-Logout"
+__long_description__ = """The JS-MD5-Login handler"""
 __essential_buildin__ = True
 
-#___________________________________________________________________________________________________
+#_____________________________________________________________________________
 # Module-Manager Daten
 
 #~ module_manager_debug = True
@@ -27,10 +27,6 @@ module_manager_data = {
         },
     },
     "logout" : {
-        "must_login"    : False,
-        "must_admin"    : False,
-    },
-    "check_login" : {
         "must_login"    : False,
         "must_admin"    : False,
     },

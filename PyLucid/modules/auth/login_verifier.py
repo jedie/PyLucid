@@ -39,10 +39,8 @@ def md5(txt):
 
 
 class LoginVerifier(PyLucidBaseModule):
-    def __init__(self, request, response, checksum_checker):
-        super(LoginVerifier, self).__init__(request, response)
-
-        self.checksum_checker = checksum_checker
+    #~ def __init__(self, request, response):
+        #~ super(LoginVerifier, self).__init__(request, response)
 
     def check_md5_login(self):
         """
@@ -70,8 +68,10 @@ class LoginVerifier(PyLucidBaseModule):
             raise PasswordError(msg)
 
         try:
-            self.checksum_checker(md5_a2)
-            self.checksum_checker(md5_b, should_len=16)
+            if len(md5_a2) != 32 or len(md5_b) != 16:
+                raise ValueError
+            int(md5_a2, 16)
+            int(md5_b, 16)
         except ValueError, e:
             msg = self._error_msg(
                 "Checksum check error: %s" % e,
@@ -81,7 +81,9 @@ class LoginVerifier(PyLucidBaseModule):
 
         try:
             md5username = self.request.cookies["md5username"].value
-            self.checksum_checker(md5username) # Falls falsch -> ValueError
+            if len(md5username) != 32:
+                raise ValueError
+            int(md5username, 16) # Falls falsch -> ValueError
         except (KeyError, ValueError):
             msg = self._error_msg(
                 "Can't get md5username from cookie!",

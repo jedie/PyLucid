@@ -322,7 +322,8 @@ class active_statements(passive_statements):
         data = self.__add_data(data, add_createtime=False)
 
         self.update(
-            "md5users", data,
+            table   = "md5users",
+            data    = data,
             where   = ("name",username),
             limit   = 1,
             #~ debug = True,
@@ -474,6 +475,10 @@ class active_statements(passive_statements):
         except AttributeError:
             # Wärend der installation gibt es kein session-Objekt!
             pass
+        except KeyError:
+            # Wenn der User noch nicht eingeloggt ist, gibt es auch
+            # keine user_id
+            data_dict["lastupdateby"] = 0
 
         #~ self.page_msg(data_dict["lastupdatetime"], data_dict["lastupdateby"])
         return data_dict
