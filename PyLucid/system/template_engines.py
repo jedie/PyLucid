@@ -70,18 +70,37 @@ class TemplateEngines(object):
         self.tools      = request.tools
 
     def write(self, internal_page_name, context):
-        try:
-            internal_page_data = self.get_internal_page_data(
-                internal_page_name
-            )
-        except InternalPageNotFound, e:
-            import inspect
-            stack = inspect.stack()[1]
-            msg = (
-                "Internal page '%s' not found (from '...%s' line %s): %s"
-            ) % (internal_page_name, stack[1][-30:], stack[2], e)
-            raise KeyError(msg)
+        """
+        Rendert das Template und schreibt es gleich ins response Objekt.
+        Behandelt auch die CSS und JS Daten.
+        """
+        internal_page_data = self.get_internal_page_data(
+            internal_page_name
+        )
+        content = self.render_template(
+            internal_page_name, internal_page_data, context
+        )
+        self.response.write(content)
 
+        # CSS/JS behandeln:
+        self.addCSS(internal_page_data["content_css"], internal_page_name)
+        self.addJS(internal_page_data["content_js"], internal_page_name)
+
+    def get_rendered_page(self, internal_page_name, context):
+        """
+        Liefert die fertige Seite zurück.
+        """
+        internal_page_data = self.get_internal_page_data(
+            internal_page_name
+        )
+        return self.render_template(
+            internal_page_name, internal_page_data, context
+        )
+
+    def render_template(self, internal_page_name, internal_page_data, context):
+        """
+        Rendert das Template
+        """
         engine = internal_page_data["template_engine"]
 
         if engine == "string formatting":
@@ -100,50 +119,35 @@ class TemplateEngines(object):
         content = self.render.apply_markup(
             content, internal_page_data["markup"]
         )
-        self.response.write(content)
-
-        # CSS/JS behandeln:
-        self.addCSS(internal_page_data["content_css"], internal_page_name)
-        self.addJS(internal_page_data["content_js"], internal_page_name)
-
-    def get(self, internal_page_name, context):
-        """
-        FIXME!!!!
-        """
-        internal_page_data = self.get_internal_page_data(
-            internal_page_name
-        )
-        content = internal_page_data["content_html"]
-        content = render_jinja(content, context)
         return content
 
     def get_internal_page_data(self, internal_page_name):
         if self.runlevel.is_install():
             # Beim installieren holen wir uns die Daten direkt von der Platte
-            internal_page_data = self.get_internal_page_data_from_disk(
-                internal_page_name
-            )
-        else:
-            # Der Normalfall, die Daten werden aus der DB geholt
-
-            internal_page_data = self.get_internal_page_data_from_db(
+            return self.get_internal_page_data_from_disk(
                 internal_page_name
             )
 
-            # ID Auflösen
-            engine = self.db.get_template_engine_name(
-                internal_page_data["template_engine"]
+        # Der Normalfall, die Daten werden aus der DB geholt
+        try:
+            internal_page_data = self.db.get_internal_page_data(
+                internal_page_name
             )
-            internal_page_data["template_engine"] = engine
+        except InternalPageNotFound, e:
+            import inspect
+            stack = inspect.stack()[1]
+            msg = (
+                "Internal page '%s' not found (from '...%s' line %s): %s"
+            ) % (internal_page_name, stack[1][-30:], stack[2], e)
+            raise KeyError(msg)
+
+        # ID Auflösen
+        engine = self.db.get_template_engine_name(
+            internal_page_data["template_engine"]
+        )
+        internal_page_data["template_engine"] = engine
 
         return internal_page_data
-
-
-    def get_internal_page_data_from_db(self, internal_page_name):
-        try:
-            return self.db.get_internal_page_data(internal_page_name)
-        except IndexError, e:
-            raise InternalPageNotFound, e
 
     def get_internal_page_data_from_disk(self, internal_page_name):
         if self.template_path == None:
@@ -317,7 +321,6 @@ class TemplateEngines(object):
                     raise
 
         return content
-
 
 
 class InternalPageNotFound(Exception):

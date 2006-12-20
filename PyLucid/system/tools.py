@@ -600,33 +600,6 @@ class subprocess2(threading.Thread):
             #~ self.killed = True
 
 
-
-#_____________________________________________________________________________
-
-
-class email:
-    def send(self, to, subject, text):
-        import time, smtplib
-        from email.MIMEText import MIMEText
-
-        msg = MIMEText(
-            _text = text,
-            _subtype = "plain",
-            _charset = "UTF-8"
-        )
-        msg['From'] = "auto_mailer@jensdiemer.de"
-        msg['To'] = to
-        msg['Subject'] = subject
-        # Datum nach RFC 2822 Internet email standard.
-        msg['Date'] = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
-        msg['User-Agent'] = "PyLucid (Python v%s)" % sys.version
-
-        s = smtplib.SMTP()
-        s.connect()
-        s.sendmail(msg['From'], [msg['To']], msg.as_string())
-        s.close()
-
-
 #_____________________________________________________________________________
 
 

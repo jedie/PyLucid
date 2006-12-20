@@ -106,9 +106,10 @@ class URLs(dict):
         Als Regeln gilt:
             - Alle Pfade ohne Slash am Ende
         """
+        self["host"] = self.environ['HTTP_HOST']
         self["hostname"] = "%s://%s" % (
             self.environ.get('wsgi.url_scheme', "http"),
-            self.environ['HTTP_HOST'],
+            self["host"],
         )
 
         self["scriptRoot"] = self.environ.get("SCRIPT_ROOT", "/")

@@ -62,7 +62,7 @@ class PassReset(PyLucidBaseModule):
             "user"  : old_username,
             "url"   : self.URLs.actionLink("check_pass_reset"),
         }
-        self.page_msg(context)
+        #~ self.page_msg(context)
         self.templates.write("pass_reset_form", context)
 
     def check_pass_reset(self):
@@ -135,6 +135,7 @@ class PassReset(PyLucidBaseModule):
         delta = datetime.timedelta(seconds=expiry_time)
         expiry_date = now + delta
         expiry_date = expiry_date.strftime(formatDateTime)
+        request_time = now.strftime(formatDateTime)
 
         reset_link = self.URLs.absolute_command_link(
             "auth", "pass_reset", reset_key, addSlash=False
@@ -144,18 +145,40 @@ class PassReset(PyLucidBaseModule):
         context.update({
             "base_url"      : self.URLs.absoluteLink(),
             "reset_link"    : reset_link,
+            "request_time"  : request_time,
             "expiry_date"   : expiry_date,
         })
+
+        mail_text = self.templates.get_rendered_page(
+            "pass_reset_email", context
+        )
 
         if debug:
             self.page_msg(context)
             #~ self.session.debug()
             #~ self.preferences.debug()
             self.response.write("<strong>Debug - The mail:</strong>")
-
             self.response.write("<pre>")
-            self.templates.write("pass_reset_email", context)
-            self.response.write("</pre><hr />")
+            self.response.write(mail_text)
+            self.response.write("</pre>(Mail not send in debug mode.)<hr />")
+        else:
+            from_address = "PyLucid_automailer@%s" % self.URLs["host"]
+            from PyLucid.tools.text_emails import send_text_email
+            try:
+                send_text_email(
+                    # FIXME: solle eine Adresse aus den preferences ein!
+                    from_address=from_address,
+                    to_address=email,
+                    subject="PyLucid passwort reset request",
+                    text= mail_text
+                )
+            except Exception, e:
+                self.page_msg.red("Can't send reset mail:", e)
+                return
+            else:
+                self.page_msg.green(
+                    "Reset Mail sended. Please check your Mails ;)"
+                )
 
         ##____________________________________________________________________
         ## Info Seite über die verschickte email anzeigen:
