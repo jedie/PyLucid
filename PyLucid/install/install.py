@@ -3,65 +3,24 @@
 
 """
 PyLucid "installer"
-"""
 
-__version__ = "v0.7"
 
-__history__ = """
-v0.7
-    - Umbau zu einer colubrid WSGI ObjectApplication
-v0.6
-    - Neu: update_db()
-v0.5
-    - Neu: "Information about installed modules"
-    - ein paar "confirm"-Dialoge eingebaut...
-v0.4.1
-    - Ein wenig Aufgeräumt
-v0.4
-    - Anderer Aufbau der actions: In Sektionen unterteilt.
-    - Neu: db_info
-v0.3.1
-    - Packports Pfad hinzugefügt
-v0.3
-    - Es kann nur einmal ein Admin angelegt werden
-    - Benutzt nun einige PyLucid-Objekte (erforderlich für neues userhandling)
-    - Möglichkeit dir Markup-String zu IDs zu konvertieren
-        (Änderung in PyLucid v0.5)
-    - CSS Spielereien 2
-v0.2
-    - Anpassung an neue install-Daten-Struktur.
-    - "add Admin"-Formular wird mit JavaScript überprüft.
-    - NEU Path Check: allerdings wird erstmal nur die Pfade angezeigt
-    - CSS Spielereien
-    - Aussehen geändert
-v0.1.0
-    - NEU: "partially re-initialisation DB tables" damit kann man nur
-        ausgesuchte Tabellen mit den Defaultwerten überschrieben.
-v0.0.8
-    - Fehler in SQL_dump(): Zeigte SQL-Befehle nur an, anstatt sie auszuführen
-v0.0.7
-    - Neue Art die nötigen Tabellen anzulegen.
-v0.0.6
-    - Einige anpassungen
-v0.0.5
-    - NEU: convert_db: Convertiert Daten von PHP-LucidCMS nach PyLucid
-v0.0.4
-    - Anpassung an neuer Verzeichnisstruktur
-v0.0.3
-    - NEU: update internal pages
-v0.0.2
-    - Anpassung an neuer SQL.py Version
-    - SQL-connection werden am Ende beendet
-v0.0.1
-    - erste Version
-"""
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
 
-__todo__ = """
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
 
 
-import sys, cgi, urllib
+import os, sys, cgi, urllib
 
 from PyLucid.system.exceptions import *
 
@@ -225,16 +184,23 @@ class InstallApp(object):
         Schaut nach, ob der URL-lock-Code mit dem aus der
         Datei übereinstimmt
         """
+
         try:
             f = file(installLockFilename, "rU")
             lockCode = f.readline()
             f.close()
         except IOError, e:
-            raise NoInstallLockFile
+            if os.path.isfile(installLockFilename):
+                # Die Datei existiert, kann aber nicht geöffnet werden
+                raise WrongInstallLockCode(
+                    "Can't open '%s': %s" % (installLockFilename, e)
+                )
+            else:
+                raise NoInstallLockFile
 
         lockCode = lockCode.strip() # Leerzeichen wegschneiden
 
-#        print "Debug: |%s| <-> |%s|" % (self.LockCodeURL, lockCode)
+        #~ print "Debug: |%s| <-> |%s|" % (self.LockCodeURL, lockCode)
 
         if len(lockCode)<8:
             raise WrongInstallLockCode(
