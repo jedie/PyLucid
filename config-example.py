@@ -65,6 +65,13 @@ config = {
     #~ "ModuleManager_import_error"    : True,
     "ModuleManager_import_error"    : False,
 
+    ## ATM unused but maybe usefull in feature --> see handler.py for more information
+    # At this point you can define how to use PyLucid.
+    # you can choose between "mod_python", "fcgi" and "cgi"
+    # btw... a standalone-handler???
+    # more should be added... ;)
+    "environment"    : "cgi",
+
     #_________________________________________________________________________
     ## Die folgenden Einstellungen müßen i.d.R. nicht geändert werden!
 
