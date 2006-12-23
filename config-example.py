@@ -71,6 +71,11 @@ config = {
     # btw... a standalone-handler???
     # more should be added... ;)
     "environment"    : "cgi",
+    
+    ## ATM unused but maybe usefull for better handler - handling :)
+    # if '' True '' you'll see full debugged code in case of an error
+    # otherwise nothing - if '' False ''
+    "debug" : False,
 
     #_________________________________________________________________________
     ## Die folgenden Einstellungen müßen i.d.R. nicht geändert werden!
@@ -94,10 +99,3 @@ config = {
     "installURLprefix" : "_install",
     "commandURLprefix" : "_command",
 }
-
-
-
-
-
-
-

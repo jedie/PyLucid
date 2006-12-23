@@ -10,6 +10,8 @@ change the config.py and the server configuration
 import cgitb;cgitb.enable()
 import sys
 import config
+# import PyLucidApp
+from PyLucid_app import app
 
 try:
     from PyLucid.system.exceptions_LowLevel import CGI_Error, CGI_main_info
@@ -20,16 +22,17 @@ except Exception, e:
     raise ImportError(msg)
 
 
-# Colubrid Debugger
-try:
-    from colubrid.debug import DebuggedApplication
-except Exception, e:
-    raise CGI_Error(
-        e, "Can't import colubrid.debug.DebuggedApplication!"
-    )
-
 # Backport for some Python v2.4 features (subprocess.py)
 sys.path.insert(0,"PyLucid/python_backports")
+
+if config.config["debug"] == True:
+    #colubrid debugger
+    try:
+        from colubrid.debug import DebuggedApplication
+    except Exception, e:
+        raise CGI_Error(
+            e, "Can't import colubrid.debug.DebuggedApplication!"
+        )
 
 
 def handler_config():
