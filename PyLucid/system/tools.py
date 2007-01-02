@@ -38,15 +38,21 @@ request = None
 
 
 #_____________________________________________________________________________
-def locale_datetime(datetime_obj):
+def locale_datetime(t):
     """
     Aus der DB kommt ein datetime Objekt, welches wir hier als lokalisierten
     String zurück liefern
+    t kann entweder direkt ein datetime-Objekt sein oder ein timestamp
     """
-    assert isinstance(datetime_obj, datetime.datetime)
+    if not isinstance(t, datetime.datetime):
+        if isinstance(t, basestring):
+            # Vielleicht ein timestamp als String?!?!
+            t = float(t)
+        t = datetime.datetime.fromtimestamp(t)
+
     datetime_format = request.l10n.get("datetime")
     datetime_format = str(datetime_format) # Darf kein unicode sein!
-    return datetime_obj.strftime(datetime_format)
+    return t.strftime(datetime_format)
 
 def W3CDTF_datetime(datetime_obj):
     """
