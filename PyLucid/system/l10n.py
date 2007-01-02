@@ -36,9 +36,6 @@ from PyLucid.system.exceptions import *
 class L10N(object):
     cache = {}
 
-    # defaults:
-    lang = "en"
-
     def __init__(self, request, response):
         self.request    = request
         self.response   = response
@@ -71,7 +68,7 @@ class L10N(object):
             try:
                 value = self.db.get_L10N(self.i18n.current_lang, key)
             except KeyError:
-                if not lang in self.cache:
+                if not self.i18n.current_lang in self.cache:
                     raise KeyError("l10n Error: Language '%s' unknwon." % lang)
                 else:
                     msg = (

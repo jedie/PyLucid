@@ -16,8 +16,8 @@ class Bsp(PyLucidBaseModule):
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -28,7 +28,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 from PyLucid.system.exceptions import *
@@ -52,6 +52,9 @@ class PyLucidBaseModule(object):
         self.render         = request.render
         self.staticTags     = request.staticTags
         self.templates      = request.templates
+
+        self.i18n = self.request.i18n
+        self.l10n = self.request.l10n
 
         self.db_cache       = response.db_cache
         self.page_msg       = response.page_msg

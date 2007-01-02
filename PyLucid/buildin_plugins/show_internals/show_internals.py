@@ -480,10 +480,19 @@ class system_info(PyLucidBaseModule):
 
     def PyLucid_info(self):
         self.response.write("<h3>PyLucid environ information</h3>")
-        self.response.write('<fieldset id="system_info"><legend>PyLucid["URLs"]:</legend>')
+
+        self.response.write('<fieldset id="system_info">')
+        self.response.write('<legend>PyLucid["URLs"]:</legend>')
         self.response.write("<pre>")
         for k,v in self.URLs.items():
             self.response.write("%15s: '%s'\n" % (k,v))
+        self.response.write("</pre>")
+        self.response.write("</fieldset>")
+
+        self.response.write('<fieldset id="system_info">')
+        self.response.write('<legend>self.i18n.debug():</legend>')
+        self.response.write("<pre>")
+        self.i18n.debug(response_out=True)
         self.response.write("</pre>")
         self.response.write("</fieldset>")
 

@@ -43,7 +43,6 @@ class I18N(object):
         #~ self.templates      = request.templates
 
         self.setup_current_lang()
-        self.debug()
 
     #_________________________________________________________________________
 
@@ -61,7 +60,11 @@ class I18N(object):
                 break
 
     def get_client_favored_languages(self):
-        language_string = self.environ.get('HTTP_ACCEPT_LANGUAGE', 'en')
+        try:
+            language_string = self.environ['HTTP_ACCEPT_LANGUAGE']
+        except KeyError:
+            return ["en"]
+
         languages = []
         language_string = language_string.split(',')
         for item in language_string:
@@ -78,7 +81,15 @@ class I18N(object):
 
     #_________________________________________________________________________
 
-    def debug(self):
-        self.page_msg("self.client_languages:", self.client_languages)
-        self.page_msg("self.supported_languages:", self.supported_languages)
-        self.page_msg("self.current_lang:", self.current_lang)
+    def debug(self, response_out=False):
+
+        #~ self.response.debug()
+        def out(*txt):
+            if response_out:
+                self.response.write("%s\n" % " ".join([str(i) for i in txt]))
+            else:
+                self.page_msg(*txt)
+
+        out("self.client_languages:", self.client_languages)
+        out("self.supported_languages:", self.supported_languages)
+        out("self.current_lang:", self.current_lang)
