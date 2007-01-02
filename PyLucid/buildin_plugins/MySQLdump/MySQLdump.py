@@ -36,7 +36,7 @@ import re, StringIO, zipfile
 
 from colubrid import HttpResponse
 
-
+from PyLucid.tools import formatter
 
 from PyLucid.system.BaseModule import PyLucidBaseModule
 
@@ -227,10 +227,10 @@ class MySQLdump(PyLucidBaseModule):
         dump, filename = self.makedump()
 
         dumpLen = len(dump)
-        dumpLen = self.tools.formatter(dumpLen, format="%0i")
+        dumpLen = formatter.filesizeformat(dumpLen)
         msg = (
             "<p><small>"
-            "(mysqldump duration %.2f sec. - size: %s Bytes)"
+            "(mysqldump duration %.2f sec. - size: %s)"
             "</small></p>"
         ) % (
             (time.time() - start_time), dumpLen
