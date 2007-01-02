@@ -22,7 +22,7 @@ license:
 __version__= "$Rev$"
 
 
-import os, sys, cgi, time, re, htmlentitydefs, threading, signal
+import os, sys, cgi, time, re, htmlentitydefs, threading, signal, datetime
 
 
 #~ from PyLucid.python_backports.utils import *
@@ -35,6 +35,25 @@ import os, sys, cgi, time, re, htmlentitydefs, threading, signal
 # können so von allen Tools benutzt werden
 response = None
 request = None
+
+
+#_____________________________________________________________________________
+def locale_datetime(datetime_obj):
+    """
+    Aus der DB kommt ein datetime Objekt, welches wir hier als lokalisierten
+    String zurück liefern
+    """
+    assert isinstance(datetime_obj, datetime.datetime)
+    datetime_format = request.l10n.get("datetime")
+    datetime_format = str(datetime_format) # Darf kein unicode sein!
+    return datetime_obj.strftime(datetime_format)
+
+def W3CDTF_datetime(datetime_obj):
+    """
+    Liefert das Datum als DCTERMS.W3CDTF zurück
+    """
+    assert isinstance(datetime_obj, datetime.datetime)
+    return datetime_obj.strftime("%Y-%m-%d")
 
 
 #_____________________________________________________________________________
@@ -146,98 +165,6 @@ def getUniqueShortcut(item_name, nameList, strip=True):
 #~ print getUniqueShortcut("gibts schon", nameList)
 #~ print getUniqueShortcut("#und!auch(das)", nameList)
 #~ sys.exit()
-#_____________________________________________________________________________
-
-def convert_date_from_sql( RAWsqlDate, format="preferences" ):
-    """
-    Wandelt ein Datum aus der SQL-Datenbank in ein Format, welches
-    in den preferences festgelegt wurde.
-    """
-    preferences = request.preferences
-
-    date = str( RAWsqlDate )
-    try:
-        # SQL Datum in das Python time-Format wandeln
-        date = time.strptime( date, preferences["dbDatetimeFormat"] )
-    except ValueError:
-        # Datumsformat stimmt nicht, aber besser das was schon da
-        # ist, mit einem Hinweis, zurück liefern, als garnichts ;)
-        return "ERROR: convert '%s'" % date
-    except AttributeError:
-        # FIXME: Python 2.2 sollte das aber eigentlich haben!!!
-        return date
-
-    if format == "preferences":
-        # Python-time-Format zu einem String laut preferences wandeln
-        return time.strftime( preferences["core"]["formatDateTime"], date )
-    elif format == "DCTERMS.W3CDTF":
-        return time.strftime( "%Y-%m-%d", date )
-    else:
-        return time.strftime( "%x", date )
-
-
-def strftime(epoch_time, format="preferences"):
-    t = time.localtime(epoch_time)
-    if format == "preferences":
-        # Python-time-Format zu einem String laut preferences wandeln
-        return time.strftime(
-            request.preferences["core"]["formatDateTime"],
-            t
-        )
-    elif format == "DCTERMS.W3CDTF":
-        return time.strftime("%Y-%m-%d", t)
-    else:
-        return time.strftime("%x", t)
-
-
-def convert_time_to_sql( time_value ):
-    """
-    Formatiert einen Python-time-Wert zu einem SQL-datetime-String
-    """
-    if type( time_value ) != time.struct_time:
-        try:
-            time_value = time.localtime( time_value )
-        except:
-            return "ERROR: convert '%s'" % time_value
-
-    return time.strftime(
-        request.preferences["dbDatetimeFormat"], time_value
-    )
-
-#_____________________________________________________________________________
-
-
-
-def formatter( number, format="%0.2f", comma=",", thousand=".", grouplength=3):
-    """
-    Formatierung für Zahlen
-    s. http://www.python-forum.de/viewtopic.php?t=371
-    Ist schneller als: locale.format("%.2f",number,1)
-    und funktioniert auch, wenn die locales auf dem Betriebssystem nicht
-    richtig installiert/konfiguriert sind.
-    """
-    if abs(number) < 10**grouplength:
-        return (format % (number)).replace(".", comma)
-    if format[-1]=="f":
-        vor_komma,hinter_komma=(format % number).split(".",-1)
-    else:
-        vor_komma=format % number
-        comma=""
-        hinter_komma=""
-    #Hier
-    anz_leer=0
-    for i in vor_komma:
-        if i==" ":
-            anz_leer+=1
-        else:
-            break
-    vor_komma=vor_komma[anz_leer:]
-    #bis hier
-
-    len_vor_komma=len(vor_komma)
-    for i in range(grouplength,len_vor_komma+(len_vor_komma-1)/(grouplength+1)-(number<0),grouplength+1):
-        vor_komma=vor_komma[0:-(i)]+thousand+vor_komma[-(i):]
-    return anz_leer*" "+vor_komma+comma+hinter_komma
 
 
 

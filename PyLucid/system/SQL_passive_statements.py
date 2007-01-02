@@ -131,9 +131,7 @@ class passive_statements(SQL_wrapper):
             else:
                 item["name_title"] = "%s - %s" % (pageName, pageTitle)
 
-            item["date"] = self.tools.convert_date_from_sql(
-                item["lastupdatetime"]
-            )
+            item["date"] = self.tools.locale_datetime(item["lastupdatetime"])
             user_id = item["lastupdateby"]
             try:
                 item["user"] = users[user_id]["name"]
@@ -1095,5 +1093,24 @@ class passive_statements(SQL_wrapper):
         )
         return engines
 
+    #_________________________________________________________________________
+    ## L10N
+
+    def get_L10N(self, lang, key):
+        return self.select(
+            select_items    = ["value"],
+            from_table      = "l10n",
+            where           = [("lang", lang), ("varName",key)]
+        )[0]["value"]
+
+    def get_supported_languages(self):
+        """
+        Liste alle eingerichteten Sprachen
+        """
+        SQLcommand = "SELECT lang FROM $$l10n GROUP BY lang;"
+        languages = self.process_statement(SQLcommand)
+        languages = [i["lang"] for i in languages]
+
+        return languages
 
 

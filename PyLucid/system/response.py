@@ -6,8 +6,8 @@ Erweitert das colubrid response Objekt um ein paar Methoden.
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -18,7 +18,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 # Colubrid
@@ -233,11 +233,11 @@ class staticTags(dict):
         self["page_keywords"]        = page_data["keywords"]
         self["page_description"]     = page_data["description"]
 
-        self["page_last_modified"]   = self.tools.convert_date_from_sql(
-            page_data["lastupdatetime"], format = "preferences"
+        self["page_last_modified"]   = self.tools.locale_datetime(
+            page_data["lastupdatetime"]
         )
 
-        self["page_datetime"]        = self.tools.convert_date_from_sql(
-            page_data["lastupdatetime"], format = "DCTERMS.W3CDTF"
+        self["page_datetime"] = self.tools.W3CDTF_datetime(
+            page_data["lastupdatetime"]
         )
 

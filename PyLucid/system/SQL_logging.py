@@ -2,33 +2,22 @@
 # -*- coding: UTF-8 -*-
 
 """
-Allgemeiner SQL-Logger
+Logging in SQL
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
-__version__ = "v0.1.1"
-
-__history__ = """
-v0.1.1
-    - auf 80 Zeichen gekürzt
-v0.1
-    - Neu: items-Methode für die Debug-Ausgabe
-v0.0.6
-    - Fehlerabfrage, wenn nicht in sql log table geschrieben werden kann
-v0.0.5
-    - Bug: Tabellenname (sql_tablename) war Hardcoded.
-v0.0.4
-    - Mittels *log_message bei put() werden nun auch Komma-getrennte Log's
-        aufgenommen
-v0.0.3
-    - DEL: Es gibt kein log_typ mehr
-    - Nutzt Zeitumwandlung aus PyLucid["tools"]
-v0.0.2
-    - Anpassung an PyLucid's SQL-Klasse
-v0.0.1
-    - erste Version
-"""
-
-import time, os
+import time, datetime, os
 
 # Legt fest wie alt Log-Einträge max sein dürfen
 # 3 Tage ==> 3Tage * 24Std * 60Min * 60Sec = 259200sec
@@ -37,7 +26,7 @@ enty_timeout_sec = 259200
 sql_tablename = "log"
 
 
-class log:
+class log(object):
     """
     PyLucid SQL-Logging Klasse
     """
@@ -96,7 +85,7 @@ class log:
         # Alte Log-Einträge löschen
         self.delete_old_logs()
 
-        timestamp = self.tools.convert_time_to_sql(time.time())
+        timestamp = datetime.datetime.now()
 
         try:
             self.db.insert(

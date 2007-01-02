@@ -88,6 +88,9 @@ from PyLucid.system import page_parser
 from PyLucid.system import detect_page
 from PyLucid.system import template_engines
 from PyLucid.system import db_cache
+from PyLucid.system import l10n
+from PyLucid.system import i18n
+
 
 
 response.__info__ = __info__ # Übertragen
@@ -264,6 +267,9 @@ class PyLucidApp(BaseApplication):
         # Preferences aus der DB lesen
         self.preferences.init2(self.request, self.response)
         self.preferences.update_from_sql(self.db)
+
+        self.request.i18n = i18n.I18N(self.request, self.response)
+        self.request.l10n = l10n.L10N(self.request, self.response)
 
         # Log-Ausgaben in SQL-DB
         self.log.init2(self.request, self.response)
