@@ -24,6 +24,7 @@ __version__= "$Rev$"
 import sys, os, glob, imp, cgi, urllib
 
 from PyLucid.system.exceptions import PyLucidException
+from PyLucid.components import plugin_cfg
 
 
 debug = False
@@ -495,11 +496,16 @@ class module_manager:
         #~ old_responseObject = self.response
         #~ self.response = self.tools.out_buffer()
 
+        # Setup
+        plugin_cfg_obj = self._get_plugin_cfg()
+        request_obj = self.request
+        request_obj.plugin_cfg = plugin_cfg_obj
+
         # Instanz erstellen und PyLucid-Objekte übergeben
         if self.error_handling == True:
             # Fehler nur anzeigen
             try:
-                class_instance = module_class(self.request, self.response)
+                class_instance = module_class(request_obj, self.response)
             except Exception, e:
                 raise RunModuleError(
                     "[Can't make class intance from module '%s': %s]" % (
@@ -509,7 +515,7 @@ class module_manager:
         else:
             # Traceback erzeugen
             try:
-                class_instance = module_class(self.request, self.response)
+                class_instance = module_class(request_obj, self.response)
             except TypeError, e:
                 msg = (
                     "TypeError, module '%s.%s': %s"
@@ -537,7 +543,7 @@ class module_manager:
         # Methode "ausführen"
         if self.error_handling == True: # Fehler nur anzeigen
             try:
-                return self._run_with_error_handling(
+                output = self._run_with_error_handling(
                     unbound_method, method_arguments
                 )
             except KeyError, e:
@@ -550,10 +556,31 @@ class module_manager:
             except Exception, e:
                 run_error(e)
         else:
-            return self._run_with_error_handling(
+            output = self._run_with_error_handling(
                 unbound_method, method_arguments
             )
 
+        # plugin_cfg evtl. speichern
+        plugin_cfg_obj.commit()
+
+        return output
+
+    #_________________________________________________________________________
+    def _get_plugin_cfg(self):
+        """
+        Fügt das plugin_cfg an das request Objekt, mit den Daten für das
+        aktuelle Plugin.
+        """
+        module_id = self.plugin_data.module_id
+
+        plugin_cfg_obj = plugin_cfg.PluginConfig(
+            self.request, self.response,
+            self.plugin_data.module_id,
+            self.plugin_data.module_name,
+            self.plugin_data.method_name
+        )
+
+        return plugin_cfg_obj
 
     #_________________________________________________________________________
     # Zusatz Methoden für die Module selber

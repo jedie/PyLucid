@@ -52,6 +52,7 @@ class PyLucidBaseModule(object):
         self.render         = request.render
         self.staticTags     = request.staticTags
         self.templates      = request.templates
+        self.plugin_cfg     = request.plugin_cfg
 
         self.i18n = self.request.i18n
         self.l10n = self.request.l10n

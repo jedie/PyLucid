@@ -9,8 +9,8 @@ Einrichten/Konfigurieren von Modulen und Plugins
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -21,7 +21,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 __todo__="""
 Diese aktuelle Version ist Mist! Aber es funktioniert ;(
@@ -42,6 +42,9 @@ available_packages = ("modules","buildin_plugins","plugins")
 # Wenn es von _install Aufgerufen wird, wird das Template von Platte gelesen:
 internal_page_file = "PyLucid/modules/module_admin/administation_menu.html"
 internal_page_css = "PyLucid/modules/module_admin/administation_menu.css"
+
+
+from PyLucid.components import plugin_cfg
 
 from PyLucid.system.exceptions import *
 from PyLucid.system.BaseModule import PyLucidBaseModule
@@ -657,6 +660,15 @@ class Module(object):
         return version
 
     def _assimilateConfig(self, configObject):
+        """
+        Daten aus dem config-Objekt "speichern"
+        """
+        try:
+            self.data["plugin_cfg"] = configObject.plugin_cfg
+        except AttributeError:
+            # Keine plugin_cfg vorhanden, ist auch ok ;)
+            pass
+
         def getattrStriped(object, attr):
             result = getattr(object, attr)
             if type(result) == str:
@@ -696,6 +708,10 @@ class Module(object):
             self.data[key] = getattr(configObject, keyTag, False)
 
     def _setupMethods(self, configObject):
+        """
+        Für jede Methoden des Plugins ein Objekt erstellen und in die Liste
+        self.methods einfügen.
+        """
         module_manager_data = configObject.module_manager_data
         for methodName, methodData in module_manager_data.iteritems():
             method = Method(self.request, self.response)
@@ -732,6 +748,37 @@ class Module(object):
 
         self.response.write("\t</ul></li>\n")
 
+        self._setupPluginConfig()
+
+    def _setupPluginConfig(self):
+        """
+        plugin_cfg Daten in die DB schreiben
+        """
+        if not "plugin_cfg" in self.data:
+            self.response.write("\t<li>No plugin_cfg found, ok.</li>\n")
+            return
+
+        plugin_id = self.data["id"]
+
+        self.response.write(
+            "\t<li>save plugin_cfg (plugin_id: %s):" % plugin_id
+        )
+        #~ self.page_msg(self.data)
+        plugin_cfg_obj = plugin_cfg.PluginConfig(
+            self.request, self.response,
+            plugin_id, self.data["module_name"],
+        )
+        self.response.write("\t<ul>\n")
+        for section, data in self.data["plugin_cfg"].iteritems():
+            self.response.write(
+                "\t\t<li>insert data in section '%s'..." % section
+            )
+            plugin_cfg_obj.insert(data, section)
+            self.response.write("OK</li>\n")
+
+        self.response.write("\t</ul>\n")
+        self.response.write("</li>\n")
+
     def first_time_install(self):
         """
         installiert nur Module die wichtig sind
@@ -752,6 +799,19 @@ class Module(object):
         page_names = self.db.delete_internal_page_by_plugin_id(plugin_id)
         if page_names != []:
             self.page_msg("Internal pages %s deleted" % page_names)
+
+        plugin_cfg_obj = plugin_cfg.PluginConfig(
+            self.request, self.response,
+            plugin_id, self.data["module_name"],
+        )
+        try:
+            plugin_cfg_obj.delete_module_data()
+        except IndexError, e:
+            self.page_msg("delete plugin_cfg:", e)
+        except Exception, e:
+            self.page_msg("delete plugin_cfg failed:", e)
+        else:
+            self.page_msg("delete plugin_cfg successful.")
 
         # Alle Methonden aus DB-Tabelle 'plugindata' löschen
         self.db.delete_plugindata(plugin_id)
@@ -880,15 +940,20 @@ class Modules(object):
             if not os.path.isfile(module):
                 continue
 
-            try:
+            if self.isadmin:
                 self.addModule(
                     module_name = item,
                     package_dir_list = [package_basedir, package_name, item]
                 )
-            except Exception, e:
-                if self.isadmin:
-                    raise Exception(e)
-                else:
+            else:
+                try:
+                    self.addModule(
+                        module_name = item,
+                        package_dir_list = [
+                            package_basedir, package_name, item
+                        ]
+                    )
+                except Exception, e:
                     self.page_msg(
                         "Can't use Module %s.%s - Error: %s" % (
                             package_basedir, package_name, e
