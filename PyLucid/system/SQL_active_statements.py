@@ -23,7 +23,7 @@ license:
 __version__ = "$Rev$"
 
 
-import pickle, sys, time
+import pickle, sys, datetime
 
 from PyLucid.system.SQL_passive_statements import passive_statements
 from PyLucid.system.exceptions import *
@@ -449,6 +449,11 @@ class active_statements(passive_statements):
         )
 
     #_________________________________________________________________________
+    ## L10N
+
+    #~ def set_L10N(self, lang, key):
+
+    #_________________________________________________________________________
     ## Allgemeine Funktionen
 
     def __add_data(self, data_dict, add_createtime=True):
@@ -464,7 +469,7 @@ class active_statements(passive_statements):
 
         """
         # Daten einfügen
-        timestamp = self.tools.convert_time_to_sql(time.time())
+        timestamp = datetime.datetime.now()
         data_dict["lastupdatetime"] = timestamp
 
         if add_createtime:

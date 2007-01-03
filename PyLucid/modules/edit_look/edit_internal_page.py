@@ -9,8 +9,8 @@ Ausgelagerter Teil von edit_look.
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -21,7 +21,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 import os, cgi, time, stat
@@ -516,8 +516,8 @@ class EditInternalPage(PyLucidBaseModule):
 
         self.response.write(
             "\tfiledate: %s - db-date: %s\n" % (
-                self.tools.strftime(file_mtime),
-                self.tools.strftime(db_mtime)
+                self.tools.locale_datetime(file_mtime),
+                self.tools.locale_datetime(lastupdatetime)
             )
         )
         self.display_diff(filepath, content)

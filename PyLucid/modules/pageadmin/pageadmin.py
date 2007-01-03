@@ -7,8 +7,8 @@ Alles was mit dem ändern von Inhalten zu tun hat:
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -19,11 +19,11 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 # Python-Basis Module einbinden
-import sys, cgi, time, pickle, urllib
+import sys, cgi, time, pickle, urllib, datetime
 
 
 debug = False
@@ -455,8 +455,7 @@ class pageadmin(PyLucidBaseModule):
         page_data["lastupdateby"] = self.session["user_id"]
 
         # Letzte Änderungszeit
-        page_data["lastupdatetime"] = \
-            self.tools.convert_time_to_sql(time.time())
+        page_data["lastupdatetime"] = datetime.datetime.now()
 
         return page_data
 
