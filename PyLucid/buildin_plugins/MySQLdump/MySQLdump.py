@@ -15,19 +15,11 @@ date...........: $Date$
 
 __version__ = "$Rev$"
 
-__author__  = "Jens Diemer (www.jensdiemer.de)"
-__license__ = """GNU General Public License v2 or above -
- http://www.opensource.org/licenses/gpl-license.php"""
-__url__     = "http://www.PyLucid.org"
-
 
 __todo__ = """
-    Using jinja!!!
-
     http://dev.mysql.com/doc/refman/4.1/en/show-create-table.html
 
     SHOW CREATE TABLE tbl_name
-
 """
 
 
@@ -56,13 +48,15 @@ class MySQLdump(PyLucidBaseModule):
         #~ self.URLs.debug()
         #~ self.response.debug()
 
-        if self.request.form.get("action", False):
+        self.cfg = self.plugin_cfg
+
+        if "action" in self.request.form:
             actions = {
-                "display_help": self.display_help,
                 "display_dump": self.display_dump,
                 "display_command": self.display_command,
                 "download_dump": self.download_dump,
                 "install_dump": self.PyLucid_install_dump,
+                "save_settings": self.save_settings,
             }
             actionKey = self.request.form["action"]
             try:
@@ -73,86 +67,100 @@ class MySQLdump(PyLucidBaseModule):
 
             try:
                 response = action()
+            except MysqldumpNotFound:
+                self.response.write(
+                    "<p>Please use the browser back button.</p>"
+                )
+                return
             except CreateDumpError:
                 return
             else:
                 return response
 
+        # Tabellen die per default nur die Struktur gespeichert werden soll
         default_no_data = ["log", "session_data"]
         default_no_data = [
             self.preferences["dbTablePrefix"] + i for i in default_no_data
         ]
 
-        table_data = ""
-        for name in self.db.get_tables():
-            if name in default_no_data:
-                structure = ' checked="checked"'
-                complete = ''
+        table_list = self.db.get_tables()
+        table_data = []
+        for table in table_list:
+            table = {"name": table}
+            if table["name"] in default_no_data:
+                table["structure"] = True
             else:
-                structure = ''
-                complete = ' checked="checked"'
+                table["complete"] = True
 
-            table_data += '<tr>\n'
-            table_data += '\t<td>%s</td>\n' % name
-            table_data += '\t<td><input type="radio" name="%s" value="ignore" /></td>\n' % name
-            table_data += '\t<td><input type="radio" name="%s" value="structure"%s /></td>\n' % (
-                name, structure
-            )
-            table_data += '\t<td><input type="radio" name="%s" value="complete"%s /></td>\n' % (
-                name, complete
-            )
-            table_data += '</tr>\n'
+            table_data.append(table)
 
         self.actions = [
             ("download_dump",   "download dump"),
             ("display_dump",    "display SQL dump"),
             ("install_dump",    "download PyLucid install dump"),
-            ("display_help",    "mysqldump help" ),
             ("display_command", "display mysqldump command"),
         ]
 
-        buttons = (
-            "<p>Your mysql server version: <em>v%s</em></p>"
-        ) % self.db.RAWserver_version
+        try:
+            mysqldump_path = self.get_mysqldump_path()
+        except MysqldumpNotFound:
+            mysqldump_path = ""
 
-        for action in self.actions:
-            buttons += (
-                '<button type="submit" name="action" value="%s">'
-                '%s</button>&nbsp;&nbsp;\n'
-            ) % (action[0], action[1])
-
-        #~ raw_downloads = [
-            #~ ("url1", "title1"),
-            #~ ("url2", "title2"),
-        #~ ]
         context = {
-            "version"       : __version__,
-            "tables"        : table_data,
-            "path"          : self.get_mysqldump_path(),
-            "url"           : self.URLs.currentAction(),
-            "buttons"       : buttons,
-            "character_set" : "utf8",#self.db.encoding,
+            "version"               : __version__,
+            "table_data"            : table_data,
+            "path"                  : mysqldump_path,
+            "url"                   : self.URLs.currentAction(),
+            "server_version"        : self.db.RAWserver_version,
+            "help_link"             : self.URLs.actionLink("display_help"),
+            "actions"               : self.actions,
+            "character_set"         : self.cfg["default character set"],
+            "default_parameters"    : " ".join(self.cfg["default parameters"]),
+            "parameter_examples"    : " ".join(self.cfg["parameter examples"]),
         }
-
+        #~ self.page_msg(context)
         self.templates.write("Menu", context)
 
     def get_mysqldump_path(self):
-        if not "PATH" in os.environ:
-            return "[ERROR: No 'PATH' in environ!]"
+        """
+        Sucht das mysqldump Programm im Pfad. Wurde das Formular abgeschickt,
+        wird darin
+        """
+        path_list = []
 
-        path = os.environ["PATH"]
-        path_list = path.split(os.pathsep)
-
-        path_list = [d.strip('"') for d in path_list] # Windows
+        try:
+            path = os.environ["PATH"]
+        except KeyError:
+            self.page_msg("No 'PATH' in environ?!?")
+            path_list = []
+        else:
+            path_list = path.split(os.pathsep)
+            path_list = [d.strip('"') for d in path_list] # Windows
         #~ self.page_msg("path_list:", path_list)
+
+        if "mysqldump_path" in self.request.form:
+            # Das Formular wurde schon abgeschickt, dann schauen wir erst da
+            # rein!
+            form_path = self.request.form["mysqldump_path"]
+            if os.path.isdir(form_path):
+                path_list.insert(0, form_path)
+            else:
+                self.page_msg("mysqldump path not exists! Ignored.")
+
+        if "mysqldump_path" in self.cfg:
+            # In der plugin_cfg ist der Pfad auch schon mal gespeichert.
+            path_list.insert(0, self.cfg["mysqldump_path"])
 
         for test_path in path_list:
             if os.path.isfile(os.path.join(test_path, self.mysqldump_name)):
+                # gefunden!
                 return test_path
 
-        return "[ERROR: '%s' not found in PATH!]" % (self.mysqldump_name)
-
-
+        self.page_msg(
+            "Note: mysqldump program not found!"
+            " Please put the correct path in the html form."
+        )
+        raise MysqldumpNotFound()
 
     #_______________________________________________________________________
 
@@ -247,9 +255,9 @@ class MySQLdump(PyLucidBaseModule):
         """
         Zeigt die Hilfe von mysqldump an
         """
-        command_list = ["%s --help" % self.mysqldump_name]
+        self.cfg = self.plugin_cfg
 
-        self.response.write('<p><a href="JavaScript:history.back();">back</a></p>')
+        command_list = ["%s --help" % self.mysqldump_name]
 
         self.response.write("<p>command: '%s'</p>" % command_list[0])
 
@@ -259,8 +267,6 @@ class MySQLdump(PyLucidBaseModule):
             return
 
         self.response.write("<pre>%s</pre>" % output)
-
-        self.response.write('<a href="JavaScript:history.back();">back</a>')
 
     #_______________________________________________________________________
 
@@ -377,11 +383,10 @@ class MySQLdump(PyLucidBaseModule):
         Abarbeiten der >command_list<
         liefert die Ausgaben zurück oder erstellt direk eine Fehlermeldung
         """
-        try:
-            mysqldump_path = self.request.form["mysqldump_path"]
-        except KeyError:
-            # Wurde im Formular leer gelassen
-            mysqldump_path = self.get_mysqldump_path("mysqldump")
+        mysqldump_path = self.get_mysqldump_path()
+        if not mysqldump_path:
+            self.page_msg("Error!")
+            return
 
         def print_error(out_data, returncode, msg):
             self.response.write("<h3>%s</h3>" % msg)
@@ -411,7 +416,7 @@ class MySQLdump(PyLucidBaseModule):
 
         return result
 
-    #_______________________________________________________________________
+    #_________________________________________________________________________
 
     def additional_dump_info(self):
         txt = u"-- "
@@ -453,6 +458,36 @@ class MySQLdump(PyLucidBaseModule):
 
         return txt
 
+    #_______________________________________________________________________
+    def save_settings(self):
+        #~ self.response.debug()
+        #~ self.page_msg(self.request.form)
+
+        new = self.request.form.get('character-set', "")
+        if new != self.cfg["default character set"]:
+            self.cfg["default character set"] = new
+            self.page_msg("Set default character set to: '%s'" % new)
+
+        new = self.request.form.get("mysqldump_path", "")
+        if new != self.cfg["mysqldump_path"]:
+            self.cfg["mysqldump_path"] = new
+            self.page_msg("Set default mysqldump path to: '%s'" % new)
+
+        options = self.request.form.get('options', None)
+        if options:
+            options = options.split(" ")
+            for option in options:
+                if not option in self.cfg['parameter examples']:
+                    self.page_msg("Put option '%s' in the examples." % option)
+                    self.cfg['parameter examples'].append(option)
+
+            self.cfg['default parameters'] = options
+
+        self.page_msg.green("Options saved for the next time ;)")
+
+        self.response.write(
+            "<p>Please use the browser back button.</p>"
+        )
 
 
 
@@ -462,6 +497,11 @@ class CreateDumpError(Exception):
     """
     pass
 
+class MysqldumpNotFound(Exception):
+    """
+    Das mysqldump Programm wurde nicht gefunden.
+    """
+    pass
 
 
 

@@ -47,3 +47,18 @@ module_manager_data = {
         "sys_exit"      : True, # Damit ein sys.exit() auch wirklich fuktioniert
     }
 }
+
+plugin_cfg = {
+    "main" : {
+        "default character set": "utf8",
+        "default compatible" : None,
+        "list compatible" : [
+            "ansi", "mysql323", "mysql40", "postgresql", "oracle",
+            "mssql", "db2", "maxdb"
+        ],
+        "default parameters" : ["--compact"],
+        "parameter examples" : [
+            "--single-transaction", "--extended-insert", "--skip-opt"
+        ],
+    },
+}
