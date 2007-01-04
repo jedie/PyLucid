@@ -7,8 +7,8 @@ Einstellungsdaten für Plugins/Module
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -29,7 +29,7 @@ except ImportError:
     import pickle
 
 
-class NoPluginConfig(object):
+class NoPluginConfig(dict):
     """
     Hat ein Module/Plugin keine plugin config definiert, wird diese Klasse an
     das lokale request-Objekt dran gehangen.
@@ -41,10 +41,6 @@ class NoPluginConfig(object):
 
     def __getattr__(self, name):
         self._error()
-
-    def __contains__(self, key): self._error()
-    def __str__(self): self._error()
-    def __setitem__(self, key, item): self._error()
 
     def commit(self):
         # Der Module-Manager ruft immer commit auf ;)
