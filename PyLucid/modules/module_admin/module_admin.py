@@ -95,8 +95,8 @@ class module_admin(PyLucidBaseModule):
                 self.response.write("DB Error: %s\n" % e)
                 self.request.db.rollback()
                 self.response.write("(execute DB rollback)")
-            except KeyError, e:
-                self.response.write("KeyError: %s" % e)
+            #~ except KeyError, e:
+                #~ self.response.write("KeyError: %s" % e)
             else:
                 self.request.db.commit()
         elif "activate" in self.request.form:
@@ -733,6 +733,9 @@ class Module(object):
         if autoActivate:
             self.data["active"] = True
 
+        # Plugin Einstellungen
+        self.data["plugin_cfg"] = self._get_plugin_cfg()
+
         # Modul in DB eintragen
         id = self.db.install_plugin(self.data)
         self.data["id"] = id
@@ -748,36 +751,19 @@ class Module(object):
 
         self.response.write("\t</ul></li>\n")
 
-        self._setupPluginConfig()
-
-    def _setupPluginConfig(self):
+    def _get_plugin_cfg(self):
         """
-        plugin_cfg Daten in die DB schreiben
+        plugin_cfg Daten
         """
         if not "plugin_cfg" in self.data:
-            self.response.write("\t<li>No plugin_cfg found, ok.</li>\n")
-            return
+            return None
 
-        plugin_id = self.data["id"]
-
-        self.response.write(
-            "\t<li>save plugin_cfg (plugin_id: %s):" % plugin_id
-        )
-        #~ self.page_msg(self.data)
         plugin_cfg_obj = plugin_cfg.PluginConfig(
             self.request, self.response,
-            plugin_id, self.data["module_name"],
+            module_id=0,
+            module_name = self.data["module_name"], method_name="[install]"
         )
-        self.response.write("\t<ul>\n")
-        for section, data in self.data["plugin_cfg"].iteritems():
-            self.response.write(
-                "\t\t<li>insert data in section '%s'..." % section
-            )
-            plugin_cfg_obj.insert(data, section)
-            self.response.write("OK</li>\n")
-
-        self.response.write("\t</ul>\n")
-        self.response.write("</li>\n")
+        return plugin_cfg_obj.get_pickled_data(self.data["plugin_cfg"])
 
     def first_time_install(self):
         """
@@ -799,19 +785,6 @@ class Module(object):
         page_names = self.db.delete_internal_page_by_plugin_id(plugin_id)
         if page_names != []:
             self.page_msg("Internal pages %s deleted" % page_names)
-
-        plugin_cfg_obj = plugin_cfg.PluginConfig(
-            self.request, self.response,
-            plugin_id, self.data["module_name"],
-        )
-        try:
-            plugin_cfg_obj.delete_module_data()
-        except IndexError, e:
-            self.page_msg("delete plugin_cfg:", e)
-        except Exception, e:
-            self.page_msg("delete plugin_cfg failed:", e)
-        else:
-            self.page_msg("delete plugin_cfg successful.")
 
         # Alle Methonden aus DB-Tabelle 'plugindata' löschen
         self.db.delete_plugindata(plugin_id)

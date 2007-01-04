@@ -12,7 +12,7 @@ You can make a SQL dump from you DB. Also you can make a install-dump.
 """
 __important_buildin__   = True
 
-#___________________________________________________________________________________________________
+#_____________________________________________________________________________
 # Module-Manager Daten
 
 #~ module_manager_debug = True
@@ -44,21 +44,18 @@ module_manager_data = {
         "must_login"    : True,
         "must_admin"    : True,
         "direct_out"    : True,
-        "sys_exit"      : True, # Damit ein sys.exit() auch wirklich fuktioniert
     }
 }
 
 plugin_cfg = {
-    "main" : {
-        "default character set": "utf8",
-        "default compatible" : None,
-        "list compatible" : [
-            "ansi", "mysql323", "mysql40", "postgresql", "oracle",
-            "mssql", "db2", "maxdb"
-        ],
-        "default parameters" : ["--compact"],
-        "parameter examples" : [
-            "--single-transaction", "--extended-insert", "--skip-opt"
-        ],
-    },
+    "default character set": "utf8",
+    "default compatible" : None,
+    "list compatible" : [
+        "ansi", "mysql323", "mysql40", "postgresql", "oracle",
+        "mssql", "db2", "maxdb"
+    ],
+    "default parameters" : ["--compact"],
+    "parameter examples" : [
+        "--single-transaction", "--extended-insert", "--skip-opt"
+    ],
 }

@@ -381,6 +381,7 @@ class active_statements(passive_statements):
             "active"                    : active,
             "debug"                     : module_data["module_manager_debug"],
             "SQL_deinstall_commands"    : module_data["SQL_deinstall_commands"],
+            "plugin_cfg"                : module_data["plugin_cfg"],
         }
 
         self.insert("plugins", data)

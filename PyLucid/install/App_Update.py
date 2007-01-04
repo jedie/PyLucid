@@ -84,7 +84,7 @@ class update(ObjectApp_Base):
 
         #_____________________________________________________________________
         # Neue object_cache Tabelle
-        self.response.write("<h4>Create new object_cache table:</h4>\n")
+        self._execute("drop if exist","DROP TABLE IF EXISTS $$object_cache;")
         SQLcommand = (
             "CREATE TABLE $$object_cache ("
             " id VARCHAR(40) NOT NULL,"
@@ -106,6 +106,20 @@ class update(ObjectApp_Base):
             " CHANGE session_data session_data LONGBLOB NOT NULL;"
         )
         msg = "change column 'session_data' to a LONGBLOB value"
+        self._execute(msg,SQLcommand)
+
+        #_____________________________________________________________________
+        # Neue plugin_cfg Spalte
+        self._execute(
+            "drop plugin_cfg, if exist","DROP TABLE IF EXISTS $$plugin_cfg;"
+        )
+        SQLcommand = (
+            "ALTER TABLE $$plugins"
+            " ADD COLUMN plugin_cfg LONGBLOB NOT NULL"
+            " COMMENT 'pickled Python object structure'"
+            " AFTER SQL_deinstall_commands"
+        )
+        msg = "Insert plugin_cfg column in 'plugins' table"
         self._execute(msg,SQLcommand)
 
 

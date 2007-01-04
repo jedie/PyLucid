@@ -441,13 +441,11 @@ class module_manager:
                 raise Exception(msg)
 
 
-        # Setup
-        plugin_cfg_obj = self._get_plugin_cfg()
-        request_obj = self.request
-        request_obj.plugin_cfg = plugin_cfg_obj
-
         module_class = self._get_module_class()
-        class_instance = self._get_class_instance(request_obj, module_class)
+        local_request_obj = self._get_local_request_obj()
+        class_instance = self._get_class_instance(
+            local_request_obj, module_class
+        )
         unbound_method = self._get_unbound_method(class_instance)
 
         # Methode "ausführen"
@@ -470,10 +468,8 @@ class module_manager:
                 unbound_method, function_info
             )
 
-        print self.module_name, self.method_name
-
         # plugin_cfg evtl. speichern
-        plugin_cfg_obj.commit()
+        local_request_obj.plugin_cfg.commit()
 
         return output
 
@@ -574,21 +570,22 @@ class module_manager:
 
 
     #_________________________________________________________________________
-    def _get_plugin_cfg(self):
+    def _get_local_request_obj(self):
         """
         Fügt das plugin_cfg an das request Objekt, mit den Daten für das
         aktuelle Plugin.
         """
-        module_id = self.plugin_data.module_id
-
-        plugin_cfg_obj = plugin_cfg.PluginConfig(
+        plugin_cfg_obj = plugin_cfg.get_plugin_cfg_obj(
             self.request, self.response,
             self.plugin_data.module_id,
             self.plugin_data.module_name,
             self.plugin_data.method_name
         )
 
-        return plugin_cfg_obj
+        local_request_obj = self.request
+        local_request_obj.plugin_cfg = plugin_cfg_obj
+
+        return local_request_obj
 
     #_________________________________________________________________________
     # Zusatz Methoden für die Module selber

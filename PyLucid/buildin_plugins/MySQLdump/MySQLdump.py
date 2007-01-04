@@ -48,8 +48,6 @@ class MySQLdump(PyLucidBaseModule):
         #~ self.URLs.debug()
         #~ self.response.debug()
 
-        self.cfg = self.plugin_cfg
-
         if "action" in self.request.form:
             actions = {
                 "display_dump": self.display_dump,
@@ -76,6 +74,10 @@ class MySQLdump(PyLucidBaseModule):
                 return
             else:
                 return response
+
+        self.display_menu()
+
+    def display_menu(self):
 
         # Tabellen die per default nur die Struktur gespeichert werden soll
         default_no_data = ["log", "session_data"]
@@ -114,9 +116,9 @@ class MySQLdump(PyLucidBaseModule):
             "server_version"        : self.db.RAWserver_version,
             "help_link"             : self.URLs.actionLink("display_help"),
             "actions"               : self.actions,
-            "character_set"         : self.cfg["default character set"],
-            "default_parameters"    : " ".join(self.cfg["default parameters"]),
-            "parameter_examples"    : " ".join(self.cfg["parameter examples"]),
+            "character_set"         : self.plugin_cfg["default character set"],
+            "default_parameters"    : " ".join(self.plugin_cfg["default parameters"]),
+            "parameter_examples"    : " ".join(self.plugin_cfg["parameter examples"]),
         }
         #~ self.page_msg(context)
         self.templates.write("Menu", context)
@@ -147,9 +149,9 @@ class MySQLdump(PyLucidBaseModule):
             else:
                 self.page_msg("mysqldump path not exists! Ignored.")
 
-        if "mysqldump_path" in self.cfg:
+        if "mysqldump_path" in self.plugin_cfg:
             # In der plugin_cfg ist der Pfad auch schon mal gespeichert.
-            path_list.insert(0, self.cfg["mysqldump_path"])
+            path_list.insert(0, self.plugin_cfg["mysqldump_path"])
 
         for test_path in path_list:
             if os.path.isfile(os.path.join(test_path, self.mysqldump_name)):
@@ -255,7 +257,7 @@ class MySQLdump(PyLucidBaseModule):
         """
         Zeigt die Hilfe von mysqldump an
         """
-        self.cfg = self.plugin_cfg
+        self.plugin_cfg = self.plugin_cfg
 
         command_list = ["%s --help" % self.mysqldump_name]
 
@@ -464,30 +466,28 @@ class MySQLdump(PyLucidBaseModule):
         #~ self.page_msg(self.request.form)
 
         new = self.request.form.get('character-set', "")
-        if new != self.cfg["default character set"]:
-            self.cfg["default character set"] = new
+        if new != self.plugin_cfg["default character set"]:
+            self.plugin_cfg["default character set"] = new
             self.page_msg("Set default character set to: '%s'" % new)
 
         new = self.request.form.get("mysqldump_path", "")
-        if new != self.cfg["mysqldump_path"]:
-            self.cfg["mysqldump_path"] = new
+        if new != self.plugin_cfg.get("mysqldump_path", ""):
+            self.plugin_cfg["mysqldump_path"] = new
             self.page_msg("Set default mysqldump path to: '%s'" % new)
 
         options = self.request.form.get('options', None)
         if options:
             options = options.split(" ")
             for option in options:
-                if not option in self.cfg['parameter examples']:
+                if not option in self.plugin_cfg['parameter examples']:
                     self.page_msg("Put option '%s' in the examples." % option)
-                    self.cfg['parameter examples'].append(option)
+                    self.plugin_cfg['parameter examples'].append(option)
 
-            self.cfg['default parameters'] = options
+            self.plugin_cfg['default parameters'] = options
 
         self.page_msg.green("Options saved for the next time ;)")
 
-        self.response.write(
-            "<p>Please use the browser back button.</p>"
-        )
+        self.display_menu()
 
 
 
