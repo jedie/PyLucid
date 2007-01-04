@@ -69,7 +69,7 @@ class TemplateEngines(object):
         self.addCode    = response.addCode
         self.tools      = request.tools
 
-    def write(self, internal_page_name, context):
+    def write(self, internal_page_name, context, debug=False):
         """
         Rendert das Template und schreibt es gleich ins response Objekt.
         Behandelt auch die CSS und JS Daten.
@@ -80,6 +80,18 @@ class TemplateEngines(object):
         content = self.render_template(
             internal_page_name, internal_page_data, context
         )
+        if debug:
+            import pprint
+            self.response.write("<fieldset><legend>template debug:</legend>")
+            self.response.write("<legend>template context:</legend>")
+            self.response.write("<pre>")
+            pprint_context = pprint.pformat(context)
+            self.response.write(cgi.escape(pprint_context))
+            self.response.write("</pre>")
+            self.response.write("<legend>rendered page:</legend>")
+            self.response.write("<pre>")
+            self.response.write(cgi.escape(content))
+            self.response.write("</pre></fieldset>")
         self.response.write(content)
 
         # CSS/JS behandeln:
