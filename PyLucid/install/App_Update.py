@@ -83,6 +83,30 @@ class update(ObjectApp_Base):
         self.response.write("</pre>\n")
 
         #_____________________________________________________________________
+        # Neue l10n Tabelle
+        self._execute("drop if exist","DROP TABLE IF EXISTS $$l10n;")
+        SQLcommand = (
+            "CREATE TABLE $$l10n ("
+            " id INT  NOT NULL AUTO_INCREMENT,"
+            " lang VARCHAR(2)  NOT NULL DEFAULT '',"
+            " varName VARCHAR(50)  NOT NULL DEFAULT '',"
+            " value VARCHAR(255)  NOT NULL DEFAULT '',"
+            " description VARCHAR(255)  NOT NULL DEFAULT '',"
+            " PRIMARY KEY(id)"
+            ' ) COMMENT = "l10n data for any languages";'
+        )
+        msg = "Create new l10n table"
+        self._execute(msg,SQLcommand)
+        self._db.insert("l10n", {
+            "lang":"en", "varName":"datetime", "value":'%Y-%m-%d - %H:%M',
+            "description": "The Python Format for Date and Time value."
+        })
+        self._db.insert("l10n", {
+            "lang":"de", "varName":"datetime", "value":'%d.%m.%Y - %H:%M',
+            "description": "Datum und Uhrzeit im Python Format."
+        })
+
+        #_____________________________________________________________________
         # Neue object_cache Tabelle
         self._execute("drop if exist","DROP TABLE IF EXISTS $$object_cache;")
         SQLcommand = (
