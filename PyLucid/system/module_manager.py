@@ -282,7 +282,7 @@ class module_manager:
             self.module_name = tag
             self.method_name = "lucidTag"
 
-        return self._run_module_method()
+        return self._run_module_method(function_info={})
 
 
     def run_function( self, function_name, function_info ):
@@ -333,13 +333,13 @@ class module_manager:
 
     #_________________________________________________________________________
 
-    def _run_module_method(self, method_arguments={}):
+    def _run_module_method(self, function_info={}):
         """
         Führt eine Methode eines Module aus.
         Kommt es irgendwo zu einem Fehler, ist es die selbsterstellte
         "RunModuleError"-Exception mit einer passenden Fehlermeldung.
         """
-        #~ if debug: self.page_msg("method_arguments:", method_arguments)
+        #~ if debug: self.page_msg("function_info:", function_info)
         try:
             self.plugin_data.setup_module(self.module_name, self.method_name)
         except PluginMethodUnknown, e:
@@ -373,12 +373,10 @@ class module_manager:
                 self.page_msg(e)
                 return ""
 
-        module_class = self._get_module_class()
-
         self.plugin_data.setup_URLs()
 
         try:
-            moduleOutput = self._run_method(module_class, method_arguments)
+            moduleOutput = self._run_method(function_info)
         except RunModuleError, e:
             self.page_msg(e)
             moduleOutput = ""
@@ -388,54 +386,16 @@ class module_manager:
         return moduleOutput
 
 
-    def _get_module_class(self):
-        """
-        Importiert das Module und packt die Klasse als Objekt in self.data
-        """
-        def _import(package_name, module_name):
-            return __import__(
-                "%s.%s" % (package_name, module_name), {}, {}, [module_name]
-            )
-
-        if self.plugin_data.plugin_debug():
-            msg = (
-                "Import module mit error handling: %s"
-            ) % self.preferences["ModuleManager_error_handling"]
-            self.page_msg(msg)
-
-        module_name = self.module_name
-        package_name = self.plugin_data.package_name
-
-        if self.preferences["ModuleManager_error_handling"] == False:
-            import_object = _import(package_name, module_name)
-
-        try:
-            import_object = _import(package_name, module_name)
-        except Exception, e:
-            raise RunModuleError(
-                "[Can't import Modul '%s': %s]" % (self.module_name, e)
-            )
-
-        try:
-            return getattr(import_object, self.module_name)
-        except Exception, e:
-            raise RunModuleError(
-                "[Can't get class '%s' from module '%s': %s]" % (
-                    self.module_name, self.module_name, e
-                )
-            )
-
-
-    def _run_with_error_handling(self, unbound_method, method_arguments):
+    def _run_with_error_handling(self, unbound_method, function_info):
         if self.plugin_data.plugin_debug == True:
             self.page_msg(
-                "method_arguments for method '%s': %s" % (
-                    self.method_name, method_arguments
+                "function_info for method '%s': %s" % (
+                    self.method_name, function_info
                 )
             )
         try:
             # Dict-Argumente übergeben
-            return unbound_method(**method_arguments)
+            return unbound_method(**function_info)
         except SystemExit:
             # Module dürfen zum Debugging auch einen sysexit machen...
             pass
@@ -450,31 +410,25 @@ class module_manager:
             # verlangt werden
             import inspect
             args = inspect.getargspec(unbound_method)
-            real_method_arguments = args[0][1:]
-            real_method_arguments.sort()
-            argcount = len(real_method_arguments)
+            real_function_info = args[0][1:]
+            real_function_info.sort()
+            argcount = len(real_function_info)
 
-            msg = "ModuleManager 'method_arguments' error: "
+            msg = "ModuleManager 'function_info' error: "
             msg += "%s() takes exactly %s arguments %s, " % (
-                unbound_method.__name__, argcount, real_method_arguments
+                unbound_method.__name__, argcount, real_function_info
             )
             msg += "and I have %s given the dict: %s " % (
-                len(method_arguments), method_arguments
+                len(function_info), function_info
             )
 
             raise RunModuleError(msg)
 
 
-    def _run_method(self, module_class, method_arguments={}):
+    def _run_method(self, function_info):
         """
         Startet die Methode und verarbeitet die Ausgaben
         """
-        #~ self.page_msg(
-            #~ "method_arguments:", method_arguments,
-            #~ "---", self.module_name, self.method_name
-        #~ )
-
-        #~ if debug: self.page_msg("method_arguments:", method_arguments)
         def run_error(msg):
             msg = "[Can't run '%s.%s': %s]" % (
                 self.module_name, self.method_name, msg
@@ -487,21 +441,89 @@ class module_manager:
                 raise Exception(msg)
 
 
-        #~ if self.plugin_data["direct_out"] == True:
-            #~ # Direktes schreiben in das globale response Objekt
-            #~ responseObject = self.response
-        #~ else:
-        # Das Modul schreibt in einem lokalen Puffer, um die Ausgaben in
-        # die CMS Seite einbauen zu können
-        #~ old_responseObject = self.response
-        #~ self.response = self.tools.out_buffer()
-
         # Setup
         plugin_cfg_obj = self._get_plugin_cfg()
         request_obj = self.request
         request_obj.plugin_cfg = plugin_cfg_obj
 
-        # Instanz erstellen und PyLucid-Objekte übergeben
+        module_class = self._get_module_class()
+        class_instance = self._get_class_instance(request_obj, module_class)
+        unbound_method = self._get_unbound_method(class_instance)
+
+        # Methode "ausführen"
+        if self.error_handling == True: # Fehler nur anzeigen
+            try:
+                output = self._run_with_error_handling(
+                    unbound_method, function_info
+                )
+            except KeyError, e:
+                run_error("KeyError: %s" % e)
+            except PyLucidException, e:
+                # Interne Fehlerseite wurde geforfen, aber Fehler sollen
+                # als Satz zusammen gefasst werden.
+                # Bei config.ModuleManager_error_handling = True
+                raise RunModuleError(e.get_error_page_msg())
+            except Exception, e:
+                run_error(e)
+        else:
+            output = self._run_with_error_handling(
+                unbound_method, function_info
+            )
+
+        print self.module_name, self.method_name
+
+        # plugin_cfg evtl. speichern
+        plugin_cfg_obj.commit()
+
+        return output
+
+    #_________________________________________________________________________
+
+    def _get_module_class(self):
+        """
+        Importiert das Modul und liefert die Klasse als Objekt zurück
+        Nutzt dazu:
+            - self.module_name
+            - self.plugin_data.package_name
+        """
+        if self.plugin_data.plugin_debug():
+            msg = (
+                "Import module mit error handling: %s"
+            ) % self.preferences["ModuleManager_error_handling"]
+            self.page_msg(msg)
+
+        def _import(package_name, module_name):
+            return __import__(
+                "%s.%s" % (package_name, module_name), {}, {}, [module_name]
+            )
+
+        if self.preferences["ModuleManager_error_handling"] == False:
+            import_object = _import(
+                self.plugin_data.package_name, self.module_name
+            )
+
+        try:
+            import_object = _import(
+                self.plugin_data.package_name, self.module_name
+            )
+        except Exception, e:
+            raise RunModuleError(
+                "[Can't import Modul '%s': %s]" % (self.module_name, e)
+            )
+
+        try:
+            return getattr(import_object, self.module_name)
+        except Exception, e:
+            raise RunModuleError(
+                "[Can't get class '%s' from module '%s': %s]" % (
+                    self.module_name, self.module_name, e
+                )
+            )
+
+    def _get_class_instance(self, request_obj, module_class):
+        """
+        Instanziert die Module/Plugin Klasse und liefert diese zurück
+        """
         if self.error_handling == True:
             # Fehler nur anzeigen
             try:
@@ -523,7 +545,15 @@ class module_manager:
                 ) % (self.module_name, self.method_name, e)
                 raise TypeError(msg)
 
-        # Methode aus Klasse erhalten
+        return class_instance
+
+    def _get_unbound_method(self, class_instance):
+        """
+        Holt die zu startende Methode aus der Modul/Plugin-Klasse herraus,
+        liefert diese als 'unbound method' zurück.
+        """
+        ##____________________________________________________________________
+        ## Methode per getattr holen
         if self.error_handling == True: # Fehler nur anzeigen
             try:
                 unbound_method = getattr(
@@ -540,30 +570,8 @@ class module_manager:
                 class_instance, self.plugin_data.method_name
             )
 
-        # Methode "ausführen"
-        if self.error_handling == True: # Fehler nur anzeigen
-            try:
-                output = self._run_with_error_handling(
-                    unbound_method, method_arguments
-                )
-            except KeyError, e:
-                run_error("KeyError: %s" % e)
-            except PyLucidException, e:
-                # Interne Fehlerseite wurde geforfen, aber Fehler sollen
-                # als Satz zusammen gefasst werden.
-                # Bei config.ModuleManager_error_handling = True
-                raise RunModuleError(e.get_error_page_msg())
-            except Exception, e:
-                run_error(e)
-        else:
-            output = self._run_with_error_handling(
-                unbound_method, method_arguments
-            )
+        return unbound_method
 
-        # plugin_cfg evtl. speichern
-        plugin_cfg_obj.commit()
-
-        return output
 
     #_________________________________________________________________________
     def _get_plugin_cfg(self):
