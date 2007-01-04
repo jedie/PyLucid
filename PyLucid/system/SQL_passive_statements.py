@@ -154,34 +154,33 @@ class passive_statements(SQL_wrapper):
     def get_side_data(self, page_id):
         "Holt die nötigen Informationen über die aktuelle Seite"
 
-        try:
-            side_data = self.select(
-                select_items    = [
-                        "markup", "name", "shortcut", "title",
-                        "lastupdatetime","keywords","description"
-                    ],
-                from_table      = "pages",
-                where           = ( "id", page_id )
-            )
-        except Exception, e:
-            # Vielleicht existiert 'shortcut' noch nicht (Update von v0.6)
-            side_data = self.select(
-                    select_items    = [
-                            "markup", "name", "title",
-                            "lastupdatetime","keywords","description"
-                        ],
-                    from_table      = "pages",
-                    where           = ( "id", page_id )
-                )
+        side_data = self.select(
+            select_items    = [
+                    "markup", "name", "shortcut", "title",
+                    "lastupdatetime","keywords","description"
+                ],
+            from_table      = "pages",
+            where           = ( "id", page_id )
+        )[0]
+        #~ except Exception, e:
+            #~ # Vielleicht existiert 'shortcut' noch nicht (Update von v0.6)
+            #~ side_data = self.select(
+                    #~ select_items    = [
+                            #~ "markup", "name", "title",
+                            #~ "lastupdatetime","keywords","description"
+                        #~ ],
+                    #~ from_table      = "pages",
+                    #~ where           = ( "id", page_id )
+                #~ )
 
-        try:
-            side_data = side_data[0]
-        except IndexError:
+        #~ try:
+            #~ side_data = side_data[0]
+        #~ except IndexError:
             #~ if page_id == None:
-            side_data = {
-                "markup": None,
-                "lastupdatetime": 0,
-            }
+            #~ side_data = {
+                #~ "markup": None,
+                #~ "lastupdatetime": 0,
+            #~ }
             #~ return side_data
 
         if (not "shortcut" in side_data) or side_data["shortcut"] == "" or \

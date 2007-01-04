@@ -8,8 +8,8 @@ Seite die aktuelle ist :)
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -20,7 +20,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 import urllib, cgi
 
@@ -121,9 +121,6 @@ class detect_page(PyLucidBaseModule):
             self._set_page_id(page_id)
             return
 
-            print "XXX:", page_id, "|||", page_name_split
-
-
         if len(page_name_split) == 1:
             self._singleShortcut(page_name_split[0])
         else:
@@ -138,11 +135,7 @@ class detect_page(PyLucidBaseModule):
         tieferen Ebene ist!
         """
         try:
-            page_id = self.db.select(
-                select_items    = ["id"],
-                from_table      = "pages",
-                where           = ("shortcut",shortcut)
-            )[0]["id"]
+            page_id = self._get_pageID(shortcut)
         except Exception,e:
             if debug:
                 self.page_msg("_singleShortcut-Error:", e)
@@ -151,14 +144,32 @@ class detect_page(PyLucidBaseModule):
         else:
             self._set_page_id(page_id)
 
+    def _get_pageID(self, shortcut):
+        try:
+            return self.db.select(
+                select_items    = ["id"],
+                from_table      = "pages",
+                where           = ("shortcut",shortcut)
+            )[0]["id"]
+        except (IndexError, KeyError), e:
+            raise KeyError("shortcut '%s' not exists (%s)" % (shortcut, e))
+
     def _mutipleShortcut(self, page_name_split):
         """
         Es sind mehrere Shortcut in der URL -> Der User befindet sich in
         einer Ebene >1
         Jeder einzelne Shortcut wird überprüft, ob die Seite existiert.
         """
-        correctShortcuts=[]
-        page_id = 0
+        first_shortcut = page_name_split.pop(0)
+        try:
+            page_id = self._get_pageID(first_shortcut)
+        except KeyError,e:
+            # Schon der erste Shortcut ist falsch...
+            self._error404(first_shortcut)
+            self.set_default_page()
+            return
+
+        correctShortcuts=[first_shortcut]
         for no, shortcut in enumerate(page_name_split):
             try:
                 page_id = self.db.select(
@@ -174,16 +185,12 @@ class detect_page(PyLucidBaseModule):
                 wrongShortcuts = page_name_split[no:]
                 self._error404("/".join(wrongShortcuts))
 
-                if no == 0:
-                    # Kein Teil der URL ist richtig
-                    self.set_default_page()
-                else:
-                    # Die ersten Teile der URL sind richtig, also werden diese
-                    # berücksichtig
-                    # URLs richtig setzten, damit die generierung von Links
-                    # auch die richtige Grundlage haben:
-                    self.URLs.handle404errors(correctShortcuts, wrongShortcuts)
-                return
+                # Die ersten Teile der URL sind richtig, also werden diese
+                # berücksichtig
+                # URLs richtig setzten, damit die generierung von Links
+                # auch die richtige Grundlage haben:
+                self.URLs.handle404errors(correctShortcuts, wrongShortcuts)
+                break
             else:
                 correctShortcuts.append(shortcut)
 
@@ -200,19 +207,23 @@ class detect_page(PyLucidBaseModule):
             "404 Not Found."
             " The requested URL '%s' was not found on this server."
         ) % cgi.escape(url)
-        self.page_msg(msg)
+        self.page_msg.red(msg)
 
     def set_default_page( self ):
         "Setzt die default-Page als aktuelle Seite"
-        try:
-            self.session["page_id"] = \
+        #~ try:
+        self.session["page_id"] = \
                                     self.preferences["core"]["defaultPageName"]
-        except KeyError:
-            self.page_msg(
-                "Can'r read preferences from DB.",
-                "(Did you install PyLucid correctly?)"
-            )
-            self.session["page_id"] = 0
+        #~ except KeyError:
+            #~ self.page_msg(
+                #~ "Can'r read preferences from DB.",
+                #~ "(Did you install PyLucid correctly?)"
+            #~ )
+            #~ self.session["page_id"] = self.db.select(
+                #~ select_items = ["id"], from_table = "pages", limit = 1
+            #~ )[0]["id"]
+            #~ print self.session["page_id"]
+
         try:
             self.db.select(
                 select_items    = ["id"],
