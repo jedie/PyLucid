@@ -87,21 +87,19 @@ class page_msg_Container(object):
             return
 
         if self.debug_mode:
-            # Datei, Zeilennummer, aus dem die Nachricht stammt, anzeigen
             try:
                 import inspect
                 for stack_frame in inspect.stack():
                     # Im stack vorwärts gehen, bis außerhalb dieser Datei
                     filename = stack_frame[1]
-                    if os.path.split(filename)[1] != "page_msg.py":
-                        lineno = stack_frame[2]
+                    lineno = stack_frame[2]
+                    if filename != __file__:
                         break
 
                 filename = "...%s" % filename[-25:]
-                fileinfo = "%-20s line %3s: " % (filename, lineno)
-                self.data.append(fileinfo.replace(" ","&nbsp;"))
+                fileinfo = "%-25s line %3s: " % (filename, lineno)
             except Exception, e:
-                self.data.append("<small>(inspect Error: %s)</small> " % e)
+                fileinfo = "(inspect Error: %s)" % e
 
         for item in msg:
             if isinstance(item, dict) or isinstance(item, list):

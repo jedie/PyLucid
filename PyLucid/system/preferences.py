@@ -9,10 +9,23 @@ Hält die Grundeinstellungen vor, die in der config middleware gespeichert sind.
 Bietet Methoden an um die Einstellungen in der DB zu ändern.
 
 
+Die Tabelle 'preferences' wird dabei genutzt. Aufbau:
+
+id          - auto_increment ID
+pluginID    - Von welchem Plugin stammt der Eintrag?
+section
+varName     - Variablen Name, der im dict als Key genutzt wird
+name        - längere Name der Variable
+description - Beschreibung
+value       - varchar(100) - eigentlicher Wert
+type        - HTML-Eingabetyp
+PRIMARY KEY (id), KEY section (section)
+
+
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -23,7 +36,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 import UserDict
 
@@ -35,7 +48,7 @@ class Preferences(UserDict.UserDict):
     def __init__(self, config_middleware):
         self.data = config_middleware # Grundconfig
 
-    def init2(self,request, response):
+    def init2(self, request, response):
         self.request    = request
         self.response   = response
 

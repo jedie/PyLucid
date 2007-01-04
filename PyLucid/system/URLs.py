@@ -361,7 +361,6 @@ class URLs(dict):
             else:
                 self.page_msg(*txt)
 
-
         try:
             import inspect
             # Angaben zur Datei, Zeilennummer, aus dem die Nachricht stammt
