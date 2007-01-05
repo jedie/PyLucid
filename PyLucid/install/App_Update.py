@@ -87,11 +87,11 @@ class update(ObjectApp_Base):
         self._execute("drop if exist","DROP TABLE IF EXISTS $$l10n;")
         SQLcommand = (
             "CREATE TABLE $$l10n ("
-            " id INT  NOT NULL AUTO_INCREMENT,"
-            " lang VARCHAR(2)  NOT NULL DEFAULT '',"
-            " varName VARCHAR(50)  NOT NULL DEFAULT '',"
-            " value VARCHAR(255)  NOT NULL DEFAULT '',"
-            " description VARCHAR(255)  NOT NULL DEFAULT '',"
+            " id INT NOT NULL AUTO_INCREMENT,"
+            " lang VARCHAR(2) NOT NULL DEFAULT '',"
+            " varName VARCHAR(50) NOT NULL DEFAULT '',"
+            " value VARCHAR(255) NOT NULL DEFAULT '',"
+            " description VARCHAR(255) NOT NULL DEFAULT '',"
             " PRIMARY KEY(id)"
             ' ) COMMENT = "l10n data for any languages";'
         )
@@ -139,7 +139,7 @@ class update(ObjectApp_Base):
         )
         SQLcommand = (
             "ALTER TABLE $$plugins"
-            " ADD COLUMN plugin_cfg LONGBLOB NOT NULL"
+            " ADD COLUMN plugin_cfg LONGBLOB NULL"
             " COMMENT 'pickled Python object structure'"
             " AFTER SQL_deinstall_commands"
         )
