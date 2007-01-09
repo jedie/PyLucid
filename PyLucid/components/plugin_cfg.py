@@ -105,7 +105,7 @@ class PluginConfig(dict):
 
         # Daten sind noch nicht im cache -> aus db holen
         data = self._get_db_data(self.module_id)
-        if data == "":
+        if data == None:
             # Das Modul/Plugin hat keine config
             if debug:
                 self.page_msg("Plugin has no config. %s" % self.__get_info())
@@ -126,8 +126,14 @@ class PluginConfig(dict):
             from_table      = "plugins",
             where           = ("id", module_id),
         )[0]["plugin_cfg"]
+
+        if data == None:
+            # Das Plugin hat keine config Daten!
+            return None
+
         data = data.tostring() # Aus der DB kommt ein array Objekt!
-        return data
+        if data == "":
+            return None
 
     #_________________________________________________________________________
 
@@ -206,14 +212,8 @@ def get_plugin_cfg_obj(request, response, module_id, module_name, method_name):
 #~ class PluginConfigError(Exception):
     #~ pass
 
-#~ class EntrieNotFound(PluginConfigError):
+#~ class NoConfigData(PluginConfigError):
     #~ """
-    #~ Eintrag ist nicht in der DB
-    #~ """
-    #~ pass
-
-#~ class DuplicateEntrie(PluginConfigError):
-    #~ """
-    #~ Eintrag soll in DB eingefügt werden, existiert aber schon
+    #~ Das Module/Plugin hat keine config Daten
     #~ """
     #~ pass

@@ -34,6 +34,8 @@ debug = False
 
 
 class plugin_data:
+    plugindata = {}
+
     def __init__(self, request, response):
         self.request        = request
 
@@ -44,8 +46,6 @@ class plugin_data:
         self.session        = request.session
         self.URLs           = request.URLs
         self.preferences    = request.preferences
-
-        self.plugindata = {}
 
         # Daten der Installierten Module holen
         try:
