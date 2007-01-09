@@ -563,7 +563,7 @@ class pageadmin(PyLucidBaseModule):
             data = {
                 "userID"    : self.session["user_id"],
                 "type"      : type,
-                "date"      : self.tools.convert_time_to_sql(time.time()),
+                "date"      : datetime.datetime.now(),
                 "comment"   : comment,
                 "content"   : page_data,
             }
