@@ -52,10 +52,14 @@ class PyLucidBaseModule(object):
         self.render         = request.render
         self.staticTags     = request.staticTags
         self.templates      = request.templates
-        self.plugin_cfg     = request.plugin_cfg
 
-        self.i18n = self.request.i18n
-        self.l10n = self.request.l10n
+        try:
+            self.plugin_cfg = request.plugin_cfg
+            self.i18n       = request.i18n
+            self.l10n       = request.l10n
+        except AttributeError:
+            # Im _install Bereich sind diese Objekte nicht verfügbar
+            pass
 
         self.db_cache       = response.db_cache
         self.page_msg       = response.page_msg

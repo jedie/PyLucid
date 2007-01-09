@@ -156,8 +156,6 @@ class PyLucidApp(BaseApplication):
     def __init__(self, environ, start_response):
         super(PyLucidApp, self).__init__(environ, start_response)
 
-        self.request.plugin_cfg = None # Nur für BaseModule.py
-
         self.environ = environ
 
         # Eigenes response-Objekt. Eigentlich genau wie das
