@@ -204,14 +204,7 @@ class SQLdump(object):
         max_date = max(dates) # Das neuste Dateidatum im ZIP-File
 
         # In Datetime-Object wandeln
-        #~ self.newest_file_date = datetime.datetime(*max_date)
-
-        max_date = str(max_date)
-        max_date = time.strptime(
-            max_date, "(%Y, %m, %d, %H, %M, %S)"
-        )
-        self.newest_file_date = self.tools.convert_time_to_sql(max_date)
-        #~ self.newest_file_date = time.mktime(max_date)
+        self.newest_file_date = datetime.datetime(*max_date)
 
         return table_names
 
