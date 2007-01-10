@@ -20,12 +20,6 @@ Created by Jens Diemer
 license:
     GNU General Public License v2 or above
     http://www.opensource.org/licenses/gpl-license.php
-
-"""
-
-__version__= "$Rev$"
-
-__ToDo__ = """
 """
 
 
@@ -45,10 +39,11 @@ class page_msg_Container(object):
     self.raw - Für Ausgaben ohne <br />
 
     """
-    def __init__(self, debug = False):
+    def __init__(self):
         self.raw = False
-        self.debug_mode = debug
         self.data = []
+
+        self.debug_mode = False
 
     #_________________________________________________________________________
 
@@ -100,6 +95,7 @@ class page_msg_Container(object):
                 fileinfo = "%-25s line %3s: " % (filename, lineno)
             except Exception, e:
                 fileinfo = "(inspect Error: %s)" % e
+            self.data.append(fileinfo)
 
         for item in msg:
             if isinstance(item, dict) or isinstance(item, list):
@@ -145,11 +141,10 @@ class page_msg(object):
     """
     Fügt in's environ das page_msg-Objekt hinzu
     """
-    def __init__(self, app, debug):
+    def __init__(self, app):
         self.app = app
-        self.debug_mode = debug
 
     def __call__(self, environ, start_response):
-        environ['PyLucid.page_msg'] = page_msg_Container(self.debug_mode)
+        environ['PyLucid.page_msg'] = page_msg_Container()
         return self.app(environ, start_response)
 

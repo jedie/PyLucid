@@ -179,10 +179,6 @@ class PyLucidApp(BaseApplication):
         # Speichert Nachrichten die in der Seite angezeigt werden sollen
         self.page_msg = self.response.page_msg = environ['PyLucid.page_msg']
         self.page_msg.debug_mode = self.preferences["page_msg_debug"]
-        #~ self.page_msg("page_msg - NORMAL")
-        #~ self.page_msg.red("page_msg - RED")
-        #~ self.page_msg.green("page_msg - GREEN")
-        #~ self.page_msg.debug("page_msg - DEBUG")
 
         # Allgemeiner CGI Sessionhandler auf mySQL-Basis
         self.session = self.request.session = sessionhandling.sessionhandler()
@@ -425,8 +421,7 @@ app = configMiddleware(app)
 
 # Middleware Page-Message-Object
 from PyLucid.middlewares.page_msg import page_msg
-app = page_msg(app, debug=False)
-#~ app = page_msg(app, debug=True)
+app = page_msg(app)
 
 # Middleware, die die Tags "script_duration" und "page_msg" ersetzt
 from PyLucid.middlewares import replacer
