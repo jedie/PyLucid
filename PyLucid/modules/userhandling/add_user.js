@@ -1,15 +1,21 @@
 function add_new_user_check() {
-  if (document.data.pass1.value != document.data.pass2.value) {
-    alert("Passwort verfication fail! password 1 != password 2");
-    return false;
-  }
-  if (document.data.pass1.value.length <= 7) {
-    alert("For security, min. password length is 8 chars!");
-    return false;
-  }
-  if (document.data.email.value.indexOf("@") == -1) {
-    alert("Need a valid eMail adress (for password recovery.)");
-    return false;
-  }
-  return true;
+    add_new_user_username = document.getElementById("add_new_user_username").value;
+    if (add_new_user_username.length<3) {
+        alert("No username/too short (min 3 letters)");
+        return false;
+    }
+
+    add_new_user_email = document.getElementById("add_new_user_email").value;
+    if (add_new_user_email.length<9 || add_new_user_email.indexOf("@") == -1) {
+        alert("The email address seems to be wrong!");
+        return false;
+    }
+
+    add_new_user_realname = document.getElementById("add_new_user_realname").value;
+    if (add_new_user_realname.length<3) {
+        alert("No realname/too short (min 3 letters)");
+        return false;
+    }
+
+    return true;
 }

@@ -22,7 +22,7 @@
     <td>
       <input type="submit" value="new password" name="new password" />
       <input type="submit" value="save" name="save" />
-      <input type="submit" value="delete" name="delete" />
+      <input type="submit" value="delete" name="delete" onclick="return confirm('Really delete the User \'{{ user.name }}\'?');"/>
       <input type="submit" value="details" name="details" />
     </td>
     </form>

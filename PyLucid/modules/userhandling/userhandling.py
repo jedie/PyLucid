@@ -6,9 +6,9 @@ Benutzerverwalung für secure-MD5-JavaScript login
 
 Last commit info:
 ----------------------------------
-LastChangedDate: $LastChangedDate$
-Revision.......: $Rev$
-Author.........: $Author$
+$LastChangedDate$
+$Rev$
+$Author$
 
 Created by Jens Diemer
 
@@ -135,8 +135,6 @@ class userhandling(PyLucidBaseModule):
         try:
             username = self.request.form["username"]
             email = self.request.form["email"]
-            pass1 = self.request.form["pass1"]
-            pass2 = self.request.form["pass2"]
         except KeyError, e:
             msg = (
                 "Formular Error: Key '%s' not found!\n"
@@ -145,36 +143,21 @@ class userhandling(PyLucidBaseModule):
             self.page_msg(msg)
             return
 
-        if pass1!=pass2:
-            msg = (
-                "Password 1 and password 2 are not the same!\n"
-                "No User added!"
-            )
-            self.page_msg(msg)
-            return
-
-        if len(pass1)<8:
-            msg = (
-                "Password is too short (min 8 characters)!\n"
-                "No User added!"
-            )
-            self.page_msg(msg)
-            return
-
         realname = self.request.form.get("realname","")
         is_admin = self.request.form.get("is_admin", False)
 
-        # Das Klartext-Password verschlüsseln
-        pass1, pass2 = self.create_md5_pass(pass1)
-
         try:
-            self.db.add_md5_User(
-                username, realname, email, pass1, pass2, is_admin
+            user_id = self.db.add_new_user(
+                username, realname, email, is_admin
             )
         except Exception, e:
             self.page_msg("Can't insert user! (%s)\n" % e)
-        else:
-            self.page_msg("User '%s' added." % username)
+            return
+
+        self.page_msg.green("User '%s' added." % username)
+        self.page_msg("Please set a new password.")
+
+        self.new_password_form(user_id)
 
 
     def delete_user(self):
@@ -212,14 +195,17 @@ class userhandling(PyLucidBaseModule):
         p = pass_reset.PassReset(self.request, self.response)
         return p
 
-    def new_password_form(self):
+    def new_password_form(self, user_id=None):
         """
         Setzten eines neuen Passwortes für einen bestehenden User
         Wird im grunde von PyLucid.modules.auth gemacht.
         """
-        user_id = self.request.form["id"]
+        if not user_id:
+            user_id = self.request.form["id"]
         url = self.URLs.actionLink("manage_user")
 
+        # Die interne Seite "new_password_form" ist hier an diese Methode
+        # verknüpft, damit im _install Bereich ein Zugriff auch möglich ist.
         self._pass_reset_class().new_password_form(url, user_id)
 
     def set_new_password(self):

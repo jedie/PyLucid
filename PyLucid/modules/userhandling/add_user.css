@@ -1,6 +1,7 @@
 label, input, select, textarea {
   vertical-align: middle;
-  margin-top, margin-bottom: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 label.left {
   float: left;
@@ -25,7 +26,7 @@ label, select, input {
   cursor: pointer;
 }
 .internalpage input[type=text] {
-  width: 75%%;
+  width: 75%;
   cursor: text;
 }
 
@@ -36,6 +37,6 @@ label, select, input {
   background: #fafafa;
 }
 .internalpage input:focus, .internalpage select:focus, .internalpage textarea:focus {
-  border: 1px solid back;
+  border: 1px solid black;
   background: #fff;
 }

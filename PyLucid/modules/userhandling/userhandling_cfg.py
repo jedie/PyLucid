@@ -39,6 +39,15 @@ module_manager_data = {
             "markup"            : None,
         },
     },
+    "new_password_form" : {
+        "must_login"    : True,
+        "must_admin"    : True,
+        "internal_page_info" : {
+            "description"       : "Form to send the new password",
+            "template_engine"   : "jinja",
+            "markup"            : None
+        },
+    },
     "set_new_password" : {
         "must_login"    : True,
         "must_admin"    : True,

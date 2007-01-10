@@ -52,11 +52,5 @@ module_manager_data = {
     "pass_reset" : {
         "must_login"    : False,
         "must_admin"    : False,
-        "internal_page_info" : {
-            "name"              : "new_pass_form",
-            "description"       : "Form to send the new password",
-            "template_engine"   : "jinja",
-            "markup"            : None
-        },
     },
 }

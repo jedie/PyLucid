@@ -45,7 +45,13 @@ class PassReset(PyLucidBaseModule):
     def __init__(self, *args, **kwargs):
         super(PassReset, self).__init__(*args, **kwargs)
 
-        self.auth_data = AuthData(self.session["client_IP"])
+        try:
+            seed_start = self.session["client_IP"]
+        except KeyError:
+            # Während der Installation!
+            seed_start = ""
+
+        self.auth_data = AuthData(seed_start)
 
 
     def pass_reset_form(self, function_info=""):
@@ -257,14 +263,23 @@ class PassReset(PyLucidBaseModule):
         self.auth_data.make_new_salt()
         new_salt = self.auth_data.salt
 
+        user_data = self.db.get_userdata_by_userid(
+            user_id, select_items=['name', 'realname']
+        )
+
         # Formular für Passwort eingabe senden
         context = {
             "salt": new_salt,
             "url": url,
             "user_id": user_id,
+            "user_name": user_data["name"],
+            "realname": user_data["realname"],
         }
+        # Die hier benutzte interne Seite gehört eigentlich zu
+        # userhandling.new_password_form() damit es auch im
+        # _install Bereich funktioniert.
         self.templates.write(
-            "new_pass_form", context
+            "new_password_form", context
             #~ , debug=True
         )
 
