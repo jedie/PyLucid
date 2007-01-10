@@ -1,4 +1,4 @@
-function check() {
+function add_new_user_check() {
   if (document.data.pass1.value != document.data.pass2.value) {
     alert("Passwort verfication fail! password 1 != password 2");
     return false;

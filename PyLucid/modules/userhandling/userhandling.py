@@ -215,6 +215,7 @@ class userhandling(PyLucidBaseModule):
     def new_password_form(self):
         """
         Setzten eines neuen Passwortes für einen bestehenden User
+        Wird im grunde von PyLucid.modules.auth gemacht.
         """
         user_id = self.request.form["id"]
         url = self.URLs.actionLink("manage_user")

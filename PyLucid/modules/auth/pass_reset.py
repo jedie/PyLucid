@@ -7,8 +7,8 @@ Abwicklung von Login/Logout
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -251,7 +251,9 @@ class PassReset(PyLucidBaseModule):
             self.new_password_form(self.URLs.currentAction(reset_key))
 
     def new_password_form(self, url, user_id=None):
-
+        """
+        HTML Form zum setzten eines neuen Userpasswortes
+        """
         self.auth_data.make_new_salt()
         new_salt = self.auth_data.salt
 
@@ -261,8 +263,10 @@ class PassReset(PyLucidBaseModule):
             "url": url,
             "user_id": user_id,
         }
-        #~ self.page_msg(context)
-        self.templates.write("new_pass_form", context)
+        self.templates.write(
+            "new_pass_form", context
+            #~ , debug=True
+        )
 
     def set_userpassword_by_userid(self, user_id):
         """

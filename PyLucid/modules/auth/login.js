@@ -8,6 +8,9 @@ if (navigator.cookieEnabled) {
   }
 }
 
+/* ___________________________________________________________________________
+ *  debugging
+ */
 
 // debug_msg = true;
 debug_msg = false;
@@ -31,11 +34,6 @@ function debug_confirm() {
    debug_win.writeln("---[DEBUG END]---");
    alert('OK for submit.');
    debug_window.close();
-}
-
-function set_focus(object_id) {
-   debug("set focus on id:" + object_id);
-   document.getElementById(object_id).focus();
 }
 
 /* ___________________________________________________________________________
@@ -73,6 +71,11 @@ function prepare(url) {
     challenge = document.getElementById("challenge").value;
     debug("challenge:" + challenge);
     if (challenge.length<5) { alert("challenge from Server fail!"); return false; }
+}
+
+function set_focus(object_id) {
+   debug("set focus on id:" + object_id);
+   document.getElementById(object_id).focus();
 }
 
 function check() {

@@ -1,14 +1,5 @@
-//~ alert(document.cookie);
 if (!document.getElementById) {
   alert("Your Browser is not supported!");
-} /*else {
-  document.getElementById("user").focus();
-}*/
-
-if (navigator.cookieEnabled) {
-  if (navigator.cookieEnabled != true) {
-    alert("You must enable Cookies in your Browser!");
-  }
 }
 
 function prepare(url) {
@@ -18,7 +9,7 @@ function prepare(url) {
     if (submit_url=="") { alert("submit url from Server fail!"); return false; }   
 }
 
-function check() {
+function new_pass_check() {
     pass1 = document.getElementById("pass1").value;
     pass2 = document.getElementById("pass2").value;
 
