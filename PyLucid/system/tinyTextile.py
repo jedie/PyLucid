@@ -136,7 +136,7 @@ class parser:
             ],
             [
                 "<pre>", "</pre>",
-                self.pre_area_start, self.pre_area, self.pre_area_end
+                self.pre_area, self.pre_area, self.pre_area
             ],
             [
                 "<python>", "</python>",
@@ -203,13 +203,13 @@ class parser:
         text = ""
         current_area = None
         for block in blocks:
-            block = block.strip()
-            if len(block) == 0:
-                continue
-
             current_area = self.handle_areas(block, current_area)
             if current_area != None:
                 # Wir sind in einer Area und der Block wurde schon abgehandelt
+                continue
+
+            block = block.strip()
+            if len(block) == 0:
                 continue
 
             #~ if self.is_html.findall(block) != []:
@@ -312,17 +312,8 @@ class parser:
 
     #_________________________________________________________________________
 
-    def pre_area_start(self, block):
-        self.pre_area_data = ""
-
     def pre_area(self, block):
-        """
-        Daten innerhalb von <pre>...</pre> werden direkt "ausgegeben"
-        """
-        self.pre_area_data += self.newline + block + self.newline
-
-    def pre_area_end(self, block):
-        self.out.write("<pre>\n%s\n</pre>\n" % self.pre_area_data.strip())
+        self.out.write(block+"\n")
 
     #_________________________________________________________________________
 
@@ -330,13 +321,16 @@ class parser:
         """
         Python-Source-Code area
         """
-        self.sourcecode_data = ""
+        self.sourcecode_data = []
 
     def python_area(self, block):
-        self.sourcecode_data += block + self.newline
+        self.sourcecode_data.append(block)
+        if not block.endswith("\n"):
+            self.sourcecode_data.append("\n")
 
     def python_area_end(self, dummy):
-        code = self.sourcecode_data.strip()
+        code = "".join(self.sourcecode_data)
+        code = code.strip()
         self.render.highlight("python", code, self.out)
 
     #_________________________________________________________________________

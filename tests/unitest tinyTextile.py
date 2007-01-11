@@ -19,8 +19,6 @@ license:
 
 """
 
-__version__= "$Rev:$"
-
 
 import sys, re, difflib, unittest, traceback
 
@@ -290,7 +288,11 @@ class tinyTextileTest(unittest.TestCase):
             text above pre area
             <pre>
             test in pre 1
+
             test in pre 2
+
+            test in pre 3
+            test in pre 4
             </pre>
             text line under pre area
 
@@ -303,7 +305,11 @@ class tinyTextileTest(unittest.TestCase):
             <p>text above pre area</p>
             <pre>
             test in pre 1
+
             test in pre 2
+
+            test in pre 3
+            test in pre 4
             </pre>
             <p>text line under pre area</p>
             <p>some text...<br />
@@ -352,6 +358,44 @@ class tinyTextileTest(unittest.TestCase):
             a inline <code>code area</code> in a text line<br />
             ...some other text</p>
 
+        """)
+
+        self.textile.parse(content)
+        self.assertEqual(self.out.get(),out_test)
+
+    def testTextile_SourceCode1(self):
+        content = self._prepare_text("""
+            <python>
+            class Example():
+                def __init__(self, *args, **kwargs):
+                    # Text1
+
+                    # Text2
+                    a = b + c + 1
+
+                    # text 3
+                    # text 4
+
+                    # text 5
+
+                    # text 6
+            </python>
+        """)
+
+        out_test = self._prepare_text("""
+            <FakeHighlight 'python'>class Example():
+                def __init__(self, *args, **kwargs):
+                    # Text1
+
+                    # Text2
+                    a = b + c + 1
+
+                    # text 3
+                    # text 4
+
+                    # text 5
+
+                    # text 6</FakeHighlight>
         """)
 
         self.textile.parse(content)
