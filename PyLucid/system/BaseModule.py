@@ -25,10 +25,8 @@ Created by Jens Diemer
 license:
     GNU General Public License v2 or above
     http://www.opensource.org/licenses/gpl-license.php
-
 """
 
-__version__= "$Rev$"
 
 
 from PyLucid.system.exceptions import *
@@ -61,7 +59,6 @@ class PyLucidBaseModule(object):
             # Im _install Bereich sind diese Objekte nicht verfügbar
             pass
 
-        self.db_cache       = response.db_cache
         self.page_msg       = response.page_msg
 
         self.environ        = request.environ

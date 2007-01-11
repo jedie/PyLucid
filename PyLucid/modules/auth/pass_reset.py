@@ -33,6 +33,7 @@ debug = False
 from PyLucid.system import crypt
 from PyLucid.system.BaseModule import PyLucidBaseModule
 from PyLucid.modules.auth.auth_data import AuthData
+from PyLucid.components.db_cache import DB_Cache, CacheObjectNotFound
 
 from PyLucid.modules.auth.exceptions import *
 
@@ -52,6 +53,8 @@ class PassReset(PyLucidBaseModule):
             seed_start = ""
 
         self.auth_data = AuthData(seed_start)
+
+        self.db_cache = DB_Cache(self.request, self.response)
 
 
     def pass_reset_form(self, function_info=""):
@@ -111,9 +114,9 @@ class PassReset(PyLucidBaseModule):
         reset_data = self._reset_data()
         reset_data["username"] = username
 
-        formatDateTime = self.preferences["core"]["formatDateTime"]
-        formatDateTime = formatDateTime.encode("utf8") # FIXME
-        request_time = datetime.datetime.now().strftime(formatDateTime)
+        #~ formatDateTime = self.preferences["core"]["formatDateTime"]
+        #~ formatDateTime = formatDateTime.encode("utf8") # FIXME
+        #~ request_time = datetime.datetime.now().strftime(formatDateTime)
 
         if debug: self.page_msg("reset_data:", reset_data)
 
@@ -122,8 +125,6 @@ class PassReset(PyLucidBaseModule):
 
         seed = "%s%s" % (time.clock(), reset_data["ip"])
         reset_key = md5.new(seed).hexdigest()
-
-        #~ self.db_cache.create_table()
 
         expiry_time = 24 * 60 * 60
         try:
@@ -138,10 +139,10 @@ class PassReset(PyLucidBaseModule):
         ## EMail verschicken
 
         now = datetime.datetime.now()
-        delta = datetime.timedelta(seconds=expiry_time)
-        expiry_date = now + delta
-        expiry_date = expiry_date.strftime(formatDateTime)
-        request_time = now.strftime(formatDateTime)
+        expiry_date = now + datetime.timedelta(seconds=expiry_time)
+
+        request_time = self.tools.locale_datetime(now)
+        expiry_date = self.tools.locale_datetime(expiry_date)
 
         reset_link = self.URLs.absolute_command_link(
             "auth", "pass_reset", reset_key, addSlash=False
@@ -263,17 +264,23 @@ class PassReset(PyLucidBaseModule):
         self.auth_data.make_new_salt()
         new_salt = self.auth_data.salt
 
-        user_data = self.db.get_userdata_by_userid(
-            user_id, select_items=['name', 'realname']
-        )
+        if user_id:
+            user_data = self.db.get_userdata_by_userid(
+                user_id, select_items=['name', 'realname']
+            )
+            user_name = user_data["name"]
+            realname = user_data["realname"]
+        else:
+            user_name = None
+            realname = None
 
         # Formular für Passwort eingabe senden
         context = {
             "salt": new_salt,
             "url": url,
             "user_id": user_id,
-            "user_name": user_data["name"],
-            "realname": user_data["realname"],
+            "user_name": user_name,
+            "realname": realname,
         }
         # Die hier benutzte interne Seite gehört eigentlich zu
         # userhandling.new_password_form() damit es auch im

@@ -87,7 +87,6 @@ from PyLucid.system import module_manager
 from PyLucid.system import page_parser
 from PyLucid.system import detect_page
 from PyLucid.system import template_engines
-from PyLucid.system import db_cache
 from PyLucid.system import l10n
 from PyLucid.system import i18n
 
@@ -214,8 +213,6 @@ class PyLucidApp(BaseApplication):
         self.request.templates = template_engines.TemplateEngines(
             self.request, self.response
         )
-
-        self.response.db_cache = db_cache.db_cache(self.request, self.response)
 
         # FIXME: Übertragen von Objekten in den DBwrapper
         self.db.page_msg    = self.page_msg

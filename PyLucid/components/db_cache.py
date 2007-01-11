@@ -48,7 +48,8 @@ except ImportError:
 
 
 
-class db_cache(object):
+class DB_Cache(object):
+
     def __init__(self, request, response):
         # shorthands
         self.request    = request
@@ -114,7 +115,7 @@ class db_cache(object):
                 where           = ("id",id)
             )[0]["pickled_data"]
         except (IndexError, KeyError):
-            raise EntrieNotFound(
+            raise CacheObjectNotFound(
                 "Can't get cache object with id '%s' from db" % id
             )
 
@@ -195,7 +196,7 @@ class db_cache(object):
                 self.page_msg.green("Drop one table OK")
 
 
-class EntrieNotFound(Exception):
+class CacheObjectNotFound(Exception):
     """
     Eintrag ist nicht in der DB
     """
