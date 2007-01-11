@@ -14,8 +14,8 @@ sparen. Das Klappt aus mit allen Browsern super, nur nicht mit dem IE ;(
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -26,7 +26,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 
@@ -77,7 +77,6 @@ class SourceCode(PyLucidBaseModule):
             return
 
         ext = os.path.splitext(filename)[1] # blabla.py -> .py
-        ext = ext[1:] # .py -> py
 
         self.render.highlight(ext, source.strip())
 
