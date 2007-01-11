@@ -4,6 +4,18 @@
 """
 Einfache Middelware um Tags in den
 Ausgaben zu ersetzten.
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
 import time, re
@@ -74,31 +86,31 @@ class AddCode(object):
 
     def __init__(self, app):
         self.app = app
-        self.data = ""
+        self.data = []
 
     def get(self):
-        data = self.data
-        self.data = ""
-
-        try:
-            data = data.encode("utf8")
-        except UnicodeError, e:
-            # FIXME: Wie einen UnicodeError hier ausgeben??? nach stderr???
-
-            #~ msg = (
-                #~ "UnicodeError in %s add data for internal page '%s'"
-                #~ " (Error: %s)"
-            #~ ) % (content_type, internal_page_name, e)
-            #~ self.page_msg(msg)
-            data = data.encode("utf8", "replace")
-
+        data = "".join(self.data)
+        self.data = []
         return data
 
     def insert(self, code):
-        self.data = code + self.data
+        code = self._encode(code)
+        self.data.insert(0, code)
 
     def add(self, code):
-        self.data += code
+        code = self._encode(code)
+        self.data.append(code)
+
+    def _encode(self, code):
+        if not isinstance(code, unicode):
+            return code
+
+        try:
+            return code.encode("utf8")
+        except UnicodeError, e:
+            # Fehler sollte ausgegeben werden, aber wohin???
+            # Evtl. in die SQL-Log Tabelle???
+            return data.encode("utf8", "replace")
 
     def __call__(self, environ, start_response):
         environ['PyLucid.addCode'] = self
