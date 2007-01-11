@@ -6,60 +6,76 @@ PyLucid Plugin
 Blendet RSS-Daten von einem anderen Server in die CMS-Seite ein.
 Bsp.:
 <lucidFunction:RSS>http://sourceforge.net/export/rss2_projnews.php?group_id=146328</lucidFunction>
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+
 """
 
-__version__="0.3"
-
-__history__="""
-v0.3
-    - Anpassung an PyLucid v0.7
-v0.2.7
-    - Zeit die response time an
-    - Aufgeräumt
-v0.2.6
-    - lucidFunction() erwartet nun auch function_info vom ModulManager
-v0.2.5
-    - Umbau für neuen Module-Manager
-    - Ab jetzt ist es ein Plugin ;)
-v0.2.4
-    - Timeout beim empfangen des RSS feeds eingebaut (ab Python 2.3)
-v0.2.3
-    - Bug: <small>-Tag wurde beim Datum nicht geschlossen
-v0.2.2
-    - Anpassung zum PyLucid Modul
-v0.2.1
-    - clean up and simplified by Jens Diemer
-v0.2
-    - Converted by A.Hopek to a CGI - Web Application
-v0.1
-    - borrowed Code from Mark Pilgrim at:
-        http://www.xml.com/pub/a/2002/12/18/dive-into-xml.html?page=last
-"""
+__version__= "$Rev:$"
 
 import xml.dom.minidom
-import sys, os, urllib, time
+import md5, sys, os, urllib, time
 
-try:
-    import socket
-    socket.setdefaulttimeout(5)
-except AttributeError:
-    # Geht erst ab Python 2.3 :(
-    pass
+import socket
+# Timeout setzten, damit Eine Anfrage zu einem nicht erreichbaren Server
+# schneller abbricht. Denn ansonsten wird die PyLucid-CMS-Seite lange Zeit
+# nicht angezeigt!
+socket.setdefaulttimeout(5)
 
 
-try:
-    from PyLucid.system.BaseModule import PyLucidBaseModule
-except ImportError: # Local test?
-    PyLucidBaseModule = object
+from PyLucid.system.BaseModule import PyLucidBaseModule
+from PyLucid.tools.out_buffer import out_buffer
+from PyLucid.components.db_cache import DB_Cache, CacheObjectNotFound
+
+
 
 class RSS(PyLucidBaseModule):
-    #~ def __init__(self, *args, **kwargs):
-        #~ super(ModuleAdmin, self).__init__(*args, **kwargs)
+
+    info_txt = '<small class="RSS_info">\n\t%s\n</small>\n'
+
     def lucidFunction(self, function_info):
-        RSS_Maker(
-            out_obj = self.response,
-            rss_url = function_info,
-        )
+        db_cache_key = md5.new(function_info).hexdigest()
+
+        db_cache = DB_Cache(self.request, self.response)
+        #~ db_cache.delete_object(db_cache_key)
+
+        try:
+            rss_page = db_cache.get_object(db_cache_key)
+        except CacheObjectNotFound:
+            # Die RSS Daten sind noch nicht gecached.
+
+            out = out_buffer(self.page_msg)
+
+            start_time = time.time()
+            RSS_Maker(
+                out_obj = out,
+                rss_url = function_info,
+            )
+            duration_time = time.time() - start_time
+            txt = (
+                '[Server response time: %0.2fsec. (incl. render time)]'
+            ) % duration_time
+            self.response.write(self.info_txt % txt)
+
+            rss_page = out.get()
+
+            # In Cache packen:
+            expiry_time = 1 * 60 * 60 # Zeit in Sekunden
+            db_cache.put_object(db_cache_key, expiry_time, rss_page)
+        else:
+            self.response.write(self.info_txt % "[Used cached data]")
+
+        self.response.write(rss_page)
 
 
 #_____________________________________________________________________________
@@ -83,7 +99,6 @@ class RSS_Maker(object):
         """
         Diese Funktion wird direkt vom Modul-Manager ausgeführt.
         """
-        start_time = time.time()
         try:
             rss_data = urllib.urlopen(rss_url)
         except Exception, e:
@@ -91,15 +106,6 @@ class RSS_Maker(object):
                 "[Can't get RSS feed '%s' Error:'%s']" % (rss_url, e )
             )
             return
-
-        duration_time = time.time() - start_time
-
-        txt = (
-            '<small class="RSS_info">'
-            '(response time: %0.2fsec.)'
-            '</small>\n'
-        ) % duration_time
-        self.out_obj.write(txt)
 
         rssDocument = xml.dom.minidom.parse(rss_data)
 
@@ -157,10 +163,4 @@ class RSS_Maker(object):
         self.out_obj.write("\n")
 
 
-if __name__ == "__main__":
-    #~ import sys
-    RSS_Maker(
-        out_obj = sys.stdout,
-        rss_url = "http://sourceforge.net/export/rss2_projnews.php?group_id=146328"
-    )
-    #~ self.out_obj.write("="*80)
+
