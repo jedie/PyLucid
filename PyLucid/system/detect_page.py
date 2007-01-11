@@ -105,16 +105,14 @@ class detect_page(PyLucidBaseModule):
             self.set_default_page()
             return
 
-
         # bsp/und%2Foder -> ['bsp', 'und%2Foder']
         page_name_split = page_name.split("/")
-
 
         if self.runlevel.is_command():
             # Ein internes Kommando (LogIn, EditPage ect.) wurde aufgerufen
             try:
-                page_id = page_name_split[1]
-            except ValueError:
+                page_id = int(page_name_split[1])
+            except (ValueError, IndexError):
                 self.set_default_page()
                 return
 
@@ -197,7 +195,18 @@ class detect_page(PyLucidBaseModule):
         self._set_page_id(page_id)
 
     def _set_page_id(self, page_id):
-        self.session["page_id"] = int(page_id)
+        try:
+            page_id = int(page_id)
+        except ValueError:
+            try:
+                wrongLink = cgi.escape(page_id)
+            except:
+                wrongLink = ""
+            self.set_default_page()
+            self._error404(wrongLink)
+            return
+
+        self.session["page_id"] = page_id
 
         # Aktuelle Seite zur page_history hinzufügen:
         self.session.set_pageHistory(self.session["page_id"])
