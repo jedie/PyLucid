@@ -202,7 +202,7 @@ class userhandling(PyLucidBaseModule):
         """
         if not user_id:
             user_id = self.request.form["id"]
-        url = self.URLs.actionLink("manage_user")
+        url = self.URLs.currentAction()
 
         # Die interne Seite "new_password_form" ist hier an diese Methode
         # verknüpft, damit im _install Bereich ein Zugriff auch möglich ist.

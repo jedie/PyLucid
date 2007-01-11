@@ -7,8 +7,8 @@ Installation von PyLucid
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -19,7 +19,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 
@@ -72,7 +72,7 @@ class install(ObjectApp_Base):
 
         from PyLucid.modules.userhandling import userhandling
         usermanager = userhandling.userhandling(self.request, self.response)
-        #~ usermanager.add_user()
+
         usermanager.manage_user()
 
 
