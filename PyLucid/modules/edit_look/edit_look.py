@@ -8,49 +8,28 @@ Editor für alles was mit aussehen zu tun hat:
     - edit_style
     - edit_template
     - edit_internal_page
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
-__author__ = "Jens Diemer (www.jensdiemer.de)"
-
-__version__="0.4"
-
-__history__="""
-v0.4
-    - Neu: Man kann nun das default Style/Template setzten
-v0.3.2
-    - Neu: Apply Button auch für edit template/stylesheet
-v0.3.1
-    - Neu: Apply Button bei "edit internal page"
-v0.3
-    - Anpassung an PyLucid v0.7
-v0.2
-    - Bug 1308063: Umstellung von <button> auf <input>, weil's der IE nicht
-        kann s. http://www.python-forum.de/viewtopic.php?t=4180
-    - NEU: Styles und Template könnne nur dann gelöscht werden, wenn keine
-        Seite diese noch benutzten
-v0.1.1
-    - edit_internal_page_form: markups sind nun IDs aus der Tabelle markups
-v0.1.0
-    - Komplettumbau für neuen Module-Manager
-v0.0.4
-    - Bug: Internal-Page Edit geht nun wieder
-v0.0.3
-    - Bug: Edit Template:
-        http://sourceforge.net/tracker/index.php?func=detail&aid=1273348&group_id=146328&atid=764837
-v0.0.2
-    - NEU: Clonen von Stylesheets und Templates nun möglich
-    - NEU: Löschen von Stylesheets und Templates geht nun
-    - Änderung der "select"-Tabellen, nun Anpassung per CSS möglich
-v0.0.1
-    - erste Version
-"""
-
-__todo__ = """
-"""
+__version__ = "$Rev:$"
 
 # Python-Basis Module einbinden
 import sys, cgi
 
+
+#~ debug = True
+debug = False
 
 
 from PyLucid.system.BaseModule import PyLucidBaseModule
@@ -166,13 +145,13 @@ class StyleAndTemplate(PyLucidBaseModule):
         context = {
             "name"          : edit_data["name"],
             "url"           : self.URLs.currentAction(),
-            "list_url"      : self.URLs.commandLink("pageadmin", "tag_list"),
+            "url_taglist"   : self.URLs.commandLink("pageadmin", "tag_list"),
             "content"       : cgi.escape( edit_data["content"] ),
             "description"   : cgi.escape( edit_data["description"] ),
             "id"            : id,
         }
         internal_page_name = "edit_%s" % self.type
-        self.templates.write(internal_page_name, context)
+        self.templates.write(internal_page_name, context, debug)
 
     def _select_table(self):
         """ Erstellt die Tabelle zum auswählen eines Style/Templates """
@@ -190,7 +169,7 @@ class StyleAndTemplate(PyLucidBaseModule):
             "default_name"  : default_name,
         }
         internalPageName = "select_%s" % self.type
-        self.templates.write(internalPageName, context)
+        self.templates.write(internalPageName, context, debug)
 
     def _delItem( self ):
         """ Lösche ein Stylesheet """
