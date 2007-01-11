@@ -7,8 +7,8 @@ PyLucid "installer"
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -287,19 +287,16 @@ class InstallApp(object):
                 container = False
         else:
             index = getattr(handler, 'index', None)
-            if not index is None:
-                if not hasattr(index, 'container'):
-                    container = True
-                handler = index
-            else:
-                raise #PageNotFound
+            if index == None:
+                msg = (
+                    "Module/Method unknown, check requestet path: %s"
+                ) % self.PathInfo
+                raise AttributeError(msg)
 
-        # Check for handler arguments and update container
-        #~ if inspect.ismethod(handler):
-            #~ func = handler.im_func
-        #~ else:
-            #~ func = handler
-        #~ handler_args, varargs, _, defaults = inspect.getargspec(func)
+
+            if not hasattr(index, 'container'):
+                container = True
+            handler = index
 
         for arg in args:
             try:
