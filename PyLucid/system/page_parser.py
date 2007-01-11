@@ -1,16 +1,21 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# by jensdiemer.de (steht unter GPL-License)
-
 """
 -Parsen der Seite und wendet das Markup an.
 -Schnittstelle zu Pygments
 
+ToDo:
+-----
+in apply_markup sollte nur noch mit markup IDs erwartet werden. Solange aber
+die Seiten keine IDs, sondern die richtigen Namen verwenden geht das leider
+noch nicht :(
+------------------------------------------------------------------------------
+
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -18,18 +23,11 @@ Created by Jens Diemer
 license:
     GNU General Public License v2 or above
     http://www.opensource.org/licenses/gpl-license.php
-
-"""
-
-__version__= "$Rev:$"
-
-__todo__ = """
-in apply_markup sollte nur noch mit markup IDs erwartet werden. Solange aber
-die Seiten keine IDs, sondern die richtigen Namen verwenden geht das leider
-noch nicht :(
 """
 
 import sys, cgi, re, time
+
+from PyLucid.tools.out_buffer import out_buffer
 
 
 
@@ -44,7 +42,6 @@ class render(object):
         self.db             = request.db
         self.staticTags     = request.staticTags
         self.preferences    = request.preferences
-        self.tools          = request.tools
         self.page_msg       = response.page_msg
 
     def write_page_template(self):
@@ -84,7 +81,7 @@ class render(object):
             if self.preferences["ModuleManager_error_handling"] == True:
                 #~ try:
                 from PyLucid.system import tinyTextile
-                out = self.tools.out_buffer()
+                out = out_buffer(self.page_msg)
                 t = tinyTextile.parser(out, self.request, self.response)
                 t.parse(content)
                 return out.get()
@@ -94,7 +91,7 @@ class render(object):
                     #~ return msg
             else:
                 from PyLucid.system import tinyTextile
-                out = self.tools.out_buffer()
+                out = out_buffer(self.page_msg)
                 t = tinyTextile.parser(out, self.request, self.response)
                 t.parse(content)
                 return out.get()

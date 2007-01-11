@@ -335,50 +335,6 @@ class html_option_maker:
 #_____________________________________________________________________________
 
 
-class out_buffer(object):
-    """
-    Hilfsklasse um Ausgaben erst zwischen zu speichern und dann gesammelt zu erhalten
-    """
-    def __init__( self ):
-        self.data = []
-        self.sep = "\n"
-
-    def set_sep( self, sep ):
-        self.sep = sep
-
-    def write( self, *txt ):
-        for i in txt:
-            if isinstance(i, str):
-                try:
-                    i = unicode(i, encoding="utf-8")
-                except UnicodeError, e:
-                    response.page_msg.red("UnicodeError:", e)
-                    i = unicode(i, encoding="utf-8", errors="replace")
-            self.data.append(i)
-
-    def __call__( self, *txt ):
-        self.write( *txt )
-
-    def get( self ):
-        return "".join(self.data)
-
-    def flush( self ):
-        return
-
-class redirector:
-    def __init__( self ):
-        self.oldout = sys.stdout
-        self.olderr = sys.stderr
-
-        self.out_buffer = out_buffer()
-        sys.stdout = self.out_buffer
-        sys.stderr = self.out_buffer
-
-    def get( self ):
-        sys.stdout = self.oldout
-        sys.stderr = self.olderr
-        return self.out_buffer.get()
-
 class stdout_marker:
     """
     Debug Anzeige, woher print-Ausgaben kommen
