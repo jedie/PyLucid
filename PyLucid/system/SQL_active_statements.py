@@ -252,14 +252,15 @@ class active_statements(passive_statements):
     #_________________________________________________________________________
     ## Userverwaltung
 
-    def add_md5_User(self, name, realname, email, pass1, pass2, admin):
-        "Hinzufügen der Userdaten in die PyLucid's JD-md5-user-Tabelle"
+    def add_new_user(self, name, realname, email, admin):
+        """
+        Einen neuen User eintragen (ohne Passwort!)
+        Liefert die ID des neuen Users zurück
+        """
         data  = {
             "name"          : name,
             "realname"      : realname,
             "email"         : email,
-            "pass1"         : pass1,
-            "pass2"         : pass2,
             "admin"         : admin
         }
 
@@ -267,6 +268,8 @@ class active_statements(passive_statements):
         data = self.__add_data(data)
 
         self.insert("md5users", data)
+
+        return self.cursor.lastrowid
 
     def update_userdata(self, id, name, realname, email, admin):
         """ Editierte Userdaten wieder speichern """
