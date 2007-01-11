@@ -6,9 +6,9 @@ Update PyLucid
 
 Last commit info:
 ----------------------------------
-LastChangedDate: $LastChangedDate$
-Revision.......: $Rev$
-Author.........: $Author$
+$LastChangedDate$
+$Rev$
+$Author$
 
 Created by Jens Diemer
 
@@ -139,7 +139,7 @@ class update(ObjectApp_Base):
         )
         SQLcommand = (
             "ALTER TABLE $$plugins"
-            " ADD COLUMN plugin_cfg LONGBLOB NULL"
+            " ADD COLUMN plugin_cfg LONGBLOB DEFAULT NULL"
             " COMMENT 'pickled Python object structure'"
             " AFTER SQL_deinstall_commands"
         )
