@@ -23,7 +23,7 @@ license:
 __version__ = "$Rev$"
 
 
-import pickle, sys, datetime
+import pickle, sys, datetime, md5
 
 from PyLucid.system.SQL_passive_statements import passive_statements
 from PyLucid.system.exceptions import *
@@ -257,9 +257,11 @@ class active_statements(passive_statements):
         Einen neuen User eintragen (ohne Passwort!)
         Liefert die ID des neuen Users zurück
         """
+        username_md5 = md5.new(name).hexdigest()
         data  = {
             "name"          : name,
             "realname"      : realname,
+            "username_md5"  : username_md5,
             "email"         : email,
             "admin"         : admin
         }
@@ -291,8 +293,6 @@ class active_statements(passive_statements):
         """
         Ändern des Username. Die Username-MD5 sum wird gleich mit geändet
         """
-        import md5
-
         def convert(username):
             if not isinstance(username, unicode):
                 return username
