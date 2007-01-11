@@ -9,19 +9,18 @@ If this plugin is installed, you can insert this Link in the global Template:
 
 <link rel="alternate" type="application/rss+xml" title="RSS" \
 href="/_command/RSSfeedGenerator/download/RSS.xml" />
-"""
 
-__version__="0.2.2"
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
 
-__history__="""
-v0.2.2
-    - NEW: using self.db.get_page_update_info()
-v0.2.1
-    - It's running!
-v0.2
-    - Anpassung an PyLucid v0.7
-v0.1
-    - erste Version
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
 
@@ -70,7 +69,7 @@ class RSSfeedGenerator(PyLucidBaseModule):
             self.page_msg("RSSfeedGenerator - Debug context:")
             self.page_msg(context)
 
-        content = self.templates.get("RSSfeed", context)
+        content = self.templates.get_rendered_page("RSSfeed", context)
 
         #~ self.response.startFileResponse(RSS_filename, contentLen=None, \
                     #~ content_type='application/rss+xml; charset=utf-8')
