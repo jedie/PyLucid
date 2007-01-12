@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# copyleft: jensdiemer.de (GPL v2 or above)
-
 """
 Hier sind alle vorgefertigen Module zu finden, die eigentlich nur
 ein normaler SELECT Befehl ist. Also nur Methoden die nur Daten aus
@@ -11,11 +9,9 @@ der DB bereitstellen.
 
 Last commit info:
 ----------------------------------
-LastChangedDate: $LastChangedDate$
-Revision.......: $Rev$
-Author.........: $Author$
-
-Created by Jens Diemer
+$LastChangedDate$
+$Rev$
+$Author$
 
 license:
     GNU General Public License v2 or above
