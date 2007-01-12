@@ -33,7 +33,6 @@ from PyLucid.system.exceptions import *
 
 
 class PyLucidBaseModule(object):
-
     def __init__(self, request, response):
         self.request    = request
         self.response   = response
@@ -52,7 +51,6 @@ class PyLucidBaseModule(object):
         self.templates      = request.templates
 
         try:
-            self.plugin_cfg = request.plugin_cfg
             self.i18n       = request.i18n
             self.l10n       = request.l10n
         except AttributeError:

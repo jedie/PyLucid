@@ -29,48 +29,6 @@ except ImportError:
     import pickle
 
 
-class NoPluginConfig(dict):
-    """
-    Hat ein Module/Plugin keine plugin config definiert, wird diese Klasse an
-    das lokale request-Objekt dran gehangen.
-    So werden brauchbare Fehlermeldungen erzeugt, wenn das Plugin dennoch auf
-    die nicht existierende config zugreifen möchte ;)
-    """
-    def __init__(self, module_name):
-        self.module_name = module_name
-
-    def __getattr__(self, name):
-        self._error()
-
-    def commit(self):
-        # Der Module-Manager ruft immer commit auf ;)
-        pass
-
-    def _error(self):
-        try:
-            import inspect
-            for stack_frame in inspect.stack():
-                # Im stack vorwärts gehen, bis außerhalb dieser Datei
-                filename = stack_frame[1]
-                lineno = stack_frame[2]
-                #~ print filename, __file__
-                if filename != __file__:
-                    break
-
-            filename = "...%s" % filename[-25:]
-            fileinfo = "%-25s line %3s: " % (filename, lineno)
-        except Exception, e:
-            fileinfo = "(inspect Error: %s)" % e
-
-        msg = (
-            "Error: Plugin/Module '%s' has no plugin-config!"
-            " But in %s you access to the plugin_cfg object ;)"
-            " If you would like to use plugin_cfg, you must setup your"
-            " module/plugin config file!"
-        ) % (self.module_name, fileinfo)
-        raise AttributeError(msg)
-
-
 
 class PluginConfig(dict):
     """
@@ -80,7 +38,7 @@ class PluginConfig(dict):
     """
     _cache = {}
 
-    def __init__(self, request, response, module_id, module_name, method_name):
+    def __init__(self, request, response):
         self.request = request
         self.response = response
 
@@ -90,11 +48,20 @@ class PluginConfig(dict):
         self.db             = request.db
         self.session        = request.session
 
-        self.module_id = int(module_id) # type long brauchen wir nicht ;)
-        self.module_name = module_name
-        self.method_name = method_name
+        #~ self.page_msg(request.module_data)
 
-    def init2(self):
+        # Dict wird im Module-Manager an das request Objekt gehangen
+        module_data = request.module_data
+
+        self.module_id = int(module_data["id"]) # type long brauchen wir nicht ;)
+        self.module_name = module_data["module_name"]
+        self.method_name = module_data["method_name"]
+
+        self.init_dict()
+
+    def init_dict(self):
+        #~ print self.module_id, self.module_name, self.method_name
+
         if self.module_id in self._cache:
             # Daten sind schon im cache
             if debug:
@@ -105,12 +72,6 @@ class PluginConfig(dict):
 
         # Daten sind noch nicht im cache -> aus db holen
         data = self._get_db_data(self.module_id)
-        if data == None:
-            # Das Modul/Plugin hat keine config
-            if debug:
-                self.page_msg("Plugin has no config. %s" % self.__get_info())
-            return False
-
         data = self.unpickle_data(data)
 
         dict.__init__(self, data)
@@ -126,14 +87,15 @@ class PluginConfig(dict):
             from_table      = "plugins",
             where           = ("id", module_id),
         )[0]["plugin_cfg"]
-
         if data == None:
-            # Das Plugin hat keine config Daten!
-            return None
+            raise NoConfigData
+            #~ return None # Das Plugin hat keine config Daten!
 
         data = data.tostring() # Aus der DB kommt ein array Objekt!
         if data == "":
-            return None
+            raise NoConfigData
+
+        return data
 
     #_________________________________________________________________________
 
@@ -192,28 +154,13 @@ class PluginConfig(dict):
             self.module_name, self.method_name, self.module_id
         )
 
-    #_________________________________________________________________________
 
 
+class PluginConfigError(Exception):
+    pass
 
-def get_plugin_cfg_obj(request, response, module_id, module_name, method_name):
-    plugin_cfg_obj = PluginConfig(
-        request, response, module_id, module_name, method_name
-    )
-    has_config = plugin_cfg_obj.init2()
-    if has_config == False:
-        # Das aktuelle Plugin hat keine Config
-        return NoPluginConfig(module_name)
-    else:
-        return plugin_cfg_obj
-
-
-
-#~ class PluginConfigError(Exception):
-    #~ pass
-
-#~ class NoConfigData(PluginConfigError):
-    #~ """
-    #~ Das Module/Plugin hat keine config Daten
-    #~ """
-    #~ pass
+class NoConfigData(PluginConfigError):
+    """
+    Das Module/Plugin hat keine config Daten in der DB.
+    """
+    pass

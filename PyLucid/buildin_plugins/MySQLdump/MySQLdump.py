@@ -29,19 +29,21 @@ import re, StringIO, zipfile
 from colubrid import HttpResponse
 
 from PyLucid.tools import formatter
-
+from PyLucid.components.plugin_cfg import PluginConfig
 from PyLucid.system.BaseModule import PyLucidBaseModule
 
 
 class MySQLdump(PyLucidBaseModule):
 
-    def __init__(self, *args, **kwargs):
-        super(MySQLdump, self).__init__(*args, **kwargs)
+    def __init__(self, request, response):
+        super(MySQLdump, self).__init__(request, response)
 
         if sys.platform == "win32":
             self.mysqldump_name = "mysqldump.exe"
         else:
             self.mysqldump_name = "mysqldump"
+
+        self.plugin_cfg = PluginConfig(self.request, self.response)
 
     def menu(self):
         """ Menü für Aktionen generieren """

@@ -18,7 +18,6 @@ Created by Jens Diemer
 license:
     GNU General Public License v2 or above
     http://www.opensource.org/licenses/gpl-license.php
-
 """
 
 __version__= "$Rev$"
@@ -758,11 +757,16 @@ class Module(object):
         if not "plugin_cfg" in self.data:
             return None
 
-        plugin_cfg_obj = plugin_cfg.PluginConfig(
-            self.request, self.response,
-            module_id=0,
-            module_name = self.data["module_name"], method_name="[install]"
-        )
+        request_obj = self.request
+        module_data = {
+            "id": 0,
+            "module_name": self.data["module_name"],
+            "method_name": "[install]",
+        }
+        request_obj.module_data = module_data
+
+        plugin_cfg_obj = plugin_cfg.PluginConfig(request_obj, self.response)
+
         return plugin_cfg_obj.get_pickled_data(self.data["plugin_cfg"])
 
     def first_time_install(self):

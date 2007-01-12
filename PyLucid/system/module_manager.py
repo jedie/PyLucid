@@ -24,7 +24,7 @@ __version__= "$Rev$"
 import sys, os, glob, imp, cgi, urllib
 
 from PyLucid.system.exceptions import PyLucidException
-from PyLucid.components import plugin_cfg
+
 
 
 debug = False
@@ -468,8 +468,10 @@ class module_manager:
                 unbound_method, function_info
             )
 
-        # plugin_cfg evtl. speichern
-        local_request_obj.plugin_cfg.commit()
+        if hasattr(class_instance, "plugin_cfg"):
+            # Das Modul benutzt plugin_cfg.
+            # Speichern der evtl. geänderten Plugin config.
+            class_instance.plugin_cfg.commit()
 
         return output
 
@@ -535,10 +537,16 @@ class module_manager:
             try:
                 class_instance = module_class(request_obj, self.response)
             except TypeError, e:
+                try:
+                    import inspect
+                    all_args = inspect.getargspec(module_class.__init__)
+                except Exception, e:
+                    all_args = "[Error: %s]" % e
                 msg = (
                     "TypeError, module '%s.%s': %s"
                     " --- module-class must received: (request, response) !"
-                ) % (self.module_name, self.method_name, e)
+                    " --- all args: %s"
+                ) % (self.module_name, self.method_name, e, all_args)
                 raise TypeError(msg)
 
         return class_instance
@@ -572,18 +580,15 @@ class module_manager:
     #_________________________________________________________________________
     def _get_local_request_obj(self):
         """
-        Fügt das plugin_cfg an das request Objekt, mit den Daten für das
-        aktuelle Plugin.
+        Fügt module_data an ein "lokales" request Objekt an.
         """
-        plugin_cfg_obj = plugin_cfg.get_plugin_cfg_obj(
-            self.request, self.response,
-            self.plugin_data.module_id,
-            self.plugin_data.module_name,
-            self.plugin_data.method_name
-        )
-
         local_request_obj = self.request
-        local_request_obj.plugin_cfg = plugin_cfg_obj
+        module_data = {
+            "id": self.plugin_data.module_id,
+            "module_name": self.plugin_data.module_name,
+            "method_name": self.plugin_data.method_name
+        }
+        local_request_obj.module_data = module_data
 
         return local_request_obj
 
