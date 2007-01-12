@@ -66,6 +66,12 @@ module_manager_data = {
         "menu_section"      : "misc",
         "menu_description"  : "Display all Python Modules",
     },
+    "debug_plugin_data": {
+        "must_login"        : True,
+        "must_admin"        : True,
+        "menu_section"      : "Modules/Plugins",
+        "menu_description"  : "Debug all installed module/plugin data",
+    },
     "module_info": {
         "must_login"    : True,
         "must_admin"    : True,
