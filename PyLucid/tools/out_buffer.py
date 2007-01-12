@@ -61,19 +61,20 @@ class out_buffer(object):
         return
 
 
-class redirector:
+class Redirector(object):
     """
     Nutzt den out_buffer und speichert alle stdout und stderr Ausgaben.
+    stderr_obj kann z.B. "self.page_msg" sein ;)
     """
-    def __init__( self ):
+    def __init__(self, stderr_obj):
         self.oldout = sys.stdout
         self.olderr = sys.stderr
 
-        self.out_buffer = out_buffer()
+        self.out_buffer = out_buffer(stderr_obj)
         sys.stdout = self.out_buffer
         sys.stderr = self.out_buffer
 
-    def get( self ):
+    def get(self):
         sys.stdout = self.oldout
         sys.stderr = self.olderr
         return self.out_buffer.get()

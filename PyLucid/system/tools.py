@@ -355,14 +355,6 @@ class stdout_marker:
             #~ self.org_stdout.write( str(stack) )
         self.org_stdout.write( " ".join([str(i) for i in txt]) + "\n" )
 
-#~ print "redirector test:"
-#~ r = redirector()
-#~ print "1"
-#~ out = r.get()
-#~ print "2"
-#~ print "out:", out
-#~ sys.exit()
-
 #_____________________________________________________________________________
 
 
