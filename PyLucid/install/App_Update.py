@@ -72,6 +72,11 @@ class update(ObjectApp_Base):
         msg = "Add 'salt' colum."
         self._execute(msg,SQLcommand)
 
+        # Hatte sich mal in die Install-Daten eingeschlichen :(
+        self._execute(
+            "drop md5users2 if exist","DROP TABLE IF EXISTS $$md5users2;"
+        )
+
         # Daten in md5users Tabelle updaten
         self.response.write("<h4>Update data in md5users table:</h4>\n")
         self.response.write("<pre>\n")
