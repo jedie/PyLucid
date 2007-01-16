@@ -429,6 +429,13 @@ class passive_statements(SQL_wrapper):
             from_table      = "preferences",
         )
 
+    def get_one_preference(self, section, varName, select_items=["*"]):
+        return self.select(
+            select_items,
+            from_table      = "preferences",
+            where           = [("section",section), ("varName",varName)]
+        )[0]
+
     #_________________________________________________________________________
     ## Funktionen für Styles, Templates usw.
 

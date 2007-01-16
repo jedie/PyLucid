@@ -68,11 +68,11 @@ class Preferences(UserDict.UserDict):
         self.page_msg       = response.page_msg
         self.db             = request.db
 
-    def update_from_sql(self, db):
+    def update_from_sql(self):
         """ Preferences aus der DB lesen und in self speichern """
 
         try:
-            RAWdata = db.get_all_preferences()
+            RAWdata = self.db.get_all_preferences()
         except Exception, e:
             raise ProbablyNotInstalled("No preferences in database!")
 
@@ -131,16 +131,34 @@ class Preferences(UserDict.UserDict):
     #_________________________________________________________________________
 
     def get_default_markup_id(self):
+        """
+        Liefert die ID des Standard Markup
+        """
         id = self["core"]["defaultMarkup"]
         return id
 
     #_________________________________________________________________________
+
     def set_default_page(self, page_id):
-        self.set("core", "defaultPageName", page_id)
+        """
+        Setzt die ID für die defaultPage Angabe
+        """
+        self.set("core", "defaultPage", page_id)
 
     #_________________________________________________________________________
 
+    def change(self, section, varName, change_dict):
+        """
+        Ändern eines x-beliebigen Tabellen-Feldes von einem Preference-Eintrag
+        """
+        value_dict = self.db.get_one_preference(section, varName)
+        value_dict.update(change_dict)
+        self.db.change_preferences(section, varName, value_dict)
+
     def set(self, section, varName, value):
+        """
+        Ändert den Wert von einem Preferences-Eintrag
+        """
         self[section][varName] = value
         self.db.set_preferences(section, varName, value)
 

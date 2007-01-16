@@ -188,14 +188,22 @@ class active_statements(passive_statements):
     ## Preferences
 
     def set_preferences(self, section, varName, value):
-        id = self.select(
-            select_items    = ["id"],
-            from_table      = "preferences",
-            where           = [("section",section), ("varName",varName)]
-        )[0]["id"]
+        """
+        Ändert den Wert von einem Preferences-Eintrag
+        """
+        change_dict = {"value": value}
+        self.change_preferences(section, varName, change_dict)
+
+    def change_preferences(self, section, varName, change_dict):
+        """
+        Ändern eines x-beliebigen Tabellen-Feldes von einem Preference-Eintrag
+        """
+        id = self.get_one_preference(section, varName, select_items=["id"])
+        id = id["id"]
+
         self.update(
             table   = "preferences",
-            data    = {"value": value},
+            data    = change_dict,
             where   = ("id",id),
             limit   = 1
         )
