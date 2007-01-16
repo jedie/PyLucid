@@ -42,6 +42,33 @@ class update(ObjectApp_Base):
 
 
         #_____________________________________________________________________
+        # Preferences
+
+        self.response.write("<h4>Change preferences:</h4>\n")
+        try:
+            self._preferences.change(
+                section="core", varName="defaultPageName",
+                change_dict = {
+                    "varName": "defaultPage",
+                    "description": (
+                        'This is the default page that a site visitor will see'
+                        ' if they arrive at your CMS without specifying a'
+                        ' particular page.'
+                    )
+                }
+            )
+        except Exception, e:
+            self.response.write("Error: %s (Already changed?)" % e)
+        else:
+            self.response.write("defaultPageName renamed to defaultPage, OK")
+
+        #_____________________________________________________________________
+
+        self._execute(
+            "drop appconfig if exist","DROP TABLE IF EXISTS $$appconfig;"
+        )
+
+        #_____________________________________________________________________
         # md5users Tabelle
         self.response.write("<h4>Change md5users table:</h4>\n")
         SQLcommand = (

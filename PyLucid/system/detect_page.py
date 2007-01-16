@@ -222,7 +222,7 @@ class detect_page(PyLucidBaseModule):
         "Setzt die default-Page als aktuelle Seite"
         #~ try:
         self.session["page_id"] = \
-                                    self.preferences["core"]["defaultPageName"]
+                                    self.preferences["core"]["defaultPage"]
         #~ except KeyError:
             #~ self.page_msg(
                 #~ "Can'r read preferences from DB.",
@@ -240,7 +240,7 @@ class detect_page(PyLucidBaseModule):
                 where           = ["id",self.session["page_id"]]
             )[0]["id"]
         except IndexError:
-            # Die defaultPageName Angabe ist falsch
+            # Die defaultPage Angabe ist falsch
             self.page_msg(
                 "default Page with ID %s not found!" % self.session["page_id"]
             )

@@ -48,6 +48,7 @@ module_manager_data = {
 }
 
 plugin_cfg = {
+    "default_no_data" : ["log", "session_data", "object_cache"],
     "default character set": "utf8",
     "default compatible" : None,
     "list compatible" : [

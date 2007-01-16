@@ -232,7 +232,10 @@ class InstallApp(object):
         # Shorthands übergeben
         ObjectApp_Base._db              = self.db
         ObjectApp_Base._page_msg        = self.page_msg
+
+
         ObjectApp_Base._preferences     = self.preferences
+
         ObjectApp_Base._environ         = self.environ
         ObjectApp_Base._URLs            = self.URLs
         ObjectApp_Base._tools           = self.tools

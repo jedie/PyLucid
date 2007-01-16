@@ -698,7 +698,7 @@ class sessionhandler(dict):
         self["page_history"] = [i for i in self["page_history"] if i!=page_id]
 
         if self["page_history"]==[]:
-            self["page_history"]=[self.preferences["core"]["defaultPageName"]]
+            self["page_history"]=[self.preferences["core"]["defaultPage"]]
 
 
 

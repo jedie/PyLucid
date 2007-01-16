@@ -36,7 +36,7 @@ class back_links(PyLucidBaseModule):
 
     def lucidTag( self ):
         "Backlinks generieren"
-        if self.current_page_id == self.preferences["core"]["defaultPageName"]:
+        if self.current_page_id == self.preferences["core"]["defaultPage"]:
             # Die aktuelle Seite ist die Index-Seite, also auch keinen
             # indexLink generieren
             return ""

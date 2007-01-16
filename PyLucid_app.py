@@ -214,6 +214,8 @@ class PyLucidApp(BaseApplication):
             self.request, self.response
         )
 
+        self.preferences.init2(self.request, self.response)
+
         # FIXME: Übertragen von Objekten in den DBwrapper
         self.db.page_msg    = self.page_msg
         self.db.tools       = self.tools
@@ -258,8 +260,7 @@ class PyLucidApp(BaseApplication):
         Dazu sind die restilichen Objekte garnicht nötig.
         """
         # Preferences aus der DB lesen
-        self.preferences.init2(self.request, self.response)
-        self.preferences.update_from_sql(self.db)
+        self.preferences.update_from_sql()
 
         self.request.i18n = i18n.I18N(self.request, self.response)
         self.request.l10n = l10n.L10N(self.request, self.response)

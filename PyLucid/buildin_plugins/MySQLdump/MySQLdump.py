@@ -7,10 +7,10 @@ http://dev.mysql.com/doc/mysql/de/mysqldump.html
 
 Last commit info:
 ----------------------------------
-LastChangedDate: $LastChangedDate$
-Revision.......: $Rev$
-Author.........: $Author$
-date...........: $Date$
+$LastChangedDate$
+$Rev$
+$Author$
+$Date$
 """
 
 __version__ = "$Rev$"
@@ -82,9 +82,9 @@ class MySQLdump(PyLucidBaseModule):
     def display_menu(self):
 
         # Tabellen die per default nur die Struktur gespeichert werden soll
-        default_no_data = ["log", "session_data"]
+        prefix = self.preferences["dbTablePrefix"]
         default_no_data = [
-            self.preferences["dbTablePrefix"] + i for i in default_no_data
+            prefix + i for i in self.plugin_cfg["default_no_data"]
         ]
 
         table_list = self.db.get_tables()
@@ -110,6 +110,9 @@ class MySQLdump(PyLucidBaseModule):
         except MysqldumpNotFound:
             mysqldump_path = ""
 
+        parameter_examples = " ".join(self.plugin_cfg["parameter examples"])
+        default_parameters = " ".join(self.plugin_cfg["default parameters"])
+
         context = {
             "version"               : __version__,
             "table_data"            : table_data,
@@ -119,8 +122,8 @@ class MySQLdump(PyLucidBaseModule):
             "help_link"             : self.URLs.actionLink("display_help"),
             "actions"               : self.actions,
             "character_set"         : self.plugin_cfg["default character set"],
-            "default_parameters"    : " ".join(self.plugin_cfg["default parameters"]),
-            "parameter_examples"    : " ".join(self.plugin_cfg["parameter examples"]),
+            "default_parameters"    : default_parameters,
+            "parameter_examples"    : parameter_examples,
         }
         #~ self.page_msg(context)
         self.templates.write("Menu", context)
