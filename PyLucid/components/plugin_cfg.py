@@ -57,7 +57,11 @@ class PluginConfig(dict):
         self.module_name = module_data["module_name"]
         self.method_name = module_data["method_name"]
 
-        self.init_dict()
+        if request.runlevel.is_install():
+            # Während der Installation gibt es keine Daten in der DB
+            dict.__init__(self)
+        else:
+            self.init_dict()
 
     def init_dict(self):
         #~ print self.module_id, self.module_name, self.method_name
@@ -86,7 +90,12 @@ class PluginConfig(dict):
             select_items    = ["plugin_cfg"],
             from_table      = "plugins",
             where           = ("id", module_id),
-        )[0]["plugin_cfg"]
+        )
+        try:
+            data = data[0]["plugin_cfg"]
+        except IndexError:
+            raise NoConfigData
+
         if data == None:
             raise NoConfigData
             #~ return None # Das Plugin hat keine config Daten!
