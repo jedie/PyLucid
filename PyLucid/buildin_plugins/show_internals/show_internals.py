@@ -36,20 +36,46 @@ class show_internals(PyLucidBaseModule):
         url = self.URLs.actionLink("menu")
         self.response.write('<a href="%s">show internals</a>' % url)
 
-    def menu( self ):
+    def menu(self):
         self.response.write(
-            "<h4>show internals v%s</h4>" % __version__
+            "<h4>show internals <small>(%s)</small></h4>" % \
+                                                        __version__.strip("$ ")
         )
         self.response.write(self.module_manager.build_menu())
 
     #_______________________________________________________________________
 
+    def pygments_info(self):
+        try:
+            #~ raise ImportError("TEST")
+            from pygments.lexers import get_all_lexers
+        except ImportError, e:
+            self.page_msg.red("Import Error: %s" % e)
+            return
+
+        lexers = []
+        no = 0
+        for longname, aliases, patterns, mimetypes in get_all_lexers():
+            no += 1
+            lexers.append({
+                "no"        : no,
+                "longname"  : longname,
+                "aliases"   : aliases,
+                "patterns"  : patterns,
+                "mimetypes" : mimetypes,
+            })
+        context = {
+            "lexers": lexers,
+            "menu_link": self.URLs.actionLink("menu"),
+        }
+        #~ self.page_msg(context)
+        self.templates.write("pygments_info", context, debug=False)
+
+    #_______________________________________________________________________
+
     def python_modules(self):
 
-        back_link = (
-            '<a href="%s">back</a>'
-        ) % self.URLs.actionLink("menu")
-        self.response.write(back_link)
+        self.write_menu_link()
 
         self.response.write("<h3>Python Module Info</h3>")
         from PyLucid.buildin_plugins.show_internals.module_info \
@@ -393,6 +419,12 @@ class show_internals(PyLucidBaseModule):
 
         self.page_msg(plugin_list)
 
+    #_________________________________________________________________________
 
+    def write_menu_link(self):
+        back_link = (
+            '<a href="%s">back</a>'
+        ) % self.URLs.actionLink("menu")
+        self.response.write(back_link)
 
 

@@ -1,0 +1,24 @@
+<h4>pygments info</h4>
+<a href="{{ menu_link }}">back</a>
+<p>
+  Here a complete list of all available lexers:
+</p>
+<ul id="lexers">
+  {% for lexer in lexers %}
+  <li><a href="#">{{ lexer.longname }}<br />
+    <fieldset class="info_box"><legend>{{ lexer.longname }}</legend>
+    <dl>
+      <dt>aliases</dt>
+      <dd>{{ lexer.aliases }}</dd>
+
+      <dt>filename patterns</dt>
+      <dd>{{ lexer.patterns }}</dd>
+
+      <dt>mimetypes</dt>
+      <dd>{{ lexer.mimetypes }}</dd>
+    </dl>
+    </fieldset>
+  </a></li>
+  {% endfor %}
+</ul>
+<a href="{{ menu_link }}">back</a>

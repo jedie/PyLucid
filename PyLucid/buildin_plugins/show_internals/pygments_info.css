@@ -1,0 +1,13 @@
+#lexers a:hover {
+  color:#bea46d;
+  text-decoration:underline;
+}
+
+#lexers a .info_box {
+  display: none;
+}
+
+#lexers a:hover .info_box {
+  color:#bea46d;
+  display:inline;
+}
