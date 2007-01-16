@@ -86,8 +86,15 @@ class active_statements(passive_statements):
         shortcutList = self.get_shortcutList(page_id)
 
         uniqueShortcut = self.tools.getUniqueShortcut(page_name, shortcutList)
-
         return uniqueShortcut
+
+    def insert_new_page(self, page_data):
+        page_data = self.__add_data(page_data)
+        self.insert(
+            table   = "pages",
+            data    = page_data,
+        )
+        return self.cursor.lastrowid
 
     #_________________________________________________________________________
     ## Funktionen für das ändern des Looks (Styles, Templates usw.)

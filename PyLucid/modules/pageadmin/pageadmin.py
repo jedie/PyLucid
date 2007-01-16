@@ -304,15 +304,29 @@ class pageadmin(PyLucidBaseModule):
             self.db.commit()
             self.page_msg("New page data updated.")
 
+    def create_first_page(self):
+        """
+        In der db existiert noch keine CMS Seite, diese soll nun automatisch
+        angelegt werden, damit PyLucid überhaupt funktioniert.
+        Wird von PyLucid_app.py aufgerufen.
+        """
+        new_page_data = self.get_new_page_data()
+        new_page_data["shortcut"]   = "Newpage"
+        new_page_data["parent"]     = 0
+
+        page_id = self.insert_new_page(new_page_data)
+        self.preferences.set_default_page(page_id)
 
     def insert_new_page(self, page_data):
         """ Abspeichern einer neu erstellten Seite """
 
+        page_id = self.db.insert_new_page(page_data)
+
         #~ try:
-        self.db.insert(
-            table   = "pages",
-            data    = page_data,
-        )
+        #~ self.db.insert(
+            #~ table   = "pages",
+            #~ data    = page_data,
+        #~ )
         #~ except Exception, e:
             #~ msg = (
                 #~ "<h3>Error to insert new page:'%s'</h3>\n"
@@ -322,10 +336,10 @@ class pageadmin(PyLucidBaseModule):
         #~ else:
 
         self.db.commit()
-            #~ self.page_msg( "New page saved." )
 
         # Setzt die aktuelle Seite auf die neu erstellte.
-        self.session["page_id"] = self.db.cursor.lastrowid
+        self.session["page_id"] = page_id
+        return page_id
 
 
     def new_page(self):
@@ -367,17 +381,6 @@ class pageadmin(PyLucidBaseModule):
             "description"       : "",
         }
         return page_data
-
-    def create_first_page(self):
-        """
-        In der db existiert noch keine CMS Seite, diese soll nun automatisch
-        angelegt werden, damit PyLucid überhaupt funktioniert.
-        Wird von PyLucid_app.py aufgerufen.
-        """
-        new_page_data = self.get_new_page_data()
-        new_page_data["shortcut"]   = "Newpage"
-        new_page_data["parent"]     = 0
-        self.insert_new_page(new_page_data)
 
     def get_page_data(self, page_id):
         """

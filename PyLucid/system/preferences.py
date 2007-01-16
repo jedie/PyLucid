@@ -135,6 +135,10 @@ class Preferences(UserDict.UserDict):
         return id
 
     #_________________________________________________________________________
+    def set_default_page(self, page_id):
+        self.set("core", "defaultPageName", page_id)
+
+    #_________________________________________________________________________
 
     def set(self, section, varName, value):
         self[section][varName] = value
