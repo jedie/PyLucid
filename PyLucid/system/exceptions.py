@@ -53,9 +53,8 @@ ERROR_PAGE_TEMPLATE = """\
     form * {
       vertical-align:middle;
     }
-    a, h1 {
-        color:#440;
-    }
+    a, h1 {color:#440;}
+    em {color:#a00;}
     div.content {
         margin: 1em 3em 2em 2em;
     }
@@ -145,14 +144,17 @@ class ProbablyNotInstalled(PyLucidException):
     code = 200
     title = 'Database Error'
 
-    def __init__(self, txt, origErrMsg=""):
+    def __init__(self, txt):
         self.msg = (
-            '<p>%s</p>\n'
-            '<p><small>%s</small></p>\n'
-            '<p>Have you install PyLucid? Please look at:'
-            ' <a href="http://www.pylucid.org/index.py/InstallPyLucid/">'
-            'PyLucid.org - Install</a></p>'
-        ) % (txt, origErrMsg)
+            '<h3>%s</h3>\n'
+            '<h4>Have you install PyLucid?</h4>'
+            '<p>Try: <a href="index.py/_install">'
+            '  index.py/_install<em>InstallPassword</em></a></p>'
+            '<p>(You find information about the PyLucid installation at:'
+            '  <a href="http://www.pylucid.org/index.py/InstallPyLucid/">'
+            '  PyLucid.org - Install</a>)'
+            '</p>'
+        ) % (txt)
 
 class NoPageExists(PyLucidException):
     code = 200

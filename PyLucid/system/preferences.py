@@ -71,9 +71,9 @@ class Preferences(UserDict.UserDict):
     def update_from_sql(self, db):
         """ Preferences aus der DB lesen und in self speichern """
 
-        RAWdata = db.get_all_preferences()
-
-        if RAWdata == None:
+        try:
+            RAWdata = db.get_all_preferences()
+        except Exception, e:
             raise ProbablyNotInstalled("No preferences in database!")
 
         for line in RAWdata:

@@ -424,19 +424,10 @@ class passive_statements(SQL_wrapper):
         Liefert Daten aus der Preferences-Tabelle
         wird in PyLucid_system.preferences verwendet
         """
-        try:
-            result = self.select(
-                select_items    = ["section", "varName", "value"],
-                from_table      = "preferences",
-            )
-        except Exception, e:
-            msg = str(e)
-            if msg.find("doesn't exist"):
-                # PyLucid ist wahrscheinlich noch nicht installiert
-                raise ProbablyNotInstalled("Can't get Preferences from DB", e)
-            raise Exception(e)
-
-        return result
+        return self.select(
+            select_items    = ["section", "varName", "value"],
+            from_table      = "preferences",
+        )
 
     #_________________________________________________________________________
     ## Funktionen für Styles, Templates usw.
