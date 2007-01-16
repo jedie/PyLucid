@@ -17,13 +17,8 @@ install_zipfileName = "PyLucid/PyLucid_SQL_install_data.zip"
 debug = False
 
 
-import os, sys, cgi, time, zipfile
+import os, sys, cgi, time, zipfile, datetime
 
-try:
-    import datetime
-except ImportError:
-    #FIXME: Besser time nehmen! datetime gibt es erst ab Python 2.3
-    from PyLucid.python_backports import datetime
 
 
 
@@ -235,19 +230,23 @@ class SQLdump(object):
             self.response.write("%s\n" % SQLcommand)
             return
 
-        #~ print repr(SQLcommand)
-        #~ unicode(TEST_STRING, "utf8", errors="replace")
-
         if debug:
             self.db.cursor.execute(SQLcommand, do_prepare=False)
         else:
+            self.response.write(cgi.escape(str(type(SQLcommand))))
             try:
                 self.db.cursor.execute(SQLcommand, do_prepare=False)
-            except Exception, e:
-                self.response.write(
-                    "Error: '%s' in SQL-command!" % cgi.escape(str(e))
-                )
-                return False
+            except Exception:
+                # Es wird ein Unicode Fehler sein.
+                # Versuchen wir es mal mit Unicode:
+                SQLcommand = unicode(SQLcommand, "utf8", errors="replace")
+                try:
+                    self.db.cursor.execute(SQLcommand, do_prepare=False)
+                except Exception, e:
+                    self.response.write(
+                        "Error: '%s' in SQL-command!" % cgi.escape(str(e))
+                    )
+                    return False
         return True
 
     #_________________________________________________________________________
