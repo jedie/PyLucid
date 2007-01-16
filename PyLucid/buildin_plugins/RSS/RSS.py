@@ -9,8 +9,8 @@ Bsp.:
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -21,7 +21,7 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 import xml.dom.minidom
 import md5, sys, os, urllib, time
