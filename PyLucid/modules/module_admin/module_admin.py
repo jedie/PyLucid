@@ -146,7 +146,7 @@ class module_admin(PyLucidBaseModule):
         moduleData = moduleData.getModuleStatusList()
 
         context_dict = {
-            "version"       : __version__,
+            "version"       : __version__.strip("$ "),
             "moduleData"    : moduleData,
             "action_url"    : self.URLs.currentAction(),
         }
@@ -656,7 +656,7 @@ class Module(object):
         except (ImportError, AttributeError):
             version = "[no __version__ set in Module %s]" % packagePath
 
-        return version
+        return version.strip("$ ")
 
     def _assimilateConfig(self, configObject):
         """
