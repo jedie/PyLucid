@@ -38,7 +38,7 @@ class PluginConfig(dict):
     """
     _cache = {}
 
-    def __init__(self, request, response):
+    def __init__(self, request, response, read_db_data=True):
         self.request = request
         self.response = response
 
@@ -57,11 +57,14 @@ class PluginConfig(dict):
         self.module_name = module_data["module_name"]
         self.method_name = module_data["method_name"]
 
-        if request.runlevel.is_install():
-            # Während der Installation gibt es keine Daten in der DB
-            dict.__init__(self)
-        else:
+        #~ if request.runlevel.is_install():
+        if read_db_data:
+            # plugin_cfg dict aus Cache/DB lesen
             self.init_dict()
+        else:
+            # Während der Installation oder beim installieren von neuen
+            # Modulen/Plugins gibt es keine Daten in der DB.
+            dict.__init__(self)
 
     def init_dict(self):
         #~ print self.module_id, self.module_name, self.method_name

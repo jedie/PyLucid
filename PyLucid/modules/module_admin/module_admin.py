@@ -765,7 +765,9 @@ class Module(object):
         }
         request_obj.module_data = module_data
 
-        plugin_cfg_obj = plugin_cfg.PluginConfig(request_obj, self.response)
+        plugin_cfg_obj = plugin_cfg.PluginConfig(
+            request_obj, self.response, read_db_data=False
+        )
 
         return plugin_cfg_obj.get_pickled_data(self.data["plugin_cfg"])
 
