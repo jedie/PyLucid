@@ -209,7 +209,7 @@ class plugin_data:
 
     #_________________________________________________________________________
 
-    def debug_data(self):
+    def debug(self):
         self.page_msg(" -"*40)
         self.page_msg("Debug module_manager.plugin_data:")
         self.page_msg("self.plugins:")
@@ -448,6 +448,8 @@ class module_manager:
         )
         unbound_method = self._get_unbound_method(class_instance)
 
+        self.setup_sys_path()
+
         # Methode "ausführen"
         if self.error_handling == True: # Fehler nur anzeigen
             try:
@@ -473,7 +475,28 @@ class module_manager:
             # Speichern der evtl. geänderten Plugin config.
             class_instance.plugin_cfg.commit()
 
+        self.reset_sys_path()
+
         return output
+
+    #_________________________________________________________________________
+
+    def setup_sys_path(self):
+        """
+        Fügt den Path zum aktuell auszuführenden Module/Plugin in den
+        sys.path ein
+        """
+        package_path = self.plugin_data.package_name
+        package_path = package_path.replace(".",os.sep)
+        #~ self.page_msg(package_path)
+        sys.path.insert(0,package_path)
+
+    def reset_sys_path(self):
+        """
+        Nach dem Ausführen des Modules/Plugins wird der eingefügte Path wieder
+        aus dem sys.path gelöscht
+        """
+        sys.path = sys.path[1:]
 
     #_________________________________________________________________________
 
@@ -601,7 +624,7 @@ class module_manager:
             result += "module_manager.build_menu():"
             result += self.plugin_data.package_name
             result += self.module_name
-            result += "self.plugin_data:", self.plugin_data.debug_data()
+            result += "self.plugin_data:", self.plugin_data.debug()
 
         menu_data = self.plugin_data.get_menu_data()
         result += '<ul class="module_manager_menu">'
@@ -622,7 +645,7 @@ class module_manager:
 
     def debug(self):
         self.page_msg("Module Manager debug:")
-        self.page_msg(self.plugin_data.debug_data())
+        self.page_msg(self.plugin_data.debug())
 
 
 class ModuleManagerError(Exception):
