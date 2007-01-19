@@ -101,87 +101,24 @@ class render(object):
             self.page_msg("Markup '%s' not supported yet :(" % markup)
             return content
 
-    #_________________________________________________________________________
+    def highlight(self, ext, code, out_object=None, pygments_style=None):
+        #~ self.page_msg(args, kwargs)
+        #~ self.request.module_manager.run_direkt(
+            #~ "pygmentsize", "write_sourcecode", ext, code, out_object
+        #~ )
 
-    def highlight(self, ext, code, out_object=None):
-        """
-        Schnittstelle zu pygments
+        from PyLucid.buildin_plugins.pygmentsize import pygmentsize
 
-        zu benutzten i.d.R.:
+        p = pygmentsize.pygmentsize(self.request, self.response)
 
-        self.render.highlight(ext, sourcecode)
-
-            ext..: Typische Dateiendung (Bsp.: py, .py, css, html)
-            code.: der Sourcecode als String
-        """
-        ext = ext.lower().lstrip(".")
-        if out_object == None:
-            out_object = self.response
-
-        html_fieldset = (
-            '<fieldset class="syntax"><legend class="syntax">%s</legend>\n',
-            '</fieldset><br />'
-        )
-
-        ## Für das automatische Generieren des Styles
-        ## Die Daten kommen aus PyKleur und werden in die Seite
-        ## eingeblendet. Dann kann man das ganze per Copy&Paste in's
-        ## PyLucid Style einbauen
-        #~ from pygments.formatters import HtmlFormatter
-        #~ from pygments.styles import get_style_by_name
-        #~ css_style = HtmlFormatter(style='friendly').get_style_defs('.syntax')
-        #~ self.response.write("<pre>")
-        #~ self.response.write(css_style)
-        #~ self.response.write("</pre>")
-
-
-        def fallback_write(code, legend_info):
-            out_object.write(html_fieldset[0] % legend_info)
-            out_object.write("<pre>")
-            out_object.write(code)
-            out_object.write("</pre>")
-            out_object.write(html_fieldset[1])
-
-        #~ fallback_write(code, "DEBUG!!")
-        #~ return
-
-        try:
-            #~ raise ImportError("TEST")
-            from pygments.lexers import get_lexer_by_name
-            from pygments.formatters import HtmlFormatter
-            from pygments import highlight
-        except ImportError, e:
-            legend_info = "%s [Pygments ImportError: %s]" % (ext, e)
-            fallback_write(code, legend_info)
-            return
-
-
-        try:
-            #~ raise Exception("TEST")
-            lexer = get_lexer_by_name(ext)
-        except ValueError:
-            # pykleur.lexers.get_lexer_by_name schmeist den ValueError
-            # -> Kein Lexer für das Format vorhanden
-            lexer = get_lexer_by_name("text")
-            legend_info = (
-                "%s <small>(unknown format, use TextLexer)</small>"
-            ) % ext
-            out_object.write(html_fieldset[0] % legend_info)
-        except Exception, e:
-            legend_info = "%s [Pygments get_lexer error: %s]" % (ext, e)
-            fallback_write(code, legend_info)
-            return
+        if out_object != None:
+            # tinyTextile gibt ein out-Objekt vor.
+            out_object.write(p.get_sourcecode(ext, code, pygments_style))
         else:
-            out_object.write(html_fieldset[0] % lexer.name)
+            # direkt in response schreiben
+            p.write_sourcecode(ext, code, pygments_style)
 
-        try:
-            #~ raise Exception("TEST")
-            formatter = HtmlFormatter(
-                linenos=True, encoding="utf-8"
-            )
-            highlight(code, lexer, formatter, out_object)
-        except Exception, e:
-            self.page_msg("Pygments HtmlFormatter Error: %s" % e)
-            out_object.write("<pre>%s</pre>\n" % code)
 
-        out_object.write(html_fieldset[1])
+
+
+

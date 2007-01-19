@@ -1,0 +1,30 @@
+field_set.pygments_code {
+  background: white;
+}
+fieldset.pygments_code, fieldset.pygments_code * {
+  padding: 0;
+  border: 0;
+  font-size: 1em;
+}
+fieldset.pygments_code, legend.pygments_code {
+  padding: 1px;
+  border: 1px solid #d0d0d0;
+}
+legend.pygments_code {
+  /* fieldset legend, the pygments_code type */
+  font-family: Courier New,Courier,monospace,mono;
+  margin-left: 5px;
+  background-color: white;
+  color: black;
+  font-size: 0.8em;
+  padding: 2px;
+}
+div.highlight, td.linenos pre, td.code pre {
+  padding: 0px;
+  margin: 0px;
+}
+td.linenos pre {
+  /* line number block */
+  color: #aaa;
+  padding: 0px 5px 0px 1em;
+}

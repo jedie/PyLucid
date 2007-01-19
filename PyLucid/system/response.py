@@ -137,7 +137,7 @@ class HttpResponse(HttpResponse):
             msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
         self.response = [] # Evtl. schon gemachte "Ausgaben" verwerfen
-        print "reset:", self.response
+        #~ print "reset:", self.response
 
         self.headers['Content-Disposition'] = \
             'attachment; filename="%s"' % filename
@@ -164,6 +164,16 @@ class HttpResponse(HttpResponse):
         """
         self.response = [] # Evtl. schon gemachte "Ausgaben" verwerfen
         self.headers['Content-Type'] = content_type
+
+    #_________________________________________________________________________
+
+    def pygmentsize(self):
+        if hasattr(self, "pygments"):
+            return self.pygments
+
+        from PyLucid.buildin_plugins.pygmentsize import pygmentsize
+
+        self.pygments = pygmentsize(self.request, self.response)
 
 
 

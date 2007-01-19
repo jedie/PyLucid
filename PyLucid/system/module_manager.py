@@ -282,10 +282,10 @@ class module_manager:
             self.module_name = tag
             self.method_name = "lucidTag"
 
-        return self._run_module_method(function_info={})
+        return self._run_module_method()
 
 
-    def run_function( self, function_name, function_info ):
+    def run_function(self, function_name, function_info):
         """
         Ausführen von:
         <lucidFunction:'function_name'>'function_info'</lucidFunction>
@@ -293,13 +293,7 @@ class module_manager:
         self.module_name = function_name
         self.method_name = "lucidFunction"
 
-        #~ if debug:
-        #~ self.page_msg(
-            #~ "function_name:", function_name, "function_info:", function_info
-        #~ )
-
-        function_info = {"function_info": function_info}
-        return self._run_module_method(function_info)
+        return self._run_module_method(function_info = function_info)
 
 
     def run_command(self):
@@ -317,29 +311,35 @@ class module_manager:
             self.page_msg("Wrong command path!")
             return
 
-        function_info = pathInfo[3:]
-
-        if function_info == []:
-            function_info = {}
-        else:
-            function_info = {"function_info": function_info}
-
         self.request.staticTags["page_title"] = "%s.%s" % (
             self.module_name, self.method_name
         )
 
-        return self._run_module_method(function_info)
+        function_info = pathInfo[3:]
+
+        if function_info == []:
+            return self._run_module_method()
+        else:
+            return self._run_module_method(function_info = function_info)
+
+    def run_direkt(self, module_name, method_name, *args, **kwargs):
+        """
+        Führt direkt eine Methode eines Plugin/Modul aus.
+        """
+        self.module_name = module_name
+        self.method_name = method_name
+        return self._run_module_method(*args, **kwargs)
 
 
     #_________________________________________________________________________
 
-    def _run_module_method(self, function_info={}):
+    def _run_module_method(self, *args, **kwargs):
         """
         Führt eine Methode eines Module aus.
         Kommt es irgendwo zu einem Fehler, ist es die selbsterstellte
         "RunModuleError"-Exception mit einer passenden Fehlermeldung.
         """
-        #~ if debug: self.page_msg("function_info:", function_info)
+        #~ if debug: self.page_msg("*args, **kwargs:", *args, **kwargs)
         try:
             self.plugin_data.setup_module(self.module_name, self.method_name)
         except PluginMethodUnknown, e:
@@ -376,7 +376,7 @@ class module_manager:
         self.plugin_data.setup_URLs()
 
         try:
-            moduleOutput = self._run_method(function_info)
+            moduleOutput = self._run_method(*args, **kwargs)
         except RunModuleError, e:
             self.page_msg(e)
             moduleOutput = ""
@@ -386,7 +386,7 @@ class module_manager:
         return moduleOutput
 
 
-    def _run_with_error_handling(self, unbound_method, function_info):
+    def _run_with_error_handling(self, unbound_method, *args, **kwargs):
         if self.plugin_data.plugin_debug == True:
             self.page_msg(
                 "function_info for method '%s': %s" % (
@@ -395,7 +395,7 @@ class module_manager:
             )
         try:
             # Dict-Argumente übergeben
-            return unbound_method(**function_info)
+            return unbound_method(*args, **kwargs)
         except SystemExit:
             # Module dürfen zum Debugging auch einen sysexit machen...
             pass
@@ -418,14 +418,14 @@ class module_manager:
             msg += "%s() takes exactly %s arguments %s, " % (
                 unbound_method.__name__, argcount, real_function_info
             )
-            msg += "and I have %s given the dict: %s " % (
-                len(function_info), function_info
+            msg += "and I have given *args: %s - **kwargs: %s " % (
+                args, kwargs
             )
 
             raise RunModuleError(msg)
 
 
-    def _run_method(self, function_info):
+    def _run_method(self, *args, **kwargs):
         """
         Startet die Methode und verarbeitet die Ausgaben
         """
@@ -454,7 +454,7 @@ class module_manager:
         if self.error_handling == True: # Fehler nur anzeigen
             try:
                 output = self._run_with_error_handling(
-                    unbound_method, function_info
+                    unbound_method, *args, **kwargs
                 )
             except KeyError, e:
                 run_error("KeyError: %s" % e)
@@ -467,7 +467,7 @@ class module_manager:
                 run_error(e)
         else:
             output = self._run_with_error_handling(
-                unbound_method, function_info
+                unbound_method, *args, **kwargs
             )
 
         if hasattr(class_instance, "plugin_cfg"):
