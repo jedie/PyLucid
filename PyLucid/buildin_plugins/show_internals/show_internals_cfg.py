@@ -38,17 +38,6 @@ module_manager_data = {
         "must_login"        : True,
         "must_admin"        : True,
     },
-    "pygments_info": {
-        "must_login"        : True,
-        "must_admin"        : True,
-        "menu_section"      : "system",
-        "menu_description"  : "pygments info",
-        "internal_page_info" : {
-            "description"       : "pygments info page",
-            "template_engine"   : "jinja",
-            "markup"            : None
-        },
-    },
     "session_data": {
         "must_login"        : True,
         "must_admin"        : True,

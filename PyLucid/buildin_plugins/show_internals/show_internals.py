@@ -45,34 +45,6 @@ class show_internals(PyLucidBaseModule):
 
     #_______________________________________________________________________
 
-    def pygments_info(self):
-        try:
-            #~ raise ImportError("TEST")
-            from pygments.lexers import get_all_lexers
-        except ImportError, e:
-            self.page_msg.red("Import Error: %s" % e)
-            return
-
-        lexers = []
-        no = 0
-        for longname, aliases, patterns, mimetypes in get_all_lexers():
-            no += 1
-            lexers.append({
-                "no"        : no,
-                "longname"  : longname,
-                "aliases"   : aliases,
-                "patterns"  : patterns,
-                "mimetypes" : mimetypes,
-            })
-        context = {
-            "lexers": lexers,
-            "menu_link": self.URLs.actionLink("menu"),
-        }
-        #~ self.page_msg(context)
-        self.templates.write("pygments_info", context, debug=False)
-
-    #_______________________________________________________________________
-
     def python_modules(self):
 
         self.write_menu_link()
