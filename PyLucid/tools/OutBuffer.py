@@ -4,8 +4,8 @@
 """
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -17,15 +17,15 @@ license:
 
 import sys
 
-class out_buffer(object):
+class OutBuffer(object):
     """
     Hilfsklasse um Ausgaben erst zwischen zu speichern und dann gesammelt zu
     erhalten.
     stderr_obj ist PyLucid's self.request.page_msg ;)
 
     bsp.:
-    from PyLucid.tools.out_buffer import out_buffer
-    out = out_buffer(self.page_msg)
+    from PyLucid.tools.OutBuffer import OutBuffer
+    out = OutBuffer(self.page_msg)
     out.write("BlaBla")
     out("Noch was...")
     self.page_msg("Ausgaben waren:", out.get())
@@ -63,14 +63,14 @@ class out_buffer(object):
 
 class Redirector(object):
     """
-    Nutzt den out_buffer und speichert alle stdout und stderr Ausgaben.
+    Nutzt den OutBuffer und speichert alle stdout und stderr Ausgaben.
     stderr_obj kann z.B. "self.page_msg" sein ;)
     """
     def __init__(self, stderr_obj):
         self.oldout = sys.stdout
         self.olderr = sys.stderr
 
-        self.out_buffer = out_buffer(stderr_obj)
+        self.out_buffer = OutBuffer(stderr_obj)
         sys.stdout = self.out_buffer
         sys.stderr = self.out_buffer
 

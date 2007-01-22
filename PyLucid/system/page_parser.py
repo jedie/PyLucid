@@ -27,7 +27,7 @@ license:
 
 import sys, cgi, re, time
 
-from PyLucid.tools.out_buffer import out_buffer
+from PyLucid.tools.OutBuffer import OutBuffer
 
 
 
@@ -81,7 +81,7 @@ class render(object):
             if self.preferences["ModuleManager_error_handling"] == True:
                 #~ try:
                 from PyLucid.system import tinyTextile
-                out = out_buffer(self.page_msg)
+                out = OutBuffer(self.page_msg)
                 t = tinyTextile.parser(out, self.request, self.response)
                 t.parse(content)
                 return out.get()
@@ -91,7 +91,7 @@ class render(object):
                     #~ return msg
             else:
                 from PyLucid.system import tinyTextile
-                out = out_buffer(self.page_msg)
+                out = OutBuffer(self.page_msg)
                 t = tinyTextile.parser(out, self.request, self.response)
                 t.parse(content)
                 return out.get()

@@ -34,7 +34,7 @@ socket.setdefaulttimeout(5)
 
 
 from PyLucid.system.BaseModule import PyLucidBaseModule
-from PyLucid.tools.out_buffer import out_buffer
+from PyLucid.tools.OutBuffer import OutBuffer
 from PyLucid.components.db_cache import DB_Cache, CacheObjectNotFound
 
 
@@ -54,7 +54,7 @@ class RSS(PyLucidBaseModule):
         except CacheObjectNotFound:
             # Die RSS Daten sind noch nicht gecached.
 
-            out = out_buffer(self.page_msg)
+            out = OutBuffer(self.page_msg)
 
             start_time = time.time()
             RSS_Maker(

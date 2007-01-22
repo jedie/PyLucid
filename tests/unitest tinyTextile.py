@@ -7,8 +7,8 @@ Unitest für \PyLucid\system\tinyTextile.py
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -40,7 +40,7 @@ VERBOSE = 2
 #_____________________________________________________________________________
 
 
-class out_buffer(object):
+class OutBuffer(object):
     """
     Hilfsklasse um Ausgaben erst zwischen zu speichern
     """
@@ -149,7 +149,7 @@ class tinyTextileTest(unittest.TestCase):
         self.fake_requestObj = FakeRequest()
         self.fake_responseObj = FakeResponse()
 
-        self.out = out_buffer()
+        self.out = OutBuffer()
         self.textile = tinyTextile.parser(
             self.out, self.fake_requestObj, self.fake_responseObj
         )

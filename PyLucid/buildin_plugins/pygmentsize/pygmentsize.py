@@ -5,9 +5,9 @@
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
-$Author:$
+$LastChangedDate$
+$Rev$
+$Author$
 
 Created by Jens Diemer
 
@@ -17,14 +17,14 @@ license:
 
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
 from pygments import highlight
 
-from PyLucid.tools.out_buffer import out_buffer
+from PyLucid.tools.OutBuffer import OutBuffer
 from PyLucid.system.BaseModule import PyLucidBaseModule
 
 
@@ -122,7 +122,7 @@ class pygmentsize(PyLucidBaseModule):
         """
         Liefert den highlighted sourcecode zurück
         """
-        out_object = out_buffer(self.page_msg)
+        out_object = OutBuffer(self.page_msg)
 
         formatter = HtmlFormatter(
             linenos=True, encoding="utf-8"
