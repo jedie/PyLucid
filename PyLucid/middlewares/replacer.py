@@ -86,6 +86,11 @@ class AddCode(object):
 
     def __init__(self, app):
         self.app = app
+
+    def reset(self):
+        """
+        Wird aufgerufen, wenn ein neuer Request abgearbeitet wird
+        """
         self.data = []
         self.ids = []
 

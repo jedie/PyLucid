@@ -318,6 +318,7 @@ class PyLucidApp(BaseApplication):
             raise ConnectionError(e)
 
         self.environ["request_start"] = time.time()
+        self.response.addCode.reset()
 
         self.setup_runlevel()
 
