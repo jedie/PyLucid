@@ -132,9 +132,12 @@ class HttpResponse(HttpResponse):
         """
         if sys.platform == "win32":
             # force Windows input/output to binary
-            import msvcrt
-            msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
-            msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+            try:
+                import msvcrt
+                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+                msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+            except:
+                pass
 
         self.response = [] # Evtl. schon gemachte "Ausgaben" verwerfen
         #~ print "reset:", self.response
@@ -164,16 +167,6 @@ class HttpResponse(HttpResponse):
         """
         self.response = [] # Evtl. schon gemachte "Ausgaben" verwerfen
         self.headers['Content-Type'] = content_type
-
-    #_________________________________________________________________________
-
-    def pygmentsize(self):
-        if hasattr(self, "pygments"):
-            return self.pygments
-
-        from PyLucid.buildin_plugins.pygmentsize import pygmentsize
-
-        self.pygments = pygmentsize(self.request, self.response)
 
 
 
