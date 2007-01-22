@@ -311,9 +311,9 @@ class module_manager:
             self.page_msg("Wrong command path!")
             return
 
-        self.request.staticTags["page_title"] = "%s.%s" % (
-            self.module_name, self.method_name
-        )
+        title = "%s.%s" % (self.module_name, self.method_name)
+        title = title.replace(".", " / ").replace("_", " ")
+        self.request.staticTags["page_title"] = title
 
         function_info = pathInfo[3:]
 
