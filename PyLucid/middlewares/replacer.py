@@ -65,13 +65,13 @@ class Replacer(object):
         result = iter(self.app(environ, start_response))
 
         for line in result:
-            if line.find(script_duration_tag)!=-1:
+            if script_duration_tag in line:
                 line = self.replace_script_duration(line, environ)
 
-            if line.find(page_msg_tag)!=-1:
+            if page_msg_tag in line:
                 line = self.replace_page_msg(line, environ)
 
-            if line.find(add_code_tag)!=-1:
+            if add_code_tag in line:
                 line = self.addCode(line, environ)
 
             yield line
@@ -87,6 +87,7 @@ class AddCode(object):
     def __init__(self, app):
         self.app = app
         self.data = []
+        self.ids = []
 
     def get(self):
         data = "".join(self.data)
@@ -97,9 +98,14 @@ class AddCode(object):
         code = self._encode(code)
         self.data.insert(0, code)
 
-    def add(self, code):
+    def add(self, code, id):
+        if id in self.ids:
+            # Wurde schon einmal hinzugefügt
+            return
+
         code = self._encode(code)
         self.data.append(code)
+        self.ids.append(id)
 
     def _encode(self, code):
         if not isinstance(code, unicode):

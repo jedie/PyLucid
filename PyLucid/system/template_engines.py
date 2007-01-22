@@ -230,6 +230,8 @@ class TemplateEngines(object):
 
         return content
 
+    #_________________________________________________________________________
+
     def addCSS(self, content_css, internal_page_name):
         """
         Zusätzlicher Stylesheet Code für interne Seite behandeln
@@ -273,7 +275,9 @@ class TemplateEngines(object):
         # Tag anwenden
         code = tag % (internal_page_name, code)
 
-        self.addCode.add(code)
+        self.addCode.add(code, id="%s-%s" % (internal_page_name, content_type))
+
+    #_________________________________________________________________________
 
     def _fill_string_context(self, internal_page_name, content, context):
         """
