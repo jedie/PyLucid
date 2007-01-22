@@ -333,9 +333,10 @@ class parser:
         code = code.strip()
         self.render.highlight("python", code, self.out)
 
-        self.request.module_manager.run_direkt(
-            "pygmentsize", "write_sourcecode", ext, code, out_object
-        )
+        self.render.highlight("py", code, self.out)
+        #~ self.request.module_manager.run_direkt(
+            #~ "pygmentsize", "write_sourcecode", "py", code, self.out
+        #~ )
 
     #_________________________________________________________________________
 
