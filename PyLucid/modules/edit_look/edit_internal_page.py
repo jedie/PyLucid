@@ -561,37 +561,8 @@ class EditInternalPage(PyLucidBaseModule):
         file_content = file_content.splitlines()
         db_content = [i.encode("utf8") for i in content.splitlines()]
 
-        import difflib
-
-        try:
-            d = difflib.HtmlDiff()
-        except AttributeError:
-            # HtmlDiff gibt es erst ab Python 2.4!
-            d = difflib.Differ()
-            diff = d.compare(file_content, db_content)
-
-            for line, i in enumerate(diff):
-                if i[0] in ("+","-","?"): # Geänderte Zeile
-                    self.response.write("%5s %s\n" % (line, cgi.escape(i)))
-            return
-
-
-        diff_table = d.make_table(
-            file_content, db_content,
-            filepath.encode("UTF8"), "db",
-            context=True
-        )
-        # FIXME: Quick and dirty hack:
-        if "No Differences Found" in diff_table:
-            # Keine Änderungen gefunden
-            self.response.write("No differences.")
-            return
-
-        # Oder nur als HTML Tabelle
-        # CSS Klassen sind zwar auch hier schon vorgegeben, lassen sich aber
-        # durch eigene CSS angaben ändern. (Ist auch nötig)
-        self.response.write(diff_table)
-
+        from PyLucid.tools.DisplayDiff import display_diff
+        display_diff(file_content, db_content, self.request)
 
     #_______________________________________________________________________
 
