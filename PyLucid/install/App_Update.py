@@ -78,11 +78,8 @@ class update(ObjectApp_Base):
         msg = "Drop colum 'pass2'."
         self._execute(msg,SQLcommand)
 
-        SQLcommand = (
-            "ALTER TABLE $$md5users"
-            " ADD username_md5 VARCHAR(32) NOT NULL AFTER realname;"
-        )
-        msg = "Insert colum 'username_md5'."
+        SQLcommand = "ALTER TABLE $$md5users DROP COLUMN username_md5;"
+        msg = "Drop colum 'username_md5'."
         self._execute(msg,SQLcommand)
 
         SQLcommand = (
@@ -103,16 +100,6 @@ class update(ObjectApp_Base):
         self._execute(
             "drop md5users2 if exist","DROP TABLE IF EXISTS $$md5users2;"
         )
-
-        # Daten in md5users Tabelle updaten
-        self.response.write("<h4>Update data in md5users table:</h4>\n")
-        self.response.write("<pre>\n")
-        user_list = self._db.userList("name")
-        for id in user_list:
-            username = user_list[id]["name"]
-            self.response.write("update user '%s'\n" % username)
-            self._db.change_username(username,username)
-        self.response.write("</pre>\n")
 
         #_____________________________________________________________________
         # Neue l10n Tabelle

@@ -306,27 +306,11 @@ class active_statements(passive_statements):
 
     def change_username(self, old_username, new_username):
         """
-        Ändern des Username. Die Username-MD5 sum wird gleich mit geändet
+        Ändern des Username.
         """
-        def convert(username):
-            if not isinstance(username, unicode):
-                return username
-            try:
-                return username.encode("utf-8")
-            except UnicodeError:
-                self.page_msg("Unicode Error in change_username()!")
-                return username.encode("utf-8", errors="replace")
-
-        # md5 kann kein unicode ;)
-        new_username_str = convert(new_username)
-
-        username_md5 = md5.new(new_username_str).hexdigest()
-        data = {
-            "name": new_username,
-            "username_md5": username_md5,
-        }
         self.update(
-            "md5users", data,
+            "md5users",
+            data    = {"name": new_username},
             where   = ("name", old_username),
             limit   = 1
         )

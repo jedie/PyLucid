@@ -698,13 +698,6 @@ class passive_statements(SQL_wrapper):
         )[0]
         return data
 
-    def get_userdata_by_md5username(self, md5username, select_items=["*"]):
-        """
-        Generische Methode um Userdaten anhand des md5username zu bekommen
-        """
-        where           = ("username_md5", md5username)
-        return self._get_userdata(where, select_items)
-
     def get_userdata_by_username(self, username, select_items=["*"]):
         """
         Generische Methode um Userdaten anhand des normalen Username zu
