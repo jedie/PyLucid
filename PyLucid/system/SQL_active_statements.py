@@ -272,11 +272,9 @@ class active_statements(passive_statements):
         Einen neuen User eintragen (ohne Passwort!)
         Liefert die ID des neuen Users zurück
         """
-        username_md5 = md5.new(name).hexdigest()
         data  = {
             "name"          : name,
             "realname"      : realname,
-            "username_md5"  : username_md5,
             "email"         : email,
             "admin"         : admin
         }

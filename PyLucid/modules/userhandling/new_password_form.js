@@ -2,11 +2,47 @@ if (!document.getElementById) {
   alert("Your Browser is not supported!");
 }
 
+/* ___________________________________________________________________________
+ *  debugging
+ */
+
+// debug_msg = true;
+debug_msg = false;
+
+if (debug_msg == true) {
+   property = "width=350,height=400,top=1,left=" + window.outerWidth;
+   debug_window = window.open("about:blank", "Debug", property);
+   debug_win = debug_window.document
+   debug_win.writeln("<style>* { font-size: 0.85em; }</style>");
+   debug_win.writeln("<h1>JS Debug:</h1>");
+   debug_win.writeln("---[DEBUG START]---");
+   debug_win.writeln("cookie:" + document.cookie +"<br />");
+}
+function debug(msg) {
+   if (debug_msg != true) { return; }
+   debug_win.writeln(msg + "<br />");
+}
+function debug_confirm() {
+   if (debug_msg != true) { return; }
+   debug_window.focus();
+   debug_win.writeln("---[DEBUG END]---");
+   alert('OK for submit.');
+   debug_window.close();
+}
+
+/* ___________________________________________________________________________ */
+
 function prepare(url) {
     salt = document.getElementById("salt").value;
     if (salt=="") { alert("salt from Server fail!"); return false; }
     submit_url = url;
     if (submit_url=="") { alert("submit url from Server fail!"); return false; }   
+}
+
+function reset_form() {
+  document.getElementById("pass1").value = "";
+  document.getElementById("pass2").value = "";
+  document.getElementById("pass1").focus();
 }
 
 function new_pass_check() {
@@ -15,15 +51,23 @@ function new_pass_check() {
 
     if (pass1.length<8) {
         alert("Password min len 8! - current len:" + pass1.length);
-        return;
+        reset_form();
+        return false;
     }
 
     if (pass1 != pass2) {
         alert("Password verification failt! Please correct passwords");
-        document.getElementById("pass1").value = "";
-        document.getElementById("pass2").value = "";
-        document.getElementById("pass1").focus();
-        return;
+        reset_form();
+        return false;
+    }
+
+    for (var i = 1; i <= pass1.length; i++) {
+       unicode_charcode = pass1.charCodeAt(i);
+       if (unicode_charcode > 127) {
+           alert("Only ASCII letters are allowed!");
+           reset_form();
+           return false;
+       }
     }
 
     md5pass = MD5(salt + pass1);

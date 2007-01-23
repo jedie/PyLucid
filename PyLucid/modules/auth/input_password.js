@@ -91,6 +91,14 @@ function check() {
         return false;
     }
 
+    for (var i = 1; i <= in_pass.length; i++) {
+       unicode_charcode = in_pass.charCodeAt(i);
+       if (unicode_charcode > 127) {
+           alert("Only ASCII letters are allowed!");
+           return false;
+       }
+    }
+
     md5pass = MD5(salt + in_pass);
     debug("md5pass - MD5(salt + in_pass):" + md5pass);
     if (md5pass.length!=32) { alert("MD5 salt error!"); return false; }
