@@ -21,7 +21,17 @@ module_manager_data = {
         "must_login"    : False,
         "must_admin"    : False,
         "internal_page_info" : {
-            "description"       : "Login: Username/Password input form",
+            "description"       : "Login Step-2: Password input form",
+            "template_engine"   : "jinja",
+            "markup"            : None
+        },
+    },
+    "login fake": { # Fake Methode, nur für die zusätzliche interne Seite!
+        "must_login"    : True,
+        "must_admin"    : True,
+        "internal_page_info" : {
+            "name"              : "username_input",
+            "description"       : "Login Step-1: Password input form",
             "template_engine"   : "jinja",
             "markup"            : None
         },
