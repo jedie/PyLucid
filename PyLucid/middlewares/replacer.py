@@ -86,6 +86,8 @@ class AddCode(object):
 
     def __init__(self, app):
         self.app = app
+        self.data = []
+        self.ids = []
 
     def reset(self):
         """

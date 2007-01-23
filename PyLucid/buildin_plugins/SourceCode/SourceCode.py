@@ -51,12 +51,14 @@ class SourceCode(PyLucidBaseModule):
             return
 
         if not os.path.isfile(filepath):
-            test_path = "%s%s" % (os.environ["DOCUMENT_ROOT"], filepath)
+            test_path = "%s%s" % (
+                os.environ.get("DOCUMENT_ROOT", ""), filepath
+            )
             if os.path.isfile(test_path):
                 filepath = test_path
             else:
                 test_path = os.path.join(
-                    os.environ["DOCUMENT_ROOT"], filepath
+                    os.environ.get("DOCUMENT_ROOT", ""), filepath
                 )
                 if os.path.isfile(test_path):
                     filepath = test_path
