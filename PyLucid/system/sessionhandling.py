@@ -678,6 +678,18 @@ class sessionhandler(dict):
     #_________________________________________________________________________
     ## Spezielle PyLucid Methoden
 
+    def _forced_fake_login(self):
+        """
+        FOR TEST ONLY!
+        Wenn man am auth system rumbastelt, ist es manchmal hilfreich einfach
+        immer eingeloggt zu sein.
+        """
+        self.page_msg.red("WARNING: forced fake login is ON!")
+        self["isadmin"] = True
+        self["user_id"] = -1
+        self["user"] = "fake login"
+
+
     def set_pageHistory(self, page_id):
         """
         Seite zur page_history hinzufügen

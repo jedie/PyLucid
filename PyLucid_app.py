@@ -271,6 +271,7 @@ class PyLucidApp(BaseApplication):
 
         self.session.init2(self.request, self.response)
         #~ self.session.debug()
+        #~ self.session._forced_fake_login()
 
         self.staticTags.init2(self.request, self.response)
 
