@@ -329,14 +329,7 @@ class parser:
             self.sourcecode_data.append("\n")
 
     def python_area_end(self, dummy):
-        code = "".join(self.sourcecode_data)
-        code = code.strip()
-        self.render.highlight("python", code, self.out)
-
-        self.render.highlight("py", code, self.out)
-        #~ self.request.module_manager.run_direkt(
-            #~ "pygmentsize", "write_sourcecode", "py", code, self.out
-        #~ )
+        self.hightlight("python", self.sourcecode_data)
 
     #_________________________________________________________________________
 
@@ -346,7 +339,7 @@ class parser:
         """
         self.first_sourcecode_block = True
         self.sourcecode_type = None
-        self.sourcecode_data = ""
+        self.sourcecode_data = []
 
     def code_area(self, block):
         if self.first_sourcecode_block:
@@ -356,17 +349,22 @@ class parser:
             code_type, block = block.split(">",1)
             self.sourcecode_type = code_type.lstrip("=.")
 
-        self.sourcecode_data += self.newline + block + self.newline
+        self.sourcecode_data.append(self.newline + block + self.newline)
 
     def code_area_end(self, dummy):
         """
         Wir sind, beim Endtag angekommen, dann zeigen wir mal den
         sourcecode... :)
         """
-        code = self.sourcecode_data.strip()
+        self.hightlight(self.sourcecode_type, self.sourcecode_data)
 
-        self.render.highlight(self.sourcecode_type, code, self.out)
+    #_________________________________________________________________________
 
+    def hightlight(self, type, code_lines):
+        code = "".join(code_lines)
+        code = code.strip()
+        code = self.render.get_hightlighted(type, code)
+        self.out.write(code)
 
     #_________________________________________________________________________
 

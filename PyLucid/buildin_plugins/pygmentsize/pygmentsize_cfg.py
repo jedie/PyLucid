@@ -31,5 +31,5 @@ module_manager_data = {
 }
 
 plugin_cfg = {
-    "default_style": "default",
+    "default_style": "friendly",
 }

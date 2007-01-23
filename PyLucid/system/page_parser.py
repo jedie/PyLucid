@@ -101,23 +101,30 @@ class render(object):
             self.page_msg("Markup '%s' not supported yet :(" % markup)
             return content
 
-    def highlight(self, ext, code, out_object=None, pygments_style=None):
-        #~ self.page_msg(args, kwargs)
-        #~ self.request.module_manager.run_direkt(
-            #~ "pygmentsize", "write_sourcecode", ext, code, out_object
-        #~ )
+    #_________________________________________________________________________
 
+    def highlight(self, ext, code, pygments_style=None):
+        """
+        Writes the sourcecode directly into the response object
+        """
+        pygmentsize = self.__get_pygmentsize()
+        pygmentsize.write_sourcecode(ext, code, pygments_style)
+
+    def get_hightlighted(self, ext, code, pygments_style=None):
+        """
+        returns the highlighted sourcecode back
+        """
+        pygmentsize = self.__get_pygmentsize()
+        code = pygmentsize.get_sourcecode(ext, code, pygments_style)
+        return code
+
+    def __get_pygmentsize(self):
+        """
+        returns a pygmentsize instance
+        """
         from PyLucid.buildin_plugins.pygmentsize import pygmentsize
-
-        p = pygmentsize.pygmentsize(self.request, self.response)
-
-        if out_object != None:
-            # tinyTextile gibt ein out-Objekt vor.
-            out_object.write(p.get_sourcecode(ext, code, pygments_style))
-        else:
-            # direkt in response schreiben
-            p.write_sourcecode(ext, code, pygments_style)
-
+        pygmentsize = pygmentsize.pygmentsize(self.request, self.response)
+        return pygmentsize
 
 
 

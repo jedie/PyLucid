@@ -94,10 +94,6 @@ class TemplateEngines(object):
             self.response.write("</pre></fieldset>")
         self.response.write(content)
 
-        # CSS/JS behandeln:
-        self.addCSS(internal_page_data["content_css"], internal_page_name)
-        self.addJS(internal_page_data["content_js"], internal_page_name)
-
     def get_rendered_page(self, internal_page_name, context):
         """
         Liefert die fertige Seite zurück.
@@ -131,6 +127,11 @@ class TemplateEngines(object):
         content = self.render.apply_markup(
             content, internal_page_data["markup"]
         )
+
+        # CSS/JS behandeln:
+        self.add_CSS(internal_page_data["content_css"], internal_page_name)
+        self.add_JS(internal_page_data["content_js"], internal_page_name)
+
         return content
 
     def get_internal_page_data(self, internal_page_name):
@@ -232,7 +233,7 @@ class TemplateEngines(object):
 
     #_________________________________________________________________________
 
-    def addCSS(self, content_css, internal_page_name):
+    def add_CSS(self, content_css, internal_page_name):
         """
         Zusätzlicher Stylesheet Code für interne Seite behandeln
         """
@@ -250,7 +251,7 @@ class TemplateEngines(object):
         content_type = "Stylesheet"
         self.add(content_css, tag, content_type, internal_page_name)
 
-    def addJS(self, content_js, internal_page_name):
+    def add_JS(self, content_js, internal_page_name):
         """
         Zusätzlicher JavaScript Code für interne Seite behandeln
         """
