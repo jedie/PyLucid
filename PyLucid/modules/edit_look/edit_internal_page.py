@@ -26,6 +26,9 @@ __version__= "$Rev$"
 
 import os, cgi, time, stat
 
+## Dynamic imports:
+## display_diff() - from PyLucid.tools.Diff import display_diff
+
 from PyLucid.modules.edit_look.edit_look import __version__
 
 from PyLucid.system.BaseModule import PyLucidBaseModule
@@ -443,8 +446,7 @@ class EditInternalPage(PyLucidBaseModule):
             #~ self.page_msg(data)
             #~ self.page_msg(internalpage_data)
 
-            self.response.write("<h3>%s</h3>\n" % name)
-            self.response.write("<pre>\n")
+            self.response.write("<h2>%s</h2>\n" % name)
 
             self.updatefile(
                 "html", internalpage_data['content_html'], data
@@ -455,7 +457,6 @@ class EditInternalPage(PyLucidBaseModule):
             self.updatefile(
                 "js", internalpage_data['content_js'], data
             )
-            self.response.write("</pre>\n")
 
             #Aus dem Packages nur Dateien, der aktuellen internen Seite filtern
             #~ filelist = filefilter(filelist, name)
@@ -487,13 +488,13 @@ class EditInternalPage(PyLucidBaseModule):
                 )
             return
 
-        self.response.write("%s\n" % filepath)
+        self.response.write("<p>%s</p>\n" % filepath)
 
         #~ self.writefile(filepath, content)
         #~ return
 
         if not os.path.isfile(filepath):
-            self.response.write("\tfile does not exist!\n")
+            self.response.write("<p>file does not exist!</p>\n")
             self.writefile(filepath, content)
             return
 
@@ -561,7 +562,7 @@ class EditInternalPage(PyLucidBaseModule):
         file_content = file_content.splitlines()
         db_content = [i.encode("utf8") for i in content.splitlines()]
 
-        from PyLucid.tools.DisplayDiff import display_diff
+        from PyLucid.tools.Diff import display_diff
         display_diff(file_content, db_content, self.request)
 
     #_______________________________________________________________________
