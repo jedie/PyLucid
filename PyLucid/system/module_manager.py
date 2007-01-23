@@ -328,6 +328,7 @@ class module_manager:
         """
         self.module_name = module_name
         self.method_name = method_name
+
         return self._run_module_method(*args, **kwargs)
 
 
@@ -339,7 +340,7 @@ class module_manager:
         Kommt es irgendwo zu einem Fehler, ist es die selbsterstellte
         "RunModuleError"-Exception mit einer passenden Fehlermeldung.
         """
-        #~ if debug: self.page_msg("*args, **kwargs:", *args, **kwargs)
+        if debug: self.page_msg("*args, **kwargs:", *args, **kwargs)
         try:
             self.plugin_data.setup_module(self.module_name, self.method_name)
         except PluginMethodUnknown, e:
@@ -441,10 +442,15 @@ class module_manager:
                 raise Exception(msg)
 
 
+        self.request.module_data = {
+            "id": self.plugin_data.module_id,
+            "module_name": self.plugin_data.module_name,
+            "method_name": self.plugin_data.method_name
+        }
+
         module_class = self._get_module_class()
-        local_request_obj = self._get_local_request_obj()
         class_instance = self._get_class_instance(
-            local_request_obj, module_class
+            self.request, module_class
         )
         unbound_method = self._get_unbound_method(class_instance)
 
@@ -598,22 +604,6 @@ class module_manager:
             )
 
         return unbound_method
-
-
-    #_________________________________________________________________________
-    def _get_local_request_obj(self):
-        """
-        Fügt module_data an ein "lokales" request Objekt an.
-        """
-        local_request_obj = self.request
-        module_data = {
-            "id": self.plugin_data.module_id,
-            "module_name": self.plugin_data.module_name,
-            "method_name": self.plugin_data.method_name
-        }
-        local_request_obj.module_data = module_data
-
-        return local_request_obj
 
     #_________________________________________________________________________
     # Zusatz Methoden für die Module selber
