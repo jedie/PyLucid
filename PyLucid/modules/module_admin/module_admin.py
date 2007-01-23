@@ -287,6 +287,13 @@ class module_admin(PyLucidBaseModule):
 
         moduleData.debug()
 
+    #_________________________________________________________________________
+
+    def module_setup(self, function_info=None):
+        from module_setup import ModuleSetup
+        m = ModuleSetup(self.request, self.response)
+        m.module_setup(function_info)
+
 
 
 

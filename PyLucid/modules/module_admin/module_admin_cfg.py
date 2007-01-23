@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-#___________________________________________________________________________________________________
+#_____________________________________________________________________________
 # Meta-Angaben
 
 __author__              = "Jens Diemer"
@@ -13,11 +13,8 @@ can activate/deactivate this modules in the DB.
 """
 __essential_buildin__   = True
 
-#___________________________________________________________________________________________________
+#_____________________________________________________________________________
 # Module-Manager Daten
-
-#~ module_manager_debug = True
-module_manager_debug = False
 
 module_manager_data = {
     "menu" : {
@@ -73,5 +70,17 @@ module_manager_data = {
     "deactivate" : {
         "must_login"    : True,
         "must_admin"    : True,
+    },
+
+    #_________________________________________________________________________
+
+    "module_setup" : {
+        "must_login"    : True,
+        "must_admin"    : True,
+        "internal_page_info" : {
+            "description"       : "Select a Module to setup it",
+            "template_engine"   : "jinja",
+            "markup"            : None
+        },
     },
 }

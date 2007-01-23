@@ -836,14 +836,12 @@ class passive_statements(SQL_wrapper):
             ],
         )[0]["id"]
 
-    def get_plugin_id(self, package, module):
-        """ Wird beim installieren eines Plugins benötigt """
+    def get_plugin_id_by_module_name(self, module_name):
+        """ Plugin ID anhand des Namens """
         return self.select(
             select_items    = ["id"],
             from_table      = "plugins",
-            where           = [
-                ("package_name", package), ("module_name", module)
-            ],
+            where           = ("module_name", module_name),
         )[0]["id"]
 
     def get_package_name(self, module_name):
@@ -854,13 +852,10 @@ class passive_statements(SQL_wrapper):
             where           = ("module_name", module_name),
         )[0]["package_name"]
 
-    def get_plugin_data_by_id(self, plugin_id, select_items=None):
-        if not select_items:
-            # Default Keys
-            select_items = [
-                "id", "module_name", "package_name", "SQL_deinstall_commands",
-                "active"
-            ]
+    def get_plugin_data_by_id(self, plugin_id,
+            select_items=["id", "module_name", "package_name",
+            "SQL_deinstall_commands","active"]
+        ):
 
         result = self.select(select_items,
             from_table      = "plugins",
@@ -979,6 +974,29 @@ class passive_statements(SQL_wrapper):
 
         #self.page_msg(tag_list)
         return tag_list
+
+    def get_setup_methods(self):
+        """
+        Liefert Daten von Methoden zurück, die eine 'setup' Methode besitzten.
+        """
+        plugin_ids = self.select(
+            select_items    = ["plugin_id"],
+            from_table      = "plugindata",
+            where           = [("method_name", "setup")]
+        )
+        plugins = self.pluginsList(select_items=["id", "package_name"])
+        #~ self.page_msg(plugins)
+
+        result = []
+        for plugin in plugin_ids:
+            id = plugin['plugin_id']
+
+            result.append({
+                "id": id,
+                "package_name": plugins[id]["package_name"]
+            })
+
+        return result
 
     #_________________________________________________________________________
     ## LOG
