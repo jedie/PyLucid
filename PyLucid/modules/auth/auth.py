@@ -71,41 +71,23 @@ class auth(PyLucidBaseModule):
             self.page_msg("form data:", self.request.form)
             self.page_msg("cookie data:", self.request.cookies)
 
-        if function_info != None: # In der URL steckt evtl. der Username?
-            try:
-                if len(function_info[0]) != 32:
-                    raise ValueError
-                int(function_info[0], 16)
-            except ValueError, e:
-                # Kann keine gültige MD5 Summe sein, also kein Username
-                if debug:
-                    self.page_msg.red("Checksum check error: %s" % e)
-                else:
-                    self.page_msg.red("URL Error.")
-            else:
-                self.auth_data.md5username = function_info[0]
-                if debug:
-                    self.page_msg(
-                        "md5username in URL, ok:", self.auth_data.md5username
-                    )
+        if "md5_a2" in self.request.form and "md5_b" in self.request.form:
+            # Passwort wurde eingegeben
+            self.check_login()
+            return
+        elif "username" in self.request.form:
+            # Username wurde eingegeben
+            self.password_input()
+            return
 
-        if self.auth_data.md5username != None:
-            if "md5_a2" in self.request.form and "md5_b" in self.request.form:
-                # Passwort wurde eingegeben
-                self.check_login()
-                return
-            else:
-                # Formular zum eingeben des Passwortes:
-                self.password_input()
-                return
+        self.write_login_form()
 
+    def write_login_form(self):
         # Formular zum eingeben des Usernamens:
         context = {
-            "username_input" : True,
             "url": self.URLs.actionLink("login"),
         }
-        #~ self.page_msg(context)
-        self.templates.write("login", context)
+        self.templates.write("input_username", context, debug)
 
     def password_input(self, display_reset_link=False):
         """
@@ -117,21 +99,29 @@ class auth(PyLucidBaseModule):
         """
         if debug:
             self.page_msg("form data:", self.request.form)
-            self.page_msg(self.auth_data.md5username)
+
 
         try:
-            salt = self.db.get_userdata_by_md5username(
-                self.auth_data.md5username, "salt"
+            username = self.request.form["username"]
+            if len(username)<3:
+                raise ValueError
+        except (KeyError, ValueError):
+            self.page_msg.red("Form error!")
+            self.write_login_form()
+            return
+        else:
+            self.auth_data.username = username
+
+        try:
+            salt = self.db.get_userdata_by_username(
+                self.auth_data.username, "salt"
             )
             salt = salt["salt"]
         except (KeyError, IndexError):
             self.page_msg.red("Username unknown!")
             self.auth_data.reset()
-            self.login()
+            self.write_login_form()
             return
-
-        # Der Username ist ok -> Als cookie "speichern"
-        self.response.set_cookie("md5username", self.auth_data.md5username)
 
         if salt<10000 or salt>99999:
             self.page_msg.red("Internal Error: Salt value out of range.")
@@ -154,20 +144,17 @@ class auth(PyLucidBaseModule):
         if debug == True:
             self.session.debug()
 
-        url = self.URLs.actionLink("login", self.auth_data.md5username)
-
         context = {
+            "username"      : self.auth_data.username,
             "salt"          : self.auth_data.salt,
             "challenge"     : self.auth_data.challenge,
             "default_action": self.URLs.currentAction("error"),
-            "url"           : url,
+            "url"           : self.URLs.actionLink("login"),
         }
         if display_reset_link:
             context["reset_link"] = self.URLs.actionLink("pass_reset_form")
 
-        if debug:
-            self.page_msg("jinja context:", context)
-        self.templates.write("login", context)
+        self.templates.write("input_password", context, debug)
 
     def check_login(self):
         """

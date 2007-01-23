@@ -21,6 +21,7 @@ module_manager_data = {
         "must_login"    : False,
         "must_admin"    : False,
         "internal_page_info" : {
+            "name"              : "input_password",
             "description"       : "Login Step-2: Password input form",
             "template_engine"   : "jinja",
             "markup"            : None
@@ -30,8 +31,8 @@ module_manager_data = {
         "must_login"    : True,
         "must_admin"    : True,
         "internal_page_info" : {
-            "name"              : "username_input",
-            "description"       : "Login Step-1: Password input form",
+            "name"              : "input_username",
+            "description"       : "Login Step-1: Username input form",
             "template_engine"   : "jinja",
             "markup"            : None
         },

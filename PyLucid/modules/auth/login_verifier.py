@@ -46,14 +46,25 @@ class LoginVerifier(PyLucidBaseModule):
         """
         Überprüfen der md5-JavaScript-Logindaten
         - Der Username wurde schon in "Step 1" eingegeben.
-            - Die MD5 Summe des Usernamens steckt in einem Cookie
-            - Der md5username wird nochmal überprüft
         """
         if debug:
             self.session.debug()
 
         if debug:
             self.page_msg("form data:", self.request.form)
+
+        try:
+            username = self.request.form["username"]
+            if len(username)<3:
+                raise ValueError
+        except (KeyError, ValueError):
+            msg = self._error_msg(
+                "Can't get username!",
+                "Form Error!"
+            )
+            raise PasswordError(msg)
+
+
         try:
             md5_a2  = self.request.form["md5_a2"]
             md5_b  = self.request.form["md5_b"]
@@ -67,6 +78,7 @@ class LoginVerifier(PyLucidBaseModule):
             )
             raise PasswordError(msg)
 
+
         try:
             if len(md5_a2) != 32 or len(md5_b) != 16:
                 raise ValueError
@@ -79,17 +91,6 @@ class LoginVerifier(PyLucidBaseModule):
             )
             raise PasswordError(msg)
 
-        try:
-            md5username = self.request.cookies["md5username"].value
-            if len(md5username) != 32:
-                raise ValueError
-            int(md5username, 16) # Falls falsch -> ValueError
-        except (KeyError, ValueError):
-            msg = self._error_msg(
-                "Can't get md5username from cookie!",
-                "LogIn cookie Error!"
-            )
-            raise PasswordError(msg)
 
         try:
             challenge = str(self.session["challenge"])
@@ -103,8 +104,8 @@ class LoginVerifier(PyLucidBaseModule):
         # Wenn wir schon die Userdaten aus der DB holen, können wir gleich
         # alle holen ;)
         select_items = ["id", "name", "md5checksum", "admin"]
-        userdata = self.db.get_userdata_by_md5username(
-            md5username, select_items
+        userdata = self.db.get_userdata_by_username(
+            username, select_items
         )
 
         db_checksum = userdata["md5checksum"]
