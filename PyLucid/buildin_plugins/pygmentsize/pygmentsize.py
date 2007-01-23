@@ -25,10 +25,12 @@ debug = False
 
 
 from pygments.lexers import get_lexer_by_name
+from pygments.styles import get_all_styles
 from pygments.formatters import HtmlFormatter
 from pygments import highlight
 
 from PyLucid.tools.OutBuffer import OutBuffer
+from PyLucid.components.plugin_cfg import PluginConfig
 from PyLucid.system.BaseModule import PyLucidBaseModule
 
 
@@ -37,12 +39,65 @@ class pygmentsize(PyLucidBaseModule):
     def __init__(self, *args, **kwargs):
         super(pygmentsize, self).__init__(*args, **kwargs)
 
-        self.current_pygments_style = "default" #self.plugin_cfg["default_style"]
+        self.plugin_cfg = PluginConfig(self.request, self.response)
+        self.current_pygments_style = self.plugin_cfg["default_style"]
 
-        #~ if debug: self.page_msg("style:", self.current_pygments_style)
+        #~ self.page_msg("default_style:", self.current_pygments_style)
 
-    def setup(self):
-        raise NotImplemented
+    def setup(self, function_info=None):
+        """
+        Listet alle Stylesheet-Namen auf und zwigt die jeweiligen Styles an.
+        """
+        selected_style = self.current_pygments_style
+        style_list = list(get_all_styles())
+
+        if "style" in self.request.form:
+            # Form wurde abgeschickt
+            style_name = self.request.form["style"]
+            if not style_name in style_list:
+                self.page_msg.red("Name Error!")
+                return
+
+            self.plugin_cfg["default_style"] = style_name
+            self.page_msg.green("Set default Style to '%s', ok." % style_name)
+            selected_style = style_name
+            self.current_pygments_style = style_name
+
+        elif function_info!=None:
+            if not function_info[0] in style_list:
+                self.page_msg.red("Name Error!")
+            else:
+                selected_style = function_info[0]
+
+        styles = []
+        for style in style_list:
+            styles.append({
+                "name": style,
+                "url": self.URLs.actionLink("setup", style)
+            })
+
+        context = {
+            "default_style": self.current_pygments_style,
+            "styles": styles,
+            "selected_style": selected_style,
+            "menu_link": self.URLs.actionLink("menu"),
+            "url": self.URLs.actionLink("setup"),
+        }
+
+        if selected_style != None:
+            # Es wurde ein Style ausgewählt
+
+            # CSS zum Style anzeigen
+            stylesheet = HtmlFormatter(style=selected_style)
+            stylesheet = stylesheet.get_style_defs('.pygments_code')
+
+            style_code = self.render.get_hightlighted(
+                ".css", stylesheet, pygments_style=selected_style
+            )
+
+            context["style_code"] = style_code
+
+        self.templates.write("setup", context, debug)
 
     #_________________________________________________________________________
 
