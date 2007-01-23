@@ -122,8 +122,22 @@ class render(object):
         """
         returns a pygmentsize instance
         """
+        if hasattr(self, "pygmentsize_instance"):
+            #~ self.page_msg("Use cached pygmentsize_instance.")
+            return self.pygmentsize_instance
+
         from PyLucid.buildin_plugins.pygmentsize import pygmentsize
+
+        module_id = self.db.get_plugin_id_by_module_name("pygmentsize")
+        self.request.module_data = {
+            "id": module_id,
+            "module_name": "pygmentsize",
+            "method_name": "[unknown]",
+        }
         pygmentsize = pygmentsize.pygmentsize(self.request, self.response)
+
+        self.pygmentsize_instance = pygmentsize # Cache
+
         return pygmentsize
 
 
