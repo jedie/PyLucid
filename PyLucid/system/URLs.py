@@ -105,7 +105,10 @@ class URLs(dict):
 
         Als Regeln gilt:
             - Alle Pfade ohne Slash am Ende
+
+        "docRoot" is Experimental!!!
         """
+        self["cwd"] = os.getcwdu()
         self["host"] = self.environ['HTTP_HOST']
         self["hostname"] = "%s://%s" % (
             self.environ.get('wsgi.url_scheme', "http"),
@@ -113,6 +116,8 @@ class URLs(dict):
         )
 
         self["scriptRoot"] = self.environ.get("SCRIPT_ROOT", "/")
+
+        self["docRoot"] = self.addSlash(posixpath.split(self["scriptRoot"])[0])
 
         self["absoluteIndex"] = self["hostname"] + self["scriptRoot"]
 
@@ -330,7 +335,7 @@ class URLs(dict):
         raise RuntimeError, msg
 
     def _prepage_args(self, args):
-        if isinstance(args, list):
+        if isinstance(args, (list, tuple)):
             return "/".join([str(i) for i in args])
         else:
             return str(args)
