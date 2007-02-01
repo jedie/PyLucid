@@ -73,7 +73,7 @@ Paste is distributed under the Python Software Foundation license.
 
  SVN Info
 ==========
-$Date$
+$Date: 2006-12-04 07:38:03 +0100 (Mo, 04 Dez 2006) $
 $Rev$
 $Author$
 $URL$

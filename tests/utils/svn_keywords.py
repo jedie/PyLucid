@@ -36,8 +36,8 @@ except ImportError, e:
 
 REPOSITORY = "../../" # PyLucid trunk Verz.
 
-#~ SIMULATION = False
-SIMULATION = True
+SIMULATION = False
+#~ SIMULATION = True
 
 # Dateien die keine svn:keywords haben dürfen, ist in den svn:keywords dennoch
 # welche drin, werden die gelöscht:
@@ -46,6 +46,7 @@ NO_KEYWORD_FILE_EXT = (".zip",)
 # Dateien mit der Endung, werden komplett ausgelassen:
 SKIP_FILE_EXT = (".pyc",)
 
+# Nur diese keywords werden als svn:keywords eingetragen:
 ALLOWED_KEYWORDS = set([
     "LastChangedDate", "LastChangedRevision", "LastChangedBy", "HeadURL",
     "Id", "Rev", "Author"

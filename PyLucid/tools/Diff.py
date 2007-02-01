@@ -20,8 +20,8 @@ Used request.render.highlight or request.render.get_hightlighted
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
