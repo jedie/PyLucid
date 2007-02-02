@@ -4,8 +4,8 @@
 """
 SQL_dump Klasse zum "verwalten" des SQL-install-Dumps
 
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 """
 

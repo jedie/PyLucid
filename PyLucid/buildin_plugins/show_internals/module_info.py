@@ -6,8 +6,8 @@ show internals - Python modules info
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -17,7 +17,7 @@ license:
     http://www.opensource.org/licenses/gpl-license.php
 """
 
-__version__= "$Rev:$"
+__version__= "$Rev$"
 
 
 import os, sys, imp, glob
