@@ -8,10 +8,10 @@
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
-$HeadURL:$
+$HeadURL$
 
 Created by Jens Diemer
 
@@ -20,7 +20,7 @@ license:
     http://www.opensource.org/licenses/gpl-license.php
 """
 
-import os, sys, re
+import os, sys, re, fnmatch
 
 try:
     import pysvn
@@ -39,8 +39,8 @@ REPOSITORY = "../../" # PyLucid trunk Verz.
 SIMULATION = False
 #~ SIMULATION = True
 
-# Dateien die keine svn:keywords haben dürfen, ist in den svn:keywords dennoch
-# welche drin, werden die gelöscht:
+# Dateien die keine svn:keywords haben dÃ¼rfen, ist in den svn:keywords dennoch
+# welche drin, werden die gelÃ¶scht:
 NO_KEYWORD_FILE_EXT = (".zip",)
 
 # Dateien mit der Endung, werden komplett ausgelassen:
@@ -52,6 +52,14 @@ ALLOWED_KEYWORDS = set([
     "Id", "Rev", "Author"
 ])
 
+# Properties die in jeder Datei gesetzt werden sollen:
+BASIC_PROPERTIES = (
+    {
+        "fnmatches": ("*.py",),
+        "properties": (["svn:eol-style", "LF"],),
+    },
+)
+
 #_____________________________________________________________________________
 
 
@@ -60,7 +68,7 @@ client = pysvn.Client()
 # Hier ist $ durch \x24 maskiert, damit das Skript nicht die re findet!
 re_keywords = re.compile(r"\x24(.*?):(.*?)\x24")
 
-# Ein kleiner Test für die re:
+# Ein kleiner Test fÃ¼r die re:
 assert re_keywords.findall(u"jau\u0024Test:OK\u0024jup") == [(u'Test', u'OK')]
 
 
@@ -103,7 +111,7 @@ def print_status():
 def walk():
     """
     os.walk durch das repro-Verz.
-    Liefert den absoluten Pfad als generator zur���
+    Liefert den absoluten Pfad als generator zurí¤«
     """
     for dir,_,files in os.walk(REPOSITORY):
         if ("/.svn" in dir) or ("\\.svn" in dir):
@@ -135,7 +143,7 @@ def get_file_keywords(fn):
 
 def get_svn_keywords(proplist):
     """
-    Liefert eine set() der vorhanden svn:keywords zur���.
+    Liefert eine set() der vorhanden svn:keywords zurück.
     proplist = pysvn.Client().proplist(filename)
     """
     try:
@@ -150,11 +158,11 @@ def get_svn_keywords(proplist):
 
 def delete_svn_keywords(filename, proplist):
     """
-    L紣ht aus den svn-properties den Eintrag "svn:keywords", wenn vorhanden.
+    Löscht aus den svn-properties den Eintrag "svn:keywords", wenn vorhanden.
     """
     svn_keywords = get_svn_keywords(proplist)
     if len(svn_keywords) == 0:
-        # Hat keine Keywords die man l紣hen k篮te
+        # Hat keine Keywords die man löschen könnte
         print "File has no svn:keywords, OK"
         return
 
@@ -174,6 +182,89 @@ def set_svn_keywords(filename, keywords):
         return
 
     client.propset("svn:keywords", keywords, filename)
+
+def convert_newlines(filename):
+    """
+    Konvertiert Zeilenenden zu "\n"
+    """
+    print "Converting newlines...",
+    f = file(filename, "rU")
+    content = f.read()
+    f.close()
+
+    old_filename = filename + ".old"
+    try:
+        os.rename(filename, old_filename)
+    except Exception, e:
+        print "\n>>>Error backup file:", e
+        return
+
+    try:
+        f = file(filename, "wb")
+        f.write(content)
+        f.close()
+    except Exception, e:
+        print "\n>>>Error writing:", e
+        try:
+            os.remove(filename)
+        except:
+            pass
+        try:
+            os.rename(old_filename, filename)
+        except:
+            pass
+        return
+    else:
+        os.remove(old_filename)
+
+    print "OK"
+
+def set_basic_properties(filename, proplist):
+    """
+    Setzten der properties, die immer vorhanden sein sollen.
+    """
+    def filenamematch(filename, fnmatches):
+        for match in fnmatches:
+            if fnmatch.fnmatch(filename, match) == True:
+                return True
+        return False
+
+    for prop in BASIC_PROPERTIES:
+        if not filenamematch(filename, prop["fnmatches"]):
+            continue
+
+        for prop in prop["properties"]:
+            prop_name, prop_value = prop
+
+            try:
+                props = proplist[0][1]#["svn:keywords"]
+            except (IndexError, KeyError):
+                pass
+            else:
+                if prop_name in props and props[prop_name] == prop_value:
+                    # Der aktuelle basic_property Eintrag existiert schon
+                    continue
+
+            print "set basic svn property:", prop,
+            try:
+                client.propset(prop_name, prop_value, filename)
+            except pysvn._pysvn.ClientError, e:
+                print "\n> Error setting svn property '%s' to '%s':" % (
+                    prop_name, prop_value
+                )
+                print ">", e
+
+                if "has inconsistent newlines" in str(e):
+                    # In der Datei gibt es andere Zeilenenden -> konvertieren
+                    convert_newlines(filename)
+                    try:
+                        client.propset(prop_name, prop_value, filename)
+                    except Exception, e:
+                        print ">>> Error:", e
+
+                continue
+            else:
+                print "OK"
 
 #_____________________________________________________________________________
 
@@ -207,6 +298,9 @@ def sync_keywords():
             delete_svn_keywords(fn, proplist)
             continue
 
+        set_basic_properties(fn, proplist)
+
+        # svn:keywords aus in der Datei mit re suchen:
         file_keywords = get_file_keywords(fn)
 
         if not file_keywords.issubset(ALLOWED_KEYWORDS):
@@ -216,6 +310,7 @@ def sync_keywords():
             file_keywords = file_keywords.intersection(ALLOWED_KEYWORDS)
             print ">I used only this keywords:", ", ".join(file_keywords)
 
+        # Die aktuell gesetzten svn:keywords ermitteln:
         svn_keywords = get_svn_keywords(proplist)
 
         print "keywords in file..: >%s<" % " ".join(sorted(file_keywords))
