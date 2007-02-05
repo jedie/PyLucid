@@ -12,9 +12,9 @@ http://svn.pylucid.net/pylucid/CodeSnippets/svn_keyword.py
 Last commit info:
 ----------------------------------
 $LastChangedDate:$
-$Rev: $
-$Author: $
-$HeadURL: $
+$Rev$
+$Author$
+$HeadURL$
 
 Created by Jens Diemer
 
@@ -39,8 +39,8 @@ except ImportError, e:
 
 config = Config
 config.repository = "." # PyLucid trunk Verz.
-#~ config.simulation = False
-config.simulation = True
+config.simulation = False
+#~ config.simulation = True
 
 
 if __name__ == "__main__":
