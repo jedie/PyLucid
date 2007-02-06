@@ -233,7 +233,7 @@ class SQLdump(object):
         if debug:
             self.db.cursor.execute(SQLcommand, do_prepare=False)
         else:
-            self.response.write(cgi.escape(str(type(SQLcommand))))
+            #~ self.response.write(cgi.escape(str(type(SQLcommand))))
             try:
                 self.db.cursor.execute(SQLcommand, do_prepare=False)
             except Exception:
