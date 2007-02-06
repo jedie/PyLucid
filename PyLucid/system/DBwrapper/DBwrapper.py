@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# copyleft: jensdiemer.de (GPL v2 or above)
-
 """
 Stellt die Verbindung zur DB her.
 Bietet dabei einen DictCursor für alle SQL-DBs.
@@ -20,8 +18,6 @@ Programm erledigt werden!
 Erwartet ein WSGI request-Objekt s. http://wsgiarea.pocoo.org/colubrid/
 
 
-
-
 ToDo
 ----
     * Es wird immer das paramstyle 'format' benutzt. Also mit %s escaped
@@ -29,111 +25,23 @@ ToDo
     * Erweiterung der Select Methode so das eine Abfrage mit LIKE Parameter
         gemacht werden kann. so wie:
             select * from table where feld like %suchwort%
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate:$
+$Rev:$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
 """
 
-__version__="0.17"
 
-__history__="""
-v0.17
-    - replace execute_unescaped with execute(SQLcommand, do_prepare=False)
-v0.16
-    - remove obsolete datetimefix (now Python 2.3 needed)
-v0.15
-    - Neu: get_db_variable()
-v0.14
-    - ermöglicht an das Ursprüngliche Cursor Objekt zu gelangen, mit:
-        c = self.db.conn.raw_cursor()
-v0.13.1:
-    - Neu: MaxErrorLen - Fehlerausgaben kürzen
-v0.13
-    - Neu: GROUP BY bei select
-v0.12
-    - Bugfix: execute_unescaped() kann nun auch mit unicode SQL-Statements
-        gefüttert werden. execute_unescaped() und execute() nutzt die
-        Ausgelagerte Methode encode() zum Umwandeln.
-v0.11
-    - NEU: autoprefix: So kann man auch andere Tabellen ansprechen!
-v0.10
-    - änderung im Encoding-Handling
-    - NEU: datetimefix (für Python >v2.3)
-v0.9
-    - NEU: get_tableDict()
-        Select-Abfrage mit Index-Basierende-Ergebniss-Dict
-v0.8.1
-    - neu unittestDBwrapper.py ;)
-v0.8
-    - Es gibt nun eine encoding-Angabe, damit alle String als Unicode zurück
-        geliefert werden. Ist allerdings nur mit MySQLdb getestet!!!
-v0.7
-    - Die connect-Methode wird nun nicht mehr automatisch aufgerufen.
-    - Die Connection-Parameter müßen nun explizit zur verwendeten dbapi passen!
-    - Für jeder Datenbanktyp (MySQL, SQLite) gibt es eine eigene
-        connect-Methode.
-v0.6.1
-    - encode_sql_results für unicode angepasst.
-    - databasename global gemacht
-    - bugfixes
-v0.6
-    - Einige Anpassungen für SQLite
-    - Weil's portabler ist, database.py und SQL_wrapper.py zusammen gelegt.
-    - self.fetchall umbenannt in process_statement
-v0.5
-    - Aufteilung: SQL-Wrapper aufgegliedert
-v0.4.1
-    - Work-a-round für fehlendes lastrowid
-        (s. PEP-0249) http://www.python-forum.de/viewtopic.php?p=28819#28819
-v0.4
-    - Verwendet nun einen eigenen Dict-Cursor
-        ( http://pythonwiki.pocoo.org/Dict_Cursor )
-    - Nur mit MySQLdb getestet!
-v0.3
-    - Wenn fetchall verwendet wird, werden in self.last_SQLcommand und
-        self.last_SQL_values die letzten SQL-Aktionen festgehalten. Dies kann
-        gut, für Fehlerausgaben verwendet werden.
-v0.2
-    - insert() filtert nun automatisch Keys im Daten-Dict raus, die nicht als
-        Spalte in der Tabelle vorkommen
-    - NEU: get_table_field_information() und get_table_fields()
-v0.1.1
-    - NEU: decode_sql_results() - Alle Ergebnisse eines SQL-Aufrufs encoden
-v0.1.0
-    - Umbau, nun kann man den table_prefix bei einer Methode auch mit angeben,
-        um auch an Tabellen zu kommen, die anders anfangen als in der
-        config.py festgelegt.
-v0.0.9
-    - in update() wird nun auch die where-value SQL-Escaped
-v0.0.8
-    - bei select() werden nun auch die select-values mit der SQLdb escaped
-    - methode _make_values() gelöscht und einfach durch tuple() erstetzt ;)
-v0.0.7
-    - Statt query_fetch_row() wird der Cursor jetzt mit
-        MySQLdb.cursors.DictCursor erstellt. Somit liefern alle Abfragen ein
-        dict zurück! Das ganze funktioniert auch mit der uralten
-        MySQLdb v0.9.1
-    - DEL: query_fetch_row()
-    - NEU: fetchall()
-v0.0.6
-    - NEU: query_fetch_row() und exist_table_name()
-v0.0.5
-    - Stellt über self.conn das Connection-Objekt zur verfügung
-v0.0.4
-    - Bugfixes
-    - Debugfunktion eingefügt
-    - Beispiel hinzugefügt
-    - SQL "*"-select verbessert.
-v0.0.3
-    - Allgemeine SQL insert und update Funktion eingefügt
-    - SQL-where-Parameter kann nun auch meherere Bedingungen haben
-v0.0.2
-    - Allgemeine select-SQL-Anweisung
-    - Fehlerausgabe bei fehlerhaften SQL-Anfrage
-v0.0.1
-    - erste Release
-"""
-
-from __future__ import generators
-import sys, codecs
-import time, datetime, cgi
+import sys, codecs, time, datetime, cgi
 
 
 debug = False
@@ -525,7 +433,7 @@ class IterableDictCursor(object):
                 sys.stderr.write("Unicode encode Error!") #FIXME
         return s
 
-    def execute(self, sql, values=None, do_prepare=True):
+    def execute(self, sql, values=None, do_prepare=True, encode=True):
         if do_prepare:
             sql = self.prepare_sql(sql)
 
@@ -534,8 +442,11 @@ class IterableDictCursor(object):
         execute_args = [sql]
 
         if values:
-            # Von unicode ins DB encoding konvertieren
-            values = tuple([self.encode(value) for value in values])
+            if encode:
+                # Von unicode ins DB encoding konvertieren
+                values = tuple([self.encode(value) for value in values])
+            else:
+                values = tuple(values)
             execute_args.append(values)
 
         try:
@@ -631,11 +542,11 @@ class SQL_wrapper(Database):
         super(SQL_wrapper, self).__init__(*args, **kwargs)
         self.outObject = outObject
 
-    def process_statement(self, SQLcommand, SQL_values=()):
+    def process_statement(self, SQLcommand, SQL_values=(), encode=True):
         """ kombiniert execute und fetchall """
         #~ self.outObject("DEBUG:", SQLcommand)
         try:
-            self.cursor.execute(SQLcommand, SQL_values)
+            self.cursor.execute(SQLcommand, SQL_values, encode=encode)
         except Exception, msg:
             def escape(txt):
                 txt = cgi.escape(str(txt))
@@ -658,7 +569,7 @@ class SQL_wrapper(Database):
 
         return result
 
-    def insert(self, table, data, debug=False, autoprefix=True):
+    def insert(self, table, data, debug=False, autoprefix=True, encode=True):
         """
         Vereinfachter Insert, per dict
         data ist ein Dict, wobei die SQL-Felder den Key-Namen im Dict
@@ -679,12 +590,12 @@ class SQL_wrapper(Database):
             ",".join([self.placeholder]*len(values))
         )
 
-        result = self.process_statement(SQLcommand, values)
+        result = self.process_statement(SQLcommand, values, encode)
         if debug: self.debug_command("insert", result)
         return result
 
     def update(self, table, data, where, limit=False, debug=False,
-                                                            autoprefix=True):
+                                                autoprefix=True, encode=True):
         """
         Vereinfachte SQL-update Funktion
         """
@@ -707,14 +618,14 @@ class SQL_wrapper(Database):
             "limit"     : self._make_limit(limit)
         }
 
-        result = self.process_statement(SQLcommand, values)
+        result = self.process_statement(SQLcommand, values, encode)
         if debug: self.debug_command("update", result)
         return result
 
 
     def select(self, select_items, from_table, where=None, order=None,
             group=None, limit=None, maxrows=0, how=1, debug=False,
-            autoprefix=True
+            autoprefix=True, encode=True
         ):
         """
         Allgemeine SQL-SELECT Anweisung
@@ -772,12 +683,13 @@ class SQL_wrapper(Database):
 
         SQLcommand += self._make_limit(limit)
 
-        result = self.process_statement(SQLcommand, values)
+        result = self.process_statement(SQLcommand, values, encode)
         if debug: self.debug_command("select", result)
 
         return result
 
-    def delete(self, table, where, limit=1, debug=False, autoprefix=True):
+    def delete(self, table, where, limit=1, debug=False, autoprefix=True,
+                                                                encode=True):
         """
         DELETE FROM table WHERE id=1 LIMIT 1
         """
@@ -794,7 +706,7 @@ class SQL_wrapper(Database):
             SQLcommand += self._make_limit(limit)
         SQLcommand += ";"
 
-        result = self.process_statement(SQLcommand, values)
+        result = self.process_statement(SQLcommand, values, encode)
         if debug: self.debug_command("delete", result)
         return result
 
