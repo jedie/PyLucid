@@ -103,7 +103,6 @@ class PluginConfig(dict):
             raise NoConfigData
             #~ return None # Das Plugin hat keine config Daten!
 
-        data = data.tostring() # Aus der DB kommt ein array Objekt!
         if data == "":
             raise NoConfigData
 
@@ -116,10 +115,10 @@ class PluginConfig(dict):
         Wird beim installieren mit dem module_admin gebraucht, sowie für
         das updaten per commit()
         """
-        return pickle.dumps(data, pickle.HIGHEST_PROTOCOL)
+        return pickle.dumps(data)
 
     def unpickle_data(self, data):
-        return pickle.loads(data)
+        return pickle.loads(str(data))
 
     #_________________________________________________________________________
     # Daten in die DB updaten/einfügen

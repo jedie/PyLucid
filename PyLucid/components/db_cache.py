@@ -21,24 +21,6 @@ license:
 __version__= "$Rev$"
 
 
-
-SQL_install_commands = [
-"""CREATE TABLE $$object_cache (
-    id VARCHAR(40) NOT NULL,
-    expiry_time INT(15) NOT NULL,
-    request_ip VARCHAR(15) DEFAULT NULL,
-    user_id INT(11) DEFAULT NULL,
-    pickled_data LONGBLOB,
-    PRIMARY KEY (id)
-) COMMENT = "Object cache for pickled data objects";"""
-]
-
-
-SQL_deinstall_commands = [
-    "DROP TABLE $$object_cache;",
-]
-
-
 import time
 
 try:
@@ -86,7 +68,7 @@ class DB_Cache(object):
         object      - Das zu pickelnde Objekt
         """
         expiry_time = int(time.time() + expiry_time)
-        object = pickle.dumps(object, pickle.HIGHEST_PROTOCOL)
+        object = pickle.dumps(object)
 
         request_ip = self.request.environ.get("REMOTE_ADDR","unknown")
 
@@ -119,8 +101,7 @@ class DB_Cache(object):
                 "Can't get cache object with id '%s' from db" % id
             )
 
-        object = object.tostring() # Aus der DB kommt ein array Objekt!
-        object = pickle.loads(object)
+        object = pickle.loads(str(object))
         return object
 
     def delete_object(self, id):
@@ -163,37 +144,6 @@ class DB_Cache(object):
         for line in debug_data:
             self.page_msg(line)
         self.page_msg("---[ debug end ]---")
-
-    #_________________________________________________________________________
-
-    def create_table(self):
-        """
-        FIXME put this into the ModuleManager!
-        """
-        for sql in SQL_install_commands:
-            try:
-                self.db.process_statement(sql)
-            except Exception, e:
-                self.page_msg.red("Error: %s" % e)
-            else:
-                self.page_msg.green("One Table created, OK!")
-
-    def drop_table(self):
-        """
-        FIXME put this into the ModuleManager!
-        """
-        for sql in SQL_deinstall_commands:
-            try:
-                self.db.process_statement(sql)
-            except Exception, e:
-                if "Unknown table" in str(e):
-                    self.page_msg.black(
-                        "Skip drop table, because it doesn't exists."
-                    )
-                else:
-                    self.page_msg.red("Error: %s" % e)
-            else:
-                self.page_msg.green("Drop one table OK")
 
 
 class CacheObjectNotFound(Exception):

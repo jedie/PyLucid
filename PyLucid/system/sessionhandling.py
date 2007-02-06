@@ -4,6 +4,14 @@
 """
 PyLucid CGI-Session-handler auf Cookie + SQL basis
 
+Normalerweise kann man die pickle.HIGHEST_PROTOCOL Daten in ein LONGBLOB Feld
+einfügen und erhält diese wieder so zurück. Aus noch ungeklärten Gründen
+funktioniert das aber nicht immer. Wahrscheinlich ist das ein Problem vom
+MySQLdb Modul (verschiedene Versionen handhaben das encoding anders). Deswegen
+wird hier ein Kompromiss gemacht.
+Deswegen nutzten wir hier nur den normalen pickle-String und tragen den in ein
+Text Feld ein.
+
 TODO:
 -----
 In sessionhandler.read_session() ist ein schneller Work-a-round gemacht, der
@@ -240,7 +248,7 @@ class cookieHandler:
 #_____________________________________________________________________________
 
 
-class BrokenSessionData(Exception):
+class Brokensession_data(Exception):
     """
     Mit den Session Daten aus der DB stimmt was nicht.
     """
@@ -258,6 +266,8 @@ class sessionhandler(dict):
     """
     __exist_session = False
     __new_session = False
+    sql_tablename  = "session_data"
+    timeout_sec    = 1800
 
     def init2(self, request, response):
         #~ dict.__init__(self)
@@ -271,9 +281,6 @@ class sessionhandler(dict):
         self.page_msg       = response.page_msg
         self.preferences    = request.preferences
         self.URLs           = request.URLs
-
-        self.sql_tablename  = "session_data"
-        self.timeout_sec    = 1800
 
         self.set_default_values()
 
@@ -355,23 +362,23 @@ class sessionhandler(dict):
                 )
             return
 
-        def checkSessiondata(DB_data):
+        def checksession_data(DB_data):
             if DB_data["ip"] != self["client_IP"]:
                 msg = "Wrong client IP from DB: %s from Client: %s" % (
                     DB_data["ip"], current_IP
                 )
-                raise BrokenSessionData, msg
+                raise Brokensession_data, msg
 
             # Session-Daten auf Vollständigkeit prüfen
             for key in ("isadmin","session_id","user"):
                 if not key in DB_data:
                     # Mit den Session-Daten stimmt was nicht :(
                     msg = "Error in Session Data: Key %s not exists." % key
-                    raise BrokenSessionData, msg
+                    raise Brokensession_data, msg
 
         try:
-            checkSessiondata(DB_data)
-        except BrokenSessionData, msg:
+            checksession_data(DB_data)
+        except Brokensession_data, msg:
             self.log.write(msg, LOG_TYPE, "error")
             if debug:
                 self.page_msg(msg)
@@ -482,7 +489,7 @@ class sessionhandler(dict):
                 where = ("session_id", self["session_id"]),
             )
 
-            session_data = self._prepare_sessiondata()
+            session_data = self._prepare_session_data()
             self.db.insert(
                 table = self.sql_tablename,
                 data  = {
@@ -491,8 +498,29 @@ class sessionhandler(dict):
                     "ip"            : self["client_IP"],
                     "domain_name"   : self["client_domain_name"],
                     "session_data"  : session_data,
-                }
+                },
+                encode=False,
             )
+            #~ SQLcommand = (
+                #~ "INSERT INTO %ssession_data"
+                #~ " (session_id, timestamp, ip, domain_name, session_data)"
+                #~ " VALUES (%%s,%%s,%%s,%%s,%%s);"
+            #~ ) % self.db.tableprefix
+            #~ values=(
+                #~ self["session_id"],time.time(),self["client_IP"],
+                #~ self["client_domain_name"],session_data,
+            #~ )
+            #~ try:
+                #~ self.db.cursor.execute(
+                    #~ SQLcommand, values, do_prepare=False, encode=False
+                #~ )
+            #~ except Exception, e:
+                #~ self.page_msg("Creade Session Error!")
+                #~ if debug:
+                    #~ self.page_msg("Error:", e)
+                #~ self.delete_session()
+                #~ return
+
             self.db.commit()
 
             self.log.write( "created Session.", LOG_TYPE, "OK" )
@@ -501,7 +529,7 @@ class sessionhandler(dict):
                 self.debug_session_data()
 
         elif self.__exist_session:
-            session_data = self._prepare_sessiondata()
+            session_data = self._prepare_session_data()
             self.db.update(
                 table   = self.sql_tablename,
                 data    = {
@@ -510,6 +538,7 @@ class sessionhandler(dict):
                 },
                 where   = ("session_id", self["session_id"]),
                 limit   = 1,
+                encode=False,
             )
             self.db.commit()
 
@@ -527,7 +556,7 @@ class sessionhandler(dict):
         if debug:
             self.debug()
 
-    def _prepare_sessiondata(self):
+    def _prepare_session_data(self):
         session_data = dict(self) # Kopie des Dict's machen
 
         # "doppelte" Keys löschen:
@@ -535,8 +564,13 @@ class sessionhandler(dict):
         del(session_data["client_IP"])
         del(session_data["client_domain_name"])
 
-        session_data = pickle.dumps(session_data, pickle.HIGHEST_PROTOCOL)
+        session_data = pickle.dumps(session_data)
         self.RAW_session_data_len = len(session_data)
+        if debug:
+            self.page_msg(
+                "pickle.dumps debug (data len: %s):" % self.RAW_session_data_len
+            )
+            self.page_msg(repr(session_data))
 
         return session_data
 
@@ -553,7 +587,8 @@ class sessionhandler(dict):
                     "domain_name", "session_data"
                 ],
                 from_table      = self.sql_tablename,
-                where           = ("session_id",session_id)
+                where           = ("session_id",session_id),
+                encode=False,
             )
         if DB_data == []:
             return False
@@ -567,21 +602,24 @@ class sessionhandler(dict):
 
         DB_data = DB_data[0]
 
-        sessionData = DB_data["session_data"]
+        session_data = DB_data["session_data"]
         del(DB_data["session_data"])
 
-        self.RAW_session_data_len = len(sessionData)
+        self.RAW_session_data_len = len(session_data)
 
-        # Aus der DB kommt ein array Objekt!
-        sessionData = sessionData.tostring()
+        if isinstance(session_data, unicode):
+            session_data = str(session_data)
+        if debug:
+            self.page_msg("pickle.loads debug (data len: %s):" % len(session_data))
+            self.page_msg(repr(session_data))
         try:
-            sessionData = pickle.loads(sessionData)
+            session_data = pickle.loads(session_data)
         except Exception, e:
-            self.page_msg("Can't read sessiondata: %s" % e)
+            self.page_msg("Can't read session_data: %s" % e)
             self.debug_session_data()
             return False
 
-        DB_data.update(sessionData)
+        DB_data.update(session_data)
 
         return DB_data
 

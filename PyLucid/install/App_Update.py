@@ -134,21 +134,29 @@ class update(ObjectApp_Base):
             " expiry_time INT(15) NOT NULL,"
             " request_ip VARCHAR(15) DEFAULT NULL,"
             " user_id INT(11) DEFAULT NULL,"
-            " pickled_data LONGBLOB,"
+            " pickled_data TEXT,"
             " PRIMARY KEY (id)"
             ' ) COMMENT = "Object cache for pickled data objects";'
         )
         msg = "Create new object_cache table"
         self._execute(msg,SQLcommand)
+        # Evtl. von einer Beta Version (alter LONGBLOB):
+        SQLcommand = (
+            "ALTER TABLE $$object_cache"
+            " CHANGE pickled_data pickled_data TEXT NULL DEFAULT NULL "
+            " COMMENT 'Object cache for pickled data objects'"
+        )
+        msg = "Insert plugin_cfg column in 'plugins' table"
+        self._execute(msg,SQLcommand)
 
 
-        # Sessionhandling mit LONGBLOB
+        # Sessionhandling mit TEXT
         self.response.write("<h4>Change Sessionhandling table:</h4>\n")
         SQLcommand = (
             "ALTER TABLE $$session_data"
-            " CHANGE session_data session_data LONGBLOB NOT NULL;"
+            " CHANGE session_data session_data TEXT NOT NULL;"
         )
-        msg = "change column 'session_data' to a LONGBLOB value"
+        msg = "change column 'session_data' to a TEXT value"
         self._execute(msg,SQLcommand)
 
         #_____________________________________________________________________
@@ -158,13 +166,20 @@ class update(ObjectApp_Base):
         )
         SQLcommand = (
             "ALTER TABLE $$plugins"
-            " ADD COLUMN plugin_cfg LONGBLOB DEFAULT NULL"
+            " ADD COLUMN plugin_cfg TEXT DEFAULT NULL"
             " COMMENT 'pickled Python object structure'"
             " AFTER SQL_deinstall_commands"
         )
         msg = "Insert plugin_cfg column in 'plugins' table"
         self._execute(msg,SQLcommand)
-
+        # Evtl. von einer Beta Version (alter LONGBLOB):
+        SQLcommand = (
+            "ALTER TABLE $$plugins"
+            " CHANGE plugin_cfg plugin_cfg TEXT NULL DEFAULT NULL "
+            " COMMENT 'pickled Python object structure'"
+        )
+        msg = "Insert plugin_cfg column in 'plugins' table"
+        self._execute(msg,SQLcommand)
 
     def update1_db(self):
         "update db tables (PyLucid v0.7.0 -> 0.7.1)"
