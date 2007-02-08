@@ -90,11 +90,10 @@ class page_style(PyLucidBaseModule):
         lastModified = lastupdatetime.strftime(timeFormat)
         #~ print "lastModified:", lastModified
 
-        # 604800Sec / 60Sec / 60Min / 24h = 7Tage ;)
-        maxAge = 604800
-        response.headers['Cache-Control'] = 'max-age=%s' % maxAge
-
-        expires = lastupdatetime + datetime.timedelta(seconds=maxAge)
+        # 1Tag * 60Min * 60Sec = 3600Sec
+        response.headers['Cache-Control'] = 'max-age=3600'
+        delta = datetime.timedelta(days=1)
+        expires = lastupdatetime + delta
         expires = expires.strftime(timeFormat)
         #~ print "expires:", expires
         response.headers['Expires'] = expires
