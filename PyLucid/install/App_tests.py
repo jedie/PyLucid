@@ -67,6 +67,11 @@ class tests(ObjectApp_Base):
         self.response.write(
             "%-25s: %s\n" % ("used db encoding", self._db.encoding)
         )
+        info = repr(self._db.connection_kwargs)
+        info = info.replace(self.request.preferences["dbPassword"], "***")
+        self.response.write(
+            "%-25s: %s\n" % ("connection_kwargs", info)
+        )
 
         self.response.write("</pre></fieldset>")
 

@@ -68,6 +68,10 @@ class Database(object):
     """
     Klasse, die nur allgemeine SQL-Funktionen beinhaltet
     """
+
+    server_version = None
+    connection_kwargs = None
+
     def __init__(self, encoding="utf8"):
         # Zum speichern der letzten SQL-Statements (evtl. für Fehlerausgabe)
         self.last_statement = None
@@ -102,28 +106,7 @@ class Database(object):
 
         self.server_version = version
 
-    def setup_encoding(self, encoding):
-        self.cursor.setup_encoding(encoding)
-        self.encoding = encoding
-
-    def getMySQLcharacter(self):
-        """
-        Liefert das encodning des SQL Servers zurück.
-        (Funktioniert erst ab MySQL =>v4.1)
-        """
-        try:
-            character_set = self.get_db_variable("character_set_server")
-        except Exception, e:
-            if self.server_version < (4, 1, 0): # älter als v4.1.0
-                raise OverageMySQLServer(
-                    "Error: MySQL older than 4.1 are not supported! (%s)" % e
-                )
-            else:
-                raise ConnectionError("Can't get character set: %s" % e)
-
-        return character_set
-
-    def set_mysql_encoding(self, encoding):
+    def setup_mysql_character_set(self):
         """
         Setzt das Encoding des MySQL Servers.
         SET NAMES setzt die drei Systemvariablen:
@@ -146,20 +129,10 @@ class Database(object):
                     "Can't setup MySQL encoding (SET NAMES): %s" % e
                 )
 
-    def setup_mysql_character_set(self):
-        if self.encoding == None:
-            # Es soll das default encoding vom MySQL-Server genutzt werden
-            self.encoding = self.getMySQLcharacter()
-            try:
-                self.setup_encoding(self.encoding)
-            except LookupError, e:
-                raise ConnectionError("Unknown Encoding: %s" % e)
-        else:
-            self.setup_encoding(self.encoding)
-            self.set_mysql_encoding(self.encoding)
+        self.cursor.setup_encoding(self.encoding)
 
 
-    def connect_mysqldb(self, *args, **kwargs):
+    def connect_mysqldb(self, **kwargs):
         self.dbtyp = "MySQLdb"
 
         try:
@@ -173,21 +146,8 @@ class Database(object):
         self.dbapi = dbapi
         self._setup_paramstyle(dbapi.paramstyle)
 
-        #~ print args
-        #~ print kwargs
 
-        try:
-            self.conn = WrappedConnection(
-                dbapi.connect(*args, **kwargs),
-                    #~ host    = host,
-                    #~ user    = username,
-                    #~ passwd  = password,
-                    #~ db      = self.databasename,
-                #~ ),
-                placeholder = self.placeholder,
-                prefix = self.tableprefix,
-            )
-        except Exception, e:
+        def handle_connect_error(e):
             msg = "Can't connect to DB"
             try:
                 if e[1].startswith(
@@ -197,14 +157,42 @@ class Database(object):
             except IndexError:
                 pass
             msg += " [%s]\n" % e
-            #~ msg += " - connect method args...: %s\n - " % str(args)
-            #~ msg += "connect method kwargs.: %s" % str(kwargs)
+            #msg += " - connect method args...: %s\n - " % str(args)
+            #msg += "connect method kwargs.: %s" % str(kwargs)
             raise ConnectionError(msg)
+
+        # ab python-mysqldb v1.2.1.x
+        kwargs["charset"] = self.encoding
+        try:
+            connection = dbapi.connect(**kwargs)
+        except TypeError:
+            # Work-a-round für alte MySQLdb Version
+            del(kwargs["charset"])
+            kwargs["use_unicode"] = True
+            try:
+                connection = dbapi.connect(**kwargs)
+            except Exception, e:
+                handle_connect_error(e)
+        except Exception, e:
+            handle_connect_error(e)
+
+        self.connection_kwargs = kwargs
+
+        try:
+            self.conn = WrappedConnection(
+                connection,
+                placeholder = self.placeholder,
+                prefix = self.tableprefix,
+            )
+        except Exception, e:
+            handle_connect_error(e)
+
 
         self.cursor = self.conn.cursor()
 
-        # Version des Server feststellen
-        self.setup_MySQL_version()
+        if self.server_version == None:
+            # Version des Server feststellen
+            self.setup_MySQL_version()
 
         # Encoding festlegen
         self.setup_mysql_character_set()
