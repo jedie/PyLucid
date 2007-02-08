@@ -118,7 +118,8 @@ class log(object):
         SQLcommand  = "DELETE FROM $$%s" % sql_tablename
         SQLcommand += " WHERE timestamp < %s"
 
-        current_timeout = time.time() - enty_timeout_sec
+        now = datetime.datetime.now()
+        current_timeout = now - datetime.timedelta(seconds=enty_timeout_sec)
 
         try:
             self.db.cursor.execute(SQLcommand, (current_timeout,))
