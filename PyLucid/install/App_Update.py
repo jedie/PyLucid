@@ -149,12 +149,12 @@ class update(ObjectApp_Base):
         msg = "Insert plugin_cfg column in 'plugins' table"
         self._execute(msg,SQLcommand)
 
-
         # Sessionhandling mit TEXT
         self.response.write("<h4>Change Sessionhandling table:</h4>\n")
         SQLcommand = (
             "ALTER TABLE $$session_data"
-            " CHANGE session_data session_data TEXT NOT NULL;"
+            " CHANGE session_data session_data TEXT NOT NULL"
+            " COMMENT 'pickled Python object structure';"
         )
         msg = "change column 'session_data' to a TEXT value"
         self._execute(msg,SQLcommand)
@@ -168,7 +168,7 @@ class update(ObjectApp_Base):
             "ALTER TABLE $$plugins"
             " ADD COLUMN plugin_cfg TEXT DEFAULT NULL"
             " COMMENT 'pickled Python object structure'"
-            " AFTER SQL_deinstall_commands"
+            " AFTER SQL_deinstall_commands;"
         )
         msg = "Insert plugin_cfg column in 'plugins' table"
         self._execute(msg,SQLcommand)
@@ -180,6 +180,7 @@ class update(ObjectApp_Base):
         )
         msg = "Insert plugin_cfg column in 'plugins' table"
         self._execute(msg,SQLcommand)
+
 
     def update1_db(self):
         "update db tables (PyLucid v0.7.0 -> 0.7.1)"
