@@ -47,9 +47,6 @@ import sys, codecs, time, datetime, cgi
 debug = False
 #~ debug = True
 
-MySQL40_character_table = {
-    "german1": "latin1",
-}
 
 # SQL Fehler in process_statement() können sehr lang werden wenn z.B. große
 # Daten in die SQL Db geschrieben werden. Mit der Angabe werden die Teile der
@@ -105,79 +102,61 @@ class Database(object):
 
         self.server_version = version
 
-    def set_codec(self, encoding):
+    def setup_encoding(self, encoding):
         self.cursor.setup_encoding(encoding)
         self.encoding = encoding
 
     def getMySQLcharacter(self):
-        version = self.server_version
-        if version < (4, 1, 0): # älter als v4.1.0
-            character_set = self.get_db_variable("character_set")
-        else: # ab v4.1.0
+        """
+        Liefert das encodning des SQL Servers zurück.
+        (Funktioniert erst ab MySQL =>v4.1)
+        """
+        try:
             character_set = self.get_db_variable("character_set_server")
+        except Exception, e:
+            if self.server_version < (4, 1, 0): # älter als v4.1.0
+                raise OverageMySQLServer(
+                    "Error: MySQL older than 4.1 are not supported! (%s)" % e
+                )
+            else:
+                raise ConnectionError("Can't get character set: %s" % e)
 
         return character_set
 
-    def setup_mysql40(self):
-        character_set = self.getMySQLcharacter()
-        if not character_set in MySQL40_character_table:
-            # Das Encodning scheint unbekannt zu sein
-            try:
-                self.set_codec(character_set)
-            except LookupError, e:
-                # Python kennt das encoding auch nicht, als letzten
-                # Ausweg, ignorieren wir das Enconding :(
-                self._set_NoneCodec(encoding = None)
-        else:
-            encoding = MySQL40_character_table[character_set]
-            self.set_codec(encoding)
-
     def set_mysql_encoding(self, encoding):
+        """
+        Setzt das Encoding des MySQL Servers.
+        SET NAMES setzt die drei Systemvariablen:
+            * character_set_client
+            * character_set_connection
+            * character_set_results
+
+        siehe http://dev.mysql.com/doc/refman/5.1/de/set-option.html
+        (Funktioniert erst ab MySQL =>v4.1)
+        """
         try:
-            # Funktioniert erst mit MySQL =>v4.1
-            self.cursor.execute('set character set ?;', (self.encoding,))
+            self.cursor.execute('SET NAMES ?;', (self.encoding,))
         except Exception, e:
-            if str(e).find("Unknown character set") != -1:
-                # Der character Set wird nicht unterstützt!
-                msg = (
-                    "%s - Please check PyLucid's config.py and\n"
-                    " look at _install / tests / db_info /"
-                    " _show_characterset!"
-                ) % e
-                self.page_msg(msg)
-
-                # Versuchen wir es mit dem default codec:
-                self.encoding = None
-                self.setup_mysql41()
+            if self.server_version < (4, 1, 0): # älter als v4.1.0
+                raise OverageMySQLServer(
+                    "Error: MySQL older than 4.1 are not supported! (%s)" % e
+                )
             else:
-                raise ConnectionError(e)
+                raise ConnectionError(
+                    "Can't setup MySQL encoding (SET NAMES): %s" % e
+                )
 
-    def setup_mysql41(self):
+    def setup_mysql_character_set(self):
         if self.encoding == None:
             # Es soll das default encoding vom MySQL-Server genutzt werden
             self.encoding = self.getMySQLcharacter()
             try:
-                self.set_codec(self.encoding)
+                self.setup_encoding(self.encoding)
             except LookupError, e:
-                # Python kennt das encoding nicht, als letzten
-                # Ausweg, ignorieren wir das Enconding :(
-                msg = (
-                    "Error: MySQL server use the codec '%s',"
-                    " but python doesn't know this codec!"
-                    " (try to use utf8, you should manually set a codec!)"
-                ) % character_set
-                self.page_msg(msg)
-                self.set_mysql_encoding("utf8")
+                raise ConnectionError("Unknown Encoding: %s" % e)
         else:
-            self.set_codec(self.encoding)
+            self.setup_encoding(self.encoding)
             self.set_mysql_encoding(self.encoding)
-
-
-    def setup_mysql_character_set(self):
-        if self.server_version < (4, 1): # älter als v4.1.0
-            self.setup_mysql40()
-        else:
-            self.setup_mysql41()
 
 
     def connect_mysqldb(self, *args, **kwargs):
@@ -986,6 +965,11 @@ class SQL_wrapper(Database):
 class ConnectionError(Exception):
     pass
 
+class OverageMySQLServer(ConnectionError):
+    """
+    MySQL older than 4.1 are not supported.
+    """
+    pass
 
 
 
