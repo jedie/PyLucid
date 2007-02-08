@@ -118,7 +118,7 @@ class cookieHandler:
             if len(cookie_id) != 32:
                 raise ValueError
             int(cookie_id, 16) # Ist es eine hex Zahl?
-        except ValueError:
+        except (ValueError, OverflowError):
             # Mit dem Cookie stimmt wohl was nicht ;)
             self.deleteCookie(self.CookieName)
             msg = "wrong Cookie len: %s !" % len(cookie_id)
@@ -211,8 +211,8 @@ class cookieHandler:
         #~ self.Cookie[self.CookieName]["path"] = self.preferences["poormans_url"]
         #~ self.Cookie[self.CookieName]["expires"] = expires
 
-        if self.CookieName in self.request.cookies:
-            raise "Existiert schon!"
+        #~ if self.CookieName in self.request.cookies:
+            #~ raise "Existiert schon!"
 
         if debug:
             self.page_msg( "set_cookie '%s': %s" % (self.CookieName, Text))

@@ -84,7 +84,7 @@ class LoginVerifier(PyLucidBaseModule):
                 raise ValueError
             int(md5_a2, 16)
             int(md5_b, 16)
-        except ValueError, e:
+        except (ValueError, OverflowError), e:
             msg = self._error_msg(
                 "Checksum check error: %s" % e,
                 "LogIn checksum check Error!"
