@@ -29,8 +29,8 @@ ToDo
 
 Last commit info:
 ----------------------------------
-$LastChangedDate:$
-$Rev:$
+$LastChangedDate$
+$Rev$
 $Author$
 
 Created by Jens Diemer
@@ -55,6 +55,16 @@ MySQL40_character_table = {
 # Daten in die SQL Db geschrieben werden. Mit der Angabe werden die Teile der
 # Ausgabe gekürzt auf die Zeichenlänge:
 MaxErrorLen = 300
+
+
+import warnings
+
+# MySQL gibt normalerweise nur eine Warnung aus, wenn z.B. bei einem INSERT
+# die Daten für eine Spalte abgeschnitten werden (Data truncated for column...)
+# siehe: http://dev.mysql.com/doc/refman/5.1/en/show-warnings.html
+#
+# Hiermir wandeln wir die Warnung in eine echte Exception um:
+warnings.filterwarnings('error',category=Warning)
 
 
 class Database(object):
