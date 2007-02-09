@@ -115,10 +115,13 @@ class PluginConfig(dict):
         Wird beim installieren mit dem module_admin gebraucht, sowie für
         das updaten per commit()
         """
-        return pickle.dumps(data)
+        data = pickle.dumps(data, pickle.HIGHEST_PROTOCOL)
+        return data
 
     def unpickle_data(self, data):
-        return pickle.loads(str(data))
+        data = data.tostring() # Array Object aus LONGBLOB
+        data = pickle.loads(data)
+        return data
 
     #_________________________________________________________________________
     # Daten in die DB updaten/einfügen

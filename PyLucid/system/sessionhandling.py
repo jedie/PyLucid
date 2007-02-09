@@ -605,6 +605,8 @@ class sessionhandler(dict):
         session_data = DB_data["session_data"]
         del(DB_data["session_data"])
 
+        session_data = session_data.tostring() # Array Object aus LONGBLOB
+
         self.RAW_session_data_len = len(session_data)
 
         if isinstance(session_data, unicode):

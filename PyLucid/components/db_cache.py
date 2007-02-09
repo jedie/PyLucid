@@ -39,27 +39,6 @@ class DB_Cache(object):
         self.session    = request.session
         self.page_msg   = response.page_msg
 
-        #~ self.drop_table()
-        #~ self.create_table()
-
-        #~ test = {
-            #~ "liste" : [1,2,3],
-            #~ "tuple" : (4,5,6),
-            #~ "unicode" : u"testäöüß",
-        #~ }
-        #~ try:
-            #~ self.put_object(u"abc", 10, test)
-        #~ except Exception, e:
-            #~ self.page_msg(e)
-
-        #~ self.debug()
-
-        #~ try:
-            #~ self.page_msg(self.get_object(id = u"abc"))
-        #~ except Exception, e:
-            #~ self.page_msg(e)
-
-
     def put_object(self, id, expiry_time, object):
         """
         Packt ein Object gepicklet in die DB
@@ -68,7 +47,7 @@ class DB_Cache(object):
         object      - Das zu pickelnde Objekt
         """
         expiry_time = int(time.time() + expiry_time)
-        object = pickle.dumps(object)
+        object = pickle.dumps(object, pickle.HIGHEST_PROTOCOL)
 
         request_ip = self.request.environ.get("REMOTE_ADDR","unknown")
 
@@ -101,7 +80,8 @@ class DB_Cache(object):
                 "Can't get cache object with id '%s' from db" % id
             )
 
-        object = pickle.loads(str(object))
+        object = object.tostring() # Array Object aus LONGBLOB
+        object = pickle.loads(object)
         return object
 
     def delete_object(self, id):
