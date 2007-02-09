@@ -63,11 +63,21 @@ class update(ObjectApp_Base):
             self.response.write("defaultPageName renamed to defaultPage, OK")
 
         #_____________________________________________________________________
-
+        # delete obsolete table
         self._execute(
             "drop appconfig if exist","DROP TABLE IF EXISTS $$appconfig;"
         )
-
+        #_____________________________________________________________________
+        # sessionhandling
+        SQLcommand = (
+            "ALTER TABLE $$session_data"
+            " CHANGE timestamp expiry_time datetime NOT NULL"
+        )
+        msg = (
+            "Session_data table: 'timestamp' is now a datetime one,"
+            " named 'expiry_time'."
+        )
+        self._execute(msg,SQLcommand)
         #_____________________________________________________________________
         # md5users Tabelle
         self.response.write("<h4>Change md5users table:</h4>\n")
@@ -131,7 +141,7 @@ class update(ObjectApp_Base):
         SQLcommand = (
             "CREATE TABLE $$object_cache ("
             " id VARCHAR(40) NOT NULL,"
-            " expiry_time INT(15) NOT NULL,"
+            " expiry_time datetime NOT NULL,"
             " request_ip VARCHAR(15) DEFAULT NULL,"
             " user_id INT(11) DEFAULT NULL,"
             " pickled_data LONGBLOB,"

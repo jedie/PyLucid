@@ -38,7 +38,7 @@ license:
 __version__= "$Rev$"
 
 
-import os, sys, md5, time
+import os, sys, md5, time, datetime
 from socket import getfqdn
 from Cookie import SimpleCookie
 
@@ -134,7 +134,7 @@ class cookieHandler:
     def _gen_clientID(self):
         "Generiert eine Session ID anhand der Zeit und der REMOTE_ADDR"
         clientID = md5.new(
-            str(time.time()) + self.request.environ["REMOTE_ADDR"]
+            str(time.clock()) + self.request.environ["REMOTE_ADDR"]
         ).hexdigest()
 
         return clientID
@@ -392,8 +392,8 @@ class sessionhandler(dict):
 
         # Session ist OK
         if VERBOSE_LOG == True or debug == True:
-            msg = "Session is OK\nSession-Data %.2fSec old" % (
-                time.time()-DB_data["timestamp"]
+            msg = "Session is OK\nSession-Data expiry: %s" % (
+                DB_data["expiry_time"]
             )
             if VERBOSE_LOG == True:
                 self.log.write(msg, LOG_TYPE, "OK")
@@ -480,6 +480,11 @@ class sessionhandler(dict):
             self.page_msg("session_id == False!!!")
             return
 
+        # Ablaufzeitpunk festlegen (für INSERT und UPDATE)
+        delta = datetime.timedelta(seconds=self.timeout_sec)
+        now = datetime.datetime.now()
+        expiry_time = now + delta
+
         if self.__new_session:
             # Es ist eine neue Session die in der DB erst erstellt werden muß
 
@@ -490,37 +495,17 @@ class sessionhandler(dict):
             )
 
             session_data = self._prepare_session_data()
+
             self.db.insert(
                 table = self.sql_tablename,
                 data  = {
                     "session_id"    : self["session_id"],
-                    "timestamp"     : time.time(),
+                    "expiry_time"   : expiry_time,
                     "ip"            : self["client_IP"],
                     "domain_name"   : self["client_domain_name"],
                     "session_data"  : session_data,
                 },
-                encode=False,
             )
-            #~ SQLcommand = (
-                #~ "INSERT INTO %ssession_data"
-                #~ " (session_id, timestamp, ip, domain_name, session_data)"
-                #~ " VALUES (%%s,%%s,%%s,%%s,%%s);"
-            #~ ) % self.db.tableprefix
-            #~ values=(
-                #~ self["session_id"],time.time(),self["client_IP"],
-                #~ self["client_domain_name"],session_data,
-            #~ )
-            #~ try:
-                #~ self.db.cursor.execute(
-                    #~ SQLcommand, values, do_prepare=False, encode=False
-                #~ )
-            #~ except Exception, e:
-                #~ self.page_msg("Creade Session Error!")
-                #~ if debug:
-                    #~ self.page_msg("Error:", e)
-                #~ self.delete_session()
-                #~ return
-
             self.db.commit()
 
             self.log.write( "created Session.", LOG_TYPE, "OK" )
@@ -530,15 +515,15 @@ class sessionhandler(dict):
 
         elif self.__exist_session:
             session_data = self._prepare_session_data()
+
             self.db.update(
                 table   = self.sql_tablename,
                 data    = {
                     "session_data"  : session_data,
-                    "timestamp"     : time.time()
+                    "expiry_time"   : expiry_time,
                 },
                 where   = ("session_id", self["session_id"]),
                 limit   = 1,
-                encode=False,
             )
             self.db.commit()
 
@@ -583,7 +568,7 @@ class sessionhandler(dict):
 
         DB_data = self.db.select(
                 select_items    = [
-                    "session_id", "timestamp", "ip",
+                    "session_id", "expiry_time", "ip",
                     "domain_name", "session_data"
                 ],
                 from_table      = self.sql_tablename,
@@ -629,25 +614,20 @@ class sessionhandler(dict):
     def _delete_old_sessions(self):
         "Löscht veraltete Sessions in der DB"
         SQLcommand  = "DELETE FROM $$%s" % self.sql_tablename
-        SQLcommand += " WHERE timestamp < ?"
+        SQLcommand += " WHERE expiry_time < ?"
 
-        current_timeout = time.time() - self.timeout_sec
-
+        current_time = datetime.datetime.now()
         if debug:
             self.page_msg("-"*30)
             self.page_msg("Delete old Sessions!")
-            self.page_msg("SQLcomand:", SQLcommand, current_timeout)
+            self.page_msg("SQLcomand:", SQLcommand, current_time)
             self.page_msg("debug before:")
             self.debug_session_data()
 
         try:
-            self.db.cursor.execute(SQLcommand, (current_timeout,))
+            self.db.cursor.execute(SQLcommand, (current_time,))
         except Exception, e:
-            msg = "Content-type: text/html\n"
-            msg += "Delete Old Session error: %s" % e
-            self.page_msg(msg)
-            sys.stderr.write(msg)
-            sys.exit()
+            raise SessionHandlingError("Delete Old Session error: %s" % e)
 
         if debug:
             self.page_msg("debug after:")
@@ -665,7 +645,7 @@ class sessionhandler(dict):
 
         try:
             RAW_db_data = self.db.select(
-                select_items    = ['timestamp', 'session_data','session_id'],
+                select_items    = ['expiry_time', 'session_data','session_id'],
                 from_table      = self.sql_tablename,
                 where           = [("session_id",self["session_id"])]
             )
@@ -708,9 +688,9 @@ class sessionhandler(dict):
                 inspect.stack()[1][1][-20:], inspect.stack()[1][2]
             )
         )
-        info = self.db.select( ["timestamp","session_id"], "session_data",
+        info = self.db.select( ["expiry_time","session_id"], "session_data",
             limit=(0,5),
-            order=("timestamp","DESC"),
+            order=("expiry_time","DESC"),
         )
         for item in info:
             self.page_msg(item)
@@ -754,4 +734,5 @@ class sessionhandler(dict):
 
 
 
-
+class SessionHandlingError(Exception):
+    pass

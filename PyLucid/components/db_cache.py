@@ -21,7 +21,7 @@ license:
 __version__= "$Rev$"
 
 
-import time
+import datetime
 
 try:
     import cPickle as pickle
@@ -46,9 +46,11 @@ class DB_Cache(object):
         expiry_time - int - Haltbarkeit Zeit in Sek.
         object      - Das zu pickelnde Objekt
         """
-        expiry_time = int(time.time() + expiry_time)
-        object = pickle.dumps(object, pickle.HIGHEST_PROTOCOL)
+        delta = datetime.timedelta(seconds=expiry_time)
+        now = datetime.datetime.now()
+        expiry_time = now + delta
 
+        object = pickle.dumps(object, pickle.HIGHEST_PROTOCOL)
         request_ip = self.request.environ.get("REMOTE_ADDR","unknown")
 
         self.db.insert(
@@ -100,9 +102,7 @@ class DB_Cache(object):
         Löscht alte Einträge
         """
         SQLcommand  = "DELETE FROM $$object_cache WHERE expiry_time < %s"
-        current_time = time.time()
-
-        #~ self.debug()
+        current_time = datetime.datetime.now()
 
         try:
             self.db.cursor.execute(SQLcommand, (current_time,))
