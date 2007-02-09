@@ -56,13 +56,6 @@ MaxErrorLen = 300
 
 import warnings
 
-# MySQL gibt normalerweise nur eine Warnung aus, wenn z.B. bei einem INSERT
-# die Daten für eine Spalte abgeschnitten werden (Data truncated for column...)
-# siehe: http://dev.mysql.com/doc/refman/5.1/en/show-warnings.html
-#
-# Hiermir wandeln wir die Warnung in eine echte Exception um:
-warnings.filterwarnings('error',category=Warning)
-
 
 class Database(object):
     """
@@ -106,30 +99,30 @@ class Database(object):
 
         self.server_version = version
 
-    def setup_mysql_character_set(self):
-        """
-        Setzt das Encoding des MySQL Servers.
-        SET NAMES setzt die drei Systemvariablen:
-            * character_set_client
-            * character_set_connection
-            * character_set_results
+    #~ def setup_mysql_character_set(self):
+        #~ """
+        #~ Setzt das Encoding des MySQL Servers.
+        #~ SET NAMES setzt die drei Systemvariablen:
+            #~ * character_set_client
+            #~ * character_set_connection
+            #~ * character_set_results
 
-        siehe http://dev.mysql.com/doc/refman/5.1/de/set-option.html
-        (Funktioniert erst ab MySQL =>v4.1)
-        """
-        try:
-            self.cursor.execute('SET NAMES ?;', (self.encoding,))
-        except Exception, e:
-            if self.server_version < (4, 1, 0): # älter als v4.1.0
-                raise OverageMySQLServer(
-                    "Error: MySQL older than 4.1 are not supported! (%s)" % e
-                )
-            else:
-                raise ConnectionError(
-                    "Can't setup MySQL encoding (SET NAMES): %s" % e
-                )
+        #~ siehe http://dev.mysql.com/doc/refman/5.1/de/set-option.html
+        #~ (Funktioniert erst ab MySQL =>v4.1)
+        #~ """
+        #~ try:
+            #~ self.cursor.execute('SET NAMES ?;', (self.encoding,))
+        #~ except Exception, e:
+            #~ if self.server_version < (4, 1, 0): # älter als v4.1.0
+                #~ raise OverageMySQLServer(
+                    #~ "Error: MySQL older than 4.1 are not supported! (%s)" % e
+                #~ )
+            #~ else:
+                #~ raise ConnectionError(
+                    #~ "Can't setup MySQL encoding (SET NAMES): %s" % e
+                #~ )
 
-        self.cursor.setup_encoding(self.encoding)
+        #~ self.cursor.setup_encoding(self.encoding)
 
 
     def connect_mysqldb(self, **kwargs):
@@ -142,6 +135,22 @@ class Database(object):
             msg += '<a href="http://sourceforge.net/projects/mysql-python/">'
             msg += 'python-mysqldb</a> not installed??? [%s]' % e
             raise ImportError(msg)
+
+
+        # MySQLdb gibt normalerweise nur eine Warnung aus, wenn z.B. bei einem
+        # INSERT die Daten für eine Spalte abgeschnitten werden (Data
+        # truncated for column...)
+        # siehe: http://dev.mysql.com/doc/refman/5.1/en/show-warnings.html
+        #
+        # Hiermir packen wir alle Warnungen in die page_msg
+        from MySQLdb import Warning as MySQLdbWarning
+        def showwarning(message, category, filename, lineno):
+            if category == MySQLdbWarning:
+                self.page_msg("%s (%s: %s - line %s)" % (
+                        message, category, filename, lineno
+                    )
+                )
+        warnings.showwarning = showwarning
 
         self.dbapi = dbapi
         self._setup_paramstyle(dbapi.paramstyle)
@@ -187,7 +196,6 @@ class Database(object):
         except Exception, e:
             handle_connect_error(e)
 
-
         self.cursor = self.conn.cursor()
 
         if self.server_version == None:
@@ -195,7 +203,7 @@ class Database(object):
             self.setup_MySQL_version()
 
         # Encoding festlegen
-        self.setup_mysql_character_set()
+        #~ self.setup_mysql_character_set()
 
         try:
             # Autocommit sollte immer aus sein!
@@ -362,22 +370,22 @@ class IterableDictCursor(object):
 
     #_________________________________________________________________________
 
-    def setup_encoding(self, encoding):
-        """
-        Legt den decoder/encoder Methode fest, mit dem die Daten aus der DB in
-        unicode gewandelt werden können. Daten von App zur DB werden wieder
-        zurück von unicode in's DB-Encoding gewandelt
-        """
-        if encoding == None:
-            # Sollte nur im Fehlerfall genutzt werden!
-            self._unicode_decoder = self._unicode_encoder = self._NoneCodec
-            return
+    #~ def setup_encoding(self, encoding):
+        #~ """
+        #~ Legt den decoder/encoder Methode fest, mit dem die Daten aus der DB in
+        #~ unicode gewandelt werden können. Daten von App zur DB werden wieder
+        #~ zurück von unicode in's DB-Encoding gewandelt
+        #~ """
+        #~ if encoding == None:
+            #~ # Sollte nur im Fehlerfall genutzt werden!
+            #~ self._unicode_decoder = self._unicode_encoder = self._NoneCodec
+            #~ return
 
-        self._unicode_decoder = codecs.getdecoder(encoding)
-        self._unicode_encoder = codecs.getencoder(encoding)
+        #~ self._unicode_decoder = codecs.getdecoder(encoding)
+        #~ self._unicode_encoder = codecs.getencoder(encoding)
 
-    def _NoneCodec(self, *txt):
-        return txt
+    #~ def _NoneCodec(self, *txt):
+        #~ return txt
 
     #_________________________________________________________________________
 
@@ -397,18 +405,18 @@ class IterableDictCursor(object):
         return sql.replace('$$', self._prefix)\
                   .replace('?', self._placeholder)
 
-    def encode(self, s):
-        """
-        Encode the String >s< to the DB encoding
-        """
-        if type(s) == unicode:
-            # Wandelt unicode in das DB-Encoding zurück
-            try:
-                s = self._unicode_encoder(s, 'strict')[0]
-            except UnicodeError:
-                s = self._unicode_encoder(s, 'replace')[0]
-                sys.stderr.write("Unicode encode Error!") #FIXME
-        return s
+    #~ def encode(self, s):
+        #~ """
+        #~ Encode the String >s< to the DB encoding
+        #~ """
+        #~ if type(s) == unicode:
+            #~ # Wandelt unicode in das DB-Encoding zurück
+            #~ try:
+                #~ s = self._unicode_encoder(s, 'strict')[0]
+            #~ except UnicodeError:
+                #~ s = self._unicode_encoder(s, 'replace')[0]
+                #~ sys.stderr.write("Unicode encode Error!") #FIXME
+        #~ return s
 
     def execute(self, sql, values=None, do_prepare=True, encode=True):
         if do_prepare:
@@ -419,11 +427,11 @@ class IterableDictCursor(object):
         execute_args = [sql]
 
         if values:
-            if encode:
-                # Von unicode ins DB encoding konvertieren
-                values = tuple([self.encode(value) for value in values])
-            else:
-                values = tuple(values)
+            #~ if encode:
+                #~ # Von unicode ins DB encoding konvertieren
+                #~ values = tuple([self.encode(value) for value in values])
+            #~ else:
+            values = tuple(values)
             execute_args.append(values)
 
         try:
@@ -460,13 +468,13 @@ class IterableDictCursor(object):
         result = {}
         for idx, col in enumerate(self._cursor.description):
             item = row[idx]
-            if isinstance(item, str):
-                # Wandelt vom DB-Encoding in unicode um
-                try:
-                    item = self._unicode_decoder(item, 'strict')[0]
-                except UnicodeError:
-                    item = self._unicode_decoder(item, 'replace')[0]
-                    sys.stderr.write("Unicode decode Error!") #FIXME
+            #~ if isinstance(item, str):
+                #~ # Wandelt vom DB-Encoding in unicode um
+                #~ try:
+                    #~ item = self._unicode_decoder(item, 'strict')[0]
+                #~ except UnicodeError:
+                    #~ item = self._unicode_decoder(item, 'replace')[0]
+                    #~ sys.stderr.write("Unicode decode Error!") #FIXME
             result[col[0]] = item
         return result
 
@@ -903,28 +911,6 @@ class SQL_wrapper(Database):
             result[line["Key_name"]] = line
 
         return result
-
-    def encode_sql_results(self, sql_results, codec="UTF-8"):
-        """
-        encodiert unicode Ergebnisse eines SQL-select-Aufrufs
-        """
-        post_error = False
-        for line in sql_results:
-            for k,v in line.iteritems():
-                if type(v)!=unicode:
-                    continue
-                try:
-                    line[k] = v.encode(codec)
-                except Exception, e:
-                    if not post_error:
-                        # Fehler nur einmal anzeigen
-                        self.outObject.write(
-                            "decode_sql_results() error in line %s: %s\n" % (
-                                line, e
-                            )
-                        )
-                        post_error = True
-        return sql_results
 
     #_________________________________________________________________________
 
