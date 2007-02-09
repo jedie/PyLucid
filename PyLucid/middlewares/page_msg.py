@@ -39,8 +39,9 @@ class page_msg_Container(object):
     self.raw - Für Ausgaben ohne <br />
 
     """
+    raw = False
+
     def __init__(self):
-        self.raw = False
         self.data = []
 
         self.debug_mode = False
@@ -69,9 +70,12 @@ class page_msg_Container(object):
     #_________________________________________________________________________
 
     def append_color_data(self, color, *msg):
-        self.data.append('<span style="color:%s;">\n' % color)
-        self.append_data(*msg)
-        self.data.append('</span>\n')
+        if self.raw:
+            self.append_data(*msg)
+        else:
+            self.data.append('<span style="color:%s;">\n' % color)
+            self.append_data(*msg)
+            self.data.append('</span>\n')
 
     def append_data(self, *msg):
         """ Fügt eine neue Zeile mit einer Nachricht hinzu """
@@ -125,15 +129,20 @@ class page_msg_Container(object):
     #_________________________________________________________________________
 
     def get(self):
-        if self.data != []:
-            # Nachricht vorhanden -> wird eingeblendet
+        if self.data == []:
+            # Nichts zum anzeigen da ;)
+            return ""
+
+        # Nachricht vorhanden -> wird eingeblendet
+
+        if self.raw:
+            return "".join(self.data)
+        else:
             return (
                 '\n<fieldset id="page_msg"><legend>page message</legend>\n'
                 '%s'
                 '\n</fieldset>'
             ) % "".join(self.data)
-        else:
-            return ""
 
 
 
