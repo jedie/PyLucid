@@ -55,6 +55,7 @@ MaxErrorLen = 300
 
 
 import warnings
+from MySQLdb import Warning as MySQLdbWarning
 
 
 class Database(object):
@@ -124,6 +125,27 @@ class Database(object):
 
         #~ self.cursor.setup_encoding(self.encoding)
 
+    def setup_MySQL_warnings(self):
+        """
+        MySQLdb gibt normalerweise nur eine Warnung aus, wenn z.B. bei einem
+        INSERT die Daten für eine Spalte abgeschnitten werden (Data
+        truncated for column...)
+        siehe: http://dev.mysql.com/doc/refman/5.1/en/show-warnings.html
+
+        Hiermir packen wir alle MySQLdb-Warnungen in die page_msg.
+        """
+        old_showwarning = warnings.showwarning
+
+        def showwarning(message, category, filename, lineno):
+            if category == MySQLdbWarning:
+                self.page_msg("%s (%s: %s - line %s)" % (
+                        message, category, filename, lineno
+                    )
+                )
+            else:
+                old_showwarning(message, category, filename, lineno)
+
+        warnings.showwarning = showwarning
 
     def connect_mysqldb(self, **kwargs):
         self.dbtyp = "MySQLdb"
@@ -136,25 +158,10 @@ class Database(object):
             msg += 'python-mysqldb</a> not installed??? [%s]' % e
             raise ImportError(msg)
 
-
-        # MySQLdb gibt normalerweise nur eine Warnung aus, wenn z.B. bei einem
-        # INSERT die Daten für eine Spalte abgeschnitten werden (Data
-        # truncated for column...)
-        # siehe: http://dev.mysql.com/doc/refman/5.1/en/show-warnings.html
-        #
-        # Hiermir packen wir alle Warnungen in die page_msg
-        from MySQLdb import Warning as MySQLdbWarning
-        def showwarning(message, category, filename, lineno):
-            if category == MySQLdbWarning:
-                self.page_msg("%s (%s: %s - line %s)" % (
-                        message, category, filename, lineno
-                    )
-                )
-        warnings.showwarning = showwarning
+        setup_MySQL_warnings()
 
         self.dbapi = dbapi
         self._setup_paramstyle(dbapi.paramstyle)
-
 
         def handle_connect_error(e):
             msg = "Can't connect to DB"
