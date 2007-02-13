@@ -39,18 +39,18 @@ function debug_confirm() {
 /* ___________________________________________________________________________
  *  password input
  */
-function prepare(url) {
+function prepare(url, salt_value, challenge_value) {
     check_ok = false;
 
     submit_url = url;
     debug("submit_url:" + submit_url);
     if (submit_url=="") { alert("submit url from Server fail!"); return false; }
 
-    salt = document.getElementById("salt").value;
+    salt = salt_value;
     debug("salt:" + salt);
     if (salt.length<5) { alert("salt from Server fail!"); return false; }
 
-    challenge = document.getElementById("challenge").value;
+    challenge = challenge_value;
     debug("challenge:" + challenge);
     if (challenge.length<5) { alert("challenge from Server fail!"); return false; }
 }
@@ -97,8 +97,6 @@ function check() {
     document.getElementById("md5_a2").value = md5_a2;
     document.getElementById("md5_b").value = md5_b;
 
-    document.getElementById("salt").value = "";
-    document.getElementById("challenge").value = "";
     document.getElementById("plaintext_pass").value = "";
 
     document.login.action = submit_url;
