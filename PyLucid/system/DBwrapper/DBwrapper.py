@@ -158,7 +158,7 @@ class Database(object):
             msg += 'python-mysqldb</a> not installed??? [%s]' % e
             raise ImportError(msg)
 
-        setup_MySQL_warnings()
+        self.setup_MySQL_warnings()
 
         self.dbapi = dbapi
         self._setup_paramstyle(dbapi.paramstyle)
