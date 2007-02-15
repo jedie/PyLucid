@@ -82,10 +82,39 @@ class auth(PyLucidBaseModule):
 
         self.write_login_form()
 
+    def unsecure_login(self):
+        try:
+            username = self.request.form["username"]
+            password = self.request.form["password"]
+        except KeyError, e:
+            # Login Form anzeigen
+            self.page_msg("KeyError:", e)
+            self.page_msg("form data:", self.request.form)
+            pass
+        else:
+            # Verarbeiten eines logins
+            verifier = LoginVerifier(self.request, self.response)
+            try:
+                userdata = verifier.check_plaintext_login(username, password)
+            except PasswordError, e:
+                self.page_msg.red(e)
+            else:
+                # Alles in Ordnung, User wird nun eingeloggt:
+                self.login_user(userdata)
+                return
+
+        context = {
+            "url": self.URLs.currentAction(),
+            "username": "", # Alter Username
+        }
+        self.templates.write("unsecure_login", context, debug)
+
+
     def write_login_form(self):
         # Formular zum eingeben des Usernamens:
         context = {
             "url": self.URLs.actionLink("login"),
+            "fallback_url": self.URLs.actionLink("unsecure_login"),
         }
         self.templates.write("input_username", context, debug)
 
@@ -183,7 +212,12 @@ class auth(PyLucidBaseModule):
         db_md5checksum = userdata["md5checksum"]
 
         # Alles in Ordnung, User wird nun eingeloggt:
+        self.login_user(userdata)
 
+    def login_user(self, userdata):
+        """
+        Login war ok, User wird eingeloggt.
+        """
         # Sessiondaten festhalten
         self.session["user_id"]     = userdata["id"]
         self.session["user"]        = userdata["name"]

@@ -42,6 +42,25 @@ class LoginVerifier(PyLucidBaseModule):
     #~ def __init__(self, request, response):
         #~ super(LoginVerifier, self).__init__(request, response)
 
+    def check_plaintext_login(self, username, password):
+        try:
+            userdata = self.get_userdata(username)
+        except IndexError:
+            # User existier wohl nicht
+            raise PasswordError("Userdata not found!")
+
+        md5sum = md5(str(userdata["salt"]) + password)
+        md5_a = md5sum[:16]
+        md5_b = md5sum[16:]
+        md5checksum = crypt.encrypt(md5_a, md5_b)
+
+        if md5checksum == userdata["md5checksum"]:
+            # Login ok
+            return userdata
+        else:
+            # Password stimmt nicht
+            raise PasswordError("Wrong Password!")
+
     def check_md5_login(self):
         """
         Überprüfen der md5-JavaScript-Logindaten
@@ -101,18 +120,23 @@ class LoginVerifier(PyLucidBaseModule):
             )
             raise PasswordError(msg)
 
-        # Wenn wir schon die Userdaten aus der DB holen, können wir gleich
-        # alle holen ;)
-        select_items = ["id", "name", "md5checksum", "admin"]
-        userdata = self.db.get_userdata_by_username(
-            username, select_items
-        )
+        userdata = self.get_userdata(username)
 
         db_checksum = userdata["md5checksum"]
 
         self.check_login(db_checksum, md5_a2, md5_b, challenge)
 
         return userdata
+
+    def get_userdata(self, username):
+        # Wenn wir schon die Userdaten aus der DB holen, können wir gleich
+        # alle holen ;)
+        select_items = ["id", "name", "md5checksum", "salt", "admin"]
+        userdata = self.db.get_userdata_by_username(
+            username, select_items
+        )
+        return userdata
+
 
 
     #________________________________________________________________________

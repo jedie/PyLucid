@@ -1,0 +1,14 @@
+<fieldset><legend>unsecure non JavaScript Login</legend>
+
+<form method="post" action="{{ url }}">
+  <label class="left" for="user">Username:</label>
+  <input id="username" name="username" type="text" value="{{ username }}" />
+  <br />
+  <label class="left" for="plaintext_pass">Password:</label>
+  <input id="password" name="password" type="password" value="" />
+  <p>
+    Note: <strong>You password will be send as plaintext!</strong>
+  </p>
+  <input type="submit" name="request login" value="request login" />
+</form>
+</fieldset>

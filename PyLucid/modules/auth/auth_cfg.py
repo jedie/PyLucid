@@ -37,6 +37,15 @@ module_manager_data = {
             "markup"            : None
         },
     },
+    "unsecure_login": {
+        "must_login"    : False,
+        "must_admin"    : False,
+        "internal_page_info" : {
+            "description"       : "unsecure non-JS Login form",
+            "template_engine"   : "jinja",
+            "markup"            : None
+        },
+    },
     "logout" : {
         "must_login"    : False,
         "must_admin"    : False,
