@@ -39,6 +39,7 @@ class update(ObjectApp_Base):
             return
 
         self.response.write("<h3>(some errors are normal!!!)</h3>\n")
+        self._page_msg("Some errors are normal:")
 
 
         #_____________________________________________________________________
@@ -94,14 +95,14 @@ class update(ObjectApp_Base):
 
         SQLcommand = (
             "ALTER TABLE $$md5users"
-            " CHANGE pass1 md5checksum VARCHAR(64) NOT NULL"
+            " CHANGE pass1 md5checksum VARCHAR(64) NULL"
         )
         msg = "Change 'pass1' colum, rename it to 'md5checksum'."
         self._execute(msg,SQLcommand)
 
         SQLcommand = (
             "ALTER TABLE $$md5users"
-            " ADD salt INTEGER NOT NULL AFTER md5checksum;"
+            " ADD salt INTEGER NULL AFTER md5checksum;"
         )
         msg = "Add 'salt' colum."
         self._execute(msg,SQLcommand)
