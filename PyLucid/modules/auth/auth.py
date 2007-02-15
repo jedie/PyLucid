@@ -83,25 +83,33 @@ class auth(PyLucidBaseModule):
         self.write_login_form()
 
     def unsecure_login(self):
-        try:
-            username = self.request.form["username"]
-            password = self.request.form["password"]
-        except KeyError, e:
-            # Login Form anzeigen
-            self.page_msg("KeyError:", e)
-            self.page_msg("form data:", self.request.form)
-            pass
-        else:
-            # Verarbeiten eines logins
-            verifier = LoginVerifier(self.request, self.response)
+        """
+        -Zeigt das Login-Formular.
+        -Wertet ein Login aus.
+        """
+        if self.request.form != {}: # Formular wurde abgeschickt
             try:
-                userdata = verifier.check_plaintext_login(username, password)
-            except PasswordError, e:
+                username = self.request.form["username"]
+                password = self.request.form["password"]
+                if len(username)<3:
+                    raise ValueError("Username to short.")
+                if len(password)<8:
+                    raise ValueError("Password to short.")
+            except KeyError:
+                self.page_msg.red("Form Error.")
+            except ValueError, e:
                 self.page_msg.red(e)
             else:
-                # Alles in Ordnung, User wird nun eingeloggt:
-                self.login_user(userdata)
-                return
+                # Verarbeiten eines logins
+                verifier = LoginVerifier(self.request, self.response)
+                try:
+                    userdata = verifier.check_plaintext_login(username, password)
+                except PasswordError, e:
+                    self.page_msg.red(e)
+                else:
+                    # Alles in Ordnung, User wird nun eingeloggt:
+                    self.login_user(userdata)
+                    return
 
         context = {
             "url": self.URLs.currentAction(),

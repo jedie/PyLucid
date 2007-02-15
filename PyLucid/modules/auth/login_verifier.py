@@ -39,14 +39,18 @@ def md5(txt):
 
 
 class LoginVerifier(PyLucidBaseModule):
-    #~ def __init__(self, request, response):
-        #~ super(LoginVerifier, self).__init__(request, response)
 
     def check_plaintext_login(self, username, password):
+        """
+        Plaintext Login.
+        Aus dem übermittelten Klartext Passwort, bauen wir den in der DB
+        hinterlegten verschlüsselten Hastwert nach. Ist dieser gleich, ist
+        der Login ok.
+        """
         try:
             userdata = self.get_userdata(username)
         except IndexError:
-            # User existier wohl nicht
+            # User existiert nicht.
             raise PasswordError("Userdata not found!")
 
         md5sum = md5(str(userdata["salt"]) + password)
