@@ -22,7 +22,7 @@ __version__ = "$Rev$"
 
 
 # Standart Python Module
-import os, sys, md5, datetime
+import os, sys, md5, datetime, cgi
 #~ from Cookie import SimpleCookie
 
 ## Dynamisch geladene Module:
@@ -82,11 +82,12 @@ class auth(PyLucidBaseModule):
 
         self.write_login_form()
 
-    def unsecure_login(self):
+    def insecure_login(self):
         """
         -Zeigt das Login-Formular.
         -Wertet ein Login aus.
         """
+        username = ""
         if self.request.form != {}: # Formular wurde abgeschickt
             try:
                 username = self.request.form["username"]
@@ -113,16 +114,16 @@ class auth(PyLucidBaseModule):
 
         context = {
             "url": self.URLs.currentAction(),
-            "username": "", # Alter Username
+            "username": cgi.escape(username), # Alter Username
         }
-        self.templates.write("unsecure_login", context, debug)
+        self.templates.write("insecure_login", context, debug)
 
 
     def write_login_form(self):
         # Formular zum eingeben des Usernamens:
         context = {
             "url": self.URLs.actionLink("login"),
-            "fallback_url": self.URLs.actionLink("unsecure_login"),
+            "fallback_url": self.URLs.actionLink("insecure_login"),
         }
         self.templates.write("input_username", context, debug)
 
