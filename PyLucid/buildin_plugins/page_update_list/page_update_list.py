@@ -35,9 +35,9 @@ class page_update_list(PyLucidBaseModule):
     def lucidTag(self):
         self.write_list(10)
 
-    def lucidFunction(self, count):
+    def lucidFunction(self, function_info=10):
         try:
-            count = int(count)
+            count = int(function_info)
         except Exception, e:
             msg = "lucidFunction is not a int number: %s" % e
             self.page_msg(msg)
