@@ -44,22 +44,29 @@ def locale_datetime(t):
     String zurück liefern
     t kann entweder direkt ein datetime-Objekt sein oder ein timestamp
     """
-    if not isinstance(t, datetime.datetime):
-        if isinstance(t, basestring):
-            # Vielleicht ein timestamp als String?!?!
-            t = float(t)
-        t = datetime.datetime.fromtimestamp(t)
+    try:
+        if not isinstance(t, datetime.datetime):
+            if isinstance(t, basestring):
+                # Vielleicht ein timestamp als String?!?!
+                t = float(t)
+            t = datetime.datetime.fromtimestamp(t)
 
-    datetime_format = request.l10n.get("datetime")
-    datetime_format = str(datetime_format) # Darf kein unicode sein!
-    return t.strftime(datetime_format)
+        datetime_format = request.l10n.get("datetime")
+        datetime_format = str(datetime_format) # Darf kein unicode sein!
+        result = t.strftime(datetime_format)
+    except Exception, e:
+        result = "[Error: %s]" % e
+    return result
 
 def W3CDTF_datetime(datetime_obj):
     """
     Liefert das Datum als DCTERMS.W3CDTF zurück
     """
-    assert isinstance(datetime_obj, datetime.datetime)
-    return datetime_obj.strftime("%Y-%m-%d")
+    try:
+        result = datetime_obj.strftime("%Y-%m-%d")
+    except Exception, e:
+        result = "[Error: %s]" % e
+    return result
 
 
 #_____________________________________________________________________________
