@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title|escape }} | {% trans 'PyLucid site admin' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'PyLucid Administration' %}</h1>
+&nbsp;<a href="/">&nbsp;&#xAB; {% trans 'back' %}</a>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+{% block footer %}<div id="footer" class="align-right">
+{{ powered_by }}
+<p>page stats: <!-- script_duration --></p>
+</div>{% endblock %}

@@ -1,0 +1,61 @@
+
+ PyLucid
+~~~~~~~~~
+
+http://www.pylucid.org
+http://www.sourceforge.net/projects/pylucid/
+http://www.ohloh.net/projects/5642
+
+
+ license
+~~~~~~~~~
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 3
+of the License, or any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details:
+http://www.gnu.org/licenses/gpl.html
+
+http://www.pylucid.org/index.py/GPL/
+
+
+ Lizenz DE
+~~~~~~~~~~~
+
+PyLucid steht unter GPL v3 or later.
+
+Allgemeine Information:
+  http://de.wikipedia.org/wiki/GNU_General_Public_License
+
+Inoffizielle Deutsche Übersetzung der GNU General Public License:
+    http://www.gnu.de/gpl-ger.html
+
+
+
+ authors
+~~~~~~~~~
+
+(List of all SVN committers)
+
+  Jens Diemer
+Main Developer since the first code line.
+ohloh.net profile: http://www.ohloh.net/accounts/4179/
+homepage: http://www.jensdiemer.de
+
+  Christopher Grebs
+ohloh.net profile: http://www.ohloh.net/accounts/3505
+homepage: http://webshox.org/
+
+
+
+ SVN file info
+~~~~~~~~~~~~~~~
+$LastChangedDate$
+$Rev$
+$Author$
+$URL$

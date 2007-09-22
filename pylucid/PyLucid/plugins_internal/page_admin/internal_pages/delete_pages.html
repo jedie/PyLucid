@@ -1,0 +1,15 @@
+<h2>{% trans 'Delete pages' %}</h2>
+
+<fieldset class="internalpage">
+  <legend>{% trans 'Select pages you will delete:' %}</legend>
+
+  <form name="delete_page" method="post" action=".">
+    {{ html_data }}
+    <input type="submit" name="delete page" value="delete page" />
+  </form>
+
+  <ul>Note: You can't delete a page how...
+    <li>...is the default page.</li>
+    <li>...has sub pages.</li>
+  </ul>
+</fieldset>

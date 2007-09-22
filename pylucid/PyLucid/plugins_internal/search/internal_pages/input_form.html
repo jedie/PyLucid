@@ -1,0 +1,11 @@
+<p>
+<form id="search_form" method="post" action="{{ url }}">
+{% for field in search_form %}
+    {% if field.errors %}<fieldset>{% endif %}
+    {{ field }}
+    {% if field.errors %}<p class="search_form_errors">{{ field.errors }}</p>{% endif %}
+    <input type="submit" name="search plugin" value="search" />
+    {% if field.errors %}</fieldset>{% endif %}
+{% endfor %}
+</form>
+</p>

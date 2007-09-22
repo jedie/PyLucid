@@ -1,0 +1,23 @@
+{% if submited %}{# Info if the form was submit #}
+  <p>
+    A 'password reset' email was send to you.<br />
+    Please check you emails ;)
+  </p>
+  <strong>Note:</strong>
+  <ul>
+    <li>The reset Link expiry on {{ expiry_date }} (in {{ expiry_time }}sec.)</li>
+    <li>You must use the reset Link with the same Browser</li>
+    {% if expire_at_browser_close %}
+    <li><strong>Importand:</strong> You sould not close your Browser! (Session expire at browser close.)</li>
+    {% endif %}
+    <li>Your IP address may not change!</li>
+  </ul>
+{% else %}{# The html form to get the password reset email. #}
+  <fieldset id="passreset"><legend>{% trans 'Reset your password:' %}</legend>
+    <form name="passreset_form" id="passreset_form" method="post" action="{{ url }}">
+      {{ form.as_p }}
+      <br />
+      <input type="submit" value="submit" name="{% trans 'submit' %}" />
+    </form>
+  </fieldset>
+{% endif %}

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>List of all available template tags</title>
+{{ add_data_tag }}
+</head>
+<body>
+
+<div id="content">
+
+<h2>List of all available plugin tags:</h2>
+<p><strong>Note:</strong> Necessary tag parameters are not indicated here!</p>
+<ul id="plugin_list">
+{% for plugin in plugin_list %}
+  <li>
+    <p title="{{ plugin.long_description }}">
+        &#x7B;% lucidTag {{ plugin.plugin_name }} %&#x7D;
+       <small> - {{ plugin.description }}</small>
+    </p>
+  </li>
+{% endfor %}
+</ul>
+
+<h2>List of all PAGE tags:</h2>
+<ul id="page_fields">
+{% for field in page_fields %}
+  <li>
+    <p>
+        &#x7B;&#x7B; PAGE.{{ field.name }} &#x7D;&#x7D;
+       <small> - {{ field.help_text }}</small>
+    </p>
+  </li>
+{% endfor %}
+</ul>
+
+<hr />
+
+<h2>Usefull links:</h2>
+<ul id="links">
+  <li>
+    <a href="http://www.djangoproject.com/documentation/templates/">
+    The django documentation about the template language
+    </a>
+  </li>
+</ul>
+
+
+</div>
+<!-- script_duration -->
+</body></html>

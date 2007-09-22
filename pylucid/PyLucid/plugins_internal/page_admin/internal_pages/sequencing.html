@@ -1,0 +1,42 @@
+<h2>{% trans 'Sequencing pages' %}</h2>
+
+<p>
+  {% trans 'Here you can change the page position by setting the weights.' %}<br />
+  ({% trans 'ascending order' %})
+</p>
+
+<p>
+{% trans 'Switch to a other page level:' %}
+{% if has_parents and not use_parent %}<a href="{{ base_url }}parents/">{% endif %}
+    &#xAB; {% trans 'parent' %}
+{% if has_parents and not use_parent %}</a>{% endif %}
+ |
+{% if not use_current %}<a href="{{ base_url }}">{% endif %}
+    {% trans 'current' %}
+{% if not use_current %}</a>{% endif %}
+ |
+{% if has_childs and not use_child %}<a href="{{ base_url }}childs/">{% endif %}
+    {% trans 'child' %} &#xBB;
+{% if has_childs and not use_child %}</a>{% endif %}
+</p>
+
+<form method="post" action="." id="sequencing">
+  <table>
+  {% for page in sequencing_data %}
+  <tr title="{{ page.title }}">
+    <td class="name">{{ page.name|escape }}</td>
+    <td>current weight: <strong>{{ page.position }}</strong></td>
+    <td>
+      <select name="{{ page.id }}">
+        {% for weight in weights %}
+          <option value="{{ weight }}" {% ifequal weight page.position %}selected="selected"{% endifequal %}>
+             {{ weight }}
+          </option>
+        {% endfor %}
+      </select>
+    </td>
+  </tr>
+  {% endfor %}
+  </table>
+  <input type="submit" name="save" value="save"/>
+</form>

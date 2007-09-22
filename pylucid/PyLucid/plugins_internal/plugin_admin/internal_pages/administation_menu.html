@@ -1,0 +1,124 @@
+<h2>Plugin Administration {{ version }}</h2>
+
+<table class="plugin_admin">
+    <tr><td class="caption" colspan="7"><h3>acivated</h3></td></tr>
+    <tr class="headline">
+        <th>plugin/Plugin name</th>
+        <th>description</th>
+        <th>author</th>
+        <th>version</th>
+        <th colspan="3">actions</th>
+    </tr>
+
+    {% for plugin in active_plugins %}
+        <tr class="{{ rowclass }}">
+            <td class="name">{{ plugin.plugin_name|escape }}</td>
+            <td class="description">{{ plugin.description|escape }}</td>
+            <td>
+                <a class="author" href="{{ plugin.url }}" title="{{ plugin.author }}">{{ plugin.author }}</a>
+            </td>
+            <td class="version">{{ plugin.version }}</td>
+            <td>
+                {% if plugin.builtin %}
+                    <small>[buildin plugin]</small>
+                {% else %}
+                    <form method="post" action="{{ action_url }}">
+                        <input name="id" type="hidden" value="{{ plugin.id }}" />
+                        <span class="action">
+                            &dArr; <input type="submit" value="deactivate" name="deactivate" />
+                        </span>
+                    </form>
+                {% endif %}
+            </td>
+            <td>
+                <form method="post" action="{{ action_url }}">
+                    <input name="id" type="hidden" value="{{ plugin.id }}" />
+                    <input type="submit" value="reinit" name="reinit" />
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+
+    <tr><td class="caption" colspan="7"><h3>registered and unactivated</h3></td></tr>
+    <tr class="headline">
+        <th>plugin/Plugin name</th>
+        <th>description</th>
+        <th>author</th>
+        <th>version</th>
+        <th colspan="3">actions</th>
+    </tr>
+
+    {% for plugin in deactive_plugins %}
+        <tr class="{{ rowclass }}">
+            <td class="name">{{ plugin.plugin_name|escape }}</td>
+            <td class="description">{{ plugin.description|escape }}</td>
+            <td>
+                <a class="author" href="{{ plugin.url }}" title="{{ plugin.author }}"></a>
+            </td>
+            <td class="version">{{ plugin.version }}</td>
+            <td>
+                {% if plugin.builtin %}
+                    <small>[buildin plugin]</small>
+                {% else %}
+                    <form method="post" action="{{ action_url }}">
+                        <input name="id" type="hidden" value="{{ plugin.id }}" />
+                        <span class="action">
+                            &dArr; <input type="submit" value="deinstall" name="deinstall"
+                                title="delete the Plugin with all Data (incl. internal pages)" />
+                        </span>
+                    </form>
+                {% endif %}
+            </td>
+            <td>
+                <form method="post" action="{{ action_url }}">
+                    <input name="id" type="hidden" value="{{ plugin.id }}" />
+                    <span class="action">
+                        &uArr; <input type="submit" value="activate" name="activate" />
+                    </span>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+
+    <tr><td class="caption" colspan="7"><h3>not installed</h3></td></tr>
+    <tr class="headline">
+        <th>plugin/Plugin name</th>
+        <th>description</th>
+        <th>author</th>
+        <th>version</th>
+        <th colspan="3">actions</th>
+    </tr>
+
+    {% for plugin in uninstalled_plugins %}
+        <tr class="{{ rowclass }}">
+            <td class="name">{{ plugin.plugin_name|escape }}</td>
+            <td class="description">{{ plugin.description|escape }}</td>
+            <td>
+                <a class="author" href="{{ plugin.url }}" title="{{ plugin.author }}"></a>
+            </td>
+            <td class="version">{{ plugin.version }}</td>
+            <td>
+                {% if plugin.builtin %}
+                    <small>[buildin plugin]</small>
+                {% else %}
+                    <form method="post" action="{{ action_url }}">
+                        <input name="plugin_name" type="hidden" value="{{ plugin.plugin_name }}" />
+                        <input name="package_name" type="hidden" value="{{ plugin.package_name }}" />
+                        <span class="action">
+                            &uArr; <input type="submit" value="install" name="install" />
+                        </span>
+                    </form>
+                {% endif %}
+            </td>
+            <td></td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h4>Info:</h4>
+<ul>
+  <li><strong>install</strong> - register a plugin/Plugin in the Database</li>
+  <li><strong>deinstall</strong> - All tables, stylesheets and internal pages where delete in the DB.</li>
+  <li><strong>activate</strong> - enable the plugin/Plugin for the CMS</li>
+  <li><strong>deactivate</strong> - disable the plugin/Plugin</li>
+</ul>

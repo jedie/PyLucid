@@ -1,0 +1,19 @@
+<fieldset><legend>add new user</legend>
+    <form name="add_new_user_form" id="add_new_user_form" method="post" action="{{ url }}" onSubmit="return add_new_user_check()">
+        <p>
+        <label class="left" for="username">Username:</label>
+        <input name="username" id="add_new_user_username" type="text" value="" />
+        <label for="is_admin">is admin:</lable>
+        <input type="checkbox" {% if runlevel_is_install %}checked="checked"{% endif %} id="is_admin" name="is_admin" value="1">
+        <br />
+        <label class="left" for="email">email:</label>
+        <input name="email" id="add_new_user_email" type="text" value="" />
+        (Note: For a password reset, this email address should be valid.)
+        <br />
+        <label class="left" for="realname">Realname:</label>
+        <input name="realname" id="add_new_user_realname" type="text" value="" />
+        <br />
+        <input type="submit" name="add user" value="add user" />
+        </p>
+    </form>
+</fieldset>

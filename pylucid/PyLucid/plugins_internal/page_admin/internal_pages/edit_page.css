@@ -1,0 +1,59 @@
+#edit_page_form ul {
+    list-style-type:none;
+    padding: 0px;
+}
+#edit_page_form li {
+    padding: 4px;
+}
+#edit_page_form label {
+    float: left;
+    padding-right: 4px;
+    text-align: right;
+    width: 6.5em;
+}
+#edit_page_form input, #edit_page_form select {
+    width: 30%;
+}
+#edit_page_form .field_help_text {
+    font-size:0.7em;
+}
+
+#edit_page_form .content label, #edit_page_form .content .field_help_text {
+    /* hide label and help_text around the textarea */
+    display:none;
+}
+#edit_page_form .keywords input, #edit_page_form .description input {
+    /* make keywords and description input bigger */
+    width: 75%;
+}
+#edit_page_form .keywords .field_help_text, #edit_page_form .description .field_help_text {
+    /* setup the help text for keywords and description */
+    display: block;
+    padding-left: 10em;
+}
+#edit_page_form textarea, hr.seperator, #action_buttons {
+    /* make the space between the action buttons and the text area smaller */
+    margin: 0;
+    padding: 0;
+}
+
+#action_buttons li {
+    float: left;
+    padding: 5px 10px 5px 10px;
+    background-color: #09C;
+}
+hr.seperator {
+    border: 0;
+    height: 0;
+    clear: both;
+}
+#action_buttons a {
+    text-decoration:none;
+}
+#action_buttons .resize_buttons {
+    width: 30px;
+}
+.errorlist {
+    /* newforms errors */
+    border: 1px solid red;
+}

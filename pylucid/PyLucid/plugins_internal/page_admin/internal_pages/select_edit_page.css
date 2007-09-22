@@ -1,0 +1,41 @@
+label, input, select, textarea {
+  vertical-align: middle;
+  margin-top, margin-bottom: 5px;
+}
+label.left {
+  float: left;
+  text-align: right;
+
+  width: 10em;
+  margin-right: .3em;
+  padding: 0px;
+}
+.rightonly {
+  /* Eingabefelder mit Text dahinter */
+  margin-left: 10.3em;
+  padding: 0px;
+}
+
+form br {
+  /*  floats nach dem Forumlar aufheben */
+  clear: both;
+}
+
+label, select, input {
+  cursor: pointer;
+}
+.internalpage input[type=text] {
+  width: 75%%;
+  cursor: text;
+}
+
+.internalpage input, .internalpage select, .internalpage textarea {
+  margin: 2px;
+  border: 1px solid grey;
+  color: #000;
+  background: #fafafa;
+}
+.internalpage input:focus, .internalpage select:focus, .internalpage textarea:focus {
+  border: 1px solid back;
+  background: #fff;
+}

@@ -1,0 +1,251 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
+"""
+Module Admin
+
+Einrichten/Konfigurieren von Modulen und Plugins
+
+
+Last commit info:
+----------------------------------
+$LastChangedDate$
+$Rev$
+$Author$
+
+Created by Jens Diemer
+
+license:
+    GNU General Public License v2 or above
+    http://www.opensource.org/licenses/gpl-license.php
+"""
+
+__version__= "$Rev$"
+
+import os
+
+from django import newforms as forms
+
+from django.conf import settings
+
+from PyLucid.models import Plugin, PagesInternal
+from PyLucid.system.plugin_manager import get_plugin_list, get_plugin_config, \
+                                                                install_plugin
+from PyLucid.system.BasePlugin import PyLucidBasePlugin
+
+
+class InstallForm(forms.Form):
+    """
+    Validate 'install plugin' POST.
+    e.g.:
+    {
+        u'install': [u'install'],
+        u'package_name': [u'PyLucid.plugins_external'],
+        u'plugin_name': [u'HelloWorld1']
+    }
+    """
+    package_name = forms.CharField(min_length=3, max_length=50)
+    plugin_name = forms.CharField(min_length=3, max_length=50)
+
+
+class ID_Form(forms.Form):
+    """
+    Validate 'deinstall plugin', 'deactivate plugin' and 'reinit' POST.
+    e.g.:
+    {u'id': [u'99'], u'deinstall': [u'deinstall']}
+    {u'id': [u'99'], u'deactivate': [u'deactivate']}
+    {u'id': [u'99'], u'activate': [u'activate']}
+    """
+    id = forms.IntegerField()
+
+
+class plugin_admin(PyLucidBasePlugin):
+
+    def menu(self):
+        """
+        Run the method from a POST and display the menu.
+        """
+        if self.request.method == 'POST':
+            POST = self.request.POST
+            if "install" in POST:
+                form = InstallForm(POST)
+                if form.is_valid():
+                    plugin_name = form.cleaned_data["plugin_name"]
+                    package_name = form.cleaned_data["package_name"]
+                    self._install_plugin(plugin_name, package_name)
+            else:
+                form = ID_Form(POST)
+                if form.is_valid():
+                    plugin_id = form.cleaned_data["id"]
+                    try:
+                        if "deinstall" in POST:
+                            self._deinstall_plugin(plugin_id)
+                        elif "deactivate" in POST:
+                            self._deactivate_plugin(plugin_id)
+                        elif "activate" in POST:
+                            self._activate_plugin(plugin_id)
+                        elif "reinit" in POST:
+                            self._reinit_plugin(plugin_id)
+                    except ActionError, e:
+                        self.page_msg.red(e)
+
+        # Build the Menu data and render the Template:
+
+        installed_names = []
+        active_plugins = []
+        deactive_plugins = []
+        installed_plugins = Plugin.objects.all()
+        for plugin in installed_plugins:
+            installed_names.append(plugin.plugin_name)
+            if plugin.active:
+                active_plugins.append(plugin)
+            else:
+                deactive_plugins.append(plugin)
+
+        uninstalled_plugins = self._get_uninstalled_plugins(installed_names)
+
+        context = {
+            "active_plugins": active_plugins,
+            "deactive_plugins": deactive_plugins,
+            "uninstalled_plugins": uninstalled_plugins,
+            "action_url": "#", # FIXME
+        }
+        self._render_template("administation_menu", context)#, debug=True)
+
+    def _get_uninstalled_plugins(self, installed_names):
+        """
+        Read all Plugin names from the disk and crop it with the given list.
+        """
+        uninstalled_plugins = []
+
+        for path_cfg in settings.PLUGIN_PATH:
+            package_name = ".".join(path_cfg["path"])
+
+            plugin_path = os.path.join(*path_cfg["path"])
+            plugin_list = get_plugin_list(plugin_path)
+
+            for plugin_name in plugin_list:
+                if plugin_name in installed_names:
+                    continue
+                try:
+                    plugin_cfg = get_plugin_config(
+                        package_name, plugin_name, dissolve_version_string=True
+                    )
+                except Exception, e:
+                    self.page_msg("Error: %s" % e)
+                else:
+                    uninstalled_plugins.append({
+                        "plugin_name": plugin_name,
+                        "package_name": package_name,
+                        "description": plugin_cfg.__description__,
+                        "url": plugin_cfg.__url__,
+                        "author": plugin_cfg.__author__,
+                        "version": plugin_cfg.__version__,
+                    })
+
+        return uninstalled_plugins
+
+    def plugin_setup(self):
+        self.page_msg("Not implemented yet.")
+
+    #__________________________________________________________________________
+    # The real action methods
+
+    def _get_internal_page_info(self, plugin_obj):
+        pages = PagesInternal.objects.filter(plugin=plugin_obj)
+        page_names = [page.name.split(".",1)[-1] for page in pages]
+        return pages, page_names
+
+    def _install_plugin(self, plugin_name, package_name, active=False):
+        """
+        Put the plugin data and the internal pages from it into the database.
+        """
+        try:
+            install_plugin(
+                package_name, plugin_name, active, extra_verbose=False
+            )
+        except Exception, e:
+            raise ActionError(_("Error installing Plugin:"), e)
+        else:
+            plugin = Plugin.objects.get(plugin_name=plugin_name)
+            pages, page_names = self._get_internal_page_info(plugin)
+            self.page_msg.green(
+                _("Plugin '%s' and internal pages %s saved into"
+                " the database.") % (plugin, page_names)
+            )
+
+    def _deinstall_plugin(self, plugin_id):
+        """
+        remove internal_pages and the plugin entry from the database.
+        """
+        try:
+            plugin = Plugin.objects.get(id=plugin_id)
+            pages, page_names = self._get_internal_page_info(plugin)
+            pages.delete()
+            plugin.delete()
+        except Exception, e:
+            raise ActionError(_("Error removing Plugin: %s") % e)
+        else:
+            self.page_msg.green(
+                _("Plugin '%s' and internal pages %s removed from the"
+                " database.") % (plugin, page_names)
+            )
+
+    def _deactivate_plugin(self, plugin_id):
+        """
+        Set the database active flag to False.
+        """
+        try:
+            plugin = Plugin.objects.get(id=plugin_id)
+            plugin.active = False
+            plugin.save()
+        except Exception, e:
+            raise ActionError(_("Can't deactivate Plugin: %s") % e)
+        else:
+            self.page_msg.green(
+                _("Plugin '%s' deactivated.") % plugin.plugin_name
+            )
+
+    def _activate_plugin(self, plugin_id):
+        """
+        Set the database active flag to True.
+        """
+        try:
+            plugin = Plugin.objects.get(id=plugin_id)
+            plugin.active = True
+            plugin.save()
+        except Exception, e:
+            raise ActionError(_("Can't activate Plugin: %s") % e)
+        else:
+            self.page_msg.green(
+                _("Plugin '%s' activated.") % plugin.plugin_name
+            )
+
+    def _reinit_plugin(self, plugin_id):
+        """
+        Deinstall a plugin, after this install it again and activate it.
+        """
+        try:
+            plugin = Plugin.objects.get(id=plugin_id)
+        except Plugin.DoesNotExist:
+            self.page_msg.red("Wrong ID")
+            return
+
+        plugin_name = plugin.plugin_name
+        package_name = plugin.package_name
+
+        try:
+            self._deinstall_plugin(plugin_id)
+            self._install_plugin(plugin_name, package_name, active=True)
+        except Exception, e:
+            raise ActionError(_("Can't reinit plugin: %s") % e)
+        else:
+            self.page_msg.green(_("Reinit complete."))
+
+
+class ActionError(Exception):
+    """
+    Appears if any action (de)install/(de)activate fails.
+    """
+    pass
+

@@ -1,0 +1,14 @@
+{% extends "PyLucid_base.html" %}
+{% load i18n %}
+
+{% block title %}PyLucid - {% trans 'Server error (500)' %}{% endblock %}
+
+{% block base_content %}
+<h1>{% trans 'Server Error <em>(500)</em>' %}</h1>
+<p>{% trans "There's been an error. It's been reported to the site administrators via e-mail and should be fixed shortly. Thanks for your patience." %}</p>
+{% endblock %}
+
+{% block base_footer %}
+<hr />
+{{ request.META.SERVER_SIGNATURE }}
+{% endblock %}

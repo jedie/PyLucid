@@ -1,0 +1,51 @@
+<fieldset>
+<legend>
+    {% trans 'Edit the CMS page' %} '<strong title="{{ PAGE.get_verbose_title|escape }}">{{ PAGE.name|escape }}</strong>'
+</legend>
+<form action="." method="post" id="edit_page_form">
+    <ul id="action_buttons">
+        <li>
+            <input type="submit" value="{% trans 'Save' %}" />
+            <input onclick="self.location.href='{{ url_abort }}'" name="abort" value="{% trans 'Abort' %}" type="reset" />
+        </li><li>
+        <a href="{{ url_textile_help }}" title="tinyTextile {% trans 'help page' %}">
+            <button type="button" onclick="OpenInWindow('{{ url_textile_help }}'); return false">
+             tinyTextile {% trans 'help' %}
+            </button>
+        </a>
+        <a href="{{ url_taglist }}" title="{% trans 'List of all available PyLucid template tags' %}">
+            <button type="button" onclick="OpenInWindow('{{ url_taglist }}'); return false">
+             {% trans 'tag list' %}
+            </button>
+        </a>
+        <a href="{{ url_django_edit }}" title="{% trans 'Edit this page in the django admin panel.' %}">
+            <button type="button" onclick="OpenInWindow('{{ url_django_edit }}'); return false">
+             {% trans 'django panel edit' %}
+            </button>
+        </a>
+        </li>
+        {% if not tinymce %}
+        <li>
+        <button type="button" class="resize_buttons" onclick="JavaScript:resize_big(); return false" title="{% trans 'makes the textarea bigger' %}">
+            +
+        </button>
+        <button type="button" class="resize_buttons" onclick="JavaScript:resize_small(); return false" title="{% trans 'makes the textarea smaller' %}">
+            -
+        </button>
+        </li>
+        {% endif %}
+    </ul>
+    <hr class="seperator" />
+    <ul>
+        {% for field in edit_page_form %}
+            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+            <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+            {{ field }}
+            <span class="field_help_text">{{ field.help_text }}</span>
+            {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</form>
+</fieldset>
+{% if tinymce %}{{ tinymce }}{% endif %}

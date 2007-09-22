@@ -1,0 +1,91 @@
+{% extends "install_base.html" %}
+
+{% block head %}
+<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+function make_salt() {
+    /* return a random string: six digit number */
+    salt = Math.random();
+    // convert to a string:
+    salt = "" + salt;
+    // get 5 decimal places after the comma:
+    salt = salt.substring(2, 7);
+    return salt
+}
+function make_hash() {
+    source = document.getElementById("source").value;
+
+    if (source.length<8) {
+        if (document.getElementById("hash").value != "") {
+            // make_hash() has created the hash in the past. Nothing to do
+            return false;
+        }
+        alert("Password min len 8! - current len:" + source.length);
+        return false;
+    }
+	if (check_ascii_only(source) == false) {
+		return false
+	}
+
+    salt = make_salt();
+    sha = hex_sha1(salt + source);
+    hash = "sha1$" + salt + "$" + sha;
+
+    hash_obj = document.getElementById("hash")
+    hash_obj.value = hash;
+    hash_obj.style.backgroundColor = "lightgreen";
+
+    source_obj = document.getElementById("source")
+    source_obj.value = "";
+    source_obj.style.backgroundColor = "grey";
+}
+
+function init() {
+    // Unhide "gen_hash_block" with external media_path_test.js file:
+    unhide_by_id("gen_hash_block");
+
+	set_focus("source");
+}
+/* ]]> */
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans 'Generate _install section password hash.' %}</h1>
+
+<div id="gen_hash_block">
+<p>
+    {% trans 'Before you can login into the _install section, you must insert a login password hash into your settings.py.' %}<br />
+    {% trans 'Here you can generate this password hash.' %}<br />
+    <br />
+    {% trans 'Please ...' %}
+    <ol>
+    <li>{% trans '... input a Password.' %}</li>
+    <li>{% trans '... copy and paste the SHA hash into your settings.py. (Variable "INSTALL_PASS_HASH")' %}</li>
+    <li>{% trans '... reload this page.' %}</li>
+    </ol>
+</p>
+<fieldset>
+    <legend>{% trans 'Generate SHA-1 hash.' %}</legend>
+    <label for="source">Input your Password here :</label>
+    <input id="source" type="password" name="{% trans 'Password' %}" size="20" onchange="make_hash();" /><br />
+    <span class="help_text">{% trans '(at least 8 chars long and only ASCII letters are allowed!)' %}</span>
+    <p>
+    <label for="hash">generated SHA-1 hash :</label>
+    <input id="hash" type="text" value="(input the password first)" size="60" readonly="readonly" /><br />
+    <span class="help_text">{% trans 'You must copy and paste the hash into your settings.py file.' %}</span>
+    </p>
+    <input type="button" value="make hash" onclick="make_hash();"><br />
+</fieldset>
+
+<ul>
+<strong>{% trans 'Info:' %}</strong><br />
+<li>
+    {% trans 'The password would be hashed with JavaScript in your Browser. It will not send to the server back!' %}
+</li>
+</ul>
+</div>
+
+<script type="text/javascript">init();</script>
+{% endblock %}

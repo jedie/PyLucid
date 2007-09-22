@@ -1,0 +1,39 @@
+#tag_list {
+  list-style-type: none;
+}
+#tag_list p {
+  display:inline;
+  line-height:1.75em;
+}
+#tag_list p:hover {
+  background-color: #C9C573;
+}
+
+/* -----------------------------------------------------------------------------
+The html page
+----------------------------------------------------------------------------- */
+
+html, body {
+  margin:0px;
+  padding:0px;
+  font-family: tahoma, arial, sans-serif;
+  color: #000;
+}
+html {
+  margin:20px;
+  background-color: #C9C573;
+  border:1px solid black;
+}
+#content {
+  padding:20px;
+  background-color: #FFFFE5;
+  font-size: 0.9em;
+}
+pre {
+  border:1px solid grey;
+  background-color: white;
+}
+.big_hr {
+  border:5px solid gray;
+  margin-top: 7em;
+}

@@ -1,0 +1,5 @@
+<ul>
+{% for page in sub_pages %}
+  <li><a href="{{ pre_link }}{{ page.shortcut }}">{{ page.name|escape }}</a></li>
+{% endfor %}
+</ul>

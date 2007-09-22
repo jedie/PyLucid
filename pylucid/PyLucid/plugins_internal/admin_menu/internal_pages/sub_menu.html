@@ -1,0 +1,75 @@
+<h2>{% trans 'Administration sub menu' %}</h2>
+
+<fieldset><legend>{% trans 'page admin' %}</legend>
+<ul>
+    <li>
+        <a href="{{ commandURLprefix }}/page_admin/select_edit_page/">{% trans 'select page to edit' %}</a> <small>({% trans 'all pages available!' %})</small>
+    </li>
+    <li>
+        <a href="{{ commandURLprefix }}/page_admin/delete_pages/">{% trans 'delete pages' %}</a> <small>({% trans 'select pages to delete these.' %})</small>
+    </li>
+    <li>
+        <a href="{{ commandURLprefix }}/page_admin/sequencing/">{% trans 'sequencing the pages' %}</a> <small>({% trans 'change the page order.' %})</small>
+    </li>
+</ul>
+</fieldset>
+
+<fieldset><legend>{% trans 'edit look' %}</legend>
+<ul>
+    <li>
+        <a href="{{ adminURLprefix }}/PyLucid/style/" onclick="OpenInWindow(this); return false">{% trans 'edit stylesheets' %}</a>
+        |
+        <a href="{{ adminURLprefix }}/PyLucid/style/{{ PAGE.style.id }}/" onclick="OpenInWindow(this); return false">{% trans 'edit current stylesheet' %}</a>
+    </li>
+    <li>
+        <a href="{{ adminURLprefix }}/PyLucid/template/" onclick="OpenInWindow(this); return false">{% trans 'edit templates' %}</a>
+        |
+        <a href="{{ adminURLprefix }}/PyLucid/template/{{ PAGE.template.id }}/" onclick="OpenInWindow(this); return false">{% trans 'edit current template' %}</a>
+    </li>
+    <li>
+        <a href="{{ adminURLprefix }}/PyLucid/pagesinternal/" onclick="OpenInWindow(this); return false">{% trans 'edit internal pages' %}</a>
+    </li>
+</ul>
+</fieldset>
+
+<fieldset><legend>{% trans 'user management' %}</legend>
+<ul>
+    <li>
+        <a href="{{ adminURLprefix }}/auth/user/" onclick="OpenInWindow(this); return false">{% trans 'edit users' %}</a>
+    </li>
+    <li>
+        <a href="{{ adminURLprefix }}/auth/group/" onclick="OpenInWindow(this); return false">{% trans 'edit user groups' %}</a>
+    </li>
+    <li>
+        <a href="{{ commandURLprefix }}/EMailSystem/user_list/">{% trans 'EMail system' %}</a>
+    </li>
+</ul>
+</fieldset>
+
+<fieldset><legend>{% trans 'Plugins management' %}</legend>
+<ul>
+    <li>
+        <a href="{{ commandURLprefix }}/plugin_admin/menu/">{% trans 'Plugin administration' %}</a>
+    </li>
+    <!--
+    <li>
+        <a href="{{ commandURLprefix }}/plugin_admin/plugin_setup/">{% trans 'Plugin setup' %}</a>
+    </li>
+    -->
+</ul>
+</fieldset>
+
+
+{% comment %}
+<fieldset><legend>{% trans 'backup' %}</legend>
+
+* "{% trans 'DB dump' %}":{{ commandURLprefix }}/MySQLdump/menu
+
+</fieldset>
+
+<fieldset><legend>{% trans 'internals' %}</legend>
+
+* <lucidTag:show_internals/>
+
+</fieldset>
+{% endcomment %}

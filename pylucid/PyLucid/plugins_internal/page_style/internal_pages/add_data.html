@@ -1,0 +1,21 @@
+<!-- additional javascript code - START -->
+{% if js_data %}{% for js in js_data %}
+<script type="text/javascript">
+/* <![CDATA[ */
+/* additional javascript from {{ js.from_info }} */
+{{ js.data }}
+/* ]]> */
+</script>
+{% endfor %}{% endif %}
+<!-- additional javascript code - END -->
+
+<!-- additional stylesheet code - START -->
+{% if css_data %}{% for css in css_data %}
+<style type="text/css">
+/* <![CDATA[ */
+/* additional stylesheets from {{ css.from_info }} */
+{{ css.data }}
+/* ]]> */
+</style>
+{% endfor %}{% endif %}
+<!-- additional stylesheet code - END -->

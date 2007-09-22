@@ -1,0 +1,42 @@
+/*
+    Stylesheet for the _install section views.
+    Used in ./PyLucid/templates_PyLucid/install_base.html
+*/
+form * {
+  vertical-align:middle;
+}
+input {
+    border: 1px solid #C9C573;
+    margin: 0.4em;
+}
+pre {
+    background-color: #FFFFFF;
+    padding: 1em;
+}
+#menu li, #menu li a {
+    list-style-type: none;
+    padding: 0.3em;
+}
+#menu h4 {
+    margin: 0px;
+}
+a {
+    color:#0BE;
+    padding: 0.1em;
+}
+a:hover {
+    color:#000000;
+    background-color: #F4F4D2;
+}
+fieldset.error {
+    border:2px solid red;
+}
+.help_text {
+    font-size:0.8em;
+}
+#hash {
+    background-color: grey;
+}
+#source, #source:active, #source:hover, #source:focus {
+    background-color: white;
+}

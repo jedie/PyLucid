@@ -1,0 +1,32 @@
+<fieldset>
+<legend>{% trans 'search' %}</legend>
+<form id="search_form" method="post" action=".">
+    {{ search_form }}
+    <input type="submit" name="search plugin" value="search" />
+</form>
+</fieldset>
+
+{% if search_string %}
+    <fieldset id="search_result">
+    <legend>{% trans 'results' %}</legend>
+    <small class="search_info">{{ duration|floatformat:4 }}sec. - {{ hits }}hits</small>
+    <table>
+    {% for entry in results %}
+    <tr>
+        <td title="score">{{ entry.score }}</td>
+        <td>
+            <a href="{{ entry.page.get_absolute_url }}">
+            {{ entry.page.get_verbose_title }}
+            </a><br />
+            <small title="The page description">{{ entry.page.description }}</small>
+            <ul class="cutouts">
+            {% for cutout in entry.cutouts %}
+                <li>...{{ cutout }}...</li>
+            {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    {% endfor %}
+    </table>
+    </fieldset>
+{% endif %}

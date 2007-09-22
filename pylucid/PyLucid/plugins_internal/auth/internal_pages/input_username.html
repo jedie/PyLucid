@@ -1,0 +1,17 @@
+<fieldset><legend>PyLucid <a href="http://www.pylucid.org/index.py/JSMD5Login/" title="What is the PyLucid JS-SHA-LogIn?">JS-SHA-LogIn</a> - step 1</legend>
+
+<noscript>
+<h3>NOTE: Javascript is needed!</h3>
+<a href="{{ fallback_url }}">Without JS you can only use the non secure fallback login.</a>
+</noscript>
+
+<form method="post" action=".">
+  {{ form.as_p }}
+  <br />
+  {% trans 'Log in' %}:
+  <input type="submit" id="sha_button" name="sha_login" value="SHA-1 login" />
+  <input type="submit" id="plaintext_button" name="plaintext_login" value="unsecure plaintext login" onclick="return confirm('Do you realy want to send your password in plaintext?')"/>
+</form>
+</fieldset>
+
+<script type="text/javascript">document.getElementById("id_username").focus();</script>

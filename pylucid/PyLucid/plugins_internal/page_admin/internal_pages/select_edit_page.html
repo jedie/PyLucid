@@ -1,0 +1,21 @@
+<h2>Edit Page</h2>
+
+<form name="edit_page" method="post" action=".">
+
+<fieldset class="internalpage">
+<legend>Select a page to edit it:</legend>
+
+<p>Here are all pages available.</p>
+
+  <label class="left" for="page_id">select page:</label>
+    <select name="page_id" id="page_id">
+    {% for item in page_list %}
+       <option value="{{ item.id }}" {% ifequal item.id parent %}selected="selected"{% endifequal %}>{{ item.level_name|escape }}</option>
+    {% endfor %}
+    </select>
+  <br />
+  <input type="submit" name="edit page" value="edit page" />
+
+</form>
+
+</fieldset>

@@ -1,0 +1,15 @@
+#search_result table {
+    margin: 0.2em;
+    width: 100%;
+}
+#search_result table td, #search_result .search_info {
+    padding: 0.3em;
+    color: grey;
+}
+#search_result table tr:hover {
+    background-color: #fafafa;
+}
+#search_result .cutouts {
+    font-size: 0.75em;
+    color: gray;
+}

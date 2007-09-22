@@ -1,0 +1,8 @@
+<p>
+  Here you can find any module/plugin how has a setup method:
+</p>
+<ul>
+{% for item in modules %}
+  <li><a href="{{ item.url }}">{{ item.package_name }}</a></li>
+{% endfor %}
+</ul>
