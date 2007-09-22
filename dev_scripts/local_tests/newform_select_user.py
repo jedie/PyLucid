@@ -7,7 +7,7 @@ A local django test with synced database but empty tables.
 
 from setup import setup
 setup(
-    chdir=None, path_info=False, extra_verbose=False,
+    path_info=False, extra_verbose=False,
     syncdb=True, insert_dump=False
 )
 

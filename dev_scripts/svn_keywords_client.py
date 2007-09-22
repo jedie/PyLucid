@@ -15,9 +15,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
+    $LastChangedDate:2007-09-22 22:21:14 +0200 (Sa, 22 Sep 2007) $
+    $Rev:1244 $
+    $Author:JensDiemer $
 
     :copyright: 2007 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
@@ -44,9 +44,9 @@ except ImportError, e:
 config = Config
 config.repository = "." # PyLucid
 config.skip_dirs = (
-    "./django", "./pygments",
-    "./PyLucid/db_dump_datadir/",
-    "./media/PyLucid/tiny_mce",
+    "./pylucid/django",
+    "./pylucid/media",
+    "./pylucid/PyLucid/db_dump_datadir/",
 )
 config.skip_file_ext = (".pyc",".gif", ".png")
 #config.simulation = False

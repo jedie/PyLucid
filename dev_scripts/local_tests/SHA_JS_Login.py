@@ -5,6 +5,7 @@
     ~~~~~~~~~~~~~~~~
 
     Pseudo test code
+    It's good for documentation ;)
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~

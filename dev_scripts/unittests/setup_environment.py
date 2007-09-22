@@ -71,8 +71,8 @@ def install_internal_plugins(extra_verbose):
     print "OK"
 
 
-def setup(chdir="../../", path_info=True, extra_verbose=True, syncdb=True,
-                            insert_dump=True, install_plugins=False):
+def setup(chdir="../../pylucid", path_info=True, extra_verbose=True,
+                        syncdb=True, insert_dump=True, install_plugins=False):
     """
     setup a test environment
     """
