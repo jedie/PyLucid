@@ -30,10 +30,20 @@ start_overall = time()
 TAG = "<!-- script_duration -->"
 
 FMT = (
-    'render time: %(total_time).3f -'
-    ' overall: %(overall_time).1f -'
+    'render time: %(total_time)s -'
+    ' overall: %(overall_time)s -'
     ' Queries: %(queries)d'
 )
+
+
+def human_time(t):
+    if t<1:
+        return "%.1f ms" % (t * 100)
+    elif t>60:
+        return "%.1f min" % (t/60.0)
+    else:
+        return "%.1f sec" % t
+
 
 class PageStatsMiddleware(object):
     def process_view(self, request, view_func, view_args, view_kwargs):
@@ -69,10 +79,13 @@ class PageStatsMiddleware(object):
         # compute the db time for the queries just run
         queries = len(connection.queries) - old_queries
 
+        total_time = human_time(time() - start_time)
+        overall_time = human_time(time() - start_overall)
+
         # replace the comment if found
         stat_info = FMT % {
-            'total_time' : time() - start_time,
-            'overall_time' : time() - start_overall,
+            'total_time' : total_time,
+            'overall_time' : overall_time,
             'queries' : queries,
         }
 

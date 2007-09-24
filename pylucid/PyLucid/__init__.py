@@ -25,7 +25,7 @@ if svn_revision == u'SVN-unknown':
     svn_revision = ""
 
 # PyLucid Version String
-PYLUCID_VERSION = (0, 8, 0, "beta2 " + svn_revision)
-PYLUCID_VERSION_STRING = "0.8.0 beta2 " + svn_revision
+PYLUCID_VERSION = (0, 8, 0, "RC1 " + svn_revision)
+PYLUCID_VERSION_STRING = "0.8.0 RC1 " + svn_revision
 
 
