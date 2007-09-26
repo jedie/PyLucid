@@ -32,7 +32,7 @@ TAG = "<!-- script_duration -->"
 FMT = (
     'render time: %(total_time)s -'
     ' overall: %(overall_time)s -'
-    ' Queries: %(queries)d'
+    ' queries: %(queries)d'
 )
 
 
