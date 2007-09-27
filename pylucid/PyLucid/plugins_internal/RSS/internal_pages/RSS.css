@@ -1,0 +1,21 @@
+.RSS {
+  margin: 5px;
+  padding: 10px;
+}
+.RSS h1 {
+  font-size: 1.1em;
+  background-color: #DDD;
+  margin: 5px;
+  padding: 10px;
+}
+.RSS ul {
+  margin: 0;
+  padding: 0;
+}
+.RSS li {
+  list-style-type:none;
+  background-color: #EEE;
+  border: 1px solid #888;
+  margin: 5px;
+  padding: 10px;
+}

@@ -43,77 +43,71 @@ class RSS(PyLucidBasePlugin):
 
     info_txt = '<small class="RSS_info">\n\t%s\n</small>\n'
 
-    def lucidTag(self, url):
+    def lucidTag(self, url, title):
 
-        rss_page = cache.get(url)
-        if rss_page:
-            self.response.write(self.info_txt % "[Used cached data]")
-        else:
+#        rss_page = cache.get(url)
+#        if rss_page:
+#            self.response.write(self.info_txt % "[Used cached data]")
+#        else:
             # Was not cached
-            out = SimpleStringIO()
 
-            start_time = time.time()
-            RSS_Maker(
-                out_obj = out,
-                rss_url = url,
+        start_time = time.time()
+
+        try:
+            rss_data = urllib.urlopen(url)
+        except Exception, e:
+            self.page_msg.red(
+                "[Can't get RSS feed '%s' Error:'%s']" % (url, e )
             )
-            duration_time = time.time() - start_time
-            txt = (
-                '[Server response time: %0.2fsec. (incl. render time)]'
-            ) % duration_time
-            self.response.write(self.info_txt % txt)
+            return
 
-            rss_page = out.getvalue()
+#            cache.set(url, rss_page)
 
-            cache.set(url, rss_page)
+        server_response = time.time() - start_time
 
+        start_time = time.time()
+        r = RSS_Maker()
+        data = r.feed(rss_data)
+        paser_duration = time.time() - start_time
 
-        self.response.write(rss_page)
+        context = {
+            "url": url,
+            "title": title,
+            "entries": data,
+            "server_response": server_response,
+            "paser_duration": paser_duration,
+        }
+        self._render_template("RSS", context)#, debug=True)
 
 
 #_____________________________________________________________________________
 
+DEFAULT_NAMESPACES = (
+    None, # RSS 0.91, 0.92, 0.93, 0.94, 2.0
+    'http://purl.org/rss/1.0/', # RSS 1.0
+    'http://my.netscape.com/rdf/simple/0.9/' # RSS 0.90
+)
+DUBLIN_CORE = ('http://purl.org/dc/elements/1.1/',)
 
 class RSS_Maker(object):
 
-    DEFAULT_NAMESPACES = (
-        None, # RSS 0.91, 0.92, 0.93, 0.94, 2.0
-        'http://purl.org/rss/1.0/', # RSS 1.0
-        'http://my.netscape.com/rdf/simple/0.9/' # RSS 0.90
-    )
-    DUBLIN_CORE = ('http://purl.org/dc/elements/1.1/',)
-
-    def __init__(self, out_obj, rss_url):
-        self.out_obj = out_obj
-
-        self.feed(rss_url)
-
-    def feed(self, rss_url):
+    def feed(self, rss_data):
         """
         Diese Funktion wird direkt vom Modul-Manager ausgeführt.
         """
-        try:
-            rss_data = urllib.urlopen(rss_url)
-        except Exception, e:
-            self.out_obj.write(
-                "[Can't get RSS feed '%s' Error:'%s']" % (rss_url, e )
-            )
-            return
-
         rssDocument = xml.dom.minidom.parse(rss_data)
 
+        entries = []
         for node in self.getElementsByTagName(rssDocument, 'item'):
-            self.out_obj.write('<ul class="RSS">\n')
+            entry_data = {
+                "title_link": self.get_txt(node, "link", "#"),
+                "title": self.get_txt(node, "title", None),
+                "date": self.get_txt(node, "date", None),
+                "description": self.get_txt(node, "description", None),
+            }
+            entries.append(entry_data)
+        return entries
 
-            self.out_obj.write(
-                '<li><h1><a href="%s">\n' % self.get_txt( node, "link", "#" )
-            )
-            self.out_obj.write(self.get_txt( node, "title", "<no title>" ))
-            self.out_obj.write("</a></h1></li>\n")
-
-            self.print_txt(node, "date", '<li><small>%(data)s</small></li>')
-            self.print_txt(node, "description", '<li>%(data)s</li>')
-            self.out_obj.write("</ul>")
 
     def getElementsByTagName(self, node, tagName,
             possibleNamespaces=DEFAULT_NAMESPACES
@@ -132,28 +126,15 @@ class RSS_Maker(object):
             [child.data.encode("utf_8") for child in node.childNodes]
         ) or None
 
-    def get_txt( self, node, tagName, default_txt="" ):
+    def get_txt(self, node, tagName, default_txt=""):
         """
         Liefert den Inhalt >tagName< des >node< zurück, ist dieser nicht
         vorhanden, wird >default_txt< zurück gegeben.
         """
         return self.node_data(node, tagName) or self.node_data(
-            node, tagName, self.DUBLIN_CORE
+            node, tagName, DUBLIN_CORE
         ) or default_txt
 
-    def print_txt( self, node, tagName, print_string ):
-        """
-        Formatierte Ausgabe
-        """
-        item_data = self.get_txt(node, tagName)
-        if item_data == "":
-            return
-        txt = print_string % {
-            "tag"   : tagName,
-            "data"  : item_data
-        }
-        self.out_obj.write(txt)
-        self.out_obj.write("\n")
 
-
-
+class FeedError(Exception):
+    pass

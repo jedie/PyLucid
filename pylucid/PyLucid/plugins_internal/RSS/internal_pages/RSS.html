@@ -1,0 +1,17 @@
+<fieldset>
+<legend><a href="{{ url }}">{{ title }}</a></legend>
+<ul>
+{% for entry in entries %}
+    <li>
+    <h1><a href="{{ entry.title_link }}">{{ entry.title|escape }}</a></h1>
+    <p>
+    {% if entry.date %}
+        {{ entry.date }}
+        <br />
+    {% endif %}
+        {{ entry.description }}
+    </p>
+    </li>
+{% endfor %}
+</ul>
+</fieldset>
