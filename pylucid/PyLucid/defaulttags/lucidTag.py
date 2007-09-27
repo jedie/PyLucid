@@ -20,7 +20,7 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-import cgi
+import cgi, re
 
 from PyLucid.system.plugin_manager import run
 from PyLucid.system.response import SimpleStringIO
@@ -28,6 +28,10 @@ from PyLucid.tools.shortcuts import makeUnique
 
 from django.conf import settings
 from django import template
+
+
+# FIXME: The re should be more fault-tolerant:
+KWARGS_REGEX = re.compile('''(\w*?)\=['"](.*?)['"]''')
 
 
 class lucidTagNodeError(template.Node):
@@ -66,29 +70,9 @@ class lucidTagNode(template.Node):
         id = makeUnique(id, context["CSS_ID_list"])
         context["CSS_ID_list"].append(id)
 
-        try:
-            return u'<div class="%s" id="%s">\n%s\n</div>\n' % (
-                settings.CSS_DIV_CLASS_NAME, id, content
-            )
-        except UnicodeDecodeError:
-            # FIXME: In some case (with mysql_old) we have trouble here.
-            # I get this traceback on www.jensdiemer.de like this:
-            #
-            #Traceback (most recent call last):
-            #File ".../django/template/__init__.py" in render_node
-            #    750. result = node.render(context)
-            #File ".../PyLucid/defaulttags/lucidTag.py" in render
-            #    102. content = self._add_unique_div(context, content)
-            #File ".../PyLucid/defaulttags/lucidTag.py" in _add_unique_div
-            #    73. return u'<div class="%s" id="%s">\n%s\n</div>\n' % (
-            #
-            #UnicodeDecodeError at /FH-D-sseldorf/
-            #'ascii' codec can't decode byte 0xc3 in position 55: ordinal not in range(128)
-            #
-            #content += "UnicodeDecodeError hack active!"
-            return '<div class="%s" id="%s">\n%s\n</div>\n' % (
-                str(settings.CSS_DIV_CLASS_NAME), str(id), content
-            )
+        return u'<div class="%s %s" id="%s">\n%s\n</div>\n' % (
+            settings.CSS_DIV_CLASS_NAME, self.plugin_name, id, content
+        )
 
     def render(self, context):
         local_response = SimpleStringIO()
@@ -127,35 +111,23 @@ def lucidTag(parser, token):
         {% lucidTag PluginName kwarg1="value1" %}
         {% lucidTag PluginName kwarg1="value1" kwarg2="value2" %}
     """
-    # split content:
-    # e.g.: {% lucidTag PluginName kwarg1="value1" kwarg2="value2" %}
-    # plugin_name = "PluginName"
-    # kwargs = ['par1="value1"', 'par2="value2"']
-    kwargs = token.contents.split()[1:]
-    plugin_name = kwargs.pop(0)
+    content = token.contents
+    content = content.split(" ", 2)[1:]
+    plugin_name = content.pop(0)
+
+    method_kwargs = {}
+    if content:
+        kwargs = content[0]
+        kwargs = KWARGS_REGEX.findall(kwargs)
+        for key, value in kwargs:
+            # method Keywords must be Strings
+            key = key.encode(settings.DEFAULT_CHARSET)
+            method_kwargs[key] = value
 
     if "." in plugin_name:
         plugin_name, method_name = plugin_name.split(".", 1)
     else:
         method_name = "lucidTag"
-
-    # convert the kwargs list into a dict
-    # in..: ['par1="value1"', 'par2="value2"']
-    # out.: {'par1': 'value1', 'par2': 'value2'}
-    method_kwargs = {}
-    for no, arg in enumerate(kwargs):
-        try:
-            key, value = arg.split("=", 1)
-            key = key.encode(settings.DEFAULT_CHARSET)
-        except Exception, e:
-            return lucidTagNodeError(
-                plugin_name, method_name,
-                "The key word argument %s is not in the right format. (%s)" % (
-                    cgi.escape(repr(arg)), e
-                )
-            )
-        value = value.strip('"')
-        method_kwargs[key] = value
 
     return lucidTagNode(plugin_name, method_name, method_kwargs)
 
