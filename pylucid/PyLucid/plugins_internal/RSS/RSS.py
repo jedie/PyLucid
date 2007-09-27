@@ -34,8 +34,8 @@ socket.setdefaulttimeout(5)
 
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.tools.OutBuffer import OutBuffer
-#from PyLucid.components.db_cache import DB_Cache, CacheObjectNotFound
+from PyLucid.system.response import SimpleStringIO
+from django.core.cache import cache
 
 
 
@@ -43,23 +43,19 @@ class RSS(PyLucidBasePlugin):
 
     info_txt = '<small class="RSS_info">\n\t%s\n</small>\n'
 
-    def lucidFunction(self, function_info):
-        db_cache_key = md5.new(function_info).hexdigest()
+    def lucidTag(self, url):
 
-        db_cache = DB_Cache(self.request, self.response)
-        #~ db_cache.delete_object(db_cache_key)
-
-        try:
-            rss_page = db_cache.get_object(db_cache_key)
-        except CacheObjectNotFound:
-            # Die RSS Daten sind noch nicht gecached.
-
-            out = OutBuffer(self.page_msg)
+        rss_page = cache.get(url)
+        if rss_page:
+            self.response.write(self.info_txt % "[Used cached data]")
+        else:
+            # Was not cached
+            out = SimpleStringIO()
 
             start_time = time.time()
             RSS_Maker(
                 out_obj = out,
-                rss_url = function_info,
+                rss_url = url,
             )
             duration_time = time.time() - start_time
             txt = (
@@ -67,13 +63,10 @@ class RSS(PyLucidBasePlugin):
             ) % duration_time
             self.response.write(self.info_txt % txt)
 
-            rss_page = out.get()
+            rss_page = out.getvalue()
 
-            # In Cache packen:
-            expiry_time = 1 * 60 * 60 # Zeit in Sekunden
-            db_cache.put_object(db_cache_key, expiry_time, rss_page)
-        else:
-            self.response.write(self.info_txt % "[Used cached data]")
+            cache.set(url, rss_page)
+
 
         self.response.write(rss_page)
 

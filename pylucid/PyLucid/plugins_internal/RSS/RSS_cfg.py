@@ -16,7 +16,7 @@ it on your CMS Page.
 # plugin administration data
 
 plugin_manager_data = {
-    "lucidFunction" : {
+    "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,
     }
