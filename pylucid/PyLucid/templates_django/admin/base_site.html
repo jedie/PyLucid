@@ -5,41 +5,46 @@
 
 {% block branding %}
 <h1 id="site-name">{% trans 'PyLucid Administration' %}</h1>
-&nbsp;<a href="/">&nbsp;&#xAB; {% trans 'back' %}</a>
+&nbsp;<a href="/">&nbsp;&#xAB; {% trans 'back to' %} {{ request.META.HTTP_HOST }}/</a>
 {% endblock %}
 
 {% block nav-global %}{% endblock %}
 {% block footer %}
 <script type="text/javascript">
 /* <![CDATA[ */
-//
-// TODO:
-// - append resize buttons to every textarea
-// - Set textarea cols to CSS: width:100%
-//
-function resize_big() {
-    textarea = document.getElementsByTagName("textarea")[0]
-    textarea.rows = textarea.rows*1.2;
-}
-function resize_small() {
-    textarea = document.getElementsByTagName("textarea")[0]
-    textarea.rows = textarea.rows/1.2;
-}
 function textarea_resize() {
-	textareas = document.getElementsByTagName("textarea");
-	for (var i = 0; i <= textareas.length-1; i++) {
-	    try {
-			textarea = textareas[i];
-			textarea.rows = 25;
-			textarea.cols = 80;
-	    } catch (e) {
-	        alert("textarea_resize() error:" + e);
-	    }
-	}
+    //
+    // Resize all textareas
+    //
+    textareas = document.getElementsByTagName("textarea");
+    for (var i = 0; i <= textareas.length-1; i++) {
+        try {
+            textarea = textareas[i];
+            try {
+                rows = textarea.firstChild.data.split("\n").length;
+                if (rows > 30) {
+                    rows = 30;
+                }
+            } catch(e) {
+                rows = 5;
+            }
+            textarea.rows = rows;
+        } catch (e) {
+            alert("textarea_resize() error:" + e);
+        }
+    }
 }
 textarea_resize()
 /* ]]> */
 </script>
+<style type="text/css">
+textarea {
+    font-family: monospace;
+}
+.colM .aligned .vLargeTextField, .colM .aligned .vXMLLargeTextField {
+    width:80%;
+}
+</style>
 <div id="footer" class="align-right">
 {{ powered_by }}
 <p>page stats: <!-- script_duration --></p>
