@@ -70,9 +70,31 @@ class lucidTagNode(template.Node):
         id = makeUnique(id, context["CSS_ID_list"])
         context["CSS_ID_list"].append(id)
 
-        return u'<div class="%s %s" id="%s">\n%s\n</div>\n' % (
-            settings.CSS_DIV_CLASS_NAME, self.plugin_name, id, content
-        )
+        try:
+            return u'<div class="%s %s" id="%s">\n%s\n</div>\n' % (
+                settings.CSS_DIV_CLASS_NAME, self.plugin_name, id, content
+            )
+        except UnicodeDecodeError:
+            # FIXME: In some case (with mysql_old) we have trouble here.
+            # I get this traceback on www.jensdiemer.de like this:
+            #
+            #Traceback (most recent call last):
+            #File ".../django/template/__init__.py" in render_node
+            #    750. result = node.render(context)
+            #File ".../PyLucid/defaulttags/lucidTag.py" in render
+            #    102. content = self._add_unique_div(context, content)
+            #File ".../PyLucid/defaulttags/lucidTag.py" in _add_unique_div
+            #    73. return u'<div class="%s" id="%s">\n%s\n</div>\n' % (
+            #
+            #UnicodeDecodeError at /FH-D-sseldorf/
+            #'ascii' codec can't decode byte 0xc3 in position 55: ordinal not in range(128)
+            #
+            #content += "UnicodeDecodeError hack active!"
+            return '<div class="%s %s" id="%s">\n%s\n</div>\n' % (
+                settings.CSS_DIV_CLASS_NAME, str(self.plugin_name), str(id),
+                content
+            )
+
 
     def render(self, context):
         local_response = SimpleStringIO()
