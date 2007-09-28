@@ -80,7 +80,6 @@ class SiteMap(PyLucidBasePlugin):
         result = ["<ul>"]
 
         for entry in menu_data:
-            print entry
             href = []
             if parent:
                 href.append(parent)
