@@ -2,25 +2,22 @@
 # -*- coding: UTF-8 -*-
 
 """
-Generiert das SiteMap
-<lucidTag:SiteMap/>
+    PyLucid sitemap
+    ~~~~~~~~~~~~~~~
 
-ToDo: Use the Template to generate the Sitemap. But there is no recuse-Tag
-    in the django template engine :(
+    ToDo: Use the Template to generate the Sitemap tree.
+    But there is no recuse-Tag in the django template engine :(
     - http://www.python-forum.de/topic-9655.html
     - http://groups.google.com/group/django-users/browse_thread/thread/3bd2812a3d0f7700/14f61279e0e9fd90
 
-Last commit info:
-----------------------------------
-$LastChangedDate$
-$Rev$
-$Author$
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
-Created by Jens Diemer
-
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
+    :copyright: 2007 by Jens Diemer
+    :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
 __version__= "$Rev$"
@@ -28,11 +25,18 @@ __version__= "$Rev$"
 from PyLucid.db.page import get_sitemap_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
+HTML_TEMPLATE = (
+    '<li>'
+    '    <p class="deep_%(level)s">'
+    '    <a href="%(href)s" title="%(title)s">%(name)s</a> - %(title)s'
+    '    </p>'
+    '</li>'
+)
 
 class SiteMap(PyLucidBasePlugin):
 
     def lucidTag(self):
-        """ Baut die SiteMap zusammen """
+        """ Create the sitemap tree """
 
         # Get a tree dict of all pages:
         sitemap_tree = get_sitemap_tree(self.request)
@@ -41,10 +45,17 @@ class SiteMap(PyLucidBasePlugin):
         # TODO: This nomaly is the job from the django template engine :(
         html = self.get_html(sitemap_tree)
 
-        self.response.write(html)
+        context = {
+            "sitemap": html,
+        }
+
+        # The CSS data should be added into the CMS page:
+        self._render_template("SiteMap", context)
 
     def get_html(self, menu_data, parent=None):
         """
+        Generate the html code from the given tree data:
+
         [{'id': 1L,
           'level': 1,
           'name': 'index',
@@ -66,14 +77,10 @@ class SiteMap(PyLucidBasePlugin):
                         'level': 2,
                         'name': 'old defaul
         """
-        html = (
-            '<li>'
-            '<a href="%(href)s" title="%(title)s">%(name)s</a>'
-            '</li>'
-        )
         result = ["<ul>"]
 
         for entry in menu_data:
+            print entry
             href = []
             if parent:
                 href.append(parent)
@@ -83,7 +90,7 @@ class SiteMap(PyLucidBasePlugin):
             href = "/".join(href)
             entry["href"] = "%s/%s/" % (self.URLs["absoluteIndex"], href)
 
-            result.append(html % entry)
+            result.append(HTML_TEMPLATE % entry)
 
             if "subitems" in entry:
                 result.append(
