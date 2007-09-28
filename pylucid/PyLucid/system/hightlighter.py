@@ -1,5 +1,5 @@
 
-from cgi import escape
+from PyLucid.tools.content_processors import escape
 
 from django.conf import settings
 

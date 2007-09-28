@@ -20,7 +20,7 @@
 __version__= "$Rev:1070 $"
 
 
-import cgi
+from PyLucid.tools.content_processors import escape
 
 from django import newforms as forms
 from django.newforms.util import ValidationError
@@ -336,7 +336,7 @@ class page_admin(PyLucidBasePlugin):
             page.delete()
         except Exception, msg:
             msg = _("Can't delete the page with ID:%s: %s") % (
-                id, cgi.escape(str(msg))
+                id, escape(str(msg))
             )
             raise DeletePageError(msg)
         else:
@@ -363,7 +363,7 @@ class page_admin(PyLucidBasePlugin):
             # Convert the string list to a interger list
             id_list = [int(i) for i in id_list]
         except ValueError, msg:
-            self.page_msg.red(_("Wrong data: %s") % cgi.escape(str(msg)))
+            self.page_msg.red(_("Wrong data: %s") % escape(str(msg)))
             return
 
         # delete the pages, one by one:
