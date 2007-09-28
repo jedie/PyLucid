@@ -1,5 +1,5 @@
 <fieldset>
-<legend><a href="{{ url }}">{{ title }}</a></legend>
+{% if title %}<legend><a href="{{ url }}">{{ title }}</a></legend>{% endif %}
 <ul>
 {% for entry in entries %}
     <li>

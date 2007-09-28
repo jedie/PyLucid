@@ -43,7 +43,7 @@ class RSS(PyLucidBasePlugin):
 
     info_txt = '<small class="RSS_info">\n\t%s\n</small>\n'
 
-    def lucidTag(self, url, title):
+    def lucidTag(self, url, title=None):
 
 #        rss_page = cache.get(url)
 #        if rss_page:
@@ -56,7 +56,7 @@ class RSS(PyLucidBasePlugin):
         try:
             rss_data = urllib.urlopen(url)
         except Exception, e:
-            self.page_msg.red(
+            self.response.write(
                 "[Can't get RSS feed '%s' Error:'%s']" % (url, e )
             )
             return
@@ -136,5 +136,3 @@ class RSS_Maker(object):
         ) or default_txt
 
 
-class FeedError(Exception):
-    pass
