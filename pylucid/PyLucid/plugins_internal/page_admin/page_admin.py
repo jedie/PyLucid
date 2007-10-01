@@ -225,14 +225,21 @@ class page_admin(PyLucidBasePlugin):
         else:
             html_form = PageForm()
 
-        url_django_edit = self.URLs.adminLink(
-            "PyLucid/page/%s/" % edit_page_id
-        )
+        # Edit in the django admin panel:#
+        if new_page_instance != None:
+            # If the page is new:
+            url_django_edit = self.URLs.adminLink("PyLucid/page/add/")
+        else:
+            url_django_edit = self.URLs.adminLink(
+                "PyLucid/page/%s/" % edit_page_id
+            )
+        # On abort -> goto the current displayed page:
+        url_abort = self.current_page.get_absolute_url()
 
         context = {
             "edit_page_form" : html_form,
             "url_django_edit": url_django_edit,
-            "url_abort": "#",
+            "url_abort": url_abort,
             "url_textile_help": self.URLs.methodLink("tinyTextile_help"),
             "url_taglist": self.URLs.methodLink("tag_list"),
         }
