@@ -4,8 +4,7 @@
     PyLucid.db.page
     ~~~~~~~~~~~~~~~
 
-    some needfull function around the cms pages
-
+    some needfull functions around the cms page navigation tree.
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -23,42 +22,6 @@
 
 from PyLucid.models import User, Page
 from PyLucid.tools.tree_generator import TreeGenerator
-
-def get_link_by_id(page_id):
-    """
-    Create the absolute page link for the given ID
-    TODO: This must be chached!
-    """
-    data = []
-
-    while page_id != 0:
-        page = Page.objects.get(id=page_id)
-        data.append(page.shortcut)
-        try:
-            parent_page = page.parent
-        except Page.DoesNotExist:
-            # The parent id is 0 and there is no page with id 0
-            break
-        if parent_page == None:
-            # No parent_page -> a root page
-            break
-        page_id = parent_page.id
-
-    data.reverse()
-    data.append("") # For add slash!
-
-    link = "/".join(data)
-    return link
-
-def get_absolute_link_by_id(context, page_id):
-    """
-    return the absolute URL to the given page ID.
-    """
-    URLs = context["URLs"]
-    index = URLs["absoluteIndex"] # Has end-slash!
-    url = get_link_by_id(page_id)
-    return "".join((index, url))
-
 
 def get_update_info(context, count=10):
     """
