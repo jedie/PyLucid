@@ -39,7 +39,7 @@ def get_update_info(context, count=10):
     return data
 
 
-def flat_tree_list():
+def flat_tree_list(generate_level_names=True):
     """
     Generate a flat page list.
     Usefull for a html select input, like this:
@@ -57,11 +57,12 @@ def flat_tree_list():
     tree.activate_all()
     page_list = tree.get_flat_list()
 
-    for page in page_list:
-        page["level_name"] = " %s| %s" % (
-            "_"*((page["level"]*2)-2),
-            page["name"]
-        )
+    if generate_level_names:
+        for page in page_list:
+            page["level_name"] = " %s| %s" % (
+                "_"*((page["level"]*2)-2),
+                page["name"]
+            )
 
     return page_list
 
@@ -122,4 +123,5 @@ def get_sub_menu_data(request, current_page_id):
         sub_pages = sub_pages.exclude(permitViewPublic = False)
 
     return sub_pages
+
 
