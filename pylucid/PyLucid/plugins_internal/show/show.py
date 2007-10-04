@@ -34,24 +34,7 @@ from PyLucid.models import Page
 
 class show(PyLucidBasePlugin):
 
-    def back_and_forth_links(self):
-        """
-        Build the back and forth links.
-
-        These navigation is a little special, but good for a presentation.
-
-        back:
-            Navigate to the previous page in the flat_tree_list.
-        forth:
-            Navigate to the next page in the flat_tree_list.
-
-        Rule for both directions:
-            - The Link is only available if the back/forth page hat the same
-            template (So you can't get out of the presentation pages with this
-            navigation).
-            - We use the flat tree _list_, so the tree structure is not directly
-            relevant.
-        """
+    def _get_pages(self):
         current_page = self.context["PAGE"]
         current_page_id = current_page.id
 
@@ -89,9 +72,35 @@ class show(PyLucidBasePlugin):
         forward_page = get_page_obj(forward_data)
         backward_page = get_page_obj(backward_data)
 
+        return backward_page, current_page, forward_page
+
+    def lucidTag(self):
+        """
+        Build the back and forth links.
+
+        These navigation is a little special, but good for a presentation.
+
+        back:
+            Navigate to the previous page in the flat_tree_list.
+        forth:
+            Navigate to the next page in the flat_tree_list.
+
+        Rule for both directions:
+            - The Link is only available if the back/forth page hat the same
+            template (So you can't get out of the presentation pages with this
+            navigation).
+            - We use the flat tree _list_, so the tree structure is not directly
+            relevant.
+        """
+        backward_page, current_page, forward_page = self._get_pages()
+
+        sitemap_link = self.URLs.commandLink("SiteMap", "lucidTag")
+
         context = {
             "backward_page": backward_page,
+            "current_page": current_page,
             "forward_page": forward_page,
+            "sitemap_link": sitemap_link,
         }
         self._render_template("nav_links", context)
 
@@ -101,6 +110,11 @@ class show(PyLucidBasePlugin):
         """
         write the current opened tree menu
         """
+        backward_page, current_page, forward_page = self._get_pages()
+
+
+
+
         current_page = self.context["PAGE"]
         self.current_page_id  = current_page.id
 

@@ -1,0 +1,46 @@
+#the_menu {
+    text-align:center;
+    height: 1%;
+    margin: 0;
+    padding:1%;
+}
+#the_menu a {
+    text-decoration: none;
+}
+#the_menu a .current_page,  #the_menu a:hover, #footer a {
+  color: white;
+}
+#the_menu a:hover {
+    text-decoration:underline;
+}
+/*
+----------------------------------------------
+*/
+#backward_link, #forward_link {
+    position:absolute; top: 15%;
+    font-size: 20px;
+    height: 30%;
+    width: 70px;
+    padding-top: 15%;
+    text-decoration: none;
+    text-align:center;
+}
+#backward_link .back_forth, #forward_link .back_forth {
+    display: none;
+}
+#backward_link {
+    cursor:w-resize;
+    left: 2%;
+}
+#forward_link {
+    cursor:e-resize;
+    right: 2%;
+}
+#backward_link:hover, #forward_link:hover {
+    color: red;
+    border: 1px solid red;
+    background:transparent;
+}
+#backward_link:hover .back_forth, #forward_link:hover .back_forth {
+    display:inline;
+}

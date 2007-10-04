@@ -13,11 +13,7 @@ __long_description__    = __description__
 # plugin administration data
 
 plugin_manager_data = {
-    "menu" : {
-        "must_login"    : False,
-        "must_admin"    : False,
-    },
-    "back_and_forth_links" : {
+    "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,
         "internal_page_info" : {

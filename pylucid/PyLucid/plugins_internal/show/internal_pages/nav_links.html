@@ -1,6 +1,24 @@
-<a href="{{ backward_page.get_absolute_url }}" id="backward_page" title="&lt;&lt; backward">
+
+<div id="the_menu">
+{% if backward_page %}
+    <a href="{{ backward_page.get_absolute_url }}" class="the_menu" title="&lt;&lt; {{ backward_page.get_verbose_title }}">&lt;&lt; {{ backward_page.name }}</a>
+    |
+{% endif %}
+ <span class="current_page">{{ current_page.get_verbose_title }}</span>
+{% if forward_page %}
+    | <a href="{{ forward_page.get_absolute_url }}" class="the_menu" title="{{ forward_page.get_verbose_title }} &gt;&gt;">{{ forward_page.name }} <span class="back_forth">&gt;&gt;</span></a>
+{% endif %}
+</div>
+
+{% if backward_page %}
+<a href="{{ backward_page.get_absolute_url }}" id="backward_link" title="&lt;&lt; {{ backward_page.get_verbose_title }}">
     <span class="back_forth">&lt;&lt;</span>
 </a>
-<a href="{{ forward_page.get_absolute_url }}" id="forward_page" title="forward &gt;&gt;">
+{% endif %}
+{% if forward_page %}
+<a href="{{ forward_page.get_absolute_url }}" id="forward_link" title="{{ forward_page.get_verbose_title }} &gt;&gt;">
     <span class="back_forth">&gt;&gt;</span>
 </a>
+{% endif %}
+
+<a href="{{ sitemap_link }}" id="sitemap_link" title="sitemap">sitemap</a>
