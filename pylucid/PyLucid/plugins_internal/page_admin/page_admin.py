@@ -34,7 +34,7 @@ from PyLucid.models import Page, Plugin
 from PyLucid.db.page import flat_tree_list, get_sitemap_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.detect_page import get_default_page_id
-from PyLucid.tools.content_processors import replace_add_data
+from PyLucid.tools.content_processors import apply_markup, replace_add_data
 
 #______________________________________________________________________________
 # Escape TextFields
@@ -181,6 +181,12 @@ class page_admin(PyLucidBasePlugin):
             self.page_msg.red(msg)
             return
 
+        context = {
+            "url_textile_help": self.URLs.methodLink("tinyTextile_help"),
+            "url_taglist": self.URLs.methodLink("tag_list"),
+            "page_instance": page_instance,
+        }
+
         # FIXME: Quick hack 'escape' Template String.
         # With the formfield_callback we switched the widget render method
         # and escape/quote the characters "{" and "}" so they are invisible to
@@ -198,32 +204,43 @@ class page_admin(PyLucidBasePlugin):
         )
 
         if self.request.method == 'POST':
+#            self.page_msg(self.request.POST)
             html_form = PageForm(self.request.POST)
             if html_form.is_valid():
-                # Save the new page data into the database:
-#                self.page_msg(self.request.POST)
-                try:
-                    html_form.save()
-                except Exception, msg:
-                    self.page_msg("Can't save the page data:", msg)
-                else:
-                    # Delete the old page data cache:
-                    self._delete_cache(page_instance)
-
-                    if page_instance.id == self.current_page.id:
-                        # Normal page edit
-                        self.page_msg(_("Page data updated."))
-                        return
+                if "preview" in self.request.POST:
+                    content = apply_markup(
+                        html_form.cleaned_data["content"], self.context,
+                        html_form.cleaned_data["markup"]
+                    )
+                    context["preview_content"] = content
+                elif "save" in self.request.POST:
+                    # Save the new page data into the database:
+                    try:
+                        html_form.save()
+                    except Exception, msg:
+                        self.page_msg("Can't save the page data:", msg)
                     else:
-                        self.page_msg(_("The new page created."))
+                        # Delete the old page data cache:
+                        self._delete_cache(page_instance)
 
-                        # refresh the current page data:
-                        self._refresh_curent_page(page_instance)
+                        if page_instance.id == self.current_page.id:
+                            # Normal page edit
+                            self.page_msg(_("Page data updated."))
+                            return
+                        else:
+                            self.page_msg(_("The new page created."))
 
-                        # return the new page content for rendering
-                        return self.current_page.content
+                            # refresh the current page data:
+                            self._refresh_curent_page(page_instance)
+
+                            # return the new page content for rendering
+                            return self.current_page.content
+                else:
+                    self.page_msg.red("Form error!")
         else:
             html_form = PageForm()
+
+        context["edit_page_form"] = html_form
 
         # Edit in the django admin panel:#
         if new_page_instance != None:
@@ -233,16 +250,12 @@ class page_admin(PyLucidBasePlugin):
             url_django_edit = self.URLs.adminLink(
                 "PyLucid/page/%s/" % edit_page_id
             )
+        context["url_django_edit"] = url_django_edit
+
         # On abort -> goto the current displayed page:
         url_abort = self.current_page.get_absolute_url()
+        context["url_abort"] = url_abort
 
-        context = {
-            "edit_page_form" : html_form,
-            "url_django_edit": url_django_edit,
-            "url_abort": url_abort,
-            "url_textile_help": self.URLs.methodLink("tinyTextile_help"),
-            "url_taglist": self.URLs.methodLink("tag_list"),
-        }
 
         if page_instance.markup.name == "None":
             # If there is no markup engine used -> insert TinyMCE JS Editor

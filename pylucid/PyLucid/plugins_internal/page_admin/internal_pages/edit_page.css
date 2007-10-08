@@ -1,3 +1,21 @@
+fieldset {
+    padding: 3px;
+    margin: 3px;
+    border: 1px solid #000;
+}
+legend {
+    padding: 2px;
+    border: 1px solid #000;
+    background-color: #FFF;
+}
+/* -------------------------------------------------------------------------- */
+#page_preview {
+    background-color: #EEE;
+}
+#page_preview, #page_preview legend {
+    border-color: #A00;
+}
+/* -------------------------------------------------------------------------- */
 #edit_page_form ul {
     list-style-type:none;
     padding: 0px;
@@ -36,22 +54,23 @@
     margin: 0;
     padding: 0;
 }
-
+/* -------------------------------------------------------------------------- */
 #action_buttons li {
     float: left;
     padding: 5px 10px 5px 10px;
     background-color: #09C;
-}
-hr.seperator {
-    border: 0;
-    height: 0;
-    clear: both;
 }
 #action_buttons a {
     text-decoration:none;
 }
 #action_buttons .resize_buttons {
     width: 30px;
+}
+/* -------------------------------------------------------------------------- */
+hr.seperator {
+    border: 0;
+    height: 0;
+    clear: both;
 }
 .errorlist {
     /* newforms errors */

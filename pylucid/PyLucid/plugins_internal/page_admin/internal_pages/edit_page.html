@@ -1,12 +1,22 @@
+
+{% if preview_content %}
+<fieldset id="page_preview">
+<legend><strong>{% trans 'preview' %}</strong> '<span title="{{ page_instance.title|escape }}">{{ page_instance.name|escape }}</span>'
+</legend>
+{{ preview_content }}
+</fieldset>
+{% endif %}
+
 <fieldset>
 <legend>
-    {% trans 'Edit the CMS page' %} '<strong title="{{ PAGE.get_verbose_title|escape }}">{{ PAGE.name|escape }}</strong>'
+    {% trans 'Edit the CMS page' %} '<strong title="{{ page_instance.title|escape }}">{{ page_instance.name|escape }}</strong>'
 </legend>
 <form action="." method="post" id="edit_page_form">
     <ul id="action_buttons">
         <li>
-            <input type="submit" value="{% trans 'Save' %}" />
-            <input onclick="self.location.href='{{ url_abort }}'" name="abort" value="{% trans 'Abort' %}" type="reset" />
+            <input type="submit" name="save" value="{% trans 'save' %}" />
+            <input type="submit" name="preview" value="{% trans 'preview' %}" />
+            <input onclick="self.location.href='{{ url_abort }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
         </li><li>
         <a href="{{ url_textile_help }}" title="tinyTextile {% trans 'help page' %}">
             <button type="button" onclick="OpenInWindow('{{ url_textile_help }}'); return false">
