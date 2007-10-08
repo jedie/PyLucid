@@ -407,8 +407,12 @@ class Plugin(models.Model):
         Save a new plugin or update changed data.
         before save: check some data consistency to prevents inconsistent data.
         """
-        if not self.can_deinstall and self.active==False:
-            raise AssertionError("This plugin can't be deactivaded!")
+        if self.can_deinstall==False and self.active==False:
+            # This plugin can't be deactivaded!
+            # If reinit misses, the plugin is deinstalled. After a install with
+            # the plugin admin, normaly the plugin would not be acivated
+            # automaticly. So we activated it here:
+            self.active = True
 
         super(Plugin, self).save() # Call the "real" save() method
 

@@ -19,8 +19,8 @@
             </td>
             <td class="version">{{ plugin.version }}</td>
             <td>
-                {% if plugin.builtin %}
-                    <small>[buildin plugin]</small>
+                {% if not plugin.can_deinstall %}
+                    <small>[locked]</small>
                 {% else %}
                     <form method="post" action="{{ action_url }}">
                         <input name="id" type="hidden" value="{{ plugin.id }}" />

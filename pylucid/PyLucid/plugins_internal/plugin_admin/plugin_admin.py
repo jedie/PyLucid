@@ -128,10 +128,12 @@ class plugin_admin(PyLucidBasePlugin):
                 if plugin_name in installed_names:
                     continue
                 try:
-                    plugin_cfg = get_plugin_config(
+                    plugin_cfg = get_plugin_config(self.request,
                         package_name, plugin_name, dissolve_version_string=True
                     )
                 except Exception, e:
+                    if settings.DEBUG:
+                        raise
                     self.page_msg("Error: %s" % e)
                 else:
                     uninstalled_plugins.append({
@@ -162,9 +164,12 @@ class plugin_admin(PyLucidBasePlugin):
         """
         try:
             install_plugin(
-                package_name, plugin_name, active, extra_verbose=False
+                self.request, package_name, plugin_name, active,
+                extra_verbose=False
             )
         except Exception, e:
+            if settings.DEBUG:
+                raise
             raise ActionError(_("Error installing Plugin:"), e)
         else:
             plugin = Plugin.objects.get(plugin_name=plugin_name)
@@ -174,16 +179,21 @@ class plugin_admin(PyLucidBasePlugin):
                 " the database.") % (plugin, page_names)
             )
 
-    def _deinstall_plugin(self, plugin_id):
+    def _deinstall_plugin(self, plugin_id, force=False):
         """
         remove internal_pages and the plugin entry from the database.
         """
         try:
             plugin = Plugin.objects.get(id=plugin_id)
+            if plugin.can_deinstall==False and force==False:
+                self.page_msg.red("Can't deinstall the plugin. It's locked.")
+                return
             pages, page_names = self._get_internal_page_info(plugin)
             pages.delete()
             plugin.delete()
         except Exception, e:
+            if settings.DEBUG:
+                raise
             raise ActionError(_("Error removing Plugin: %s") % e)
         else:
             self.page_msg.green(
@@ -197,9 +207,14 @@ class plugin_admin(PyLucidBasePlugin):
         """
         try:
             plugin = Plugin.objects.get(id=plugin_id)
+            if plugin.can_deinstall==False:
+                self.page_msg.red("Can't deactivate the plugin. It's locked.")
+                return
             plugin.active = False
             plugin.save()
         except Exception, e:
+            if settings.DEBUG:
+                raise
             raise ActionError(_("Can't deactivate Plugin: %s") % e)
         else:
             self.page_msg.green(
@@ -215,6 +230,8 @@ class plugin_admin(PyLucidBasePlugin):
             plugin.active = True
             plugin.save()
         except Exception, e:
+            if settings.DEBUG:
+                raise
             raise ActionError(_("Can't activate Plugin: %s") % e)
         else:
             self.page_msg.green(
@@ -235,9 +252,11 @@ class plugin_admin(PyLucidBasePlugin):
         package_name = plugin.package_name
 
         try:
-            self._deinstall_plugin(plugin_id)
+            self._deinstall_plugin(plugin_id, force=True)
             self._install_plugin(plugin_name, package_name, active=True)
         except Exception, e:
+            if settings.DEBUG:
+                raise
             raise ActionError(_("Can't reinit plugin: %s") % e)
         else:
             self.page_msg.green(_("Reinit complete."))

@@ -37,30 +37,32 @@ from django.http import HttpResponse
 from PyLucid.system.exceptions import *
 from PyLucid.models import Plugin, Markup, PagesInternal
 
-def _import(from_name, object_name):
+def _import(request, from_name, object_name):
     """
     from 'from_name' import 'object_name'
     """
     try:
         return __import__(from_name, {}, {}, [object_name])
     except (ImportError, SyntaxError), e:
+        if request.user.is_superuser or settings.DEBUG:
+            raise
         raise ImportError, "Can't import %s from %s: %s" % (
             object_name, from_name, e
         )
 
-def get_plugin_class(package_name, plugin_name):
+def get_plugin_class(request, package_name, plugin_name):
     """
     import the plugin/plugin and returns the class object
     """
-    plugin = _import(
+    plugin = _import(request,
         from_name = ".".join([package_name, plugin_name, plugin_name]),
         object_name = plugin_name
     )
     plugin_class = getattr(plugin, plugin_name)
     return plugin_class
 
-def get_plugin_config(package_name, plugin_name, dissolve_version_string=False,
-                                                            extra_verbose=False):
+def get_plugin_config(request, package_name, plugin_name,
+                            dissolve_version_string=False, extra_verbose=False):
     """
     imports the plugin and the config plugin and returns a merge config-object
 
@@ -73,7 +75,7 @@ def get_plugin_config(package_name, plugin_name, dissolve_version_string=False,
         from_name = ".".join([package_name, plugin_name, object_name])
         if extra_verbose:
             print "from %s import %s" % (from_name, object_name)
-        return _import(from_name, object_name)
+        return _import(request, from_name, object_name)
 
     config_plugin = get_plugin(config_name)
 
@@ -93,6 +95,8 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     """
     get the plugin and call the method
     """
+    request = context["request"]
+
     def error(msg):
         msg = "Error run plugin/plugin '%s.%s: %s" % (
             plugin_name, method_name, msg
@@ -110,7 +114,7 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         error("Plugin not exists in database: %s" % e)
         return
 
-    plugin_config = get_plugin_config(
+    plugin_config = get_plugin_config(request,
         package_name = plugin.package_name,
         plugin_name = plugin.plugin_name,
         dissolve_version_string=False
@@ -127,9 +131,9 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         # User must be login to use this method
         # http://www.djangoproject.com/documentation/authentication/
 
-        context["request"].must_login = True # For static_tags an the robot tag
+        request.must_login = True # For static_tags an the robot tag
 
-        if context["request"].user.username == "":
+        if request.user.username == "":
             # User is not logged in
             if method_cfg.get("no_rights_error", False) == True:
                 # No error message should be displayed for this plugin.
@@ -141,7 +145,7 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     URLs = context["URLs"]
     URLs.current_plugin = plugin_name
 
-    plugin_class=get_plugin_class(plugin.package_name, plugin_name)
+    plugin_class=get_plugin_class(request, plugin.package_name, plugin_name)
     class_instance = plugin_class(context, local_response)
     unbound_method = getattr(class_instance, method_name)
 
@@ -336,15 +340,17 @@ def _install_plugin(package_name, plugin_name, plugin_config, active,
         can_deinstall = getattr(plugin_config, "__can_deinstall__", True),
         active = active,
     )
+    plugin.save()
     if extra_verbose:
         print "OK, ID:", plugin.id
     return plugin
 
-def install_plugin(package_name, plugin_name, active, extra_verbose=False):
+def install_plugin(request, package_name, plugin_name, active,
+                                                        extra_verbose=False):
     """
     Get the config object from disk and insert the plugin into the database
     """
-    plugin_config = get_plugin_config(
+    plugin_config = get_plugin_config(request,
         package_name, plugin_name,
         dissolve_version_string=True, extra_verbose=extra_verbose
     )
@@ -369,7 +375,7 @@ def install_plugin(package_name, plugin_name, active, extra_verbose=False):
     )
 
 
-def auto_install_plugins(extra_verbose=True):
+def auto_install_plugins(request, extra_verbose=True):
     """
     Install all internal plugin how are markt as important or essential.
     """
@@ -377,10 +383,10 @@ def auto_install_plugins(extra_verbose=True):
 
     for path_cfg in settings.PLUGIN_PATH:
         if path_cfg["auto_install"] == True:
-            _auto_install_plugins(path_cfg, extra_verbose)
+            _auto_install_plugins(request, path_cfg, extra_verbose)
 
 
-def _auto_install_plugins(path_cfg, extra_verbose):
+def _auto_install_plugins(request, path_cfg, extra_verbose):
     package_name = ".".join(path_cfg["path"])
 
     plugin_path = os.path.join(*path_cfg["path"])
@@ -393,7 +399,7 @@ def _auto_install_plugins(path_cfg, extra_verbose):
             )
 
         try:
-            install_plugin(
+            install_plugin(request,
                 package_name, plugin_name,
                 active=True, extra_verbose=extra_verbose
             )
