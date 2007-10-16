@@ -30,9 +30,11 @@ license:
     http://www.opensource.org/licenses/gpl-license.php
 """
 
+import os, sys, pprint, inspect
+
 from django.conf import settings
 
-import os, sys, cgi, pprint, inspect
+from PyLucid.tools.content_processors import escape
 
 #_____________________________________________________________________________
 
@@ -133,7 +135,7 @@ class PageMessages(object):
                 result.append(" ")
 
         result = "".join(result)
-        return cgi.escape(result)
+        return escape(result)
 
     def encode_and_prepare(self, txt):
         """

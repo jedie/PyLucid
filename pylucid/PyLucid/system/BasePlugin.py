@@ -26,12 +26,12 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-
+import pprint
 
 from PyLucid.db.internal_pages import get_internal_page
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
-
+from PyLucid.tools.content_processors import escape
 
 class PyLucidBasePlugin(object):
 
@@ -46,16 +46,15 @@ class PyLucidBasePlugin(object):
         self.current_page = self.context["PAGE"]
 
     def _debug_context(self, context, template):
-        import pprint, cgi
         self.response.write("<fieldset><legend>template debug:</legend>")
         self.response.write("<legend>context:</legend>")
         self.response.write("<pre>")
         pprint_context = pprint.pformat(context)
-        self.response.write(cgi.escape(pprint_context))
+        self.response.write(escape(pprint_context))
         self.response.write("</pre>")
         self.response.write("<legend>template:</legend>")
         self.response.write("<pre>")
-        template = cgi.escape(template)
+        template = escape(template)
         # Escape all django template tags
         template = template.replace("{", "&#x7B;").replace("}", "&#x7D;")
         self.response.write(template)
