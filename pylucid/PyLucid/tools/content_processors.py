@@ -157,3 +157,11 @@ def escape(txt):
     like "{" and "}" to the HTML character entity.
     """
     return sax_escape(txt, entities=ENTITIES)
+
+def escape_django_tags(txt):
+    """
+    Escape only "{" and "}".
+    """
+    for source, dest in ENTITIES.iteritems():
+        txt = txt.replace(source, dest)
+    return txt
