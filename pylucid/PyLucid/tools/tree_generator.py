@@ -159,9 +159,10 @@ class TreeGenerator(object):
 
     #___________________________________________________________________________
     
-    def get_group(self, group_key, id):
+    def _get_group_node(self, group_key, id):
         """
         activate a coherent group, which have the same value in the 'group_key'.
+        returns the first node with a other group value.
         """
         self.deactivate_all()
         
@@ -170,23 +171,32 @@ class TreeGenerator(object):
 
         # go to the first parent node how has a other group value:
         while 1:
-            if node.parent== None:
+            if node.parent == None:
                 break
             node = node.parent
             if node.data[group_key] != group_value:
                 break
         #print "first node with other group value:\n\t", node.data
         
-        # activate all subnodes:
+        # expand/activate the group:
         for subnode in node.subnodes:
             subnode.activate_expanded(group_key, group_value)
-#            if subnode.data[group_key] == group_value:
-#                print "activate:", subnode.data
-#                subnode.activate(activate_parent=False)
-            
-        # return the coherent group
-        return node.to_dict()["subitems"]
         
+        return node
+        
+    def get_group_dict(self, group_key, id):
+        """
+        returns a coherent group as a dict
+        """
+        node = self._get_group_node(group_key, id)
+        return node.to_dict()["subitems"]
+    
+    def get_group_list(self, group_key, id):
+        """
+        returns a coherent group as a flat list.
+        """
+        node = self._get_group_node(group_key, id)
+        return node.get_flat_list()[1:]
         
     #___________________________________________________________________________
 
@@ -236,6 +246,7 @@ def _test_generator(tree, display_result):
         if failed:
             txt = "ERROR %s - must be:" % no
             print_data(txt, must_be)
+            raise AssertionError("wrong result.")
             
 
         
@@ -376,7 +387,7 @@ def _test_generator(tree, display_result):
     #
     # a coherent group, which have the same value in the 'group_key'
     #
-    result = tree.get_group(group_key="group", id=5)
+    result = tree.get_group_dict(group_key="group", id=5)
     must_be = [
      {'group': 'two', 'id': 2, 'level': 1, 'name': '1.1. BBB', 'parent': 1},
      {'group': 'two',
@@ -397,19 +408,29 @@ def _test_generator(tree, display_result):
     ]
     check(result, must_be, no=7)
     
-    result = tree.get_group(group_key="group", id=8)
+    result = tree.get_group_list(group_key="group", id=5)
+    must_be = [
+        {'group': 'two', 'id': 2, 'level': 1, 'name': '1.1. BBB', 'parent': 1},
+        {'group': 'two', 'id': 3, 'level': 1, 'name': '1.2. BBB', 'parent': 1},
+        {'group': 'two', 'id': 4, 'level': 2, 'name': '1.2.1. CCC', 'parent': 3},
+        {'group': 'two', 'id': 5, 'level': 2, 'name': '1.2.2. CCC', 'parent': 3}
+    ]
+    check(result, must_be, no=8)
+    
+    
+    result = tree.get_group_dict(group_key="group", id=8)
     must_be = [
         {'group': 'two', 'id': 7, 'level': 1, 'name': '2.1. EEE', 'parent': 6},
         {'group': 'two', 'id': 8, 'level': 1, 'name': '2.2. EEE', 'parent': 6}
     ]
-    check(result, must_be, no=8)
+    check(result, must_be, no=9)
 
-    result = tree.get_group(group_key="parent", id=3)
+    result = tree.get_group_dict(group_key="parent", id=3)
     must_be = [
          {'group': 'two', 'id': 2, 'level': 1, 'name': '1.1. BBB', 'parent': 1},
          {'group': 'two', 'id': 3, 'level': 1, 'name': '1.2. BBB', 'parent': 1},
     ]
-    check(result, must_be, no=9)
+    check(result, must_be, no=10)
     
 
 #_______________________________________________________________________________
