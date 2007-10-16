@@ -23,7 +23,6 @@
 
 
 class MenuNode(object):
-    group_id=None
     def __init__(self, id, data={}, parent=None):
         self.id = id
         self.data = data
