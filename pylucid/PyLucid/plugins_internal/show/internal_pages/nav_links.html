@@ -1,10 +1,9 @@
-
 <div id="the_menu">
 {% if backward_page %}
     <a href="{{ backward_page.get_absolute_url }}" class="the_menu" title="&lt;&lt; {{ backward_page.get_verbose_title }}">&lt;&lt; {{ backward_page.name }}</a>
     |
 {% endif %}
- <span class="current_page">{{ current_page.get_verbose_title }}</span>
+    <a href="{{ current_page.get_absolute_url }}" class="current_page" title="{{ current_page.get_verbose_title }}">{{ current_page.name }}</a>
 {% if forward_page %}
     | <a href="{{ forward_page.get_absolute_url }}" class="the_menu" title="{{ forward_page.get_verbose_title }} &gt;&gt;">{{ forward_page.name }} <span class="back_forth">&gt;&gt;</span></a>
 {% endif %}
@@ -20,5 +19,3 @@
     <span class="back_forth">&gt;&gt;</span>
 </a>
 {% endif %}
-
-<a href="{{ sitemap_link }}" id="sitemap_link" title="sitemap">sitemap</a>

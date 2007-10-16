@@ -30,6 +30,7 @@ from PyLucid.db.page import get_main_menu_tree, flat_tree_list
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.tree_generator import TreeGenerator
 from PyLucid.models import Page
+from PyLucid.tools.content_processors import apply_markup, escape_django_tags
 
 
 class show(PyLucidBasePlugin):
@@ -74,7 +75,7 @@ class show(PyLucidBasePlugin):
 
         return backward_page, current_page, forward_page
 
-    def lucidTag(self):
+    def menu(self):
         """
         Build the back and forth links.
 
@@ -106,63 +107,43 @@ class show(PyLucidBasePlugin):
 
     #__________________________________________________________________________
 
-    def menu(self):
-        """
-        write the current opened tree menu
-        """
-        backward_page, current_page, forward_page = self._get_pages()
-
-
-
-
+    def all_pages(self):
         current_page = self.context["PAGE"]
-        self.current_page_id  = current_page.id
+        current_page_id = current_page.id
 
-        # Get the menu tree dict from the database:
-        menu_tree = get_main_menu_tree(self.request, self.current_page_id)
+#        page_data = Page.objects.values(
+#            "id", "parent", "shortcut", "name", "title",
+#            "template", "content", "markup"
+#        ).order_by("position")
 
-#        self.page_msg(menu_tree)
+        pages = Page.objects.all().order_by("position")
+        page_data = []
+        for page in pages:
+            content = escape_django_tags(page.content)
+            parent = getattr(page.parent, "id", None)
+            url = page.get_absolute_url()
 
-        # Create from the tree dict a nested html list.
-        menu_data = self.get_html(menu_tree)
+            page_data.append({
+                "id": page.id,
+                "parent": parent,
+                "shortcut": page.shortcut,
+                "name": page.name,
+                "title": page.title,
+                "content": content,
+                "template": page.template.id,
+                "markup": page.markup,
+                "url": url,
+            })
+#        self.page_msg(page_data)
 
-        self.response.write(menu_data)
-
-
-    def get_html(self, menu_data, parent=None):
-        """
-        Generate a nested html list from the given tree dict.
-        """
-        html = (
-            '<li>'
-            '<a href="%(href)s" title="%(title)s">%(name)s</a>'
-            '</li>'
+        tree = TreeGenerator(page_data)
+        page_list = tree.get_group_list(
+            group_key="template", id=current_page_id
         )
-        if parent == None:
-            result = ['<ul id="main_menu">']
-        else:
-            result = ["<ul>"]
 
-        for entry in menu_data:
-            href = []
-            if parent:
-                href.append(parent)
+        context = {
+            "page_list": page_list,
+        }
+        self._render_template("all_pages", context)#, debug=True)
 
-            href.append(entry["shortcut"])
-            href = "/".join(href)
-
-            entry["href"] = "".join((self.URLs["absoluteIndex"], href))
-
-            if entry["id"] == self.current_page_id:
-                entry["name"] = '<span class="current">%s</span>' % entry["name"]
-
-            result.append(html % entry)
-
-            if entry.has_key("subitems"):
-                result.append(
-                    self.get_html(entry["subitems"], parent=href)
-                )
-
-        result.append("</ul>")
-        return "\n".join(result)
 

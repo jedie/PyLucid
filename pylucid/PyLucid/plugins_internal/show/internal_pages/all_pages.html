@@ -1,0 +1,14 @@
+<ul>
+{% for page in page_list %}
+    <li>
+        <fieldset>
+        <legend>
+            <a href="{{ page.url }}">
+            {% if page.title %}{{ page.title|escape }}{% else %}{{ page.name|escape }}{% endif %}
+            </a>
+        </legend>
+            {{ page.content }}
+        </fieldset>
+    </li>
+{% endfor %}
+</ul>
