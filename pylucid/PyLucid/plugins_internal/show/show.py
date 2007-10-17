@@ -109,6 +109,7 @@ class show(PyLucidBasePlugin):
 
     def all_pages(self):
         current_page = self.context["PAGE"]
+        current_page.title = "all pages"
         current_page_id = current_page.id
 
 #        page_data = Page.objects.values(
@@ -139,11 +140,18 @@ class show(PyLucidBasePlugin):
         tree = TreeGenerator(page_data)
         page_list = tree.get_group_list(
             group_key="template", id=current_page_id
-        )
+        )[1:]
+        for page in page_list:
+            content = page["content"]
+            markup_object = page["markup"]
+            content = apply_markup(content, self.context, markup_object)
+            page["content"] = content
+#        self.page_msg(page_list)
 
         context = {
             "page_list": page_list,
         }
         self._render_template("all_pages", context)#, debug=True)
+
 
 

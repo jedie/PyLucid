@@ -170,33 +170,37 @@ class TreeGenerator(object):
         group_value = node.data[group_key]
 
         # go to the first parent node how has a other group value:
+        old_node = node
         while 1:
             if node.parent == None:
                 break
             node = node.parent
             if node.data[group_key] != group_value:
                 break
-        #print "first node with other group value:\n\t", node.data
+            old_node = node
+        first_node = old_node
+        print "first node with the same group value:\n\t", first_node.data
         
         # expand/activate the group:
-        for subnode in node.subnodes:
+        for subnode in first_node.subnodes:
+            print "subnode:", subnode.data
             subnode.activate_expanded(group_key, group_value)
         
-        return node
+        return first_node
         
     def get_group_dict(self, group_key, id):
         """
         returns a coherent group as a dict
         """
         node = self._get_group_node(group_key, id)
-        return node.to_dict()["subitems"]
+        return node.to_dict()#["subitems"]
     
     def get_group_list(self, group_key, id):
         """
         returns a coherent group as a flat list.
         """
         node = self._get_group_node(group_key, id)
-        return node.get_flat_list()[1:]
+        return node.get_flat_list()#[1:]
         
     #___________________________________________________________________________
 
@@ -439,23 +443,62 @@ def _test_generator(tree, display_result):
 if __name__ == "__main__":
     print "module test - START\n"
     from pprint import pprint
+#
+#    data = [
+#        {'id': 1, 'parent': None, 'group': 'one', 'name': '1. AAA'},
+#        {'id': 2, 'parent': 1,    'group': 'two', 'name': '1.1. BBB'},
+#        {'id': 3, 'parent': 1,    'group': 'two', 'name': '1.2. BBB'},
+#        {'id': 4, 'parent': 3,    'group': 'two', 'name': '1.2.1. CCC'},
+#        {'id': 5, 'parent': 3,    'group': 'two', 'name': '1.2.2. CCC'},
+#        {'id': 6, 'parent': None, 'group': 'one', 'name': '2. DDD'},
+#        {'id': 7, 'parent': 6,    'group': 'two', 'name': '2.1. EEE'},
+#        {'id': 8, 'parent': 6,    'group': 'two', 'name': '2.2. EEE'},
+#    ]
+#    print "Source data:"
+#    pprint(data)
+#
+#    tree = TreeGenerator(data)
+#    _test_generator(tree, display_result=False)
+##    _test_generator(tree, display_result=True)
+#
+#    print "\nmodule test - END"
+
+
 
     data = [
-        {'id': 1, 'parent': None, 'group': 'one', 'name': '1. AAA'},
-        {'id': 2, 'parent': 1,    'group': 'two', 'name': '1.1. BBB'},
-        {'id': 3, 'parent': 1,    'group': 'two', 'name': '1.2. BBB'},
-        {'id': 4, 'parent': 3,    'group': 'two', 'name': '1.2.1. CCC'},
-        {'id': 5, 'parent': 3,    'group': 'two', 'name': '1.2.2. CCC'},
-        {'id': 6, 'parent': None, 'group': 'one', 'name': '2. DDD'},
-        {'id': 7, 'parent': 6,    'group': 'two', 'name': '2.1. EEE'},
-        {'id': 8, 'parent': 6,    'group': 'two', 'name': '2.2. EEE'},
+     {'id': 1, 'parent': None, 'shortcut': u'index', 'template': 1},
+     {'id': 4, 'parent': None, 'shortcut': u'SiteMap', 'template': 1},
+     {'id': 5, 'parent': 1, 'shortcut': u'3dsmax1', 'template': 6},
+     {'id': 6, 'parent': 5, 'shortcut': u'Geschichte', 'template': 6},
+     {'id': 7, 'parent': 6, 'shortcut': u'3D-Studio', 'template': 6},
+     {'id': 8, 'parent': 5, 'shortcut': u'Einsatzgebiete', 'template': 6},
+     {'id': 9, 'parent': 8, 'shortcut': u'Firmen', 'template': 6},
+     {'id': 10, 'parent': 8, 'shortcut': u'Spiele', 'template': 6},
+     {'id': 12, 'parent': 5, 'shortcut': u'Eigenschaften', 'template': 6},
+     {'id': 13, 'parent': 6, 'shortcut': u'Historie', 'template': 6},
+     {'id': 14, 'parent': 5, 'shortcut': u'3D-Allgemein', 'template': 6},
+     {'id': 15, 'parent': 14, 'shortcut': u'Workflow', 'template': 6},
+     {'id': 16, 'parent': 14, 'shortcut': u'Einsatzgebiete-f-r-3D', 'template': 6},
+     {'id': 17, 'parent': 14, 'shortcut': u'Warum-3D', 'template': 6},
+     {'id': 18, 'parent': 12, 'shortcut': u'Produkteigenschaften', 'template': 6},
+     {'id': 19, 'parent': 12, 'shortcut': u'Modeling', 'template': 6},
+     {'id': 20, 'parent': 12, 'shortcut': u'Features', 'template': 6},
+     {'id': 21, 'parent': 5, 'shortcut': u'3D-Software', 'template': 6},
+     {'id': 22, 'parent': 21, 'shortcut': u'Cinema4D', 'template': 6},
+     {'id': 23, 'parent': 21, 'shortcut': u'Maya', 'template': 6},
+     {'id': 24, 'parent': 21, 'shortcut': u'Blender', 'template': 6},
+     {'id': 25, 'parent': 14, 'shortcut': u'Grenzen', 'template': 6},
+     {'id': 26, 'parent': 14, 'shortcut': u'Aufteilung', 'template': 6},
+     {'id': 27, 'parent': 1, 'shortcut': u'test-Pr-sentation', 'template': 6},
+     {'id': 28, 'parent': 27, 'shortcut': u'1', 'template': 6},
+     {'id': 29, 'parent': 28, 'shortcut': u'1-1', 'template': 6},
+     {'id': 30, 'parent': 28, 'shortcut': u'1-2', 'template': 6},
+     {'id': 31, 'parent': 27, 'shortcut': u'2', 'template': 6},
+     {'id': 32, 'parent': 31, 'shortcut': u'2-1', 'template': 6},
+     {'id': 33, 'parent': 31, 'shortcut': u'2-2', 'template': 6}
     ]
-    print "Source data:"
     pprint(data)
-
+    print "="*60
     tree = TreeGenerator(data)
-    _test_generator(tree, display_result=False)
-#    _test_generator(tree, display_result=True)
-
-    print "\nmodule test - END"
-
+    result = tree.get_group_list(group_key="template", id=30)
+    pprint(result)

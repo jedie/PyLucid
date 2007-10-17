@@ -1,0 +1,16 @@
+#all_pages {
+    list-style-type:none;
+    padding: 0;
+    margin: 0;
+}
+#all_pages fieldset {
+    padding: 0.5em;
+    margin: 2.5em;
+}
+.anchor_link, .arrow_link {
+    color: #DDD;
+    text-decoration:none;
+}
+.anchor_link:hover, .arrow_link:hover {
+    color: #000;
+ }
