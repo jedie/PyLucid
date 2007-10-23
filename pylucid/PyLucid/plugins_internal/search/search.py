@@ -124,7 +124,10 @@ class search(PyLucidBasePlugin):
         """
         Process the search and retuned the results.
         """
-        pages = Page.objects.all()
+        pages = Page.objects.all().filter(showlinks = True)
+        if self.request.user.is_anonymous():
+            pages = pages.exclude(permitViewPublic = False)
+
         for term in search_strings:
             pages = pages.filter(content__icontains=term)
 
