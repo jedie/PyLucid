@@ -381,6 +381,6 @@ OLD_TABLE_PREFIX = ""
 # Permit sending mails with the EMailSystem Plugin:
 ALLOW_SEND_MAILS = True
 
-# Every Plugin output clasp around with a html DIV tag.
-# Here you can defined witch CSS class name the DIV tag should used:
-CSS_DIV_CLASS_NAME = "PyLucidPlugins"
+# Every Plugin output gets a html SPAN tag around.
+# Here you can defined witch CSS class name the tag should used:
+CSS_PLUGIN_CLASS_NAME = "PyLucidPlugins"

@@ -107,6 +107,7 @@ def render_string_template(content, context):
     return html
 
 
+
 def replace_add_data(context, content):
     """
     Replace the temporary inserted "add data" tag, with all collected CSS/JS

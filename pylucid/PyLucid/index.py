@@ -35,6 +35,7 @@ from PyLucid.system.detect_page import get_current_page_obj, \
                                                             get_default_page_id
 from PyLucid.system.URLs import URLs
 from PyLucid.system.context_processors import add_dynamic_context
+from PyLucid.system.context_processors import add_css_tag
 
 from PyLucid.tools.content_processors import apply_markup, \
                     render_string_template, replace_add_data, redirect_warnings
@@ -272,6 +273,10 @@ def handle_command(request, page_id, module_name, method_name, url_args):
 #    print module_name, method_name
 #    print page_content
 #    print "---"
+
+    page_content = add_css_tag(
+        context, page_content, module_name, method_name
+    )
 
     return _render_cms_page(context, page_content)
 

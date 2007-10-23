@@ -24,7 +24,7 @@ import cgi, re
 
 from PyLucid.system.plugin_manager import run
 from PyLucid.system.response import SimpleStringIO
-from PyLucid.tools.shortcuts import makeUnique
+from PyLucid.system.context_processors import add_css_tag
 
 from django.conf import settings
 from django import template
@@ -61,41 +61,6 @@ class lucidTagNode(template.Node):
             self.plugin_name, self.method_name, self.method_kwargs
         )
 
-    def _add_unique_div(self, context, content):
-        """
-        Add a html DIV tag with a unique CSS-ID and a class name defined in
-        the settings.py
-        """
-        id = self.plugin_name + "_" + self.method_name
-        id = makeUnique(id, context["CSS_ID_list"])
-        context["CSS_ID_list"].append(id)
-
-        try:
-            return u'<div class="%s %s" id="%s">\n%s\n</div>\n' % (
-                settings.CSS_DIV_CLASS_NAME, self.plugin_name, id, content
-            )
-        except UnicodeDecodeError:
-            # FIXME: In some case (with mysql_old) we have trouble here.
-            # I get this traceback on www.jensdiemer.de like this:
-            #
-            #Traceback (most recent call last):
-            #File ".../django/template/__init__.py" in render_node
-            #    750. result = node.render(context)
-            #File ".../PyLucid/defaulttags/lucidTag.py" in render
-            #    102. content = self._add_unique_div(context, content)
-            #File ".../PyLucid/defaulttags/lucidTag.py" in _add_unique_div
-            #    73. return u'<div class="%s" id="%s">\n%s\n</div>\n' % (
-            #
-            #UnicodeDecodeError at /FH-D-sseldorf/
-            #'ascii' codec can't decode byte 0xc3 in position 55: ordinal not in range(128)
-            #
-            #content += "UnicodeDecodeError hack active!"
-            return '<div class="%s %s" id="%s">\n%s\n</div>\n' % (
-                settings.CSS_DIV_CLASS_NAME, str(self.plugin_name), str(id),
-                content
-            )
-
-
     def render(self, context):
         local_response = SimpleStringIO()
         output = run(
@@ -119,7 +84,9 @@ class lucidTagNode(template.Node):
             )
             raise AssertionError(msg)
 
-        content = self._add_unique_div(context, content)
+        content = add_css_tag(
+            context, content, self.plugin_name, self.method_name
+        )
 
         return content
 
