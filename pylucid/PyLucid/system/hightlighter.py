@@ -58,10 +58,10 @@ def pygmentize(sourcecode, source_type):
 
     stylesheet = formatter.get_style_defs('.pygments_code')
 
-    self.context["css_data"].append({
-        "from_info": "tinyTextile",
-        "data": stylesheet,
-    })
+#    self.context["css_data"].append({
+#        "from_info": "tinyTextile",
+#        "data": stylesheet,
+#    })
 
     out_object = SimpleStringIO()
     highlight(sourcecode, lexer, formatter, out_object)
