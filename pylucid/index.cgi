@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.4
 # -*- coding: utf-8 -*-
 
 """
@@ -6,6 +6,10 @@
     ~~~~~~~~~~~~~~~~~~~~~~
 
     You should check if the shebang is ok for your environment!
+    some examples:
+        #!/usr/bin/env python2.4
+        #!/usr/bin/python2.4
+        #!C:\python\python.exe
 
     If settings.DEBUG is ON:
       - all write to stdout+stderr are checked. It's slow!
