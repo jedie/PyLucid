@@ -7,10 +7,12 @@ http://code.djangoproject.com/wiki/CookBookScriptsMiniFlush
 """
 
 from django.conf import settings
-from PyLucid.install.BaseInstall import BaseInstall
 
+from django.utils.translation import ugettext as _
 from django import newforms as forms
 from django.contrib.auth.models import User
+
+from PyLucid.install.BaseInstall import BaseInstall
 
 import sys, os
 
