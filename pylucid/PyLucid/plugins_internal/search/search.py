@@ -26,6 +26,7 @@ __version__= "$Rev$"
 import time, cgi
 
 from django import newforms as forms
+from django.utils.translation import ugettext as _
 
 from PyLucid.models import Page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin

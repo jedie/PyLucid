@@ -30,6 +30,7 @@ from django.core import mail
 from django import newforms as forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.utils.translation import ugettext as _
 
 
 # DEBUG is usefull for debugging password reset. It send no email, it puts the

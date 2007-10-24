@@ -25,7 +25,7 @@ __version__= "$Rev$"
 import os
 
 from django import newforms as forms
-
+from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from PyLucid.models import Plugin, PagesInternal

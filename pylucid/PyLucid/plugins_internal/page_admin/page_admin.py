@@ -27,7 +27,7 @@ from django.newforms.util import ValidationError
 from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.cache import cache
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext as _
 
 from django.conf import settings
 from PyLucid.models import Page, Plugin
@@ -86,7 +86,7 @@ class ParentMultipleChoiceField(forms.ChoiceField):
             #parent_id = 999999999 # Not exists test
             return Page.objects.get(id=parent_id)
         except Exception, msg:
-            raise ValidationError(ugettext(u"Wrong parent POST data: %s" % msg))
+            raise ValidationError(_(u"Wrong parent POST data: %s" % msg))
 
 def formfield_callback(field, **kwargs):
     """

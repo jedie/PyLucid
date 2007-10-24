@@ -21,6 +21,7 @@ from django.db import models
 from django.dispatch import dispatcher
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.models import UNUSABLE_PASSWORD
+from django.utils.translation import ugettext as _
 
 from PyLucid.tools.shortcuts import getUniqueShortcut
 from PyLucid.tools import crypt

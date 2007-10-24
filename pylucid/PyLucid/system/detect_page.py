@@ -18,6 +18,7 @@
 
 from PyLucid.models import Page, Preference, Template
 
+from django.utils.translation import ugettext as _
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 

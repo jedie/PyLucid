@@ -23,6 +23,7 @@ from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.template import RequestContext
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from PyLucid import models
