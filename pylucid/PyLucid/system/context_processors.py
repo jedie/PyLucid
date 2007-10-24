@@ -61,7 +61,7 @@ def add_css_tag(context, content, plugin_name, method_name):
     """
     Add a unique CSS-ID and a class name defined in the settings.py
     """
-    id = plugin_name + "_" + method_name
+    id = plugin_name + u"_" + method_name
     id = makeUnique(id, context["CSS_ID_list"])
     context["CSS_ID_list"].append(id)
     class_name = getattr(settings, "CSS_PLUGIN_CLASS_NAME", "PyLucidPlugins")
@@ -87,6 +87,5 @@ def add_css_tag(context, content, plugin_name, method_name):
         #
         #content += "UnicodeDecodeError hack active!"
         return '<span class="%s %s" id="%s">\n%s\n</span>\n' % (
-            class_name, str(plugin_name), str(id),
-            content
+            class_name, str(plugin_name), str(id), content
         )
