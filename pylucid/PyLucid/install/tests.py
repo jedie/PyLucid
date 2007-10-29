@@ -43,6 +43,14 @@ class CacheBackendTest(BaseInstall):
             f.close()
             os.remove(file_path)
 
+        host = self.request.META.get("HTTP_HOST", "").replace(".", "_")
+        if host:
+            suffix = "_" + host
+        else:
+            suffix = ""
+
+        test_filename = "PyLucid_test%s.txt" % suffix
+
         from tempfile import gettempdir
         tempdir = gettempdir()
         print "The system default temp dir is: '%s'" % tempdir
@@ -51,7 +59,7 @@ class CacheBackendTest(BaseInstall):
         #______________________________________________________________________
         # Try if we can make files directly into the temp directory:
 
-        test_fn = os.path.join(tempdir, "PyLucid_test.txt")
+        test_fn = os.path.join(tempdir, test_filename)
         try:
             write_test(test_fn)
         except OSError, msg:
@@ -65,14 +73,14 @@ class CacheBackendTest(BaseInstall):
         #______________________________________________________________________
         # Try if we can use a subdirectory:
 
-        test_dir = os.path.join(tempdir, "PyLucid_cache")
+        test_dir = os.path.join(tempdir, "PyLucid_cache" + suffix)
         try:
             if not os.path.isdir(test_dir):
                 # test only if not exists (os.rmdir failed in the past?)
                 os.makedirs(test_dir)
 
             # Try to write a temp file
-            test_fn = os.path.join(test_dir, "PyLucid_test.txt")
+            test_fn = os.path.join(test_dir, test_filename)
             write_test(test_fn)
             try:
                 os.rmdir(test_dir)
