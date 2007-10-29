@@ -97,7 +97,7 @@ class BaseInstall(object):
         self.request = request
         self.context = {
             "output": "",
-            "http_host": request.META.get("HTTP_HOST","cms page"),
+            "request": request,
             "PyLucid_media_url": settings.PYLUCID_MEDIA_URL,
             "version": PYLUCID_VERSION_STRING,
         }

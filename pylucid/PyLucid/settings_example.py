@@ -60,14 +60,13 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 
 # deactivate the DEBUG mode in a productive environment because there a many
 # information in a debug traceback ;)
-# You should use INTERNAL_IPS to limit the access.
-DEBUG = False
-TEMPLATE_DEBUG = DEBUG
+# You should always use INTERNAL_IPS to limit the access!
+DEBUG = True
 
 # Tuple of IP addresses, as strings, that:
 #   * See debug comments, when DEBUG is true
 #   * Receive x-headers
-INTERNAL_IPS = ()
+INTERNAL_IPS = ("localhost", "127.0.0.1")
 
 #_____________________________________________________________________________
 # _INSTALL SECTION
@@ -124,6 +123,7 @@ SECRET_KEY = ''
 #
 # Note:
 #    -You can test available backends in the _install section!
+#    -You should use a unique filesystem cache dir!
 #
 # Dummy caching ('dummy:///'):
 #    The default non-caching. It just implements the cache interface without
@@ -278,6 +278,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 TEMPLATE_DIRS = (
     "PyLucid/templates_django", "PyLucid/templates_PyLucid",
 )
+
+# A boolean that turns on/off template debug mode. If this is True, the fancy
+# error page will display a detailed report for any TemplateSyntaxError.
+# Note that Django only displays fancy error pages if DEBUG is True!
+TEMPLATE_DEBUG = DEBUG
 
 
 #_____________________________________________________________________________
