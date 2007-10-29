@@ -18,9 +18,10 @@ plugin_manager_data = {
     "user_list" : {
         "must_login"    : True,
         "must_admin"    : False,
-#        "internal_page_info" : {
-#            "description"       : "HTML form to edit a CMS Page",
-#            "markup"            : None,
-#        },
+        "internal_page_info" : {
+            "name"            : "mail_form",
+            "description"     : "The html form to write a email",
+            "markup"          : None,
+        },
     },
 }

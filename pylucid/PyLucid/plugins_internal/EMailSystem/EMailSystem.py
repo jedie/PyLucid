@@ -22,26 +22,18 @@ __version__= "$Rev$"
 from django import newforms as forms
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.utils.translation import ugettext as _
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from django.conf import settings
 
-TEMPLATE = """
-<form method="post" action=".">
-  <table class="form">
-    {{ form }}
-  </table>
-  <input type="submit" value="{% trans 'send email' %}" />
-</form>
-"""
 
 class MailForm(forms.Form):
     users = forms.ModelMultipleChoiceField(
         queryset=User.objects.all(),
         widget=forms.CheckboxSelectMultiple,
-        help_text=_("Select users you a mail wants to send"),
+        help_text=_("Select a user you would like to write a mail."),
     )
-    sender = forms.EmailField()
     subject = forms.CharField(
         help_text=_("(The prefix '%s' would be insert.)") % (
             settings.EMAIL_SUBJECT_PREFIX
@@ -51,6 +43,8 @@ class MailForm(forms.Form):
         max_length=2048, min_length=20
     )
 
+class EMailForm(forms.Form):
+    email = forms.EmailField()
 
 
 class EMailSystem(PyLucidBasePlugin):
@@ -75,16 +69,28 @@ class EMailSystem(PyLucidBasePlugin):
         if recipient_list == []:
             raise SendMailError(_("No recipient left."))
 
+        sender = self._get_sender()
+
         try:
             send_mail(
                 subject = subject,
                 message = cleaned_data["mail_text"],
-                from_email = cleaned_data["sender"],
+                from_email = sender,
                 recipient_list = recipient_list,
             )
         except Exception, msg:
             raise SendMailError(_("Error sending mail: %s") % msg)
 
+    def _get_sender(self):
+        test_sender = EMailForm({"email": self.request.user.email})
+        if not test_sender.is_valid():
+            self.page_msg.red(_(
+                "You can't send emails,"
+                " your user account has no valid email address."
+            ))
+            return
+        sender = test_sender.cleaned_data["email"]
+        return sender
 
     def user_list(self):
         """
@@ -93,6 +99,8 @@ class EMailSystem(PyLucidBasePlugin):
         if settings.ALLOW_SEND_MAILS != True:
             self.page_msg(_("Sending mails deny in your settings.py!"))
             return
+
+        sender = self._get_sender()
 
         if self.request.method == 'POST':
             mail_form = MailForm(self.request.POST)
@@ -105,20 +113,13 @@ class EMailSystem(PyLucidBasePlugin):
                     self.page_msg.green(_("Send mail, OK"))
                     return
         else:
-            host = self.request.META.get("HTTP_HOST", settings.EMAIL_HOST)
-            # Cut the port number, if exists
-            host = host.split(":")[0]
-
-            form_data = {
-                "sender": "%s@%s" % (self.request.user, host),
-            }
-            mail_form = MailForm(form_data)
+            mail_form = MailForm()
 
         context = {
             "form": mail_form.as_p(),
+            "sender": sender,
         }
-
-        return self._render_string_template(TEMPLATE, context)#, debug=True)
+        self._render_template("mail_form", context)#, debug=True)
 
 
 class SendMailError(Exception):
