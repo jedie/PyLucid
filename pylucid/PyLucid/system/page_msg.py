@@ -50,7 +50,13 @@ class PageMessages(object):
             # In the _install section we use no RequestContext ;)
             self.messages = []
 
-        self.debug_mode = settings.DEBUG
+        request = context["request"]
+        if settings.TEMPLATE_DEBUG and \
+                    request.META.get('REMOTE_ADDR') in settings.INTERNAL_IPS:
+            self.debug_mode = True
+        else:
+            self.debug_mode = False
+
         self._charset = settings.DEFAULT_CHARSET
 
     #_________________________________________________________________________
