@@ -8,6 +8,7 @@ import sys
 from PyLucid import PYLUCID_VERSION_STRING
 from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.page_msg import PageMessages
+from PyLucid.system.utils import setup_debug
 from PyLucid.tools import crypt
 from PyLucid.tools.content_processors import render_string_template, \
                                                             redirect_warnings
@@ -93,6 +94,8 @@ class BaseInstall(object):
         if settings.ENABLE_INSTALL_SECTION != True:
             # Should never nappen, because the urlpatterns deactivaed, too.
             raise Http404("Install section disabled")
+
+        setup_debug(request)
 
         self.request = request
         self.context = {

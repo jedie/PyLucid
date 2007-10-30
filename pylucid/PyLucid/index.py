@@ -36,9 +36,10 @@ from PyLucid.system.detect_page import get_current_page_obj, \
                                                             get_default_page_id
 from PyLucid.system.URLs import URLs
 from PyLucid.system.context_processors import add_dynamic_context, add_css_tag
-
+from PyLucid.system.utils import setup_debug
 from PyLucid.tools.content_processors import apply_markup, \
                     render_string_template, replace_add_data, redirect_warnings
+
 
 
 def _render_cms_page(context, page_content=None):
@@ -196,6 +197,8 @@ def index(request, url):
             # This page has been cached in the past, use the cache data:
             return response
 
+    setup_debug(request)
+
     # Get the response for the requested cms page:
     current_page_obj = get_current_page_obj(request, url)
     context = _get_context(request, current_page_obj)
@@ -220,6 +223,8 @@ def handle_command(request, page_id, module_name, method_name, url_args):
     """
     handle a _command request
     """
+    setup_debug(request)
+
     try:
         current_page_obj = models.Page.objects.get(id=int(page_id))
     except models.Page.DoesNotExist:

@@ -51,11 +51,7 @@ class PageMessages(object):
             self.messages = []
 
         request = context["request"]
-        if settings.TEMPLATE_DEBUG and \
-                    request.META.get('REMOTE_ADDR') in settings.INTERNAL_IPS:
-            self.debug_mode = True
-        else:
-            self.debug_mode = False
+        self.debug_mode = request.debug
 
         self._charset = settings.DEFAULT_CHARSET
 
