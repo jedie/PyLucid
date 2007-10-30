@@ -148,9 +148,10 @@ def redirect_warnings(out_obj):
 
 from xml.sax.saxutils import escape as sax_escape
 ENTITIES = {
-#    &amp;#x7B;% lucidTag RSS url=&quot;http url&quot; title=&quot;a feed&quot; %&amp;#x7D;
-    "{" : "&#x7B;",
-    "}" : "&#x7D;",
+    "{{" : "&#x7B;&#x7B;",
+    "}}" : "&#x7D;&#x7D;",
+    "{%" : "&#x7B;%",
+    "%}" : "%&#x7D;",
 }
 def escape(txt):
     """"

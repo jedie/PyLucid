@@ -1,5 +1,5 @@
 
-from PyLucid.tools.content_processors import escape
+from PyLucid.tools.content_processors import escape, escape_django_tags
 
 from django.conf import settings
 
@@ -20,6 +20,7 @@ HTML = (
     '%(code_html)s'
     '</fieldset>'
 )
+CSSCLASS = "pygments"
 
 def make_html(sourcecode, source_type):
     code_html, lexer_name = pygmentize(sourcecode, source_type)
@@ -53,10 +54,11 @@ def pygmentize(sourcecode, source_type):
     lexer_name = lexer.name
 
     formatter = HtmlFormatter(
-        linenos=True, encoding="utf-8", style='colorful'
+        linenos=True, encoding="utf-8", style='colorful',
+        cssclass = CSSCLASS,
     )
 
-    stylesheet = formatter.get_style_defs('.pygments_code')
+    #stylesheet = formatter.get_style_defs(CSSCLASS)
 
 #    self.context["css_data"].append({
 #        "from_info": "tinyTextile",
@@ -66,6 +68,9 @@ def pygmentize(sourcecode, source_type):
     out_object = SimpleStringIO()
     highlight(sourcecode, lexer, formatter, out_object)
     html = out_object.getvalue()
+
+    # If there is e.g. html code with django tags, we must escape this:
+    html = escape_django_tags(html)
 
     return html, lexer_name
 
