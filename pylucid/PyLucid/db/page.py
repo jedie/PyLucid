@@ -28,15 +28,22 @@ def get_update_info(context, count=10):
     get the last >count< page updates.
     Used by page_update_list and the RSSfeedGenerator
     """
-    data = Page.objects.order_by('-lastupdatetime')
-    data = data.filter(showlinks = True)
+    pages = Page.objects.order_by('-lastupdatetime')
+    pages = pages.filter(showlinks = True)
 
     request = context["request"]
     if request.user.is_anonymous():
-        data = data.exclude(permitViewPublic = False)
+        pages = pages.exclude(permitViewPublic = False)
 
-    data = data[:count]
-    return data
+    pages = pages[:count]
+
+    # Add the attribute 'absolute_uri' to every page:
+    for page in pages:
+        location = page.get_absolute_url()
+        absolute_uri = request.build_absolute_uri(location)
+        page.absolute_uri = absolute_uri
+
+    return pages
 
 
 def flat_tree_list(generate_level_names=True):

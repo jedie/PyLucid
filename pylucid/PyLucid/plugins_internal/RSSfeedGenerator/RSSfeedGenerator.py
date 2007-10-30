@@ -64,11 +64,7 @@ class RSSfeedGenerator(PyLucidBasePlugin):
 #        ) % url
 #        self.response.addCode.insert(headLink)
 
-    def download(self, filename):
-        """
-        Generate the XML file and send it to the client.
-        Info: the method ignored the filename
-        """
+    def _get_feed(self):
         count = self.request.GET.get("count", 10)
         count = self.prepare_count(count)
         cache_key = "%s_%s" % (CACHE_KEY, count)
@@ -81,28 +77,38 @@ class RSSfeedGenerator(PyLucidBasePlugin):
 
         if self.request.user.is_anonymous():
             # Use only the cache for anonymous users.
-            page_updates = cache.get(cache_key)
-        else:
-            page_updates = None
+            content = cache.get(cache_key)
+            if content:
+                return content
 
-        if page_updates != None:
-            context["from_cache"] = True
-        else:
-            page_updates = get_update_info(self.context, count)
-            cache.set(cache_key, page_updates, 120)
+        page_updates = get_update_info(self.context, count)
 
         context = {
-            "page_updates" : page_updates,
-            "homepage_link" : self.URLs["absoluteIndex"],
+            "page_updates": page_updates,
+            "homepage_link": self.URLs["absoluteIndex"],
             "hostname": self.URLs["hostname"],
             "pylucid_version": PYLUCID_VERSION_STRING,
-            "pubDate": time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()),
+            "pubDate": time.strftime(
+                "%a, %d %b %Y %H:%M:%S +0000", time.gmtime()
+            ),
         }
+
         if debug:
             self.page_msg("Debug context:")
             self.page_msg(context)
 
         content = self._get_rendered_template("RSSfeed", context)
+
+        cache.set(cache_key, content, 120)
+
+        return content
+
+    def download(self, filename):
+        """
+        Generate the XML file and send it to the client.
+        Info: the method ignored the filename
+        """
+        content = self._get_feed()
 
         if debug:
             self.response.write("<h2>Debug:</h2><pre>")

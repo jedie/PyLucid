@@ -23,9 +23,9 @@
 
     {% for item in page_updates %}
     <item>
-        <title>{{ item.name|escape }} - updated {{ item.date }} by {{ item.user }}</title>
-        <link>{{ item.link }}</link>
-        <description>{{ item.name_title|escape }}</description>
+        <title>{% if item.title %}{{ item.title|escape }}{% else %}{{ item.name|escape }}{% endif %} - updated {{ item.lastupdatetime }} by {{ item.lastupdateby }}</title>
+        <link>{{ item.absolute_uri }}</link>
+        <description>{{ item.description|escape }}</description>
     </item>
     {% endfor %}
 </channel>
