@@ -5,10 +5,13 @@
     PyLucid RSS news feed generator plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    -With {% lucidTag RSSfeedGenerator count=10 %} you can generate a link to
-    the RSS XML file.
+    example for a html link:
+        <a href="{% lucidTag RSSfeedGenerator count="10" %}"
+        type="application/rss+xml" title="page updates">RSS feed</a>
 
-    FIXME: Make the "count" argument not as a GET parameter.
+    example for the html head:
+        <link rel="alternate" type="application/rss+xml" title="page updates"
+        href="{% lucidTag RSSfeedGenerator count="10" %}" />
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -43,30 +46,16 @@ class RSSfeedGenerator(PyLucidBasePlugin):
 
     def lucidTag(self, count=10):
         """
-        Put a link to the RSS feed file into the cms page.
+        returned the link to the feed, with a count GET parameter.
         """
-        count = self.prepare_count(count)
-        url = self.URLs.methodLink("download")
-        url = url + RSS_FILENAME
-
-        # FIXME: We should better use a small internal page for this:
-        html = (
-            '<a href="%s?count=%s" type="application/rss+xml" title="RSS">'
-            'RSS'
-            '</a>'
-        ) % (url, count)
-        self.response.write(html)
-
-        # TODO: implement a way to add this into the html head:
-#        headLink = (
-#            '<link rel="alternate" type="application/rss+xml"'
-#            ' title="RSS" href="%s" />\n'
-#        ) % url
-#        self.response.addCode.insert(headLink)
+        count = self._prepare_count(count)
+        link = self.URLs.methodLink("download")
+        url = "%s%s?count=%s" % (link, RSS_FILENAME, count)
+        return url
 
     def _get_feed(self):
         count = self.request.GET.get("count", 10)
-        count = self.prepare_count(count)
+        count = self._prepare_count(count)
         cache_key = "%s_%s" % (CACHE_KEY, count)
         if debug:
             self.page_msg("RSSfeedGenerator Debug:")
@@ -122,7 +111,7 @@ class RSSfeedGenerator(PyLucidBasePlugin):
         response.write(content)
         return response
 
-    def prepare_count(self, count):
+    def _prepare_count(self, count):
         """
         Check if the count is a number and in a definied range.
         """
@@ -134,3 +123,5 @@ class RSSfeedGenerator(PyLucidBasePlugin):
         except Exception, e:
             msg = "Error! Wrong count argument: %s" % e
             raise PluginError(msg)
+
+

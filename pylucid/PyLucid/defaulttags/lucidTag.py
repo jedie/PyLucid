@@ -34,7 +34,7 @@ from django import template
 KWARGS_REGEX = re.compile('''(\w*?)\=['"](.*?)['"]''')
 
 # Not all plugin output should surrounded with a <span> tag:
-CSS_TAG_BLACKLIST = ("page_style",)
+CSS_TAG_BLACKLIST = ("page_style", "RSSfeedGenerator",)
 
 
 class lucidTagNodeError(template.Node):
