@@ -33,6 +33,9 @@ from django import template
 # FIXME: The re should be more fault-tolerant:
 KWARGS_REGEX = re.compile('''(\w*?)\=['"](.*?)['"]''')
 
+# Not all plugin output should surrounded with a <span> tag:
+CSS_TAG_BLACKLIST = ("page_style",)
+
 
 class lucidTagNodeError(template.Node):
     """
@@ -84,9 +87,10 @@ class lucidTagNode(template.Node):
             )
             raise AssertionError(msg)
 
-        content = add_css_tag(
-            context, content, self.plugin_name, self.method_name
-        )
+        if not self.plugin_name in CSS_TAG_BLACKLIST:
+            content = add_css_tag(
+                context, content, self.plugin_name, self.method_name
+            )
 
         return content
 
