@@ -44,7 +44,7 @@ def _import(request, from_name, object_name):
     try:
         return __import__(from_name, {}, {}, [object_name])
     except (ImportError, SyntaxError), e:
-        if request.user.is_superuser or settings.DEBUG:
+        if request.user.is_superuser or request.debug:
             raise
         raise ImportError, "Can't import %s from %s: %s" % (
             object_name, from_name, e
@@ -161,7 +161,8 @@ def run(context, response, plugin_name, method_name, url_args=(),
     run the plugin with errorhandling
     """
 #    print "plugin_manager.run():", plugin_name, method_name, url_args, method_kwargs
-    if settings.DEBUG:
+    request = context["request"]
+    if request.debug:
         return _run(
             context, response, plugin_name, method_name,
             url_args, method_kwargs

@@ -132,7 +132,7 @@ class plugin_admin(PyLucidBasePlugin):
                         package_name, plugin_name, dissolve_version_string=True
                     )
                 except Exception, e:
-                    if settings.DEBUG:
+                    if self.request.debug:
                         raise
                     self.page_msg("Error: %s" % e)
                 else:
@@ -168,7 +168,7 @@ class plugin_admin(PyLucidBasePlugin):
                 extra_verbose=False
             )
         except Exception, e:
-            if settings.DEBUG:
+            if self.request.debug:
                 raise
             raise ActionError(_("Error installing Plugin:"), e)
         else:
@@ -192,7 +192,7 @@ class plugin_admin(PyLucidBasePlugin):
             pages.delete()
             plugin.delete()
         except Exception, e:
-            if settings.DEBUG:
+            if self.request.debug:
                 raise
             raise ActionError(_("Error removing Plugin: %s") % e)
         else:
@@ -213,7 +213,7 @@ class plugin_admin(PyLucidBasePlugin):
             plugin.active = False
             plugin.save()
         except Exception, e:
-            if settings.DEBUG:
+            if self.request.debug:
                 raise
             raise ActionError(_("Can't deactivate Plugin: %s") % e)
         else:
@@ -230,7 +230,7 @@ class plugin_admin(PyLucidBasePlugin):
             plugin.active = True
             plugin.save()
         except Exception, e:
-            if settings.DEBUG:
+            if self.request.debug:
                 raise
             raise ActionError(_("Can't activate Plugin: %s") % e)
         else:
@@ -255,7 +255,7 @@ class plugin_admin(PyLucidBasePlugin):
             self._deinstall_plugin(plugin_id, force=True)
             self._install_plugin(plugin_name, package_name, active=True)
         except Exception, e:
-            if settings.DEBUG:
+            if self.request.debug:
                 raise
             raise ActionError(_("Can't reinit plugin: %s") % e)
         else:

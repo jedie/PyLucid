@@ -124,6 +124,9 @@ def replace_add_data(context, content):
         }
         html = render_string_template(internal_page_content, context)
     except Exception, msg:
+        request = context["request"]
+        if request.debug:
+            raise
         html = "<!-- Replace the ADD_DATA_TAG error: %s -->" % msg
 
     content = content.replace(settings.ADD_DATA_TAG, html)

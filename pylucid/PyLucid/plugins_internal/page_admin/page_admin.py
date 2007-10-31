@@ -538,7 +538,7 @@ class page_admin(PyLucidBasePlugin):
                 weight = int(weight)
             except (KeyError, ValueError), msg:
                 self.page_msg.red(_("Error: Wrong POST data!"))
-                if settings.DEBUG:
+                if self.request.debug:
                     self.page_msg.red("Debug: %s" % msg)
                 # abort!
                 return
