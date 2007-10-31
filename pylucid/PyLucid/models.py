@@ -22,9 +22,13 @@ from django.dispatch import dispatcher
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.models import UNUSABLE_PASSWORD
 from django.utils.translation import ugettext as _
+from django.contrib.sites.models import Site
+from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
 
 from PyLucid.tools.shortcuts import getUniqueShortcut
 from PyLucid.tools import crypt
+from PyLucid.system.utils import get_uri_base
 
 
 
@@ -243,6 +247,19 @@ class Page(models.Model):
             return parent_shortcut + self.shortcut + "/"
         else:
             return "/" + self.shortcut + "/"
+
+    def get_absolute_uri(self):
+        """
+        returned the complete absolute URI (with the domain/host part)
+        """
+        url = self.get_absolute_url()
+        uri_base = get_uri_base()
+        return uri_base + url
+
+    def get_permalink(self):
+        uri_base = get_uri_base()
+        return "%s/%s/%s/" % (uri_base, settings.PERMALINK_URL_PREFIX, self.id)
+
 
     def get_verbose_title(self):
         """
