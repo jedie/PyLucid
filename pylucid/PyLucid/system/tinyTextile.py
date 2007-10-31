@@ -156,9 +156,9 @@ class TinyTextileParser:
 
     def shortcutLink(self, matchobj):
         shortcut = matchobj.group(1)
+        url = "/%s/" % shortcut.strip("/")
         link = '<a href="%s">%s</a>' % (
-#            self.URLs.pageLink(shortcut), shortcut
-            shortcut, shortcut
+            url, shortcut
         )
         return link
 
