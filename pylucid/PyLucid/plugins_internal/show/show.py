@@ -23,7 +23,7 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-__version__= "$Rev: 1168 $"
+__version__= "$Rev$"
 
 from PyLucid.models import Page
 from PyLucid.db.page import get_main_menu_tree, flat_tree_list
