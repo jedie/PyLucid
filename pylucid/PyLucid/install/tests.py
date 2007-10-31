@@ -194,8 +194,9 @@ info_template = """
     <li><a href="#db_info">db info</a></li>
     <li><a href="#settings">settings</a></li>
     <li><a href="#user_info">user info</a></li>
-    <li><a href="#request">request objects</a></li>
+    <li><a href="#environ">os.environ</a></li>
     <li><a href="#request_meta">request.META</a></li>
+    <li><a href="#request">request objects</a></li>
     <li><a href="#request_context">request context</a></li>
 </ul>
 
@@ -243,12 +244,12 @@ info_template = """
 {% endfor %}
 </dl>
 
-<a name="request"></a>
+<a name="environ"></a>
 <a href="#top">&#x5E; top</a>
-<h2>request objects:</h2>
+<h2>os.environ:</h2>
 <ul>
-{% for item in objects %}
-    <li>{{ item }}</li>
+{% for item in environ %}
+    <li>{{ item.0 }}: {{ item.1|escape }}</li>
 {% endfor %}
 </ul>
 
@@ -258,6 +259,15 @@ info_template = """
 <ul>
 {% for item in request_meta %}
     <li>{{ item.0 }}: {{ item.1|escape }}</li>
+{% endfor %}
+</ul>
+
+<a name="request"></a>
+<a href="#top">&#x5E; top</a>
+<h2>request objects:</h2>
+<ul>
+{% for item in objects %}
+    <li>{{ item }}</li>
 {% endfor %}
 </ul>
 
@@ -282,6 +292,9 @@ class Info(BaseInstall):
 #            ("table prefix", db.tableprefix),
 #        ]
 
+        #______________________________________________________________________
+        # apps/models list
+
         from django.db.models import get_apps, get_models
 
         apps_info = []
@@ -294,47 +307,67 @@ class Info(BaseInstall):
 
         self.context["apps_info"] = apps_info
 
+        #______________________________________________________________________
+        # os.environ + request.META
+
+        def get_list(obj):
+            l = [(k,v) for k,v in obj.iteritems()]
+            l.sort()
+            return l
+
+        self.context["environ"] = get_list(os.environ)
+        self.context["request_meta"] = get_list(self.request.META)
+
+        #______________________________________________________________________
+        # request objects
 
         self.context["objects"] = []
         for item in dir(self.request):
             if not item.startswith("__"):
                 self.context["objects"].append("request.%s" % item)
 
-        self.context["request_meta"] = []
-        for key in sorted(self.request.META):
-            self.context["request_meta"].append(
-                (key, self.request.META[key])
-            )
+        #______________________________________________________________________
+        # settings
 
-        def get_obj_infos(obj):
-            info = []
-            for obj_name in dir(obj):
-                if obj_name.startswith("_"):
-                    continue
+        self.context["current_settings"] = self._get_obj_infos(settings)
 
-                try:
-                    current_obj = getattr(obj, obj_name)
-                except Exception, e:
-                    etype = sys.exc_info()[0]
-                    info.append((obj_name, "[%s: %s]" % (etype, cgi.escape(str(e)))))
-                    continue
-
-                if not isinstance(current_obj, (basestring, int, tuple, bool, dict)):
-                    #~ print ">>>Skip:", obj_name, type(current_obj)
-                    continue
-                info.append((obj_name, current_obj))
-            info.sort()
-            return info
-        self.context["current_settings"] = get_obj_infos(settings)
+        #______________________________________________________________________
+        # user info + request context
 
         if "django.contrib.sessions.middleware.SessionMiddleware" in \
                                                     settings.MIDDLEWARE_CLASSES:
-            self.context["user_info"] = get_obj_infos(self.request.user)
+            self.context["user_info"] = self._get_obj_infos(self.request.user)
 
             from django.template import RequestContext
             self.context["request_context"] = RequestContext(self.request)
 
         return self._render(info_template)
+
+    def _get_obj_infos(self, obj):
+        """
+        shared method to get a list of all relevant attributes from the given
+        object.
+        """
+        info = []
+        for obj_name in dir(obj):
+            if obj_name.startswith("_"):
+                continue
+
+            try:
+                current_obj = getattr(obj, obj_name)
+            except Exception, e:
+                etype = sys.exc_info()[0]
+                info.append(
+                    (obj_name, "[%s: %s]" % (etype, cgi.escape(str(e))))
+                )
+                continue
+
+            if not isinstance(current_obj, (basestring, int, tuple, bool, dict)):
+                #~ print ">>>Skip:", obj_name, type(current_obj)
+                continue
+            info.append((obj_name, current_obj))
+        info.sort()
+        return info
 
 def info(request):
     """
