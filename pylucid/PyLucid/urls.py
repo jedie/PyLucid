@@ -75,6 +75,15 @@ urls += (
         include('django.contrib.admin.urls')
     ),
     #_____________________________________
+    # permalink
+    (
+        (
+            '^%s/'
+            '(?P<page_id>\d+)/$'
+        ) % settings.PERMALINK_URL_PREFIX,
+        'PyLucid.index.permalink'
+    ),
+    #_____________________________________
     # CMS PAGE VIEW
     # A normal CMS page url simply consists of the page shortcuts.
     # The shortcuts contains only these chars: [a-zA-Z0-9_/-]
@@ -101,5 +110,4 @@ urls += (
 #    ),
     #--------------------------------------------------------------------------
 )
-
 urlpatterns = patterns('', *urls)

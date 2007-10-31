@@ -218,10 +218,10 @@ def index(request, url):
 
     return response
 
-
-def handle_command(request, page_id, module_name, method_name, url_args):
+def _get_page(request, page_id):
     """
-    handle a _command request
+    returns the page object.
+    TODO: Check int(page_id)!
     """
     setup_debug(request)
 
@@ -237,6 +237,13 @@ def handle_command(request, page_id, module_name, method_name, url_args):
                 " (goto default page.)"
             )
         )
+    return current_page_obj
+
+def handle_command(request, page_id, module_name, method_name, url_args):
+    """
+    handle a _command request
+    """
+    current_page_obj = _get_page(request, page_id)
 
     context = _get_context(request, current_page_obj)
 
@@ -301,3 +308,11 @@ def redirect(request, url):
         url = "/"
 
     return HttpResponsePermanentRedirect(url)
+
+def permalink(request, page_id):
+    """
+    redirect to the real page url.
+    """
+    current_page_obj = _get_page(request, page_id)
+    url = current_page_obj.get_absolute_url()
+    return redirect(request, url)

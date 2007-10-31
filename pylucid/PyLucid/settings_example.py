@@ -331,6 +331,8 @@ INSTALL_URL_PREFIX = "_install"
 COMMAND_URL_PREFIX = "_command"
 # Prefix to the django admin panel
 ADMIN_URL_PREFIX = "_admin"
+# the redirect to the real page url
+PERMALINK_URL_PREFIX = "_goto"
 
 
 # static URLs (used in Traceback messages)
