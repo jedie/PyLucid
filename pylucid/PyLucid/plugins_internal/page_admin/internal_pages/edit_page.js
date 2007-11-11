@@ -4,6 +4,7 @@ function init_tinyMCE() {
         mode : "textareas",
         height : "480",
         auto_focus : "mce_editor_0",
+        theme : "advanced",
     });
 }
 
