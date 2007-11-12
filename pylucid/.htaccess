@@ -43,3 +43,11 @@ RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
 
 # for fastCGI Version:
 #RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
+
+# Nobody should have access to your settings.py!
+# If you use a SQLite Database and the DB file is in you DocRoot, you should
+# also deny the access for everybody.
+# http://httpd.apache.org/docs/2.2/mod/core.html#files
+<Files settings.py>
+    Deny from all
+</Files>
