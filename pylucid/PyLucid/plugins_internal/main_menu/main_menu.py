@@ -59,10 +59,7 @@ class main_menu(PyLucidBasePlugin):
             '<a href="%(href)s" title="%(title)s">%(name)s</a>'
             '</li>'
         )
-        if parent == None:
-            result = ['<ul id="main_menu">']
-        else:
-            result = ["<ul>"]
+        result = ["<ul>"]
 
         for entry in menu_data:
             href = []
