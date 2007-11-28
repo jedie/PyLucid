@@ -40,7 +40,7 @@ from PyLucid.system.context_processors import add_dynamic_context, add_css_tag
 from PyLucid.system.utils import setup_debug
 from PyLucid.tools.content_processors import apply_markup, \
                     render_string_template, replace_add_data, redirect_warnings
-
+from PyLucid.tools.utils import escape, escape_django_tags
 
 
 def _render_cms_page(context, page_content=None):
@@ -54,7 +54,7 @@ def _render_cms_page(context, page_content=None):
     if page_content:
         # The page content comes e.g. from the _command plugin
 #        current_page.content = page_content
-        pass
+        page_content = escape_django_tags(page_content)
     else:
         # get the current page data from the db
         page_content = current_page.content
@@ -275,7 +275,6 @@ def handle_command(request, page_id, module_name, method_name, url_args):
             # e.g. send a file directly back to the client
             return output
         else:
-            import cgi
             msg = (
                 "Error: Wrong output from Plugin!"
                 " - It should be write into the response object"
@@ -283,7 +282,7 @@ def handle_command(request, page_id, module_name, method_name, url_args):
                 " - But %s.%s has returned: %s (%s)"
             ) % (
                 module_name, method_name,
-                cgi.escape(repr(output)), cgi.escape(str(type(output)))
+                escape(repr(output)), escape(str(type(output)))
             )
             raise AssertionError(msg)
 

@@ -36,7 +36,7 @@ from django.utils.safestring import mark_safe
 from django.conf import settings
 
 
-from PyLucid.tools.content_processors import escape
+from PyLucid.tools.utils import escape
 
 #_____________________________________________________________________________
 

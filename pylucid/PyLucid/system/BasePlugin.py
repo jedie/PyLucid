@@ -33,7 +33,7 @@ from django.utils.safestring import mark_safe
 from PyLucid.db.internal_pages import get_internal_page
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
-from PyLucid.tools.content_processors import escape
+from PyLucid.tools.utils import escape
 
 class PyLucidBasePlugin(object):
 

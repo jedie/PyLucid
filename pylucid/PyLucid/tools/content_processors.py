@@ -31,7 +31,7 @@ from PyLucid.db.internal_pages import get_internal_page
 # use the undocumented django function to add the "lucidTag" to the tag library.
 # see ./PyLucid/defaulttags/__init__.py
 from django.template import add_to_builtins
-add_to_builtins('PyLucid.defaulttags')
+add_to_builtins('PyLucid.template_addons')
 
 
 
@@ -147,24 +147,3 @@ def redirect_warnings(out_obj):
 
 
 
-from xml.sax.saxutils import escape as sax_escape
-ENTITIES = {
-    "{{" : "&#x7B;&#x7B;",
-    "}}" : "&#x7D;&#x7D;",
-    "{%" : "&#x7B;%",
-    "%}" : "%&#x7D;",
-}
-def escape(txt):
-    """"
-    Normal sax escape, but also escape/quote the django template tags chars
-    like "{" and "}" to the HTML character entity.
-    """
-    return sax_escape(txt, entities=ENTITIES)
-
-def escape_django_tags(txt):
-    """
-    Escape only "{" and "}".
-    """
-    for source, dest in ENTITIES.iteritems():
-        txt = txt.replace(source, dest)
-    return txt

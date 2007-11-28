@@ -19,7 +19,7 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from PyLucid.tools.content_processors import escape, escape_django_tags
+from PyLucid.tools.utils import escape, escape_django_tags
 
 from django.utils.translation import ugettext as _
 from django.conf import settings

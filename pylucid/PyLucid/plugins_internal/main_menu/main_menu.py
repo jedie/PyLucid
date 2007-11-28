@@ -30,7 +30,7 @@ __version__= "$Rev$"
 
 from PyLucid.db.page import get_main_menu_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.tools.content_processors import escape
+from PyLucid.tools.utils import escape
 
 
 class main_menu(PyLucidBasePlugin):

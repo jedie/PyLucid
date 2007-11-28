@@ -20,7 +20,7 @@
 __version__= "$Rev:1070 $"
 
 
-from PyLucid.tools.content_processors import escape
+from PyLucid.tools.utils import escape
 
 from django import newforms as forms
 from django.newforms.util import ValidationError
