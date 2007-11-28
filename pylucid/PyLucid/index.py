@@ -24,6 +24,7 @@ from django.template import RequestContext
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
 from django.conf import settings
 
 from PyLucid import models
@@ -52,17 +53,21 @@ def _render_cms_page(context, page_content=None):
 
     if page_content:
         # The page content comes e.g. from the _command plugin
-        current_page.content = page_content
+#        current_page.content = page_content
+        pass
     else:
         # get the current page data from the db
         page_content = current_page.content
 
         markup_object = current_page.markup
-        current_page.content = apply_markup(
-            page_content, context, markup_object
-        )
+        page_content = apply_markup(page_content, context, markup_object)
 
-    current_page.content = render_string_template(current_page.content, context)
+    page_content = render_string_template(page_content, context)
+
+    # http://www.djangoproject.com/documentation/templates_python/#filters-and-auto-escaping
+    page_content = mark_safe(page_content) # turn djngo auto-escaping off
+
+    context["PAGE"].content = page_content
 
     template = current_page.template
     template_content = template.content

@@ -22,6 +22,8 @@
 
 __version__= "$Rev$"
 
+from django.utils.safestring import mark_safe
+
 from PyLucid.db.page import get_sitemap_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
@@ -44,6 +46,8 @@ class SiteMap(PyLucidBasePlugin):
         # Generate the html page
         # TODO: This nomaly is the job from the django template engine :(
         html = self.get_html(sitemap_tree)
+
+        html = mark_safe(html) # turn djngo auto-escaping off
 
         context = {
             "sitemap": html,

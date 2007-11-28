@@ -4,6 +4,7 @@ setup some "static" variables
 """
 
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
 
 from PyLucid import PYLUCID_VERSION_STRING
 from PyLucid.tools.shortcuts import makeUnique
@@ -19,9 +20,10 @@ def static(request):
 
     #___________________________________________________________________________
 
-    context_extras['powered_by'] = (
-        '<a href="http://www.pylucid.org">PyLucid v%s</a>'
-    ) % PYLUCID_VERSION_STRING
+    context_extras['powered_by'] = mark_safe(
+        '<a href="http://www.pylucid.org">PyLucid v%s</a>' \
+                                                        % PYLUCID_VERSION_STRING
+    )
 
     #___________________________________________________________________________
 
@@ -53,7 +55,9 @@ def add_dynamic_context(request, context):
         url = URLs.commandLink("auth", "login")
         txt = _("Log in")
 
-    context["login_link"] = '<a href="%s">%s</a>' % (url, txt)
+    context["login_link"] = mark_safe(
+        '<a href="%s">%s</a>' % (url, txt)
+    )
 
 
 

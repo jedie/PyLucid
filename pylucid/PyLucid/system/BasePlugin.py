@@ -28,6 +28,8 @@
 
 import pprint
 
+from django.utils.safestring import mark_safe
+
 from PyLucid.db.internal_pages import get_internal_page
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
@@ -115,6 +117,7 @@ class PyLucidBasePlugin(object):
         render a template and write it into the response object
         """
         html = self._get_rendered_template(internal_page_name, context, debug)
+        html = mark_safe(html) # turn djngo auto-escaping off
         self.response.write(html)
 
     def _render_string_template(self, template, context, debug=False):

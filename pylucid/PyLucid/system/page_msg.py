@@ -32,7 +32,9 @@ license:
 
 import os, sys, pprint, inspect
 
+from django.utils.safestring import mark_safe
 from django.conf import settings
+
 
 from PyLucid.tools.content_processors import escape
 
@@ -84,6 +86,7 @@ class PageMessages(object):
         )
 
         #~ self.request.user.message_set.create(message=msg)
+        msg = mark_safe(msg) # turn djngo auto-escaping off
         self.messages.append(msg)
 
     def _get_fileinfo(self):

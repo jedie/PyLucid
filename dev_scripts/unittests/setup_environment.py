@@ -107,6 +107,7 @@ class FakeUser(object):
 class FakeRequest(object):
     user = FakeUser()
     META = {"HTTP_HOST": "unitest_HTTP_HOST_fake",}
+    debug = True
 
 class FakePage(object):
     id = 1
@@ -116,19 +117,21 @@ fakeURLs = {
 }
 
 #response = sys.stdout
-def get_fake_context():
-    from PyLucid.models import Page
-    try:
-        context["PAGE"] = Page.objects.order_by('id')[1]
-    except Exception:
-        # Does only works, if the PyLucid dump inserted to the database
-        page = FakePage()
+def get_fake_context(page_object=None):
+    if not page_object:
+        from PyLucid.models import Page
+        try:
+            page_object = Page.objects.order_by('id')[1]
+        except Exception:
+            # Does only works, if the PyLucid dump inserted to the database
+            page_object = FakePage()
 
     fake_context = {
         "request": FakeRequest(),
         "page_msg": FakePageMsg(),
         "URLs": fakeURLs,
-        "PAGE": page,
+        "PAGE": page_object,
+        "CSS_ID_list": [],
 
     }
 

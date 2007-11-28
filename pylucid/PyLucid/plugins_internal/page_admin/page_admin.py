@@ -28,6 +28,7 @@ from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
 
 from django.conf import settings
 from PyLucid.models import Page, Plugin
@@ -51,6 +52,7 @@ class EscapedTextarea(forms.Textarea):
         attrs = {'rows': '15'}
         content = super(EscapedTextarea, self).render(name, value, attrs)
         content = content.replace("{", "&#x7B;").replace("}", "&#x7D;")
+        content = mark_safe(content) # turn djngo auto-escaping off
         return content
 
 class EscapedTextField(forms.Field):
@@ -453,6 +455,7 @@ class page_admin(PyLucidBasePlugin):
 
         # Generate the HTML form code:
         html = self._get_html(page_tree, default_page_id)
+        html = mark_safe(html) # turn djngo auto-escaping off
 
         # Render the Template:
         context = {

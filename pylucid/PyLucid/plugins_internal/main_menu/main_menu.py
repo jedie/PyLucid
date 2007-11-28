@@ -30,6 +30,7 @@ __version__= "$Rev$"
 
 from PyLucid.db.page import get_main_menu_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
+from PyLucid.tools.content_processors import escape
 
 
 class main_menu(PyLucidBasePlugin):
@@ -70,9 +71,13 @@ class main_menu(PyLucidBasePlugin):
             href = "/".join(href)
 
             entry["href"] = "".join((self.URLs["absoluteIndex"], href))
+            entry["name"] = escape(entry["name"])
+            entry["title"] = escape(entry["title"])
 
             if entry["id"] == self.current_page_id:
-                entry["name"] = '<span class="current">%s</span>' % entry["name"]
+                entry["name"] = (
+                    '<span class="current">%s</span>'
+                ) % entry["name"]
 
             result.append(html % entry)
 

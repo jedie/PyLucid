@@ -21,6 +21,7 @@
 import warnings
 
 from django.template import Template, Context
+from django.utils.safestring import mark_safe
 from django.conf import settings
 
 from PyLucid.system.response import SimpleStringIO
@@ -48,7 +49,7 @@ def apply_markup(content, context, markup_object):
         out_obj = SimpleStringIO()
         markup_parser = TinyTextileParser(out_obj, context)
         markup_parser.parse(content)
-        return out_obj.getvalue()
+        content = out_obj.getvalue()
     elif markup == 'Textile (original)':
         try:
             import textile
@@ -57,9 +58,8 @@ def apply_markup(content, context, markup_object):
                 "Markup error: The Python textile library isn't installed."
                 " Download: http://cheeseshop.python.org/pypi/textile"
             )
-            return content
         else:
-            return textile.textile(
+            content = textile.textile(
                 content,
                 encoding=settings.DEFAULT_CHARSET,
                 output=settings.DEFAULT_CHARSET
@@ -72,9 +72,8 @@ def apply_markup(content, context, markup_object):
                 "Markup error: The Python markdown library isn't installed."
                 " Download: http://sourceforge.net/projects/python-markdown/"
             )
-            return content
         else:
-            return markdown.markdown(content)
+            content = markdown.markdown(content)
     elif markup == 'ReStructuredText':
         try:
             from docutils.core import publish_parts
@@ -83,7 +82,6 @@ def apply_markup(content, context, markup_object):
                 "Markup error: The Python docutils library isn't installed."
                 " Download: http://docutils.sourceforge.net/"
             )
-            return content
         else:
             docutils_settings = getattr(
                 settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {}
@@ -92,9 +90,9 @@ def apply_markup(content, context, markup_object):
                 source=content, writer_name="html4css1",
                 settings_overrides=docutils_settings
             )
-            return parts["fragment"]
-    else:
-        return content
+            content = parts["fragment"]
+
+    return mark_safe(content) # turn djngo auto-escaping off
 
 
 def render_string_template(content, context):
