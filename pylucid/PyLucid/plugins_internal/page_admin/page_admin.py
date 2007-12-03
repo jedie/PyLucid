@@ -35,7 +35,8 @@ from PyLucid.models import Page, Plugin
 from PyLucid.db.page import flat_tree_list, get_sitemap_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.detect_page import get_default_page_id
-from PyLucid.tools.content_processors import apply_markup, replace_add_data
+from PyLucid.tools.content_processors import apply_markup
+from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
 #______________________________________________________________________________
 # Escape TextFields
