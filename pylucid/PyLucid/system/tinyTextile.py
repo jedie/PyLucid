@@ -27,7 +27,8 @@ license:
 
 __version__ = "$Rev$"
 
-import sys, re, cgi
+import sys, re
+from PyLucid.tools.utils import escape
 from PyLucid.system.response import SimpleStringIO
 
 
@@ -152,7 +153,7 @@ class TinyTextileParser:
         self.make_paragraphs(txt)
 
     def escaping(self, matchobj):
-        return cgi.escape(matchobj.group(1))
+        return escape(matchobj.group(1))
 
     def shortcutLink(self, matchobj):
         shortcut = matchobj.group(1)
