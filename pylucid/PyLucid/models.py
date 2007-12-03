@@ -51,13 +51,13 @@ class Page(models.Model):
         help_text = "ordering weight for sorting the pages in the menu."
     )
 
-    name = models.CharField(maxlength=150, help_text="A short page name")
+    name = models.CharField(max_length=150, help_text="A short page name")
 
     shortcut = models.CharField(
-        unique=True, maxlength=150, help_text="shortcut to built the URLs"
+        unique=True, max_length=150, help_text="shortcut to built the URLs"
     )
     title = models.CharField(
-        blank=True, maxlength=150, help_text="A long page title"
+        blank=True, max_length=150, help_text="A long page title"
     )
 
     template = models.ForeignKey(
@@ -72,11 +72,11 @@ class Page(models.Model):
     )
 
     keywords = models.CharField(
-        blank=True, maxlength=255,
+        blank=True, max_length=255,
         help_text="Keywords for the html header. (separated by commas)"
     )
     description = models.CharField(
-        blank=True, maxlength=255,
+        blank=True, max_length=255,
         help_text="Short description of the contents. (for the html header)"
     )
 
@@ -298,8 +298,8 @@ class JS_LoginData(models.Model):
     """
     user = models.ForeignKey(User)
 
-    sha_checksum = models.CharField(maxlength=192)
-    salt = models.CharField(maxlength=5)
+    sha_checksum = models.CharField(max_length=192)
+    salt = models.CharField(max_length=5)
 
     createtime = models.DateTimeField(auto_now_add=True)
     lastupdatetime = models.DateTimeField(auto_now=True)
@@ -354,7 +354,7 @@ User.set_password = set_password
 
 
 class Markup(models.Model):
-    name = models.CharField(maxlength=150)
+    name = models.CharField(max_length=150)
 
     class Admin:
         list_display = ("id", "name",)
@@ -365,7 +365,7 @@ class Markup(models.Model):
 
 
 class PagesInternal(models.Model):
-    name = models.CharField(primary_key=True, maxlength=150)
+    name = models.CharField(primary_key=True, max_length=150)
     plugin = models.ForeignKey(
         "Plugin", #to_field="id",
         help_text="The associated plugin"
@@ -403,12 +403,12 @@ class PagesInternal(models.Model):
 
 
 class Plugin(models.Model):
-    package_name = models.CharField(maxlength=255)
-    plugin_name = models.CharField(maxlength=90, unique=True)
-    version = models.CharField(null=True, blank=True, maxlength=45)
-    author = models.CharField(blank=True, maxlength=150)
-    url = models.CharField(blank=True, maxlength=255)
-    description = models.CharField(blank=True, maxlength=255)
+    package_name = models.CharField(max_length=255)
+    plugin_name = models.CharField(max_length=90, unique=True)
+    version = models.CharField(null=True, blank=True, max_length=45)
+    author = models.CharField(blank=True, max_length=150)
+    url = models.CharField(blank=True, max_length=255)
+    description = models.CharField(blank=True, max_length=255)
     long_description = models.TextField(blank=True)
     can_deinstall = models.BooleanField(default=True,
         help_text=(
@@ -473,7 +473,7 @@ class Preference(models.Model):
         "Plugin", help_text="The associated plugin",
         null=True, blank=True, editable=False
     )
-    name = models.CharField(maxlength=150, db_index=True, editable=False)
+    name = models.CharField(max_length=150, db_index=True, editable=False)
     description = models.TextField(editable=False)
 
     #__________________________________________________________________________
@@ -518,7 +518,7 @@ class Preference(models.Model):
 
     #__________________________________________________________________________
 
-    field_type = models.CharField(maxlength=150, editable=False,
+    field_type = models.CharField(max_length=150, editable=False,
         help_text="The data type for this entry (For building a html form)."
     )
 
@@ -557,7 +557,7 @@ class Preference(models.Model):
 
 
 class Style(models.Model):
-    name = models.CharField(unique=True, maxlength=150)
+    name = models.CharField(unique=True, max_length=150)
 
     createtime = models.DateTimeField(auto_now_add=True)
     lastupdatetime = models.DateTimeField(auto_now=True)
@@ -583,7 +583,7 @@ class Style(models.Model):
 
 
 class Template(models.Model):
-    name = models.CharField(unique=True, maxlength=150)
+    name = models.CharField(unique=True, max_length=150)
 
     createtime = models.DateTimeField(auto_now_add=True)
     lastupdatetime = models.DateTimeField(auto_now=True)
