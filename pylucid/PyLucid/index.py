@@ -39,8 +39,9 @@ from PyLucid.system.URLs import URLs
 from PyLucid.system.context_processors import add_dynamic_context, add_css_tag
 from PyLucid.system.utils import setup_debug
 from PyLucid.tools.content_processors import apply_markup, \
-                    render_string_template, replace_add_data, redirect_warnings
+                                    render_string_template, redirect_warnings
 from PyLucid.tools.utils import escape, escape_django_tags
+from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
 
 def _render_cms_page(context, page_content=None):
@@ -62,6 +63,7 @@ def _render_cms_page(context, page_content=None):
         markup_object = current_page.markup
         page_content = apply_markup(page_content, context, markup_object)
 
+    # Render only the CMS page content:
     page_content = render_string_template(page_content, context)
 
     # http://www.djangoproject.com/documentation/templates_python/#filters-and-auto-escaping
@@ -72,6 +74,7 @@ def _render_cms_page(context, page_content=None):
     template = current_page.template
     template_content = template.content
 
+    # Render the Template to build the complete html page:
     content = render_string_template(template_content, context)
 
     # insert JS/CSS data from any Plugin *after* the page rendered with the

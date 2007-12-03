@@ -36,10 +36,12 @@ __version__= "$Rev$"
 import sys, os, datetime
 
 from django.http import HttpResponse
+from django.conf import settings
 
-from PyLucid.settings import ADD_DATA_TAG
 from PyLucid.models import Style
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
+from PyLucid.tools.content_processors import render_string_template
+from PyLucid.db.internal_pages import get_internal_page
 
 class page_style(PyLucidBasePlugin):
 
@@ -48,7 +50,7 @@ class page_style(PyLucidBasePlugin):
         -Put a link to sendStyle into the page.
         -Insert ADD_DATA_TAG *before* the global Stylesheet link
         """
-        self.response.write(ADD_DATA_TAG)
+        self.response.write(settings.ADD_DATA_TAG)
 
         current_page = self.context["PAGE"]
         style_name = current_page.style.name
@@ -68,7 +70,7 @@ class page_style(PyLucidBasePlugin):
 
         Used with the tag: {% lucidTag page_style.print_current_style %}
         """
-        self.response.write(ADD_DATA_TAG)
+        self.response.write(settings.ADD_DATA_TAG)
 
         current_page = self.context["PAGE"]
         stylesheet = current_page.style
@@ -100,3 +102,24 @@ class page_style(PyLucidBasePlugin):
 
         return response
 
+
+def replace_add_data(context, content):
+    """
+    Replace the temporary inserted "add data" tag, with all collected CSS/JS
+    contents, e.g. from the internal pages.
+    Note: The tag added in PyLucid.plugins_internal.page_style
+    """
+
+    internal_page = get_internal_page("page_style", "add_data")
+    internal_page_content = internal_page.content_html
+
+    context = {
+        "js_data": context["js_data"],
+        "css_data": context["css_data"],
+    }
+    html = render_string_template(
+        internal_page_content, context, autoescape=False
+    )
+
+    content = content.replace(settings.ADD_DATA_TAG, html)
+    return content

@@ -22,11 +22,8 @@ import warnings
 
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
-from django.conf import settings
 
 from PyLucid.system.response import SimpleStringIO
-from PyLucid.db.internal_pages import get_internal_page
-
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
 # see ./PyLucid/defaulttags/__init__.py
@@ -95,40 +92,18 @@ def apply_markup(content, context, markup_object):
     return mark_safe(content) # turn djngo auto-escaping off
 
 
-def render_string_template(content, context):
+def render_string_template(content, context, autoescape=True):
     """
     Render a template.
     """
-    context2 = Context(context)
+    context2 = Context(context, autoescape)
     template = Template(content)
     html = template.render(context2)
     return html
 
 
 
-def replace_add_data(context, content):
-    """
-    Replace the temporary inserted "add data" tag, with all collected CSS/JS
-    contents, e.g. from the internal pages.
-    Note: The tag added in PyLucid.plugins_internal.page_style
-    """
-    try:
-        internal_page = get_internal_page("page_style", "add_data")
-        internal_page_content = internal_page.content_html
 
-        context = {
-            "js_data": context["js_data"],
-            "css_data": context["css_data"],
-        }
-        html = render_string_template(internal_page_content, context)
-    except Exception, msg:
-        request = context["request"]
-        if request.debug:
-            raise
-        html = "<!-- Replace the ADD_DATA_TAG error: %s -->" % msg
-
-    content = content.replace(settings.ADD_DATA_TAG, html)
-    return content
 
 
 def redirect_warnings(out_obj):
