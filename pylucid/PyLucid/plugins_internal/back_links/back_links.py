@@ -67,7 +67,7 @@ class back_links(PyLucidBasePlugin):
                 "url": link_data["url"],
                 "title": cgi.escape( link_data["title"] ),
             }
-            self.response.write(" &lt; %s" % link)
+            self.response.write(" &gt; %s" % link)
 
 
 
