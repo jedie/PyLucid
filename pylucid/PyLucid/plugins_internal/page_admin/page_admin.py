@@ -269,7 +269,7 @@ class page_admin(PyLucidBasePlugin):
                 '    init_tinyMCE();\n'
                 '</script>\n'
             ) % settings.PYLUCID_MEDIA_URL
-            context["tinymce"] = js_data
+            context["tinymce"] = mark_safe(js_data)
 
         self._render_template("edit_page", context)#, debug=True)
 
