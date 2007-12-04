@@ -97,7 +97,7 @@ urls += (
 )
 
 
-if getattr(settings, "REDIRECT_OLD_PYLUCID_URL", False) == True:
+if getattr(settings, "REDIRECT_OLD_PYLUCID_URL", False):
     # Redirect old PyLucid (with "index.py") to the new URLs.
     # Only usefull, if you have a old PyLucid page used in the past ;)
     urls += (
@@ -106,7 +106,7 @@ if getattr(settings, "REDIRECT_OLD_PYLUCID_URL", False) == True:
 
 
 # serve static files
-if getattr(settings, "SERVE_STATIC_FILES", False) == True:
+if getattr(settings, "SERVE_STATIC_FILES", False):
     # Should only enabled, if the django development server used.
     urls += (
         '^%s(?P<path>.*)$' % settings.MEDIA_URL.lstrip("/"),
