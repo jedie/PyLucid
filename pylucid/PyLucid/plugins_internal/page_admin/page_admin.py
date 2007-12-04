@@ -6,6 +6,10 @@
     ~~~~~~~~~
 
     CMS page administration (edit, delete, make a new page etc.)
+    
+    TODO: With django autoescape we need no longer a escape hack here.
+    But the row should be increased here.
+    Idea: Create a normal newforms class for the page edit.
 
     Last commit info:
     ~~~~~~~~~
@@ -52,8 +56,8 @@ class EscapedTextarea(forms.Textarea):
         """
         attrs = {'rows': '15'}
         content = super(EscapedTextarea, self).render(name, value, attrs)
-        content = content.replace("{", "&#x7B;").replace("}", "&#x7D;")
-        content = mark_safe(content) # turn djngo auto-escaping off
+#        content = content.replace("{", "&#x7B;").replace("}", "&#x7D;")
+#        content = mark_safe(content) # turn djngo auto-escaping off
         return content
 
 class EscapedTextField(forms.Field):
