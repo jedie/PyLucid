@@ -21,6 +21,9 @@ from django.conf import settings
 handler404 = 'django.views.defaults.page_not_found'
 handler500 = 'django.views.defaults.server_error'
 
+#______________________________________________________________________________
+# The install section:
+
 # We insert the _install URLs only, if the _install section is activated.
 if settings.ENABLE_INSTALL_SECTION == True:
     urls = (
@@ -51,6 +54,7 @@ if settings.ENABLE_INSTALL_SECTION == True:
 else:
     # _install section is deactivated -> start with a empty urls
     urls = ()
+
 
 #______________________________________________________________________________
 # The normal views:
@@ -89,25 +93,26 @@ urls += (
     # The shortcuts contains only these chars: [a-zA-Z0-9_/-]
     (r'^([\w/-]*?)/?$', 'PyLucid.index.index'),
 
-    #_____________________________________
-    # REDIRECT
-    # Redirect old PyLucid (with "index.py") to the new URLs.
-    # Only usefull, if you have a old PyLucid page used.
-    #(r'^index.py(.*?)$', 'PyLucid.index.redirect'),
-
-    #_____________________________________
-    # STATIC FILES
-    # Using this method is inefficient and insecure.
-    # Do not use this in a production setting. Use this only for development.
-    # http://www.djangoproject.com/documentation/static_files/
-    #
-    # uncomment the lines, if you use the dajngo development server:
-    #--------------------------------------------------------------------------
-#    (
-#        '^%s(?P<path>.*)$' % settings.MEDIA_URL.lstrip("/"),
-#        'django.views.static.serve',
-#        {'document_root': './%s' % settings.MEDIA_URL}
-#    ),
     #--------------------------------------------------------------------------
 )
+
+
+if getattr(settings, "REDIRECT_OLD_PYLUCID_URL", False) == True:
+    # Redirect old PyLucid (with "index.py") to the new URLs.
+    # Only usefull, if you have a old PyLucid page used in the past ;)
+    urls += (
+        r'^index.py(.*?)$', 'PyLucid.index.redirect'
+    ),
+
+
+# serve static files
+if getattr(settings, "SERVE_STATIC_FILES", False) == True:
+    # Should only enabled, if the django development server used.
+    urls += (
+        '^%s(?P<path>.*)$' % settings.MEDIA_URL.lstrip("/"),
+        'django.views.static.serve',
+        {'document_root': './%s' % settings.MEDIA_URL},
+    ),
+
+
 urlpatterns = patterns('', *urls)

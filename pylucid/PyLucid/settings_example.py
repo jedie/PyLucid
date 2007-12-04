@@ -153,7 +153,12 @@ CACHE_MIDDLEWARE_SECONDS = 600
 #_____________________________________________________________________________
 # STATIC FILES
 # http://www.djangoproject.com/documentation/static_files/
-#
+
+# Serve static files for the development server?
+# Using this method is inefficient and insecure.
+# Do not use this in a production setting. Use this only for development.
+SERVE_STATIC_FILES = False
+
 # Note: Every URL/path...
 # ...must be a absolute path.
 # ...must have a trailing slash.
@@ -370,6 +375,15 @@ AUTHENTICATION_BACKENDS = (
 # Should be only enabled for tests. It is a big security hole!
 INSTALL_EVILEVAL = False
 
+# Permit sending mails with the EMailSystem Plugin:
+ALLOW_SEND_MAILS = True
+
+# Every Plugin output gets a html SPAN tag around.
+# Here you can defined witch CSS class name the tag should used:
+CSS_PLUGIN_CLASS_NAME = "PyLucidPlugins"
+
+
+
 # The table prefix from a old PyLucid installation, if exist.
 # Only used for updating!
 # Note: The OLD_TABLE_PREFIX can't be "PyLucid"!!!
@@ -385,9 +399,7 @@ OLD_TABLE_PREFIX = ""
 # 3.2. update to the new django template engine
 # Use "low level admin/User administration" to set a new password for the user.
 
-# Permit sending mails with the EMailSystem Plugin:
-ALLOW_SEND_MAILS = True
-
-# Every Plugin output gets a html SPAN tag around.
-# Here you can defined witch CSS class name the tag should used:
-CSS_PLUGIN_CLASS_NAME = "PyLucidPlugins"
+# If you used a old PyLucid installation then you can recirect the old
+# urls with "indey.py" to the new URLs without the "index.py" part.
+# Default: False
+REDIRECT_OLD_PYLUCID_URL = False
