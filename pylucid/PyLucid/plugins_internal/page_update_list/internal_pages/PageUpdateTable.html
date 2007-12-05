@@ -8,7 +8,7 @@
   {% for item in page_updates %}
   <tr>
     <td>{{ item.lastupdatetime }}</td>
-    <td><a href="{{ item.get_absolute_url }}">{{ item.get_verbose_title|escape }}</a></td>
+    <td><a href="{{ item.get_absolute_url }}">{% if item.title %}{{ item.title|escape }}{% else %}{{ item.name|escape }}{% endif %}</a></td>
     <td>{{ item.lastupdateby }}</td>
   </tr>
   {% endfor %}
