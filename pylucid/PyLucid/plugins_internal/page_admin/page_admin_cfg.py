@@ -64,7 +64,7 @@ plugin_manager_data = {
         },
     },
     "tag_list": {
-        "must_login"    : True,
+        "must_login"    : False,
         "must_admin"    : False,
         "internal_page_info" : {
             "description"       : "List of all available lucid tags/functions",
