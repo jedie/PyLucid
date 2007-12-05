@@ -186,7 +186,7 @@ class TinyTextileParser:
         Wendet Blockelement-Regeln und Inlineelement-Regeln an.
         """
         blocks = re.split("\n{2,}", txt)
-        #~ self.page_msg(cgi.escape(str(blocks)))
+        #~ self.page_msg(escape(str(blocks)))
         current_area = None
         for block in blocks:
             current_area = self.handle_areas(block, current_area)
@@ -202,7 +202,7 @@ class TinyTextileParser:
             if block[0] == "<":
                 # Der Block scheint schon HTML-Code zu sein
                 self.out.write("%s\n" % block)
-                #~ self.page_msg("Is HTML:", cgi.escape(block))
+                #~ self.page_msg("Is HTML:", escape(block))
                 continue
 
             # inline-rules Anwenden
@@ -219,7 +219,7 @@ class TinyTextileParser:
         """
         Areas anhandeln
         """
-        #~ self.page_msg(current_area, "--", cgi.escape(block))
+        #~ self.page_msg(current_area, "--", escape(block))
 
         def handle_end(current_area, block):
             if block.endswith(current_area[1]):
@@ -244,9 +244,9 @@ class TinyTextileParser:
             # In der area bleiben
             return current_area
 
-        #~ self.page_msg("handle:", cgi.escape(block))
+        #~ self.page_msg("handle:", escape(block))
         for current_area in self.area_rules:
-            #~ self.page_msg(cgi.escape(current_area[0]), block)
+            #~ self.page_msg(escape(current_area[0]), block)
             if block.startswith(current_area[0]): # Start einer neuen area
                 area_tag = current_area[0]
 
@@ -289,7 +289,7 @@ class TinyTextileParser:
             self.escape_area_first_line = False
 
         block = block.splitlines()
-        block = "".join(["%s<br />\n" % cgi.escape(line) for line in block])
+        block = "".join(["%s<br />\n" % escape(line) for line in block])
         self.out.write(block)
 
     def escape_area_end(self, block):
