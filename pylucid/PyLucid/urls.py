@@ -83,8 +83,8 @@ urls += (
     (
         (
             '^%s/'
-            '(?P<page_id>\d+)/$'
-        ) % settings.PERMALINK_URL_PREFIX,
+            '(?P<page_id>\d+)/(.*?)$'
+        ) % getattr(settings, "PERMALINK_URL_PREFIX", "_goto"),
         'PyLucid.index.permalink'
     ),
     #_____________________________________

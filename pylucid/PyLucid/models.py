@@ -258,7 +258,8 @@ class Page(models.Model):
 
     def get_permalink(self):
         uri_base = get_uri_base()
-        return "%s/%s/%s/" % (uri_base, settings.PERMALINK_URL_PREFIX, self.id)
+        prefix = getattr(settings, "PERMALINK_URL_PREFIX", "_goto")
+        return "%s/%s/%s/%s/" % (uri_base, prefix, self.id, self.shortcut)
 
 
     def get_verbose_title(self):
