@@ -14,11 +14,20 @@ setup(
 #______________________________________________________________________________
 # Test:
 
-from PyLucid.models import Page
+from PyLucid.models import Page, Preference
 
-def verbose_save(page, shortcut):
+auto_shortcuts = Preference.objects.get(name='auto shortcuts')
+print "auto_shortcuts:", auto_shortcuts.value
+auto_shortcuts.value = False
+auto_shortcuts.save()
+auto_shortcuts = Preference.objects.get(name='auto shortcuts').value
+print "auto_shortcuts:", auto_shortcuts
+
+
+def verbose_save(page, new_shortcut):
     print "source......: '%s'" % page.shortcut
-    page.shortcut = shortcut
+    print "new shortcut: '%s'" % new_shortcut
+    page.shortcut = new_shortcut
     page.save()
     print "after save..: '%s'" % page.shortcut
 
@@ -33,10 +42,14 @@ assert page.shortcut == new_shortcut
 
 
 print
-print "Test the non-ASCII stripting"
+print "Test the non-ASCII string"
 verbose_save(page, "--=[Short cut test]=--")
-assert page.shortcut == "ShortCutTest"
+assert page.shortcut == "Short-cut-test"
 
+print
+print "Test the non-ASCII string 2"
+verbose_save(page, "Short cut - test")
+assert page.shortcut == "Short-cut-test"
 
 print
 print "No empty shortcut allowed"

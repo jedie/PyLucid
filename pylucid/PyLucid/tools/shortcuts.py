@@ -30,7 +30,9 @@ def makeUnique(item_name, name_list):
     parts = [""]
     for char in item_name:
         if not char in ALLOW_CHARS:
-            parts.append("")
+            if parts[-1] != "":
+                # No double "-" e.g.: "foo - bar" -> "foo-bar" not "foo---bar"   
+                parts.append("")
         else:
             parts[-1] += char
 
@@ -67,25 +69,30 @@ def getUniqueShortcut(shortcut, exclude_shortcut=None):
 
 
 if __name__ == "__main__":
+    #
+    # There exist a unitest for the page shortcuts:
+    #     ./unittests/unittest_UniqueShortcuts
+    #
     name_list = ["GibtsSchon", "UndAuchDas", "UndAuchDas1", "UndAuchDas2"]
     print name_list
     print "-"*80
     print makeUnique("Ich bin neu!", name_list)
     print makeUnique("gibts schon", name_list)
     print makeUnique("#und!auch(das)", name_list)
-    
+    print makeUnique("foo - bar", name_list)
+
     new_entry = makeUnique("Gibtsschon", name_list)
     name_list.append(new_entry)
     print new_entry
-    
+
     new_entry = makeUnique("Gibtsschon", name_list)
     name_list.append(new_entry)
     print new_entry
-    
+
     new_entry = makeUnique("GibtsSchon", name_list)
     name_list.append(new_entry)
     print new_entry
-    
+
     new_entry = makeUnique("GibtsSchon", name_list)
     name_list.append(new_entry)
     print new_entry
