@@ -30,7 +30,8 @@ from PyLucid.db.page import get_main_menu_tree, flat_tree_list
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.tree_generator import TreeGenerator
 from PyLucid.models import Page
-from PyLucid.tools.content_processors import apply_markup, escape_django_tags
+from PyLucid.tools.content_processors import apply_markup
+from PyLucid.tools.utils import escape_django_tags
 
 
 class show(PyLucidBasePlugin):
