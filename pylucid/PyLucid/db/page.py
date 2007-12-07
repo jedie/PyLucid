@@ -119,9 +119,7 @@ def get_sub_menu_data(request, current_page_id):
     """
     returned a list of all sub pages for the >current_page_id<.
     """
-    sub_pages = Page.objects.values(
-        "name", "shortcut", "title"
-    ).filter(
+    sub_pages = Page.objects.all().filter(
         parent = current_page_id, showlinks = True
     ).order_by('position')
 
