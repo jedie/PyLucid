@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
     PyLucid distutils setup
     ~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,8 +49,8 @@ setup(
     long_description = LONG_DESCRIPTION,
     keywords = 'cms django wsgi web',
     platforms = 'any',
-    zip_safe = False,
-    include_package_data = True,
+#    zip_safe = False,
+#    include_package_data = True,
     scripts = ["pylucid/django-admin.sh", "pylucid/standalone_linux.sh"],
     classifiers = [
         "Development Status :: 4 - Beta",
