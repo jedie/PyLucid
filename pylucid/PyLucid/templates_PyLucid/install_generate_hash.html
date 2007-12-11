@@ -24,9 +24,9 @@ function make_hash() {
         alert("Password min len 8! - current len:" + source.length);
         return false;
     }
-	if (check_ascii_only(source) == false) {
-		return false
-	}
+    if (check_ascii_only(source) == false) {
+        return false
+    }
 
     salt = make_salt();
     sha = hex_sha1(salt + source);
@@ -45,7 +45,7 @@ function init() {
     // Unhide "gen_hash_block" with external media_path_test.js file:
     unhide_by_id("gen_hash_block");
 
-	set_focus("source");
+    set_focus("source");
 }
 /* ]]> */
 </script>
@@ -62,7 +62,7 @@ function init() {
     {% trans 'Please ...' %}
     <ol>
     <li>{% trans '... input a Password.' %}</li>
-    <li>{% trans '... copy and paste the SHA hash into your settings.py. (Variable "INSTALL_PASS_HASH")' %}</li>
+    <li>{% trans '... copy and paste the SHA hash into your settings.py. (Variable "INSTALL_PASSWORD_HASH")' %}</li>
     <li>{% trans '... reload this page.' %}</li>
     </ol>
 </p>

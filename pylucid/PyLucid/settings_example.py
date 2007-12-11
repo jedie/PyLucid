@@ -73,7 +73,7 @@ INTERNAL_IPS = ("localhost", "127.0.0.1")
 
 # Install Password to login into the _install section.
 ENABLE_INSTALL_SECTION = True
-INSTALL_PASS_HASH = ""
+INSTALL_PASSWORD_HASH = ""
 
 #_____________________________________________________________________________
 # MIDDLEWARE CLASSES

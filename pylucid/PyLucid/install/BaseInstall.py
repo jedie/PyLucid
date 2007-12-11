@@ -37,14 +37,14 @@ def check_install_pass():
     Check if the install pass hash set in the settings.py and if the length
     and type is ok.
     """
-    if settings.INSTALL_PASS_HASH in (None, ""):
+    if settings.INSTALL_PASSWORD_HASH in (None, ""):
         if DEBUG:
             msg = _("The _install section password hash is not set.")
         else:
             msg = ""
         raise WrongInstallPassHash(msg)
 
-    current_len = len(settings.INSTALL_PASS_HASH)
+    current_len = len(settings.INSTALL_PASSWORD_HASH)
     if current_len != crypt.SALT_HASH_LEN:
         msg = "Wrong hash len in your settings.py!"
         if DEBUG:
@@ -53,7 +53,7 @@ def check_install_pass():
             )
         raise WrongInstallPassHash(msg)
 
-    if not settings.INSTALL_PASS_HASH.startswith("sha1$"):
+    if not settings.INSTALL_PASSWORD_HASH.startswith("sha1$"):
         raise WrongInstallPassHash("Wrong hash format in your settings.py!")
 
 
@@ -64,12 +64,12 @@ def check_password_hash(password_hash):
         msg = _("error:") + msg
         if DEBUG:
             msg += " [Debug: '%s' != '%s']" % (
-                password_hash, settings.INSTALL_PASS_HASH
+                password_hash, settings.INSTALL_PASSWORD_HASH
             )
         raise WrongPassword(msg)
     if len(password_hash) != crypt.SALT_HASH_LEN:
         error(_("Wrong password hash len."))
-    if password_hash != settings.INSTALL_PASS_HASH:
+    if password_hash != settings.INSTALL_PASSWORD_HASH:
         error(_("Password compare fail."))
 
 
@@ -91,6 +91,14 @@ class BaseInstall(object):
     Base class for all install views.
     """
     def __init__(self, request):
+        if not hasattr(settings, "INSTALL_PASSWORD_HASH"):
+            raise WrongInstallPassHash(
+                "Error:"
+                " INSTALL_PASS_HASH has been renamed to INSTALL_PASSWORD_HASH!"
+                " Please rename this variable in your settings.py"
+                " - more information: http://www.pylucid.org/_goto/121/changes/"
+            )
+
         if settings.ENABLE_INSTALL_SECTION != True:
             # Should never nappen, because the urlpatterns deactivaed, too.
             raise Http404("Install section disabled")
@@ -143,7 +151,7 @@ class BaseInstall(object):
             # and if the salt hash value is ok
             cookie_pass = self.request.COOKIES.get(settings.INSTALL_COOKIE_NAME)
             assert cookie_pass != "", "No password hash in cookie"
-            crypt.check_salt_hash(settings.INSTALL_PASS_HASH, cookie_pass)
+            crypt.check_salt_hash(settings.INSTALL_PASSWORD_HASH, cookie_pass)
         except Exception, msg:
             # Cookie is not set or the salt hash value compair failed
             if DEBUG:
@@ -176,7 +184,7 @@ class BaseInstall(object):
                     )
                     return response
 
-        data = crypt.salt_hash_to_dict(settings.INSTALL_PASS_HASH)
+        data = crypt.salt_hash_to_dict(settings.INSTALL_PASSWORD_HASH)
         self.context["salt"] = data["salt"]
 
         self.context["no_menu_link"] = True # no "back to menu" link
