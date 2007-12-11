@@ -32,7 +32,7 @@ import unittest, sys, re, tempfile, os, webbrowser, traceback, time
 from PyLucid import models, settings
 from PyLucid.plugins_internal.auth.auth import auth
 from PyLucid.models import User, JS_LoginData
-from PyLucid.install.install import create_or_update_superuser
+from PyLucid.install.install import _create_or_update_superuser
 from PyLucid.tools import crypt
 
 from django.contrib.auth.models import UNUSABLE_PASSWORD
@@ -51,7 +51,7 @@ TEST_PASSWORD = "test"
 
 # A user with a unusable password
 # creaded in TestUserModels().test_unusable_password()
-TEST_UNUSABLE_USER = "unitest2"
+TEST_UNUSABLE_USER = "unittest2"
 
 
 
@@ -184,7 +184,7 @@ class TestCryptModul(unittest.TestCase):
 class TestBase(unittest.TestCase):
 
     _open = []
-    
+
     def _create_or_update_user(self, username, email, password):
         """
         Delete a existing User and create a fresh new test user
@@ -195,12 +195,17 @@ class TestBase(unittest.TestCase):
             pass
         else:
             user.delete()
-        
+
         user = User.objects.create_user(username, email, password)
         user.is_staff = True
         user.is_active = True
         user.is_superuser = True
         user.save()
+        
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise self.failureException("Created user doesn't exist!")
 
     def _create_test_user(self):
         self._create_or_update_user(
@@ -254,7 +259,8 @@ class TestUserModels(TestBase):
         """
         Get the userdata from the database and check the creaded JS_LoginData.
         """
-        user, js_login_data = JS_LoginData.objects.get_user(username)
+        user = User.objects.get(username = username)
+        js_login_data = JS_LoginData.objects.get(user = user)
 
         salt, sha_checksum = crypt.django_to_sha_checksum(user.password)
 
@@ -288,21 +294,33 @@ class TestUserModels(TestBase):
         """
         Test the "unusable test user"
         """
-        user, js_login_data = JS_LoginData.objects.get_user(TEST_UNUSABLE_USER)
-
+        user = User.objects.get(username = TEST_UNUSABLE_USER)
         self.assertEqual(user.password, UNUSABLE_PASSWORD)
-        self.assertEqual(js_login_data.salt, UNUSABLE_PASSWORD)
-        self.assertEqual(js_login_data.sha_checksum, UNUSABLE_PASSWORD)
+        
+        try:
+            js_login_data = JS_LoginData.objects.get(user = user)
+        except JS_LoginData.DoesNotExist:
+            # User with unusable password, doesn't have a JS_LoginData entry
+            pass
+        else:
+            raise self.failureException(
+                "JS_LoginData entry should not exist for a user with a"
+                " unuseable password!"
+            )
 
 
     def test_delete_user(self):
         """
-        Delete the user and check if he still exists
+        Delete the user and check if he and the JS_LoginData still exists.
         """
-        user, js_login_data = JS_LoginData.objects.get_user(TEST_USERNAME)
+        user = User.objects.get(username = TEST_USERNAME)
+        js_login_data = JS_LoginData.objects.get(user = user)
+            
         old_id = js_login_data.id
-
-        JS_LoginData.objects.delete_user(TEST_USERNAME)
+        
+        # Delete the user object. The JS_LoginData entry should be deleted, too.
+        user.delete()
+        
         try:
             user = User.objects.get(username = TEST_USERNAME)
         except User.DoesNotExist:
@@ -329,7 +347,7 @@ class TestUserModels(TestBase):
             "email": TEST_USER_EMAIL,
             "first_name": "", "last_name": ""
         }
-        create_or_update_superuser(user_data)
+        _create_or_update_superuser(user_data)
 
         self._check_userpassword(username = TEST_USERNAME)
 
@@ -356,13 +374,13 @@ class TestDjangoLogin(TestBase):
     def test_django_login(self):
         # Make a session
 #        del(self.client.cookies)
-        print self.client.cookies
+        print "1", self.client.cookies
         response = self.client.get("/%s/" % settings.ADMIN_URL_PREFIX)
         self.assertStatusCode(response, 200)
         self.assertResponse(
             response, must_contain=("Log in", "PyLucid site admin")
         )
-        print self.client.cookies
+        print "2", self.client.cookies
         print self.client.exc_info
 
         # login into the django admin panel
@@ -374,7 +392,7 @@ class TestDjangoLogin(TestBase):
             }
         )
         self.assertStatusCode(response, 200)
-        print self.client.cookies
+        print "3", self.client.cookies
         print self.client.exc_info
         self.assertResponse(
             response, must_contain=("Log in", "PyLucid site admin"),
@@ -461,13 +479,11 @@ class TestPlaintextLogin(TestBase):
                 "plaintext_login" : True
             }
         )
-#        debug_response(response)
         self.assertResponse(response,
             must_contain=(
                 "No usable password was saved.",
                 "You must reset your password.",
                 "Reset your password:",
-                TEST_UNUSABLE_USER,
             )
         )
 
@@ -777,8 +793,10 @@ class TestPasswordReset(TestBase):
         )
 #        debug_response(response)
         self.assertResponse(response, must_contain=("New password saved.",))
-
-        user, js_login_data = JS_LoginData.objects.get_user(TEST_USERNAME)
+     
+        user = User.objects.get(username = TEST_USERNAME)
+        js_login_data = JS_LoginData.objects.get(user = user)
+        
         test = "sha1$%s$%s" % (salt_1, sha_1)
         self.assertEqual(test, user.password)
         self.assertEqual(js_login_data.salt, salt_2)
@@ -800,11 +818,11 @@ def suite():
 
     suite = unittest.TestSuite()
 
-#    suite.addTest(unittest.makeSuite(TestCryptModul))
-#    suite.addTest(unittest.makeSuite(TestUserModels))
-#    suite.addTest(unittest.makeSuite(TestDjangoLogin))
-#    suite.addTest(unittest.makeSuite(TestPlaintextLogin))
-#    suite.addTest(unittest.makeSuite(TestSHALogin))
+    suite.addTest(unittest.makeSuite(TestCryptModul))
+    suite.addTest(unittest.makeSuite(TestUserModels))
+    suite.addTest(unittest.makeSuite(TestDjangoLogin))
+    suite.addTest(unittest.makeSuite(TestPlaintextLogin))
+    suite.addTest(unittest.makeSuite(TestSHALogin))
     suite.addTest(unittest.makeSuite(TestPasswordReset))
 
     return suite
