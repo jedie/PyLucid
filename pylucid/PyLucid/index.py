@@ -191,10 +191,11 @@ def index(request, url):
     except AttributeError, msg:
         # TODO: middlewares not active -> _install section!
         msg = (
-            "After syncdb you must activated some middlewares."
-            " Please look into your settings.py and modify the value"
+            "After syncdb you must activated the two django middlewares:"
+            " 'SessionMiddleware' and 'AuthenticationMiddleware'"
+            " Please edit your 'settings.py' file and modify the value"
             " MIDDLEWARE_CLASSES."
-            " - Original Error: %s"
+            " - Original Error was: %s"
         ) % msg
         raise ImproperlyConfigured(msg)
 
