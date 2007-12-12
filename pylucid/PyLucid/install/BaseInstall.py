@@ -3,7 +3,7 @@
 A base class for every _install view.
 """
 
-import sys
+import sys, os
 
 from PyLucid import PYLUCID_VERSION_STRING
 from PyLucid.system.response import SimpleStringIO
@@ -111,6 +111,7 @@ class BaseInstall(object):
             "request": request,
             "PyLucid_media_url": settings.PYLUCID_MEDIA_URL,
             "version": PYLUCID_VERSION_STRING,
+            "current_working_dir": os.getcwd(),
         }
         self.page_msg = PageMessages(self.context)
         self.context["page_msg"] = self.page_msg
