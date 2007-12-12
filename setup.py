@@ -5,7 +5,7 @@
     PyLucid distutils setup
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    FIXME!
+    FIXME: This setup.py only testet to submit PyLucid to PyPi!
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -19,11 +19,14 @@
 
 import os, sys
 
-from distutils.core import setup
+from dev_scripts import ez_setup
 
 sys.path.insert(0, os.path.join(os.getcwd(), "pylucid"))
-
 from PyLucid import PYLUCID_VERSION_STRING
+
+ez_setup.use_setuptools()
+
+from setuptools import setup, Feature
 
 def get_authors():
     authors = []
@@ -34,26 +37,40 @@ def get_authors():
     f.close()
     return authors
 
-f = file("README", "r")
-LONG_DESCRIPTION = f.read()
-f.close()
+def get_long_description():
+    f = file("README", "r")
+    long_description = f.read()
+    f.close()
+    long_description.strip()
+    return long_description
 
 setup(
     name = "PyLucid",
     version = PYLUCID_VERSION_STRING,
     url = 'http://www.pylucid.org/',
     download_url = "http://sourceforge.net/project/showfiles.php?group_id=146328",
+    license='GPL',
     author = get_authors(),
     maintainer = "Jens Diemer",
     description = 'A CMS written in PyLucid using django.',
-    long_description = LONG_DESCRIPTION,
+    long_description = get_long_description(),
     keywords = 'cms django wsgi web',
     platforms = 'any',
-#    zip_safe = False,
-#    include_package_data = True,
+    zip_safe = False, # PyLucid can't be run from a zip file
+    include_package_data = True,
+    package_data = {
+        '': [
+            '*.html', '*.htm', '*.css', '*.js', '*.txt', '*.gif', '*.jpg',
+            '*.cgi', '*.fcgi',
+            '*.sh', '*.cmd',
+            '.htaccess',
+        ],
+    },
+    exclude_package_data = {'': ['setup.py']},
     scripts = ["pylucid/django-admin.sh", "pylucid/standalone_linux.sh"],
     classifiers = [
         "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Environment :: Web Environment",
         "Framework :: TurboGears",

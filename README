@@ -1,12 +1,31 @@
-PyLucid is a lightweight, OpenSource ( GPL 2.x or newer ) content management
-system ( CMS ) written in Python using django . Nearly all output can be
-customized. No shell account is needed. You only need a standard webserver
-with Python (at least v2.4) CGI and one supported database (MySQL, SQLite3,
-Postgre, Oracle and MS-SQL)to run PyLucid.
+
+PyLucid is a Open Source content management system (CMS) written in Python
+using Django.
+
+A web based install is implemented, so no shell account is needed! You only
+need a standard webserver with Python (at least v2.4) CGI and one of the
+supported database engines (MySQL, SQLite3, Postgre, Oracle and MS-SQL) to run
+PyLucid.
+
+Nearly all output can be customized.
+
+PyLucid/django are WSGI conform, so you can run it as CGI, fastCGI, mod_Python
+and others...
+
 
 More information can you find on our Homepage:
     http://www.pylucid.org
 
-SVN info:
-$LastChangedDate:$
-$Rev:$
+
+Install guides:
+    http://pylucid.org/_goto/107/install-PyLucid/
+
+How to update a old PyLucid installation:
+    http://pylucid.org/_goto/108/Update-PyLucid/
+
+
+Any Questions? Start a new thread in our forum:
+    http://pylucid.org/phpBB2/
+
+
+(Readme text $Rev$)
