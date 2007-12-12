@@ -62,12 +62,12 @@ def make_insert_dump(extra_verbose):
 
 def install_internal_plugins(extra_verbose):
     print "- install internal plugins...",
-#    if extra_verbose:
-#        print
+    if extra_verbose:
+        print "extra verbose is ON."
 
-    from PyLucid.system import plugin_manager
+    from PyLucid.system.plugin_manager import auto_install_plugins
 
-    plugin_manager.install_internal_plugins(extra_verbose)
+    auto_install_plugins(request = None, extra_verbose=extra_verbose)
     print "OK"
 
 
