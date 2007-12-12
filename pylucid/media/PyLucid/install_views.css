@@ -22,16 +22,18 @@ pre {
 }
 a {
     color:#0BE;
+    text-decoration:none;
     padding: 0.1em;
 }
 a:hover {
     color:#000000;
+    text-decoration:underline;
     background-color: #F4F4D2;
 }
 fieldset.error {
     border:2px solid red;
 }
-.help_text {
+.help_text, .page_stats {
     font-size:0.8em;
 }
 #hash {
@@ -39,4 +41,19 @@ fieldset.error {
 }
 #source, #source:active, #source:hover, #source:focus {
     background-color: white;
+}
+.footer, .header {
+    text-align:center;
+    background-color: white;
+    line-height:2em;
+}
+.footer a {
+    border:1px solid #f0f0f0;
+    margin: 0.5em;
+    padding: 0.2em;
+}
+.page_stats {
+    padding-top:1em;
+    text-align:right;
+    font-weight:lighter;
 }
