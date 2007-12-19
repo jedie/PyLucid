@@ -187,6 +187,9 @@ def _doc_test(verbose):
 
 if __name__ == "__main__":
     print "Start a DocTest..."
-    _doc_test(verbose=False)
-#    _doc_test(verbose=True)
+#    _doc_test(verbose=False)
+    _doc_test(verbose=True)
     print "DocTest end."
+    print
+    print "Note:"
+    print "You should run ./dev_scripts/unittests/unittest_URLs.py !"

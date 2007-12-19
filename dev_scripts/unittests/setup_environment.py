@@ -105,9 +105,21 @@ class FakeUser(object):
         return True
 
 class FakeRequest(object):
+    __fake_http_host = "unitest_HTTP_HOST_fake"
     user = FakeUser()
-    META = {"HTTP_HOST": "unitest_HTTP_HOST_fake",}
+    META = {"HTTP_HOST": __fake_http_host,}
     debug = True
+    def get_host(self):
+        """
+        django's request.get_host()
+        http://www.djangoproject.com/documentation/request_response/#id1
+          Returns the originating host of the request using information from
+          the HTTP_X_FORWARDED_HOST and HTTP_HOST headers (in that order). If
+          they don’t provide a value, the method uses a combination of
+          SERVER_NAME and SERVER_PORT as detailed in PEP 333.
+        Example: "127.0.0.1:8000"
+        """
+        return self.__fake_http_host
 
 class FakePage(object):
     id = 1

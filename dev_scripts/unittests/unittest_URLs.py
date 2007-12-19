@@ -5,7 +5,7 @@
     PyLucid unittest
     ~~~~~~~~~~~~~~~~
 
-    Test PyLucid.tools.crypt
+    Test PyLucid.system.URLs
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -32,9 +32,6 @@ import os, unittest
 from django.conf import settings
 
 from PyLucid.system.URLs import URLs
-
-
-
 
 
 class TestBase(unittest.TestCase):
@@ -102,7 +99,7 @@ class TestBase(unittest.TestCase):
             ),
             "%s/plugin_name/method_name/1/2/3/" % prefix
         )
-        
+
 
     def test_methodLink(self):
         prefix = "/%s/1/plugin_name" % settings.COMMAND_URL_PREFIX
@@ -119,7 +116,7 @@ class TestBase(unittest.TestCase):
             self.URLs.methodLink("method_name", args=["parm1", "parm2"]),
             "%s/method_name/parm1/parm2/" % prefix
         )
-        
+
     def test_adminLink(self):
         prefix= "/%s" % settings.ADMIN_URL_PREFIX
         self.assertEqual(
@@ -130,7 +127,7 @@ class TestBase(unittest.TestCase):
             self.URLs.adminLink([1,2,3]),
             "%s/1/2/3/" % prefix
         )
-        
+
     def test_make_absolute_url(self):
         prefix = self.URLs["hostname"]
         self.assertEqual(
@@ -141,8 +138,7 @@ class TestBase(unittest.TestCase):
             self.URLs.make_absolute_url(["test1", "test2"]),
             "%s/test1/test2/" % prefix
         )
-        
-        
+
 
 
 if __name__ == "__main__":
