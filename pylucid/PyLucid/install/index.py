@@ -91,7 +91,7 @@ MENU_TEMPLATE = """
     <ul>
     {% for sub_item in item.views %}
         <li>
-            <a href="{{ item.name }}/{{ sub_item.name }}/">{{ sub_item.doc }}</a>
+            <a href="{% url PyLucid.install.index.menu . %}/{{ item.name }}/{{ sub_item.name }}/">{{ sub_item.doc }}</a>
         </li>
     {% endfor %}
     </ul>

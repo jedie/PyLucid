@@ -28,7 +28,7 @@ handler500 = 'django.views.defaults.server_error'
 if settings.ENABLE_INSTALL_SECTION == True:
     urls = (
         #_____________________________________
-        # RUN A VIEW
+        # RUN A INSTALL VIEW
         (
             (
                 '^%s/'
@@ -47,7 +47,7 @@ if settings.ENABLE_INSTALL_SECTION == True:
         #_____________________________________
         # INSTALL MENU
         (
-            '^%s/$' % settings.INSTALL_URL_PREFIX,
+            '^%s' % settings.INSTALL_URL_PREFIX,
             'PyLucid.install.index.menu'
         ),
     )
@@ -87,22 +87,16 @@ urls += (
         ) % getattr(settings, "PERMALINK_URL_PREFIX", "_goto"),
         'PyLucid.index.permalink'
     ),
-    #_____________________________________
-    # CMS PAGE VIEW
-    # A normal CMS page url simply consists of the page shortcuts.
-    # The shortcuts contains only these chars: [a-zA-Z0-9_/-]
-    (r'^([\w/-]*?)/?$', 'PyLucid.index.index'),
-
-    #--------------------------------------------------------------------------
 )
 
+
+#______________________________________________________________________________
+# Dynamic urls:
 
 if getattr(settings, "REDIRECT_OLD_PYLUCID_URL", False):
     # Redirect old PyLucid (with "index.py") to the new URLs.
     # Only usefull, if you have a old PyLucid page used in the past ;)
-    urls += (
-        r'^index.py(.*?)$', 'PyLucid.index.redirect'
-    ),
+    urls += (r'^index.py(.*?)$', 'PyLucid.index.redirect'),
 
 
 # serve static files
@@ -113,6 +107,15 @@ if getattr(settings, "SERVE_STATIC_FILES", False):
         'django.views.static.serve',
         {'document_root': './%s' % settings.MEDIA_URL},
     ),
+
+
+#______________________________________________________________________________
+# normal CMS page view
+
+# Important: This entry must be as the last!
+# A normal CMS page url simply consists of the page shortcuts.
+# The shortcuts contains only these chars: [a-zA-Z0-9_/-]
+urls += (r'([\w/-]*)', 'PyLucid.index.index'),
 
 
 urlpatterns = patterns('', *urls)
