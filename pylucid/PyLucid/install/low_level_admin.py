@@ -208,7 +208,7 @@ class RecreateDjangoTables(Sync_DB):
         self.context["output"] += "\n\n"
 
         # self.syncdb is inherited from Sync_DB
-        self._redirect_execute(self.syncdb)
+        self._redirect_execute(self._syncdb)
 
         return self._render(syncdb_template)
 
@@ -236,7 +236,7 @@ class RecreateDjangoTables(Sync_DB):
 
 def recreate_django_tables(request):
     """
-    Recreate all django tables (user/groups/permission lost!)
+    Recreate all django tables (WARNING: user/groups/permission lost!)
     """
     return RecreateDjangoTables(request).start_view()
 
