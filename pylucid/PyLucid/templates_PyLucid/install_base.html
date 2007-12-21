@@ -49,14 +49,14 @@
     <ul>
       Please check this:
       <li>
-        The current working directory <strong>{{ current_working_dir }}</strong> must be the PyLucid project directory!
+        The current working directory is: <strong>{{ current_working_dir }}</strong> - this must be the PyLucid project directory!
       </li>
       <li>
         {% trans 'Please check all path variables in your settings.py in the section "STATIC FILES".' %}
       </li>
       <li>
         {% trans "Are you able to see this file:" %}
-        <a href="{{ PyLucid_media_url }}media_path_test.html">{{ PyLucid_media_url }}media_path_test.html</a>
+        <a href="{{ PyLucid_media_url }}media_path_test.html">{{ PyLucid_media_url }}media_path_test.html</a> ?
       </li>
     </p>
 </fieldset>
