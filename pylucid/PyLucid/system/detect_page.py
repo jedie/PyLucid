@@ -29,11 +29,15 @@ def get_a_page():
     """
     try:
         return Page.objects.all().order_by("parent", "position")[0]
-    except IndexError:
-        raise ImproperlyConfigured(
-            "Error: There exists no pages!"
-            " (Have you installed PyLucid currectly?)"
-        )
+    except Exception, e:
+        # FIXME: Normaly we should use the exception type "Page.DoesNotExist"
+        #    but this doesn't work, why?
+        msg = (
+            "Error getting a cms page content."
+            " - (Have you installed PyLucid currectly?)"
+            " - Original Error was: '%s'"
+        ) % e
+        raise ImproperlyConfigured(msg)
 
 
 def get_default_page_id():
