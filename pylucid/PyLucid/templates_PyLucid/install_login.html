@@ -16,16 +16,16 @@ function make_hash() {
         alert("Password min len 8! - current len:" + source.length);
         return false;
     }
-	if (check_ascii_only(source) == false) {
-		return false
-	}
+  if (check_ascii_only(source) == false) {
+    return false
+  }
 
     sha = hex_sha1(salt + source);
     hash = "sha1$" + salt + "$" + sha;
 
     hash_obj = document.getElementById("hash");
     hash_obj.value = hash;
-	change_color("hash", "lightgreen");
+  change_color("hash", "lightgreen");
 
     source_obj = document.getElementById("source")
     source_obj.value = "";
@@ -53,7 +53,7 @@ function make_hash() {
 
 <fieldset>
     <legend>{% trans 'Log in' %}</legend>
-    <form name="login" method="post" action=".">
+    <form name="login" method="post" action="">
       <label for="source">Input your Password here :</label>
       <input id="source" type="password" name="{% trans 'Password' %}" size="20" onchange="make_hash();" /><br />
       <label for="hash">generated SHA-1 hash :</label>
