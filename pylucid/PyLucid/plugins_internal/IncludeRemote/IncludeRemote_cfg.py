@@ -14,8 +14,13 @@ Includes a remote website into your CMS page.
 # plugin administration data
 
 plugin_manager_data = {
-    "lucidFunction" : {
+    "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,
+        "internal_page_info" : {
+            "name"              : "IncludeRemote",
+            "description"       : "for a remote content",
+            "markup"            : None
+        },
     }
 }

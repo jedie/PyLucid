@@ -115,6 +115,10 @@ def lucidTag(parser, token):
         for key, value in kwargs:
             # method Keywords must be Strings
             key = key.encode(settings.DEFAULT_CHARSET)
+            if value in ("True", "true", "on", "ON", "1"):
+                value = True
+            elif value in ("False", "false", "off", "OFF", "0"):
+                value = False
             method_kwargs[key] = value
 
     if "." in plugin_name:

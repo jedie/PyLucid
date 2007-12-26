@@ -1,0 +1,7 @@
+<fieldset>
+{% if title %}<legend><a href="{{ url }}">{{ title }}</a></legend>{% endif %}
+{{ content }}
+</fieldset>
+<small class="IncludeRemote_info">
+(response time: {{ duration_time|floatformat:3 }}sec.)
+</small>
