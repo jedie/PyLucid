@@ -20,6 +20,7 @@
 
 import warnings
 
+from django.conf import settings
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
 
