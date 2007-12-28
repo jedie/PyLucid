@@ -34,7 +34,7 @@ class page_update_list(PyLucidBasePlugin):
             self.response.write("[%s]" % msg)
             return
 
-        page_updates = get_update_info(self.context, 10)
+        page_updates = get_update_info(self.context, count)
 
         context = {"page_updates": page_updates}
 
