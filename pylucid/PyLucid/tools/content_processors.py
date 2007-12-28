@@ -23,6 +23,7 @@ import warnings
 from django.conf import settings
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
+from django.utils.encoding import smart_str, force_unicode
 
 from PyLucid.system.response import SimpleStringIO
 
@@ -57,11 +58,11 @@ def apply_markup(content, context, markup_object):
                 " Download: http://cheeseshop.python.org/pypi/textile"
             )
         else:
-            content = textile.textile(
-                content,
+            content = force_unicode(textile.textile(
+                smart_str(content),
                 encoding=settings.DEFAULT_CHARSET,
                 output=settings.DEFAULT_CHARSET
-            )
+            ))
     elif markup == 'Markdown':
         try:
             import markdown
