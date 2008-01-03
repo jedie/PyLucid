@@ -3,7 +3,7 @@
 
 #_____________________________________________________________________________
 # meta information
-__author__              = "Jens Diemer"
+__author__              = "Jens Diemer, Manuel Herzog"
 __url__                 = "http://www.PyLucid.org"
 __description__         = "A small Backlink generator"
 __long_description__ = """
@@ -17,5 +17,10 @@ plugin_manager_data = {
     "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,
+        "internal_page_info" : {
+            "name" : "back_links",
+            "description" : "The Base Link Structure",
+            "markup" : None
+       },
     }
 }
