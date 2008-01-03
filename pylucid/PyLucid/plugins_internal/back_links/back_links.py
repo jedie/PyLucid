@@ -7,11 +7,18 @@
 
     Generates a horizontal backlink bar.
     Adjastuble with the following Parameters
-      - print_last_page = False (default)
+
+    - print_last_page = False (default)
         if print_last_page has the value True, then the actual page will be the
         last page in the bar. Otherwise the parentpage.
-      - index = "Index" (default)
+
+    - print_index = False (default)
+        display a link to the index ("/") if = True
+
+
+    - index = "Index" (default)
         the name that is printed for the indexpage
+
 
     Last commit info:
     ~~~~~~~~~
@@ -29,8 +36,6 @@ __version__= "$Rev$"
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.models import Page, Preference
-from PyLucid.tools.utils import escape
-from django.utils.safestring import mark_safe
 
 class back_links(PyLucidBasePlugin):
 
@@ -47,7 +52,7 @@ class back_links(PyLucidBasePlugin):
                 # There exist no higher-ranking page
                 return ""
 
-        data = self.backlink_data(print_page, print_index)
+        data = self.backlink_data(print_page)
         data.reverse()
 
         context = {
@@ -57,22 +62,15 @@ class back_links(PyLucidBasePlugin):
         }
         self._render_template("back_links", context)#, debug=True)
 
-    def backlink_data(self, parent_page, print_index):
+    def backlink_data(self, parent_page):
         """
-        get the link data from the db
+        make a list of all pages in the current way back to the index page.
         """
         data = []
-        urls = [""]
-
-
         while parent_page:
             page_id = parent_page.id
             page = Page.objects.get(id=page_id)
             parent_page = page.parent
-
-#            if print_index == False and page_id == indexid:
-#                # Don't display the default index page
-#                continue
 
             data.append(page)
 
