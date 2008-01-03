@@ -31,6 +31,8 @@ __version__= "$Rev$"
 from PyLucid.db.page import get_main_menu_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.utils import escape
+from django.utils.safestring import mark_safe
+
 
 
 class main_menu(PyLucidBasePlugin):
@@ -55,12 +57,7 @@ class main_menu(PyLucidBasePlugin):
         """
         Generate a nested html list from the given tree dict.
         """
-        html = (
-            '<li>'
-            '<a href="%(href)s" title="%(title)s">%(name)s</a>'
-            '</li>'
-        )
-        result = ["<ul>"]
+        result = []
 
         for entry in menu_data:
             href = []
@@ -70,22 +67,26 @@ class main_menu(PyLucidBasePlugin):
             href.append(entry["shortcut"])
             href = "/".join(href)
 
-            entry["href"] = "".join((self.URLs["absoluteIndex"], href))
+            entry["href"] = "/" + href
             entry["name"] = escape(entry["name"])
             entry["title"] = escape(entry["title"])
+            entry["submenu"] = ""
+            if entry.has_key("subitems"):
+                entry["submenu"] = self.get_html(entry["subitems"], parent=href)
+
+            self.page_msg(entry)
 
             if entry["id"] == self.current_page_id:
-                entry["name"] = (
-                    '<span class="current">%s</span>'
-                ) % entry["name"]
-
-            result.append(html % entry)
-
-            if entry.has_key("subitems"):
                 result.append(
-                    self.get_html(entry["subitems"], parent=href)
+                    self._get_rendered_template("menu item current", entry)
+                )
+            else:
+                result.append(
+                    self._get_rendered_template("menu item", entry)
                 )
 
-        result.append("</ul>")
-        return "\n".join(result)
+        result = mark_safe("\n".join(result))
+        result = self._get_rendered_template("menu", { "menu" : result })
+        result = mark_safe(result)
+        return result
 
