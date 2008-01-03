@@ -71,7 +71,7 @@ def add_css_tag(context, content, plugin_name, method_name):
     class_name = getattr(settings, "CSS_PLUGIN_CLASS_NAME", "PyLucidPlugins")
 
     try:
-        return u'<span class="%s %s" id="%s">\n%s\n</span>\n' % (
+        return u'<div class="%s %s" id="%s">\n%s\n</div>\n' % (
             class_name, plugin_name, id, content
         )
     except UnicodeDecodeError:

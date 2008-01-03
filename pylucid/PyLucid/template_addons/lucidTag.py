@@ -33,7 +33,7 @@ from django import template
 # FIXME: The re should be more fault-tolerant:
 KWARGS_REGEX = re.compile('''(\w*?)\=['"](.*?)['"]''')
 
-# Not all plugin output should surrounded with a <span> tag:
+# Not all plugin output should surrounded with a <div> tag:
 CSS_TAG_BLACKLIST = ("page_style", "RSSfeedGenerator",)
 
 
