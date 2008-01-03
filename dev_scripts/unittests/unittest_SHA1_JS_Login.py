@@ -27,8 +27,11 @@ setup(
 #______________________________________________________________________________
 # Test:
 
-import unittest, sys, re, tempfile, os, webbrowser, traceback, time
+import unittest, sys, re, os, time
 
+
+from content_tests_utils import ContentTestBase, \
+            TEST_USERNAME, TEST_UNUSABLE_USER, TEST_PASSWORD, TEST_USER_EMAIL
 from PyLucid import models, settings
 from PyLucid.plugins_internal.auth.auth import auth
 from PyLucid.models import User, JS_LoginData
@@ -42,65 +45,15 @@ from django.test.client import Client
 # Set the Debug mode on:
 crypt.DEBUG = True
 
-
-# The global test user for many testes.
-# creaded in TestUserModels().testcreate_or_update_superuser()
-TEST_USERNAME = "unittest"
-TEST_USER_EMAIL = "a_test@email-adress.org"
-TEST_PASSWORD = "test"
-
-# A user with a unusable password
-# creaded in TestUserModels().test_unusable_password()
-TEST_UNUSABLE_USER = "unittest2"
+# Open only one traceback in a browser (=True) ?
+#ONE_BROWSER_TRACEBACK = False
+ONE_BROWSER_TRACEBACK = True
 
 
 
-# Bug with Firefox under Ubuntu.
-# http://www.python-forum.de/topic-11568.html
-webbrowser._tryorder.insert(0, 'epiphany') # Use Epiphany, if installed.
-
-ONE_DEBUG_DISPLAYED = False
-
-def debug_response(response, msg="", display_tb=True):
-    """
-    Display the response content in a webbrowser.
-    """
-    global ONE_DEBUG_DISPLAYED
-    if ONE_DEBUG_DISPLAYED:
-        return
-    else:
-        ONE_DEBUG_DISPLAYED = True
-
-    content = response.content
-
-    stack = traceback.format_stack(limit=3)[:-1]
-    stack.append(msg)
-    if display_tb:
-        print
-        print "debug_response:"
-        print "-"*80
-        print "\n".join(stack)
-        print "-"*80
-
-    stack_info = "".join(stack)
-    info = (
-        "\n<br /><hr />\n"
-        "<strong><pre>%s</pre></strong>\n"
-        "</body>"
-    ) % stack_info
-
-    content = content.replace("</body>", info)
 
 
-    fd, file_path = tempfile.mkstemp(prefix="PyLucid_unittest_", suffix=".html")
-    os.write(fd, content)
-    os.close(fd)
-    url = "file://%s" % file_path
-    print "\nDEBUG html page in Browser! (url: %s)" % url
-    webbrowser.open(url)
 
-#    time.sleep(0.5)
-#    os.remove(file_path)
 
 
 js_regex1 = re.compile(r'<script .+?>(.*?)</script>(?imuxs)')
@@ -181,70 +134,18 @@ class TestCryptModul(unittest.TestCase):
 
 
 
-class TestBase(unittest.TestCase):
+class TestBase(ContentTestBase):
 
+    one_browser_traceback = ONE_BROWSER_TRACEBACK
     _open = []
-
-    def _create_or_update_user(self, username, email, password):
-        """
-        Delete a existing User and create a fresh new test user
-        """
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            pass
-        else:
-            user.delete()
-
-        user = User.objects.create_user(username, email, password)
-        user.is_staff = True
-        user.is_active = True
-        user.is_superuser = True
-        user.save()
-        
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise self.failureException("Created user doesn't exist!")
-
-    def _create_test_user(self):
-        self._create_or_update_user(
-            TEST_USERNAME, TEST_USER_EMAIL, TEST_PASSWORD
-        )
-
-    def _create_test_unusable_user(self):
-        self._create_or_update_user(TEST_UNUSABLE_USER, "", "")
 
     def setUp(self):
         url_base = "/%s/1/auth/%%s/" % settings.COMMAND_URL_PREFIX
         self.login_url = url_base % "login"
         self.pass_reset_url = url_base % "pass_reset"
 
-        self._create_test_user()
-        self._create_test_unusable_user()
-
-        self.client = Client()
-
-    def assertStatusCode(self, response, status_code, msg=None):
-        if response.status_code == status_code:
-            # Page ok
-            return
-
-        debug_response(response)
-        self.fail(msg)
-
-    def assertResponse(self, response, must_contain, must_not_contain=()):
-        def error(respose, msg):
-            debug_response(response, msg, display_tb=False)
-            raise self.failureException, msg
-
-        for txt in must_contain:
-            if not txt in response.content:
-                error(response, "Text not in response: '%s'" % txt)
-
-        for txt in must_not_contain:
-            if txt in response.content:
-                error(response, "Text should not be in response: '%s'" % txt)
+        self.create_test_user()
+        self.create_test_unusable_user()
 
 #______________________________________________________________________________
 #______________________________________________________________________________
@@ -296,7 +197,7 @@ class TestUserModels(TestBase):
         """
         user = User.objects.get(username = TEST_UNUSABLE_USER)
         self.assertEqual(user.password, UNUSABLE_PASSWORD)
-        
+
         try:
             js_login_data = JS_LoginData.objects.get(user = user)
         except JS_LoginData.DoesNotExist:
@@ -315,12 +216,12 @@ class TestUserModels(TestBase):
         """
         user = User.objects.get(username = TEST_USERNAME)
         js_login_data = JS_LoginData.objects.get(user = user)
-            
+
         old_id = js_login_data.id
-        
+
         # Delete the user object. The JS_LoginData entry should be deleted, too.
         user.delete()
-        
+
         try:
             user = User.objects.get(username = TEST_USERNAME)
         except User.DoesNotExist:
@@ -793,10 +694,10 @@ class TestPasswordReset(TestBase):
         )
 #        debug_response(response)
         self.assertResponse(response, must_contain=("New password saved.",))
-     
+
         user = User.objects.get(username = TEST_USERNAME)
         js_login_data = JS_LoginData.objects.get(user = user)
-        
+
         test = "sha1$%s$%s" % (salt_1, sha_1)
         self.assertEqual(test, user.password)
         self.assertEqual(js_login_data.salt, salt_2)
