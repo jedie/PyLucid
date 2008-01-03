@@ -18,15 +18,15 @@
 """
 
 
-# Uncomment only for self-test!!!
-#------------------------------------------------------------------------------
+### Uncomment only for self-test!!!
+###----------------------------------------------------------------------------
 #from setup_environment import setup
 #setup(
 #    path_info=False, extra_verbose=False,
 #    syncdb=True, insert_dump=True,
 #    install_plugins=True
 #)
-#------------------------------------------------------------------------------
+####---------------------------------------------------------------------------
 
 import os, webbrowser, traceback, tempfile, unittest, pprint, re
 
@@ -35,6 +35,10 @@ from django.test.client import Client
 from PyLucid.models import Page, User, Template, Style, Markup
 from PyLucid.tools.Diff import display_plaintext_diff
 
+
+# vebose test?
+#DEBUG = True
+DEBUG = False
 
 # The global test user for many testes.
 # creaded in TestUserModels().testcreate_or_update_superuser()
@@ -48,7 +52,7 @@ TEST_UNUSABLE_USER = "unittest2"
 
 
 # A simple regex to get all html links out of a page content
-HREF_RE = re.compile('<a href="(.+?)">(.+?)</a>')
+HREF_RE = re.compile('<a href="(.+?)".*?>(.+?)</a>')
 
 
 # Bug with Firefox under Ubuntu.
@@ -274,6 +278,7 @@ class ContentTestBase(unittest.TestCase):
         Create recursive pages.
         """
         for page_data in data:
+            page_data = page_data.copy()
             page_data.update(kwargs)
             page_data["parent"] = parent
             last_page = self.create_page(page_data)
@@ -316,13 +321,66 @@ class ContentTestBase(unittest.TestCase):
         return new_page
 
     # _________________________________________________________________________
-    # methods to get information from content:
+    # methods to get information and test the content:
 
     def get_links(self, content):
         """
         return all links found with the HREF_RE
         """
         return HREF_RE.findall(content)
+
+    def create_link_snapshot(self, print_result=True):
+        """
+        Build a a reference snapshot for a unittest.
+        Display it via pprint and returned it, too.
+        Usefull for copy&paste the output into this source file :)
+        """
+        if print_result:
+            print "Build a snapshot for the unittest compare:"
+            print "-"*79
+        data = {}
+        for page in Page.objects.all():
+            url = page.get_absolute_url()
+
+            response = self.client.get(url)
+            self.assertStatusCode(response, 200)
+
+            content = response.content.strip()
+            links = self.get_links(content)
+
+            if DEBUG:
+                print "-"*79
+                print "create_snapshot Debug for '%s':" % url
+                print "-"*79
+                print content
+                print "-"*79
+                print links
+                print "-"*79
+
+            data[url] = links
+
+        if print_result:
+            pprint.pprint(data)
+            print "-"*79
+        return data
+
+    def link_snapshot_test(self, snapshot):
+        """
+        compare a reference snapshot with the real links.
+        """
+        is_links = []
+        should_be_links = []
+        for page in Page.objects.all():
+            url = page.get_absolute_url()
+
+            response = self.client.get(url)
+            self.assertStatusCode(response, 200)
+
+            content = response.content.strip()
+            is_links.append(self.get_links(content))
+            should_be_links.append(snapshot[url])
+
+        self.assertLists(is_links, should_be_links, sort=False)
 
 
 
@@ -358,6 +416,23 @@ class TestSelf(ContentTestBase):
         for page in pages:
             if not page.name.startswith("jojo"):
                 raise AssertionError("pagename dosn't start with jojo!")
+
+    def test_snaphot(self):
+        """
+        create a link snaphot and test it with the link_snapshot_test() method
+        """
+        self.create_pages(TEST_PAGES) # Create the test pages
+
+        # Generate a link snapshot
+        snapshot = self.create_link_snapshot(print_result=False)
+#        pprint.pprint(snapshot)
+
+        # The snapshot should have the same page count as the TEST_PAGES
+        page_len = Page.objects.all().count()
+        self.assertEqual(len(snapshot), page_len)
+
+        # Test the generated link snapshot
+        self.link_snapshot_test(snapshot)
 
 
 

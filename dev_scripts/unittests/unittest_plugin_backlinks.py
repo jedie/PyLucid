@@ -86,55 +86,6 @@ class TestBase(ContentTestBase):
         # assign the test template to all pages
         self.create_pages(TEST_PAGES, template=self.template)
 
-    def create_snapshot(self):
-        """
-        Display a reference snapshot for a unittest.
-        Usefull for copy&paste the output into this source file :)
-        """
-        print "Build a snapshot for the unittest compare:"
-        print "-"*79
-        data = {}
-        for page in Page.objects.all():
-            url = page.get_absolute_url()
-
-            response = self.client.get(url)
-            self.assertStatusCode(response, 200)
-
-            content = response.content.strip()
-            links = self.get_links(content)
-
-            if DEBUG:
-                print "-"*79
-                print "create_snapshot Debug for '%s':" % url
-                print "-"*79
-                print content
-                print "-"*79
-                print links
-                print "-"*79
-
-            data[url] = links
-
-        pprint.pprint(data)
-        print "-"*79
-
-    def snapshot_test(self, snapshot):
-        """
-        compare a reference snapshot with the real links.
-        """
-        is_links = []
-        should_be_links = []
-        for page in Page.objects.all():
-            url = page.get_absolute_url()
-
-            response = self.client.get(url)
-            self.assertStatusCode(response, 200)
-
-            content = response.content.strip()
-            is_links.append(self.get_links(content))
-            should_be_links.append(snapshot[url])
-
-        self.assertLists(is_links, should_be_links, sort=False)
-
     #__________________________________________________________________________
 
     def test_no_arguments(self):
@@ -144,7 +95,7 @@ class TestBase(ContentTestBase):
         """
         if DEBUG: print ">>> test_no_arguments():"
 
-#        self.create_snapshot()
+#        self.create_link_snapshot()
         snapshot = {
             u'/1_AAA/': [],
             u'/1_AAA/1_1_BBB/': [('/1_AAA/', '1_AAA')],
@@ -157,7 +108,7 @@ class TestBase(ContentTestBase):
             u'/2_DDD/2_1_EEE/': [('/2_DDD/', '2_DDD')],
             u'/2_DDD/2_2_EEE/': [('/2_DDD/', '2_DDD')]
         }
-        self.snapshot_test(snapshot)
+        self.link_snapshot_test(snapshot)
 
     def test_print_last_page(self):
         """
@@ -170,7 +121,7 @@ class TestBase(ContentTestBase):
         )
         self.template.save()
 
-#        self.create_snapshot()
+#        self.create_link_snapshot()
         snapshot = {
          u'/1_AAA/': [('/1_AAA/', '1_AAA')],
          u'/1_AAA/1_1_BBB/': [('/1_AAA/', '1_AAA'), ('/1_AAA/1_1_BBB/', '1_1_BBB')],
@@ -185,7 +136,7 @@ class TestBase(ContentTestBase):
          u'/2_DDD/2_1_EEE/': [('/2_DDD/', '2_DDD'), ('/2_DDD/2_1_EEE/', '2_1_EEE')],
          u'/2_DDD/2_2_EEE/': [('/2_DDD/', '2_DDD'), ('/2_DDD/2_2_EEE/', '2_2_EEE')]
         }
-        self.snapshot_test(snapshot)
+        self.link_snapshot_test(snapshot)
 
     def test_print_index1(self):
         """
@@ -198,7 +149,7 @@ class TestBase(ContentTestBase):
         )
         self.template.save()
 
-#        self.create_snapshot()
+#        self.create_link_snapshot()
         snapshot ={
          u'/1_AAA/': [],
          u'/1_AAA/1_1_BBB/': [('/', 'Index'), ('/1_AAA/', '1_AAA')],
@@ -213,7 +164,7 @@ class TestBase(ContentTestBase):
          u'/2_DDD/2_1_EEE/': [('/', 'Index'), ('/2_DDD/', '2_DDD')],
          u'/2_DDD/2_2_EEE/': [('/', 'Index'), ('/2_DDD/', '2_DDD')]
         }
-        self.snapshot_test(snapshot)
+        self.link_snapshot_test(snapshot)
 
     def test_print_index2(self):
         """
@@ -226,7 +177,7 @@ class TestBase(ContentTestBase):
         )
         self.template.save()
 
-#        self.create_snapshot()
+#        self.create_link_snapshot()
         snapshot ={
          u'/1_AAA/': [],
          u'/1_AAA/1_1_BBB/': [('/', '|'), ('/1_AAA/', '1_AAA')],
@@ -241,7 +192,7 @@ class TestBase(ContentTestBase):
          u'/2_DDD/2_1_EEE/': [('/', '|'), ('/2_DDD/', '2_DDD')],
          u'/2_DDD/2_2_EEE/': [('/', '|'), ('/2_DDD/', '2_DDD')]
         }
-        self.snapshot_test(snapshot)
+        self.link_snapshot_test(snapshot)
 
 
 
