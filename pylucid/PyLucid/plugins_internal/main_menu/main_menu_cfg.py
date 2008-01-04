@@ -13,31 +13,31 @@ __long_description__    = __description__
 # plugin administration data
 
 plugin_manager_data = {
-        "lucidTag" : {
-            "must_login"        : False,
-            "must_admin"        : False,
-            "internal_page_info": {
-                "name"              : "menu",
-                "description"       : "Base Menu Structure",
-                "markup"            : None
-                },
+    "lucidTag" : {
+        "must_login"        : False,
+        "must_admin"        : False,
+        "internal_page_info": {
+            "name"              : "main_menu",
+            "description"       : "Base Menu Structure with the CSS",
+            "markup"            : None
             },
-        "_menu_item" : { # Fake for internal page
-            "must_login"        : True,
-            "must_admin"        : True,
-            "internal_page_info": {
-                "name"              : "menu_item",
-                "description"       : "Menu Item",
-                "markup"            : None
-                },
+        },
+    "_main_menu_li" : { # Fake for internal page
+        "must_login"        : True,
+        "must_admin"        : True,
+        "internal_page_info": {
+            "name"              : "main_menu_li",
+            "description"       : "One list entry in the main menu.",
+            "markup"            : None
             },
-        "_menu_item_current" : { # Fake for internal page
-            "must_login"        : True,
-            "must_admin"        : True,
-            "internal_page_info": {
-                "name"              : "menu_item_current",
-                "description"       : "Selected Menu Item",
-                "markup"            : None
-                },
+        },
+    "_main_menu_ul" : { # Fake for internal page
+        "must_login"        : True,
+        "must_admin"        : True,
+        "internal_page_info": {
+            "name"              : "main_menu_ul",
+            "description"       : "One sub list part from the main menu.",
+            "markup"            : None
             },
         }
+}

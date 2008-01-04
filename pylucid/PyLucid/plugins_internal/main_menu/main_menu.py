@@ -48,9 +48,12 @@ class main_menu(PyLucidBasePlugin):
         menu_tree = get_main_menu_tree(self.request, self.current_page_id)
 
         # Create from the tree dict a nested html list.
-        menu_data = self.get_html(menu_tree)
+        menu_html = self.get_html(menu_tree)
 
-        self.response.write(menu_data)
+        context = {
+            "menu": menu_html,
+        }
+        self._render_template("main_menu", context)
 
 
     def get_html(self, menu_data, parent=None):
@@ -60,31 +63,36 @@ class main_menu(PyLucidBasePlugin):
         result = []
 
         for entry in menu_data:
+
+            # Generate the absolute url to the page:
             href = []
             if parent:
                 href.append(parent)
-
             href.append(entry["shortcut"])
             href = "/".join(href)
 
             entry["href"] = "/" + href
-            entry["name"] = escape(entry["name"])
-            entry["title"] = escape(entry["title"])
-            entry["submenu"] = ""
+
             if entry.has_key("subitems"):
+                # go recusive deeper into the menu entries
                 entry["submenu"] = self.get_html(entry["subitems"], parent=href)
+            else:
+                entry["submenu"] = ""
 
             if entry["id"] == self.current_page_id:
-                result.append(
-                    self._get_rendered_template("menu item current", entry)
-                )
-            else:
-                result.append(
-                    self._get_rendered_template("menu item", entry)
-                )
+                # Mark the last menu item, the current displayed page
+                entry["is_current"] = True
 
-        result = mark_safe("\n".join(result))
-        result = self._get_rendered_template("menu", { "menu" : result })
-        result = mark_safe(result)
-        return result
+            # Render one menu entry
+            html = self._get_rendered_template("main menu li", entry)
+            result.append(html)
+
+        context = {
+            "menu": mark_safe("\n".join(result)),
+        }
+
+        # render all menu entries into a <ul> tag
+        menu_html = self._get_rendered_template("main menu ul", context)
+
+        return mark_safe(menu_html)
 

@@ -1,0 +1,6 @@
+.main_menu a {
+  text-decoration: none;
+}
+.main_menu a:hover, .main_menu a.current {
+  text-decoration: underline;
+}
