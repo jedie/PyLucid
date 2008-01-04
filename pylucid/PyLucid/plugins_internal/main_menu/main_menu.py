@@ -74,8 +74,6 @@ class main_menu(PyLucidBasePlugin):
             if entry.has_key("subitems"):
                 entry["submenu"] = self.get_html(entry["subitems"], parent=href)
 
-            self.page_msg(entry)
-
             if entry["id"] == self.current_page_id:
                 result.append(
                     self._get_rendered_template("menu item current", entry)
