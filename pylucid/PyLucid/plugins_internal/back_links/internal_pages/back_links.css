@@ -10,3 +10,6 @@
 .back_links li:before {
   content:" > ";
 }
+.back_links li:first-child:before {
+  content:"";
+}
