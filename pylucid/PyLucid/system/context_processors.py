@@ -58,6 +58,13 @@ def add_dynamic_context(request, context):
     context["login_link"] = mark_safe(
         '<a href="%s">%s</a>' % (url, txt)
     )
+    
+    # Put the language information into the context, if it exists.
+    # see: http://www.djangoproject.com/documentation/i18n/
+    if hasattr(request, 'session') and 'django_language' in request.session:
+        context['django_language']=request.session['django_language']
+    else:
+        context['django_language']=''
 
 
 
