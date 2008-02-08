@@ -4,17 +4,18 @@
 #_____________________________________________________________________________
 # meta information
 
-__author__      = "Ibon"
+__author__      = "Ibon, Jens Diemer"
 __url__         = "http://www.PyLucid.org"
 __description__ = "Media file list"
 __long_description__ = """
-List files in yor media dir (MEDIA_ROOT), create and delete files and directories
+List files in yor media dir (MEDIA_ROOT), create and delete files and
+directories
+
 Settings.py
 
 MEDIA_ROOT = "/home/userjk/pylucid/PyLucid_v0.8RC2_full/pylucid/media"
 
 Need Page Internals: file_form.html
-
 """
 
 #_____________________________________________________________________________
