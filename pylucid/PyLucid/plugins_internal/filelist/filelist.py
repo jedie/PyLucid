@@ -36,32 +36,6 @@ from PyLucid.system.BasePlugin import PyLucidBasePlugin
 ABSPATH = os.path.abspath(settings.MEDIA_ROOT)
 
 
-def _action(dir_string, filename, action, dest=''):
-    """
-    Diferent actions over file or dir
-    """
-    filerel=os.path.normpath(os.path.join(dir_string, filename))
-    fileabs=os.path.abspath(os.path.join(ABSPATH, filerel))
-
-    if not fileabs.startswith(ABSPATH):
-        WrongDirectory(fileabs)
-
-    if action=='del':
-        os.remove(fileabs)
-        return os.path.normpath(dir_string)
-    if action=='deldir':
-        os.rmdir(fileabs)
-        return os.path.normpath(os.path.join(filerel, './../'))
-    if action=='rename':
-        os.rename(fileabs, dest)
-        return filerel
-    elif action=='mdir':
-        if fileabs.startswith("."):
-            os.mkdir(fileabs)
-            return os.path.normpath(dir_string)
-
-
-
 def make_dirlist(path, result=[]):
     """
     >>> make_dirlist("/data/one/two")
@@ -78,6 +52,20 @@ def make_dirlist(path, result=[]):
     else:
         result.reverse()
         return result
+
+
+BAD_FILENAME_CHARS = ("/", "..", "\\")
+def check_filename(filename):
+    for char in BAD_FILENAME_CHARS:
+        if char in filename:
+            raise BadFilename("Character '%s' not allowed!" % char)
+
+
+BAD_PATH_CHARS = (".", "..", "//", "\\\\")
+def check_path(path):
+    for char in BAD_PATH_CHARS:
+        if char in path:
+            raise BadPath("Character '%s' not allowed!" % char)
 
 
 
@@ -171,11 +159,62 @@ class filelist(PyLucidBasePlugin):
 
         return dir_links
 
-#    def createdirtuple(self, dirfinal, allpath):
-#        """
-#        Creates a tuble (dirname, hispath)
-#        """
-#        return (dirfinal, os.path.join(allpath,dirfinal))
+    def _action(self, dir_string, filename, action, dest=''):
+        """
+        Diferent actions over file or dir
+        """
+        filerel=os.path.normpath(os.path.join(dir_string, filename))
+        fileabs=os.path.abspath(os.path.join(ABSPATH, filerel))
+
+        if not fileabs.startswith(ABSPATH) or "/" in filename.startswith:
+            WrongDirectory(fileabs)
+
+        if action=='del':
+            try:
+                os.remove(fileabs)
+            except Exception, e:
+                self.page_msg.red("Can't delete '%s': %s" % (filename, e))
+            else:
+                self.page_msg.green("File '%s' deleted successfull." % filename)
+
+            return os.path.normpath(dir_string)
+
+        if action=='deldir':
+            try:
+                os.rmdir(fileabs)
+            except Exception, e:
+                self.page_msg.red("Can't delete '%s': %s" % (filename, e))
+            else:
+                self.page_msg.green("'%s' deleted successfull." % filename)
+
+            return os.path.normpath(os.path.join(filerel, './../'))
+
+        if action=='rename':
+            try:
+                os.rename(fileabs, dest)
+            except Exception, e:
+                self.page_msg.red(
+                    "Can't rename '%s' to '%s': %s" % (filename, dest, e)
+                )
+            else:
+                self.page_msg.green(
+                    "file '%s' renamed to '%s'." % (filename, dest)
+                )
+            return filerel
+
+        elif action=='mdir':
+            if fileabs.startswith("."):
+                self.page_msg.red("Error?!?")
+                return os.path.normpath(dir_string)
+
+            try:
+                os.mkdir(fileabs)
+            except Exception, e:
+                self.page_msg.red("Can't create '%s': %s" % (filename, e))
+            else:
+                self.page_msg.green("'%s' creaded successfull." % filename)
+
+            return os.path.normpath(dir_string)
 
 
     def lucidTag(self, rest=''):
@@ -195,11 +234,18 @@ class filelist(PyLucidBasePlugin):
             dir_string=os.path.normpath(rest)
 
         if self.request.method == 'POST':
-            if self.request.has_key('action'):
-                dir_string=os.path.normpath(self.request['dir_string'])
-                filename=os.path.normpath(self.request['filename'])
+            dir_string=os.path.normpath(self.request['dir_string'])
+            check_path(dir_string)
 
-                newdir = _action(dir_string, filename, self.request['action'])
+            if self.request.has_key('action'):
+
+                filename = self.request['filename']
+                check_filename(filename)
+                filename=os.path.normpath(filename)
+
+                newdir = self._action(
+                    dir_string, filename, self.request['action']
+                )
                 dir_string = newdir
 
             elif self.request.FILES.has_key('ufile'):
@@ -207,8 +253,10 @@ class filelist(PyLucidBasePlugin):
                 uploading a file
                 """
                 files=self.request.FILES['ufile']
-                dir_string = os.path.normpath(self.request['dir_string'])
-                filename = os.path.normpath(files['filename'])
+                filename = files['filename']
+                check_filename(filename)
+                filename = os.path.normpath(filename)
+
                 pathFile = os.path.abspath(
                     os.path.join(ABSPATH, os.path.join(dir_string, filename))
                 )
@@ -247,7 +295,11 @@ class WrongDirectory(Exception):
     def __str__(self):
         return repr(self.value)
 
+class BadFilename(Exception):
+    """ A not allowed character contain a filename """
+    pass
 
-
-
+class BadPath(Exception):
+    """ A not allowed character contain a path """
+    pass
 
