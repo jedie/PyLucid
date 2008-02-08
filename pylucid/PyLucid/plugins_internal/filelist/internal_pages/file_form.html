@@ -8,7 +8,7 @@
 <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
 <input type="hidden" name="file_string"  value=""></input>
 <input type="hidden" name="action"  value="deldir"></input>
-<input type="submit" name="dirbut" value="Delete" onclick="javascript:confirm('Are you shure?')"/>
+<input type="submit" name="dirbut" value="Delete" onclick="return confirm('Are you sure?')"/>
 </form>
 {% endif %}
 
@@ -41,7 +41,9 @@
        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
        <input type="hidden" name="file_string"  value="{{ file.name }}"></input>
        <input type="hidden" name="action"  value="del"></input>
-       <input type="submit" name="delbu" value="delete" onclick="javascript:confirm('Are you sure?')" />
+       <input type="submit" name="delbu" value="delete"
+            onclick="return confirm('Are you sure, to delete the file [{{ file.name }}] ?')"
+       />
       </form>
     </td>
 </tr>
