@@ -1,21 +1,47 @@
-#search_form label {
-    /* Hide the search field label */
-    /* Why??? */
-    display: none;
+.filelist {
+    font-family: "Courier New", Courier, monospace;
+    font-size:0.9em;
 }
-
-.cfilelist a, .cfilelist a:active
-{text-decoration: none; color: blue;}
-.cfilelist a:visited
-{color: #48468F;}
-.cfilelist a:hover, .cfilelist a:focus {text-decoration: underline; color: red;}
-.cfilelist table
-{margin-left: 12px;}
-.cfilelist th, .cfilelist  td
-{ font-family: "Courier New", Courier, monospace; font-size: 10pt; text-align: left;}
-.cfilelist th
-{ font-weight: bold; padding-right: 14px; padding-bottom: 3px;}
-td {padding-right: 14px;}
-.cfilelist td.s, .cfilelist th.s
-{text-align: right;}
-
+.filelist input, .filelist button {
+    font-size: 0.9em;
+    border: 1px solid black;
+    padding: 0px;
+    margin: 1px;
+}
+.filelist legend {
+    border: 1px solid black;
+    padding: 0.1em 1em 0.1em 1em;
+    margin: 0px;
+    background: white;
+}
+.filelist a {
+    text-decoration: none;
+}
+.filelist .n a, .filelist .n a:active {
+    color: blue;
+}
+.filelist .n a:visited {
+    color: #48468F;
+}
+.filelist .n a:hover, .filelist .n a:focus {
+    text-decoration: underline;
+}
+.filelist table {
+    margin-left: 12px;
+}
+.filelist th, .filelist  td {
+    text-align: left;
+}
+.filelist th {
+    text-align: center;
+    font-size:0.85em;
+    font-weight: bold;
+    padding-right: 14px;
+    padding-bottom: 3px;
+}
+.filelist td {
+    padding-right: 20px;
+}
+.filelist td.s, .filelist td.m {
+    text-align: right;
+}

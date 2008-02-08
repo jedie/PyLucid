@@ -1,10 +1,6 @@
-<div class="cfilelist" >
-
-<p>
-{% for dir in dir_links %}
-    <a href="{{ dir.link }}">{{ dir.name }}</a>/
-{% endfor %}
-</p>
+<fieldset><legend>
+{% for dir in dir_links %}<a href="{{ dir.link }}">{{ dir.name }}</a>/{% endfor %}
+</legend>
 
 
 {% if deldir  %}
@@ -45,7 +41,7 @@
        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
        <input type="hidden" name="file_string"  value="{{ file.name }}"></input>
        <input type="hidden" name="action"  value="del"></input>
-       <input type="submit" name="delbu" value="delete" onclick="javascript:confirm('Are you shure?')" />
+       <input type="submit" name="delbu" value="delete" onclick="javascript:confirm('Are you sure?')" />
       </form>
     </td>
 </tr>
@@ -62,6 +58,7 @@
     <input type="submit" name="filesubmit" value="Upload" />
 </form>
 </p>
+
 <p>
 <form method="post" action="{{ url }}">
     <input type="hidden" name="action"  value="mdir"></input>
@@ -69,7 +66,5 @@
     <input type="text"   name="file_string" value="" />
     <input type="submit" name="filesubmit" value="Create Dir" />
 </form>
-
 </p>
-
-</div>
+</fieldset>
