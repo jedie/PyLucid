@@ -36,35 +36,35 @@ from PyLucid.system.BasePlugin import PyLucidBasePlugin
 ABSPATH = os.path.abspath(settings.MEDIA_ROOT)
 
 
-def _action(dir_string, file, action, dest=''):
+def _action(dir_string, filename, action, dest=''):
     """
     Diferent actions over file or dir
     """
-    filerel=os.path.normpath(os.path.join(dir_string, file))
-    file=os.path.abspath(os.path.join(ABSPATH, filerel))
+    filerel=os.path.normpath(os.path.join(dir_string, filename))
+    fileabs=os.path.abspath(os.path.join(ABSPATH, filerel))
 
-    if file.find(ABSPATH)<0:
-        WrongDirectory(file)
+    if not fileabs.startswith(ABSPATH):
+        WrongDirectory(fileabs)
 
     if action=='del':
-        os.remove(file)
+        os.remove(fileabs)
         return os.path.normpath(dir_string)
     if action=='deldir':
-        os.rmdir(file)
+        os.rmdir(fileabs)
         return os.path.normpath(os.path.join(filerel, './../'))
     if action=='rename':
-        os.rename(file, dest)
+        os.rename(fileabs, dest)
         return filerel
     elif action=='mdir':
-        if file[0]!='.':
-            os.mkdir(file)
+        if fileabs.startswith("."):
+            os.mkdir(fileabs)
             return os.path.normpath(dir_string)
 
 
 
 def make_dirlist(path, result=[]):
     """
-    >>> get_dirlist("/data/one/two")
+    >>> make_dirlist("/data/one/two")
     [('data/one/two', 'two'), ('data/one', 'one'), ('data', 'data')]
     """
     path = path.strip("/")
@@ -194,38 +194,36 @@ class filelist(PyLucidBasePlugin):
         if rest!='':
             dir_string=os.path.normpath(rest)
 
-        if self.request.method == 'POST' and self.request.has_key('action'):
+        if self.request.method == 'POST':
+            if self.request.has_key('action'):
+                dir_string=os.path.normpath(self.request['dir_string'])
+                filename=os.path.normpath(self.request['filename'])
 
-            dir_string=os.path.normpath(self.request['dir_string'])
-            file=os.path.normpath(self.request['file_string'])
+                newdir = _action(dir_string, filename, self.request['action'])
+                dir_string = newdir
 
-            newdir=_action(dir_string, file, self.request['action'])
-
-            dir_string=newdir
-
-        elif self.request.method == 'POST' and self.request.FILES.has_key('ufile'):
-            """
-            uploading a file
-            """
-            file=self.request.FILES['ufile']
-            dir_string= os.path.normpath(self.request['dir_string'])
-            name=os.path.normpath(file['filename'])
-            pathFile=os.path.abspath(
-                os.path.join(ABSPATH, os.path.join(dir_string, name))
-            )
-
-            fileLike=open(pathFile,'w') #if it exists, overwrite
-            fileLike.write(file['content'])
-            fileLike.close()
+            elif self.request.FILES.has_key('ufile'):
+                """
+                uploading a file
+                """
+                files=self.request.FILES['ufile']
+                dir_string = os.path.normpath(self.request['dir_string'])
+                filename = os.path.normpath(files['filename'])
+                pathFile = os.path.abspath(
+                    os.path.join(ABSPATH, os.path.join(dir_string, filename))
+                )
+                try:
+                    fileLike = file(pathFile,'wb') #if it exists, overwrite
+                    fileLike.write(files['content'])
+                    fileLike.close()
+                except Exception, e:
+                    self.page_msg.red("Can't write file: '%s'" % e)
+                else:
+                    self.page_msg.green(
+                        "File '%s' written successfull." % filename
+                    )
 
         dir_list,files_list = self.getFilesList(dir_string)
-
-#        updir=0
-#        if dir_string!='' and dir_string!='.':
-#            updir=1
-#        deldir=0
-#        if len(dir_list)==0 and len(files_list)==0:
-#            deldir=1
 
         context = {
             "url": self.URLs.methodLink("lucidTag"),
@@ -234,7 +232,6 @@ class filelist(PyLucidBasePlugin):
             "files_list": files_list,
             "dir_list": dir_list,
             "media_url": settings.MEDIA_URL,
-#            "deldir": deldir,
             "messages": self.page_msg,
         }
 

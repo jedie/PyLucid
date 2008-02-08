@@ -6,7 +6,7 @@
 {% if deldir  %}
 <form  method="post" action="{{ url }}">
 <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-<input type="hidden" name="file_string"  value=""></input>
+<input type="hidden" name="filename"  value=""></input>
 <input type="hidden" name="action"  value="deldir"></input>
 <input type="submit" name="dirbut" value="Delete" onclick="return confirm('Are you sure?')"/>
 </form>
@@ -39,7 +39,7 @@
     <td class="t">
       <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ url }}">
        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-       <input type="hidden" name="file_string"  value="{{ file.name }}"></input>
+       <input type="hidden" name="filename"  value="{{ file.name }}"></input>
        <input type="hidden" name="action"  value="del"></input>
        <input type="submit" name="delbu" value="delete"
             onclick="return confirm('Are you sure, to delete the file [{{ file.name }}] ?')"
@@ -55,7 +55,7 @@
 <p>
 <form method="post" action="{{ url }}" enctype="multipart/form-data">
     <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-    <input type="hidden" name="file_string"  value=""></input>
+    <input type="hidden" name="filename"  value=""></input>
     <input type="file" id="ufile" name="ufile" value="" />
     <input type="submit" name="filesubmit" value="Upload" />
 </form>
@@ -65,7 +65,7 @@
 <form method="post" action="{{ url }}">
     <input type="hidden" name="action"  value="mdir"></input>
     <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-    <input type="text"   name="file_string" value="" />
+    <input type="text"   name="filename" value="" />
     <input type="submit" name="filesubmit" value="Create Dir" />
 </form>
 </p>
