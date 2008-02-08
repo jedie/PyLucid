@@ -6,8 +6,11 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     TODO:
-        *
-        *
+        - rename some variables to better names
+        - optimize the _action() method
+        - merge in the template the dir_list and file_list loop
+        - Write a unitest for the plugin and verify the "bad-char-things" in
+            path/post variables.
 
     Last commit info:
     ~~~~~~~~~
@@ -91,6 +94,7 @@ class filelist(PyLucidBasePlugin):
                 "dir_link": self.URLs.methodLink(
                     method_name="lucidTag", args=updir
                 ),
+                "deletable": False,
             }]
 
         # convert the relative path to absolute filesystem path
@@ -106,18 +110,16 @@ class filelist(PyLucidBasePlugin):
                 # skip hidden files or dirs
                 continue
 
-    #        try:
-
             item_rel_dir = os.path.join(rel_dir, item)
             item_abs_fs_path = os.path.join(abs_fs_path, item)
             statinfo = os.stat(item_abs_fs_path)
-#            accestime = statinfo[stat.ST_ATIME]
 
             item_dict={
                 'name': item,
                 'time': strftime('%Y:%m:%M',localtime(statinfo[stat.ST_MTIME])),
                 'size': statinfo[stat.ST_SIZE],
                 'statinfo': statinfo,
+                "deletable": True,
             }
             if stat.S_ISDIR(statinfo[stat.ST_MODE]):
                 item_dict["dir_link"] = self.URLs.methodLink(
@@ -126,12 +128,6 @@ class filelist(PyLucidBasePlugin):
                 listDir.append(item_dict)
             else:
                 listFile.append(item_dict)
-    #        except:
-    #            theFile={
-    #                'name': f+"_error",
-    #                'statinfo': ''
-    #            };
-    #            listFile.append(theFile)
 
         return listDir,listFile
 
@@ -163,13 +159,19 @@ class filelist(PyLucidBasePlugin):
         """
         Diferent actions over file or dir
         """
+#        self.page_msg(
+#            "dir_string:", dir_string, "filename:", filename,
+#            "Action:", action, "dest:", dest
+#        )
+
         filerel=os.path.normpath(os.path.join(dir_string, filename))
         fileabs=os.path.abspath(os.path.join(ABSPATH, filerel))
 
-        if not fileabs.startswith(ABSPATH) or "/" in filename.startswith:
+        if not fileabs.startswith(ABSPATH) or "/":
             WrongDirectory(fileabs)
 
         if action=='del':
+            check_filename(filename)
             try:
                 os.remove(fileabs)
             except Exception, e:
@@ -177,9 +179,10 @@ class filelist(PyLucidBasePlugin):
             else:
                 self.page_msg.green("File '%s' deleted successfull." % filename)
 
-            return os.path.normpath(dir_string)
+            return dir_string
 
         if action=='deldir':
+            check_path(filename)
             try:
                 os.rmdir(fileabs)
             except Exception, e:
@@ -187,9 +190,11 @@ class filelist(PyLucidBasePlugin):
             else:
                 self.page_msg.green("'%s' deleted successfull." % filename)
 
-            return os.path.normpath(os.path.join(filerel, './../'))
+            return dir_string
+#            return os.path.normpath(os.path.join(filerel, './../'))
 
         if action=='rename':
+            check_filename(filename)
             try:
                 os.rename(fileabs, dest)
             except Exception, e:
@@ -203,6 +208,7 @@ class filelist(PyLucidBasePlugin):
             return filerel
 
         elif action=='mdir':
+            check_path(filename)
             if fileabs.startswith("."):
                 self.page_msg.red("Error?!?")
                 return os.path.normpath(dir_string)
@@ -231,11 +237,12 @@ class filelist(PyLucidBasePlugin):
         dir_string=''
 
         if rest!='':
+#            self.page_msg("rest:", rest)
             dir_string=os.path.normpath(rest)
 
         if self.request.method == 'POST':
+#            self.page_msg(self.request.POST)
             dir_string=os.path.normpath(self.request['dir_string'])
-            check_path(dir_string)
 
             if self.request.has_key('action'):
 
@@ -246,6 +253,7 @@ class filelist(PyLucidBasePlugin):
                 newdir = self._action(
                     dir_string, filename, self.request['action']
                 )
+#                self.page_msg("new dir:", newdir)
                 dir_string = newdir
 
             elif self.request.FILES.has_key('ufile'):
@@ -271,6 +279,7 @@ class filelist(PyLucidBasePlugin):
                         "File '%s' written successfull." % filename
                     )
 
+#        self.page_msg("read dir '%s'" % dir_string)
         dir_list,files_list = self.getFilesList(dir_string)
 
         context = {
