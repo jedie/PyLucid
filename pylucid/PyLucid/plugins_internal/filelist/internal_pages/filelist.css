@@ -1,0 +1,17 @@
+
+
+.cfilelist a, .cfilelist a:active 
+{text-decoration: none; color: blue;}
+.cfilelist a:visited 
+{color: #48468F;}
+.cfilelist a:hover, .cfilelist a:focus {text-decoration: underline; color: red;}
+.cfilelist table 
+{margin-left: 12px;}
+.cfilelist th, .cfilelist  td 
+{ font-family: "Courier New", Courier, monospace; font-size: 10pt; text-align: left;}
+.cfilelist th 
+{ font-weight: bold; padding-right: 14px; padding-bottom: 3px;}
+td {padding-right: 14px;}
+.cfilelist td.s, .cfilelist th.s 
+{text-align: right;}
+

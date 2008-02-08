@@ -1,0 +1,100 @@
+
+
+
+<style type="text/css">
+/* <![CDATA[ */
+/* additional stylesheets from internal page: 'filelist' */
+#search_form label {
+    /* Hide the search field label */
+    display: none;
+}
+/* ]]> */
+</style>
+
+<script type="text/javascript">
+/* <![CDATA[ */
+function idioma(file,action) {
+
+
+}/* ]]> */
+</script>
+
+
+<div class="cfilelist" >
+
+<div><a href="{{url}}">{{media_url}}</a>{% for undir in dirlist %}<a href="{{ url }}{{ undir.1 }}">{{undir.0}}</a>/{% endfor %}
+</div>
+
+
+{% if deldir  %}
+<form  method="post" action="{{ url }}">
+<input type="hidden" name="dir_string"  value="{{ dir }}"></input>
+<input type="hidden" name="file_string"  value=""></input>
+<input type="hidden" name="action"  value="deldir"></input>
+<input type="submit" name="dirbut" value="Delete" onclick="javascript:confirm('Are you shure?')"/>
+</form>
+{% endif %}
+
+
+<table summary="Directory Listing" cellpadding="0" cellspacing="0">
+<thead><tr><th class="n">Name</th><th class="s">Size</th><th class="m">Last Modified</th><th class="t">Action</th></tr></thead>
+
+{% if updir  %}
+<tr>
+    <td class="n"><a href="{{ url }}{{dir}}{{ file.name }}/..  ">..</a>/</td>
+    <td class="s">&nbsp;</td>
+    <td class="m">&nbsp;</td>
+    <td class="t">
+    </td>
+</tr>
+{% endif %}
+
+{% for file in dir_list %}
+<tr>
+    <td class="n"><a href="{{ url }}{{dir}}/{{ file.name }}">{{ file.name }}</a>/</td>
+    <td class="s">&nbsp;</td>
+    <td class="m">{{ file.time }}</td>
+    <td class="t">
+    </td>
+</tr>
+{% endfor%}
+
+{% for file in files_list %}
+<tr>
+    <td class="n"><a href="{{ media_url }}{{dir}}/{{ file.name }}">{{ file.name }}</a></td>
+    <td class="m">{{ file.size }}K</td>
+    <td class="s">{{ file.time }}</td>
+    <td class="t">
+      <form  method="post" id="fld{{forloop.counter0}}" action="{{ url }}">
+       <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
+       <input type="hidden" name="file_string"  value="{{ file.name }}"></input>
+       <input type="hidden" name="action"  value="del"></input>
+       <input type="submit" name="delbu" value="delete" onclick="javascript:confirm('Are you shure?')" />
+      </form>
+    </td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+</table>
+
+<p>
+<form method="post" action="{{url}}" enctype="multipart/form-data">
+    <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
+    <input type="hidden" name="file_string"  value=""></input>
+    <input type="file" id="ufile" name="ufile" value="" />
+    <input type="submit" name="filesubmit" value="Upload" />
+</form>
+</p>
+<p>
+<form method="post" action="{{url}}">
+    <input type="hidden" name="action"  value="mdir"></input>
+    <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
+    <input type="text"   name="file_string" value="" />
+    <input type="submit" name="filesubmit" value="Create Dir" />
+</form>
+
+</p>
+
+</div>
