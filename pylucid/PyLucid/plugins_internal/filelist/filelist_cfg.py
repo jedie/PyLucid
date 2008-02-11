@@ -31,4 +31,8 @@ plugin_manager_data = {
             "markup"            : None
         },
     },
+    "userinfo": {
+        "must_login"    : True,
+        "must_admin"    : True,
+    }
 }

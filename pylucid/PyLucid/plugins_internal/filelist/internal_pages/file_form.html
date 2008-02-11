@@ -1,5 +1,5 @@
 <fieldset><legend>
-{% for dir in dir_links %}<a href="{{ dir.link }}">{{ dir.name }}</a>/{% endfor %}
+{% for dir in dir_links %}<a href="{{ dir.link }}" title="{{ dir.title }}">{{ dir.name }}</a>/{% endfor %}
 </legend>
 
 <table summary="Directory Listing" cellpadding="0" cellspacing="0">
@@ -7,16 +7,22 @@
     <th class="n">Name</th>
     <th class="s">Size</th>
     <th class="m">Last Modified</th>
+    <th class="o">mode</th>
+    <th class="u">uid</th>
+    <th class="g">gid</th>
     <th class="t">Action</th>
 </tr></thead>
 
 {% for current_dir in dir_list %}
 <tr>
     <td class="n">
-      <a href="{{ current_dir.dir_link }}">/{{ current_dir.name }}/</a>
+      <a href="{{ current_dir.dir_link }}" title="{{ current_dir.title }}">/{{ current_dir.name }}/</a>
     </td>
     <td class="s"><i>&lt;dir&gt;</i></td>
     <td class="m">{{ current_dir.time }}</td>
+    <td class="o">{{ current_dir.mode }}</td>
+    <td class="u">{{ current_dir.uid }}</td>
+    <td class="g">{{ current_dir.gid }}</td>
     <td class="t">
       {% if current_dir.deletable %}
       <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ url }}">
@@ -35,10 +41,13 @@
 {% for current_file in files_list %}
 <tr>
     <td class="n">
-      <a href="{{ media_url }}{{ dir }}/{{ current_file.name }}">{{ current_file.name }}</a>
+      <a href="{{ abs_path }}{{ dir }}/{{ current_file.name }}" title="{{ current_file.title }}">{{ current_file.name }}</a>
     </td>
-    <td class="m">{{ current_file.size|filesizeformat }}</td>
-    <td class="s">{{ current_file.time }}</td>
+    <td class="s">{{ current_file.size|filesizeformat }}</td>
+    <td class="m">{{ current_file.time }}</td>
+    <td class="o">{{ current_file.mode }}</td>
+    <td class="u">{{ current_file.uid }}</td>
+    <td class="g">{{ current_file.gid }}</td
     <td class="t">
       <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ url }}">
        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
@@ -55,21 +64,26 @@
 </tbody>
 </table>
 
-<p>
-<form method="post" action="{{ url }}" enctype="multipart/form-data">
-    <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-    <input type="hidden" name="filename"  value=""></input>
-    <input type="file" id="ufile" name="ufile" value="" />
-    <input type="submit" name="filesubmit" value="Upload" />
-</form>
-</p>
+{% if writeable %}
+    <p>
+    <form method="post" action="{{ url }}" enctype="multipart/form-data">
+        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
+        <input type="hidden" name="filename"  value=""></input>
+        <input type="file" id="ufile" name="ufile" value="" />
+        <input type="submit" name="filesubmit" value="Upload" />
+    </form>
+    </p>
 
-<p>
-<form method="post" action="{{ url }}">
-    <input type="hidden" name="action"  value="mdir"></input>
-    <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-    <input type="text"   name="filename" value="" />
-    <input type="submit" name="filesubmit" value="Create Dir" />
-</form>
-</p>
+    <p>
+    <form method="post" action="{{ url }}">
+        <input type="hidden" name="action"  value="mdir"></input>
+        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
+        <input type="text"   name="filename" value="" />
+        <input type="submit" name="filesubmit" value="Create Dir" />
+    </form>
+    </p>
+{% else %}
+    <p><i>Current directory is not writeable.</i></p>
+    <a href="{{ commandURLprefix }}/filelist/userinfo/">userinfo</a>
+{% endif %}
 </fieldset>
