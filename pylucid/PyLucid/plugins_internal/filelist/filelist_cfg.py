@@ -23,13 +23,12 @@ Need Page Internals: file_form.html
 
 plugin_manager_data = {
     "lucidTag" : {
-        "must_login"    : False,
-        "must_admin"    : False,
+        "must_login"    : True,
+        "must_admin"    : True,
         "internal_page_info" : {
             "name"              : "file_form",
             "description"       : "The HTML for the file list.",
             "markup"            : None
         },
     },
-
 }
