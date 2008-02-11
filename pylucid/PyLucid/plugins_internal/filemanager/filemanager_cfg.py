@@ -25,8 +25,12 @@ plugin_manager_data = {
     "lucidTag" : {
         "must_login"    : True,
         "must_admin"    : True,
+    },
+    "filelist" : {
+        "must_login"    : True,
+        "must_admin"    : True,
         "internal_page_info" : {
-            "name"              : "file_form",
+            "name"              : "filelist",
             "description"       : "The HTML for the file list.",
             "markup"            : None
         },

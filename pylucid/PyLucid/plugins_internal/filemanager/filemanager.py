@@ -72,7 +72,7 @@ def check_path(path):
 
 
 
-class filelist(PyLucidBasePlugin):
+class filemanager(PyLucidBasePlugin):
 
     def getFilesList(self, rel_dir):
         """
@@ -91,7 +91,7 @@ class filelist(PyLucidBasePlugin):
             listDir = [{
                 "name": "..",
                 "dir_link": self.URLs.methodLink(
-                    method_name="lucidTag", args=updir
+                    method_name="filelist", args=updir
                 ),
                 "deletable": False,
             }]
@@ -124,7 +124,7 @@ class filelist(PyLucidBasePlugin):
             }
             if stat.S_ISDIR(statinfo[stat.ST_MODE]):
                 item_dict["dir_link"] = self.URLs.methodLink(
-                    method_name="lucidTag", args=item_rel_dir
+                    method_name="filelist", args=item_rel_dir
                 )
                 listDir.append(item_dict)
             else:
@@ -143,7 +143,7 @@ class filelist(PyLucidBasePlugin):
             # Display only the short relative path:
             "name": os.path.normpath(settings.MEDIA_ROOT),
             "title": ABS_PATH,
-            "link": self.URLs.methodLink(method_name="lucidTag"),
+            "link": self.URLs.methodLink(method_name="filelist"),
         }]
         if path:
             # Not in the root
@@ -153,7 +153,7 @@ class filelist(PyLucidBasePlugin):
                     "name": name,
                     "title": os.path.join(ABS_PATH, path),
                     "link": self.URLs.methodLink(
-                        method_name="lucidTag", args=path
+                        method_name="filelist", args=path
                     ),
                 })
 
@@ -225,8 +225,10 @@ class filelist(PyLucidBasePlugin):
         self.page_msg(pwd.getpwuid(os.getuid()))
         self.page_msg(grp.getgrgid(os.getgid()))
 
+        self.filelist()
 
-    def lucidTag(self, rest=''):
+
+    def filelist(self, rest=''):
         """
         List dir and file. Some actions.
         rest: path to dir or file
@@ -284,7 +286,7 @@ class filelist(PyLucidBasePlugin):
         dir_list,files_list = self.getFilesList(dir_string)
 
         context = {
-            "url": self.URLs.methodLink("lucidTag"),
+            "url": self.URLs.methodLink("filelist"),
             "dir": dir_string,
             "dir_links": self.make_dir_links(dir_string),
             "writeable": os.access(abs_path, os.W_OK),
@@ -292,11 +294,11 @@ class filelist(PyLucidBasePlugin):
             "dir_list": dir_list,
             "abs_path": ABS_PATH,
             "messages": self.page_msg,
-            "commandURLprefix": self.URLs.get_command_base(),
+            "userinfo_link": self.URLs.methodLink(method_name="userinfo"),
         }
 
-#        self._render_template("file_form", context, debug=True)
-        self._render_template("file_form", context)#, debug=True)
+#        self._render_template("filelist", context, debug=True)
+        self._render_template("filelist", context)#, debug=True)
 
 
 

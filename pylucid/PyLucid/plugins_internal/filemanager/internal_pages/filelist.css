@@ -1,47 +1,47 @@
-.filelist {
+.filemanager {
     font-family: "Courier New", Courier, monospace;
     font-size:0.9em;
 }
-.filelist input, .filelist button {
+.filemanager input, .filemanager button {
     font-size: 0.9em;
     border: 1px solid black;
     padding: 0px;
     margin: 1px;
 }
-.filelist legend {
+.filemanager legend {
     border: 1px solid black;
     padding: 0.1em 1em 0.1em 1em;
     margin: 0px;
     background: white;
 }
-.filelist a {
+.filemanager a {
     text-decoration: none;
 }
-.filelist .n a, .filelist .n a:active {
+.filemanager .n a, .filemanager .n a:active {
     color: blue;
 }
-.filelist .n a:visited {
+.filemanager .n a:visited {
     color: #48468F;
 }
-.filelist .n a:hover, .filelist .n a:focus {
+.filemanager .n a:hover, .filemanager .n a:focus {
     text-decoration: underline;
 }
-.filelist table {
+.filemanager table {
     margin-left: 12px;
 }
-.filelist th, .filelist  td {
+.filemanager th, .filemanager  td {
     text-align: left;
 }
-.filelist th {
+.filemanager th {
     text-align: center;
     font-size:0.85em;
     font-weight: bold;
     padding-right: 14px;
     padding-bottom: 3px;
 }
-.filelist td {
+.filemanager td {
     padding-right: 20px;
 }
-.filelist td.s, .filelist td.m {
+.filemanager td.s, .filemanager td.m {
     text-align: right;
 }
