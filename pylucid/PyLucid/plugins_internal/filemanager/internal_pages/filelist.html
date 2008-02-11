@@ -73,7 +73,7 @@
     </form>
     </p>
 {% else %}
-    <p><i>Current directory is not writeable.</i></p>
-    <a href="{{ userinfo_link }}">userinfo</a>
+    <p><i>{% trans 'Current directory is not writeable.' %}</i></p>
 {% endif %}
 </fieldset>
+<p>{% trans 'Display some' %} <a href="{{ userinfo_link }}">user information</a>.</p>

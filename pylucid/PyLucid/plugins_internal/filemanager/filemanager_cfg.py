@@ -38,5 +38,10 @@ plugin_manager_data = {
     "userinfo": {
         "must_login"    : True,
         "must_admin"    : True,
+        "internal_page_info" : {
+            "name"              : "userinfo",
+            "description"       : "Some user information",
+            "markup"            : None
+        },
     }
 }

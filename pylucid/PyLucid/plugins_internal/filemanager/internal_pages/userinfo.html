@@ -1,0 +1,13 @@
+<fieldset><legend>{% trans 'some user information' %}</legend>
+<dl>
+  <dt>{% trans 'user id' %}</dt>
+  <dd>{{ uid }}</dd>
+  <dt>{% trans 'group id' %}</dt>
+  <dd>{{ gid }}</dd>
+  <dt>{% trans 'linux password database information' %}</dt>
+  <dd>{{ pwd_info }}</dd>
+  <dt>{% trans 'linux group database information' %}</dt>
+  <dd>{{ grp_info }}</dd>
+</dl>
+</fieldset>
+<p>{% trans 'Back to the' %} <a href="{{ filelist_link }}">filelist</a>.</p>

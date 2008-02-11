@@ -6,17 +6,16 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     TODO:
-        - rename some variables to better names
+        - add edit text files functionality
         - optimize the _action() method
-        - merge in the template the dir_list and file_list loop
         - Write a unitest for the plugin and verify the "bad-char-things" in
             path/post variables.
 
     Last commit info:
     ~~~~~~~~~
-    $LastChangedDate: $
-    $Rev:  $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: Ibon, Jens Diemer
     :license: GNU GPL v2 or above, see LICENSE for more details
@@ -103,28 +102,24 @@ class filemanager(PyLucidBasePlugin):
         if not abs_fs_path.startswith(ABS_PATH):
             raise WrongDirectory(abs_fs_path)
 
-        for item in sorted(os.listdir(abs_fs_path)):
+        link_prefix = self.URLs.methodLink(method_name="filelist")
 
+        for item in sorted(os.listdir(abs_fs_path)):
             if item.startswith("."):
-                # skip hidden files or dirs
+                # skip hidden files or directories
                 continue
 
-            item_rel_dir = os.path.join(rel_dir, item)
             item_abs_fs_path = os.path.join(abs_fs_path, item)
             statinfo = os.stat(item_abs_fs_path)
 
-            link = self.URLs.methodLink(
-                method_name="filelist", args=item_rel_dir
-            )
+            link = os.path.join(link_prefix, rel_dir, item)
 
             if stat.S_ISDIR(statinfo[stat.ST_MODE]):
                 # Is a directory
                 is_dir = True
+                link += "/"
             else:
                 is_dir = False
-                # URLs.methodLink() always add a tailing slash
-                # -> remove it from the filename
-#                link = link.rstrip("/")
 
             item_dict={
                 "name": item,
@@ -233,15 +228,29 @@ class filemanager(PyLucidBasePlugin):
             else:
                 self.page_msg.green("'%s' creaded successfull." % filename)
 
-    def userinfo(self):
-        self.page_msg("uid:", os.getuid())
-        self.page_msg("gid:", os.getgid())
+    def userinfo(self, old_path=""):
+        """
+        Display some user information related to the filemanager functionality.
+        """
         import pwd, grp
-        self.page_msg(pwd.getpwuid(os.getuid()))
-        self.page_msg(grp.getgrgid(os.getgid()))
 
-        self.filelist()
+        uid = os.getuid()
+        gid = os.getgid()
 
+        pwd_info = pwd.getpwuid(os.getuid())
+        grp_info = grp.getgrgid(os.getgid())
+
+        context = {
+            "filelist_link": self.URLs.methodLink(
+                method_name="filelist", args=old_path
+            ),
+            "uid": uid,
+            "gid": gid,
+            "pwd_info": pwd_info,
+            "grp_info": grp_info,
+        }
+#        self.page_msg(context)
+        self._render_template("userinfo", context)#, debug=True)
 
     def filelist(self, rest=''):
         """
@@ -308,7 +317,9 @@ class filemanager(PyLucidBasePlugin):
             "dir_list": dir_list,
             "abs_path": ABS_PATH,
             "messages": self.page_msg,
-            "userinfo_link": self.URLs.methodLink(method_name="userinfo"),
+            "userinfo_link": self.URLs.methodLink(
+                method_name="userinfo", args=dir_string
+            ),
         }
 #        self.page_msg(context)
 #        self._render_template("filelist", context, debug=True)
