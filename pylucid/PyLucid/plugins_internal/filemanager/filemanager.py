@@ -76,23 +76,24 @@ class filemanager(PyLucidBasePlugin):
 
     def getFilesList(self, rel_dir):
         """
-        Returns all file in dir current_dir
-         'relative' to url root
-
+        Returns all items in the given directory.
+        -rel_dir is relative to ABS_PATH
+        -the listing is sorted and the first items are the directories.
         """
-        listFile=[]
+        files = []
 
         if not rel_dir:
             # current dir it the media Root
-            listDir=[]
+            dirs=[]
         else:
             # Add the ".." dir item
             updir = os.path.split(rel_dir)[0]
-            listDir = [{
+            dirs = [{
                 "name": "..",
-                "dir_link": self.URLs.methodLink(
+                "link": self.URLs.methodLink(
                     method_name="filelist", args=updir
                 ),
+                "is_dir": True,
                 "deletable": False,
             }]
 
@@ -101,9 +102,9 @@ class filemanager(PyLucidBasePlugin):
 
         if not abs_fs_path.startswith(ABS_PATH):
             raise WrongDirectory(abs_fs_path)
-            #return listDir,listFile
 
-        for item in os.listdir(abs_fs_path):
+        for item in sorted(os.listdir(abs_fs_path)):
+
             if item.startswith("."):
                 # skip hidden files or dirs
                 continue
@@ -112,8 +113,23 @@ class filemanager(PyLucidBasePlugin):
             item_abs_fs_path = os.path.join(abs_fs_path, item)
             statinfo = os.stat(item_abs_fs_path)
 
+            link = self.URLs.methodLink(
+                method_name="filelist", args=item_rel_dir
+            )
+
+            if stat.S_ISDIR(statinfo[stat.ST_MODE]):
+                # Is a directory
+                is_dir = True
+            else:
+                is_dir = False
+                # URLs.methodLink() always add a tailing slash
+                # -> remove it from the filename
+#                link = link.rstrip("/")
+
             item_dict={
                 "name": item,
+                "link": link,
+                "is_dir": is_dir,
                 "title": item_abs_fs_path,
                 "time": strftime("%Y:%m:%M",localtime(statinfo[stat.ST_MTIME])),
                 "size": statinfo[stat.ST_SIZE],
@@ -122,15 +138,14 @@ class filemanager(PyLucidBasePlugin):
                 "gid": statinfo[stat.ST_GID],
                 "deletable": True,
             }
-            if stat.S_ISDIR(statinfo[stat.ST_MODE]):
-                item_dict["dir_link"] = self.URLs.methodLink(
-                    method_name="filelist", args=item_rel_dir
-                )
-                listDir.append(item_dict)
+            if is_dir:
+                dirs.append(item_dict)
             else:
-                listFile.append(item_dict)
+                files.append(item_dict)
 
-        return listDir,listFile
+        # return the merged list of direcories and files together
+        dir_list = dirs + files
+        return dir_list
 
 
     def make_dir_links(self, path):
@@ -283,20 +298,19 @@ class filemanager(PyLucidBasePlugin):
         abs_path = os.path.join(ABS_PATH, dir_string)
 
 #        self.page_msg("read dir '%s'" % dir_string)
-        dir_list,files_list = self.getFilesList(dir_string)
+        dir_list = self.getFilesList(dir_string)
 
         context = {
             "url": self.URLs.methodLink("filelist"),
             "dir": dir_string,
             "dir_links": self.make_dir_links(dir_string),
             "writeable": os.access(abs_path, os.W_OK),
-            "files_list": files_list,
             "dir_list": dir_list,
             "abs_path": ABS_PATH,
             "messages": self.page_msg,
             "userinfo_link": self.URLs.methodLink(method_name="userinfo"),
         }
-
+#        self.page_msg(context)
 #        self._render_template("filelist", context, debug=True)
         self._render_template("filelist", context)#, debug=True)
 

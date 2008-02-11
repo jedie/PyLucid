@@ -13,53 +13,43 @@
     <th class="t">Action</th>
 </tr></thead>
 
-{% for current_dir in dir_list %}
+{% for item in dir_list %}
 <tr>
     <td class="n">
-      <a href="{{ current_dir.dir_link }}" title="{{ current_dir.title }}">/{{ current_dir.name }}/</a>
+      <a href="{{ item.link }}" title="{{ item.title }}">
+        {% if item.is_dir %}/{{ item.name }}/{% else %}{{ item.name }}{% endif %}
+      </a>
     </td>
-    <td class="s"><i>&lt;dir&gt;</i></td>
-    <td class="m">{{ current_dir.time }}</td>
-    <td class="o">{{ current_dir.mode }}</td>
-    <td class="u">{{ current_dir.uid }}</td>
-    <td class="g">{{ current_dir.gid }}</td>
+    {% if item.is_dir %}
+        <td class="s"><i>&lt;dir&gt;</i></td>
+    {% else %}
+        <td class="s">{{ item.size|filesizeformat }}</td>
+    {% endif %}
+    <td class="m">{{ item.time }}</td>
+    <td class="o">{{ item.mode }}</td>
+    <td class="u">{{ item.uid }}</td>
+    <td class="g">{{ item.gid }}</td>
     <td class="t">
-      {% if current_dir.deletable %}
+      {% if item.deletable %}
       <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ url }}">
        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-       <input type="hidden" name="filename"  value="{{ current_dir.name }}"></input>
-       <input type="hidden" name="action"  value="deldir"></input>
-       <input type="submit" name="deldir" value="delete"
-            onclick="return confirm('Are you sure, to delete the dir [{{ current_dir.name }}] ?')"
-       />
+       <input type="hidden" name="filename"  value="{{ item.name }}"></input>
+       {% if item.is_dir %}
+           <input type="hidden" name="action"  value="deldir"></input>
+           <input type="submit" name="deldir" value="delete"
+                onclick="return confirm('Are you sure, to delete the directory [{{ item.name }}] ?')"
+           />
+       {% else %}
+           <input type="hidden" name="action"  value="del"></input>
+           <input type="submit" name="delbu" value="delete"
+                onclick="return confirm('Are you sure, to delete the file [{{ item.name }}] ?')"
+           />
+       {% endif %}
       </form>
       {% endif %}
     </td>
 </tr>
 {% endfor%}
-
-{% for current_file in files_list %}
-<tr>
-    <td class="n">
-      <a href="{{ abs_path }}{{ dir }}/{{ current_file.name }}" title="{{ current_file.title }}">{{ current_file.name }}</a>
-    </td>
-    <td class="s">{{ current_file.size|filesizeformat }}</td>
-    <td class="m">{{ current_file.time }}</td>
-    <td class="o">{{ current_file.mode }}</td>
-    <td class="u">{{ current_file.uid }}</td>
-    <td class="g">{{ current_file.gid }}</td
-    <td class="t">
-      <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ url }}">
-       <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-       <input type="hidden" name="filename"  value="{{ current_file.name }}"></input>
-       <input type="hidden" name="action"  value="del"></input>
-       <input type="submit" name="delbu" value="delete"
-            onclick="return confirm('Are you sure, to delete the file [{{ current_file.name }}] ?')"
-       />
-      </form>
-    </td>
-</tr>
-{% endfor %}
 
 </tbody>
 </table>
