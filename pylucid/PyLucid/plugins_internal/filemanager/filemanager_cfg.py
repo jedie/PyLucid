@@ -35,6 +35,15 @@ plugin_manager_data = {
             "markup"            : None
         },
     },
+    "edit": {
+        "must_login"    : True,
+        "must_admin"    : True,
+        "internal_page_info" : {
+            "name"              : "edit_file",
+            "description"       : "Edit a text file",
+            "markup"            : None
+        },
+    },
     "userinfo": {
         "must_login"    : True,
         "must_admin"    : True,
@@ -43,5 +52,5 @@ plugin_manager_data = {
             "description"       : "Some user information",
             "markup"            : None
         },
-    }
+    },
 }

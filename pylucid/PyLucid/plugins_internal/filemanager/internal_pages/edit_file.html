@@ -1,0 +1,6 @@
+<fieldset><legend>{% trans 'Edit the file' %}"{{ filename }}"</legend>
+<form action="." method="post">
+    {{ form.as_p }}
+    <input type="submit" name="save" value="{% trans 'save' %}" />
+</form>
+</fieldset>

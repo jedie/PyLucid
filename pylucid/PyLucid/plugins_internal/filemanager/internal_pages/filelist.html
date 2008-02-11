@@ -32,20 +32,25 @@
     <td class="t">
       {% if item.deletable %}
       <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ url }}">
-       <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-       <input type="hidden" name="filename"  value="{{ item.name }}"></input>
+       <input type="hidden" name="dir_string"  value="{{ dir }}" />
+       <input type="hidden" name="filename"  value="{{ item.name }}" />
        {% if item.is_dir %}
-           <input type="hidden" name="action"  value="deldir"></input>
+           <input type="hidden" name="action"  value="deldir" />
            <input type="submit" name="deldir" value="delete"
                 onclick="return confirm('Are you sure, to delete the directory [{{ item.name }}] ?')"
            />
        {% else %}
-           <input type="hidden" name="action"  value="del"></input>
+           <input type="hidden" name="action"  value="del" />
            <input type="submit" name="delbu" value="delete"
                 onclick="return confirm('Are you sure, to delete the file [{{ item.name }}] ?')"
            />
        {% endif %}
       </form>
+      {% endif %}
+      {% if item.is_dir %}
+      -
+      {% else %}
+      <a href="{{ edit_link }}{{ item.name }}">edit</a>
       {% endif %}
     </td>
 </tr>

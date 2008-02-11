@@ -23,7 +23,7 @@
 
 __version__= ""
 
-import os, sys, stat
+import os, cgi, sys, stat
 from time import localtime, strftime
 
 from django import newforms as forms
@@ -68,6 +68,10 @@ def check_path(path):
         if char in path:
             raise BadPath("Character '%s' not allowed!" % char)
 
+
+
+class EditFileForm(forms.Form):
+    content = forms.CharField()
 
 
 
@@ -168,6 +172,46 @@ class filemanager(PyLucidBasePlugin):
                 })
 
         return dir_links
+
+    def edit(self, sourcepath):
+        """
+        Edit a text file.
+        not ready yet!
+        """
+#        self.page_msg("sourcepath:", sourcepath)
+        sourcepath = os.path.normpath(sourcepath)
+        path, filename = os.path.split(sourcepath)
+        check_path(path)
+        check_filename(filename)
+        self.page_msg("path:", path, "filename:", filename)
+
+        abs_fs_path = os.path.join(ABS_PATH, path, filename)
+
+        if not os.path.isfile(abs_fs_path):
+            self.page_msg.red("Error: Given path is not a file!")
+            return
+
+        try:
+            f = file(abs_fs_path, "r")
+            content = f.read()
+            f.close()
+        except Exception, e:
+            self.page_msg.red("Error, reading file:", e)
+            return
+
+        if self.request.method == 'POST':
+            form = EditFileForm(request.POST)
+            if form.is_valid():
+                self.page_msg("Net implemented yet!!!")
+        else:
+            form = EditFileForm({"content": cgi.escape(content)})
+
+        context = {
+            "filename": filename,
+            "form": form,
+
+        }
+        self._render_template("edit_file", context)#, debug=True)
 
     def _action(self, dir_string, filename, action, dest=''):
         """
@@ -319,6 +363,9 @@ class filemanager(PyLucidBasePlugin):
             "messages": self.page_msg,
             "userinfo_link": self.URLs.methodLink(
                 method_name="userinfo", args=dir_string
+            ),
+            "edit_link": self.URLs.methodLink(
+                method_name="edit", args=dir_string
             ),
         }
 #        self.page_msg(context)
