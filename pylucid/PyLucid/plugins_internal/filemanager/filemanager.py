@@ -6,8 +6,8 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     TODO:
-        - add edit text files functionality
-        - optimize the _action() method
+        - complete the edit text files functionality.
+        - find a way to reduce the redundance.
         - Write a unitest for the plugin and verify the "bad-char-things" in
             path/post variables.
 
@@ -35,10 +35,21 @@ from PyLucid import settings
 from PyLucid.models import Page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
+# -----------------------------------------------------------------------------
+
 BASE_PATHS = [
     (str(no),path) for no,path in enumerate(settings.FILEMANAGER_BASEPATHS)
 ]
 BASE_PATHS_DICT = dict(BASE_PATHS)
+
+# -----------------------------------------------------------------------------
+
+ACTION_RMDIR = "0"
+ACTION_MKDIR = "1"
+ACTION_FILEUPLOAD = "2"
+ACTION_DELETEFILE = "3"
+
+# -----------------------------------------------------------------------------
 
 def make_dirlist(path, result=[]):
     """
@@ -57,21 +68,7 @@ def make_dirlist(path, result=[]):
         result.reverse()
         return result
 
-
-BAD_FILENAME_CHARS = ("/", "..", "\\")
-def check_filename(filename):
-    for char in BAD_FILENAME_CHARS:
-        if char in filename:
-            raise BadFilename("Character '%s' not allowed!" % char)
-
-
-BAD_PATH_CHARS = (".", "..", "//", "\\\\")
-def check_path(path):
-    for char in BAD_PATH_CHARS:
-        if char in path:
-            raise BadPath("Character '%s' not allowed!" % char)
-
-
+# -----------------------------------------------------------------------------
 
 class EditFileForm(forms.Form):
     """ Edit a text file form """
@@ -81,31 +78,48 @@ class SelectBasePathForm(forms.Form):
     """ change the base path form """
     base_path = forms.ChoiceField(choices=BASE_PATHS)
 
+# -----------------------------------------------------------------------------
 
-class DirnameField(forms.CharField):
+class BadCharField(forms.CharField):
     """
-    Verify a dirname
+    A base class for DirnameField and FilenameField
     """
-    BAD_PATH_CHARS = ("..", "//", "\\\\")
+    BAD_PATH_CHARS = ()
 
     def __init__(self, max_length=255, min_length=1, required=True,
                                                             *args, **kwargs):
-        super(DirnameField, self).__init__(
+        super(BadCharField, self).__init__(
             max_length, min_length, required, *args, **kwargs
         )
 
     def clean(self, value):
         """
+        Check if a bad caracter is in the form value.
         """
-        super(DirnameField, self).clean(value)
+        super(BadCharField, self).clean(value)
         if value.startswith("."):
-            raise ValidationError(_(u"Hidden dirnames not allowed"))
+            raise ValidationError(_(u"Hidden name are not allowed"))
 
         for char in self.BAD_PATH_CHARS:
             if char in value:
                 raise ValidationError(_(u"Character '%s' not allowed!" % char))
         return value
 
+class DirnameField(BadCharField):
+    """
+    Verify a dirname
+    It can contain one "/"
+    """
+    BAD_PATH_CHARS = ("..", "//", "\\")
+
+class FilenameField(BadCharField):
+    """
+    Verify a filename
+    A filename doesn't contain one "/"
+    """
+    BAD_PATH_CHARS = ("..", "/", "\\")
+
+# -----------------------------------------------------------------------------
 
 class ActionField(forms.CharField):
     """
@@ -128,13 +142,14 @@ class ActionField(forms.CharField):
             raise ValidationError(_(u"Wrong action!"))
         return value
 
+# -----------------------------------------------------------------------------
 
 class CreateDirForm(forms.Form):
     """
     Form for creating a new directory
     ToDo: add a choice field for create a file or a directory action
     """
-    action = ActionField("mkdir")
+    action = ActionField(ACTION_MKDIR)
     dirname = DirnameField(
         help_text="Create a new directory into the current directory."
     )
@@ -142,13 +157,29 @@ class CreateDirForm(forms.Form):
 
 class UploadFileForm(forms.Form):
     """ Form to upload a new file """
-    action = ActionField("fileupload")
+    action = ActionField(ACTION_FILEUPLOAD)
     ufile = forms.FileField(
         label="filename",
         help_text="Upload a new file into the current directory."
     )
 
+class RmDirForm(forms.Form):
+    """
+    Delete a directory.
+    """
+    action = ActionField(ACTION_RMDIR)
+    item_name = DirnameField(
+        help_text="Create a new directory into the current directory."
+    )
 
+class DeleteFileForm(forms.Form):
+    """
+    Delete one file.
+    """
+    action = ActionField(ACTION_DELETEFILE)
+    item_name = FilenameField()
+
+# -----------------------------------------------------------------------------
 
 class filemanager(PyLucidBasePlugin):
 
@@ -245,6 +276,9 @@ class filemanager(PyLucidBasePlugin):
 
         return dir_links
 
+    #__________________________________________________________________________
+    # actions:
+
     def edit(self, sourcepath):
         """
         Edit a text file.
@@ -298,13 +332,12 @@ class filemanager(PyLucidBasePlugin):
         else:
             self.page_msg.green("'%s' creaded successfull." % dirname)
 
+
     def action_fileupload(self, abs_path, filename, content):
         """
         save a uploaded file
         """
-        check_filename(filename)
         abs_fs_path = os.path.join(abs_path, filename)
-
         try:
             f = file(abs_fs_path,'wb') #if it exists, overwrite
             f.write(content)
@@ -316,52 +349,29 @@ class filemanager(PyLucidBasePlugin):
                 "File '%s' written successfull." % filename
             )
 
-    def _action(self, dir_string, filename, action, dest=''):
-        """
-        Diferent actions over file or dir
-        """
-#        self.page_msg(
-#            "dir_string:", dir_string, "filename:", filename,
-#            "Action:", action, "dest:", dest
-#        )
 
-        file_rel=os.path.normpath(os.path.join(dir_string, filename))
-        file_abs=os.path.abspath(os.path.join(ABS_PATH, file_rel))
+    def action_rmdir(self, abs_path, dirname):
+        """ delete a directory """
+        abs_fs_path = os.path.join(abs_path, dirname)
+        try:
+            os.rmdir(abs_fs_path)
+        except Exception, e:
+            self.page_msg.red("Can't delete '%s': %s" % (dirname, e))
+        else:
+            self.page_msg.green("'%s' deleted successfull." % dirname)
 
-        if not file_abs.startswith(ABS_PATH) or "/":
-            WrongDirectory(file_abs)
 
-        if action=="remove_file":
-            check_filename(filename)
-            try:
-                os.remove(file_abs)
-            except Exception, e:
-                self.page_msg.red("Can't delete '%s': %s" % (filename, e))
-            else:
-                self.page_msg.green("File '%s' deleted successfull." % filename)
+    def action_deletefile(self, abs_path, filename):
+        """ delete a file """
+        abs_fs_path = os.path.join(abs_path, filename)
+        try:
+            os.remove(abs_fs_path)
+        except Exception, e:
+            self.page_msg.red("Can't delete '%s': %s" % (filename, e))
+        else:
+            self.page_msg.green("File '%s' deleted successfull." % filename)
 
-        if action=="rmdir":
-            check_path(filename)
-            try:
-                os.rmdir(file_abs)
-            except Exception, e:
-                self.page_msg.red("Can't delete '%s': %s" % (filename, e))
-            else:
-                self.page_msg.green("'%s' deleted successfull." % filename)
-
-#        if action=='rename':
-#            check_filename(filename)
-#            try:
-#                os.rename(file_abs, dest)
-#            except Exception, e:
-#                self.page_msg.red(
-#                    "Can't rename '%s' to '%s': %s" % (filename, dest, e)
-#                )
-#            else:
-#                self.page_msg.green(
-#                    "file '%s' renamed to '%s'." % (filename, dest)
-#                )
-
+    #__________________________________________________________________________
 
     def userinfo(self, old_path=""):
         """
@@ -409,6 +419,7 @@ class filemanager(PyLucidBasePlugin):
 
         self._render_template("select_basepath", {"form": form})#, debug=True)
 
+    #__________________________________________________________________________
 
     def filelist(self, path_info=None):
         """
@@ -447,16 +458,19 @@ class filemanager(PyLucidBasePlugin):
 
         if self.request.method == 'POST':
             self.page_msg(self.request.POST)
-
             action = self.request.POST["action"]
-            if action == "mkdir":
+
+            #------------------------------------------------------------------
+            # action in the current directory:
+
+            if action == ACTION_MKDIR:
                 # Create a new directory
                 mkdir_form = CreateDirForm(self.request.POST)
                 if mkdir_form.is_valid():
                     dirname = mkdir_form.cleaned_data["dirname"]
                     self.action_mkdir(abs_path, dirname)
 
-            elif action == "fileupload":
+            elif action == ACTION_FILEUPLOAD:
                 # save a uploaded file
                 ufile_form = UploadFileForm(
                     self.request.POST, self.request.FILES
@@ -466,6 +480,23 @@ class filemanager(PyLucidBasePlugin):
                     filename = ufile.filename
                     content = ufile.content
                     self.action_fileupload(abs_path, filename, content)
+
+            #------------------------------------------------------------------
+            # action for one file/directory:
+
+            elif action == ACTION_RMDIR:
+                # delete a directory
+                form = RmDirForm(self.request.POST)
+                if form.is_valid():
+                    dirname = form.cleaned_data["item_name"]
+                    self.action_rmdir(abs_path, dirname)
+
+            elif action == ACTION_DELETEFILE:
+                # delete a file
+                form = DeleteFileForm(self.request.POST)
+                if form.is_valid():
+                    filename = form.cleaned_data["item_name"]
+                    self.action_deletefile(abs_path, filename)
 
         # build the directory+file list:
         dir_list = self.getFilesList(base_no, abs_path, rel_path)
@@ -480,6 +511,9 @@ class filemanager(PyLucidBasePlugin):
 
             "mkdir_form": mkdir_form,
             "ufile_form": ufile_form,
+
+            "ACTION_RMDIR": ACTION_RMDIR,
+            "ACTION_DELETEFILE": ACTION_DELETEFILE,
 
             "dir": rel_path,
             "dir_links": dir_links,
@@ -501,8 +535,7 @@ class filemanager(PyLucidBasePlugin):
 #        self._render_template("filelist", context, debug=True)
         self._render_template("filelist", context)#, debug=True)
 
-
-
+# -----------------------------------------------------------------------------
 
 class WrongDirectory(Exception):
     def __init__(self, value):

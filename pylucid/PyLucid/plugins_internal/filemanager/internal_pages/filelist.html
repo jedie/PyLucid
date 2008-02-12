@@ -36,12 +36,12 @@
       <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ post_url }}">
        <input type="hidden" name="item_name"  value="{{ item.name }}" />
        {% if item.is_dir %}
-           <input type="hidden" name="action"  value="rmdir" />
+           <input type="hidden" name="action"  value="{{ ACTION_RMDIR }}" />
            <input type="submit" name="rmdir" value="delete"
                 onclick="return confirm('Are you sure, to delete the directory [{{ item.name }}] ?')"
            />
        {% else %}
-           <input type="hidden" name="action"  value="remove_file" />
+           <input type="hidden" name="action"  value="{{ ACTION_DELETEFILE }}" />
            <input type="submit" name="remove_file" value="delete"
                 onclick="return confirm('Are you sure, to delete the file [{{ item.name }}] ?')"
            />
