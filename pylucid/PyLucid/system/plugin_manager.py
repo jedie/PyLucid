@@ -32,7 +32,7 @@ from django.conf import settings
 #    from django.core.management import setup_environ
 #    setup_environ(settings)
 
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from PyLucid.system.exceptions import *
 from PyLucid.models import Plugin, Markup, PagesInternal
@@ -162,25 +162,24 @@ def run(context, response, plugin_name, method_name, url_args=(),
     """
 #    print "plugin_manager.run():", plugin_name, method_name, url_args, method_kwargs
     request = context["request"]
-    if request.debug:
-        # without errorhandling
+    try:
         return _run(
             context, response, plugin_name, method_name,
             url_args, method_kwargs
         )
-    else:
-        # with errorhandling
-        try:
-            return _run(
-                context, response, plugin_name, method_name,
-                url_args, method_kwargs
-            )
-        except Exception:
-            msg = "Run plugin %s.%s Error" % (plugin_name, method_name)
-            context["page_msg"].red("%s:" % msg)
-            import sys, traceback
-            context["page_msg"]("<pre>%s</pre>" % traceback.format_exc())
-            return msg + "(Look in the page_msg)"
+    except Exception, e:
+        if request.debug:
+            # don't use errorhandling -> raise the prior error
+            raise
+        if isinstance(e, Http404):
+            # Don't catch "normal" errors...
+            raise
+
+        msg = "Run plugin %s.%s Error" % (plugin_name, method_name)
+        context["page_msg"].red("%s:" % msg)
+        import sys, traceback
+        context["page_msg"]("<pre>%s</pre>" % traceback.format_exc())
+        return msg + "(Look in the page_msg)"
 
 
 def handle_command(context, response, plugin_name, method_name, url_args):
