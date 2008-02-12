@@ -11,6 +11,7 @@ PRIMARY AUTHORS are (and/or have been):
   Homepage: <http://webshox.org/>
 
 CONTRIBUTORS:
+	IbOn <ibonso@gmail.com>
     Guido Leisker <http://www.guido-leisker.de>
     Alen Hopek <http://www.mactricks.de>
     Benjamin Weber <http://builtin.de>
@@ -19,6 +20,15 @@ CONTRIBUTORS:
     Brian Johnson <http://sherbang.com>
     Manuel Herzog <http://www.manuel-herzog.de>
 
-SVN info:
+Spezial thanks to the python-forum.de guys, particularly (in alphabetic order):
+    birkenfeld
+    BlackJack
+    CM
+    dookie
+    gerold
+    Leonidas
+    rafael
+
+last SVN commit info:
 $LastChangedDate$
 $Rev$
