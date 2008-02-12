@@ -158,16 +158,18 @@ def _run(context, local_response, plugin_name, method_name, url_args,
 def run(context, response, plugin_name, method_name, url_args=(),
                                                             method_kwargs={}):
     """
-    run the plugin with errorhandling
+    run the plugin with and without errorhandling
     """
 #    print "plugin_manager.run():", plugin_name, method_name, url_args, method_kwargs
     request = context["request"]
     if request.debug:
+        # without errorhandling
         return _run(
             context, response, plugin_name, method_name,
             url_args, method_kwargs
         )
     else:
+        # with errorhandling
         try:
             return _run(
                 context, response, plugin_name, method_name,

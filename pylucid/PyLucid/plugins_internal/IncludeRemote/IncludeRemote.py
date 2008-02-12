@@ -10,7 +10,7 @@ Last commit info:
 ----------------------------------
 $LastChangedDate: $
 $Rev: $
-$Author: JensDiemer $
+$Author$
 
 license:
     GNU General Public License v2 or above
