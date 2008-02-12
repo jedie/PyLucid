@@ -15,6 +15,11 @@
             def __init__(self, *args, **kwargs):
                 super(Bsp, self).__init__(*args, **kwargs)
 
+    Know issues:
+        The page cache doesn't update, if the content changed.
+        So, PyLucid must reloaded (dev. server + fastCGI).
+        Never mind, becuase in future version, we don't save the internal
+        pages into the database ;)
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -35,7 +40,13 @@ from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
 from PyLucid.tools.utils import escape
 
+
+
 class PyLucidBasePlugin(object):
+
+    # A simple cache for the internal pages. Because if a plugin use very
+    # often a small template, we have many database queries!
+    _internal_page_cache = {}
 
     def __init__(self, context, response):
         self.context    = context
@@ -65,11 +76,17 @@ class PyLucidBasePlugin(object):
 
     def _get_template(self, internal_page_name):
         """
-        retuned the internal page object
-        Get the plugin name throu the superior class name
+        Retuned the internal page object.
+        Get the plugin name throu the superior class name.
+        Use a simple cache to hold down the database access.
         """
+        if internal_page_name in self._internal_page_cache:
+            return self._internal_page_cache[internal_page_name]
+
         plugin_name = self.__class__.__name__
         internal_page = get_internal_page(plugin_name, internal_page_name)
+
+        self._internal_page_cache[internal_page_name] = internal_page
         return internal_page
 
     def _add_js_css_data(self, internal_page):
