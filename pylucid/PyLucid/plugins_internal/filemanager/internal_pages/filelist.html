@@ -28,7 +28,7 @@
         <td class="s">{{ item.size|filesizeformat }}</td>
     {% endif %}
     <td class="m">{{ item.time }}</td>
-    <td class="o">{{ item.mode }}</td>
+    <td class="o" title="octal mode: {{ item.mode|get_oct }}">{{ item.mode|chmod_symbol }}</td>
     <td class="u">{{ item.uid }}</td>
     <td class="g">{{ item.gid }}</td>
     <td class="t">
