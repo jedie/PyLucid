@@ -21,12 +21,14 @@
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
-__version__= ""
+__version__= "$Rev: $"
 
 import os, cgi, sys, stat
 from time import localtime, strftime
 
+from django.http import Http404
 from django import newforms as forms
+from django.newforms.util import ValidationError
 from django.utils.translation import ugettext as _
 
 from PyLucid import settings
@@ -78,6 +80,74 @@ class EditFileForm(forms.Form):
 class SelectBasePathForm(forms.Form):
     """ change the base path form """
     base_path = forms.ChoiceField(choices=BASE_PATHS)
+
+
+class DirnameField(forms.CharField):
+    """
+    Verify a dirname
+    """
+    BAD_PATH_CHARS = ("..", "//", "\\\\")
+
+    def __init__(self, max_length=255, min_length=1, required=True,
+                                                            *args, **kwargs):
+        super(DirnameField, self).__init__(
+            max_length, min_length, required, *args, **kwargs
+        )
+
+    def clean(self, value):
+        """
+        """
+        super(DirnameField, self).clean(value)
+        if value.startswith("."):
+            raise ValidationError(_(u"Hidden dirnames not allowed"))
+
+        for char in self.BAD_PATH_CHARS:
+            if char in value:
+                raise ValidationError(_(u"Character '%s' not allowed!" % char))
+        return value
+
+
+class ActionField(forms.CharField):
+    """
+    A spezial HiddenInput field for the action string.
+    The action string is set in the forms.Form class and must be the same in
+    the POST data, otherwise the form is not valid.
+    """
+    def __init__(self, action):
+        self.action = action
+        max_length = min_length = len(action)
+        super(ActionField, self).__init__(
+            max_length=max_length, min_length=min_length,
+            required=True, initial=action,
+            widget=forms.HiddenInput,
+        )
+
+    def clean(self, value):
+        super(ActionField, self).clean(value)
+        if value != self.action:
+            raise ValidationError(_(u"Wrong action!"))
+        return value
+
+
+class CreateDirForm(forms.Form):
+    """
+    Form for creating a new directory
+    ToDo: add a choice field for create a file or a directory action
+    """
+    action = ActionField("mkdir")
+    dirname = DirnameField(
+        help_text="Create a new directory into the current directory."
+    )
+
+
+class UploadFileForm(forms.Form):
+    """ Form to upload a new file """
+    action = ActionField("fileupload")
+    ufile = forms.FileField(
+        label="filename",
+        help_text="Upload a new file into the current directory."
+    )
+
 
 
 class filemanager(PyLucidBasePlugin):
@@ -215,6 +285,37 @@ class filemanager(PyLucidBasePlugin):
         }
         self._render_template("edit_file", context)#, debug=True)
 
+
+    def action_mkdir(self, abs_path, dirname):
+        """
+        create a new directory
+        """
+        abs_new_path = os.path.join(abs_path, dirname)
+        try:
+            os.mkdir(abs_new_path)
+        except Exception, e:
+            self.page_msg.red("Can't create '%s': %s" % (dirname, e))
+        else:
+            self.page_msg.green("'%s' creaded successfull." % dirname)
+
+    def action_fileupload(self, abs_path, filename, content):
+        """
+        save a uploaded file
+        """
+        check_filename(filename)
+        abs_fs_path = os.path.join(abs_path, filename)
+
+        try:
+            f = file(abs_fs_path,'wb') #if it exists, overwrite
+            f.write(content)
+            f.close()
+        except Exception, e:
+            self.page_msg.red("Can't write file: '%s'" % e)
+        else:
+            self.page_msg.green(
+                "File '%s' written successfull." % filename
+            )
+
     def _action(self, dir_string, filename, action, dest=''):
         """
         Diferent actions over file or dir
@@ -230,7 +331,7 @@ class filemanager(PyLucidBasePlugin):
         if not file_abs.startswith(ABS_PATH) or "/":
             WrongDirectory(file_abs)
 
-        if action=='del':
+        if action=="remove_file":
             check_filename(filename)
             try:
                 os.remove(file_abs)
@@ -239,7 +340,7 @@ class filemanager(PyLucidBasePlugin):
             else:
                 self.page_msg.green("File '%s' deleted successfull." % filename)
 
-        if action=='deldir':
+        if action=="rmdir":
             check_path(filename)
             try:
                 os.rmdir(file_abs)
@@ -261,18 +362,6 @@ class filemanager(PyLucidBasePlugin):
 #                    "file '%s' renamed to '%s'." % (filename, dest)
 #                )
 
-        elif action=='mdir':
-            check_path(filename)
-            if file_abs.startswith("."):
-                self.page_msg.red("Error?!?")
-                return os.path.normpath(dir_string)
-
-            try:
-                os.mkdir(file_abs)
-            except Exception, e:
-                self.page_msg.red("Can't create '%s': %s" % (filename, e))
-            else:
-                self.page_msg.green("'%s' creaded successfull." % filename)
 
     def userinfo(self, old_path=""):
         """
@@ -340,51 +429,43 @@ class filemanager(PyLucidBasePlugin):
 
         abs_base_path = os.path.abspath(base_path)
 
+        abs_path = os.path.normpath(os.path.join(abs_base_path, rel_path))
+        if not os.path.isdir(abs_path):
+            raise Http404(_("Error: Path '%s' doesn't exist.") % abs_path)
+
 #        self.page_msg("base_no:", base_no, "base_path:", base_path)
 #        self.page_msg("abs_base_path:", abs_base_path, "rel_path:", rel_path)
 
         # Change the global page title:
         self.context["PAGE"].title = _("File list")
 
+        # We init all forms before we check the POST, because we only need
+        # error information for the current action. Only the form for the
+        # current action should be inited with self.request.POST!
+        ufile_form = UploadFileForm()
+        mkdir_form = CreateDirForm()
+
         if self.request.method == 'POST':
-#            self.page_msg(self.request.POST)
-#            dir_string=os.path.normpath(self.request.POST['dir_string'])
+            self.page_msg(self.request.POST)
 
-            if self.request.has_key('action'):
+            action = self.request.POST["action"]
+            if action == "mkdir":
+                # Create a new directory
+                mkdir_form = CreateDirForm(self.request.POST)
+                if mkdir_form.is_valid():
+                    dirname = mkdir_form.cleaned_data["dirname"]
+                    self.action_mkdir(abs_path, dirname)
 
-                filename = self.request['filename']
-                check_filename(filename)
-                filename=os.path.normpath(filename)
-
-                self._action(dir_string, filename, self.request['action'])
-
-            elif self.request.FILES.has_key('ufile'):
-                """
-                uploading a file
-                """
-                files=self.request.FILES['ufile']
-                filename = files['filename']
-                check_filename(filename)
-                filename = os.path.normpath(filename)
-
-                pathFile = os.path.abspath(
-                    os.path.join(ABS_PATH, dir_string, filename)
+            elif action == "fileupload":
+                # save a uploaded file
+                ufile_form = UploadFileForm(
+                    self.request.POST, self.request.FILES
                 )
-                try:
-                    fileLike = file(pathFile,'wb') #if it exists, overwrite
-                    fileLike.write(files['content'])
-                    fileLike.close()
-                except Exception, e:
-                    self.page_msg.red("Can't write file: '%s'" % e)
-                else:
-                    self.page_msg.green(
-                        "File '%s' written successfull." % filename
-                    )
-
-        abs_path = os.path.normpath(os.path.join(abs_base_path, rel_path))
-        if not os.path.isdir(abs_path):
-            self.page_msg.red("Error: Path '%s' doesn't exist" % abs_path)
-            return
+                if ufile_form.is_valid():
+                    ufile = ufile_form.cleaned_data["ufile"]
+                    filename = ufile.filename
+                    content = ufile.content
+                    self.action_fileupload(abs_path, filename, content)
 
         # build the directory+file list:
         dir_list = self.getFilesList(base_no, abs_path, rel_path)
@@ -393,7 +474,13 @@ class filemanager(PyLucidBasePlugin):
         dir_links = self.make_dir_links(base_no, base_path, abs_path, rel_path)
 
         context = {
-            "url": self.URLs.methodLink("filelist"),
+            "post_url": self.URLs.methodLink(
+                method_name="filelist", args=(base_no, rel_path)
+            ),
+
+            "mkdir_form": mkdir_form,
+            "ufile_form": ufile_form,
+
             "dir": rel_path,
             "dir_links": dir_links,
             "writeable": os.access(abs_path, os.W_OK),

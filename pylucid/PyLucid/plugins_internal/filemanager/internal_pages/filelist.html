@@ -33,17 +33,16 @@
     <td class="g">{{ item.gid }}</td>
     <td class="t">
       {% if item.deletable %}
-      <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ url }}">
-       <input type="hidden" name="dir_string"  value="{{ dir }}" />
-       <input type="hidden" name="filename"  value="{{ item.name }}" />
+      <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ post_url }}">
+       <input type="hidden" name="item_name"  value="{{ item.name }}" />
        {% if item.is_dir %}
-           <input type="hidden" name="action"  value="deldir" />
-           <input type="submit" name="deldir" value="delete"
+           <input type="hidden" name="action"  value="rmdir" />
+           <input type="submit" name="rmdir" value="delete"
                 onclick="return confirm('Are you sure, to delete the directory [{{ item.name }}] ?')"
            />
        {% else %}
-           <input type="hidden" name="action"  value="del" />
-           <input type="submit" name="delbu" value="delete"
+           <input type="hidden" name="action"  value="remove_file" />
+           <input type="submit" name="remove_file" value="delete"
                 onclick="return confirm('Are you sure, to delete the file [{{ item.name }}] ?')"
            />
        {% endif %}
@@ -63,20 +62,16 @@
 
 {% if writeable %}
     <p>
-    <form method="post" action="{{ url }}" enctype="multipart/form-data">
-        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-        <input type="hidden" name="filename"  value=""></input>
-        <input type="file" id="ufile" name="ufile" value="" />
-        <input type="submit" name="filesubmit" value="Upload" />
+    <form method="post" action="{{ post_url }}" enctype="multipart/form-data">
+        {{ ufile_form.as_p }}
+        <input type="submit" name="submit" value="{% trans 'upload file' %}" />
     </form>
     </p>
 
     <p>
-    <form method="post" action="{{ url }}">
-        <input type="hidden" name="action"  value="mdir"></input>
-        <input type="hidden" name="dir_string"  value="{{ dir }}"></input>
-        <input type="text"   name="filename" value="" />
-        <input type="submit" name="filesubmit" value="Create Dir" />
+    <form method="post" action="{{ post_url }}">
+        {{ mkdir_form.as_p }}
+        <input type="submit" name="submit" value="{% trans 'create dir' %}" />
     </form>
     </p>
 {% else %}
