@@ -35,6 +35,15 @@ plugin_manager_data = {
             "markup"            : None
         },
     },
+    "select_basepath": {
+        "must_login"    : True,
+        "must_admin"    : True,
+        "internal_page_info" : {
+            "name"              : "select_basepath",
+            "description"       : "Select a base path (set in settings.py)",
+            "markup"            : None
+        },
+    },
     "edit": {
         "must_login"    : True,
         "must_admin"    : True,

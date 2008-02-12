@@ -189,6 +189,13 @@ PYLUCID_MEDIA_URL = "/media/PyLucid/"
 #     Examples-3: "http://django.media.your_domain.net/"
 ADMIN_MEDIA_PREFIX = "/django/contrib/admin/media/"
 
+# Base path for the filemanager plugin
+# You can add more path for the plugin.
+FILEMANAGER_BASEPATHS = (
+    MEDIA_ROOT,
+    #"./static/",
+)
+
 """
 _______________________________________________________________________________
  Advanced settings:
