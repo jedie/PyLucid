@@ -21,16 +21,15 @@ from django.template.defaultfilters import stringfilter
 from django.utils.encoding import force_unicode
 
 
+CHMOD_TRANS_DATA = (
+    u"---", u"--x", u"-w-", u"-wx", u"r--", u"r-x", u"rw-", u"rwx",
+)
 def chmod_symbol(mod):
     """
     Transform a os.stat().st_mode octal value to a symbolic string.
     ignores meta infromation like SUID, SGID or the Sticky-Bit.
     e.g. 40755 -> rwxr-xr-x
     """
-    trans_data = (
-        u"---", u"--x", u"-w-", u"-wx", u"r--", u"r-x", u"rw-", u"rwx",
-    )
-    result = []
     try:
         mod = int(mod) # The django template engine gives always a unicode string
     except ValueError:
@@ -38,12 +37,15 @@ def chmod_symbol(mod):
     mod = mod & 0777 # strip "meta info"
     mod_string = u"%o" % mod
 
-#    force_unicode()
-    return u''.join(trans_data[int(num)] for num in mod_string)
+    return u''.join(CHMOD_TRANS_DATA[int(num)] for num in mod_string)
 chmod_symbol.is_safe = True
 chmod_symbol = stringfilter(chmod_symbol)
 
+
 def get_oct(value):
+    """
+    Convert an integer number to an octal string.
+    """
     try:
         return oct(value)
     except:
