@@ -27,16 +27,9 @@ def chmod_symbol(mod):
     ignores meta infromation like SUID, SGID or the Sticky-Bit.
     e.g. 40755 -> rwxr-xr-x
     """
-    trans_data = {
-        u"0": u"---",
-        u"1": u"--x",
-        u"2": u"-w-",
-        u"3": u"-wx",
-        u"4": u"r--",
-        u"5": u"r-x",
-        u"6": u"rw-",
-        u"7": u"rwx",
-    }
+    trans_data = (
+        u"---", u"--x", u"-w-", u"-wx", u"r--", u"r-x", u"rw-", u"rwx",
+    )
     result = []
     try:
         mod = int(mod) # The django template engine gives always a unicode string
@@ -46,7 +39,7 @@ def chmod_symbol(mod):
     mod_string = u"%o" % mod
 
 #    force_unicode()
-    return u''.join(trans_data[num] for num in mod_string)
+    return u''.join(trans_data[int(num)] for num in mod_string)
 chmod_symbol.is_safe = True
 chmod_symbol = stringfilter(chmod_symbol)
 
