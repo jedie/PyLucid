@@ -138,8 +138,8 @@ def install_plugins(request):
 
 #______________________________________________________________________________
 
-create_user_template = """{% load i18n %}
-{% extends "install_base.html" %}
+create_user_template = """{% extends "install_base.html" %}
+{% load i18n %}
 {% block content %}
 <h1>{% trans 'Add user' %}</h1>
 
