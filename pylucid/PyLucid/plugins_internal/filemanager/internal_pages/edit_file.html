@@ -1,6 +1,7 @@
-<fieldset><legend>{% trans 'Edit the file' %}"{{ filename }}"</legend>
+<fieldset><legend>{% trans 'Edit the file' %} "{{ file_path }}{{ filename }}"</legend>
 <form action="{{ form_link }}" method="post">
     {{ form.as_p }}
     <input type="submit" name="save" value="{% trans 'save' %}" />
+    <input onclick="self.location.href='{{ url_abort }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
 </form>
 </fieldset>

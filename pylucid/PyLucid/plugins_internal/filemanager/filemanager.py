@@ -285,7 +285,7 @@ class Path(dict):
 
     #__________________________________________________________________________
 
-    def get_abs_link(self, item):
+    def get_abs_link(self, item=""):
         """
         returns a absolute link to the given item.
         """
@@ -457,6 +457,10 @@ class filemanager(PyLucidBasePlugin):
 
         context = {
             "form_link": form_link,
+            "url_abort": self.URLs.methodLink(
+                method_name="filelist", args=self.path["url_path"]
+            ),
+            "file_path": self.path.get_abs_link(),
             "filename": self.path["filename"],
             "form": form,
 
