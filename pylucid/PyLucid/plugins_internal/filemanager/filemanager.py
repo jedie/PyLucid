@@ -27,7 +27,8 @@
 
     TODO:
         - should use posixpath for every URL stuff.
-        - complete the edit text files functionality.
+        - insert the basepath selection into the filelist view.
+        - design the html forms better.
         - find a way to reduce the redundance.
         - Write a unitest for the plugin and verify the "bad-char-things" in
             path/post variables.
@@ -284,6 +285,14 @@ class Path(dict):
 
     #__________________________________________________________________________
 
+    def get_abs_link(self, item):
+        """
+        returns a absolute link to the given item.
+        """
+        return os.path.join("/", self["base_path"], self["rel_path"], item)
+
+    #__________________________________________________________________________
+
     def debug(self):
         """
         write debug information into the page_msg
@@ -302,7 +311,7 @@ class filemanager(PyLucidBasePlugin):
 
     #__________________________________________________________________________
 
-    def getFilesList(self):
+    def get_filelist(self):
         """
         Returns all items in the given directory.
         -rel_dir is relative to ABS_PATH
@@ -337,14 +346,13 @@ class filemanager(PyLucidBasePlugin):
             abs_item_path = os.path.join(self.path["abs_path"], item)
             statinfo = os.stat(abs_item_path)
 
-            link = os.path.join(link_prefix, item)
-
             if stat.S_ISDIR(statinfo[stat.ST_MODE]):
                 # Is a directory
                 is_dir = True
-                link += "/"
+                link = os.path.join(link_prefix, item) + "/"
             else:
                 is_dir = False
+                link = self.path.get_abs_link(item)
 
             item_dict={
                 "name": item,
@@ -623,7 +631,7 @@ class filemanager(PyLucidBasePlugin):
                     self.action_deletefile(filename)
 
         # build the directory+file list:
-        dir_list = self.getFilesList()
+        dir_list = self.get_filelist()
 
         # Build the path link line:
         dir_links = self.make_dir_links()
