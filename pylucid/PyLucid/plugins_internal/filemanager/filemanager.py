@@ -76,16 +76,6 @@ def make_dirlist(path, result=[]):
 
 # -----------------------------------------------------------------------------
 
-class EditFileForm(forms.Form):
-    """ Edit a text file form """
-    content = forms.CharField()
-
-class SelectBasePathForm(forms.Form):
-    """ change the base path form """
-    base_path = forms.ChoiceField(choices=BASE_PATHS)
-
-# -----------------------------------------------------------------------------
-
 class BadCharField(forms.CharField):
     """
     A base class for DirnameField and FilenameField
@@ -124,6 +114,21 @@ class FilenameField(BadCharField):
     A filename doesn't contain one "/"
     """
     BAD_PATH_CHARS = ("..", "/", "\\")
+
+# -----------------------------------------------------------------------------
+
+class EditFileForm(forms.Form):
+    """ Edit a text file form """
+    filename = FilenameField(
+        help_text="Change the filename, if you want to save the content into a new file."
+    )
+    content = forms.CharField(
+        widget=forms.Textarea(attrs = {'cols': '80', 'rows': '25'})
+    )
+
+class SelectBasePathForm(forms.Form):
+    """ change the base path form """
+    base_path = forms.ChoiceField(choices=BASE_PATHS)
 
 # -----------------------------------------------------------------------------
 
@@ -213,10 +218,10 @@ class Path(dict):
         path.
         if must_exist==True: The given path must allready exists.
         """
-#        try:
-        base_no, rel_path = path_info.split("/", 1)
-#        except Exception, e:
-#            raise Http404(_("Wrong path!"))
+        try:
+            base_no, rel_path = path_info.split("/", 1)
+        except ValueError:
+            raise Http404(_("Wrong path!"))
 
         try:
             base_path = BASE_PATHS_DICT[base_no]
@@ -394,14 +399,40 @@ class filemanager(PyLucidBasePlugin):
             self.page_msg.red("Error, reading file:", e)
             return
 
-        if self.request.method == 'POST':
+        if self.request.method != 'POST':
+            form = EditFileForm({
+                "content": cgi.escape(content),
+                "filename": self.path["filename"],
+            })
+        else: # POST
+            self.page_msg(self.request.POST)
             form = EditFileForm(self.request.POST)
             if form.is_valid():
-                self.page_msg("Net implemented yet!!!")
-        else:
-            form = EditFileForm({"content": cgi.escape(content)})
+                filename = form.cleaned_data["filename"]
+                content = form.cleaned_data["content"]
+                abs_file_path = os.path.join(self.path["abs_path"], filename)
+                try:
+                    f = file(abs_file_path, "w")
+                    f.write(content)
+                    f.close()
+                except Exception, e:
+                    self.page_msg.red("Error, writing file:", e)
+                else:
+                    self.page_msg.green(
+                        "New content saved into '%s'." % filename
+                    )
+                    # Display the filelist
+                    return self.filelist(self.path["url_path"])
+
+        # Don't include the filename in methodLink-args, it always append a
+        # slash!
+        form_link = self.URLs.methodLink(
+            method_name="edit", args=self.path["url_path"]
+        )
+        form_link += self.path["filename"]
 
         context = {
+            "form_link": form_link,
             "filename": self.path["filename"],
             "form": form,
 
