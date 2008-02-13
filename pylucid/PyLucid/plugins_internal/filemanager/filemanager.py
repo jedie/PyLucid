@@ -27,6 +27,7 @@
 
     TODO:
         - should use posixpath for every URL stuff.
+        - deny editing of binary files (how? ext whitelist or using file?)
         - insert the basepath selection into the filelist view.
         - design the html forms better.
         - find a way to reduce the redundance.
