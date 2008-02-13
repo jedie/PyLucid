@@ -5,6 +5,23 @@
     PyLucid media file manager
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    We have two kinds of forms: POST actions and GET actions
+    POST actions are:
+        - filemanager.action_mkdir()
+        - filemanager.action_fileupload()
+        - filemanager.action_rmdir()
+        - filemanager.action_deletefile()
+    GET actions are:
+        - filemanager.edit() (Edit a text file)
+
+    POST action note:
+        The POST actions used a hidden field named "action" for easy differ
+        the the current action in the POST data. See below the constants.
+    GET action notes:
+        - The GET forms should not insert a field named "action"!
+        - After a finished GET method, it should display the filelist().
+
+
     restrictions:
         - Only tested under linux!
 
@@ -386,7 +403,6 @@ class filemanager(PyLucidBasePlugin):
     def edit(self, path_info):
         """
         Edit a text file.
-        not ready yet!
         """
         self.path.new_filename_path(path_info, must_exist=True)
         #self.path.debug()
@@ -405,7 +421,7 @@ class filemanager(PyLucidBasePlugin):
                 "filename": self.path["filename"],
             })
         else: # POST
-            self.page_msg(self.request.POST)
+            #self.page_msg(self.request.POST)
             form = EditFileForm(self.request.POST)
             if form.is_valid():
                 filename = form.cleaned_data["filename"]
@@ -565,7 +581,7 @@ class filemanager(PyLucidBasePlugin):
         mkdir_form = CreateDirForm()
 
         if self.request.method == 'POST' and "action" in self.request.POST:
-            self.page_msg(self.request.POST)
+            #self.page_msg(self.request.POST)
             action = self.request.POST["action"]
 
             #------------------------------------------------------------------
