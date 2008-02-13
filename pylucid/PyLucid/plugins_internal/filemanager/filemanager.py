@@ -43,7 +43,8 @@ BASE_PATHS = [
 BASE_PATHS_DICT = dict(BASE_PATHS)
 
 # -----------------------------------------------------------------------------
-
+# We use more than one html form in a filelist page. So we need some unique
+# action values for a easier distinguish the POST data.
 ACTION_RMDIR = "0"
 ACTION_MKDIR = "1"
 ACTION_FILEUPLOAD = "2"
@@ -456,7 +457,7 @@ class filemanager(PyLucidBasePlugin):
         ufile_form = UploadFileForm()
         mkdir_form = CreateDirForm()
 
-        if self.request.method == 'POST':
+        if self.request.method == 'POST' and "action" in self.request.POST:
             self.page_msg(self.request.POST)
             action = self.request.POST["action"]
 
