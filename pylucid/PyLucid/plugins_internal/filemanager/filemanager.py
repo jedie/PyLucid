@@ -3,13 +3,18 @@
 
 """
     PyLucid media file manager
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    restrictions:
+        - Only tested under linux!
 
     TODO:
+        - should use posixpath for every URL stuff.
         - complete the edit text files functionality.
         - find a way to reduce the redundance.
         - Write a unitest for the plugin and verify the "bad-char-things" in
             path/post variables.
+        - Check the Plugin under windows - very low priority :)
 
     Last commit info:
     ~~~~~~~~~
@@ -182,9 +187,100 @@ class DeleteFileForm(forms.Form):
 
 # -----------------------------------------------------------------------------
 
+class Path(dict):
+    """
+    Analyse, check and store the html GET path information.
+
+    base_no       = BASE_PATHS_DICT key (Note: it's a String!)
+    base_path     = relative base path
+    abs_base_path = absolute filesystem base path
+    rel_path      = relative path (from GET)
+    abs_path      = absolute filesystem path (abs_base_path + rel_path)
+    url_path      = base_no + rel_path for html links
+
+    - only with new_filename_path():
+    filename      = contains only the filename
+    abs_file_path = absolute filesystem path incl. filename
+    """
+    def __init__(self, context):
+        self.context     = context
+        self.request     = context["request"]
+        self.page_msg    = context["page_msg"]
+
+    def new_dir_path(self, path_info, must_exist=True):
+        """
+        split the html-GET path information and build the absolute filesystem
+        path.
+        if must_exist==True: The given path must allready exists.
+        """
+#        try:
+        base_no, rel_path = path_info.split("/", 1)
+#        except Exception, e:
+#            raise Http404(_("Wrong path!"))
+
+        try:
+            base_path = BASE_PATHS_DICT[base_no]
+        except KeyError:
+            raise Http404(_("Wrong basepath!"))
+
+        base_path = os.path.normpath(base_path)
+        abs_base_path = os.path.abspath(base_path)
+
+        rel_path = os.path.normpath(rel_path)
+
+        abs_path = os.path.normpath(os.path.join(abs_base_path, rel_path))
+        if must_exist and not os.path.exists(abs_path):
+            raise Http404(_("Error: Path '%s' doesn't exist.") % abs_path)
+
+#        self.page_msg("base_no:", base_no, "base_path:", base_path)
+#        self.page_msg("abs_base_path:", abs_base_path, "rel_path:", rel_path)
+
+        self["base_no"] = base_no
+        self["base_path"] = base_path
+        self["abs_base_path"] = abs_base_path
+        self["rel_path"] = rel_path
+        self["abs_path"] = abs_path
+        self["url_path"] = os.path.normpath(os.path.join(base_no, rel_path))
+
+
+    def new_filename_path(self, file_path, must_exist=True):
+        """
+        Split a html GET path information witch contains a filename.
+        if must_exist==True: The file must exist in the given path.
+        """
+        path_info, filename = os.path.split(file_path)
+
+        self.new_dir_path(path_info, must_exist)
+
+        abs_file_path = os.path.join(self["abs_path"], filename)
+
+        if must_exist and not os.path.isfile(abs_file_path):
+            raise Http404(_("Error: File '%s' doesn't exist.") % filename)
+
+        self["filename"] = filename
+        self["abs_file_path"] = abs_file_path
+
+    #__________________________________________________________________________
+
+    def debug(self):
+        """
+        write debug information into the page_msg
+        """
+        self.page_msg("path debug:")
+        for k,v in self.items():
+            self.page_msg(" - %15s: '%s'" % (k,v))
+
+# -----------------------------------------------------------------------------
+
 class filemanager(PyLucidBasePlugin):
 
-    def getFilesList(self, base_no, abs_path, rel_path):
+    def __init__(self, context, response):
+        super(filemanager, self).__init__(context, response)
+        self.path = Path(context)
+
+    #__________________________________________________________________________
+
+    def getFilesList(self):
         """
         Returns all items in the given directory.
         -rel_dir is relative to ABS_PATH
@@ -192,32 +288,34 @@ class filemanager(PyLucidBasePlugin):
         """
         files = []
 
-        if rel_path == ".":
+        if self.path["rel_path"] == ".":
             # current dir it the media Root
             dirs=[]
         else:
             # Add the ".." dir item
-            updir = os.path.split(rel_path)[0]
+            updir = os.path.split(self.path["rel_path"])[0]
             dirs = [{
                 "name": "..",
                 "link": self.URLs.methodLink(
-                    method_name="filelist", args=(base_no, updir)
+                    method_name="filelist", args=(self.path["base_no"], updir)
                 ),
                 "is_dir": True,
                 "deletable": False,
             }]
 
-        link_prefix = self.URLs.methodLink(method_name="filelist", args=base_no)
+        link_prefix = self.URLs.methodLink(
+            method_name="filelist", args=self.path["url_path"]
+        )
 
-        for item in sorted(os.listdir(abs_path)):
+        for item in sorted(os.listdir(self.path["abs_path"])):
             if item.startswith("."):
                 # skip hidden files or directories
                 continue
 
-            abs_item_path = os.path.join(abs_path, item)
+            abs_item_path = os.path.join(self.path["abs_path"], item)
             statinfo = os.stat(abs_item_path)
 
-            link = os.path.join(link_prefix, rel_path, item)
+            link = os.path.join(link_prefix, item)
 
             if stat.S_ISDIR(statinfo[stat.ST_MODE]):
                 # Is a directory
@@ -248,58 +346,48 @@ class filemanager(PyLucidBasePlugin):
         return dir_list
 
 
-    def make_dir_links(self, base_no, base_path, abs_path, rel_path):
+    def make_dir_links(self):
         """
         Build the context for the path link line.
         Use the function make_dirlist().
         """
-#        self.page_msg("base_no:", base_no, "base_path:", base_path)
-#        self.page_msg("abs_path:", abs_path, "rel_path:", rel_path)
-
         # start with the first base_path entry:
         dir_links = [{
-            "name": base_path, # use only the short relative path
-            "title": abs_path,
-            "link": self.URLs.methodLink(method_name="filelist", args=base_no),
+            "name": self.path["base_path"], # use only the short relative path
+            "title": self.path["abs_path"],
+            "link": self.URLs.methodLink(
+                method_name="filelist", args=self.path["base_no"]
+            ),
         }]
-        if rel_path != ".":
+        if self.path["rel_path"] != ".":
             # Not in the root
-            dirlist = make_dirlist(rel_path, [])
+            dirlist = make_dirlist(self.path["rel_path"], [])
             for path, name in dirlist:
                 # append every dir "steps"
                 dir_links.append({
                     "name": name,
-                    "title": os.path.join(base_path, path),
+                    "title": os.path.join(self.path["base_path"], path),
                     "link": self.URLs.methodLink(
-                        method_name="filelist", args=(base_no, path)
+                        method_name="filelist",
+                        args=(self.path["base_no"], path)
                     ),
                 })
 
         return dir_links
 
     #__________________________________________________________________________
-    # actions:
+    # html GET actions:
 
-    def edit(self, sourcepath):
+    def edit(self, path_info):
         """
         Edit a text file.
         not ready yet!
         """
-#        self.page_msg("sourcepath:", sourcepath)
-        sourcepath = os.path.normpath(sourcepath)
-        path, filename = os.path.split(sourcepath)
-        check_path(path)
-        check_filename(filename)
-        self.page_msg("path:", path, "filename:", filename)
-
-        abs_fs_path = os.path.join(ABS_PATH, path, filename)
-
-        if not os.path.isfile(abs_fs_path):
-            self.page_msg.red("Error: Given path is not a file!")
-            return
+        self.path.new_filename_path(path_info, must_exist=True)
+        #self.path.debug()
 
         try:
-            f = file(abs_fs_path, "r")
+            f = file(self.path["abs_file_path"], "r")
             content = f.read()
             f.close()
         except Exception, e:
@@ -314,18 +402,20 @@ class filemanager(PyLucidBasePlugin):
             form = EditFileForm({"content": cgi.escape(content)})
 
         context = {
-            "filename": filename,
+            "filename": self.path["filename"],
             "form": form,
 
         }
         self._render_template("edit_file", context)#, debug=True)
 
+    #__________________________________________________________________________
+    # html POST actions:
 
-    def action_mkdir(self, abs_path, dirname):
+    def action_mkdir(self, dirname):
         """
         create a new directory
         """
-        abs_new_path = os.path.join(abs_path, dirname)
+        abs_new_path = os.path.join(self.path["abs_path"], dirname)
         try:
             os.mkdir(abs_new_path)
         except Exception, e:
@@ -334,11 +424,11 @@ class filemanager(PyLucidBasePlugin):
             self.page_msg.green("'%s' creaded successfull." % dirname)
 
 
-    def action_fileupload(self, abs_path, filename, content):
+    def action_fileupload(self, filename, content):
         """
         save a uploaded file
         """
-        abs_fs_path = os.path.join(abs_path, filename)
+        abs_fs_path = os.path.join(self.path["abs_path"], filename)
         try:
             f = file(abs_fs_path,'wb') #if it exists, overwrite
             f.write(content)
@@ -350,10 +440,9 @@ class filemanager(PyLucidBasePlugin):
                 "File '%s' written successfull." % filename
             )
 
-
-    def action_rmdir(self, abs_path, dirname):
+    def action_rmdir(self, dirname):
         """ delete a directory """
-        abs_fs_path = os.path.join(abs_path, dirname)
+        abs_fs_path = os.path.join(self.path["abs_path"], dirname)
         try:
             os.rmdir(abs_fs_path)
         except Exception, e:
@@ -362,9 +451,9 @@ class filemanager(PyLucidBasePlugin):
             self.page_msg.green("'%s' deleted successfull." % dirname)
 
 
-    def action_deletefile(self, abs_path, filename):
+    def action_deletefile(self, filename):
         """ delete a file """
-        abs_fs_path = os.path.join(abs_path, filename)
+        abs_fs_path = os.path.join(self.path["abs_path"], filename)
         try:
             os.remove(abs_fs_path)
         except Exception, e:
@@ -431,25 +520,12 @@ class filemanager(PyLucidBasePlugin):
             self.select_basepath()
             return
 
-#        try:
-        base_no, rel_path = path_info.split("/", 1)
-        rel_path = os.path.normpath(rel_path)
-        base_path = os.path.normpath(BASE_PATHS_DICT[base_no])
-#        except Exception, e:
-#            self.page_msg.red("Path error:", e)
-#            return
-
-        abs_base_path = os.path.abspath(base_path)
-
-        abs_path = os.path.normpath(os.path.join(abs_base_path, rel_path))
-        if not os.path.isdir(abs_path):
-            raise Http404(_("Error: Path '%s' doesn't exist.") % abs_path)
-
-#        self.page_msg("base_no:", base_no, "base_path:", base_path)
-#        self.page_msg("abs_base_path:", abs_base_path, "rel_path:", rel_path)
+        # analyse and store the given GET path infomation
+        self.path.new_dir_path(path_info, must_exist=True)
+        #self.path.debug()
 
         # Change the global page title:
-        self.context["PAGE"].title = _("File list")
+        self.context["PAGE"].title = _("File list - %s" % self.path["rel_path"])
 
         # We init all forms before we check the POST, because we only need
         # error information for the current action. Only the form for the
@@ -469,7 +545,7 @@ class filemanager(PyLucidBasePlugin):
                 mkdir_form = CreateDirForm(self.request.POST)
                 if mkdir_form.is_valid():
                     dirname = mkdir_form.cleaned_data["dirname"]
-                    self.action_mkdir(abs_path, dirname)
+                    self.action_mkdir(dirname)
 
             elif action == ACTION_FILEUPLOAD:
                 # save a uploaded file
@@ -480,7 +556,7 @@ class filemanager(PyLucidBasePlugin):
                     ufile = ufile_form.cleaned_data["ufile"]
                     filename = ufile.filename
                     content = ufile.content
-                    self.action_fileupload(abs_path, filename, content)
+                    self.action_fileupload(filename, content)
 
             #------------------------------------------------------------------
             # action for one file/directory:
@@ -490,24 +566,28 @@ class filemanager(PyLucidBasePlugin):
                 form = RmDirForm(self.request.POST)
                 if form.is_valid():
                     dirname = form.cleaned_data["item_name"]
-                    self.action_rmdir(abs_path, dirname)
+                    self.action_rmdir(dirname)
 
             elif action == ACTION_DELETEFILE:
                 # delete a file
                 form = DeleteFileForm(self.request.POST)
                 if form.is_valid():
                     filename = form.cleaned_data["item_name"]
-                    self.action_deletefile(abs_path, filename)
+                    self.action_deletefile(filename)
 
         # build the directory+file list:
-        dir_list = self.getFilesList(base_no, abs_path, rel_path)
+        dir_list = self.getFilesList()
 
         # Build the path link line:
-        dir_links = self.make_dir_links(base_no, base_path, abs_path, rel_path)
+        dir_links = self.make_dir_links()
+
+        # if the current path is writeable?
+        writeable = os.access(self.path["abs_path"], os.W_OK)
 
         context = {
+#            "path": self.path,
             "post_url": self.URLs.methodLink(
-                method_name="filelist", args=(base_no, rel_path)
+                method_name="filelist", args=self.path["url_path"]
             ),
 
             "mkdir_form": mkdir_form,
@@ -516,17 +596,15 @@ class filemanager(PyLucidBasePlugin):
             "ACTION_RMDIR": ACTION_RMDIR,
             "ACTION_DELETEFILE": ACTION_DELETEFILE,
 
-            "dir": rel_path,
             "dir_links": dir_links,
-            "writeable": os.access(abs_path, os.W_OK),
+            "writeable": writeable,
             "dir_list": dir_list,
-            "abs_path": abs_path,
-            "messages": self.page_msg,
+
             "userinfo_link": self.URLs.methodLink(
-                method_name="userinfo", args=rel_path
+                method_name="userinfo", args=self.path["url_path"]
             ),
             "edit_link": self.URLs.methodLink(
-                method_name="edit", args=rel_path
+                method_name="edit", args=self.path["url_path"]
             ),
             "change_basepath_link": self.URLs.methodLink(
                 method_name="select_basepath"
