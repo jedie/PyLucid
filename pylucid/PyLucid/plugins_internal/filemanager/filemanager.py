@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+
 """
     PyLucid media file manager
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +30,6 @@
         - should use posixpath for every URL stuff.
         - deny editing of binary files (how? ext whitelist or using file?)
         - insert the basepath selection into the filelist view.
-        - design the html forms better.
         - find a way to reduce the redundance.
         - Write a unitest for the plugin and verify the "bad-char-things" in
             path/post variables.
@@ -95,12 +95,22 @@ def make_dirlist(path, result=[]):
 
 # -----------------------------------------------------------------------------
 
+BAD_DIR_CHARS = ("..", "//", "\\")
+BAD_FILE_CHARS = ("..", "/", "\\")
+
+def contains_char(text, chars):
+    """
+    returns True if text contains a characters from the given chars list.
+    """
+    for char in chars:
+        if char in text:
+            return True
+    return False
+
 class BadCharField(forms.CharField):
     """
     A base class for DirnameField and FilenameField
     """
-    BAD_PATH_CHARS = ()
-
     def __init__(self, max_length=255, min_length=1, required=True,
                                                             *args, **kwargs):
         super(BadCharField, self).__init__(
@@ -112,27 +122,25 @@ class BadCharField(forms.CharField):
         Check if a bad caracter is in the form value.
         """
         super(BadCharField, self).clean(value)
+        if contains_char(value, self.bad_chars):
+            raise ValidationError(_(u"Error: Bad character found!"))
+
         if value.startswith("."):
             raise ValidationError(_(u"Hidden name are not allowed"))
 
-        for char in self.BAD_PATH_CHARS:
-            if char in value:
-                raise ValidationError(_(u"Character '%s' not allowed!" % char))
         return value
 
 class DirnameField(BadCharField):
     """
     Verify a dirname
-    It can contain one "/"
     """
-    BAD_PATH_CHARS = ("..", "//", "\\")
+    bad_chars = BAD_DIR_CHARS
 
 class FilenameField(BadCharField):
     """
     Verify a filename
-    A filename doesn't contain one "/"
     """
-    BAD_PATH_CHARS = ("..", "/", "\\")
+    bad_chars = BAD_FILE_CHARS
 
 # -----------------------------------------------------------------------------
 
@@ -237,10 +245,20 @@ class Path(dict):
         path.
         if must_exist==True: The given path must allready exists.
         """
-        try:
-            base_no, rel_path = path_info.split("/", 1)
-        except ValueError:
-            raise Http404(_("Wrong path!"))
+        if contains_char(path_info, BAD_DIR_CHARS):
+            raise Http404(_(u"Error: Bad character found!"))
+
+        path_info = os.path.normpath(path_info)
+
+        if len(path_info) == 1:
+            # e.g. edit a file in the base_path root
+            base_no = path_info
+            rel_path = ""
+        else:
+            try:
+                base_no, rel_path = path_info.split("/", 1)
+            except ValueError:
+                raise Http404(_("Wrong path!"))
 
         try:
             base_path = BASE_PATHS_DICT[base_no]
@@ -249,8 +267,6 @@ class Path(dict):
 
         base_path = os.path.normpath(base_path)
         abs_base_path = os.path.abspath(base_path)
-
-        rel_path = os.path.normpath(rel_path)
 
         abs_path = os.path.normpath(os.path.join(abs_base_path, rel_path))
         if must_exist and not os.path.exists(abs_path):
@@ -275,6 +291,9 @@ class Path(dict):
         path_info, filename = os.path.split(file_path)
 
         self.new_dir_path(path_info, must_exist)
+
+        if contains_char(filename, BAD_FILE_CHARS):
+            raise Http404(_(u"Error: Bad character found!"))
 
         abs_file_path = os.path.join(self["abs_path"], filename)
 
@@ -320,7 +339,7 @@ class filemanager(PyLucidBasePlugin):
         """
         files = []
 
-        if self.path["rel_path"] == ".":
+        if self.path["rel_path"] == "":
             # current dir it the media Root
             dirs=[]
         else:
@@ -390,7 +409,7 @@ class filemanager(PyLucidBasePlugin):
                 method_name="filelist", args=self.path["base_no"]
             ),
         }]
-        if self.path["rel_path"] != ".":
+        if self.path["rel_path"] != "":
             # Not in the root
             dirlist = make_dirlist(self.path["rel_path"], [])
             for path, name in dirlist:

@@ -16,7 +16,7 @@
 </tr></thead>
 
 {% for item in dir_list %}
-<tr>
+<tr class="{% cycle 'row1' 'row2' %}">
     <td class="n">
       <a href="{{ item.link }}" title="{{ item.title }}">
         {% if item.is_dir %}/{{ item.name }}/{% else %}{{ item.name }}{% endif %}
@@ -48,10 +48,8 @@
        {% endif %}
       </form>
       {% endif %}
-      {% if item.is_dir %}
-      -
-      {% else %}
-      <a href="{{ edit_link }}{{ item.name }}">edit</a>
+      {% if not item.is_dir %}
+      <a href="{{ edit_link }}{{ item.name }}"><button class="action_link">edit</button></a>
       {% endif %}
     </td>
 </tr>
@@ -61,19 +59,36 @@
 </table>
 
 {% if writeable %}
-    <p>
+    <fieldset class="actions"><legend>{% trans 'upload' %}</legend>
     <form method="post" action="{{ post_url }}" enctype="multipart/form-data">
-        {{ ufile_form.as_p }}
+        {% for field in ufile_form %}
+            {% if not field.is_hidden %}
+                {% if field.help_text %}<small>{{ field.help_text }}</small><br />{% endif %}
+                {{ field.label_tag }}
+            {% endif %}
+            {{ field }}
+            {% if not field.is_hidden %}
+                {% if field.errors %}<p>{{ field.errors }}</p>{% endif %}
+            {% endif %}
+        {% endfor %}
         <input type="submit" name="submit" value="{% trans 'upload file' %}" />
     </form>
-    </p>
-
-    <p>
+    </fieldset>
+    <fieldset class="actions"><legend>{% trans 'mkdir' %}</legend>
     <form method="post" action="{{ post_url }}">
-        {{ mkdir_form.as_p }}
+        {% for field in mkdir_form %}
+            {% if not field.is_hidden %}
+                {% if field.help_text %}<small>{{ field.help_text }}</small><br />{% endif %}
+                {{ field.label_tag }}
+            {% endif %}
+            {{ field }}
+            {% if not field.is_hidden %}
+                {% if field.errors %}<p>{{ field.errors }}</p>{% endif %}
+            {% endif %}
+        {% endfor %}
         <input type="submit" name="submit" value="{% trans 'create dir' %}" />
     </form>
-    </p>
+    </fieldset>
 {% else %}
     <p><i>{% trans 'Current directory is not writeable.' %}</i></p>
 {% endif %}

@@ -1,11 +1,10 @@
 .filemanager {
-    font-family: "Courier New", Courier, monospace;
     font-size:0.9em;
 }
-.filemanager input, .filemanager button {
+.filemanager input, .filemanager .action_link {
     font-size: 0.9em;
     border: 1px solid black;
-    padding: 0px;
+    padding: 0px 1px 0 1px;
     margin: 1px;
 }
 .filemanager legend {
@@ -27,7 +26,15 @@
     text-decoration: underline;
 }
 .filemanager table {
-    margin-left: 12px;
+    font-family: "Courier New", Courier, monospace;
+    border: 1px solid grey;
+    width: 100%;
+}
+.filemanager .row1 td {
+    background-color: #ddd;
+}
+.filemanager .row2 td {
+    background-color: #eee;
 }
 .filemanager th, .filemanager  td {
     text-align: left;
@@ -36,17 +43,29 @@
     text-align: center;
     font-size:0.85em;
     font-weight: bold;
-    padding-right: 14px;
-    padding-bottom: 3px;
+    padding: 5px;
 }
 .filemanager td {
     padding-right: 20px;
+    border-top: 1px solid grey;
 }
 .filemanager td.s, .filemanager td.m {
     text-align: right;
+}
+.filemanager td.t input {
+    float:left;
 }
 .filemanager .o, .filemanager .u, .filemanager .g {
     /* mode + uid + gid */
     font-size:0.8em;
     font-weight:lighter;
+}
+.filemanager fieldset.actions, .filemanager fieldset.actions legend {
+    border: 1px solid grey;
+    padding: 0px 10px 4px 10px;
+    margin: 3px 0px 3px 0px;
+}
+.filemanager fieldset.actions legend {
+    font-size: 0.75em;
+    padding: 1px 10px 1px 10px;
 }
