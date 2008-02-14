@@ -142,6 +142,11 @@ def _run(context, local_response, plugin_name, method_name, url_args,
             else:
                 raise AccessDeny
 
+    if method_cfg["must_admin"]:
+        # The User must be an admin to use this method
+        if not (request.user.is_superuser or request.user.is_staff):
+            raise AccessDeny
+
     URLs = context["URLs"]
     URLs.current_plugin = plugin_name
 

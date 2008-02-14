@@ -42,10 +42,13 @@ class admin_menu(PyLucidBasePlugin):
         """
         render the sub menu
         """
+        is_admin = self.request.user.is_superuser or self.request.user.is_staff
+
         context = {
             "PAGE"            : self.context["PAGE"],
             "commandURLprefix": self.URLs.get_command_base(),
             "adminURLprefix"  : self.URLs["adminBase"],
+            "is_admin"        : is_admin,
         }
         self._render_template("sub_menu", context)#, debug=True)
 

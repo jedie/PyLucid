@@ -24,11 +24,12 @@ def setup_debug(request):
     """
     add the attribute "debug" to the request object.
     """
-    if settings.DEBUG and \
+    if settings.DEBUG or \
                 request.META.get('REMOTE_ADDR') in settings.INTERNAL_IPS:
         request.debug = True
     else:
         request.debug = False
+
 
 def get_uri_base():
     """

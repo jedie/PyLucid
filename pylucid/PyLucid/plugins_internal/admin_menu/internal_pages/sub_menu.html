@@ -14,6 +14,8 @@
 </ul>
 </fieldset>
 
+{% if is_admin %}
+
 <fieldset><legend>{% trans 'edit look' %}</legend>
 <ul>
     <li>
@@ -62,17 +64,4 @@
 </ul>
 </fieldset>
 
-
-{% comment %}
-<fieldset><legend>{% trans 'backup' %}</legend>
-
-* "{% trans 'DB dump' %}":{{ commandURLprefix }}/MySQLdump/menu
-
-</fieldset>
-
-<fieldset><legend>{% trans 'internals' %}</legend>
-
-* <lucidTag:show_internals/>
-
-</fieldset>
-{% endcomment %}
+{% endif %}
