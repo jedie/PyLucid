@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-
 """
     PyLucid media file manager
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -47,8 +46,8 @@
 
 __version__= "$Rev: $"
 
-import os, cgi, sys, stat
-from time import localtime, strftime
+import os, cgi, sys, stat, dircache
+from datetime import datetime
 
 from django.http import Http404
 from django import newforms as forms
@@ -59,14 +58,17 @@ from PyLucid import settings
 from PyLucid.models import Page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
+# Build a list and a dict from the basepaths
+# The dict key is a string, not a integer. (GET/POST Data always returned
+# numbers as strings)
 
 BASE_PATHS = [
     (str(no),path) for no,path in enumerate(settings.FILEMANAGER_BASEPATHS)
 ]
 BASE_PATHS_DICT = dict(BASE_PATHS)
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
 # We use more than one html form in a filelist page. So we need some unique
 # action values for a easier distinguish the POST data.
 ACTION_RMDIR = "0"
@@ -74,10 +76,13 @@ ACTION_MKDIR = "1"
 ACTION_FILEUPLOAD = "2"
 ACTION_DELETEFILE = "3"
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
 
 def make_dirlist(path, result=[]):
     """
+    Helper function for building a directory link line.
+    used in filemanager.make_dir_links()
+
     >>> make_dirlist("/data/one/two")
     [('data/one/two', 'two'), ('data/one', 'one'), ('data', 'data')]
     """
@@ -93,10 +98,10 @@ def make_dirlist(path, result=[]):
         result.reverse()
         return result
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
 
-BAD_DIR_CHARS = ("..", "//", "\\")
-BAD_FILE_CHARS = ("..", "/", "\\")
+BAD_DIR_CHARS = ("..", "//", "\\") # Bad characters in directories
+BAD_FILE_CHARS = ("..", "/", "\\") # Bad characters in a filename
 
 def contains_char(text, chars):
     """
@@ -132,22 +137,25 @@ class BadCharField(forms.CharField):
 
 class DirnameField(BadCharField):
     """
-    Verify a dirname
+    newforms field for verify a dirname.
     """
     bad_chars = BAD_DIR_CHARS
 
 class FilenameField(BadCharField):
     """
-    Verify a filename
+    newforms field for verify a filename.
     """
     bad_chars = BAD_FILE_CHARS
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
 
 class EditFileForm(forms.Form):
     """ Edit a text file form """
     filename = FilenameField(
-        help_text="Change the filename, if you want to save the content into a new file."
+        help_text=_(
+            u"Change the filename,"
+            " if you want to save the content into a new file."
+        )
     )
     content = forms.CharField(
         widget=forms.Textarea(attrs = {'cols': '80', 'rows': '25'})
@@ -157,7 +165,7 @@ class SelectBasePathForm(forms.Form):
     """ change the base path form """
     base_path = forms.ChoiceField(choices=BASE_PATHS)
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
 
 class ActionField(forms.CharField):
     """
@@ -180,7 +188,7 @@ class ActionField(forms.CharField):
             raise ValidationError(_(u"Wrong action!"))
         return value
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
 
 class CreateDirForm(forms.Form):
     """
@@ -217,11 +225,12 @@ class DeleteFileForm(forms.Form):
     action = ActionField(ACTION_DELETEFILE)
     item_name = FilenameField()
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
 
 class Path(dict):
     """
-    Analyse, check and store the html GET path information.
+    Helper class for analyse, check and store the html GET path information.
+    Used in filemanager()
 
     base_no       = BASE_PATHS_DICT key (Note: it's a String!)
     base_path     = relative base path
@@ -272,9 +281,6 @@ class Path(dict):
         if must_exist and not os.path.exists(abs_path):
             raise Http404(_("Error: Path '%s' doesn't exist.") % abs_path)
 
-#        self.page_msg("base_no:", base_no, "base_path:", base_path)
-#        self.page_msg("abs_base_path:", abs_base_path, "rel_path:", rel_path)
-
         self["base_no"] = base_no
         self["base_path"] = base_path
         self["abs_base_path"] = abs_base_path
@@ -303,7 +309,7 @@ class Path(dict):
         self["filename"] = filename
         self["abs_file_path"] = abs_file_path
 
-    #__________________________________________________________________________
+    #--------------------------------------------------------------------------
 
     def get_abs_link(self, item=""):
         """
@@ -311,7 +317,7 @@ class Path(dict):
         """
         return os.path.join("/", self["base_path"], self["rel_path"], item)
 
-    #__________________________________________________________________________
+    #--------------------------------------------------------------------------
 
     def debug(self):
         """
@@ -321,15 +327,17 @@ class Path(dict):
         for k,v in self.items():
             self.page_msg(" - %15s: '%s'" % (k,v))
 
-# -----------------------------------------------------------------------------
+#______________________________________________________________________________
 
 class filemanager(PyLucidBasePlugin):
-
+    """
+    The PyLucid plugin class.
+    """
     def __init__(self, context, response):
         super(filemanager, self).__init__(context, response)
         self.path = Path(context)
 
-    #__________________________________________________________________________
+    #--------------------------------------------------------------------------
 
     def get_filelist(self):
         """
@@ -340,7 +348,7 @@ class filemanager(PyLucidBasePlugin):
         files = []
 
         if self.path["rel_path"] == "":
-            # current dir it the media Root
+            # current dir is the media root
             dirs=[]
         else:
             # Add the ".." dir item
@@ -366,24 +374,30 @@ class filemanager(PyLucidBasePlugin):
             abs_item_path = os.path.join(self.path["abs_path"], item)
             statinfo = os.stat(abs_item_path)
 
-            if stat.S_ISDIR(statinfo[stat.ST_MODE]):
+            if stat.S_ISDIR(statinfo.st_mode):
                 # Is a directory
                 is_dir = True
                 link = os.path.join(link_prefix, item) + "/"
+                size = len(dircache.listdir(
+                    os.path.join(self.path["abs_path"], item)
+                ))-1
             else:
                 is_dir = False
                 link = self.path.get_abs_link(item)
+                size = statinfo.st_size
+
+            print item, datetime.fromtimestamp(statinfo.st_mtime)
 
             item_dict={
                 "name": item,
                 "link": link,
                 "is_dir": is_dir,
                 "title": abs_item_path,
-                "time": strftime("%Y:%m:%M",localtime(statinfo[stat.ST_MTIME])),
-                "size": statinfo[stat.ST_SIZE],
-                "mode": statinfo[stat.ST_MODE],
-                "uid": statinfo[stat.ST_UID],
-                "gid": statinfo[stat.ST_GID],
+                "time": datetime.fromtimestamp(statinfo.st_mtime),
+                "size": size,
+                "mode": statinfo.st_mode,
+                "uid": statinfo.st_uid,
+                "gid": statinfo.st_gid,
                 "deletable": True,
             }
             if is_dir:
@@ -425,7 +439,7 @@ class filemanager(PyLucidBasePlugin):
 
         return dir_links
 
-    #__________________________________________________________________________
+    #--------------------------------------------------------------------------
     # html GET actions:
 
     def edit(self, path_info):
@@ -475,19 +489,24 @@ class filemanager(PyLucidBasePlugin):
         )
         form_link += self.path["filename"]
 
+        file_path = self.path.get_abs_link()
+
+        # Change the global page title:
+        self.context["PAGE"].title = _("Edit file - %s" % file_path)
+
         context = {
             "form_link": form_link,
             "url_abort": self.URLs.methodLink(
                 method_name="filelist", args=self.path["url_path"]
             ),
-            "file_path": self.path.get_abs_link(),
+            "file_path": file_path,
             "filename": self.path["filename"],
             "form": form,
 
         }
         self._render_template("edit_file", context)#, debug=True)
 
-    #__________________________________________________________________________
+    #--------------------------------------------------------------------------
     # html POST actions:
 
     def action_mkdir(self, dirname):
@@ -540,12 +559,17 @@ class filemanager(PyLucidBasePlugin):
         else:
             self.page_msg.green("File '%s' deleted successfull." % filename)
 
-    #__________________________________________________________________________
+    #--------------------------------------------------------------------------
 
     def userinfo(self, old_path=""):
         """
         Display some user information related to the filemanager functionality.
         """
+        # Change the global page title:
+        self.context["PAGE"].title = _(
+            "Filemanager - Display some user information"
+        )
+
         import pwd, grp
 
         uid = os.getuid()
@@ -570,6 +594,8 @@ class filemanager(PyLucidBasePlugin):
         """
         change the basepath, after send the form, we display the filelist
         """
+        # Change the global page title:
+        self.context["PAGE"].title = _("Filemanager - Change the basepath")
 #        self.page_msg(self.request.POST)
 
         if self.request.method == 'POST':
@@ -578,9 +604,11 @@ class filemanager(PyLucidBasePlugin):
                 path_no = form.cleaned_data["base_path"]
                 new_path = BASE_PATHS_DICT[path_no]
                 if not os.path.isdir(new_path):
-                    self.page_msg.red("Error: Path '%s' doesn't exist" % new_path)
+                    self.page_msg.red(
+                        "Error: Path '%s' doesn't exist" % new_path
+                    )
                 else:
-                    self.page_msg("changed to '%s'." % new_path)
+                    self.page_msg("change base path to '%s'." % new_path)
                     # Display the filelist:
                     return self.filelist(path_no + "/")
         else:
@@ -588,7 +616,7 @@ class filemanager(PyLucidBasePlugin):
 
         self._render_template("select_basepath", {"form": form})#, debug=True)
 
-    #__________________________________________________________________________
+    #--------------------------------------------------------------------------
 
     def filelist(self, path_info=None):
         """
@@ -604,7 +632,8 @@ class filemanager(PyLucidBasePlugin):
         #self.path.debug()
 
         # Change the global page title:
-        self.context["PAGE"].title = _("File list - %s" % self.path["rel_path"])
+        path = os.path.join(self.path["base_path"], self.path["rel_path"])
+        self.context["PAGE"].title = _("File list - %s" % path)
 
         # We init all forms before we check the POST, because we only need
         # error information for the current action. Only the form for the

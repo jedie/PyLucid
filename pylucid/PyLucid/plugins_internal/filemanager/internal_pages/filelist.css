@@ -55,8 +55,8 @@
 .filemanager td.t input {
     float:left;
 }
-.filemanager .o, .filemanager .u, .filemanager .g {
-    /* mode + uid + gid */
+.filemanager .s, .filemanager .m, .filemanager .o, .filemanager .u, .filemanager .g {
+    /* size + mtime + mode + uid + gid */
     font-size:0.8em;
     font-weight:lighter;
 }
