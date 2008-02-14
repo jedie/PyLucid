@@ -46,7 +46,7 @@
 
 __version__= "$Rev: $"
 
-import os, cgi, sys, stat, dircache
+import os, cgi, sys, stat, dircache, time
 from datetime import datetime
 
 from django.http import Http404
@@ -386,14 +386,16 @@ class filemanager(PyLucidBasePlugin):
                 link = self.path.get_abs_link(item)
                 size = statinfo.st_size
 
-            print item, datetime.fromtimestamp(statinfo.st_mtime)
+            mtime = statinfo.st_mtime
+            localtime = time.gmtime(mtime)
+            localdatetime = datetime(*localtime[:6])
 
             item_dict={
                 "name": item,
                 "link": link,
                 "is_dir": is_dir,
                 "title": abs_item_path,
-                "time": datetime.fromtimestamp(statinfo.st_mtime),
+                "time": localdatetime,
                 "size": size,
                 "mode": statinfo.st_mode,
                 "uid": statinfo.st_uid,
