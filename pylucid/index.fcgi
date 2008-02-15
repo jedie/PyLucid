@@ -12,7 +12,8 @@
         #!C:\python\python.exe
 
     Note:
-    If this file does not lie in the project folder, you must use custom_path()!
+    -If this file does not lie in the project folder, you must set PROJECT_DIR!
+    -You need the python package "flup": http://trac.saddi.com/flup
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -23,77 +24,126 @@
     :copyright: 2007 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
-
-import logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s %(message)s',
-    filename='/tmp/pylucid.log',
-    filemode='a'
-)
-logging.debug('Starting up 2')
 import sys, os
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
-def custom_path(dir):
-    # Switch to the directory of your project.
-    os.chdir(directory)
+# Logging
+# If you enable logging, you should set maxrequests=1 in the runfastcgi method
+# above. Then you see a "alive" log entry (sysexit) afert every request.
+LOGFILE = None # No logging!
+#LOGFILE = "PyLucid_fcgi.log" # Log into this file
 
-    # Add a custom Python path, you'll want to add the parent folder of
-    # your project directory. (Optional.)
-    sys.path.insert(0, directory)
+# Change into a other directory?
+PROJECT_DIR = None # No chdir needed
+#PROJECT_DIR = "/var/www/htdocs/pylucid/" # Change into this directory
+
+
+# Set the DJANGO_SETTINGS_MODULE environment variable.
+os.environ['DJANGO_SETTINGS_MODULE'] = "PyLucid.settings"
+
+
+#______________________________________________________________________________
+# Setup logging:
+
+if LOGFILE:
+    import logging
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s %(message)s',
+        filename=LOGFILE,
+        filemode='a'
+    )
+    log = logging.debug
+    log("Logging started")
+else:
+    # No logging
+    def log(*txt):
+        pass
+
+#______________________________________________________________________________
+# redirect stderr if logging is on:
+
+if LOGFILE:
+    try:
+        class StdErrorHandler(object):
+            """
+            redirects messages from stderr to stdout.
+            Sends a header, if the header were not already sent.
+            """
+            def __init__(self, out_method):
+                self.out_method = out_method
+
+            def write(self, *txt):
+                text = "".join([i for i in txt])
+                for line in text.splitlines():
+                    self.out_method(line)
+
+        sys.stderr = StdErrorHandler(log)
+        sys.stderr.write("stderr redirected into the logfile")
+    except Exception, e:
+        log("StdErrorHandler error: %s" % e)
+
+
+#______________________________________________________________________________
+
+
+def tb_catch_app(environ, start_response):
+    """ Minimalistic WSGI app for debugging """
+    start_response('200 OK', [('Content-Type', 'text/html')])
+    yield '<h1>FastCGI Traceback catch:</h1>'
+
+    try:
+        import traceback
+        yield "<pre>%s</pre>" % traceback.format_exc()
+    except Exception, e:
+        yield "Traceback error: %s" % e
+
+    from cgi import escape
+    yield '<hr /><h1>FastCGI Environment</h1><table>'
+    for k, v in sorted(environ.items()):
+        yield '<tr><th>%s</th><td>%s</td></tr>' % (
+            escape(repr(k)), escape(repr(v))
+        )
 
 
 #______________________________________________________________________________
 # If this file does not lie in the project folder, then you must define the
 # path to the project directory here:
 
-#custom_path("/path/to/your/project/direcotry/")
+if PROJECT_DIR:
+    # Switch to the directory of your project.
+    log("chdir '%s'" % PROJECT_DIR)
+    try:
+        os.chdir(PROJECT_DIR)
+    except Exception, e:
+        log("chdir error:", e)
+
+    # Add a custom Python path, you'll want to add the parent folder of
+    # your project directory. (Optional.)
+    try:
+        sys.path.insert(0, PROJECT_DIR)
+    except Exception, e:
+        log("path.insert error:", e)
 
 #______________________________________________________________________________
-
-
-# Set the DJANGO_SETTINGS_MODULE environment variable.
-os.environ['DJANGO_SETTINGS_MODULE'] = "PyLucid.settings"
 
 from django.core.handlers.wsgi import WSGIHandler
 from django.core.servers.fastcgi import runfastcgi
 
-#~ old_stderr = sys.stderr
-#~ sys.stderr = StringIO
-
-def tb_catch_app(environ, start_response):
-    start_response('200 OK', [('Content-Type', 'text/html')])
-    yield '<h1>FastCGI Traceback catch:</h1>'
-
-    global msg
-    yield "<pre>"
-    yield msg
-    yield "</pre>"
-    yield "stderr output:<pre>"
-    yield stderr_output
-    yield "</pre>"
-
-    stderr_output = sys.stderr.getvalue()
-    logging.error(stderr_output)
-
-
 try:
-    #~ raise SystemError("Test!")
-    #~ runfastcgi()
-    runfastcgi(method="threaded", daemonize="false")
-    #runfastcgi(socket="fcgi.sock", daemonize="false")
-except:
-    import traceback
-    msg = traceback.format_exc()
-    logging.error(msg)
+    log('runfastcgi()')
+    runfastcgi(
+        #method="prefork",  # prefork or threaded (default prefork)
+        #daemonize="false", # Bool, whether to detach from terminal
+        maxrequests=1,     # number of requests a child handles before it is
+                            # killed and a new child is forked (0 = no limit)
+        #maxspare=2,        # max number of spare processes/threads
+        #maxchildren=2      # hard limit number of processes/threads
+    )
+except SystemExit, e:
+    log("sys.exit(%s) appears." % e)
+except Exception, e:
+    log("fastCGI error: %s" % e)
     from flup.server.fcgi import WSGIServer
     WSGIServer(tb_catch_app).run()
 else:
-    msg = "Error: Nothings happens?!?!"
-    logging.error(msg)
-    from flup.server.fcgi import WSGIServer
-    WSGIServer(tb_catch_app).run()
+    log("fastcgi application ended.")
