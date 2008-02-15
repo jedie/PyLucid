@@ -15,6 +15,21 @@
     -If this file does not lie in the project folder, you must set PROJECT_DIR!
     -You need the python package "flup": http://trac.saddi.com/flup
 
+    Debugging help
+    ~~~~~~~~~~~~~~
+    If you only see something like
+        - "FastCGI Unhandled Exception"
+        - "Internal Server Error"
+        - "Premature end of script headers"
+    try this:
+        - Set a LOGFILE
+        - use the runfastcgi() options:
+            daemonize="false"
+            maxrequests=1
+        - Use ./tests/server_tests/fastCGI_test.fcgi
+        - Try to turn on the flup traceback, see:
+            http://code.djangoproject.com/ticket/6610
+
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate: $
@@ -24,7 +39,9 @@
     :copyright: 2007 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
-import sys, os
+import sys, os, time
+
+start_overall = time.time()
 
 # Logging
 # If you enable logging, you should set maxrequests=1 in the runfastcgi method
@@ -40,6 +57,8 @@ PROJECT_DIR = None # No chdir needed
 # Set the DJANGO_SETTINGS_MODULE environment variable.
 os.environ['DJANGO_SETTINGS_MODULE'] = "PyLucid.settings"
 
+# Global variable for the last traceback:
+last_tb_info = None
 
 #______________________________________________________________________________
 # Setup logging:
@@ -53,7 +72,7 @@ if LOGFILE:
         filemode='a'
     )
     log = logging.debug
-    log("Logging started")
+    log("--- Logging started ---")
 else:
     # No logging
     def log(*txt):
@@ -82,28 +101,33 @@ if LOGFILE:
     except Exception, e:
         log("StdErrorHandler error: %s" % e)
 
-
 #______________________________________________________________________________
 
 
 def tb_catch_app(environ, start_response):
     """ Minimalistic WSGI app for debugging """
     start_response('200 OK', [('Content-Type', 'text/html')])
-    yield '<h1>FastCGI Traceback catch:</h1>'
+    yield '<h1>FastCGI Traceback catch</h1>'
 
+    # Display the overall running time
+    yield 'overall time: %.2fsec' % (time.time() - start_overall)
+
+    # Display the last traceback
+    yield '<h2>last_tb_info:</h2>'
     try:
-        import traceback
-        yield "<pre>%s</pre>" % traceback.format_exc()
+        yield "<pre>%s</pre>" % last_tb_info
     except Exception, e:
         yield "Traceback error: %s" % e
 
+    yield '<hr />'
+
     from cgi import escape
-    yield '<hr /><h1>FastCGI Environment</h1><table>'
+    yield '<h1>FastCGI Environment</h1><table>'
     for k, v in sorted(environ.items()):
         yield '<tr><th>%s</th><td>%s</td></tr>' % (
             escape(repr(k)), escape(repr(v))
         )
-
+    yield '</table>'
 
 #______________________________________________________________________________
 # If this file does not lie in the project folder, then you must define the
@@ -134,15 +158,20 @@ try:
     runfastcgi(
         #method="prefork",  # prefork or threaded (default prefork)
         #daemonize="false", # Bool, whether to detach from terminal
-        maxrequests=1,     # number of requests a child handles before it is
+        #maxrequests=1,     # number of requests a child handles before it is
                             # killed and a new child is forked (0 = no limit)
         #maxspare=2,        # max number of spare processes/threads
         #maxchildren=2      # hard limit number of processes/threads
+        #debug=True,        # Not Implemented, see:
+                            # http://code.djangoproject.com/ticket/6610
     )
 except SystemExit, e:
     log("sys.exit(%s) appears." % e)
 except Exception, e:
     log("fastCGI error: %s" % e)
+    import sys, traceback
+    last_tb_info = traceback.format_exc()
+    log(last_tb_info)
     from flup.server.fcgi import WSGIServer
     WSGIServer(tb_catch_app).run()
 else:

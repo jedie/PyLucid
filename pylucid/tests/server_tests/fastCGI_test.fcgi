@@ -18,11 +18,11 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-import sys, os
+import sys, os, time
 
 # Logging
 #LOGFILE = None # No logging!
-LOGFILE = "PyLucid_fcgi.log" # Log into this file
+LOGFILE = "PyLucid_fcgi_test.log" # Log into this file
 
 
 if LOGFILE:
@@ -50,15 +50,24 @@ except ImportError, e:
     raise
 
 
+start_overall = time.time()
+
 try:
     def app(environ, start_response):
         start_response('200 OK', [('Content-Type', 'text/html')])
+        yield '<h1>FastCGI test app</h1>'
+
+        # Display the overall running time
+        yield 'overall time: %.2fsec' % (time.time() - start_overall)
 
         from cgi import escape
-        yield '<h1>FastCGI Environment</h1><table>'
-        yield '<tr><th>%s</th><td>%s</td></tr>' % (
-            escape(repr(k)), escape(repr(v))
-        )
+        yield '<h2>FastCGI Environment:</h2><table>'
+        for k, v in sorted(environ.items()):
+            yield '<tr><th>%s</th><td>%s</td></tr>' % (
+                escape(repr(k)), escape(repr(v))
+            )
+        yield '</table>'
+
 
     WSGIServer(app).run()
 except Exception, e:
