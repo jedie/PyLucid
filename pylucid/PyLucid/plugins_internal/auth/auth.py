@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     PyLucid JS-SHA-Login
@@ -26,6 +26,7 @@ __version__ = "$Rev$"
 
 import datetime
 
+from django.http import HttpResponseRedirect
 from django.core import mail
 from django import newforms as forms
 from django.contrib.auth.models import User
@@ -148,6 +149,8 @@ class auth(PyLucidBasePlugin):
             )
 
         UsernameForm = forms.form_for_model(User, fields=("username",))
+        
+        next_url = self.request.GET.get('next',self.URLs['scriptRoot'])
 
         def get_data(form):
             if DEBUG: self.page_msg(self.request.POST)
@@ -191,10 +194,12 @@ class auth(PyLucidBasePlugin):
                 else:
                     self.page_msg.red("Wrong POST data.")
 
+        if DEBUG: self.page_msg("Next URL: %s" % next_url)
 
         context = {
             "fallback_url": self.URLs.adminLink(""),
             "form": username_form,
+            "next_url": next_url,
         }
         self._render_template("input_username", context)#, debug=True)
 
@@ -209,12 +214,15 @@ class auth(PyLucidBasePlugin):
 
         PasswordForm = forms.form_for_model(User, fields=("password",))
 
+        next_url = self.request.POST.get('next_url',self.URLs['scriptRoot'])
+
         # Change the default TextInput to a PasswordInput
         PasswordForm.base_fields['password'].widget = forms.PasswordInput()
 
         context = {
             "username": user.username,
             "logout_url": self.URLs.methodLink("logout"),
+            "next_url": next_url,
         }
 
         # Delete the default django help text:
@@ -231,7 +239,7 @@ class auth(PyLucidBasePlugin):
                     self._insert_reset_link(context)
                 else:
                     # Login ok
-                    return
+                    return HttpResponseRedirect(next_url)
 
         context["form"] = password_form
         self._render_template("plaintext_login", context)#, debug=True)
@@ -260,6 +268,11 @@ class auth(PyLucidBasePlugin):
         # rebuild the login/logout link:
         add_dynamic_context(self.request, self.context)
 
+        next_url = self.request.POST.get('next_url',self.URLs['scriptRoot'])
+
+        # Redirect to next URL
+        HttpResponseRedirect(next_url)
+
 
     def _sha_login(self, user):
         """
@@ -275,12 +288,13 @@ class auth(PyLucidBasePlugin):
                 msg += " %s" % e
             self.pass_reset(user.username, msg) # Display the pass reset form
             return
-
+        next_url = self.request.POST.get('next_url',self.URLs['scriptRoot'])
         salt = js_login_data.salt
         context = {
             "username": user.username,
             "fallback_url": self.URLs.adminLink(""),
             "salt": salt,
+            "next_url": next_url,
             "PyLucid_media_url": settings.PYLUCID_MEDIA_URL,
         }
 
@@ -326,7 +340,7 @@ class auth(PyLucidBasePlugin):
                 else:
                     if user:
                         self._login_user(user)
-                        return
+                        return HttpResponseRedirect(next_url)
                 self._insert_reset_link(context)
                 self.page_msg.red(msg)
 
@@ -349,7 +363,7 @@ class auth(PyLucidBasePlugin):
                 password = password_form.cleaned_data["password"]
                 self.page_msg("password:", password)
                 self.page_msg("SHA-1 - Not implemented completly, yet :(")
-                return
+                return HttpResponseRedirect(next_url)
         else:
             password_form = PasswordForm()
 
@@ -372,6 +386,7 @@ class auth(PyLucidBasePlugin):
         add_dynamic_context(self.request, self.context)
 
         self.page_msg.green("You logged out.")
+        return HttpResponseRedirect(self.URLs['scriptRoot'])
 
     #__________________________________________________________________________
     # Password reset

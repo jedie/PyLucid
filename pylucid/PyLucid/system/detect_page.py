@@ -17,6 +17,7 @@
 """
 
 from PyLucid.models import Page, Preference, Template
+from PyLucid.system.exceptions import AccessDenied
 
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ImproperlyConfigured
@@ -83,8 +84,14 @@ def get_current_page_obj(request, url_info):
 
     shortcuts.reverse()
     wrong_shutcuts = []
+    # FIXME: We need no for loop here, isn't it?
     for shortcut in shortcuts:
         try:
-            return Page.objects.get(shortcut__exact=shortcut)
+            page = Page.objects.get(shortcut__exact=shortcut)
         except Page.DoesNotExist:
             raise Http404(_("Page '%s' doesn't exists.") % shortcut)
+
+        if request.user.is_anonymous() and not page.permitViewPublic:
+            raise AccessDenied
+        else:
+            return page

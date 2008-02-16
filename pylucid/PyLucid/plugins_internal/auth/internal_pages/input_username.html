@@ -11,6 +11,7 @@
   {% trans 'Log in' %}:
   <input type="submit" id="sha_button" name="sha_login" value="SHA-1 login" />
   <input type="submit" id="plaintext_button" name="plaintext_login" value="unsecure plaintext login" onclick="return confirm('Do you realy want to send your password in plaintext?')"/>
+  <input type="hidden" name="next_url" value="{{ next_url }}" />
 </form>
 </fieldset>
 

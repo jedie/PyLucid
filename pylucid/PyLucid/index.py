@@ -19,7 +19,7 @@
 
 import datetime, md5
 
-from django.http import HttpResponse, HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.template import RequestContext
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
@@ -31,7 +31,7 @@ from PyLucid import models
 
 from PyLucid.system import plugin_manager
 from PyLucid.system.response import SimpleStringIO
-from PyLucid.system.exceptions import AccessDeny
+from PyLucid.system.exceptions import AccessDenied
 from PyLucid.system.page_msg import PageMessages
 from PyLucid.system.detect_page import get_current_page_obj, \
                                                             get_default_page_id
@@ -209,9 +209,18 @@ def index(request, url):
     setup_debug(request)
 
     # Get the response for the requested cms page:
-    current_page_obj = get_current_page_obj(request, url)
-    context = _get_context(request, current_page_obj)
-    response = _render_cms_page(context)
+    try:
+        current_page_obj = get_current_page_obj(request, url)
+        context = _get_context(request, current_page_obj)
+        response = _render_cms_page(context)
+    except AccessDenied:
+        # FIXME: We should build the command url in a better way
+        #     Don't insert a hardcoded ID! Use the default ID.
+        next = '?next=%s' % request.path
+        path = '/'.join(
+            ('',settings.COMMAND_URL_PREFIX,'1','auth','login',next)
+        )
+        return HttpResponseRedirect(path)
 
     if use_cache:
         # It's a anonymous user -> Cache the cms page.
@@ -267,8 +276,8 @@ def handle_command(request, page_id, module_name, method_name, url_args):
         output = plugin_manager.handle_command(
             context, local_response, module_name, method_name, url_args
         )
-    except AccessDeny:
-        page_content = "[Permission Deny!]"
+    except AccessDenied:
+        page_content = "[Permission Denied!]"
     else:
         if output == None:
             # Plugin/Module has retuned the locale StringIO response object

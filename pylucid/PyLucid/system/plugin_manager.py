@@ -133,19 +133,19 @@ def _run(context, local_response, plugin_name, method_name, url_args,
 
         request.must_login = True # For static_tags an the robot tag
 
-        if request.user.username == "":
+        if request.user.is_anonymous():
             # User is not logged in
             if method_cfg.get("no_rights_error", False) == True:
                 # No error message should be displayed for this plugin.
                 # e.g. admin_menu
                 return ""
             else:
-                raise AccessDeny
+                raise AccessDenied
 
     if method_cfg["must_admin"]:
         # The User must be an admin to use this method
         if not (request.user.is_superuser or request.user.is_staff):
-            raise AccessDeny
+            raise AccessDenied
 
     URLs = context["URLs"]
     URLs.current_plugin = plugin_name

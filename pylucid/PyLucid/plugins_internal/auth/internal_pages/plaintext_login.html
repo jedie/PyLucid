@@ -3,6 +3,7 @@
 <form method="post" action=".">
   <input type="hidden" name="username" value="{{ username }}" />
   <input type="hidden" name="plaintext_login" value="unsecure plaintext login" />
+  <input type="hidden" name="next_url" value="{{ next_url }}" />
   {{ form }}
   <input type="submit" value="{% trans 'Log in' %}" />
 </form>
