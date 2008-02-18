@@ -27,10 +27,11 @@ import time, cgi
 
 from django import newforms as forms
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
 
 from PyLucid.models import Page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-
+from PyLucid.tools.utils import escape
 
 
 # How min/max long must a search term be?
@@ -166,14 +167,6 @@ class search(PyLucidBasePlugin):
         cut the hits in the page content out. So the template can display
         the lines.
         """
-        def escape(txt):
-            txt = cgi.escape(txt)
-            # Escape django template tags chars "{" and "}" to the HTML
-            # character entity:
-            txt = txt.replace("{", "&#x7B;").replace("}", "&#x7D;")
-            return txt
-
-
         for result in results:
             result["cutouts"] = []
             content = result["page"].content
@@ -196,6 +189,7 @@ class search(PyLucidBasePlugin):
 
                     txt = escape(txt)
                     txt = txt.replace(term, "<strong>%s</strong>" % term)
+                    txt = mark_safe(txt)
                     result["cutouts"].append(txt)
 
 
