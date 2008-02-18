@@ -11,6 +11,11 @@
     <li>
         <a href="{{ commandURLprefix }}/page_admin/sequencing/">{% trans 'sequencing the pages' %}</a> <small>({% trans 'change the page order.' %})</small>
     </li>
+    {% if is_admin %}
+    <li>
+        <a href="{{ commandURLprefix }}/find_and_replace/find_and_replace/">{% trans 'find/replace' %}</a> <small>({% trans 'Find/replace page content.' %})</small>
+    </li>
+    {% endif %}
 </ul>
 </fieldset>
 

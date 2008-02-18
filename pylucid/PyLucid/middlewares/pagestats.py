@@ -24,6 +24,7 @@ from operator import add
 from time import time
 from django.db import connection
 from django.core.exceptions import ImproperlyConfigured
+from PyLucid.template_addons.filters import human_duration
 
 start_overall = time()
 
@@ -34,15 +35,6 @@ FMT = (
     ' overall: %(overall_time)s -'
     ' queries: %(queries)d'
 )
-
-
-def human_time(t):
-    if t<1:
-        return "%.1f ms" % (t * 100)
-    elif t>60:
-        return "%.1f min" % (t/60.0)
-    else:
-        return "%.1f sec" % t
 
 
 class PageStatsMiddleware(object):
@@ -79,8 +71,8 @@ class PageStatsMiddleware(object):
         # compute the db time for the queries just run
         queries = len(connection.queries) - old_queries
 
-        total_time = human_time(time() - start_time)
-        overall_time = human_time(time() - start_overall)
+        total_time = human_duration(time() - start_time)
+        overall_time = human_duration(time() - start_overall)
 
         # replace the comment if found
         stat_info = FMT % {

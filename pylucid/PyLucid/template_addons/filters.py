@@ -18,6 +18,7 @@
 """
 
 from django.template.defaultfilters import stringfilter
+from django.utils.translation import ugettext as _
 from django.utils.encoding import force_unicode
 
 
@@ -51,3 +52,17 @@ def get_oct(value):
     except:
         return value
 get_oct.is_safe = False
+
+
+def human_duration(t):
+    """
+    Converts a time duration into a friendly text representation.
+    Note: Used in PageStatsMiddleware, too.
+    """
+    if t<1:
+        return _("%.1f ms") % (t * 100)
+    elif t>60:
+        return _("%.1f min") % (t/60.0)
+    else:
+        return _("%.1f sec") % t
+human_duration.is_safe = True

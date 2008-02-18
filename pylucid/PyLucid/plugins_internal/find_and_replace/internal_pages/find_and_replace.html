@@ -1,0 +1,23 @@
+<fieldset class="float_form">
+<legend>{% trans 'find/replace page content' %}</legend>
+<form id="form" method="post" action=".">
+    {{ form.as_p }}
+    <input type="submit" name="" value="search and replace" />
+</form>
+</fieldset>
+
+{% if results %}
+    <h2>{% trans 'results' %}</h2>
+    <small class="search_info">{{ duration|human_duration }} - {{ total_changes }} {% trans 'changes' %}</small>
+    {% for entry in results %}
+        <fieldset class="results">
+        <legend>
+            <strong>
+                <a href="{{ entry.page.get_absolute_url }}">{{ entry.page.get_verbose_title }}</a>
+            </strong>
+            <small class="changes">({{ entry.changes }} {% trans 'changes' %})</small>
+        </legend>
+            <pre>{{ entry.diff }}</pre>
+        </fieldset>
+    {% endfor %}
+{% endif %}

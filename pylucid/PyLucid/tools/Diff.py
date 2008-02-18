@@ -32,6 +32,8 @@
 
 import difflib
 
+from PyLucid.system.hightlighter import pygmentize
+
 
 def display_diff(content1, content2, request):
     """
@@ -50,10 +52,11 @@ def display_html_diff(content1, content2, response):
     diff = make_diff(content1, content2, mode="HtmlDiff")
     response.write(diff)
 
-def display_plaintext_diff(content1, content2):
+def diff_lines(content1, content2):
     """
     Display a diff without pygments.
     """
+    results = []
     diff = make_diff(content1, content2)
 
     def is_diff_line(line):
@@ -62,7 +65,6 @@ def display_plaintext_diff(content1, content2):
                 return True
         return False
 
-    print "line | text\n-------------------------------------------"
     old_line = ""
     in_block = False
     old_lineno = lineno = 0
@@ -77,34 +79,38 @@ def display_plaintext_diff(content1, content2):
 
         if is_diff_line(line):
             if not in_block:
-                print "..."
+                results.append("...")
                 # Display previous line
-                print old_line
+                results.append(old_line)
                 in_block = True
 
-            print display_line
-
+            results.append(display_line)
         else:
             if in_block:
-                # Display the next line aber a diff-block
-                print display_line
+                # Display the next line after a diff-block
+                results.append(display_line)
             in_block = False
 
         old_line = display_line
         old_lineno = lineno
-    print "..."
+    results.append("...")
 
-def get_diff(content1, content2, request):
+    return "\n".join(results)
+
+
+def get_diff(content1, content2):
     """
     returns the HTML-Diff hightlighted with Pygments
+    Note: the complete content will be returned and not only the "diff-lines".
     """
-    diff = make_diff(content1, content2)
+    diff = make_diff(content1, content2, mode="Differ")
     diff = "\n".join(diff)
 
-    # Mit Pygments hightlighten
-    diff = request.render.get_hightlighted("diff", diff)
+    # hightlight with Pygments
+    diff, _ = pygmentize(diff, source_type="diff")
 
     return diff
+
 
 def make_diff(content1, content2, mode="Differ"):
     """

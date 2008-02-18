@@ -1,0 +1,64 @@
+.find_and_replace .results {
+    margin: 1em 0px 1em 0px;
+}
+.find_and_replace .results, .find_and_replace .results legend {
+    background-color: white;
+    border: 1px solid grey;
+}
+.find_and_replace .results legend {
+    padding: 2px 1em 2px 1em;
+}
+.find_and_replace .results pre {
+    font-size: 0.7em;
+    font-family: "Courier New", Courier, monospace;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+/* ------------------------------------------------------------------------- */
+/* FIXME: The follow CSS should be inserted in the global CSS */
+.float_form {
+    font-size:0.9em;
+}
+.float_form * {
+    /* Same Offset for all form objects */
+    margin: 0.1em;
+    padding: 0.1em;
+}
+.float_form legend, .float_form fieldset {
+    padding: 2px 0.5em 2px 0.5em;
+    border: 1px solid black;
+    background-color: white;
+}
+.float_form label {
+    /* label text in front of a input/select etc. */
+    float: left;
+    padding-right: 4px;
+    text-align: right;
+    width: 8em;
+}
+.float_form input[type=text], .float_form select {
+    /* same size for every input things */
+    width: 30%;
+}
+.float_form .field_help_text {
+    font-size:0.7em;
+}
+.float_form .errorlist * {
+    text-align: center;
+    list-style:none;
+    margin: 0;
+    padding: 0;
+}
+.float_form .errorlist li {
+    /* newforms errors */
+    border: 1px solid red;
+}
+/* ------------------------------------------------------------------------- */
+
+
+.float_form input[type=text] {
+    /* make find/replace string input bigger */
+    width: 75%;
+}

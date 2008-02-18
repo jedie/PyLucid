@@ -474,7 +474,7 @@ class UpdateTemplates(BaseInstall):
         """
         Update all Entries from the given model.
         """
-        from PyLucid.tools.Diff import display_plaintext_diff
+        from PyLucid.tools.Diff import diff_lines
 
         print "\n"*3
         print "*"*79
@@ -502,7 +502,7 @@ class UpdateTemplates(BaseInstall):
                     continue
 
             print "\t - changed!\n\nthe diff:"
-            display_plaintext_diff(old_content, content)
+            print diff_lines(old_content, content)
 
             # assign new content to model
             setattr(model_item, content_attr_name, content)
