@@ -28,10 +28,10 @@ from PyLucid.template_addons.filters import human_duration
 
 start_overall = time()
 
-TAG = "<!-- script_duration -->"
+TAG = u"<!-- script_duration -->"
 
 FMT = (
-    'render time: %(total_time)s -'
+    u'render time: %(total_time)s -'
     ' overall: %(overall_time)s -'
     ' queries: %(queries)d'
 )
@@ -81,6 +81,10 @@ class PageStatsMiddleware(object):
             'queries' : queries,
         }
 
-        response.content = response.content.replace(TAG, stat_info)
+        try:
+            response.content = response.content.replace(TAG, stat_info)
+        except:
+            # Unicode errors?!?!
+            pass
 
         return response
