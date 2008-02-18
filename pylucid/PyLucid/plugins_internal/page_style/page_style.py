@@ -87,7 +87,7 @@ class page_style(PyLucidBasePlugin):
         It's the request started with the link tag from self.lucidTag() ;)
         TODO: Should insert some Headers for the browser cache.
         """
-        css_name = css_filename.split(".",1)[0]
+        css_name = css_filename.rsplit(".",1)[0]
 
         try:
             style = Style.objects.get(name=css_name)
