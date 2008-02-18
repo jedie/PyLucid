@@ -33,8 +33,9 @@ from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
 
 
-# How min. long must a search term be?
+# How min/max long must a search term be?
 MIN_TERM_LEN = 3
+MAX_TERM_LEN = 50
 
 # Number of the paged for the result page:
 MAX_RESULTS = 20
@@ -49,7 +50,9 @@ MAX_CUTOUTS_LINES = 5
 
 class SearchForm(forms.Form):
     # TODO: min und max should be saved in the prefereces.
-    search_string = forms.CharField(min_length = 3, max_length = 50)
+    search_string = forms.CharField(
+        min_length = MIN_TERM_LEN, max_length = MAX_TERM_LEN
+    )
 
 
 class search(PyLucidBasePlugin):
