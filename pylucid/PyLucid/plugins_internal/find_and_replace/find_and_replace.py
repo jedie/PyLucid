@@ -132,12 +132,11 @@ class find_and_replace(PyLucidBasePlugin):
                 # Save the find/replace result
                 item.content = new_content
                 item.save()
-                changed_objects.append(item.name)
+                changed_items.append(item.name)
 
             diff = diff_lines(old_content, new_content)
             diff = escape(diff)
             diff = mark_safe(diff)
-#            self.page_msg(diff)
 
             results.append({
                 "item": item,
