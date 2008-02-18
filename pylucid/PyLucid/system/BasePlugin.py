@@ -86,7 +86,11 @@ class PyLucidBasePlugin(object):
         plugin_name = self.__class__.__name__
         internal_page = get_internal_page(plugin_name, internal_page_name)
 
-        self._internal_page_cache[internal_page_name] = internal_page
+        if not self.request.debug:
+            # Use the cache only if DEBUG is off -> For development the cache
+            # is hindering, if we change the internal page content.
+            self._internal_page_cache[internal_page_name] = internal_page
+
         return internal_page
 
     def _add_js_css_data(self, internal_page):
