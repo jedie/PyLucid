@@ -208,11 +208,8 @@ def index(request, url):
 
     setup_debug(request)
 
-    # Get the response for the requested cms page:
     try:
         current_page_obj = get_current_page_obj(request, url)
-        context = _get_context(request, current_page_obj)
-        response = _render_cms_page(context)
     except AccessDenied:
         # FIXME: We should build the command url in a better way
         #     Don't insert a hardcoded ID! Use the default ID.
@@ -221,6 +218,15 @@ def index(request, url):
             ('',settings.COMMAND_URL_PREFIX,'1','auth','login',next)
         )
         return HttpResponseRedirect(path)
+    else:
+        if isinstance(current_page_obj, HttpResponse):
+            # Some parts of the URL was wrong, but we found a right page
+            # shortcut -> redirect to the right url
+            return current_page_obj
+
+    context = _get_context(request, current_page_obj)
+    # Get the response for the requested cms page:
+    response = _render_cms_page(context)
 
     if use_cache:
         # It's a anonymous user -> Cache the cms page.

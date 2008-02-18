@@ -21,7 +21,7 @@ from PyLucid.system.exceptions import AccessDenied
 
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ImproperlyConfigured
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 
 def get_a_page():
     """
@@ -67,10 +67,10 @@ def get_default_page(request):
 def get_current_page_obj(request, url_info):
     """
     returns the page object
-    use:
-     - the shortcut in the requested url
-    or:
-     - the default page (stored in the Preference table)
+    -If url_info contains no shortcut -> return the default page (stored in the
+        Preference table)
+    -If a part of the url is wrong -> Redirect to the last right shortcut
+    -if a anonymous user would get a permitViewPublic page -> raise AccessDenied
     """
     # /bsp/und%2Foder/ -> bsp/und%2Foder
     page_name = url_info.strip("/")
@@ -81,17 +81,25 @@ def get_current_page_obj(request, url_info):
 
     # bsp/und%2Foder -> ['bsp', 'und%2Foder']
     shortcuts = page_name.split("/")
-
     shortcuts.reverse()
-    wrong_shutcuts = []
-    # FIXME: We need no for loop here, isn't it?
+    wrong_shortcut = False
     for shortcut in shortcuts:
         try:
             page = Page.objects.get(shortcut__exact=shortcut)
         except Page.DoesNotExist:
-            raise Http404(_("Page '%s' doesn't exists.") % shortcut)
+            wrong_shortcut = True
+            continue
 
         if request.user.is_anonymous() and not page.permitViewPublic:
+            # the page is not viewale for anonymous user
             raise AccessDenied
-        else:
-            return page
+
+        # Found a existing, viewable page
+        if wrong_shortcut:
+            # One of the shortcuts are wrong in the url -> redirect
+            return HttpResponseRedirect(page.get_absolute_url())
+
+        return page
+
+    # No right page found
+    raise Http404(_("Page '%s' doesn't exists.") % shortcut)
