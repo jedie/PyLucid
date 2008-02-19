@@ -9,6 +9,9 @@
     it into the log file.
 
     Should not be used in a productive environment!
+    
+    ToDo:
+        handle process_exception()
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -76,3 +79,7 @@ class TracebackLogMiddleware(object):
 #        log("TLM - process_response()")
 ##        log(response.content)
 #        return response
+
+#    def process_exception(self, request, exception):
+#        log("TLM - process_exception()")
+        
