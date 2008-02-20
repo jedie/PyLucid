@@ -48,11 +48,11 @@ def add_dynamic_context(request, context):
     #___________________________________________________________________________
 
     if request.user.username != "":
-        # User is loged in
+        # User is logged in
         url = URLs.commandLink("auth", "logout")
         txt = "%s [%s]" % (_("Log out"), request.user.username)
     else:
-        url = URLs.commandLink("auth", "login")
+        url = URLs.commandLink("auth", "login/?next=%s" % request.path)
         txt = _("Log in")
 
     context["login_link"] = mark_safe(
