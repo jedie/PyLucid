@@ -91,7 +91,7 @@ class SiteMap(PyLucidBasePlugin):
             href.append(entry["shortcut"])
 
             href = "/".join(href)
-            entry["href"] = "%s/%s/" % (self.URLs["absoluteIndex"], href)
+            entry["href"] = self.URLs["absoluteIndex"] + href + "/"
 
             result.append(HTML_TEMPLATE % entry)
 
