@@ -6,7 +6,7 @@
     ~~~~~~~~~
 
     CMS page administration (edit, delete, make a new page etc.)
-    
+
     TODO: With django autoescape we need no longer a escape hack here.
     But the row should be increased here.
     Idea: Create a normal newforms class for the page edit.
@@ -39,7 +39,8 @@ from PyLucid.models import Page, Plugin
 from PyLucid.db.page import flat_tree_list, get_sitemap_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.detect_page import get_default_page_id
-from PyLucid.tools.content_processors import apply_markup
+from PyLucid.tools.content_processors import apply_markup, \
+                                                        render_string_template
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
 #______________________________________________________________________________
@@ -219,6 +220,9 @@ class page_admin(PyLucidBasePlugin):
                         html_form.cleaned_data["content"], self.context,
                         html_form.cleaned_data["markup"]
                     )
+                    # Render possibly existing django tags:
+                    # ToDo: Should we add a "disable" switch to this?
+                    content = render_string_template(content, self.context)
                     context["preview_content"] = content
                 elif "save" in self.request.POST:
                     # Save the new page data into the database:
