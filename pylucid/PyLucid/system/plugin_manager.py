@@ -130,9 +130,6 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     if method_cfg["must_login"]:
         # User must be login to use this method
         # http://www.djangoproject.com/documentation/authentication/
-
-        request.must_login = True # For static_tags an the robot tag
-
         if request.user.is_anonymous():
             # User is not logged in
             if method_cfg.get("no_rights_error", False) == True:
@@ -146,6 +143,13 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         # The User must be an admin to use this method
         if not (request.user.is_superuser or request.user.is_staff):
             raise AccessDenied
+
+    # set if the current request was viewable for anonymous user
+    # interesting for: <meta name="robots" content="{{ robots }}" />
+    if request.anonymous_view == True:
+        # Only change anonymous_view, if it not set to False in the past.
+        if method_cfg["must_login"] or method_cfg["must_admin"]:
+            request.anonymous_view = False
 
     URLs = context["URLs"]
     URLs.current_plugin = plugin_name
@@ -192,6 +196,7 @@ def handle_command(context, response, plugin_name, method_name, url_args):
     handle a _command url request
     """
     output = run(context, response, plugin_name, method_name, url_args)
+
     return output
 
 #_____________________________________________________________________________

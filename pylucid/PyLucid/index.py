@@ -44,12 +44,17 @@ from PyLucid.tools.utils import escape, escape_django_tags
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
 
-def _render_cms_page(context, page_content=None):
+def _render_cms_page(request, context, page_content=None):
     """
     render the cms page.
     - render a normal cms request
     - render a _command request: The page.content is the output from the plugin.
     """
+    if request.anonymous_view == False:
+        # context["robots"] was set in contex_processors.static()
+        # Hide the response from search engines
+        context["robots"] = "NONE,NOARCHIVE"
+
     current_page = context["PAGE"]
 
     if page_content:
@@ -91,6 +96,9 @@ def _get_context(request, current_page_obj):
     Setup the context with PyLucid objects.
     For index() and handle_command() views.
     """
+    # add additional attribute
+    request.anonymous_view = True
+
     try:
         context = RequestContext(request)
     except AttributeError, err:
@@ -226,7 +234,7 @@ def index(request, url):
 
     context = _get_context(request, current_page_obj)
     # Get the response for the requested cms page:
-    response = _render_cms_page(context)
+    response = _render_cms_page(request, context)
 
     if use_cache:
         # It's a anonymous user -> Cache the cms page.
@@ -316,7 +324,7 @@ def handle_command(request, page_id, module_name, method_name, url_args):
             context, page_content, module_name, method_name
         )
 
-    return _render_cms_page(context, page_content)
+    return _render_cms_page(request, context, page_content)
 
 
 def redirect(request, url):

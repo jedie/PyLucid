@@ -166,6 +166,12 @@ class auth(PyLucidBasePlugin):
                 "Warning: DEBUG is ON! Should realy only use for debugging!"
             )
 
+        # This view is available for anonymous users. Only a anonymous user
+        # must login ;)
+        # But the html line <meta name="robots" content="{{ robots }}" />
+        # should be set to "NONE,NOARCHIVE"
+        self.request.anonymous_view = False
+
         UsernameForm = forms.form_for_model(User, fields=("username",))
 
         next_url = self.request.GET.get("next", "")

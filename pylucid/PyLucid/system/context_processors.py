@@ -16,27 +16,15 @@ def static(request):
     A django TEMPLATE_CONTEXT_PROCESSORS
     http://www.djangoproject.com/documentation/templates_python/#writing-your-own-context-processors
     """
-    context_extras = {}
-
-    #___________________________________________________________________________
-
-    context_extras['powered_by'] = mark_safe(
-        '<a href="http://www.pylucid.org">PyLucid v%s</a>' \
+    return {
+        "powered_by": mark_safe(
+            '<a href="http://www.pylucid.org">PyLucid v%s</a>' \
                                                         % PYLUCID_VERSION_STRING
-    )
-
-    #___________________________________________________________________________
-
-    # The module_manager set "must_login":
-    if getattr(request, "must_login", False):
-        context_extras["robots"] = "NONE,NOARCHIVE"
-    else:
-        context_extras["robots"] = "index,follow"
-
-    #___________________________________________________________________________
-
-    return context_extras
-
+        ),
+        # This value would be changed in index._render_cms_page(), if the
+        # plugin manager or any plugin set request.anonymous_view = False
+        "robots": "index,follow",
+    }
 
 
 def add_dynamic_context(request, context):
@@ -52,20 +40,18 @@ def add_dynamic_context(request, context):
         url = URLs.commandLink("auth", "logout")
         txt = "%s [%s]" % (_("Log out"), request.user.username)
     else:
-        url = URLs.commandLink("auth", "login/?next=%s" % request.path)
+#        url = URLs.commandLink("auth", "login/?next=%s" % request.path)
+        url = URLs.commandLink("auth", "login")
         txt = _("Log in")
 
-    context["login_link"] = mark_safe(
-        '<a href="%s">%s</a>' % (url, txt)
-    )
-    
+    context["login_link"] = mark_safe('<a href="%s">%s</a>' % (url, txt))
+
     # Put the language information into the context, if it exists.
     # see: http://www.djangoproject.com/documentation/i18n/
     if hasattr(request, 'session') and 'django_language' in request.session:
         context['django_language']=request.session['django_language']
     else:
         context['django_language']=''
-
 
 
 def add_css_tag(context, content, plugin_name, method_name):
