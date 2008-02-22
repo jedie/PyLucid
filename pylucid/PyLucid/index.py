@@ -263,12 +263,20 @@ def _get_page(request, page_id):
         # The ID in the url is wrong -> goto the default page
         default_page_id = get_default_page_id()
         current_page_obj = models.Page.objects.get(id=default_page_id)
-        request.user.message_set.create(
-            message=_(
-                "Info: The page ID in the url is wrong."
-                " (goto default page.)"
+
+        user = request.user
+        if user.is_authenticated():
+            # The page_msg system is not initialized, yet. So we must use the
+            # low level message_set method, but this ony exist for user how are
+            # login.
+            # ToDo: How can we sent a message to anonymous users?
+            user.message_set.create(
+                message=_(
+                    "Error: The page ID in the url is wrong."
+                    " (goto default page.)"
+                )
             )
-        )
+
     return current_page_obj
 
 def handle_command(request, page_id, module_name, method_name, url_args):
