@@ -72,7 +72,11 @@ def apply_markup(content, context, markup_object):
                 " Download: http://sourceforge.net/projects/python-markdown/"
             )
         else:
-            content = markdown.markdown(content)
+            # unicode support only in markdown v1.7 or above.
+            if markdown.version_info < (1,7):
+                content = force_unicode(markdown.markdown(smart_str(content)))
+            else:
+                content = markdown.markdown(content)
     elif markup == 'ReStructuredText':
         try:
             from docutils.core import publish_parts
