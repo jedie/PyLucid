@@ -2,6 +2,8 @@ function init_tinyMCE() {
     tinyMCE.init({
         apply_source_formatting : true,
         mode : "textareas",
+        plugins : "table,fullscreen",
+        theme_advanced_buttons3_add : "tablecontrols,fullscreen",
         height : "480",
         auto_focus : "mce_editor_0",
         theme : "advanced",
