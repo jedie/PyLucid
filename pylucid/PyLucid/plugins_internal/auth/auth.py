@@ -5,15 +5,32 @@
     PyLucid JS-SHA-Login
     ~~~~~~~~~~~~~~~~~~~~
 
-    A secure JavaScript SHA-1 Login.
+    A secure JavaScript SHA-1 Login and a plaintext fallback login.
 
-    TODO: Only plaintext login implemented!!!
+    two steps
+    ~~~~~~~~~
+    We split the login into two steps:
+        - step-1 -> input the username
+        - step-2 -> input the password
 
-    TODO: Clearing the session table?
+    the "next_url"
+    ~~~~~~~~~~~~~~
+    The "next_url" is for a redirect after a login. It's optional.
+    If there doesn't exist a "next_url" information, PyLucid displayed the
+    current page. In every _command URL is the current page ID.
+
+    The "next_url" is in the first step (input the username) a GET parameter.
+    e.g.: localhost/_command/1/auth/login/?next=/ExamplePages/not-viewable
+    Then, the "next_url" information went into the form and comes back in the
+    POST data.
+
+    TODO
+    ~~~~
+    Clearing the session table?
     http://www.djangoproject.com/documentation/sessions/#clearing-the-session-table
 
     Last commit info:
-    ~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~
     LastChangedDate: $LastChangedDate$
     Revision.......: $Rev$
     Author.........: $Author$
@@ -49,7 +66,8 @@ from django.conf import settings
 from PyLucid.tools import crypt
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.context_processors import add_dynamic_context
-from PyLucid.models import JS_LoginData
+from PyLucid.models import JS_LoginData, Preference
+from PyLucid.system.detect_page import get_default_page
 
 
 class WrongPassword(Exception):
@@ -149,8 +167,8 @@ class auth(PyLucidBasePlugin):
             )
 
         UsernameForm = forms.form_for_model(User, fields=("username",))
-        
-        next_url = self.request.GET.get('next',self.URLs['scriptRoot'])
+
+        next_url = self.request.GET.get("next", "")
 
         def get_data(form):
             if DEBUG: self.page_msg(self.request.POST)
@@ -214,7 +232,7 @@ class auth(PyLucidBasePlugin):
 
         PasswordForm = forms.form_for_model(User, fields=("password",))
 
-        next_url = self.request.POST.get('next_url',self.URLs['scriptRoot'])
+        next_url = self.request.POST.get('next_url', "")
 
         # Change the default TextInput to a PasswordInput
         PasswordForm.base_fields['password'].widget = forms.PasswordInput()
@@ -227,19 +245,18 @@ class auth(PyLucidBasePlugin):
 
         # Delete the default django help text:
         PasswordForm.base_fields['password'].help_text = ""
-        password_form = PasswordForm(self.request.POST)
 
         if "password" in self.request.POST:
+            password_form = PasswordForm(self.request.POST)
             if password_form.is_valid():
                 password = password_form.cleaned_data["password"]
                 try:
-                    self._check_plaintext_password(password, user)
+                    return self._check_plaintext_password(password, user)
                 except WrongPassword, msg:
                     self.page_msg.red(msg)
                     self._insert_reset_link(context)
-                else:
-                    # Login ok
-                    return HttpResponseRedirect(next_url)
+        else:
+            password_form = PasswordForm()
 
         context["form"] = password_form
         self._render_template("plaintext_login", context)#, debug=True)
@@ -254,13 +271,15 @@ class auth(PyLucidBasePlugin):
         if user == None:
             raise WrongPassword("Wrong password.")
 
-        self._login_user(user)
+        return self._login_user(user)
 
 
     def _login_user(self, user):
         """
         Log the >user< in.
         Used in self._check_plaintext_password() and self._sha_login()
+        Returns a redirect, if "next_url" exists otherwise returns None (for
+        display the current page).
         """
         self.page_msg.green(_("Password ok."))
         login(self.request, user)
@@ -268,10 +287,11 @@ class auth(PyLucidBasePlugin):
         # rebuild the login/logout link:
         add_dynamic_context(self.request, self.context)
 
-        next_url = self.request.POST.get('next_url',self.URLs['scriptRoot'])
+        if self.request.POST.get("next_url","") != "":
+            next_url = self.request.POST['next_url']
 
-        # Redirect to next URL
-        HttpResponseRedirect(next_url)
+            # Redirect to next URL
+            return HttpResponseRedirect(next_url)
 
 
     def _sha_login(self, user):
@@ -339,8 +359,8 @@ class auth(PyLucidBasePlugin):
                         msg += traceback.format_exc()
                 else:
                     if user:
-                        self._login_user(user)
-                        return HttpResponseRedirect(next_url)
+                        return self._login_user(user)
+
                 self._insert_reset_link(context)
                 self.page_msg.red(msg)
 
@@ -355,17 +375,7 @@ class auth(PyLucidBasePlugin):
         self.request.session['challenge'] = challenge
 
         PasswordForm = forms.form_for_model(User, fields=("password",))
-
-        if self.request.method == 'POST':
-            if DEBUG: self.page_msg(self.request.POST)
-            password_form = PasswordForm(self.request.POST)
-            if password_form.is_valid():
-                password = password_form.cleaned_data["password"]
-                self.page_msg("password:", password)
-                self.page_msg("SHA-1 - Not implemented completly, yet :(")
-                return HttpResponseRedirect(next_url)
-        else:
-            password_form = PasswordForm()
+        password_form = PasswordForm()
 
         context["form"] = password_form
         context["challenge"] = challenge
@@ -386,7 +396,13 @@ class auth(PyLucidBasePlugin):
         add_dynamic_context(self.request, self.context)
 
         self.page_msg.green("You logged out.")
-        return HttpResponseRedirect(self.URLs['scriptRoot'])
+
+        if not self.current_page.permitViewPublic:
+            # The current page, can't see anonymous users -> reriect to the
+            # default page
+            default_page = get_default_page(self.request)
+            url = default_page.get_absolute_url()
+            return HttpResponseRedirect(url)
 
     #__________________________________________________________________________
     # Password reset
