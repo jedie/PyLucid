@@ -268,8 +268,8 @@ class page_admin(PyLucidBasePlugin):
         context["url_abort"] = url_abort
 
 
-        if page_instance.markup.name == "None":
-            # If there is no markup engine used -> insert TinyMCE JS Editor
+        if page_instance.markup.id == 1:
+            # markup with id=1 is html + TinyMCE JS Editor
             js_data = (
                 '<script language="javascript" type="text/javascript"'
                 ' src="%stiny_mce/tiny_mce.js"></script>\n'

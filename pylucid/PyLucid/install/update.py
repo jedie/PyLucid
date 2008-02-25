@@ -10,6 +10,7 @@ from datetime import datetime
 
 from django.db import connection
 
+from PyLucid.install.install import Sync_DB
 from PyLucid.install.BaseInstall import BaseInstall
 from PyLucid.settings import OLD_TABLE_PREFIX
 from PyLucid.models import JS_LoginData, Page, Template, Style, Markup, Preference
@@ -17,8 +18,40 @@ from PyLucid.models import JS_LoginData, Page, Template, Style, Markup, Preferen
 from django.contrib.auth.models import User
 
 #______________________________________________________________________________
+class Update2(BaseInstall):
+    def view(self):
+        self._redirect_execute(self._update)
 
-from PyLucid.install.install import Sync_DB
+        return self._simple_render(
+            headline="Update PyLucid from v0.8.0 to v0.8.1"
+        )
+
+    def _update(self):
+        print "update markup...",
+        # insert a new markup for html without TinyMCE
+        m = Markup(id=0, name="html")
+        m.save()
+
+        # rename the old "html"
+        m = Markup.objects.get(id=1)
+        m.name = "html + TinyMCE"
+        m.save()
+        print "done."
+
+        print "existing Markups:"
+        for m in Markup.objects.all():
+            print "%5s - %s" % (m.id, m)
+
+
+def update2(request):
+    """
+    1. update from v0.8.0 to v0.8.1
+    """
+    return Update2(request).start_view()
+
+#______________________________________________________________________________
+
+
 class Update(Sync_DB):
     """
     Update a old PyLucid installation.
@@ -399,10 +432,9 @@ class Update(Sync_DB):
 
 
 
-
 def update(request):
     """
-    1. update DB tables from v0.7.2 to django PyLucid v0.8
+    2. update DB tables from v0.7.2 to django PyLucid v0.8
     """
     return Update(request).start_view()
 
@@ -574,37 +606,9 @@ class UpdateTemplates(BaseInstall):
             if tag in content:
                 print "\t - WARNING: unsupportet tag '%s' in Template!" % tag
 
-    #___________________________________________________________________________
-
-
-
-#    def update_internalpage(self):
-#        from PyLucid.tools.Diff import display_plaintext_diff
-#        from PyLucid.models import PagesInternal
-#
-#        for internal_page in PagesInternal.objects.all():
-#            name = internal_page.name
-#            old_content = internal_page.content_html
-#
-#            print "\n==================[ %s ]==================\n" % name
-#            _display_warnings(old_content)
-#            content = _convert_internalpage(old_content)
-#            if not content:
-#                print "\t - Nothing to change."
-#                continue
-#
-#            print "\t - changed!\n\nthe diff:"
-#            display_plaintext_diff(old_content, content)
-#
-#            internal_page.content_html = content
-#            internal_page.save()
-#            print "\t - updated and saved."
-#            print
-#            print
-
 
 def update_templates(request):
     """
-    2. update to the new django template engine
+    3. update to the new django template engine
     """
     return UpdateTemplates(request).start_view()
