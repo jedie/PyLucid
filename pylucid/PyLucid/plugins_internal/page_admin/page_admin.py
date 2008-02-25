@@ -478,7 +478,9 @@ class page_admin(PyLucidBasePlugin):
         """
         Render the tinyTextile Help page.
         """
-        context = {"add_data_tag": settings.ADD_DATA_TAG}
+        context = {
+            "add_data_tag": mark_safe(settings.ADD_DATA_TAG)
+        }
         content = self._get_rendered_template("tinyTextile_help", context)
         # insert CSS data from the internal page into the rendered page:
         content = replace_add_data(self.context, content)
@@ -527,7 +529,7 @@ class page_admin(PyLucidBasePlugin):
         context = {
             "plugin_list": get_plugin_list(),
             "page_fields": get_page_fields(),
-            "add_data_tag": settings.ADD_DATA_TAG,
+            "add_data_tag": mark_safe(settings.ADD_DATA_TAG)
         }
         content = self._get_rendered_template("tag_list", context)
         # insert CSS data from the internal page into the rendered page:
