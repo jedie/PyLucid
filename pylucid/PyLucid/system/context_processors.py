@@ -23,7 +23,7 @@ def static(request):
         ),
         # This value would be changed in index._render_cms_page(), if the
         # plugin manager or any plugin set request.anonymous_view = False
-        "robots": "index,follow",
+        "robots": "index,follow", # TODO: remove in v0.9, see: ticket:161
     }
 
 

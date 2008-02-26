@@ -22,7 +22,7 @@ plugin_manager_data = {
         "must_login"    : True,
         "must_admin"    : False,
         "has_Tags"      : True,
-        "no_rights_error" : True, # Fehlermeldung, wenn der User nicht eingeloggt ist, wird nicht angezeigt
+        "no_rights_error" : True, # TODO: remove in v0.9, see: ticket:161
         "internal_page_info" : {
             "name"              : "top_menu",
             "description"       : "Administration front menu",

@@ -51,9 +51,12 @@ def _render_cms_page(request, context, page_content=None):
     - render a _command request: The page.content is the output from the plugin.
     """
     if request.anonymous_view == False:
+        # TODO: remove in v0.9, see: ticket:161
         # context["robots"] was set in contex_processors.static()
         # Hide the response from search engines
         context["robots"] = "NONE,NOARCHIVE"
+
+    context["anonymous_view"] = request.anonymous_view
 
     current_page = context["PAGE"]
 

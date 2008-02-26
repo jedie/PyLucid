@@ -133,6 +133,7 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         if request.user.is_anonymous():
             # User is not logged in
             if method_cfg.get("no_rights_error", False) == True:
+                # TODO: remove in v0.9, see: ticket:161
                 # No error message should be displayed for this plugin.
                 # e.g. admin_menu
                 return ""
