@@ -15,7 +15,7 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-import pickle
+import os, posixpath, pickle
 
 from django.db import models
 from django.dispatch import dispatcher
@@ -548,6 +548,57 @@ class Style(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_filename(self):
+        """
+        How to make it URL and filesystem save?
+        """
+        return self.name + ".css"
+
+    def get_absolute_url(self):
+        """
+        Get the absolute url (without the domain/host part)
+        """
+        filename = self.get_filename()
+        url = posixpath.join(
+            "",
+            settings.MEDIA_URL,
+            settings.PYLUCID_MEDIA_DIR,
+            filename, # FIXME: url save?
+            ""
+        )
+        return url
+
+    def get_filepath(self):
+        """
+        FIXME: How to handle special characters?
+        """
+        filename = self.get_filename()
+        filepath = os.path.join(
+            settings.MEDIA_ROOT,
+            settings.PYLUCID_MEDIA_DIR,
+            filename
+        )
+        # FIXME: Should we use os.path.abspath() ?
+        return filepath
+
+    def save(self):
+        """
+        Save a new or updated stylesheet.
+        try to store the content into a file in the media path.
+        """
+        filepath = self.get_filepath()
+        try:
+            f = file(filepath, "w") # FIXME: Encoding?
+            content = self.content.encode(settings.FILE_CHARSET)
+            f.write(content)
+            f.close()
+        except Exception, e:
+            # FIXME: How can we give feedback?
+#            print "Style save error:", e # Olny for dev server
+            pass
+
+        super(Style, self).save() # Call the "real" save() method
 
 
 class Template(models.Model):

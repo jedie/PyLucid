@@ -52,11 +52,21 @@ class page_style(PyLucidBasePlugin):
         self.response.write(settings.ADD_DATA_TAG)
 
         current_page = self.context["PAGE"]
-        style_name = current_page.style.name
-        style_filename = "%s.css" % style_name
+        current_style = current_page.style
 
-        url = self.URLs.methodLink("sendStyle")
-        url = url + style_filename
+        style_filepath = current_style.get_filepath()
+        if os.path.isfile(style_filepath):
+            # The stylesheet was stored into a static file
+            url = current_style.get_absolute_url()
+        else:
+            # _command fake-file request
+#            self.page_msg("file '%s' not found." % style_filepath)
+
+            style_name = current_style.name
+            style_filename = "%s.css" % style_name
+
+            url = self.URLs.methodLink("sendStyle")
+            url = url + style_filename
 
         cssTag = '<link rel="stylesheet" type="text/css" href="%s" />\n' % url
         self.response.write(cssTag)
