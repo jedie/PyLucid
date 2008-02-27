@@ -35,7 +35,7 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 
 from PyLucid.system.exceptions import *
-from PyLucid.models import Plugin, Markup, PagesInternal
+from PyLucid.models import Plugin, Markup
 
 def _import(request, from_name, object_name):
     """
@@ -228,112 +228,6 @@ def get_plugin_list(plugin_path):
     return plugin_list
 
 
-def get_internalpage_files(package_name, plugin_name, internal_page_name):
-    """
-    read html, js, css files for the internal page.
-    If there exist no file, it returns "".
-    """
-    basepath = os.path.join(
-        package_name.replace(".",os.sep), plugin_name, "internal_pages",
-        internal_page_name,
-    )
-    def read_file(ext):
-        try:
-            f = file(basepath + ext, "r")
-            content = f.read()
-            f.close()
-        except IOError, e:
-            return ""
-        else:
-            return content
-
-    html = read_file(".html")
-    js = read_file(".js")
-    css = read_file(".css")
-
-    return html, js, css
-
-
-def install_internalpage(plugin, package_name, plugin_name, plugin_config,
-                                                                extra_verbose):
-    """
-    install all internal pages for the given plugin.
-
-    TODO: Befor create: check if page is in db
-    """
-#    try:
-#        internal_page = PagesInternal.objects.get(name = internal_page_name)
-#    except PagesInternal.DoesNotExist, e:
-
-    try:
-        plugin_manager_data = plugin_config.plugin_manager_data
-    except AttributeError:
-        # The old way?
-        try:
-            plugin_manager_data = plugin_config.module_manager_data
-        except AttributeError, e:
-            msg = (
-                "Can't get 'plugin_manager_data' from %s.%s"
-                " (Also old 'module_manager_data' not there.)"
-                " Org.Error: %s"
-            ) % (package_name, plugin_name, e)
-            raise AttributeError(msg)
-        print "*** DeprecationWarning: ***"
-        print " - You should rename module_manager_data to plugin_manager_data"
-        print
-
-    for method, cfg in plugin_manager_data.iteritems():
-        if not "internal_page_info" in cfg:
-            # plugin method has no internal page
-            continue
-
-        internal_page_info = cfg["internal_page_info"]
-
-        # complete name:
-        internal_page_name = internal_page_info.get("name", method)
-
-        html, js, css = get_internalpage_files(
-            package_name, plugin_name, internal_page_name
-        )
-
-        markup_name = internal_page_info.get("markup", None)
-        if markup_name == None:
-            markup_name = "None"
-        elif markup_name == "tinyTextile":
-            print "*** DeprecationWarning: ***"
-            print " - Markup name 'tinyTextile' was renamed to 'textile'!"
-            print " - Please correct the config entry."
-            markup_name = "textile"
-
-        markup = Markup.objects.get(name=markup_name)
-
-        template_engine = internal_page_info.get("template_engine", None)
-        if template_engine:
-            print "*** DeprecationWarning: ***"
-            print " - 'template_engine' key in internal_page_info is obsolete!"
-            print " - Only django template engine is supported!"
-            print
-
-        internal_page_name = ".".join([plugin_name, internal_page_name])
-
-        # django bug work-a-round
-        # http://groups.google.com/group/django-developers/browse_thread/thread/e1ed7f81e54e724a
-        internal_page_name = internal_page_name.replace("_", " ")
-
-        if extra_verbose:
-            print "install internal page '%s'..." % internal_page_name,
-        internal_page = PagesInternal.objects.create(
-            name = internal_page_name,
-            plugin = plugin, # The associated plugin
-            markup = markup,
-
-            content_html = html,
-            content_js = js,
-            content_css = css,
-            description = internal_page_info['description'],
-        )
-        if extra_verbose:
-            print "OK"
 
 def _install_plugin(package_name, plugin_name, plugin_config, active,
                                                                 extra_verbose):
@@ -382,9 +276,6 @@ def install_plugin(request, package_name, plugin_name, active,
 
     plugin = _install_plugin(
         package_name, plugin_name, plugin_config, active, extra_verbose
-    )
-    install_internalpage(
-        plugin, package_name, plugin_name, plugin_config, extra_verbose
     )
 
 

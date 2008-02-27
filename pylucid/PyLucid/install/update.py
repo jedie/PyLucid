@@ -20,13 +20,14 @@ from django.contrib.auth.models import User
 #______________________________________________________________________________
 class Update2(BaseInstall):
     def view(self):
-        self._redirect_execute(self._update)
+        self._redirect_execute(self._update_markup)
+        self._redirect_execute(self._update_tables)
 
         return self._simple_render(
             headline="Update PyLucid from v0.8.0 to v0.8.1"
         )
 
-    def _update(self):
+    def _update_markup(self):
         print "update markup...",
         # insert a new markup for html without TinyMCE
         m = Markup(id=0, name="html")
@@ -41,6 +42,17 @@ class Update2(BaseInstall):
         print "existing Markups:"
         for m in Markup.objects.all():
             print "%5s - %s" % (m.id, m)
+
+    def _update_tables(self):
+        print "update database tables...",
+        try:
+            # FIXME: Can we use the ORM here?
+            cursor = connection.cursor()
+            cursor.execute("DROP TABLE PyLucid_pagesinternal;")
+        except Exception, e:
+            print "Error:", e
+        else:
+            print "OK"
 
 
 def update2(request):

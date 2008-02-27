@@ -28,7 +28,7 @@ from django import newforms as forms
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from PyLucid.models import Plugin, PagesInternal
+from PyLucid.models import Plugin
 from PyLucid.system.plugin_manager import get_plugin_list, get_plugin_config, \
                                                                 install_plugin
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
@@ -94,7 +94,9 @@ class plugin_admin(PyLucidBasePlugin):
         installed_names = []
         active_plugins = []
         deactive_plugins = []
-        installed_plugins = Plugin.objects.all()
+        installed_plugins = Plugin.objects.all().order_by(
+            'package_name', 'plugin_name'
+        )
         for plugin in installed_plugins:
             installed_names.append(plugin.plugin_name)
             if plugin.active:
@@ -153,11 +155,6 @@ class plugin_admin(PyLucidBasePlugin):
     #__________________________________________________________________________
     # The real action methods
 
-    def _get_internal_page_info(self, plugin_obj):
-        pages = PagesInternal.objects.filter(plugin=plugin_obj)
-        page_names = [page.name.split(".",1)[-1] for page in pages]
-        return pages, page_names
-
     def _install_plugin(self, plugin_name, package_name, active=False):
         """
         Put the plugin data and the internal pages from it into the database.
@@ -172,11 +169,8 @@ class plugin_admin(PyLucidBasePlugin):
                 raise
             raise ActionError(_("Error installing Plugin:"), e)
         else:
-            plugin = Plugin.objects.get(plugin_name=plugin_name)
-            pages, page_names = self._get_internal_page_info(plugin)
             self.page_msg.green(
-                _("Plugin '%s' and internal pages %s saved into"
-                " the database.") % (plugin, page_names)
+                _("Plugin '%s' saved into the database.") % plugin_name
             )
 
     def _deinstall_plugin(self, plugin_id, force=False):
@@ -188,8 +182,6 @@ class plugin_admin(PyLucidBasePlugin):
             if plugin.can_deinstall==False and force==False:
                 self.page_msg.red("Can't deinstall the plugin. It's locked.")
                 return
-            pages, page_names = self._get_internal_page_info(plugin)
-            pages.delete()
             plugin.delete()
         except Exception, e:
             if self.request.debug:
@@ -197,8 +189,7 @@ class plugin_admin(PyLucidBasePlugin):
             raise ActionError(_("Error removing Plugin: %s") % e)
         else:
             self.page_msg.green(
-                _("Plugin '%s' and internal pages %s removed from the"
-                " database.") % (plugin, page_names)
+                _("Plugin '%s' removed from the database.") % plugin
             )
 
     def _deactivate_plugin(self, plugin_id):

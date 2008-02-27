@@ -365,42 +365,9 @@ class Markup(models.Model):
         return self.name
 
 
-class PagesInternal(models.Model):
-    name = models.CharField(primary_key=True, max_length=150)
-    plugin = models.ForeignKey(
-        "Plugin", #to_field="id",
-        help_text="The associated plugin"
-    )
-    markup = models.ForeignKey("Markup",
-        related_name="page_internal_markup",
-        help_text="the used markup language for this page"
-    )
-
-    createtime = models.DateTimeField(auto_now_add=True)
-    lastupdatetime = models.DateTimeField(auto_now=True)
-    createby = models.ForeignKey(
-        User, related_name="page_internal_createby",
-        null=True, blank=True,
-    )
-    lastupdateby = models.ForeignKey(
-        User, related_name="page_internal_lastupdateby",
-        null=True, blank=True,
-    )
-
-    content_html = models.TextField()
-    content_js = models.TextField(blank=True)
-    content_css = models.TextField(blank=True)
-    description = models.TextField()
-
-    class Admin:
-        list_display = ("name", "description")
-        #ordering = ('plugin',"name")
-        list_filter = ("plugin",)
-        date_hierarchy = 'lastupdatetime'
-        search_fields = ["name", "content_html", "content_js", "content_css"]
-
-    def __unicode__(self):
-        return self.name
+#class PagesInternal(models.Model):
+#    # Obsolete!
+#    pass
 
 
 class Plugin(models.Model):
