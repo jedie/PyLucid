@@ -3,7 +3,7 @@
 A base class for every _install view.
 """
 
-import sys, os
+import sys, os, posixpath
 
 from PyLucid import PYLUCID_VERSION_STRING
 from PyLucid.system.response import SimpleStringIO
@@ -106,10 +106,14 @@ class BaseInstall(object):
         setup_debug(request)
 
         self.request = request
+
+        media_url = posixpath.join(
+            settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR, ""
+        ) # With appended slash, for backward compatible
         self.context = {
             "output": "",
             "request": request,
-            "PyLucid_media_url": settings.PYLUCID_MEDIA_URL,
+            "PyLucid_media_url": media_url,
             "version": PYLUCID_VERSION_STRING,
             "current_working_dir": os.getcwd(),
         }

@@ -41,7 +41,7 @@
 
 __version__ = "$Rev$"
 
-import datetime
+import datetime, posixpath
 
 from django.http import HttpResponseRedirect
 from django.core import mail
@@ -316,12 +316,16 @@ class auth(PyLucidBasePlugin):
             return
         next_url = self.request.POST.get('next_url',self.URLs['scriptRoot'])
         salt = js_login_data.salt
+
+        media_url = posixpath.join(
+            settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR,
+        )
         context = {
             "username": user.username,
             "fallback_url": self.URLs.adminLink(""),
             "salt": salt,
             "next_url": next_url,
-            "PyLucid_media_url": settings.PYLUCID_MEDIA_URL,
+            "PyLucid_media_url": media_url,
         }
 
         if "sha_a2" in self.request.POST and "sha_b" in self.request.POST:

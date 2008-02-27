@@ -168,20 +168,11 @@ SERVE_STATIC_FILES = False
 #     Example-2: "/home/foo/htdocs/media/"
 MEDIA_ROOT = "./media/"
 
-
 # URL that handles the media served from MEDIA_ROOT.
 #     Example-1: "/media/" (default)
 #     Examlpe-2: "http://other_domain.net/media/"
 #     Example-3: "http://media.your_domain.net/"
 MEDIA_URL = "/media/"
-
-
-# URL for the PyLucid media files.
-#     Example-1: "/media/PyLucid/" (default)
-#     Examlpe-2: "http://other_domain.net/media/PyLucid/"
-#     Example-3: "http://pylucid.media.your_domain.net/"
-PYLUCID_MEDIA_URL = "/media/PyLucid/"
-
 
 # URL prefix for admin media -- CSS, JavaScript and images.
 #     Examples-1: "/django/contrib/admin/media/" (default)
@@ -320,6 +311,26 @@ INSTALLED_APPS = (
 #_____________________________________________________________________________
 # PYLUCID BASE SETTINGS
 # basic adjustments, witch don't have to be changed.
+
+# All PyLucid media files stored in a sub directory under the django media
+# path. Used for building filesystem path and URLs.
+# filesystem path: MEDIA_ROOT + PYLUCID_MEDIA_SUBDIR
+# URLs: MEDIA_URL + PYLUCID_MEDIA_SUBDIR
+PYLUCID_MEDIA_DIR = "PyLucid"
+
+# Sub directory name for all default internal pages. It would be used to build
+# the filesystem path and the URL!
+# filesystem path: MEDIA_ROOT + PYLUCID_MEDIA_SUBDIR + INTERNAL_PAGE_PATH
+# URLs: MEDIA_URL + PYLUCID_MEDIA_SUBDIR + INTERNAL_PAGE_PATH
+INTERNAL_PAGE_DIR = "internal_page"
+
+# If you will change a internal page, you must copy a file from
+# INTERNAL_PAGE_PATH into this directory. (Same subdirectory!)
+# (default: "custom")
+# filesystem path: MEDIA_ROOT + PYLUCID_MEDIA_SUBDIR + CUSTOM_INTERNAL_PAGE_PATH
+# URLs: MEDIA_URL + PYLUCID_MEDIA_SUBDIR + CUSTOM_INTERNAL_PAGE_PATH
+CUSTOM_INTERNAL_PAGE_DIR = "custom"
+
 
 # Path to the Plugins
 PLUGIN_PATH = (

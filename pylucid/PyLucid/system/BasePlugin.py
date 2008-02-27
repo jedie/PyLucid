@@ -31,24 +31,23 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-import pprint
+import os, pprint
 
+from django.conf import settings
 from django.utils.safestring import mark_safe
 
-from PyLucid.db.internal_pages import get_internal_page
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
 from PyLucid.tools.utils import escape
-
+from PyLucid.system.internal_page import InternalPage, InternalPageNotFound
 
 
 class PyLucidBasePlugin(object):
 
-    # A simple cache for the internal pages. Because if a plugin use very
-    # often a small template, we have many database queries!
-    _internal_page_cache = {}
-
     def __init__(self, context, response):
+        self.plugin_name = self.__class__.__name__
+        self.internal_page = InternalPage(context, self.plugin_name)
+
         self.context    = context
         self.response   = response
 
@@ -74,63 +73,42 @@ class PyLucidBasePlugin(object):
         self.response.write("</pre></fieldset>")
 
 
-    def _get_template(self, internal_page_name):
-        """
-        Retuned the internal page object.
-        Get the plugin name throu the superior class name.
-        Use a simple cache to hold down the database access.
-        """
-        if internal_page_name in self._internal_page_cache:
-            return self._internal_page_cache[internal_page_name]
-
-        plugin_name = self.__class__.__name__
-        internal_page = get_internal_page(plugin_name, internal_page_name)
-
-        if not self.request.debug:
-            # Use the cache only if DEBUG is off -> For development the cache
-            # is hindering, if we change the internal page content.
-            self._internal_page_cache[internal_page_name] = internal_page
-
-        return internal_page
-
-    def _add_js_css_data(self, internal_page):
+    def _add_js_css_data(self, internal_page_name):
         """
         insert the additional JavaScript and StyleSheet data into the global
         context.
+        page_style.replace_add_data() puts the file links into the page.
         """
-        def add(attr_name, key):
-            content = getattr(internal_page, attr_name)
-            if content == "":
-                # Nothig to append ;)
-                return
-
-            self.context[key].append({
-                "from_info": "internal page: '%s'" % internal_page.name,
-                "data": content,
+        for slug in ("js", "css"):
+            url = self.internal_page.get_url(internal_page_name, slug)
+            if url == None:
+                continue
+            self.context["%s_data" % slug].append({
+                "plugin_name": self.plugin_name,
+                "url": url,
             })
-
-        # append the JavaScript data
-        add("content_js", "js_data")
-
-        # append the StyleSheet data
-        add("content_css", "css_data")
-
 
     def _get_rendered_template(self, internal_page_name, context, debug=False):
         """
         return a rendered internal page
         """
-        internal_page = self._get_template(internal_page_name)
+        try:
+            content = self.internal_page.get_content(internal_page_name, "html")
+        except InternalPageNotFound:
+            self.page_msg.red(
+                "Internal page '%s' not found!" % internal_page_name
+            )
+            return
 
-        content_html = internal_page.content_html
+        self._add_js_css_data(internal_page_name)
 
-        self._add_js_css_data(internal_page)
+        html = self.__render(content, context, debug)
 
-        html = self.__render(content_html, context, debug)
+        # FIXME: Should be remove the markup function in internal pages?
+#        markup_object = internal_page.markup
+#        html = apply_markup(html, self.context, markup_object)
 
-        markup_object = internal_page.markup
-        html = apply_markup(html, self.context, markup_object)
-
+        html = mark_safe(html) # turn djngo auto-escaping off
         return html
 
     def _render_template(self, internal_page_name, context, debug=False):
@@ -138,7 +116,6 @@ class PyLucidBasePlugin(object):
         render a template and write it into the response object
         """
         html = self._get_rendered_template(internal_page_name, context, debug)
-        html = mark_safe(html) # turn djngo auto-escaping off
         self.response.write(html)
 
     def _render_string_template(self, template, context, debug=False):

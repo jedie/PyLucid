@@ -1,0 +1,10 @@
+<!-- additional JS/CSS files START -->
+{% if js_data %}{% for js in js_data %}
+<!-- additional javascript from {{ js.plugin_name }} -->
+<script src="{{ js.url }}" type="text/javascript" language="javascript" /></script>
+{% endfor %}{% endif %}
+{% if css_data %}{% for css in css_data %}
+<!-- additional stylesheets from {{ css.plugin_name }} -->
+<link href="{{ css.url }}" rel="stylesheet" type="text/css" />
+{% endfor %}{% endif %}
+<!-- additional JS/CSS files END -->

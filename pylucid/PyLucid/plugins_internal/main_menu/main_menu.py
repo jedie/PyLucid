@@ -84,7 +84,7 @@ class main_menu(PyLucidBasePlugin):
                 entry["is_current"] = True
 
             # Render one menu entry
-            html = self._get_rendered_template("main menu li", entry)
+            html = self._get_rendered_template("main_menu_li", entry)
             result.append(html)
 
         context = {
@@ -92,7 +92,7 @@ class main_menu(PyLucidBasePlugin):
         }
 
         # render all menu entries into a <ul> tag
-        menu_html = self._get_rendered_template("main menu ul", context)
+        menu_html = self._get_rendered_template("main_menu_ul", context)
 
         return mark_safe(menu_html)
 

@@ -41,7 +41,6 @@ from django.conf import settings
 from PyLucid.models import Style
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.content_processors import render_string_template
-from PyLucid.db.internal_pages import get_internal_page
 
 class page_style(PyLucidBasePlugin):
 
@@ -102,16 +101,14 @@ class page_style(PyLucidBasePlugin):
 
         return response
 
-
+from PyLucid.system.internal_page import get_internal_page, InternalPageNotFound
 def replace_add_data(context, content):
     """
     Replace the temporary inserted "add data" tag, with all collected CSS/JS
     contents, e.g. from the internal pages.
     Note: The tag added in PyLucid.plugins_internal.page_style
     """
-
-    internal_page = get_internal_page("page_style", "add_data")
-    internal_page_content = internal_page.content_html
+    internal_page_content = get_internal_page(context, "page_style", "add_data")
 
     context = {
         "js_data": context["js_data"],
