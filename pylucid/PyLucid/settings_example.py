@@ -19,9 +19,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyright: 2007 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
@@ -385,6 +385,9 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "PyLucid.plugins_internal.auth.auth_backend.JS_SHA_Backend",
 )
+
+# Unit test runner
+TEST_RUNNER = 'tests.run_tests'
 
 #_____________________________________________________________________________
 # CHANGEABLE PYLUCID SETTINGS

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
     PyLucid unittest
     ~~~~~~~~~~~~~~~~
@@ -9,31 +8,19 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyright: 2007 by the PyLucid team.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-
-from setup_environment import setup, make_insert_dump
-setup(
-    path_info=False, extra_verbose=False,
-    syncdb=True, insert_dump=False
-)
-
-#______________________________________________________________________________
-# Test:
-
-import unittest
-
+import tests
 from PyLucid.models import Preference, Plugin
 
 
-
-class TestPreference(unittest.TestCase):
+class TestPreference(tests.TestCase):
     def setUp(self):
         " Delete all preferences "
         self.test_value = {"i": 1, "s": "test", "t": (1,2,3), "l": [1,2,3]}
@@ -41,7 +28,6 @@ class TestPreference(unittest.TestCase):
         Preference.objects.all().delete()
 
         self.assertEqual(Preference.objects.all().count(), 0)
-
 
     def test_create(self):
         """
@@ -64,7 +50,6 @@ class TestPreference(unittest.TestCase):
         # The default should be the old value:
         self.assertEqual(p.default_value, self.test_value)
 
-
     def test_diff_default(self):
         """
         Create a new preference entry with different value <-> default_value
@@ -84,7 +69,6 @@ class TestPreference(unittest.TestCase):
         self.assertEqual(p.value, u"new value")
         # The default should be the old value:
         self.assertEqual(p.default_value, [1,2,3])
-
 
     def test_cache(self):
         """
@@ -111,7 +95,6 @@ class TestPreference(unittest.TestCase):
             default_value1 is default_value2, True,
             "The cahing seems not to work for 'default_value'"
         )
-
 
     def test_plugin_assoc(self):
         test_value1 = {"plugin": 1, "name": "test1"}
@@ -156,24 +139,17 @@ class TestPreference(unittest.TestCase):
         p = Preference.objects.get(plugin=plugin2, name="test2")
         self.assertEqual(p.value, test_value4)
 
-
     def test_install_dump(self):
         """
         Test the _install dump.
-        This test must naturally update if the dump changed ;)
         """
-        self.assertEqual(Preference.objects.all().count(), 0)
+        # This test must naturally update if the dump changed ;)
 
         # insert the _install dump:
-        make_insert_dump(extra_verbose=False)
-
+        tests.load_db_dumps(extra_verbose=False)
         self.assertEqual(Preference.objects.all().count(), 2)
 
-        # Build a new dict, from the current _install dump:
-#        for entry in Preference.objects.all():
-#            print " "*11,
-#            print '"%s": %s,' % (entry.name, entry.value)
-
+        # Check that every page has default properties.
         defaults = {
             "index page": 1,
             "auto shortcuts": True,
@@ -184,18 +160,3 @@ class TestPreference(unittest.TestCase):
             self.assertNotEqual(p._value, value)
             self.assertEqual(p.default_value, value)
             self.assertNotEqual(p._default_value, value)
-
-
-
-
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestPreference))
-    return suite
-
-if __name__ == "__main__":
-    print
-    print ">>> Unitest"
-    print "_"*79
-    unittest.main()
-    sys.exit()

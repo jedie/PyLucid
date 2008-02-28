@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
     PyLucid unittest
     ~~~~~~~~~~~~~~~~
@@ -9,32 +8,23 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
-    :copyright: 2007 by Jens Diemer.
+    :copyright: 2007 by the PyLucid team.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from setup_environment import setup, get_fake_context
-setup(
-    path_info=False, extra_verbose=False,
-    syncdb=False, insert_dump=False,
-    install_plugins=False
-)
+import os
 
-#______________________________________________________________________________
-# Test:
-
-import os, unittest
-
-from django.conf import settings
+import tests
+from tests.utils.FakeRequest import get_fake_context
 
 from PyLucid.system.URLs import URLs
+from django.conf import settings
 
-
-class TestBase(unittest.TestCase):
+class UrlsTestCase(tests.TestCase):
     def setUp(self):
         context = get_fake_context()
         self.URLs = URLs(context)
@@ -43,7 +33,6 @@ class TestBase(unittest.TestCase):
         """
         Check the defaults
         """
-#        self.URLs.debug()
         self.assertEqual(
             self.URLs["adminBase"], "/%s" % settings.ADMIN_URL_PREFIX
         )
@@ -138,14 +127,3 @@ class TestBase(unittest.TestCase):
             self.URLs.make_absolute_url(["test1", "test2"]),
             "%s/test1/test2/" % prefix
         )
-
-
-
-if __name__ == "__main__":
-    print
-    print ">>> Unitest: PyLucid.system.URLs"
-    print
-    print "Note the URLs.py has some DocTests, too ;)"
-    print
-    print "_"*79
-    unittest.main()

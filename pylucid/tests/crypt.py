@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """
     PyLucid unittest
     ~~~~~~~~~~~~~~~~
@@ -9,35 +8,29 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyright: 2007 by Jens Diemer.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from setup_environment import setup, make_insert_dump
-setup(
-    path_info=False, extra_verbose=False,
-    syncdb=False, insert_dump=False,
-    install_plugins=False
-)
-
 #______________________________________________________________________________
 # Test:
 
-import unittest
-
+import tests
 
 from PyLucid.tools.crypt import SALT_HASH_LEN, SaltHashError, make_salt_hash, \
                         check_salt_hash, salt_hash_to_dict, encrypt, decrypt
 
 
-
-class TestSaltHash(unittest.TestCase):
+class TestSaltHash(tests.TestCase):
     """
-    Test for make_salt_hash, check_salt_hash and salt_hash_to_dict
+    Test for make_salt_hash, check_salt_hash and salt_hash_to_dict.
+
+    Class is inherited directly from unittest.TestCase as PyLucid database is
+    not needed for tests.
     """
     ascii_string = "".join([chr(i) for i in xrange(128)])
 
@@ -88,9 +81,7 @@ class TestSaltHash(unittest.TestCase):
         self.assertEqual(salt_hash_dict, check)
 
 
-
-
-class TestCrypt(unittest.TestCase):
+class TestCrypt(tests.TestCase):
     """
     Test for "encrypt"
      and "decrypt"
@@ -168,12 +159,3 @@ class TestCrypt(unittest.TestCase):
                 print "-"*80
                 raise AssertionError(msg)
 
-
-if __name__ == "__main__":
-    print
-    print ">>> Unitest: PyLucid.tools.crypt"
-    print
-    print "Note the crypt.py has DocTests, too ;)"
-    print
-    print "_"*79
-    unittest.main()

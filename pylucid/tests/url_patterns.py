@@ -9,23 +9,13 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyright: 2007 by Jens Diemer.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
-
-from setup_environment import setup, get_fake_context
-setup(
-    path_info=False, extra_verbose=False,
-    syncdb=False, insert_dump=False,
-    install_plugins=False
-)
-
-#______________________________________________________________________________
-# Test:
 
 import os, unittest
 
@@ -38,13 +28,12 @@ settings.SERVE_STATIC_FILES = True
 
 from django.core.urlresolvers import reverse, RegexURLResolver, NoReverseMatch
 
-
-print "Used url patterns:"
-print "-"*80
-from PyLucid.urls import urls
-for url in urls:
-    print url
-print "-"*80
+# print "Used url patterns:"
+# print "-"*80
+# from PyLucid.urls import urls
+# for url in urls:
+#     print url
+# print "-"*80
 
 
 class TestURLpatterns_reverse_test(unittest.TestCase):
@@ -126,7 +115,6 @@ class TestURLpatterns(unittest.TestCase):
         self.module_name = None
         self.func_name = None
 
-
     def path_test(self, path, args=(), kwargs={}, test_kwargs=True):
         """
         get the function information via the RegexURLResolver.
@@ -139,7 +127,6 @@ class TestURLpatterns(unittest.TestCase):
         self.assertEqual(args, function_args)
         if test_kwargs:
             self.assertEqual(kwargs, function_kwargs)
-
 
     def test_cms_view(self):
         """
@@ -161,7 +148,6 @@ class TestURLpatterns(unittest.TestCase):
             "/shortcut1/shortcut2/shortcut3/",
             args=('shortcut1/shortcut2/shortcut3/',)
         )
-
 
     def test_permalink(self):
         """
@@ -194,7 +180,6 @@ class TestURLpatterns(unittest.TestCase):
         self.path_test(base_path + "/1/", kwargs = {'page_id': '1'})
         self.path_test(base_path + "/1/shortcut", kwargs = {'page_id': '1'})
         self.path_test(base_path + "/1/shortcut/", kwargs = {'page_id': '1'})
-
 
     def test_command_url(self):
         """
@@ -287,7 +272,6 @@ class TestURLpatterns(unittest.TestCase):
             }
         )
 
-
     def test_install_url(self):
         """
         the _install section urls
@@ -328,7 +312,6 @@ class TestURLpatterns(unittest.TestCase):
             }
         )
 
-
     def test_static_serve(self):
         """
         check the media urls
@@ -343,13 +326,3 @@ class TestURLpatterns(unittest.TestCase):
         self.path_test(base_path + "path1/path2", test_kwargs=False)
         self.path_test(base_path + "path1/path2/", test_kwargs=False)
 
-
-
-
-
-if __name__ == "__main__":
-    print
-    print ">>> Unitest for the ./PyLucid/urls.py re patterns."
-    print
-    print "_"*79
-    unittest.main()

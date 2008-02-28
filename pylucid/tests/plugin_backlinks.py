@@ -10,67 +10,27 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2008 by Jens Diemer.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from setup_environment import setup#, get_fake_context
-setup(
-    path_info=False, extra_verbose=False,
-    syncdb=True, insert_dump=True,
-    install_plugins=True
-)
-
 #______________________________________________________________________________
 # Test:
 
-import os, unittest, pprint
+import os, pprint
+
+import tests
 
 from django.conf import settings
-from django.test.client import Client
 
-from content_tests_utils import ContentTestBase, TEST_PAGES
-from PyLucid.db.internal_pages import get_internal_page
 from PyLucid.models import Page, Template, Preference
 
 
-#DEBUG = True
-DEBUG = False
-
-
-PLUGIN_NAME = INTERNAL_PAGE_NAME = "back_links"
-
-
-
-
-class TestPrepare(ContentTestBase):
-    """
-    Test the href regex
-    """
-    def test_href_re(self):
-        """
-        Get all links from the internal page and compare with a reference.
-        """
-        internal_page = get_internal_page(PLUGIN_NAME, INTERNAL_PAGE_NAME)
-        content = internal_page.content_html
-
-        links = self.get_links(content)
-        self.assertEqual(
-            links,
-            [
-                (u'/', u'{{ index|escape }}'),
-                (u'{{ page.get_absolute_url }}', u'{{ page.name|escape }}')
-            ]
-        )
-
-
-
-
-class TestBase(ContentTestBase):
+class TestBase(tests.TestCase):
     """
     Test the backlinks plugin.
     """
@@ -80,11 +40,11 @@ class TestBase(ContentTestBase):
         """
         Page.objects.all().delete() # Delete all existins pages
 
-        self.template = self.create_template("{% lucidTag back_links %}")
+        self.template = tests.create_template("{% lucidTag back_links %}")
 
         # Create the test pages defined in content_test_utils.py
         # assign the test template to all pages
-        self.create_pages(TEST_PAGES, template=self.template)
+        tests.create_pages(tests.TEST_PAGES, template=self.template)
 
     #__________________________________________________________________________
 
@@ -93,7 +53,6 @@ class TestBase(ContentTestBase):
         test with the default template with no arguments
         print_last_page=False, print_index=False, index="Index"
         """
-        if DEBUG: print ">>> test_no_arguments():"
 
 #        self.create_link_snapshot()
         snapshot = {
@@ -114,7 +73,6 @@ class TestBase(ContentTestBase):
         """
         print_last_page="True"
         """
-        if DEBUG: print ">>> test_print_last_page():"
 
         self.template.content = (
             '{% lucidTag back_links print_last_page="True" %}'
@@ -142,7 +100,6 @@ class TestBase(ContentTestBase):
         """
         print_index="True"
         """
-        if DEBUG: print ">>> test_print_index1():"
 
         self.template.content = (
             '{% lucidTag back_links print_index="True" %}'
@@ -170,7 +127,6 @@ class TestBase(ContentTestBase):
         """
         print_index="True" index="|"
         """
-        if DEBUG: print ">>> test_print_index2():"
 
         self.template.content = (
             '{% lucidTag back_links print_index="True" index="|" %}'
@@ -193,14 +149,3 @@ class TestBase(ContentTestBase):
          u'/2_DDD/2_2_EEE/': [('/', '|'), ('/2_DDD/', '2_DDD')]
         }
         self.link_snapshot_test(snapshot)
-
-
-
-
-
-if __name__ == "__main__":
-    print
-    print ">>> Unitest: PyLucid.plugins_internal.back_links"
-    print
-    print "_"*79
-    unittest.main()
