@@ -620,11 +620,14 @@ class auth(PyLucidBasePlugin):
         self.request.session["salt_1"] = salt_1
         self.request.session["salt_2"] = salt_2
 
+        media_url = posixpath.join(
+            settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR,
+        )
         context = {
             "form": new_pass_form,
             "salt_1": salt_1,
             "salt_2": salt_2,
-            "PyLucid_media_url": settings.PYLUCID_MEDIA_URL,
+            "PyLucid_media_url": media_url,
         }
         if DEBUG == True:
             # For JavaScript debug
