@@ -644,3 +644,11 @@ class TestPasswordReset(TestBase):
         test = "sha1$%s$%s" % (salt_1, sha_1)
         self.assertEqual(test, user.password)
         self.assertEqual(js_login_data.salt, salt_2)
+
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    import os
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])

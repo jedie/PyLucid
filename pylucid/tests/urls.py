@@ -127,3 +127,11 @@ class UrlsTestCase(tests.TestCase):
             self.URLs.make_absolute_url(["test1", "test2"]),
             "%s/test1/test2/" % prefix
         )
+
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    import os
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])

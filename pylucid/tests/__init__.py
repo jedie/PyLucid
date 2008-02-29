@@ -6,7 +6,7 @@
 
     Testing PyLucid follows Django's testing framework. Preparation of test
     environment has following additions:
-    - Test database is populated with PyLucid's default pages, templates 
+    - Test database is populated with PyLucid's default pages, templates
       and styles.
     - Internal plugins are installed.
     - Fully initialized database is dumped to a temporary file and that file is
@@ -16,9 +16,9 @@
     -------------
 
     Unit tests can be run using django-admin.sh utility:
-    
+
     > ./django-admin.sh test
-    
+
     By default, this will run every test found in tests-subdirectory. If you
     only want to run tests from particular file under tests/-directory, add the
     application name to the command line. For example:
@@ -56,7 +56,7 @@
     unittest.TestCase as a parent class for test case will lead to faster test
     execution.
 
-    The test database 
+    The test database
     -----------------
 
     Tests that require a database (test cases inherited from tests.TestCase)
@@ -96,6 +96,8 @@ import unittest
 import pprint
 
 from StringIO import StringIO
+
+os.environ['DJANGO_SETTINGS_MODULE'] = "PyLucid.settings"
 
 from django.test.utils import setup_test_environment, teardown_test_environment
 from django.test.utils import create_test_db, destroy_test_db
@@ -153,7 +155,7 @@ FIXTURE_FILE = tempfile.NamedTemporaryFile(prefix='PyLucid_',suffix='.json')
 
 class TestCase(DjangoTestCase):
     """
-    PyLucid test case. 
+    PyLucid test case.
     """
     fixtures = [FIXTURE_FILE.name]
 
@@ -278,7 +280,7 @@ def create_template(content):
     Create a new template and return the instance
     """
     Template.objects.all().delete()
-    
+
     template = Template(
         content = content
         )
@@ -354,8 +356,8 @@ def _import_test(module_name,class_name=None):
             try:
                 return unittest.defaultTestLoader.loadTestsFromTestCase(test_class)
             except TypeError:
-                raise ValueError("Test label '%s.%s' does not refer to a test class" % 
-                                 (module_name,'.'.join(class_name)))            
+                raise ValueError("Test label '%s.%s' does not refer to a test class" %
+                                 (module_name,'.'.join(class_name)))
         else: # label is fname.TestClass.test_method
             return test_class(class_name[1])
     else:
@@ -403,7 +405,7 @@ def get_tests(test_labels,verbose=False):
         return test_suite
     else:
         return get_all_tests(verbose)
-    
+
 def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     """
     PyLucid test runner. Sets up test environment, populates test database with
@@ -420,12 +422,12 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
         Search for doctests and unittests in the named application.
     where fname is the name of the file containing tests in 'tests'-directory,
     without extension.
-    
+
     See:
     http://www.djangoproject.com/documentation/testing/#defining-a-test-runner
     """
 
-    settings.DEBUG = False    
+    settings.DEBUG = False
     setup_test_environment()
     old_name = settings.DATABASE_NAME
     db_name = create_test_db(verbosity=1, autoclobber=not interactive)
@@ -433,7 +435,7 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     suite = get_tests(test_labels, verbosity==2)
     print "Running tests"
     result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
-    destroy_test_db(old_name, verbosity)    
+    destroy_test_db(old_name, verbosity)
     teardown_test_environment()
 
     return len(result.failures) + len(result.errors)

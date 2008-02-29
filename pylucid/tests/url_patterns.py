@@ -19,6 +19,7 @@
 
 import os, unittest
 
+os.environ['DJANGO_SETTINGS_MODULE'] = "PyLucid.settings"
 from django.conf import settings
 
 # Normaly we should never do this. But we must guarantee this things are
@@ -326,3 +327,10 @@ class TestURLpatterns(unittest.TestCase):
         self.path_test(base_path + "path1/path2", test_kwargs=False)
         self.path_test(base_path + "path1/path2/", test_kwargs=False)
 
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    import tests # FIXME: We don't need the database here
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])

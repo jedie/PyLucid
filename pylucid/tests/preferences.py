@@ -37,7 +37,7 @@ class TestPreference(tests.TestCase):
             plugin = None, name = "test1", description = "",
             value = self.test_value
         ).save()
-        
+
         p = Preference.objects.get(name = "test1")
         self.assertEqual(p._value       , p._default_value)
         self.assertEqual(p.value        , self.test_value)
@@ -58,7 +58,7 @@ class TestPreference(tests.TestCase):
             plugin = None, name = "test1", description = "",
             value = self.test_value, default_value = [1,2,3]
         ).save()
-        
+
         p = Preference.objects.get(name = "test1")
         self.assertEqual(p.value        , self.test_value)
         self.assertEqual(p.default_value, [1,2,3])
@@ -160,3 +160,11 @@ class TestPreference(tests.TestCase):
             self.assertNotEqual(p._value, value)
             self.assertEqual(p.default_value, value)
             self.assertNotEqual(p._default_value, value)
+
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    import os
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])

@@ -3,7 +3,7 @@
 """
     tests.page_permissions
     ~~~~~~~~~~~~~~~~~~~~~~
-    
+
     Unit tests for page permission system.
 
     :copyleft: Perttu Ranta-aho
@@ -19,7 +19,7 @@ class permitViewPublicTestCase(tests.TestCase):
     """
     def setUp(self):
         """
-        Create some pages to play with. 
+        Create some pages to play with.
         """
         self.publicPage = tests.create_page({'name':'permitPublicView'})
 
@@ -49,7 +49,7 @@ class permitViewPublicTestCase(tests.TestCase):
         ok = self.client.login(username=tests.TEST_USERNAME,
                                password=tests.TEST_PASSWORD)
         self.failUnless(ok)
-                                          
+
          # Check that the respose is for both pages 200 OK.
         url = '/'+self.loginrequiredPage.shortcut+'/'
         response = self.client.get(url)
@@ -58,3 +58,10 @@ class permitViewPublicTestCase(tests.TestCase):
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
 
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    import os
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])

@@ -16,9 +16,6 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-#______________________________________________________________________________
-# Test:
-
 import tests
 
 from PyLucid.tools.crypt import SALT_HASH_LEN, SaltHashError, make_salt_hash, \
@@ -159,3 +156,10 @@ class TestCrypt(tests.TestCase):
                 print "-"*80
                 raise AssertionError(msg)
 
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    import os
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])

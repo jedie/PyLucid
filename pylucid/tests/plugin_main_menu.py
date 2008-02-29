@@ -114,7 +114,7 @@ class TestMainMenu2(tests.TestCase):
             ]
         }
         self.link_snapshot_test(snapshot)
-        
+
     def test_escape_names(self):
         """
         Test with some spezial characters in page names
@@ -140,3 +140,9 @@ class TestMainMenu2(tests.TestCase):
         }
         self.link_snapshot_test(snapshot)
 
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])

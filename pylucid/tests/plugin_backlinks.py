@@ -149,3 +149,11 @@ class TestBase(tests.TestCase):
          u'/2_DDD/2_2_EEE/': [('/', '|'), ('/2_DDD/', '2_DDD')]
         }
         self.link_snapshot_test(snapshot)
+
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    import os
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])

@@ -86,3 +86,10 @@ class Shortcuttest(tests.TestCase):
         self.page.shortcut = new_shortcut        
         self.page.save()
         self.failUnlessEqual(self.page.shortcut,new_shortcut+"2")
+
+if __name__ == "__main__":
+    # Run this unitest directly
+    import os
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])
