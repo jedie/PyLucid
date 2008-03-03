@@ -95,10 +95,9 @@ class PyLucidBasePlugin(object):
         try:
             content = self.internal_page.get_content(internal_page_name, "html")
         except InternalPageNotFound:
-            self.page_msg.red(
-                "Internal page '%s' not found!" % internal_page_name
-            )
-            return
+            msg = "Internal page '%s' not found!" % internal_page_name
+            self.page_msg.red(msg)
+            return "[%s]" % msg
 
         self._add_js_css_data(internal_page_name)
 
