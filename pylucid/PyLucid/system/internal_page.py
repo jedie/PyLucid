@@ -87,8 +87,8 @@ class InternalPage(object):
         filename = self.get_filename(internal_page_name, slug)
 
         data = [
+            (self.custom_plugin_root, self.custom_plugin_url),
             (self.default_plugin_root, self.default_plugin_url),
-            (self.custom_plugin_root, self.custom_plugin_url)
         ]
         for path, url in data:
             file_path = os.path.join(path, filename)
