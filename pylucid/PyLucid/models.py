@@ -525,6 +525,18 @@ class Preference(models.Model):
 
 
 class Style(models.Model):
+    """
+    The global stylesheet.
+    On save() we try to store the CSS content into a local cache file in the
+    media path. This only works, if the process has the writeability.
+    In a simple shared web hosting environment, the http server runs the web
+    app with the user 'nobody', so he has not the writeability. In this case,
+    the stylesheet must be request via a _command url.
+    Important: The method get_absolute_url() doesn't check if the local cache
+    file was written succsessfully in the past! This it the job for the
+    page_style plugin. The method returns allways the url to the locale cache
+    file.
+    """
     name = models.CharField(unique=True, max_length=150)
 
     createtime = models.DateTimeField(auto_now_add=True)
@@ -557,7 +569,10 @@ class Style(models.Model):
 
     def get_absolute_url(self):
         """
-        Get the absolute url (without the domain/host part)
+        Get the absolute url (without the domain/host part) for the stylesheet
+        file stored in the media path.
+        Important: Returns allways a link to the locale cache file, it doesn't
+        check if the file exists!
         """
         filename = self.get_filename()
         url = posixpath.join(
@@ -565,12 +580,13 @@ class Style(models.Model):
             settings.MEDIA_URL,
             settings.PYLUCID_MEDIA_DIR,
             filename, # FIXME: url save?
-            ""
         )
         return url
 
     def get_filepath(self):
         """
+        Get the file path to the local stylesheet file.
+        Important: It is not tested if the file exists!
         FIXME: How to handle special characters?
         """
         filename = self.get_filename()
@@ -585,7 +601,7 @@ class Style(models.Model):
     def save(self):
         """
         Save a new or updated stylesheet.
-        try to store the content into a file in the media path.
+        try to store the content into the cache file in the media path.
         """
         filepath = self.get_filepath()
         try:

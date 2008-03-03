@@ -108,7 +108,7 @@ from PyLucid.tools.db_dump import loaddb
 from PyLucid.tools.Diff import make_diff
 from tests.utils.BrowserDebug import debug_response
 
-from PyLucid.models import Page, Style, Markup, Template
+from PyLucid.models import Page, Style, Markup, Template, Style
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 
@@ -277,15 +277,24 @@ def create_user(username=TEST_USERNAME,password=TEST_PASSWORD,
 
 def create_template(content):
     """
-    Create a new template and return the instance
+    Delete all existing templates, create a new one and return the instance.
     """
     Template.objects.all().delete()
 
-    template = Template(
-        content = content
-        )
+    template = Template(content = content)
     template.save()
     return template
+
+def create_stylesheet(**kwargs):
+    """
+    Delete all existing styles, create a new one and return the instance.
+    """
+    Style.objects.all().delete()
+
+    style = Style(**kwargs)
+    style.save()
+    return style
+
 
 def create_page(data):
     """
