@@ -19,7 +19,8 @@
 
 import os, unittest
 
-os.environ['DJANGO_SETTINGS_MODULE'] = "PyLucid.settings"
+import tests # setup the environment
+
 from django.conf import settings
 
 # Normaly we should never do this. But we must guarantee this things are
