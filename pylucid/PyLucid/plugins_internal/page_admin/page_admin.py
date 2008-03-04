@@ -23,6 +23,7 @@
 
 __version__= "$Rev:1070 $"
 
+import posixpath
 
 from PyLucid.tools.utils import escape
 
@@ -270,13 +271,16 @@ class page_admin(PyLucidBasePlugin):
 
         if page_instance.markup.id == 1:
             # markup with id=1 is html + TinyMCE JS Editor
+            media_url = posixpath.join(
+                settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR,
+            )
             js_data = (
                 '<script language="javascript" type="text/javascript"'
                 ' src="%stiny_mce/tiny_mce.js"></script>\n'
                 '<script language="javascript" type="text/javascript">\n'
                 '    init_tinyMCE();\n'
                 '</script>\n'
-            ) % settings.PYLUCID_MEDIA_URL
+            ) % media_url
             context["tinymce"] = mark_safe(js_data)
 
         self._render_template("edit_page", context)#, debug=True)
