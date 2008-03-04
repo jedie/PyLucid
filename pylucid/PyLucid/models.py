@@ -32,7 +32,6 @@ from PyLucid.system.utils import get_uri_base
 
 
 
-
 class Page(models.Model):
     """
     A CMS Page Object
@@ -286,6 +285,95 @@ class Page(models.Model):
     def __unicode__(self):
         return self.shortcut
 
+
+#______________________________________________________________________________
+
+class PageArchiv(models.Model):
+    """
+    A simple archiv for old cms page content.
+    """
+    # Explicite id field, so we can insert a help_text ;)
+    id = models.AutoField(primary_key=True, help_text="The internal page ID.")
+
+    content = models.TextField(blank=True, help_text="The CMS page content.")
+
+    parent = models.ForeignKey(
+        "self", null=True, blank=True,
+        to_field="id", help_text="the higher-ranking father page",
+    )
+    position = models.IntegerField(
+        default = 0,
+        help_text = "ordering weight for sorting the pages in the menu."
+    )
+
+    name = models.CharField(max_length=150, help_text="A short page name")
+
+    shortcut = models.CharField(
+        max_length=150, help_text="shortcut to built the URLs"
+    )
+    title = models.CharField(
+        blank=True, max_length=150, help_text="A long page title"
+    )
+
+    template = models.ForeignKey(
+        "Template", to_field="id", help_text="the used template for this page"
+    )
+    style = models.ForeignKey(
+        "Style", to_field="id", help_text="the used stylesheet for this page"
+    )
+    markup = models.ForeignKey("Markup",
+        related_name="pageachiv_markup",
+        help_text="the used markup language for this page"
+    )
+
+    keywords = models.CharField(
+        blank=True, max_length=255,
+        help_text="Keywords for the html header. (separated by commas)"
+    )
+    description = models.CharField(
+        blank=True, max_length=255,
+        help_text="Short description of the contents. (for the html header)"
+    )
+
+    createtime = models.DateTimeField(
+        auto_now_add=True, help_text="Create time",
+    )
+    lastupdatetime = models.DateTimeField(
+        auto_now=True, help_text="Time of the last change.",
+    )
+    createby = models.ForeignKey(
+        User, editable=False, related_name="pageachiv_createby",
+        help_text="User how create the current page.",
+    )
+    lastupdateby = models.ForeignKey(
+        User, editable=False, related_name="pageachiv_lastupdateby",
+        help_text="User as last edit the current page.",
+    )
+
+    showlinks = models.BooleanField(default=True,
+        help_text="Put the Link to this page into Menu/Sitemap etc.?"
+    )
+    permitViewPublic = models.BooleanField(default=True,
+        help_text="Can anonymous see this page?"
+    )
+
+    permitViewGroup = models.ForeignKey(
+        Group, related_name="pageachiv_permitViewGroup", null=True, blank=True,
+        help_text="Limit viewable to a group?"
+    )
+
+    permitEditGroup = models.ForeignKey(
+        Group, related_name="pageachiv_permitEditGroup", null=True, blank=True,
+        help_text="Usergroup how can edit this page."
+    )
+
+    original = models.ForeignKey("Page")
+
+    class Admin:
+        list_display = (
+            "id", "shortcut", "name", "title", "description",
+            "lastupdatetime", "lastupdateby"
+        )
 
 #______________________________________________________________________________
 

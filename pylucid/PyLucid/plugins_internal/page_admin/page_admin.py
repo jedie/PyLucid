@@ -36,7 +36,7 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 
 from django.conf import settings
-from PyLucid.models import Page, Plugin
+from PyLucid.models import Page, Plugin, PageArchiv
 from PyLucid.db.page import flat_tree_list, get_sitemap_tree
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.detect_page import get_default_page_id
@@ -226,6 +226,34 @@ class page_admin(PyLucidBasePlugin):
                     content = render_string_template(content, self.context)
                     context["preview_content"] = content
                 elif "save" in self.request.POST:
+                    # FIXME: How to transfer the attributes easier?
+                    old_page = PageArchiv(
+                        content           = self.current_page.content,
+                        parent            = self.current_page.parent,
+                        position          = self.current_page.position,
+                        name              = self.current_page.name,
+                        shortcut          = self.current_page.shortcut,
+                        title             = self.current_page.title,
+                        template          = self.current_page.template,
+                        style             = self.current_page.style,
+                        markup            = self.current_page.markup,
+                        keywords          = self.current_page.keywords,
+                        description       = self.current_page.description,
+                        createtime        = self.current_page.createtime,
+                        lastupdatetime    = self.current_page.lastupdatetime,
+                        createby          = self.current_page.createby,
+                        lastupdateby      = self.current_page.lastupdateby,
+                        showlinks         = self.current_page.showlinks,
+                        permitViewPublic  = self.current_page.permitViewPublic,
+                        permitViewGroup   = self.current_page.permitViewGroup,
+                        permitEditGroup   = self.current_page.permitEditGroup,
+
+                        original = self.current_page
+                    )
+                    old_page.save()
+                    self.page_msg(_("Old page data archived."))
+
+                    old_content = self.current_page.content
                     # Save the new page data into the database:
                     try:
                         html_form.save()
