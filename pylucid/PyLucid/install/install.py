@@ -29,7 +29,7 @@ class Sync_DB(BaseInstall):
 
     # Drop this tables before syncdb:
     DROP_TABLES = (
-        "PyLucid_preference", "PyLucid_js_logindata", "PyLucid_markup"
+        "PyLucid_pagearchiv",
     )
 
     def view(self):
@@ -38,6 +38,11 @@ class Sync_DB(BaseInstall):
         return self._render(syncdb_template)
 
     def _drop_tables(self):
+        """
+        This is only important for development, if we create a new model and
+        change it.
+        Should be not used in productive environment!
+        """
         print
         print "drop tables:"
         print "-"*80
@@ -75,7 +80,7 @@ class Sync_DB(BaseInstall):
 
 def syncdb(request):
     """
-    1. install Db tables (syncdb, Note: preferences, JS_LoginData, markup lost!)
+    1. install Db tables (syncdb)
     """
     return Sync_DB(request).start_view()
 

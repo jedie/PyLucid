@@ -378,12 +378,18 @@ class PageArchiv(models.Model):
         help_text="Usergroup how can edit this page."
     )
 
-    original = models.ForeignKey("Page")
+    page = models.ForeignKey("Page",
+        help_text="relationship to the original page entry"
+    )
+    edit_comment = models.CharField(
+        blank=True, max_length=255,
+        help_text="The reason for editing."
+    )
 
     class Admin:
         list_display = (
-            "id", "shortcut", "name", "title", "description",
-            "lastupdatetime", "lastupdateby"
+            "id", "page", "edit_comment", "shortcut", "name", "title",
+            "description", "lastupdatetime", "lastupdateby"
         )
 
 #______________________________________________________________________________

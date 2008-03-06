@@ -1,4 +1,3 @@
-
 {% if preview_content %}
 <fieldset id="page_preview">
 <legend><strong>{% trans 'preview' %}</strong> '<span title="{{ page_instance.title|escape }}">{{ page_instance.name|escape }}</span>'
@@ -34,7 +33,7 @@
             </button>
         </a>
         </li>
-        {% if not tinymce %}
+        {% if not use_tinymce %}
         <li>
         <button type="button" class="resize_buttons" onclick="JavaScript:resize_big(); return false" title="{% trans 'makes the textarea bigger' %}">
             +
@@ -46,7 +45,7 @@
         {% endif %}
     </ul>
     <hr class="seperator" />
-    <ul>
+    <ul id="input_fields">
         {% for field in edit_page_form %}
             <li title="{{ field.help_text }}" class="{{ field.html_name }}">
             <label for="{{ field.auto_id }}">{{ field.label }} :</label>
@@ -58,4 +57,3 @@
     </ul>
 </form>
 </fieldset>
-{% if tinymce %}{{ tinymce }}{% endif %}

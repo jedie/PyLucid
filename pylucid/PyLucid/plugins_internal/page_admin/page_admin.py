@@ -36,81 +36,92 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 
 from django.conf import settings
-from PyLucid.models import Page, Plugin, PageArchiv
+from PyLucid.models import Page, Plugin, PageArchiv, MARKUPS
 from PyLucid.db.page import flat_tree_list, get_sitemap_tree
+from PyLucid.db.page_archiv import archive_page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.detect_page import get_default_page_id
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
-#______________________________________________________________________________
-# Escape TextFields
-# http://groups.google.com/group/django-users/browse_thread/thread/d4d9a8c5e7019762
 
-class EscapedTextarea(forms.Textarea):
-    def render(self, name, value, attrs=None):
+class ParentChoiceField(forms.IntegerField):
+    def clean(self, parent_id):
         """
-        -Escape/Quote the django template tags chars "{" and "}" to the
-            HTML character entity.
-        -Override the default textarea attributes and make it bigger
-            Node: The cols size are setup with CSS and "width:100%;"
+        returns the parent page instance.
+        Note:
+            In PyLucid.models.Page.save() it would be checkt if the selected
+            parent page is logical valid. Here we check only, if the page with
+            the given ID exists.
         """
-        attrs = {'rows': '15'}
-        content = super(EscapedTextarea, self).render(name, value, attrs)
-#        content = content.replace("{", "&#x7B;").replace("}", "&#x7D;")
-#        content = mark_safe(content) # turn djngo auto-escaping off
-        return content
+        # let convert the string into a integer:
+        parent_id = super(ParentChoiceField, self).clean(parent_id)
+        assert isinstance(parent_id, int)
 
-class EscapedTextField(forms.Field):
-    "Change the textarea widget"
-    widget = EscapedTextarea
-
-class ParentMultipleChoiceField(forms.ChoiceField):
-    """
-    Change the "parent" choice field with a verbose name tree list.
-    TODO: We must ask the database a second time :(
-    """
-    def __init__(self, *args, **kwargs):
-        super(ParentMultipleChoiceField, self).__init__(*args, **kwargs)
-
-        page_list = flat_tree_list()
-        choices = [(None, "---[root]---")]
-        for page in page_list:
-            choices.append((page["id"], page["level_name"]))
-
-        self.choices = choices
-
-    def clean(self, value):
-        """
-        TODO: We should check if the parent_id is ok and not make a wrong
-        id-parent-loop. Now, this is checkt in PyLucid.models.Page.save()
-        """
-        if value == "None":
+        if parent_id == 0:
             # assigned to the tree root.
             return None
+
         try:
-            #value = "test int() error"
-            parent_id = int(value)
             #parent_id = 999999999 # Not exists test
-            return Page.objects.get(id=parent_id)
+            page = Page.objects.get(id=parent_id)
+            return page
         except Exception, msg:
             raise ValidationError(_(u"Wrong parent POST data: %s" % msg))
 
-def formfield_callback(field, **kwargs):
+
+def get_parent_choices():
     """
-    -change the 'content' text fields to our own EscapedTextField
-    -change the 'parent' field to a "verbose name tree" choice field.
+    generate a verbose page name tree for the parent choice field.
     """
-    if field.name == "content":
-        # replace the content field
-        return EscapedTextField(**kwargs)
-    elif field.name == "parent":
-        # replace the parent field
-        return ParentMultipleChoiceField(**kwargs)
-    else:
-        # Do nothing with the other fields:
-        return field.formfield(**kwargs)
+    page_list = flat_tree_list()
+    choices = [(0, "---[root]---")]
+    for page in page_list:
+        choices.append((page["id"], page["level_name"]))
+    return choices
+
+class EditPageForm(forms.Form):
+    """
+    Form for editing a cms page.
+    """
+    edit_comment = forms.CharField(
+        max_length=255, required=False,
+        help_text=_("The reason for editing."),
+        widget=forms.TextInput(attrs={'class':'bigger'}),
+    )
+
+    content = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': '15'}),
+    )
+
+    parent = ParentChoiceField(
+        widget=forms.Select(choices=get_parent_choices()),
+        # FIXME: How to set invalid_choice here?
+        help_text="the higher-ranking father page",
+    )
+
+    name = forms.CharField(
+        max_length=255, help_text=_("A short page name"),
+    )
+    title = forms.CharField(
+        max_length=255, required=False, help_text=_("A long page title"),
+    )
+    markup = forms.IntegerField(
+        widget=forms.Select(choices=MARKUPS),
+        help_text=_("the used markup language for this page"),
+    )
+
+    keywords = forms.CharField(
+        max_length=255, required=False,
+        help_text=_("Keywords for the html header. (separated by commas)"),
+        widget=forms.TextInput(attrs={'class':'bigger'}),
+    )
+    description = forms.CharField(
+        max_length=255, required=False,
+        help_text=_("Short description of the contents. (for the html header)"),
+        widget=forms.TextInput(attrs={'class':'bigger'}),
+    )
 
 #______________________________________________________________________________
 
@@ -169,6 +180,48 @@ class page_admin(PyLucidBasePlugin):
         self.current_page = page_instance
         self.context["PAGE"] = page_instance
 
+    def _save_edited_page(self, page_instance, html_form):
+        """
+        Save a edited page into the database.
+
+        if a old page was edited:
+            -Archive the old page data
+        if a new page was created:
+            -return the new page content for rendering
+        """
+        if page_instance.id == self.current_page.id:
+            # A existing page was edited
+            edit_comment = html_form.cleaned_data["edit_comment"]
+            # achive the old page data:
+            archive_page(self.current_page, edit_comment)
+            self.page_msg(_("Old page data archived."))
+
+        # Transfer the form values into the page instance
+        for key, value in html_form.cleaned_data.iteritems():
+            if key != "edit_comment": # The comment is only for the page archiv
+                setattr(page_instance, key, value)
+
+        try:
+            page_instance.save()
+        except Exception, msg:
+            self.page_msg("Can't save the page data:", msg)
+            return
+
+        # Delete the old page data cache:
+        self._delete_cache(page_instance)
+
+        if page_instance.id == self.current_page.id:
+            # Normal page edit
+            self.page_msg(_("Page data updated."))
+        else:
+            self.page_msg(_("The new page created."))
+
+            # refresh the current page data:
+            self._refresh_curent_page(page_instance)
+
+            # return the new page content for rendering
+            return self.current_page.content
+
 
     def edit_page(self, edit_page_id=None, new_page_instance=None):
         """
@@ -196,25 +249,26 @@ class page_admin(PyLucidBasePlugin):
             "page_instance": page_instance,
         }
 
-        # FIXME: Quick hack 'escape' Template String.
-        # With the formfield_callback we switched the widget render method
-        # and escape/quote the characters "{" and "}" so they are invisible to
-        # the django template engine and the tag (not the result of the tag) is
-        # editable ;)
-        # http://www.djangoproject.com/documentation/newforms/#overriding-the-default-field-types
-        # -With the formfield_callback we change the parent field, too.
-        PageForm = forms.models.form_for_instance(
-            page_instance, fields=(
-                "content", "parent",
-                "name", "title",
-                "keywords", "description", "markup",
-            ),
-            formfield_callback=formfield_callback
-        )
+        # The markup is a little dynamicly. It should always be used the current
+        # markup editor (html with or without TinyMCE) e.g. The user change the
+        # markup and used the "preview" fuction.
+        current_markup = page_instance.markup
 
-        if self.request.method == 'POST':
-#            self.page_msg(self.request.POST)
-            html_form = PageForm(self.request.POST)
+        if self.request.method != 'POST':
+            parent = getattr(page_instance.parent, "id", 0) # Root is None
+
+            html_form = EditPageForm({
+                "content": page_instance.content,
+                "parent": parent,
+                "name": page_instance.name,
+                "title": page_instance.title,
+                "markup": current_markup,
+                "keywords": page_instance.keywords,
+                "description": page_instance.description
+            })
+        else: # POST
+            #self.page_msg(self.request.POST)
+            html_form = EditPageForm(self.request.POST)
             if html_form.is_valid():
                 if "preview" in self.request.POST:
                     content = apply_markup(
@@ -225,60 +279,15 @@ class page_admin(PyLucidBasePlugin):
                     # ToDo: Should we add a "disable" switch to this?
                     content = render_string_template(content, self.context)
                     context["preview_content"] = content
+
+                    # Use the current selected markup
+                    current_markup = html_form.cleaned_data["markup"]
+
                 elif "save" in self.request.POST:
-                    # FIXME: How to transfer the attributes easier?
-                    old_page = PageArchiv(
-                        content           = self.current_page.content,
-                        parent            = self.current_page.parent,
-                        position          = self.current_page.position,
-                        name              = self.current_page.name,
-                        shortcut          = self.current_page.shortcut,
-                        title             = self.current_page.title,
-                        template          = self.current_page.template,
-                        style             = self.current_page.style,
-                        markup            = self.current_page.markup,
-                        keywords          = self.current_page.keywords,
-                        description       = self.current_page.description,
-                        createtime        = self.current_page.createtime,
-                        lastupdatetime    = self.current_page.lastupdatetime,
-                        createby          = self.current_page.createby,
-                        lastupdateby      = self.current_page.lastupdateby,
-                        showlinks         = self.current_page.showlinks,
-                        permitViewPublic  = self.current_page.permitViewPublic,
-                        permitViewGroup   = self.current_page.permitViewGroup,
-                        permitEditGroup   = self.current_page.permitEditGroup,
-
-                        original = self.current_page
-                    )
-                    old_page.save()
-                    self.page_msg(_("Old page data archived."))
-
-                    old_content = self.current_page.content
-                    # Save the new page data into the database:
-                    try:
-                        html_form.save()
-                    except Exception, msg:
-                        self.page_msg("Can't save the page data:", msg)
-                    else:
-                        # Delete the old page data cache:
-                        self._delete_cache(page_instance)
-
-                        if page_instance.id == self.current_page.id:
-                            # Normal page edit
-                            self.page_msg(_("Page data updated."))
-                            return
-                        else:
-                            self.page_msg(_("The new page created."))
-
-                            # refresh the current page data:
-                            self._refresh_curent_page(page_instance)
-
-                            # return the new page content for rendering
-                            return self.current_page.content
+                    # Save the new page data. returns a new page instance
+                    return self._save_edited_page(page_instance, html_form)
                 else:
                     self.page_msg.red("Form error!")
-        else:
-            html_form = PageForm()
 
         context["edit_page_form"] = html_form
 
@@ -296,20 +305,26 @@ class page_admin(PyLucidBasePlugin):
         url_abort = self.current_page.get_absolute_url()
         context["url_abort"] = url_abort
 
-
-        if page_instance.markup == 1:
+        if current_markup == 1:
             # markup with id=1 is html + TinyMCE JS Editor
-            media_url = posixpath.join(
+            context["use_tinymce"] = True
+
+            # url to e.g. /media/PyLucid/tiny_mce/tiny_mce.js
+            tiny_mce_url = posixpath.join(
                 settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR,
+                "tiny_mce", "tiny_mce.js"
             )
-            js_data = (
-                '<script language="javascript" type="text/javascript"'
-                ' src="%stiny_mce/tiny_mce.js"></script>\n'
-                '<script language="javascript" type="text/javascript">\n'
-                '    init_tinyMCE();\n'
-                '</script>\n'
-            ) % media_url
-            context["tinymce"] = mark_safe(js_data)
+            # url to e.g. .../internal_page/page_admin/edit_page_tinymce.js
+            use_tiny_mce_url = self.internal_page.get_url(
+                "edit_page_tinymce", slug="js"
+            )
+            # Add external media files
+            for url in (tiny_mce_url, use_tiny_mce_url):
+                # Add tiny_mce.js to
+                self.context["js_data"].append({
+                    "plugin_name": self.plugin_name,
+                    "url": url,
+                })
 
         self._render_template("edit_page", context)#, debug=True)
 
@@ -347,8 +362,9 @@ class page_admin(PyLucidBasePlugin):
         parent = self.current_page
         # make a new page skeleton object:
         new_page = Page(
-            name             = "New Page",
+            name             = "New page",
             shortcut         = "NewPage",
+            content          = "New page.",
             template         = parent.template,
             style            = parent.style,
             markup           = parent.markup,

@@ -112,7 +112,11 @@ class InternalPage(object):
                 # CSS and JS files are optional
                 return u""
             else:
-                raise InternalPageNotFound()
+                msg = "Internal page '%s' not found in %s or %s" % (
+                    internal_page_name, self.custom_plugin_root,
+                    self.default_plugin_root
+                )
+                raise InternalPageNotFound(msg)
 
         f = file(file_path, "r")
         content = f.read()
