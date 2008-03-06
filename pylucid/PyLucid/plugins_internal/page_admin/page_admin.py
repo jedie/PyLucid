@@ -297,7 +297,7 @@ class page_admin(PyLucidBasePlugin):
         context["url_abort"] = url_abort
 
 
-        if page_instance.markup.id == 1:
+        if page_instance.markup == 1:
             # markup with id=1 is html + TinyMCE JS Editor
             media_url = posixpath.join(
                 settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR,

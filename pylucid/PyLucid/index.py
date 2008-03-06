@@ -68,8 +68,8 @@ def _render_cms_page(request, context, page_content=None):
         # get the current page data from the db
         page_content = current_page.content
 
-        markup_object = current_page.markup
-        page_content = apply_markup(page_content, context, markup_object)
+        markup_no = current_page.markup
+        page_content = apply_markup(page_content, context, markup_no)
 
     # Render only the CMS page content:
     page_content = render_string_template(page_content, context)

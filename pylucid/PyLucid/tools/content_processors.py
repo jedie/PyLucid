@@ -26,6 +26,7 @@ from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_str, force_unicode
 
 from PyLucid.system.response import SimpleStringIO
+from PyLucid.models import MARKUPS
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
 # see ./PyLucid/defaulttags/__init__.py
@@ -33,23 +34,21 @@ from django.template import add_to_builtins
 add_to_builtins('PyLucid.template_addons')
 
 
-
-def apply_markup(content, context, markup_object):
+def apply_markup(content, context, markup_no):
     """
     appy to the content the given markup
     The Markups names are from the _install Dump:
         ./PyLucid/db_dump_datadir/PyLucid_markup.py
     """
     page_msg = context["page_msg"]
-    markup = markup_object.name
 
-    if markup == 'textile':
+    if markup_no == 2: # textile
         from PyLucid.system.tinyTextile import TinyTextileParser
         out_obj = SimpleStringIO()
         markup_parser = TinyTextileParser(out_obj, context)
         markup_parser.parse(content)
         content = out_obj.getvalue()
-    elif markup == 'Textile (original)':
+    elif markup_no == 3: #Textile (original)
         try:
             import textile
         except ImportError:
@@ -63,7 +62,7 @@ def apply_markup(content, context, markup_object):
                 encoding=settings.DEFAULT_CHARSET,
                 output=settings.DEFAULT_CHARSET
             ))
-    elif markup == 'Markdown':
+    elif markup_no == 4: # Markdown
         try:
             import markdown
         except ImportError:
@@ -77,7 +76,7 @@ def apply_markup(content, context, markup_object):
                 content = force_unicode(markdown.markdown(smart_str(content)))
             else:
                 content = markdown.markdown(content)
-    elif markup == 'ReStructuredText':
+    elif markup_no == 5: # ReStructuredText
         try:
             from docutils.core import publish_parts
         except ImportError:

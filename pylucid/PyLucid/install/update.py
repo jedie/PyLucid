@@ -13,46 +13,31 @@ from django.db import connection
 from PyLucid.install.install import Sync_DB
 from PyLucid.install.BaseInstall import BaseInstall
 from PyLucid.settings import OLD_TABLE_PREFIX
-from PyLucid.models import JS_LoginData, Page, Template, Style, Markup, Preference
+from PyLucid.models import JS_LoginData, Page, Template, Style, Preference
 
 from django.contrib.auth.models import User
 
 #______________________________________________________________________________
 class Update2(BaseInstall):
     def view(self):
-        self._redirect_execute(self._update_markup)
         self._redirect_execute(self._update_tables)
 
         return self._simple_render(
             headline="Update PyLucid from v0.8.0 to v0.8.1"
         )
 
-    def _update_markup(self):
-        print "update markup...",
-        # insert a new markup for html without TinyMCE
-        m = Markup(id=0, name="html")
-        m.save()
-
-        # rename the old "html"
-        m = Markup.objects.get(id=1)
-        m.name = "html + TinyMCE"
-        m.save()
-        print "done."
-
-        print "existing Markups:"
-        for m in Markup.objects.all():
-            print "%5s - %s" % (m.id, m)
-
     def _update_tables(self):
-        print "update database tables...",
-        try:
-            # FIXME: Can we use the ORM here?
-            cursor = connection.cursor()
-            cursor.execute("DROP TABLE PyLucid_pagesinternal;")
-        except Exception, e:
-            print "Error:", e
-        else:
-            print "OK"
+        print "update database tables:"
+        for table_name in ("pagesinternal", "markup"):
+            try:
+                # FIXME: How we can use the ORM here?
+                print "Delete obsolete '%s' table..." % table_name,
+                cursor = connection.cursor()
+                cursor.execute("DROP TABLE PyLucid_%s;" % table_name)
+            except Exception, e:
+                print "Error:", e
+            else:
+                print "OK"
 
 
 def update2(request):
@@ -104,27 +89,26 @@ class Update(Sync_DB):
     def move_data(self):
         """
         move some data from the old PyLucid tables into the new django tables
+        Note the v0.7.x used these markup ids: (1,'None'),(2,'textile')
+        TODO: Needs a test
         """
         cursor = connection.cursor()
 
         # FIXME: Truncate tables only for Testing!!!
         # So we can call the update routines repeatedly, without "Duplicate
         # entry" errors
-        cursor.execute("TRUNCATE TABLE auth_user;")
-        cursor.execute("TRUNCATE TABLE PyLucid_js_logindata;")
-        cursor.execute("TRUNCATE TABLE PyLucid_template;")
-        cursor.execute("TRUNCATE TABLE PyLucid_style;")
-        cursor.execute("TRUNCATE TABLE PyLucid_page;")
+#        cursor.execute("TRUNCATE TABLE auth_user;")
+#        cursor.execute("TRUNCATE TABLE PyLucid_js_logindata;")
+#        cursor.execute("TRUNCATE TABLE PyLucid_template;")
+#        cursor.execute("TRUNCATE TABLE PyLucid_style;")
+#        cursor.execute("TRUNCATE TABLE PyLucid_page;")
 
         user_map = self._convert_users()
 
         template_map = self._convert_template_style(user_map, "templates")
         style_map = self._convert_template_style(user_map, "styles")
-        markup_name_map, markup_id_map = self._convert_markups()
 
-        page_map = self._convert_pages(
-            user_map, template_map, style_map, markup_id_map
-        )
+        page_map = self._convert_pages(user_map, template_map, style_map)
 
         try:
             self._setup_preferences(page_map)
@@ -210,27 +194,7 @@ class Update(Sync_DB):
         return item_map
 
 
-    def _convert_markups(self):
-        print "_"*80
-        print "Move markups..."
-        print
-        table_keys = ("id", "name")
-        markups = self.__get_all(table_keys, "markups")
-
-        markup_name_map = {}
-        markup_id_map = {}
-        for markup in markups:
-            print markup
-            new_markup = Markup(**markup)
-            new_markup.save()
-
-            markup_name_map[markup["name"]] = new_markup
-            markup_id_map[markup["id"]] = new_markup
-
-        return markup_name_map, markup_id_map
-
-
-    def _convert_pages(self, user_map, template_map, style_map, markup_map):
+    def _convert_pages(self, user_map, template_map, style_map):
         """
         move the CMS pages
         """
@@ -293,9 +257,6 @@ class Update(Sync_DB):
 
             old_style_id = page_dict["style"]
             page_dict["style"] = style_map[old_style_id]
-
-            old_markup_id = int(page_dict["markup"])
-            page_dict["markup"] = markup_map[old_markup_id]
 
             for key in ("title", "keywords", "description"):
                 if page_dict[key] == None:

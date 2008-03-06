@@ -31,6 +31,15 @@ from PyLucid.tools import crypt
 from PyLucid.system.utils import get_uri_base
 
 
+MARKUPS = (
+    (0, u'html'),
+    (1, u'html + TinyMCE'),
+    (2, u'textile'),
+    (3, u'Textile (original)'),
+    (4, u'Markdown'),
+    (5, u'ReStructuredText'),
+)
+
 
 class Page(models.Model):
     """
@@ -65,9 +74,10 @@ class Page(models.Model):
     style = models.ForeignKey(
         "Style", to_field="id", help_text="the used stylesheet for this page"
     )
-    markup = models.ForeignKey("Markup",
-        related_name="page_markup",
-        help_text="the used markup language for this page"
+    markup = models.IntegerField(
+        db_column="markup_id", # Use the old column name.
+        max_length=1, choices=MARKUPS,
+        help_text="the used markup language for this page",
     )
 
     keywords = models.CharField(
@@ -321,9 +331,10 @@ class PageArchiv(models.Model):
     style = models.ForeignKey(
         "Style", to_field="id", help_text="the used stylesheet for this page"
     )
-    markup = models.ForeignKey("Markup",
-        related_name="pageachiv_markup",
-        help_text="the used markup language for this page"
+    markup = models.IntegerField(
+        db_column="markup_id", # Use the old column name.
+        max_length=1, choices=MARKUPS,
+        help_text="the used markup language for this page",
     )
 
     keywords = models.CharField(
@@ -439,24 +450,18 @@ def set_password(user, raw_password):
 # Get the new raw_password and set the PyLucid password, too.
 User.set_password = set_password
 
-#______________________________________________________________________________
+#____________________________________________________________________
 
 
-class Markup(models.Model):
-    name = models.CharField(max_length=150)
-
-    class Admin:
-        list_display = ("id", "name",)
-        list_display_links = ("name",)
-
-    def __unicode__(self):
-        return self.name
-
+#class Markup(models.Model):
+#    # Obsolete!
+#    pass
 
 #class PagesInternal(models.Model):
 #    # Obsolete!
 #    pass
 
+#____________________________________________________________________
 
 class Plugin(models.Model):
     package_name = models.CharField(max_length=255)

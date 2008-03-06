@@ -35,7 +35,7 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 
 from PyLucid.system.exceptions import *
-from PyLucid.models import Plugin, Markup
+from PyLucid.models import Plugin
 
 def _import(request, from_name, object_name):
     """
