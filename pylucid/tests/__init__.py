@@ -108,7 +108,7 @@ from PyLucid.tools.db_dump import loaddb
 from PyLucid.tools.Diff import make_diff
 from tests.utils.BrowserDebug import debug_response
 
-from PyLucid.models import Page, Style, Markup, Template, Style
+from PyLucid.models import Page, Style, Template, Style
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 
@@ -303,7 +303,7 @@ def create_page(data):
     default_user = User.objects.get(username='TestUser')
     default_template = Template.objects.all()[0]
     default_style = Style.objects.all()[0]
-    default_markup = Markup.objects.all()[0]
+    default_markup = 0 # html withdout TinyMCE
 
     page = Page(
         name             = data.get("name", "New Page"),
