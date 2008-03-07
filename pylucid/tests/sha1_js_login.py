@@ -6,6 +6,8 @@
 
     Test the PyLucid SHA1-JS-Login
 
+    TODO: Test "superuser" and "staff" users, too.
+
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
@@ -18,6 +20,7 @@
 import unittest, sys, re, os, time
 
 import tests
+from tests import TEST_USERS, TEST_UNUSABLE_USER
 
 from PyLucid import models, settings
 from PyLucid.plugins_internal.auth.auth import auth
@@ -30,8 +33,6 @@ from django.contrib.auth.models import UNUSABLE_PASSWORD
 # Open only one traceback in a browser (=True) ?
 #ONE_BROWSER_TRACEBACK = False
 ONE_BROWSER_TRACEBACK = True
-
-TEST_UNUSABLE_USER = "TestUser2"
 
 js_regex1 = re.compile(r'<script .+?>(.*?)</script>(?imuxs)')
 js_regex2 = re.compile(r"(\w+)\s*=\s*['\"]*([^'\"]+)['\"]*;")
@@ -96,27 +97,47 @@ class TestCryptModul(unittest.TestCase):
         ) % (django_hash, password_hash)
 
 
+class TestUnittestUser(tests.TestCase):
+    """
+    Test the unittest user
+    """
+    def test_normal_user(self):
+        """
+        Test if all testuser exists
+        """
+        for user in User.objects.all():
+            if user.username == TEST_UNUSABLE_USER["username"]:
+                # User with a unusable password
+                assert user.password == UNUSABLE_PASSWORD
+                self.assertRaises(
+                    JS_LoginData.DoesNotExist,
+                    JS_LoginData.objects.get,
+                    user = user
+                )
+#                JS_LoginData.objects.get(user = user)
+#                except
+            else:
+                # User with normal password
+                assert user.password.startswith("sha1$")
+                js_login_data = JS_LoginData.objects.get(user = user)
+                assert js_login_data.sha_checksum.startswith("sha1$")
+
+
+
 class TestBase(tests.TestCase):
 
     one_browser_traceback = ONE_BROWSER_TRACEBACK
     _open = []
 
     def setUp(self):
-        # Check that required middlewares are on. Otherwise every unitest will fail ;)
+        # Check that required middlewares are on.
+        # Otherwise every unitest will fail ;)
         middlewares = (
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             )
-        for m in middlewares:
-            if not m in settings.MIDDLEWARE_CLASSES:
-                raise EnvironmentError, "Middleware class '%s' not installed!" % m
+        self.check_middlewares(middlewares)
 
-        # Ensure that test users are available
-        tests.create_user()
-        testuser2 = User.objects.create_user(TEST_UNUSABLE_USER,"","")
-        testuser2.set_unusable_password()
-        testuser2.save()
-        
         url_base = "/%s/1/auth/%%s/" % settings.COMMAND_URL_PREFIX
         self.login_url = url_base % "login"
         self.pass_reset_url = url_base % "pass_reset"
@@ -160,13 +181,13 @@ class TestUserModels(TestBase):
         Test the "normal test user"
         """
         # Check the
-        self._check_userpassword(username = tests.TEST_USERNAME)
+        self._check_userpassword(username = TEST_USERS["normal"]["username"])
 
     def test_unusable_test_user(self):
         """
         Test the "unusable test user"
         """
-        user = User.objects.get(username = TEST_UNUSABLE_USER)
+        user = User.objects.get(username = TEST_UNUSABLE_USER["username"])
         self.assertEqual(user.password, UNUSABLE_PASSWORD)
 
         try:
@@ -185,7 +206,7 @@ class TestUserModels(TestBase):
         """
         Delete the user and check if he and the JS_LoginData still exists.
         """
-        user = User.objects.get(username = tests.TEST_USERNAME)
+        user = User.objects.get(username = TEST_USERS["normal"]["username"])
         js_login_data = JS_LoginData.objects.get(user = user)
 
         old_id = js_login_data.id
@@ -194,7 +215,7 @@ class TestUserModels(TestBase):
         user.delete()
 
         try:
-            user = User.objects.get(username = tests.TEST_USERNAME)
+            user = User.objects.get(username = TEST_USERS["normal"]["username"])
         except User.DoesNotExist:
             pass
         else:
@@ -214,17 +235,17 @@ class TestUserModels(TestBase):
         Check the User Password and JS_LoginData.
         """
         user_data = {
-            "username": tests.TEST_USERNAME,
-            "password": tests.TEST_PASSWORD,
-            "email": tests.TEST_USER_EMAIL,
+            "username": TEST_USERS["normal"]["username"],
+            "password": TEST_USERS["normal"]["password"],
+            "email": TEST_USERS["normal"]["email"],
             "first_name": "", "last_name": ""
         }
         _create_or_update_superuser(user_data)
 
-        self._check_userpassword(username = tests.TEST_USERNAME)
+        self._check_userpassword(username = TEST_USERS["normal"]["username"])
 
-        user = User.objects.get(username = tests.TEST_USERNAME)
-        self.failUnless(user.email == tests.TEST_USER_EMAIL)
+        user = User.objects.get(username = TEST_USERS["normal"]["username"])
+        self.failUnless(user.email == TEST_USERS["normal"]["email"])
 
 
 #______________________________________________________________________________
@@ -240,8 +261,8 @@ class TestDjangoLogin(TestBase):
             response, must_contain=("Log in", "site admin")
         )
         # login into the django admin panel
-        ok = self.client.login(username=tests.TEST_USERNAME,
-                               password=tests.TEST_PASSWORD)
+        ok = self.client.login(username=TEST_USERS["staff"]["username"],
+                               password=TEST_USERS["staff"]["password"])
         self.failUnless(ok)
         response = self.client.get("/%s/" % settings.ADMIN_URL_PREFIX)
         self.assertResponse(
@@ -263,7 +284,7 @@ class TestPlaintextLogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "plaintext_login" : True
             }
         )
@@ -279,7 +300,7 @@ class TestPlaintextLogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "password": "a-wrong-password",
                 "plaintext_login" : True
             }
@@ -298,8 +319,8 @@ class TestPlaintextLogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
-                "password": tests.TEST_PASSWORD,
+                "username": TEST_USERS["normal"]["username"],
+                "password": TEST_USERS["normal"]["password"],
                 "plaintext_login" : True
             }
         )
@@ -307,7 +328,7 @@ class TestPlaintextLogin(TestBase):
         self.assertResponse(response,
             must_contain=(
                 "Password ok.",
-                "Log out [%s]" % tests.TEST_USERNAME
+                "Log out [%s]" % TEST_USERS["normal"]["username"]
             )
         )
 
@@ -319,7 +340,7 @@ class TestPlaintextLogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": TEST_UNUSABLE_USER,
+                "username": TEST_UNUSABLE_USER["username"],
                 "plaintext_login" : True
             }
         )
@@ -340,7 +361,7 @@ class TestSHALogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "sha_login" : True
             }
         )
@@ -356,7 +377,7 @@ class TestSHALogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "sha_a2": "wrong", "sha_b": "wrong",
                 "sha_login" : True
             }
@@ -377,7 +398,7 @@ class TestSHALogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "sha_a2": "x234567890123456789012345678901234567890",
                 "sha_b": "x2345678901234567890",
                 "sha_login" : True
@@ -398,7 +419,7 @@ class TestSHALogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "sha_a2": "1234567890123456789012345678901234567890",
                 "sha_b": "12345678901234567890",
                 "sha_login" : True
@@ -421,7 +442,7 @@ class TestSHALogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "sha_a2": "1234567890123456789012345678901234567890",
                 "sha_b": "12345678901234567890",
                 "sha_login" : True
@@ -443,18 +464,18 @@ class TestSHALogin(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "sha_login" : True
             }
         )
 
         JS_data = _get_JS_data(response.content)
-        sha_a2, sha_b = _build_sha_data(JS_data, tests.TEST_PASSWORD)
+        sha_a2, sha_b = _build_sha_data(JS_data, TEST_USERS["normal"]["password"])
 
         response = self.client.post(
             self.login_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "sha_a2": sha_a2,
                 "sha_b": sha_b,
                 "sha_login" : True
@@ -465,7 +486,7 @@ class TestSHALogin(TestBase):
         self.assertResponse(response,
             must_contain=(
                 "Password ok.",
-                "Log out [%s]" % tests.TEST_USERNAME
+                "Log out [%s]" % TEST_USERS["normal"]["username"]
             )
         )
 
@@ -494,7 +515,7 @@ class TestPasswordReset(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": TEST_UNUSABLE_USER,
+                "username": TEST_UNUSABLE_USER["username"],
                 "sha_login" : True
             }
         )
@@ -515,7 +536,7 @@ class TestPasswordReset(TestBase):
         response = self.client.post(
             self.login_url,
             {
-                "username": TEST_UNUSABLE_USER,
+                "username": TEST_UNUSABLE_USER["username"],
                 "plaintext_login" : True
             }
         )
@@ -555,7 +576,7 @@ class TestPasswordReset(TestBase):
         """
         response = self.client.post(self.pass_reset_url,
             {
-                "username": tests.TEST_USERNAME,
+                "username": TEST_USERS["normal"]["username"],
                 "email": "wrong@email-adress.org"
             }
         )
@@ -573,8 +594,8 @@ class TestPasswordReset(TestBase):
         # Send username and email to get a "reset email"
         response = self.client.post(self.pass_reset_url,
             {
-                "username": tests.TEST_USERNAME,
-                "email": tests.TEST_USER_EMAIL
+                "username": TEST_USERS["normal"]["username"],
+                "email": TEST_USERS["normal"]["email"]
             },
             extra={"REMOTE_ADDR": "unitest REMOTE_ADDR"}
         )
@@ -621,14 +642,14 @@ class TestPasswordReset(TestBase):
         salt_1 = js_data["salt_1"]
         salt_2 = js_data["salt_2"]
 
-        sha_1 = crypt.make_hash(tests.TEST_PASSWORD, salt_1)
-        sha_2 = crypt.make_hash(tests.TEST_PASSWORD, salt_2)
+        sha_1 = crypt.make_hash(TEST_USERS["normal"]["password"], salt_1)
+        sha_2 = crypt.make_hash(TEST_USERS["normal"]["password"], salt_2)
 
         # Send a new password
         response = self.client.post(RESET_URL,
             {
-                "username": tests.TEST_USERNAME,
-                "email": tests.TEST_USER_EMAIL,
+                "username": TEST_USERS["normal"]["username"],
+                "email": TEST_USERS["normal"]["email"],
                 "sha_1": sha_1,
                 "sha_2": sha_2,
                 "raw_password": "",
@@ -638,7 +659,7 @@ class TestPasswordReset(TestBase):
 #        debug_response(response)
         self.assertResponse(response, must_contain=("New password saved.",))
 
-        user = User.objects.get(username = tests.TEST_USERNAME)
+        user = User.objects.get(username = TEST_USERS["normal"]["username"])
         js_login_data = JS_LoginData.objects.get(user = user)
 
         test = "sha1$%s$%s" % (salt_1, sha_1)

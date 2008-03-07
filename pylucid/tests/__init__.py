@@ -109,14 +109,39 @@ from PyLucid.tools.Diff import make_diff
 from tests.utils.BrowserDebug import debug_response
 
 from PyLucid.models import Page, Style, Template, Style
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, UNUSABLE_PASSWORD
 from django.test import TestCase as DjangoTestCase
 
 
-# A test user.
-TEST_USERNAME = "TestUser"
-TEST_USER_EMAIL = "guest@example.org"
-TEST_PASSWORD = "test"
+TEST_USERS = {
+    "superuser": {
+        "username": "superuser",
+        "email": "superuser@example.org",
+        "password": "superuser_password",
+        "is_staff": True,
+        "is_superuser": True,
+    },
+    "staff": {
+        "username": "staff test user",
+        "email": "staff_test_user@example.org",
+        "password": "staff_test_user_password",
+        "is_staff": True,
+        "is_superuser": False,
+    },
+    "normal": {
+        "username": "normal test user",
+        "email": "normal_test_user@example.org",
+        "password": "normal_test_user_password",
+        "is_staff": False,
+        "is_superuser": False,
+    },
+}
+# A User with a unusable password
+TEST_UNUSABLE_USER = {
+    "username": "unusable test user",
+    "email": "unusable_test_user@example.org",
+}
+
 
 # A example page tree for some tests:
 TEST_PAGES = [{
@@ -203,6 +228,18 @@ class TestCase(DjangoTestCase):
         )
 
     # _________________________________________________________________________
+    # methods to check some settings
+    def check_middlewares(self, middlewares):
+        """
+        Check if the given middlewares are activated in settings.py
+        """
+        for m in middlewares:
+            if not m in settings.MIDDLEWARE_CLASSES:
+                raise EnvironmentError(
+                    "Middleware class '%s' not installed!" % m
+                )
+
+    # _________________________________________________________________________
     # methods to get information and test the content:
     def get_links(self, content):
         """
@@ -259,21 +296,35 @@ def install_internal_plugins(extra_verbose):
     auto_install_plugins(request = None, extra_verbose=extra_verbose)
     print ""
 
-def create_user(username=TEST_USERNAME,password=TEST_PASSWORD,
-                email=TEST_USER_EMAIL):
+def create_user(username, password, email, is_staff, is_superuser):
     """
-    Create a test user with a usable password and return the instance.
+    Create a user and return the instance.
     """
-    defaults = {'password':password,'email':email}
-    user, created = User.objects.get_or_create(username=username,
-                                               defaults=defaults)
+    defaults = {'password':password, 'email':email}
+    user, created = User.objects.get_or_create(
+        username=username, defaults=defaults
+    )
     if not created:
         user.email = email
     user.set_password(password)
-    user.is_staff = True
-    user.is_superuser = True
+    user.is_staff = is_staff
+    user.is_superuser = is_superuser
     user.save()
     return user
+
+def create_users():
+    """
+    Create all available testusers.
+    """
+    # Create all users with a usable password
+    for usertype, userdata in TEST_USERS.iteritems():
+        create_user(**userdata)
+
+    # Create the user with a unusable password
+    user = User.objects.create_user(**TEST_UNUSABLE_USER)
+    user.set_unusable_password()
+    user.save()
+
 
 def create_template(content):
     """
@@ -300,7 +351,9 @@ def create_page(data):
     """
     Creates Page object with given data.
     """
-    default_user = User.objects.get(username='TestUser')
+    default_user = User.objects.get(
+        username=TEST_USERS["superuser"]["username"]
+    )
     default_template = Template.objects.all()[0]
     default_style = Style.objects.all()[0]
     default_markup = 0 # html withdout TinyMCE
@@ -349,7 +402,7 @@ def init_pyluciddb(verbosity):
     """
     load_db_dumps(verbosity)
     install_internal_plugins(verbosity)
-    create_user()
+    create_users() # Create all test users
     create_pages(TEST_PAGES) # Create the test pages
     create_test_fixture(verbosity)
 
