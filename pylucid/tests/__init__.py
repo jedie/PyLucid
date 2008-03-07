@@ -228,6 +228,32 @@ class TestCase(DjangoTestCase):
         )
 
     # _________________________________________________________________________
+
+    def assertPyLucid404(self, url):
+        """
+        Check if the given url raised a PyLucid own 404 page.
+        """
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 404)
+        self.assertResponse(
+            response,
+            must_contain=("404", "Page not found", "back to",),
+            must_not_contain=("DEBUG = True",)
+        )
+
+    def assertDjango404(self, url):
+        """
+        Check if the given url raise the django 404 debug page.
+        """
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 404)
+        self.assertResponse(
+            response,
+            must_contain=("(404)", "Page not found", "DEBUG = True",),
+            must_not_contain=("Traceback", "back to")
+        )
+
+    # _________________________________________________________________________
     # methods to check some settings
     def check_middlewares(self, middlewares):
         """
