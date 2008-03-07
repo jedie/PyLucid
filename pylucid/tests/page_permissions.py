@@ -46,9 +46,8 @@ class permitViewPublicTestCase(tests.TestCase):
 
     def testPermViewPublicLoggedInUser(self):
         """ Logged in user can see page regardless of permitPublicView value. """
-        ok = self.client.login(username=tests.TEST_USERNAME,
-                               password=tests.TEST_PASSWORD)
-        self.failUnless(ok)
+        # login with the "normal" test user
+        self.login("normal")
 
          # Check that the respose is for both pages 200 OK.
         url = '/'+self.loginrequiredPage.shortcut+'/'

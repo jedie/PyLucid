@@ -97,33 +97,6 @@ class TestCryptModul(unittest.TestCase):
         ) % (django_hash, password_hash)
 
 
-class TestUnittestUser(tests.TestCase):
-    """
-    Test the unittest user
-    """
-    def test_normal_user(self):
-        """
-        Test if all testuser exists
-        """
-        for user in User.objects.all():
-            if user.username == TEST_UNUSABLE_USER["username"]:
-                # User with a unusable password
-                assert user.password == UNUSABLE_PASSWORD
-                self.assertRaises(
-                    JS_LoginData.DoesNotExist,
-                    JS_LoginData.objects.get,
-                    user = user
-                )
-#                JS_LoginData.objects.get(user = user)
-#                except
-            else:
-                # User with normal password
-                assert user.password.startswith("sha1$")
-                js_login_data = JS_LoginData.objects.get(user = user)
-                assert js_login_data.sha_checksum.startswith("sha1$")
-
-
-
 class TestBase(tests.TestCase):
 
     one_browser_traceback = ONE_BROWSER_TRACEBACK
@@ -141,6 +114,48 @@ class TestBase(tests.TestCase):
         url_base = "/%s/1/auth/%%s/" % settings.COMMAND_URL_PREFIX
         self.login_url = url_base % "login"
         self.pass_reset_url = url_base % "pass_reset"
+
+
+
+class TestUnittestUser(TestBase):
+    """
+    Test the unittest user
+    """
+    def test_login(self):
+        """
+        Login every test user, and check if the username is in the admin panel.
+        """
+        for usertype in TEST_USERS:
+            self.login(usertype)
+
+            response = self.client.get("/")
+            self.failUnlessEqual(response.status_code, 200)
+            self.assertResponse(
+                response,
+                must_contain=(
+                    ">Log out [%s]<" % TEST_USERS[usertype]["username"],
+                ),
+            )
+
+    def test_normal_user(self):
+        """
+        Test if all testuser exists
+        """
+        for user in User.objects.all():
+            if user.username == TEST_UNUSABLE_USER["username"]:
+                # User with a unusable password
+                assert user.password == UNUSABLE_PASSWORD
+                self.assertRaises(
+                    JS_LoginData.DoesNotExist,
+                    JS_LoginData.objects.get,
+                    user = user
+                )
+            else:
+                # User with normal password
+                assert user.password.startswith("sha1$")
+                js_login_data = JS_LoginData.objects.get(user = user)
+                assert js_login_data.sha_checksum.startswith("sha1$")
+
 
 
 class TestUserModels(TestBase):
@@ -260,10 +275,8 @@ class TestDjangoLogin(TestBase):
         self.assertResponse(
             response, must_contain=("Log in", "site admin")
         )
-        # login into the django admin panel
-        ok = self.client.login(username=TEST_USERS["staff"]["username"],
-                               password=TEST_USERS["staff"]["password"])
-        self.failUnless(ok)
+        # login with the "is_staff" test user
+        self.login("staff")
         response = self.client.get("/%s/" % settings.ADMIN_URL_PREFIX)
         self.assertResponse(
             response, must_contain=("",), must_not_contain=("Log in",)

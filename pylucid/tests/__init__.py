@@ -254,6 +254,16 @@ class TestCase(DjangoTestCase):
         )
 
     # _________________________________________________________________________
+    def login(self, usertype):
+        """
+        Login the user defined in TEST_USERS
+        """
+        ok = self.client.login(username=TEST_USERS[usertype]["username"],
+                               password=TEST_USERS[usertype]["password"])
+        self.failUnless(ok, "Can't login test user '%s'!" % usertype)
+
+
+    # _________________________________________________________________________
     # methods to check some settings
     def check_middlewares(self, middlewares):
         """
@@ -527,5 +537,3 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     teardown_test_environment()
 
     return len(result.failures) + len(result.errors)
-
-
