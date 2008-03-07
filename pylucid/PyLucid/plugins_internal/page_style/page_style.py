@@ -35,6 +35,7 @@ __version__= "$Rev$"
 
 import sys, os, datetime
 
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse, Http404
 from django.conf import settings
 
@@ -90,18 +91,21 @@ class page_style(PyLucidBasePlugin):
         self._render_template("write_styles", context)#, debug=True)
 
 
-    def sendStyle(self, css_filename):
+    def sendStyle(self, css_filename=None):
         """
         send the stylesheet as a file to the client.
         It's the request started with the link tag from self.lucidTag() ;)
         TODO: Should insert some Headers for the browser cache.
         """
+        if not css_filename:
+            raise Http404(_("Wrong stylesheet url!"))
+
         css_name = css_filename.rsplit(".",1)[0]
 
         try:
             style = Style.objects.get(name=css_name)
         except Style.DoesNotExist:
-            raise Http404("Stylesheet '%s' unknown!" % cgi.escape(css_filename))
+            raise Http404(_("Stylesheet '%s' unknown!") % css_filename)
 
         content = style.content
 

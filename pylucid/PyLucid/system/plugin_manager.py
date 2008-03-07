@@ -111,6 +111,8 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     try:
         plugin = Plugin.objects.get(plugin_name=plugin_name)
     except Plugin.DoesNotExist, e:
+        if request.debug: # don't use errorhandling -> raise the prior error
+            raise
         error("Plugin not exists in database: %s" % e)
         return
 
@@ -123,6 +125,8 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     try:
         method_cfg = plugin_config.plugin_manager_data[method_name]
     except KeyError:
+        if request.debug: # don't use errorhandling -> raise the prior error
+            raise
         error("Can't get config for the method '%s'." % method_name)
         return
 
@@ -178,10 +182,10 @@ def run(context, response, plugin_name, method_name, url_args=(),
             url_args, method_kwargs
         )
     except Exception, e:
-        if request.debug:
-            # don't use errorhandling -> raise the prior error
+        if request.debug: # don't use errorhandling -> raise the prior error
             raise
-        if isinstance(e, Http404):
+
+        if isinstance(e, (Http404, AccessDenied)):
             # Don't catch "normal" errors...
             raise
 

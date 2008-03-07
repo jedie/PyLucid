@@ -302,6 +302,9 @@ def handle_command(request, page_id, module_name, method_name, url_args):
             context, local_response, module_name, method_name, url_args
         )
     except AccessDenied:
+        if request.debug:
+            # don't use errorhandling -> raise the prior error
+            raise
         page_content = "[Permission Denied!]"
     else:
         if output == None:
