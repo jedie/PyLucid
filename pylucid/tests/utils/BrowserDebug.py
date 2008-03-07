@@ -43,6 +43,7 @@ def debug_response(response, one_browser_traceback=True, msg="", \
             ONE_DEBUG_DISPLAYED = True
 
     content = response.content
+    url = response.request["PATH_INFO"]
 
     stack = traceback.format_stack(limit=3)[:-1]
     stack.append(msg)
@@ -54,11 +55,16 @@ def debug_response(response, one_browser_traceback=True, msg="", \
         print "-"*80
 
     stack_info = "".join(stack)
+
     info = (
         "\n<br /><hr />\n"
-        "<strong><pre>%s</pre></strong>\n"
+        "<h3>Unittest info</h3>\n"
+        "<dl>\n"
+        "<dt>url:</dt><dd>%s</dd>\n"
+        "<dt>traceback:</dt><dd><pre>%s</pre></dd>\n"
+        "</dl>\n"
         "</body>"
-    ) % stack_info
+    ) % (url, stack_info)
 
     content = content.replace("</body>", info)
 
