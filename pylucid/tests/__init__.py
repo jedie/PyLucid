@@ -227,6 +227,43 @@ class TestCase(DjangoTestCase):
             is_list, should_be_list, "The two lists are not the same!"
         )
 
+    #__________________________________________________________________________
+    # Special assert methods for plugin access:
+    def assertPluginAccess(self, base_url, plugin_name, method_names,
+                                        must_contain=(), must_not_contain=()):
+        """
+        Shared method. Checks all given method.
+        base_url is e.g.: "/%s/1" % settings.COMMAND_URL_PREFIX
+        """
+        for method_name in method_names:
+            url = "/".join([base_url, plugin_name, method_name, ""])
+            response = self.client.get(url)
+            self.failUnlessEqual(response.status_code, 200)
+            self.assertResponse(
+                response, must_contain, must_not_contain
+            )
+
+    def assertAccessDenied(self, base_url, plugin_name, method_names):
+        """
+        Test a list of plugin methods, how *aren't* accessable for the current
+        user.
+        """
+        self.assertPluginAccess(
+            base_url, plugin_name, method_names,
+            must_contain=("[Permission Denied!]",),
+            must_not_contain=("Traceback",)
+        )
+
+    def assertAccessAllowed(self, base_url, plugin_name, method_names):
+        """
+        Test a list of plugin methods, how *are* accessable for the current
+        user.
+        """
+        self.assertPluginAccess(
+            base_url, plugin_name, method_names,
+            must_not_contain=("AccessDenied", "Error", "Traceback")
+        )
+
     # _________________________________________________________________________
 
     def assertPyLucid404(self, url):
