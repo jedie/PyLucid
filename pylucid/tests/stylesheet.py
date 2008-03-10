@@ -15,7 +15,7 @@
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
     $Rev$
-    $Author: JensDiemer $
+    $Author$
 
     :copyleft: 2008 by the PyLucid team.
     :license: GNU GPL v3, see LICENSE.txt for more details.

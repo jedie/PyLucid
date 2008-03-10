@@ -8,9 +8,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: 2008-02-29 12:09:14 +0100 (Fr, 29 Feb 2008) $
-    $Rev: 1454 $
-    $Author: JensDiemer $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyright: 2007 by the PyLucid team.
     :license: GNU GPL v3, see LICENSE.txt for more details.

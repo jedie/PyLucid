@@ -9,9 +9,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2008 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
