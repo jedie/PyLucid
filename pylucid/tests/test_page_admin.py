@@ -21,12 +21,15 @@ from tests.utils.BrowserDebug import debug_response
 
 from django.conf import settings
 
-from PyLucid.models import Page
+from PyLucid.models import Page, PageArchiv
+from PyLucid.db.page_archiv import get_archivelist, get_last_archived_page
 
 # Open only one traceback in a browser (=True) ?
 #ONE_BROWSER_TRACEBACK = False
 ONE_BROWSER_TRACEBACK = True
 
+
+PAGE_ID = 1
 
 MINIMAL_POST = {
     "save": "save", # The save button values
@@ -44,6 +47,13 @@ COMPLETE_POST.update({
     "description": "A test description.",
 })
 
+OLD_PAGE_DATA = {
+    "name": "old page",
+    "title": "This is the old page",
+    "content": "This is a old page content!",
+    "keywords": "Some old test keywords",
+    "description": "A old test description.",
+}
 
 
 class TestBase(tests.TestCase):
@@ -61,7 +71,7 @@ class TestBase(tests.TestCase):
 
         settings.DEBUG=False
 
-        self.base_url = "/%s/1" % settings.COMMAND_URL_PREFIX
+        self.base_url = "/%s/%s" % (settings.COMMAND_URL_PREFIX, PAGE_ID)
         self.method_url = self.base_url + "/page_admin/%s/"
         self.edit_url = self.method_url % "edit_page"
 
@@ -152,16 +162,7 @@ class TestNormalUser(TestBase):
             must_not_contain=("Traceback",)
         )
 
-    def test_edit1(self):
-        """
-        Send a save post action, with minimalistic field data.
-        """
-        response = self.client.post(
-            self.edit_url, MINIMAL_POST
-        )
-        self.assertEditSuccessful(response, MINIMAL_POST)
-
-    def test_edit1(self):
+    def test_minimal_edit(self):
         """
         Send a save post action, with minimalistic field data.
         """
@@ -171,7 +172,7 @@ class TestNormalUser(TestBase):
         self.assertEditSuccessful(response, MINIMAL_POST)
 
 
-    def test_edit1(self):
+    def test_complete_edit(self):
         """
         Send a save post action, with minimalistic field data.
         """
@@ -180,17 +181,59 @@ class TestNormalUser(TestBase):
         )
         self.assertEditSuccessful(response, COMPLETE_POST)
 
+    def test_page_archiv(self):
+        """
+        Test the page archiv.
 
-#        debug_response(response)
-#        self.failUnlessEqual(response.status_code, 200)
-#        self.assertResponse(
-#            response,
-#            must_contain=(
-#                "Old page data archived.",
-#                "Page data updated."
-#            ),
-#            must_not_contain=("This field is required.","Form error!")
-#        )
+        The page admin plugin archives a page, after it was edited.
+        We examine here archives data in a loop:
+        1. set the current page with initial values
+        2. edit the current page with self.test_complete_edit()
+        3. check the archive:
+           3.1. check the number of archive entries
+           3.2. check the data of the last entry
+        """
+        def setup_old_page(edit_no):
+            """
+            set init data on the current page
+            """
+            old_page = Page.objects.get(id = PAGE_ID)
+            for key, value in OLD_PAGE_DATA.iteritems():
+                setattr(old_page, key, "%s - %s" % (value, edit_no))
+            old_page.save()
+
+        def assert_page_archiv(edit_no):
+            """
+            Check the archive
+            """
+            # Get the edit page object
+            original_page = Page.objects.get(id = PAGE_ID)
+
+            # check the number of archive entries
+            assert len(get_archivelist(original_page)) == edit_no
+
+            # check the data of the last entry
+            archive = get_last_archived_page(original_page)
+            for key, value in OLD_PAGE_DATA.iteritems():
+                old_value = getattr(archive, key)
+                #print key, old_value
+                self.assertEqual(old_value, "%s - %s" % (value, edit_no))
+
+
+        for edit_no in xrange(1,10):
+            #print ">>> edit_no:", edit_no
+
+            # Set init values
+            setup_old_page(edit_no)
+
+            # Edit the current page with COMPLETE_POST:
+            self.test_complete_edit()
+
+            # Check the page archiv
+            assert_page_archiv(edit_no)
+
+
+
 
 
 
