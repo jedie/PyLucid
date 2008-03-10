@@ -59,6 +59,8 @@ class TestBase(tests.TestCase):
         )
         self.check_middlewares(middlewares)
 
+        settings.DEBUG=False
+
         self.base_url = "/%s/1" % settings.COMMAND_URL_PREFIX
         self.method_url = self.base_url + "/page_admin/%s/"
         self.edit_url = self.method_url % "edit_page"
