@@ -22,8 +22,10 @@
 
 from operator import add
 from time import time
+
 from django.db import connection
 from django.core.exceptions import ImproperlyConfigured
+
 from PyLucid.template_addons.filters import human_duration
 
 start_overall = time()
@@ -69,6 +71,7 @@ class PageStatsMiddleware(object):
             return response
 
         # compute the db time for the queries just run
+        # FIXME: In my shared webhosting environment the queries is always = 0
         queries = len(connection.queries) - old_queries
 
         total_time = human_duration(time() - start_time)
@@ -83,8 +86,14 @@ class PageStatsMiddleware(object):
 
         try:
             response.content = response.content.replace(TAG, stat_info)
-        except:
-            # Unicode errors?!?!
-            pass
+        except UnicodeError:
+            # FIXME: In my shared webhosting environment is response.content a
+            # string and not unicode. Why?
+            from django.utils.encoding import force_unicode
+            try:
+                response.content = force_unicode(response.content)\
+                                                    .replace(TAG, stat_info)
+            except:
+                pass
 
         return response
