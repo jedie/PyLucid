@@ -17,10 +17,5 @@ plugin_manager_data = {
     "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,
-        "internal_page_info" : {
-            "name" : "back_links",
-            "description" : "The Base Link Structure",
-            "markup" : None
-       },
     }
 }

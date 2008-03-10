@@ -19,10 +19,5 @@ plugin_manager_data = {
     "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,
-        "internal_page_info" : {
-            "name"              : "RSS",
-            "description"       : "for a RSS feed",
-            "markup"            : None
-        },
     }
 }

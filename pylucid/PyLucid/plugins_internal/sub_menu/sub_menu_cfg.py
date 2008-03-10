@@ -18,10 +18,5 @@ plugin_manager_data = {
     "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,
-        "internal_page_info" : {
-            "name"              : "sub_menu",
-            "description"       : "List of all sub pages.",
-            "markup"            : None
-        },
     }
 }

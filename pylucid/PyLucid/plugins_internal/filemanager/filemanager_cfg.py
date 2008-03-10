@@ -21,45 +21,14 @@ Need Page Internals: file_form.html
 #_____________________________________________________________________________
 # plugin administration data
 
+global_rights = {
+    "must_login"    : True,
+    "must_admin"    : True,
+}
 plugin_manager_data = {
-    "lucidTag" : {
-        "must_login"    : True,
-        "must_admin"    : True,
-    },
-    "filelist" : {
-        "must_login"    : True,
-        "must_admin"    : True,
-        "internal_page_info" : {
-            "name"              : "filelist",
-            "description"       : "The HTML for the file list.",
-            "markup"            : None
-        },
-    },
-    "select_basepath": {
-        "must_login"    : True,
-        "must_admin"    : True,
-        "internal_page_info" : {
-            "name"              : "select_basepath",
-            "description"       : "Select a base path (set in settings.py)",
-            "markup"            : None
-        },
-    },
-    "edit": {
-        "must_login"    : True,
-        "must_admin"    : True,
-        "internal_page_info" : {
-            "name"              : "edit_file",
-            "description"       : "Edit a text file",
-            "markup"            : None
-        },
-    },
-    "userinfo": {
-        "must_login"    : True,
-        "must_admin"    : True,
-        "internal_page_info" : {
-            "name"              : "userinfo",
-            "description"       : "Some user information",
-            "markup"            : None
-        },
-    },
+    "lucidTag" : global_rights,
+    "filelist" : global_rights,
+    "select_basepath": global_rights,
+    "edit": global_rights,
+    "userinfo": global_rights,
 }

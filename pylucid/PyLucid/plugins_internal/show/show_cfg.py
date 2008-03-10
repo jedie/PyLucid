@@ -12,23 +12,11 @@ __long_description__    = __description__
 #_____________________________________________________________________________
 # plugin administration data
 
+global_rights = {
+    "must_login": False,
+    "must_admin": False,
+}
 plugin_manager_data = {
-    "menu" : {
-        "must_login"    : False,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "name"              : "nav_links",
-            "description"       : "back and forth navigation links",
-            "markup"            : None
-        },
-    },
-    "all_pages": {
-        "must_login"    : False,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "name"              : "all_pages",
-            "description"       : "Display all presentation pages",
-            "markup"            : None
-        },
-    }
+    "menu" : global_rights,
+    "all_pages": global_rights,
 }

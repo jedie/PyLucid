@@ -15,7 +15,6 @@ __can_deinstall__ = False
 global_rights = {
     "must_login"    : True,
     "must_admin"    : True,
-    "has_Tags"      : False,
 }
 plugin_manager_data = {
     "lucidTag" : {
@@ -23,11 +22,6 @@ plugin_manager_data = {
         "must_admin"    : False,
         "has_Tags"      : True,
         "no_rights_error" : True, # TODO: remove in v0.9, see: ticket:161
-        "internal_page_info" : {
-            "name"              : "top_menu",
-            "description"       : "Administration front menu",
-            "markup"            : None,
-        },
     },
     "edit_page_link"    : global_rights,
     "new_page_link"     : global_rights,
@@ -36,11 +30,5 @@ plugin_manager_data = {
     "sub_menu"          : {
         "must_login"    : True,
         "must_admin"    : False,
-        "has_Tags"      : True,
-        "internal_page_info" : {
-            "name"              : "sub_menu",
-            "description"       : "Administration sub menu",
-            "markup"            : None,
-        },
     },
 }

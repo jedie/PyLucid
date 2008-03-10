@@ -14,18 +14,11 @@ Generate a list of the last page updates.
 #_____________________________________________________________________________
 # plugin administration data
 
+global_rights = {
+    "must_login"    : False,
+    "must_admin"    : False,
+}
 plugin_manager_data = {
-    "lucidTag" : {
-        "must_login"    : False,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "name"              : "PageUpdateTable",
-            "description"       : "Table for the list of page updates",
-            "markup"            : None
-        },
-    },
-    "lucidFunction": {
-        "must_login"    : False,
-        "must_admin"    : False,
-    }
+    "lucidTag" : global_rights,
+    "lucidFunction": global_rights,
 }

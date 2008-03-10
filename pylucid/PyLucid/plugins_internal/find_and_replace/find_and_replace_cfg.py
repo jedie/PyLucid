@@ -23,10 +23,5 @@ plugin_manager_data = {
     "find_and_replace" : {
         "must_login"    : True,
         "must_admin"    : True,
-        "internal_page_info" : {
-            "name"              : "find_and_replace",
-            "description"       : "HTML page.",
-            "markup"            : None
-        },
     },
 }

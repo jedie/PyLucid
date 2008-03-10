@@ -14,18 +14,11 @@ Create a RSS news feed from the last 15 page updates.
 #_____________________________________________________________________________
 # plugin administration data
 
+global_rights = {
+    "must_login"    : False,
+    "must_admin"    : False,
+}
 plugin_manager_data = {
-    "lucidTag" : {
-        "must_login"    : False,
-        "must_admin"    : False,
-    },
-    "download" : {
-        "must_login"    : False,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "name"              : "RSSfeed",
-            "description"       : "The RSS feed generator template",
-            "markup"            : None
-        },
-    }
+    "lucidTag" : global_rights,
+    "download" : global_rights,
 }

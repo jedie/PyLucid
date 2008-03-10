@@ -36,7 +36,7 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 
 from django.conf import settings
-from PyLucid.models import Page, Plugin, PageArchiv, MARKUPS
+from PyLucid.models import Page, Plugin, MARKUPS
 from PyLucid.db.page import flat_tree_list, get_sitemap_tree
 from PyLucid.db.page_archiv import archive_page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin

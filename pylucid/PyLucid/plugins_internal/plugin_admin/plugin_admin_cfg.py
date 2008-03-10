@@ -15,23 +15,11 @@ __cannot_deinstall__ = True
 #_____________________________________________________________________________
 # plugin administration data
 
+global_rights = {
+    "must_login": True,
+    "must_admin": True,
+}
 plugin_manager_data = {
-    "menu" : {
-        "must_login"    : True,
-        "must_admin"    : True,
-        "internal_page_info" : {
-            "name"              : "administation_menu",
-            "description"       : "Plugin admin menu",
-            "markup"            : None,
-        },
-    },
-    "plugin_setup" : {
-        "must_login"    : True,
-        "must_admin"    : True,
-#        "internal_page_info" : {
-#            "name"              : "administation_menu",
-#            "description"       : "Plugin admin menu",
-#            "markup"            : None,
-#        },
-    },
+    "menu": global_rights,
+    "plugin_setup": global_rights,
 }

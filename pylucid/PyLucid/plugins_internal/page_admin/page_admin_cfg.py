@@ -21,54 +21,21 @@ global_rights = {
     "must_admin"    : False,
 }
 plugin_manager_data = {
-    "edit_page" : {
-        "must_login"    : True,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "description"       : "HTML form to edit a CMS Page",
-            "markup"            : None,
-        },
-    },
-    "new_page"          : global_rights,
-    "delete_page"       : global_rights,
+    "edit_page" : global_rights,
+    "new_page" : global_rights,
+    "delete_page" : global_rights,
     "tinyTextile_help" : {
-        "must_login"    : False,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "description"       : "the tinyTextile help page",
-            "markup"            : "textile",
-        },
+        "must_login" : False,
+        "must_admin" : False,
     },
-    "select_edit_page" : {
-        "must_login"    : True,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "description"       : "select a page to edit it",
-            "markup"            : None,
-        },
-    },
+    "select_edit_page" : global_rights,
     "delete_pages" : {
-        "must_login"    : True,
-        "must_admin"    : True,
-        "internal_page_info" : {
-            "description"       : "select pages to delete these.",
-            "markup"            : None,
-        },
+        "must_login" : True,
+        "must_admin" : True,
     },
-    "sequencing" : {
-        "must_login"    : True,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "description"       : "change the position of every page",
-            "markup"            : None,
-        },
-    },
+    "sequencing" : global_rights,
     "tag_list": {
-        "must_login"    : False,
-        "must_admin"    : False,
-        "internal_page_info" : {
-            "description"       : "List of all available lucid tags/functions",
-            "markup"            : None,
-        },
+        "must_login" : False,
+        "must_admin" : False,
     }
 }
