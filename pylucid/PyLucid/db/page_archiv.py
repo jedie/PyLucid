@@ -44,3 +44,21 @@ def archive_page(page_instance, edit_comment):
     archiv_entry.edit_comment = edit_comment
 
     archiv_entry.save()
+
+def get_archivelist(page):
+    """
+    returns a query set with a list of all page archiv objects for the
+    given page.
+    """
+    query_set = PageArchiv.objects.all()
+    query_set = query_set.filter(page=page).order_by('-lastupdatetime')
+    return query_set
+
+def get_last_archived_page(page):
+    """
+    Returns the last entrie in the page archive for the given page.
+    """
+    query_set = get_archivelist(page)
+    last_archived_page = query_set[0]
+    return last_archived_page
+
