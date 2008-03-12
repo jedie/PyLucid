@@ -58,6 +58,8 @@ from PyLucid import settings
 from PyLucid.models import Page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
+FILE_CHARSET = getattr(settings, "FILE_CHARSET", "UTF-8")
+
 #______________________________________________________________________________
 # Build a list and a dict from the basepaths
 # The dict key is a string, not a integer. (GET/POST Data always returned
@@ -455,13 +457,14 @@ class filemanager(PyLucidBasePlugin):
             f = file(self.path["abs_file_path"], "r")
             content = f.read()
             f.close()
+            content = content.decode(FILE_CHARSET)
         except Exception, e:
             self.page_msg.red("Error, reading file:", e)
             return
 
         if self.request.method != 'POST':
             form = EditFileForm({
-                "content": cgi.escape(content),
+                "content": content,
                 "filename": self.path["filename"],
             })
         else: # POST
@@ -472,6 +475,7 @@ class filemanager(PyLucidBasePlugin):
                 content = form.cleaned_data["content"]
                 abs_file_path = os.path.join(self.path["abs_path"], filename)
                 try:
+                    content = content.encode(FILE_CHARSET)
                     f = file(abs_file_path, "w")
                     f.write(content)
                     f.close()
@@ -504,7 +508,7 @@ class filemanager(PyLucidBasePlugin):
             "file_path": file_path,
             "filename": self.path["filename"],
             "form": form,
-
+            "charset": FILE_CHARSET,
         }
         self._render_template("edit_file", context)#, debug=True)
 
