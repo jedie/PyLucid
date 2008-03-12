@@ -19,7 +19,8 @@
 
 import datetime, md5
 
-from django.http import HttpResponse, HttpResponsePermanentRedirect, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponsePermanentRedirect, \
+                                                           HttpResponseRedirect
 from django.template import RequestContext
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
