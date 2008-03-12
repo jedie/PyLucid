@@ -5,6 +5,8 @@
     ~~~~~~~~~~~~
 
     The URLs class has some usefull methods for plugins to build links.
+    Also the class has some joined media path information, for create urls and
+    filesystem path to the media and internal page files.
 
     The view put a instance in context["URLs"]. The BasePlugin bind the class
     to self. So every plugin can easy access the methods with self.URLs.
@@ -94,7 +96,41 @@ class URLs(dict):
 
         self.current_plugin = None
 
+        self.setup_mediapath()
         self.setup_URLs()
+
+    def setup_mediapath(self):
+        """
+        Set some shared used media path information to build url and filesystem
+        path to the media and internal page files.
+        About the internal_page stuff see DocString in system/internal_page.py
+        """
+        self["PyLucid_media_url"] = posixpath.join(
+            settings.MEDIA_URL,
+            settings.PYLUCID_MEDIA_DIR,
+        )
+        self["pylucid_media_root"] = os.path.join(
+            settings.MEDIA_ROOT,
+            settings.PYLUCID_MEDIA_DIR,
+        )
+        #----------------------------------------------------------------------
+        self["internal_page_url"] = posixpath.join(
+            self["PyLucid_media_url"],
+            settings.INTERNAL_PAGE_DIR,
+        )
+        self["internal_page_root"] = os.path.join(
+            self["pylucid_media_root"],
+            settings.INTERNAL_PAGE_DIR,
+        )
+        #----------------------------------------------------------------------
+        self["custom_internal_page_url"] = posixpath.join(
+            self["PyLucid_media_url"],
+            settings.CUSTOM_INTERNAL_PAGE_DIR,
+        )
+        self["custom_internal_page_root"] = os.path.join(
+            self["pylucid_media_root"],
+            settings.CUSTOM_INTERNAL_PAGE_DIR,
+        )
 
     def setup_URLs(self):
         """

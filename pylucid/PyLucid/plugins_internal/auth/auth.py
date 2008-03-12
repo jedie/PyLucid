@@ -317,15 +317,12 @@ class auth(PyLucidBasePlugin):
         next_url = self.request.POST.get('next_url',self.URLs['scriptRoot'])
         salt = js_login_data.salt
 
-        media_url = posixpath.join(
-            settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR,
-        )
         context = {
             "username": user.username,
             "fallback_url": self.URLs.adminLink(""),
             "salt": salt,
             "next_url": next_url,
-            "PyLucid_media_url": media_url,
+            "PyLucid_media_url": self.URLs["PyLucid_media_url"],
         }
 
         if "sha_a2" in self.request.POST and "sha_b" in self.request.POST:
@@ -620,14 +617,11 @@ class auth(PyLucidBasePlugin):
         self.request.session["salt_1"] = salt_1
         self.request.session["salt_2"] = salt_2
 
-        media_url = posixpath.join(
-            settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR,
-        )
         context = {
             "form": new_pass_form,
             "salt_1": salt_1,
             "salt_2": salt_2,
-            "PyLucid_media_url": media_url,
+            "PyLucid_media_url": self.URLs["PyLucid_media_url"],
         }
         if DEBUG == True:
             # For JavaScript debug

@@ -29,49 +29,31 @@ class InternalPage(object):
     Some path information for building URLs and filesystem path to the default
     and customized internal pages.
 
-    INTERNAL_PAGE_URL - for building URL to the default internal page
-    INTERNAL_PAGE_ROOT - filesystem path to default internal pages
+    "internal_page_url" - for building URL to the default internal page
+    "internal_page_root" - filesystem path to default internal pages
 
-    CUSTOM_INTERNAL_PAGE_URL - for customized internal pages URLs
-    CUSTOM_INTERNAL_PAGE_ROOT - filesystem path to customized internal pages
+    "custom_internal_page_url" - for customized internal pages URLs
+    "custom_internal_page_root" - filesystem path to customized internal pages
     """
-    INTERNAL_PAGE_URL = posixpath.join(
-        settings.MEDIA_URL,
-        settings.PYLUCID_MEDIA_DIR,
-        settings.INTERNAL_PAGE_DIR,
-    )
-    INTERNAL_PAGE_ROOT = os.path.join(
-        settings.MEDIA_ROOT,
-        settings.PYLUCID_MEDIA_DIR,
-        settings.INTERNAL_PAGE_DIR,
-    )
-
-    CUSTOM_INTERNAL_PAGE_URL = posixpath.join(
-        settings.MEDIA_URL,
-        settings.PYLUCID_MEDIA_DIR,
-        settings.CUSTOM_INTERNAL_PAGE_DIR,
-    )
-    CUSTOM_INTERNAL_PAGE_ROOT = os.path.join(
-        settings.MEDIA_ROOT,
-        settings.PYLUCID_MEDIA_DIR,
-        settings.CUSTOM_INTERNAL_PAGE_DIR,
-    )
-
     def __init__(self, context, plugin_name):
         self.page_msg   = context["page_msg"]
+        self.URLs       = context["URLs"]
+
         self.plugin_name = plugin_name
 
+        # Set url/path for the current plugin:
+
         self.default_plugin_root = os.path.join(
-            self.INTERNAL_PAGE_ROOT, plugin_name
+            self.URLs["internal_page_root"], plugin_name
         )
         self.default_plugin_url = posixpath.join(
-            self.INTERNAL_PAGE_URL, plugin_name
+            self.URLs["internal_page_url"], plugin_name
         )
         self.custom_plugin_root = os.path.join(
-            self.CUSTOM_INTERNAL_PAGE_ROOT, plugin_name
+            self.URLs["custom_internal_page_root"], plugin_name
         )
         self.custom_plugin_url = posixpath.join(
-            self.CUSTOM_INTERNAL_PAGE_URL, plugin_name
+            self.URLs["custom_internal_page_url"], plugin_name
         )
 
     def get_filename(self, internal_page_name, slug):

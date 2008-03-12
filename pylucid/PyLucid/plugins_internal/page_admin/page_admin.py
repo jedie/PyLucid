@@ -311,8 +311,7 @@ class page_admin(PyLucidBasePlugin):
 
             # url to e.g. /media/PyLucid/tiny_mce/tiny_mce.js
             tiny_mce_url = posixpath.join(
-                settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR,
-                "tiny_mce", "tiny_mce.js"
+                self.URLs["PyLucid_media_url"], "tiny_mce", "tiny_mce.js"
             )
             # url to e.g. .../internal_page/page_admin/edit_page_tinymce.js
             use_tiny_mce_url = self.internal_page.get_url(
