@@ -49,16 +49,15 @@ __version__= "$Rev: $"
 import os, cgi, sys, stat, dircache, time
 from datetime import datetime
 
+from django.conf import settings
 from django.http import Http404
 from django import newforms as forms
 from django.newforms.util import ValidationError
 from django.utils.translation import ugettext as _
 
-from PyLucid import settings
 from PyLucid.models import Page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
-FILE_CHARSET = getattr(settings, "FILE_CHARSET", "UTF-8")
 
 #______________________________________________________________________________
 # Build a list and a dict from the basepaths
@@ -457,7 +456,7 @@ class filemanager(PyLucidBasePlugin):
             f = file(self.path["abs_file_path"], "r")
             content = f.read()
             f.close()
-            content = content.decode(FILE_CHARSET)
+            content = content.decode(settings.FILE_CHARSET)
         except Exception, e:
             self.page_msg.red("Error, reading file:", e)
             return
@@ -475,7 +474,7 @@ class filemanager(PyLucidBasePlugin):
                 content = form.cleaned_data["content"]
                 abs_file_path = os.path.join(self.path["abs_path"], filename)
                 try:
-                    content = content.encode(FILE_CHARSET)
+                    content = content.encode(settings.FILE_CHARSET)
                     f = file(abs_file_path, "w")
                     f.write(content)
                     f.close()
@@ -508,7 +507,7 @@ class filemanager(PyLucidBasePlugin):
             "file_path": file_path,
             "filename": self.path["filename"],
             "form": form,
-            "charset": FILE_CHARSET,
+            "charset": settings.FILE_CHARSET,
         }
         self._render_template("edit_file", context)#, debug=True)
 
