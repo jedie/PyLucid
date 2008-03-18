@@ -1,37 +1,33 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-
 """
-Unitest für \PyLucid\system\tinyTextile.py
+    PyLucid unittest
+    ~~~~~~~~~~~~~~~~
 
+    Test the tinyTextile markup.
 
-Last commit info:
-----------------------------------
-$LastChangedDate: 2007-02-02 16:37:31 +0100 (Fr, 02 Feb 2007) $
-$Rev: 824 $
-$Author: JensDiemer $
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate: 2007-02-02 16:37:31 +0100 (Fr, 02 Feb 2007) $
+    $Rev: 824 $
+    $Author: JensDiemer $
 
-Created by Jens Diemer
-
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
-
+    :copyleft: 2008 by Jens Diemer
+    :license: GNU GPL v3, see LICENSE.txt for more details.
 """
-
 
 import sys, re, difflib, unittest, traceback
 
+import tests
+from tests.utils.FakeRequest import get_fake_context
+
+from PyLucid.system.tinyTextile import TinyTextileParser
+from PyLucid.system.response import SimpleStringIO
 
 
-sys.path.insert(0, "../") # PyLucid-Root
-
-from PyLucid.system import tinyTextile
-
-
-## Ausgabe bei Fehlern
-# =1 -> als repr()
-# =2 -> roh
+## error output format:
+# =1 -> via repr()
+# =2 -> raw
 #~ VERBOSE = 1
 VERBOSE = 2
 
@@ -40,47 +36,10 @@ VERBOSE = 2
 #_____________________________________________________________________________
 
 
-class OutBuffer(object):
-    """
-    Hilfsklasse um Ausgaben erst zwischen zu speichern
-    """
-    def __init__( self ):
-        self.data = []
-
-    def write(self, *txt):
-        for i in txt:
-            self.data.append(i)
-
-    def get(self):
-        return "".join(self.data)
-
-
-class FakeRender(object):
-    def highlight(self, sourcecode_type, code, out):
-        out.write(
-            "<FakeHighlight '%s'>%s</FakeHighlight>\n" % (sourcecode_type, code)
-        )
-
-class FakeRequest(object):
-    """
-    Zum Test wird ein request-Object mit ein paar Eigenschaften benötigt
-    """
-    URLs = None
-    tools = None
-    render = FakeRender()
-
-class FakeResponse(object):
-    def write(self, txt):
-        print "---[page_msg]--- >>>%s<<<" % txt
-
-    def page_msg(self, *txt):
-        self.write("".join([str(i) for i in txt]))
-
-
 
 class textileFailure(Exception):
     """
-    Eine Spezielle Fehler-Klasse, um textile Fehler besser anzeigen zu lassen
+    Special error class: Try to display markup errors in a better way.
     """
     def _format_output(self, txt):
         txt = txt.split("\\n")
@@ -114,7 +73,7 @@ class textileFailure(Exception):
             except ValueError:
                 msg = self._format_output(msg)
                 return (
-                    "Fehler in Fehlerausgabe!!! ;)\n"
+                    "Format error in output\n"
                     "Info:\n%s"
                 ) % msg
 
@@ -142,39 +101,32 @@ class textileFailure(Exception):
 
 class tinyTextileTest(unittest.TestCase):
 
-    # Eigene Fehlermeldung
+    # Use the own error class from above
     failureException = textileFailure
 
     def setUp(self):
-        self.fake_requestObj = FakeRequest()
-        self.fake_responseObj = FakeResponse()
-
-        self.out = OutBuffer()
-        self.textile = tinyTextile.parser(
-            self.out, self.fake_requestObj, self.fake_responseObj
-        )
+        self.fake_context = get_fake_context()
+        self.out = SimpleStringIO()
+        self.textile = TinyTextileParser(self.out, self.fake_context)
 
     def tearDown(self):
-        """Out-Buffer 'resetten'"""
+        """ delete the out buffer """
         self.out.data = []
 
     #_________________________________________________________________________
 
     def _prepare_text(self, txt):
         """
-        Damit Text auch eingerückt auf mehere Zeilen so aussieht, als
-        wenn er nicht eingerückt wurde ;)
+        prepare the multiline, indentation text.
         """
-        # Leerzeilen die durch Einrückung entsteht entfernen
         txt = txt.splitlines()
 
         if txt[0]!="":
-            # Erste Zeile muß leer sein!
             raise "First line not empty!"
         else:
             txt = txt[1:]
 
-        # Tiefe an erster Zeile ermitteln
+        # get the indentation level from the first line
         count = False
         for count, char in enumerate(txt[0]):
             if char!=" ":
@@ -183,15 +135,15 @@ class tinyTextileTest(unittest.TestCase):
         if count == False:
             raise "second line is empty!"
 
-        # Alle Zeilen zurück einrücken
+        # remove indentation from all lines
         txt = [i[count:] for i in txt]
 
         #~ txt = re.sub("\n {2,}", "\n", txt)
         txt = "\n".join(txt)
 
-        # *ein* \n am Anfang entfernen, wenn vorhanden
+        # strip *one* newline at the begining...
         if txt.startswith("\n"): txt = txt[1:]
-        # *ein* \n am Ende entfernen, wenn vorhanden
+        # and strip *one* newline at the end of the text
         if txt.endswith("\n"): txt = txt[:-1]
         #~ print repr(txt)
         #~ print "-"*79
@@ -201,42 +153,42 @@ class tinyTextileTest(unittest.TestCase):
 
     def testSelf(self):
         out1 = self._prepare_text("""
-                eine Zeile
-                zweite Zeile""")
-        self.assertEqual(out1, "eine Zeile\nzweite Zeile")
+                one line
+                line two""")
+        self.assertEqual(out1, "one line\nline two")
 
         out2 = self._prepare_text("""
-            eine Zeile
-            zweite Zeile
+            one line
+            line two
         """)
-        self.assertEqual(out2, "eine Zeile\nzweite Zeile")
+        self.assertEqual(out2, "one line\nline two")
 
         out3 = self._prepare_text("""
-            eine Zeile
+            one line
 
-            zweite Zeile
+            line two
         """)
-        self.assertEqual(out3, "eine Zeile\n\nzweite Zeile")
+        self.assertEqual(out3, "one line\n\nline two")
 
         out4 = self._prepare_text("""
-            eine Zeile
-                zweite Zeile
+            one line
+                line two
 
         """)
-        self.assertEqual(out4, "eine Zeile\n    zweite Zeile\n")
+        self.assertEqual(out4, "one line\n    line two\n")
 
         out5 = self._prepare_text("""
-            eine Zeile
-                zweite Zeile
+            one line
+                line two
             dritte Zeile
         """)
-        self.assertEqual(out5, "eine Zeile\n    zweite Zeile\ndritte Zeile")
+        self.assertEqual(out5, "one line\n    line two\ndritte Zeile")
 
 
 
     def testTextile_text1(self):
         self.textile.parse("test")
-        self.assertEqual(self.out.get(), "<p>test</p>\n")
+        self.assertEqual(self.out.getvalue(), "<p>test</p>\n")
 
     def testTextile_text2(self):
         test_text = self._prepare_text("""
@@ -254,7 +206,7 @@ class tinyTextileTest(unittest.TestCase):
         """)
         self.textile.parse(test_text)
         self.assertEqual(
-            self.out.get(),
+            self.out.getvalue(),
             self._prepare_text("""
                 <p>text block 1<br />
                 text block 1 line 2</p>
@@ -281,7 +233,7 @@ class tinyTextileTest(unittest.TestCase):
         """)
 
         self.textile.parse(content)
-        self.assertEqual(self.out.get(), out_test)
+        self.assertEqual(self.out.getvalue(), out_test)
 
     def testTextile_pre(self):
         content = self._prepare_text("""
@@ -319,7 +271,7 @@ class tinyTextileTest(unittest.TestCase):
         """)
 
         self.textile.parse(content)
-        self.assertEqual(self.out.get(),out_test)
+        self.assertEqual(self.out.getvalue(),out_test)
 
     def testTextile_code1(self):
         content = self._prepare_text("""
@@ -328,10 +280,14 @@ class tinyTextileTest(unittest.TestCase):
             </code>
         """)
 
-        out_test = "<FakeHighlight 'py'>testcode</FakeHighlight>\n"
+        out_test = self._prepare_text("""
+            <fieldset class="pygments_code"><legend class="pygments_code">py</legend>
+            <pre><code>testcode</code></pre>
+            </fieldset>
+        """)
 
         self.textile.parse(content)
-        self.assertEqual(self.out.get(),out_test)
+        self.assertEqual(self.out.getvalue(),out_test)
 
     def testTextile_code2(self):
         content = self._prepare_text("""
@@ -361,7 +317,7 @@ class tinyTextileTest(unittest.TestCase):
         """)
 
         self.textile.parse(content)
-        self.assertEqual(self.out.get(),out_test)
+        self.assertEqual(self.out.getvalue(),out_test)
 
     def testTextile_SourceCode1(self):
         content = self._prepare_text("""
@@ -383,7 +339,9 @@ class tinyTextileTest(unittest.TestCase):
         """)
 
         out_test = self._prepare_text("""
-            <FakeHighlight 'python'>class Example():
+            <fieldset class="pygments_code"><legend class="pygments_code">python</legend>
+            <pre><code>
+            class Example():
                 def __init__(self, *args, **kwargs):
                     # Text1
 
@@ -395,11 +353,13 @@ class tinyTextileTest(unittest.TestCase):
 
                     # text 5
 
-                    # text 6</FakeHighlight>
+                    # text 6
+            </code></pre>
+            </fieldset>
         """)
 
         self.textile.parse(content)
-        self.assertEqual(self.out.get(),out_test)
+        self.assertEqual(self.out.getvalue(),out_test)
 
     def testTextile_escaping(self):
         content = self._prepare_text("""
@@ -439,9 +399,13 @@ class tinyTextileTest(unittest.TestCase):
             <br />
             text line under</p>
             <p>inline &lt;escape&gt; Blabla</p>
-            <FakeHighlight \'python\'>print "=="
+            <fieldset class="pygments_code"><legend class="pygments_code">python</legend>
+            <pre><code>
+            print "=="
             print "Huch"
-            print "=="</FakeHighlight>
+            print "=="
+            </code></pre>
+            </fieldset>
             <p>some text...</p>
             <br />
             &lt;code&gt;<br />
@@ -455,7 +419,7 @@ class tinyTextileTest(unittest.TestCase):
         """)
 
         self.textile.parse(content)
-        self.assertEqual(self.out.get(),out_test)
+        self.assertEqual(self.out.getvalue(),out_test)
 
     def testTextile_list1(self):
         content = self._prepare_text("""
@@ -494,7 +458,7 @@ class tinyTextileTest(unittest.TestCase):
         self.textile.parse(content)
 
         print "DoTo: Listen sind nicht gut eingerückt!"
-        out1 = self.out.get()
+        out1 = self.out.getvalue()
         out1 = "\n".join([i.strip() for i in out1.splitlines()])
 
         out2 = "\n".join([i.strip() for i in out_test.splitlines()])
@@ -538,7 +502,7 @@ class tinyTextileTest(unittest.TestCase):
         self.textile.parse(content)
 
         print "DoTo: Listen sind nicht gut eingerückt!"
-        out1 = self.out.get()
+        out1 = self.out.getvalue()
         out1 = "\n".join([i.strip() for i in out1.splitlines()])
 
         out2 = "\n".join([i.strip() for i in out_test.splitlines()])
@@ -548,19 +512,9 @@ class tinyTextileTest(unittest.TestCase):
 
 
 
-def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(tinyTextileTest))
-    return suite
-
-
-
 if __name__ == "__main__":
-    print
-    print ">>> %s - Unitest"
-    print "_"*79
-    unittest.main()
-    sys.exit()
-
-
-
+    # Run this unitest directly
+    import os
+    os.chdir("../")
+    filename = os.path.splitext(os.path.basename(__file__))[0]
+    tests.run_tests(test_labels=[filename])
