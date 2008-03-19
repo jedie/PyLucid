@@ -24,8 +24,8 @@
     </td>
     {% if item.is_dir %}
         <td class="s">
-            {% if item.size %}
-            <i>{{ item.size }} object{{ item.size|pluralize }}</i>
+            {% if not item.dont_display_size %}
+            <i>{{ item.size }}&nbsp;object{{ item.size|pluralize }}</i>
             {% endif %}
         </td>
     {% else %}

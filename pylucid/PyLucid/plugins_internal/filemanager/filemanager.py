@@ -32,6 +32,9 @@
         - find a way to reduce the redundance.
         - Write a unitest for the plugin and verify the "bad-char-things" in
             path/post variables.
+        - Fixe some unicode problems:
+            e.g.: upload a file with a non ascii content
+            use sys.getfilesystemencoding() ?
         - Check the Plugin under windows - very low priority :)
 
     Last commit info:
@@ -54,6 +57,7 @@ from django.http import Http404
 from django import newforms as forms
 from django.newforms.util import ValidationError
 from django.utils.translation import ugettext as _
+from django.utils.encoding import force_unicode
 
 from PyLucid.models import Page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
@@ -65,7 +69,7 @@ from PyLucid.system.BasePlugin import PyLucidBasePlugin
 # numbers as strings)
 
 BASE_PATHS = [
-    (str(no),path) for no,path in enumerate(settings.FILEMANAGER_BASEPATHS)
+    (str(no),unicode(path)) for no,path in enumerate(settings.FILEMANAGER_BASEPATHS)
 ]
 BASE_PATHS_DICT = dict(BASE_PATHS)
 
@@ -361,6 +365,7 @@ class filemanager(PyLucidBasePlugin):
                 ),
                 "is_dir": True,
                 "deletable": False,
+                "dont_display_size": True,
             }]
 
         link_prefix = self.URLs.methodLink(
@@ -381,7 +386,7 @@ class filemanager(PyLucidBasePlugin):
                 link = os.path.join(link_prefix, item) + "/"
                 size = len(dircache.listdir(
                     os.path.join(self.path["abs_path"], item)
-                ))-1
+                ))
             else:
                 is_dir = False
                 link = self.path.get_abs_link(item)
@@ -530,7 +535,9 @@ class filemanager(PyLucidBasePlugin):
     def action_fileupload(self, filename, content):
         """
         save a uploaded file
+        FIXME: How to handle content encoding?
         """
+        filename = force_unicode(filename)
         abs_fs_path = os.path.join(self.path["abs_path"], filename)
         try:
             f = file(abs_fs_path,'wb') #if it exists, overwrite
