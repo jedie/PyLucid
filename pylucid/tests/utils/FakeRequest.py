@@ -42,11 +42,6 @@ class FakeRequest(object):
 class FakePage(object):
     id = 1
 
-fakeURLs = {
-    "absoluteIndex": "/",
-}
-
-#response = sys.stdout
 def get_fake_context(page_object=None):
     if not page_object:
         from PyLucid.models import Page
@@ -59,10 +54,11 @@ def get_fake_context(page_object=None):
     fake_context = {
         "request": FakeRequest(),
         "page_msg": FakePageMsg(),
-        "URLs": fakeURLs,
         "PAGE": page_object,
         "CSS_ID_list": [],
 
     }
+    from PyLucid.system.URLs import URLs
+    fake_context["URLs"] = URLs(fake_context)
 
     return fake_context
