@@ -24,6 +24,7 @@ from tests.utils.FakeRequest import get_fake_context
 from PyLucid.system.URLs import URLs
 from django.conf import settings
 
+
 class UrlsTestCase(tests.TestCase):
     def setUp(self):
         context = get_fake_context()
@@ -126,6 +127,20 @@ class UrlsTestCase(tests.TestCase):
         self.assertEqual(
             self.URLs.make_absolute_url(["test1", "test2"]),
             "%s/test1/test2/" % prefix
+        )
+
+    def test_non_ascii(self):
+        """
+        unicode test
+        """
+        self.URLs.current_plugin = "plugin_name"
+        self.assertEqual(
+            self.URLs.methodLink(u"test\xe4\xf6\xfc\xdf"),
+            u'/_command/1/plugin_name/test%C3%A4%C3%B6%C3%BC%C3%9F/'
+        )
+        self.assertEqual(
+            self.URLs.methodLink("method_name", args=u"test\xe4\xf6\xfc\xdf"),
+            u'/_command/1/plugin_name/method_name/test%C3%A4%C3%B6%C3%BC%C3%9F/'
         )
 
 

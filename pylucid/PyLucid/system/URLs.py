@@ -24,6 +24,7 @@
 import os, posixpath
 
 from django.conf import settings
+from django.utils.http import urlquote_plus
 
 
 def add_trailing_slash(path):
@@ -40,36 +41,42 @@ def add_trailing_slash(path):
 
 def join_url(base, parts=None, args=None):
     """
-    join the url parts >base<, >parts< and >args< together.
-    Always add a trailing slash!
+    -join the url parts >base<, >parts< and >args< together
+    -quote every part of the url
+    -Always add a trailing slash!
 
     >>> join_url("1")
-    '1/'
+    u'1/'
     >>> join_url(1, [2,3])
-    '1/2/3/'
+    u'1/2/3/'
     >>> join_url("/1/", [2,3])
-    '/1/2/3/'
+    u'/1/2/3/'
     >>> join_url("1", [2,3], ("/4/","/5/"))
-    '1/2/3/4/5/'
+    u'1/2/3/4/5/'
     """
-    def get_list(item):
+    def get_quoted_list(item, safe="/"):
+        """
+        -convert the item into a list
+        -quote every part of the list
+        """
         if item == None:
             return []
         elif isinstance(item, tuple):
-            return list(item)
+            item_list = list(item)
         elif isinstance(item, list):
-            return item
+            item_list = item
         else:
-            return [item]
+            item_list = [item]
 
-    base = get_list(base)
-    parts = get_list(parts)
-    args = get_list(args)
+        return [urlquote_plus(entry, safe) for entry in item_list]
 
+    # Note: base can start with e.g.: "http://foobar", so we set 'safe'
+    base = get_quoted_list(base, safe=':/')
+    parts = get_quoted_list(parts)
+    args = get_quoted_list(args)
+
+    # join all list parts together
     part_list = base + parts + args
-
-    # convert every item to a string:
-    part_list = [str(entry) for entry in part_list]
 
     # sript every "/" out, but not for the first and the last entry:
     index_list = range(len(part_list))[1:-1]
