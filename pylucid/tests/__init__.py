@@ -112,6 +112,10 @@ from PyLucid.models import Page, Style, Template, Style
 from django.contrib.auth.models import User, UNUSABLE_PASSWORD
 from django.test import TestCase as DjangoTestCase
 
+# Display invalid (e.g. misspelled, unused) template variables
+# http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
+# http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
+settings.TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
 
 TEST_USERS = {
     "superuser": {

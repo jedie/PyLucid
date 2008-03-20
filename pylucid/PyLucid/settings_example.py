@@ -287,6 +287,11 @@ TEMPLATE_DIRS = (
 # Note that Django only displays fancy error pages if DEBUG is True!
 TEMPLATE_DEBUG = DEBUG
 
+if TEMPLATE_DEBUG:
+    # Display invalid (e.g. misspelled, unused) template variables
+    # http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
+    # http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
+    TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
 
 #_____________________________________________________________________________
 # APP CONFIG
