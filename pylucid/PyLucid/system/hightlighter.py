@@ -30,15 +30,15 @@ try:
     from pygments import lexers
     from pygments.formatters import HtmlFormatter
     from pygments import highlight
-    pygments_available = True
+    PYGMENTS_AVAILABLE = True
 except ImportError:
-    pygments_available = False
+    PYGMENTS_AVAILABLE = False
 
 HTML = (
-    '<fieldset class="pygments_code">'
+    '<fieldset class="pygments_code">\n'
     '<legend class="pygments_code">%(lexer_name)s</legend>'
     '%(code_html)s'
-    '</fieldset>'
+    '</fieldset>\n'
 )
 CSSCLASS = "pygments"
 
@@ -62,7 +62,7 @@ def pygmentize(sourcecode, source_type):
     """
     returned html-code and the lexer_name
     """
-    if not pygments_available:
+    if not PYGMENTS_AVAILABLE:
         lexer_name = escape(source_type)
         html = no_hightlight(sourcecode)
         return html, lexer_name

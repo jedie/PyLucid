@@ -24,11 +24,15 @@ from tests.utils.FakeRequest import get_fake_context
 from PyLucid.system.tinyTextile import TinyTextileParser
 from PyLucid.system.response import SimpleStringIO
 
+# All tests with sourcecode should run without pygments:
+from PyLucid.system import hightlighter
+hightlighter.PYGMENTS_AVAILABLE = False
+
 
 ## error output format:
 # =1 -> via repr()
 # =2 -> raw
-#~ VERBOSE = 1
+#VERBOSE = 1
 VERBOSE = 2
 
 
@@ -120,11 +124,8 @@ class tinyTextileTest(unittest.TestCase):
         prepare the multiline, indentation text.
         """
         txt = txt.splitlines()
-
-        if txt[0]!="":
-            raise "First line not empty!"
-        else:
-            txt = txt[1:]
+        assert txt[0]=="", "First must be empty!" 
+        txt = txt[1:] # Skip the first line
 
         # get the indentation level from the first line
         count = False
@@ -132,8 +133,7 @@ class tinyTextileTest(unittest.TestCase):
             if char!=" ":
                 break
 
-        if count == False:
-            raise "second line is empty!"
+        assert count != False, "second line is empty!"
 
         # remove indentation from all lines
         txt = [i[count:] for i in txt]
@@ -191,6 +191,16 @@ class tinyTextileTest(unittest.TestCase):
         self.assertEqual(self.out.getvalue(), "<p>test</p>\n")
 
     def testTextile_text2(self):
+        content = self._prepare_text("""
+            one line
+        """)
+        out_test = self._prepare_text("""
+            <p>one line</p>\n
+        """)
+        self.textile.parse(content)
+        self.assertEqual(self.out.getvalue(),out_test)
+        
+    def testTextile_text3(self):
         test_text = self._prepare_text("""
             text block 1
             text block 1 line 2
@@ -273,21 +283,21 @@ class tinyTextileTest(unittest.TestCase):
         self.textile.parse(content)
         self.assertEqual(self.out.getvalue(),out_test)
 
-    def testTextile_code1(self):
-        content = self._prepare_text("""
-            <code=py>
-            testcode
-            </code>
-        """)
-
-        out_test = self._prepare_text("""
-            <fieldset class="pygments_code"><legend class="pygments_code">py</legend>
-            <pre><code>testcode</code></pre>
-            </fieldset>
-        """)
-
-        self.textile.parse(content)
-        self.assertEqual(self.out.getvalue(),out_test)
+#    def testTextile_code1(self):
+#        content = self._prepare_text("""
+#            <code=py>
+#            testcode
+#            </code>
+#        """)
+#
+#        out_test = self._prepare_text("""
+#            <fieldset class="pygments_code"><legend class="pygments_code">py</legend>
+#            <pre><code>testcode</code></pre>
+#            </fieldset>
+#        """)
+#
+#        self.textile.parse(content)
+#        self.assertEqual(self.out.getvalue(),out_test)
 
     def testTextile_code2(self):
         content = self._prepare_text("""
@@ -339,9 +349,9 @@ class tinyTextileTest(unittest.TestCase):
         """)
 
         out_test = self._prepare_text("""
-            <fieldset class="pygments_code"><legend class="pygments_code">python</legend>
-            <pre><code>
-            class Example():
+            <fieldset class="pygments_code">
+            <legend class="pygments_code">python</legend>
+            <pre><code>class Example():
                 def __init__(self, *args, **kwargs):
                     # Text1
 
@@ -353,15 +363,24 @@ class tinyTextileTest(unittest.TestCase):
 
                     # text 5
 
-                    # text 6
-            </code></pre>
+                    # text 6</code></pre>
             </fieldset>
         """)
 
         self.textile.parse(content)
         self.assertEqual(self.out.getvalue(),out_test)
 
-    def testTextile_escaping(self):
+    def testTextile_escaping1(self):
+        content = self._prepare_text("""
+            escape ==<ul>== and ==<ol>== with "==" ;)
+        """)
+        out_test = self._prepare_text("""
+            <p>escape &lt;ul&gt; and &lt;ol&gt; with "==" ;)</p>\n
+        """)
+        self.textile.parse(content)
+        self.assertEqual(self.out.getvalue(),out_test)
+        
+    def testTextile_escaping2(self):
         content = self._prepare_text("""
             text above
             ==
@@ -399,12 +418,11 @@ class tinyTextileTest(unittest.TestCase):
             <br />
             text line under</p>
             <p>inline &lt;escape&gt; Blabla</p>
-            <fieldset class="pygments_code"><legend class="pygments_code">python</legend>
-            <pre><code>
-            print "=="
+            <fieldset class="pygments_code">
+            <legend class="pygments_code">python</legend>
+            <pre><code>print "=="
             print "Huch"
-            print "=="
-            </code></pre>
+            print "=="</code></pre>
             </fieldset>
             <p>some text...</p>
             <br />
