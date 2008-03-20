@@ -36,8 +36,7 @@ import os, pprint
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
-from PyLucid.tools.content_processors import apply_markup, \
-                                                        render_string_template
+from PyLucid.tools.content_processors import render_string_template
 from PyLucid.tools.utils import escape
 from PyLucid.system.internal_page import InternalPage, InternalPageNotFound
 
@@ -102,10 +101,6 @@ class PyLucidBasePlugin(object):
         self._add_js_css_data(internal_page_name)
 
         html = self.__render(content, context, debug)
-
-        # FIXME: Should be remove the markup function in internal pages?
-#        markup_object = internal_page.markup
-#        html = apply_markup(html, self.context, markup_object)
 
         html = mark_safe(html) # turn djngo auto-escaping off
         return html
