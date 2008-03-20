@@ -1,5 +1,8 @@
 /* ___________________________________________________________________________
  *  password input
+ *
+ * some routines exist from {{ PyLucid_media_url }}/shared_sha_tools.js
+ * and {{ PyLucid_media_url }}/sha.js
  */
 
 
@@ -15,6 +18,9 @@ function init() {
     if (challenge.length != 5) {
         alert("challenge from Server fail!"); return false;
     }
+
+    /* The login form was hide via CSS. After JS loaded fine, we unhide it. */
+    document.getElementById("login_form").style.visibility = "visible";
 
     set_focus(focus_id);
 
@@ -59,12 +65,12 @@ function check() {
 
     // hex_sha setzten
     document.getElementById("sha_a2").value = sha_a2;
-    change_color("sha_a2", "lightgreen");
+    change_color("sha_a2", "#90EE90");
     document.getElementById("sha_b").value = sha_b;
-    change_color("sha_b", "lightgreen");
+    change_color("sha_b", "#90EE90");
 
     document.getElementById("plaintext_pass").value = "";
-    change_color("plaintext_pass", "grey");
+    change_color("plaintext_pass", "#808080");
 
     document.login.action = submit_url;
 

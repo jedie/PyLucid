@@ -202,6 +202,7 @@ class auth(PyLucidBasePlugin):
         if self.request.method != 'POST':
             username_form = UsernameForm()
         else:
+            #self.page_msg(self.request.POST)
             username_form = UsernameForm(self.request.POST)
             user = get_data(username_form)
             if user != None: # A valid form with a existing user was send.
@@ -212,11 +213,14 @@ class auth(PyLucidBasePlugin):
                     return
 
                 if "plaintext_login" in self.request.POST:
+                    # The user has clickt on the plaintext login submit button
                     return self._plaintext_login(user)
-                elif "sha_login" in self.request.POST:
-                    return self._sha_login(user)
-                else:
-                    self.page_msg.red("Wrong POST data.")
+
+                # The IE 7 doesn't send the value from the first existing
+                # submit button, if the user submit by pressing the enter key
+                # instead of clicking the SHA Login button. So we didn't check
+                # the button value in the POST data here.
+                return self._sha_login(user)
 
         if DEBUG: self.page_msg("Next URL: %s" % next_url)
 

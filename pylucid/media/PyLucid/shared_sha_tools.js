@@ -34,16 +34,16 @@ function set_focus(object_id) {
 
 function hide_by_id(object_id) {
     try {
-	    obj = document.getElementById(object_id);
-    	obj.style.display = 'none';
+        obj = document.getElementById(object_id);
+        obj.style.display = 'none';
     } catch (e) {
         alert("hide_by_id() error:" + e);
     }
 }
 function unhide_by_id(object_id) {
     try {
-	    obj = document.getElementById(object_id);
-    	obj.style.display = 'block';
+        obj = document.getElementById(object_id);
+        obj.style.display = 'block';
     } catch (e) {
         alert("unhide_by_id() error:" + e);
     }
@@ -52,9 +52,13 @@ function unhide_by_id(object_id) {
 function change_color(id_name, color_name) {
     try {
         obj = document.getElementById(id_name);
+    } catch (e) {
+        alert("change_color() error can't get object:" + e);
+    }
+    try {
         obj.style.backgroundColor = color_name;
     } catch (e) {
-        alert("change_color() error:" + e);
+        alert("change_color() error can't change background color:" + e);
     }
 }
 
@@ -78,9 +82,9 @@ function get_plaintext_pass(object_id) {
             return false;
         }
 
-		if (check_ascii_only(in_pass) == false) {
-			return false
-		}
+        if (check_ascii_only(in_pass) == false) {
+            return false
+        }
         return in_pass;
     } catch (e) {
         alert("get_plaintext_pass() error:" + e);
