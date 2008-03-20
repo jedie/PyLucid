@@ -24,7 +24,7 @@ body {
 </style>
 {% block base_head %}{% endblock %}
 </head>
-<body>
+<body {% block body_tag %}{% endblock %}>
 <a name="top"></a>
 {% block base_content %}{% endblock %}
 {% block base_footer %}{% endblock %}

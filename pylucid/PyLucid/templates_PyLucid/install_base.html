@@ -5,6 +5,23 @@
 {% block base_head %}
 <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}install_views.css" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}shared_sha_tools.js"></script>
+<style type="text/css">
+/* <![CDATA[ */
+#password_form {
+    /* Areas how only should unhide, if JavaScript loaded fine. */
+    display: none;
+}
+.help_text {
+    font-size:0.8em;
+}
+#hash {
+    background-color: #808080;
+}
+fieldset.error {
+    border: red 2px solid;
+}
+/* ]]> */
+</style>
 {% block head %}{% endblock %}
 {% endblock %}
 
@@ -25,8 +42,8 @@
         <strong>{% trans 'You need JavaScript to generate this hash!' %}</strong><br />
         {% trans 'Please enable JavaScript in your browser!' %}
     </fieldset>
-     <style type="text/css">
-    #check_media, #gen_hash_block {
+    <style type="text/css">
+    #check_media, #password_form {
         /*
         hide the check_media div if javascript is disable
         TODO: Check if a style tag inner noscript area is allowed.
@@ -66,7 +83,11 @@
 // Hide the "check_media" block with a function from the shared_sha_tools.js file.
 // If the PyLucid_media_url is wrong and the file is not served correctly, the info
 // Block can't hide.
-hide_by_id("check_media");
+try {
+    hide_by_id("check_media");
+} catch (e) {
+    alert("{% trans "It seems that the required JavaScript file isn't loaded!" %}\n\nThe original Error was:\n" + e);
+}
 /* ]]> */
 </script>
 {% block content %}{% endblock %}

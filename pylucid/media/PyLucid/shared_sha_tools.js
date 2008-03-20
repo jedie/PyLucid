@@ -7,6 +7,8 @@ debug_msg = false;
 
 // length of a SHA1 hexdigest string:
 HASH_LEN = 40;
+// length of the salt and challenge value string:
+SALT_LEN = 5;
 
 
 if (!document.getElementById) {
@@ -20,47 +22,68 @@ if (navigator.cookieEnabled) {
 }
 
 /* ___________________________________________________________________________
- *  needfull functions:
+ *  needfull generic functions:
  */
+
+function get_value(object_id) {
+    // get a form value
+    try {
+        return document.getElementById(object_id).value;
+    } catch (e) {
+        alert("get_value('"+object_id+"') error! " + e);
+    }
+}
+
+function set_value(object_id, value) {
+    // set a form value
+    try {
+        obj = document.getElementById(object_id).value = value;
+    } catch (e) {
+        alert("set_value('"+object_id+"', '"+value+"') error! " + e);
+    }
+}
 
 function set_focus(object_id) {
     try {
         debug("set focus on id:" + object_id);
         document.getElementById(object_id).focus();
     } catch (e) {
-        alert("set_focus() error:" + e);
+        alert("set_focus('"+object_id+"') error:" + e);
     }
 }
 
 function hide_by_id(object_id) {
     try {
+        debug("hide_by_id: "+object_id);
         obj = document.getElementById(object_id);
         obj.style.display = 'none';
     } catch (e) {
-        alert("hide_by_id() error:" + e);
+        alert("hide_by_id('"+object_id+"') error:" + e);
     }
 }
 function unhide_by_id(object_id) {
     try {
+        debug("unhide_by_id: "+object_id);
         obj = document.getElementById(object_id);
         obj.style.display = 'block';
     } catch (e) {
-        alert("unhide_by_id() error:" + e);
+        alert("unhide_by_id('"+object_id+"') error:" + e);
     }
 }
 
-function change_color(id_name, color_name) {
+function change_color(object_id, color_name) {
     try {
-        obj = document.getElementById(id_name);
-    } catch (e) {
-        alert("change_color() error can't get object:" + e);
-    }
-    try {
+        debug("change_color: "+object_id);
+        obj = document.getElementById(object_id);
         obj.style.backgroundColor = color_name;
     } catch (e) {
-        alert("change_color() error can't change background color:" + e);
+        alert("change_color('"+object_id+"', '"+color_name+"') error:" + e);
     }
 }
+
+/* ___________________________________________________________________________
+ *  special functions:
+ */
 
 function check_ascii_only(data) {
     for (var i = 1; i <= data.length; i++) {
@@ -75,15 +98,17 @@ function check_ascii_only(data) {
 
 function get_plaintext_pass(object_id) {
     try {
-        in_pass = document.getElementById(object_id).value;
+        in_pass = get_value(object_id);
         debug("in_pass:" + in_pass);
         if (in_pass.length<8) {
             alert("Password min len 8! - current len:" + in_pass.length);
+            set_focus(object_id)
             return false;
         }
 
         if (check_ascii_only(in_pass) == false) {
-            return false
+            set_focus(object_id)
+            return false;
         }
         return in_pass;
     } catch (e) {
@@ -109,52 +134,59 @@ function make_SHA(txt) {
     }
 }
 
-function set_value(object_id, value, color_name) {
-    try {
-        // set the value and change the css color.
-        document.getElementById(object_id).value = value;
-        change_color(object_id, color_name);
-    } catch (e) {
-        alert("set_value("+object_id+", "+value+", "+color_name+") error:" + e);
-    }
-}
 
 /* ___________________________________________________________________________
  *  debugging:
  */
 
 function init_debug() {
+    /* Create a debug window, if it's not exists */
     try {
         if (debug_msg != true) { return; }
-        property = "dependent=yes,resizable=yes,width=350,height=400,top=1,left=" + window.outerWidth;
-        debug_window = window.open("about:blank", "Debug", property);
-        debug_window.focus();
+        try {
+            if (debug_window) {
+                return;
+            }
+        } catch (e) {}
+        debug_window = window.open("", "Debug", "dependent=yes, resizable=yes, scrollbars=yes, width=350, height=400, top=1, left=" + window.outerWidth);
+
         debug_win = debug_window.document;
         debug_win.writeln("<style>* { font-size: 0.85em; }</style>");
-        debug_win.writeln("<h1>JS Debug:</h1>");
+
+        var now = new Date();
+        now = now.toLocaleString();
+
+        debug_win.writeln("<h1>JS Debug - "+now+":</h1>");
         debug_win.writeln("---[DEBUG START]---");
         debug_win.writeln("cookie:" + document.cookie +"<br />");
-
-        document.body.onunload = "debug_window.close();";
     } catch (e) {
         alert("init_debug() error:" + e);
     }
 }
+
+
 function debug(msg) {
     try {
         if (debug_msg != true) { return; }
+        init_debug();
         debug_win.writeln(msg + "<br />");
+        debug_window.focus();
+        // scroll to the last lines
+        debug_window.scrollBy(0, 1000);
     } catch (e) {
-        alert("debug() error:" + e);
+        alert("debug('"+msg+"') error:" + e);
     }
 }
+
+
 function debug_confirm() {
     try {
        if (debug_msg != true) { return; }
        debug_window.focus();
        debug_win.writeln("---[DEBUG END]---");
-       alert('OK for submit.');
+       alert("OK for closing the debug window.");
        debug_window.close();
+       debug_window = false;
     } catch (e) {
         alert("debug_confirm() error:" + e);
     }

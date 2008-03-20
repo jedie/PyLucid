@@ -225,7 +225,6 @@ class auth(PyLucidBasePlugin):
         if DEBUG: self.page_msg("Next URL: %s" % next_url)
 
         context = {
-            "fallback_url": self.URLs.adminLink(""),
             "form": username_form,
             "next_url": next_url,
         }

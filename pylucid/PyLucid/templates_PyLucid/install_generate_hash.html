@@ -1,60 +1,16 @@
 {% extends "install_base.html" %}
 
 {% block head %}
-<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js"></script>
-<script type="text/javascript">
-/* <![CDATA[ */
-function make_salt() {
-    /* return a random string: six digit number */
-    salt = Math.random();
-    // convert to a string:
-    salt = "" + salt;
-    // get 5 decimal places after the comma:
-    salt = salt.substring(2, 7);
-    return salt
-}
-function make_hash() {
-    source = document.getElementById("source").value;
-
-    if (source.length<8) {
-        if (document.getElementById("hash").value != "") {
-            // make_hash() has created the hash in the past. Nothing to do
-            return false;
-        }
-        alert("Password min len 8! - current len:" + source.length);
-        return false;
-    }
-    if (check_ascii_only(source) == false) {
-        return false
-    }
-
-    salt = make_salt();
-    sha = hex_sha1(salt + source);
-    hash = "sha1$" + salt + "$" + sha;
-
-    hash_obj = document.getElementById("hash")
-    hash_obj.value = hash;
-    hash_obj.style.backgroundColor = "lightgreen";
-
-    source_obj = document.getElementById("source")
-    source_obj.value = "";
-    source_obj.style.backgroundColor = "grey";
-}
-
-function init() {
-    // Unhide "gen_hash_block" with external media_path_test.js file:
-    unhide_by_id("gen_hash_block");
-
-    set_focus("source");
-}
-/* ]]> */
-</script>
+<script language="javascript" type="text/javascript" src="{{ PyLucid_media_url }}sha.js"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}install_views.js"></script>
 {% endblock %}
+
+{% block body_tag %}onload="try{generate_hash_init()} catch (e) {}"{% endblock %}
 
 {% block content %}
 <h1>{% trans 'Generate _install section password hash.' %}</h1>
 
-<div id="gen_hash_block">
+<div id="password_form">
 <p>
     {% trans 'Before you can login into the _install section, you must insert a login password hash into your settings.py.' %}<br />
     {% trans 'Here you can generate this password hash.' %}<br />
@@ -68,15 +24,17 @@ function init() {
 </p>
 <fieldset>
     <legend>{% trans 'Generate SHA-1 hash.' %}</legend>
-    <label for="source">Input your Password here :</label>
-    <input id="source" type="password" name="{% trans 'Password' %}" size="20" onchange="make_hash();" /><br />
-    <span class="help_text">{% trans '(at least 8 chars long and only ASCII letters are allowed!)' %}</span>
-    <p>
-    <label for="hash">generated SHA-1 hash :</label>
-    <input id="hash" type="text" value="(input the password first)" size="60" readonly="readonly" /><br />
-    <span class="help_text">{% trans 'You must copy and paste the hash into your settings.py file.' %}</span>
-    </p>
-    <input type="button" value="make hash" onclick="make_hash();"><br />
+    <form name="login" method="post" action="" onsubmit="return make_hash();">
+        <label for="plaintext_pass">Input your Password here :</label>
+        <input id="plaintext_pass" type="password" name="{% trans 'Password' %}" size="20"/><br />
+        <span class="help_text">{% trans '(at least 8 chars long and only ASCII letters are allowed!)' %}</span>
+        <p>
+        <label for="hash">generated SHA-1 hash :</label>
+        <input id="hash" type="text" value="(input the password first)" size="60" readonly="readonly" /><br />
+        <span class="help_text">{% trans 'You must copy and paste the hash into your settings.py file.' %}</span>
+        </p>
+        <input type="submit" value="{% trans 'make hash' %}" />
+    </form>
 </fieldset>
 
 <ul>
@@ -86,6 +44,4 @@ function init() {
 </li>
 </ul>
 </div>
-
-<script type="text/javascript">init();</script>
 {% endblock %}

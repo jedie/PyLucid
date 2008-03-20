@@ -2,65 +2,25 @@
 
 {% block head %}
 <script type="text/javascript" src="{{ PyLucid_media_url }}sha.js"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}install_views.js"></script>
 <script type="text/javascript">
-/* <![CDATA[ */
-function make_hash() {
     salt = "{{ salt }}";
-    source = document.getElementById("source").value;
-
-    if (source.length<8) {
-        if (document.getElementById("hash").value != "") {
-            // make_hash() has created the hash in the past. Nothing to do
-            return false;
-        }
-        alert("Password min len 8! - current len:" + source.length);
-        return false;
-    }
-  if (check_ascii_only(source) == false) {
-    return false
-  }
-
-    sha = hex_sha1(salt + source);
-    hash = "sha1$" + salt + "$" + sha;
-
-    hash_obj = document.getElementById("hash");
-    hash_obj.value = hash;
-  change_color("hash", "lightgreen");
-
-    source_obj = document.getElementById("source")
-    source_obj.value = "";
-    change_color("source", "grey");
-
-    document.login.submit();
-}
-
-/* ]]> */
 </script>
-<style type="text/css">
-/* <![CDATA[ */
-.help_text {
-    font-size:0.8em;
-}
-#hash {
-    background-color: grey;
-}
-/* ]]> */
-</style>
 {% endblock %}
+
+{% block body_tag %}onload="try{login_init()} catch (e) {}"{% endblock %}
 
 {% block content %}
 <h1>{% trans 'Login into the _install section' %}</h1>
 
 <fieldset>
     <legend>{% trans 'Log in' %}</legend>
-    <form name="login" method="post" action="">
-      <label for="source">Input your Password here :</label>
-      <input id="source" type="password" name="{% trans 'Password' %}" size="20" onchange="make_hash();" /><br />
+    <form name="login" method="post" action="" id="password_form" onsubmit="return make_hash();">
+      <label for="plaintext_pass">Input your Password here :</label>
+      <input id="plaintext_pass" type="password" name="{% trans 'Password' %}" size="20" /><br />
       <label for="hash">generated SHA-1 hash :</label>
       <input id="hash" name="hash" type="text" value="(input password first)" size="60" readonly="readonly" /><br />
-      <input type="submit" value="{% trans 'Log in' %}" onclick="make_hash();" />
+      <input type="submit" value="{% trans 'Log in' %}" />
     </form>
 </fieldset>
-
-<script type="text/javascript">init();</script>
 {% endblock %}

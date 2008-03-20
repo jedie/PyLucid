@@ -1,8 +1,10 @@
 <fieldset><legend>PyLucid <a href="http://www.pylucid.org/_goto/8/JS-SHA-Login/" title="What is the PyLucid JS-SHA-LogIn?">JS-SHA-LogIn</a> - step 1</legend>
 
 <noscript>
-<h3>NOTE: Javascript is needed!</h3>
-<a href="{{ fallback_url }}">Without JS you can only use the non secure fallback login.</a>
+    <fieldset id="js_error"><legend>{% trans 'Error' %}</legend>
+    <h3>Error: For the JS-SHA-Login is Javascript needed!</h3>
+    <p>Without JavaScript, you can only use the unsecure plaintext login!</p>
+    </fieldset>
 </noscript>
 
 <form method="post" action=".">
