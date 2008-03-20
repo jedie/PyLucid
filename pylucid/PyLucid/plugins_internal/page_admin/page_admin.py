@@ -529,6 +529,10 @@ class page_admin(PyLucidBasePlugin):
             "add_data_tag": mark_safe(settings.ADD_DATA_TAG)
         }
         content = self._get_rendered_template("tinyTextile_help", context)
+
+        # Use tinyTextile markup
+        content = apply_markup(content, self.context, markup_no = 2)
+
         # insert CSS data from the internal page into the rendered page:
         content = replace_add_data(self.context, content)
         return HttpResponse(content)
