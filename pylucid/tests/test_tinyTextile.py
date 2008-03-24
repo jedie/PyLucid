@@ -35,6 +35,7 @@ hightlighter.PYGMENTS_AVAILABLE = False
 #VERBOSE = 1
 VERBOSE = 2
 
+PERMALINK = "/permalink/"
 
 
 #_____________________________________________________________________________
@@ -111,7 +112,7 @@ class tinyTextileTest(unittest.TestCase):
     def setUp(self):
         self.fake_context = get_fake_context()
         self.out = SimpleStringIO()
-        self.textile = TinyTextileParser(self.out, self.fake_context)
+        self.textile = TinyTextileParser(self.out, PERMALINK, self.fake_context)
 
     def tearDown(self):
         """ delete the out buffer """
@@ -124,7 +125,7 @@ class tinyTextileTest(unittest.TestCase):
         prepare the multiline, indentation text.
         """
         txt = txt.splitlines()
-        assert txt[0]=="", "First must be empty!" 
+        assert txt[0]=="", "First must be empty!"
         txt = txt[1:] # Skip the first line
 
         # get the indentation level from the first line
@@ -199,7 +200,7 @@ class tinyTextileTest(unittest.TestCase):
         """)
         self.textile.parse(content)
         self.assertEqual(self.out.getvalue(),out_test)
-        
+
     def testTextile_text3(self):
         test_text = self._prepare_text("""
             text block 1
@@ -232,14 +233,22 @@ class tinyTextileTest(unittest.TestCase):
 
     def testTextile_headline1(self):
         content = self._prepare_text("""
-            h1. h-1 headline
+            h1. headline A
+            
+            Text1
 
-            h2. h-2 headline
+            h2. headline B $%#
+            
+            Text2
         """)
         out_test = self._prepare_text("""
-            <h1>h-1 headline</h1>
-            <h2>h-2 headline</h2>
-
+            <h1 id="headlineA"><a title="Link to this section" href="/permalink/#headlineA" class="anchor">headline A</a></h1>
+            
+            <p>Text1</p>
+            <h2 id="headlineB"><a title="Link to this section" href="/permalink/#headlineB" class="anchor">headline B $%#</a></h2>
+            
+            <p>Text2</p>
+        
         """)
 
         self.textile.parse(content)
@@ -379,7 +388,7 @@ class tinyTextileTest(unittest.TestCase):
         """)
         self.textile.parse(content)
         self.assertEqual(self.out.getvalue(),out_test)
-        
+
     def testTextile_escaping2(self):
         content = self._prepare_text("""
             text above

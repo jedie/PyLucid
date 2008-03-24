@@ -27,26 +27,36 @@ license:
 
 __version__ = "$Rev$"
 
-import sys, re
+import sys, re, string
+
 from PyLucid.tools.utils import escape
 from PyLucid.system.response import SimpleStringIO
 
 
+HEADLINE = (
+    '<h%(no)s id="%(anchor)s">'
+    '<a title="Link to this section" href="%(link)s#%(anchor)s" class="anchor">'
+    '%(txt)s</a>'
+    '</h%(no)s>\n'
+)
+
+
 class TinyTextileParser:
-    def __init__(self, out_obj, context):
+    def __init__(self, out_obj, permalink, context):
         self.out = out_obj
+        self.permalink = permalink
         self.context = context
         self.page_msg   = context["page_msg"]
 
-        # Regeln für Blockelemente
+        # Blockelements
         self.block_rules = self._compile_rules([
-            [ # <h1>-Überschriften
-                r"\Ah(\d)\. +(.*)(?us)",
-                r"<h\1>\2</h\1>"
+            [ # <h1>-Headlines
+                r"\Ah(\d)\. (.+)(?usm)",
+                self.headline
             ],
         ])
 
-        # Regeln für Inlineelemente
+        # Inlineelements
         self.inline_rules = self._compile_rules([
             [ # HTML-Escaping
                 r"={2,2}(.+?)={2,2}(?usm)",
@@ -154,6 +164,22 @@ class TinyTextileParser:
 
     def escaping(self, matchobj):
         return escape(matchobj.group(1))
+
+    def headline(self, matchobj):
+        """
+        Insert a html headline with a anchor.
+        """
+        text = matchobj.group(2)
+        anchor = "".join(
+            [char for char in text if char in string.ascii_letters]
+        )
+        result = HEADLINE % {
+            "no": matchobj.group(1),
+            "txt": text,
+            "link": self.permalink,
+            "anchor": anchor,
+        }
+        return result
 
     def shortcutLink(self, matchobj):
         shortcut = matchobj.group(1)
@@ -418,7 +444,6 @@ class TinyTextileParser:
 
         for i in range(deep):
             self.out.write(post_tag)
-
 
 
 

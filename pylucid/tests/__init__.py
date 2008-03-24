@@ -191,7 +191,7 @@ class TestCase(DjangoTestCase):
     # A simple regex to get all html links out of a page content
     HREF_RE = re.compile('<a href="(.+?)".*?>(.+?)</a>')
 
-    def assertResponse(self, response, must_contain, must_not_contain=()):
+    def assertResponse(self, response, must_contain=(), must_not_contain=()):
         """
         Check the content of the response
         must_contain - a list with string how must be exists in the response.

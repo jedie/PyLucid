@@ -45,7 +45,11 @@ def apply_markup(content, context, markup_no):
     if markup_no == 2: # textile
         from PyLucid.system.tinyTextile import TinyTextileParser
         out_obj = SimpleStringIO()
-        markup_parser = TinyTextileParser(out_obj, context)
+
+        current_page = context["PAGE"]
+        permalink = current_page.get_permalink()
+
+        markup_parser = TinyTextileParser(out_obj, permalink, context)
         markup_parser.parse(content)
         content = out_obj.getvalue()
     elif markup_no == 3: #Textile (original)
