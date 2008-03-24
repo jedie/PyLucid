@@ -18,6 +18,7 @@
 """
 
 import os, webbrowser, traceback, tempfile
+from cgi import escape
 
 # Bug with Firefox under Ubuntu.
 # http://www.python-forum.de/topic-11568.html
@@ -46,7 +47,7 @@ def debug_response(response, one_browser_traceback=True, msg="", \
     url = response.request["PATH_INFO"]
 
     stack = traceback.format_stack(limit=3)[:-1]
-    stack.append(msg)
+    stack.append(escape(msg))
     if display_tb:
         print
         print "debug_response:"
