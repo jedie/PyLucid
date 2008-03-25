@@ -26,7 +26,7 @@ from PyLucid.tools.shortcuts import makeUnique
 HEADLINE_RE = re.compile(r"<h(\d)>(.+?)</h(\d)>(?iusm)")
 
 HEADLINE = (
-    '<h%(no)s id="%(anchor)s">'
+    u'<h%(no)s id="%(anchor)s">'
     '<a title="Link to this section" href="%(link)s#%(anchor)s" class="anchor">'
     '%(txt)s</a>'
     '</h%(no)s>\n'
@@ -34,13 +34,10 @@ HEADLINE = (
 
 
 class HeadlineAnchor(object):
-    def process_view(self, request, view_func, view_args, view_kwargs):
+    def process_response(self, request, response):
         """
-        Add
+        Add anchors to every html headlines.
         """
-        # start the view
-        response = view_func(request, *view_args, **view_kwargs)
-
         # Put only the statistic into HTML pages
         if not "html" in response._headers["content-type"][1]:
             # No HTML Page
@@ -59,8 +56,17 @@ class HeadlineAnchor(object):
         # A list of all existing anchors, used in self.add_anchor()
         self.anchor_list = []
 
-        # add the anchor with re.sub
         content = response.content
+        if not isinstance(content, unicode):
+            # FIXME: In my shared webhosting environment is response.content a
+            # string and not unicode. Why?
+            from django.utils.encoding import force_unicode
+            try:
+                content = force_unicode(content)
+            except:
+                return response
+
+        # add the anchor with re.sub
         new_content = HEADLINE_RE.sub(self.add_anchor, content)
         response.content = new_content
 
