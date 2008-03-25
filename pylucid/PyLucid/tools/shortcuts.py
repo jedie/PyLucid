@@ -10,28 +10,32 @@
     $Rev$
     $Author$
 
-    :copyright: 2007 by Jens Diemer.
+    :copyleft: 2007-2008 by Jens Diemer.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
 import string
+
 ALLOW_CHARS = string.ascii_letters + string.digits + "_"
+
 
 def makeUnique(item_name, name_list):
     """
-    returns a unique shortcut.
+    returns a URL safe, unique shortcut.
     - delete all non-ALLOW_CHARS characters.
     - if the shotcut already exists in name_list -> add a sequential number
     Note:
-    Not only used for making page shortcuts unique.
-    Also used in PyLucid.defaulttags.lucidTag.lucidTagNode._add_unique_div()
+    Not only used for making page shortcuts unique with getUniqueShortcut(),
+    also used in:
+        -PyLucid.defaulttags.lucidTag.lucidTagNode._add_unique_div()
+        -PyLucid.middlewares.headline_anchor.HeadlineAnchor()
     """
     # delete all non-ALLOW_CHARS characters and separate in parts
     parts = [""]
     for char in item_name:
         if not char in ALLOW_CHARS:
             if parts[-1] != "":
-                # No double "-" e.g.: "foo - bar" -> "foo-bar" not "foo---bar"   
+                # No double "-" e.g.: "foo - bar" -> "foo-bar" not "foo---bar"
                 parts.append("")
         else:
             parts[-1] += char
@@ -55,6 +59,7 @@ def makeUnique(item_name, name_list):
 
     return item_name
 
+
 def getUniqueShortcut(shortcut, exclude_shortcut=None):
     from PyLucid.models import Page
 
@@ -66,6 +71,7 @@ def getUniqueShortcut(shortcut, exclude_shortcut=None):
     existing_shortcuts = [i["shortcut"] for i in shortcuts]
 #    print "existing_shortcuts:", existing_shortcuts
     return makeUnique(shortcut, existing_shortcuts)
+
 
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@ class DebugPageCache(object):
         )
 
         content = response.content
-        if "html" in response.headers['Content-Type']:
+        if "html" in response._headers["content-type"][1]:
             # Try to insert the info into a html valid way.
             old_content = content
             content = content.replace("</body>", "<h1>%s</h1></body>" % info)

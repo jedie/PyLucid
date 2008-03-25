@@ -66,7 +66,7 @@ class PageStatsMiddleware(object):
             raise
 
         # Put only the statistic into HTML pages
-        if response._headers.get('content-type', None) == "text/html":
+        if not "html" in response._headers["content-type"][1]:
             # No HTML Page -> do nothing
             return response
 

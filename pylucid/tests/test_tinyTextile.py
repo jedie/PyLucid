@@ -35,8 +35,6 @@ hightlighter.PYGMENTS_AVAILABLE = False
 #VERBOSE = 1
 VERBOSE = 2
 
-PERMALINK = "/permalink/"
-
 
 #_____________________________________________________________________________
 
@@ -112,7 +110,7 @@ class tinyTextileTest(unittest.TestCase):
     def setUp(self):
         self.fake_context = get_fake_context()
         self.out = SimpleStringIO()
-        self.textile = TinyTextileParser(self.out, PERMALINK, self.fake_context)
+        self.textile = TinyTextileParser(self.out, self.fake_context)
 
     def tearDown(self):
         """ delete the out buffer """
@@ -242,11 +240,9 @@ class tinyTextileTest(unittest.TestCase):
             Text2
         """)
         out_test = self._prepare_text("""
-            <h1 id="headlineA"><a title="Link to this section" href="/permalink/#headlineA" class="anchor">headline A</a></h1>
-            
+            <h1>headline A</h1>
             <p>Text1</p>
-            <h2 id="headlineB"><a title="Link to this section" href="/permalink/#headlineB" class="anchor">headline B $%#</a></h2>
-            
+            <h2>headline B $%#</h2>
             <p>Text2</p>
         
         """)

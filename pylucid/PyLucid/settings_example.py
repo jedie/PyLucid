@@ -104,6 +104,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.doc.XViewMiddleware',
 
+    # Add a human readable anchor to every html headline:
+    'PyLucid.middlewares.headline_anchor.HeadlineAnchor',
+
+    # Insert a statistic line into the generated page:
     'PyLucid.middlewares.pagestats.PageStatsMiddleware',
 )
 
