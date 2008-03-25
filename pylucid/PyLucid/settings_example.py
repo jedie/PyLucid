@@ -82,25 +82,13 @@ INSTALL_PASSWORD_HASH = ""
 # this middleware classes will be applied in the order given, and in the
 # response phase the middleware will be applied in reverse order.
 #
-# !!! IMPORTANT !!!
-#  * In the first install phase (befor the database tables exists) the
-#    'SessionMiddleware' and 'AuthenticationMiddleware' must be deactivated!
-#  * After "syncdb" you must activate 'SessionMiddleware' and
-#    'AuthenticationMiddleware'!
-#  * The DebugPageCache should be *never* activated. Only for dev debugging.
-# !!! IMPORTANT !!!
-#
 MIDDLEWARE_CLASSES = (
-    # DebugPageCache normaly not used.
-#    'PyLucid.middlewares.page_cache_debug.DebugPageCache',
+    # PyLucidCommonMiddleware loads the django middlewares:
+    #    - 'django.contrib.sessions.middleware.SessionMiddleware'
+    #    - 'django.contrib.auth.middleware.AuthenticationMiddleware'
+    #    - 'django.middleware.locale.LocaleMiddleware'
+    'PyLucid.middlewares.common.PyLucidCommonMiddleware',
 
-    # Activate Session- and Authentication-Middleware after 'syncdb' :
-    # -------------------------------------------------------------------------
-#    'django.contrib.sessions.middleware.SessionMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # -------------------------------------------------------------------------
-
-    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.doc.XViewMiddleware',
 

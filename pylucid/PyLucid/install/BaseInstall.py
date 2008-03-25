@@ -86,6 +86,25 @@ SIMPLE_RENDER_TEMPLATE = """
 {% endblock %}
 """
 
+def get_base_context(request):
+    """
+    Build a base context.
+    Used in BaseInstall and PyLucidCommonMiddleware.
+    """
+    media_url = posixpath.join(
+        settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR, ""
+    ) # With appended slash, for backward compatible
+    context = {
+        "output": "",
+        "request": request,
+        "PyLucid_media_url": media_url,
+        "version": PYLUCID_VERSION_STRING,
+        "current_working_dir": os.getcwd(),
+    }
+    return context
+
+
+
 class BaseInstall(object):
     """
     Base class for all install views.
@@ -107,16 +126,8 @@ class BaseInstall(object):
 
         self.request = request
 
-        media_url = posixpath.join(
-            settings.MEDIA_URL, settings.PYLUCID_MEDIA_DIR, ""
-        ) # With appended slash, for backward compatible
-        self.context = {
-            "output": "",
-            "request": request,
-            "PyLucid_media_url": media_url,
-            "version": PYLUCID_VERSION_STRING,
-            "current_working_dir": os.getcwd(),
-        }
+        self.context = get_base_context(request)
+
         self.page_msg = PageMessages(self.context)
         self.context["page_msg"] = self.page_msg
 

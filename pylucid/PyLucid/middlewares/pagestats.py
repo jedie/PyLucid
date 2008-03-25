@@ -20,11 +20,9 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from operator import add
 from time import time
 
 from django.db import connection
-from django.core.exceptions import ImproperlyConfigured
 
 from PyLucid.template_addons.filters import human_duration
 
@@ -38,33 +36,19 @@ FMT = (
     ' queries: %(queries)d'
 )
 
-
 class PageStatsMiddleware(object):
-    def process_view(self, request, view_func, view_args, view_kwargs):
-        start_time = time()
-
+    def process_request(self, request):
+        """
+        save start time and database connections count.
+        """
+        self.start_time = time()
         # get number of db queries before we do anything
-        old_queries = len(connection.queries)
+        self.old_queries = len(connection.queries)
 
-        try:
-            # start the view
-            response = view_func(request, *view_args, **view_kwargs)
-        except AttributeError, e:
-            if str(e)== "'WSGIRequest' object has no attribute 'user'":
-                from django.conf import settings
-                if not 'django.contrib.sessions.middleware.SessionMiddleware' \
-                    in settings.MIDDLEWARE_CLASSES or not \
-                    'django.contrib.auth.middleware.AuthenticationMiddleware' \
-                    in settings.MIDDLEWARE_CLASSES:
-                    msg = (
-                        "You must include the session middleware and the"
-                        " authentication middleware in your settings.py"
-                        " after a syncdb. --- The original error message"
-                        " was: %s"
-                    ) % e
-                    raise ImproperlyConfigured(msg)
-            raise
-
+    def process_response(self, request, response):
+        """
+        calculate the statistic and replace it into the html page.
+        """
         # Put only the statistic into HTML pages
         if not "html" in response._headers["content-type"][1]:
             # No HTML Page -> do nothing
@@ -72,9 +56,9 @@ class PageStatsMiddleware(object):
 
         # compute the db time for the queries just run
         # FIXME: In my shared webhosting environment the queries is always = 0
-        queries = len(connection.queries) - old_queries
+        queries = len(connection.queries) - self.old_queries
 
-        total_time = human_duration(time() - start_time)
+        total_time = human_duration(time() - self.start_time)
         overall_time = human_duration(time() - start_overall)
 
         # replace the comment if found
@@ -84,16 +68,18 @@ class PageStatsMiddleware(object):
             'queries' : queries,
         }
 
-        try:
-            response.content = response.content.replace(TAG, stat_info)
-        except UnicodeError:
+        content = response.content
+        if not isinstance(content, unicode):
             # FIXME: In my shared webhosting environment is response.content a
             # string and not unicode. Why?
             from django.utils.encoding import force_unicode
             try:
-                response.content = force_unicode(response.content)\
-                                                    .replace(TAG, stat_info)
+                content = force_unicode(content)
             except:
-                pass
+                return response
+
+        # insert the page statistic
+        new_content = content.replace(TAG, stat_info)
+        response.content = new_content
 
         return response
