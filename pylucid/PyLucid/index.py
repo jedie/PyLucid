@@ -23,7 +23,6 @@ from django.http import HttpResponse, HttpResponsePermanentRedirect, \
                                                            HttpResponseRedirect
 from django.template import RequestContext
 from django.core.cache import cache
-from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.conf import settings
@@ -103,22 +102,7 @@ def _get_context(request, current_page_obj):
     # add additional attribute
     request.anonymous_view = True
 
-    try:
-        context = RequestContext(request)
-    except AttributeError, err:
-        if str(err) == "'WSGIRequest' object has no attribute 'user'":
-            # The auth middleware is not
-            msg = (
-                "The auth middleware is not activatet in your settings.py"
-                " - Did you install PyLucid correctly?"
-                " Please look at: %s"
-                " - Original Error: %s"
-            ) % (settings.INSTALL_HELP_URL, err)
-            from django.core.exceptions import ImproperlyConfigured
-            raise ImproperlyConfigured(msg)
-        else:
-            # other error
-            raise AttributeError(err)
+    context = RequestContext(request)
 
     context["page_msg"] = PageMessages(context)
 
@@ -178,7 +162,7 @@ def get_cached_data(url):
         # Note: We use append_slash, but the url pattern striped the last
         #     slash out.
         # e.g.: '/page1/page2/page3' -> ['/page1/page2', 'page3'] -> 'page3'
-        shortcut = url.rsplit("/",1)[-1]
+        shortcut = url.rsplit("/", 1)[-1]
 
     cache_key = settings.PAGE_CACHE_PREFIX + shortcut
     #print "Used cache key:", cache_key
@@ -198,18 +182,7 @@ def index(request, url):
     """
     # Cache only for anonymous users. Otherwise users how are log-in don't see
     # the dynamic integrate admin menu.
-    try:
-        use_cache = request.user.is_anonymous()
-    except AttributeError, msg:
-        # TODO: middlewares not active -> _install section!
-        msg = (
-            "After syncdb you must activated the two django middlewares:"
-            " 'SessionMiddleware' and 'AuthenticationMiddleware'"
-            " Please edit your 'settings.py' file and modify the value"
-            " MIDDLEWARE_CLASSES."
-            " - Original Error was: %s"
-        ) % msg
-        raise ImproperlyConfigured(msg)
+    use_cache = request.user.is_anonymous()
 
     if use_cache:
         # Try to get the cms page request from the cache

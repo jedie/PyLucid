@@ -57,13 +57,6 @@ class TestBase(tests.TestCase):
     _open = []
 
     def setUp(self):
-        # Check that required middlewares are on.
-        # Otherwise every unitest will fail ;)
-        middlewares = (
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-        )
-        self.check_middlewares(middlewares)
         self.base_url = "/%s/1" % settings.COMMAND_URL_PREFIX
 
 

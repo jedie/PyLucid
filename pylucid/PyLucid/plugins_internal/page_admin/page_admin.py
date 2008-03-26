@@ -29,7 +29,6 @@ from PyLucid.tools.utils import escape
 
 from django import newforms as forms
 from django.newforms.util import ValidationError
-from django.db import models
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.cache import cache
 from django.utils.translation import ugettext as _

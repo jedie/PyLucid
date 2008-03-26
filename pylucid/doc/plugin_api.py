@@ -146,3 +146,22 @@ class ExamplePlugin(PyLucidBasePlugin):
         current displayed page title, so it makes more sense for the user.
         """
         self.context["PAGE"].title = "The Plugin Title"
+
+    #__________________________________________________________________________
+    # ENVIRONMENT
+    #
+    # Some needfull information
+    #
+    def on_request_object(self):
+        """
+        Some needfull objects from the request object.
+        """
+        # Is debug on? If you will display information only if debug is on, you
+        # should not use settings.DEBUG directly!
+        # Use request.debug, because it is true if settings.DEBUG if true *or*
+        # if the client IP is in settings.INTERNAL_IPS
+        # This is append to the request object in
+        # PyLucid.system.utils.setup_debug
+        if self.request.debug:
+            self.page_msg("Debug is on.")
+

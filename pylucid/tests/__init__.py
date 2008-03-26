@@ -303,19 +303,6 @@ class TestCase(DjangoTestCase):
                                password=TEST_USERS[usertype]["password"])
         self.failUnless(ok, "Can't login test user '%s'!" % usertype)
 
-
-    # _________________________________________________________________________
-    # methods to check some settings
-    def check_middlewares(self, middlewares):
-        """
-        Check if the given middlewares are activated in settings.py
-        """
-        for m in middlewares:
-            if not m in settings.MIDDLEWARE_CLASSES:
-                raise EnvironmentError(
-                    "Middleware class '%s' not installed!" % m
-                )
-
     # _________________________________________________________________________
     # methods to get information and test the content:
     def get_links(self, content):

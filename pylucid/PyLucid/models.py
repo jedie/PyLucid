@@ -18,12 +18,9 @@
 import os, posixpath, pickle
 
 from django.db import models
-from django.dispatch import dispatcher
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.models import UNUSABLE_PASSWORD
 from django.utils.translation import ugettext as _
-from django.contrib.sites.models import Site
-from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
 from PyLucid.tools.shortcuts import getUniqueShortcut

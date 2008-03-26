@@ -2,29 +2,18 @@
 # -*- coding: UTF-8 -*-
 
 """
-A minimalistic StringIO-file-like object.
+    response tools
+    ~~~~~~~~~~~~~~
 
-Last commit info:
-----------------------------------
-$LastChangedDate$
-$Rev$
-$Author$
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate: $
+    $Rev: $
+    $Author: $
 
-Created by Jens Diemer
-
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
+    :copyleft: 2007-2008 by Jens Diemer
+    :license: GNU GPL v3, see LICENSE.txt for more details.
 """
-
-
-#if __name__ == "__main__": # A local test. THIS SHOULD BE COMMENTED!!!
-#    import os
-#    os.environ["DJANGO_SETTINGS_MODULE"] = "PyLucid.settings"
-#    from django.conf import settings
-#    from django.core import management
-#    management.setup_environ(settings) # init django
-
 
 from django.conf import settings
 
@@ -62,10 +51,4 @@ class SimpleStringIO(object):
         """
         return False
 
-#if __name__ == "__main__":
-#     A local test: You must uncomment the django local init part above!
-#    response = SimpleStringIO()
-#    response.write(u"test")
-#    response.write("\n")
-#    response.write("test")
-#    print response.getvalue()
+

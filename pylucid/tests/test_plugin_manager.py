@@ -36,18 +36,10 @@ class TestBase(tests.TestCase):
     _open = []
 
     def setUp(self):
-        # Check that required middlewares are on.
-        # Otherwise every unitest will fail ;)
-        middlewares = (
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-        )
-        self.check_middlewares(middlewares)
-
         settings.DEBUG=False
 
         self.base_url = "/%s/1" % settings.COMMAND_URL_PREFIX
-        
+
     def _access_deny_test(self):
         plugin_name = "page_admin"
         method_names = (
@@ -73,7 +65,7 @@ class DeactivatedUserTest(TestBase):
         # Deactivate all users
         for user in User.objects.all():
             user.is_active = False
-            
+
         self._access_deny_test()
 
 

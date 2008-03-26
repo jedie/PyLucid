@@ -6,9 +6,10 @@
 
 {% block base_content %}
 <h3 class="header"><a href="http://www.pylucid.org">PyLucid</a> v{{ version }} - <a href="/" title="{% trans 'goto your PyLucid CMS page' %}">{{ request.META.HTTP_HOST }}</a></h3>
-<h1>{% trans "error: Can't get a database table." %}</h1>
+<h1>{% trans "error" %}: {{ error_msg }}</h1>
 
 <p>The original error was: <pre>{{ exception }}</pre></p>
+{% if traceback %}<p>Traceback: <pre>{{ traceback }}</pre></p>{% endif %}
 
 <h2>{% trans 'solutions:' %}</h2>
 <p>

@@ -16,11 +16,10 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from PyLucid.models import Page, Preference, Template
-from PyLucid.system.exceptions import AccessDenied
+from PyLucid.models import Page, Preference
+from PyLucid.system.exceptions import AccessDenied, LowLevelError
 
 from django.utils.translation import ugettext as _
-from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404, HttpResponseRedirect
 
 def get_a_page():
@@ -33,12 +32,8 @@ def get_a_page():
     except Exception, e:
         # FIXME: Normaly we should use the exception type "Page.DoesNotExist"
         #    but this doesn't work, why?
-        msg = (
-            "Error getting a cms page content."
-            " - (Have you installed PyLucid currectly?)"
-            " - Original Error was: '%s'"
-        ) % e
-        raise ImproperlyConfigured(msg)
+        msg = _("Error getting a cms page.")
+        raise LowLevelError(msg, e)
 
 
 def get_default_page_id():
@@ -52,9 +47,12 @@ def get_default_page_id():
     except Exception, e:
         # TODO: make a page message for the admin
         # Get the first page
+#        page_msg = request.CONTEXT["page_msg"]
+#        page_msg("Can't get the index page, use the first page.")
         return get_a_page().id
 
-def get_default_page(request):
+
+def get_default_page():
     page_id = get_default_page_id()
     try:
 #        page_id = "wrong test"
@@ -77,7 +75,7 @@ def get_current_page_obj(request, url_info):
 
     if page_name == "":
         # Index Seite wurde aufgerufen. Zumindest bei poor-modrewrite
-        return get_default_page(request)
+        return get_default_page()
 
     # bsp/und%2Foder -> ['bsp', 'und%2Foder']
     shortcuts = page_name.split("/")

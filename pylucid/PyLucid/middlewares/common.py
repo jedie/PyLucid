@@ -24,17 +24,12 @@
 
 from django.conf import settings
 
-from django.shortcuts import render_to_response
-from django.template import Template, Context, loader
-# The loader must be import, even if it is not used directly!!!
-# Note: The loader makes this: add_to_builtins('django.template.loader_tags')
-# In loader_tags are 'block', 'extends' and 'include' defined.
-
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.middleware.locale import LocaleMiddleware
 
-from PyLucid.install.BaseInstall import get_base_context
+from PyLucid.system.exceptions import LowLevelError
+from PyLucid.system.template import render_help_page
 
 
 session_middleware = SessionMiddleware()
@@ -74,6 +69,9 @@ class PyLucidCommonMiddleware(object):
         try:
             # start the view
             return view_func(request, *view_args, **view_kwargs)
+        except LowLevelError, e:
+            error_msg, e = e
+            return render_help_page(request, error_msg, e)
         except Exception, e:
             raise_non_table_error(e)
 
@@ -84,16 +82,8 @@ class PyLucidCommonMiddleware(object):
                 # it's a static file request with the dev. server
                 return
 
-            return self.render_help_page(request, e)
-
-
-    def render_help_page(self, request, e):
-        """
-        Send the help page "install_info.html" to the user.
-        """
-        context = get_base_context(request)
-        context["exception"] = e
-        return render_to_response("install_info.html", context)
+            error_msg = "Can't get a database table."
+            return render_help_page(request, error_msg, e)
 
 
     def process_response(self, request, response):
