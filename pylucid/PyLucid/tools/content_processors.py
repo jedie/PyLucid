@@ -72,7 +72,8 @@ def apply_markup(content, context, markup_no):
             )
         else:
             # unicode support only in markdown v1.7 or above.
-            if markdown.version_info < (1,7):
+            # version_info exist only in markdown v1.6.2rc-2 or above.
+            if getattr(markdown, "version_info", None) < (1,7):
                 content = force_unicode(markdown.markdown(smart_str(content)))
             else:
                 content = markdown.markdown(content)
