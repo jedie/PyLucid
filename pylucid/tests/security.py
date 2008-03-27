@@ -39,7 +39,7 @@ CHARACTER_VARIANTS = (
     "<", "\x3c", "\x3C", u"\u003c", u"\u003C",
 #    "&#60", "&#060", "&#0060", "&#00060", "&#000060", "&#0000060", "&#60;",
 #    "&#060;", "&#0060;", "&#00060;", "&#000060;", "&#0000060;",
-    "&#x3c", "&#x03c", "&#x003c", "&#x0003c", "&#x00003c", "&#x000003c",
+#    "&#x3c", "&#x03c", "&#x003c", "&#x0003c", "&#x00003c", "&#x000003c",
 #    "&#x3c;", "&#x03c;", "&#x003c;", "&#x0003c;", "&#x00003c;", "&#x000003c;",
 #    "&#X3c", "&#X03c", "&#X003c", "&#X0003c", "&#X00003c", "&#X000003c",
 #    "&#X3c;", "&#X03c;", "&#X003c;", "&#X0003c;", "&#X00003c;", "&#X000003c;",
@@ -85,40 +85,40 @@ GET_URLS = (
 )
 
 SQL_INJECTIONS = (
-    "DROP TABLE PyLucid_page;",
-    "; DROP TABLE PyLucid_page;",
+#    "DROP TABLE PyLucid_page;",
+#    "; DROP TABLE PyLucid_page;",
 
     '"DROP TABLE PyLucid_page;"',
     '"; DROP TABLE PyLucid_page;"',
     "'DROP TABLE PyLucid_page;'",
     "'; DROP TABLE PyLucid_page;'",
 
-    '\"DROP TABLE PyLucid_page;\"',
-    '\"; DROP TABLE PyLucid_page;\"',
-    "\'DROP TABLE PyLucid_page;\'",
-    "\'; DROP TABLE PyLucid_page;\'",
-
-    # SEMICOLON
-    "\x3B DROP TABLE PyLucid_page\x3B",
-    u"\u003B DROP TABLE PyLucid_page\u003B",
-
-    # QUOTATION MARK
-    "\x22DROP TABLE PyLucid_page;\x22",
-    "\x22; DROP TABLE PyLucid_page;\x22",
-    u"\u0022DROP TABLE PyLucid_page;\u0022",
-    u"\u0022; DROP TABLE PyLucid_page;\u0022",
-
-    # APOSTROPHE
-    "\x27DROP TABLE PyLucid_page;\x27",
-    "\x27; DROP TABLE PyLucid_page;\x27",
-    u"\u0027DROP TABLE PyLucid_page;\u0027",
-    u"\u0027; DROP TABLE PyLucid_page;\u0027",
-
-    # GRAVE ACCENT
-    "\x60DROP TABLE PyLucid_page;\x60",
-    "\x60; DROP TABLE PyLucid_page;\x60",
-    u"\u0060DROP TABLE PyLucid_page;\u0060",
-    u"\u0060; DROP TABLE PyLucid_page;\u0060",
+#    '\"DROP TABLE PyLucid_page;\"',
+#    '\"; DROP TABLE PyLucid_page;\"',
+#    "\'DROP TABLE PyLucid_page;\'",
+#    "\'; DROP TABLE PyLucid_page;\'",
+#
+#    # SEMICOLON
+#    "\x3B DROP TABLE PyLucid_page\x3B",
+#    u"\u003B DROP TABLE PyLucid_page\u003B",
+#
+#    # QUOTATION MARK
+#    "\x22DROP TABLE PyLucid_page;\x22",
+#    "\x22; DROP TABLE PyLucid_page;\x22",
+#    u"\u0022DROP TABLE PyLucid_page;\u0022",
+#    u"\u0022; DROP TABLE PyLucid_page;\u0022",
+#
+#    # APOSTROPHE
+#    "\x27DROP TABLE PyLucid_page;\x27",
+#    "\x27; DROP TABLE PyLucid_page;\x27",
+#    u"\u0027DROP TABLE PyLucid_page;\u0027",
+#    u"\u0027; DROP TABLE PyLucid_page;\u0027",
+#
+#    # GRAVE ACCENT
+#    "\x60DROP TABLE PyLucid_page;\x60",
+#    "\x60; DROP TABLE PyLucid_page;\x60",
+#    u"\u0060DROP TABLE PyLucid_page;\u0060",
+#    u"\u0060; DROP TABLE PyLucid_page;\u0060",
 )
 
 
