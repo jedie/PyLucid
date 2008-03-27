@@ -224,6 +224,7 @@ class TestCase(DjangoTestCase):
         if is_list != should_be_list:
             is_list2 = pprint.pformat(is_list)
             should_be_list2 = pprint.pformat(should_be_list)
+            print "\nThe two lists are not the same:"
             for line in make_diff(should_be_list2, is_list2):
                 print line
 
@@ -312,7 +313,8 @@ class TestCase(DjangoTestCase):
         return self.HREF_RE.findall(content)
 
     # _________________________________________________________________________
-    # common tests:
+    # link snapshot:
+
     def link_snapshot_test(self, snapshot):
         """
         Compare a reference snapshot with the real links.
@@ -329,6 +331,32 @@ class TestCase(DjangoTestCase):
             should_be_links.append(snapshot[url])
 
         self.assertLists(is_links, should_be_links, sort=False)
+
+    def create_link_snapshot(self, print_result=True):
+        """
+        Build a a reference snapshot for a unittest.
+        Display it via pprint and returned it, too.
+        Usefull for copy&paste the output into this source file :)
+        """
+        if print_result:
+            print "Build a snapshot for the unittest compare:"
+            print "-"*79
+        data = {}
+        for page in Page.objects.all():
+            url = page.get_absolute_url()
+
+            response = self.client.get(url)
+            self.failUnlessEqual(response.status_code, 200)
+
+            content = response.content.strip()
+            links = self.get_links(content)
+
+            data[url] = links
+
+        if print_result:
+            pprint.pprint(data)
+            print "-"*79
+        return data
 
 
 def load_db_dumps(extra_verbose):
@@ -390,13 +418,13 @@ def create_users():
     user.save()
 
 
-def create_template(content):
+def create_template(**kwargs):
     """
     Delete all existing templates, create a new one and return the instance.
     """
     Template.objects.all().delete()
 
-    template = Template(content = content)
+    template = Template(**kwargs)
     template.save()
     return template
 
@@ -420,11 +448,12 @@ def create_page(data):
     )
     default_template = Template.objects.all()[0]
     default_style = Style.objects.all()[0]
-    default_markup = 0 # html withdout TinyMCE
+    default_markup = 0 # html without TinyMCE
 
     page = Page(
         name             = data.get("name", "New Page"),
         shortcut         = data.get("shortcut", None),
+        content          = data.get("content", "TestPageContent"),
         template         = data.get("template", default_template),
         style            = data.get("style", default_style),
         markup           = data.get("markup", default_markup),

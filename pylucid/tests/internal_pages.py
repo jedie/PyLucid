@@ -53,7 +53,7 @@ class InternalPageTest(tests.TestCase):
         self.fake_context = get_fake_context()
         Page.objects.all().delete() # Delete all existins pages
 
-        self.template = tests.create_template(TEST_TEMPLATE)
+        self.template = tests.create_template(content = TEST_TEMPLATE)
 
         # Create the test pages defined in content_test_utils.py
         # assign the test template to all pages

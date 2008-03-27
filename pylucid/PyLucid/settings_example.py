@@ -89,14 +89,13 @@ MIDDLEWARE_CLASSES = (
     #    - 'django.middleware.locale.LocaleMiddleware'
     'PyLucid.middlewares.common.PyLucidCommonMiddleware',
 
+    'PyLucid.middlewares.cache.CacheMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.doc.XViewMiddleware',
 
     # Add a human readable anchor to every html headline:
     'PyLucid.middlewares.headline_anchor.HeadlineAnchor',
-
-    # Insert a statistic line into the generated page:
-    'PyLucid.middlewares.pagestats.PageStatsMiddleware',
 )
 
 # A secret key for this particular Django installation. Used in secret-key

@@ -30,6 +30,7 @@ from django.middleware.locale import LocaleMiddleware
 
 from PyLucid.system.exceptions import LowLevelError
 from PyLucid.system.template import render_help_page
+from PyLucid.system.utils import setup_debug
 
 
 session_middleware = SessionMiddleware()
@@ -57,13 +58,15 @@ class PyLucidCommonMiddleware(object):
     a help page.
     """
     def process_request(self, request):
+        # add the attribute "debug" to the request object.
+        setup_debug(request)
+
         try:
             session_middleware.process_request(request)
             auth_middleware.process_request(request)
             locale_middleware.process_request(request)
         except Exception, e:
             raise_non_table_error(e)
-
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         try:

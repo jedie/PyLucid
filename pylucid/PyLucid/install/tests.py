@@ -3,13 +3,16 @@
 4. some tests
 """
 
+import os, cgi, sys, time
+
+from django.conf import settings
+
+from django import newforms as forms
+from django.core import management
+from django.core.cache import cache
+
 from PyLucid.install.BaseInstall import BaseInstall
 from PyLucid.system.response import SimpleStringIO
-
-from django.core import management
-from django import newforms as forms
-
-import os, cgi, sys, time
 
 
 
@@ -21,6 +24,40 @@ class CacheBackendTest(BaseInstall):
         print "_"*80
         print txt
         print "-"*80
+
+    def _test_cache(self):
+        """
+        Test the cache backend.
+        """
+        if settings.CACHE_BACKEND.startswith("dummy"):
+            return
+        self._print_infoline(
+            "Test cache backend '%s':" % settings.CACHE_BACKEND
+        )
+        cache_key = "cache test"
+        content = "A cache test content..."
+        cache_timeout = 50
+        print "Save into cache with key '%s'." % cache_key
+        cache.set(cache_key, content, cache_timeout)
+        print "Try to get the saved content from the cache."
+        cached_content = cache.get(cache_key)
+        if cached_content == None:
+            print " * Get None back. Cache didn't work!"
+            return
+        elif cached_content==content:
+            print " * Cache works fine ;)"
+        else:
+            # Should never appears
+            print " * Error! Cache content not the same!"
+
+        print "Try to delete the cache entry."
+        cache.delete(cache_key)
+        cached_content = cache.get(cache_key)
+        if cached_content == None:
+            print "OK, entry deleted."
+        else:
+            print "Error: entry not deleted!"
+
 
     def _verbose_try_import(self, module_name):
         """
@@ -108,6 +145,8 @@ class CacheBackendTest(BaseInstall):
         )
 
     def print_info(self):
+        self._test_cache()
+
         self._print_infoline("Tests for the memcache backend:")
         self._verbose_try_import("cmemcache")
         self._verbose_try_import("memcache")

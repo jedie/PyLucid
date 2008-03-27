@@ -35,7 +35,9 @@ class TestMainMenu1(tests.TestCase):
         """
         Page.objects.all().delete() # Delete all existins pages
 
-        self.template = tests.create_template("{% lucidTag main_menu %}")
+        self.template = tests.create_template(
+            content = "{% lucidTag main_menu %}"
+        )
 
         tests.create_pages(tests.TEST_PAGES, template=self.template)
 
@@ -96,7 +98,9 @@ class TestMainMenu2(tests.TestCase):
         """
         Page.objects.all().delete() # Delete all existins pages
 
-        self.template = tests.create_template("{% lucidTag main_menu %}")
+        self.template = tests.create_template(
+            content = "{% lucidTag main_menu %}"
+        )
 
     def test_base(self):
         test_pages = [{

@@ -51,7 +51,9 @@ class TestStylesheet(tests.TestCase):
         """
         Page.objects.all().delete() # Delete all existins pages
 
-        self.template = tests.create_template("{% lucidTag page_style %}")
+        self.template = tests.create_template(
+            content = "{% lucidTag page_style %}"
+        )
         self.style = tests.create_stylesheet(
             name = "TestStyle", content = TEST_STYLE_CONTENT,
         )
@@ -89,6 +91,8 @@ class TestStylesheet(tests.TestCase):
     def _get_content_link(self):
         """ Return the stylesheet link contains in the root cms page. """
         response = self.client.get("/")
+        from_cache = response.get("from_cache", None)
+        print from_cache
         content = response.content
         links = self._exctract_stylelinks(content)
         assert len(links) == 1
@@ -149,7 +153,7 @@ class TestStylesheet(tests.TestCase):
         """
         must_link = self._get_stylelink()
         is_link = self._get_content_link()
-        assert is_link == must_link
+        self.failUnlessEqual(must_link, is_link)
 
     def test_command_link(self):
         """

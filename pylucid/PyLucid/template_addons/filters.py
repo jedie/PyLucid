@@ -57,7 +57,7 @@ get_oct.is_safe = False
 def human_duration(t):
     """
     Converts a time duration into a friendly text representation.
-    Note: Used in PageStatsMiddleware, too.
+    Note: Used in the PyLucid cache middleware, too.
     """
     if t<1:
         return _("%.1f ms") % (t * 100)

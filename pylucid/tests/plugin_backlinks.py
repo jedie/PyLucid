@@ -40,7 +40,9 @@ class TestBase(tests.TestCase):
         """
         Page.objects.all().delete() # Delete all existins pages
 
-        self.template = tests.create_template("{% lucidTag back_links %}")
+        self.template = tests.create_template(
+            content = "{% lucidTag back_links %}"
+        )
 
         # Create the test pages defined in content_test_utils.py
         # assign the test template to all pages
@@ -73,7 +75,6 @@ class TestBase(tests.TestCase):
         """
         print_last_page="True"
         """
-
         self.template.content = (
             '{% lucidTag back_links print_last_page="True" %}'
         )

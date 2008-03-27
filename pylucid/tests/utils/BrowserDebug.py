@@ -57,17 +57,29 @@ def debug_response(response, one_browser_traceback=True, msg="", \
 
     stack_info = "".join(stack)
 
-    info = (
-        "\n<br /><hr />\n"
-        "<h3>Unittest info</h3>\n"
-        "<dl>\n"
-        "<dt>url:</dt><dd>%s</dd>\n"
-        "<dt>traceback:</dt><dd><pre>%s</pre></dd>\n"
-        "</dl>\n"
-        "</body>"
-    ) % (url, stack_info)
-
-    content = content.replace("</body>", info)
+    if "</body>" in content:
+        info = (
+            "\n<br /><hr />\n"
+            "<h3>Unittest info</h3>\n"
+            "<dl>\n"
+            "<dt>url:</dt><dd>%s</dd>\n"
+            "<dt>response info:</dt><dd><pre>%s</pre></dd>\n"
+            "<dt>traceback:</dt><dd><pre>%s</pre></dd>\n"
+            "</dl>\n"
+            "</body>"
+        ) % (url, response, stack_info)
+        content = content.replace("</body>", info)
+    else:
+        # Not a html page?
+        content += "\n<pre>\n"
+        content += "-" * 79
+        content += (
+            "\nUnittest info\n"
+            "=============\n"
+            "url: %s\n"
+            "response info:\n%s\n"
+            "traceback:\n%s\n</pre>"
+        ) % (url, response, stack_info)
 
 
     fd, file_path = tempfile.mkstemp(prefix="PyLucid_unittest_", suffix=".html")

@@ -17,30 +17,25 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-import datetime, md5
-
 from django.http import HttpResponse, HttpResponsePermanentRedirect, \
                                                            HttpResponseRedirect
-from django.template import RequestContext
-from django.core.cache import cache
-from django.utils.translation import ugettext as _
-from django.utils.safestring import mark_safe
 from django.conf import settings
+from django.template import RequestContext
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
-from PyLucid import models
-
+from PyLucid.models import Page
 from PyLucid.system import plugin_manager
+from PyLucid.system.URLs import URLs
+from PyLucid.system.page_msg import PageMessages
 from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.exceptions import AccessDenied
-from PyLucid.system.page_msg import PageMessages
+from PyLucid.system.context_processors import add_dynamic_context, add_css_tag
 from PyLucid.system.detect_page import get_current_page_obj, \
                                                             get_default_page_id
-from PyLucid.system.URLs import URLs
-from PyLucid.system.context_processors import add_dynamic_context, add_css_tag
-from PyLucid.system.utils import setup_debug
+from PyLucid.tools.utils import escape, escape_django_tags
 from PyLucid.tools.content_processors import apply_markup, \
                                     render_string_template, redirect_warnings
-from PyLucid.tools.utils import escape, escape_django_tags
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
 
@@ -134,45 +129,6 @@ def _get_context(request, current_page_obj):
     return context
 
 
-def patch_response_headers(response, cache_timeout, ETag, last_modified):
-    """
-    Adds some useful headers to the given HttpResponse object:
-        ETag, Last-Modified, Expires and Cache-Control
-
-    Original version: django.utils.cache.patch_response_headers()
-    """
-    response['ETag'] = ETag
-    response['Last-Modified'] = last_modified.strftime(
-        '%a, %d %b %Y %H:%M:%S GMT'
-    )
-    now = datetime.datetime.utcnow()
-    expires = now + datetime.timedelta(0, cache_timeout)
-    response['Expires'] = expires.strftime('%a, %d %b %Y %H:%M:%S GMT')
-
-
-def get_cached_data(url):
-    """
-    -Build the cache_key from the given url. Use the last page shortcut.
-    -retuned the cache_key and the page data.
-    """
-    if url == "":
-        # Request without a shortcut -> request the default page
-        shortcut = "/"
-    else:
-        # Note: We use append_slash, but the url pattern striped the last
-        #     slash out.
-        # e.g.: '/page1/page2/page3' -> ['/page1/page2', 'page3'] -> 'page3'
-        shortcut = url.rsplit("/", 1)[-1]
-
-    cache_key = settings.PAGE_CACHE_PREFIX + shortcut
-    #print "Used cache key:", cache_key
-
-    # Get the page data from the cache.
-    response = cache.get(cache_key)
-
-    return cache_key, response
-
-
 def index(request, url):
     """
     The main index method.
@@ -180,19 +136,6 @@ def index(request, url):
     Every Request will be cached for anonymous user. For the cache_key we use
     the page shortcut from the url.
     """
-    # Cache only for anonymous users. Otherwise users how are log-in don't see
-    # the dynamic integrate admin menu.
-    use_cache = request.user.is_anonymous()
-
-    if use_cache:
-        # Try to get the cms page request from the cache
-        cache_key, response = get_cached_data(url)
-        if response:
-            # This page has been cached in the past, use the cache data:
-            return response
-
-    setup_debug(request)
-
     try:
         current_page_obj = get_current_page_obj(request, url)
     except AccessDenied:
@@ -210,36 +153,29 @@ def index(request, url):
             return current_page_obj
 
     context = _get_context(request, current_page_obj)
+
     # Get the response for the requested cms page:
     response = _render_cms_page(request, context)
 
-    if use_cache:
-        # It's a anonymous user -> Cache the cms page.
-        cache_timeout = settings.CACHE_MIDDLEWARE_SECONDS
-        # Add some headers for the browser cache
-        patch_response_headers(
-            response, cache_timeout,
-            ETag = md5.new(cache_key).hexdigest(),
-            last_modified = current_page_obj.lastupdatetime,
-        )
-        # Save the page into the cache
-        cache.set(cache_key, response, cache_timeout)
+    if getattr(request, "_use_cache", None) == None:
+        # Set _use_cache information for the PyLucid cache middleware, but only
+        # if it was set to true or false in the past
+        request._use_cache = True
 
     return response
+
 
 def _get_page(request, page_id):
     """
     returns the page object.
     TODO: Check int(page_id)!
     """
-    setup_debug(request)
-
     try:
-        current_page_obj = models.Page.objects.get(id=int(page_id))
-    except models.Page.DoesNotExist:
+        current_page_obj = Page.objects.get(id=int(page_id))
+    except Page.DoesNotExist:
         # The ID in the url is wrong -> goto the default page
         default_page_id = get_default_page_id()
-        current_page_obj = models.Page.objects.get(id=default_page_id)
+        current_page_obj = Page.objects.get(id=default_page_id)
 
         user = request.user
         if user.is_authenticated():
@@ -255,6 +191,7 @@ def _get_page(request, page_id):
             )
 
     return current_page_obj
+
 
 def handle_command(request, page_id, module_name, method_name, url_args):
     """
@@ -327,6 +264,7 @@ def redirect(request, url):
         url = "/"
 
     return HttpResponsePermanentRedirect(url)
+
 
 def permalink(request, page_id):
     """

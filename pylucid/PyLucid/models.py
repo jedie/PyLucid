@@ -17,15 +17,16 @@
 
 import os, posixpath, pickle
 
-from django.db import models
-from django.contrib.auth.models import User, Group
-from django.contrib.auth.models import UNUSABLE_PASSWORD
-from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.db import models
+from django.core.cache import cache
+from django.contrib.auth.models import User, Group, UNUSABLE_PASSWORD
+from django.utils.translation import ugettext as _
 
 from PyLucid.tools.shortcuts import getUniqueShortcut
 from PyLucid.tools import crypt
 from PyLucid.system.utils import get_uri_base
+#from PyLucid.db.cache import delete_page_cache
 
 
 MARKUPS = (
@@ -37,10 +38,26 @@ MARKUPS = (
     (5, u'ReStructuredText'),
 )
 
+def delete_page_cache():
+    """
+    Delete all pages in the cache.
+    Needed, if:
+        - A template has been edited
+        - The menu changes (edit the page name, position, parent link)
+    TODO: move this function from models.py into a other nice place...
+    """
+    for items in Page.objects.values('shortcut').iterator():
+        shortcut = items["shortcut"]
+        cache_key = settings.PAGE_CACHE_PREFIX + shortcut
+        cache.delete(cache_key)
+
 
 class Page(models.Model):
     """
     A CMS Page Object
+
+    TODO: We should refactor the "pre_save" behavior, use signals:
+    http://code.djangoproject.com/wiki/Signals
     """
     # Explicite id field, so we can insert a help_text ;)
     id = models.AutoField(primary_key=True, help_text="The internal page ID.")
@@ -238,8 +255,17 @@ class Page(models.Model):
             # check if a new parent is no parent-child-loop:
             self._check_parent(self.id)
 
+        # Delete all pages in the cache.
+        # FIXME: This is only needed, if the menu changed: e.g.: if the page
+        # position, shortcut, parent cahnges...
+        delete_page_cache()
+
         # Rebuild shortcut / make shortcut unique:
         self._prepare_shortcut()
+
+        # Delete old page cache, if exist
+        cache_key = settings.PAGE_CACHE_PREFIX + self.shortcut
+        cache.delete(cache_key)
 
         super(Page, self).save() # Call the "real" save() method
 
@@ -710,6 +736,9 @@ class Style(models.Model):
 #            print "Style save error:", e # Olny for dev server
             pass
 
+        #Delete the page cache if a stylesheet was edited.
+        delete_page_cache()
+
         super(Style, self).save() # Call the "real" save() method
 
 
@@ -728,6 +757,14 @@ class Template(models.Model):
 
     description = models.TextField()
     content = models.TextField()
+
+    def save(self):
+        """
+        Delete the page cache if a template was edited.
+        """
+        delete_page_cache()
+
+        super(Template, self).save() # Call the "real" save() method
 
     class Admin:
         list_display = ("id", "name", "description")
