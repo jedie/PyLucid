@@ -29,17 +29,14 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-import time, datetime, md5
+import datetime, md5
 
-from django.db import connection
 from django.conf import settings
 from django.http import HttpResponse
 from django.core.cache import cache
 
-from PyLucid.models import Page
 from PyLucid.tools.shortcuts import verify_shortcut
 from PyLucid.middlewares.pagestats import TAG
-from PyLucid.template_addons.filters import human_duration
 
 CACHE_TIMEOUT = settings.CACHE_MIDDLEWARE_SECONDS
 
@@ -93,7 +90,9 @@ class CacheMiddleware(object):
             return
 
         # Cache only for anonymous users.
-        if request.user.is_anonymous() != True:
+        if not (hasattr(request, "user") or request.user.is_anonymous()):
+            # If request hasn't the attribute user, the session middleware
+            # doen's work. This apperars if there exist no database tables.
             # Don't cache for non anonymous users. Otherwise log-in users don't
             # see the dynamic integrated admin menu.
             request._use_cache = False
