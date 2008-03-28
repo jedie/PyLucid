@@ -134,9 +134,7 @@ class TestCache(tests.TestCase):
             must_contain=(PAGE_CONTENT_PREFIX, "render time", "queries"),
             must_not_contain=("Traceback",)
         )
-
-        from_cache = response.get("from_cache", None)
-        self.failUnlessEqual(from_cache, None, msg)
+        self.failUnlessEqual(response["from_cache"], "no", msg)
 
     def failIfNotFromCache(self, response, msg=None):
         self.failUnlessEqual(response.status_code, 200)
@@ -156,8 +154,7 @@ class TestCache(tests.TestCase):
         else:
             raise AssertionError("Wrong url?")
 
-        from_cache = response["from_cache"]
-        self.failUnlessEqual(from_cache, "yes", msg)
+        self.failUnlessEqual(response["from_cache"], "yes", msg)
 
     #--------------------------------------------------------------------------
 
@@ -312,6 +309,32 @@ class TestCache(tests.TestCase):
             styleheet.save()
 
         self._check_cache_after(test_func)
+
+    #--------------------------------------------------------------------------
+    
+    def test_wrong_url(self):
+        """
+        Test if the cache middleware checks bad characters in the url.
+        Normaly the urls-re doesn't match on bad urls. But the process_request
+        method of a middleware called before this.
+        """
+        content = "Should never comes from the cache!"
+        shortcut = "bad$char&here"
+        url = "/%s/" % shortcut
+        cache_key = settings.PAGE_CACHE_PREFIX + shortcut
+        
+        # Insert a cache entry, so the cache middleware can found the cached
+        # page and will be response the cached content, if the shortcut will
+        # not be veryfied.
+        response = HttpResponse(content)
+        cache.set(cache_key, response, 9999)
+        
+        # Request the cached page and check the response. It should not resonse
+        # the cached content. It should be apperar a 404 page not found.
+        response = self.client.get(url)
+        #debug_response(response)
+        self.failUnlessEqual(response.status_code, 404)
+        self.assertResponse(response, must_not_contain=(content,))
 
 
 if __name__ == "__main__":

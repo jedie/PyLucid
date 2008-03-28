@@ -83,12 +83,16 @@ INSTALL_PASSWORD_HASH = ""
 # response phase the middleware will be applied in reverse order.
 #
 MIDDLEWARE_CLASSES = (
+    # Insert a statistic line into the generated page:
+    'PyLucid.middlewares.pagestats.PageStatsMiddleware',
+
     # PyLucidCommonMiddleware loads the django middlewares:
     #    - 'django.contrib.sessions.middleware.SessionMiddleware'
     #    - 'django.contrib.auth.middleware.AuthenticationMiddleware'
     #    - 'django.middleware.locale.LocaleMiddleware'
     'PyLucid.middlewares.common.PyLucidCommonMiddleware',
 
+    # Cache all anonymous cms page request, if CACHE_BACKEND worked.
     'PyLucid.middlewares.cache.CacheMiddleware',
 
     'django.middleware.common.CommonMiddleware',

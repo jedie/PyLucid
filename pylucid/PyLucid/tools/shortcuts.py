@@ -18,6 +18,19 @@ import string
 
 ALLOW_CHARS = string.ascii_letters + string.digits + "_"
 
+def verify_shortcut(shortcut):
+    """
+    Check a shortcut. Raise AssertionError if something seems to be wrong.
+    But normaly the urls-re should only filter the bad thing from urls ;)
+    """
+    if shortcut=="":
+        raise AssertionError("Shortcut is empty!")
+
+    for char in shortcut:
+        if not char in ALLOW_CHARS:
+            raise AssertionError(
+                "Not allowed character in shortcut: '%r'" % char
+            )
 
 def makeUnique(item_name, name_list):
     """

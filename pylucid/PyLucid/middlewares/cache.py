@@ -11,8 +11,10 @@
         - cache only for anonymous users
         - Build the cache key based on the page shortcuts
 
-    If request.debug == True: We added set response["from_cache"] = "yes" if
-    the response comes from the cache.
+    If request.debug == True: We added added information about the cache status
+    in _insert_cache_info():
+        - set response["from_cache"] to "yes" / "no" (Not True/False!)
+        - Replace the pagestats TAG with cache debug information.
 
     The page statistics part bases on:
         http://code.djangoproject.com/wiki/PageStatsMiddleware
@@ -34,21 +36,15 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.core.cache import cache
 
-from PyLucid.template_addons.filters import human_duration
 from PyLucid.models import Page
+from PyLucid.tools.shortcuts import verify_shortcut
+from PyLucid.middlewares.pagestats import TAG
+from PyLucid.template_addons.filters import human_duration
 
 CACHE_TIMEOUT = settings.CACHE_MIDDLEWARE_SECONDS
 
-# Save the start time of the current running pyhon instance
-start_overall = time.time()
-
-TAG = u"<!-- script_duration -->"
-
-FMT = (
-    u'render time: %(total_time)s -'
-    ' overall: %(overall_time)s -'
-    ' queries: %(queries)d'
-)
+CACHED_INFO_YES = u"from cache"
+CACHED_INFO_NO = u"not cached"
 
 # RFC1123 date format as specified by HTTP RFC2616 section 3.3.1:
 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
@@ -69,20 +65,27 @@ def build_cache_key(url):
         # e.g.: '/page1/page2/page3' -> ['/page1/page2', 'page3'] -> 'page3'
         shortcut = url.rsplit("/", 1)[-1]
 
+    # Check a shortcut. A AssertionError whould be raised if something seems to
+    # be wrong.
+    # Normaly the url-re of the index view filters bad things out. But
+    # process_request in the middleware whould becalled before this done.
+    verify_shortcut(shortcut)
+
     cache_key = settings.PAGE_CACHE_PREFIX + shortcut
     return shortcut, cache_key
 
 
 class CacheMiddleware(object):
+    def __init__(self):
+        self.cache_key = None
+
     def process_request(self, request):
         """
         -save startistics start values.
         -returned the response from the cache if exists, but only if a anonymous
         user makes a GET or HEAD requests.
         """
-        # save start time and the number of db queries before we do anything
-        self.start_time = time.time()
-        self.old_queries = len(connection.queries)
+        request._from_cache = False
 
         # cache only GET or HEAD requests
         if not request.method in ('GET', 'HEAD') or request.GET:
@@ -98,20 +101,27 @@ class CacheMiddleware(object):
 
         # Build the cache key based on the page shortcuts
         url = request.path
-        shortcut, self.cache_key = build_cache_key(url)
+        try:
+            shortcut, self.cache_key = build_cache_key(url)
+        except AssertionError, e:
+            # Something is wrong with the given url
+            request._use_cache = False
+            return
 
         # Get the page data from the cache. If not exist response is None.
         response = cache.get(self.cache_key)
 
-        if response:
-            # The page data exist in the cache
-            assert isinstance(response, HttpResponse)
-            if request.debug:
-                #print "Use cached page version. (key: '%s')" % self.cache_key
-                response["from_cache"] = "yes"
-            self.insert_page_stats(request, response)
-        #elif settings.DEBUG:
-            #print "Page not in cache found. (key: '%s')" % self.cache_key
+        if response == None:
+            # The page data doesn't exist in the cache
+            return
+
+        # The page data exist in the cache
+        assert isinstance(response, HttpResponse)
+        request._from_cache = True
+
+        if request.debug:
+            # Add the cache debug information.
+            response = self._insert_cache_info(request, response, True)
 
         return response
 
@@ -120,31 +130,72 @@ class CacheMiddleware(object):
         """
         Cache the response and insert the page statistics.
         """
+        if request._from_cache == True:
+            # The content comes from the cache
+            return response
+
         if getattr(request, "_use_cache", False) != True:
             # Don't cache
-            self.insert_page_stats(request, response)
+            response = self._insert_cache_info(request, response, False)
             return response
 
         # cache the response
-        self.cache_response(request, response)
+        self._cache_response(request, response)
 
-        self.insert_page_stats(request, response)
+        response = self._insert_cache_info(request, response, False)
 
         return response
 
 
-    def cache_response(self, request, response):
+    def _insert_cache_info(self, request, response, is_from_cache):
+        """
+        Add the cache debug information.
+
+        if request.debug == True, we added the information if the response
+        was from the cache or not. We "added" the information after the
+        pagestats >TAG< ;)
+        """
+        if request._from_cache == True:
+            response_msg = CACHED_INFO_YES
+            response["from_cache"] = "yes"
+        elif request._from_cache == False:
+            response_msg = CACHED_INFO_NO
+            response["from_cache"] = "no"
+        else:
+            raise AssertionError("wrong request._from_cache info.")
+
+        content = response.content
+        if not isinstance(content, unicode):
+            # FIXME: In my shared webhosting environment is response.content a
+            # string and not unicode. Why?
+            from django.utils.encoding import force_unicode
+            try:
+                content = force_unicode(content)
+            except:
+                return response
+
+        # Replace the pagestats TAG with the cache debug information.
+        message = u"%s - %s - cache key: %s" % (
+            TAG, response_msg, self.cache_key
+        )
+        new_content = content.replace(TAG, message)
+        response.content = new_content
+
+        return response
+
+
+    def _cache_response(self, request, response):
         """
         Cache the given response.
         """
         # Add cache info headers to the response object
-        self.patch_response_headers(request, response)
+        self._patch_response_headers(request, response)
 
         # Save the page into the cache
         cache.set(self.cache_key, response, CACHE_TIMEOUT)
 
 
-    def patch_response_headers(self, request, response):
+    def _patch_response_headers(self, request, response):
         """
         Adds some useful response headers for the browser cache to the given
         HttpResponse object.
@@ -161,43 +212,3 @@ class CacheMiddleware(object):
         now = datetime.datetime.utcnow()
         expires = now + datetime.timedelta(0, CACHE_TIMEOUT)
         response['Expires'] = expires.strftime(DATE_FORMAT)
-
-
-    def insert_page_stats(self, request, response):
-        """
-        calculate the statistic and replace it into the html page.
-        """
-        # Put only the statistic into HTML pages
-        if not "html" in response._headers["content-type"][1]:
-            # No HTML Page -> do nothing
-            return response
-
-        # compute the db time for the queries just run
-        # FIXME: In my shared webhosting environment the queries is always = 0
-        queries = len(connection.queries) - self.old_queries
-
-        total_time = human_duration(time.time() - self.start_time)
-        overall_time = human_duration(time.time() - start_overall)
-
-        # replace the comment if found
-        stat_info = FMT % {
-            'total_time' : total_time,
-            'overall_time' : overall_time,
-            'queries' : queries,
-        }
-
-        content = response.content
-        if not isinstance(content, unicode):
-            # FIXME: In my shared webhosting environment is response.content a
-            # string and not unicode. Why?
-            from django.utils.encoding import force_unicode
-            try:
-                content = force_unicode(content)
-            except:
-                return response
-
-        # insert the page statistic
-        new_content = content.replace(TAG, stat_info)
-        response.content = new_content
-
-        return response

@@ -36,7 +36,7 @@ from PyLucid.models import Page
 ONE_BROWSER_TRACEBACK = True
 
 CHARACTER_VARIANTS = (
-    "<", "\x3c", "\x3C", u"\u003c", u"\u003C",
+    "<", r"\x3c", r"\x3C", r"\u003c", u"\u003c", u"\u003C",
 #    "&#60", "&#060", "&#0060", "&#00060", "&#000060", "&#0000060", "&#60;",
 #    "&#060;", "&#0060;", "&#00060;", "&#000060;", "&#0000060;",
 #    "&#x3c", "&#x03c", "&#x003c", "&#x0003c", "&#x00003c", "&#x000003c",
@@ -142,7 +142,8 @@ class TestXSS(TestBase):
         """
         for char_variant in CHARACTER_VARIANTS:
             test_string = char_variant + VARIANTS_STRING
-            response = self.client.get("/" + test_string)
+            url = "/" + test_string
+            response = self.client.get(url)
             self.assertResponse(
                 response, must_not_contain=(test_string, "<" + VARIANTS_STRING,)
             )
@@ -166,7 +167,7 @@ class TestXSS(TestBase):
                     response = self.client.post(test_url, post_data)
                     self.assertResponse(
                         response,
-                        must_not_contain=(test_string, "<" + VARIANTS_STRING,)
+                        must_not_contain=("<" + VARIANTS_STRING,)
                     )
 
     def test_get(self):
@@ -183,7 +184,7 @@ class TestXSS(TestBase):
                 response = self.client.get(test_url)
                 self.assertResponse(
                     response,
-                    must_not_contain=(test_string, "<" + VARIANTS_STRING,)
+                    must_not_contain=("<" + VARIANTS_STRING,)
                 )
 
 
