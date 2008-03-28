@@ -38,6 +38,16 @@ auth_middleware = AuthenticationMiddleware()
 locale_middleware = LocaleMiddleware()
 
 
+class FakeUser(object):
+    """
+    A fake user object.
+    If there exists no tables, the django session/auth middelware can't work.
+    But e.g. in the PyLucid cache middleware we check if the user is anonymous.
+    """
+    def is_anonymous(self):
+        return True
+
+
 def raise_non_table_error(e):
     """
     Raise the original error, if it is not the table access problem.
@@ -67,6 +77,8 @@ class PyLucidCommonMiddleware(object):
             locale_middleware.process_request(request)
         except Exception, e:
             raise_non_table_error(e)
+            # Add fake user object for if request.user.is_anonymous() check.
+            request.user = FakeUser()
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         try:

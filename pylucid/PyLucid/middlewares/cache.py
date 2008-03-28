@@ -90,7 +90,7 @@ class CacheMiddleware(object):
             return
 
         # Cache only for anonymous users.
-        if not (hasattr(request, "user") or request.user.is_anonymous()):
+        if request.user.is_anonymous() != True:
             # If request hasn't the attribute user, the session middleware
             # doen's work. This apperars if there exist no database tables.
             # Don't cache for non anonymous users. Otherwise log-in users don't
