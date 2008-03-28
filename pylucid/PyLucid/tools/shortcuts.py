@@ -27,7 +27,7 @@ def verify_shortcut(shortcut):
         raise AssertionError("Shortcut is empty!")
 
     for char in shortcut:
-        if not char in ALLOW_CHARS:
+        if not char in ALLOW_CHARS+"-":
             raise AssertionError(
                 "Not allowed character in shortcut: '%r'" % char
             )
