@@ -2,28 +2,36 @@
 # -*- coding: UTF-8 -*-
 
 """
-Eine kleine Version vom textile Parser
+    tinyTextile
+    ~~~~~~~~~~~
 
-http://www.pylucid.org/index.py/Markup/
+    PyLucid builtin markup engine. Based on the textile markup.
 
-Links
------
-http://dealmeida.net/en/Projects/PyTextile/
-http://www.solarorange.com/projects/textile/mtmanual_textile2.html
+    ToDo
+    ~~~~
+    Most parts works well, but the code is very old and process in a stream was
+    not the best idea: e.g. sourceode parts doesn't work well, there should be
+    exctract/insert before the markup applied. So these engine should be
+    complete rewritten.
+    other todos:
+      * lists are not good indented
 
-Last commit info:
-----------------------------------
-$LastChangedDate$
-$Rev$
-$Author$
+    links
+    ~~~~~
+    http://www.pylucid.org/_goto/5/Markup/
+    http://dealmeida.net/en/Projects/PyTextile/
+    http://www.solarorange.com/projects/textile/mtmanual_textile2.htm
 
-Created by Jens Diemer
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
-
+    :copyleft: 2007-2008 by Jens Diemer
+    :license: GNU GPL v3, see LICENSE.txt for more details.
 """
+
 
 __version__ = "$Rev$"
 
