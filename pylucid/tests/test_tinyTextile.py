@@ -72,7 +72,7 @@ class textileFailure(Exception):
                 msg = msg[2:-1]
             else:
                 msg = msg[1:-1]
-                
+
             try:
                 block1, block2 = msg.split("' != '")
             except ValueError:
@@ -151,7 +151,7 @@ class tinyTextileTest(unittest.TestCase):
         return txt
 
     #_________________________________________________________________________
-    
+
     def _parse(self, txt):
         """
         Apply tinyTextile markup on txt
@@ -160,7 +160,7 @@ class tinyTextileTest(unittest.TestCase):
         self.textile.parse(txt)
         out_string = self.out.getvalue()
         return out_string
-    
+
     def _processTinyTextile(self, source_string, should_string):
         """
         prepate the given text and apply the markup.
@@ -169,7 +169,7 @@ class tinyTextileTest(unittest.TestCase):
         should = self._prepare_text(should_string)
         out_string = self._parse(source)
         return out_string, should
-    
+
     def assertTinyTextile(self, source_string, should_string):
         """
         applies the tinyTextile markup to the given source_string and compairs
@@ -179,7 +179,7 @@ class tinyTextileTest(unittest.TestCase):
             source_string, should_string
         )
         self.assertEqual(out_string, should)
-    
+
     def assertTinyTextileList(self, source_string, should_string):
         """
         tinyTextile doesn't indented lists well. Here we use a work-a-round.
@@ -189,18 +189,18 @@ class tinyTextileTest(unittest.TestCase):
         )
         def format_output(txt):
             return "\n".join([i.strip() for i in txt.splitlines()])
-        
+
         out_string = format_output(out_string)
         should = format_output(should)
-        
+
         self.assertEqual(out_string, should)
-    
+
     #_________________________________________________________________________
 
     def testSelf(self):
         out1 = self._prepare_text("""
-                one line
-                line two""")
+            one line
+            line two""")
         self.assertEqual(out1, "one line\nline two")
 
         out2 = self._prepare_text("""
@@ -238,9 +238,9 @@ class tinyTextileTest(unittest.TestCase):
 
     def testTextile_text2(self):
         self.assertTinyTextile("""
-            one line
+            two lines\\in one line
         """, """
-            <p>one line</p>\n
+            <p>two lines<br />in one line</p>\n
         """)
 
     def testTextile_text3(self):
@@ -267,22 +267,22 @@ class tinyTextileTest(unittest.TestCase):
             mac 2</p>
 
         """)
-        
+
     def testTextile_headline1(self):
         self.assertTinyTextile("""
             h1. headline A
-            
+
             Text1
 
             h2. headline B $%#
-            
+
             Text2
         """, """
             <h1>headline A</h1>
             <p>Text1</p>
             <h2>headline B $%#</h2>
             <p>Text2</p>
-        
+
         """)
 
     def testTextile_pre(self):
@@ -295,6 +295,7 @@ class tinyTextileTest(unittest.TestCase):
 
             test in pre 3
             test in pre 4
+            no\\line\\break
             </pre>
             text line under pre area
 
@@ -310,6 +311,7 @@ class tinyTextileTest(unittest.TestCase):
 
             test in pre 3
             test in pre 4
+            no\\line\\break
             </pre>
             <p>text line under pre area</p>
             <p>some text...<br />
@@ -318,41 +320,53 @@ class tinyTextileTest(unittest.TestCase):
 
         """)
 
-#    def testTextile_code1(self):
-#        self.assertTinyTextile("""
-#            <code=py>
-#            testcode
-#            </code>
-#        """)
-#
-#        out_test = self._prepare_text("""
-#            <fieldset class="pygments_code"><legend class="pygments_code">py</legend>
-#            <pre><code>testcode</code></pre>
-#            </fieldset>
-#        """)
-#
-#        self.textile.parse(content)
-#        self.assertEqual(self.out.getvalue(),out_test)
+    def testTextile_code1(self):
+        self.assertTinyTextile("""
+            <code=py>
+            testcode
+            </code>
+        """, """
+            <fieldset class="pygments_code">
+            <legend class="pygments_code">py</legend>
+            <pre><code>testcode</code></pre>
+            </fieldset>
+
+        """)
 
     def testTextile_code2(self):
         self.assertTinyTextile("""
-            text above code area
+            text above code area 1
             <code=ext>
             test in code 1
             test in code 2
             </code>
-            text line under code area
+            text line under code area 1
+
+            text above code area 2
+            <code>
+            test in code 1
+            test in code 2
+            </code>
+            text line under code area 2
 
             some text...
             a inline <code>code area</code> in a text line
             ...some other text
         """, """
-            <p>text above code area<br />
-            <code=ext><br />
-            test in code 1<br />
-            test in code 2<br />
-            </code></p>
-            <p>text line under code area</p>
+            <p>text above code area 1</p>
+            <fieldset class="pygments_code">
+            <legend class="pygments_code">ext</legend>
+            <pre><code>test in code 1
+            test in code 2</code></pre>
+            </fieldset>
+            <p>text line under code area 1</p>
+            <p>text above code area 2</p>
+            <fieldset class="pygments_code">
+            <legend class="pygments_code"></legend>
+            <pre><code>test in code 1
+            test in code 2</code></pre>
+            </fieldset>
+            <p>text line under code area 2</p>
             <p>some text...<br />
             a inline <code>code area</code> in a text line<br />
             ...some other text</p>
@@ -365,7 +379,7 @@ class tinyTextileTest(unittest.TestCase):
         tinyTextile.py!
         Here we do a "work-a-round" and delete all linebreaks (\n).
         """
-        
+
         source_string = """
             <python>
             class Example():
@@ -378,7 +392,7 @@ class tinyTextileTest(unittest.TestCase):
                     # text 3
                     # text 4
 
-                    # text 5
+                    # text 5 no\\line\\break
 
                     # text 6
             </python>
@@ -396,7 +410,7 @@ class tinyTextileTest(unittest.TestCase):
                     # text 3
                     # text 4
 
-                    # text 5
+                    # text 5 no\\line\\break
 
                     # text 6</code></pre>
             </fieldset>
@@ -407,10 +421,10 @@ class tinyTextileTest(unittest.TestCase):
         )
         def format_output(txt):
             return txt.replace("\n", "")
-        
+
         out_string = format_output(out_string)
         should = format_output(should)
-        
+
         self.assertEqual(out_string, should)
 
 
@@ -424,7 +438,7 @@ class tinyTextileTest(unittest.TestCase):
             " - tinyTextile known sourcecode part bug"
         )
         return
-    
+
         self.assertTinyTextile("""
             <python>
             class Example():
@@ -588,7 +602,89 @@ class tinyTextileTest(unittest.TestCase):
 
         """)
 
+    def testTextile_links_urls(self):
+        self.assertTinyTextile("""
+            http://domain.dtl
+            ftp://domain.dtl
+            mailto:name@domain.dtl
+        """, """
+            <p><a href="http://domain.dtl">http://domain.dtl</a><br />
+            <a href="ftp://domain.dtl">ftp://domain.dtl</a><br />
+            <a href="mailto:name@domain.dtl">name@domain.dtl</a></p>
 
+        """)
+
+    def testTextile_links_old(self):
+        """
+        The old tinyTextile link format.
+        """
+        self.assertTinyTextile("""
+            a "link text":http://domain.dtl
+            This is a link, too: "Link":#unten
+            Shortcut link: [[PageName]] !
+        """, """
+            <p>a <a href="http://domain.dtl">link text</a><br />
+            This is a link, too: <a href="#unten">Link</a><br />
+            Shortcut link: <a href="/PageName/">PageName</a> !</p>
+
+        """)
+
+    def testTextile_links_new(self):
+        """
+        The new tinyTextile link format.
+        """
+        self.assertTinyTextile("""
+            a [http://domain.dtl link text]
+            This is a link, too: [#unten Link]
+            Shortcut link: [[PageName]] !
+        """, """
+            <p>a <a href="http://domain.dtl">link text</a><br />
+            This is a link, too: <a href="#unten">Link</a><br />
+            Shortcut link: <a href="/PageName/">PageName</a> !</p>
+
+        """)
+
+    def testTextile_table1(self):
+        self.assertTinyTextile("""
+            table 1 start
+            |=Heading Col 1 |=Heading Col 2         |
+            |Cell 1.1       |2 lines\\in Cell 1.2   |
+            |Cell 2.1       |Cell 2.2               |
+            table 1 end
+
+            |Cell 1.1 |Cell 1.2 |Cell 1.3 |
+            |Cell 2.1 |Cell 2.2 |Cell 2.3 |
+        """, """
+            <p>table 1 start</p>
+            <table>
+            <tr>
+            \t<th>Heading Col 1</th>
+            \t<th>Heading Col 2</th>
+            </tr>
+            <tr>
+            \t<td>Cell 1.1</td>
+            \t<td>2 lines<br />in Cell 1.2</td>
+            </tr>
+            <tr>
+            \t<td>Cell 2.1</td>
+            \t<td>Cell 2.2</td>
+            </tr>
+            </table>
+            <p>table 1 end</p>
+            <table>
+            <tr>
+            \t<td>Cell 1.1</td>
+            \t<td>Cell 1.2</td>
+            \t<td>Cell 1.3</td>
+            </tr>
+            <tr>
+            \t<td>Cell 2.1</td>
+            \t<td>Cell 2.2</td>
+            \t<td>Cell 2.3</td>
+            </tr>
+            </table>
+            
+        """)
 
 
 if __name__ == "__main__":

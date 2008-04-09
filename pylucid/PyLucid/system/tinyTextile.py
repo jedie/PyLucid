@@ -69,13 +69,23 @@ class TinyTextileParser:
                 r"\*([^*\n]+?)\*(?uism)",
                 r"<strong>\1</strong>"
             ],
+            [ # manuell linebreak
+                r"\\",
+                r"<br />"
+            ],
             [ # img-Tag - Bsp.: !/Bilder/MeinBild.jpg!
                 r'\!([^!\n ]+?)\!(?uis)',
                 r'<img src="\1">'
             ],
-            [ # Link + LinkText - Bsp.: "LinkText":http://www.beispiel.de
+            [ # Link + LinkText - e.g.: "LinkText":http://www.beispiel.de
+              # old link format!
                 r'"([^"]+?)":([^\s\<]+)',
                 r'<a href="\2">\1</a>'
+            ],
+            [ # Link + LinkText - e.g.: "LinkText":http://www.beispiel.de
+              # new link format - e.g.: [http://domain.dtl link text]
+                r'\[([^\s\<]+) (.+?)\]',
+                r'<a href="\1">\2</a>'
             ],
             [ # interne PyLucid Links - Bsp.:
               # Das ist ein [[InternerLink]] zur Seite InternerLink ;)
@@ -116,10 +126,14 @@ class TinyTextileParser:
                 """,
                 r"\1\n\2",
             ],
+            [ # insert \n before and after a "|"-Table
+                r"(?ms)(^\|.*?\|\n(?!\|))", # match the complete table block
+                r"\n\1\n",
+            ],
             [
                 # Text *vor* einem <pre>, <python> oder <code> Block mit noch
                 # einem \n trennen
-                r"\n(?P<tag><(pre|python|code)>)\n",
+                r"\n(?P<tag><(pre|python|code[^>]*?)>)\n",
                 r"\n\n\g<tag>\n",
             ],
             [
@@ -128,6 +142,10 @@ class TinyTextileParser:
                 r"\n(?P<tag></(pre|python|code)>)\n",
                 r"\n\g<tag>\n\n",
             ],
+#            [
+#                "(?ms)(<(pre|python|code[^>]*?)>.*?</(pre|python|code)>)",
+#                r"\n\1\n"
+#            ]
         ])
 
         self.area_rules = (
@@ -158,7 +176,6 @@ class TinyTextileParser:
     def parse(self, txt):
         "Parsed den Text in's out_obj"
         txt = self.pre_process(txt)
-
         self.make_paragraphs(txt)
 
     def escaping(self, matchobj):
@@ -187,6 +204,7 @@ class TinyTextileParser:
             #~ self.page_msg(txt)
             txt = rule[0].sub(rule[1], txt)
             #~ self.page_msg(txt)
+
         return txt
 
     def make_paragraphs(self, txt):
@@ -354,6 +372,29 @@ class TinyTextileParser:
 
     #_________________________________________________________________________
 
+    def table(self, text):
+        result = ""
+        for line in text.splitlines():
+            line = line.strip("|").split("|")
+            result_line = ""
+            for cell in line:
+                if cell.startswith("="):
+                    tag = "th"
+                    cell = cell[1:]
+                else:
+                    tag = "td"
+                cell = cell.strip()
+                result_line += "\t<%(t)s>%(c)s</%(t)s>\n" % {
+                    "t": tag, "c": cell
+                }
+
+            result += "<tr>\n%s</tr>\n" % result_line
+
+        result = '<table>\n%s</table>\n' % result
+        self.out.write(result)
+
+    #_________________________________________________________________________
+
     def hightlight(self, source_type, code_lines):
         """
         Display Sourcecode.
@@ -373,11 +414,14 @@ class TinyTextileParser:
     def blockelements(self, block):
         "Anwenden der Block-rules. Formatieren des Absatzes"
 
-        #~ self.page_msg(block[0], block)
-
         if block[0] in ("*","#"):
             # Aktueller Block ist eine Liste
             self.build_list(block)
+            return
+
+        if block[0] == "|":
+            # current block is a table
+            self.table(block)
             return
 
         for rule in self.block_rules:

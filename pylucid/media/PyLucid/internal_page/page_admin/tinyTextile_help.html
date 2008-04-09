@@ -6,7 +6,7 @@
 {{ add_data_tag }}
 </head>
 <body>
-<h1>tinyTextile help</h1>
+<h1 class="title">tinyTextile help</h1>
   {% if messages %}
     <fieldset id="page_msg"><legend>page message</legend>
     {% for message in messages %}
@@ -21,72 +21,125 @@ h1. headlines
 
 headlines are introduced with 'h1.':
 
-<pre>
-h1. h-1 headline
+h4. examples:
 
-h2. h-2 headline
-</pre>
+<code=.txt>
+h2. this is a h2 headline
 
-Result:
+h3. this is a h3 headline
+</code>
 
-h1. h-1 headline
+h4. result:
 
-h2. h-2 headline
+h2. this is a h2 headline
+
+h3. this is a h3 headline
 
 (Important: one blank line under the headline!)
 
-<hr class="big_hr" />
+
 
 h1. Text formatting
 
-<pre>
+h4. examples:
+
+<code=.txt>
 I am a --small-- word with &lt;small&gt; tag.
 This is a *fat* word with &lt;strong&gt; tag.
-</pre>
+</code>
 
-Result:
+h4. result:
 
 I am a --small-- word with ==<small>== tag.
 This is a *fat* word with ==<strong>== tag.
 
-<hr class="big_hr" />
+
 
 h1. Links
 
-Links according in the following pattern:
+To create html links use this pattern:
 
-<pre>"LinkText":URL</pre>
+<code=.txt>[URL Link Text]</code>
 
-examples:
-<pre>
-http://exampledomain.dtl
-ftp://exampledomain.dtl
-mailto:name@exampledomain.dtl
-http://www.python-forum.de
-or better: "Das deutsche Python-Forum":http://www.python-forum.de
-This is a link, too: "Link":?#unten
-Wiki like, internal PyLucid links: [[ExamplePageName]]
-</pre>
+h4. examples:
 
-Result:
-http://exampledomain.dtl
-ftp://exampledomain.dtl
-mailto:name@exampledomain.dtl
-http://www.python-forum.de
-or better: "Das deutsche Python-Forum":http://www.python-forum.de
-This is a link, too: "Link":?#unten
-Wiki like, internal PyLucid links: [[ExamplePageName]]
+<code=.txt>
+a [http://domain.dtl http link] to domain.dtl
+a internal link [/root/index.html root page].
+This is a link, too: [#bottom link text]
+</code>
 
-<hr class="big_hr" />
+h4. results:
+
+a [http://domain.dtl http link] to domain.dtl
+a internal link [/root/index.html root page].
+This is a link, too: [#bottom link text]
+
+
+
+h2. old link syntax
+
+The old pattern works too, but we prefere the new syntax!
+
+h4. examples:
+
+<code=.txt>
+a "http link":http://domain.dtl to domain.dtl
+This is a link, too: "link text":#bottom
+</code>
+
+h4. results:
+
+a "http link":http://domain.dtl to domain.dtl
+This is a link, too: "link text":#bottom
+
+
+
+h2. shortcut
+
+h4. examples:
+
+<code=.txt>
+A link with a shortcut: [[PageName]] goes to the cms page.
+</code>
+
+h4. results:
+
+A link with a shortcut: [[PageName]] goes to the cms page.
+
+
+
+h2. urls
+
+All inserted urls would be converted to links
+
+h4. examples:
+
+<code=.txt>
+http://domain.dtl
+ftp://domain.dtl
+mailto:name@domain.dtl
+</code>
+
+h4. result:
+
+http://domain.dtl
+ftp://domain.dtl
+mailto:name@domain.dtl
+
+
+
+
+
 
 h1. List
 
 You can make ==<ul>== liste with "*" and ==<ol>== list with "#".
 Note: You can't mixed this list types ;)
 
-examples:
+h4. examples:
 
-<pre>
+<code=.txt>
 normal list:
 * Lorem ipsum dolor sit amet
 ** consectetuer adipiscing elit
@@ -100,9 +153,9 @@ numbered list:
 #### sed diam nonummy nibh
 #### euismod tincidunt ut laoreet
 ## dolore magna aliquam erat volutpat.
-</pre>
+</code>
 
-Result:
+h4. result:
 
 normal list:
 * Lorem ipsum dolor sit amet
@@ -118,34 +171,50 @@ numbered list:
 #### euismod tincidunt ut laoreet
 ## dolore magna aliquam erat volutpat.
 
-<hr class="big_hr" />
 
-h1. Bilder
 
-Ein HTML-img-Tag wird erzeugt, wenn eine Adresse mit einem "!"-Zeichen
-umschlossen ist.
+h1. Images
 
-<pre>
+You can create a html image tag with a exclamation mark ("!") character.
+Surround a url to the picture with a "!".
+
+h4. examples:
+
+<code=.txt>
 !http://images.sourceforge.net/images/project-support.jpg!
 !/favicon.ico!
-!http://domain.tld/pics/ich werde zu keiner URL weil hier leerzeichen sind.jpg!
-</pre>
+!/pics/no link for spaces in filenames.jpg!
+</code>
 
-Result:
+h4. result:
 
 !http://images.sourceforge.net/images/project-support.jpg!
 !/favicon.ico!
-!http://domain.tld/pics/ich werde zu keiner URL weil hier leerzeichen sind.jpg!
+!/pics/no link for spaces in filenames.jpg!
 
-<hr class="big_hr" />
+
 
 h1. Embed Python SourceCode
 
 Put sourcecode between ==<python>== tag. Note: The start and end tag must be located alone in a line!
 
-example:
+h4. example:
 
-==
+<fieldset class="pygments_code">
+
+==<python>
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
+"""Ein kleines Skript"""
+
+print "Hello Word: I love Python!"
+</python>==
+
+</fieldset>
+
+h4. result:
+
 <python>
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
@@ -154,87 +223,134 @@ example:
 
 print "Hello Word: I love Python!"
 </python>
-==
-
-Result:
-<python>
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
-
-"""Ein kleines Skript"""
-
-print "Hello Word: I love Python!"
-</python>
 
 
-<hr class="big_hr" />
+
 
 h1. Embed source code generally
 
 With the ==<code=ext>== Tag you can highlight everything, which offers Pygments.
 'ext' is the file extension.
 
-examples:
+<!-- We must use a ugly hack for the examples :( -->
 
-==
+h4. example 1:
+
+<fieldset class="pygments_code">
+
+==<code=php>
+<?php
+$conn_id = ftp_connect($ftp_server);
+?>
+</code>==
+
+</fieldset>
+
+h4. result 1:
+
 <code=php>
 <?php
 $conn_id = ftp_connect($ftp_server);
 ?>
 </code>
+
+h4. example 2:
+
+<fieldset class="pygments_code">
+
+==<code=css>
+body {
+  color: black;
+}
+</code>==
+
+</fieldset>
+
+h4. result 2:
+
 <code=css>
 body {
   color: black;
 }
 </code>
-==
 
-Result:
 
-<code=php>
-<?php
-$conn_id = ftp_connect($ftp_server);
-?>
-</code>
-<code=css>
-body {
-  color: black;
-}
-</code>
-
-<hr class="big_hr" />
 
 h1. Escaping
 
-Text inner two "="-chars would be escaped.
+The escape character are two equals sign ("=="). Text inner two "="-characters would be escaped.
 
-example:
---------
-========
+h4. example:
+
+<code=.txt>
+==
 Table: <table width="90%" border="0" align="center">
 Link: <a href="URL">txt</a>
 Input: <input type="submit" value="preview" />
-========
+==
+</code>
+
+h4. result:
+
+==
+Table: <table width="90%" border="0" align="center">
+Link: <a href="URL">txt</a>
+Input: <input type="submit" value="preview" />
+==
 
 It goes also within a flow text:
 Here ist no Link: ========<a href="URL">txt</a>======== nice?
 
-<hr class="big_hr" />
+
 
 h1. pre-Formarted-Text
 
 You can use the ==<pre>== tag. tinyTextile ingnore the Markup in the area.
 
+h4. example:
+
+<code=.txt>
 <pre>
-Example:
----------
 h2. Not a textile headline
-<h3>Manuelly h3 headline with html tags</h3>
+<h3>hand made h3 headline with html tags</h3>
+* This is not a...
+* ...textile list
+</pre>
+</code>
+
+h4. result:
+
+<pre>
+h2. Not a textile headline
+<h3>hand made h3 headline with html tags</h3>
 * This is not a...
 * ...textile list
 </pre>
 
-<hr class="big_hr" />
+
+
+h1. tables
+
+tinyTextile only supports very basic table syntax, with no alignment. It's only for simple table like phone lists etc.
+There is a notion for headings and forced line breaks.
+
+h4. example:
+<code=.txt>
+|=Heading Col 1 |=Heading Col 2         |
+|Cell 1.1       |2 lines\\in Cell 1.2   |
+|Cell 2.1       |Cell 2.2               |
+</code>
+
+h4. result:
+
+<span class="example_table">
+
+|=Heading Col 1 |=Heading Col 2         |
+|Cell 1.1       |2 lines\\in Cell 1.2   |
+|Cell 2.1       |Cell 2.2               |
+
+</span>
+
 
 h1. HTML-Code
 
