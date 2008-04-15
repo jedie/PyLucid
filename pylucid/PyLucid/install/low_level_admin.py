@@ -438,3 +438,68 @@ def check_page_tree(request, *url_args):
     Check and correct the page tree
     """
     return CheckPageTree(request).start_view(*url_args)
+
+
+#______________________________________________________________________________
+
+
+class RepairAutoIncrement(BaseInstall):
+    """
+    repair 'auto increment'.
+    MySQL only!
+    For users how forgott to insert auto increment in a SQL dump ;)
+    """
+    def view(self):
+        self._redirect_execute(self.repair_auto_increment)
+        return self._simple_render(headline="repair 'auto increment'")
+
+    def repair_auto_increment(self):
+        from django.db import connection
+
+        cursor = connection.cursor()
+        SQLcommand = "Drop table %s;"
+
+        from django.core.management import sql
+        table_list = sql.table_list()
+
+        for table_name in table_list:
+            print "_"*79
+            print table_name
+            SQL = "SHOW COLUMNS FROM %s LIKE 'id';" % table_name
+            cursor.execute(SQL)
+            result = cursor.fetchone()
+            if result in ((), None):
+                print "No 'id' in table, ok."
+                continue
+
+            cursor_info = {}
+            for no, info in enumerate(cursor.description):
+                cursor_info[info[0]] = no
+
+            if result[cursor_info["Extra"]] == "auto_increment":
+                print "'auto_increment' exist, ok."
+                continue
+
+            SQL = (
+                "ALTER TABLE %(table_name)s CHANGE %(field)s"
+                " %(field)s %(type)s AUTO_INCREMENT;"
+            ) % {
+                "table_name": table_name,
+                "field": result[cursor_info["Field"]],
+                "type": result[cursor_info["Type"]],
+            }
+            print "set auto_increment...",
+            try:
+                cursor.execute(SQL)
+            except Exception, e:
+                print "Error:", e
+            else:
+                print "ok"
+
+
+
+def repair_auto_increment(request, *url_args):
+    """
+    repair 'auto increment' (MySQL only!)
+    """
+    return RepairAutoIncrement(request).start_view(*url_args)
