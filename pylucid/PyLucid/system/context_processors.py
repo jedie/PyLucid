@@ -64,9 +64,14 @@ def add_css_tag(context, content, plugin_name, method_name):
     class_name = getattr(settings, "CSS_PLUGIN_CLASS_NAME", "PyLucidPlugins")
 
     try:
-        return u'<div class="%s %s" id="%s">\n%s\n</div>\n' % (
-            class_name, plugin_name, id, content
-        )
+        return (
+            u'<div class="%(c)s %(p)s %(p)s_%(m)s" id="%(id)s">\n'
+            '%(content)s\n'
+            '</div>\n'
+        ) % {
+            "c": class_name, "p": plugin_name, "m": method_name,
+            "id": id, "content": content,
+        }
     except UnicodeDecodeError:
         # FIXME: In some case (with mysql_old) we have trouble here.
         # I get this traceback on www.jensdiemer.de like this:
@@ -83,6 +88,11 @@ def add_css_tag(context, content, plugin_name, method_name):
         #'ascii' codec can't decode byte 0xc3 in position 55: ordinal not in range(128)
         #
         #content += "UnicodeDecodeError hack active!"
-        return '<span class="%s %s" id="%s">\n%s\n</span>\n' % (
-            class_name, str(plugin_name), str(id), content
-        )
+        return (
+            '<div class="%(c)s %(p)s %(p)s_%(m)s" id="%(id)s">\n'
+            '%(content)s\n'
+            '</div>\n'
+        ) % {
+            "c": class_name, "p": str(plugin_name), "m": str(method_name),
+            "id": str(id), "content": content,
+        }
