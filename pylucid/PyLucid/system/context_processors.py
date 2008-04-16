@@ -65,7 +65,7 @@ def add_css_tag(context, content, plugin_name, method_name):
 
     try:
         return (
-            u'<div class="%(c)s %(p)s %(p)s_%(m)s" id="%(id)s">\n'
+            u'<div class="%(c)s %(p)s" id="%(id)s">\n'
             '%(content)s\n'
             '</div>\n'
         ) % {
@@ -89,7 +89,7 @@ def add_css_tag(context, content, plugin_name, method_name):
         #
         #content += "UnicodeDecodeError hack active!"
         return (
-            '<div class="%(c)s %(p)s %(p)s_%(m)s" id="%(id)s">\n'
+            '<div class="%(c)s %(p)s" id="%(id)s">\n'
             '%(content)s\n'
             '</div>\n'
         ) % {
