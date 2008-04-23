@@ -68,7 +68,9 @@ class PyLucidBasePlugin(object):
         In the plugin config (plugin_manager_data) must be exist some meta
         information for the menu:
           "menu_section"     : The upper block name
-          "menu_description" : Link text (optional, otherewise method name used)
+          "menu_description" : Link text (optional, otherwise method name used)
+
+        More info: http://pylucid.org/_goto/148/self-build_menu/
         """
         plugin = Plugin.objects.get(plugin_name=self.plugin_name)
         plugin_config = get_plugin_config(self.request,
