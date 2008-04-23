@@ -20,8 +20,9 @@ license:
 __version__= "$Rev$"
 
 
-import sys, os, locale
+import sys, os, locale, subprocess
 
+from PyLucid.tools.subprocess2 import Subprocess2
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
 class SystemInfo(PyLucidBasePlugin):
@@ -30,9 +31,10 @@ class SystemInfo(PyLucidBasePlugin):
 
         self.PyLucid_info()
         self.system_info()
+        self.cmd_info()
+        self.proc_info()
         self.encoding_info()
         self.envion_info()
-        self.colubrid_debug_link()
 
     #_________________________________________________________________________
 
@@ -42,15 +44,15 @@ class SystemInfo(PyLucidBasePlugin):
         self.response.write('<fieldset id="system_info">')
         self.response.write('<legend>PyLucid["URLs"]:</legend>')
         self.response.write("<pre>")
-        for k,v in self.URLs.items():
-            self.response.write("%15s: '%s'\n" % (k,v))
-        self.response.write("</pre>")
-        self.response.write("</fieldset>")
 
-        self.response.write('<fieldset id="system_info">')
-        self.response.write('<legend>self.i18n.debug():</legend>')
-        self.response.write("<pre>")
-        self.i18n.debug(response_out=True)
+        data = [(len(v), k, v) for k,v in self.URLs.items()]
+
+        max_len = max([len(k) for k in self.URLs])
+        line = "%%%ss: '%%s'\n" % max_len
+
+        for _,k,v in sorted(data):
+            self.response.write(line % (k,v))
+
         self.response.write("</pre>")
         self.response.write("</fieldset>")
 
@@ -64,6 +66,15 @@ class SystemInfo(PyLucidBasePlugin):
             self.response.write("<dt>os.uname():</dt>")
             self.response.write("<dd>%s</dd>" % " - ".join( os.uname() ))
 
+        try:
+            loadavg = os.getloadavg()
+            loadavg = ", ".join([str(round(i,2)) for i in loadavg])
+            self.response.write("<dt>load average:</dt>")
+            self.response.write("<dd>%s</dd>" % loadavg)
+        except OSError:
+            # Not available
+            pass
+
         self.response.write("<dt>sys.version:</dt>")
         self.response.write("<dd>Python v%s</dd>" % sys.version)
 
@@ -76,12 +87,28 @@ class SystemInfo(PyLucidBasePlugin):
 
         self.response.write("</dl>")
 
-        #_____________________________________________________________________
 
-        self.cmd_info( "uptime", "uptime" )
-        self.cmd_info( "lokal Angemeldete Benutzer", "who -H -u --lookup" )
-        self.cmd_info( "disk", "df -T -h" )
-        self.cmd_info( "RAM", "free -m" )
+
+    def proc_info(self):
+        """
+        Dispaly some proc files
+        """
+        files = ["/proc/meminfo", "/proc/stat", "/proc/loadavg"]
+
+        self.response.write("<h3>proc info</h3>")
+
+        self.response.write('<dl id="system_info">')
+        for proc_file in files:
+            self.response.write("<dt>'%s':</dt>" % proc_file)
+            try:
+                f = file(proc_file, "r")
+            except Exception, e:
+                self.response.write("<dd>Error: %s</dd>" % e)
+            else:
+                for line in f:
+                    self.response.write("<dd>%s</dd>" % line)
+                f.close()
+        self.response.write("</dl>")
 
     #_________________________________________________________________________
 
@@ -169,17 +196,35 @@ class SystemInfo(PyLucidBasePlugin):
 
     #_________________________________________________________________________
 
-    def cmd_info(self, info, command, cwd="/"):
-        self.response.write(
-            '<fieldset id="system_info"><legend>%s:</legend>' % info
-        )
-        try:
-            process = self.tools.subprocess2(command, cwd, 5)
-        except Exception,e:
-            self.response.write("Can't get: %s" % e)
-        else:
-            self.response.write("<pre>%s</pre>" % process.out_data)
-        self.response.write("</fieldset>")
+    def cmd_info(self):
+        """
+        Use some commandline programms and display the output
+        """
+        commands = ("uptime", "who -H -u --lookup", "df -T -h", "free -m")
+
+        for command in commands:
+            self.response.write(
+                """<fieldset><legend>'%s':</legend>""" % command
+            )
+            try:
+                p = Subprocess2(command,
+                    stdout=subprocess.PIPE,
+                    shell = True,
+                    timeout = 1
+                )
+            except Exception, e:
+                self.response.write("Error: %s" % e)
+            else:
+                if not p.killed:
+                    # read only if process ended normaly, otherwise it blocked!
+                    msg = "<pre>%s</pre>" % p.process.stdout.read()
+                else:
+                    msg = "Proecess was killed. Returncode: %s" % (
+                        p.process.returncode
+                    )
+                self.response.write(msg)
+
+            self.response.write("</fieldset>")
 
 
 

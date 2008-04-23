@@ -97,11 +97,11 @@ class PyLucidBasePlugin(object):
                 }
             )
 
-        context = {
-            "plugin_name": self.plugin_name,
-            "version": plugin_config.__version__,
-            "menu_data": menu_data,
-        }
+        self.context["PAGE"].title = "%s (%s)" % (
+            self.plugin_name.replace("_", " "), plugin_config.__version__
+        )
+
+        context = {"menu_data": menu_data,}
 
         # Change the internal_page and use them from "admin_menu" plugin.
         plugin_internal_page = self.internal_page

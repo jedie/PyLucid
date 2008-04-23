@@ -1,0 +1,9 @@
+{% for section, data in menu_data.items %}
+<fieldset><legend>{{ section }}</legend>
+<ul>
+  {% for method in data %}
+  <li><a href="{{ method.link }}">{{ method.description }}</a></li>
+  {% endfor %}
+</ul>
+</fieldset>
+{% endfor %}

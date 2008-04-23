@@ -27,22 +27,9 @@ import cgi, sys, imp, time
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
 class show_internals(PyLucidBasePlugin):
-    def link( self ):
-        return '<a href="%smenu">show_internals</a>' % self.URLs["action"]
-
-    #_______________________________________________________________________
-
-    def lucidTag(self):
-#        url = self.URLs.actionLink("menu")
-        url = "FIXME"
-        self.response.write('<a href="%s">show internals</a>' % url)
 
     def menu(self):
-        self.response.write(
-            "<h4>show internals <small>(%s)</small></h4>" % \
-                                                        __version__.strip("$ ")
-        )
-        self.response.write(self.module_manager.build_menu())
+        self.build_menu()
 
     #_______________________________________________________________________
 
@@ -194,9 +181,9 @@ class show_internals(PyLucidBasePlugin):
     def system_info( self ):
         """ Allgemeine System Informationen """
         self.menu()
-        from PyLucid.buildin_plugins.show_internals.system_info \
+        from PyLucid.plugins_internal.show_internals.system_info \
                                                             import SystemInfo
-        s = SystemInfo(self.request, self.response)
+        s = SystemInfo(self.context, self.response)
         s.display_all()
 
     def colubrid_debug(self):
