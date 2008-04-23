@@ -69,7 +69,11 @@ class EMailSystem(PyLucidBasePlugin):
         if recipient_list == []:
             raise SendMailError(_("No recipient left."))
 
-        sender = self._get_sender()
+        try:
+            sender = self._get_sender()
+        except NoValidSender, e:
+            self.page_msg.red(e)
+            return
 
         try:
             send_mail(
@@ -84,11 +88,11 @@ class EMailSystem(PyLucidBasePlugin):
     def _get_sender(self):
         test_sender = EMailForm({"email": self.request.user.email})
         if not test_sender.is_valid():
-            self.page_msg.red(_(
+            raise NoValidSender(_(
                 "You can't send emails,"
                 " your user account has no valid email address."
             ))
-            return
+
         sender = test_sender.cleaned_data["email"]
         return sender
 
@@ -96,11 +100,18 @@ class EMailSystem(PyLucidBasePlugin):
         """
         form for sending mails to the django members.
         """
+        # Change the global page title:
+        self.context["PAGE"].title = _("EMail system")
+
         if settings.ALLOW_SEND_MAILS != True:
             self.page_msg(_("Sending mails deny in your settings.py!"))
             return
 
-        sender = self._get_sender()
+        try:
+            sender = self._get_sender()
+        except NoValidSender, e:
+            self.page_msg.red(e)
+            return
 
         if self.request.method == 'POST':
             mail_form = MailForm(self.request.POST)
@@ -123,4 +134,8 @@ class EMailSystem(PyLucidBasePlugin):
 
 
 class SendMailError(Exception):
+    pass
+
+class NoValidSender(Exception):
+    """ The current User has no vaild email address in account data. """
     pass
