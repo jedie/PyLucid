@@ -8,6 +8,8 @@
     A middleware to add a human readable, url safe anchor to all html headlines.
     Every anchor is a permalink to the page. So you can easy copy&paste the
     links for several use.
+    
+    more info: http://pylucid.org/_goto/147/Headline-anchor/    
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
