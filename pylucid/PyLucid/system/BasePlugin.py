@@ -39,6 +39,9 @@ from django.utils.safestring import mark_safe
 from PyLucid.tools.content_processors import render_string_template
 from PyLucid.tools.utils import escape
 from PyLucid.system.internal_page import InternalPage, InternalPageNotFound
+from PyLucid.system.plugin_manager import get_plugin_config, debug_plugin_config
+from PyLucid.models import Plugin
+
 
 
 class PyLucidBasePlugin(object):
@@ -55,6 +58,62 @@ class PyLucidBasePlugin(object):
         self.URLs       = context["URLs"]
 
         self.current_page = self.context["PAGE"]
+
+    def build_menu(self):
+        """
+        Build a simple menu for all plugin methods witch have a "menu_section"
+
+        Use the internal page template "admin_menu.plugin_menu" !
+
+        In the plugin config (plugin_manager_data) must be exist some meta
+        information for the menu:
+          "menu_section"     : The upper block name
+          "menu_description" : Link text (optional, otherewise method name used)
+        """
+        plugin = Plugin.objects.get(plugin_name=self.plugin_name)
+        plugin_config = get_plugin_config(self.request,
+            package_name = plugin.package_name,
+            plugin_name = self.plugin_name,
+            dissolve_version_string = True,
+        )
+#        debug_plugin_config(self.page_msg, plugin_config)
+
+        plugin_manager_data = plugin_config.plugin_manager_data
+
+        menu_data = {}
+        for method_name, data in plugin_manager_data.iteritems():
+            if not "menu_section" in data:
+                continue
+
+            menu_section = data["menu_section"]
+
+            if not menu_section in menu_data:
+                menu_data[menu_section] = []
+
+            menu_data[menu_section].append(
+                {
+                    "link": self.URLs.methodLink(method_name),
+                    "description": data.get("menu_description", method_name),
+                }
+            )
+
+        context = {
+            "plugin_name": self.plugin_name,
+            "version": plugin_config.__version__,
+            "menu_data": menu_data,
+        }
+
+        # Change the internal_page and use them from "admin_menu" plugin.
+        plugin_internal_page = self.internal_page
+        self.internal_page = InternalPage(
+            self.context, plugin_name="admin_menu"
+        )
+
+        self._render_template("plugin_menu", context)#, debug=False)
+
+        # change back to the original internal pages from the current plugin.
+        self.internal_page = self.internal_page
+
 
     def _debug_context(self, context, template):
         self.response.write("<fieldset><legend>template debug:</legend>")

@@ -60,6 +60,13 @@ def get_plugin_class(request, package_name, plugin_name):
     plugin_class = getattr(plugin, plugin_name)
     return plugin_class
 
+def debug_plugin_config(page_msg, plugin_config):
+    for item in dir(plugin_config):
+        if item.startswith("_"):
+            continue
+        page_msg("'%s':" % item)
+        page_msg(getattr(plugin_config, item))
+
 def get_plugin_config(request, package_name, plugin_name,
                             dissolve_version_string=False, extra_verbose=False):
     """
@@ -197,9 +204,20 @@ def run(context, response, plugin_name, method_name, url_args=(),
 
 def handle_command(context, response, plugin_name, method_name, url_args):
     """
-    handle a _command url request
+    handle a _command url request.
+    If the plugin doesn't change the page title, we set it here.
     """
+    original_page_title = context["PAGE"].title
+
     output = run(context, response, plugin_name, method_name, url_args)
+
+    if context["PAGE"].title == original_page_title:
+        # The plugin doesn't set a page title.
+        if plugin_name == method_name or method_name == "lucidTag":
+            title = plugin_name
+        else:
+            title = "%s - %s" % (plugin_name, method_name)
+        context["PAGE"].title = title.replace("_", " ")
 
     return output
 

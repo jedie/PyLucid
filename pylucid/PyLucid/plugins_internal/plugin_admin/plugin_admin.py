@@ -65,6 +65,9 @@ class plugin_admin(PyLucidBasePlugin):
         """
         Run the method from a POST and display the menu.
         """
+        # Change the global page title:
+        self.context["PAGE"].title = _("plugin administration")
+
         if self.request.method == 'POST':
             POST = self.request.POST
             if "install" in POST:

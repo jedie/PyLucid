@@ -17,6 +17,7 @@
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
+from django.utils.translation import ugettext as _
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
@@ -42,6 +43,9 @@ class admin_menu(PyLucidBasePlugin):
         """
         render the sub menu
         """
+        # Change the global page title:
+        self.context["PAGE"].title = _("Administration sub menu")
+
         is_admin = self.request.user.is_superuser or self.request.user.is_staff
 
         context = {
