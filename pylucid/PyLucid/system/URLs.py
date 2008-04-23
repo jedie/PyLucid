@@ -10,6 +10,8 @@
 
     The view put a instance in context["URLs"]. The BasePlugin bind the class
     to self. So every plugin can easy access the methods with self.URLs.
+    
+    more info: http://pylucid.org/_goto/62/self-URLs/
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
