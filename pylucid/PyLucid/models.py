@@ -546,69 +546,99 @@ class Plugin(models.Model):
 
 class Preference(models.Model):
     """
-    Preferences for PyLucid system and all Plugins.
+    Stores preferences for the PyLucid system and all Plugins.
+
     Any pickleable Python object can be stored.
     Use a small cache, so the pickle.loads() method would only be used on the
-    first get_value.
+    first get_value access. The default_value used no cache.
+
+    Usage:
+    ---------------------------------------------------------------------------
+    Preference(name = "value name", value = my_python_data_object).save()
+
+    p = Preference.objects.get(name = "value name")
+    print p.value
+    ---------------------------------------------------------------------------
 
     Note:
-        -This model has no editable field. Because it makes no sense to edit
-             the pickled data string ;)
-        -There is a bug in django, if the users try to edit a entry:
-            http://code.djangoproject.com/ticket/3434
+        - This model has no Admin class. Because it makes no sense to edit
+            pickled data strings in the django admin panel ;)
+        - value and default_value are properties
     """
-    def __init__(self, *args, **kwargs):
-        self._cache = {}
-        super(Preference, self).__init__(*args, **kwargs)
+    __cache = {} # Cache the pickleable Python object
+
+    #__________________________________________________________________________
+
+    def _get_cache_key(self):
+        """ returns plugin name + preferences name as a string """
+        return "%s-%s" % (self.plugin, self.name)
+
+    #__________________________________________________________________________
+    # get and set methods for the value property of the entry
+
+    def __get_value(self):
+        """
+        returns the pickleable Python object back. Use the cache first.
+        """
+        cache_key = self._get_cache_key()
+
+        if cache_key in self.__cache:
+            value = self.__cache[cache_key]
+        else:
+            self._value = str(self._value)
+            value = pickle.loads(self._value)
+            self.__cache[cache_key] = value
+        return value
+
+    def __set_value(self, value):
+        """
+        Save a the pickleable Python object into the database. Remember the
+        source object in the cache
+        """
+        cache_key = self._get_cache_key()
+
+        self.__cache[cache_key] = value
+        self._value = pickle.dumps(value)
+
+    #__________________________________________________________________________
+    # get and set methods for the default value property of the entry
+
+    def __get_default_value(self):
+        """
+        returns the default value back
+        """
+        self._default_value = str(self._default_value)
+        default_value = pickle.loads(self._default_value)
+        return default_value
+
+    def __set_default_value(self, default_value):
+        """
+        save a default value
+        """
+        self._default_value = pickle.dumps(default_value)
+
+    #__________________________________________________________________________
+    # The attributes
 
     plugin = models.ForeignKey(
         "Plugin", help_text="The associated plugin",
         null=True, blank=True, editable=False
     )
-    name = models.CharField(max_length=150, db_index=True, editable=False)
+    name = models.CharField(
+        max_length=150, db_index=True, editable=False,
+        help_text="Name of the preferences entry",
+    )
     description = models.TextField(editable=False)
 
-    #__________________________________________________________________________
-    # The value of the entry
-
-    def __get_value(self):
-        if "value" in self._cache:
-            value = self._cache["value"]
-        else:
-            self._value = str(self._value)
-            value = pickle.loads(self._value)
-            self._cache["value"] = value
-        return value
-
-    def __set_value(self, value):
-        self._cache["value"] = value
-        self._value = pickle.dumps(value)
-
-    _value = models.TextField(editable=False, help_text="Pickled Python object")
+    _value = models.TextField(
+        editable=False, help_text="Pickled Python object"
+    )
     value = property(__get_value, __set_value)
 
-    #__________________________________________________________________________
-    # The default value.
-
-    def __get_default_value(self):
-        if "default_value" in self._cache:
-            default_value = self._cache["default_value"]
-        else:
-            self._default_value = str(self._default_value)
-            default_value = pickle.loads(self._default_value)
-            self._cache["default_value"] = default_value
-        return default_value
-
-    def __set_default_value(self, default_value):
-        self._cache["default_value"] = default_value
-        self._default_value = pickle.dumps(default_value)
-
-    _default_value = models.TextField(editable=False,
-        help_text="Pickled Python object"
+    _default_value = models.TextField(
+        editable=False, help_text="Pickled Python object"
     )
     default_value = property(__get_default_value, __set_default_value)
-
-    #__________________________________________________________________________
 
     field_type = models.CharField(max_length=150, editable=False,
         help_text="The data type for this entry (For building a html form)."
@@ -620,10 +650,11 @@ class Preference(models.Model):
         related_name="preferences_lastupdateby",
     )
 
+    #__________________________________________________________________________
+
     def save(self):
         """
-        Save a new page or update changed page data.
-        before save: check some data consistency to prevents inconsistent data.
+        Save a new or update a preference entry
         """
         if self.id == None:
             # A new preferences should be saved.
@@ -637,15 +668,6 @@ class Preference(models.Model):
 #        <Preference: Preference object>
         return "%s '%s'" % (self.plugin, self.name)
 
-    class Admin:
-        list_display = (
-            "plugin", "name", "value", "default_value", "field_type",
-            "description"
-        )
-        list_display_links = ("name",)
-        list_filter = ("plugin",)
-        ordering = ("name",)
-        search_fields = ["name", "value", "default_value", "description"]
 
 
 class Style(models.Model):
