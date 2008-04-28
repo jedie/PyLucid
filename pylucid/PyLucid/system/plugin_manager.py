@@ -34,7 +34,8 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 
 from PyLucid.system.exceptions import *
-from PyLucid.models import Plugin
+from PyLucid.models import Plugin, Preference
+
 
 def _import(request, from_name, object_name):
     """
@@ -273,6 +274,21 @@ def _install_plugin(package_name, plugin_name, plugin_config, active,
         print "OK, ID:", plugin.id
     return plugin
 
+def _insert_preferences(plugin, plugin_config):
+    preferences = getattr(plugin_config, "preferences", None)
+    if preferences == None:
+        # The plugin has no preferences
+        return
+
+    for pref in preferences:
+        print plugin, type(plugin), pref
+        Preference(
+            plugin = plugin,
+            name = pref["name"],
+            description = pref["description"],
+            value = pref["value"],
+        ).save()
+
 def install_plugin(request, package_name, plugin_name, active,
                                                         extra_verbose=False):
     """
@@ -298,6 +314,7 @@ def install_plugin(request, package_name, plugin_name, active,
     plugin = _install_plugin(
         package_name, plugin_name, plugin_config, active, extra_verbose
     )
+    _insert_preferences(plugin, plugin_config)
 
 
 def auto_install_plugins(request, extra_verbose=True):

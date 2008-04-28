@@ -29,30 +29,6 @@ from PyLucid.models import Preference
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.data_eval import data_eval, DataEvalError
 
-SELECT_TEMPLATE = """
-{% for plugin, data in preferences.items %}
-<fieldset><legend>{{ plugin }}</legend>
-<ul>
-  {% for pref in data %}
-  <li><a href="{{ pref.link }}">{{ pref.name }}</a><br />
-  {{ pref.description }}</li>
-  {% endfor %}
-</ul>
-</fieldset>
-{% endfor %}
-"""
-
-EDIT_TEMPLATE = """
-<fieldset><legend>{{ plugin_name }} - {{ pref_name }}</legend>
-<form method="post" action=".">
-{{ form.as_p }}
-<input type="submit" name="save" value="{% trans 'save' %}" />
-<input type="submit" name="validate" value="{% trans 'validate' %}" />
-<input onclick="self.location.href='{{ url_abort }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
-</form>
-</fieldset>
-"""
-
 INTERNAL_NAME = "[system]"
 
 
@@ -64,15 +40,13 @@ class DataEvalField(forms.CharField):
         except DataEvalError, e:
             raise ValidationError(_(u"data eval error: %s") % e)
         else:
-            print "clean", value, type(value)
             return value
 
 class PformatWidget(forms.Textarea):
     def __init__(self, attrs=None):
-        self.attrs={'rows': '15'}
+        self.attrs={'rows': '10'}
 
     def render(self, name, value, attrs=None):
-        print "pformat", repr(value), type(value)
         if not isinstance(value, basestring):
             value = pformat(value)
         return super(PformatWidget, self).render(name, value, attrs=None)
@@ -91,12 +65,14 @@ class preferences(PyLucidBasePlugin):
         if pref.plugin == None:
             return INTERNAL_NAME
         else:
-            pref.plugin
+            return pref.plugin.plugin_name.replace("_", " ")
 
     def select(self):
         """
         Display the sub menu
         """
+        self.context["PAGE"].title = _("Low level preferences editor")
+
         preferences = {}
         for pref in Preference.objects.all():
             plugin_name = self._vebose_plugin_name(pref)
@@ -111,8 +87,7 @@ class preferences(PyLucidBasePlugin):
         context = {
             "preferences": preferences,
         }
-#        self._render_template("sub_menu", context)#, debug=True)
-        self._render_string_template(SELECT_TEMPLATE, context)#, debug=True)
+        self._render_template("select", context)#, debug=True)
 
     def edit(self, url_args=None):
         try:
@@ -144,11 +119,12 @@ class preferences(PyLucidBasePlugin):
         context = {
             "plugin_name": self._vebose_plugin_name(p),
             "pref_name": p.name,
+            "description": p.description,
             "form": form,
             "url_abort": self.URLs.methodLink("select"),
         }
-#        self._render_template("sub_menu", context)#, debug=True)
-        self._render_string_template(EDIT_TEMPLATE, context)#, debug=True)
+        self._render_template("edit_form", context)#, debug=True)
+#        self._render_string_template(EDIT_TEMPLATE, context)#, debug=True)
 
 
 

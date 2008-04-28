@@ -14,6 +14,7 @@ A low level editor for the preferences.
 #_____________________________________________________________________________
 # plugin administration data
 
+
 global_rights = {
     "must_login"    : True,
     "must_admin"    : True,
@@ -23,3 +24,11 @@ plugin_manager_data = {
     "select" : global_rights,
     "edit": global_rights,
 }
+
+preferences = (
+    {
+        "name": "internal name",
+        "description": "The name for the internal preference section",
+        "value": "[system]",
+    },
+)

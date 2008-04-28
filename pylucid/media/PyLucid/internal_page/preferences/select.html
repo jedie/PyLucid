@@ -1,0 +1,10 @@
+{% for plugin, data in preferences.items %}
+<fieldset><legend>{{ plugin }}</legend>
+<ul>
+  {% for pref in data %}
+  <li><a href="{{ pref.link }}">{{ pref.name }}</a><br />
+  {{ pref.description }}</li>
+  {% endfor %}
+</ul>
+</fieldset>
+{% endfor %}
