@@ -361,7 +361,7 @@ PERMALINK_URL_PREFIX = "_goto"
 # static URLs (used in Traceback messages)
 
 # The PyLucid install instrucion page:
-INSTALL_HELP_URL = "http://www.pylucid.org/Documentation/install-PyLucid/"
+INSTALL_HELP_URL = "http://pylucid.org/_goto/107/install-PyLucid/"
 
 
 # How are the DB initial database data stored?
