@@ -5,8 +5,9 @@
     Data eval
     ~~~~~~~~~
 
-    Evaluate a Python expression string, but only Python data type objects
-    (Constants, Dicts, Lists, Tuples)
+    Evaluate a Python expression string, but only Python data type objects:
+        - Constants, Dicts, Lists, Tuples
+        - from datetime: datetime and timedelta
 
     Error class hierarchy:
 
@@ -23,7 +24,7 @@
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
     $Rev$
-    $Author: JensDiemer $
+    $Author$
 
     :copyleft: 2008 by the PyLucid team.
     :license: GNU GPL v3, see LICENSE.txt for more details.
@@ -31,15 +32,25 @@
 
 import compiler
 
+
+# For visitName()
 NAME_MAP = {"None": None, "True": True, "False": False}
+
+# For visitGetattr(): key is the callable name and value is the module name
+ALLOWED_CALLABLES = {
+    "datetime" : "datetime",
+    "timedelta": "datetime",
+}
+
 
 class SafeEval(object):
     """
     walk to compiler AST objects and evaluate only data type objects. If other
     objects found, raised a UnsafeSourceError
-    """    
+    """
     def visit(self, node, **kw):
         node_type = node.__class__.__name__
+#        print "node_type:", node_type
         method_name = "visit" + node_type
         method = getattr(self, method_name, self.unsupported)
         result = method(node, **kw)
@@ -71,15 +82,41 @@ class SafeEval(object):
     def visitConst(self, node, **kw):
         return node.value
 
-    def visitDict(self,node,**kw):
+    def visitDict(self, node, **kw):
         return dict([(self.visit(k),self.visit(v)) for k,v in node.items])
 
-    def visitTuple(self,node, **kw):
+    def visitTuple(self, node, **kw):
         return tuple(self.visit(i) for i in node.nodes)
 
-    def visitList(self,node, **kw):
+    def visitList(self, node, **kw):
         return [self.visit(i) for i in node.nodes]
 
+    #_________________________________________________________________________
+    # ALLOWED_CALLABLES nodes
+
+    def visitGetattr(self, node, **kw):
+        """
+        returns the callable object, if its in ALLOWED_CALLABLES.
+        """
+        attrname = node.attrname
+        try:
+            callable_name = ALLOWED_CALLABLES[attrname]
+        except KeyError:
+            raise UnsafeSourceError("Callable not allowed.", attrname, node)
+
+        module = __import__(callable_name, fromlist=[attrname])
+        callable = getattr(module, attrname)
+
+        return callable
+
+    def visitCallFunc(self, node, **kw):
+        """
+        For e.g. datetime and timedelta
+        """
+        child_node = node.asList()[0]
+        callable = self.visit(child_node)
+        args = [self.visit(i) for i in node.args]
+        return callable(*args)
 
 
 def data_eval(source):
@@ -118,7 +155,7 @@ class UnsafeSourceError(DataEvalError):
         self.lineno = getattr(node, "lineno", None)
 
     def __repr__(self):
-        return "%s in line %d: %s" % (self.error, self.lineno, self.descr)
+        return "%s in line %d: '%s'" % (self.error, self.lineno, self.descr)
 
     __str__ = __repr__
 
@@ -135,11 +172,12 @@ class TestDataEval(unittest.TestCase):
     def assert_eval(self, data):
         data_string = repr(data)
         result = data_eval(data_string)
+        #print data, type(data), result, type(result)
         self.assertEqual(result, data)
 
     def testNone(self):
         self.assert_eval(None)
-    
+
     def testBool(self):
         self.assert_eval(True)
         self.assert_eval(False)
@@ -164,6 +202,12 @@ class TestDataEval(unittest.TestCase):
         self.assert_eval({})
         self.assert_eval({1:2})
         self.assert_eval({"foo":"bar", u"1": None, 1:True, 0:False})
+
+    def testDatetime(self):
+        from datetime import datetime, timedelta
+        self.assert_eval(datetime.now())
+        self.assert_eval({"dt": datetime.now()})
+        self.assert_eval(timedelta(seconds=2))
 
     def testLineendings(self):
         data_eval("\r\n{\r\n'foo'\r\n:\r\n1\r\n}\r\n")
