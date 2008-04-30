@@ -42,7 +42,12 @@ class SystemInfo(PyLucidBasePlugin):
         self.response.write("<h3>PyLucid environ information</h3>")
 
         self.response.write('<fieldset id="system_info">')
-        self.response.write('<legend>PyLucid["URLs"]:</legend>')
+        self.response.write(
+            '<legend>'
+            '<a href="http://www.pylucid.org/_goto/62/self-URLs/">'
+            'PyLucid["URLs"]</a>:'
+            '</legend>'
+        )
         self.response.write("<pre>")
 
         data = [(len(v), k, v) for k,v in self.URLs.items()]
