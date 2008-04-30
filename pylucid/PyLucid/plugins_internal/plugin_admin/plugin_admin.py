@@ -24,14 +24,14 @@ __version__= "$Rev$"
 
 import os
 
-from django import newforms as forms
 from django.utils.translation import ugettext as _
+from django import newforms as forms
 from django.conf import settings
 
-from PyLucid.models import Plugin
-from PyLucid.system.plugin_manager import get_plugin_list, get_plugin_config, \
-                                                                install_plugin
+from PyLucid.system.plugin_manager import get_plugin_list, install_plugin
+from PyLucid.system.plugin_import import get_plugin_config
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
+from PyLucid.models import Plugin
 
 
 class InstallForm(forms.Form):

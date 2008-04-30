@@ -33,69 +33,14 @@ from django.conf import settings
 
 from django.http import HttpResponse, Http404
 
+from PyLucid.db.preferences import Preferences, preference_cache, \
+                                                        PreferenceDoesntExist
+from PyLucid.system.plugin_import import get_plugin_module, get_plugin_config
 from PyLucid.system.exceptions import *
-from PyLucid.models import Plugin, Preference
+from PyLucid.models import Plugin
 
 
-def _import(request, from_name, object_name):
-    """
-    from 'from_name' import 'object_name'
-    """
-    try:
-        return __import__(from_name, {}, {}, [object_name])
-    except (ImportError, SyntaxError), e:
-        if request.user.is_superuser or request.debug:
-            raise
-        raise ImportError, "Can't import %s from %s: %s" % (
-            object_name, from_name, e
-        )
 
-def get_plugin_class(request, package_name, plugin_name):
-    """
-    import the plugin/plugin and returns the class object
-    """
-    plugin = _import(request,
-        from_name = ".".join([package_name, plugin_name, plugin_name]),
-        object_name = plugin_name
-    )
-    plugin_class = getattr(plugin, plugin_name)
-    return plugin_class
-
-def debug_plugin_config(page_msg, plugin_config):
-    for item in dir(plugin_config):
-        if item.startswith("_"):
-            continue
-        page_msg("'%s':" % item)
-        page_msg(getattr(plugin_config, item))
-
-def get_plugin_config(request, package_name, plugin_name,
-                            dissolve_version_string=False, extra_verbose=False):
-    """
-    imports the plugin and the config plugin and returns a merge config-object
-
-    dissolve_version_string == True -> get the version string (__version__)
-        from the plugin and put it into the config object
-    """
-    config_name = "%s_cfg" % plugin_name
-
-    def get_plugin(object_name):
-        from_name = ".".join([package_name, plugin_name, object_name])
-        if extra_verbose:
-            print "from %s import %s" % (from_name, object_name)
-        return _import(request, from_name, object_name)
-
-    config_plugin = get_plugin(config_name)
-
-    if dissolve_version_string:
-        plugin_plugin = get_plugin(plugin_name)
-
-        plugin_version = getattr(plugin_plugin, "__version__", None)
-        if plugin_version:
-            # Cleanup a SVN Revision Number
-            plugin_version = plugin_version.strip("$ ")
-        config_plugin.__version__ = plugin_version
-
-    return config_plugin
 
 def _run(context, local_response, plugin_name, method_name, url_args,
                                                                 method_kwargs):
@@ -166,7 +111,26 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     URLs = context["URLs"]
     URLs.current_plugin = plugin_name
 
-    plugin_class=get_plugin_class(request, plugin.package_name, plugin_name)
+    plugin_module = get_plugin_module(request, plugin.package_name, plugin_name)
+
+    if plugin_name in preference_cache:
+        context.preferences = preference_cache[plugin_name]
+    else:
+        if hasattr(plugin_module, "PreferencesForm"):
+            # Get the preferences dict data from the database
+            try:
+                p = Preferences()
+                p.set_plugin(plugin)
+                p.load_from_db()
+                context.preferences = p.data_dict
+            except PreferenceDoesntExist, e:
+                error("Can't get preferences: %s" % e)
+                return
+        else:
+            # plugin has no preferences
+            context.preferences = None
+
+    plugin_class = getattr(plugin_module, plugin_name)
     class_instance = plugin_class(context, local_response)
     unbound_method = getattr(class_instance, method_name)
 
@@ -274,20 +238,23 @@ def _install_plugin(package_name, plugin_name, plugin_config, active,
         print "OK, ID:", plugin.id
     return plugin
 
-def _insert_preferences(plugin, plugin_config):
-    preferences = getattr(plugin_config, "preferences", None)
-    if preferences == None:
-        # The plugin has no preferences
+
+def _insert_preferences(request, plugin, package_name, plugin_name):
+    """
+    insertet the initial values from the newforms preferences class into the
+    database.
+    """
+    plugin_module = get_plugin_module(request, package_name, plugin_name)
+
+    pref_form = getattr(plugin_module, "PreferencesForm", None)
+    if pref_form == None:
+        # Has no preferences newform class
         return
 
-    for pref in preferences:
-        print plugin, type(plugin), pref
-        Preference(
-            plugin = plugin,
-            name = pref["name"],
-            description = pref["description"],
-            value = pref["value"],
-        ).save()
+    p = Preferences()
+    p.set_plugin(plugin)
+    p.create_initial(pref_form)
+
 
 def install_plugin(request, package_name, plugin_name, active,
                                                         extra_verbose=False):
@@ -314,7 +281,7 @@ def install_plugin(request, package_name, plugin_name, active,
     plugin = _install_plugin(
         package_name, plugin_name, plugin_config, active, extra_verbose
     )
-    _insert_preferences(plugin, plugin_config)
+    _insert_preferences(request, plugin, package_name, plugin_name)
 
 
 def auto_install_plugins(request, extra_verbose=True):

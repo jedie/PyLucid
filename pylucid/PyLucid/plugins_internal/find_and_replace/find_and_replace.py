@@ -40,6 +40,16 @@ from PyLucid.tools.Diff import diff_lines
 MIN_TERM_LEN = 2
 MAX_TERM_LEN = 150
 
+class PreferencesForm(forms.Form):
+    min_term_len = forms.IntegerField(
+        help_text="Min length of a search term",
+        initial=2, min_value=1
+    )
+    max_term_len = forms.IntegerField(
+        help_text="Max length of a search term",
+        initial=150, min_value=1, max_value=500
+    )
+
 
 # for FindReplaceForm ChoiceField
 TYPES = (
@@ -68,6 +78,8 @@ class FindReplaceForm(forms.Form):
 class find_and_replace(PyLucidBasePlugin):
 
     def find_and_replace(self):
+        self.page_msg("Preferences:", self.preferences)
+
         context = {}
         if self.request.method == 'POST':
             form = FindReplaceForm(self.request.POST)

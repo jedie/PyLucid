@@ -39,7 +39,7 @@ from django.utils.safestring import mark_safe
 from PyLucid.tools.content_processors import render_string_template
 from PyLucid.tools.utils import escape
 from PyLucid.system.internal_page import InternalPage, InternalPageNotFound
-from PyLucid.system.plugin_manager import get_plugin_config, debug_plugin_config
+from PyLucid.system.plugin_import import get_plugin_config, debug_plugin_config
 from PyLucid.models import Plugin
 
 
@@ -58,6 +58,7 @@ class PyLucidBasePlugin(object):
         self.URLs       = context["URLs"]
 
         self.current_page = self.context["PAGE"]
+        self.preferences = self.context.preferences
 
     def build_menu(self):
         """

@@ -48,6 +48,28 @@ TEXT_CUTOUT_LEN = 50
 MAX_CUTOUTS_LINES = 5
 
 
+class PreferencesForm(forms.Form):
+    min_term_len = forms.IntegerField(
+        help_text="Min length of a search term",
+        initial=3, min_value=1
+    )
+    max_term_len = forms.IntegerField(
+        help_text="Max length of a search term",
+        initial=50, min_value=1, max_value=200
+    )
+    max_results = forms.IntegerField(
+        help_text="Number of the paged for the result page",
+        initial=20, min_value=1, max_value=200
+    )
+    text_cutout_len = forms.IntegerField(
+        help_text="The length of the text-hit-cutouts",
+        initial=50, min_value=1, max_value=200
+    )
+    text_cutout_lines = forms.IntegerField(
+        help_text="Max. cutout lines for every search term",
+        initial=5, min_value=1, max_value=20
+    )
+
 
 class SearchForm(forms.Form):
     # TODO: min und max should be saved in the prefereces.
@@ -62,6 +84,7 @@ class search(PyLucidBasePlugin):
         """
         Insert a empty search form into the page.
         """
+        self.page_msg("Preferences:", self.preferences)
         search_form = SearchForm()
         context = {
             "url": self.URLs.methodLink("do_search"),

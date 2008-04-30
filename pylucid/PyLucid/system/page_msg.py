@@ -53,7 +53,7 @@ class PageMessages(object):
             self.messages = []
 
         request = context["request"]
-        self.debug_mode = request.debug
+        self.debug_mode = getattr(request, "debug", False)
 
         self._charset = settings.DEFAULT_CHARSET
 

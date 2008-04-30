@@ -541,10 +541,49 @@ class Plugin(models.Model):
         list_filter = ("author",)
 
     def __unicode__(self):
-        return self.plugin_name.replace("_"," ")
+        txt = u"%s - %s" % (self.package_name, self.plugin_name)
+        return txt.replace(u"_",u" ")
 
+#______________________________________________________________________________
+# Preference
 
 class Preference(models.Model):
+    """
+    Stores preferences
+
+    Any pickleable Python object can be stored.
+
+    Use a small cache, so the pickle.loads() method would only be used on the
+    first access.
+
+    Note:
+        - This model has no Admin class. Because it makes no sense to edit
+            pickled data strings in the django admin panel ;)
+    """
+    plugin = models.ForeignKey("Plugin", help_text="The associated plugin")
+    repr_string = models.TextField(
+        help_text="printable representation of the newform data dictionary"
+    )
+
+    lastupdatetime = models.DateTimeField(auto_now=True, editable=False)
+    lastupdateby = models.ForeignKey(
+        User, null=True, blank=True, editable=False,
+    )
+
+    #__________________________________________________________________________
+
+    def __unicode__(self):
+        return u"Preference object for '%s'" % self.plugin
+
+    class Admin:
+        pass
+
+    class Meta:
+        # Use a new table
+        db_table = u'PyLucid_preference2'
+
+
+class PreferenceOld(models.Model):
     """
     Stores preferences for the PyLucid system and all Plugins.
 
@@ -647,7 +686,6 @@ class Preference(models.Model):
     lastupdatetime = models.DateTimeField(auto_now=True)
     lastupdateby = models.ForeignKey(
         User, null=True, blank=True, editable=False,
-        related_name="preferences_lastupdateby",
     )
 
     #__________________________________________________________________________
@@ -668,6 +706,12 @@ class Preference(models.Model):
 #        <Preference: Preference object>
         return "%s '%s'" % (self.plugin, self.name)
 
+    class Meta:
+        # Use the old table
+        db_table = u'PyLucid_preference'
+
+
+#______________________________________________________________________________
 
 
 class Style(models.Model):

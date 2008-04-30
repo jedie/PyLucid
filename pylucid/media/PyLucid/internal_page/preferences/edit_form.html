@@ -1,15 +1,16 @@
-<fieldset><legend>{{ plugin_name }} - {{ pref_name }}</legend>
-<p>{{ description }}</p>
+<fieldset><legend>{{ plugin_name }}</legend>
 <form method="post" action=".">
-{{ form.as_p }}
+<ul id="input_fields">
+    {% for field in form %}
+        <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+        <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+        {{ field }}
+        <span class="field_help_text">{{ field.help_text }}</span>
+        {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
+    </li>
+    {% endfor %}
+</ul>
 <input type="submit" name="save" value="{% trans 'save' %}" />
-<input type="submit" name="validate" value="{% trans 'validate' %}" />
 <input onclick="self.location.href='{{ url_abort }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
 </form>
-<p><strong>Note:</strong><br />
-{% blocktrans %}
-Validate checks only, if the input is a valid Python expression string.<br />
-It not examined if the data are logically correct.
-{% endblocktrans %}
-</p>
 </fieldset>

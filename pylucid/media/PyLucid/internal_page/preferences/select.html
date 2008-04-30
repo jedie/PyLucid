@@ -1,10 +1,10 @@
-{% for plugin, data in preferences.items %}
-<fieldset><legend>{{ plugin }}</legend>
+<fieldset><legend>select for edit</legend>
 <ul>
-  {% for pref in data %}
-  <li><a href="{{ pref.link }}">{{ pref.name }}</a><br />
-  {{ pref.description }}</li>
-  {% endfor %}
-</ul>
-</fieldset>
+{% for item in preferences %}
+  <li><a href="{{ item.edit_link }}">{{ item.plugin_name }}</a> - {{ item.plugin_description }}</li>
 {% endfor %}
+</ul>
+<small>
+({% trans 'Low level edit in the' %} <a href="{{ admin_link }}" onclick="OpenInWindow(this); return false">{% trans 'django admin panel' %}</a>.)
+</small>
+</fieldset>
