@@ -8,9 +8,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: 2007-02-02 16:37:31 +0100 (Fr, 02 Feb 2007) $
-    $Rev: 824 $
-    $Author: JensDiemer $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2008 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
