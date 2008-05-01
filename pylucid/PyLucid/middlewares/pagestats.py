@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 
 """
     PyLucid page statistics
@@ -78,8 +78,32 @@ class PageStatsMiddleware(object):
             except:
                 return response
 
+#        content = self.debug_sql_queries(content)
+
         # insert the page statistic
         new_content = content.replace(TAG, stat_info)
         response.content = new_content
 
         return response
+
+    def debug_sql_queries(self, content):
+        show_only = ("PyLucid_plugin", "PyLucid_preference2")
+        sql_info = "<h2>Debug SQL queries:</h2>"
+        if show_only:
+            sql_info += "Show only: %s" % ", ".join(show_only)
+        sql_info += "<pre>"
+        for q in connection.queries:
+            sql = q['sql']
+            if show_only:
+                table_name = sql.split(' FROM "')[1].split('"', 1)[0]
+                if table_name not in show_only:
+                    continue
+
+            time = float(q['time'])
+
+            sql = sql.replace(' FROM "', '\nFROM "')
+            sql = sql.replace(' WHERE "', '\nWHERE "')
+            sql_info += "\n%s\n%s\n" % (time, sql)
+        sql_info += "</pre></body>"
+        content = content.replace("</body>", sql_info)
+        return content
