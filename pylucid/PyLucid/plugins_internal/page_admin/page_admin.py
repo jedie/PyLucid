@@ -203,6 +203,8 @@ class page_admin(PyLucidBasePlugin):
         try:
             page_instance.save()
         except Exception, msg:
+            if self.request.debug:
+                raise
             self.page_msg("Can't save the page data:", msg)
             return
 
