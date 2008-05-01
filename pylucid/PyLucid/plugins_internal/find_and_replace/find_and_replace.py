@@ -28,17 +28,15 @@ __version__= "$Rev$"
 import time
 
 from django import newforms as forms
-from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
-from PyLucid.models import Page, Template, Style
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.tools.utils import escape
+from PyLucid.models import Page, Template, Style
+#from PyLucid.db.preferences import get_pref_dict
 from PyLucid.tools.Diff import diff_lines
+from PyLucid.tools.utils import escape
 
-# How min/max long must a search term be?
-MIN_TERM_LEN = 2
-MAX_TERM_LEN = 150
 
 class PreferencesForm(forms.Form):
     min_term_len = forms.IntegerField(
@@ -58,13 +56,25 @@ TYPES = (
     ("stylesheets", "stylesheets"),
 )
 
+
+# We used preferences values in a newform. We need these values here.
+try:
+    preferences = Plugin.objects.get_preferences(__file__)
+except Plugin.DoesNotExist, e:
+    # in _install section?
+    pass
+else:
+    min_term_len = preferences["min_term_len"]
+    max_term_len = preferences["max_term_len"]
+
+
 class FindReplaceForm(forms.Form):
     # TODO: min und max should be saved in the prefereces.
     find_string = forms.CharField(
-        min_length = MIN_TERM_LEN, max_length = MAX_TERM_LEN,
+        min_length = min_term_len, max_length = max_term_len,
     )
     replace_string = forms.CharField(
-        min_length = MIN_TERM_LEN, max_length = MAX_TERM_LEN,
+        min_length = min_term_len, max_length = max_term_len,
     )
     type = forms.ChoiceField(
         choices=TYPES,
@@ -78,8 +88,6 @@ class FindReplaceForm(forms.Form):
 class find_and_replace(PyLucidBasePlugin):
 
     def find_and_replace(self):
-        self.page_msg("Preferences:", self.preferences)
-
         context = {}
         if self.request.method == 'POST':
             form = FindReplaceForm(self.request.POST)

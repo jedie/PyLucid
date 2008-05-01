@@ -59,4 +59,4 @@ class system_settings(PyLucidBasePlugin):
         """
         Insert a empty search form into the page.
         """
-        self.page_msg("Preferences:", self.preferences)
+        self.page_msg("Preferences:", preferences)

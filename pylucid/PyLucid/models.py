@@ -18,6 +18,7 @@
 """
 
 import os, posixpath, pickle
+from pprint import pformat
 
 from django.conf import settings
 from django.db import models
@@ -25,9 +26,13 @@ from django.core.cache import cache
 from django.contrib.auth.models import User, Group, UNUSABLE_PASSWORD
 from django.utils.translation import ugettext as _
 
+from PyLucid.tools.newforms_utils import get_init_dict, setup_help_text
+from PyLucid.tools.data_eval import data_eval, DataEvalError
 from PyLucid.tools.shortcuts import getUniqueShortcut
 from PyLucid.tools import crypt
 from PyLucid.system.utils import get_uri_base
+from PyLucid.system.plugin_import import get_plugin_module
+
 #from PyLucid.db.cache import delete_page_cache
 
 
@@ -174,12 +179,12 @@ class Page(models.Model):
         The default page must have some settings.
         """
         try:
-            entry = Preference.objects.get(name="index page")
-        except Preference.DoesNotExist:
+            preferences = Plugin.objects.get_preferences("system_settings")
+        except Plugin.DoesNotExist, e:
             # Update old PyLucid installation?
             return
 
-        index_page_id = entry.value
+        index_page_id = preferences["index_page"]
 
         if int(self.id) != int(index_page_id):
             # This page is not the default index page
@@ -223,12 +228,15 @@ class Page(models.Model):
         -make shortcut unique
         """
         try:
-            auto_shortcuts = Preference.objects.get(name='auto shortcuts').value
-        except Preference.DoesNotExist:
+            preferences = Plugin.objects.get_preferences("system_settings")
+        except Plugin.DoesNotExist, e:
             # Update old PyLucid installation?
             auto_shortcuts = True
+        else:
+            print ">>>", preferences
+            auto_shortcuts = preferences["auto_shortcuts"]
 
-        if auto_shortcuts in (1, True, "1"):
+        if auto_shortcuts:
             # We should rebuild the shortcut
             self.shortcut = self.name
 
@@ -484,24 +492,44 @@ User.set_password = set_password
 #____________________________________________________________________
 
 
-#class Markup(models.Model):
-#    # Obsolete!
-#    pass
-
-#class PagesInternal(models.Model):
-#    # Obsolete!
-#    pass
+class Preference(models.Model):
+    # Obsolete!
+    pass
 
 #____________________________________________________________________
 
+preference_cache = {}
+
+class PluginManager(models.Manager):
+    def get_preferences(self, plugin_name):
+        """
+        returns the preference data dict, use the cache
+        """
+        # Get the name of the plugin, if __file__ used
+        plugin_name = os.path.splitext(os.path.basename(plugin_name))[0]
+        print "plugin name: '%s'" % plugin_name
+
+        if plugin_name in preference_cache:
+            return preference_cache[plugin_name]
+
+        plugin = self.get(plugin_name = plugin_name)
+        return plugin.get_preferences()
+
+
 class Plugin(models.Model):
-    package_name = models.CharField(max_length=255)
+    objects = PluginManager()
+
     plugin_name = models.CharField(max_length=90, unique=True)
-    version = models.CharField(null=True, blank=True, max_length=45)
+
+    package_name = models.CharField(max_length=255)
     author = models.CharField(blank=True, max_length=150)
     url = models.CharField(blank=True, max_length=255)
     description = models.CharField(blank=True, max_length=255)
-    long_description = models.TextField(blank=True)
+
+    pref_data_string = models.TextField(
+        null=True, blank=True,
+        help_text="printable representation of the newform data dictionary"
+    )
     can_deinstall = models.BooleanField(default=True,
         help_text=(
             "If false and/or not set:"
@@ -511,6 +539,42 @@ class Plugin(models.Model):
     active = models.BooleanField(default=False,
         help_text="Is this plugin is enabled and useable?"
     )
+
+    def init_pref_form(self, pref_form):
+        """
+        Set self.pref_data_string from the given newforms form and his initial
+        values.
+        """
+        init_dict = get_init_dict(pref_form)
+        preference_cache[self.plugin_name] = init_dict
+        self.set_pref_data_string(init_dict)
+
+    def set_pref_data_string(self, data_dict):
+        """
+        set the dict via pformat
+        """
+        preference_cache[self.plugin_name] = data_dict
+        self.pref_data_string = pformat(data_dict)
+
+    def get_preferences(self):
+        """
+        evaluate the pformat string into a dict and return it.
+        """
+        data_dict = data_eval(self.pref_data_string)
+        preference_cache[self.plugin_name] = data_dict
+        return data_dict
+
+    def get_pref_form(self, debug):
+        """
+        Get the 'PreferencesForm' newform class from the plugin modul, insert
+        initial information into the help text and return the form.
+        """
+        plugin_module = get_plugin_module(
+            self.package_name, self.plugin_name, debug
+        )
+        form = getattr(plugin_module, "PreferencesForm")
+        setup_help_text(form)
+        return form
 
     def save(self):
         """
@@ -534,181 +598,15 @@ class Plugin(models.Model):
 
     class Admin:
         list_display = (
-            "active", "plugin_name", "description", "version", "can_deinstall"
+            "active", "plugin_name", "description", "can_deinstall"
         )
         list_display_links = ("plugin_name",)
         ordering = ('package_name', 'plugin_name')
-        list_filter = ("author",)
+        list_filter = ("author","package_name", "can_deinstall")
 
     def __unicode__(self):
         txt = u"%s - %s" % (self.package_name, self.plugin_name)
         return txt.replace(u"_",u" ")
-
-#______________________________________________________________________________
-# Preference
-
-class Preference(models.Model):
-    """
-    Stores preferences
-
-    Any pickleable Python object can be stored.
-
-    Use a small cache, so the pickle.loads() method would only be used on the
-    first access.
-
-    Note:
-        - This model has no Admin class. Because it makes no sense to edit
-            pickled data strings in the django admin panel ;)
-    """
-    plugin = models.ForeignKey("Plugin", help_text="The associated plugin")
-    repr_string = models.TextField(
-        help_text="printable representation of the newform data dictionary"
-    )
-
-    lastupdatetime = models.DateTimeField(auto_now=True, editable=False)
-    lastupdateby = models.ForeignKey(
-        User, null=True, blank=True, editable=False,
-    )
-
-    #__________________________________________________________________________
-
-    def __unicode__(self):
-        return u"Preference object for '%s'" % self.plugin
-
-    class Admin:
-        pass
-
-    class Meta:
-        # Use a new table
-        db_table = u'PyLucid_preference2'
-
-
-class PreferenceOld(models.Model):
-    """
-    Stores preferences for the PyLucid system and all Plugins.
-
-    Any pickleable Python object can be stored.
-    Use a small cache, so the pickle.loads() method would only be used on the
-    first get_value access. The default_value used no cache.
-
-    Usage:
-    ---------------------------------------------------------------------------
-    Preference(name = "value name", value = my_python_data_object).save()
-
-    p = Preference.objects.get(name = "value name")
-    print p.value
-    ---------------------------------------------------------------------------
-
-    Note:
-        - This model has no Admin class. Because it makes no sense to edit
-            pickled data strings in the django admin panel ;)
-        - value and default_value are properties
-    """
-    __cache = {} # Cache the pickleable Python object
-
-    #__________________________________________________________________________
-
-    def _get_cache_key(self):
-        """ returns plugin name + preferences name as a string """
-        return "%s-%s" % (self.plugin, self.name)
-
-    #__________________________________________________________________________
-    # get and set methods for the value property of the entry
-
-    def __get_value(self):
-        """
-        returns the pickleable Python object back. Use the cache first.
-        """
-        cache_key = self._get_cache_key()
-
-        if cache_key in self.__cache:
-            value = self.__cache[cache_key]
-        else:
-            self._value = str(self._value)
-            value = pickle.loads(self._value)
-            self.__cache[cache_key] = value
-        return value
-
-    def __set_value(self, value):
-        """
-        Save a the pickleable Python object into the database. Remember the
-        source object in the cache
-        """
-        cache_key = self._get_cache_key()
-
-        self.__cache[cache_key] = value
-        self._value = pickle.dumps(value)
-
-    #__________________________________________________________________________
-    # get and set methods for the default value property of the entry
-
-    def __get_default_value(self):
-        """
-        returns the default value back
-        """
-        self._default_value = str(self._default_value)
-        default_value = pickle.loads(self._default_value)
-        return default_value
-
-    def __set_default_value(self, default_value):
-        """
-        save a default value
-        """
-        self._default_value = pickle.dumps(default_value)
-
-    #__________________________________________________________________________
-    # The attributes
-
-    plugin = models.ForeignKey(
-        "Plugin", help_text="The associated plugin",
-        null=True, blank=True, editable=False
-    )
-    name = models.CharField(
-        max_length=150, db_index=True, editable=False,
-        help_text="Name of the preferences entry",
-    )
-    description = models.TextField(editable=False)
-
-    _value = models.TextField(
-        editable=False, help_text="Pickled Python object"
-    )
-    value = property(__get_value, __set_value)
-
-    _default_value = models.TextField(
-        editable=False, help_text="Pickled Python object"
-    )
-    default_value = property(__get_default_value, __set_default_value)
-
-    field_type = models.CharField(max_length=150, editable=False,
-        help_text="The data type for this entry (For building a html form)."
-    )
-
-    lastupdatetime = models.DateTimeField(auto_now=True)
-    lastupdateby = models.ForeignKey(
-        User, null=True, blank=True, editable=False,
-    )
-
-    #__________________________________________________________________________
-
-    def save(self):
-        """
-        Save a new or update a preference entry
-        """
-        if self.id == None:
-            # A new preferences should be saved.
-            if self._default_value == "":
-                # No default value given in the __init__ -> Use current value
-                self._default_value = self._value
-
-        super(Preference, self).save() # Call the "real" save() method
-
-    def __unicode__(self):
-#        <Preference: Preference object>
-        return "%s '%s'" % (self.plugin, self.name)
-
-    class Meta:
-        # Use the old table
-        db_table = u'PyLucid_preference'
 
 
 #______________________________________________________________________________

@@ -25,3 +25,14 @@ plugin_manager_data = {
         "must_admin"    : True,
     },
 }
+
+preferences = (
+    {
+        "name": "term len limit",
+        "description": "How min/max long must a search term be?",
+        "value": {
+            "min term len": 1,
+            "max term len": 255,
+        }
+    },
+)

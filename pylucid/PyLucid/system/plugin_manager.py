@@ -33,8 +33,7 @@ from django.conf import settings
 
 from django.http import HttpResponse, Http404
 
-from PyLucid.db.preferences import Preferences, preference_cache, \
-                                                        PreferenceDoesntExist
+#from PyLucid.db.preferences import Preferences, preference_cache, PreferenceDoesntExist
 from PyLucid.system.plugin_import import get_plugin_module, get_plugin_config
 from PyLucid.system.exceptions import *
 from PyLucid.models import Plugin
@@ -111,26 +110,11 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     URLs = context["URLs"]
     URLs.current_plugin = plugin_name
 
-    plugin_module = get_plugin_module(request, plugin.package_name, plugin_name)
-
-    if plugin_name in preference_cache:
-        context.preferences = preference_cache[plugin_name]
-    else:
-        if hasattr(plugin_module, "PreferencesForm"):
-            # Get the preferences dict data from the database
-            try:
-                p = Preferences()
-                p.set_plugin(plugin)
-                p.load_from_db()
-                context.preferences = p.data_dict
-            except PreferenceDoesntExist, e:
-                error("Can't get preferences: %s" % e)
-                return
-        else:
-            # plugin has no preferences
-            context.preferences = None
+    debug = request.user.is_superuser or request.debug
+    plugin_module = get_plugin_module(plugin.package_name, plugin_name, debug)
 
     plugin_class = getattr(plugin_module, plugin_name)
+#    print plugin_class, type(plugin_class)
     class_instance = plugin_class(context, local_response)
     unbound_method = getattr(class_instance, method_name)
 
@@ -215,45 +199,36 @@ def get_plugin_list(plugin_path):
 
 
 
-def _install_plugin(package_name, plugin_name, plugin_config, active,
+def _install_plugin(request, package_name, plugin_name, plugin_config, active,
                                                                 extra_verbose):
     """
     insert a plugin/plugin in the 'plugin' table
     """
     if extra_verbose:
         print "Install %s.%s..." % (package_name, plugin_name),
+
     plugin = Plugin.objects.create(
         package_name = package_name,
         plugin_name = plugin_name,
-        version = plugin_config.__version__,
         author = plugin_config.__author__,
         url = plugin_config.__url__,
         description = plugin_config.__description__,
-        long_description = plugin_config.__long_description__,
         can_deinstall = getattr(plugin_config, "__can_deinstall__", True),
         active = active,
     )
+    debug = request.user.is_superuser or request.debug
+    plugin_module = get_plugin_module(package_name, plugin_name, debug)
+    pref_form = getattr(plugin_module, "PreferencesForm", None)
+    if pref_form:
+        # plugin module has a preferences newform class
+        plugin.init_pref_form(pref_form)
+
+
     plugin.save()
     if extra_verbose:
         print "OK, ID:", plugin.id
     return plugin
 
-
-def _insert_preferences(request, plugin, package_name, plugin_name):
-    """
-    insertet the initial values from the newforms preferences class into the
-    database.
-    """
-    plugin_module = get_plugin_module(request, package_name, plugin_name)
-
-    pref_form = getattr(plugin_module, "PreferencesForm", None)
-    if pref_form == None:
-        # Has no preferences newform class
-        return
-
-    p = Preferences()
-    p.set_plugin(plugin)
-    p.create_initial(pref_form)
 
 
 def install_plugin(request, package_name, plugin_name, active,
@@ -279,9 +254,9 @@ def install_plugin(request, package_name, plugin_name, active,
             )
 
     plugin = _install_plugin(
-        package_name, plugin_name, plugin_config, active, extra_verbose
+        request, package_name, plugin_name,
+        plugin_config, active, extra_verbose
     )
-    _insert_preferences(request, plugin, package_name, plugin_name)
 
 
 def auto_install_plugins(request, extra_verbose=True):
@@ -313,7 +288,9 @@ def _auto_install_plugins(request, path_cfg, extra_verbose):
                 active=True, extra_verbose=extra_verbose
             )
         except Exception, e:
-            print "Error:", e
+            print "Error:"
+            import traceback
+            traceback.print_exc()
             continue
 
         if extra_verbose:

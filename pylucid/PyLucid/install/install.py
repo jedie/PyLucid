@@ -30,6 +30,8 @@ class Sync_DB(BaseInstall):
     # Drop this tables before syncdb:
     DROP_TABLES = (
         "PyLucid_pagearchiv",
+        "PyLucid_plugin",
+        "PyLucid_preference",
         "PyLucid_preference2",
     )
 

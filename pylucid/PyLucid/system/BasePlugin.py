@@ -58,7 +58,6 @@ class PyLucidBasePlugin(object):
         self.URLs       = context["URLs"]
 
         self.current_page = self.context["PAGE"]
-        self.preferences = self.context.preferences
 
     def build_menu(self):
         """

@@ -26,26 +26,12 @@ __version__= "$Rev$"
 import time, cgi
 
 from django import newforms as forms
-from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
-from PyLucid.models import Page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.utils import escape
-
-
-# How min/max long must a search term be?
-MIN_TERM_LEN = 3
-MAX_TERM_LEN = 50
-
-# Number of the paged for the result page:
-MAX_RESULTS = 20
-
-# The length of the text-hit-cutouts:
-TEXT_CUTOUT_LEN = 50
-
-# Max. cutout lines for every search term:
-MAX_CUTOUTS_LINES = 5
+from PyLucid.models import Page, Plugin
 
 
 class PreferencesForm(forms.Form):
@@ -70,12 +56,18 @@ class PreferencesForm(forms.Form):
         initial=5, min_value=1, max_value=20
     )
 
-
-class SearchForm(forms.Form):
-    # TODO: min und max should be saved in the prefereces.
-    search_string = forms.CharField(
-        min_length = MIN_TERM_LEN, max_length = MAX_TERM_LEN
-    )
+# We used preferences values in a newform. We need these values here.
+try:
+    preferences = Plugin.objects.get_preferences(__file__)
+except Plugin.DoesNotExist, e:
+    # in _install section?
+    pass
+else:
+    class SearchForm(forms.Form):
+        search_string = forms.CharField(
+            min_length = preferences["min_term_len"],
+            max_length = preferences["max_term_len"],
+        )
 
 
 class search(PyLucidBasePlugin):
@@ -84,7 +76,6 @@ class search(PyLucidBasePlugin):
         """
         Insert a empty search form into the page.
         """
-        self.page_msg("Preferences:", self.preferences)
         search_form = SearchForm()
         context = {
             "url": self.URLs.methodLink("do_search"),
@@ -137,7 +128,7 @@ class search(PyLucidBasePlugin):
         raw_search_strings = search_string.split(" ")
         search_strings = []
         for term in raw_search_strings:
-            if len(term)<MIN_TERM_LEN:
+            if len(term)<preferences["min_term_len"]:
                 self.page_msg("Ignore '%s' (too small)" % cgi.escape(term))
             else:
                 search_strings.append(term)
@@ -177,7 +168,7 @@ class search(PyLucidBasePlugin):
         results.sort(reverse=True)
 
         # Use only the first pages:
-        results = results[:MAX_RESULTS]
+        results = results[:preferences["max_results"]]
 
         # Build a dict, for the template
         results = [{"score": p[0], "page": p[1]} for p in results]
@@ -190,13 +181,16 @@ class search(PyLucidBasePlugin):
         cut the hits in the page content out. So the template can display
         the lines.
         """
+        text_cutout_len = preferences["text_cutout_len"]
+        max_cutout_lines = preferences["max_cutout_lines"]
+
         for result in results:
             result["cutouts"] = []
             content = result["page"].content
 
             for term in search_strings:
                 start = 0
-                for _ in xrange(MAX_CUTOUTS_LINES):
+                for _ in xrange(max_cutout_lines):
                     try:
                         index = content.index(term, start)
                     except ValueError:
@@ -205,10 +199,12 @@ class search(PyLucidBasePlugin):
 
                     start = index+1
 
-                    if index<TEXT_CUTOUT_LEN:
-                        txt = content[:TEXT_CUTOUT_LEN]
+                    if index<text_cutout_len:
+                        txt = content[:text_cutout_len]
                     else:
-                        txt = content[index-TEXT_CUTOUT_LEN:index+TEXT_CUTOUT_LEN]
+                        start = index-text_cutout_len
+                        end = index+text_cutout_len
+                        txt = content[start:end]
 
                     txt = escape(txt)
                     txt = txt.replace(term, "<strong>%s</strong>" % term)

@@ -20,33 +20,29 @@
 """
 
 
-def _import(request, from_name, object_name):
+def _import(from_name, object_name, debug):
     """
     from 'from_name' import 'object_name'
     """
     try:
         return __import__(from_name, {}, {}, [object_name])
     except (ImportError, SyntaxError), e:
-        if request.user.is_superuser or request.debug:
+        if debug:
             raise
         raise ImportError, "Can't import %s from %s: %s" % (
             object_name, from_name, e
         )
 
-def get_plugin_module(request, package_name, plugin_name):
-    plugin_module = _import(request,
+def get_plugin_module(package_name, plugin_name, debug):
+    plugin_module = _import(
         from_name = ".".join([package_name, plugin_name, plugin_name]),
-        object_name = plugin_name
+        object_name = plugin_name,
+        debug = debug,
     )
     return plugin_module
 
-#def get_plugin_class(request, package_name, plugin_name):
-#    """
-#    import the plugin/plugin and returns the class object
-#    """
-#    plugin_module = get_plugin_module(request, package_name, plugin_name)
-#    plugin_class = getattr(plugin_module, plugin_name)
-#    return plugin_class
+#    debug = request.user.is_superuser or request.debug
+
 
 def debug_plugin_config(page_msg, plugin_config):
     for item in dir(plugin_config):
@@ -64,12 +60,13 @@ def get_plugin_config(request, package_name, plugin_name,
         from the plugin and put it into the config object
     """
     config_name = "%s_cfg" % plugin_name
+    debug = request.user.is_superuser or request.debug
 
     def get_plugin(object_name):
         from_name = ".".join([package_name, plugin_name, object_name])
         if extra_verbose:
             print "from %s import %s" % (from_name, object_name)
-        return _import(request, from_name, object_name)
+        return _import(from_name, object_name, debug)
 
     config_plugin = get_plugin(config_name)
 

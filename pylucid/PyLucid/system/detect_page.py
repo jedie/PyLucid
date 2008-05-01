@@ -16,7 +16,7 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from PyLucid.models import Page, Preference
+from PyLucid.models import Page
 from PyLucid.system.exceptions import AccessDenied, LowLevelError
 
 from django.utils.translation import ugettext as _

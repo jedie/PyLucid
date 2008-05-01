@@ -4,6 +4,8 @@
     PyLucid preferences API
     ~~~~~~~~~~~~~~~~~~~~~~~
 
+    OBSOLETE
+
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate: $
@@ -166,6 +168,24 @@ def get_all_prefs():
     """
     return Preference.objects.all()
 
+
+def get_pref_dict(plugin_name):
+    """
+    returns the data_dict for the given plugin_name. Used the cache.
+    If a plugin use preferences in a newforms, it must have access to the
+    preferences at module level.
+    FIXME: If the admin change the preferences, the values in a plugin module
+    level would only updated, if the server instance restarted.
+    """
+    if plugin_name in preference_cache:
+        return preference_cache[plugin_name]
+
+    plugin = Plugin.objects.get(plugin_name=plugin_name)
+
+    p = Preferences()
+    p.set_plugin(plugin)
+    p.load_from_db()
+    return p.data_dict
 
 
 #______________________________________________________________________________
