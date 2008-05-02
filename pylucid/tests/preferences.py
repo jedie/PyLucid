@@ -6,6 +6,9 @@
 
     Test PyLucid.models.Preference
 
+    OBSOLETE
+    TODO: Must be complete rewritten!
+
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
