@@ -10,8 +10,8 @@
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
-    $Rev$
-    $Author$
+    $Rev:1549 $
+    $Author:JensDiemer $
 
     :copyleft: 2008 by the PyLucid team.
     :license: GNU GPL v3, see LICENSE.txt for more details.
@@ -39,25 +39,16 @@ class preference_editor(PyLucidBasePlugin):
         """
         Display the sub menu
         """
-#        self.context["PAGE"].title = _("Preferences editor")
+        plugins = Plugin.objects.exclude(pref_data_string__isnull=True)
 
-        items = []
-        plugins = Plugin.objects.all()
+        # Add edit link
         for plugin in plugins:
-            if plugin.pref_data_string == None:
-                continue
-
             edit_link = self.URLs.methodLink("edit", args=plugin.id)
-
-            items.append({
-                "plugin_name": unicode(plugin),
-                "plugin_description": plugin.description,
-                "edit_link": edit_link,
-            })
+            plugin.edit_link = edit_link
 
         context = {
-            "preferences": items,
-            "admin_link": self.URLs.adminLink("PyLucid/preference"),
+            "plugins": plugins,
+            "admin_link": self.URLs.adminLink("PyLucid/Plugin"),
         }
         self._render_template("select", context)#, debug=True)
 

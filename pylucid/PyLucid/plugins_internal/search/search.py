@@ -34,40 +34,14 @@ from PyLucid.tools.utils import escape
 from PyLucid.models import Page, Plugin
 
 
-class PreferencesForm(forms.Form):
-    min_term_len = forms.IntegerField(
-        help_text="Min length of a search term",
-        initial=3, min_value=1
-    )
-    max_term_len = forms.IntegerField(
-        help_text="Max length of a search term",
-        initial=50, min_value=1, max_value=200
-    )
-    max_results = forms.IntegerField(
-        help_text="Number of the paged for the result page",
-        initial=20, min_value=1, max_value=200
-    )
-    text_cutout_len = forms.IntegerField(
-        help_text="The length of the text-hit-cutouts",
-        initial=50, min_value=1, max_value=200
-    )
-    text_cutout_lines = forms.IntegerField(
-        help_text="Max. cutout lines for every search term",
-        initial=5, min_value=1, max_value=20
-    )
-
 # We used preferences values in a newform. We need these values here.
-try:
-    preferences = Plugin.objects.get_preferences(__file__)
-except Plugin.DoesNotExist, e:
-    # in _install section?
-    pass
-else:
-    class SearchForm(forms.Form):
-        search_string = forms.CharField(
-            min_length = preferences["min_term_len"],
-            max_length = preferences["max_term_len"],
-        )
+preferences = Plugin.objects.get_preferences(__file__)
+
+class SearchForm(forms.Form):
+    search_string = forms.CharField(
+        min_length = preferences["min_term_len"],
+        max_length = preferences["max_term_len"],
+    )
 
 
 class search(PyLucidBasePlugin):

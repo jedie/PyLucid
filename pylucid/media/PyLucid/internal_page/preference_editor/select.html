@@ -1,7 +1,7 @@
 <fieldset><legend>select for edit</legend>
 <ul>
-{% for item in preferences %}
-  <li><a href="{{ item.edit_link }}">{{ item.plugin_name }}</a> - {{ item.plugin_description }}</li>
+{% for plugin in plugins %}
+  <li><a href="{{ plugin.edit_link }}">{{ plugin.plugin_name }}</a> - {{ plugin.description }}</li>
 {% endfor %}
 </ul>
 <small>

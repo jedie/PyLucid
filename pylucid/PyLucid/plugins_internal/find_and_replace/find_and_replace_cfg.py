@@ -17,6 +17,22 @@ submenu.
 """
 
 #_____________________________________________________________________________
+# preferences
+
+from django import newforms as forms
+from django.utils.translation import ugettext as _
+
+class PreferencesForm(forms.Form):
+    min_term_len = forms.IntegerField(
+        help_text=_("Min length of a search term"),
+        initial=2, min_value=1
+    )
+    max_term_len = forms.IntegerField(
+        help_text=_("Max length of a search term"),
+        initial=150, min_value=1, max_value=500
+    )
+
+#_____________________________________________________________________________
 # plugin administration data
 
 plugin_manager_data = {

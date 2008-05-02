@@ -16,16 +16,16 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from PyLucid.models import Page
-from PyLucid.system.exceptions import AccessDenied, LowLevelError
-
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponseRedirect
+
+from PyLucid.system.exceptions import AccessDenied, LowLevelError
+from PyLucid.models import Page, Plugin
+
 
 def get_a_page():
     """
     Try to get and return a existing page.
-    Create a first page, if no page exists.
     """
     try:
         return Page.objects.all().order_by("parent", "position")[0]
@@ -36,14 +36,14 @@ def get_a_page():
         raise LowLevelError(msg, e)
 
 
-def get_default_page_id():
+def get_default_page_id(request):
     """
     returns the default page id
     """
     try:
-        default_page = Preference.objects.get(name__exact="index page")
-#        default_page = "raise!"
-        return int(default_page.value)
+        preferences = Plugin.objects.get_preferences("system_settings")
+        default_page_id = preferences["index_page"]
+        return default_page_id
     except Exception, e:
         # TODO: make a page message for the admin
         # Get the first page
@@ -52,8 +52,8 @@ def get_default_page_id():
         return get_a_page().id
 
 
-def get_default_page():
-    page_id = get_default_page_id()
+def get_default_page(request):
+    page_id = get_default_page_id(request)
     try:
 #        page_id = "wrong test"
         return Page.objects.get(id__exact=page_id)
@@ -75,7 +75,7 @@ def get_current_page_obj(request, url_info):
 
     if page_name == "":
         # Index Seite wurde aufgerufen. Zumindest bei poor-modrewrite
-        return get_default_page()
+        return get_default_page(request)
 
     # bsp/und%2Foder -> ['bsp', 'und%2Foder']
     shortcuts = page_name.split("/")

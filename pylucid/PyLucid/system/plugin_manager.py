@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
     PyLucid Plugin Manager
     ~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +33,8 @@ from django.conf import settings
 from django.http import HttpResponse, Http404
 
 #from PyLucid.db.preferences import Preferences, preference_cache, PreferenceDoesntExist
-from PyLucid.system.plugin_import import get_plugin_module, get_plugin_config
+from PyLucid.system.plugin_import import get_plugin_module, get_plugin_config, \
+                                                            get_plugin_version
 from PyLucid.system.exceptions import *
 from PyLucid.models import Plugin
 
@@ -67,10 +67,10 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         error("Plugin not exists in database: %s" % e)
         return
 
-    plugin_config = get_plugin_config(request,
+    plugin_config = get_plugin_config(
         package_name = plugin.package_name,
         plugin_name = plugin.plugin_name,
-        dissolve_version_string=False
+        debug = request.debug,
     )
 #    context["page_msg"](plugin_config.plugin_manager_data)
     try:
@@ -199,7 +199,7 @@ def get_plugin_list(plugin_path):
 
 
 
-def _install_plugin(request, package_name, plugin_name, plugin_config, active,
+def _install_plugin(package_name, plugin_name, plugin_config, active,
                                                                 extra_verbose):
     """
     insert a plugin/plugin in the 'plugin' table
@@ -216,13 +216,11 @@ def _install_plugin(request, package_name, plugin_name, plugin_config, active,
         can_deinstall = getattr(plugin_config, "__can_deinstall__", True),
         active = active,
     )
-    debug = request.user.is_superuser or request.debug
-    plugin_module = get_plugin_module(package_name, plugin_name, debug)
-    pref_form = getattr(plugin_module, "PreferencesForm", None)
+
+    pref_form = getattr(plugin_config, "PreferencesForm", None)
     if pref_form:
         # plugin module has a preferences newform class
         plugin.init_pref_form(pref_form)
-
 
     plugin.save()
     if extra_verbose:
@@ -231,14 +229,13 @@ def _install_plugin(request, package_name, plugin_name, plugin_config, active,
 
 
 
-def install_plugin(request, package_name, plugin_name, active,
+def install_plugin(package_name, plugin_name, debug, active,
                                                         extra_verbose=False):
     """
     Get the config object from disk and insert the plugin into the database
     """
-    plugin_config = get_plugin_config(request,
-        package_name, plugin_name,
-        dissolve_version_string=True, extra_verbose=extra_verbose
+    plugin_config = get_plugin_config(
+        package_name, plugin_name, debug, extra_verbose=extra_verbose
     )
     if extra_verbose:
         obsolete_test = (
@@ -254,8 +251,7 @@ def install_plugin(request, package_name, plugin_name, active,
             )
 
     plugin = _install_plugin(
-        request, package_name, plugin_name,
-        plugin_config, active, extra_verbose
+        package_name, plugin_name, plugin_config, active, extra_verbose
     )
 
 
@@ -283,11 +279,12 @@ def _auto_install_plugins(request, path_cfg, extra_verbose):
             )
 
         try:
-            install_plugin(request,
-                package_name, plugin_name,
+            install_plugin(
+                package_name, plugin_name, request.debug,
                 active=True, extra_verbose=extra_verbose
             )
         except Exception, e:
+            # FIXME
             print "Error:"
             import traceback
             traceback.print_exc()

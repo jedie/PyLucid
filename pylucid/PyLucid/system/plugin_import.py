@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
     PyLucid Plugin Manager
     ~~~~~~~~~~~~~~~~~~~~~~
@@ -51,8 +50,7 @@ def debug_plugin_config(page_msg, plugin_config):
         page_msg("'%s':" % item)
         page_msg(getattr(plugin_config, item))
 
-def get_plugin_config(request, package_name, plugin_name,
-                            dissolve_version_string=False, extra_verbose=False):
+def get_plugin_config(package_name, plugin_name, debug, extra_verbose=False):
     """
     imports the plugin and the config plugin and returns a merge config-object
 
@@ -60,28 +58,23 @@ def get_plugin_config(request, package_name, plugin_name,
         from the plugin and put it into the config object
     """
     config_name = "%s_cfg" % plugin_name
-    debug = request.user.is_superuser or request.debug
+    from_name = ".".join([package_name, plugin_name, config_name])
+    if extra_verbose:
+        print "from %s import %s" % (from_name, config_name)
 
-    def get_plugin(object_name):
-        from_name = ".".join([package_name, plugin_name, object_name])
-        if extra_verbose:
-            print "from %s import %s" % (from_name, object_name)
-        return _import(from_name, object_name, debug)
-
-    config_plugin = get_plugin(config_name)
-
-    if dissolve_version_string:
-        plugin_plugin = get_plugin(plugin_name)
-
-        plugin_version = getattr(plugin_plugin, "__version__", None)
-        if plugin_version:
-            # Cleanup a SVN Revision Number
-            plugin_version = plugin_version.strip("$ ")
-        config_plugin.__version__ = plugin_version
+    config_plugin = _import(from_name, config_name, debug)
 
     return config_plugin
 
+def get_plugin_version(package_name, plugin_name, debug):
+    plugin_plugin = get_plugin_module(package_name, plugin_name, debug)
 
+    plugin_version = getattr(plugin_plugin, "__version__", "")
+
+    # Cleanup a SVN Revision Number
+    plugin_version = plugin_version.strip("$ ")
+
+    return plugin_version
 
 
 

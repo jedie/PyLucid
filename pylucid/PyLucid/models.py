@@ -31,7 +31,7 @@ from PyLucid.tools.data_eval import data_eval, DataEvalError
 from PyLucid.tools.shortcuts import getUniqueShortcut
 from PyLucid.tools import crypt
 from PyLucid.system.utils import get_uri_base
-from PyLucid.system.plugin_import import get_plugin_module
+from PyLucid.system.plugin_import import get_plugin_config, get_plugin_version
 
 #from PyLucid.db.cache import delete_page_cache
 
@@ -233,7 +233,6 @@ class Page(models.Model):
             # Update old PyLucid installation?
             auto_shortcuts = True
         else:
-            print ">>>", preferences
             auto_shortcuts = preferences["auto_shortcuts"]
 
         if auto_shortcuts:
@@ -507,7 +506,7 @@ class PluginManager(models.Manager):
         """
         # Get the name of the plugin, if __file__ used
         plugin_name = os.path.splitext(os.path.basename(plugin_name))[0]
-        print "plugin name: '%s'" % plugin_name
+        #print "plugin name: '%s'" % plugin_name
 
         if plugin_name in preference_cache:
             return preference_cache[plugin_name]
@@ -540,6 +539,9 @@ class Plugin(models.Model):
         help_text="Is this plugin is enabled and useable?"
     )
 
+    #__________________________________________________________________________
+    # spezial methods
+
     def init_pref_form(self, pref_form):
         """
         Set self.pref_data_string from the given newforms form and his initial
@@ -549,12 +551,18 @@ class Plugin(models.Model):
         preference_cache[self.plugin_name] = init_dict
         self.set_pref_data_string(init_dict)
 
+    #__________________________________________________________________________
+    # spezial set methods
+
     def set_pref_data_string(self, data_dict):
         """
         set the dict via pformat
         """
         preference_cache[self.plugin_name] = data_dict
         self.pref_data_string = pformat(data_dict)
+
+    #__________________________________________________________________________
+    # spezial get methods
 
     def get_preferences(self):
         """
@@ -569,12 +577,20 @@ class Plugin(models.Model):
         Get the 'PreferencesForm' newform class from the plugin modul, insert
         initial information into the help text and return the form.
         """
-        plugin_module = get_plugin_module(
+        plugin_config = get_plugin_config(
             self.package_name, self.plugin_name, debug
         )
-        form = getattr(plugin_module, "PreferencesForm")
+        form = getattr(plugin_config, "PreferencesForm")
         setup_help_text(form)
         return form
+
+    def get_version_string(self, debug=False):
+        """
+        Returned the version string from the plugin module
+        """
+        return get_plugin_version(self.package_name, self.plugin_name, debug)
+
+    #--------------------------------------------------------------------------
 
     def save(self):
         """

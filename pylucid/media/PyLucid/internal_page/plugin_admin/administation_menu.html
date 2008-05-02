@@ -49,7 +49,7 @@
             <td>
                 <a class="author" href="{{ plugin.url }}" title="{{ plugin.author }}"></a>
             </td>
-            <td class="version">{{ plugin.version }}</td>
+            <td class="version">{{ plugin.get_version_string }}</td>
             <td>
                 {% if plugin.builtin %}
                     <small>[buildin plugin]</small>
@@ -90,7 +90,7 @@
             <td>
                 <a class="author" href="{{ plugin.url }}" title="{{ plugin.author }}">{{ plugin.author }}</a>
             </td>
-            <td class="version">{{ plugin.version }}</td>
+            <td class="version">{{ plugin.get_version_string }}</td>
             <td>
                 {% if not plugin.can_deinstall %}
                     <small>[locked]</small>
@@ -115,8 +115,8 @@
 
 <h4>Info:</h4>
 <ul>
-  <li><strong>install</strong> - register a plugin/Plugin in the Database</li>
-  <li><strong>deinstall</strong> - All tables, stylesheets and internal pages where delete in the DB.</li>
-  <li><strong>activate</strong> - enable the plugin/Plugin for the CMS</li>
-  <li><strong>deactivate</strong> - disable the plugin/Plugin</li>
+  <li><strong>install</strong> - register a plugin/Plugin in the database</li>
+  <li><strong>deinstall</strong> - Complete remove the plugin from the database (incl. preferences)</li>
+  <li><strong>activate</strong> - enable the plugin (set active flag)</li>
+  <li><strong>deactivate</strong> - disable the plugin</li>
 </ul>

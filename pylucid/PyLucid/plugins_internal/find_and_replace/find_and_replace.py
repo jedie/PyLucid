@@ -32,21 +32,9 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.models import Page, Template, Style
-#from PyLucid.db.preferences import get_pref_dict
+from PyLucid.models import Page, Plugin, Template, Style
 from PyLucid.tools.Diff import diff_lines
 from PyLucid.tools.utils import escape
-
-
-class PreferencesForm(forms.Form):
-    min_term_len = forms.IntegerField(
-        help_text="Min length of a search term",
-        initial=2, min_value=1
-    )
-    max_term_len = forms.IntegerField(
-        help_text="Max length of a search term",
-        initial=150, min_value=1, max_value=500
-    )
 
 
 # for FindReplaceForm ChoiceField
@@ -58,14 +46,10 @@ TYPES = (
 
 
 # We used preferences values in a newform. We need these values here.
-try:
-    preferences = Plugin.objects.get_preferences(__file__)
-except Plugin.DoesNotExist, e:
-    # in _install section?
-    pass
-else:
-    min_term_len = preferences["min_term_len"]
-    max_term_len = preferences["max_term_len"]
+preferences = Plugin.objects.get_preferences(__file__)
+
+min_term_len = preferences["min_term_len"]
+max_term_len = preferences["max_term_len"]
 
 
 class FindReplaceForm(forms.Form):

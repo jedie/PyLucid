@@ -44,41 +44,8 @@ from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
+from PyLucid.db.page import PageChoiceField, get_page_choices
 
-class ParentChoiceField(forms.IntegerField):
-    def clean(self, parent_id):
-        """
-        returns the parent page instance.
-        Note:
-            In PyLucid.models.Page.save() it would be checkt if the selected
-            parent page is logical valid. Here we check only, if the page with
-            the given ID exists.
-        """
-        # let convert the string into a integer:
-        parent_id = super(ParentChoiceField, self).clean(parent_id)
-        assert isinstance(parent_id, int)
-
-        if parent_id == 0:
-            # assigned to the tree root.
-            return None
-
-        try:
-            #parent_id = 999999999 # Not exists test
-            page = Page.objects.get(id=parent_id)
-            return page
-        except Exception, msg:
-            raise ValidationError(_(u"Wrong parent POST data: %s" % msg))
-
-
-def get_parent_choices():
-    """
-    generate a verbose page name tree for the parent choice field.
-    """
-    page_list = flat_tree_list()
-    choices = [(0, "---[root]---")]
-    for page in page_list:
-        choices.append((page["id"], page["level_name"]))
-    return choices
 
 class EditPageForm(forms.Form):
     """
@@ -94,8 +61,8 @@ class EditPageForm(forms.Form):
         widget=forms.Textarea(attrs={'rows': '15'}),
     )
 
-    parent = ParentChoiceField(
-        widget=forms.Select(choices=get_parent_choices()),
+    parent = PageChoiceField(
+        widget=forms.Select(choices=get_page_choices()),
         # FIXME: How to set invalid_choice here?
         help_text="the higher-ranking father page",
     )

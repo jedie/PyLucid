@@ -29,7 +29,7 @@ from django import newforms as forms
 from django.conf import settings
 
 from PyLucid.system.plugin_manager import get_plugin_list, install_plugin
-from PyLucid.system.plugin_import import get_plugin_config
+from PyLucid.system.plugin_import import get_plugin_config, get_plugin_version
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.models import Plugin
 
@@ -133,21 +133,24 @@ class plugin_admin(PyLucidBasePlugin):
                 if plugin_name in installed_names:
                     continue
                 try:
-                    plugin_cfg = get_plugin_config(self.request,
-                        package_name, plugin_name, dissolve_version_string=True
+                    plugin_cfg = get_plugin_config(
+                        package_name, plugin_name, self.request.debug
                     )
                 except Exception, e:
                     if self.request.debug:
                         raise
                     self.page_msg("Error: %s" % e)
                 else:
+                    plugin_version = get_plugin_version(
+                        package_name, plugin_name, self.request.debug
+                    )
                     uninstalled_plugins.append({
                         "plugin_name": plugin_name,
                         "package_name": package_name,
                         "description": plugin_cfg.__description__,
                         "url": plugin_cfg.__url__,
                         "author": plugin_cfg.__author__,
-                        "version": plugin_cfg.__version__,
+                        "version": plugin_version,
                     })
 
         return uninstalled_plugins
@@ -164,7 +167,7 @@ class plugin_admin(PyLucidBasePlugin):
         """
         try:
             install_plugin(
-                self.request, package_name, plugin_name, active,
+                package_name, plugin_name, self.request.debug, active,
                 extra_verbose=False
             )
         except Exception, e:
