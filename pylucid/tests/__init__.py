@@ -385,7 +385,7 @@ def install_internal_plugins(extra_verbose):
     print "Installing PyLucid internal plugins ",
     from PyLucid.system.plugin_manager import auto_install_plugins
 
-    auto_install_plugins(request = None, extra_verbose=extra_verbose)
+    auto_install_plugins(debug=False, extra_verbose=extra_verbose)
     print ""
 
 def create_user(username, password, email, is_staff, is_superuser):
@@ -524,6 +524,7 @@ def get_all_tests(verbose=False):
     package directory, and tries to load test suites from them. Does not go
     into subdirectories. Returns an instantiated test suite.
     """
+    print "Contruct a test suite from all available tests."
     test_suite = unittest.TestSuite()
     for dir_item in os.listdir(__path__[0]):
         full_path = os.path.join(__path__[0], dir_item)
@@ -581,7 +582,7 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     See:
     http://www.djangoproject.com/documentation/testing/#defining-a-test-runner
     """
-
+    print "test start."
     settings.DEBUG = False
     setup_test_environment()
     old_name = settings.DATABASE_NAME
@@ -594,3 +595,6 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     teardown_test_environment()
 
     return len(result.failures) + len(result.errors)
+
+
+print "PyLucid unittest"

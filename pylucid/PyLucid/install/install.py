@@ -134,7 +134,7 @@ class InstallPlugins(BaseInstall):
         output = []
         from PyLucid.system.plugin_manager import auto_install_plugins
 
-        self._redirect_execute(auto_install_plugins, (self.request))
+        self._redirect_execute(auto_install_plugins, (self.request.debug))
 
         return self._render(install_modules_template)
 

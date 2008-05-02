@@ -255,7 +255,7 @@ def install_plugin(package_name, plugin_name, debug, active,
     )
 
 
-def auto_install_plugins(request, extra_verbose=True):
+def auto_install_plugins(debug, extra_verbose=True):
     """
     Install all internal plugin how are markt as important or essential.
     """
@@ -263,10 +263,10 @@ def auto_install_plugins(request, extra_verbose=True):
 
     for path_cfg in settings.PLUGIN_PATH:
         if path_cfg["auto_install"] == True:
-            _auto_install_plugins(request, path_cfg, extra_verbose)
+            _auto_install_plugins(debug, path_cfg, extra_verbose)
 
 
-def _auto_install_plugins(request, path_cfg, extra_verbose):
+def _auto_install_plugins(debug, path_cfg, extra_verbose):
     package_name = ".".join(path_cfg["path"])
 
     plugin_path = os.path.join(*path_cfg["path"])
@@ -280,7 +280,7 @@ def _auto_install_plugins(request, path_cfg, extra_verbose):
 
         try:
             install_plugin(
-                package_name, plugin_name, request.debug,
+                package_name, plugin_name, debug,
                 active=True, extra_verbose=extra_verbose
             )
         except Exception, e:
