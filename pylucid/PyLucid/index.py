@@ -32,7 +32,7 @@ from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.exceptions import AccessDenied
 from PyLucid.system.context_processors import add_dynamic_context, add_css_tag
 from PyLucid.system.detect_page import get_current_page_obj, \
-                                                            get_default_page_id
+                                                            get_default_page
 from PyLucid.tools.utils import escape, escape_django_tags
 from PyLucid.tools.content_processors import apply_markup, \
                                     render_string_template, redirect_warnings
@@ -174,8 +174,7 @@ def _get_page(request, page_id):
         current_page_obj = Page.objects.get(id=int(page_id))
     except Page.DoesNotExist:
         # The ID in the url is wrong -> goto the default page
-        default_page_id = get_default_page_id()
-        current_page_obj = Page.objects.get(id=default_page_id)
+        current_page_obj = get_default_page(request)
 
         user = request.user
         if user.is_authenticated():
