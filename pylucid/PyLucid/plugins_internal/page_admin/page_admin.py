@@ -157,8 +157,11 @@ class page_admin(PyLucidBasePlugin):
 
         # Assign parent page
         parent_page_id = html_form.cleaned_data.pop("parent")
-        parent = Page.objects.get(id=parent_page_id)
-        page_instance.parent = parent
+        if parent_page_id != None:
+            parent = Page.objects.get(id=parent_page_id)
+            page_instance.parent = parent
+        else:
+            page_instance.parent = None
 
         # Transfer the form values into the page instance
         for key, value in html_form.cleaned_data.iteritems():
@@ -528,10 +531,8 @@ class page_admin(PyLucidBasePlugin):
             """
             Generate a list of all Plugins how are active.
             """
-            plugin_list = Plugin.objects.values(
-                "id", "plugin_name", "version", "author", "url", "description",
-                "long_description",
-            ).order_by('package_name')
+            plugin_list = Plugin.objects.all()
+            plugin_list = plugin_list.order_by("package_name", "plugin_name")
             plugin_list = plugin_list.filter(active = True)
             return plugin_list
 
