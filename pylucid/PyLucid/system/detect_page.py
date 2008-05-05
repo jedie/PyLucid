@@ -36,25 +36,10 @@ def get_a_page():
         raise LowLevelError(msg, e)
 
 
-def get_default_page_id(request):
-    """
-    returns the default page id
-    """
+def get_default_page(request):
     try:
         preferences = Plugin.objects.get_preferences("system_settings")
-        default_page_id = preferences["index_page"]
-        return default_page_id
-    except Exception, e:
-        # TODO: make a page message for the admin
-        # Get the first page
-#        page_msg = request.CONTEXT["page_msg"]
-#        page_msg("Can't get the index page, use the first page.")
-        return get_a_page().id
-
-
-def get_default_page(request):
-    page_id = get_default_page_id(request)
-    try:
+        page_id = preferences["index_page"]
 #        page_id = "wrong test"
         return Page.objects.get(id__exact=page_id)
     except Exception, e:

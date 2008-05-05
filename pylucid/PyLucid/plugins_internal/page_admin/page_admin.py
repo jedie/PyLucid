@@ -39,7 +39,7 @@ from PyLucid.models import Page, Plugin, MARKUPS
 from PyLucid.db.page import flat_tree_list, get_sitemap_tree
 from PyLucid.db.page_archiv import archive_page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.system.detect_page import get_default_page_id
+from PyLucid.system.detect_page import get_default_page
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
@@ -62,8 +62,6 @@ class EditPageForm(forms.Form):
     )
 
     parent = PageChoiceField(
-        widget=forms.Select(choices=get_page_choices()),
-        # FIXME: How to set invalid_choice here?
         help_text="the higher-ranking father page",
     )
 
@@ -88,6 +86,11 @@ class EditPageForm(forms.Form):
         help_text=_("Short description of the contents. (for the html header)"),
         widget=forms.TextInput(attrs={'class':'bigger'}),
     )
+    def __init__(self, *args, **kwargs):
+        super(EditPageForm, self).__init__(*args, **kwargs)
+        # FIXME: How to set invalid_choice here?
+        self.fields["parent"].widget=forms.Select(choices=get_page_choices())
+
 
 #______________________________________________________________________________
 
@@ -126,16 +129,6 @@ class page_admin(PyLucidBasePlugin):
 
         return edit_page_id, page_instance
 
-
-    def _delete_cache(self, page_instance):
-        """
-        Delete the old page data in the cache, so anonymous users
-        see directly the new page content
-        """
-        shortcut = page_instance.shortcut
-        cache_key = settings.PAGE_CACHE_PREFIX + shortcut
-        cache.delete(cache_key)
-
     def _refresh_curent_page(self, page_instance):
         """
         If a new page created, PyLucid should display this new page
@@ -157,15 +150,19 @@ class page_admin(PyLucidBasePlugin):
         """
         if page_instance.id == self.current_page.id:
             # A existing page was edited
-            edit_comment = html_form.cleaned_data["edit_comment"]
+            edit_comment = html_form.cleaned_data.pop("edit_comment")
             # achive the old page data:
             archive_page(self.current_page, edit_comment)
             self.page_msg(_("Old page data archived."))
 
+        # Assign parent page
+        parent_page_id = html_form.cleaned_data.pop("parent")
+        parent = Page.objects.get(id=parent_page_id)
+        page_instance.parent = parent
+
         # Transfer the form values into the page instance
         for key, value in html_form.cleaned_data.iteritems():
-            if key != "edit_comment": # The comment is only for the page archiv
-                setattr(page_instance, key, value)
+            setattr(page_instance, key, value)
 
         try:
             page_instance.save()
@@ -174,9 +171,6 @@ class page_admin(PyLucidBasePlugin):
                 raise
             self.page_msg("Can't save the page data:", msg)
             return
-
-        # Delete the old page data cache:
-        self._delete_cache(page_instance)
 
         if page_instance.id == self.current_page.id:
             # Normal page edit
@@ -358,13 +352,13 @@ class page_admin(PyLucidBasePlugin):
         ...this is the default page.
         ...this page has sub pages.
         """
-        # The default page can't delete:
-        default_page_id = get_default_page_id()
-        if id == default_page_id:
+        skip_data = self.get_delete_skip_data()
+        # The skip_data contains the default- and the current page.
+        if id in skip_data:
             msg = _(
-                    "Can't delete the page with ID:%s,"
-                    " because this is the default page!"
-            ) % id
+                    "Can't delete the page with ID:%(id)s,"
+                    " because %(reason)s!"
+            ) % {"id":id, "reason":skip_data[id]}
             raise DeletePageError(msg)
 
         # Check if the page has subpages
@@ -387,12 +381,6 @@ class page_admin(PyLucidBasePlugin):
             raise DeletePageError(msg)
         else:
             self.page_msg(_("Page with id: %s delete successful.") % id)
-
-        if id == self.current_page.id:
-            # The current page was deleted, so we must go to a other page.
-            # The easyest way, if to go to the default page ;)
-            self.current_page.id = default_page_id
-            self.current_page = Page.objects.get(id=default_page_id)
 
 
     def _process_delete_pages(self):
@@ -420,7 +408,7 @@ class page_admin(PyLucidBasePlugin):
                 self.page_msg.red(msg)
 
 
-    def _get_html(self, sitemap_tree, default_page_id):
+    def _get_html(self, sitemap_tree, skip_data):
         """
         generate from the sitemap_tree a "checkbox-list" for the delete
         page html form dialog.
@@ -430,11 +418,11 @@ class page_admin(PyLucidBasePlugin):
         for entry in sitemap_tree:
             result.append('<li>')
 
-            if entry["id"]==default_page_id:
+            if entry["id"] in skip_data:
                 html = (
                     '<span title="Can not delete this pages,'
-                    ' because it the default page.">%(name)s</span>'
-                )
+                    ' because: %s">%%(name)s</span>'
+                ) % skip_data[entry["id"]]
             elif "subitems" in entry:
                 html = (
                     '<span title="Can not delete this pages,'
@@ -453,13 +441,31 @@ class page_admin(PyLucidBasePlugin):
 
             if "subitems" in entry:
                 result.append(
-                    self._get_html(entry["subitems"], default_page_id)
+                    self._get_html(entry["subitems"], skip_data)
                 )
 
             result.append('</li>\n')
 
         result.append("</ul>\n")
         return "".join(result)
+
+
+    def get_delete_skip_data(self):
+        """
+        returns a dict with default- and the current page id and why they can't
+        delete.
+        """
+        skip_data = {}
+        skip_data[self.current_page.id] = _(
+            "It's the current page."
+            " Please goto a other page and start deleting again"
+        )
+
+        # The default page can't delete, so we need the ID of these page:
+        default_page = get_default_page(self.request)
+        skip_data["default_page.id"] = _("It's the default page.")
+
+        return skip_data
 
 
     def delete_pages(self):
@@ -474,11 +480,11 @@ class page_admin(PyLucidBasePlugin):
         # Get the needed data for build the html form:
         page_tree = get_sitemap_tree(self.request)
 
-        # The default page can't delete, so we need the ID of these page:
-        default_page_id = get_default_page_id()
+        # The skip_data contains the default- and the current page.
+        skip_data = self.get_delete_skip_data()
 
         # Generate the HTML form code:
-        html = self._get_html(page_tree, default_page_id)
+        html = self._get_html(page_tree, skip_data)
         html = mark_safe(html) # turn djngo auto-escaping off
 
         # Render the Template:

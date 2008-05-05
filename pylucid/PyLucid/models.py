@@ -278,6 +278,11 @@ class Page(models.Model):
 
         super(Page, self).save() # Call the "real" save() method
 
+    def delete(self):
+        # Delete all pages in the cache.
+        delete_page_cache()
+        super(Page, self).delete()
+
     def get_absolute_url(self):
         """
         Get the absolute url (without the domain/host part)
