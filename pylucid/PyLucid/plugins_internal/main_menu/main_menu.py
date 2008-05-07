@@ -71,7 +71,7 @@ class main_menu(PyLucidBasePlugin):
             href.append(entry["shortcut"])
             href = "/".join(href)
 
-            entry["href"] = "/" + href
+            entry["href"] = "/" + href + "/"
 
             if entry.has_key("subitems"):
                 # go recusive deeper into the menu entries
