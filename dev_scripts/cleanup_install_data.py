@@ -22,7 +22,7 @@ PREFIX = "PyLucid_"
 # DB data files not needed for installation
 UNNEEDED_FILES = (
     "plugin", "plugindata", "pagesinternal",
-    "js_logindata",
+    "preference", "js_logindata", "pagearchiv"
 )
 
 
