@@ -43,6 +43,7 @@ MARKUPS = (
     (3, u'Textile (original)'),
     (4, u'Markdown'),
     (5, u'ReStructuredText'),
+    (6, u'Creole wiki markup'),
 )
 
 def delete_page_cache():

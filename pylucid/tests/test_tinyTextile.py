@@ -21,7 +21,7 @@ import sys, re, difflib, unittest, traceback
 import tests
 from tests.utils.FakeRequest import get_fake_context
 
-from PyLucid.system.tinyTextile import TinyTextileParser
+from PyLucid.system.markups.tinyTextile import TinyTextileParser
 from PyLucid.system.response import SimpleStringIO
 
 # All tests with sourcecode should run without pygments:

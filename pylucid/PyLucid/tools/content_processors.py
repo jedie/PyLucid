@@ -3,10 +3,13 @@
 
 """
     PyLucid content processors
-    ~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Tools around content:
 
     - apply a markup to a content
     - render a django template
+    - redirect warnings
 
     Last commit info:
     ~~~~~~~~~
@@ -14,8 +17,8 @@
     $Rev: $
     $Author: $
 
-    :copyright: 2007 by Jens Diemer
-    :license: GNU GPL v2 or above, see LICENSE for more details
+    :copyleft: 2007-2008 by Jens Diemer
+    :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 import warnings
@@ -26,76 +29,121 @@ from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_str, force_unicode
 
 from PyLucid.system.response import SimpleStringIO
-from PyLucid.models import MARKUPS
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
 # see ./PyLucid/defaulttags/__init__.py
 from django.template import add_to_builtins
 add_to_builtins('PyLucid.template_addons')
 
+#______________________________________________________________________________
+# MARKUP
+
+def fallback_markup(content):
+    """
+    A simplest markup, build only paragraphs.
+    """
+    import re
+    content = content.replace("\r\n", "\n").replace("\r","\n")
+    blocks = re.split("\n{2,}", content)
+    blocks = [line.replace("\n", "<br />\n") for line in blocks]
+    content = "<p>" + "</p>\n\n<p>".join(blocks) + "</p>"
+    return content
+
+def apply_tinytextile(content, context):
+    """ tinyTextile markup """
+    from PyLucid.system.markups.tinyTextile import TinyTextileParser
+    out_obj = SimpleStringIO()
+    markup_parser = TinyTextileParser(out_obj, context)
+    markup_parser.parse(content)
+    return out_obj.getvalue()
+
+
+def apply_textile(content, page_msg):
+    """ Original textile markup """
+    try:
+        import textile
+    except ImportError:
+        page_msg(
+            "Markup error: The Python textile library isn't installed."
+            " Download: http://cheeseshop.python.org/pypi/textile"
+        )
+        return fallback_markup(content)
+    else:
+        return force_unicode(textile.textile(
+            smart_str(content),
+            encoding=settings.DEFAULT_CHARSET,
+            output=settings.DEFAULT_CHARSET
+        ))
+
+def apply_markdown(content, page_msg):
+    """ Markdown markup """
+    try:
+        import markdown
+    except ImportError:
+        page_msg(
+            "Markup error: The Python markdown library isn't installed."
+            " Download: http://sourceforge.net/projects/python-markdown/"
+        )
+        return fallback_markup(content)
+    else:
+        # unicode support only in markdown v1.7 or above.
+        # version_info exist only in markdown v1.6.2rc-2 or above.
+        if getattr(markdown, "version_info", None) < (1,7):
+            return force_unicode(markdown.markdown(smart_str(content)))
+        else:
+            return markdown.markdown(content)
+
+
+def apply_restructuretext(content, page_msg):
+    try:
+        from docutils.core import publish_parts
+    except ImportError:
+        page_msg(
+            "Markup error: The Python docutils library isn't installed."
+            " Download: http://docutils.sourceforge.net/"
+        )
+        return fallback_markup(content)
+    else:
+        docutils_settings = getattr(
+            settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {}
+        )
+        parts = publish_parts(
+            source=content, writer_name="html4css1",
+            settings_overrides=docutils_settings
+        )
+        return parts["fragment"]
+
+
+
+def apply_creole(content):
+    from PyLucid.system.markups.creole2html import Parser, HtmlEmitter
+    document = Parser(content).parse()
+    return HtmlEmitter(document).emit()
+
 
 def apply_markup(content, context, markup_no):
     """
-    appy to the content the given markup
-    The Markups names are from the _install Dump:
-        ./PyLucid/db_dump_datadir/PyLucid_markup.py
+    Apply to the content the given markup.
+    Makrups IDs defined in
+        ./PyLucid/models.py
     """
     page_msg = context["page_msg"]
 
     if markup_no == 2: # textile
-        from PyLucid.system.tinyTextile import TinyTextileParser
-        out_obj = SimpleStringIO()
-        markup_parser = TinyTextileParser(out_obj, context)
-        markup_parser.parse(content)
-        content = out_obj.getvalue()
-    elif markup_no == 3: #Textile (original)
-        try:
-            import textile
-        except ImportError:
-            page_msg(
-                "Markup error: The Python textile library isn't installed."
-                " Download: http://cheeseshop.python.org/pypi/textile"
-            )
-        else:
-            content = force_unicode(textile.textile(
-                smart_str(content),
-                encoding=settings.DEFAULT_CHARSET,
-                output=settings.DEFAULT_CHARSET
-            ))
+        content = apply_tinytextile(content, context)
+    elif markup_no == 3: # Textile (original)
+        content = apply_textile(content, page_msg)
     elif markup_no == 4: # Markdown
-        try:
-            import markdown
-        except ImportError:
-            page_msg(
-                "Markup error: The Python markdown library isn't installed."
-                " Download: http://sourceforge.net/projects/python-markdown/"
-            )
-        else:
-            # unicode support only in markdown v1.7 or above.
-            # version_info exist only in markdown v1.6.2rc-2 or above.
-            if getattr(markdown, "version_info", None) < (1,7):
-                content = force_unicode(markdown.markdown(smart_str(content)))
-            else:
-                content = markdown.markdown(content)
+        content = apply_markdown(content, page_msg)
     elif markup_no == 5: # ReStructuredText
-        try:
-            from docutils.core import publish_parts
-        except ImportError:
-            page_msg(
-                "Markup error: The Python docutils library isn't installed."
-                " Download: http://docutils.sourceforge.net/"
-            )
-        else:
-            docutils_settings = getattr(
-                settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {}
-            )
-            parts = publish_parts(
-                source=content, writer_name="html4css1",
-                settings_overrides=docutils_settings
-            )
-            content = parts["fragment"]
+        content = apply_restructuretext(content, page_msg)
+    elif markup_no == 6: # Creole wiki markup
+        content = apply_creole(content)
 
     return mark_safe(content) # turn djngo auto-escaping off
+
+
+#______________________________________________________________________________
 
 
 def render_string_template(content, context, autoescape=True):
@@ -108,8 +156,7 @@ def render_string_template(content, context, autoescape=True):
     return html
 
 
-
-
+#______________________________________________________________________________
 
 
 def redirect_warnings(out_obj):
