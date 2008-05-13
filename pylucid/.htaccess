@@ -36,6 +36,11 @@ RewriteRule ^media - [L]
 RewriteRule ^cgi-bin - [L]
 #RewriteRule ^dev_scripts/server_tests - [L]
 
+# Forbid the directly access to the dispatcher file (send 403 HTTP response)
+# FIXME: Is it save to default activate both rules?
+#RewriteRule ^index.cgi$ - [F,L]
+#RewriteRule ^index.fcgi$ - [F,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 
 # for CGI Version:
