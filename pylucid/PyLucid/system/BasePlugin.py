@@ -36,11 +36,12 @@ import os, pprint
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
-from PyLucid.tools.content_processors import render_string_template
-from PyLucid.tools.utils import escape
-from PyLucid.system.internal_page import InternalPage, InternalPageNotFound
-from PyLucid.system.plugin_import import get_plugin_config, debug_plugin_config
 from PyLucid.models import Plugin
+from PyLucid.tools.utils import escape
+from PyLucid.tools.content_processors import render_string_template
+from PyLucid.system.internal_page import InternalPage, InternalPageNotFound
+from PyLucid.system.plugin_import import get_plugin_config, \
+                                        get_plugin_version, debug_plugin_config
 
 
 
@@ -73,10 +74,15 @@ class PyLucidBasePlugin(object):
         More info: http://pylucid.org/_goto/148/self-build_menu/
         """
         plugin = Plugin.objects.get(plugin_name=self.plugin_name)
-        plugin_config = get_plugin_config(self.request,
+        plugin_config = get_plugin_config(
             package_name = plugin.package_name,
             plugin_name = self.plugin_name,
-            dissolve_version_string = True,
+            debug = False
+        )
+        plugin_version = get_plugin_version(
+            package_name = plugin.package_name,
+            plugin_name = self.plugin_name,
+            debug = False
         )
 #        debug_plugin_config(self.page_msg, plugin_config)
 
@@ -100,7 +106,7 @@ class PyLucidBasePlugin(object):
             )
 
         self.context["PAGE"].title = "%s (%s)" % (
-            self.plugin_name.replace("_", " "), plugin_config.__version__
+            self.plugin_name.replace("_", " "), plugin_version
         )
 
         context = {"menu_data": menu_data,}

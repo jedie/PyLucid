@@ -234,9 +234,7 @@ def install_plugin(package_name, plugin_name, debug, active,
     """
     Get the config object from disk and insert the plugin into the database
     """
-    plugin_config = get_plugin_config(
-        package_name, plugin_name, debug, extra_verbose=extra_verbose
-    )
+    plugin_config = get_plugin_config(package_name, plugin_name, debug)
     if extra_verbose:
         obsolete_test = (
             hasattr(plugin_config, "__important_buildin__") or
