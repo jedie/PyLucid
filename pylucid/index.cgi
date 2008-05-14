@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -8,7 +8,9 @@
     You should check if the shebang is ok for your environment!
     some examples:
         #!/usr/bin/env python2.4
+        #!/usr/bin/env python2.5
         #!/usr/bin/python2.4
+        #!/usr/bin/python2.5
         #!C:\python\python.exe
 
     If settings.DEBUG is ON:
