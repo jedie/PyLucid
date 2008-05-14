@@ -67,7 +67,7 @@ def get_plugin_module(package_name, plugin_name, debug):
     """
     imports the plugin module and returns the module object.
     """
-    from_name = package_name + "." + plugin_name,
+    from_name = package_name + "." + plugin_name
     object_name = plugin_name
 
     plugin_module = _import(from_name, object_name, debug)
