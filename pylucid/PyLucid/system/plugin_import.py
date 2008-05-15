@@ -30,7 +30,7 @@ def import2(from_name, object_name=[]):
     generic function for import
     from 'from_name' import 'object_name'
     """
-    obj = __import__(from_name, fromlist=[object_name])
+    obj = __import__(from_name, {}, {}, [object_name])
     if object_name == []:
         return obj
 
