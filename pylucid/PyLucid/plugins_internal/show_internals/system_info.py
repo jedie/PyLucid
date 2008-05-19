@@ -1,20 +1,18 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
-show internals - system info
+    PyLucid Show Internals - System Info
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Last commit info:
-----------------------------------
-$LastChangedDate$
-$Rev$
-$Author$
 
-Created by Jens Diemer
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
+    :copyleft: 2005-2008 by Jens Diemer
+    :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
 __version__= "$Rev$"
@@ -25,18 +23,16 @@ import sys, os, locale, subprocess
 from PyLucid.tools.subprocess2 import Subprocess2
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
-class SystemInfo(PyLucidBasePlugin):
+#______________________________________________________________________________
+class PyLucidInfo(PyLucidBasePlugin):
+    """
+    information around PyLucid
+    """
     def display_all(self):
         self.response.write("<hr>")
-
         self.PyLucid_info()
-        self.system_info()
-        self.cmd_info()
-        self.proc_info()
-        self.encoding_info()
         self.envion_info()
 
-    #_________________________________________________________________________
 
     def PyLucid_info(self):
         self.response.write("<h3>PyLucid environ information</h3>")
@@ -61,61 +57,6 @@ class SystemInfo(PyLucidBasePlugin):
         self.response.write("</pre>")
         self.response.write("</fieldset>")
 
-    #_________________________________________________________________________
-
-    def system_info(self):
-        self.response.write("<h3>system info</h3>")
-
-        self.response.write('<dl id="system_info">')
-        if hasattr(os,"uname"): # Nicht unter Windows verfügbar
-            self.response.write("<dt>os.uname():</dt>")
-            self.response.write("<dd>%s</dd>" % " - ".join( os.uname() ))
-
-        try:
-            loadavg = os.getloadavg()
-            loadavg = ", ".join([str(round(i,2)) for i in loadavg])
-            self.response.write("<dt>load average:</dt>")
-            self.response.write("<dd>%s</dd>" % loadavg)
-        except OSError:
-            # Not available
-            pass
-
-        self.response.write("<dt>sys.version:</dt>")
-        self.response.write("<dd>Python v%s</dd>" % sys.version)
-
-        self.response.write("<dt>sys.path:</dt>")
-        for i in sys.path:
-            self.response.write("<dd>%s</dd>" % i)
-
-        #~ self.response.write("<dt>config file:</dt>")
-        #~ self.response.write("<dd>%s</dd>" % self.config.__file__)
-
-        self.response.write("</dl>")
-
-
-
-    def proc_info(self):
-        """
-        Dispaly some proc files
-        """
-        files = ["/proc/meminfo", "/proc/stat", "/proc/loadavg"]
-
-        self.response.write("<h3>proc info</h3>")
-
-        self.response.write('<dl id="system_info">')
-        for proc_file in files:
-            self.response.write("<dt>'%s':</dt>" % proc_file)
-            try:
-                f = file(proc_file, "r")
-            except Exception, e:
-                self.response.write("<dd>Error: %s</dd>" % e)
-            else:
-                for line in f:
-                    self.response.write("<dd>%s</dd>" % line)
-                f.close()
-        self.response.write("</dl>")
-
-    #_________________________________________________________________________
 
     def envion_info(self):
         self.response.write("<h3>OS-Enviroment:</h3>")
@@ -128,32 +69,53 @@ class SystemInfo(PyLucidBasePlugin):
             self.response.write("<dd>%s</dd>" % value)
         self.response.write("</dl>")
 
-    def colubrid_debug_link(self):
-        self.response.write("<h3>Colubrid debug information</h3>")
-        # FIXME: Das JS sollte anders eingebunden werden!
-        url = self.URLs.actionLink("colubrid_debug")
-        self.response.write(
-            '<script type="text/javascript">'
-            '/* <![CDATA[ */'
-            'function OpenInWindow(URL) {'
-            '  win1 = window.open('
-            'URL, "", "width=1000, height=600, dependent=yes, resizable=yes,'
-            ' scrollbars=yes, location=no, menubar=no, status=no,'
-            ' toolbar=no");'
-            '  win1.focus();'
-            '}'
-            '/* ]]> */'
-            '</script>'
-        )
-        html = (
-            '<a href="%s" onclick="OpenInWindow(this.href); return false"'
-            ' title="colubrid debug">'
-            'show colubrid debug'
-            '</a>'
-        ) % url
-        self.response.write(html)
 
-    #_________________________________________________________________________
+
+#______________________________________________________________________________
+class PythonInfo(PyLucidBasePlugin):
+    """
+    information around the Python installation
+    """
+    def display_all(self):
+        self.response.write("<hr>")
+        self.python_info()
+        self.encoding_info()
+
+
+    def python_info(self):
+        self.response.write("<h3>Python info</h3>")
+        self.response.write('<dl id="python_info">')
+        self.response.write("<dt>sys.version:</dt>")
+        self.response.write("<dd>Python v%s</dd>" % sys.version)
+
+        self.response.write("<dt>sys.path:</dt>")
+        for i in sys.path:
+            self.response.write("<dd>%s</dd>" % i)
+
+        self.response.write("<dt>sys.modules:</dt>")
+        self.response.write("<table>")
+        no = 0
+        for module_name, module in sorted(sys.modules.iteritems()):
+            no += 1
+
+            doc = getattr(module, "__doc__", None)
+            if doc:
+                doc = doc.strip().split("\n", 1)[0]
+            else:
+                doc = "[no __doc__ available]"
+
+            file_info = getattr(module, "__file__", repr(module))
+
+            self.response.write("<tr>\n")
+            self.response.write("\t<td>%s</td>\n" % no)
+            self.response.write("\t<td>%s</td>\n" % module_name)
+            self.response.write("\t<td>%s</td>\n" % doc)
+            self.response.write("\t<td>%s</td>\n" % file_info)
+            self.response.write("</tr>\n")
+        self.response.write("</table>")
+
+        self.response.write("</dl>")
+
 
     def encoding_info(self):
         self.response.write("<h3>encoding info</h3>")
@@ -199,17 +161,73 @@ class SystemInfo(PyLucidBasePlugin):
 
         self.response.write("</dl>")
 
-    #_________________________________________________________________________
+
+
+#______________________________________________________________________________
+class SystemInfo(PyLucidBasePlugin):
+    """
+    generic system information
+    """
+    def display_all(self):
+        self.response.write("<hr>")
+        self.system_info()
+        self.cmd_info()
+        self.proc_info()
+
+
+    def system_info(self):
+        self.response.write("<h3>system info</h3>")
+
+        self.response.write('<dl id="system_info">')
+        if hasattr(os,"uname"): # Nicht unter Windows verfügbar
+            self.response.write("<dt>os.uname():</dt>")
+            self.response.write("<dd>%s</dd>" % " - ".join( os.uname() ))
+
+        try:
+            loadavg = os.getloadavg()
+            loadavg = ", ".join([str(round(i,2)) for i in loadavg])
+            self.response.write("<dt>load average:</dt>")
+            self.response.write("<dd>%s</dd>" % loadavg)
+        except OSError:
+            # Not available
+            pass
+
+        self.response.write("</dl>")
+
+
+    def proc_info(self):
+        """
+        Dispaly some proc files
+        """
+        files = ["/proc/meminfo", "/proc/stat", "/proc/loadavg"]
+
+        self.response.write("<h3>proc info</h3>")
+
+        self.response.write('<dl id="system_info">')
+        for proc_file in files:
+            self.response.write("<dt>'%s':</dt>" % proc_file)
+            try:
+                f = file(proc_file, "r")
+            except Exception, e:
+                self.response.write("<dd>Error: %s</dd>" % e)
+            else:
+                for line in f:
+                    self.response.write("<dd>%s</dd>" % line)
+                f.close()
+        self.response.write("</dl>")
+
 
     def cmd_info(self):
         """
         Use some commandline programms and display the output
         """
-        commands = ("uptime", "who -H -u --lookup", "df -T -h", "free -m")
-
+        commands = (
+            "w", "df -T -h", "free -m",
+            "ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key.pub"
+        )
         for command in commands:
             self.response.write(
-                """<fieldset><legend>'%s':</legend>""" % command
+                """<fieldset><legend>%s</legend>""" % command
             )
             try:
                 p = Subprocess2(command,

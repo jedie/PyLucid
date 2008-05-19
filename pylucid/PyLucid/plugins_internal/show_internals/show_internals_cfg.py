@@ -22,11 +22,23 @@ plugin_manager_data = {
     "lucidTag"  : global_rights,
     "link"      : global_rights,
     "menu"      : global_rights,
+    "pylucid_info": {
+        "must_login"        : True,
+        "must_admin"        : True,
+        "menu_section"      : "environ info",
+        "menu_description"  : "PyLucid info",
+    },
+    "python_info": {
+        "must_login"        : True,
+        "must_admin"        : True,
+        "menu_section"      : "environ info",
+        "menu_description"  : "Python info",
+    },
     "system_info": {
         "must_login"        : True,
         "must_admin"        : True,
-        "menu_section"      : "system",
-        "menu_description"  : "System Info",
+        "menu_section"      : "environ info",
+        "menu_description"  : "System info",
     },
 #    "session_data": {
 #        "must_login"        : True,

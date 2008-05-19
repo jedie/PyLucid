@@ -1,30 +1,27 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
-Administration Sub-Menü : "show internals"
+    PyLucid Show Internals
+    ~~~~~~~~~~~~~~~~~~~~~~
 
-Last commit info:
-----------------------------------
-$LastChangedDate$
-$Rev$
-$Author$
 
-Created by Jens Diemer
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
+    :copyleft: 2005-2008 by Jens Diemer
+    :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
 __version__= "$Rev$"
 
-# Python-Basis Module einbinden
 import cgi, sys, imp, time
 
 #from PyLucid.tools.formatter import filesizeformat
-
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
+
 
 class show_internals(PyLucidBasePlugin):
 
@@ -178,27 +175,34 @@ class show_internals(PyLucidBasePlugin):
 
     #_______________________________________________________________________
 
-    def system_info( self ):
-        """ Allgemeine System Informationen """
+    def _info(self, class_obj):
+        """
+        shared method to display info parts from show_internals.system_info
+        """
         self.menu()
-        from PyLucid.plugins_internal.show_internals.system_info \
-                                                            import SystemInfo
-        s = SystemInfo(self.context, self.response)
+        s = class_obj(self.context, self.response)
         s.display_all()
 
-    def colubrid_debug(self):
-        self.response.startFreshResponse()
+    def pylucid_info(self):
+        """ python information """
+        from PyLucid.plugins_internal.show_internals.system_info \
+                                                            import PyLucidInfo
+        return self._info(PyLucidInfo)
 
-        self.response.write("<h3>Colubrid debug information</h3>")
-        self.response.write('<fieldset id="system_info"><legend>colubrid:</legend>')
-        try:
-            from colubrid.debug import debug_info
-            self.response.write(debug_info(self.request))
-        except Exception, e:
-            self.response.write("(Error: %s)" % e)
-        self.response.write("</fieldset>")
 
-        return self.response
+    def python_info(self):
+        """ python information """
+        from PyLucid.plugins_internal.show_internals.system_info \
+                                                            import PythonInfo
+        return self._info(PythonInfo)
+
+
+    def system_info(self):
+        """ gerneral system information """
+        from PyLucid.plugins_internal.show_internals.system_info \
+                                                            import SystemInfo
+        return self._info(SystemInfo)
+
 
     #_______________________________________________________________________
 
