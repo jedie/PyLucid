@@ -47,6 +47,19 @@ def get_default_page(request):
         return get_a_page()
 
 
+def _check_permission_tree(page,test_fcn):
+    """
+    Check permissions of page and its parents. The second parameter
+    test_fcn(page_object) is the test function which must return true or false
+    corresponding to permssion to view specific page.
+    """
+    while page:
+        if not test_fcn(page):
+            return False
+        page = page.parent
+    return True
+
+
 def get_current_page_obj(request, url_info):
     """
     returns the page object
@@ -73,8 +86,9 @@ def get_current_page_obj(request, url_info):
             wrong_shortcut = True
             continue
 
-        if request.user.is_anonymous() and not page.permitViewPublic:
-            # the page is not viewale for anonymous user
+        if ( request.user.is_anonymous() and 
+             not _check_permission_tree(page,lambda p: p.permitViewPublic) ):
+            # the page or its parent is not viewable for anonymous user
             raise AccessDenied
 
         # Found a existing, viewable page
