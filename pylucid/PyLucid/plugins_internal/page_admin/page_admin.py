@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     PyLucid plugin
@@ -40,6 +40,7 @@ from PyLucid.db.page import flat_tree_list, get_sitemap_tree
 from PyLucid.db.page_archiv import archive_page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.detect_page import get_default_page
+from PyLucid.system.plugin_import import get_plugin_module
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
@@ -519,21 +520,50 @@ class page_admin(PyLucidBasePlugin):
     def tag_list(self):
         """
         Render a help page with a list of all available django template tags
-        and all available lucidTag's (List of all available plugins).
-
-        TODO: Find a way to put the tag parameter syntax into the plugin_list:
-            e.g. without..: {{ lucidTag page_update_list }}
-            e.g. with.....: {{ lucidTag page_update_list count=10 }}
-            idea: Import the plugin class and use inspect?
+        and all available lucidTag's (List of all available plugins which
+        provide lucidTag method).
         """
+
+        import inspect
+
+        def _get_names_of_methods(cls):
+            """
+            Returns iterable of method names.
+            """
+            return (x[0] for x in inspect.getmembers(cls,inspect.ismethod))
+
+        def _get_lucidTag_syntax(cls):
+            """
+            Format lucidTag syntax, for example
+            "count=10" or "" if no arguments are supported.
+            """
+            (args, varargs, varkw, defaults) = inspect.getargspec(cls.lucidTag)
+            argmap = dict.fromkeys(args[1:],None)
+            if defaults:
+                argmap.update(zip(args[-len(defaults):], map(repr,defaults)))
+            stx = []
+            for arg in args[1:]:
+                if argmap[arg]:
+                    stx.append("%s=%s" % (arg,argmap[arg]))
+                else:
+                    stx.append(arg)
+            return ", ".join(stx)
 
         def get_plugin_list():
             """
-            Generate a list of all Plugins how are active.
+            Generate a list of all Plugins which are active.
             """
-            plugin_list = Plugin.objects.all()
-            plugin_list = plugin_list.order_by("package_name", "plugin_name")
-            plugin_list = plugin_list.filter(active = True)
+            plugin_objs = Plugin.objects.filter(active = True)
+            plugin_objs = plugin_objs.order_by("package_name", "plugin_name")
+            plugin_list = []
+            for plg in plugin_objs:
+                mdl = get_plugin_module(plg.package_name,plg.plugin_name,False)
+                cls = mdl.__getattribute__(plg.plugin_name)
+                if "lucidTag" in _get_names_of_methods(cls):
+                    plugin_list.append( {
+                            'plugin_name': plg.plugin_name,
+                            'arguments': _get_lucidTag_syntax(cls),
+                            'description': plg.description } )
             return plugin_list
 
         def get_page_fields():

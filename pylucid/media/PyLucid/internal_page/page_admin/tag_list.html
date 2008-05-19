@@ -10,12 +10,11 @@
 <div id="content">
 
 <h2>List of all available plugin tags:</h2>
-<p><strong>Note:</strong> Necessary tag parameters are not indicated here!</p>
 <ul id="plugin_list">
 {% for plugin in plugin_list %}
   <li>
-    <p title="{{ plugin.long_description }}">
-        &#x7B;% lucidTag {{ plugin.plugin_name }} %&#x7D;
+    <p>
+        &#x7B;% lucidTag {{ plugin.plugin_name }} {{ plugin.arguments }} %&#x7D;
        <small> - {{ plugin.description }}</small>
     </p>
   </li>
