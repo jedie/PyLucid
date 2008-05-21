@@ -39,7 +39,6 @@ from PyLucid.models import Page, Plugin, MARKUPS
 from PyLucid.db.page import flat_tree_list, get_sitemap_tree
 from PyLucid.db.page_archiv import archive_page
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.system.detect_page import get_default_page
 from PyLucid.system.plugin_import import get_plugin_module
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
@@ -465,8 +464,8 @@ class page_admin(PyLucidBasePlugin):
             " Please goto a other page and start deleting again"
         )
 
-        # The default page can't delete, so we need the ID of these page:
-        default_page = get_default_page(self.request)
+        # The default page can't delete, so we need the ID of the default page:
+        default_page = Page.objects.default_page
         skip_data["default_page.id"] = _("It's the default page.")
 
         return skip_data

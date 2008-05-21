@@ -33,6 +33,7 @@ from PyLucid.tools import crypt
 from PyLucid.system.utils import get_uri_base
 from PyLucid.system.plugin_import import get_plugin_config, get_plugin_version
 
+from PyLucid.managers import PageManager
 #from PyLucid.db.cache import delete_page_cache
 
 
@@ -67,6 +68,9 @@ class Page(models.Model):
     TODO: We should refactor the "pre_save" behavior, use signals:
     http://code.djangoproject.com/wiki/Signals
     """
+
+    objects = PageManager()
+
     # Explicite id field, so we can insert a help_text ;)
     id = models.AutoField(primary_key=True, help_text="The internal page ID.")
 

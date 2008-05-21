@@ -19,6 +19,12 @@ class getPageByShortcutTestCase(tests.TestCase):
     hierarchy.
     """
 
+    def testDefaultPage(self):
+        """ No shortcuts in URL. """
+        response = self.client.get('/')
+         # Check that the respose is 200 Ok.
+        self.failUnlessEqual(response.status_code, 200)
+
     def testFullPath(self):
         """ Full path in page request. """
         url = tests.TEST_PAGES_SHORTCUTS[3]

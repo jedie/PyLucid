@@ -67,7 +67,6 @@ from PyLucid.tools import crypt
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.context_processors import add_dynamic_context
 from PyLucid.models import JS_LoginData, Preference
-from PyLucid.system.detect_page import get_default_page
 
 
 class WrongPassword(Exception):
@@ -408,9 +407,9 @@ class auth(PyLucidBasePlugin):
         self.page_msg.green("You logged out.")
 
         if not self.current_page.permitViewPublic:
-            # The current page, can't see anonymous users -> reriect to the
+            # The current page, can't see anonymous users -> redirect to the
             # default page
-            default_page = get_default_page(self.request)
+            default_page = self.current_page.default_page
             url = default_page.get_absolute_url()
             return HttpResponseRedirect(url)
 

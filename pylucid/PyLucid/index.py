@@ -17,7 +17,7 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-from django.http import HttpResponse, HttpResponsePermanentRedirect, \
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, \
                                                            HttpResponseRedirect
 from django.conf import settings
 from django.template import RequestContext
@@ -31,8 +31,6 @@ from PyLucid.system.page_msg import PageMessages
 from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.exceptions import AccessDenied
 from PyLucid.system.context_processors import add_dynamic_context, add_css_tag
-from PyLucid.system.detect_page import get_current_page_obj, \
-                                                            get_default_page
 from PyLucid.tools.utils import escape, escape_django_tags
 from PyLucid.tools.content_processors import apply_markup, \
                                     render_string_template, redirect_warnings
@@ -137,7 +135,7 @@ def index(request, url):
     the page shortcut from the url.
     """
     try:
-        current_page_obj = get_current_page_obj(request, url)
+        current_page_obj = Page.objects.get_by_shortcut(url, request.user)
     except AccessDenied:
         # FIXME: We should build the command url in a better way
         #     Don't insert a hardcoded ID! Use the default ID.
@@ -146,11 +144,12 @@ def index(request, url):
             ('',settings.COMMAND_URL_PREFIX,'1','auth','login',next)
         )
         return HttpResponseRedirect(path)
-    else:
-        if isinstance(current_page_obj, HttpResponse):
-            # Some parts of the URL was wrong, but we found a right page
-            # shortcut -> redirect to the right url
-            return current_page_obj
+    except Page.objects.WrongShortcut, correct_url:
+        # Some parts of the URL was wrong, but we found a right page
+        # shortcut -> redirect to the right url
+        return HttpResponseRedirect(correct_url)
+    except Page.DoesNotExist:
+        return Http404(_("Page '%s' doesn't exists.") % url)
 
     context = _get_context(request, current_page_obj)
 
@@ -174,7 +173,7 @@ def _get_page(request, page_id):
         current_page_obj = Page.objects.get(id=int(page_id))
     except Page.DoesNotExist:
         # The ID in the url is wrong -> goto the default page
-        current_page_obj = get_default_page(request)
+        current_page_obj = Page.objects.default_page
 
         user = request.user
         if user.is_authenticated():
