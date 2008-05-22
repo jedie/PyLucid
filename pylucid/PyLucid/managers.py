@@ -66,6 +66,18 @@ class PageManager(models.Manager):
         """
         return page.permitViewPublic
 
+    def __check_groupView(self, user_group_ids):
+        """
+        Return true/false if page permits anonymous view.
+        """
+        def check(page):
+            if page.permitViewGroup == None:
+                return True
+            else:
+                return page.permitViewGroup.id in user_group_ids
+        return check
+    
+
     def get_by_shortcut(self,url_shortcuts,user):
         """
         Returns a page object matching the shortcut. 
@@ -93,16 +105,24 @@ class PageManager(models.Manager):
         # Check shortcuts in reversed order
         shortcuts.reverse()
         wrong_shortcut = False
+        if not user.is_anonymous():
+            user_groups = [x['id'] for x in user.groups.all().values('id')]
         for shortcut in shortcuts:
             try:
-                page = self.get(shortcut__exact=shortcut)
+                page = self.select_related().get(shortcut__exact=shortcut)
             except self.model.DoesNotExist:
                 wrong_shortcut = True
                 continue            
-            if ( user.is_anonymous() and 
-                 not self._check_permission_tree(page,self.__check_publicView) ):
-                 # the page or its parent is not viewable for anonymous user
-                 raise AccessDenied
+            if user.is_anonymous():
+                if not self._check_permission_tree(page,self.__check_publicView):
+                    # the page or its parent is not viewable for anonymous user
+                    raise AccessDenied
+            elif not user.is_superuser:
+                # Superuser can see all pages.
+                if not self._check_permission_tree(page,self.__check_groupView(user_groups)):
+                    # User is logged in. Check if page is restricted to user group
+                    raise AccessDenied
+
             # Found an existing, viewable page
             if wrong_shortcut:
                 # At least one of the shortcuts in the url was wrong -> raise

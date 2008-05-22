@@ -66,7 +66,7 @@ from django.conf import settings
 from PyLucid.tools import crypt
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.context_processors import add_dynamic_context
-from PyLucid.models import JS_LoginData, Preference
+from PyLucid.models import JS_LoginData, Page
 
 
 class WrongPassword(Exception):
@@ -409,7 +409,7 @@ class auth(PyLucidBasePlugin):
         if not self.current_page.permitViewPublic:
             # The current page, can't see anonymous users -> redirect to the
             # default page
-            default_page = self.current_page.default_page
+            default_page = Page.objects.default_page
             url = default_page.get_absolute_url()
             return HttpResponseRedirect(url)
 

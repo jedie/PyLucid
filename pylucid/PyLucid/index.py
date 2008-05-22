@@ -137,13 +137,18 @@ def index(request, url):
     try:
         current_page_obj = Page.objects.get_by_shortcut(url, request.user)
     except AccessDenied:
-        # FIXME: We should build the command url in a better way
-        #     Don't insert a hardcoded ID! Use the default ID.
-        next = '?next=%s' % request.path
-        path = '/'.join(
-            ('',settings.COMMAND_URL_PREFIX,'1','auth','login',next)
-        )
-        return HttpResponseRedirect(path)
+        if request.user.is_anonymous():
+            # FIXME: We should build the auth command url in a better way.
+            next = '?next=%s' % request.path
+            path = '/'.join(
+                ('',settings.COMMAND_URL_PREFIX,
+                 str(Page.objects.default_page.id),'auth','login',next)
+                )
+            return HttpResponseRedirect(path)
+        else:
+            # User is logged in but access is denied, probably due to group restrictions.
+            request.user.message_set.create(message=_("Access denied"))
+            return HttpResponseRedirect(Page.objects.default_page.get_absolute_url())
     except Page.objects.WrongShortcut, correct_url:
         # Some parts of the URL was wrong, but we found a right page
         # shortcut -> redirect to the right url
@@ -152,6 +157,7 @@ def index(request, url):
         return Http404(_("Page '%s' doesn't exists.") % url)
 
     context = _get_context(request, current_page_obj)
+
 
     # Get the response for the requested cms page:
     response = _render_cms_page(request, context)
