@@ -34,17 +34,39 @@
 __version__= "$Rev$"
 
 
+from django.utils.safestring import mark_safe
+
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.models import Page
+from PyLucid.models import Page, Plugin
 
 class back_links(PyLucidBasePlugin):
 
-    def lucidTag(self, print_last_page=False, print_index=False, index="Index"):
+    def lucidTag(self, **kwargs):
         """
         generate the backlinks
+        TODO: **kwargs only for Backwards-incompatible changes info
         """
+        if self.request.debug == True and kwargs != {}:
+            self.page_msg(
+                "DeprecationWarning:"
+                " kwargs in back_links plugin are obsolete. Please remove them."
+            )
+            return
+
+        # Get the preferences from the database:
+        preferences = self.get_preferences()
+        if preferences == None:
+            # preferences not in database -> reinit required
+            if self.request.debug == True:
+                msg = (
+                    '<a href="http://www.pylucid.org/_goto/121/changes/#23-05-2008-back_links">'
+                    'reinit "back_links" plugin required!</a>'
+                )
+                self.page_msg.red(mark_safe(msg))
+                return
+
         current_page = self.context["PAGE"]
-        if print_last_page == True:
+        if preferences["print_last_page"] == True:
             print_page = current_page
         else:
             print_page = current_page.parent
@@ -52,17 +74,17 @@ class back_links(PyLucidBasePlugin):
                 # There exist no higher-ranking page
                 return ""
 
-        data = self.backlink_data(print_page)
+        data = self._backlink_data(print_page)
         data.reverse()
 
         context = {
             "pages": data,
-            "print_index": print_index,
-            "index": index,
+            "print_index": preferences["print_index"],
+            "index": preferences["index"],
         }
         self._render_template("back_links", context)#, debug=True)
 
-    def backlink_data(self, parent_page):
+    def _backlink_data(self, parent_page):
         """
         make a list of all pages in the current way back to the index page.
         """
