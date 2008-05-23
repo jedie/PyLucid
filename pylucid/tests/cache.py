@@ -39,54 +39,59 @@ SHORTCUT = "CacheTestPage"
 
 CACHE_KEY_PREFIX = settings.PAGE_CACHE_PREFIX + SHORTCUT
 
+def _check_cachebackend():
+    """
+    Test if in settings is a cache backend setup and if it works.
+    setup self.skip_cache_tests
+    """
+    def error():
+        error_msg = (
+            "Cache test.\n"
+            "Cache backend test failed.\n"
+            "The cache unittest needs a working cache backend!\n"
+            "Please setup CACHE_BACKEND in your settings.py\n"
+            "Note: All cache tests will be skipped!"
+            )
+        print error_msg
+        return False
+    
+    cache_key = "unitest cache key"
+    content = "A simple test content..."
+
+    cache.set(cache_key, content, 10)
+    test = cache.get(cache_key)
+    if test != content:
+        return error()
+
+    cache.delete(cache_key)
+    test = cache.get(cache_key)
+    if test != None:
+        return error()
+
+    # cache backend works
+    return True
+
+WORKING_CACHE_BACKEND = _check_cachebackend()
+
+def requires_cache(test):
+    """ Decorator for tests that require working cache backend. 
+
+    Whole TestCache class is meaningless with out working cache, but Python 2.4
+    does not support decoration of classes."""
+    if WORKING_CACHE_BACKEND:
+        return test
+    else:
+        def dummy(*args):
+            pass
+        return dummy
+
 class TestCache(tests.TestCase):
     one_browser_traceback = ONE_BROWSER_TRACEBACK
     _open = []
 
-    def __init__(self, *args, **kwargs):
-        """
-        If there is no working cache backend, skip all tests. Would be set in
-        self.test_cachebackend() to true, if the cache backend works.
-        FIXME: Could we handle this in a other way?
-        """
-        self.skip_cache_tests = self._check_cachebackend()
-
-        super(TestCache, self).__init__(*args, **kwargs)
-
-    def _check_cachebackend(self):
-        """
-        Test if in settings is a cache backend setup and if it works.
-        setup self.skip_cache_tests
-        """
-        def error():
-            error_msg = (
-                "Cache test.\n"
-                "Cache backend test failed.\n"
-                "The cache unittest needs a working cache backend!\n"
-                "Please setup CACHE_BACKEND in your settings.py\n"
-                "Note: All cache tests would be skip!"
-            )
-            print error_msg
-            return True
-
-        cache_key = "unitest cache key"
-        content = "A simple test content..."
-
-        cache.set(cache_key, content, 10)
-        test = cache.get(cache_key)
-        if test != content:
-            return error()
-
-        cache.delete(cache_key)
-        test = cache.get(cache_key)
-        if test != None:
-            return error()
-
-        # cache backend works
-        return False
-
     #--------------------------------------------------------------------------
 
+    @requires_cache
     def setUp(self):
         settings.DEBUG=True
 
@@ -158,12 +163,11 @@ class TestCache(tests.TestCase):
 
     #--------------------------------------------------------------------------
 
+    @requires_cache
     def test_prepage(self):
         """
         Test the test environment ;)
         """
-        if self.skip_cache_tests: return # Cache backend doesn't work -> skip
-
         # Test _prepare_cache()
         self.failUnlessEqual(cache.get(CACHE_KEY_PREFIX + "1"), None)
         response = cache.get(CACHE_KEY_PREFIX + "2")
@@ -185,13 +189,12 @@ class TestCache(tests.TestCase):
             must_not_contain=("Traceback",)
         )
 
+    @requires_cache
     def test_assertion(self):
         """
         The cache middleware should only use the cached response, if it's a
         django HttpResponse instance otherwise it sould raise a AssertionError.
         """
-        if self.skip_cache_tests: return # Cache backend doesn't work -> skip
-
         cache.set(
             CACHE_KEY_PREFIX + "3",
             "a string and not a django HttpResponse instance!",
@@ -200,13 +203,11 @@ class TestCache(tests.TestCase):
         url = "/%s3" % SHORTCUT
         self.assertRaises(AssertionError, self.client.get, url)
 
-
+    @requires_cache
     def test_cache(self):
         """
         Check if the second test page comes from the cache.
         """
-        if self.skip_cache_tests: return # Cache backend doesn't work -> skip
-
         url = "/%s2" % SHORTCUT
         response = self.client.get(url)
         self.assertResponse(
@@ -217,12 +218,11 @@ class TestCache(tests.TestCase):
 
     #--------------------------------------------------------------------------
 
+    @requires_cache
     def test_get(self):
         """
         Test the cache with normal GET request.
         """
-        if self.skip_cache_tests: return # Cache backend doesn't work -> skip
-
         for i in xrange(3):
             url = "/%s1" % SHORTCUT
 
@@ -238,12 +238,11 @@ class TestCache(tests.TestCase):
             cache.delete(CACHE_KEY_PREFIX + "1")
 
 
+    @requires_cache
     def test_post(self):
         """
         POST request should never use the cache.
         """
-        if self.skip_cache_tests: return # Cache backend doesn't work -> skip
-
         # But a POST request should never use the cache
         url = "/%s2" % SHORTCUT
         response = self.client.post(url)
@@ -269,13 +268,12 @@ class TestCache(tests.TestCase):
         self.failIfFromCache(response)
 
 
+    @requires_cache
     def test_page_edit(self):
         """
         After a page content has been edited, the cache variante must be
         deleted.
         """
-        if self.skip_cache_tests: return # Cache backend doesn't work -> skip
-
         def test_func():
             """ 'edit' a page """
             page = Page.objects.get(shortcut__exact=SHORTCUT + "2")
@@ -284,12 +282,11 @@ class TestCache(tests.TestCase):
 
         self._check_cache_after(test_func)
 
+    @requires_cache
     def test_template_edit(self):
         """
         If a template has been changes, the cache should be deleted.
         """
-        if self.skip_cache_tests: return # Cache backend doesn't work -> skip
-
         def test_func():
             """ 'edit' a template """
             template = Template.objects.all()[0]
@@ -297,12 +294,11 @@ class TestCache(tests.TestCase):
 
         self._check_cache_after(test_func)
 
+    @requires_cache
     def test_styleheet_edit(self):
         """
         If a styleheet has been changes, the cache should be deleted.
         """
-        if self.skip_cache_tests: return # Cache backend doesn't work -> skip
-
         def test_func():
             """ 'edit' a styleheet """
             styleheet = Style.objects.all()[0]
@@ -312,6 +308,7 @@ class TestCache(tests.TestCase):
 
     #--------------------------------------------------------------------------
     
+    @requires_cache
     def test_wrong_url(self):
         """
         Test if the cache middleware checks bad characters in the url.

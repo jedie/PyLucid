@@ -154,7 +154,7 @@ def index(request, url):
         # shortcut -> redirect to the right url
         return HttpResponseRedirect(correct_url)
     except Page.DoesNotExist:
-        return Http404(_("Page '%s' doesn't exists.") % url)
+        raise Http404(_("Page '%s' doesn't exists.") % url)
 
     context = _get_context(request, current_page_obj)
 

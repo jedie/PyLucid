@@ -84,9 +84,11 @@ class permitViewPublicTestCase(tests.TestCase):
         """
         Create some pages to play with.
         """
-        self.publicPage = tests.create_page({'name':'permitPublicView'})
+        self.publicPage = tests.create_page({'name': 'permitPublicView',
+                                             'shortcut': 'permitPublicView'})
 
-        self.loginrequiredPage = tests.create_page({'name':'disablePublicView'})
+        self.loginrequiredPage = tests.create_page({'name': 'disablePublicView',
+                                                    'shortcut': 'disablePublicView'})
         self.loginrequiredPage.permitViewPublic = False
         self.loginrequiredPage.save()
 
@@ -159,7 +161,7 @@ class permitViewGroupTestCase(tests.TestCase):
             u.save
         self.USERS = USERS
 
-        self.groupPage = tests.create_page({'name':'PageForGroupA'})
+        self.groupPage = tests.create_page({'name':'PageForGroupA',"shortcut":"PageForGroupA"})
         self.groupPage.permitViewGroup = groups['groupA']
         self.groupPage.save()
         

@@ -175,13 +175,13 @@ class InternalPageTest(tests.TestCase):
         paths = [
             [base_path, False], [custom_path, False]
         ]
-        # Create all path parts, how doesn't exists yet.
-        # Remember the created directoies for later remove.
-        for path, exists in paths:
-            if os.path.isdir(path):
-                exists = True
+        # Create all path parts, which doesn't exists yet.
+        # Remember the created directories for later remove.
+        for path in paths:
+            if os.path.isdir(path[0]):
+                path[1] = True
             else:
-                os.mkdir(path)
+                os.mkdir(path[0])
 
         filepath = self._get_filepath(
             settings.CUSTOM_INTERNAL_PAGE_DIR,

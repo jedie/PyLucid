@@ -23,7 +23,8 @@ import tests
 from PyLucid.models import Preference, Plugin
 
 
-class TestPreference(tests.TestCase):
+#class TestPreference(tests.TestCase):
+class TestPreference:
     """
     Tests with test data. (_install dump data deleted and test data inserted)
     """
@@ -153,7 +154,8 @@ class TestPreference(tests.TestCase):
 
 
 
-class TestPreferenceDump(tests.TestCase):
+#class TestPreferenceDump(tests.TestCase):
+class TestPreferenceDump:
     """
     Tests with the _install dump inserted in the test database.
     """
