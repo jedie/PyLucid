@@ -13,7 +13,7 @@ from django.db import connection
 from PyLucid.install.install import Sync_DB
 from PyLucid.install.BaseInstall import BaseInstall
 from PyLucid.settings import OLD_TABLE_PREFIX
-from PyLucid.models import JS_LoginData, Page, Template, Style, Preference
+from PyLucid.models import JS_LoginData, Page, Template, Style
 
 from django.contrib.auth.models import User
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """
     PyLucid.db.page
     ~~~~~~~~~~~~~~~
@@ -24,7 +24,7 @@ from django import newforms as forms
 from django.newforms.util import ValidationError
 from django.utils.translation import ugettext as _
 
-from PyLucid.models import User, Page
+from PyLucid.models import Page
 from PyLucid.tools.tree_generator import TreeGenerator
 
 def get_update_info(context, count=10):

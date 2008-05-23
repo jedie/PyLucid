@@ -19,6 +19,21 @@
 import os
 
 from django.conf import settings
+from django.core.cache import cache
+
+def delete_page_cache():
+    """
+    Delete all pages in the cache.
+    Needed, if:
+        - A template has been edited
+        - The menu changes (edit the page name, position, parent link)
+    TODO: move this function from models.py into a other nice place...
+    """
+    from PyLucid.models import Page
+    for items in Page.objects.values('shortcut').iterator():
+        shortcut = items["shortcut"]
+        cache_key = settings.PAGE_CACHE_PREFIX + shortcut
+        cache.delete(cache_key)
 
 def setup_debug(request):
     """

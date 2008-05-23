@@ -24,7 +24,7 @@ from tests import TEST_USERS, TEST_UNUSABLE_USER
 
 from PyLucid import models, settings
 from PyLucid.plugins_internal.auth.auth import auth
-from PyLucid.models import User, JS_LoginData
+from PyLucid.models.JS_LoginData import User, JS_LoginData
 from PyLucid.install.install import _create_or_update_superuser
 from PyLucid.tools import crypt
 

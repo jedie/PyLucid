@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     PyLucid back links Plugin
@@ -35,7 +35,7 @@ __version__= "$Rev$"
 
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.models import Page, Preference
+from PyLucid.models import Page
 
 class back_links(PyLucidBasePlugin):
 

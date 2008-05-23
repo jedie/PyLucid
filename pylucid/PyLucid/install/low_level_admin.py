@@ -9,7 +9,7 @@ http://code.djangoproject.com/wiki/CookBookScriptsMiniFlush
 import pickle
 
 from django.conf import settings
-from PyLucid.models import Preference, Page, Template
+from PyLucid.models import Page, Template
 from PyLucid.install.BaseInstall import BaseInstall
 
 from django import newforms as forms

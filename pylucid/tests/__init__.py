@@ -385,7 +385,7 @@ def install_internal_plugins(extra_verbose):
     print "Installing PyLucid internal plugins ",
     from PyLucid.system.plugin_manager import auto_install_plugins
 
-    auto_install_plugins(debug=False, extra_verbose=extra_verbose)
+    auto_install_plugins(debug=True, extra_verbose=extra_verbose)
     print ""
 
 def create_user(username, password, email, is_staff, is_superuser):

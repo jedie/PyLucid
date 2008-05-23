@@ -24,7 +24,7 @@ from tests import TEST_USERS, TEST_UNUSABLE_USER
 
 from django.conf import settings
 
-from PyLucid.models import User
+from django.contrib.auth.models import User
 
 # Open only one traceback in a browser (=True) ?
 #ONE_BROWSER_TRACEBACK = False

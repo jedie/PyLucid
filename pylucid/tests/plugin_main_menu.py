@@ -22,7 +22,7 @@ import tests
 
 from django.conf import settings
 
-from PyLucid.models import Page, Template, Preference
+from PyLucid.models import Page, Template
 
 
 class TestMainMenu1(tests.TestCase):

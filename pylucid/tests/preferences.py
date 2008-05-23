@@ -20,7 +20,7 @@
 """
 
 import tests
-from PyLucid.models import Preference, Plugin
+from PyLucid.models import Plugin
 
 
 #class TestPreference(tests.TestCase):

@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-
 """
-    PyLucid.models
-    ~~~~~~~~~~~~~~
+    PyLucid.models.Page
+    ~~~~~~~~~~~~~~~~~~~
 
-    The database models for PyLucid
-    based on Django's ORM.
+    Models for Page and PageArchive
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -17,24 +15,16 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-import os, posixpath, pickle
-from pprint import pformat
 
-from django.conf import settings
 from django.db import models
+from django.conf import settings
 from django.core.cache import cache
-from django.contrib.auth.models import User, Group, UNUSABLE_PASSWORD
 from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User, Group
 
-from PyLucid.tools.newforms_utils import get_init_dict, setup_help_text
-from PyLucid.tools.data_eval import data_eval, DataEvalError
-from PyLucid.tools.shortcuts import getUniqueShortcut
-from PyLucid.tools import crypt
 from PyLucid.system.utils import get_uri_base
-from PyLucid.system.plugin_import import get_plugin_config, get_plugin_version
-
-from PyLucid.managers import PageManager
-#from PyLucid.db.cache import delete_page_cache
+from PyLucid.tools.shortcuts import getUniqueShortcut
+from PyLucid.system.exceptions import AccessDenied, LowLevelError
 
 
 MARKUPS = (
@@ -47,19 +37,117 @@ MARKUPS = (
     (6, u'Creole wiki markup'),
 )
 
-def delete_page_cache():
-    """
-    Delete all pages in the cache.
-    Needed, if:
-        - A template has been edited
-        - The menu changes (edit the page name, position, parent link)
-    TODO: move this function from models.py into a other nice place...
-    """
-    for items in Page.objects.values('shortcut').iterator():
-        shortcut = items["shortcut"]
-        cache_key = settings.PAGE_CACHE_PREFIX + shortcut
-        cache.delete(cache_key)
 
+class PageManager(models.Manager):
+    """
+    Manager for Page model.
+    """
+
+    class WrongShortcut(LookupError):
+        """ URL string contained invalid shortcuts at the end. """
+        pass
+    
+    @property
+    def default_page(self):
+        """ Return default "index" page """ 
+        from PyLucid.models import Plugin
+        try:
+            preferences = Plugin.objects.get_preferences("system_settings")
+            page_id = preferences["index_page"]
+            return self.get(id__exact=page_id)
+        except Exception, e:
+            # The defaultPage-ID from the Preferences is wrong! Return first
+            # page if anything exists.
+            try:
+                return self.all().order_by("parent", "position")[0]
+            except IndexError, e:
+                msg = _("Error getting a cms page.")
+                raise LowLevelError(msg, e)
+
+    def _check_permission_tree(self,page,test_fcn):
+        """
+        Check permissions of page and its parents. The second parameter
+        test_fcn(page_object) is the test function which must return true or false
+        corresponding to permssion to view specific page.
+        """
+        while page:
+            if not test_fcn(page):
+                return False
+            page = page.parent
+        return True
+
+    def __check_publicView(self, page):
+        """
+        Return true/false if page permits anonymous view.
+        """
+        return page.permitViewPublic
+
+    def __check_groupView(self, user_group_ids):
+        """
+        Return true/false if page permits anonymous view.
+        """
+        def check(page):
+            if page.permitViewGroup == None:
+                return True
+            else:
+                return page.permitViewGroup.id in user_group_ids
+        return check
+    
+
+    def get_by_shortcut(self,url_shortcuts,user):
+        """
+        Returns a page object matching the shortcut. 
+
+        PyLucid urls are build from the page shortcuts:
+        domain.tld/shortcut1/shortcut2/. Only the last existing shortcut will
+        be used. All other parts of the url are simply ignored.
+
+        If url_shortcuts contains no shortcut -> Return the default page (stored in the
+        Preference table).
+        If a part of the url is wrong -> Raise WrongShortcut, with correct path in message
+        If a anonymous user would get a permitViewPublic page -> Raise AccessDenied.
+        If no matching page is found -> Raise Page.DoesNotExist
+
+        TODO: Support user group based access control.
+        """
+
+        # /shortcut1/shortcut2/ -> ['shortcut1','shortcut2']
+        shortcuts = url_shortcuts.strip("/").split('/')
+
+        if shortcuts[0] == "":
+            # No shortcuts return default_page
+            return self.default_page
+        
+        # Check shortcuts in reversed order
+        shortcuts.reverse()
+        wrong_shortcut = False
+        if not user.is_anonymous():
+            user_groups = [x['id'] for x in user.groups.all().values('id')]
+        for shortcut in shortcuts:
+            try:
+                page = self.select_related().get(shortcut__exact=shortcut)
+            except self.model.DoesNotExist:
+                wrong_shortcut = True
+                continue            
+            if user.is_anonymous():
+                if not self._check_permission_tree(page,self.__check_publicView):
+                    # the page or its parent is not viewable for anonymous user
+                    raise AccessDenied
+            elif not user.is_superuser:
+                # Superuser can see all pages.
+                if not self._check_permission_tree(page,self.__check_groupView(user_groups)):
+                    # User is logged in. Check if page is restricted to user group
+                    raise AccessDenied
+
+            # Found an existing, viewable page
+            if wrong_shortcut:
+                # At least one of the shortcuts in the url was wrong -> raise
+                raise self.WrongShortcut, page.get_absolute_url()
+            return page
+        # No right page found
+        raise self.model.DoesNotExist
+
+#______________________________________________________________________________
 
 class Page(models.Model):
     """
@@ -147,6 +235,10 @@ class Page(models.Model):
         help_text="Usergroup how can edit this page."
     )
 
+    class Meta:
+        db_table = 'PyLucid_page'
+        app_label = 'PyLucid'
+
     class Admin:
         list_display = (
             "id", "shortcut", "name", "title", "description",
@@ -183,6 +275,7 @@ class Page(models.Model):
         """
         The default page must have some settings.
         """
+        from PyLucid.models import Plugin
         try:
             preferences = Plugin.objects.get_preferences("system_settings")
         except Plugin.DoesNotExist, e:
@@ -232,6 +325,7 @@ class Page(models.Model):
         -rebuild shortcut (maybe)
         -make shortcut unique
         """
+        from PyLucid.models import Plugin
         try:
             preferences = Plugin.objects.get_preferences("system_settings")
         except Plugin.DoesNotExist, e:
@@ -260,6 +354,7 @@ class Page(models.Model):
         Save a new page or update changed page data.
         before save: check some data consistency to prevents inconsistent data.
         """
+        from PyLucid.system.utils import delete_page_cache
         if self.id != None:
             # a existing page should be updated (It's not a new page ;)
 
@@ -285,6 +380,7 @@ class Page(models.Model):
 
     def delete(self):
         # Delete all pages in the cache.
+        from PyLucid.system.utils import delete_page_cache
         delete_page_cache()
         super(Page, self).delete()
 
@@ -428,339 +524,12 @@ class PageArchiv(models.Model):
         help_text="The reason for editing."
     )
 
+    class Meta:
+        db_table = 'PyLucid_pagearchiv'
+        app_label = 'PyLucid'
+
     class Admin:
         list_display = (
             "id", "page", "edit_comment", "shortcut", "name", "title",
             "description", "lastupdatetime", "lastupdateby"
         )
-
-#______________________________________________________________________________
-
-
-class JS_LoginData(models.Model):
-    """
-    This model class stores the needed SHA information for the PyLucid
-    JS-SHA-Login.
-    Note: We make a Monkey-Patch (?) and change the method set_password() from
-    the model class django.contrib.auth.models.User
-    """
-    user = models.ForeignKey(User)
-
-    sha_checksum = models.CharField(max_length=192)
-    salt = models.CharField(max_length=5)
-
-    createtime = models.DateTimeField(auto_now_add=True)
-    lastupdatetime = models.DateTimeField(auto_now=True)
-
-    def set_unusable_password(self):
-        self.salt = UNUSABLE_PASSWORD
-        self.sha_checksum = UNUSABLE_PASSWORD
-
-    def set_password(self, raw_password):
-        raw_password = str(raw_password)
-        salt, sha_checksum = crypt.make_sha_checksum2(raw_password)
-        self.salt = salt
-        self.sha_checksum = sha_checksum
-
-    def __unicode__(self):
-        return self.user.username
-
-    class Admin:
-        list_display = (
-            'user', 'sha_checksum', 'salt', 'createtime', 'lastupdatetime'
-        )
-
-    class Meta:
-        verbose_name = verbose_name_plural = 'JS-LoginData'
-
-
-
-# Save the original method
-old_set_password = User.set_password
-
-def set_password(user, raw_password):
-#    print "set_password() debug:", user, raw_password
-    if user.id == None:
-        # It is a new user. We must save the django user accound first to get a
-        # existing user object with a ID and then the JS_LoginData can assign to it.
-        user.save()
-
-    # Save the password for the JS-SHA-Login:
-    login_data, status = JS_LoginData.objects.get_or_create(user = user)
-    login_data.set_password(raw_password)
-    login_data.save()
-
-    # Use the original method to set the django User password:
-    old_set_password(user, raw_password)
-
-
-# Make a hook into Django's default way to set a new User Password.
-# Get the new raw_password and set the PyLucid password, too.
-User.set_password = set_password
-
-#____________________________________________________________________
-
-
-class Preference(models.Model):
-    # Obsolete!
-    pass
-
-#____________________________________________________________________
-
-preference_cache = {}
-
-class PluginManager(models.Manager):
-    def get_preferences(self, plugin_name):
-        """
-        returns the preference data dict, use the cache
-        """
-        # Get the name of the plugin, if __file__ used
-        plugin_name = os.path.splitext(os.path.basename(plugin_name))[0]
-        #print "plugin name: '%s'" % plugin_name
-
-        if plugin_name in preference_cache:
-            return preference_cache[plugin_name]
-
-        plugin = self.get(plugin_name = plugin_name)
-        return plugin.get_preferences()
-
-
-class Plugin(models.Model):
-    objects = PluginManager()
-
-    plugin_name = models.CharField(max_length=90, unique=True)
-
-    package_name = models.CharField(max_length=255)
-    author = models.CharField(blank=True, max_length=150)
-    url = models.CharField(blank=True, max_length=255)
-    description = models.CharField(blank=True, max_length=255)
-
-    pref_data_string = models.TextField(
-        null=True, blank=True,
-        help_text="printable representation of the newform data dictionary"
-    )
-    can_deinstall = models.BooleanField(default=True,
-        help_text=(
-            "If false and/or not set:"
-            " This essential plugin can't be deinstalled."
-        )
-    )
-    active = models.BooleanField(default=False,
-        help_text="Is this plugin is enabled and useable?"
-    )
-
-    #__________________________________________________________________________
-    # spezial methods
-
-    def init_pref_form(self, pref_form):
-        """
-        Set self.pref_data_string from the given newforms form and his initial
-        values.
-        """
-        init_dict = get_init_dict(pref_form)
-        preference_cache[self.plugin_name] = init_dict
-        self.set_pref_data_string(init_dict)
-
-    #__________________________________________________________________________
-    # spezial set methods
-
-    def set_pref_data_string(self, data_dict):
-        """
-        set the dict via pformat
-        """
-        preference_cache[self.plugin_name] = data_dict
-        self.pref_data_string = pformat(data_dict)
-
-    #__________________________________________________________________________
-    # spezial get methods
-
-    def get_preferences(self):
-        """
-        evaluate the pformat string into a dict and return it.
-        """
-        data_dict = data_eval(self.pref_data_string)
-        preference_cache[self.plugin_name] = data_dict
-        return data_dict
-
-    def get_pref_form(self, debug):
-        """
-        Get the 'PreferencesForm' newform class from the plugin modul, insert
-        initial information into the help text and return the form.
-        """
-        plugin_config = get_plugin_config(
-            self.package_name, self.plugin_name, debug
-        )
-        form = getattr(plugin_config, "PreferencesForm")
-        setup_help_text(form)
-        return form
-
-    def get_version_string(self, debug=False):
-        """
-        Returned the version string from the plugin module
-        """
-        return get_plugin_version(self.package_name, self.plugin_name, debug)
-
-    #--------------------------------------------------------------------------
-
-    def save(self):
-        """
-        Save a new plugin or update changed data.
-        before save: check some data consistency to prevents inconsistent data.
-        """
-        if self.can_deinstall==False and self.active==False:
-            # This plugin can't be deactivaded!
-            # If reinit misses, the plugin is deinstalled. After a install with
-            # the plugin admin, normaly the plugin would not be acivated
-            # automaticly. So we activated it here:
-            self.active = True
-
-        super(Plugin, self).save() # Call the "real" save() method
-
-    class Meta:
-        permissions = (
-            # Permission identifier     human-readable permission name
-            ("can_use",                 "Can use the plugin"),
-        )
-
-    class Admin:
-        list_display = (
-            "active", "plugin_name", "description", "can_deinstall"
-        )
-        list_display_links = ("plugin_name",)
-        ordering = ('package_name', 'plugin_name')
-        list_filter = ("author","package_name", "can_deinstall")
-
-    def __unicode__(self):
-        txt = u"%s - %s" % (self.package_name, self.plugin_name)
-        return txt.replace(u"_",u" ")
-
-
-#______________________________________________________________________________
-
-
-class Style(models.Model):
-    """
-    The global stylesheet.
-    On save() we try to store the CSS content into a local cache file in the
-    media path. This only works, if the process has the writeability.
-    In a simple shared web hosting environment, the http server runs the web
-    app with the user 'nobody', so he has not the writeability. In this case,
-    the stylesheet must be request via a _command url.
-    Important: The method get_absolute_url() doesn't check if the local cache
-    file was written succsessfully in the past! This it the job for the
-    page_style plugin. The method returns allways the url to the locale cache
-    file.
-    """
-    name = models.CharField(unique=True, max_length=150)
-
-    createtime = models.DateTimeField(auto_now_add=True)
-    lastupdatetime = models.DateTimeField(auto_now=True)
-
-    createby = models.ForeignKey(User, related_name="style_createby",
-        null=True, blank=True
-    )
-    lastupdateby = models.ForeignKey(User, related_name="style_lastupdateby",
-        null=True, blank=True
-    )
-
-    description = models.TextField(null=True, blank=True)
-    content = models.TextField()
-
-    class Admin:
-        list_display = (
-            "id", "name", "description", "createtime", "lastupdatetime"
-        )
-        list_display_links = ("name",)
-
-    def __unicode__(self):
-        return self.name
-
-    def get_filename(self):
-        """
-        How to make it URL and filesystem save?
-        """
-        return self.name + ".css"
-
-    def get_absolute_url(self):
-        """
-        Get the absolute url (without the domain/host part) for the stylesheet
-        file stored in the media path.
-        Important: Returns allways a link to the locale cache file, it doesn't
-        check if the file exists!
-        """
-        filename = self.get_filename()
-        url = posixpath.join(
-            "",
-            settings.MEDIA_URL,
-            settings.PYLUCID_MEDIA_DIR,
-            filename, # FIXME: url save?
-        )
-        return url
-
-    def get_filepath(self):
-        """
-        Get the file path to the local stylesheet file.
-        Important: It is not tested if the file exists!
-        FIXME: How to handle special characters?
-        """
-        filename = self.get_filename()
-        filepath = os.path.join(
-            settings.MEDIA_ROOT,
-            settings.PYLUCID_MEDIA_DIR,
-            filename
-        )
-        # FIXME: Should we use os.path.abspath() ?
-        return filepath
-
-    def save(self):
-        """
-        Save a new or updated stylesheet.
-        try to store the content into the cache file in the media path.
-        """
-        filepath = self.get_filepath()
-        try:
-            f = file(filepath, "w") # FIXME: Encoding?
-            content = self.content.encode(settings.FILE_CHARSET)
-            f.write(content)
-            f.close()
-        except Exception, e:
-            # FIXME: How can we give feedback?
-#            print "Style save error:", e # Olny for dev server
-            pass
-
-        #Delete the page cache if a stylesheet was edited.
-        delete_page_cache()
-
-        super(Style, self).save() # Call the "real" save() method
-
-
-class Template(models.Model):
-    name = models.CharField(unique=True, max_length=150)
-
-    createtime = models.DateTimeField(auto_now_add=True)
-    lastupdatetime = models.DateTimeField(auto_now=True)
-
-    createby = models.ForeignKey(User, related_name="template_createby",
-        null=True, blank=True
-    )
-    lastupdateby = models.ForeignKey(User, related_name="template_lastupdateby",
-        null=True, blank=True
-    )
-
-    description = models.TextField()
-    content = models.TextField()
-
-    def save(self):
-        """
-        Delete the page cache if a template was edited.
-        """
-        delete_page_cache()
-
-        super(Template, self).save() # Call the "real" save() method
-
-    class Admin:
-        list_display = ("id", "name", "description")
-        list_display_links = ("name",)
-
-    def __unicode__(self):
-        return self.name
