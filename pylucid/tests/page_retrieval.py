@@ -120,6 +120,76 @@ class permitViewPublicTestCase(tests.TestCase):
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
 
+class permitViewGroupTestCase(tests.TestCase):
+    """
+    Unit tests for permitViewGroup handling.
+    """
+    from django.contrib.auth.models import Group, User
+
+    def setUp(self):
+        """
+        Create some pages, groups and users to play with.
+        """
+        # groups
+        group_names = ('groupA','groupB')
+        groups = {}
+        for name in group_names:
+            (groups[name],dummy) = self.Group.objects.get_or_create(name=name)
+            groups[name].save()
+        # users
+        USERS = {
+            "A": {
+                    "username": "userA",
+                    "email": "user@example.org",
+                    "password": "passwordA",
+                    "is_staff": False,
+                    "is_superuser": False,
+                    },
+            "B": {
+                    "username": "userB",
+                    "email": "user@example.org",
+                    "password": "passwordB",
+                    "is_staff": False,
+                    "is_superuser": False,
+                    },
+            }
+        for usertype, userdata in USERS.iteritems():
+            u = tests.create_user(**userdata)
+            u.groups.add(groups['group'+usertype])
+            u.save
+        self.USERS = USERS
+
+        self.groupPage = tests.create_page({'name':'PageForGroupA'})
+        self.groupPage.permitViewGroup = groups['groupA']
+        self.groupPage.save()
+        
+    def testPermViewGroupMember(self):
+        """ Group member can see page. """
+        self.client.login(username='userA',password=self.USERS['A']['password'])
+        url = '/'+self.groupPage.shortcut+'/'
+        response = self.client.get(url)
+         # Check that the respose is 200 OK.
+        self.failUnlessEqual(response.status_code, 200)
+
+    def testPermViewGroupNonMember(self):
+        """ Group non-member can't see page. """
+        self.client.login(username='userB',password=self.USERS['B']['password'])
+        url = '/'+self.groupPage.shortcut+'/'
+        response = self.client.get(url)
+         # Check that the respose is 302 Redirect and user gets "Access Denied" message.
+        self.failUnlessEqual(response.status_code, 302)
+        self.failUnlessEqual(str(self.User.objects.get(username='userB').message_set.all()[0]), 
+                             'Access denied')
+
+    def testPermViewGroupSuperUser(self):
+        """ Superuser can see page. """
+        self.login('superuser')
+        url = '/'+self.groupPage.shortcut+'/'
+        response = self.client.get(url)
+         # Check that the respose is 200 OK.
+        self.failUnlessEqual(response.status_code, 200)
+
+
 
 if __name__ == "__main__":
     # Run this unitest directly
