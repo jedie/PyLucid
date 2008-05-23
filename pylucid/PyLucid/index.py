@@ -97,10 +97,11 @@ def _get_context(request, current_page_obj):
 
     context = RequestContext(request)
 
-    context["page_msg"] = PageMessages(context)
+    request.page_msg = PageMessages(context)
 
     # Redirect every "warning" messages into the page_msg:
-    redirect_warnings(context["page_msg"])
+#    redirect_warnings(request.page_msg)
+    redirect_warnings(request.page_msg)
 
     context["PAGE"] = current_page_obj
     context["URLs"] = URLs(context)
@@ -121,8 +122,16 @@ def _get_context(request, current_page_obj):
     add_dynamic_context(request, context)
 
     # Add the context to the reponse object.
-    # Used in PyLucid.middlewares.additional_content
+    # Used in PyLucid middlewares
     request.CONTEXT = context
+
+    # TODO: remove Backwards-incompatible changes in >v0.8.5
+    msg = (
+        'Error, see: <a href="'
+        'http://www.pylucid.org/_goto/121/changes/#20-05-2008-page_msg'
+        '">pylucid.org - Backwards-incompatible changes - page_msg</a>'
+    )
+    context["messages"] = [mark_safe(msg)]
 
     return context
 

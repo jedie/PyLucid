@@ -24,16 +24,16 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
+    $LastChangedDate:2008-05-13 18:26:55 +0200 (Di, 13 Mai 2008) $
+    $Rev:1561 $
+    $Author:JensDiemer $
 
     :copyleft: 2007-2008 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
 
-__version__ = "$Rev$"
+__version__ = "$Rev:1561 $"
 
 import sys, re
 
@@ -45,7 +45,7 @@ class TinyTextileParser:
     def __init__(self, out_obj, context):
         self.out = out_obj
         self.context = context
-        self.page_msg   = context["page_msg"]
+        self.page_msg = context["request"].page_msg
 
         # Blockelements
         self.block_rules = self._compile_rules([

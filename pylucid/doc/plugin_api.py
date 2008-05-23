@@ -10,7 +10,7 @@
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
     $Rev$
-    $Author: JensDiemer $
+    $Author$
 
     :copyleft: 2008 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
@@ -146,6 +146,21 @@ class ExamplePlugin(PyLucidBasePlugin):
         current displayed page title, so it makes more sense for the user.
         """
         self.context["PAGE"].title = "The Plugin Title"
+
+    #__________________________________________________________________________
+    # PREFERENCES
+    #
+    def get_my_preferences(self):
+        """
+        more info about plugin preferences:
+            http://www.pylucid.org/_goto/153/preferences/
+        """
+        # Get the preferences from the database:
+        preferences = self.get_preferences()
+
+        # Get a entry (It's a dict api)
+        my_entry_value = preferences["entry_key"]
+
 
     #__________________________________________________________________________
     # ENVIRONMENT

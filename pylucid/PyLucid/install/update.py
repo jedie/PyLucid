@@ -18,16 +18,25 @@ from PyLucid.models import JS_LoginData, Page, Template, Style
 from django.contrib.auth.models import User
 
 #______________________________________________________________________________
+
+import re
+from PyLucid.tools.Diff import diff_lines as _diff_lines
+
+PAGE_MSG_RE = re.compile(r"""{% if messages %}.*?{% endif %}(?uims)""")
+NEW_PAGE_MSG_TAG = "<!-- page_messages -->"
+BACKUP_NAME_SUFFIX = " auto backup"
+
 class Update2(BaseInstall):
     def view(self):
         self._redirect_execute(self._update_tables)
+        self._redirect_execute(self._update_templates)
 
         return self._simple_render(
-            headline="Update PyLucid from v0.8.0 to v0.8.1"
+            headline="Update PyLucid from v0.8.0 to v0.8.5"
         )
 
     def _update_tables(self):
-        print "update database tables:"
+        print "*** update database tables:"
         for table_name in ("pagesinternal", "markup"):
             try:
                 # FIXME: How we can use the ORM here?
@@ -39,10 +48,61 @@ class Update2(BaseInstall):
             else:
                 print "OK"
 
+    def _update_templates(self):
+        print "\n*** update templates:"
+        templates = Template.objects.all()
+        for template in templates:
+            old_id = template.id
+
+            print "_"*79
+            print "process template '%s':" % template.name
+
+            if BACKUP_NAME_SUFFIX in template.name:
+                #template.delete()
+                print "Skip!"
+                continue
+
+            old_content = template.content
+            new_content = PAGE_MSG_RE.sub(NEW_PAGE_MSG_TAG, old_content)
+            if old_content == new_content:
+                print "Old tag not found or changes applied in the past."
+                continue
+
+            print "result diff:"
+            diff = _diff_lines(old_content, new_content)
+            print diff
+            print "-"*79
+
+            original_name = template.name
+            backup_name = original_name + BACKUP_NAME_SUFFIX
+            print "Create backup template '%s'..." % backup_name,
+
+            try:
+                bak_template = Template.objects.get(name=backup_name)
+            except Template.DoesNotExist:
+                # ok, create backup
+                template.name = backup_name
+                template.id = None
+                template.save()
+                print "OK"
+            else:
+                print "\nError: A template with the name '%s' exists." % (
+                    backup_name
+                )
+                print "Skip update!"
+                continue
+
+            template.name = original_name
+            template.id = old_id
+
+            print "save new content...",
+            template.content = new_content
+            template.save()
+            print "OK"
 
 def update2(request):
     """
-    1. update from v0.8.0 to v0.8.1
+    1. update from v0.8.0 to v0.8.5
     """
     return Update2(request).start_view()
 
@@ -427,18 +487,9 @@ LUCID_TAG_RE = re.compile(
     "|"
     "<lucid(Function):(.*?)>(.*?)</lucidFunction>"
 )
-PAGE_MSG_TAG = """\
-  {% if messages %}
-    <fieldset id="page_msg"><legend>page message</legend>
-    {% for message in messages %}
-      {{ message }}<br />
-    {% endfor %}
-    </fieldset>
-  {% endif %}\
-"""
 
 CHANGE_TAGS = {
-    "page_msg": PAGE_MSG_TAG,
+    "page_msg": "<!-- page_messages -->",
     "script_login": "{{ login_link }}",
     "robots": "{{ robots }}",
     "powered_by": "{{ powered_by }}",

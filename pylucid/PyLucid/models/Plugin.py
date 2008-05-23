@@ -23,6 +23,7 @@ from django.core.cache import cache
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 
+from PyLucid.system.plugin_import import get_plugin_config, get_plugin_version
 from PyLucid.tools.newforms_utils import get_init_dict, setup_help_text
 from PyLucid.tools.data_eval import data_eval, DataEvalError
 
@@ -105,7 +106,11 @@ class Plugin(models.Model):
         """
         evaluate the pformat string into a dict and return it.
         """
-        data_dict = data_eval(self.pref_data_string)
+        if self.pref_data_string == None:
+            # There exist no preferences (e.g. plugin update not applied, yet)
+            data_dict = None
+        else:
+            data_dict = data_eval(self.pref_data_string)
         preference_cache[self.plugin_name] = data_dict
         return data_dict
 

@@ -86,6 +86,8 @@ MIDDLEWARE_CLASSES = (
     # Insert a statistic line into the generated page:
     'PyLucid.middlewares.pagestats.PageStatsMiddleware',
 
+    'PyLucid.middlewares.pagemessages.PageMessagesMiddleware',
+
     # PyLucidCommonMiddleware loads the django middlewares:
     #    - 'django.contrib.sessions.middleware.SessionMiddleware'
     #    - 'django.contrib.auth.middleware.AuthenticationMiddleware'

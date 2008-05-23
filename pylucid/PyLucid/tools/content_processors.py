@@ -127,7 +127,8 @@ def apply_markup(content, context, markup_no):
     Makrups IDs defined in
         ./PyLucid/models.py
     """
-    page_msg = context["page_msg"]
+    request  = context["request"]
+    page_msg = request.page_msg
 
     if markup_no == 2: # textile
         content = apply_tinytextile(content, context)

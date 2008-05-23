@@ -32,9 +32,10 @@ license:
 
 import os, sys, pprint, inspect
 
-from django.utils.safestring import mark_safe
-from django.conf import settings
+from django.utils.safestring import mark_safe, SafeData
+from django.utils.encoding import force_unicode
 
+from django.conf import settings
 
 from PyLucid.tools.utils import escape
 
@@ -45,14 +46,14 @@ class PageMessages(object):
     http://www.djangoproject.com/documentation/authentication/#messages
     """
     def __init__(self, context):
+        request = context["request"]
+
         try:
-            self.messages = context["messages"]
-        except KeyError:
-            # No django messages inserted by RequestContext
-            # In the _install section we use no RequestContext ;)
+            self.messages = request.user.get_and_delete_messages()
+        except AttributeError:
+            # In the _install section we have no user
             self.messages = []
 
-        request = context["request"]
         self.debug_mode = getattr(request, "debug", False)
 
         self._charset = settings.DEFAULT_CHARSET
@@ -84,7 +85,6 @@ class PageMessages(object):
         msg = '<span style="color:%s;">%s</span>' % (
             color, self.prepare(*msg)
         )
-
         #~ self.request.user.message_set.create(message=msg)
         msg = mark_safe(msg) # turn djngo auto-escaping off
         self.messages.append(msg)
@@ -92,11 +92,7 @@ class PageMessages(object):
     def _get_fileinfo(self):
         """
         Append the fileinfo: Where from the announcement comes?
-        Only, if debug_mode is on.
         """
-        if self.debug_mode != True:
-            return ""
-
         try:
             self_basename = os.path.basename(__file__)
             if self_basename.endswith(".pyc"):
@@ -125,7 +121,10 @@ class PageMessages(object):
         -if debug_mode is on: insert a info from where the message sended.
         -for dict, list use pprint ;)
         """
-        result = [self._get_fileinfo()]
+        if self.debug_mode == True:
+            result = [self._get_fileinfo()]
+        else:
+            result = []
 
         for item in msg:
             if isinstance(item, dict) or isinstance(item, list):
@@ -140,20 +139,31 @@ class PageMessages(object):
                 result.append(" ")
 
         result = "".join(result)
-        return escape(result)
+        return result
 
     def encode_and_prepare(self, txt):
         """
-        returns the given txt as a string object.
+        Pass "safe" strings, all other would be escaped.
         """
-        if isinstance(txt, unicode):
-            return txt.encode(self._charset)
+        if isinstance(txt, SafeData):
+            return txt
 
-        # FIXME: Is that needed???
-        try:
-            return str(txt)
-        except:
-            return repr(txt)
+        if not isinstance(txt, unicode):
+            txt = force_unicode(txt)
+
+        return escape(txt)
+
+
+    #________________________________________________________________
+
+    def __repr__(self):
+        return "page messages: %s" % repr(self.messages)
+
+    def __str__(self):
+        return "pages messages: %s" % ", ".join(self.messages)
+
+    def __unicode__(self):
+        return u"page messages: %s" % u", ".join(self.messages)
 
     #________________________________________________________________
     # Some methods for the django template engine:

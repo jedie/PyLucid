@@ -129,10 +129,10 @@ class BaseInstall(object):
         self.context = get_base_context(request)
 
         self.page_msg = PageMessages(self.context)
-        self.context["page_msg"] = self.page_msg
+        self.request.page_msg = self.page_msg
 
-        # Redirect every "warning" messages into context["page_msg"]:
-        redirect_warnings(self.context["page_msg"])
+        # Redirect every "warning" messages into request.page_msg:
+        redirect_warnings(self.request.page_msg)
 
     #___________________________________________________________________________
 
@@ -144,7 +144,7 @@ class BaseInstall(object):
         self.context["no_menu_link"] = True
 
         if msg and msg != "": # insert the messages:
-            self.context["page_msg"].write(msg)
+            self.request.page_msg.write(msg)
 
         return render_to_response(
             "install_generate_hash.html", self.context
@@ -171,7 +171,7 @@ class BaseInstall(object):
         except Exception, msg:
             # Cookie is not set or the salt hash value compair failed
             if DEBUG:
-                self.context["page_msg"].write("DEBUG: %s" % msg)
+                self.request.page_msg.write("DEBUG: %s" % msg)
         else:
             # access ok -> start the normal _install view() method
             return self.view(*args)
@@ -189,7 +189,7 @@ class BaseInstall(object):
                     check_password_hash(password_hash)
                 except WrongPassword, msg:
                     # Display the form again
-                    self.context["page_msg"].write(msg)
+                    self.request.page_msg.write(msg)
                 else:
                     # Password is ok. -> process the normal _instal view()
                     response = self.view(*args)
@@ -204,7 +204,7 @@ class BaseInstall(object):
         self.context["salt"] = data["salt"]
 
         self.context["no_menu_link"] = True # no "back to menu" link
-#        self.context["page_msg"].write(_("Please input the password"))
+#        self.request.page_msg.write(_("Please input the password"))
         return render_to_response("install_login.html", self.context)
 
    #___________________________________________________________________________

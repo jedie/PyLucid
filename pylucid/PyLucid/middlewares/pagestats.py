@@ -24,6 +24,7 @@ from time import time
 from django.db import connection
 
 from PyLucid.template_addons.filters import human_duration
+from PyLucid.middlewares.utils import is_html, replace_content
 
 # Save the start time of the current running pyhon instance
 start_overall = time()
@@ -50,7 +51,7 @@ class PageStatsMiddleware(object):
         calculate the statistic and replace it into the html page.
         """
         # Put only the statistic into HTML pages
-        if not "html" in response._headers["content-type"][1]:
+        if not is_html(response):
             # No HTML Page -> do nothing
             return response
 
@@ -68,25 +69,18 @@ class PageStatsMiddleware(object):
             'queries' : queries,
         }
 
-        content = response.content
-        if not isinstance(content, unicode):
-            # FIXME: In my shared webhosting environment is response.content a
-            # string and not unicode. Why?
-            from django.utils.encoding import force_unicode
-            try:
-                content = force_unicode(content)
-            except:
-                return response
-
-#        content = self.debug_sql_queries(content)
-
         # insert the page statistic
-        new_content = content.replace(TAG, stat_info)
-        response.content = new_content
+        response = replace_content(response, TAG, stat_info)
+
+        #response = self.debug_sql_queries(response)
 
         return response
 
-    def debug_sql_queries(self, content):
+    def debug_sql_queries(self, response):
+        """
+        Insert all SQL queries.
+        ONLY for developers!
+        """
         show_only = ("PyLucid_plugin", "PyLucid_preference2")
         sql_info = "<h2>Debug SQL queries:</h2>"
         if show_only:
@@ -105,5 +99,7 @@ class PageStatsMiddleware(object):
             sql = sql.replace(' WHERE "', '\nWHERE "')
             sql_info += "\n%s\n%s\n" % (time, sql)
         sql_info += "</pre></body>"
-        content = content.replace("</body>", sql_info)
-        return content
+
+        response = replace_content(response, "</body>", sql_info)
+
+        return response

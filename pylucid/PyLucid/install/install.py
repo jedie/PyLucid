@@ -102,10 +102,6 @@ class Init_DB2(BaseInstall):
     def view(self):
         from PyLucid.tools.db_dump import loaddb
 
-        # Delete all prefecrences (only for alpha state!!!)
-        from PyLucid.models import Preference
-        Preference.objects.all().delete()
-
         self._redirect_execute(
             loaddb,
             app_labels = [], format = "py", options = DB_DumpFakeOptions()

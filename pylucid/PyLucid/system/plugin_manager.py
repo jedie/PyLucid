@@ -52,13 +52,13 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         msg = "Error run plugin/plugin '%s.%s: %s" % (
             plugin_name, method_name, msg
         )
-        context["page_msg"](msg)
+        request.page_msg(msg)
         msg2 = '<i title="(Error details in page messages.)">["%s.%s" error.]</i>' % (
             plugin_name, method_name
         )
         local_response.write(msg2)
 
-#    context["page_msg"](plugin_name, method_name)
+#    request.page_msg(plugin_name, method_name)
     try:
         plugin = Plugin.objects.get(plugin_name=plugin_name)
     except Plugin.DoesNotExist, e:
@@ -72,7 +72,7 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         plugin_name = plugin.plugin_name,
         debug = request.debug,
     )
-#    context["page_msg"](plugin_config.plugin_manager_data)
+#    request.page_msg(plugin_config.plugin_manager_data)
     try:
         method_cfg = plugin_config.plugin_manager_data[method_name]
     except KeyError:
@@ -81,7 +81,7 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         error("Can't get config for the method '%s'." % method_name)
         return
 
-#    context["page_msg"](method_cfg)
+#    request.page_msg(method_cfg)
     if method_cfg["must_login"]:
         # User must be login to use this method
         # http://www.djangoproject.com/documentation/authentication/
@@ -145,9 +145,9 @@ def run(context, response, plugin_name, method_name, url_args=(),
             raise
 
         msg = "Run plugin %s.%s Error" % (plugin_name, method_name)
-        context["page_msg"].red("%s:" % msg)
+        request.page_msg.red("%s:" % msg)
         import sys, traceback
-        context["page_msg"]("<pre>%s</pre>" % traceback.format_exc())
+        request.page_msg("<pre>%s</pre>" % traceback.format_exc())
         return msg + "(Look in the page_msg)"
 
 

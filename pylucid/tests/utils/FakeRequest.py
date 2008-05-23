@@ -27,6 +27,7 @@ class FakeRequest(object):
     user = FakeUser()
     META = {"HTTP_HOST": __fake_http_host,}
     debug = True
+    page_msg = FakePageMsg()
     def get_host(self):
         """
         django's request.get_host()
@@ -53,7 +54,7 @@ def get_fake_context(page_object=None):
 
     fake_context = {
         "request": FakeRequest(),
-        "page_msg": FakePageMsg(),
+#        "page_msg": ,
         "PAGE": page_object,
         "CSS_ID_list": [],
 

@@ -36,8 +36,9 @@ class InternalPage(object):
     "custom_internal_page_root" - filesystem path to customized internal pages
     """
     def __init__(self, context, plugin_name):
-        self.page_msg   = context["page_msg"]
-        self.URLs       = context["URLs"]
+        self.request     = context["request"]
+        self.page_msg    = self.request.page_msg
+        self.URLs        = context["URLs"]
 
         self.plugin_name = plugin_name
 
