@@ -36,6 +36,13 @@ from PyLucid.tools.content_processors import apply_markup, \
                                     render_string_template, redirect_warnings
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
+# TODO: Remove in PyLucid >v0.8.5
+PAGE_MSG_INFO_LINK = (
+    '<a href="'
+    'http://www.pylucid.org/_goto/121/changes/#20-05-2008-page_msg'
+    '">pylucid.org - Backwards-incompatible changes - page_msg</a>'
+)
+
 
 def _render_cms_page(request, context, page_content=None):
     """
@@ -82,6 +89,15 @@ def _render_cms_page(request, context, page_content=None):
     # django template engine:
     content = replace_add_data(context, content)
 
+    # TODO: Remove in PyLucid >v0.8.5
+    middleware = 'PyLucid.middlewares.pagemessages.PageMessagesMiddleware'
+    if middleware not in settings.MIDDLEWARE_CLASSES:
+        msg = (
+            u"ERROR: %s not in settings.MIDDLEWARE_CLASSES!"
+            " More info: %s"
+        ) % (middleware, PAGE_MSG_INFO_LINK)
+        content = content.replace(u"<!-- page_messages -->", msg)
+
     return HttpResponse(content)
 
 
@@ -125,12 +141,8 @@ def _get_context(request, current_page_obj):
     # Used in PyLucid middlewares
     request.CONTEXT = context
 
-    # TODO: remove Backwards-incompatible changes in >v0.8.5
-    msg = (
-        'Error, see: <a href="'
-        'http://www.pylucid.org/_goto/121/changes/#20-05-2008-page_msg'
-        '">pylucid.org - Backwards-incompatible changes - page_msg</a>'
-    )
+    # TODO: Remove in PyLucid >v0.8.5
+    msg = 'Error, see: %s' % PAGE_MSG_INFO_LINK
     context["messages"] = [mark_safe(msg)]
 
     return context
@@ -166,7 +178,6 @@ def index(request, url):
         raise Http404(_("Page '%s' doesn't exists.") % url)
 
     context = _get_context(request, current_page_obj)
-
 
     # Get the response for the requested cms page:
     response = _render_cms_page(request, context)
