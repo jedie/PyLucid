@@ -153,6 +153,10 @@ class PageChoiceField(forms.IntegerField):
             parent page is logical valid. Here we check only, if the page with
             the given ID exists.
         """
+        if page_id == None:
+            # assigned to tree root
+            return None
+
         # let convert the string into a integer:
         page_id = super(PageChoiceField, self).clean(page_id)
 

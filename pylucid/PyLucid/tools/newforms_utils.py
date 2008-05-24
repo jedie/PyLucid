@@ -32,11 +32,11 @@ def get_init_dict(form):
     init_dict = {}
     for field_name, field in form.base_fields.iteritems():
         initial = field.initial
-        if initial == None:
-            msg = (
-                "The preferences model attribute '%s' has no initial value!"
-            ) % field_name
-            raise NoInitialError(msg)
+#        if initial == None:
+#            msg = (
+#                "The preferences model attribute '%s' has no initial value!"
+#            ) % field_name
+#            raise NoInitialError(msg)
 
         init_dict[field_name] = initial
     return init_dict

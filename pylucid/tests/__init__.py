@@ -108,7 +108,7 @@ from PyLucid.tools.db_dump import loaddb
 from PyLucid.tools.Diff import make_diff
 from tests.utils.BrowserDebug import debug_response
 
-from PyLucid.models import Page, Style, Template, Style
+from PyLucid.models import Page, Style, Template, Plugin
 from django.contrib.auth.models import User, UNUSABLE_PASSWORD
 from django.test import TestCase as DjangoTestCase
 
@@ -182,6 +182,28 @@ TEST_PAGES_SHORTCUTS = [
 # Temporary file for storing database fixture
 FIXTURE_FILE = tempfile.NamedTemporaryFile(prefix='PyLucid_',suffix='.json')
 
+def change_preferences(plugin_name, **kwargs):
+    """
+    Change plugin preferences
+    """
+    # Get plugin+preferences
+    plugin = Plugin.objects.get(plugin_name = plugin_name)
+    preferences = plugin.get_preferences()
+    preferences.update(kwargs)
+
+    # Check the new preferences via newforms from the plugin config file
+    unbound_form = plugin.get_pref_form(debug=True)
+    form = unbound_form(preferences)
+    assert form.is_valid(), "Error change preferences: %s" % repr(form.errors)
+
+    # Save the new preferences
+    new_data_dict = form.cleaned_data
+    plugin.set_pref_data_string(new_data_dict)
+    plugin.save()
+
+
+
+
 class TestCase(DjangoTestCase):
     """
     PyLucid test case.
@@ -221,15 +243,17 @@ class TestCase(DjangoTestCase):
             is_list.sort()
             should_be_list.sort()
 
+        error_msg = ""
+
         if is_list != should_be_list:
             is_list2 = pprint.pformat(is_list)
             should_be_list2 = pprint.pformat(should_be_list)
-            print "\nThe two lists are not the same:"
+            error_msg += "The two lists are not the same:\n"
             for line in make_diff(should_be_list2, is_list2):
-                print line
+                error_msg += "%s\n" % line
 
         self.assertEqual(
-            is_list, should_be_list, "The two lists are not the same!"
+            is_list, should_be_list, error_msg
         )
 
     #__________________________________________________________________________
@@ -321,15 +345,19 @@ class TestCase(DjangoTestCase):
         """
         is_links = []
         should_be_links = []
-        for page in [Page.objects.all().order_by('id')[0]]:
+        for page in Page.objects.all().order_by('id'):
             url = page.get_absolute_url()
+            #print "url:", url
             response = self.client.get(url)
             self.failUnlessEqual(response.status_code, 200)
 
             content = response.content.strip()
+            #print content
             is_links.append(self.get_links(content))
             should_be_links.append(snapshot[url])
 
+        #print "is_links:", is_links
+        #print "should_be_links:", should_be_links
         self.assertLists(is_links, should_be_links, sort=False)
 
     def create_link_snapshot(self, print_result=True):
@@ -342,7 +370,7 @@ class TestCase(DjangoTestCase):
             print "Build a snapshot for the unittest compare:"
             print "-"*79
         data = {}
-        for page in Page.objects.all():
+        for page in Page.objects.all().order_by('id'):
             url = page.get_absolute_url()
 
             response = self.client.get(url)
@@ -354,7 +382,11 @@ class TestCase(DjangoTestCase):
             data[url] = links
 
         if print_result:
-            pprint.pprint(data)
+            result = pprint.pformat(data)
+            lines = result.splitlines()
+            print "        snapshot = %s" % lines[0]
+            for line in lines[1:]:
+                print "            %s" % line
             print "-"*79
         return data
 

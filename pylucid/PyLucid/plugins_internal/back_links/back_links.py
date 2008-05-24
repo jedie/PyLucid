@@ -79,8 +79,7 @@ class back_links(PyLucidBasePlugin):
 
         context = {
             "pages": data,
-            "print_index": preferences["print_index"],
-            "index": preferences["index"],
+            "preferences": preferences,
         }
         self._render_template("back_links", context)#, debug=True)
 

@@ -26,12 +26,10 @@ class Shortcuttest(tests.TestCase):
     Tests for Page shortcut creation.
     """
     def setUp(self):
-        """ Ensure that auto_shortcuts is false. """      
-        plugin = Plugin.objects.get(plugin_name = "system_settings")
-        preferences = plugin.get_preferences()
-        preferences["auto_shortcuts"] = False
-        plugin.set_pref_data_string(preferences)
-        plugin.save()
+        """ Ensure that auto_shortcuts is false. """
+        tests.change_preferences(
+            plugin_name = "system_settings", auto_shortcuts = False
+        )
 
         self.page = Page.objects.all()[0]
 

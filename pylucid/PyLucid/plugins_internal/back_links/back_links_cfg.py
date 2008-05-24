@@ -25,8 +25,12 @@ class PreferencesForm(forms.Form):
         ),
     )
     print_index = forms.BooleanField(
-        initial = True,
-        help_text = _('If checked display a link to the index ("/")'),
+        initial = False,
+        help_text = _('If checked every back link bar starts with a link to "index_url"'),
+    )
+    index_url = forms.CharField(
+        initial = "/",
+        help_text = _("The url used for print_index. Note: not verify if the url exists."),
     )
     index = forms.CharField(
         initial = _("Index"),

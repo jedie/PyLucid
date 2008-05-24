@@ -1,6 +1,6 @@
 <ul>
-  {% if print_index %}
-    <li><a href="/">{{ index|escape }}</a></li>
+  {% if preferences.print_index %}
+    <li><a href="{{ preferences.index_url }}">{{ preferences.index|escape }}</a></li>
   {% endif %}
   {% for page in pages %}
     <li><a href="{{ page.get_absolute_url }}">{{ page.name|escape }}</a></li>

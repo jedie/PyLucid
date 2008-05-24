@@ -46,10 +46,10 @@ class PageManager(models.Manager):
     class WrongShortcut(LookupError):
         """ URL string contained invalid shortcuts at the end. """
         pass
-    
+
     @property
     def default_page(self):
-        """ Return default "index" page """ 
+        """ Return default "index" page """
         from PyLucid.models import Plugin
         try:
             preferences = Plugin.objects.get_preferences("system_settings")
@@ -92,11 +92,11 @@ class PageManager(models.Manager):
             else:
                 return page.permitViewGroup.id in user_group_ids
         return check
-    
+
 
     def get_by_shortcut(self,url_shortcuts,user):
         """
-        Returns a page object matching the shortcut. 
+        Returns a page object matching the shortcut.
 
         PyLucid urls are build from the page shortcuts:
         domain.tld/shortcut1/shortcut2/. Only the last existing shortcut will
@@ -117,7 +117,7 @@ class PageManager(models.Manager):
         if shortcuts[0] == "":
             # No shortcuts return default_page
             return self.default_page
-        
+
         # Check shortcuts in reversed order
         shortcuts.reverse()
         wrong_shortcut = False
@@ -128,7 +128,7 @@ class PageManager(models.Manager):
                 page = self.select_related().get(shortcut__exact=shortcut)
             except self.model.DoesNotExist:
                 wrong_shortcut = True
-                continue            
+                continue
             if user.is_anonymous():
                 if not self._check_permission_tree(page,self.__check_publicView):
                     # the page or its parent is not viewable for anonymous user
@@ -283,6 +283,10 @@ class Page(models.Model):
             return
 
         index_page_id = preferences["index_page"]
+
+        if index_page_id == None:
+            # No default page definied
+            return
 
         if int(self.id) != int(index_page_id):
             # This page is not the default index page
