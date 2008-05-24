@@ -19,17 +19,19 @@
 
 import tests
 
-from PyLucid.models import Page, Preference
+from PyLucid.models import Page, Plugin
 
 class Shortcuttest(tests.TestCase):
     """
     Tests for Page shortcut creation.
     """
     def setUp(self):
-        """ Ensure that auto_shortcuts is false. """
-        auto_shortcuts = Preference.objects.get(name='auto shortcuts')
-        auto_shortcuts.value = False
-        auto_shortcuts.save()
+        """ Ensure that auto_shortcuts is false. """      
+        plugin = Plugin.objects.get(plugin_name = "system_settings")
+        preferences = plugin.get_preferences()
+        preferences["auto_shortcuts"] = False
+        plugin.set_pref_data_string(preferences)
+        plugin.save()
 
         self.page = Page.objects.all()[0]
 
@@ -78,12 +80,12 @@ class Shortcuttest(tests.TestCase):
         # For page.id = None look at:
         # http://www.djangoproject.com/documentation/db-api/#how-django-knows-to-update-vs-insert
         self.page.id = None # django recognizes page as new
-        self.page.shortcut = new_shortcut        
+        self.page.shortcut = new_shortcut
         self.page.save()
         self.failUnlessEqual(self.page.shortcut,new_shortcut+"1")
 
-        self.page.id = None 
-        self.page.shortcut = new_shortcut        
+        self.page.id = None
+        self.page.shortcut = new_shortcut
         self.page.save()
         self.failUnlessEqual(self.page.shortcut,new_shortcut+"2")
 
