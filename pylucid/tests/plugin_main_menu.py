@@ -46,45 +46,50 @@ class TestMainMenu1(tests.TestCase):
     def test1(self):
         """
         test all generated links
+        If the snapshot test fails, use self.create_link_snapshot() to generate a
+        updated snapshot.
         """
-        snapshot = {u'/1_AAA/': [('/1_AAA', '1_AAA'),
-                      ('/1_AAA/1_1_BBB', '1_1_BBB'),
-                      ('/1_AAA/1_2_BBB', '1_2_BBB'),
-                      ('/2_DDD', '2_DDD')],
-         u'/1_AAA/1_1_BBB/': [('/1_AAA', '1_AAA'),
-                              ('/1_AAA/1_1_BBB', '1_1_BBB'),
-                              ('/1_AAA/1_2_BBB', '1_2_BBB'),
-                              ('/2_DDD', '2_DDD')],
-         u'/1_AAA/1_2_BBB/': [('/1_AAA', '1_AAA'),
-                              ('/1_AAA/1_1_BBB', '1_1_BBB'),
-                              ('/1_AAA/1_2_BBB', '1_2_BBB'),
-                              ('/1_AAA/1_2_BBB/1_2_1_CCC', '1_2_1_CCC'),
-                              ('/1_AAA/1_2_BBB/1_2_2_CCC', '1_2_2_CCC'),
-                              ('/2_DDD', '2_DDD')],
-         u'/1_AAA/1_2_BBB/1_2_1_CCC/': [('/1_AAA', '1_AAA'),
-                                        ('/1_AAA/1_1_BBB', '1_1_BBB'),
-                                        ('/1_AAA/1_2_BBB', '1_2_BBB'),
-                                        ('/1_AAA/1_2_BBB/1_2_1_CCC', '1_2_1_CCC'),
-                                        ('/1_AAA/1_2_BBB/1_2_2_CCC', '1_2_2_CCC'),
-                                        ('/2_DDD', '2_DDD')],
-         u'/1_AAA/1_2_BBB/1_2_2_CCC/': [('/1_AAA', '1_AAA'),
-                                        ('/1_AAA/1_1_BBB', '1_1_BBB'),
-                                        ('/1_AAA/1_2_BBB', '1_2_BBB'),
-                                        ('/1_AAA/1_2_BBB/1_2_1_CCC', '1_2_1_CCC'),
-                                        ('/1_AAA/1_2_BBB/1_2_2_CCC', '1_2_2_CCC'),
-                                        ('/2_DDD', '2_DDD')],
-         u'/2_DDD/': [('/1_AAA', '1_AAA'),
-                      ('/2_DDD', '2_DDD'),
-                      ('/2_DDD/2_1_EEE', '2_1_EEE'),
-                      ('/2_DDD/2_2_EEE', '2_2_EEE')],
-         u'/2_DDD/2_1_EEE/': [('/1_AAA', '1_AAA'),
-                              ('/2_DDD', '2_DDD'),
-                              ('/2_DDD/2_1_EEE', '2_1_EEE'),
-                              ('/2_DDD/2_2_EEE', '2_2_EEE')],
-         u'/2_DDD/2_2_EEE/': [('/1_AAA', '1_AAA'),
-                              ('/2_DDD', '2_DDD'),
-                              ('/2_DDD/2_1_EEE', '2_1_EEE'),
-                              ('/2_DDD/2_2_EEE', '2_2_EEE')]}
+        #
+        #self.create_link_snapshot()
+        
+        snapshot = {u'/1_AAA/': [('/1_AAA/', '1_AAA'),
+                          ('/1_AAA/1_1_BBB/', '1_1_BBB'),
+                          ('/1_AAA/1_2_BBB/', '1_2_BBB'),
+                          ('/2_DDD/', '2_DDD')],
+             u'/1_AAA/1_1_BBB/': [('/1_AAA/', '1_AAA'),
+                                  ('/1_AAA/1_1_BBB/', '1_1_BBB'),
+                                  ('/1_AAA/1_2_BBB/', '1_2_BBB'),
+                                  ('/2_DDD/', '2_DDD')],
+             u'/1_AAA/1_2_BBB/': [('/1_AAA/', '1_AAA'),
+                                  ('/1_AAA/1_1_BBB/', '1_1_BBB'),
+                                  ('/1_AAA/1_2_BBB/', '1_2_BBB'),
+                                  ('/1_AAA/1_2_BBB/1_2_1_CCC/', '1_2_1_CCC'),
+                                  ('/1_AAA/1_2_BBB/1_2_2_CCC/', '1_2_2_CCC'),
+                                  ('/2_DDD/', '2_DDD')],
+             u'/1_AAA/1_2_BBB/1_2_1_CCC/': [('/1_AAA/', '1_AAA'),
+                                            ('/1_AAA/1_1_BBB/', '1_1_BBB'),
+                                            ('/1_AAA/1_2_BBB/', '1_2_BBB'),
+                                            ('/1_AAA/1_2_BBB/1_2_1_CCC/', '1_2_1_CCC'),
+                                            ('/1_AAA/1_2_BBB/1_2_2_CCC/', '1_2_2_CCC'),
+                                            ('/2_DDD/', '2_DDD')],
+             u'/1_AAA/1_2_BBB/1_2_2_CCC/': [('/1_AAA/', '1_AAA'),
+                                            ('/1_AAA/1_1_BBB/', '1_1_BBB'),
+                                            ('/1_AAA/1_2_BBB/', '1_2_BBB'),
+                                            ('/1_AAA/1_2_BBB/1_2_1_CCC/', '1_2_1_CCC'),
+                                            ('/1_AAA/1_2_BBB/1_2_2_CCC/', '1_2_2_CCC'),
+                                            ('/2_DDD/', '2_DDD')],
+             u'/2_DDD/': [('/1_AAA/', '1_AAA'),
+                          ('/2_DDD/', '2_DDD'),
+                          ('/2_DDD/2_1_EEE/', '2_1_EEE'),
+                          ('/2_DDD/2_2_EEE/', '2_2_EEE')],
+             u'/2_DDD/2_1_EEE/': [('/1_AAA/', '1_AAA'),
+                                  ('/2_DDD/', '2_DDD'),
+                                  ('/2_DDD/2_1_EEE/', '2_1_EEE'),
+                                  ('/2_DDD/2_2_EEE/', '2_2_EEE')],
+             u'/2_DDD/2_2_EEE/': [('/1_AAA/', '1_AAA'),
+                                  ('/2_DDD/', '2_DDD'),
+                                  ('/2_DDD/2_1_EEE/', '2_1_EEE'),
+                                  ('/2_DDD/2_2_EEE/', '2_2_EEE')]}
         self.link_snapshot_test(snapshot)
 
 
@@ -112,9 +117,11 @@ class TestMainMenu2(tests.TestCase):
         tests.create_pages(test_pages, template=self.template)
 #        self.create_link_snapshot()
         snapshot = {
-            u'/1_AAA/': [('/1_AAA', '1_AAA'), ('/1_AAA/1_2_BBB', '1_2_BBB')],
+            u'/1_AAA/': [
+                ('/1_AAA/', '1_AAA'), ('/1_AAA/1_2_BBB/', '1_2_BBB')
+            ],
             u'/1_AAA/1_2_BBB/': [
-                ('/1_AAA', '1_AAA'), ('/1_AAA/1_2_BBB', '1_2_BBB')
+                ('/1_AAA/', '1_AAA'), ('/1_AAA/1_2_BBB/', '1_2_BBB')
             ]
         }
         self.link_snapshot_test(snapshot)
@@ -134,12 +141,12 @@ class TestMainMenu2(tests.TestCase):
 #        self.create_link_snapshot()
         snapshot = {
             u'/A-B-C/': [
-                ('/A-B-C', '{{ A }} {% B %} &lt;C&gt;'),
-                ('/A-B-C/1-2-3', '{{ 1 }} {% 2 % } &lt;3&gt;')
+                ('/A-B-C/', '{{ A }} {% B %} &lt;C&gt;'),
+                ('/A-B-C/1-2-3/', '{{ 1 }} {% 2 % } &lt;3&gt;')
             ],
             u'/A-B-C/1-2-3/': [
-                ('/A-B-C', '{{ A }} {% B %} &lt;C&gt;'),
-                ('/A-B-C/1-2-3', '{{ 1 }} {% 2 % } &lt;3&gt;')
+                ('/A-B-C/', '{{ A }} {% B %} &lt;C&gt;'),
+                ('/A-B-C/1-2-3/', '{{ 1 }} {% 2 % } &lt;3&gt;')
             ]
         }
         self.link_snapshot_test(snapshot)
