@@ -6,6 +6,8 @@
 
     some needfull functions around the cms page navigation tree.
 
+    TODO: This stuff shoud be went into ./PyLucid/models/Page.py
+
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate: $
@@ -63,7 +65,7 @@ def flat_tree_list(generate_level_names=True):
     """
     page_data = Page.objects.values(
         "id", "parent", "name", "title", "shortcut"
-    ).order_by("position")
+    ).order_by("position", "name", "id")
     tree = TreeGenerator(page_data)
     tree.activate_all()
     page_list = tree.get_flat_list()
@@ -87,7 +89,7 @@ def _get_page_data(request):
     """
     page_data = Page.objects.values(
         "id", "parent", "name", "title", "shortcut"
-    ).filter(showlinks = True).order_by("position")
+    ).filter(showlinks = True).order_by("position", "name", "id")
 
     if request.user.is_anonymous():
         page_data = page_data.exclude(permitViewPublic = False)
@@ -125,7 +127,7 @@ def get_sub_menu_data(request, current_page_id):
     """
     sub_pages = Page.objects.all().filter(
         parent = current_page_id, showlinks = True
-    ).order_by('position')
+    ).order_by("position", "name", "id")
 
     if request.user.is_anonymous():
         sub_pages = sub_pages.exclude(permitViewPublic = False)

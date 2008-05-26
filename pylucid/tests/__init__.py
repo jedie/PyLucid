@@ -343,7 +343,7 @@ class TestCase(DjangoTestCase):
         """
         shared method for create_link_snapshot() and link_snapshot_test()
         """
-        for page in sorted(Page.objects.all()):
+        for page in Page.objects.all().order_by("position", "name", "id"):
             url = page.get_absolute_url()
 
             response = self.client.get(url)
