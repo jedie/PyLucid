@@ -339,21 +339,28 @@ class TestCase(DjangoTestCase):
     # _________________________________________________________________________
     # link snapshot:
 
+    def _snapshot_iter(self):
+        """
+        shared method for create_link_snapshot() and link_snapshot_test()
+        """
+        for page in sorted(Page.objects.all()):
+            url = page.get_absolute_url()
+
+            response = self.client.get(url)
+            self.failUnlessEqual(response.status_code, 200)
+
+            content = response.content.strip()
+            links = self.get_links(content)
+            yield (url, links)
+
     def link_snapshot_test(self, snapshot):
         """
         Compare a reference snapshot with the real links.
         """
         is_links = []
         should_be_links = []
-        for page in Page.objects.all().order_by('id'):
-            url = page.get_absolute_url()
-            #print "url:", url
-            response = self.client.get(url)
-            self.failUnlessEqual(response.status_code, 200)
-
-            content = response.content.strip()
-            #print content
-            is_links.append(self.get_links(content))
+        for url, links in self._snapshot_iter():
+            is_links.append(links)
             should_be_links.append(snapshot[url])
 
         #print "is_links:", is_links
@@ -369,16 +376,9 @@ class TestCase(DjangoTestCase):
         if print_result:
             print "Build a snapshot for the unittest compare:"
             print "-"*79
+
         data = {}
-        for page in Page.objects.all().order_by('id'):
-            url = page.get_absolute_url()
-
-            response = self.client.get(url)
-            self.failUnlessEqual(response.status_code, 200)
-
-            content = response.content.strip()
-            links = self.get_links(content)
-
+        for url, links in self._snapshot_iter():
             data[url] = links
 
         if print_result:
