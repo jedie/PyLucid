@@ -88,13 +88,13 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
-import sys
 import os
 import re
+import sys
+import pprint
+import shutil
 import tempfile
 import unittest
-import pprint
-
 from StringIO import StringIO
 
 os.environ['DJANGO_SETTINGS_MODULE'] = "PyLucid.settings"
@@ -103,14 +103,18 @@ from django.test.utils import setup_test_environment, teardown_test_environment
 from django.test.utils import create_test_db, destroy_test_db
 
 from django.conf import settings
-from PyLucid.install.install import DB_DumpFakeOptions
-from PyLucid.tools.db_dump import loaddb
-from PyLucid.tools.Diff import make_diff
-from tests.utils.BrowserDebug import debug_response
 
-from PyLucid.models import Page, Style, Template, Plugin
 from django.contrib.auth.models import User, UNUSABLE_PASSWORD
 from django.test import TestCase as DjangoTestCase
+
+from tests.utils.BrowserDebug import debug_response
+
+from PyLucid.tools.db_dump import loaddb
+from PyLucid.tools.Diff import make_diff
+from PyLucid.install.install import DB_DumpFakeOptions
+from PyLucid.models import Page, Style, Template, Plugin
+from PyLucid.system.plugin_manager import auto_install_plugins, install_plugin
+
 
 # Display invalid (e.g. misspelled, unused) template variables
 # http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
@@ -181,6 +185,12 @@ TEST_PAGES_SHORTCUTS = [
 
 # Temporary file for storing database fixture
 FIXTURE_FILE = tempfile.NamedTemporaryFile(prefix='PyLucid_',suffix='.json')
+
+# unittest plugin paths
+# (relative path here! Because the current work dir can chaned!)
+TEST_PLUGIN_SRC = "tests/unittest_plugin/"
+TEST_PLUGIN_DST = "PyLucid/plugins_external/unittest_plugin"
+
 
 def change_preferences(plugin_name, **kwargs):
     """
@@ -415,10 +425,45 @@ def install_internal_plugins(extra_verbose):
     Install PyLucid Internal plugins
     """
     print "Installing PyLucid internal plugins ",
-    from PyLucid.system.plugin_manager import auto_install_plugins
-
     auto_install_plugins(debug=True, extra_verbose=extra_verbose)
     print ""
+
+
+
+def init_unittest_plugin():
+    """
+    initialize the unittest plugin
+    -copy ./tests/unittest_plugin/ into ./PyLucid/plugins_external/
+    -install+activate the plugin into the database
+    """
+    print "initialize the unittest plugin"
+    print "copy %s to %s" % (TEST_PLUGIN_SRC, TEST_PLUGIN_DST)
+    try:
+        shutil.copytree(
+            os.path.abspath(TEST_PLUGIN_SRC), os.path.abspath(TEST_PLUGIN_DST)
+        )
+    except OSError, err:
+        import errno
+        if err.errno == errno.EEXIST: # [Errno 17] File exists
+            # A prior unittest run aborted?
+            print "Info:", err
+        else:
+            print "os.getcwd():", os.getcwd()
+            raise
+
+    install_plugin(
+        package_name = "PyLucid.plugins_external",
+        plugin_name = "unittest_plugin",
+        debug = True,
+        active=True,
+        extra_verbose=True,
+    )
+
+
+def remove_unittest_plugin():
+    print "remove unittest plugin (%s)" % TEST_PLUGIN_DST
+    shutil.rmtree(os.path.abspath(TEST_PLUGIN_DST))
+
 
 def create_user(username, password, email, is_staff, is_superuser):
     """
@@ -471,9 +516,9 @@ def create_stylesheet(**kwargs):
     return style
 
 
-def create_page(data):
+def create_page(**kwargs):
     """
-    Creates Page object with given data.
+    Creates Page object with given kwargs.
     """
     default_user = User.objects.get(
         username=TEST_USERS["superuser"]["username"]
@@ -483,19 +528,19 @@ def create_page(data):
     default_markup = 0 # html without TinyMCE
 
     page = Page(
-        name             = data.get("name", "New Page"),
-        shortcut         = data.get("shortcut", None),
-        content          = data.get("content", "TestPageContent"),
-        template         = data.get("template", default_template),
-        style            = data.get("style", default_style),
-        markup           = data.get("markup", default_markup),
-        createby         = data.get("user", default_user),
-        lastupdateby     = data.get("user", default_user),
-        showlinks        = data.get("showlinks", True),
-        permitViewPublic = data.get("permitViewPublic", True),
-        permitViewGroup  = data.get("permitViewGroup", None),
-        permitEditGroup  = data.get("permitEditGroup", None),
-        parent           = data.get("parent", None),
+        name             = kwargs.get("name", "New Page"),
+        shortcut         = kwargs.get("shortcut", None),
+        content          = kwargs.get("content", "TestPageContent"),
+        template         = kwargs.get("template", default_template),
+        style            = kwargs.get("style", default_style),
+        markup           = kwargs.get("markup", default_markup),
+        createby         = kwargs.get("user", default_user),
+        lastupdateby     = kwargs.get("user", default_user),
+        showlinks        = kwargs.get("showlinks", True),
+        permitViewPublic = kwargs.get("permitViewPublic", True),
+        permitViewGroup  = kwargs.get("permitViewGroup", None),
+        permitEditGroup  = kwargs.get("permitEditGroup", None),
+        parent           = kwargs.get("parent", None),
         )
     page.save()
     return page
@@ -508,7 +553,7 @@ def create_pages(data, parent = None, **kwargs):
         page_data = page_data.copy()
         page_data.update(kwargs)
         page_data["parent"] = parent
-        last_page = create_page(page_data)
+        last_page = create_page(**page_data)
         if "subitems" in page_data:
             create_pages(
                 page_data["subitems"], last_page, **kwargs
@@ -529,7 +574,14 @@ def init_pyluciddb(verbosity):
     install_internal_plugins(verbosity)
     create_users() # Create all test users
     create_pages(TEST_PAGES) # Create the test pages
+    init_unittest_plugin()
     create_test_fixture(verbosity)
+
+def teardown_pylucid():
+    """
+    cleanup
+    """
+    remove_unittest_plugin()
 
 def _import_test(module_name,class_name=None):
     """
@@ -625,6 +677,7 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
     destroy_test_db(old_name, verbosity)
     teardown_test_environment()
+    teardown_pylucid()
 
     return len(result.failures) + len(result.errors)
 
