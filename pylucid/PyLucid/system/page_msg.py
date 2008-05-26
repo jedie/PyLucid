@@ -132,7 +132,7 @@ class PageMessages(object):
                 item = item.split("\n")
                 for line in item:
                     line = self.encode_and_prepare(line)
-                    result.append("%s\n" % line)
+                    result.append("%s<br />\n" % line)
             else:
                 item = self.encode_and_prepare(item)
                 result.append(item)
