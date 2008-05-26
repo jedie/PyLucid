@@ -57,6 +57,7 @@ class PyLucidBasePlugin(object):
 
         self.page_msg   = self.request.page_msg
         self.URLs       = context["URLs"]
+        self.URLs.current_plugin = self.plugin_name
 
         self.current_page = self.context["PAGE"]
 

@@ -103,6 +103,7 @@ class URLs(dict):
         self.request     = context["request"]
         self.page_msg    = self.request.page_msg
 
+        # Would be set by plugin_manager
         self.current_plugin = None
 
         self.setup_mediapath()

@@ -24,7 +24,7 @@ plugin_manager_data = {
     "edit_page" : global_rights,
     "new_page" : global_rights,
     "delete_page" : global_rights,
-    "tinyTextile_help" : {
+    "markup_help" : {
         "must_login" : False,
         "must_admin" : False,
     },

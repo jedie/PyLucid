@@ -24,8 +24,9 @@
 __version__= "$Rev:1070 $"
 
 import posixpath
+import inspect
 
-from PyLucid.tools.utils import escape
+from PyLucid.tools.utils import escape, escape_django_tags
 
 from django import newforms as forms
 from django.newforms.util import ValidationError
@@ -45,6 +46,13 @@ from PyLucid.tools.content_processors import apply_markup, \
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
 from PyLucid.db.page import PageChoiceField, get_page_choices
+
+
+# Keys must be correspond with PyLucid.models.MARKUPS
+HELP_INFO = {
+    2: u'markup_help_tinyTextile',
+    6: u'markup_help_creole',
+}
 
 
 class EditPageForm(forms.Form):
@@ -85,6 +93,10 @@ class EditPageForm(forms.Form):
         max_length=255, required=False,
         help_text=_("Short description of the contents. (for the html header)"),
         widget=forms.TextInput(attrs={'class':'bigger'}),
+    )
+
+    preview_escape = forms.BooleanField(
+        help_text=_("Escape django template tags in preview?"),
     )
     def __init__(self, *args, **kwargs):
         super(EditPageForm, self).__init__(*args, **kwargs)
@@ -209,7 +221,6 @@ class page_admin(PyLucidBasePlugin):
             return
 
         context = {
-            "url_textile_help": self.URLs.methodLink("tinyTextile_help"),
             "url_taglist": self.URLs.methodLink("tag_list"),
             "page_instance": page_instance,
         }
@@ -229,19 +240,25 @@ class page_admin(PyLucidBasePlugin):
                 "title": page_instance.title,
                 "markup": current_markup,
                 "keywords": page_instance.keywords,
-                "description": page_instance.description
+                "description": page_instance.description,
+                "preview_escape": True,
             })
         else: # POST
-            #self.page_msg(self.request.POST)
+            #self.page_msg(dict(self.request.POST))
             html_form = EditPageForm(self.request.POST)
             if html_form.is_valid():
                 if "preview" in self.request.POST:
+                    cleaned_data = html_form.cleaned_data
                     content = apply_markup(
-                        html_form.cleaned_data["content"], self.context,
-                        html_form.cleaned_data["markup"]
+                        cleaned_data["content"], self.context,
+                        cleaned_data["markup"]
                     )
-                    # Render possibly existing django tags:
-                    # ToDo: Should we add a "disable" switch to this?
+
+                    preview_escape = cleaned_data["preview_escape"]
+                    if preview_escape == True:
+                        # escape django template tags for preview
+                        content = escape_django_tags(content)
+
                     content = render_string_template(content, self.context)
                     context["preview_content"] = content
 
@@ -269,6 +286,13 @@ class page_admin(PyLucidBasePlugin):
         # On abort -> goto the current displayed page:
         url_abort = self.current_page.get_absolute_url()
         context["url_abort"] = url_abort
+
+        if current_markup in HELP_INFO:
+            context["help_link"] = self.URLs.methodLink(
+                "markup_help", current_markup
+            )
+            # TODO: make help link working
+            #self.page_msg("help_link:", context["help_link"])
 
         if current_markup == 1:
             # markup with id=1 is html + TinyMCE JS Editor
@@ -498,17 +522,31 @@ class page_admin(PyLucidBasePlugin):
 
     #___________________________________________________________________________
 
-    def tinyTextile_help(self):
+    def markup_help(self, url_args):
         """
+        Render help page for the markup
         Render the tinyTextile Help page.
         """
+        try:
+            markup_id = int(url_args.strip("/"))
+            internal_page_name = HELP_INFO[markup_id]
+        except Exception, e:
+            if self.request.debug:
+                raise
+            else:
+                self.page_msg("URL error.")
+                return
+
+        self.page_msg(markup_id, internal_page_name)
+
+#        XXX
         context = {
             "add_data_tag": mark_safe(settings.ADD_DATA_TAG)
         }
-        content = self._get_rendered_template("tinyTextile_help", context)
+        content = self._get_rendered_template(internal_page_name, context)
 
         # Use tinyTextile markup
-        content = apply_markup(content, self.context, markup_no = 2)
+        content = apply_markup(content, self.context, markup_id)
 
         # insert CSS data from the internal page into the rendered page:
         content = replace_add_data(self.context, content)
@@ -522,9 +560,6 @@ class page_admin(PyLucidBasePlugin):
         and all available lucidTag's (List of all available plugins which
         provide lucidTag method).
         """
-
-        import inspect
-
         def _get_names_of_methods(cls):
             """
             Returns iterable of method names.

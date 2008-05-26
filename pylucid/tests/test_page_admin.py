@@ -46,6 +46,10 @@ COMPLETE_POST.update({
     "keywords": "Some test keywords",
     "description": "A test description.",
 })
+PREVIEW_POST = MINIMAL_POST.copy()
+del(PREVIEW_POST["save"])
+PREVIEW_POST["preview"] = "preview"
+
 
 OLD_PAGE_DATA = {
     "name": "old page",
@@ -54,6 +58,28 @@ OLD_PAGE_DATA = {
     "keywords": "Some old test keywords",
     "description": "A old test description.",
 }
+
+ESC_TEST_CONTENT = (
+    '{% if 1 %}\n'
+    '{{ "xxx"|upper }}\n'
+    '-\n'
+    '{{ 123456789|filesizeformat }}\n'
+    '{% endif %}'
+)
+ESC_TEST_VALUE = (
+    'XXX\n'
+    '-\n'
+    '117.7 MB'
+)
+ESC_TEST_ESCAPED = (
+    '&#x7B;% if 1 %&#x7D;\n'
+    '&#x7B;&#x7B; "xxx"|upper &#x7D;&#x7D;\n'
+    '-\n'
+    '&#x7B;&#x7B; 123456789|filesizeformat &#x7D;&#x7D;\n'
+    '&#x7B;% endif %&#x7D;'
+)
+ESC_TEST_ERROR = "{% a error ! %}"
+
 
 
 class TestBase(tests.TestCase):
@@ -117,6 +143,8 @@ class TestAnonymous(TestBase):
             "delete_pages", "sequencing"
         )
         self.assertAccessDenied(self.base_url, "page_admin", method_names)
+
+
 
 class TestNormalUser(TestBase):
     """
@@ -224,6 +252,63 @@ class TestNormalUser(TestBase):
             # Check the page archiv
             assert_page_archiv(edit_no)
 
+    def test_escaping_on(self):
+        """
+        Test the django tag escaping in preview (escaping on)
+
+        It's not so easy to test, if the escaping works. Because there always a
+        escaped version of the content in the editor textarea ;)
+        So we used some django filter.
+
+        If escaping not on, we shouldn't see the the end result ESC_TEST_VALUE.
+        """
+        post_data = PREVIEW_POST.copy()
+        post_data["preview_escape"] = "on"
+        post_data["content"] = ESC_TEST_CONTENT
+
+        response = self.client.post(self.edit_url, post_data)
+        #debug_response(response)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=("preview", ESC_TEST_ESCAPED),
+            must_not_contain=(ESC_TEST_VALUE,)
+        )
+
+    def test_escaping_off1(self):
+        """
+        Test the django tag escaping in preview (escaping off)
+
+        The django template engine should create ESC_TEST_VALUE
+        """
+        post_data = PREVIEW_POST.copy()
+        #post_data["preview_escape"] = "" # Off
+        post_data["content"] = ESC_TEST_CONTENT
+
+        response = self.client.post(self.edit_url, post_data)
+        #debug_response(response)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=("preview", ESC_TEST_VALUE,),
+        )
+
+    def test_escaping_off2(self):
+        """
+        Test without escaping and a invalide django template construct.
+        """
+        post_data = PREVIEW_POST.copy()
+        post_data["content"] = ESC_TEST_ERROR
+
+        response = self.client.post(self.edit_url, post_data)
+        #debug_response(response)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=(
+                "edit_page Error", "TemplateSyntaxError", "Invalid block tag"
+            ),
+        )
 
 
 
