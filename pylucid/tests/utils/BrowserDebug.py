@@ -18,7 +18,9 @@
 """
 
 import os, webbrowser, traceback, tempfile
-from cgi import escape
+from pprint import pformat
+
+from PyLucid.tools.utils import escape
 
 # Bug with Firefox under Ubuntu.
 # http://www.python-forum.de/topic-11568.html
@@ -26,6 +28,11 @@ webbrowser._tryorder.insert(0, 'epiphany') # Use Epiphany, if installed.
 
 # Variable to save if the browser is opend in the past.
 ONE_DEBUG_DISPLAYED = False
+
+RESPONSE_INFO_ATTR = (
+        "content", "context", "cookies", "request", "status_code",
+    )
+
 
 def debug_response(response, one_browser_traceback=True, msg="", \
                                                             display_tb=True):
@@ -57,17 +64,27 @@ def debug_response(response, one_browser_traceback=True, msg="", \
 
     stack_info = "".join(stack)
 
+    response_info = "<dl>\n"
+    for attr in RESPONSE_INFO_ATTR:
+        # FIXME: There must be exist a easier way to display the info
+        response_info += "\t<dt>%s</dt>\n" % attr
+        value = getattr(response, attr, "---")
+        value = pformat(value)
+        value = escape(value)
+        response_info += "\t<dd><pre>%s</pre></dd>\n" % value
+    response_info += "</dl>\n"
+
     if "</body>" in content:
         info = (
             "\n<br /><hr />\n"
             "<h3>Unittest info</h3>\n"
             "<dl>\n"
             "<dt>url:</dt><dd>%s</dd>\n"
-            "<dt>response info:</dt><dd><pre>%s</pre></dd>\n"
             "<dt>traceback:</dt><dd><pre>%s</pre></dd>\n"
+            "<dt>response info:</dt>%s\n"
             "</dl>\n"
             "</body>"
-        ) % (url, response, stack_info)
+        ) % (url, stack_info, response_info)
         content = content.replace("</body>", info)
     else:
         # Not a html page?
@@ -77,9 +94,9 @@ def debug_response(response, one_browser_traceback=True, msg="", \
             "\nUnittest info\n"
             "=============\n"
             "url: %s\n"
-            "response info:\n%s\n"
             "traceback:\n%s\n</pre>"
-        ) % (url, response, stack_info)
+            "response info:\n%s\n"
+        ) % (url, stack_info, response_info)
 
 
     fd, file_path = tempfile.mkstemp(prefix="PyLucid_unittest_", suffix=".html")
