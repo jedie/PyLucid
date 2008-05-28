@@ -32,7 +32,6 @@ from django.conf import settings
 
 from django.http import HttpResponse, Http404
 
-#from PyLucid.db.preferences import Preferences, preference_cache, PreferenceDoesntExist
 from PyLucid.system.plugin_import import get_plugin_module, get_plugin_config, \
                                                             get_plugin_version
 from PyLucid.system.exceptions import *
