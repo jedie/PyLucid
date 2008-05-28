@@ -38,3 +38,6 @@ class LowLevelError(Exception):
     template would be send to the user.
     """
     pass
+
+class PluginPreferencesError(Exception):
+    pass

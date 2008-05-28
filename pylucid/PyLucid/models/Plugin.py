@@ -26,6 +26,7 @@ from django.contrib.auth.models import User, Group
 from PyLucid.system.plugin_import import get_plugin_config, get_plugin_version
 from PyLucid.tools.newforms_utils import get_init_dict, setup_help_text
 from PyLucid.tools.data_eval import data_eval, DataEvalError
+from PyLucid.system.exceptions import PluginPreferencesError
 
 preference_cache = {}
 
@@ -80,14 +81,31 @@ class Plugin(models.Model):
     #__________________________________________________________________________
     # Special methods
 
-    def init_pref_form(self, pref_form):
+    def init_pref_form(self, pref_form, debug=False):
         """
         Set self.pref_data_string from the given newforms form and his initial
         values.
+        Before we save the data dict into the database, we validate it with
+        preferences newform class. This is needed for two cased:
+         - A plugin developer has inserted a wrong initial value
+         - The initial value must be cleaned. e.g. admin_menu_cfg.WeightField
         """
         init_dict = get_init_dict(pref_form)
-        preference_cache[self.plugin_name] = init_dict
-        self.set_pref_data_string(init_dict)
+
+        # Validate the init_dict
+        unbound_form = self.get_pref_form(debug)
+        form = unbound_form(init_dict)
+        if form.is_valid():
+            cleaned_data_dict = form.cleaned_data
+        else:
+            msg = (
+                "Can't save preferences into the database!"
+                " Newforms validate error: %r"
+            ) % form.errors
+            raise PluginPreferencesError(msg)
+
+        preference_cache[self.plugin_name] = cleaned_data_dict
+        self.set_pref_data_string(cleaned_data_dict)
 
     #__________________________________________________________________________
     # Special set methods
