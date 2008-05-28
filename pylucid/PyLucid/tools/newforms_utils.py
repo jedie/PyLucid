@@ -18,7 +18,8 @@ def setup_help_text(form):
     Append on every help_text the default information (The initial value)
     """
     for field_name, field in form.base_fields.iteritems():
-        if "(default: '" in field.help_text:
+        help_text = unicode(field.help_text) # translate gettext_lazy
+        if u"(default: '" in help_text:
             # The default information was inserted in the past
             return
         field.help_text = "%s (default: '%s')" % (
