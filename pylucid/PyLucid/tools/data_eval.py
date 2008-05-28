@@ -50,7 +50,6 @@ class SafeEval(object):
     """
     def visit(self, node, **kw):
         node_type = node.__class__.__name__
-#        print "node_type:", node_type
         method_name = "visit" + node_type
         method = getattr(self, method_name, self.unsupported)
         result = method(node, **kw)
@@ -81,6 +80,12 @@ class SafeEval(object):
 
     def visitConst(self, node, **kw):
         return node.value
+
+    def visitUnarySub(self, node, **kw):
+        """ Algebraic negative number """
+        node = node.asList()[0]
+        number = self.visitConst(node)
+        return - number # return the negative number
 
     def visitDict(self, node, **kw):
         return dict([(self.visit(k),self.visit(v)) for k,v in node.items])
@@ -127,6 +132,7 @@ def data_eval(source):
     if not isinstance(source, basestring):
         raise DataEvalError("source must be string/unicode!")
     source = source.replace("\r\n", "\n").replace("\r", "\n")
+
     try:
         ast = compiler.parse(source, "eval")
     except SyntaxError, e:
@@ -185,8 +191,13 @@ class TestDataEval(unittest.TestCase):
 
     def testConst(self):
         self.assert_eval(1)
+        self.assert_eval(1.01)
         self.assert_eval("FooBar")
         self.assert_eval(u"FooBar")
+
+    def testNegativeValues(self):
+        self.assert_eval(-1)
+        self.assert_eval(-2.02)
 
     def testTuple(self):
         self.assert_eval(())
@@ -195,12 +206,12 @@ class TestDataEval(unittest.TestCase):
 
     def testList(self):
         self.assert_eval([])
-        self.assert_eval([1,2,3,4])
+        self.assert_eval([1,2,-3,-4.41])
         self.assert_eval(["foo", u"bar", None, True, False])
 
     def testDict(self):
         self.assert_eval({})
-        self.assert_eval({1:2})
+        self.assert_eval({1:2, "a":"b", u"c":"c", "d":-1, "e":-2.02})
         self.assert_eval({"foo":"bar", u"1": None, 1:True, 0:False})
 
     def testDatetime(self):
