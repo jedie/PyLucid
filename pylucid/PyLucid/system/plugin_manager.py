@@ -219,7 +219,7 @@ def _install_plugin(package_name, plugin_name, plugin_config, active,
     pref_form = getattr(plugin_config, "PreferencesForm", None)
     if pref_form:
         # plugin module has a preferences newform class
-        plugin.init_pref_form(pref_form)
+        plugin.init_pref_form(pref_form, debug=extra_verbose)
 
     plugin.save()
     if extra_verbose:

@@ -1,5 +1,6 @@
-#!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+from django.utils.translation import gettext_lazy as _
 
 #_____________________________________________________________________________
 # meta information
@@ -27,7 +28,19 @@ global_rights = {
 }
 plugin_manager_data = {
     "lucidTag" : global_rights,
-    "filelist" : global_rights,
+    "filelist" : {
+        "must_login"    : True,
+        "must_admin"    : True,
+        "admin_sub_menu": {
+            "section"       : _("miscellaneous"),
+            "title"         : _("Filemanager"),
+            "help_text"     : _(
+                "Administrate static files."
+            ),
+            "open_in_window": False,
+            "weight" : 0,
+        },
+    },
     "select_basepath": global_rights,
     "edit": global_rights,
     "userinfo": global_rights,

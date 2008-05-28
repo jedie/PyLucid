@@ -1,5 +1,6 @@
-#!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+from django.utils.translation import gettext_lazy as _
 
 #_____________________________________________________________________________
 # meta information
@@ -14,13 +15,22 @@ A editor for the preferences.
 #_____________________________________________________________________________
 # plugin administration data
 
-
-global_rights = {
-    "must_login"    : True,
-    "must_admin"    : True,
-}
-
 plugin_manager_data = {
-    "select" : global_rights,
-    "edit": global_rights,
+    "select" : {
+        "must_login"    : True,
+        "must_admin"    : True,
+        "admin_sub_menu": {
+            "section"       : _("setup"),
+            "title"         : _("Preferences editor"),
+            "help_text"     : _(
+                "Setup all plugin preferences."
+            ),
+            "open_in_window": False,
+            "weight" : -5,
+        },
+    },
+    "edit": {
+        "must_login"    : True,
+        "must_admin"    : True,
+    },
 }

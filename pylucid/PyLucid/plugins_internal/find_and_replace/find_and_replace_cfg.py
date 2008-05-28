@@ -1,5 +1,7 @@
-#!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+from django import newforms as forms
+from django.utils.translation import gettext_lazy as _
 
 #_____________________________________________________________________________
 # meta information
@@ -19,9 +21,6 @@ submenu.
 #_____________________________________________________________________________
 # preferences
 
-from django import newforms as forms
-from django.utils.translation import ugettext as _
-
 class PreferencesForm(forms.Form):
     min_term_len = forms.IntegerField(
         help_text=_("Min length of a search term"),
@@ -39,16 +38,14 @@ plugin_manager_data = {
     "find_and_replace" : {
         "must_login"    : True,
         "must_admin"    : True,
+        "admin_sub_menu": {
+            "section"       : _("page admin"),
+            "title"         : _("find/replace"),
+            "help_text"     : _(
+                "Find and replace strings in page/stylesheets/template content."
+            ),
+            "open_in_window": False,
+            "weight" : 5,
+        },
     },
 }
-
-preferences = (
-    {
-        "name": "term len limit",
-        "description": "How min/max long must a search term be?",
-        "value": {
-            "min term len": 1,
-            "max term len": 255,
-        }
-    },
-)

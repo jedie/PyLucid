@@ -1,5 +1,6 @@
-#!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+from django.utils.translation import gettext_lazy as _
 
 #_____________________________________________________________________________
 # meta information
@@ -15,11 +16,22 @@ __cannot_deinstall__ = True
 #_____________________________________________________________________________
 # plugin administration data
 
-global_rights = {
-    "must_login": True,
-    "must_admin": True,
-}
 plugin_manager_data = {
-    "menu": global_rights,
-    "plugin_setup": global_rights,
+    "menu": {
+        "must_login": True,
+        "must_admin": True,
+        "admin_sub_menu": {
+            "section"       : _("setup"),
+            "title"         : _("Plugin administration"),
+            "help_text"     : _(
+                "Manage all PyLucid plugins."
+            ),
+            "open_in_window": False,
+            "weight" : -8,
+        },
+    },
+    "plugin_setup": {
+        "must_login": True,
+        "must_admin": True,
+    },
 }

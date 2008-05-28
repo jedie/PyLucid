@@ -1,5 +1,6 @@
-#!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+from django.utils.translation import gettext_lazy as _
 
 #_____________________________________________________________________________
 # meta information
@@ -21,7 +22,19 @@ global_rights = {
 plugin_manager_data = {
     "lucidTag"  : global_rights,
     "link"      : global_rights,
-    "menu"      : global_rights,
+    "menu"      : {
+        "must_login"    : True,
+        "must_admin"    : True,
+        "admin_sub_menu": {
+            "section"       : _("miscellaneous"),
+            "title"         : _("Show internals"),
+            "help_text"     : _(
+                "Display several system information."
+            ),
+            "open_in_window": False,
+            "weight" : 0,
+        },
+    },
     "pylucid_info": {
         "must_login"        : True,
         "must_admin"        : True,

@@ -1,68 +1,9 @@
-<fieldset><legend>{% trans 'page admin' %}</legend>
-<ul>
-    <li>
-        <a href="{{ commandURLprefix }}/page_admin/select_edit_page/">{% trans 'select page to edit' %}</a> <small>({% trans 'all pages available!' %})</small>
-    </li>
-    <li>
-        <a href="{{ commandURLprefix }}/page_admin/delete_pages/">{% trans 'delete pages' %}</a> <small>({% trans 'select pages to delete these.' %})</small>
-    </li>
-    <li>
-        <a href="{{ commandURLprefix }}/page_admin/sequencing/">{% trans 'sequencing the pages' %}</a> <small>({% trans 'change the page order.' %})</small>
-    </li>
-    {% if is_admin %}
-    <li>
-        <a href="{{ commandURLprefix }}/find_and_replace/find_and_replace/">{% trans 'find/replace' %}</a> <small>({% trans 'Find/replace page content.' %})</small>
-    </li>
-    {% endif %}
-</ul>
-</fieldset>
-
-{% if is_admin %}
-
-<fieldset><legend>{% trans 'edit look' %}</legend>
-<ul>
-    <li>
-        <a href="{{ adminURLprefix }}/PyLucid/style/" onclick="OpenInWindow(this); return false">{% trans 'edit stylesheets' %}</a>
-        |
-        <a href="{{ adminURLprefix }}/PyLucid/style/{{ PAGE.style.id }}/" onclick="OpenInWindow(this); return false">{% trans 'edit current stylesheet' %}</a>
-    </li>
-    <li>
-        <a href="{{ adminURLprefix }}/PyLucid/template/" onclick="OpenInWindow(this); return false">{% trans 'edit templates' %}</a>
-        |
-        <a href="{{ adminURLprefix }}/PyLucid/template/{{ PAGE.template.id }}/" onclick="OpenInWindow(this); return false">{% trans 'edit current template' %}</a>
-    </li>
-</ul>
-</fieldset>
-
-<fieldset><legend>{% trans 'user management' %}</legend>
-<ul>
-    <li>
-        <a href="{{ adminURLprefix }}/auth/user/" onclick="OpenInWindow(this); return false">{% trans 'edit users' %}</a>
-    </li>
-    <li>
-        <a href="{{ adminURLprefix }}/auth/group/" onclick="OpenInWindow(this); return false">{% trans 'edit user groups' %}</a>
-    </li>
-    <li>
-        <a href="{{ commandURLprefix }}/EMailSystem/user_list/">{% trans 'EMail system' %}</a>
-    </li>
-</ul>
-</fieldset>
-
-<fieldset><legend>{% trans 'miscellaneous' %}</legend>
-<ul>
-    <li>
-        <a href="{{ commandURLprefix }}/plugin_admin/menu/">{% trans 'Plugin administration' %}</a>
-    </li>
-    <li>
-        <a href="{{ commandURLprefix }}/preference_editor/select/">{% trans 'Preferences editor' %}</a>
-    </li>
-    <li>
-        <a href="{{ commandURLprefix }}/filemanager/filelist/">{% trans 'Filemanager' %}</a>
-    </li>
-    <li>
-        <a href="{{ commandURLprefix }}/show_internals/menu/">{% trans 'Show internals' %}</a>
-    </li>
-</ul>
-</fieldset>
-
-{% endif %}
+{% for section in dynamic_menu %}
+    <fieldset><legend>{{ section.name }}</legend>
+        <ul>
+        {% for entry in section %}
+            <li><a href="{{ entry.link }}" {% if entry.open_in_window %}onclick="OpenInWindow(this); return false"{% endif %}>{{ entry.title }}</a> - <small>{{ entry.help_text }}</small></li>
+        {% endfor %}
+        </ul>
+    </fieldset>
+{% endfor %}

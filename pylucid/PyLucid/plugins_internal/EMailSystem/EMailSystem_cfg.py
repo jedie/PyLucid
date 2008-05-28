@@ -1,5 +1,6 @@
-#!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+from django.utils.translation import gettext_lazy as _
 
 #_____________________________________________________________________________
 # meta information
@@ -18,5 +19,12 @@ plugin_manager_data = {
     "user_list" : {
         "must_login"    : True,
         "must_admin"    : False,
+        "admin_sub_menu": {
+            "section"       : _("user management"),
+            "title"         : _("EMail system"),
+            "help_text"     : _("Send other PyLucid members a email."),
+            "open_in_window": False,
+            "weight" : 0,
+        },
     },
 }
