@@ -11,6 +11,8 @@
 
         - debug_plugin_config()
 
+    TODO: Merge all methods into the plugin model/manager:
+        http://pylucid.net:8080/pylucid/ticket/200
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
