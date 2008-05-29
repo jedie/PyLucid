@@ -251,7 +251,7 @@ class Path(dict):
     def __init__(self, context):
         self.context     = context
         self.request     = context["request"]
-        self.page_msg    = request.page_msg
+        self.page_msg    = self.request.page_msg
 
     def new_dir_path(self, path_info, must_exist=True):
         """
