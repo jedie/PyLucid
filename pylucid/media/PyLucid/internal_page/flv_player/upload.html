@@ -1,0 +1,13 @@
+<form enctype="multipart/form-data" method="post" action=".">
+    {% for field in form %}
+        {% if not field.is_hidden %}
+            {% if field.help_text %}<small>{{ field.help_text }}</small><br />{% endif %}
+            {{ field.label_tag }}
+        {% endif %}
+            {{ field }}
+        {% if not field.is_hidden %}
+            {% if field.errors %}<p>{{ field.errors }}</p>{% endif %}
+        {% endif %}
+    {% endfor %}
+    <input type="submit" name="submit" value="{% trans 'upload file' %}" />
+</form>
