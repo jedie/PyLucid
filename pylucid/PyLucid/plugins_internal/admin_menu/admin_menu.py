@@ -224,7 +224,7 @@ class admin_menu(PyLucidBasePlugin):
                     'reinit "admin_menu" plugin required!</a>'
                 )
                 self.page_msg.red(mark_safe(msg))
-            section_weights = []
+            section_weights = {}
         else:
             # Sort the sections with the weight information from the preferences
             section_weights = preferences["section_weights"]
