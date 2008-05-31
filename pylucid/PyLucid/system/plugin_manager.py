@@ -29,15 +29,13 @@ from django.conf import settings
 from django.db import connection
 from django.db.models import Model
 from django.core.management.sql import sql_model_create, \
-                                                        sql_indexes_for_model, custom_sql_for_model
+                                    sql_indexes_for_model, custom_sql_for_model
 from django.http import HttpResponse, Http404
 
 from PyLucid.models import Plugin
 from PyLucid.system.exceptions import *
 from PyLucid.system.plugin_import import get_plugin_module, \
-                                                                        get_plugin_config, get_plugin_version
-
-
+                                        get_plugin_config, get_plugin_version
 
 
 def _run(context, local_response, plugin_name, method_name, url_args,
@@ -52,9 +50,9 @@ def _run(context, local_response, plugin_name, method_name, url_args,
             plugin_name, method_name, msg
         )
         request.page_msg(msg)
-        msg2 = '<i title="(Error details in page messages.)">["%s.%s" error.]</i>' % (
-            plugin_name, method_name
-        )
+        msg2 = (
+            '<i title="(Error details in page messages.)">["%s.%s" error.]</i>'
+        ) % (plugin_name, method_name)
         local_response.write(msg2)
 
 #    request.page_msg(plugin_name, method_name)
@@ -197,37 +195,32 @@ def get_plugin_list(plugin_path):
     return plugin_list
 
 
-def get_create_table(models):
+def get_create_table(plugin_models):
     from django.core.management.color import no_style
     style = no_style()
 
     statements = []
-    for model in models:
+    for model in plugin_models:
         statements += sql_model_create(model, style)[0]
         statements += sql_indexes_for_model(model, style)
         statements += custom_sql_for_model(model)
     return statements
 
 
-
 def create_plugin_tables(plugin, extra_verbose):
-    plugin_module = get_plugin_module(
+    plugin_models = Plugin.objects.get_plugin_models(
         plugin.package_name,
         plugin.plugin_name,
         debug=extra_verbose,
     )
-    if not hasattr(plugin_module, "PLUGIN_MODELS"):
+    if not plugin_models:
         # Plugin has no models
-        if extra_verbose:
-            print "Info: No 'plugin_models' list defined, ok."
         return
-
-    plugin_models = plugin_module.PLUGIN_MODELS
 
     statements = get_create_table(plugin_models)
     cursor = connection.cursor()
     for statement in statements:
-        print repr(statement)
+        #print repr(statement)
         cursor.execute(statement)
 
 

@@ -16,6 +16,8 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
+from pprint import pformat
+
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
 from django.conf import settings
@@ -33,8 +35,8 @@ class TestArtist(models.Model):
     class Meta:
         # db_table is optional
 #        db_table = 'PyLucid_test'
-#        app_label = 'PyLucidPlugins'
-        app_label = 'PyLucid'
+        app_label = 'PyLucidPlugins'
+#        app_label = 'PyLucid'
 
 class TestAlbum(models.Model):
     artist = models.ForeignKey(TestArtist)
@@ -47,17 +49,16 @@ class TestAlbum(models.Model):
     createby = models.ForeignKey(User, related_name="test_createby",
         null=True, blank=True
     )
-    lastupdateby = models.ForeignKey(User, related_name="test_lastupdateby",
-        null=True, blank=True
-    )
     class Meta:
         # db_table is optional
 #        db_table = 'PyLucid_test'
-#        app_label = 'PyLucidPlugins'
-        app_label = 'PyLucid'
+        app_label = 'PyLucidPlugins'
+#        app_label = 'PyLucid'
 
     def __unicode__(self):
-        return u"TestAlbum '%s', ID %s" % (self.name, self.id)
+        return u"TestAlbum '%s', ID %s, createby: %s" % (
+            self.name, self.id, self.createby
+        )
 
 PLUGIN_MODELS = (TestArtist, TestAlbum)
 
@@ -71,7 +72,12 @@ class unittest_plugin(PyLucidBasePlugin):
         Test if arguments in lucidTag would be parsed right in
         PyLucid.template_addons.lucidTag
         """
-        self.response.write("args: %r, kwargs: %r" % (args, kwargs))
+        self.response.write("<pre>\n")
+        self.response.write("args:\n")
+        self.response.write("%s\n" % pformat(args))
+        self.response.write("pformarted kwargs:\n")
+        self.response.write("%s\n" % pformat(kwargs))
+        self.response.write("</pre>")
 
     def hello_world(self):
         """
@@ -89,21 +95,32 @@ class unittest_plugin(PyLucidBasePlugin):
         self.response.write("<pre>\n")
         self.response.write("Test the plugin models\n")
         self.response.write("Create TestArtist\n")
-        artist1 = TestArtist(name="A test Artist\n")
-        artist1.save()
-        self.response.write("entry with ID '%s' created\n" % artist1.id)
+        artist = TestArtist(name="A test Artist\n")
+        artist.save()
+        self.response.write("entry with ID '%s' created\n" % artist.id)
         self.response.write("Create TestAlbum\n")
-        album1 = TestAlbum(
-            artist = artist1,
+        album = TestAlbum(
+            artist = artist,
             name = "A test Album",
             num_stars = 10,
+            createby = self.request.user
         )
-        album1.save()
-        self.response.write("entry with ID '%s' created\n" % album1.id)
+        album.save()
+        self.response.write("entry with ID '%s' created:\n" % album.id)
+        self.response.write(u"%s\n" % album)
+        self.response.write("</pre>")
+
+    def all_models(self):
+        """
+        Display all existing models
+        """
+        self.response.write("<pre>\n")
         self.response.write("All Albums:\n")
         albums = TestAlbum.objects.all()
         for album in albums:
             self.response.write(u"%s: %s\n" % (album.id, album))
+
+        self.response.write("</pre>")
 
 
 

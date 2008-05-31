@@ -18,6 +18,8 @@
 import os
 from pprint import pformat
 
+from django.conf import settings
+
 from django.db import models, transaction, connection
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
@@ -30,6 +32,44 @@ from PyLucid.tools.data_eval import data_eval, DataEvalError
 from PyLucid.system.exceptions import PluginPreferencesError
 
 preference_cache = {}
+
+PLUGIN_MODEL_LABEL = "PyLucidPlugins"
+PLUGIN_MODEL_APP = "PyLucid.system.PyLucidPlugins"
+
+
+def get_plugin_models(package_name, plugin_name, debug=False):
+    """
+    returns a list of all existing plugin models.
+    If no models exist, returns None!
+
+    Seperated function, because must be accessible from manager- and plugin
+    class, too.
+    """
+    plugin_module = get_plugin_module(package_name, plugin_name, debug)
+    if not hasattr(plugin_module, "PLUGIN_MODELS"):
+        # Plugin has no models
+        return None
+
+    if not PLUGIN_MODEL_APP in settings.INSTALLED_APPS:
+        from django.core.exceptions import ImproperlyConfigured
+        raise ImproperlyConfigured(
+            "Error '%s' not in settings.INSTALLED_APPS!" % PLUGIN_MODEL_APP
+        )
+
+    plugin_models = plugin_module.PLUGIN_MODELS
+
+    # Check app_label for every plugin model
+    for model in plugin_models:
+        app_label = model._meta.app_label
+        assert app_label == PLUGIN_MODEL_LABEL, (
+            "Plugin models must defined in class Meta: app_label = '%s'"
+        ) % PLUGIN_MODEL_LABEL
+
+    return plugin_models
+
+
+
+
 
 class PluginManager(models.Manager):
     """
@@ -50,6 +90,11 @@ class PluginManager(models.Manager):
 
         plugin = self.get(plugin_name = plugin_name)
         return plugin.get_preferences()
+
+    def get_plugin_models(self, package_name, plugin_name, debug=False):
+        """ returns a list of all existing plugin models or None """
+        return get_plugin_models(package_name, plugin_name, debug)
+
 
 
 class Plugin(models.Model):
@@ -151,6 +196,10 @@ class Plugin(models.Model):
         """
         return get_plugin_version(self.package_name, self.plugin_name, debug)
 
+    def get_plugin_models(self, debug=False):
+        """ returns a list of all existing plugin models or None """
+        return get_plugin_models(self.package_name, self.plugin_name, debug)
+
     #___________________________________________________________________________
     # SAVE
 
@@ -172,49 +221,47 @@ class Plugin(models.Model):
     # DELETE
 
     def get_delete_sql(self, plugin_models):
-#        from django.conf import settings
+        """
+        Returns a list of sql statements for deleting the plugin model tabels.
+        For this, we used the fake django app "PyLucidPlugins" and attach
+        all models to this add temporarly.
+        """
+        from django.core.management import sql
         from django.core.management.color import no_style
         style = no_style()
-        from django.core.management import sql
 
         models.loading.register_models("PyLucidPlugins", *plugin_models)
 
-        # get all delete statements for the given App
         app = models.get_app("PyLucidPlugins")
+
         statements = sql.sql_delete(app, style)
 
-        print sql.table_list()
-
-        #cleanup
+        # cleanup
         app_models = models.loading.cache.app_models
         del(app_models["PyLucidPlugins"])
-    #    settings.INSTALLED_APPS = old_inst_apps
 
         return statements
 
-    def get_delete_tables(self):
-        plugin_module = get_plugin_module(
-            self.package_name,
-            self.plugin_name,
-            debug=True,
-        )
-        if not hasattr(plugin_module, "PLUGIN_MODELS"):
+    def _delete_tables(self):
+        """
+        Delete all plugin model tabels.
+        """
+        plugin_models = self.get_plugin_models()
+        if not plugin_models:
             # Plugin has no models
             return
-
-        plugin_models = plugin_module.PLUGIN_MODELS
 
         statements = self.get_delete_sql(plugin_models)
 
         cursor = connection.cursor()
         for statement in statements:
-            print repr(statement)
+            #print repr(statement)
             cursor.execute(statement)
 
 
     @transaction.commit_on_success
     def delete(self):
-        self.get_delete_tables()
+        self._delete_tables()
 
         super(Plugin, self).delete()
 

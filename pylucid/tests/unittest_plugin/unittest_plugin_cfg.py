@@ -64,4 +64,15 @@ plugin_manager_data = {
             "weight" : 0, # sorting wieght for every section entry
         },
     },
+    "all_models": {
+        "must_login": True,
+        "must_admin": True,
+        "admin_sub_menu": {
+            "section"       : _("unittest"), # The sub menu section
+            "title"         : _("all models"),
+            "help_text"     : _("Display all existing models"),
+            "open_in_window": False, # Should be create a new JavaScript window?
+            "weight" : 0, # sorting wieght for every section entry
+        },
+    },
 }

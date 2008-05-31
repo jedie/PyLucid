@@ -110,7 +110,7 @@ from django.test import TestCase as DjangoTestCase
 from tests.utils.BrowserDebug import debug_response
 
 from PyLucid.tools.db_dump import loaddb
-from PyLucid.tools.Diff import make_diff
+from PyLucid.tools.Diff import make_diff, diff_lines
 from PyLucid.install.install import DB_DumpFakeOptions
 from PyLucid.models import Page, Style, Template, Plugin
 from PyLucid.system.plugin_manager import auto_install_plugins, install_plugin
@@ -189,7 +189,7 @@ FIXTURE_FILE = tempfile.NamedTemporaryFile(prefix='PyLucid_',suffix='.json')
 # unittest plugin paths
 # (relative path here! Because the current work dir can chaned!)
 TEST_PLUGIN_SRC = "tests/unittest_plugin/"
-TEST_PLUGIN_DST = "PyLucid/plugins_external/unittest_plugin"
+TEST_PLUGIN_DST = "PyLucid/plugins_internal/unittest_plugin"
 
 
 def change_preferences(plugin_name, **kwargs):
@@ -242,6 +242,23 @@ class TestCase(DjangoTestCase):
         for txt in must_not_contain:
             if txt in response.content:
                 error(response, "Text should not be in response: '%s'" % txt)
+
+    def assertEqual2(self, first, second):
+        """
+        Same as the original, but display a diff on error.
+        Makes only sence if the string contains more lines (\n)
+        """
+        if first == second:
+            # is equal, ok
+            return
+
+        error_msg = "Strings not equal:\n"
+        error_msg += "1: %r\n" % first
+        error_msg += "2: %r\n" % second
+        error_msg += "Diff:\n"
+        error_msg += diff_lines(first, second)
+
+        self.fail(error_msg)
 
     def assertLists(self, is_list, should_be_list, sort=True):
         """
@@ -433,8 +450,9 @@ def install_internal_plugins(extra_verbose):
 def init_unittest_plugin():
     """
     initialize the unittest plugin
-    -copy ./tests/unittest_plugin/ into ./PyLucid/plugins_external/
-    -install+activate the plugin into the database
+    -copy ./tests/unittest_plugin/ into ./PyLucid/plugins_internal/
+
+    The plugin would be installed in install_internal_plugins() as a normal Plugin.
     """
     print "initialize the unittest plugin"
     if os.path.exists(TEST_PLUGIN_DST):
@@ -455,13 +473,6 @@ def init_unittest_plugin():
             print "os.getcwd():", os.getcwd()
             raise
 
-#    install_plugin(
-#        package_name = "PyLucid.plugins_external",
-#        plugin_name = "unittest_plugin",
-#        debug = True,
-#        active=True,
-#        extra_verbose=True,
-#    )
 
 
 def remove_unittest_plugin():
@@ -575,18 +586,12 @@ def init_pyluciddb(verbosity):
     and ensures that at least testuser exists.
     """
     load_db_dumps(verbosity)
+    init_unittest_plugin()
     install_internal_plugins(verbosity)
     create_users() # Create all test users
     create_pages(TEST_PAGES) # Create the test pages
-    init_unittest_plugin()
     create_test_fixture(verbosity)
-    install_plugin(
-        package_name = "PyLucid.plugins_external",
-        plugin_name = "unittest_plugin",
-        debug = True,
-        active=True,
-        extra_verbose=True,
-    )
+
 
 def teardown_pylucid():
     """

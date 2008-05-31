@@ -115,9 +115,10 @@ def lucidTag(parser, token):
         for key, value in kwargs:
             # method Keywords must be Strings
             key = key.encode(settings.DEFAULT_CHARSET)
-            if value in ("True", "true", "on", "ON", "1"):
+            value_lower = value.lower()
+            if value_lower in ("true", "on"):
                 value = True
-            elif value in ("False", "false", "off", "OFF", "0"):
+            elif value_lower in ("false", "off"):
                 value = False
             method_kwargs[key] = value
 
