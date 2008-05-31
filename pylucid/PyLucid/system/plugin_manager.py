@@ -26,16 +26,16 @@ debug = True
 
 from django.conf import settings
 
-#if __name__ == "__main__": # init django for local test
-#    from django.core.management import setup_environ
-#    setup_environ(settings)
-
+from django.db import connection
+from django.db.models import Model
+from django.core.management.sql import sql_model_create, \
+                                                        sql_indexes_for_model, custom_sql_for_model
 from django.http import HttpResponse, Http404
 
-from PyLucid.system.plugin_import import get_plugin_module, get_plugin_config, \
-                                                            get_plugin_version
-from PyLucid.system.exceptions import *
 from PyLucid.models import Plugin
+from PyLucid.system.exceptions import *
+from PyLucid.system.plugin_import import get_plugin_module, \
+                                                                        get_plugin_config, get_plugin_version
 
 
 
@@ -197,9 +197,42 @@ def get_plugin_list(plugin_path):
     return plugin_list
 
 
+def get_create_table(models):
+    from django.core.management.color import no_style
+    style = no_style()
+
+    statements = []
+    for model in models:
+        statements += sql_model_create(model, style)[0]
+        statements += sql_indexes_for_model(model, style)
+        statements += custom_sql_for_model(model)
+    return statements
+
+
+
+def create_plugin_tables(plugin, extra_verbose):
+    plugin_module = get_plugin_module(
+        plugin.package_name,
+        plugin.plugin_name,
+        debug=extra_verbose,
+    )
+    if not hasattr(plugin_module, "PLUGIN_MODELS"):
+        # Plugin has no models
+        if extra_verbose:
+            print "Info: No 'plugin_models' list defined, ok."
+        return
+
+    plugin_models = plugin_module.PLUGIN_MODELS
+
+    statements = get_create_table(plugin_models)
+    cursor = connection.cursor()
+    for statement in statements:
+        print repr(statement)
+        cursor.execute(statement)
+
 
 def _install_plugin(package_name, plugin_name, plugin_config, active,
-                                                                extra_verbose):
+                                                                                                                extra_verbose):
     """
     insert a plugin/plugin in the 'plugin' table
     """
@@ -224,10 +257,16 @@ def _install_plugin(package_name, plugin_name, plugin_config, active,
     plugin.save()
     if extra_verbose:
         print "OK, ID:", plugin.id
+
+    create_plugin_tables(plugin, extra_verbose)
+
     return plugin
 
 
 
+from django.db import transaction
+
+@transaction.commit_on_success
 def install_plugin(package_name, plugin_name, debug, active,
                                                         extra_verbose=False):
     """
@@ -250,6 +289,7 @@ def install_plugin(package_name, plugin_name, debug, active,
     plugin = _install_plugin(
         package_name, plugin_name, plugin_config, active, extra_verbose
     )
+    return plugin
 
 
 def auto_install_plugins(debug, extra_verbose=True):

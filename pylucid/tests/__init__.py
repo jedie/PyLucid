@@ -455,13 +455,13 @@ def init_unittest_plugin():
             print "os.getcwd():", os.getcwd()
             raise
 
-    install_plugin(
-        package_name = "PyLucid.plugins_external",
-        plugin_name = "unittest_plugin",
-        debug = True,
-        active=True,
-        extra_verbose=True,
-    )
+#    install_plugin(
+#        package_name = "PyLucid.plugins_external",
+#        plugin_name = "unittest_plugin",
+#        debug = True,
+#        active=True,
+#        extra_verbose=True,
+#    )
 
 
 def remove_unittest_plugin():
@@ -580,6 +580,13 @@ def init_pyluciddb(verbosity):
     create_pages(TEST_PAGES) # Create the test pages
     init_unittest_plugin()
     create_test_fixture(verbosity)
+    install_plugin(
+        package_name = "PyLucid.plugins_external",
+        plugin_name = "unittest_plugin",
+        debug = True,
+        active=True,
+        extra_verbose=True,
+    )
 
 def teardown_pylucid():
     """

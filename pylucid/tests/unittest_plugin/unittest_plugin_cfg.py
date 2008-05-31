@@ -53,4 +53,15 @@ plugin_manager_data = {
     "lucidTag" : global_rights,
     "hello_world": global_rights,
     "test_attributes" : global_rights,
+    "plugin_models": {
+        "must_login": True,
+        "must_admin": True,
+        "admin_sub_menu": {
+            "section"       : _("unittest"), # The sub menu section
+            "title"         : _("test plugin models"),
+            "help_text"     : _("Test the plugin models"),
+            "open_in_window": False, # Should be create a new JavaScript window?
+            "weight" : 0, # sorting wieght for every section entry
+        },
+    },
 }

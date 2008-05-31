@@ -18,6 +18,52 @@
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
+from django.conf import settings
+from django.db import models
+from django.contrib.auth.models import User
+
+
+#_____________________________________________________________________________
+# Test Plugin models
+
+
+class TestArtist(models.Model):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        # db_table is optional
+#        db_table = 'PyLucid_test'
+#        app_label = 'PyLucidPlugins'
+        app_label = 'PyLucid'
+
+class TestAlbum(models.Model):
+    artist = models.ForeignKey(TestArtist)
+    name = models.CharField(max_length=100)
+    num_stars = models.IntegerField()
+
+    createtime = models.DateTimeField(auto_now_add=True)
+    lastupdatetime = models.DateTimeField(auto_now=True)
+
+    createby = models.ForeignKey(User, related_name="test_createby",
+        null=True, blank=True
+    )
+    lastupdateby = models.ForeignKey(User, related_name="test_lastupdateby",
+        null=True, blank=True
+    )
+    class Meta:
+        # db_table is optional
+#        db_table = 'PyLucid_test'
+#        app_label = 'PyLucidPlugins'
+        app_label = 'PyLucid'
+
+    def __unicode__(self):
+        return u"TestAlbum '%s', ID %s" % (self.name, self.id)
+
+PLUGIN_MODELS = (TestArtist, TestAlbum)
+
+#_____________________________________________________________________________
+# Plugin
+
 
 class unittest_plugin(PyLucidBasePlugin):
     def lucidTag(self, *args, **kwargs):
@@ -35,6 +81,32 @@ class unittest_plugin(PyLucidBasePlugin):
 
     def test_attributes(self, attr_name):
         self.response.write(getatt(self, attr_name))
+
+    def plugin_models(self):
+        """
+        Plays with the two local plugin models.
+        """
+        self.response.write("<pre>\n")
+        self.response.write("Test the plugin models\n")
+        self.response.write("Create TestArtist\n")
+        artist1 = TestArtist(name="A test Artist\n")
+        artist1.save()
+        self.response.write("entry with ID '%s' created\n" % artist1.id)
+        self.response.write("Create TestAlbum\n")
+        album1 = TestAlbum(
+            artist = artist1,
+            name = "A test Album",
+            num_stars = 10,
+        )
+        album1.save()
+        self.response.write("entry with ID '%s' created\n" % album1.id)
+        self.response.write("All Albums:\n")
+        albums = TestAlbum.objects.all()
+        for album in albums:
+            self.response.write(u"%s: %s\n" % (album.id, album))
+
+
+
 
 #    """
 #    We inherit from the base plugin.

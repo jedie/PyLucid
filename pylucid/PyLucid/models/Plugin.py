@@ -18,12 +18,13 @@
 import os
 from pprint import pformat
 
-from django.db import models
+from django.db import models, transaction, connection
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 
-from PyLucid.system.plugin_import import get_plugin_config, get_plugin_version
+from PyLucid.system.plugin_import import get_plugin_module, \
+                                                                        get_plugin_config, get_plugin_version
 from PyLucid.tools.newforms_utils import get_init_dict, setup_help_text
 from PyLucid.tools.data_eval import data_eval, DataEvalError
 from PyLucid.system.exceptions import PluginPreferencesError
@@ -150,7 +151,8 @@ class Plugin(models.Model):
         """
         return get_plugin_version(self.package_name, self.plugin_name, debug)
 
-    #--------------------------------------------------------------------------
+    #___________________________________________________________________________
+    # SAVE
 
     def save(self):
         """
@@ -165,6 +167,59 @@ class Plugin(models.Model):
             self.active = True
 
         super(Plugin, self).save() # Call the "real" save() method
+
+    #___________________________________________________________________________
+    # DELETE
+
+    def get_delete_sql(self, plugin_models):
+#        from django.conf import settings
+        from django.core.management.color import no_style
+        style = no_style()
+        from django.core.management import sql
+
+        models.loading.register_models("PyLucidPlugins", *plugin_models)
+
+        # get all delete statements for the given App
+        app = models.get_app("PyLucidPlugins")
+        statements = sql.sql_delete(app, style)
+
+        print sql.table_list()
+
+        #cleanup
+        app_models = models.loading.cache.app_models
+        del(app_models["PyLucidPlugins"])
+    #    settings.INSTALLED_APPS = old_inst_apps
+
+        return statements
+
+    def get_delete_tables(self):
+        plugin_module = get_plugin_module(
+            self.package_name,
+            self.plugin_name,
+            debug=True,
+        )
+        if not hasattr(plugin_module, "PLUGIN_MODELS"):
+            # Plugin has no models
+            return
+
+        plugin_models = plugin_module.PLUGIN_MODELS
+
+        statements = self.get_delete_sql(plugin_models)
+
+        cursor = connection.cursor()
+        for statement in statements:
+            print repr(statement)
+            cursor.execute(statement)
+
+
+    @transaction.commit_on_success
+    def delete(self):
+        self.get_delete_tables()
+
+        super(Plugin, self).delete()
+
+    #___________________________________________________________________________
+    # META
 
     class Meta:
         permissions = (

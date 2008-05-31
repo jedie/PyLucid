@@ -30,7 +30,33 @@ class PluginAPI_TestCase(tests.TestCase):
     """
     Unit tests for detect_page function.
     """
-    def setUp(self):
+#    def tearDown(self):
+
+
+    def _init(self):
+        print "init"
+        try:
+            self.plugin = Plugin.objects.get(plugin_name=TEST_PLUGIN_NAME)
+        except Plugin.DoesNotExist, err:
+            from PyLucid.system.plugin_manager import install_plugin
+            self.plugin = install_plugin(
+                package_name = "PyLucid.plugins_external",
+                plugin_name = "unittest_plugin",
+                debug = True,
+                active=True,
+                extra_verbose=True,
+            )
+        else:
+            print "Plugin exists ID:", self.plugin.id
+            
+    def _delete(self):
+        print "delete"
+        try:
+            self.plugin.delete()
+        except Exception, err:
+            print "tearDown Error:", err
+
+    def setUp(self):       
         Page.objects.all().delete() # Delete all existins pages
 
         self.template = tests.create_template(
@@ -57,6 +83,7 @@ class PluginAPI_TestCase(tests.TestCase):
         """
         request the url and returns the plugin content output
         """
+        print "22222222"
         response = self.client.get(url)
         # Check that the respose is 200 Ok.
         self.failUnlessEqual(response.status_code, 200)
@@ -88,17 +115,28 @@ class PluginAPI_TestCase(tests.TestCase):
         ) % raw_content
         self.fail(msg)
 
+    def test_init_plugin(self):
+        """
+        First we must install the plugin
+        """
+        print "XXXXXXXXX"
+        url = self.command % "plugin_models"
+        content = self._get_plugin_content(url)
+
 
     def test_first_check(self):
         """
         Check if the test plugin exist and is active
         """
+#        self._init()
         try:
             plugin = Plugin.objects.get(plugin_name=TEST_PLUGIN_NAME)
         except Plugin.DoesNotExist, err:
             self.fail("test plugin doesn't exist in the database: %s" % err)
 
         self.failUnless(plugin.active, True)
+        
+#        self._delete()
 
     def test_hello_world(self):
         """
