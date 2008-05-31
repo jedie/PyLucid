@@ -437,6 +437,10 @@ def init_unittest_plugin():
     -install+activate the plugin into the database
     """
     print "initialize the unittest plugin"
+    if os.path.exists(TEST_PLUGIN_DST):
+        print "Info: old unitest plugin exist."
+        remove_unittest_plugin()
+
     print "copy %s to %s" % (TEST_PLUGIN_SRC, TEST_PLUGIN_DST)
     try:
         shutil.copytree(
