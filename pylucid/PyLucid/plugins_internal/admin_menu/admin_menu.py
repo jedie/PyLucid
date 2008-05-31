@@ -238,11 +238,18 @@ class admin_menu(PyLucidBasePlugin):
 
         # Get the plugin config and build the menu data
         for plugin in plugins:
-            config = get_plugin_config(
-                package_name = plugin.package_name,
-                plugin_name = plugin.plugin_name,
-                debug = False,
-            )
+            try:
+                config = get_plugin_config(
+                    package_name = plugin.package_name,
+                    plugin_name = plugin.plugin_name,
+                    debug = False,
+                )
+            except Exception, err:
+                msg = "Error: Can't get plugin config for '%s': %s" % (
+                    plugin.plugin_name, err
+                )
+                self.page_msg(msg)
+                continue
 
             for method, data in config.plugin_manager_data.iteritems():
                 if "admin_sub_menu" not in data:
