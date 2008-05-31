@@ -35,7 +35,7 @@ def add_dynamic_context(request, context):
 
     #___________________________________________________________________________
 
-    if request.user.username != "":
+    if hasattr(request, "user") and request.user.username != "":
         # User is logged in
         url = URLs.commandLink("auth", "logout")
         txt = "%s [%s]" % (_("Log out"), request.user.username)
