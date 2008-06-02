@@ -31,6 +31,32 @@ from PyLucid.models import Page, Plugin
 from flv_metadata import FLVReader
 
 #______________________________________________________________________________
+
+from django.db import models
+from django.contrib.auth.models import User
+
+
+class TestModel(models.Model):
+    name = models.CharField(unique=True, max_length=150)
+    content = models.TextField()
+
+    createtime = models.DateTimeField(auto_now_add=True)
+    lastupdatetime = models.DateTimeField(auto_now=True)
+
+    createby = models.ForeignKey(User, related_name="test_createby",
+        null=True, blank=True
+    )
+    lastupdateby = models.ForeignKey(User, related_name="test_lastupdateby",
+        null=True, blank=True
+    )
+    class Admin:
+        pass
+    class Meta:
+        app_label = 'PyLucidPlugins'
+
+PLUGIN_MODELS = (TestModel,)
+
+#______________________________________________________________________________
 # Build a list and a dict from the basepaths
 # The dict key is a string, not a integer. (GET/POST Data always returned
 # numbers as strings)
@@ -104,6 +130,14 @@ class flv_player(PyLucidBasePlugin):
         """
         upload a new flv file
         """
+        t = TestModel.objects.all()
+        count = len(t)
+        self.page_msg(count, t)
+
+        t = TestModel(name = "one entry %s" % count, content = "great!")
+        t.save()
+
+
         if self.request.method == 'POST':
             form = UploadForm(self.request.POST, self.request.FILES)
             #self.page_msg(self.request.POST, self.request.FILES)

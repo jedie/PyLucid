@@ -33,10 +33,7 @@ class TestArtist(models.Model):
     name = models.CharField(max_length=100)
 
     class Meta:
-        # db_table is optional
-#        db_table = 'PyLucid_test'
         app_label = 'PyLucidPlugins'
-#        app_label = 'PyLucid'
 
 class TestAlbum(models.Model):
     artist = models.ForeignKey(TestArtist)
@@ -50,10 +47,7 @@ class TestAlbum(models.Model):
         null=True, blank=True
     )
     class Meta:
-        # db_table is optional
-#        db_table = 'PyLucid_test'
         app_label = 'PyLucidPlugins'
-#        app_label = 'PyLucid'
 
     def __unicode__(self):
         return u"TestAlbum '%s', ID %s, createby: %s" % (
