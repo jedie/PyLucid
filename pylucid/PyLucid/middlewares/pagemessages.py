@@ -21,8 +21,7 @@ TAG = u"<!-- page_messages -->"
 
 TEMPLATE = \
 u"""<fieldset id="page_msg"><legend>page message</legend>
-{% for message in page_msg %}
-    {{ message }}<br />
+{% for message in page_msg %}\t{{ message }}<br />
 {% endfor %}
 </fieldset>"""
 
