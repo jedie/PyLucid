@@ -126,7 +126,7 @@ class ExamplePlugin(PyLucidBasePlugin):
         self.page_msg.black("I am black")
 
         # Successfull messages should be geen:
-        self.page_msg.geen("Update XY successfull")
+        self.page_msg.green("Update XY successfull")
 
     def return_a_response(self):
         """
