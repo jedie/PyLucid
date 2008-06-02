@@ -42,6 +42,8 @@ class PluginAPI_Base(tests.TestCase):
     Unit tests for detect_page function.
     """
     def setUp(self):
+        self.login("superuser") # login client as superuser
+
         Page.objects.all().delete() # Delete all existins pages
 
         self.template = tests.create_template(
@@ -67,9 +69,9 @@ class PluginAPI_Base(tests.TestCase):
     #___________________________________________________________________________
     # SHARED UTILS
 
-    def _get_plugin_content(self, url, debug=False):
+    def _get_plugin_content(self, url, regex=CONTENT_RE, debug=False):
         """
-        request the url and returns the plugin content output
+        request the url and returns with regex=CONTENT_RE: the plugin output
         """
         response = self.client.get(url)
         # Check that the respose is 200 Ok.
@@ -77,11 +79,13 @@ class PluginAPI_Base(tests.TestCase):
 
         raw_content = response.content
         if debug:
-            print "-"*79
+            print "--- url: ---"
+            print url
+            print "--- content: ---"
             print raw_content
             print "-"*79
 
-        content = CONTENT_RE.findall(raw_content)
+        content = regex.findall(raw_content)
         if len(content) == 1:
             return content[0].strip()
 
@@ -113,8 +117,10 @@ class PluginAPI_Base(tests.TestCase):
 
     def test_hello_world(self):
         """
-        Checks via _command url the hello world response
+        Checks via _command url the hello world response as a anonymous user
         """
+        self.client.logout()
+
         url = self.command % "hello_world"
         response = self.client.get(url)
         # Check that the respose is 200 Ok.
@@ -142,7 +148,6 @@ class PluginModel(PluginAPI_Base):
         some informations around this.
         After this, we request a view with a list of all existing model entries.
         """
-        self.login("superuser") # login client as superuser
         url = self.command % "plugin_models"
 
         content = self._get_plugin_content(url)#, debug=True)
@@ -181,7 +186,6 @@ class PluginModel(PluginAPI_Base):
         reinit the plugin and check if the plugin model tabels would be
         droped and re-created.
         """
-        self.login("superuser") # login client as superuser
         url = self.command % "plugin_models"
 
         plugin = self._get_plugin()

@@ -80,7 +80,20 @@ class unittest_plugin(PyLucidBasePlugin):
         self.response.write("Hello world!")
 
     def test_attributes(self, attr_name):
-        self.response.write(getatt(self, attr_name))
+        self.response.write(getattr(self, attr_name))
+
+    def test_page_msg(self):
+        # Normal ouput in blue color
+        self.page_msg("page_msg test:")
+
+        # A black colored messages:
+        self.page_msg.black("I am black")
+
+        # A error in red color
+        self.page_msg.red("RedError!")
+
+        # Successfull messages should be geen:
+        self.page_msg.green("and green")
 
     def plugin_models(self):
         """

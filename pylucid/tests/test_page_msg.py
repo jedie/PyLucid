@@ -16,8 +16,11 @@
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 import os
+import re
+import unittest
 
 import tests
+from tests.test_plugin_api import PluginAPI_Base
 from tests.utils.FakeRequest import get_fake_context
 
 from django.utils.safestring import mark_safe
@@ -25,9 +28,13 @@ from django.utils.safestring import mark_safe
 from PyLucid.system.page_msg import PageMessages
 
 
-class PageMessagesTest(tests.TestCase):
+PAGE_MSG_RE = re.compile("<\/legend>(.*?)<\/fieldset>(?usm)")
 
 
+class PageMessagesTest(unittest.TestCase):
+    """
+    Test PyLucid.system.page_msg.PageMessages directly.
+    """
     def setUp(self):
         self.fake_context = get_fake_context()
         self.request = self.fake_context["request"]
@@ -46,19 +53,19 @@ class PageMessagesTest(tests.TestCase):
 
         self.assertEqual(
             str(self.page_msg),
-            'pages messages: <span style="color:blue;">first test </span>'
+            'pages messages: <span style="color:blue;">first test</span>'
         )
         self.assertEqual(
             unicode(self.page_msg),
-            u'page messages: <span style="color:blue;">first test </span>'
+            u'page messages: <span style="color:blue;">first test</span>'
         )
         self.assertEqual(
             repr(self.page_msg),
-            'page messages: [u\'<span style="color:blue;">first test </span>\']'
+            'page messages: [u\'<span style="color:blue;">first test</span>\']'
         )
         self.assertEqual(
             repr(self.page_msg),
-            'page messages: [u\'<span style="color:blue;">first test </span>\']'
+            'page messages: [u\'<span style="color:blue;">first test</span>\']'
         )
 
 
@@ -68,7 +75,7 @@ class PageMessagesTest(tests.TestCase):
 
         self.assertEqual(
             result,
-            u'<span style="color:blue;">first test </span>'
+            u'<span style="color:blue;">first test</span>'
         )
 
     def test_debug(self):
@@ -84,7 +91,7 @@ class PageMessagesTest(tests.TestCase):
         self.page_msg(u"<1>")
         self.assertEqual(
             unicode(self.page_msg),
-            u'page messages: <span style="color:blue;">&lt;1&gt; </span>'
+            u'page messages: <span style="color:blue;">&lt;1&gt;</span>'
         )
     def test_escape2(self):
         """
@@ -114,7 +121,28 @@ class PageMessagesTest(tests.TestCase):
         self.page_msg("test äöü")
         self.assertEqual(
             unicode(self.page_msg),
-            u'page messages: <span style="color:blue;">test äöü </span>'
+            u'page messages: <span style="color:blue;">test äöü</span>'
+        )
+
+
+class PageMessagesTest2(PluginAPI_Base):
+    """
+    Test page_msg through the unitest plugin. With the method test_page_msg
+    """
+    def _get_page_msg(self, url, debug=False):
+        raw_content = self._get_plugin_content(url, PAGE_MSG_RE, debug)
+        return raw_content
+
+    def test_page_msg(self):
+        url = self.command % "test_page_msg"
+
+        content = self._get_page_msg(url)#, debug=True)
+        self.assertEqual2(
+            content,
+            '<span style="color:blue;">page_msg test:</span><br />\n'
+            '\t<span style="color:black;">I am black</span><br />\n'
+            '\t<span style="color:red;">RedError!</span><br />\n'
+            '\t<span style="color:green;">and green</span><br />'
         )
 
 

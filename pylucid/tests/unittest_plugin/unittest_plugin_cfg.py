@@ -45,14 +45,18 @@ class PreferencesForm(forms.Form):
 # plugin administration data
 
 global_rights = {
-    "must_login"    : False,
-    "must_admin"    : False,
+    "must_login"    : True,
+    "must_admin"    : True,
 }
 
 plugin_manager_data = {
     "lucidTag" : global_rights,
-    "hello_world": global_rights,
+    "hello_world": {
+        "must_login"    : False,
+        "must_admin"    : False,
+    },
     "test_attributes" : global_rights,
+    "test_page_msg" : global_rights,
     "plugin_models": {
         "must_login": True,
         "must_admin": True,
