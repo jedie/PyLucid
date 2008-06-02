@@ -27,14 +27,12 @@ CONTENT_START = "<pre>"
 CONTENT_END = "</pre>"
 CONTENT_RE = re.compile("<pre>(.*?)<\/pre>(?usm)")
 
-MODEL_TEST = """<pre>
-Test the plugin models
+MODEL_TEST = """Test the plugin models
 Create TestArtist
 entry with ID '%(no)s' created
 Create TestAlbum
 entry with ID '%(no)s' created:
-TestAlbum 'A test Album', ID %(no)s, createby: superuser
-</pre>"""
+TestAlbum 'A test Album', ID %(no)s, createby: superuser"""
 
 
 
@@ -145,7 +143,6 @@ class PluginModel(PluginAPI_Base):
         After this, we request a view with a list of all existing model entries.
         """
         self.login("superuser") # login client as superuser
-
         url = self.command % "plugin_models"
 
         content = self._get_plugin_content(url)#, debug=True)
@@ -172,12 +169,10 @@ class PluginModel(PluginAPI_Base):
         self.assertEqual2(
             content,
             (
-                "<pre>\n"
                 "All Albums:\n"
                 "1: TestAlbum 'A test Album', ID 1, createby: superuser\n"
                 "2: TestAlbum 'A test Album', ID 2, createby: superuser\n"
-                "3: TestAlbum 'A test Album', ID 3, createby: superuser\n"
-                "</pre>"
+                "3: TestAlbum 'A test Album', ID 3, createby: superuser"
             )
         )
 
@@ -186,17 +181,20 @@ class PluginModel(PluginAPI_Base):
         reinit the plugin and check if the plugin model tabels would be
         droped and re-created.
         """
+        self.login("superuser") # login client as superuser
+        url = self.command % "plugin_models"
+
         plugin = self._get_plugin()
-        
+
         package_name = plugin.package_name
         plugin_name = plugin.plugin_name
-        
+
         # remove the plugin completely from the database
         # plugin model tables should be droped
         plugin.delete()
-        
+
         # install the plugin
-        # plugin model tables should be re-created, too. 
+        # plugin model tables should be re-created, too.
         install_plugin(package_name, plugin_name, debug=True, active=True,
                                                         extra_verbose=True)
 
@@ -213,64 +211,27 @@ class PluginModel(PluginAPI_Base):
         self.assertEqual2(
             content,
             (
-                "<pre>\n"
                 "All Albums:\n"
-                "1: TestAlbum 'A test Album', ID 1, createby: superuser\n"
-                "</pre>"
+                "1: TestAlbum 'A test Album', ID 1, createby: superuser"
             )
         )
 
 
-class PluginModel(PluginAPI_Base):
+class PluginArgsTest(PluginAPI_Base):
     """
-    pass parameters to the plugin method.
+    Test for pass parameters to the plugin method...
+        ...via lucidTag, handled in PyLucid.template_addons.lucidTag
+        ...via url, handled in the plugin_manager
     """
     def test_lucidTag(self):
+        """
+        Request the lucidTag method from the test plugin.
+        It display all args and kwargs.
+        """
         content = self._get_plugin_content(self.test_url)
         self.assertEqual2(content, "args:\n()\npformarted kwargs:\n{}")
 
-    def test_plugin_args1(self):
-        """
-        Test arguments in the lucidTag
-        Handled in PyLucid.template_addons.lucidTag
-        """
-        def get_args_info(page_content):
-            self.test_page.content = page_content
-            self.test_page.save()
-            content = self._get_plugin_content(self.test_url, debug=False)
-            args_info = content.split("\n")
-            return (args_info[1], args_info[3])
-
-
-        args, kwargs = get_args_info('{% lucidTag unittest_plugin %}')
-        self.assertEqual2(args, "()")
-        self.assertEqual2(kwargs, "{}")
-
-
-        args, kwargs = get_args_info(
-            '{% lucidTag unittest_plugin arg1="test1" %}'
-        )
-        self.assertEqual2(args, "()")
-        self.assertEqual2(kwargs, "{'arg1': u'test1'}")
-
-
-        args, kwargs = get_args_info(
-            '{% lucidTag unittest_plugin a="0" b="1" c="2" %}'
-        )
-        self.assertEqual2(args, "()")
-        self.assertEqual2(kwargs, "{'a': u'0', 'b': u'1', 'c': u'2'}")
-
-
-        args, kwargs = get_args_info(
-            '{% lucidTag unittest_plugin'
-            ' t1="True" f1="False" t2="true" f2="false" %}'
-        )
-        self.assertEqual2(args, "()")
-        self.assertEqual2(kwargs, 
-            "{'f1': False, 'f2': False, 't1': True, 't2': True}"
-        )
-
-    def test_plugin_args2(self):
+    def test_url_args(self):
         """
         Test arguments in a _command url
         """
@@ -284,6 +245,89 @@ class PluginModel(PluginAPI_Base):
             "pformarted kwargs:\n"
             "{}"
         )
+
+    #__________________________________________________________________________
+    # lucidTag KWARGS tests
+
+    def _get_args_info(self, page_content):
+        self.test_page.content = page_content
+        self.test_page.save()
+        content = self._get_plugin_content(self.test_url, debug=False)
+        args_info = content.split("\n")
+        return (args_info[1], args_info[3])
+
+    def test_tag_no_args(self):
+        """
+        Tag without arguments
+        """
+        args, kwargs = self._get_args_info('{% lucidTag unittest_plugin %}')
+        self.assertEqual2(args, "()")
+        self.assertEqual2(kwargs, "{}")
+
+    def test_string_arg(self):
+        """
+        One string kwarg
+        """
+        args, kwargs = self._get_args_info(
+            '{% lucidTag unittest_plugin arg1="test1" %}'
+        )
+        self.assertEqual2(args, "()")
+        self.assertEqual2(kwargs, "{'arg1': u'test1'}")
+
+    def test_tag_more_args(self):
+        """
+        More string kwargs
+        """
+        args, kwargs = self._get_args_info(
+            '{% lucidTag unittest_plugin a="0" b="1" c="2" %}'
+        )
+        self.assertEqual2(args, "()")
+        self.assertEqual2(kwargs, "{'a': u'0', 'b': u'1', 'c': u'2'}")
+
+    def test_tag_bool_args1(self):
+        """
+        The current implementation converts strings to bool if it found
+        the bool words.
+        """
+        args, kwargs = self._get_args_info(
+            '{% lucidTag unittest_plugin'
+            ' t1="True" f1="False" t2="true" f2="false" %}'
+        )
+        self.assertEqual2(args, "()")
+        self.assertEqual2(kwargs,
+            "{'f1': False, 'f2': False, 't1': True, 't2': True}"
+        )
+
+    #__________________________________________________________________________
+    # Problems with the current implementation.
+    # We can't pass other things than string.
+    # All follow test will failed:
+
+    def test_tag_bool_args2(self):
+        """
+        Faild in the current implementation!
+        """
+        args, kwargs = self._get_args_info(
+            '{% lucidTag unittest_plugin t1=True f1=False %}'
+        )
+        self.assertEqual2(args, "()")
+        self.assertEqual2(kwargs,
+            "{'f1': False, 'f2': False}"
+        )
+
+    def test_non_string_args(self):
+        """
+        Faild in the current implementation!
+        """
+        args, kwargs = self._get_args_info(
+            '{% lucidTag unittest_plugin arg1=1 arg2=2.0 %}'
+        )
+        self.assertEqual2(args, "()")
+        self.assertEqual2(kwargs,
+            "{'arg1': 1, 'args2': 2.0}"
+        )
+
+
 
 
 

@@ -25,6 +25,7 @@ import cgi, re
 from PyLucid.system.plugin_manager import run
 from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.context_processors import add_css_tag
+from PyLucid.tools.data_eval import data_eval, DataEvalError
 
 from django.conf import settings
 from django import template
@@ -104,9 +105,31 @@ def lucidTag(parser, token):
         {% lucidTag PluginName kwarg1="value1" %}
         {% lucidTag PluginName kwarg1="value1" kwarg2="value2" %}
     """
-    content = token.contents
-    content = content.split(" ", 2)[1:]
+    raw_content = token.contents
+    content = raw_content.split(" ", 2)[1:]
     plugin_name = content.pop(0)
+
+    if "." in plugin_name:
+        plugin_name, method_name = plugin_name.split(".", 1)
+    else:
+        method_name = "lucidTag"
+
+#    print "1", content
+#    method_kwargs = {}
+#    if content:
+#        raw_kwargs = content[0]
+#        kwargs = raw_kwargs.replace("=", ":")
+#        kwargs = u"{ %s }" % kwargs
+#        print "2", kwargs
+#        try:
+#            method_kwargs = data_eval(kwargs)
+#        except DataEvalError, err:
+#            return lucidTagNodeError(
+#                plugin_name, method_name,
+#                msg = "Tag args error: %s" % err
+#            )
+#
+#        print "3", method_kwargs
 
     method_kwargs = {}
     if content:
@@ -121,11 +144,6 @@ def lucidTag(parser, token):
             elif value_lower in ("false", "off"):
                 value = False
             method_kwargs[key] = value
-
-    if "." in plugin_name:
-        plugin_name, method_name = plugin_name.split(".", 1)
-    else:
-        method_name = "lucidTag"
 
     return lucidTagNode(plugin_name, method_name, method_kwargs)
 
