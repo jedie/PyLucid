@@ -12,7 +12,7 @@
     $Rev: $
     $Author: $
 
-    :copyright: 2007 by the PyLucid team.
+    :copyright: 2007-2008 by the PyLucid team.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
@@ -35,7 +35,43 @@ except ImportError:
 # - Only use . as a separator
 # - No spaces: "0.8.0 RC2" -> "0.8.0RC2"
 # http://peak.telecommunity.com/DevCenter/setuptools#specifying-your-project-s-version
-PYLUCID_VERSION = (0, 8, 1, svn_revision)
-PYLUCID_VERSION_STRING = "0.8.1pre" + svn_revision
+PYLUCID_VERSION = (0, 8, 5, svn_revision)
+PYLUCID_VERSION_STRING = "0.8.5pre" + svn_revision
 
 
+#______________________________________________________________________________
+# LOW-LEVEL WARNING REDIRECT
+"""
+This part is commented out per default. Use only for debugging!
+It's for "handle egg warning...":http://pylucid.net:8080/pylucid/ticket/195
+"""
+#import warnings, logging
+#
+## Needs to have the file rights to create/write into this file!
+#LOGFILE = "PyLucid_warnings.log"
+#
+#try:
+#    logging.basicConfig(
+#        level=logging.DEBUG,
+#        format='%(asctime)s %(levelname)s %(message)s',
+#        filename=LOGFILE,
+#        filemode='a'
+#    )
+#except IOError, err:
+#    raise IOError("Can't setup low level warning redirect: %s" % err)
+#
+#log = logging.debug
+#log("PyLucid warnings logging started.")
+#
+#warning_container = []
+#
+#def showwarning(message, category, filename, lineno):
+#
+#    msg = unicode(message)
+#    filename = u"..." + filename[-30:]
+#    msg += u" (%s - line %s)" % (filename, lineno)
+#
+#    log(msg)
+#
+#old_showwarning = warnings.showwarning
+#warnings.showwarning = showwarning
