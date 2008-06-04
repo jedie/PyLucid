@@ -91,11 +91,14 @@ class TestStylesheet(tests.TestCase):
     def _get_content_link(self):
         """ Return the stylesheet link contains in the root cms page. """
         response = self.client.get("/")
+
         from_cache = response.get("from_cache", None)
-        print from_cache
+        self.failUnlessEqual(from_cache, "no")
+
         content = response.content
         links = self._exctract_stylelinks(content)
-        assert len(links) == 1
+        self.failUnlessEqual(len(links), 1)
+
         return links[0]
 
     #--------------------------------------------------------------------------
@@ -107,7 +110,7 @@ class TestStylesheet(tests.TestCase):
         """
         must_link = self._get_stylelink()
         is_link = self.style.get_absolute_url()
-        assert is_link == must_link
+        self.failUnlessEqual(is_link, must_link)
 
     def test_model_path(self):
         """
@@ -116,13 +119,13 @@ class TestStylesheet(tests.TestCase):
         """
         must_path = self._get_stylepath()
         is_path = self.style.get_filepath()
-        assert is_path == must_path
+        self.failUnlessEqual(is_path, must_path)
 
     def test_style_conent(self):
         """
         Test the content of the style instance.
         """
-        assert self.style.content == TEST_STYLE_CONTENT
+        self.failUnlessEqual(self.style.content, TEST_STYLE_CONTENT)
 
     def test_CSS_cache_file(self):
         """
@@ -134,11 +137,11 @@ class TestStylesheet(tests.TestCase):
         """
         must_path = self._get_stylepath()
         is_path = self.style.get_filepath()
-        assert is_path == must_path
-        assert os.path.isfile(is_path) == True
+        self.failUnlessEqual(is_path, must_path)
+        self.failUnlessEqual(os.path.isfile(is_path), True)
 
         file_content = file(is_path, "r").read()
-        assert file_content == TEST_STYLE_CONTENT
+        self.failUnlessEqual(file_content, TEST_STYLE_CONTENT)
 
     #--------------------------------------------------------------------------
 
@@ -171,11 +174,11 @@ class TestStylesheet(tests.TestCase):
 
         # Request a cms page and get the style link from the content
         link = self._get_content_link()
-        assert settings.COMMAND_URL_PREFIX in link
+        self.failUnless(settings.COMMAND_URL_PREFIX in link)
 
         # request the stylesheet via _command link
         response = self.client.get(link)
-        assert response.content == TEST_STYLE_CONTENT
+        self.failUnlessEqual(response.content, TEST_STYLE_CONTENT)
 
 
 
