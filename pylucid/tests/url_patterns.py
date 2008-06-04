@@ -6,6 +6,15 @@
     ~~~~~~~~~~~~~~~~
 
     Try to test the ./PyLucid/urls.py re patterns.
+    
+    Limits
+    ~~~~~~
+    Some tests depents on these settings:
+        settings.ENABLE_INSTALL_SECTION
+        settings.SERVE_STATIC_FILES
+    To run all tests, we must switch these variables and reinit django.
+    You can run these test script standalone and switch the variable here, see
+    settings import down.
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -13,7 +22,7 @@
     $Rev$
     $Author$
 
-    :copyright: 2007 by Jens Diemer.
+    :copyleft: 2007-2008 Jens Diemer.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
@@ -23,10 +32,11 @@ import tests # setup the environment
 
 from django.conf import settings
 
-# Normaly we should never do this. But we must guarantee this things are
-# switched on for the url test :)
-settings.ENABLE_INSTALL_SECTION = True
-settings.SERVE_STATIC_FILES = True
+# Switch settings for local test, see DocString above.
+#settings.ENABLE_INSTALL_SECTION = True
+#settings.ENABLE_INSTALL_SECTION = False
+#settings.SERVE_STATIC_FILES = True
+#settings.SERVE_STATIC_FILES = False
 
 from django.core.urlresolvers import reverse, RegexURLResolver, NoReverseMatch
 
@@ -44,12 +54,18 @@ class TestURLpatterns_reverse_test(unittest.TestCase):
     ~~~~~~~~~~~~
     Test the url re patterns via django.core.urlresolvers.reverse
     """
-
     def test_reverse_install_view(self):
         """
         url to a _install view
         """
-        self.assertEqual(reverse('PyLucid.install.index.menu'), "/_install")
+        view = 'PyLucid.install.index.menu'
+        
+        if settings.ENABLE_INSTALL_SECTION == True:
+            # The _install section is activated
+            self.assertEqual(reverse(view), "/_install")
+        else:
+            # _install section deactivaed
+            self.failUnlessRaises(NoReverseMatch, reverse, view)        
 
     def test_reverse_admin(self):
         """
@@ -109,26 +125,49 @@ class TestURLpatterns(unittest.TestCase):
     Test the url re patterns via django.core.urlresolvers.RegexURLResolver
     """
     def setUp(self):
-        urlconf = settings.ROOT_URLCONF
-        resolver=RegexURLResolver(r'^/', urlconf)
-        self.resolve = resolver.resolve
-
         # must be set, before the test starts
         self.module_name = None
         self.func_name = None
+        
+    def _resolve(self, path):
+        urlconf = settings.ROOT_URLCONF
+        resolver=RegexURLResolver(r'^/', urlconf)
+        view_function, func_args, func_kwargs = resolver.resolve(path)
+        
+        module_name = view_function.__module__
+        func_name = view_function.func_name
+        return module_name, func_name, func_args, func_kwargs
+        
 
     def path_test(self, path, args=(), kwargs={}, test_kwargs=True):
         """
         get the function information via the RegexURLResolver.
         test if the given function is the right module and method.
         """
-        view_function, function_args, function_kwargs = self.resolve(path)
+        module_name, func_name, func_args, func_kwargs = self._resolve(path)
 
-        self.assertEqual(self.module_name, view_function.__module__)
-        self.assertEqual(self.func_name, view_function.func_name)
-        self.assertEqual(args, function_args)
+        self.assertEqual(self.module_name, module_name)
+        self.assertEqual(self.func_name, func_name)
+        self.assertEqual(args, func_args)
         if test_kwargs:
-            self.assertEqual(kwargs, function_kwargs)
+            self.assertEqual(kwargs, func_kwargs)
+
+
+    def test_install_section(self):
+        """
+        Test the _install section
+        """      
+        path = "/%s" % settings.INSTALL_URL_PREFIX
+        module_name, func_name, func_args, func_kwargs = self._resolve(path)
+        
+        if settings.ENABLE_INSTALL_SECTION == False:
+            # Must no be go to the normal CMS view
+            self.assertEqual(module_name, 'PyLucid.index')
+            self.assertEqual(func_name, 'index')
+        else:
+            # _install section enabled -> Display _install menu
+            self.assertEqual(module_name, "PyLucid.install.index")
+            self.assertEqual(func_name, 'menu')       
 
     def test_cms_view(self):
         """
@@ -278,6 +317,10 @@ class TestURLpatterns(unittest.TestCase):
         """
         the _install section urls
         """
+        if settings.ENABLE_INSTALL_SECTION == False:
+            print "Install section deactivaed, skip url tests"
+            return
+        
         base_path = "/%s" % settings.INSTALL_URL_PREFIX
         self.module_name = "PyLucid.install.index"
 
@@ -319,6 +362,16 @@ class TestURLpatterns(unittest.TestCase):
         check the media urls
         """
         base_path = "/%s/" % settings.MEDIA_URL.strip("/")
+        
+        if settings.SERVE_STATIC_FILES == False:
+            print "settings.SERVE_STATIC_FILES == False, skip tests"
+            module_name, func_name, func_args, func_kwargs = \
+                                                        self._resolve(base_path)
+            # Must no be go to the normal CMS view
+            self.assertEqual(module_name, 'PyLucid.index')
+            self.assertEqual(func_name, 'index')
+            return
+        
         self.module_name = "django.views.static"
         self.func_name = "serve"
 
