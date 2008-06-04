@@ -380,6 +380,10 @@ class Info(BaseInstall):
             from django.template import RequestContext
             self.context["request_context"] = RequestContext(self.request)
 
+        # Importand: This page_msg output would be used in the unitest
+        # tests.install_section.TestInstallSection.test_page_msg !
+        self.page_msg("some information for developers:")
+
         return self._render(info_template)
 
     def _get_obj_infos(self, obj):

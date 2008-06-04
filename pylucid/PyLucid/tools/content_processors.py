@@ -21,8 +21,6 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-import warnings
-
 from django.conf import settings
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
@@ -156,23 +154,6 @@ def render_string_template(content, context, autoescape=True):
     html = template.render(context2)
     return html
 
-
-#______________________________________________________________________________
-
-
-def redirect_warnings(out_obj):
-    """
-    Redirect every "warning" messages into the out_obj.
-    """
-#    old_showwarning = warnings.showwarning
-    def showwarning(message, category, filename, lineno):
-        msg = unicode(message)
-        if settings.DEBUG:
-            filename = u"..." + filename[-30:]
-            msg += u" (%s - line %s)" % (filename, lineno)
-        out_obj.write(msg)
-
-    warnings.showwarning = showwarning
 
 
 

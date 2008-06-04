@@ -45,9 +45,7 @@ class PageMessages(object):
     """
     http://www.djangoproject.com/documentation/authentication/#messages
     """
-    def __init__(self, context):
-        request = context["request"]
-
+    def __init__(self, request):
         try:
             self.messages = request.user.get_and_delete_messages()
         except AttributeError:
@@ -138,7 +136,7 @@ class PageMessages(object):
                 result.append(item)
                 result.append(" ")
 
-        result = "".join(result)
+        result = "".join(result).strip()
         return result
 
     def encode_and_prepare(self, txt):

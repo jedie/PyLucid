@@ -24,18 +24,32 @@
 
 from django.conf import settings
 
+#try:
+#    from threading import local
+#except ImportError:
+#    from django.utils._threading_local import local
+
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.middleware.locale import LocaleMiddleware
 
 from PyLucid.system.exceptions import LowLevelError
 from PyLucid.system.template import render_help_page
-from PyLucid.system.utils import setup_debug
+from PyLucid.system.utils import setup_request
 
 
 session_middleware = SessionMiddleware()
 auth_middleware = AuthenticationMiddleware()
 locale_middleware = LocaleMiddleware()
+
+#_thread_locals = local()
+#
+#def get_local_request():
+#    """
+#    Get current threading local request object
+#    """
+#    return _thread_locals.request
+##    return getattr(_thread_locals, 'request', None)
 
 
 class FakeUser(object):
@@ -68,8 +82,11 @@ class PyLucidCommonMiddleware(object):
     a help page.
     """
     def process_request(self, request):
-        # add the attribute "debug" to the request object.
-        setup_debug(request)
+        # add "debug" and "page_msg" to the request object. Redirect warnings.
+        setup_request(request)
+
+        # Attach the current request
+#        _thread_locals.request = request
 
         try:
             session_middleware.process_request(request)

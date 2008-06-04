@@ -8,10 +8,9 @@ import sys, os, posixpath
 from PyLucid import PYLUCID_VERSION_STRING
 from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.page_msg import PageMessages
-from PyLucid.system.utils import setup_debug
+from PyLucid.system.utils import setup_request
 from PyLucid.tools import crypt
-from PyLucid.tools.content_processors import render_string_template, \
-                                                            redirect_warnings
+from PyLucid.tools.content_processors import render_string_template
 
 from django.conf import settings
 from django.shortcuts import render_to_response
@@ -122,17 +121,11 @@ class BaseInstall(object):
             # Should never nappen, because the urlpatterns deactivaed, too.
             raise Http404("Install section disabled")
 
-        setup_debug(request)
+        self.page_msg = request.page_msg
 
         self.request = request
 
         self.context = get_base_context(request)
-
-        self.page_msg = PageMessages(self.context)
-        self.request.page_msg = self.page_msg
-
-        # Redirect every "warning" messages into request.page_msg:
-        redirect_warnings(self.request.page_msg)
 
     #___________________________________________________________________________
 

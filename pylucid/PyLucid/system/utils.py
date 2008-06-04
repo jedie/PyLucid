@@ -12,14 +12,19 @@
     $Rev: $
     $Author: $
 
-    :copyright: 2007 by Jens Diemer
+    :copyleft: 2007-2008 by Jens Diemer, Perttu Ranta-aho
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
 import os
+import warnings
 
 from django.conf import settings
 from django.core.cache import cache
+
+from PyLucid.system.page_msg import PageMessages
+
+
 
 def delete_page_cache():
     """
@@ -35,15 +40,46 @@ def delete_page_cache():
         cache_key = settings.PAGE_CACHE_PREFIX + shortcut
         cache.delete(cache_key)
 
-def setup_debug(request):
+#______________________________________________________________________________
+
+def redirect_warnings(out_obj):
     """
-    add the attribute "debug" to the request object.
+    Redirect every "warning" messages into the out_obj.
     """
+#    old_showwarning = warnings.showwarning
+    def showwarning(message, category, filename, lineno):
+        msg = unicode(message)
+        if settings.DEBUG:
+            filename = u"..." + filename[-30:]
+            msg += u" (%s - line %s)" % (filename, lineno)
+        out_obj.write(msg)
+
+    warnings.showwarning = showwarning
+
+
+def setup_request(request):
+    """
+    Setup the request object
+
+    -add the attribute "debug" and "page_msg" to the request object.
+    -Redirect every "warning" messages into the page_msg
+
+    Used in:
+        - PyLucid.middlewares.common
+        - PyLucid.install.BaseInstall
+    """
+    # Setup request.debug
     if settings.DEBUG or \
                 request.META.get('REMOTE_ADDR') in settings.INTERNAL_IPS:
         request.debug = True
     else:
         request.debug = False
+
+    # Add page_msg
+    request.page_msg = PageMessages(request)
+
+    # Redirect every "warning" messages into the page_msg:
+    redirect_warnings(request.page_msg)
 
 
 def get_uri_base():

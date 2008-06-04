@@ -4,8 +4,12 @@
     PyLucid.index
     ~~~~~~~~~~~~~
 
-    - Display a PyLucid CMS Page
-    - Answer a _command Request
+    Contains all view function, except the _install views.
+
+    - index(): Display a PyLucid CMS Page
+    - handle_command(): Answer a _command Request
+    - permalink(): redirect to the real page url
+    - redirect(): simple redirect old PyLucid URLs to the new location.
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -13,7 +17,7 @@
     $Rev: $
     $Author: $
 
-    :copyright: 2007 by Jens Diemer
+    :copyleft: 2007-2008 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
@@ -27,14 +31,15 @@ from django.utils.translation import ugettext as _
 from PyLucid.models import Page
 from PyLucid.system import plugin_manager
 from PyLucid.system.URLs import URLs
-from PyLucid.system.page_msg import PageMessages
 from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.exceptions import AccessDenied
 from PyLucid.system.context_processors import add_dynamic_context, add_css_tag
 from PyLucid.tools.utils import escape, escape_django_tags
 from PyLucid.tools.content_processors import apply_markup, \
-                                    render_string_template, redirect_warnings
+                                                        render_string_template
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
+
+
 
 # TODO: Remove in PyLucid >v0.8.5
 PAGE_MSG_INFO_LINK = (
@@ -112,12 +117,6 @@ def _get_context(request, current_page_obj):
     request.anonymous_view = True
 
     context = RequestContext(request)
-
-    request.page_msg = PageMessages(context)
-
-    # Redirect every "warning" messages into the page_msg:
-#    redirect_warnings(request.page_msg)
-    redirect_warnings(request.page_msg)
 
     context["PAGE"] = current_page_obj
     context["URLs"] = URLs(context)

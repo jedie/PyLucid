@@ -30,11 +30,18 @@ from PyLucid.models import Page
 ONE_BROWSER_TRACEBACK = True
 
 
+if settings.ENABLE_INSTALL_SECTION != True:
+    print
+    print "Info: Install section is disabled, some test will be skip!"
+
+
 class TestBase(tests.TestCase):
     one_browser_traceback = ONE_BROWSER_TRACEBACK
     _open = []
 
     fixtures = [] # Run all test with a empty database
+
+    install_url_base ="/%s" % settings.INSTALL_URL_PREFIX
 
     def setUp(self):
         settings.DEBUG = True
@@ -45,18 +52,6 @@ class TestBase(tests.TestCase):
         """
         self.failUnlessEqual(Page.objects.all().count(), 0)
 
-    def assertInstallSectionLogin(self):
-        """
-        Request the install section login and check the reponse
-        """
-        response = self.client.get("/" + settings.INSTALL_URL_PREFIX)
-        self.failUnlessEqual(response.status_code, 200)
-        self.assertResponse(
-            response,
-            must_contain=("Login into the _install section",),
-            must_not_contain=("solutions", "Please read the install guide",),
-        )
-
 
 class TestNoPage(TestBase):
     """
@@ -64,7 +59,7 @@ class TestNoPage(TestBase):
     the install help page.
     """
 
-    def assertHelpPageResponse(self, url):
+    def _assertHelpPageResponse(self, url):
         """
         Test if the given response is the help page.
         """
@@ -76,34 +71,123 @@ class TestNoPage(TestBase):
                 "solutions", "Please read the install guide",
             ),
         )
+        return response
 
     def test_page_request(self):
         """
         Try to request a cms page, but there exist no tables, so we should
         get the help page response.
         """
-        self.assertHelpPageResponse(url = "/")
+        self._assertHelpPageResponse(url = "/")
 
     def test_page_permalink(self):
         """
         try to get the help page with a permalink.
         """
         url = "/%s/1/test" % settings.PERMALINK_URL_PREFIX
-        self.assertHelpPageResponse(url)
+        self._assertHelpPageResponse(url)
 
     def test_command_url(self):
         """
         try to get the help page with a permalink.
         """
         url = "/%s/1/test/test/" % settings.COMMAND_URL_PREFIX
-        self.assertHelpPageResponse(url)
+        self._assertHelpPageResponse(url)
 
-    def test_install_section(self):
+
+class TestInstallSection(TestBase):
+    """
+    Test the _install section.
+    """
+    def setUp(self):
+        settings.INSTALL_PASSWORD_HASH = (
+            "sha1$000012345$1234567890abcdef00001234567890abcdef"
+        )
+
+    def _login(self):
         """
-        Request the install section login. Without any database table, we should
-        be see the install secion login page.
+        Login into the _install section for later tests
+
+        The test client is stateful. If a response returns a cookie, then that
+        cookie will be stored in the test client and sent with all subsequent
+        get() and post() requests, see:
+        http://www.djangoproject.com/documentation/testing/#persistent-state
         """
-        self.assertInstallSectionLogin()
+        response = self.client.post(
+            self.install_url_base, {"hash": settings.INSTALL_PASSWORD_HASH}
+        )
+        self.failUnlessEqual(response.status_code, 200)
+        self.failUnless(settings.INSTALL_COOKIE_NAME in response.cookies)
+
+        return response
+
+    def test_login_page(self):
+        """
+        Request the install section login and check the reponse. Without any
+        database table, we should be see the install secion login page.
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        response = self.client.get(self.install_url_base)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=("Login into the _install section",),
+            must_not_contain=("solutions", "Please read the install guide",),
+        )
+
+    def test_loginPOST(self):
+        """
+        Check if self._login() works
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        response = self._login()
+        self.assertResponse(
+            response,
+            must_contain=("menu", "install", "syncdb", "update",),
+            must_not_contain=("Login into the _install section",),
+        )
+
+    def test_access_deny(self):
+        """
+        Test if we get the login page, if a anonymous user will directly
+        access a _install section view.
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        url = self.install_url_base + "/tests/info/"
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=("Login into the _install section",),
+            must_not_contain=("some information for developers:",),
+        )
+
+    def test_page_msg(self):
+        """
+        Test if the page_msg system works in the _install section.
+        This tests depents on the page_msg output in the _install section
+        view PyLucid.install.tests.info !
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        self._login()
+
+        url = self.install_url_base + "/tests/info/"
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=("some information for developers:",),
+            must_not_contain=("Login into the _install section",),
+        )
+
 
 
 class TestMiddlewares:#(TestBase): #DEACTIVATED!
