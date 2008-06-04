@@ -26,8 +26,10 @@ debug = True
 
 from django.conf import settings
 
-from django.db import connection
 from django.db.models import Model
+from django.db import connection, transaction
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 from django.core.management.sql import sql_model_create, \
                                     sql_indexes_for_model, custom_sql_for_model
 from django.http import HttpResponse, Http404
@@ -64,11 +66,7 @@ def _run(context, local_response, plugin_name, method_name, url_args,
         error("Plugin not exists in database: %s" % e)
         return
 
-    plugin_config = get_plugin_config(
-        package_name = plugin.package_name,
-        plugin_name = plugin.plugin_name,
-        debug = request.debug,
-    )
+    plugin_config = get_plugin_config(plugin.package_name, plugin.plugin_name)
 #    request.page_msg(plugin_config.plugin_manager_data)
     try:
         method_cfg = plugin_config.plugin_manager_data[method_name]
@@ -107,11 +105,10 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     URLs = context["URLs"]
     URLs.current_plugin = plugin_name
 
-    debug = request.user.is_superuser or request.debug
-    plugin_module = get_plugin_module(plugin.package_name, plugin_name, debug)
+    plugin_module = get_plugin_module(plugin.package_name, plugin_name)
 
     plugin_class = getattr(plugin_module, plugin_name)
-#    print plugin_class, type(plugin_class)
+#    page_msg(plugin_class, type(plugin_class)
     class_instance = plugin_class(context, local_response)
     unbound_method = getattr(class_instance, method_name)
 
@@ -126,7 +123,7 @@ def run(context, response, plugin_name, method_name, url_args=(),
     """
     run the plugin with and without errorhandling
     """
-#    print "plugin_manager.run():", plugin_name, method_name, url_args, method_kwargs
+#    page_msg("plugin_manager.run():", plugin_name, method_name, url_args, method_kwargs
     request = context["request"]
     try:
         return _run(
@@ -144,7 +141,7 @@ def run(context, response, plugin_name, method_name, url_args=(),
         msg = "Run plugin %s.%s Error" % (plugin_name, method_name)
         request.page_msg.red("%s:" % msg)
         import sys, traceback
-        request.page_msg("<pre>%s</pre>" % traceback.format_exc())
+        request.page_msg(mark_safe("<pre>%s</pre>" % traceback.format_exc()))
         return msg + "(Look in the page_msg)"
 
 
@@ -207,31 +204,34 @@ def get_create_table(plugin_models):
     return statements
 
 
-def create_plugin_tables(plugin, extra_verbose):
+def create_plugin_tables(plugin, page_msg, verbose):
     plugin_models = Plugin.objects.get_plugin_models(
         plugin.package_name,
         plugin.plugin_name,
-        debug=extra_verbose,
+        page_msg, verbose
     )
     if not plugin_models:
-        # Plugin has no models
+        if verbose>1:
+            page_msg.green(_("Plugin has no models, ok."))
         return
 
     statements = get_create_table(plugin_models)
+
     cursor = connection.cursor()
     for statement in statements:
-        #print repr(statement)
+        if verbose>1:
+            page_msg(statement)
         cursor.execute(statement)
 
+    if verbose:
+        page_msg.green(_("%i plugin models installed.") % len(statements))
 
-def _install_plugin(package_name, plugin_name, plugin_config, active,
-                                                                                                                extra_verbose):
+
+def _install_plugin(package_name, plugin_name, plugin_config, page_msg,
+                                                            verbose, active):
     """
     insert a plugin/plugin in the 'plugin' table
     """
-    if extra_verbose:
-        print "Install %s.%s..." % (package_name, plugin_name),
-
     plugin = Plugin.objects.create(
         package_name = package_name,
         plugin_name = plugin_name,
@@ -244,48 +244,47 @@ def _install_plugin(package_name, plugin_name, plugin_config, active,
 
     pref_form = getattr(plugin_config, "PreferencesForm", None)
     if pref_form:
-        # plugin module has a preferences newform class
-        plugin.init_pref_form(pref_form, debug=extra_verbose)
+        if verbose>1:
+            page_msg("Found a preferences newform class.")
+        plugin.init_pref_form(pref_form, page_msg, verbose)
 
     plugin.save()
-    if extra_verbose:
-        print "OK, ID:", plugin.id
+    if verbose>1:
+        page_msg("OK, ID:", plugin.id)
 
-    create_plugin_tables(plugin, extra_verbose)
+    create_plugin_tables(plugin, page_msg, verbose)
 
     return plugin
 
 
 
-from django.db import transaction
 
 @transaction.commit_on_success
-def install_plugin(package_name, plugin_name, debug, active,
-                                                        extra_verbose=False):
+def install_plugin(package_name, plugin_name, page_msg, verbose, active=False):
     """
     Get the config object from disk and insert the plugin into the database
     """
-    plugin_config = get_plugin_config(package_name, plugin_name, debug)
-    if extra_verbose:
+    plugin_config = get_plugin_config(package_name, plugin_name)
+    if verbose>1:
         obsolete_test = (
             hasattr(plugin_config, "__important_buildin__") or
             hasattr(plugin_config, "__essential_buildin__")
         )
         if obsolete_test:
-            print "*** DeprecationWarning: ***"
-            print (
+            page_msg("*** DeprecationWarning: ***")
+            page_msg(
                 " - '__important_buildin__'"
                 " or '__essential_buildin__'"
                 " are obsolete."
             )
 
     plugin = _install_plugin(
-        package_name, plugin_name, plugin_config, active, extra_verbose
+        package_name, plugin_name, plugin_config, page_msg, verbose, active
     )
     return plugin
 
 
-def auto_install_plugins(debug, extra_verbose=True):
+def auto_install_plugins(debug, page_msg, verbose=True):
     """
     Install all internal plugin how are markt as important or essential.
     """
@@ -293,35 +292,35 @@ def auto_install_plugins(debug, extra_verbose=True):
 
     for path_cfg in settings.PLUGIN_PATH:
         if path_cfg["auto_install"] == True:
-            _auto_install_plugins(debug, path_cfg, extra_verbose)
+            _auto_install_plugins(debug, path_cfg, page_msg, verbose)
 
 
-def _auto_install_plugins(debug, path_cfg, extra_verbose):
+def _auto_install_plugins(debug, path_cfg, page_msg, verbose):
     package_name = ".".join(path_cfg["path"])
 
     plugin_path = os.path.join(*path_cfg["path"])
     plugin_list = get_plugin_list(plugin_path)
 
     for plugin_name in plugin_list:
-        if extra_verbose:
-            print "\n\ninstall '%s' plugin: *** %s ***\n" % (
+        if verbose>1:
+            msg= "\n\ninstall '%s' plugin: *** %s ***\n" % (
                 path_cfg["type"], plugin_name
             )
+            page_msg(msg)
 
         try:
             install_plugin(
-                package_name, plugin_name, debug,
-                active=True, extra_verbose=extra_verbose
+                package_name, plugin_name, debug, page_msg, verbose, active=True
             )
-        except Exception, e:
+        except Exception, err:
             # FIXME
-            print "Error:"
+            page_msg.red("Error: %s" % err)
             import traceback
-            traceback.print_exc()
+            page_msg(traceback.format_exc())
             continue
 
-        if extra_verbose:
-            print "OK, plugins installed."
+        if verbose>1:
+            page_msg("OK, plugins installed.")
 
 
 

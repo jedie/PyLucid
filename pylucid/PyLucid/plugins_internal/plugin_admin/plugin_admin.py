@@ -132,26 +132,35 @@ class plugin_admin(PyLucidBasePlugin):
             for plugin_name in plugin_list:
                 if plugin_name in installed_names:
                     continue
+
                 try:
-                    plugin_cfg = get_plugin_config(
-                        package_name, plugin_name, self.request.debug
-                    )
-                except Exception, e:
+                    plugin_cfg = get_plugin_config(package_name, plugin_name)
+                except Exception, err:
                     if self.request.debug:
                         raise
-                    self.page_msg("Error: %s" % e)
-                else:
-                    plugin_version = get_plugin_version(
-                        package_name, plugin_name, self.request.debug
+                    msg = "Can't get plugin config for %s.%s, Error: %s" % (
+                        package_name, plugin_name, err
                     )
-                    uninstalled_plugins.append({
-                        "plugin_name": plugin_name,
-                        "package_name": package_name,
-                        "description": plugin_cfg.__description__,
-                        "url": plugin_cfg.__url__,
-                        "author": plugin_cfg.__author__,
-                        "version": plugin_version,
-                    })
+                    self.page_msg(msg)
+                    continue
+
+                try:
+                    plugin_version = get_plugin_version(
+                        package_name, plugin_name
+                    )
+                except Exception, err:
+                    plugin_version = (
+                        "Can't get plugin version for %s.%s, Error: %s"
+                    ) % (package_name, plugin_name, err)
+
+                uninstalled_plugins.append({
+                    "plugin_name": plugin_name,
+                    "package_name": package_name,
+                    "description": plugin_cfg.__description__,
+                    "url": plugin_cfg.__url__,
+                    "author": plugin_cfg.__author__,
+                    "version": plugin_version,
+                })
 
         return uninstalled_plugins
 
@@ -165,10 +174,16 @@ class plugin_admin(PyLucidBasePlugin):
         """
         Put the plugin data and the internal pages from it into the database.
         """
+        self.page_msg(_("Install plugin '%s':") % plugin_name)
+
+        if self.request.debug:
+            verbose = 2
+        else:
+            verbose = 1
+
         try:
             install_plugin(
-                package_name, plugin_name, self.request.debug, active,
-                extra_verbose=False
+                package_name, plugin_name, self.page_msg, verbose, active
             )
         except Exception, e:
             if self.request.debug:
@@ -183,12 +198,16 @@ class plugin_admin(PyLucidBasePlugin):
         """
         remove internal_pages and the plugin entry from the database.
         """
+        if self.request.debug:
+            verbose = 2
+        else:
+            verbose = 1
         try:
             plugin = Plugin.objects.get(id=plugin_id)
             if plugin.can_deinstall==False and force==False:
                 self.page_msg.red("Can't deinstall the plugin. It's locked.")
                 return
-            plugin.delete()
+            plugin.delete(self.page_msg, verbose)
         except Exception, e:
             if self.request.debug:
                 raise

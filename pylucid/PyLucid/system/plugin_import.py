@@ -95,25 +95,20 @@ def import2(from_name, fromlist=[], globals={}, locals={}):
 
 
 
-def _import(from_name, object_name, debug):
+def _import(from_name, object_name):
     """
     Thin layer aroung import2():
-      - other error handling: raise original error or always a ImportError  
+      - other error handling: raise original error or always a ImportError
       - catch SyntaxError, too (e.g. developing a PyLucid plugin)
       - convert unicode to string (Names from database are always unicode and
         the __import__ function must get strings)
-    
+
     >>> from time import time
-    >>> time2 = _import(u"time", u"time", debug=False)
+    >>> time2 = _import(u"time", u"time")
     >>> time is time2
     True
-    
-    >>> _import(u"not exist1", u"not exist2", debug=True)
-    Traceback (most recent call last):
-        ...
-    ImportError: No module named not exist1
-    
-    >>> _import(u"A", u"B", debug=False)
+
+    >>> _import(u"A", u"B")
     Traceback (most recent call last):
         ...
     ImportError: Can't import 'B' from 'A': No module named A
@@ -125,8 +120,6 @@ def _import(from_name, object_name, debug):
 
         return import2(from_name, object_name)
     except (ImportError, SyntaxError), err:
-        if debug:
-            raise
         raise ImportError, "Can't import '%s' from '%s': %s" % (
             object_name, from_name, err
         )
@@ -134,16 +127,11 @@ def _import(from_name, object_name, debug):
 #______________________________________________________________________________
 # GET function
 
-def get_plugin_module(package_name, plugin_name, debug):
+def get_plugin_module(package_name, plugin_name):
     """
     imports the plugin module and returns the module object.
-    
-    >>> get_plugin_module("package", "plugin", debug=True)
-    Traceback (most recent call last):
-        ...
-    ImportError: No module named package.plugin
-    
-    >>> get_plugin_module("A", "B", debug=False)
+
+    >>> get_plugin_module("A", "B")
     Traceback (most recent call last):
         ...
     ImportError: Can't import 'B' from 'A.B': No module named A.B
@@ -151,15 +139,15 @@ def get_plugin_module(package_name, plugin_name, debug):
     from_name = package_name + "." + plugin_name
     object_name = plugin_name
 
-    plugin_module = _import(from_name, object_name, debug)
+    plugin_module = _import(from_name, object_name)
     return plugin_module
 
 
-def get_plugin_config(package_name, plugin_name, debug):
+def get_plugin_config(package_name, plugin_name):
     """
     imports the plugin and the config plugin and returns a merge config-object
-    
-    >>> get_plugin_config("A", "B", debug=False)
+
+    >>> get_plugin_config("A", "B")
     Traceback (most recent call last):
         ...
     ImportError: Can't import 'B_cfg' from 'A.B': No module named A.B
@@ -167,15 +155,19 @@ def get_plugin_config(package_name, plugin_name, debug):
     from_name = package_name + "." + plugin_name
     config_name = plugin_name + "_cfg"
 
-    config_plugin = _import(from_name, config_name, debug)
+    config_plugin = _import(from_name, config_name)
     return config_plugin
 
 
-def get_plugin_version(package_name, plugin_name, debug):
+def get_plugin_version(package_name, plugin_name):
     """
     Returns the plugin version string.
     """
-    plugin_plugin = get_plugin_module(package_name, plugin_name, debug)
+    try:
+        plugin_plugin = get_plugin_module(package_name, plugin_name)
+    except ImportError, err:
+        raise ImportError("Can't get plugin version number: %s" % err)
+
     plugin_version = getattr(plugin_plugin, "__version__", "")
 
     # Cleanup a SVN Revision Number
@@ -198,8 +190,9 @@ def debug_plugin_config(page_msg, plugin_config):
 
 
 if __name__ == "__main__":
-    """ doctest for import2() """
+    print "runnint doctest for %s" % __file__
     verbose = False
-    #verbose = True
+#    verbose = True
     import doctest
     doctest.testmod(verbose=verbose)
+    print "--- END ---"
