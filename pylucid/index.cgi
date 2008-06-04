@@ -25,7 +25,7 @@
     $Rev: $
     $Author: $
 
-    :copyright: 2007 by Jens Diemer
+    :copyright: 2007-2008 by Jens Diemer
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 
@@ -57,19 +57,29 @@ def traceback_end():
 
 try:
     from PyLucid.settings import DEBUG, INSTALL_HELP_URL
-except Exception, e:
+except Exception, err:
     print "Content-type: text/plain; charset=utf-8\r\n\r\n"
-    print "Low-Level-Error!"
+    print "PyLucid - Low-Level-Error!"
     print
-    print "Can't import 'settings':", e
+    print "Can't import 'settings':", err
     print
-    print "You must rename ./PyLucid/settings-example.py to ./PyLucid/settings.py"
+    if os.path.isfile("PyLucid/settings.py"):
+        print "Note: './PyLucid/settings.py' exist"
+    else:
+        print (
+            "Error: File './PyLucid/settings.py' doesn't exist!\n"
+            "You must rename './PyLucid/settings-example.py'"
+            " to './PyLucid/settings.py'"
+        )
     print
-    print "You must setup this file for your config!"
+    print "You must setup your own 'settings.py' for your environment!"
     traceback_end()
 
 
 if DEBUG:
+    """
+    Redirect all write to stdout+stderr in DEBUG mode.
+    """
     import sys, cgi, inspect
 
     class BaseOut(object):
