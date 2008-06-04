@@ -305,8 +305,12 @@ class PluginArgsTest(PluginAPI_Base):
     #__________________________________________________________________________
     # Problems with the current implementation.
     # We can't pass other things than string.
-    # All follow test will failed:
-
+    """
+    Importtant: All follow test will failed!
+    See:
+        http://pylucid.net:8080/pylucid/ticket/202
+        http://pylucid.org/phpBB2/viewtopic.php?t=228
+    """
     def test_tag_bool_args2(self):
         """
         Faild in the current implementation!
