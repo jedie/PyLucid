@@ -173,10 +173,15 @@ class Page(models.Model):
         help_text = "ordering weight for sorting the pages in the menu."
     )
 
-    name = models.CharField(max_length=150, help_text="A short page name")
+    name = models.CharField(
+        blank=False, null=False,
+        max_length=150, help_text="A short page name"
+    )
 
     shortcut = models.CharField(
-        unique=True, max_length=150, help_text="shortcut to built the URLs"
+        unique=True, null=False, blank=False,
+        max_length=150, help_text="shortcut to built the URLs",
+
     )
     title = models.CharField(
         blank=True, max_length=150, help_text="A long page title"
@@ -372,6 +377,12 @@ class Page(models.Model):
         # FIXME: This is only needed, if the menu changed: e.g.: if the page
         # position, shortcut, parent cahnges...
         delete_page_cache()
+
+        # name and shortcut can be None, for make shortcut unique
+        if self.name == None:
+            self.name = ""
+        if self.shortcut == None:
+            self.shortcut = ""
 
         # Rebuild shortcut / make shortcut unique:
         self._prepare_shortcut()
