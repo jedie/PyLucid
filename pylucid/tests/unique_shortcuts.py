@@ -25,13 +25,31 @@ class Shortcuttest(tests.TestCase):
     """
     Tests for Page shortcut creation.
     """
-    def setUp(self):
-        """ Ensure that auto_shortcuts is false. """
+    def _change_preferences(self, bool):
+        """
+        Change the system_settings auto_shortcut preferences
+        """
         tests.change_preferences(
-            plugin_name = "system_settings", auto_shortcuts = False
+            plugin_name = "system_settings", auto_shortcuts = bool
         )
 
+    def setUp(self):
+        """
+        Set auto_shortcuts preferences to false.
+        """
+        self._change_preferences(False)
+
         self.page = Page.objects.all()[0]
+
+    def tearDown(self):
+        """
+        Changed auto_shortcuts preferences back to True.
+
+        This is important, because the Plugin model used a model level cache
+        dict, so "reset" the preferences wie the fixtures doesn't work here.
+        see: http://pylucid.org/phpBB2/viewtopic.php?p=1220#1220
+        """
+        self._change_preferences(True)
 
     def testChangeShortcut(self):
         """ Changing page shortcut """
