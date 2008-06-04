@@ -44,11 +44,16 @@ class page_counter(PyLucidBasePlugin):
         """
         increase the page count and display the current count number.
         """
-        # Get or create the page counter for the current page
-        page_count, created = PageCount.objects.get_or_create(
-            page = self.current_page, # PyLucid.models.Page instance
-            defaults = {"counter": 1}
-        )
+        try:
+            # Get or create the page counter for the current page
+            page_count, created = PageCount.objects.get_or_create(
+                page = self.current_page, # PyLucid.models.Page instance
+                defaults = {"counter": 1}
+            )
+        except Exception, err:
+            self.page_msg.red("Page counter error: %s" % err)
+            return
+
         if not created:
             # increase a existing page count entry
             page_count.counter += 1
