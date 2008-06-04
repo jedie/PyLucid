@@ -104,8 +104,9 @@ from django.test.utils import create_test_db, destroy_test_db
 
 from django.conf import settings
 
-from django.contrib.auth.models import User, UNUSABLE_PASSWORD
+from django.core.cache import cache
 from django.test import TestCase as DjangoTestCase
+from django.contrib.auth.models import User, UNUSABLE_PASSWORD
 
 from tests.utils.BrowserDebug import debug_response
 
@@ -212,6 +213,52 @@ def change_preferences(plugin_name, **kwargs):
     plugin.save()
 
 
+def _check_cachebackend():
+    """
+    Test if in settings is a cache backend setup and if it works.
+    Some tests depends on the cache backend, see:
+    http://pylucid.net:8080/pylucid/ticket/203
+    """
+    def error():
+        error_msg = (
+            "Cache test.\n"
+            "Cache backend test failed.\n"
+            "The cache unittest needs a working cache backend!\n"
+            "Please setup CACHE_BACKEND in your settings.py\n"
+            "Note: All cache tests will be skipped!"
+            )
+        print error_msg
+        return False
+
+    cache_key = "unitest cache key"
+    content = "A simple test content..."
+
+    cache.set(cache_key, content, 10)
+    test = cache.get(cache_key)
+    if test != content:
+        return error()
+
+    cache.delete(cache_key)
+    test = cache.get(cache_key)
+    if test != None:
+        return error()
+
+    # cache backend works
+    return True
+
+WORKING_CACHE_BACKEND = _check_cachebackend()
+
+def requires_cache(test):
+    """ Decorator for tests that require working cache backend.
+
+    Whole TestCache class is meaningless with out working cache, but Python 2.4
+    does not support decoration of classes."""
+    if WORKING_CACHE_BACKEND:
+        return test
+    else:
+        def dummy(*args):
+            pass
+        return dummy
 
 
 class TestCase(DjangoTestCase):

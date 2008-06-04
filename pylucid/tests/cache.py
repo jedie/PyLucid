@@ -39,59 +39,13 @@ SHORTCUT = "CacheTestPage"
 
 CACHE_KEY_PREFIX = settings.PAGE_CACHE_PREFIX + SHORTCUT
 
-def _check_cachebackend():
-    """
-    Test if in settings is a cache backend setup and if it works.
-    setup self.skip_cache_tests
-    """
-    def error():
-        error_msg = (
-            "Cache test.\n"
-            "Cache backend test failed.\n"
-            "The cache unittest needs a working cache backend!\n"
-            "Please setup CACHE_BACKEND in your settings.py\n"
-            "Note: All cache tests will be skipped!"
-            )
-        print error_msg
-        return False
-    
-    cache_key = "unitest cache key"
-    content = "A simple test content..."
-
-    cache.set(cache_key, content, 10)
-    test = cache.get(cache_key)
-    if test != content:
-        return error()
-
-    cache.delete(cache_key)
-    test = cache.get(cache_key)
-    if test != None:
-        return error()
-
-    # cache backend works
-    return True
-
-WORKING_CACHE_BACKEND = _check_cachebackend()
-
-def requires_cache(test):
-    """ Decorator for tests that require working cache backend. 
-
-    Whole TestCache class is meaningless with out working cache, but Python 2.4
-    does not support decoration of classes."""
-    if WORKING_CACHE_BACKEND:
-        return test
-    else:
-        def dummy(*args):
-            pass
-        return dummy
-
 class TestCache(tests.TestCase):
     one_browser_traceback = ONE_BROWSER_TRACEBACK
     _open = []
 
     #--------------------------------------------------------------------------
 
-    @requires_cache
+    @tests.requires_cache
     def setUp(self):
         settings.DEBUG=True
 
@@ -163,7 +117,7 @@ class TestCache(tests.TestCase):
 
     #--------------------------------------------------------------------------
 
-    @requires_cache
+    @tests.requires_cache
     def test_prepage(self):
         """
         Test the test environment ;)
@@ -189,7 +143,7 @@ class TestCache(tests.TestCase):
             must_not_contain=("Traceback",)
         )
 
-    @requires_cache
+    @tests.requires_cache
     def test_assertion(self):
         """
         The cache middleware should only use the cached response, if it's a
@@ -203,7 +157,7 @@ class TestCache(tests.TestCase):
         url = "/%s3" % SHORTCUT
         self.assertRaises(AssertionError, self.client.get, url)
 
-    @requires_cache
+    @tests.requires_cache
     def test_cache(self):
         """
         Check if the second test page comes from the cache.
@@ -218,7 +172,7 @@ class TestCache(tests.TestCase):
 
     #--------------------------------------------------------------------------
 
-    @requires_cache
+    @tests.requires_cache
     def test_get(self):
         """
         Test the cache with normal GET request.
@@ -238,7 +192,7 @@ class TestCache(tests.TestCase):
             cache.delete(CACHE_KEY_PREFIX + "1")
 
 
-    @requires_cache
+    @tests.requires_cache
     def test_post(self):
         """
         POST request should never use the cache.
@@ -268,7 +222,7 @@ class TestCache(tests.TestCase):
         self.failIfFromCache(response)
 
 
-    @requires_cache
+    @tests.requires_cache
     def test_page_edit(self):
         """
         After a page content has been edited, the cache variante must be
@@ -282,7 +236,7 @@ class TestCache(tests.TestCase):
 
         self._check_cache_after(test_func)
 
-    @requires_cache
+    @tests.requires_cache
     def test_template_edit(self):
         """
         If a template has been changes, the cache should be deleted.
@@ -294,7 +248,7 @@ class TestCache(tests.TestCase):
 
         self._check_cache_after(test_func)
 
-    @requires_cache
+    @tests.requires_cache
     def test_styleheet_edit(self):
         """
         If a styleheet has been changes, the cache should be deleted.
@@ -307,8 +261,8 @@ class TestCache(tests.TestCase):
         self._check_cache_after(test_func)
 
     #--------------------------------------------------------------------------
-    
-    @requires_cache
+
+    @tests.requires_cache
     def test_wrong_url(self):
         """
         Test if the cache middleware checks bad characters in the url.
@@ -319,13 +273,13 @@ class TestCache(tests.TestCase):
         shortcut = "bad$char&here"
         url = "/%s/" % shortcut
         cache_key = settings.PAGE_CACHE_PREFIX + shortcut
-        
+
         # Insert a cache entry, so the cache middleware can found the cached
         # page and will be response the cached content, if the shortcut will
         # not be veryfied.
         response = HttpResponse(content)
         cache.set(cache_key, response, 9999)
-        
+
         # Request the cached page and check the response. It should not resonse
         # the cached content. It should be apperar a 404 page not found.
         response = self.client.get(url)
