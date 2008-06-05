@@ -1,6 +1,8 @@
 <fieldset>
 {% if title %}<legend><a href="{{ url }}">{{ title }}</a></legend>{% endif %}
+{% if preformat %}<pre>{% endif %}
 {{ content }}
+{% if preformat %}</pre>{% endif %}
 </fieldset>
 <small class="IncludeRemote_info">
 (response time: {{ duration_time|floatformat:3 }}sec.)
