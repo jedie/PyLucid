@@ -201,6 +201,25 @@ class TestNormalUser(TestBase):
         )
         self.assertEditSuccessful(response, COMPLETE_POST)
 
+    def test_tag_list(self):
+        """
+        Test the tag list function
+        e.g.: /_command/1/page_admin/tag_list/
+        """
+        url = self.method_url % "tag_list"
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=(
+                "List of all available plugin tags:",
+                "&#x7B;% lucidTag ",
+                "List of all PAGE tags:",
+                "&#x7B;&#x7B; PAGE.",
+            ),
+            must_not_contain=("Traceback", "Error",),
+        )
+
     def test_page_archiv(self):
         """
         Test the page archiv.
