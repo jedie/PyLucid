@@ -241,7 +241,6 @@ class admin_menu(PyLucidBasePlugin):
                 config = get_plugin_config(
                     package_name = plugin.package_name,
                     plugin_name = plugin.plugin_name,
-                    debug = False,
                 )
             except Exception, err:
                 msg = "Error: Can't get plugin config for '%s': %s" % (

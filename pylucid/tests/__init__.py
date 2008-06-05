@@ -650,7 +650,7 @@ def teardown_pylucid():
     """
     remove_unittest_plugin()
 
-def _import_test(module_name,class_name=None):
+def _import_test(module_name, class_name=None):
     """
     Import test(s) from given module. Class_name is an array and may contain
     TestCase and test_method.
@@ -667,7 +667,10 @@ def _import_test(module_name,class_name=None):
         else: # label is fname.TestClass.test_method
             return test_class(class_name[1])
     else:
-        return unittest.defaultTestLoader.loadTestsFromModule(test_module)
+        try:
+            return unittest.defaultTestLoader.loadTestsFromModule(test_module)
+        except TypeError:
+            raise TypeError("Test label '%s' wrong!" % module_name)
 
 def get_all_tests(verbosity=False):
     """
