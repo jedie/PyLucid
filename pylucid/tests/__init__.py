@@ -475,7 +475,7 @@ def load_db_dumps(extra_verbosity):
     if extra_verbosity:
         print
     fake_options = DB_DumpFakeOptions()
-    fake_options.verbosity = extra_verbosity
+    fake_options.verbose = extra_verbosity
     if not extra_verbosity:
         old_stderr = sys.stderr
         sys.stderr = StringIO()
