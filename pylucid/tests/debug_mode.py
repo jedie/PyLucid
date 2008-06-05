@@ -32,7 +32,7 @@
     $Rev$
     $Author$
 
-    :copyleft: 2007 by Jens Diemer
+    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 

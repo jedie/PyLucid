@@ -15,7 +15,7 @@
     $Rev$
     $Author$
 
-    :copyright: 2007 by the PyLucid team.
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 

@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     PyLucid Plugin API example
@@ -10,9 +10,9 @@
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
     $Rev$
-    $Author: JensDiemer $
+    $Author$
 
-    :copyleft: 2008 by Jens Diemer
+    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 

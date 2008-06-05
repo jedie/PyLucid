@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 """
     some utils around newforms
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -9,8 +9,8 @@
     $Rev: $
     $Author: $
 
-    :copyleft: 2008 by Jens Diemer
-    :license: GNU GPL v3, see LICENSE.txt for more details.
+    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 def setup_help_text(form):

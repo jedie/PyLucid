@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from pprint import pformat
 from PyLucid.tools.data_eval import data_eval, DataEvalError

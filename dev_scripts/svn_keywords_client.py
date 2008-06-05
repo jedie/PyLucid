@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     PyLucid svn:keywords sync tool
@@ -19,8 +19,8 @@
     $Rev:1244 $
     $Author:JensDiemer $
 
-    :copyright: 2007 by Jens Diemer
-    :license: GNU GPL v3, see LICENSE.txt for more details.
+    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import sys, os
@@ -57,5 +57,7 @@ if __name__ == "__main__":
 #    cleanup(config)
     sync_keywords(config)
 #    print_status(config)
+    print
+    print "---END---"
 
 

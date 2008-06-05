@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
 A small Wrapper aound djangos user messages system:

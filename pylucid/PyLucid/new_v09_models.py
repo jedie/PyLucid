@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #-*- coding: utf-8 -*-
 
 """
@@ -16,7 +15,7 @@
     $Rev: $
     $Author: $
 
-    :copyleft: 2007-2008 by the PyLucid team.
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
 """
 
 

@@ -10,9 +10,9 @@
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
     $Rev$
-    $Author: PerttuRantaaho $
+    $Author$
 
-    :copyleft: 2008 by the PyLucid team.
+    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3, see LICENSE.txt for more details.
 """
 import os

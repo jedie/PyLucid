@@ -7,8 +7,10 @@
 
     You should check if the shebang is ok for your environment!
     some examples:
+        #!/usr/bin/env python
         #!/usr/bin/env python2.4
         #!/usr/bin/env python2.5
+        #!/usr/bin/python
         #!/usr/bin/python2.4
         #!/usr/bin/python2.5
         #!C:\python\python.exe
@@ -40,8 +42,8 @@
     $Rev: $
     $Author: $
 
-    :copyright: 2007 by Jens Diemer
-    :license: GNU GPL v3, see LICENSE.txt for more details.
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 from PyLucid.system.fastcgi_server import fastcgi_server
 

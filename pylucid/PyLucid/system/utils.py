@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
     PyLucid utils
@@ -12,8 +11,8 @@
     $Rev: $
     $Author: $
 
-    :copyleft: 2007-2008 by Jens Diemer, Perttu Ranta-aho
-    :license: GNU GPL v3, see LICENSE.txt for more details.
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import os

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -27,7 +26,7 @@
     $Author$
 
     :created: 29.11.2005 10:14:02 by Jens Diemer
-    :copyleft: 2005-2008 by Jens Diemer, Manuel Herzog
+    :copyleft: 2005-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 

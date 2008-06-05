@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     PyLucid page update list plugin
@@ -13,8 +12,8 @@
     $Rev$
     $Author$
 
-    :copyright: 2007 by Jens Diemer
-    :license: GNU GPL v3, see LICENSE.txt for more details.p
+    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
 

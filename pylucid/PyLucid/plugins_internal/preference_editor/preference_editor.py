@@ -13,8 +13,8 @@
     $Rev:1549 $
     $Author:JensDiemer $
 
-    :copyleft: 2008 by the PyLucid team.
-    :license: GNU GPL v3, see LICENSE.txt for more details.
+    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 __version__= "$Rev: $"

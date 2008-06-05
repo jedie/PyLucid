@@ -1,23 +1,33 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
-Update for PyLucid v0.7.2 tables to the new django version.
+    PyLucid MySQL fix
+    ~~~~~~~~~~~~~~~~~
 
-changes all wrong 00-00-0000 datetime values to NULL.
-django problematic: http://code.djangoproject.com/ticket/443
+    Update for PyLucid v0.7.2 tables to the new django version.
 
-Last commit info:
-----------------------------------
-$LastChangedDate$
-$Rev$
-$Author$
+    changes all wrong 00-00-0000 datetime values to NULL.
+    django problematic: http://code.djangoproject.com/ticket/443
 
-Created by Jens Diemer
+    You should check if the shebang is ok for your environment!
+    some examples:
+        #!/usr/bin/env python
+        #!/usr/bin/env python2.4
+        #!/usr/bin/env python2.5
+        #!/usr/bin/python
+        #!/usr/bin/python2.4
+        #!/usr/bin/python2.5
+        #!C:\python\python.exe
 
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate$
+    $Rev$
+    $Author$
+
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 print "Content-type: text/plain; charset=utf-8\r\n\r\n"

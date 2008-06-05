@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     PyLucid media file manager
@@ -43,7 +42,7 @@
     $Rev$
     $Author$
 
-    :copyleft: Ibon, Jens Diemer
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 

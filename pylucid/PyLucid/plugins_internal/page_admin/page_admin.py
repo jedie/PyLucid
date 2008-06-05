@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 """
@@ -17,7 +16,7 @@
     $Rev:1070 $
     $Author:JensDiemer $
 
-    :copyright: 2007 by Jens Diemer
+    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 

@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
     response tools
@@ -11,8 +10,8 @@
     $Rev: $
     $Author: $
 
-    :copyleft: 2007-2008 by Jens Diemer
-    :license: GNU GPL v3, see LICENSE.txt for more details.
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.conf import settings
