@@ -204,14 +204,14 @@ def get_create_table(plugin_models):
     return statements
 
 
-def create_plugin_tables(plugin, page_msg, verbose):
+def create_plugin_tables(plugin, page_msg, verbosity):
     plugin_models = Plugin.objects.get_plugin_models(
         plugin.package_name,
         plugin.plugin_name,
-        page_msg, verbose
+        page_msg, verbosity
     )
     if not plugin_models:
-        if verbose>1:
+        if verbosity>1:
             page_msg.green(_("Plugin has no models, ok."))
         return
 
@@ -219,16 +219,16 @@ def create_plugin_tables(plugin, page_msg, verbose):
 
     cursor = connection.cursor()
     for statement in statements:
-        if verbose>1:
+        if verbosity>1:
             page_msg(statement)
         cursor.execute(statement)
 
-    if verbose:
+    if verbosity:
         page_msg.green(_("%i plugin models installed.") % len(statements))
 
 
 def _install_plugin(package_name, plugin_name, plugin_config, page_msg,
-                                                            verbose, active):
+                                                            verbosity, active):
     """
     insert a plugin/plugin in the 'plugin' table
     """
@@ -244,15 +244,15 @@ def _install_plugin(package_name, plugin_name, plugin_config, page_msg,
 
     pref_form = getattr(plugin_config, "PreferencesForm", None)
     if pref_form:
-        if verbose>1:
+        if verbosity>1:
             page_msg("Found a preferences newform class.")
-        plugin.init_pref_form(pref_form, page_msg, verbose)
+        plugin.init_pref_form(pref_form, page_msg, verbosity)
 
     plugin.save()
-    if verbose>1:
+    if verbosity>1:
         page_msg("OK, ID:", plugin.id)
 
-    create_plugin_tables(plugin, page_msg, verbose)
+    create_plugin_tables(plugin, page_msg, verbosity)
 
     return plugin
 
@@ -260,12 +260,12 @@ def _install_plugin(package_name, plugin_name, plugin_config, page_msg,
 
 
 @transaction.commit_on_success
-def install_plugin(package_name, plugin_name, page_msg, verbose, active=False):
+def install_plugin(package_name, plugin_name, page_msg, verbosity, active=False):
     """
     Get the config object from disk and insert the plugin into the database
     """
     plugin_config = get_plugin_config(package_name, plugin_name)
-    if verbose>1:
+    if verbosity>1:
         obsolete_test = (
             hasattr(plugin_config, "__important_buildin__") or
             hasattr(plugin_config, "__essential_buildin__")
@@ -279,12 +279,12 @@ def install_plugin(package_name, plugin_name, page_msg, verbose, active=False):
             )
 
     plugin = _install_plugin(
-        package_name, plugin_name, plugin_config, page_msg, verbose, active
+        package_name, plugin_name, plugin_config, page_msg, verbosity, active
     )
     return plugin
 
 
-def auto_install_plugins(debug, page_msg, verbose=True):
+def auto_install_plugins(debug, page_msg, verbosity=True):
     """
     Install all internal plugin how are markt as important or essential.
     """
@@ -292,17 +292,17 @@ def auto_install_plugins(debug, page_msg, verbose=True):
 
     for path_cfg in settings.PLUGIN_PATH:
         if path_cfg["auto_install"] == True:
-            _auto_install_plugins(debug, path_cfg, page_msg, verbose)
+            _auto_install_plugins(debug, path_cfg, page_msg, verbosity)
 
 
-def _auto_install_plugins(debug, path_cfg, page_msg, verbose):
+def _auto_install_plugins(debug, path_cfg, page_msg, verbosity):
     package_name = ".".join(path_cfg["path"])
 
     plugin_path = os.path.join(*path_cfg["path"])
     plugin_list = get_plugin_list(plugin_path)
 
     for plugin_name in plugin_list:
-        if verbose>1:
+        if verbosity>1:
             msg= "\n\ninstall '%s' plugin: *** %s ***\n" % (
                 path_cfg["type"], plugin_name
             )
@@ -310,7 +310,7 @@ def _auto_install_plugins(debug, path_cfg, page_msg, verbose):
 
         try:
             install_plugin(
-                package_name, plugin_name, debug, page_msg, verbose, active=True
+                package_name, plugin_name, page_msg, verbosity, active=True
             )
         except Exception, err:
             # FIXME
@@ -319,7 +319,7 @@ def _auto_install_plugins(debug, path_cfg, page_msg, verbose):
             page_msg(traceback.format_exc())
             continue
 
-        if verbose>1:
+        if verbosity>1:
             page_msg("OK, plugins installed.")
 
 

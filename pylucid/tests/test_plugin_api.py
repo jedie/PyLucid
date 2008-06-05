@@ -15,6 +15,7 @@
 import os, re
 
 import tests
+from tests.utils.FakeRequest import FakePageMsg
 
 from django.conf import settings
 
@@ -192,15 +193,18 @@ class PluginModel(PluginAPI_Base):
 
         package_name = plugin.package_name
         plugin_name = plugin.plugin_name
+        
+        page_msg = FakePageMsg()
 
         # remove the plugin completely from the database
         # plugin model tables should be droped
-        plugin.delete()
+        plugin.delete(page_msg, verbosity=2)
 
         # install the plugin
         # plugin model tables should be re-created, too.
-        install_plugin(package_name, plugin_name, debug=True, active=True,
-                                                        extra_verbose=True)
+        install_plugin(
+            package_name, plugin_name, page_msg, verbosity=2, active=True
+        )
 
         # Check 1:
         content = self._get_plugin_content(url)#, debug=True)

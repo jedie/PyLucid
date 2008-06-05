@@ -109,6 +109,7 @@ from django.test import TestCase as DjangoTestCase
 from django.contrib.auth.models import User, UNUSABLE_PASSWORD
 
 from tests.utils.BrowserDebug import debug_response
+from tests.utils.FakeRequest import FakePageMsg
 
 from PyLucid.tools.db_dump import loaddb
 from PyLucid.tools.Diff import make_diff, diff_lines
@@ -203,7 +204,8 @@ def change_preferences(plugin_name, **kwargs):
     preferences.update(kwargs)
 
     # Check the new preferences via newforms from the plugin config file
-    unbound_form = plugin.get_pref_form(debug=True)
+    unbound_form = plugin.get_pref_form(page_msg=FakePageMsg(), verbosity=1)
+
     form = unbound_form(preferences)
     assert form.is_valid(), "Error change preferences: %s" % repr(form.errors)
 
@@ -465,31 +467,33 @@ class TestCase(DjangoTestCase):
         return data
 
 
-def load_db_dumps(extra_verbose):
+def load_db_dumps(extra_verbosity):
     """
     Insert PyLucid default pages to test database.
     """
     print "Loading PyLucid database dump ",
-    if extra_verbose:
+    if extra_verbosity:
         print
     fake_options = DB_DumpFakeOptions()
-    fake_options.verbose = extra_verbose
-    if not extra_verbose:
+    fake_options.verbosity = extra_verbosity
+    if not extra_verbosity:
         old_stderr = sys.stderr
         sys.stderr = StringIO()
     try:
         loaddb(app_labels = [], format = "py", options = fake_options)
     finally:
-        if not extra_verbose:
+        if not extra_verbosity:
             sys.stderr = old_stderr
     print ""
 
-def install_internal_plugins(extra_verbose):
+def install_internal_plugins(verbosity):
     """
     Install PyLucid Internal plugins
     """
     print "Installing PyLucid internal plugins ",
-    auto_install_plugins(debug=True, extra_verbose=extra_verbose)
+    auto_install_plugins(
+        debug=True, page_msg=FakePageMsg(), verbosity=verbosity
+    )
     print ""
 
 
@@ -665,7 +669,7 @@ def _import_test(module_name,class_name=None):
     else:
         return unittest.defaultTestLoader.loadTestsFromModule(test_module)
 
-def get_all_tests(verbose=False):
+def get_all_tests(verbosity=False):
     """
     Contruct a test suite from all available tests. Inspects all .py-files in the
     package directory, and tries to load test suites from them. Does not go
@@ -680,16 +684,16 @@ def get_all_tests(verbose=False):
             continue
         if os.path.isdir(full_path):
             # Skip directories
-            if verbose:
+            if verbosity:
                 print "Skipping directory %s." % dir_item
                 continue
         if dir_item.endswith('.py'):
-            if verbose:
+            if verbosity:
                 print "Inspecting %s" % dir_item
             test_suite.addTests(_import_test(dir_item[:-3]))
     return test_suite
 
-def get_tests(test_labels,verbose=False):
+def get_tests(test_labels, verbosity=False):
     """
     Construct a test suite with specified labels or all from all available
     tests if no labels are provided. Label should be of the form
@@ -707,7 +711,7 @@ def get_tests(test_labels,verbose=False):
                 test_suite.addTest(_import_test(parts[0],parts[1:]))
         return test_suite
     else:
-        return get_all_tests(verbose)
+        return get_all_tests(verbosity)
 
 def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     """

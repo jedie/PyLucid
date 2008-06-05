@@ -37,7 +37,7 @@ PLUGIN_MODEL_LABEL = "PyLucidPlugins"
 PLUGIN_MODEL_APP = "PyLucid.system.PyLucidPlugins"
 
 
-def get_plugin_models(package_name, plugin_name, page_msg, verbose):
+def get_plugin_models(package_name, plugin_name, page_msg, verbosity):
     """
     returns a list of all existing plugin models.
     If no models exist, returns None!
@@ -91,9 +91,9 @@ class PluginManager(models.Manager):
         plugin = self.get(plugin_name = plugin_name)
         return plugin.get_preferences()
 
-    def get_plugin_models(self, package_name, plugin_name, page_msg, verbose):
+    def get_plugin_models(self, package_name, plugin_name, page_msg, verbosity):
         """ returns a list of all existing plugin models or None """
-        return get_plugin_models(package_name, plugin_name, page_msg, verbose)
+        return get_plugin_models(package_name, plugin_name, page_msg, verbosity)
 
 
 
@@ -127,7 +127,7 @@ class Plugin(models.Model):
     #__________________________________________________________________________
     # Special methods
 
-    def init_pref_form(self, pref_form, page_msg, verbose):
+    def init_pref_form(self, pref_form, page_msg, verbosity):
         """
         Set self.pref_data_string from the given newforms form and his initial
         values.
@@ -136,13 +136,13 @@ class Plugin(models.Model):
          - A plugin developer has inserted a wrong initial value
          - The initial value must be cleaned. e.g. admin_menu_cfg.WeightField
         """
-        if verbose:
+        if verbosity:
             page_msg("Save initial preferences.")
 
         init_dict = get_init_dict(pref_form)
 
         # Validate the init_dict
-        unbound_form = self.get_pref_form(page_msg, verbose)
+        unbound_form = self.get_pref_form(page_msg, verbosity)
         form = unbound_form(init_dict)
         if form.is_valid():
             cleaned_data_dict = form.cleaned_data
@@ -153,7 +153,7 @@ class Plugin(models.Model):
             ) % form.errors
             raise PluginPreferencesError(msg)
 
-        if verbose>1:
+        if verbosity>1:
             page_msg("Initial preferences:")
             page_msg(cleaned_data_dict)
 
@@ -185,14 +185,14 @@ class Plugin(models.Model):
         preference_cache[self.plugin_name] = data_dict
         return data_dict
 
-    def get_pref_form(self, page_msg, verbose):
+    def get_pref_form(self, page_msg, verbosity):
         """
         Get the 'PreferencesForm' newform class from the plugin modul, insert
         initial information into the help text and return the form.
         """
         plugin_config = get_plugin_config(self.package_name, self.plugin_name)
         form = getattr(plugin_config, "PreferencesForm")
-        if verbose>1:
+        if verbosity>1:
             page_msg("setup preferences form help text.")
         setup_help_text(form)
         return form
@@ -203,10 +203,10 @@ class Plugin(models.Model):
         """
         return get_plugin_version(self.package_name, self.plugin_name)
 
-    def get_plugin_models(self, page_msg, verbose):
+    def get_plugin_models(self, page_msg, verbosity):
         """ returns a list of all existing plugin models or None """
         return get_plugin_models(
-            self.package_name, self.plugin_name, page_msg, verbose
+            self.package_name, self.plugin_name, page_msg, verbosity
         )
 
     #___________________________________________________________________________
@@ -251,21 +251,21 @@ class Plugin(models.Model):
 
         return statements
 
-    def _delete_tables(self, page_msg, verbose):
+    def _delete_tables(self, page_msg, verbosity):
         """
         Delete all plugin model tabels.
         """
         try:
-            plugin_models = self.get_plugin_models(page_msg, verbose)
+            plugin_models = self.get_plugin_models(page_msg, verbosity)
         except ImportError, err:
             # Plugin deleted in the filesystem, so we can't deinstall existing
             # models
-            if verbose>1:
+            if verbosity>1:
                 raise
             page_msg.red("Can't get plugin model list: %s" % err)
 
         if not plugin_models:
-            if verbose>1:
+            if verbosity>1:
                 page_msg.green("Plugin has no models, ok.")
             return
 
@@ -273,20 +273,20 @@ class Plugin(models.Model):
 
         cursor = connection.cursor()
         for statement in statements:
-            if verbose>1:
+            if verbosity>1:
                 page_msg(statement)
             cursor.execute(statement)
 
-        if verbose:
+        if verbosity:
             page_msg.green("%i plugin models deleted." % len(plugin_models))
 
 
     @transaction.commit_on_success
-    def delete(self, page_msg, verbose):
+    def delete(self, page_msg, verbosity):
         page_msg(
             _("Deinstall plugin %s.%s:") % (self.package_name, self.plugin_name)
         )
-        self._delete_tables(page_msg, verbose)
+        self._delete_tables(page_msg, verbosity)
 
         super(Plugin, self).delete()
 

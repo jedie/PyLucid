@@ -14,9 +14,28 @@
 # Fake PyLucid Environment
 
 class FakePageMsg(object):
+    """
+    faked PyLucid.system.page_msg.PageMessages()
+    """
     def __call__(self, *msg):
+        self.write(*msg)
+
+    def write(self, *msg):
         for line in msg:
             print line
+
+    def DEBUG(self, *msg):
+        self.write(*msg)
+
+    def black(self, *msg):
+        self.write(*msg)
+
+    def green(self, *msg):
+        self.write(*msg)
+
+    def red(self, *msg):
+        self.write(*msg)
+
 
 class FakeUser(object):
     def is_anonymous(self):
