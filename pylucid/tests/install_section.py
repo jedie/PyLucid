@@ -24,6 +24,7 @@ import tests
 from django.conf import settings
 
 from PyLucid.models import Page
+from PyLucid.models.JS_LoginData import User, JS_LoginData
 
 # Open only one traceback in a browser (=True) ?
 #ONE_BROWSER_TRACEBACK = False
@@ -33,6 +34,10 @@ ONE_BROWSER_TRACEBACK = True
 if settings.ENABLE_INSTALL_SECTION != True:
     print
     print "Info: Install section is disabled, some test will be skip!"
+else:
+    settings.INSTALL_PASSWORD_HASH = (
+        "sha1$000012345$1234567890abcdef00001234567890abcdef"
+    )
 
 
 class TestBase(tests.TestCase):
@@ -43,7 +48,26 @@ class TestBase(tests.TestCase):
 
     install_url_base ="/%s" % settings.INSTALL_URL_PREFIX
 
+    def _login(self):
+        """
+        Login into the _install section for later tests
 
+        The test client is stateful. If a response returns a cookie, then that
+        cookie will be stored in the test client and sent with all subsequent
+        get() and post() requests, see:
+        http://www.djangoproject.com/documentation/testing/#persistent-state
+        """
+        response = self.client.post(
+            self.install_url_base, {"hash": settings.INSTALL_PASSWORD_HASH}
+        )
+        self.failUnlessEqual(response.status_code, 200)
+        self.failUnless(settings.INSTALL_COOKIE_NAME in response.cookies)
+
+        return response
+
+
+
+#______________________________________________________________________________
 class TestNoPage(TestBase):
     """
     Test the PyLucid behavior, if there exist no cms page. We should response
@@ -92,32 +116,11 @@ class TestNoPage(TestBase):
         self._assertHelpPageResponse(url)
 
 
-class TestInstallSection(TestBase):
+#______________________________________________________________________________
+class TestInstallSectionAnonym(TestBase):
     """
-    Test the _install section.
+    Test the _install section without login.
     """
-    def setUp(self):
-        settings.INSTALL_PASSWORD_HASH = (
-            "sha1$000012345$1234567890abcdef00001234567890abcdef"
-        )
-
-    def _login(self):
-        """
-        Login into the _install section for later tests
-
-        The test client is stateful. If a response returns a cookie, then that
-        cookie will be stored in the test client and sent with all subsequent
-        get() and post() requests, see:
-        http://www.djangoproject.com/documentation/testing/#persistent-state
-        """
-        response = self.client.post(
-            self.install_url_base, {"hash": settings.INSTALL_PASSWORD_HASH}
-        )
-        self.failUnlessEqual(response.status_code, 200)
-        self.failUnless(settings.INSTALL_COOKIE_NAME in response.cookies)
-
-        return response
-
     def test_login_page(self):
         """
         Request the install section login and check the reponse. Without any
@@ -134,19 +137,6 @@ class TestInstallSection(TestBase):
             must_not_contain=("solutions", "Please read the install guide",),
         )
 
-    def test_loginPOST(self):
-        """
-        Check if self._login() works
-        """
-        if settings.ENABLE_INSTALL_SECTION != True:
-            return
-
-        response = self._login()
-        self.assertResponse(
-            response,
-            must_contain=("menu", "install", "syncdb", "update",),
-            must_not_contain=("Login into the _install section",),
-        )
 
     def test_access_deny(self):
         """
@@ -165,6 +155,30 @@ class TestInstallSection(TestBase):
             must_not_contain=("some information for developers:",),
         )
 
+
+
+#______________________________________________________________________________
+class TestInstallSection(TestBase):
+    """
+    Test all essential _install section methods after login.
+    """
+    def setUp(self):
+        if settings.ENABLE_INSTALL_SECTION == True:
+            self.login_response = self._login()
+
+    def test_menu(self):
+        """
+        Check if self._login() works and returns the _install section menu
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        self.assertResponse(
+            self.login_response,
+            must_contain=("menu", "install", "syncdb", "update",),
+            must_not_contain=("Login into the _install section",),
+        )
+
     def test_page_msg(self):
         """
         Test if the page_msg system works in the _install section.
@@ -173,8 +187,6 @@ class TestInstallSection(TestBase):
         """
         if settings.ENABLE_INSTALL_SECTION != True:
             return
-
-        self._login()
 
         url = self.install_url_base + "/tests/info/"
         response = self.client.get(url)
@@ -185,8 +197,124 @@ class TestInstallSection(TestBase):
             must_not_contain=("Login into the _install section",),
         )
 
+    def test_syncdb(self):
+        """
+        Simple test for the syncdb method
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        url = self.install_url_base + "/install/syncdb/"
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=("syncdb", "syncdb ok.")
+        )
+
+    def test_init_db(self):
+        """
+        Test init db method
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        url = self.install_url_base + "/install/init_db2/"
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=(
+                "init DB (using db_dump.py)",
+                "Begin to load data for py format...",
+                "(Total "," records)"
+            )
+        )
+
+    def test_install_plugins(self):
+        """
+        test install plugins
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        url = self.install_url_base + "/install/install_plugins/"
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=(
+                "Install all internal plugins:",
+                "system_settings", "preference_editor", "page_admin", "auth",
+                "OK, plugin ID "," installed."
+            )
+        )
+
+    def test_create_user_GET(self):
+        """
+        test create user (get the html form)
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        url = self.install_url_base + "/install/create_user/"
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=(
+                "Add user", "Username:",
+            )
+        )
+
+    def test_create_user_POST(self):
+        """
+        test the create user method
+         - send a post html form for creating a new user
+         - check if th user is cretaed after POST
+        """
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
+        url = self.install_url_base + "/install/create_user/"
+        username = "test_user_123"
+        post = {"username": username, "password":"12345678"}
+
+        # The test user should not exist, yet
+        self.assertRaises(
+            User.DoesNotExist,
+            User.objects.get,
+            username = username
+        )
+
+        # creaded a new User
+        response = self.client.post(url, post)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=(
+                "Create/update a django superuser:",
+                "creaded a new User, OK",
+            )
+        )
+
+        # Simple test, if the User exist in the DB
+        user = User.objects.get(username = username)
+        JS_LoginData.objects.get(user = user)
+
+        # update the existing User
+        response = self.client.post(url, post)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=(
+                "Create/update a django superuser:",
+                "update a existing User, OK",
+            )
+        )
 
 
+#______________________________________________________________________________
 class TestMiddlewares(TestBase):
     """
     Test the PyLucid common middleware.
@@ -246,7 +374,9 @@ class TestMiddlewares(TestBase):
         Request the install section login. Without any database table, we
         should be see the install secion login page.
         """
-#        self.assertInstallSectionLogin()
+        if settings.ENABLE_INSTALL_SECTION != True:
+            return
+
         url = self.install_url_base
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
