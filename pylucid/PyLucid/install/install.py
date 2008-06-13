@@ -30,7 +30,7 @@ class Sync_DB(BaseInstall):
     # Drop this tables before syncdb:
     DROP_TABLES = (
 #        "PyLucid_pagearchiv",
-#        "PyLucid_plugin",
+        "PyLucid_plugin",
         "PyLucid_preference",
         "PyLucid_preference2",
     )
@@ -120,17 +120,17 @@ def init_db2(request):
 
 install_modules_template = """
 {% extends "install_base.html" %}
-{% block content %}
+{% block pre_page_msg_content %}
 <h1>Install all internal plugins:</h1>
-<pre>{{ output|escape }}</pre>
 {% endblock %}
 """
 class InstallPlugins(BaseInstall):
     def view(self):
-        output = []
         from PyLucid.system.plugin_manager import auto_install_plugins
 
-        self._redirect_execute(auto_install_plugins, (self.request.debug))
+        auto_install_plugins(
+            self.request.debug, self.page_msg, verbosity = 1
+        )
 
         return self._render(install_modules_template)
 

@@ -302,14 +302,14 @@ def _auto_install_plugins(debug, path_cfg, page_msg, verbosity):
     plugin_list = get_plugin_list(plugin_path)
 
     for plugin_name in plugin_list:
-        if verbosity>1:
+        if verbosity:
             msg= "\n\ninstall '%s' plugin: *** %s ***\n" % (
                 path_cfg["type"], plugin_name
             )
-            page_msg(msg)
+            page_msg.black(msg)
 
         try:
-            install_plugin(
+            plugin = install_plugin(
                 package_name, plugin_name, page_msg, verbosity, active=True
             )
         except Exception, err:
@@ -319,8 +319,8 @@ def _auto_install_plugins(debug, path_cfg, page_msg, verbosity):
             page_msg(traceback.format_exc())
             continue
 
-        if verbosity>1:
-            page_msg("OK, plugins installed.")
+        if verbosity:
+            page_msg.green("OK, plugin ID %s installed." % plugin.id)
 
 
 
