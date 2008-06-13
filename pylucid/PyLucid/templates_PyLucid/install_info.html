@@ -8,9 +8,6 @@
 <h3 class="header"><a href="http://www.pylucid.org">PyLucid</a> v{{ version }} - <a href="/" title="{% trans 'goto your PyLucid CMS page' %}">{{ request.META.HTTP_HOST }}</a></h3>
 <h1>{% trans "error" %}: {{ error_msg }}</h1>
 
-<p>The original error was: <pre>{{ exception }}</pre></p>
-{% if traceback %}<p>Traceback: <pre>{{ traceback }}</pre></p>{% endif %}
-
 <h2>{% trans 'solutions:' %}</h2>
 <p>
 {% trans "If you haven't installed PyLucid go into the _install section:" %}
@@ -28,5 +25,11 @@
 |
 <a href="http://pylucid.org/_goto/108/Update-PyLucid/">update instructions</a>
 </div>
+
+<hr />
+<p>The original error was: <pre>{{ exception }}</pre></p>
+{% if traceback %}<p>Traceback: <pre>{{ traceback }}</pre></p>{% endif %}
+<hr />
+
 <p class="page_stats">{% trans 'page stats:' %} <!-- script_duration --></p>
 {% endblock %}
