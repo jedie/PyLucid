@@ -43,15 +43,6 @@ class TestBase(tests.TestCase):
 
     install_url_base ="/%s" % settings.INSTALL_URL_PREFIX
 
-    def setUp(self):
-        settings.DEBUG = True
-
-    def test_prepare(self):
-        """
-        Check if there is no page.
-        """
-        self.failUnlessEqual(Page.objects.all().count(), 0)
-
 
 class TestNoPage(TestBase):
     """
@@ -72,6 +63,12 @@ class TestNoPage(TestBase):
             ),
         )
         return response
+
+    def test_no_page(self):
+        """
+        Check if there is no page.
+        """
+        self.failUnlessEqual(Page.objects.all().count(), 0)
 
     def test_page_request(self):
         """
@@ -190,41 +187,45 @@ class TestInstallSection(TestBase):
 
 
 
-class TestMiddlewares:#(TestBase): #DEACTIVATED!
+class TestMiddlewares(TestBase):
     """
     Test the PyLucid common middleware.
     If there exist not tables (e.g. starting installation) and the user request
     a cms page and not the _install section, he should get the install help
     page with some informations.
 
-    FIXME: How we can delete the tables?
+    TODO: Should we find a faster was to run the test without existing database
+    tables?
     See: http://pylucid.org/phpBB2/viewtopic.php?p=1138#1138
 
     If we delete or rename the tables, we get this error:
         Error: Database :memory: couldn't be flushed.
     This messages comes from ./django/core/management/commands/flush.py
     """
-    def _rename_tables(self, old_prefix, new_prefix):
+    fixtures = [] # Run all test with a empty database
+
+    def _drop_all_tables(self):
+#        print "drop all tables...",
         from django.db import connection
-        from django.core.management.sql import table_list
+        from django.core.management.sql import table_names
 
         cursor = connection.cursor()
-        for table_name in table_list():
-            statement = (
-                "ALTER TABLE %(old_prefix)s%(name)s"
-                " RENAME TO %(new_prefix)s%(name)s;"
-            ) % {
-                "old_prefix": old_prefix,
-                "new_prefix": new_prefix,
-                "name": table_name,
-            }
+        for table_name in table_names():
+            statement = u"DROP TABLE %s;" % table_name
             cursor.execute(statement)
+#        print "done"
+
+    def _syncdb(self):
+#        print "syncdb...",
+        from django.core.management import call_command
+        call_command('syncdb', verbosity=0, interactive=False)
+#        print "done."
 
     def setUp(self):
-        self._rename_tables(old_prefix="", new_prefix="old_")
-
+        self._drop_all_tables()
+#
     def tearDown(self):
-        self._rename_tables(old_prefix="old_", new_prefix="")
+        self._syncdb()
 
     def test(self):
         """
@@ -234,18 +235,25 @@ class TestMiddlewares:#(TestBase): #DEACTIVATED!
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
             must_contain=(
-                #"Can't get a database table",
+                "Can&#39;t get a database table.",
                 "solutions", "Please read the install guide",
             ),
-            #must_not_contain=("Error getting a cms page",)
+            must_not_contain=("Error getting a cms page",)
         )
 
     def test_install_section(self):
         """
-        Request the install section login. Without any database table, we should
-        be see the install secion login page.
+        Request the install section login. Without any database table, we
+        should be see the install secion login page.
         """
-        self.assertInstallSectionLogin()
+#        self.assertInstallSectionLogin()
+        url = self.install_url_base
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=("Login into the _install section",),
+        )
 
 
 if __name__ == "__main__":
