@@ -24,7 +24,7 @@ from PyLucid.tools.utils import escape
 
 # Bug with Firefox under Ubuntu.
 # http://www.python-forum.de/topic-11568.html
-webbrowser._tryorder.insert(0, 'epiphany') # Use Epiphany, if installed.
+#webbrowser._tryorder.insert(0, 'epiphany') # Use Epiphany, if installed.
 
 # Variable to save if the browser is opend in the past.
 ONE_DEBUG_DISPLAYED = False
