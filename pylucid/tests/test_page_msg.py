@@ -25,6 +25,8 @@ from tests.utils.FakeRequest import get_fake_context
 
 from django.utils.safestring import mark_safe
 
+from django.conf import settings
+
 from PyLucid.system.page_msg import PageMessages
 
 
@@ -134,6 +136,10 @@ class PageMessagesTest2(PluginAPI_Base):
         return raw_content
 
     def test_page_msg(self):
+        # FIXME: How to setup these settings?
+        settings.DEBUG = False
+        settings.INTERNAL_IPS = ()
+
         url = self.command % "test_page_msg"
 
         content = self._get_page_msg(url)#, debug=True)
