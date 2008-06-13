@@ -61,7 +61,7 @@ class preference_editor(PyLucidBasePlugin):
             return
 
         plugin = Plugin.objects.get(id = plugin_id)
-        unbound_form = plugin.get_pref_form(self.request.debug)
+        unbound_form = plugin.get_pref_form(self.page_msg, self.request.debug)
 
         if self.request.method == 'POST':
             form = unbound_form(self.request.POST)
