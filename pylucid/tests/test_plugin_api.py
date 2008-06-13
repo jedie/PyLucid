@@ -193,7 +193,7 @@ class PluginModel(PluginAPI_Base):
 
         package_name = plugin.package_name
         plugin_name = plugin.plugin_name
-        
+
         page_msg = FakePageMsg()
 
         # remove the plugin completely from the database
@@ -324,7 +324,8 @@ class PluginArgsTest(PluginAPI_Base):
         )
         self.assertEqual2(args, "()")
         self.assertEqual2(kwargs,
-            "{'f1': False, 'f2': False}"
+            "{'f1': False, 'f2': False}",
+            error_msg="Faild in the current implementation!"
         )
 
     def test_non_string_args(self):
@@ -336,7 +337,8 @@ class PluginArgsTest(PluginAPI_Base):
         )
         self.assertEqual2(args, "()")
         self.assertEqual2(kwargs,
-            "{'arg1': 1, 'args2': 2.0}"
+            "{'arg1': 1, 'args2': 2.0}",
+            error_msg="Faild in the current implementation!"
         )
 
 

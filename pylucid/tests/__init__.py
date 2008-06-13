@@ -292,7 +292,7 @@ class TestCase(DjangoTestCase):
             if txt in response.content:
                 error(response, "Text should not be in response: '%s'" % txt)
 
-    def assertEqual2(self, first, second):
+    def assertEqual2(self, first, second, error_msg=None):
         """
         Same as the original, but display a diff on error.
         Makes only sence if the string contains more lines (\n)
@@ -301,7 +301,12 @@ class TestCase(DjangoTestCase):
             # is equal, ok
             return
 
-        error_msg = "Strings not equal:\n"
+        if error_msg:
+            error_msg += "\n"
+        else:
+            error_msg = ""
+
+        error_msg += "Strings not equal:\n"
         error_msg += "1: %r\n" % first
         error_msg += "2: %r\n" % second
         error_msg += "Diff:\n"
