@@ -1,0 +1,16 @@
+html, body {
+  margin:0px;
+  padding:0px;
+  font-family: tahoma, arial, sans-serif;
+  color: #000;
+}
+html {
+  margin:20px;
+  background-color: #C9C573;
+  border:1px solid black;
+}
+#content {
+  padding:20px;
+  background-color: #FFFFE5;
+  font-size: 0.9em;
+}

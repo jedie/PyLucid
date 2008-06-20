@@ -539,16 +539,26 @@ class page_admin(PyLucidBasePlugin):
                 self.page_msg("URL error.")
                 return
 
-        self.page_msg(markup_id, internal_page_name)
-
-#        XXX
         context = {
             "add_data_tag": mark_safe(settings.ADD_DATA_TAG)
         }
+
+        if markup_id == 6: # Creole wiki markup
+            sheet_url = self.internal_page.get_url(
+                internal_page_name = "creole_cheat_sheet",
+                slug = "png"
+            )
+            if not sheet_url:
+                self.page_msg.red("creole_cheat_sheet.png not found!")
+            context["sheet_url"] = sheet_url
+
+        #self.page_msg(markup_id, internal_page_name, context)
+
         content = self._get_rendered_template(internal_page_name, context)
 
-        # Use tinyTextile markup
-        content = apply_markup(content, self.context, markup_id)
+        if markup_id == 2: # textile
+            # Use tinyTextile markup
+            content = apply_markup(content, self.context, markup_id)
 
         # insert CSS data from the internal page into the rendered page:
         content = replace_add_data(self.context, content)
