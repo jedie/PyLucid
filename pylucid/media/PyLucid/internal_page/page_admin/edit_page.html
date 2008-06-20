@@ -26,6 +26,11 @@
         </a>
         {% endif %}
 
+        <a href="{{ url_pagelinklist }}" title="{% trans 'List of all pages for creating links' %}">
+            <button type="button" onclick="OpenInWindow('{{ url_pagelinklist }}'); return false">
+             {% trans 'page list' %}
+            </button>
+        </a>
         <a href="{{ url_taglist }}" title="{% trans 'List of all available PyLucid template tags' %}">
             <button type="button" onclick="OpenInWindow('{{ url_taglist }}'); return false">
              {% trans 'tag list' %}

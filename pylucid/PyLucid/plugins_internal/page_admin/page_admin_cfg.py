@@ -70,5 +70,9 @@ plugin_manager_data = {
     "tag_list": {
         "must_login" : False,
         "must_admin" : False,
-    }
+    },
+    "page_link_list": {
+        "must_login" : True,
+        "must_admin" : False,
+    },
 }

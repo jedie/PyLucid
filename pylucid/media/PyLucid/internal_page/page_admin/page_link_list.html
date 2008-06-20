@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>List of all pages for creating links</title>
+{{ add_data_tag }}
+</head>
+<body>
+
+<div id="content">
+
+<h2 class="noanchor">Page list:</h2>
+<table id="page_list">
+  <tr>
+    <th></th>
+    <th>textile/creole copy&amp;paste</th>
+    <th>page title</th>
+  </tr>
+{% for page in page_list %}
+  <tr>
+    <td><a href="/{{ prefix }}/{{ page.id }}/{{ page.shortcut }}/">{{ page.level_name }}</a></td>
+    <td title="copy&amp;paste this into your cms page">
+    <input type="text" size="40" name="link"
+    value="[/{{ prefix }}/{{ page.id }}/{{ page.shortcut }}/ {{ page.name }}]"
+    onmouseover="this.select()"
+    >
+    </td>
+    <td>{{ page.title }}</td>
+    {#<td>{{ page }}</td>#}
+  </tr>
+{% endfor %}
+</table>
+
+<hr />
+
+<h2 class="noanchor">Usefull links:</h2>
+<ul id="links">
+  <li>
+    <a href="http://pylucid.org/_goto/156/internal-links-via-permalink/">
+    create internal page links with permalink
+    </a>
+  </li>
+</ul>
+
+
+</div>
+<!-- script_duration -->
+</body></html>

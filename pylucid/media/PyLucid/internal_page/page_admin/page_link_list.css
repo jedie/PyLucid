@@ -1,0 +1,46 @@
+#page_list a {
+  text-decoration:none;
+  color: #000;
+}
+#page_list input {
+    /* remove border from all input fields */
+    border:0px none;
+    margin:0px;
+    padding:0px;
+}
+#page_list tr td {
+    border: 1px solid #fff;
+}
+#page_list tr:hover td {
+    border-color: #aaa;
+    background-color: #fff;
+}
+
+/* -----------------------------------------------------------------------------
+The html page
+----------------------------------------------------------------------------- */
+
+html, body {
+  margin:0px;
+  padding:0px;
+  font-family: tahoma, arial, sans-serif;
+  color: #000;
+}
+html {
+  margin:20px;
+  background-color: #C9C573;
+  border:1px solid black;
+}
+#content {
+  padding:20px;
+  background-color: #FFFFE5;
+  font-size: 0.9em;
+}
+pre {
+  border:1px solid grey;
+  background-color: white;
+}
+.big_hr {
+  border:5px solid gray;
+  margin-top: 7em;
+}

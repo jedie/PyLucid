@@ -44,7 +44,9 @@ from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
-from PyLucid.db.page import PageChoiceField, get_page_choices
+from PyLucid.db.page import PageChoiceField, get_page_choices, flat_tree_list
+
+
 
 
 # Keys must be correspond with PyLucid.models.MARKUPS
@@ -221,6 +223,7 @@ class page_admin(PyLucidBasePlugin):
 
         context = {
             "url_taglist": self.URLs.methodLink("tag_list"),
+            "url_pagelinklist": self.URLs.methodLink("page_link_list"),
             "page_instance": page_instance,
         }
 
@@ -621,6 +624,22 @@ class page_admin(PyLucidBasePlugin):
             "add_data_tag": mark_safe(settings.ADD_DATA_TAG)
         }
         content = self._get_rendered_template("tag_list", context)
+        # insert CSS data from the internal page into the rendered page:
+        content = replace_add_data(self.context, content)
+        return HttpResponse(content)
+
+    #___________________________________________________________________________
+
+    def page_link_list(self):
+
+        page_list = flat_tree_list()
+
+        context = {
+            "page_list": page_list,
+            "prefix": settings.PERMALINK_URL_PREFIX,
+            "add_data_tag": mark_safe(settings.ADD_DATA_TAG)
+        }
+        content = self._get_rendered_template("page_link_list", context)
         # insert CSS data from the internal page into the rendered page:
         content = replace_add_data(self.context, content)
         return HttpResponse(content)
