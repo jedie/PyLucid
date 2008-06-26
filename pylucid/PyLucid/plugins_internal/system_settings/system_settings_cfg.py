@@ -5,9 +5,9 @@
 
 __author__      = "Jens Diemer"
 __url__         = "http://www.PyLucid.org"
-__description__ = "The builtin search"
+__description__ = "System settings"
 __long_description__ = """
-A small search engine with rating for your CMS.
+A pseudo plugin for holding the system settings via the plugin preferences.
 """
 
 #_____________________________________________________________________________
@@ -33,11 +33,4 @@ class PreferencesForm(forms.Form):
 #_____________________________________________________________________________
 # plugin administration data
 
-global_rights = {
-    "must_login": False,
-    "must_admin": False,
-}
-plugin_manager_data = {
-    "lucidTag": global_rights,
-    "do_search": global_rights,
-}
+plugin_manager_data = {}
