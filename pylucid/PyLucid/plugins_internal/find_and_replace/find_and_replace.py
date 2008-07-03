@@ -64,7 +64,9 @@ class FindReplaceForm(forms.Form):
         help_text = _("Please select the content type for the operation.")
     )
     simulate = forms.BooleanField(
-        initial = True, help_text = _("Don't replace anything.")
+        initial = True, required = False,
+        help_text = _("Don't replace anything.")
+
     )
 
 

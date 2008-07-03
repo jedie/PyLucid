@@ -97,6 +97,7 @@ class EditPageForm(forms.Form):
     )
 
     preview_escape = forms.BooleanField(
+        required=False,
         help_text=_("Escape django template tags in preview?"),
     )
     def __init__(self, *args, **kwargs):
