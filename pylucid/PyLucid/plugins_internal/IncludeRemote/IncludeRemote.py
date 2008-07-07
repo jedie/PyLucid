@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 """
-    PyLucid Plugin - IncludeRemote
+    PyLucid include remote plugin
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Include remote content (received by urllib2.urlopen) into the CMS page content.
+    Include remote content (received by urllib2.urlopen) into the CMS page
+    content.
 
-Last commit info:
-----------------------------------
-$LastChangedDate: $
-$Rev: $
-$Author$
+    Last commit info:
+    ~~~~~~~~~
+    $LastChangedDate: $
+    $Rev: $
+    $Author$
 
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
 __version__= "$Rev: $"
@@ -27,6 +28,8 @@ from django.utils.encoding import smart_unicode
 from django.utils.safestring import mark_safe
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
+from PyLucid.tools.utils import escape as html_escape
+from PyLucid.tools.utils import escape_django_tags
 
 STRIP_CONTENT = (
     # stripe stylesheet links
@@ -108,9 +111,15 @@ class IncludeRemote(PyLucidBasePlugin):
 
         #______________________________________________________________________
 
-        if not escape:
-            # turn djngo auto-escaping off
-            content = mark_safe(content)
+        if escape:
+            # Escape "&", "<", ">" and django template tags, e.g. "{" and "}"
+            content = html_escape(content)
+        else:
+            # Escape only django template tags chars, e.g. "{" and "}"
+            content = escape_django_tags(content)
+
+        # turn django auto-escaping off
+        content = mark_safe(content)
 
         # setup preformat
         if preformat==None and "html" in content_type:
