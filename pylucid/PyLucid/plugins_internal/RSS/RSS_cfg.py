@@ -15,8 +15,12 @@ it on your CMS Page.
 # plugin administration data
 
 plugin_manager_data = {
+    "debug" : {
+        "must_login"    : True,
+        "must_admin"    : False,
+    },
     "lucidTag" : {
         "must_login"    : False,
         "must_admin"    : False,
-    }
+    },
 }

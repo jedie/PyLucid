@@ -1,15 +1,12 @@
 <fieldset>
-{% if title %}<legend><a href="{{ url }}">{{ title }}</a></legend>{% endif %}
+<legend><a href="{{ url }}">{{ feed.feed.title }}</a></legend>
 <ul>
-{% for entry in entries %}
+{% for entry in feed.entries %}
     <li>
-    <h1><a href="{{ entry.title_link }}">{{ entry.title|escape }}</a></h1>
+    <h1><a href="{{ entry.title_detail.base }}">{{ entry.title|safe }}</a></h1>
     <p>
-    {% if entry.date %}
-        {{ entry.date }}
-        <br />
-    {% endif %}
-        {{ entry.description }}
+      {{ entry.updated }}<br />
+      {{ entry.summary|safe }}
     </p>
     </li>
 {% endfor %}
