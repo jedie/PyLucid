@@ -13,7 +13,7 @@
     $Rev: $
     $Author: $
 
-    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
@@ -27,15 +27,16 @@ ENTITIES = {
 }
 
 def escape(txt):
-    """"
-    Normal sax escape, but also escape/quote the django template tags chars
-    like "{" and "}" to the HTML character entity.
+    """
+    Escape "&", "<", ">" and django template tags chars like "{" and "}"
+    defined in ENTITIES to the HTML character entity.
     """
     return sax_escape(txt, entities=ENTITIES)
 
 def escape_django_tags(txt):
     """
-    Escape only "{" and "}".
+    Escape only django template tags chars like "{" and "}" defined in ENTITIES
+    to the HTML character entity.
     """
     for source, dest in ENTITIES.iteritems():
         txt = txt.replace(source, dest)
