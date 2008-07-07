@@ -591,10 +591,10 @@ class page_admin(PyLucidBasePlugin):
             stx = []
             for arg in args[1:]:
                 if argmap[arg]:
-                    stx.append("%s=%s" % (arg,argmap[arg]))
+                    stx.append('%s="%s"' % (arg,argmap[arg]))
                 else:
-                    stx.append(arg)
-            return ", ".join(stx)
+                    stx.append('%s=""' % arg)
+            return " ".join(stx)
 
         def get_plugin_list():
             """
