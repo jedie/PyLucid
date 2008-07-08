@@ -17,7 +17,7 @@
 """
 
 from Page import Page, PageArchiv, MARKUPS
-from Plugin import Plugin
+from Plugin import Plugin, Preference
 from JS_LoginData import JS_LoginData, User
 from Style import Style
 from Template import Template

@@ -227,7 +227,7 @@ def create_plugin_tables(plugin, page_msg, verbosity):
         page_msg.green(_("%i plugin models installed.") % len(statements))
 
 
-def _install_plugin(package_name, plugin_name, plugin_config, page_msg,
+def _install_plugin(package_name, plugin_name, plugin_config, user, page_msg,
                                                             verbosity, active):
     """
     insert a plugin/plugin in the 'plugin' table
@@ -246,7 +246,7 @@ def _install_plugin(package_name, plugin_name, plugin_config, page_msg,
     if pref_form:
         if verbosity>1:
             page_msg("Found a preferences newform class.")
-        plugin.init_pref_form(pref_form, page_msg, verbosity)
+        plugin.init_pref_form(pref_form, page_msg, verbosity, user)
 
     plugin.save()
     if verbosity>1:
@@ -260,7 +260,8 @@ def _install_plugin(package_name, plugin_name, plugin_config, page_msg,
 
 
 @transaction.commit_on_success
-def install_plugin(package_name, plugin_name, page_msg, verbosity, active=False):
+def install_plugin(package_name, plugin_name, page_msg, verbosity, user,
+                                                                active=False):
     """
     Get the config object from disk and insert the plugin into the database
     """
@@ -279,7 +280,8 @@ def install_plugin(package_name, plugin_name, page_msg, verbosity, active=False)
             )
 
     plugin = _install_plugin(
-        package_name, plugin_name, plugin_config, page_msg, verbosity, active
+        package_name, plugin_name, plugin_config,
+        user, page_msg, verbosity, active
     )
     return plugin
 
@@ -310,13 +312,16 @@ def _auto_install_plugins(debug, path_cfg, page_msg, verbosity):
 
         try:
             plugin = install_plugin(
-                package_name, plugin_name, page_msg, verbosity, active=True
+                package_name, plugin_name,
+                page_msg, verbosity, user=None, active=True
             )
         except Exception, err:
             # FIXME
             page_msg.red("Error: %s" % err)
             import traceback
-            page_msg(traceback.format_exc())
+            info = "<pre>%s</pre>" % traceback.format_exc()
+            info = mark_safe(info)
+            page_msg.red(info)
             continue
 
         if verbosity:

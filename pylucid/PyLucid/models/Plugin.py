@@ -30,9 +30,7 @@ from PyLucid.system.plugin_import import get_plugin_module, \
 from PyLucid.tools.newforms_utils import get_init_dict, setup_help_text
 from PyLucid.tools.data_eval import data_eval, DataEvalError
 from PyLucid.system.exceptions import PluginPreferencesError
-
-preference_cache = {}
-
+#preference_cache = {}
 PLUGIN_MODEL_LABEL = "PyLucidPlugins"
 PLUGIN_MODEL_APP = "PyLucid.system.PyLucidPlugins"
 
@@ -77,7 +75,7 @@ class PluginManager(models.Manager):
 
     Adds caching to plugin preference queries.
     """
-    def get_preferences(self, plugin_name):
+    def get_preferences(self, plugin_name, id=None):
         """
         returns the preference data dict, use the cache
         """
@@ -85,15 +83,25 @@ class PluginManager(models.Manager):
         plugin_name = os.path.splitext(os.path.basename(plugin_name))[0]
         #print "plugin name: '%s'" % plugin_name
 
-        if plugin_name in preference_cache:
-            return preference_cache[plugin_name]
+#        if plugin_name in preference_cache:
+#            return preference_cache[plugin_name]
 
         plugin = self.get(plugin_name = plugin_name)
-        return plugin.get_preferences()
+
+        if id==None:
+            # get the default entry
+            pref = plugin.default_pref
+        else:
+            pref = Preference(id = id)
+
+        data_dict = pref.get_data()
+
+        return data_dict
 
     def get_plugin_models(self, package_name, plugin_name, page_msg, verbosity):
         """ returns a list of all existing plugin models or None """
         return get_plugin_models(package_name, plugin_name, page_msg, verbosity)
+
 
 
 
@@ -110,10 +118,15 @@ class Plugin(models.Model):
     url = models.CharField(blank=True, max_length=255)
     description = models.CharField(blank=True, max_length=255)
 
-    pref_data_string = models.TextField(
+    default_pref = models.ForeignKey(
+        "Preference", related_name="plugin_default_pref",
         null=True, blank=True,
-        help_text="printable representation of the newform data dictionary"
+        help_text=(
+            "Witch preferences used as default"
+            " (If no id specified in lucidTag)"
+        )
     )
+
     can_deinstall = models.BooleanField(default=True,
         help_text=(
             "If false and/or not set:"
@@ -127,7 +140,7 @@ class Plugin(models.Model):
     #__________________________________________________________________________
     # Special methods
 
-    def init_pref_form(self, pref_form, page_msg, verbosity):
+    def init_pref_form(self, pref_form, page_msg, verbosity, user, id=None):
         """
         Set self.pref_data_string from the given newforms form and his initial
         values.
@@ -143,47 +156,65 @@ class Plugin(models.Model):
 
         # Validate the init_dict
         unbound_form = self.get_pref_form(page_msg, verbosity)
+
         form = unbound_form(init_dict)
         if form.is_valid():
             cleaned_data_dict = form.cleaned_data
         else:
             msg = (
-                "Can't save preferences into the database!"
+                "Can't save preferences for %s.%s into the database!"
                 " Newforms validate error: %r"
-            ) % form.errors
+            ) % (self.package_name, self.plugin_name, form.errors)
             raise PluginPreferencesError(msg)
 
         if verbosity>1:
             page_msg("Initial preferences:")
             page_msg(cleaned_data_dict)
 
-        preference_cache[self.plugin_name] = cleaned_data_dict
-        self.set_pref_data_string(cleaned_data_dict)
+#        preference_cache[self.plugin_name] = cleaned_data_dict
+
+        self.set_default_preference(
+            comment = "default preference entry",
+            data = cleaned_data_dict,
+            user = user,
+        )
+
+    def get_version_string(self):
+        """
+        Returned the version string from the plugin module
+        """
+        return get_plugin_version(self.package_name, self.plugin_name)
+
+    def get_plugin_models(self, page_msg, verbosity):
+        """ returns a list of all existing plugin models or None """
+        return get_plugin_models(
+            self.package_name, self.plugin_name, page_msg, verbosity
+        )
 
     #__________________________________________________________________________
     # Special set methods
 
-    def set_pref_data_string(self, data_dict):
-        """
-        set the dict via pformat
-        """
-        preference_cache[self.plugin_name] = data_dict
-        self.pref_data_string = pformat(data_dict)
+#    def set_pref_data_string(self, data_dict):
+#        """
+#        set the dict via pformat
+#        """
+#        preference_cache[self.plugin_name] = data_dict
+#        self.pref_data_string = pformat(data_dict)
 
     #__________________________________________________________________________
     # Special get methods
 
-    def get_preferences(self):
-        """
-        evaluate the pformat string into a dict and return it.
-        """
-        if self.pref_data_string == None:
-            # There exist no preferences (e.g. plugin update not applied, yet)
-            data_dict = None
-        else:
-            data_dict = data_eval(self.pref_data_string)
-        preference_cache[self.plugin_name] = data_dict
-        return data_dict
+#    def get_preferences(self):
+#        """
+#        evaluate the pformat string into a dict and return it.
+#        """
+#        if self.pref_data_string == None:
+#            # There exist no preferences (e.g. plugin update not applied, yet)
+#            data_dict = None
+#        else:
+#            data_dict = data_eval(self.pref_data_string)
+#        preference_cache[self.plugin_name] = data_dict
+#        return data_dict
 
     def get_pref_form(self, page_msg, verbosity):
         """
@@ -209,7 +240,63 @@ class Plugin(models.Model):
             self.package_name, self.plugin_name, page_msg, verbosity
         )
 
-    #___________________________________________________________________________
+    #__________________________________________________________________________
+    # PREFERENCES
+
+    def get_preference(self, id):
+        """
+        Returns the preference model entry.
+        """
+        pref = Preference.objects.get(id = id)
+        return pref
+
+    def get_all_preferences(self):
+        """
+        Returns all preference entries for this plugin.
+        """
+        prefs = Preference.objects.filter(plugin = self)
+        return prefs
+
+    def add_preference(self, comment, data, user):
+        """
+        Add a new preference data dict.
+        """
+        # Create a new preference entry
+        p = Preference.objects.create(
+            user, data,
+            plugin = self,
+            comment = comment,
+        )
+        p.save()
+        return p
+
+    def udpate_preference(self, comment, data, id, user):
+        pref = Preference.objects.get(id = id)
+        pref.set_data(data, user)
+        pref.comment = comment
+        pref.save()
+        return pref
+
+    def set_default_preference(self, comment, data, user):
+        """
+        Create or update the default preference entry
+        """
+        if self.default_pref == None:
+            # First time the default preference created
+            self.default_pref = Preference.objects.create(
+                user, data,
+                plugin = self,
+                comment = comment,
+            )
+        else:
+            # Update a existing preferences
+            self.default_pref.set_data(data, user)
+            self.default_pref.comment = comment
+
+        self.default_pref.save()
+        return self.default_pref
+
+    #__________________________________________________________________________
     # SAVE
 
     def save(self):
@@ -308,9 +395,111 @@ class Plugin(models.Model):
         list_filter = ("author","package_name", "can_deinstall")
 
     def __unicode__(self):
-        txt = u"%s - %s" % (self.package_name, self.plugin_name)
-        return txt.replace(u"_",u" ")
+        return self.plugin_name.replace(u"_",u" ")
 
     class Meta:
         db_table = 'PyLucid_plugin'
+        app_label = 'PyLucid'
+
+
+
+#______________________________________________________________________________
+# PREFERENCES
+
+
+
+class PreferencesManager(models.Manager):
+    """
+    Manager class for Preference objects.
+
+    Adds caching to plugin preference queries.
+    """
+    def create(self, user, data, **kwargs):
+        """
+        Create a new preferences entry and save the data into pref_data_string
+        """
+        kwargs["createby"] = user
+        pref = super(PreferencesManager, self).create(**kwargs)
+        pref.set_data(data, user)
+        pref.save()
+        return pref
+
+
+
+
+class Preference(models.Model):
+    """
+    Plugin preferences
+    """
+    objects = PreferencesManager()
+
+    id = models.AutoField(primary_key=True,
+        help_text="The id of this preference entry, used for lucidTag"
+    )
+    plugin = models.ForeignKey(Plugin)
+
+    createtime = models.DateTimeField(
+        auto_now_add=True, help_text="Create time",
+    )
+    lastupdatetime = models.DateTimeField(
+        auto_now=True, help_text="Time of the last change.",
+    )
+    createby = models.ForeignKey(
+        User, editable=False, related_name="pref_createby",
+        help_text="User how create the current page.",
+        null=True, blank=True
+    )
+    lastupdateby = models.ForeignKey(
+        User, editable=False, related_name="pref_lastupdateby",
+        help_text="User as last edit the current entry.",
+        null=True, blank=True
+    )
+
+    comment = models.CharField(max_length=255,
+        help_text="Small comment for this preference entry"
+    )
+    pref_data_string = models.TextField(
+        null=False, blank=False,
+        help_text="printable representation of the newform data dictionary"
+    )
+
+    #__________________________________________________________________________
+    # Special set methods
+
+    def set_data(self, data_dict, user):
+        """
+        set the dict via pformat
+        """
+#        preference_cache[self.plugin_name] = data_dict
+        self.pref_data_string = pformat(data_dict)
+        self.lastupdateby = user
+
+    #__________________________________________________________________________
+    # Special get methods
+
+    def get_data(self):
+        """
+        evaluate the pformat string into a dict and return it.
+        """
+        data_dict = data_eval(self.pref_data_string)
+#        preference_cache[self.plugin_name] = data_dict
+        return data_dict
+
+    #__________________________________________________________________________
+
+    def __unicode__(self):
+        return u"Preferences for %s.%s, id: %s" % (
+            self.plugin.package_name, self.plugin.plugin_name, self.id
+        )
+
+    class Admin:
+        list_display = (
+            "id", "plugin", "comment",
+        )
+        list_display_links = ("comment",)
+        ordering = ("plugin", "id")
+        list_filter = ("plugin",)
+
+    class Meta:
+        db_table = 'PyLucid_preference'
         app_label = 'PyLucid'

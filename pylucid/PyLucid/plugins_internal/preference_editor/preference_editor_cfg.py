@@ -33,4 +33,9 @@ plugin_manager_data = {
         "must_login"    : True,
         "must_admin"    : True,
     },
+    "add": {
+        "must_login"    : True,
+        "must_admin"    : True,
+    },
+
 }

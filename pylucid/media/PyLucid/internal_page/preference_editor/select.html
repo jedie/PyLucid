@@ -1,10 +1,20 @@
 <fieldset><legend>select for edit</legend>
-<ul>
+<ul class="plugin_list">
 {% for plugin in plugins %}
-  <li><a href="{{ plugin.edit_link }}">{{ plugin.plugin_name }}</a> - {{ plugin.description }}</li>
+  <li>
+    <strong>{{ plugin.plugin_name }}</strong><small> - {{ plugin.description }}</small>
+    <ul class="pref_list">
+        {% for pref in plugin.get_all_preferences %}
+        <li>
+            <a href="{{ edit_link }}{{ pref.id }}/" class="pref_entry"
+              title="created: {{ pref.createtime }} by '{{ pref.createby }}' - lastupdate: {{ pref.lastupdatetime }} by '{{ pref.lastupdateby }}'"
+              >{{ pref.comment }}</a>
+            <small><a href="{{ admin_link }}{{ pref.id }}/" onclick="OpenInWindow(this); return false" title="{% trans 'edit in django admin panel' %}">(id: {{ pref.id }})</a></small>
+        </li>
+        {% endfor %}
+        <li><i><a href="{{ add_link }}{{ plugin.id }}/">{% trans 'add entry' %}</a></i></li>
+    </ul>
+  </li>
 {% endfor %}
 </ul>
-<small>
-({% trans 'Low level edit in the' %} <a href="{{ admin_link }}" onclick="OpenInWindow(this); return false">{% trans 'django admin panel' %}</a>.)
-</small>
 </fieldset>

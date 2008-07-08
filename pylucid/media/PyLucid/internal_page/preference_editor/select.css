@@ -1,0 +1,22 @@
+.meta_info {
+    display:none;
+    font-size:0.8em;
+    margin-left:1em;
+}
+.pref_list {
+}
+.pref_entry:hover .meta_info {
+    display:block;
+}
+.pref_entry:hover {
+    border:1px solid #AAAAAA;
+}
+.plugin_list > li {
+    margin: 1em 15px 0px 0px;
+    list-style:none;
+    padding:1px;
+}
+.plugin_list {
+    margin: 0;
+    padding: 0;
+}

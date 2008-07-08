@@ -22,14 +22,14 @@ from django.utils.translation import ugettext as _
 
 class PreferencesForm(forms.Form):
     print_last_page = forms.BooleanField(
-        initial = True,
+        initial = True, required=False,
         help_text = _(
             "If checked the actual page will be the last page in the bar."
             " Otherwise the parentpage."
         ),
     )
     print_index = forms.BooleanField(
-        initial = False,
+        initial = False, required=False,
         help_text = _('If checked every back link bar starts with a link to "index_url"'),
     )
     index_url = forms.CharField(
