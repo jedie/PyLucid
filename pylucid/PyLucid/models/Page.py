@@ -461,8 +461,9 @@ class PageArchiv(models.Model):
     content = models.TextField(blank=True, help_text="The CMS page content.")
 
     parent = models.ForeignKey(
-        "self", null=True, blank=True,
-        to_field="id", help_text="the higher-ranking father page",
+        "Page", to_field="id", related_name="PageArchiv_parent",
+        null=True, blank=True,
+        help_text="the higher-ranking father page",
     )
     position = models.IntegerField(
         default = 0,
