@@ -18,7 +18,7 @@
 from PyLucid.models import Page, PageArchiv
 
 # All common field names of the two models 'Page' and 'PageArchiv'
-SHARING_FELDS = (
+SHARING_FIELDS = (
     'content', 'parent', 'position', 'name', 'shortcut', 'title',
     'template', 'style', 'markup', 'keywords', 'description',
     'createtime', 'lastupdatetime', 'createby', 'lastupdateby',
@@ -33,7 +33,7 @@ def archive_page(page_instance, edit_comment):
     the given page instance to the archiv entry.
     """
     archiv_entry = PageArchiv()
-    for fieldname in SHARING_FELDS:
+    for fieldname in SHARING_FIELDS:
         field_value = getattr(page_instance, fieldname)
         setattr(archiv_entry, fieldname, field_value)
 
