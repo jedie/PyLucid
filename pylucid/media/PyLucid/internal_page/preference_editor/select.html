@@ -2,18 +2,24 @@
 <ul class="plugin_list">
 {% for plugin in plugins %}
   <li>
-    <strong>{{ plugin.plugin_name }}</strong><small> - {{ plugin.description }}</small>
-    <ul class="pref_list">
-        {% for pref in plugin.get_all_preferences %}
-        <li>
-            <a href="{{ edit_link }}{{ pref.id }}/" class="pref_entry"
-              title="created: {{ pref.createtime }} by '{{ pref.createby }}' - lastupdate: {{ pref.lastupdatetime }} by '{{ pref.lastupdateby }}'"
-              >{{ pref.comment }}</a>
-            <small><a href="{{ admin_link }}{{ pref.id }}/" onclick="OpenInWindow(this); return false" title="{% trans 'edit in django admin panel' %}">(id: {{ pref.id }})</a></small>
-        </li>
-        {% endfor %}
-        <li><i><a href="{{ add_link }}{{ plugin.id }}/">{% trans 'add entry' %}</a></i></li>
-    </ul>
+    <a href="{{ edit_link }}{{ plugin.default_pref.id }}/" class="pref_entry"
+      title="{{ plugin.default_pref.comment }} - created: {{ plugin.default_pref.createtime }} by '{{ plugin.default_pref.createby }}' - lastupdate: {{ plugin.default_pref.lastupdatetime }} by '{{ plugin.default_pref.lastupdateby }}'"
+      ><strong>{{ plugin }}</strong></a>
+    <small><a href="{{ admin_link }}{{ plugin.default_pref.id }}/" onclick="OpenInWindow(this); return false" title="{% trans 'edit this default preference entry in django admin panel' %}">id: {{ plugin.default_pref.id }}</a></small>
+    {% if plugin.multiple_pref %}
+        <ul class="pref_list">
+            {% for pref in plugin.get_all_preferences %}
+            <li>
+                <a href="{{ edit_link }}{{ pref.id }}/" class="pref_entry"
+                  title="created: {{ pref.createtime }} by '{{ pref.createby }}' - lastupdate: {{ pref.lastupdatetime }} by '{{ pref.lastupdateby }}'"
+                  >{{ pref.comment }}</a>
+                <small><a href="{{ admin_link }}{{ pref.id }}/" onclick="OpenInWindow(this); return false" title="{% trans 'edit in django admin panel' %}">id: {{ pref.id }}</a></small>
+                <ul><li><i>&#x7B;% lucidTag {{ plugin.plugin_name }} ... pref_id="{{ pref.id }}" %&#x7D;</i></li></ul>
+            </li>
+            {% endfor %}
+            <li><i><a href="{{ add_link }}{{ plugin.id }}/" title="add a new preference entry to this plugin">{% trans 'add entry' %}</a></i></li>
+        </ul>
+     {% endif %}
   </li>
 {% endfor %}
 </ul>

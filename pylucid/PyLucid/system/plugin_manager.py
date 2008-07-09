@@ -238,6 +238,7 @@ def _install_plugin(package_name, plugin_name, plugin_config, user, page_msg,
         author = plugin_config.__author__,
         url = plugin_config.__url__,
         description = plugin_config.__description__,
+        multiple_pref = getattr(plugin_config, "multiple_pref", True),
         can_deinstall = getattr(plugin_config, "__can_deinstall__", True),
         active = active,
     )

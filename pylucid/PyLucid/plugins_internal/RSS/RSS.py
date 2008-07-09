@@ -44,7 +44,23 @@ class RSS(PyLucidBasePlugin):
         self.response.write(pformat(feed))
         self.response.write("</pre>\n")
 
-    def lucidTag(self, url, debug=False, title=None):
+    def lucidTag(self, url, internal_page=None, debug=None, pref_id=None):
+        # Get the preferences from the database:
+        if pref_id:
+            preferences = self.get_preferences(id = pref_id)
+        else:
+            # get the default entry
+            preferences = self.get_preferences()
+
+        if preferences == None:
+            self.page_msg.red("Can't get preferences from database.")
+            return
+
+        if internal_page == None:
+            internal_page = preferences["internal_page"]
+        if debug == None:
+            debug = preferences["debug"]
+
 #        rss_page = cache.get(url)
 #        if rss_page:
 #            self.response.write(self.info_txt % "[Used cached data]")
@@ -73,5 +89,5 @@ class RSS(PyLucidBasePlugin):
             "feed": feed,
             "duration": duration,
         }
-        self._render_template("RSS", context)#, debug=True)
+        self._render_template(internal_page, context)#, debug=True)
 

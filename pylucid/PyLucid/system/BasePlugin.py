@@ -60,17 +60,12 @@ class PyLucidBasePlugin(object):
 
         self.current_page = self.context["PAGE"]
 
-        self.__preference_cache = None
-
-    def get_preferences(self):
+    def get_preferences(self, id = None):
         """
         returns the preferences from the database as a dict
         """
-        if self.__preference_cache == None:
-            self.__preference_cache = Plugin.objects.get_preferences(
-                self.plugin_name
-            )
-        return self.__preference_cache
+        preference = Plugin.objects.get_preferences(self.plugin_name, id)
+        return preference
 
     def build_menu(self):
         """

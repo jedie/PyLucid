@@ -81,7 +81,7 @@ class PluginManager(models.Manager):
         """
         # Get the name of the plugin, if __file__ used
         plugin_name = os.path.splitext(os.path.basename(plugin_name))[0]
-        #print "plugin name: '%s'" % plugin_name
+        print "plugin name: '%s'" % plugin_name
 
 #        if plugin_name in preference_cache:
 #            return preference_cache[plugin_name]
@@ -91,8 +91,15 @@ class PluginManager(models.Manager):
         if id==None:
             # get the default entry
             pref = plugin.default_pref
+            if pref==None:
+                return None
         else:
-            pref = Preference(id = id)
+            id = int(id) # FIXME: for http://trac.pylucid.net/ticket/202
+            pref = Preference.objects.get(id = id)
+            assert pref.plugin == plugin, (
+                "Preference ID %s is wrong."
+                " This entry is for the plugin '%s' and not for '%s'!"
+            ) % (id, pref.plugin, plugin)
 
         data_dict = pref.get_data()
 
@@ -118,6 +125,11 @@ class Plugin(models.Model):
     url = models.CharField(blank=True, max_length=255)
     description = models.CharField(blank=True, max_length=255)
 
+    multiple_pref = models.BooleanField(
+        default = True,
+        help_text = "Can this Plugin have multiple preferences or not?"
+    )
+
     default_pref = models.ForeignKey(
         "Preference", related_name="plugin_default_pref",
         null=True, blank=True,
@@ -127,13 +139,15 @@ class Plugin(models.Model):
         )
     )
 
-    can_deinstall = models.BooleanField(default=True,
+    can_deinstall = models.BooleanField(
+        default=True,
         help_text=(
             "If false and/or not set:"
             " This essential plugin can't be deinstalled."
         )
     )
-    active = models.BooleanField(default=False,
+    active = models.BooleanField(
+        default=False,
         help_text="Is this plugin is enabled and useable?"
     )
 
@@ -191,31 +205,6 @@ class Plugin(models.Model):
             self.package_name, self.plugin_name, page_msg, verbosity
         )
 
-    #__________________________________________________________________________
-    # Special set methods
-
-#    def set_pref_data_string(self, data_dict):
-#        """
-#        set the dict via pformat
-#        """
-#        preference_cache[self.plugin_name] = data_dict
-#        self.pref_data_string = pformat(data_dict)
-
-    #__________________________________________________________________________
-    # Special get methods
-
-#    def get_preferences(self):
-#        """
-#        evaluate the pformat string into a dict and return it.
-#        """
-#        if self.pref_data_string == None:
-#            # There exist no preferences (e.g. plugin update not applied, yet)
-#            data_dict = None
-#        else:
-#            data_dict = data_eval(self.pref_data_string)
-#        preference_cache[self.plugin_name] = data_dict
-#        return data_dict
-
     def get_pref_form(self, page_msg, verbosity):
         """
         Get the 'PreferencesForm' newform class from the plugin modul, insert
@@ -252,9 +241,13 @@ class Plugin(models.Model):
 
     def get_all_preferences(self):
         """
-        Returns all preference entries for this plugin.
+        Returns all preference entries for this plugin except the default entry.
         """
         prefs = Preference.objects.filter(plugin = self)
+        if self.default_pref:
+            # execlude the default preference entry
+            prefs = prefs.exclude(id = self.default_pref.id)
+
         return prefs
 
     def add_preference(self, comment, data, user):
@@ -294,6 +287,7 @@ class Plugin(models.Model):
             self.default_pref.comment = comment
 
         self.default_pref.save()
+        self.save()
         return self.default_pref
 
     #__________________________________________________________________________

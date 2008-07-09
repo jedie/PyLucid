@@ -30,6 +30,9 @@ class PreferencesForm(forms.Form):
         help_text=_("Should the shortcut of a page rebuild on every edit?"),
     )
 
+# Optional, this Plugin can't have multiple preferences
+multiple_pref = False
+
 #_____________________________________________________________________________
 # plugin administration data
 

@@ -98,6 +98,12 @@ class TestPluginPreferences(tests.TestCase):
         self.failUnless(isinstance(self.test_plugin.default_pref, Preference))
         self.assertEqual(pref_obj1.get_data(), TEST_DICT1)
 
+        # Check Plugin.objects.get_preferences
+        preference = Plugin.objects.get_preferences(
+            self.test_plugin.plugin_name, id=None
+        )
+        self.assertEqual(preference, TEST_DICT1)
+
         # set a new default preferences
         pref_obj2 = self.test_plugin.set_default_preference(
             comment = "default pref",
@@ -110,12 +116,11 @@ class TestPluginPreferences(tests.TestCase):
         # be updated.
         self.assertEqual(pref_obj1.id, pref_obj2.id)
 
+        # get_all_preferences should not return the default entry
+        pref_entries = self.test_plugin.get_all_preferences()
+        self.assertEqual(len(pref_entries), 0)
 
-    def test_create(self):
-        """
-        Test normal preference instances
-        """
-        # Create
+        # add a preferences
         pref_obj = self.test_plugin.add_preference(
             comment = "pref one",
             data = TEST_DICT1,
@@ -132,7 +137,7 @@ class TestPluginPreferences(tests.TestCase):
 
         # Check pref entries 1
         pref_entries = Preference.objects.filter(plugin=self.test_plugin)
-        self.assertEqual(len(pref_entries), 1)
+        self.assertEqual(len(pref_entries), 2)
         # Check pref entries 2
         pref_entries = self.test_plugin.get_all_preferences()
         self.assertEqual(len(pref_entries), 1)
@@ -148,11 +153,17 @@ class TestPluginPreferences(tests.TestCase):
 
         # Check pref entries 1
         pref_entries = Preference.objects.filter(plugin=self.test_plugin)
-        self.assertEqual(len(pref_entries), 2)
+        self.assertEqual(len(pref_entries), 3)
         # Check pref entries 2
         pref_entries = self.test_plugin.get_all_preferences()
         self.assertEqual(len(pref_entries), 2)
 
+        # Check Plugin.objects.get_preferences
+        preference = Plugin.objects.get_preferences(
+            self.test_plugin.plugin_name, id=pref_two_obj.id
+        )
+        self.assertEqual(preference, TEST_DICT2)
+        
     def test_update(self):
         """
         Update a exiting preferences entry
