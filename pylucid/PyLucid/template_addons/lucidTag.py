@@ -25,7 +25,7 @@ from PyLucid.system.plugin_manager import run
 from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.context_processors import add_css_tag
 from PyLucid.tools.data_eval import data_eval, DataEvalError
-from PyLucid.tools.utils import make_kwagrs
+from PyLucid.tools.utils import make_kwargs
 
 from django.conf import settings
 from django import template
@@ -118,7 +118,7 @@ def lucidTag(parser, token):
 
     if content:
         raw_kwargs = content[0]
-        method_kwargs = make_kwagrs(raw_kwargs)
+        method_kwargs = make_kwargs(raw_kwargs)
     else:
         method_kwargs = {}
 

@@ -52,24 +52,24 @@ def escape_django_tags(txt):
     return txt
 
 
-# For make_kwagrs()
+# For make_kwargs()
 KEYWORD_MAP = {
     "True": True,
     "False": False,
     "None": None,
 }
 
-def make_kwagrs(raw_content, encoding="UTF-8"):
+def make_kwargs(raw_content, encoding="UTF-8"):
     """
     convert a string into a dictionary. e.g.:
 
-    >>> make_kwagrs('key1="value1" key2="value2"')
+    >>> make_kwargs('key1="value1" key2="value2"')
     {'key2': 'value2', 'key1': 'value1'}
 
-    >>> make_kwagrs('A="B" C=1 D=1.1 E=True F=False G=None')
+    >>> make_kwargs('A="B" C=1 D=1.1 E=True F=False G=None')
     {'A': 'B', 'C': 1, 'E': True, 'D': '1.1', 'G': None, 'F': False}
 
-    >>> make_kwagrs(u'unicode=True')
+    >>> make_kwargs(u'unicode=True')
     {'unicode': True}
     """
     if isinstance(raw_content, unicode):
