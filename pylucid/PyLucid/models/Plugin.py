@@ -81,7 +81,7 @@ class PluginManager(models.Manager):
         """
         # Get the name of the plugin, if __file__ used
         plugin_name = os.path.splitext(os.path.basename(plugin_name))[0]
-        print "plugin name: '%s'" % plugin_name
+        #print "plugin name: '%s'" % plugin_name
 
 #        if plugin_name in preference_cache:
 #            return preference_cache[plugin_name]
