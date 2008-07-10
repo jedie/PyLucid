@@ -305,6 +305,15 @@ class PluginArgsTest(PluginAPI_Base):
             "{'a': True, 'b': False, 'c': None}"
         )
 
+    def test_quotes(self):
+        args, kwargs = self._get_args_info(
+            '''{% lucidTag unittest_plugin a="1" b='2' c="1'2'3" %}'''
+        )
+        self.assertEqual2(args, "()")
+        self.assertEqual2(kwargs,
+            """{'a': 1, 'b': 2, 'c': "1'2'3"}"""
+        )
+
 
 class PluginPreferencesTest(PluginAPI_Base):
     """

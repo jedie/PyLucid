@@ -68,6 +68,9 @@ def make_kwargs(raw_content, encoding="UTF-8"):
 
     >>> make_kwargs('A="B" C=1 D=1.1 E=True F=False G=None')
     {'A': 'B', 'C': 1, 'E': True, 'D': '1.1', 'G': None, 'F': False}
+    
+    >>> make_kwargs('''key1="'1'" key2='"2"' key3="""'3'""" ''')
+    {'key3': 3, 'key2': 2, 'key1': 1}
 
     >>> make_kwargs(u'unicode=True')
     {'unicode': True}
@@ -88,7 +91,7 @@ def make_kwargs(raw_content, encoding="UTF-8"):
         else:
             # A number?
             try:
-                value = int(value)
+                value = int(value.strip("'\""))
             except ValueError:
                 pass
 
