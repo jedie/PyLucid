@@ -203,7 +203,8 @@ class PluginModel(PluginAPI_Base):
         # install the plugin
         # plugin model tables should be re-created, too.
         install_plugin(
-            package_name, plugin_name, page_msg, verbosity=2, active=True
+            package_name, plugin_name,
+            page_msg, verbosity=2, user=None, active=True
         )
 
         # Check 1:
@@ -280,69 +281,46 @@ class PluginArgsTest(PluginAPI_Base):
             '{% lucidTag unittest_plugin arg1="test1" %}'
         )
         self.assertEqual2(args, "()")
-        self.assertEqual2(kwargs, "{'arg1': u'test1'}")
+        self.assertEqual2(kwargs, "{'arg1': 'test1'}")
 
-    def test_tag_more_args(self):
+    def test_numbers(self):
         """
-        More string kwargs
+        Test string and numbers
         """
         args, kwargs = self._get_args_info(
-            '{% lucidTag unittest_plugin a="0" b="1" c="2" %}'
+            '{% lucidTag unittest_plugin a="0" b=1 c=2 %}'
         )
         self.assertEqual2(args, "()")
-        self.assertEqual2(kwargs, "{'a': u'0', 'b': u'1', 'c': u'2'}")
+        self.assertEqual2(kwargs, "{'a': 0, 'b': 1, 'c': 2}")
 
-    def test_tag_bool_args1(self):
+    def test_keywords(self):
         """
-        The current implementation converts strings to bool if it found
-        the bool words.
+        Test True, False and None
         """
         args, kwargs = self._get_args_info(
-            '{% lucidTag unittest_plugin'
-            ' t1="True" f1="False" t2="true" f2="false" %}'
+            '{% lucidTag unittest_plugin a=True b=False c=None %}'
         )
         self.assertEqual2(args, "()")
         self.assertEqual2(kwargs,
-            "{'f1': False, 'f2': False, 't1': True, 't2': True}"
+            "{'a': True, 'b': False, 'c': None}"
         )
 
-    #__________________________________________________________________________
-    # Problems with the current implementation.
-    # We can't pass other things than string.
+
+class PluginPreferencesTest(PluginAPI_Base):
     """
-    Importtant: All follow test will failed!
-    See:
-        http://pylucid.net:8080/pylucid/ticket/202
-        http://pylucid.org/phpBB2/viewtopic.php?t=228
+    Test the preferences API.
+
+    more info about plugin preferences:
+        http://www.pylucid.org/_goto/153/preferences/
     """
-    def test_tag_bool_args2(self):
-        """
-        Faild in the current implementation!
-        """
-        args, kwargs = self._get_args_info(
-            '{% lucidTag unittest_plugin t1=True f1=False %}'
+    def test(self):
+        url = self.command % "test_preferences"
+        content = self._get_plugin_content(url, debug=False)
+        self.assertEqual2(
+            content,
+            "{'index': u'Index', 'print_index': False, 'print_last_page': True,"
+            " 'index_url': u'/'}"
         )
-        self.assertEqual2(args, "()")
-        self.assertEqual2(kwargs,
-            "{'f1': False, 'f2': False}",
-            error_msg="Faild in the current implementation!"
-        )
-
-    def test_non_string_args(self):
-        """
-        Faild in the current implementation!
-        """
-        args, kwargs = self._get_args_info(
-            '{% lucidTag unittest_plugin arg1=1 arg2=2.0 %}'
-        )
-        self.assertEqual2(args, "()")
-        self.assertEqual2(kwargs,
-            "{'arg1': 1, 'args2': 2.0}",
-            error_msg="Faild in the current implementation!"
-        )
-
-
-
 
 
 if __name__ == "__main__":

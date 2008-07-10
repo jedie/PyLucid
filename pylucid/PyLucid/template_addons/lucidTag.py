@@ -25,6 +25,7 @@ from PyLucid.system.plugin_manager import run
 from PyLucid.system.response import SimpleStringIO
 from PyLucid.system.context_processors import add_css_tag
 from PyLucid.tools.data_eval import data_eval, DataEvalError
+from PyLucid.tools.utils import make_kwagrs
 
 from django.conf import settings
 from django import template
@@ -95,6 +96,8 @@ class lucidTagNode(template.Node):
         return content
 
 
+
+
 def lucidTag(parser, token):
     """
     Parse the lucidTags.
@@ -113,36 +116,11 @@ def lucidTag(parser, token):
     else:
         method_name = "lucidTag"
 
-#    print "1", content
-#    method_kwargs = {}
-#    if content:
-#        raw_kwargs = content[0]
-#        kwargs = raw_kwargs.replace("=", ":")
-#        kwargs = u"{ %s }" % kwargs
-#        print "2", kwargs
-#        try:
-#            method_kwargs = data_eval(kwargs)
-#        except DataEvalError, err:
-#            return lucidTagNodeError(
-#                plugin_name, method_name,
-#                msg = "Tag args error: %s" % err
-#            )
-#
-#        print "3", method_kwargs
-
-    method_kwargs = {}
     if content:
-        kwargs = content[0]
-        kwargs = KWARGS_REGEX.findall(kwargs)
-        for key, value in kwargs:
-            # method Keywords must be Strings
-            key = key.encode(settings.DEFAULT_CHARSET)
-            value_lower = value.lower()
-            if value_lower in ("true", "on"):
-                value = True
-            elif value_lower in ("false", "off"):
-                value = False
-            method_kwargs[key] = value
+        raw_kwargs = content[0]
+        method_kwargs = make_kwagrs(raw_kwargs)
+    else:
+        method_kwargs = {}
 
     return lucidTagNode(plugin_name, method_name, method_kwargs)
 
