@@ -6,9 +6,6 @@
 
     Test PyLucid.models.Preference
 
-    OBSOLETE
-    TODO: Must be complete rewritten!
-
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
@@ -163,7 +160,7 @@ class TestPluginPreferences(tests.TestCase):
             self.test_plugin.plugin_name, id=pref_two_obj.id
         )
         self.assertEqual(preference, TEST_DICT2)
-        
+
     def test_update(self):
         """
         Update a exiting preferences entry

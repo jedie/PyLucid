@@ -131,6 +131,34 @@ class unittest_plugin(PyLucidBasePlugin):
 
 
 
+    #__________________________________________________________________________
+    # PREFERENCES
+    #
+    def test_preferences(self):
+        """
+        Test the preferences API.
+
+        more info about plugin preferences:
+            http://www.pylucid.org/_goto/153/preferences/
+
+        TODO: Add more tests here. Test to change the preferences.
+        """
+        # Get the preferences from the database:
+        preferences = self.get_preferences()
+
+        self.response.write("<pre>\n")
+        self.response.write(repr(preferences))
+        self.response.write("</pre>")
+
+        assert(preferences,
+            {
+                'index': u'Index', 'print_index': False,
+                'print_last_page': True, 'index_url': u'/'
+            }
+        )
+
+        self.response.write("test preferences END")
+
 
 #    """
 #    We inherit from the base plugin.
@@ -259,20 +287,7 @@ class unittest_plugin(PyLucidBasePlugin):
 #        current displayed page title, so it makes more sense for the user.
 #        """
 #        self.context["PAGE"].title = "The Plugin Title"
-#
-#    #__________________________________________________________________________
-#    # PREFERENCES
-#    #
-#    def get_my_preferences(self):
-#        """
-#        more info about plugin preferences:
-#            http://www.pylucid.org/_goto/153/preferences/
-#        """
-#        # Get the preferences from the database:
-#        preferences = self.get_preferences()
-#
-#        # Get a entry (It's a dict api)
-#        my_entry_value = preferences["entry_key"]
+
 #
 #
 #    #__________________________________________________________________________

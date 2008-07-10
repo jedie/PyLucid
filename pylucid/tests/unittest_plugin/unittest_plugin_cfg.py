@@ -57,6 +57,7 @@ plugin_manager_data = {
     },
     "test_attributes" : global_rights,
     "test_page_msg" : global_rights,
+    "test_preferences": global_rights,
     "plugin_models": {
         "must_login": True,
         "must_admin": True,
