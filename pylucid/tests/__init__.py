@@ -200,7 +200,7 @@ def change_preferences(plugin_name, **kwargs):
     """
     # Get plugin+preferences
     plugin = Plugin.objects.get(plugin_name = plugin_name)
-    preferences = plugin.get_preferences()
+    preferences = plugin.default_pref.get_data()
     preferences.update(kwargs)
 
     # Check the new preferences via newforms from the plugin config file
@@ -210,9 +210,8 @@ def change_preferences(plugin_name, **kwargs):
     assert form.is_valid(), "Error change preferences: %s" % repr(form.errors)
 
     # Save the new preferences
-    new_data_dict = form.cleaned_data
-    plugin.set_pref_data_string(new_data_dict)
-    plugin.save()
+    plugin.default_pref.set_data(preferences, user=None)
+    plugin.default_pref.save()
 
 
 def _check_cachebackend():
