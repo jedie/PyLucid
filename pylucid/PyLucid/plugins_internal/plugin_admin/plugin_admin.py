@@ -182,7 +182,8 @@ class plugin_admin(PyLucidBasePlugin):
 
         try:
             install_plugin(
-                package_name, plugin_name, self.page_msg, verbosity, active
+                package_name, plugin_name,
+                self.page_msg, verbosity, self.request.user, active
             )
         except Exception, e:
             if self.request.debug:
