@@ -551,7 +551,7 @@ class filemanager(PyLucidBasePlugin):
         statinfo = os.stat(abs_fs_path)
         real_filesize = statinfo.st_size
 
-        if real_filesize == ufile.file_size:
+        if real_filesize == ufile.size:
             self.page_msg.green(
                 "File '%s' written successfull. (%s Bytes)" % (
                     filename, real_filesize
