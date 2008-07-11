@@ -49,11 +49,11 @@ class PreferencesForm(forms.Form):
     )
 
     dir_filter = forms.CharField(
-        initial = "",
+        initial = "", required=False,
         help_text = _("Comma seperated list of direcories to skip."),
     )
     file_filter = forms.CharField(
-        initial = "",
+        initial = "", required=False,
         help_text = _("Comma seperated list of files to skip."),
     )
 

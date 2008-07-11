@@ -13,6 +13,10 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from django import newforms as forms
+from django.utils.encoding import smart_unicode
+
+
 def setup_help_text(form):
     """
     Append on every help_text the default information (The initial value)
@@ -48,3 +52,41 @@ class NoInitialError(Exception):
     All preferences newform attributes must habe a initial value.
     """
     pass
+
+
+class ChoiceField2(forms.ChoiceField):
+    """
+    Works like a ChoiceField, but accepts a list of items. The list are
+    converted to a tuple fpr rendering.
+    Returns the value and not the key in clean().
+
+    >>> f = ChoiceField2(choices=["A","B","C"])
+    >>> f.choices
+    [('0', u'A'), ('1', u'B'), ('2', u'C')]
+    >>> f.clean('1')
+    u'B'
+    """
+    def __init__(self, *args, **kwargs):
+        choices = kwargs.pop("choices")
+        kwargs["choices"] = self.choices = [
+            (str(no), smart_unicode(value)) for no, value in enumerate(choices)
+        ]
+
+        super(ChoiceField2, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        """
+        Validates that the input and returns the choiced value.
+        """
+        key = super(ChoiceField2, self).clean(value)
+        choices_dict = dict(self.choices)
+        return choices_dict[key]
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(
+#        verbose=True
+        verbose=False
+    )
+    print "DocTest end."

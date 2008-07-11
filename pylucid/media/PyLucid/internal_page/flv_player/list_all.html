@@ -1,0 +1,8 @@
+<ul>
+{% for item in items %}
+    <li>
+    {{ item }}
+    &#x7B;% lucidTag flv_player flv="{{ item.fs_path }}" %&#x7D;
+    </li>
+{% endfor %}
+</ul>

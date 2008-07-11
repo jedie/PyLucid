@@ -128,22 +128,6 @@ class PyLucidBasePlugin(object):
         self.internal_page = self.internal_page
 
 
-    def _debug_context(self, context, template):
-        self.response.write("<fieldset><legend>template debug:</legend>")
-        self.response.write("<legend>context:</legend>")
-        self.response.write("<pre>")
-        pprint_context = pprint.pformat(context)
-        self.response.write(escape(pprint_context))
-        self.response.write("</pre>")
-        self.response.write("<legend>template:</legend>")
-        self.response.write("<pre>")
-        template = escape(template)
-        # Escape all django template tags
-        template = template.replace("{", "&#x7B;").replace("}", "&#x7D;")
-        self.response.write(template)
-        self.response.write("</pre></fieldset>")
-
-
     def _add_js_css_data(self, internal_page_name):
         """
         insert the additional JavaScript and StyleSheet data into the global
@@ -193,15 +177,34 @@ class PyLucidBasePlugin(object):
         html = self.__render(template, context, debug)
         self.response.write(html)
 
-    def __render(self, content, context, debug=False):
+    def __render(self, template, context, debug=False):
         """
-        render the content string with the given context and returned it.
+        render the template string with the given context and returned it.
         -debug the context, if debug is on.
         """
-        if debug:
-            self._debug_context(context, content)
+        html = render_string_template(template, context)
 
-        html = render_string_template(content, context)
+        if debug:
+            self.response.write("<fieldset><legend>template debug:</legend>")
+
+            self.response.write("<legend>context:</legend>")
+            self.response.write("<pre>")
+            self.response.write(escape(pprint.pformat(context)))
+            self.response.write("</pre>")
+
+            self.response.write("<legend>template:</legend>")
+            self.response.write("<pre>")
+            self.response.write(escape(template))
+            self.response.write("</pre>")
+
+            if debug>1:
+                self.response.write("<legend>result html code:</legend>")
+                self.response.write("<pre>")
+                self.response.write(escape(html))
+                self.response.write("</pre>")
+
+            self.response.write("</fieldset>")
+
         return html
 
 
