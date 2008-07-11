@@ -84,12 +84,10 @@ class PyLucidBasePlugin(object):
         plugin_config = get_plugin_config(
             package_name = plugin.package_name,
             plugin_name = self.plugin_name,
-            debug = False
         )
         plugin_version = get_plugin_version(
             package_name = plugin.package_name,
             plugin_name = self.plugin_name,
-            debug = False
         )
 #        debug_plugin_config(self.page_msg, plugin_config)
 
