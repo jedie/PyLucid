@@ -531,23 +531,41 @@ class filemanager(PyLucidBasePlugin):
             self.page_msg.green("'%s' creaded successfull." % dirname)
 
 
-    def action_fileupload(self, filename, content):
+    def action_fileupload(self, ufile):
         """
-        save a uploaded file
-        FIXME: How to handle content encoding?
+        save a uploaded file.
         """
-        filename = force_unicode(filename)
+        filename = ufile.name
         abs_fs_path = os.path.join(self.path["abs_path"], filename)
         try:
-            f = file(abs_fs_path,'wb') #if it exists, overwrite
-            f.write(content)
+            f = file(abs_fs_path,'wb') # if it exists, overwrite
+
+            for chunk in ufile.chunks():
+                f.write(chunk)
+
             f.close()
         except Exception, e:
             self.page_msg.red("Can't write file: '%s'" % e)
-        else:
+            return
+
+        statinfo = os.stat(abs_fs_path)
+        real_filesize = statinfo.st_size
+
+        if real_filesize == ufile.file_size:
             self.page_msg.green(
-                "File '%s' written successfull." % filename
+                "File '%s' written successfull. (%s Bytes)" % (
+                    filename, real_filesize
+                )
             )
+        else: # Should never appear
+            self.page_msg.red(
+                "Error writing file '%s'."
+                " Filesize is different:"
+                " Should be %s Bytes, but is %s Bytes" % (
+                    ufile.file_size, real_filesize
+                )
+            )
+
 
     def action_rmdir(self, dirname):
         """ delete a directory """
@@ -673,9 +691,7 @@ class filemanager(PyLucidBasePlugin):
                 )
                 if ufile_form.is_valid():
                     ufile = ufile_form.cleaned_data["ufile"]
-                    filename = ufile.filename
-                    content = ufile.content
-                    self.action_fileupload(filename, content)
+                    self.action_fileupload(ufile)
 
             #------------------------------------------------------------------
             # action for one file/directory:
