@@ -1,4 +1,9 @@
 <fieldset><legend>{{ plugin_name }}</legend>
+{% if doc %}
+<fieldset id="doc"><legend>{% trans 'help' %}</legend><pre>
+{{ doc }}
+</pre></fieldset>
+{% endif %}
 <form method="post" action=".">
 <ul id="input_fields">
     {% for field in form %}

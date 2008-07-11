@@ -78,8 +78,14 @@ class preference_editor(PyLucidBasePlugin):
             data_dict = pref.get_data()
             form = unbound_form(data_dict)
 
+        raw_doc = unbound_form.__doc__
+        if raw_doc:
+            doc = raw_doc.strip().splitlines()
+            doc = "\n".join([line.strip() for line in doc if line])
+
         context = {
             "plugin_name": unicode(plugin),
+            "doc": doc,
             "form": form,
             "url_abort": self.URLs.methodLink("select"),
         }

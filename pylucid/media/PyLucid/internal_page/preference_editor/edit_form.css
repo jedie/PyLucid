@@ -9,6 +9,23 @@ legend {
     background-color: #FFF;
 }
 /* -------------------------------------------------------------------------- */
+#doc {
+    padding: 0px;
+    margin: 0px;
+    background-color: #FFF;
+}
+#doc legend{
+    padding: 3px;
+    margin: 3px;
+    font-size: 0.75em;
+
+}
+#doc pre {
+    padding: 5px;
+    margin: 0px;
+    border: 0px solid #000;
+}
+/* -------------------------------------------------------------------------- */
 #input_fields {
     list-style-type:none;
     padding: 0px;
