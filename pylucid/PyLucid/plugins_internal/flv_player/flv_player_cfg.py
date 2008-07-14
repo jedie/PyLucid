@@ -78,4 +78,12 @@ plugin_manager_data = {
         "menu_section"      : "admin",
         "menu_description"  : "List all existing flash videos",
     },
+    "preview" : {
+        "must_login"    : True,
+        "must_admin"    : False,
+    },
+    "detail" : {
+        "must_login"    : True,
+        "must_admin"    : False,
+    },
 }

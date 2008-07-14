@@ -16,7 +16,7 @@
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
-import os, posixpath
+import os, posixpath, dircache
 
 if __name__ == "__main__":
     from PyLucid import settings
@@ -33,6 +33,23 @@ BASE_PATHS = [
                                                 settings.FILEMANAGER_BASEPATHS)
 ]
 BASE_PATHS_DICT = dict(BASE_PATHS)
+
+#______________________________________________________________________________
+
+def _dir_walk(path):
+    result = []
+    for name in dircache.listdir(path):
+        if name.startswith("."):
+            continue
+
+        abs_path = os.path.join(path, name)
+        if not os.path.isdir(abs_path):
+            continue
+
+        result.append(abs_path)
+        result.extend(_dir_walk(abs_path))
+
+    return result
 
 #______________________________________________________________________________
 
@@ -87,9 +104,9 @@ class MediaPath(object):
         returns a cached list of all media path directories.
         """
         if self._MEDIA_DIR_CACHE == None:
-            self._MEDIA_DIR_CACHE = [
-                root for root, _, _ in os.walk(self.media_root)
-            ]
+            self._MEDIA_DIR_CACHE = _dir_walk(self.media_root)
+            self._MEDIA_DIR_CACHE.sort()
+            self._MEDIA_DIR_CACHE = tuple(self._MEDIA_DIR_CACHE)
 
         return self._MEDIA_DIR_CACHE
 

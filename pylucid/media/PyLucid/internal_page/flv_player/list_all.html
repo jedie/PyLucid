@@ -1,16 +1,19 @@
 <ul>
-{% for item in items %}
-    <li><a href="#TODO" title="preview"><h4 class="no_anchor">{{ item }}</h4></a>
+{% for flv_file in flv_files %}
+    <li><h4 class="no_anchor">{{ flv_file.fs_path }}</h4></a>
     <ul>
         <li><input type="text" size="55" name="link"
             title="copy&amp;paste this into your cms page"
-            value='&#x7B;% lucidTag flv_player flv="{{ item.fs_path }}" %&#x7D;'
+            value='&#x7B;% lucidTag flv_player flv="{{ flv_file.fs_path }}" %&#x7D;'
             onmouseover="this.select()"
             onclick="this.select()"
             >
         </li>
-        <li>url: {{ item.get_absolute_url }}</li>
-        <li>path: {{ item.get_absolute_fs_path }}</li>
+        <li>
+            <a href="{{ flv_file.preview_url }}" title="{{ item }} - preview">preview</a>
+            |
+            <a href="{{ flv_file.detail_url }}" title="{{ item }} - detail">detail/edit</a>
+        </li>
     </ul>
     </li>
 {% endfor %}

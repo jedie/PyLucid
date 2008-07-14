@@ -109,26 +109,26 @@ class FlashFile(models.Model):
 PLUGIN_MODELS = (FlashFile,)
 
 
-#
-#class PreferencesChoiceField(forms.ModelChoiceField):
-#    def label_from_instance(self, obj):
-#        return obj.comment
-#
-#
-#class UploadForm(forms.Form):
-#    directory = ChoiceField2(
-##        choices = MEDIA_DIRS,
-#        help_text="Directory for storing the new file. (setting.FILEMANAGER_BASEPATHS)"
-#    )
-#    preference = PreferencesChoiceField(
-#        queryset = Preference.objects.filter(plugin=Plugin.objects.get(plugin_name="flv_player")),
-#        #initial = Plugin.objects.get(plugin_name="flv_player").default_pref,
-#        help_text="Directory for storing the new file. (setting.FILEMANAGER_BASEPATHS)"
-#    )
-#    ufile = forms.FileField(
-#        label="filename",
-#        help_text="Upload a new flash video file"
-#    )
+
+class PreferencesChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.comment
+
+
+class UploadForm(forms.Form):
+    directory = ChoiceField2(
+        choices = media_path_helper.get_media_dirs(),
+        help_text="Directory for storing the new file. (setting.FILEMANAGER_BASEPATHS)"
+    )
+    preference = PreferencesChoiceField(
+        queryset = Preference.objects.filter(plugin=Plugin.objects.get(plugin_name="flv_player")),
+        #initial = Plugin.objects.get(plugin_name="flv_player").default_pref,
+        help_text="Directory for storing the new file. (setting.FILEMANAGER_BASEPATHS)"
+    )
+    ufile = forms.FileField(
+        label="filename",
+        help_text="Upload a new flash video file"
+    )
 
 
 
@@ -145,7 +145,7 @@ class flv_player(PyLucidBasePlugin):
         #self.page_msg(config)
         flash_vars = config.splitlines()
         flash_vars.insert(0, "flv=%s" % flv_file)
-        self.page_msg(flash_vars)
+        #self.page_msg(flash_vars)
 
         values = "&amp;".join(flash_vars)
         values = mark_safe(values)
@@ -180,7 +180,7 @@ class flv_player(PyLucidBasePlugin):
             "swf_player": swf_player,
             "config": config,
         }
-        self._render_template(internal_page_name, context, debug=2)
+        self._render_template(internal_page_name, context)#, debug=2)
 
     def lucidTag(self, flv="flash filename"):
         """
@@ -212,6 +212,7 @@ class flv_player(PyLucidBasePlugin):
         try:
             flash_file = FlashFile.objects.get(fs_path = rel_fs_path)
         except FlashFile.DoesNotExist, err:
+            new_entry = True
             flash_file = FlashFile(
                 fs_path = rel_fs_path,
                 preference = pref_obj,
@@ -219,7 +220,8 @@ class flv_player(PyLucidBasePlugin):
                 lastupdateby = self.request.user,
             )
         else:
-            self.page_msg("Update existing entry in FlashFile model.")
+            new_entry = False
+
 
         try:
             metadata = FLVReader(fs_path)
@@ -237,7 +239,10 @@ class flv_player(PyLucidBasePlugin):
 
         flash_file.save()
 
-        self.page_msg("Add new entry in FlashFile model.")
+        if new_entry:
+            self.page_msg("Add new entry in FlashFile model.")
+        else:
+            self.page_msg("Update existing entry in FlashFile model.")
 
 
 #        context = {
@@ -269,6 +274,8 @@ class flv_player(PyLucidBasePlugin):
                 fs_path = os.path.join(rel_path, filename)
 
                 self._add_flashfile(fs_path, default_pref)
+
+        return self.list_all()
 
 
     def _handle_upload(self, rel_path, ufile):
@@ -309,7 +316,7 @@ class flv_player(PyLucidBasePlugin):
             )
             return
 
-        return self._add_flashfile(fs_path)
+        return fs_path
 
     def upload(self):
         """
@@ -319,9 +326,18 @@ class flv_player(PyLucidBasePlugin):
             form = UploadForm(self.request.POST, self.request.FILES)
             #self.page_msg(self.request.POST, self.request.FILES)
             if form.is_valid():
+                pref_obj = form.cleaned_data["preference"]
                 directory = form.cleaned_data["directory"]
                 ufile = form.cleaned_data["ufile"]
-                return self._handle_upload(directory, ufile)
+
+                # Save file into the filesystem
+                fs_path = self._handle_upload(directory, ufile)
+
+                # Add entry into the database
+                self._add_flashfile(fs_path, pref_obj)
+
+                # Display the list
+                return self.list_all()
         else:
             form = UploadForm()
 
@@ -330,13 +346,81 @@ class flv_player(PyLucidBasePlugin):
         }
         self._render_template("upload", context)#, debug=True)
 
+    #__________________________________________________________________________
+
     def list_all(self):
         """
         List all existing flash videos entries.
         """
-        items = FlashFile.objects.all()
+        self.admin_menu()
+
+        flv_files = FlashFile.objects.values('id', 'fs_path')
+
+        for flv_file in flv_files:
+            id = flv_file["id"]
+            flv_file["preview_url"] = self.URLs.methodLink("preview", id)
+            flv_file["detail_url"] = self.URLs.methodLink("detail", id)
 
         context = {
-            "items": items,
+            "flv_files":flv_files,
         }
-        self._render_template("list_all", context)#, debug=True)
+        self._render_template("list_all", context)#, debug=2)
+
+
+    def _get_flv_item(self, url_args):
+        """
+        Shared method for preview() and detail().
+        returns the FlashFile entry.
+        """
+        msg = "Wrong URL."
+
+        try:
+            flv_file_id = int(url_args.strip("/"))
+            flv_entry = FlashFile.objects.get(id = flv_file_id)
+        except Exception, err:
+            if self.request.debug:
+                msg += " %s" % err
+            self.page_msg.red(msg)
+            return
+        else:
+            return flv_entry
+
+
+    def preview(self, url_args):
+        """
+        Display the generated player.
+        """
+        flv_entry = self._get_flv_item(url_args)
+        if flv_entry != None:
+            self.page_msg("Preview '%s'" % flv_entry)
+            self._render(flv_entry)
+        return self.list_all()
+
+
+    def detail(self, url_args):
+        """
+        Display a editable form with all details arount a flv file entry.
+        """
+        flv_entry = self._get_flv_item(url_args)
+        if flv_entry == None:
+            # wrong url
+            return self.list_all()
+
+        FlvFileForm = forms.form_for_instance(flv_entry)
+
+        if self.request.method == 'POST':
+            form = FlvFileForm(self.request.POST)
+            if form.is_valid():
+                form.save()
+                self.page_msg("Data saved.")
+                return self.list_all()
+        else:
+            form = FlvFileForm()
+
+
+        context = {
+            "flv_entry": flv_entry,
+            "form": form,
+            "url_abort": self.URLs.methodLink("list_all"),
+        }
+        self._render_template("flv_detail", context)#, debug=2)

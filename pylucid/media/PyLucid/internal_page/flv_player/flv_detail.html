@@ -1,0 +1,33 @@
+<fieldset><legend>{{ flv_entry }}</legend>
+<form method="post" action=".">
+<ul id="input_fields">
+    {% for field in form %}
+        <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+        <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+        {{ field }}
+        <span class="field_help_text">{{ field.help_text }}</span>
+        {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
+    </li>
+    {% endfor %}
+</ul>
+<input type="submit" name="save" value="{% trans 'save' %}" />
+<input onclick="self.location.href='{{ url_abort }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+</form>
+</fieldset>
+
+<fieldset id="doc"><legend>{{ flv_entry }} - {% trans 'info' %}:</legend>
+<ul>
+    <li><input type="text" size="55" name="link"
+        title="copy&amp;paste this into your cms page"
+        value='&#x7B;% lucidTag flv_player flv="{{ flv_entry.fs_path }}" %&#x7D;'
+        onmouseover="this.select()"
+        onclick="this.select()"
+        >
+    </li>
+    <li>url: <a href="{{ flv_entry.get_absolute_url }}">{{ flv_entry.get_absolute_url }}</a></li>
+    <li>filesystem path: {{ flv_entry.get_absolute_fs_path }}</li>
+    <li>used preferences:
+      <a href="{{ pref_edit_url }}{{ flv_entry.preference.id }}/">{{ flv_entry.preference.comment }}</a>
+    </li>
+</ul>
+</fieldset>
