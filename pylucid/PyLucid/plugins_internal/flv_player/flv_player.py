@@ -28,14 +28,12 @@ from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
+from PyLucid.tools.path_manager import media_path_helper
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.tools.path_manager import get_media_dirs
 from PyLucid.tools.newforms_utils import ChoiceField2
 from PyLucid.models import Page, Plugin, Preference
 
 from flv_metadata import FLVReader
-
-MEDIA_DIRS = get_media_dirs()
 
 #______________________________________________________________________________
 
@@ -82,6 +80,24 @@ class FlashFile(models.Model):
         User, related_name="flashfile_lastupdateby",
     )
 
+    def get_absolute_url(self):
+        """
+        Get the absolute url (without the domain/host part)
+        """
+        return media_path_helper.join_media_url(self.fs_path)
+
+    def get_rel_fs_path(self):
+        """
+        returns the absolute filesystem path
+        """
+        return media_path_helper.join_media_path(self.fs_path)
+
+    def get_absolute_fs_path(self):
+        """
+        returns the absolute filesystem path
+        """
+        return media_path_helper.abs_media_path(self.fs_path)
+
     def __unicode__(self):
         return self.fs_path
 
@@ -93,26 +109,26 @@ class FlashFile(models.Model):
 PLUGIN_MODELS = (FlashFile,)
 
 
-
-class PreferencesChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.comment
-
-
-class UploadForm(forms.Form):
-    directory = ChoiceField2(
-        choices = MEDIA_DIRS,
-        help_text="Directory for storing the new file. (setting.FILEMANAGER_BASEPATHS)"
-    )
-    preference = PreferencesChoiceField(
-        queryset = Preference.objects.filter(plugin=Plugin.objects.get(plugin_name="flv_player")),
-        #initial = Plugin.objects.get(plugin_name="flv_player").default_pref,
-        help_text="Directory for storing the new file. (setting.FILEMANAGER_BASEPATHS)"
-    )
-    ufile = forms.FileField(
-        label="filename",
-        help_text="Upload a new flash video file"
-    )
+#
+#class PreferencesChoiceField(forms.ModelChoiceField):
+#    def label_from_instance(self, obj):
+#        return obj.comment
+#
+#
+#class UploadForm(forms.Form):
+#    directory = ChoiceField2(
+##        choices = MEDIA_DIRS,
+#        help_text="Directory for storing the new file. (setting.FILEMANAGER_BASEPATHS)"
+#    )
+#    preference = PreferencesChoiceField(
+#        queryset = Preference.objects.filter(plugin=Plugin.objects.get(plugin_name="flv_player")),
+#        #initial = Plugin.objects.get(plugin_name="flv_player").default_pref,
+#        help_text="Directory for storing the new file. (setting.FILEMANAGER_BASEPATHS)"
+#    )
+#    ufile = forms.FileField(
+#        label="filename",
+#        help_text="Upload a new flash video file"
+#    )
 
 
 
@@ -152,7 +168,8 @@ class flv_player(PyLucidBasePlugin):
                 "Error: Can't find swf player file '%s.swf'." % swf_file
             )
 
-        flv_file = flash_file.fs_path
+        flv_file = flash_file.get_absolute_url()
+
         config = pref_dict["config"]
         flash_vars = self._build_flash_vars(flv_file, config)
 
@@ -174,7 +191,12 @@ class flv_player(PyLucidBasePlugin):
             self.page_msg.red("No flash file given")
             return
 
-        flash_file = FlashFile.objects.get(fs_path = flv)
+        try:
+            flash_file = FlashFile.objects.get(fs_path = flv)
+        except FlashFile.DoesNotExist, err:
+            #self.page_msg.red()
+            return "[Error: %s]" % err
+
         return self._render(flash_file)
 
     def admin_menu(self):
@@ -184,31 +206,39 @@ class flv_player(PyLucidBasePlugin):
         self.build_menu()
 
     def _add_flashfile(self, fs_path, pref_obj):
+
+        rel_fs_path = media_path_helper.clean_media_path(fs_path)
+
+        try:
+            flash_file = FlashFile.objects.get(fs_path = rel_fs_path)
+        except FlashFile.DoesNotExist, err:
+            flash_file = FlashFile(
+                fs_path = rel_fs_path,
+                preference = pref_obj,
+                createby = self.request.user,
+                lastupdateby = self.request.user,
+            )
+        else:
+            self.page_msg("Update existing entry in FlashFile model.")
+
         try:
             metadata = FLVReader(fs_path)
         except Exception, err:
             self.page_msg.red("Can't get meta data: %s" % err)
             return
 
-        self.page_msg("FLV metadata 1:", metadata)
+        #self.page_msg("FLV metadata 1:", metadata)
         metadata = cleanup_flv_metadata(metadata)
-        self.page_msg("FLV metadata 2:", metadata)
+        #self.page_msg("FLV metadata 2:", metadata)
 
-        f = FlashFile(
-            fs_path = fs_path,
+        flash_file.width = metadata["width"]
+        flash_file.height = metadata["height"]
+        flash_file.raw_metadata = pprint.pformat(metadata)
 
-            width = metadata["width"],
-            height = metadata["height"],
-            raw_metadata = pprint.pformat(metadata),
-
-            preference = pref_obj,
-
-            createby = self.request.user,
-            lastupdateby = self.request.user,
-        )
-        f.save()
+        flash_file.save()
 
         self.page_msg("Add new entry in FlashFile model.")
+
 
 #        context = {
 #            'width': ,
@@ -237,6 +267,7 @@ class flv_player(PyLucidBasePlugin):
                 self.page_msg(rel_path, filename)
 
                 fs_path = os.path.join(rel_path, filename)
+
                 self._add_flashfile(fs_path, default_pref)
 
 
