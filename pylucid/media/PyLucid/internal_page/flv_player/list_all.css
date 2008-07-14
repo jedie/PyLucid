@@ -1,12 +1,6 @@
-<ul>
-{% for item in items %}
-    <li>
-    {{ item }}
-    <ul>
-        <li>tag: <strong>&#x7B;% lucidTag flv_player flv="{{ item.fs_path }}" %&#x7D;</strong></li>
-        <li>url: {{ item.get_absolute_url }}</li>
-        <li>path: {{ item.get_absolute_fs_path }}</li>
-    </ul>
-    </li>
-{% endfor %}
-</ul>
+.flv_player input {
+    /* remove border from all input fields */
+    border:0px none;
+    margin:0px;
+    padding:0px;
+}
