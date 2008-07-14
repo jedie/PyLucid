@@ -125,7 +125,7 @@ class PyLucidBasePlugin(object):
         self._render_template("plugin_menu", context)#, debug=False)
 
         # change back to the original internal pages from the current plugin.
-        self.internal_page = self.internal_page
+        self.internal_page = plugin_internal_page
 
 
     def _add_js_css_data(self, internal_page_name):
