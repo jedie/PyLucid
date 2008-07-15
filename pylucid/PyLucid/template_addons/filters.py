@@ -12,7 +12,7 @@
     $Rev: $
     $Author: $
 
-    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -59,7 +59,7 @@ def human_duration(t):
     Note: Used in the PyLucid cache middleware, too.
     """
     if t<1:
-        return _("%.1f ms") % (t * 100)
+        return _("%.1f ms") % (t * 1000)
     elif t>60:
         return _("%.1f min") % (t/60.0)
     else:
