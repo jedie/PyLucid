@@ -1,0 +1,50 @@
+{% if back_url %}<p><a href="{{ back_url }}" class="action_link">back</a></p>{% endif %}
+{% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}
+
+{% for entry in entries %}
+    <fieldset class="entry"><legend class="headline">{{ entry.headline }}</legend>
+        <div class="admin_links">
+        {% if entry.edit_url %}
+            <a href="{{ entry.edit_url }}" title="edit this blog entry">edit</a>
+        {% endif %}
+        {% if entry.delete_url %}
+            <a href="{{ entry.delete_url }}" title="delete this blog entry">delete</a>
+        {% endif %}
+        <a href="{{ entry.add_comment_url }}">add comment</a>
+        </div>
+
+        <div class="content">{{ entry.html }}</div>
+
+        <small><p class="dateinfo">
+            created {{ entry.createtime }} by {{ entry.createby }}
+            {% if entry.lastupdateby %}(Last update {{ entry.lastupdatetime }} by {{ entry.lastupdateby }}){% endif %}
+        </p></small>
+
+        <fieldset class="taglist"><legend>tags</legend>
+        {% for tag in entry.tag_info %}
+            {% if not forloop.first %}|{% endif %}
+            <a href="{{ tag.url }}">{{ tag.name }}</a>
+        {% endfor %}
+        </fieldset>
+
+        {% if entry.all_comments %}
+            <fieldset class="comments"><legend>comments</legend>
+            <ul>
+            {% for comment in entry.all_comments %}
+                <li>{{ comment.person_name}}: {{ comment.content }}"</li>
+            {% endfor %}
+            </ul>
+            </fieldset>
+        {% else %}
+            {% if entry.comment_url %}
+                <a href="{{ entry.comment_url }}">{{ entry.comment_count }} comment(s)...</a>
+            {% else %}
+                no comment
+            {% endif %}
+        {% endif %}
+
+    </fieldset>
+{% endfor %}
+
+{% if back_url %}<p><a href="{{ back_url }}" class="action_link">back</a></p>{% endif %}
+{% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}
