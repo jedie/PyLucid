@@ -65,8 +65,13 @@ def raise_non_table_error(e):
     """
     Raise the original error, if it is not the table access problem.
     """
-    if not "no such table" in str(e):
+    err_msg = str(e)
+    if not "no such table" in err_msg:
         # raise the previouse error
+        raise
+
+    if "PyLucidPlugins_" in err_msg:
+        # raise the previouse error for missing plugin models tables
         raise
 
 
