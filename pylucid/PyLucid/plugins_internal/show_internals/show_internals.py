@@ -184,10 +184,16 @@ class show_internals(PyLucidBasePlugin):
         s.display_all()
 
     def pylucid_info(self):
-        """ python information """
-        from PyLucid.plugins_internal.show_internals.system_info \
+        """ PyLucid information """
+        from PyLucid.plugins_internal.show_internals.app_info \
                                                             import PyLucidInfo
         return self._info(PyLucidInfo)
+
+    def django_info(self):
+        """ django information """
+        from PyLucid.plugins_internal.show_internals.app_info \
+                                                            import DjangoInfo
+        return self._info(DjangoInfo)
 
 
     def python_info(self):

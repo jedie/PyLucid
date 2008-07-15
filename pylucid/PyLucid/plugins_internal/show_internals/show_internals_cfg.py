@@ -38,8 +38,14 @@ plugin_manager_data = {
     "pylucid_info": {
         "must_login"        : True,
         "must_admin"        : True,
-        "menu_section"      : "environ info",
+        "menu_section"      : "app info",
         "menu_description"  : "PyLucid info",
+    },
+    "django_info": {
+        "must_login"        : True,
+        "must_admin"        : True,
+        "menu_section"      : "app info",
+        "menu_description"  : "django info",
     },
     "python_info": {
         "must_login"        : True,

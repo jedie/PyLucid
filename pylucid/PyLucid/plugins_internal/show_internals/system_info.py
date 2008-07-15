@@ -24,54 +24,6 @@ from PyLucid.tools.subprocess2 import Subprocess2
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
 #______________________________________________________________________________
-class PyLucidInfo(PyLucidBasePlugin):
-    """
-    information around PyLucid
-    """
-    def display_all(self):
-        self.response.write("<hr>")
-        self.PyLucid_info()
-        self.envion_info()
-
-
-    def PyLucid_info(self):
-        self.response.write("<h3>PyLucid environ information</h3>")
-
-        self.response.write('<fieldset id="system_info">')
-        self.response.write(
-            '<legend>'
-            '<a href="http://www.pylucid.org/_goto/62/self-URLs/">'
-            'PyLucid["URLs"]</a>:'
-            '</legend>'
-        )
-        self.response.write("<pre>")
-
-        data = [(len(v), k, v) for k,v in self.URLs.items()]
-
-        max_len = max([len(k) for k in self.URLs])
-        line = "%%%ss: '%%s'\n" % max_len
-
-        for _,k,v in sorted(data):
-            self.response.write(line % (k,v))
-
-        self.response.write("</pre>")
-        self.response.write("</fieldset>")
-
-
-    def envion_info(self):
-        self.response.write("<h3>OS-Enviroment:</h3>")
-        self.response.write('<dl id="environment">')
-        keys = os.environ.keys()
-        keys.sort()
-        for key in keys:
-            value = os.environ[key]
-            self.response.write("<dt>%s</dt>" % key)
-            self.response.write("<dd>%s</dd>" % value)
-        self.response.write("</dl>")
-
-
-
-#______________________________________________________________________________
 class PythonInfo(PyLucidBasePlugin):
     """
     information around the Python installation
