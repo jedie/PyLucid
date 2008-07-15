@@ -27,11 +27,10 @@ debug = True
 from django.conf import settings
 
 from django.db.models import Model
+from django.core.management import sql
 from django.db import connection, transaction
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
-from django.core.management.sql import sql_model_create, \
-                                    sql_indexes_for_model, custom_sql_for_model
 from django.http import HttpResponse, Http404
 
 from PyLucid.models import Plugin
@@ -198,9 +197,10 @@ def get_create_table(plugin_models):
 
     statements = []
     for model in plugin_models:
-        statements += sql_model_create(model, style)[0]
-        statements += sql_indexes_for_model(model, style)
-        statements += custom_sql_for_model(model)
+        statements += sql.sql_model_create(model, style)[0]
+        statements += sql.sql_indexes_for_model(model, style)
+        statements += sql.custom_sql_for_model(model)
+        statements += sql.many_to_many_sql_for_model(model, style)
     return statements
 
 
