@@ -60,8 +60,8 @@ def get_plugin_models(package_name, plugin_name, page_msg, verbosity):
     for model in plugin_models:
         app_label = model._meta.app_label
         assert app_label == PLUGIN_MODEL_LABEL, (
-            "Plugin models must defined in class Meta: app_label = '%s'"
-        ) % PLUGIN_MODEL_LABEL
+            "Plugin model '%r' must defined in class Meta: app_label = '%s'"
+        ) % (model, PLUGIN_MODEL_LABEL)
 
     return plugin_models
 
