@@ -1,0 +1,34 @@
+
+A new comment was submitted for blog entry: '{{ blog_entry.headline }}'
+
+comment info:
+  is public....: {{ comment_entry.is_public|yesno:"yes,no,-" }}
+  person name..: {{ comment_entry.person_name }}
+  email........: {{ comment_entry.email }}
+  homepage.....: {% if comment_entry.homepage %}{{ comment_entry.homepage }}{% else %}-{% endif %}
+  IP Address...: {{ comment_entry.ip_address }}
+  submit time..: {{ comment_entry.createtime }}
+{% if is_spam %}
+This comment is detected as SPAM. It is not saved into the database!
+{% else %}
+Edit this new comment: {{ edit_url }}
+{% endif %}
+--[comment content]------------------------------------------------------------
+{{ comment_entry.content }}
+--[comment content end]--------------------------------------------------------
+
+_______________________________________________________________________________
+  blog entry information
+
+edit this blog entry: {{ blog_edit_url }}
+
+blog entry info:
+  is public.......: {{ blog_entry.is_public|yesno:"yes,no,-" }}
+  create by.......: {{ blog_entry.createby }}
+  created.........: {{ blog_entry.createtime }}
+  last update by..: {% if blog_entry.lastupdateby %}{{ blog_entry.lastupdateby }}{% else %}-{% endif %}
+  last update time: {% if blog_entry.lastupdatetime %}{{ blog_entry.lastupdatetime }}{% else %}-{% endif %}
+
+--[blog entry text]------------------------------------------------------------
+{{ blog_entry.content }}
+--[blog entry text end]--------------------------------------------------------

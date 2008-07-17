@@ -18,9 +18,12 @@
 
 __version__= "$Rev:$ Alpha"
 
+import datetime
+
 from django.db import models
 from django.conf import settings
 from django import newforms as forms
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
@@ -28,8 +31,12 @@ from django.utils.translation import ugettext as _
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.content_processors import apply_markup
+from PyLucid.tools.utils import escape_django_tags
 from PyLucid.models.Page import MARKUPS
 
+# Don't send mails, display them only.
+#MAIL_DEBUG = True
+MAIL_DEBUG = False
 
 #______________________________________________________________________________
 
@@ -46,7 +53,12 @@ class BlogComment(models.Model):
     )
     email = models.EmailField(
         _('e-mail address'),
-        help_text="Only for internal use.",
+        help_text=_("Only for internal use."),
+    )
+    homepage = models.URLField(
+        _("homepage"), help_text = _("Your homepage (optional)"),
+        verify_exists = False, max_length = 200,
+        null=True, blank=True
     )
 
     content = models.TextField(_('content'), max_length=3000)
@@ -60,12 +72,12 @@ class BlogComment(models.Model):
         auto_now=True, help_text="Time of the last change.",
     )
     createby = models.ForeignKey(
-        User, editable=False, #related_name="pref_createby",
+        User, editable=False,
         help_text="User how create the current comment.",
         null=True, blank=True
     )
     lastupdateby = models.ForeignKey(
-        User, editable=False, #related_name="pref_lastupdateby",
+        User, editable=False,
         help_text="User as last edit the current comment.",
         null=True, blank=True
     )
@@ -94,7 +106,7 @@ class BlogCommentForm(forms.ModelForm):
     class Meta:
         model = BlogComment
         # Using a subset of fields on the form
-        fields = ('person_name', 'email', "comment")
+        fields = ('person_name', 'email', "homepage", "comment")
 
 
 #______________________________________________________________________________
@@ -134,7 +146,7 @@ class BlogTag(models.Model):
     )
 
     def __unicode__(self):
-        return self.tag
+        return self.name
 
     class Admin:
         pass
@@ -233,14 +245,29 @@ PLUGIN_MODELS = (BlogComment, BlogTag, BlogEntry,)
 
 class blog(PyLucidBasePlugin):
 
+    keyword_cache = {}
+
+    def __init__(self, *args, **kwargs):
+        super(blog, self).__init__(*args, **kwargs)
+
+        # Get the default preference entry.
+        self.preferences = self.get_preferences()
+
+        # Change the page title.
+        self.current_page.title = self.preferences["blog_title"]
+
+
+    def _add_comment_edit_url(self, comments):
+        for comment in comments:
+            comment.edit_url = self.URLs.methodLink(
+                "edit_comment", comment.id
+            )
+
     def _list_entries(self, entries, context={}, full_comments=False):
         """
-        Build the list of all blog entries.
+        Display the blog.
+        As a list of entries and as a detail view (see internal page).
         """
-        # Change the page title.
-        preferences = self.get_preferences()
-        self.current_page.title = preferences["blog_title"]
-
         for entry in entries:
             # add tag_info
             tags = []
@@ -256,17 +283,18 @@ class blog(PyLucidBasePlugin):
 
             if full_comments:
                 # Display all comments
-                entry.all_comments = entry.blogcomment_set.all()
+                comments = entry.blogcomment_set
+                if self.request.user.is_staff:
+                    comments = comments.all()
+                    self._add_comment_edit_url(comments)
+                else:
+                    comments = comments.filter(is_public = True).all()
+                entry.all_comments = comments
             else:
-                entry.add_comment_url = self.URLs.methodLink(
-                    "add_comment", entry.id
+                entry.detail_url = self.URLs.methodLink(
+                    "detail", entry.id
                 )
-
                 entry.comment_count = entry.blogcomment_set.count()
-                if entry.comment_count > 0:
-                    entry.comment_url = self.URLs.methodLink(
-                        "detail", entry.id
-                    )
 
             if self.request.user.is_staff: # Add admin urls
                 entry.edit_url = self.URLs.methodLink("edit", entry.id)
@@ -279,23 +307,80 @@ class blog(PyLucidBasePlugin):
 
         self._render_template("display_blog", context)#, debug=2)
 
+    def _get_max_count(self):
+        """
+        The maximal numbers of blog entries, displayed together.
+        FIXME: Use django pagination:
+        http://www.djangoproject.com/documentation/pagination/
+        """
+        if self.request.user.is_anonymous():
+            return self.preferences["max_anonym_count"]
+        else:
+            return self.preferences["max_user_count"]
+
     def lucidTag(self):
         """
         display the blog.
         """
-        max = self.get_preferences()["max_count"]
+        # FIXME: Never cache this page.
+        self.request._use_cache = False
 
-        entries = BlogEntry.objects.filter(is_public = True).all()[:max]
+        self.current_page.title += " - " + _("all entries")
+
+        entries = BlogEntry.objects
+        if self.request.user.is_anonymous():
+            entries = entries.filter(is_public = True)
+
+        max = self._get_max_count()
+        entries = entries.all()[:max]
+
         self._list_entries(entries)
 
     def detail(self, urlargs):
-        blog_entry = self._get_blog_from_url(urlargs)
+        """
+        Display one blog entry with all comments.
+        """
+        blog_entry = self._get_entry_from_url(urlargs, model=BlogEntry)
         if not blog_entry:
             # Wrong url, page_msg was send to the user
             return
 
+        self.current_page.title += " - " + blog_entry.headline
+
+
+        if blog_entry.is_public != True:
+            # This blog entry is not public. Comments only allowed from logged
+            # in users.
+            if self.request.user.is_anonymous():
+                msg = "Wrong url."
+                if self.request.debug:
+                    msg += " Blog entry is not public"
+                self.page_msg.red(msg)
+                return
+
+        if self.request.method == 'POST':
+            form = BlogCommentForm(self.request.POST)
+            #self.page_msg(self.request.POST)
+            if form.is_valid():
+                ok = self._save_new_comment(blog_entry, form)
+                if ok:
+                    return self._list_entries([blog_entry], full_comments=True)
+        else:
+            if self.request.user.is_anonymous():
+                initial = {}
+            else:
+                initial = {
+                    "person_name": self.request.user.username,
+                    "email": self.request.user.email,
+                    "homepage": self.URLs["hostname"],
+                }
+
+            form = BlogCommentForm(initial=initial)
+
         context = {
-            "back_url": self.URLs.methodLink("lucidTag")
+            #"blog_entry": blog_entry,
+            "add_comment_form": form,
+            "back_url": self.URLs.methodLink("lucidTag"),
         }
 
         self._list_entries([blog_entry], context, full_comments=True)
@@ -305,18 +390,25 @@ class blog(PyLucidBasePlugin):
         """
         Display all blog entries with the given tag.
         """
-        max = self.get_preferences()["max_count"]
-
         slug = urlargs.strip("/")
         # TODO: Verify tag
         tag_obj = BlogTag.objects.get(slug = slug)
-        self.page_msg.green(
-            "Display only blog entries taged with '%s'" % tag_obj.name
-        )
-        entries = tag_obj.blogentry_set.filter(is_public = True).all()[:max]
+
+        self.current_page.title += (
+            " - " + _("all blog entries tagged with '%s'")
+        ) % tag_obj.name
+
+        entries = tag_obj.blogentry_set
+
+        if self.request.user.is_anonymous():
+            entries = entries.filter(is_public = True)
+
+        max = self._get_max_count()
+        entries = entries.all()[:max]
 
         context = {
-            "back_url": self.URLs.methodLink("lucidTag")
+            "back_url": self.URLs.methodLink("lucidTag"),
+            "current_tag": tag_obj,
         }
 
         self._list_entries(entries, context)
@@ -368,11 +460,10 @@ class blog(PyLucidBasePlugin):
         else:
             if blog_obj == None:
                 context["legend"] = _("Create a new blog entry")
-                preferences = self.get_preferences()
 
                 form = BlogEntryForm(
                     initial={
-                        "markup": preferences["default_markup"],
+                        "markup": self.preferences["default_markup"],
                     }
                 )
             else:
@@ -386,13 +477,13 @@ class blog(PyLucidBasePlugin):
 
         self._render_template("edit_blog_entry", context)#, debug=True)
 
-    def _get_blog_from_url(self, urlargs):
+    def _get_entry_from_url(self, urlargs, model):
         """
         returns the blog model object based on a ID in the url.
         """
         try:
             entry_id = int(urlargs.strip("/"))
-            return BlogEntry.objects.get(id = entry_id)
+            return model.objects.get(id = entry_id)
         except Exception, err:
             msg = "Wrong url"
             if self.request.debug:
@@ -404,7 +495,7 @@ class blog(PyLucidBasePlugin):
         """
         Edit a existing blog entry.
         """
-        entry = self._get_blog_from_url(urlargs)
+        entry = self._get_entry_from_url(urlargs, model=BlogEntry)
         if not entry:
             # Wrong url, page_msg was send to the user
             return
@@ -417,7 +508,7 @@ class blog(PyLucidBasePlugin):
         """
         Edit a existing blog entry.
         """
-        entry = self._get_blog_from_url(urlargs)
+        entry = self._get_entry_from_url(urlargs, model=BlogEntry)
         if not entry:
             # Wrong url, page_msg was send to the user
             return
@@ -433,44 +524,211 @@ class blog(PyLucidBasePlugin):
     #__________________________________________________________________________
     # COMMENTS
 
-    def add_comment(self, urlargs):
-        blog_entry = self._get_blog_from_url(urlargs)
-        if not blog_entry:
+    def _send_notify(self, mail_title, blog_entry, is_spam, comment_entry):
+        """
+        Send a email noitify for a submited blog comment.
+        """
+        email_context = {
+            "blog_entry": blog_entry,
+            "blog_edit_url": self.URLs.make_absolute_url(
+                self.URLs.methodLink("edit", blog_entry.id)
+            ),
+            "is_spam": is_spam,
+            "comment_entry": comment_entry,
+        }
+
+        if not is_spam:
+            # Add edit link into the mail
+            email_context["edit_url"] = self.URLs.make_absolute_url(
+                self.URLs.methodLink("edit_comment", comment_entry.id)
+            )
+
+        raw_recipient_list = self.preferences["notify"]
+        recipient_list = raw_recipient_list.splitlines()
+        recipient_list = [i.strip() for i in recipient_list if i]
+
+        # Render the internal page
+        emailtext = self._get_rendered_template(
+            "notify_mailtext", email_context#, debug=2
+        )
+
+        send_mail_kwargs = {
+            "subject": "%s %s" % (settings.EMAIL_SUBJECT_PREFIX, mail_title),
+#                from_email = sender,
+            "recipient_list": recipient_list,
+            "fail_silently": False,
+        }
+
+        if MAIL_DEBUG == True:
+            self.page_msg("blog.MAIL_DEBUG is on: No Email was sended!")
+            self.page_msg(send_mail_kwargs)
+            self.response.write("<fieldset><legend>The email text:</legend>")
+            self.response.write("<pre>")
+            self.response.write(emailtext)
+            self.response.write("</pre></fieldset>")
+            return
+        else:
+            send_mail(message = emailtext,**send_mail_kwargs)
+
+    def _check_spam(self, blog_entry, form_cleaned_data, content_lower):
+        """
+        Check if the submitted comment is spam.
+        Display error messages and handle email notify.
+        """
+        contains_spam = self._check_wordlist(
+            content_lower, pref_key = "spam_keywords"
+        )
+        if not contains_spam:
+            # The submitted content contains no spam keyword
+            return False
+
+        self.page_msg.red("Sorry, your comment identify as spam.")
+
+        if not self.preferences["spam_notify"]:
+            # Don't send spam notify email
+            return True
+
+        # Add ID Adress for notify mail text
+        form_cleaned_data["ip_address"] = self.request.META.get('REMOTE_ADDR')
+        form_cleaned_data["createtime"] = datetime.datetime.now()
+
+        self._send_notify(
+            mail_title = _("blog comment as spam detected."),
+            blog_entry = blog_entry, is_spam = True,
+            comment_entry = form_cleaned_data
+        )
+        return True
+
+    def _save_new_comment(self, blog_entry, form):
+        """
+        Save a valid submited comment form into the database.
+
+        Check if content is spam or if the comment should be moderated.
+        returns True if the comment accepted (is not spam).
+
+        Send notify emails.
+        """
+        content = form.cleaned_data["content"]
+        content = content.strip()
+        content_lower = content.lower()
+
+        if self.request.user.is_staff:
+            # Don't check comments from staff users
+            is_public = True
+            mail_title = _("new blog comment from page member published.")
+        else:
+            is_spam = self._check_spam(
+                blog_entry, form.cleaned_data, content_lower
+            )
+            if is_spam != False:
+                # Is spam: page_msg and notify was handled by _ckeck_spam()
+                return False
+
+            should_moderated = self._check_wordlist(
+                content_lower, pref_key = "mod_keywords"
+            )
+            if should_moderated:
+                self.page_msg(_("Your comment must wait for authorization."))
+                mail_title = _("new blog comment waits for moderation.")
+                is_public = False
+            else:
+                mail_title = _("blog comment published.")
+                is_public = True
+
+        content = escape_django_tags(content)
+
+        new_comment = BlogComment(
+            blog_entry = blog_entry,
+            ip_address = self.request.META.get('REMOTE_ADDR'),
+            person_name = form.cleaned_data["person_name"],
+            email = form.cleaned_data["email"],
+            homepage = form.cleaned_data["homepage"],
+            content = content,
+            is_public = is_public,
+            createby = self.request.user,
+        )
+        # We must save the entry got get the id of it for the notify mail
+        new_comment.save()
+
+        # Send a notify email
+        self._send_notify(
+            mail_title, blog_entry, is_spam=False, comment_entry=new_comment
+        )
+
+        self.page_msg.green("comment saved.")
+        return True
+
+    def _get_wordlist(self, pref_key):
+        """
+        Chached access to the keywords from the preferences.
+        (mod_keywords, spam_keywords)
+        """
+        if pref_key not in self.keyword_cache:
+            raw_keywords = self.preferences[pref_key]
+            keywords = raw_keywords.splitlines()
+            keywords = [word.strip().lower() for word in keywords if word]
+            self.keyword_cache[pref_key] = tuple(keywords)
+
+        return self.keyword_cache[pref_key]
+
+    def _check_wordlist(self, content, pref_key):
+        """
+        Simple check, if the content contains one keyword.
+        """
+        keywords = self._get_wordlist(pref_key)
+        for keyword in keywords:
+            if keyword in content:
+                return True
+        return False
+
+    def edit_comment(self, urlargs):
+        """
+        Edit a comment (only for admins)
+        """
+        comment_entry = self._get_entry_from_url(urlargs, model=BlogComment)
+        if not comment_entry:
             # Wrong url, page_msg was send to the user
             return
 
+        CommentForm = forms.form_for_instance(comment_entry)
+
+        blog_entry = comment_entry.blog_entry # ForeignKey("BlogEntry")
+
         if self.request.method == 'POST':
-            form = BlogCommentForm(self.request.POST)
-            self.page_msg(self.request.POST)
+            form = CommentForm(self.request.POST)
+            #self.page_msg(self.request.POST)
             if form.is_valid():
-                self.page_msg(form.cleaned_data)
-
-                is_public = False # TODO
-
-                new_comment = BlogComment(
-                    blog_entry = blog_entry,
-                    ip_address = self.request.META.get('REMOTE_ADDR'),
-                    person_name = form.cleaned_data["person_name"],
-                    email = form.cleaned_data["email"],
-                    content = form.cleaned_data["content"],
-                    is_public = is_public,
-                    createby = self.request.user,
-                )
-                new_comment.save()
-                self.page_msg.green("comment saved.")
-                return self.lucidTag()
+                if "delete" in self.request.POST:
+                    comment_entry.delete()
+                    self.page_msg.green("Comment deleted.")
+                else:
+                    form.save()
+                    self.page_msg.green("Saved.")
+                return self._list_entries([blog_entry], context={}, full_comments=True)
         else:
-            form = BlogCommentForm()
+            form = CommentForm()
 
         context = {
             "blog_entry": blog_entry,
+            "url_abort": self.URLs.methodLink("detail", blog_entry.id),
             "form": form,
         }
 
-        self._render_template("add_comment", context)#, debug=2)
+        self._render_template("edit_comment", context)#, debug=2)
 
     def mod_comments(self):
         """
-        moderate new comments.
+        Build a list of all non public comments
+        TODO: make this complete...
         """
-        pass
+        self.page_msg.red("TODO")
+
+        comments = BlogComment.objects.filter(is_public=False)
+        self._add_comment_edit_url(comments)
+        self.page_msg(comments)
+
+        context = {
+            "comments": comments,
+        }
+
+        self._render_template("mod_comments", context)#, debug=2)

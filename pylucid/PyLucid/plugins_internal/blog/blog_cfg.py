@@ -20,7 +20,10 @@ from PyLucid.models.Page import MARKUPS
 
 class PreferencesForm(forms.Form):
     """
-    Blog preferences
+    Blog preferences.
+
+    'mod_keywords' and 'spam_keywords' are case-insensitive and matches on every
+    partial word. Be carefull with 'spam_keywords'.
     """
     blog_title = forms.CharField(
         initial = "blog",
@@ -33,10 +36,21 @@ class PreferencesForm(forms.Form):
         initial = 6,
         help_text=_("the used markup language for this entry"),
     )
-    max_count = forms.IntegerField(
+    max_anonym_count = forms.IntegerField(
         initial = 10,
         min_value = 3,
-        help_text=_("The maximal numbers of blog entries, displayed together."),
+        help_text=_(
+            "The maximal numbers of blog entries, displayed together"
+            " for anonymous users"
+        ),
+    )
+    max_user_count = forms.IntegerField(
+        initial = 30,
+        min_value = 3,
+        help_text=_(
+            "The maximal numbers of blog entries, displayed together"
+            " for logged in PyLucid users."
+        ),
     )
 
     notify = forms.CharField(
@@ -49,12 +63,18 @@ class PreferencesForm(forms.Form):
         ),
         widget=forms.Textarea(attrs={'rows': '5'}),
     )
+    spam_notify = forms.BooleanField(
+        initial = True,
+        required=False,
+        help_text = _("Send a notify email on every spam reject."),
+    )
 
     mod_keywords = forms.CharField(
-        initial = (
-            "http://\n"
-            "www.\n"
-        ),
+        initial = "\n".join((
+            "www.", "://", "<", ">",
+            "fuck", "blow", "pharmacy", "pills", "enlarge", "buy",
+            "casino",
+        )),
         help_text = _(
             "Keywords for auto hide a new comment, for later moderation."
             " (seperated by newline!)"
@@ -62,17 +82,19 @@ class PreferencesForm(forms.Form):
         widget=forms.Textarea(attrs={'rows': '15'}),
     )
     spam_keywords = forms.CharField(
-        initial = (
-            "sex\n"
-            "viagra\n"
-            "porn\n"
-        ),
+        initial = "\n".join((
+            "viagra", "penis enlarge",
+        )),
         help_text = _(
-            "Keywords for indentify a submited new comment as spam."
+            "Keywords for reject a comment submission as spam."
             " (seperated by newline!)"
         ),
         widget=forms.Textarea(attrs={'rows': '15'}),
     )
+
+
+# Optional, this Plugin can't have multiple preferences
+multiple_pref = False
 
 #_____________________________________________________________________________
 # plugin administration data
@@ -112,14 +134,17 @@ plugin_manager_data = {
             "weight" : -5, # sorting weight for every section entry
         },
     },
-
+    "edit_comment": {
+        "must_login": True,
+        "must_admin": True,
+    },
     "mod_comments": {
         "must_login": True,
         "must_admin": False,
         "admin_sub_menu": {
             "section"       : _("blog"), # The sub menu section
             "title"         : _("moderate comments"),
-            "help_text"     : _("moderate new comments."),
+            "help_text"     : _("moderate new non-public comments."),
             "open_in_window": False, # Should be create a new JavaScript window?
             "weight" : 0, # sorting weight for every section entry
         },

@@ -10,7 +10,10 @@
     </li>
     {% endfor %}
 </ul>
+<noscript><h2 style="color:red;">JavaScript required!</h2></noscript>
 <input type="submit" name="save" value="{% trans 'save' %}" />
+<input type="submit" name="delete" value="{% trans 'delete' %}" />
 <input onclick="self.location.href='{{ url_abort }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
 </form>
+</script>
 </fieldset>

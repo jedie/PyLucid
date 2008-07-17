@@ -1,0 +1,54 @@
+fieldset {
+    padding: 3px;
+    margin: 3px;
+    border: 1px solid #000;
+}
+legend {
+    padding: 2px;
+    border: 1px solid #000;
+    background-color: #FFF;
+}
+/* -------------------------------------------------------------------------- */
+#doc {
+    padding: 0px;
+    margin: 0px;
+    background-color: #FFF;
+}
+#doc legend{
+    padding: 3px;
+    margin: 3px;
+    font-size: 0.75em;
+
+}
+#doc pre {
+    padding: 5px;
+    margin: 0px;
+    border: 0px solid #000;
+}
+/* -------------------------------------------------------------------------- */
+#input_fields {
+    list-style-type:none;
+    padding: 0px;
+}
+#input_fields label {
+    font-size: 0.8em;
+}
+#input_fields .field_help_text {
+    font-size:0.7em;
+    display: block;
+    padding-left: 11em;
+}
+#input_fields label {
+    float: left;
+    padding-right: 4px;
+    text-align: right;
+    width: 9em;
+}
+#input_fields input, #input_fields select {
+    width: 35%;
+}
+#input_fields .bigger {
+    /* make some text input fields bigger e.g. keywords,description */
+    width: 75%;
+}
+/* -------------------------------------------------------------------------- */

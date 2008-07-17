@@ -1,0 +1,9 @@
+<fieldset><legend>all non public comments</legend>
+<ul>
+{% for comment in comments %}
+  <li>
+    <a href="{{ comment.edit_url }}">{{ comment }}</a>
+  </li>
+{% endfor %}
+</ul>
+</fieldset>

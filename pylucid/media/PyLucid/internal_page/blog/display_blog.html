@@ -1,8 +1,12 @@
-{% if back_url %}<p><a href="{{ back_url }}" class="action_link">back</a></p>{% endif %}
+{% if back_url %}<p><a href="{{ back_url }}" class="action_link">Display all blog entries</a></p>{% endif %}
 {% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}
 
 {% for entry in entries %}
-    <fieldset class="entry"><legend class="headline">{{ entry.headline }}</legend>
+    <fieldset class="entry"><legend class="headline"><a href="{{ entry.detail_url }}">{{ entry.headline }}</a></legend>
+        {% if not entry.is_public %}
+            <p class="admin_info_line">not public</p>
+        {% endif %}
+
         <div class="admin_links">
         {% if entry.edit_url %}
             <a href="{{ entry.edit_url }}" title="edit this blog entry">edit</a>
@@ -10,7 +14,6 @@
         {% if entry.delete_url %}
             <a href="{{ entry.delete_url }}" title="delete this blog entry">delete</a>
         {% endif %}
-        <a href="{{ entry.add_comment_url }}">add comment</a>
         </div>
 
         <div class="content">{{ entry.html }}</div>
@@ -23,7 +26,11 @@
         <fieldset class="taglist"><legend>tags</legend>
         {% for tag in entry.tag_info %}
             {% if not forloop.first %}|{% endif %}
-            <a href="{{ tag.url }}">{{ tag.name }}</a>
+            {% ifequal tag.name current_tag.name %}
+                <strong><a href="{{ tag.url }}">{{ tag.name }}</a></strong>
+            {% else %}
+                <a href="{{ tag.url }}">{{ tag.name }}</a>
+            {% endifequal %}
         {% endfor %}
         </fieldset>
 
@@ -31,20 +38,57 @@
             <fieldset class="comments"><legend>comments</legend>
             <ul>
             {% for comment in entry.all_comments %}
-                <li>{{ comment.person_name}}: {{ comment.content }}"</li>
+                <li class="{% if comment.createby %}user{% else %}anonymous{% endif %}_comment">
+                  <fieldset class="comment">
+                      <legend>
+                      {% if comment.homepage %}<a href="{{ comment.homepage }}">{% endif %}
+                        {{ comment.person_name }}{% if comment.homepage %}</a>{% endif %}:
+                      </legend>
+
+                      <div class="admin_links">
+                        {% if comment.edit_url %}<a href="{{ comment.edit_url }}">edit</a>{% endif %}
+                      </div>
+
+                      <pre>{{ comment.content }}</pre>
+
+                      <small><p class="dateinfo">
+                        created {{ comment.createtime }} by {% if comment.createby %}{{ comment.createby }}{% else %}{{ comment.ip_address }}{% endif %}
+                        {% if comment.lastupdateby %}(Last update {{ comment.lastupdatetime }} by {{ comment.lastupdateby }}){% endif %}
+                      </p></small>
+                  </fieldset>
+                </li>
             {% endfor %}
             </ul>
             </fieldset>
         {% else %}
-            {% if entry.comment_url %}
-                <a href="{{ entry.comment_url }}">{{ entry.comment_count }} comment(s)...</a>
-            {% else %}
-                no comment
-            {% endif %}
+            <a href="{{ entry.detail_url }}" class="comment_link" title="Display all comments">{{ entry.comment_count }} comment{{ entry.comment_count|pluralize:"s" }}...</a>
+        {% endif %}
+
+        {% if add_comment_form %}
+            <fieldset class="comments"><legend>Leave a comment</legend>
+            <script type="text/javascript">
+                   document.write('<form method="post" action=".">');
+            </script>
+            <ul id="input_fields">
+                    {% for field in add_comment_form %}
+                        <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+                        <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+                        {{ field }}
+                        <span class="field_help_text">{{ field.help_text }}</span>
+                        {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
+                    </li>
+                    {% endfor %}
+            </ul>
+            <noscript><h2 style="color:red;">JavaScript required!</h2></noscript>
+            <script type="text/javascript">
+                   document.write('<input type="submit" value="{% trans 'submit' %}" />');
+                   document.write('</form>');
+            </script>
+            </fieldset>
         {% endif %}
 
     </fieldset>
 {% endfor %}
 
-{% if back_url %}<p><a href="{{ back_url }}" class="action_link">back</a></p>{% endif %}
+{% if back_url %}<p><a href="{{ back_url }}" class="action_link">Display all blog entries</a></p>{% endif %}
 {% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}
