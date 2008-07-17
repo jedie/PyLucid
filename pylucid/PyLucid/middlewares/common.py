@@ -30,6 +30,7 @@ from django.conf import settings
 
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.auth.middleware import AuthenticationMiddleware
+from django.contrib.auth.models import AnonymousUser
 from django.middleware.locale import LocaleMiddleware
 
 from PyLucid.system.exceptions import LowLevelError
@@ -49,16 +50,6 @@ locale_middleware = LocaleMiddleware()
 #    """
 #    return _thread_locals.request
 ##    return getattr(_thread_locals, 'request', None)
-
-
-class FakeUser(object):
-    """
-    A fake user object.
-    If there exists no tables, the django session/auth middelware can't work.
-    But e.g. in the PyLucid cache middleware we check if the user is anonymous.
-    """
-    def is_anonymous(self):
-        return True
 
 
 def raise_non_table_error(e):
@@ -98,8 +89,11 @@ class PyLucidCommonMiddleware(object):
             locale_middleware.process_request(request)
         except Exception, e:
             raise_non_table_error(e)
-            # Add fake user object for if request.user.is_anonymous() check.
-            request.user = FakeUser()
+            # These exist no database tables, the django session/auth middelware
+            # can't work. But e.g. in the PyLucid cache middleware we check if
+            # the user is anonymous, so we add the anonymous user object here:
+            # django.contrib.auth.models.AnonymousUser
+            request.user = AnonymousUser()
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         try:
