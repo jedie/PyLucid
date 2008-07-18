@@ -17,10 +17,8 @@
 
 __version__= "$Rev: 1634 $"
 
+import os, pprint
 
-import sys, os, locale, subprocess
-
-from PyLucid.tools.subprocess2 import Subprocess2
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
 #______________________________________________________________________________
@@ -78,6 +76,7 @@ class DjangoInfo(PyLucidBasePlugin):
     def display_all(self):
         self.response.write("<hr>")
         self.response.write("<h3>Django environ information</h3>")
+        self.header_info()
         self.apps_models()
         self.django_info()
 
@@ -124,6 +123,17 @@ class DjangoInfo(PyLucidBasePlugin):
         self.response.write("<h4>sql.django_table_names():</h4>")
         self.response.write("<pre>")
         self.response.write("\n".join(sorted(sql.django_table_names())))
+        self.response.write("</pre>")
+
+        self.response.write("</fieldset>")
+
+    def header_info(self):
+        self.response.write('<fieldset id="system_info">')
+        self.response.write(
+            '<legend>request.META</legend>'
+        )
+        self.response.write("<pre>")
+        self.response.write(pprint.pformat(self.request.META))
         self.response.write("</pre>")
 
         self.response.write("</fieldset>")
