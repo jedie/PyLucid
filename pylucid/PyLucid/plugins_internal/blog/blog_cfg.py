@@ -18,6 +18,16 @@ from django.utils.translation import ugettext as _
 
 from PyLucid.models.Page import MARKUPS
 
+DONT_CHECK = 0
+REJECT_SPAM = 1
+MODERATED = 2
+
+ACTIONS = (
+    (DONT_CHECK,    _("don't check")),
+    (REJECT_SPAM,   _("reject as spam")),
+    (MODERATED,     _("hide, for later moderation")),
+)
+
 class PreferencesForm(forms.Form):
     """
     Blog preferences.
@@ -92,6 +102,13 @@ class PreferencesForm(forms.Form):
         widget=forms.Textarea(attrs={'rows': '15'}),
     )
 
+    check_referer = forms.ChoiceField(
+        choices = ACTIONS,
+        initial = MODERATED,
+        help_text = _(
+            "What to do, if http referer contains not your domain?"
+        ),
+    )
 
 # Optional, this Plugin can't have multiple preferences
 multiple_pref = False
@@ -135,6 +152,10 @@ plugin_manager_data = {
         },
     },
     "edit_comment": {
+        "must_login": True,
+        "must_admin": True,
+    },
+    "delete_comment": {
         "must_login": True,
         "must_admin": True,
     },

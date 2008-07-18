@@ -8,11 +8,15 @@ comment info:
   homepage.....: {% if comment_entry.homepage %}{{ comment_entry.homepage }}{% else %}-{% endif %}
   IP Address...: {{ comment_entry.ip_address }}
   submit time..: {{ comment_entry.createtime }}
-{% if is_spam %}
-This comment is detected as SPAM. It is not saved into the database!
-{% else %}
-Edit this new comment: {{ edit_url }}
-{% endif %}
+
+--[submit messages]------------------------------------------------------------
+{% for line in submit_msg %}
+  {{ line }}
+{% endfor %}
+--[submit messages end]--------------------------------------------------------
+
+{% if edit_url %}Edit this new comment: {{ edit_url }}{% else %}This comment was not saved into the database.{% endif %}
+
 --[comment content]------------------------------------------------------------
 {{ comment_entry.content }}
 --[comment content end]--------------------------------------------------------

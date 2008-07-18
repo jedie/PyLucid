@@ -83,6 +83,19 @@ class ChoiceField2(forms.ChoiceField):
         return choices_dict[key]
 
 
+class StripedCharField(forms.CharField):
+    """
+    Same as forms.CharField but stripes the output.
+    
+    >>> f = StripedCharField()
+    >>> f.clean('\\n\\n[\\nTEST\\n]\\n\\n')
+    u'[\\nTEST\\n]'
+    """
+    def clean(self, value):
+        value = super(StripedCharField, self).clean(value)
+        return value.strip()
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod(

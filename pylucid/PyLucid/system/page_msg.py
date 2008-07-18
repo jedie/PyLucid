@@ -1,32 +1,34 @@
 # -*- coding: utf-8 -*-
 
 """
-A small Wrapper aound djangos user messages system:
-http://www.djangoproject.com/documentation/authentication/#messages
+    The PyLucid page message system
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-enhanced features:
-  - easy callable to print a messages
-  - simple color output: self.page_msg.green()
-  - use pprint for dicts and lists
-  - special debug mode: Inserts informationen, where from the message has come.
+    A small Wrapper aound djangos user messages system.
 
-In PyLucid modules/plugins, you can use the old system, but it use the django
-messages to store the data:
-  self.page_msg("I am a new django user message in the old PyLucid style ;)")
-  self.page_msg.red("Alert!")
+    enhanced features:
+      - easy callable to print a messages
+      - simple color output: self.page_msg.green()
+      - use pprint for dicts and lists
+      - special debug mode:
+          Inserts informationen, where from the message has come.
+
+    Can also used in Plugin for storing internal messages.
+
+    Links
+    ~~~~~
+    http://www.pylucid.org/_goto/134/plugin-output/
+    http://www.djangoproject.com/documentation/authentication/#messages
 
 
-Last commit info:
-----------------------------------
-$LastChangedDate$
-$Rev$
-$Author$
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
-Created by Jens Diemer
-
-license:
-    GNU General Public License v2 or above
-    http://www.opensource.org/licenses/gpl-license.php
+    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import os, sys, pprint, inspect
@@ -42,14 +44,18 @@ from PyLucid.tools.utils import escape
 
 class PageMessages(object):
     """
-    http://www.djangoproject.com/documentation/authentication/#messages
+    The page message container.
     """
-    def __init__(self, request):
-        try:
-            self.messages = request.user.get_and_delete_messages()
-        except AttributeError:
-            # In the _install section we have no user
-            self.messages = []
+    def __init__(self, request, use_django_msg=True, html=True):
+        self.html = html # Should we generate colored html output?
+
+        self.messages = []
+        if use_django_msg:
+            try:
+                self.messages = request.user.get_and_delete_messages()
+            except AttributeError:
+                # In the _install section we have no user
+                pass
 
         self.debug_mode = getattr(request, "debug", False)
 
@@ -79,9 +85,13 @@ class PageMessages(object):
     #_________________________________________________________________________
 
     def append_color_data(self, color, *msg):
-        msg = '<span style="color:%s;">%s</span>' % (
-            color, self.prepare(*msg)
-        )
+        if self.html:
+            msg = '<span style="color:%s;">%s</span>' % (
+                color, self.prepare(*msg)
+            )
+        else:
+            msg = self.prepare(*msg)
+
         #~ self.request.user.message_set.create(message=msg)
         msg = mark_safe(msg) # turn djngo auto-escaping off
         self.messages.append(msg)
@@ -129,7 +139,10 @@ class PageMessages(object):
                 item = item.split("\n")
                 for line in item:
                     line = self.encode_and_prepare(line)
-                    result.append("%s<br />\n" % line)
+                    if self.html:
+                        result.append("%s<br />\n" % line)
+                    else:
+                        result.append("%s\n" % line)
             else:
                 item = self.encode_and_prepare(item)
                 result.append(item)
@@ -149,7 +162,6 @@ class PageMessages(object):
             txt = force_unicode(txt)
 
         return escape(txt)
-
 
     #________________________________________________________________
 

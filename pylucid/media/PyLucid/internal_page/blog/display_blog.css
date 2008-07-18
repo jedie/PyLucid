@@ -111,6 +111,10 @@ legend {
   padding: 5px;
   margin: 0px;
 }
+.comment .admin_info_line {
+  color:red;
+  line-height: 0px;
+}
 /* -------------------------------------------------------------------------- */
 #input_fields {
     list-style-type:none;

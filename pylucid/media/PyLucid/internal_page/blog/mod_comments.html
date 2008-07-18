@@ -2,7 +2,9 @@
 <ul>
 {% for comment in comments %}
   <li>
-    <a href="{{ comment.edit_url }}">{{ comment }}</a>
+    <a href="{{ comment.edit_url }}">edit</a>
+    {{ comment.content }}
+    {{ comment.blog_entry.headline }}
   </li>
 {% endfor %}
 </ul>

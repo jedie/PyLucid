@@ -1,6 +1,7 @@
 {% if back_url %}<p><a href="{{ back_url }}" class="action_link">Display all blog entries</a></p>{% endif %}
 {% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}
 
+{% if not entries %}no blog entry exists{% endif %}
 {% for entry in entries %}
     <fieldset class="entry"><legend class="headline"><a href="{{ entry.detail_url }}">{{ entry.headline }}</a></legend>
         {% if not entry.is_public %}
@@ -44,9 +45,13 @@
                       {% if comment.homepage %}<a href="{{ comment.homepage }}">{% endif %}
                         {{ comment.person_name }}{% if comment.homepage %}</a>{% endif %}:
                       </legend>
+                      {% if not comment.is_public %}
+                          <p class="admin_info_line">not public</p>
+                      {% endif %}
 
                       <div class="admin_links">
                         {% if comment.edit_url %}<a href="{{ comment.edit_url }}">edit</a>{% endif %}
+                        {% if comment.delete_url %}<a href="{{ comment.delete_url }}" onClick="return confirm('Realy want to delete the comment entry?');">delete</a>{% endif %}
                       </div>
 
                       <pre>{{ comment.content }}</pre>

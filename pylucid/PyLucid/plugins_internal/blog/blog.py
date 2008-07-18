@@ -31,8 +31,13 @@ from django.utils.translation import ugettext as _
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.content_processors import apply_markup
+from PyLucid.tools.newforms_utils import StripedCharField
 from PyLucid.tools.utils import escape_django_tags
+from PyLucid.system.page_msg import PageMessages
 from PyLucid.models.Page import MARKUPS
+
+from PyLucid.plugins_internal.blog.blog_cfg import DONT_CHECK, REJECT_SPAM, \
+                                                                    MODERATED
 
 # Don't send mails, display them only.
 #MAIL_DEBUG = True
@@ -49,11 +54,12 @@ class BlogComment(models.Model):
 
     ip_address = models.IPAddressField(_('ip address'),)
     person_name = models.CharField(
-        _("person's name"), max_length=50
+        _("person's name"), max_length=50,
+        help_text=_("Your full name (will be published) (required)"),
     )
     email = models.EmailField(
         _('e-mail address'),
-        help_text=_("Only for internal use."),
+        help_text=_("Only for internal use. (will not be published) (required)"),
     )
     homepage = models.URLField(
         _("homepage"), help_text = _("Your homepage (optional)"),
@@ -89,15 +95,16 @@ class BlogComment(models.Model):
         app_label = 'PyLucidPlugins'
 
 
+
 class BlogCommentForm(forms.ModelForm):
     """
-    Add a comment.
+    Add a new comment.
     """
     person_name = forms.CharField(
         min_length=4, max_length=50,
         help_text=_("Your name."),
     )
-    content = forms.CharField(
+    content = StripedCharField(
         label = _('content'), min_length=5, max_length=3000,
         help_text=_("Your comment to this blog entry."),
         widget=forms.Textarea(attrs={'rows': '15'}),
@@ -106,8 +113,20 @@ class BlogCommentForm(forms.ModelForm):
     class Meta:
         model = BlogComment
         # Using a subset of fields on the form
-        fields = ('person_name', 'email', "homepage", "comment")
+        fields = ('person_name', 'email', "homepage")
 
+
+class AdminCommentForm(BlogCommentForm):
+    """
+    Form for editing a existing comment. Only for Admins
+    """
+    class Meta:
+        model = BlogComment
+        fields = (
+            'ip_address', 'person_name', 'email', "homepage",
+            "content", "is_public",
+            "createtime", "lastupdatetime", "createby", "lastupdateby"
+        )
 
 #______________________________________________________________________________
 
@@ -243,12 +262,18 @@ PLUGIN_MODELS = (BlogComment, BlogTag, BlogEntry,)
 
 
 
+
 class blog(PyLucidBasePlugin):
 
     keyword_cache = {}
 
     def __init__(self, *args, **kwargs):
         super(blog, self).__init__(*args, **kwargs)
+
+        # Log info about handling blog comment submissions
+        self.submit_msg = PageMessages(
+            self.request, use_django_msg=False, html=False
+        )
 
         # Get the default preference entry.
         self.preferences = self.get_preferences()
@@ -257,10 +282,13 @@ class blog(PyLucidBasePlugin):
         self.current_page.title = self.preferences["blog_title"]
 
 
-    def _add_comment_edit_url(self, comments):
+    def _add_comment_admin_urls(self, comments):
         for comment in comments:
             comment.edit_url = self.URLs.methodLink(
                 "edit_comment", comment.id
+            )
+            comment.delete_url = self.URLs.methodLink(
+                "delete_comment", comment.id
             )
 
     def _list_entries(self, entries, context={}, full_comments=False):
@@ -286,7 +314,7 @@ class blog(PyLucidBasePlugin):
                 comments = entry.blogcomment_set
                 if self.request.user.is_staff:
                     comments = comments.all()
-                    self._add_comment_edit_url(comments)
+                    self._add_comment_admin_urls(comments)
                 else:
                     comments = comments.filter(is_public = True).all()
                 entry.all_comments = comments
@@ -347,7 +375,6 @@ class blog(PyLucidBasePlugin):
 
         self.current_page.title += " - " + blog_entry.headline
 
-
         if blog_entry.is_public != True:
             # This blog entry is not public. Comments only allowed from logged
             # in users.
@@ -362,7 +389,9 @@ class blog(PyLucidBasePlugin):
             form = BlogCommentForm(self.request.POST)
             #self.page_msg(self.request.POST)
             if form.is_valid():
-                ok = self._save_new_comment(blog_entry, form)
+                ok = self._save_new_comment(
+                    blog_entry, clean_data = form.cleaned_data
+                )
                 if ok:
                     return self._list_entries([blog_entry], full_comments=True)
         else:
@@ -436,14 +465,15 @@ class blog(PyLucidBasePlugin):
                     )
                     blog_obj.save()
                     self.page_msg.green("New blog entry created.")
+                    tags_string = form.cleaned_data["tags"]
                 else:
                     # Update a existing blog entry
+                    tags_string = form.cleaned_data.pop("tags")
+                    self.page_msg.green("Update existing blog entry.")
                     blog_obj.lastupdateby = self.request.user
                     for k,v in form.cleaned_data.iteritems():
                         setattr(blog_obj, k, v)
-                    self.page_msg.green("Update existing blog entry.")
 
-                tags_string = form.cleaned_data["tags"]
                 tag_objects, new_tags = BlogTag.objects.get_or_creates(
                     tags_string
                 )
@@ -524,7 +554,7 @@ class blog(PyLucidBasePlugin):
     #__________________________________________________________________________
     # COMMENTS
 
-    def _send_notify(self, mail_title, blog_entry, is_spam, comment_entry):
+    def _send_notify(self, mail_title, blog_entry, comment_entry):
         """
         Send a email noitify for a submited blog comment.
         """
@@ -533,11 +563,11 @@ class blog(PyLucidBasePlugin):
             "blog_edit_url": self.URLs.make_absolute_url(
                 self.URLs.methodLink("edit", blog_entry.id)
             ),
-            "is_spam": is_spam,
             "comment_entry": comment_entry,
+            "submit_msg": self.submit_msg,
         }
 
-        if not is_spam:
+        if hasattr(comment_entry, "id"):
             # Add edit link into the mail
             email_context["edit_url"] = self.URLs.make_absolute_url(
                 self.URLs.methodLink("edit_comment", comment_entry.id)
@@ -553,6 +583,7 @@ class blog(PyLucidBasePlugin):
         )
 
         send_mail_kwargs = {
+            "from_email": settings.DEFAULT_FROM_EMAIL,
             "subject": "%s %s" % (settings.EMAIL_SUBJECT_PREFIX, mail_title),
 #                from_email = sender,
             "recipient_list": recipient_list,
@@ -568,38 +599,62 @@ class blog(PyLucidBasePlugin):
             self.response.write("</pre></fieldset>")
             return
         else:
-            send_mail(message = emailtext,**send_mail_kwargs)
+            send_mail(message = emailtext, **send_mail_kwargs)
 
-    def _check_spam(self, blog_entry, form_cleaned_data, content_lower):
+    def _reject_spam_comment(self, blog_entry, clean_data):
         """
-        Check if the submitted comment is spam.
-        Display error messages and handle email notify.
+        Reject a submited comment as spam:
+        1. Display page_msg
+        2. Handle email notify.
         """
-        contains_spam = self._check_wordlist(
-            content_lower, pref_key = "spam_keywords"
-        )
-        if not contains_spam:
-            # The submitted content contains no spam keyword
-            return False
-
-        self.page_msg.red("Sorry, your comment identify as spam.")
-
         if not self.preferences["spam_notify"]:
             # Don't send spam notify email
-            return True
+            return
 
         # Add ID Adress for notify mail text
-        form_cleaned_data["ip_address"] = self.request.META.get('REMOTE_ADDR')
-        form_cleaned_data["createtime"] = datetime.datetime.now()
+        clean_data["ip_address"] = self.request.META.get('REMOTE_ADDR')
+        clean_data["createtime"] = datetime.datetime.now()
 
         self._send_notify(
             mail_title = _("blog comment as spam detected."),
-            blog_entry = blog_entry, is_spam = True,
-            comment_entry = form_cleaned_data
+            blog_entry = blog_entry, comment_entry = clean_data
         )
-        return True
 
-    def _save_new_comment(self, blog_entry, form):
+    def _check_comment_submit(self, blog_entry, content):
+        """
+        Check the submit of a new blog comment
+        """
+        if self.request.user.is_staff:
+            # Don't check comments from staff users
+            self.submit_msg("comment submit by page member.")
+            return _("new blog comment from page member published.")
+
+        # Check the http referer, exception would be raised if something wrong
+        self._check_referer(blog_entry)
+
+        content_lower = content.lower()
+
+        # check SPAM keywords
+        spam_keyword = self._check_wordlist(
+            content_lower, pref_key = "spam_keywords"
+        )
+        if spam_keyword:
+            raise RejectSpam(
+                "Comment contains SPAM keyword: '%s'" % spam_keyword
+            )
+
+        # check mod_keywords
+        mod_keyword = self._check_wordlist(
+            content_lower, pref_key = "mod_keywords"
+        )
+        if mod_keyword:
+            raise ModerateSubmit(
+                "Comment contains mod_keyword: '%s'" % mod_keyword
+            )
+
+
+
+    def _save_new_comment(self, blog_entry, clean_data):
         """
         Save a valid submited comment form into the database.
 
@@ -608,41 +663,34 @@ class blog(PyLucidBasePlugin):
 
         Send notify emails.
         """
-        content = form.cleaned_data["content"]
-        content = content.strip()
-        content_lower = content.lower()
+        content = clean_data["content"]
 
-        if self.request.user.is_staff:
-            # Don't check comments from staff users
-            is_public = True
-            mail_title = _("new blog comment from page member published.")
+        try:
+            mail_title = self._check_comment_submit(blog_entry, content)
+        except RejectSpam, msg:
+            self.page_msg.red("Sorry, your comment identify as spam.")
+            self.submit_msg(msg)
+            # Display page_msg and handle email notify:
+            self._reject_spam_comment(blog_entry, clean_data)
+            return False
+        except ModerateSubmit, msg:
+            self.page_msg(_("Your comment must wait for authorization."))
+            mail_title = _("Blog comment moderation needed.")
+            self.submit_msg(msg)
+            is_public = False
         else:
-            is_spam = self._check_spam(
-                blog_entry, form.cleaned_data, content_lower
-            )
-            if is_spam != False:
-                # Is spam: page_msg and notify was handled by _ckeck_spam()
-                return False
-
-            should_moderated = self._check_wordlist(
-                content_lower, pref_key = "mod_keywords"
-            )
-            if should_moderated:
-                self.page_msg(_("Your comment must wait for authorization."))
-                mail_title = _("new blog comment waits for moderation.")
-                is_public = False
-            else:
-                mail_title = _("blog comment published.")
-                is_public = True
+            self.submit_msg("Blog comment published.")
+            mail_title = _("Blog comment published.")
+            is_public = True
 
         content = escape_django_tags(content)
 
         new_comment = BlogComment(
             blog_entry = blog_entry,
             ip_address = self.request.META.get('REMOTE_ADDR'),
-            person_name = form.cleaned_data["person_name"],
-            email = form.cleaned_data["email"],
-            homepage = form.cleaned_data["homepage"],
+            person_name = clean_data["person_name"],
+            email = clean_data["email"],
+            homepage = clean_data["homepage"],
             content = content,
             is_public = is_public,
             createby = self.request.user,
@@ -652,10 +700,10 @@ class blog(PyLucidBasePlugin):
 
         # Send a notify email
         self._send_notify(
-            mail_title, blog_entry, is_spam=False, comment_entry=new_comment
+            mail_title, blog_entry, comment_entry=new_comment
         )
 
-        self.page_msg.green("comment saved.")
+        self.page_msg.green("Your comment saved.")
         return True
 
     def _get_wordlist(self, pref_key):
@@ -673,13 +721,73 @@ class blog(PyLucidBasePlugin):
 
     def _check_wordlist(self, content, pref_key):
         """
-        Simple check, if the content contains one keyword.
+        Simple check, if the content contains one of the keywords.
+        If a keyword found, returns it else returns None
         """
         keywords = self._get_wordlist(pref_key)
         for keyword in keywords:
             if keyword in content:
-                return True
-        return False
+                return keyword
+
+    def _check_referer(self, blog_entry):
+        """
+        Check if the referer is ok.
+        raise RejectSpam() or ModerateSubmit() if referer is wrong.
+        """
+        check_referer = self.preferences["check_referer"]
+        if check_referer == DONT_CHECK:
+            # We should not check the referer
+            return
+
+        referer = self.request.META["HTTP_REFERER"]
+        should_be = self.URLs.make_absolute_url(
+            self.URLs.methodLink("detail", blog_entry.id)
+        )
+        self.submit_msg("http referer: '%s' - '%s'" % (referer, should_be))
+
+        if referer == should_be:
+            # Referer is ok
+            return
+
+        msg = "Wrong http referer"
+
+        # Something wrong with the referer
+        if check_referer == REJECT_SPAM:
+            # We should it rejected as spam
+            raise RejectSpam(msg)
+        elif check_referer == MODERATED:
+            # We should moderate the comment
+            raise ModerateSubmit(msg)
+        else:
+            # Should never appear
+            raise AttributeError("Wrong check_referer value?!?")
+
+    def _delete_comment(self, comment_entry):
+        """
+        Delete one comment entry. Display page_msg.
+        Used in delete_comment() and edit_comment().
+        """
+        old_id = comment_entry.id
+        comment_entry.delete()
+        self.page_msg.green(_("Comment entry %s deleted." % old_id))
+
+    def delete_comment(self, urlargs):
+        """
+        Delete a comment (only for admins)
+        """
+        comment_entry = self._get_entry_from_url(urlargs, model=BlogComment)
+        if not comment_entry:
+            # Wrong url, page_msg was send to the user
+            return
+
+        blog_entry = comment_entry.blog_entry # ForeignKey("BlogEntry")
+
+        self._delete_comment(comment_entry)
+
+        return self._list_entries(
+            [blog_entry], context={}, full_comments=True
+        )
+
 
     def edit_comment(self, urlargs):
         """
@@ -690,23 +798,31 @@ class blog(PyLucidBasePlugin):
             # Wrong url, page_msg was send to the user
             return
 
-        CommentForm = forms.form_for_instance(comment_entry)
+#        CommentForm = AdminCommentForm
+#
+#
+#        CommentForm = forms.form_for_instance(
+#            instance=comment_entry#, form=BlogCommentForm
+#        )
 
         blog_entry = comment_entry.blog_entry # ForeignKey("BlogEntry")
 
         if self.request.method == 'POST':
-            form = CommentForm(self.request.POST)
+#            form = CommentForm(self.request.POST)
+            form = AdminCommentForm(self.request.POST, instance=comment_entry)
             #self.page_msg(self.request.POST)
             if form.is_valid():
                 if "delete" in self.request.POST:
-                    comment_entry.delete()
-                    self.page_msg.green("Comment deleted.")
+                    self._delete_comment(comment_entry)
                 else:
                     form.save()
                     self.page_msg.green("Saved.")
-                return self._list_entries([blog_entry], context={}, full_comments=True)
+                return self._list_entries(
+                    [blog_entry], context={}, full_comments=True
+                )
         else:
-            form = CommentForm()
+#            form = CommentForm()
+            form = AdminCommentForm(instance=comment_entry)
 
         context = {
             "blog_entry": blog_entry,
@@ -724,11 +840,30 @@ class blog(PyLucidBasePlugin):
         self.page_msg.red("TODO")
 
         comments = BlogComment.objects.filter(is_public=False)
-        self._add_comment_edit_url(comments)
-        self.page_msg(comments)
+        self._add_comment_admin_urls(comments)
 
         context = {
             "comments": comments,
         }
 
         self._render_template("mod_comments", context)#, debug=2)
+
+
+
+class WrongReferer(Exception):
+    """
+    A comment submit was made with a wrong http referer information
+    """
+    pass
+
+class RejectSpam(Exception):
+    """
+    A submission was identify as SPAM
+    """
+    pass
+
+class ModerateSubmit(Exception):
+    """
+    A submitted comment should be moderated
+    """
+    pass
