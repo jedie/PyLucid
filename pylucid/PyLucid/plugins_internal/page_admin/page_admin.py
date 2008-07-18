@@ -604,7 +604,16 @@ class page_admin(PyLucidBasePlugin):
             plugin_objs = plugin_objs.order_by("package_name", "plugin_name")
             plugin_list = []
             for plg in plugin_objs:
-                mdl = get_plugin_module(plg.package_name, plg.plugin_name)
+                try:
+                    mdl = get_plugin_module(plg.package_name, plg.plugin_name)
+                except Exception, err:
+                    self.page_msg.red(
+                        "Error getting module %s.%s: %s" % (
+                            plg.package_name, plg.plugin_name, err
+                        )
+                    )
+                    continue
+
                 cls = mdl.__getattribute__(plg.plugin_name)
                 if "lucidTag" in _get_names_of_methods(cls):
                     plugin_list.append( {
