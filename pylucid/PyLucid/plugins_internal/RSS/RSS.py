@@ -20,20 +20,19 @@
 
 __version__= "$Rev$"
 
-import time
-
-import socket
-# Timeout setzten, damit Eine Anfrage zu einem nicht erreichbaren Server
-# schneller abbricht. Denn ansonsten wird die PyLucid-CMS-Seite lange Zeit
-# nicht angezeigt!
-socket.setdefaulttimeout(5)
-
+import time, socket
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools import feedparser
 
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
+
+UPDATE_INFO = mark_safe(
+    'Warning, title argument for RSS Plugin is obsolete! See:'
+    ' <a href="http://pylucid.org/_goto/121/changes/#18-07-2008-RSS-plugin-updates">'
+    'Backwards-incompatible changes</a>'
+)
 
 class RSS(PyLucidBasePlugin):
 
@@ -44,7 +43,13 @@ class RSS(PyLucidBasePlugin):
         self.response.write(pformat(feed))
         self.response.write("</pre>\n")
 
-    def lucidTag(self, url, internal_page=None, debug=None, pref_id=None):
+    def lucidTag(self, url, internal_page=None, debug=None, pref_id=None, title=None):
+
+        if self.request.debug:
+            if title:
+                # title tag is obsolete
+                self.page_msg(UPDATE_INFO)
+
         # Get the preferences from the database:
         if pref_id:
             preferences = self.get_preferences(id = pref_id)
@@ -69,8 +74,12 @@ class RSS(PyLucidBasePlugin):
 
         start_time = time.time()
 
+        timeout = preferences.get("timeout", 1)
         try:
+            old_timeout = socket.getdefaulttimeout()
+            socket.setdefaulttimeout(timeout)
             feed = feedparser.parse(url)
+            socket.setdefaulttimeout(old_timeout)
         except Exception, e:
             self.response.write(
                 "[Can't get RSS feed '%s' Error:'%s']" % (url, e )

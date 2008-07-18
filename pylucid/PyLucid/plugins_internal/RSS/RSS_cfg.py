@@ -36,6 +36,12 @@ class PreferencesForm(forms.Form):
             " (The internal page stored in %s or %s)"
         ) % (settings.INTERNAL_PAGE_DIR, settings.CUSTOM_INTERNAL_PAGE_DIR),
     )
+    timeout = forms.IntegerField(
+        initial = 1,
+        min_value = 1,
+        max_value = 60,
+        help_text=_("socket timeout for getting the RSS feed.")
+    )
     debug = forms.BooleanField(
         initial=False, required=False,
         help_text=_(
