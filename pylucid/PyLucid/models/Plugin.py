@@ -217,18 +217,6 @@ class Plugin(models.Model):
         setup_help_text(form)
         return form
 
-    def get_version_string(self):
-        """
-        Returned the version string from the plugin module
-        """
-        return get_plugin_version(self.package_name, self.plugin_name)
-
-    def get_plugin_models(self, page_msg, verbosity):
-        """ returns a list of all existing plugin models or None """
-        return get_plugin_models(
-            self.package_name, self.plugin_name, page_msg, verbosity
-        )
-
     #__________________________________________________________________________
     # PREFERENCES
 
