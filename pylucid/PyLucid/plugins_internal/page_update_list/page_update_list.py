@@ -20,7 +20,7 @@
 __version__= "$Rev$"
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.db.page import get_update_info
+from PyLucid.models import Page
 
 class page_update_list(PyLucidBasePlugin):
 
@@ -33,7 +33,13 @@ class page_update_list(PyLucidBasePlugin):
             self.response.write("[%s]" % msg)
             return
 
-        page_updates = get_update_info(self.context, count)
+        if self.request.user.is_staff:
+            hide_non_public = False
+        else:
+            hide_non_public = True
+
+        page_updates = Page.objects.get_update_info(hide_non_public)
+        page_updates = page_updates[:count]
 
         context = {"page_updates": page_updates}
 

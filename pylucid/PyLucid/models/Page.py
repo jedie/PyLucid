@@ -147,6 +147,19 @@ class PageManager(models.Manager):
         # No right page found
         raise self.model.DoesNotExist
 
+    def get_update_info(self, hide_non_public=True):
+        """
+        returns a "last updated pages" queryset.
+        Used e.g. in RSSfeedGenerator, page_update_list
+        """
+        pages = Page.objects.order_by('-lastupdatetime')
+
+        if hide_non_public:
+            pages = pages.filter(showlinks = True)
+            pages = pages.exclude(permitViewPublic = False)
+
+        return pages
+
 #______________________________________________________________________________
 
 class Page(models.Model):
