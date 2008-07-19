@@ -65,8 +65,10 @@ class PreferencesForm(forms.Form):
 
     notify = forms.CharField(
         initial = "\n".join(
-            [i["email"] for i in User.objects.filter(is_superuser=True).values("email")]
+            [i["email"] \
+            for i in User.objects.filter(is_superuser=True).values("email")]
         ),
+        required=False,
         help_text = _(
             "Notify these email adresses if a new comment submited"
             " (seperated by newline!)"

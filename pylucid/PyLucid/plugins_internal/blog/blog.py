@@ -358,6 +358,13 @@ class blog(PyLucidBasePlugin):
         entries = BlogEntry.objects
         if self.request.user.is_anonymous():
             entries = entries.filter(is_public = True)
+        elif self.request.user.is_superuser:
+            # Check
+            if not self.preferences["notify"]:
+                self.page_msg(
+                    "Warning: There is no notify email address!"
+                    " Please change the blog preferences entry."
+                )
 
         max = self._get_max_count()
         entries = entries.all()[:max]
