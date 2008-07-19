@@ -15,7 +15,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import os
+import os, inspect
 from pprint import pformat
 
 from django.conf import settings
@@ -108,7 +108,6 @@ class PluginManager(models.Manager):
     def get_plugin_models(self, package_name, plugin_name, page_msg, verbosity):
         """ returns a list of all existing plugin models or None """
         return get_plugin_models(package_name, plugin_name, page_msg, verbosity)
-
 
 
 
@@ -216,6 +215,30 @@ class Plugin(models.Model):
             page_msg("setup preferences form help text.")
         setup_help_text(form)
         return form
+
+    #__________________________________________________________________________
+    # PLUGIN MODULE
+
+    def get_class(self):
+        """
+        returns the plugin class object
+        """
+        plugin_module = get_plugin_module(self.package_name, self.plugin_name)
+        plugin_class = getattr(plugin_module, self.plugin_name)
+        return plugin_class
+
+    def get_all_methods(self):
+        """
+        returns all plugin class methods.
+        tuple from inspect.getmembers()
+        (Without methods starts with underscore)
+        """
+        plugin_class = self.get_class()
+        result = []
+        for method in inspect.getmembers(plugin_class, inspect.ismethod):
+            if not method[0].startswith("_"):
+                result.append(method)
+        return result
 
     #__________________________________________________________________________
     # PREFERENCES

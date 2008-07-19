@@ -573,18 +573,12 @@ class page_admin(PyLucidBasePlugin):
         and all available lucidTag's (List of all available plugins which
         provide lucidTag method).
         """
-        def _get_names_of_methods(cls):
+        def _get_method_syntax(method):
             """
-            Returns iterable of method names.
+            returns the argument string for the given method.
+            e.g.: url="" debug="None"
             """
-            return (x[0] for x in inspect.getmembers(cls,inspect.ismethod))
-
-        def _get_lucidTag_syntax(cls):
-            """
-            Format lucidTag syntax, for example
-            "count=10" or "" if no arguments are supported.
-            """
-            (args, varargs, varkw, defaults) = inspect.getargspec(cls.lucidTag)
+            (args, varargs, varkw, defaults) = inspect.getargspec(method)
             argmap = dict.fromkeys(args[1:],None)
             if defaults:
                 argmap.update(zip(args[-len(defaults):], map(repr,defaults)))
@@ -600,26 +594,28 @@ class page_admin(PyLucidBasePlugin):
             """
             Generate a list of all Plugins which are active.
             """
-            plugin_objs = Plugin.objects.filter(active = True)
-            plugin_objs = plugin_objs.order_by("package_name", "plugin_name")
+            plugins = Plugin.objects.filter(active=True).all()
+
             plugin_list = []
-            for plg in plugin_objs:
+            for plugin in plugins:
                 try:
-                    mdl = get_plugin_module(plg.package_name, plg.plugin_name)
+                    plugin_methods = plugin.get_all_methods()
                 except Exception, err:
                     self.page_msg.red(
-                        "Error getting module %s.%s: %s" % (
-                            plg.package_name, plg.plugin_name, err
+                        "Error getting plugin class %s.%s: %s" % (
+                            plugin.package_name, plugin.plugin_name, err
                         )
                     )
                     continue
 
-                cls = mdl.__getattribute__(plg.plugin_name)
-                if "lucidTag" in _get_names_of_methods(cls):
-                    plugin_list.append( {
-                            'plugin_name': plg.plugin_name,
-                            'arguments': _get_lucidTag_syntax(cls),
-                            'description': plg.description } )
+                for method in plugin_methods:
+                    if method[0] == "lucidTag":
+                        plugin_list.append({
+                            'plugin_name': plugin.plugin_name,
+                            'arguments': _get_method_syntax(method[1]),
+                            'description': plugin.description
+                        })
+
             return plugin_list
 
         def get_page_fields():
