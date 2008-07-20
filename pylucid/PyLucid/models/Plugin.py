@@ -109,6 +109,32 @@ class PluginManager(models.Manager):
         """ returns a list of all existing plugin models or None """
         return get_plugin_models(package_name, plugin_name, page_msg, verbosity)
 
+    def method_filter(self, queryset, method_name, page_msg, verbosity):
+        """
+        Returns a list of all plugins witch have the given method.
+        """
+        def _has_method(methods, method_name):
+            for method in methods:
+                if method[0] == method_name:
+                    return True
+
+        result = []
+        for plugin in queryset.all():
+            try:
+                methods = plugin.get_all_methods()
+            except Exception, err:
+                if verbosity:
+                    page_msg.red(
+                        "Error getting plugin methods %s.%s: %s" % (
+                            plugin.package_name, plugin.plugin_name, err
+                        )
+                    )
+                    continue
+
+            if _has_method(methods, "feed"):
+                result.append(plugin)
+
+        return result
 
 
 class Plugin(models.Model):

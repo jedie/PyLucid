@@ -41,6 +41,18 @@ class PreferencesForm(forms.Form):
             "The blog title displays as a headline on every blog page."
         ),
     )
+    description = forms.CharField(
+        initial = "",
+        help_text = _(
+            "The blog description (Used for RSS/Atom feeds)."
+        ),
+    )
+    language = forms.CharField(
+        initial = u"en",
+        help_text = _(
+            "The blog language (Used for RSS/Atom feeds)."
+        ),
+    )
     default_markup = forms.IntegerField(
         widget=forms.Select(choices=MARKUPS),
         initial = 6,
@@ -84,7 +96,7 @@ class PreferencesForm(forms.Form):
     mod_keywords = forms.CharField(
         initial = "\n".join((
             "www.", "://", "<", ">",
-            "fuck", "blow", "pharmacy", "pills", "enlarge", "buy",
+            "pr0n", "fuck", "blow", "pharmacy", "pills", "enlarge", "buy",
             "casino",
         )),
         help_text = _(

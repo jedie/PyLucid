@@ -28,29 +28,6 @@ from django.utils.translation import ugettext as _
 from PyLucid.models import Page
 from PyLucid.tools.tree_generator import TreeGenerator
 
-def get_update_info(context, count=10):
-    """
-    get the last >count< page updates.
-    Used by page_update_list and the RSSfeedGenerator
-    """
-    pages = Page.objects.order_by('-lastupdatetime')
-    pages = pages.filter(showlinks = True)
-
-    request = context["request"]
-    if request.user.is_anonymous():
-        pages = pages.exclude(permitViewPublic = False)
-
-    pages = pages[:count]
-
-    # Add the attribute 'absolute_uri' to every page:
-    for page in pages:
-        location = page.get_absolute_url()
-        absolute_uri = request.build_absolute_uri(location)
-        page.absolute_uri = absolute_uri
-
-    return pages
-
-
 def flat_tree_list(generate_level_names=True):
     """
     Generate a flat page list.

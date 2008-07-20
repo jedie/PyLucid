@@ -6,6 +6,8 @@
 
     A simple blog system.
 
+    http://feedvalidator.org/
+
     Last commit info:
     ~~~~~~~~~
     $LastChangedDate:$
@@ -23,11 +25,16 @@ import datetime
 from django.db import models
 from django.conf import settings
 from django import newforms as forms
+from django.utils import feedgenerator
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
+
+from django.utils import feedgenerator
+from django.contrib.syndication.feeds import Feed, FeedDoesNotExist
+
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.content_processors import apply_markup
@@ -43,8 +50,25 @@ from PyLucid.plugins_internal.blog.blog_cfg import DONT_CHECK, REJECT_SPAM, \
 #MAIL_DEBUG = True
 MAIL_DEBUG = False
 
-#______________________________________________________________________________
+"""
+AVAILABLE_FEEDS = {
+    ENTRIES_FEED = "all_blog_entries"
+    COMMENTS_FEED = "all_blog_comments"
+}
 
+FEED_FORMATS = (
+    {
+        "file_ext": "rss",
+        "generator": feedgenerator.Rss201rev2Feed,
+    },
+    {
+        "file_ext": "atom",
+        "generator": feedgenerator.Atom1Feed,
+    },
+)
+"""
+
+#______________________________________________________________________________
 
 class BlogComment(models.Model):
     """
@@ -176,8 +200,6 @@ class BlogTag(models.Model):
 
 #______________________________________________________________________________
 
-
-
 class BlogEntry(models.Model):
     """
     A blog entry
@@ -236,6 +258,22 @@ class BlogEntry(models.Model):
         app_label = 'PyLucidPlugins'
         ordering = ('-createtime', '-lastupdatetime')
 
+'''
+class RssBlogEntryFeed(Feed):
+    """
+    TODO!
+    http://www.djangoproject.com/documentation/syndication_feeds/
+    """
+    title = "Blog entry feed"
+    link = "/TODO/"
+    description = "FIXME"
+
+    def items(self):
+        return BlogEntry.objects.filter(is_public=True).all()[:count]
+
+class AtomBlogEntryFeed(RssBlogEntryFeed):
+    feed_type = Atom1Feed
+    subtitle = RssBlogEntryFeed.description
 
 class BlogEntryForm(forms.ModelForm):
     """
@@ -252,7 +290,7 @@ class BlogEntryForm(forms.ModelForm):
     )
     class Meta:
         model = BlogEntry
-
+'''
 
 #______________________________________________________________________________
 
@@ -854,8 +892,73 @@ class blog(PyLucidBasePlugin):
         }
 
         self._render_template("mod_comments", context)#, debug=2)
+'''
+    def get_feeds_info(self):
+        # return the existing feed names
+        return (ENTRIES_FEED, COMMENTS_FEED)
+
+    def feed(self, feed_name, FeedGenerator, count=10):
+        """
+        Feeds
+        * RSS 2.0 / Atom for all entries
+        * RSS 2.0 / Atom for the comments
+
+        FeedGenerator = django.utils.feedgenerator.Atom1Feed
+        or
+        FeedGenerator = django.utils.feedgenerator.Rss201rev2Feed
 
 
+        RSSfeedGenerator.lucidTag
+            - Generates a list of all available feeds
+            - The links are always /feed/PluginName/FeedName/FeedType.xml
+
+        /_command/1/RSSfeedGenerator/
+
+
+        """
+        title = self.preferences["blog_title"]
+
+        if feed_name == ENTRIES_FEED:
+            model = BlogEntry
+            title += " - all blog entries"
+
+        elif feed_name == COMMENTS_FEED:
+            model = BlogComment
+            title += " - all blog comments"
+
+        else:
+            raise AttributeError("Wrong feed_name.")
+
+        items = model.objects.filter(is_public=True).all()[:10]
+
+        link = self.URLs.methodLink("feed", feed_name)
+
+        feed = self._get_feed(FeedGenerator, items, title, link)
+
+        return feed.writeString('utf8')
+
+
+    def _get_feed(self, FeedGenerator, items, title, link):
+        """
+        returns the generated feed.
+        """
+        feed = FeedGenerator(
+            title = title,
+            link = self.URLs.make_absolute_url(link),
+            description = self.preferences.get("description", ""), # XXX
+            language = self.preferences.get("language", u"en"), # XXX
+        )
+        for item in items:
+            feed.add_item(
+                title = item.headline,
+                link = self.URLs.make_absolute_url(
+                    self.URLs.methodLink("detail", item.id)
+                ),
+                description = item.html_content(self.context),
+            )
+
+        return feed
+'''
 
 class WrongReferer(Exception):
     """

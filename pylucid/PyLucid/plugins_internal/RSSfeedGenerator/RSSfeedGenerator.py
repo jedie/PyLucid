@@ -23,30 +23,62 @@
 """
 
 
-import sys, os, cgi, time
+import sys, os, cgi, time, inspect
 
 RSS_FILENAME = "RSS.xml"
+
+from django.http import HttpResponse
+from django.core.cache import cache
+
+from PyLucid.system.BasePlugin import PyLucidBasePlugin
+from PyLucid.system.exceptions import PluginError
+from PyLucid import PYLUCID_VERSION_STRING
+from PyLucid.models import Plugin
+
+
+
+# Same key used by the PageUpdateList Plugin, too!!!
+CACHE_KEY = "page_updates_data"
 
 #debug = True
 debug = False
 
-from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.db.page import get_update_info
-from PyLucid.system.exceptions import PluginError
-from PyLucid import PYLUCID_VERSION_STRING
 
-from django.http import HttpResponse
 
-from django.core.cache import cache
-# Same key used by the PageUpdateList Plugin, too!!!
-CACHE_KEY = "page_updates_data"
+
+
+
+
+
 
 class RSSfeedGenerator(PyLucidBasePlugin):
+
+    def feed(self):
+        if self.request.user.is_staff:
+            hide_non_public = False
+        else:
+            hide_non_public = True
+
+        page_updates = Page.objects.get_update_info(hide_non_public)
+        page_updates = page_updates[:count]
 
     def lucidTag(self, count=10):
         """
         returned the link to the feed, with a count GET parameter.
         """
+        plugins = Plugin.objects.method_filter(
+            queryset = Plugin.objects.filter(active=True),
+            method_name="feed",
+            page_msg=self.page_msg, verbosity=1
+        )
+        for plugin in plugins:
+            self.page_msg(plugin)
+
+
+        return
+
+
+
         count = self._prepare_count(count)
         link = self.URLs.methodLink("download")
         url = "%s%s?count=%s" % (link, RSS_FILENAME, count)
@@ -69,7 +101,13 @@ class RSSfeedGenerator(PyLucidBasePlugin):
             if content:
                 return content
 
-        page_updates = get_update_info(self.context, count)
+        if self.request.user.is_staff:
+            hide_non_public = False
+        else:
+            hide_non_public = True
+
+        page_updates = Page.objects.get_update_info(hide_non_public)
+        page_updates = page_updates[:count]
 
         context = {
             "page_updates": page_updates,
