@@ -207,5 +207,20 @@ class PyLucidBasePlugin(object):
 
         return html
 
+    def error(self, public_msg, debug_msg):
+        """
+        Display a error with page_msg.red().
+        Append debug_msg if self.request.debug is on
+        e.g.:
+            try:
+                ...do something...
+            except Exception, err:
+                return self.error(_("Wrong URL."), err)
+        """
+        msg = public_msg
+        if self.request.debug:
+            msg += " %s" % debug_msg
+
+        self.page_msg.red(msg)
 
 

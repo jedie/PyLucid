@@ -180,3 +180,21 @@ class ExamplePlugin(PyLucidBasePlugin):
         if self.request.debug:
             self.page_msg("Debug is on.")
 
+    #__________________________________________________________________________
+    # UTILS
+    #
+    # Some needfull methods
+    #
+    def simple_error_feedback(self):
+        """
+        with self._error() you can easy create a "abort" error messages.
+        The goal is: The method gets two messages types:
+            public_msg, debug_msg
+        The public messages would be always displayed. The debug messages would
+        be append if self.request.debug is on.
+        So you can easy gives feedback for anonymous users and developers, too.
+        """
+        try:
+            ...do something...
+        except Exception, err:
+            return self.error(_("Wrong URL."), err)
