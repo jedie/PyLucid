@@ -155,7 +155,7 @@ class search(PyLucidBasePlugin):
         the lines.
         """
         text_cutout_len = preferences["text_cutout_len"]
-        max_cutout_lines = preferences["max_cutout_lines"]
+        text_cutout_lines = preferences["text_cutout_lines"]
 
         for result in results:
             result["cutouts"] = []
@@ -163,7 +163,7 @@ class search(PyLucidBasePlugin):
 
             for term in search_strings:
                 start = 0
-                for _ in xrange(max_cutout_lines):
+                for _ in xrange(text_cutout_lines):
                     try:
                         index = content.index(term, start)
                     except ValueError:
