@@ -72,12 +72,12 @@
         {% if add_comment_form %}
             <fieldset class="comments"><legend>Leave a comment</legend>
             <script type="text/javascript">
-                   document.write('<form method="post" action=".">');
+                   document.write('<fo'+'rm met'+'hod="po'+'st" act'+'ion=".">');
             </script>
             <ul id="input_fields">
                     {% for field in add_comment_form %}
                         <li title="{{ field.help_text }}" class="{{ field.html_name }}">
-                        <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+                        <label for="{{ field.auto_id }}">{{ field.label }}:</label>
                         {{ field }}
                         <span class="field_help_text">{{ field.help_text }}</span>
                         {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
@@ -86,14 +86,29 @@
             </ul>
             <noscript><h2 style="color:red;">JavaScript required!</h2></noscript>
             <script type="text/javascript">
-                   document.write('<input type="submit" value="{% trans 'submit' %}" />');
-                   document.write('</form>');
+                   document.write('<in'+'put type="sub'+'mit" value="{% trans 'submit' %}" />');
+                   document.write('</fo'+'rm>');
             </script>
             </fieldset>
         {% endif %}
 
     </fieldset>
 {% endfor %}
+
+<fieldset class="feeds"><legend>{% trans 'available syndication feeds' %}</legend>
+    {% regroup feed_info|dictsort:"feed_type" by feed_type as feeds_grouped %}
+    <ul>
+    {% for feed in feeds_grouped %}
+        <li class="grouper"><strong>{{ feed.grouper }}:</strong>
+        <ul class="feed_type">
+            {% for item in feed.list %}
+            <li><a href="{{ item.url }}">{{ item.title_info }}</a></li>
+            {% endfor %}
+        </ul>
+        </li>
+    {% endfor %}
+    </ul>
+</fieldset>
 
 {% if back_url %}<p><a href="{{ back_url }}" class="action_link">Display all blog entries</a></p>{% endif %}
 {% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}

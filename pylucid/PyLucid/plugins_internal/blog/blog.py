@@ -20,284 +20,81 @@
 
 __version__= "$Rev:$ Alpha"
 
-import datetime
+# from python core
+import os, datetime, posixpath
 
-from django.db import models
+# from django
 from django.conf import settings
-from django import newforms as forms
+from django.http import HttpResponse
 from django.utils import feedgenerator
 from django.core.mail import send_mail
-from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
-
 from django.utils import feedgenerator
 from django.contrib.syndication.feeds import Feed, FeedDoesNotExist
 
-
+# from PyLucid
+from PyLucid.tools.utils import escape
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.tools.content_processors import apply_markup
-from PyLucid.tools.newforms_utils import StripedCharField
 from PyLucid.tools.utils import escape_django_tags
 from PyLucid.system.page_msg import PageMessages
-from PyLucid.models.Page import MARKUPS
 
+# from blog plugin
+from PyLucid.plugins_internal.blog.forms import BlogCommentForm, \
+                                                AdminCommentForm, BlogEntryForm
+from PyLucid.plugins_internal.blog.models import BlogComment, BlogTag, BlogEntry
 from PyLucid.plugins_internal.blog.blog_cfg import DONT_CHECK, REJECT_SPAM, \
                                                                     MODERATED
+
+#______________________________________________________________________________
+
+PLUGIN_MODELS = (BlogComment, BlogTag, BlogEntry,)
 
 # Don't send mails, display them only.
 #MAIL_DEBUG = True
 MAIL_DEBUG = False
 
-"""
-AVAILABLE_FEEDS = {
-    ENTRIES_FEED = "all_blog_entries"
-    COMMENTS_FEED = "all_blog_comments"
-}
+#______________________________________________________________________________
+# FEEDS
 
-FEED_FORMATS = (
-    {
-        "file_ext": "rss",
-        "generator": feedgenerator.Rss201rev2Feed,
-    },
-    {
-        "file_ext": "atom",
-        "generator": feedgenerator.Atom1Feed,
-    },
-)
-"""
+# Don't response the RSS/Atom feed, display it only
+#FEED_DEBUG = True
+FEED_DEBUG = False
+
+ENTRIES_FEED_NAME = u"entries"
+COMMENTS_FEED_NAME = u"comments"
+TAG_FEED_PREFIX = u"tag_" # The tag slug would be appended!
+
+# All file endings must be lower case and without "." !
+RSS = u"rss"
+ATOM = u"atom"
 
 #______________________________________________________________________________
 
-class BlogComment(models.Model):
+class FeedInfo(list):
     """
-    comment from non-registered users
+    A list of feed information.
+    I a normal list with one spectial add method.
+    Contains a dict for every feed info.
     """
-    blog_entry = models.ForeignKey("BlogEntry")
+    def add(self, title_info, url_parts):
+        assert(isinstance(url_parts, (list,tuple))) #Needed?
+        url_start = posixpath.join(*url_parts)
 
-    ip_address = models.IPAddressField(_('ip address'),)
-    person_name = models.CharField(
-        _("person's name"), max_length=50,
-        help_text=_("Your full name (will be published) (required)"),
-    )
-    email = models.EmailField(
-        _('e-mail address'),
-        help_text=_("Only for internal use. (will not be published) (required)"),
-    )
-    homepage = models.URLField(
-        _("homepage"), help_text = _("Your homepage (optional)"),
-        verify_exists = False, max_length = 200,
-        null=True, blank=True
-    )
-
-    content = models.TextField(_('content'), max_length=3000)
-
-    is_public = models.BooleanField(_('is public'))
-
-    createtime = models.DateTimeField(
-        auto_now_add=True, help_text="Create time",
-    )
-    lastupdatetime = models.DateTimeField(
-        auto_now=True, help_text="Time of the last change.",
-    )
-    createby = models.ForeignKey(
-        User, editable=False,
-        help_text="User how create the current comment.",
-        null=True, blank=True
-    )
-    lastupdateby = models.ForeignKey(
-        User, editable=False,
-        help_text="User as last edit the current comment.",
-        null=True, blank=True
-    )
-
-    class Admin:
-        pass
-
-    class Meta:
-        app_label = 'PyLucidPlugins'
-
-
-
-class BlogCommentForm(forms.ModelForm):
-    """
-    Add a new comment.
-    """
-    person_name = forms.CharField(
-        min_length=4, max_length=50,
-        help_text=_("Your name."),
-    )
-    content = StripedCharField(
-        label = _('content'), min_length=5, max_length=3000,
-        help_text=_("Your comment to this blog entry."),
-        widget=forms.Textarea(attrs={'rows': '15'}),
-    )
-
-    class Meta:
-        model = BlogComment
-        # Using a subset of fields on the form
-        fields = ('person_name', 'email', "homepage")
-
-
-class AdminCommentForm(BlogCommentForm):
-    """
-    Form for editing a existing comment. Only for Admins
-    """
-    class Meta:
-        model = BlogComment
-        fields = (
-            'ip_address', 'person_name', 'email', "homepage",
-            "content", "is_public",
-            "createtime", "lastupdatetime", "createby", "lastupdateby"
-        )
-
-#______________________________________________________________________________
-
-
-class BlogTagManager(models.Manager):
-    """
-    Manager for BlogTag model.
-    """
-    def get_or_creates(self, tags_string):
-        """
-        split the given tags_string and create not existing tags.
-        returns a list of all tag model objects and a list of all created tags.
-        """
-        tag_objects = []
-        new_tags = []
-        for tag_name in tags_string.split(" "):
-            tag_name = tag_name.strip().lower()
-            try:
-                tag_obj = self.get(name = tag_name)
-            except self.model.DoesNotExist:
-                new_tags.append(tag_name)
-                tag_obj = self.create(name = tag_name, slug = tag_name)
-
-            tag_objects.append(tag_obj)
-
-        return tag_objects, new_tags
-
-
-class BlogTag(models.Model):
-
-    objects = BlogTagManager()
-
-    name = models.CharField(max_length=255, core=True, unique=True)
-    slug = models.SlugField(
-        unique=True, prepopulate_from=('tag',), max_length=120
-    )
-
-    def __unicode__(self):
-        return self.name
-
-    class Admin:
-        pass
-
-    class Meta:
-        app_label = 'PyLucidPlugins'
+        list.append(self, {
+            "feed_type": RSS,
+            "title_info": title_info,
+            "url": "%s.%s" % (url_start, RSS),
+        })
+        list.append(self, {
+            "feed_type": ATOM,
+            "title_info": title_info,
+            "url": "%s.%s" % (url_start, ATOM),
+        })
 
 
 #______________________________________________________________________________
-
-class BlogEntry(models.Model):
-    """
-    A blog entry
-    """
-    headline = models.CharField(_('Headline'),
-        help_text=_("The blog entry headline"), max_length=255
-    )
-    content = models.TextField(_('Content'))
-    markup = models.IntegerField(
-        max_length=1, choices=MARKUPS,
-        help_text="the used markup language for this entry",
-    )
-
-    tags = models.ManyToManyField(BlogTag, blank=True)
-
-    is_public = models.BooleanField(
-        default=True, help_text="Is post public viewable?"
-    )
-
-    createtime = models.DateTimeField(auto_now_add=True)
-    lastupdatetime = models.DateTimeField(auto_now=True)
-    createby = models.ForeignKey(User,
-        editable = False,
-    )
-    lastupdateby = models.ForeignKey(
-        User,
-        editable = False,
-        null=True, blank=True
-    )
-
-    def html_content(self, context):
-        """
-        returns the generatet html code from the content applyed the markup.
-        """
-        return apply_markup(
-            content = self.content,
-            context = context,
-            markup_no = self.markup
-        )
-
-    def get_tag_string(self):
-        """
-        Returns all tags as a joined string
-        """
-        tags = self.tags.all()
-        tags_names = [i.name for i in tags]
-        return " ".join(tags_names)
-
-    def __unicode__(self):
-        return self.headline
-
-    class Admin:
-        pass
-
-    class Meta:
-        app_label = 'PyLucidPlugins'
-        ordering = ('-createtime', '-lastupdatetime')
-
-'''
-class RssBlogEntryFeed(Feed):
-    """
-    TODO!
-    http://www.djangoproject.com/documentation/syndication_feeds/
-    """
-    title = "Blog entry feed"
-    link = "/TODO/"
-    description = "FIXME"
-
-    def items(self):
-        return BlogEntry.objects.filter(is_public=True).all()[:count]
-
-class AtomBlogEntryFeed(RssBlogEntryFeed):
-    feed_type = Atom1Feed
-    subtitle = RssBlogEntryFeed.description
-
-class BlogEntryForm(forms.ModelForm):
-    """
-    Form for create/edit a blog entry.
-    """
-    content = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': '15'}),
-    )
-
-    tags = forms.CharField(
-        max_length=255, required=False,
-        help_text=_("Tags for this entry (separated by spaces.)"),
-        widget=forms.TextInput(attrs={'class':'bigger'}),
-    )
-    class Meta:
-        model = BlogEntry
-'''
-
-#______________________________________________________________________________
-
-
-PLUGIN_MODELS = (BlogComment, BlogTag, BlogEntry,)
-
-
 
 
 
@@ -318,6 +115,11 @@ class blog(PyLucidBasePlugin):
 
         # Change the page title.
         self.current_page.title = self.preferences["blog_title"]
+
+        # The absolute url to the page witch contains the blog
+        self.index_url = "FIXME"
+
+        self.feed_url_prefix = self.URLs.methodLink("feed")
 
 
     def _add_comment_admin_urls(self, comments):
@@ -371,7 +173,10 @@ class blog(PyLucidBasePlugin):
         if self.request.user.is_staff:
             context["create_url"] = self.URLs.methodLink("add_entry")
 
-        self._render_template("display_blog", context)#, debug=2)
+        # Add all available syndication feeds information
+        context["feed_info"] = self._get_feeds_info()
+
+        self._render_template("display_blog", context, debug=0)
 
     def _get_max_count(self):
         """
@@ -404,8 +209,8 @@ class blog(PyLucidBasePlugin):
                     " Please change the blog preferences entry."
                 )
 
-        max = self._get_max_count()
-        entries = entries.all()[:max]
+        limit = self._get_max_count()
+        entries = entries.all()[:limit]
 
         self._list_entries(entries)
 
@@ -424,11 +229,7 @@ class blog(PyLucidBasePlugin):
             # This blog entry is not public. Comments only allowed from logged
             # in users.
             if self.request.user.is_anonymous():
-                msg = "Wrong url."
-                if self.request.debug:
-                    msg += " Blog entry is not public"
-                self.page_msg.red(msg)
-                return
+                return self.error(_("Wrong URL."), "Blog entry is not public")
 
         if self.request.method == 'POST':
             form = BlogCommentForm(self.request.POST)
@@ -477,8 +278,8 @@ class blog(PyLucidBasePlugin):
         if self.request.user.is_anonymous():
             entries = entries.filter(is_public = True)
 
-        max = self._get_max_count()
-        entries = entries.all()[:max]
+        limit = self._get_max_count()
+        entries = entries.all()[:limit]
 
         context = {
             "back_url": self.URLs.methodLink("lucidTag"),
@@ -560,11 +361,7 @@ class blog(PyLucidBasePlugin):
             entry_id = int(urlargs.strip("/"))
             return model.objects.get(id = entry_id)
         except Exception, err:
-            msg = "Wrong url"
-            if self.request.debug:
-                msg += " %s" % err
-            self.page_msg.red(msg)
-            return
+            return self.error(_("Wrong URL."), err)
 
     def delete(self, urlargs):
         """
@@ -892,59 +689,121 @@ class blog(PyLucidBasePlugin):
         }
 
         self._render_template("mod_comments", context)#, debug=2)
-'''
-    def get_feeds_info(self):
-        # return the existing feed names
-        return (ENTRIES_FEED, COMMENTS_FEED)
 
-    def feed(self, feed_name, FeedGenerator, count=10):
+    def _get_feeds_info(self):
         """
-        Feeds
-        * RSS 2.0 / Atom for all entries
-        * RSS 2.0 / Atom for the comments
+        returns information about all available syndication feeds.
+        """
+        feed_info = FeedInfo()
 
-        FeedGenerator = django.utils.feedgenerator.Atom1Feed
-        or
-        FeedGenerator = django.utils.feedgenerator.Rss201rev2Feed
+        # Add "normal" feeds
+        feed_info.add(
+            title_info = ENTRIES_FEED_NAME,
+            url_parts = (self.feed_url_prefix, ENTRIES_FEED_NAME,)
+        )
+        feed_info.add(
+            title_info = COMMENTS_FEED_NAME,
+            url_parts = (self.feed_url_prefix, COMMENTS_FEED_NAME,)
+        )
+
+        # Build a list of tag feeds
+        limit = self.preferences.get("max_tag_feed", 10)
+        tags = BlogTag.objects.values_list("slug", "name").all()[:limit]
+        tag_feeds = [TAG_FEED_PREFIX + i[0] for i in tags]
+        #self.page_msg(tag_feeds)
+
+        # Add tag feeds
+        for tag_slug, tag_name in tags:
+            filename = TAG_FEED_PREFIX + tag_slug
+
+            feed_info.add(
+                title_info = tag_name,
+                url_parts = (self.feed_url_prefix, filename,)
+            )
+
+        return feed_info
 
 
-        RSSfeedGenerator.lucidTag
-            - Generates a list of all available feeds
-            - The links are always /feed/PluginName/FeedName/FeedType.xml
+    def feed(self, raw_feed_name):
+        """
+        Generate and return a syndication feeds.
 
-        /_command/1/RSSfeedGenerator/
-
-
+        feed_name e.g.:
+            tag_%s.rss
+            tag_%s.atom
+            entries .rss/.atom
+            comments .rss/.atom
         """
         title = self.preferences["blog_title"]
 
-        if feed_name == ENTRIES_FEED:
-            model = BlogEntry
+        try:
+            feed_name, feed_type = os.path.splitext(raw_feed_name)
+            feed_type = feed_type.lstrip(".")
+        except Exception, err:
+            return self.error(_("Wrong URL."), err)
+
+        if feed_type == RSS:
+            FeedGenerator = feedgenerator.Rss201rev2Feed
+        elif feed_type == ATOM:
+            FeedGenerator = feedgenerator.Atom1Feed
+        else:
+            return self.error(
+                _("Wrong URL."), " feed type '%s' unknown." % feed_type
+            )
+
+        limit = self._get_max_count()
+
+        if feed_name == ENTRIES_FEED_NAME:
+            # Feed with all blog entries
+            entries = BlogEntry.objects
             title += " - all blog entries"
 
-        elif feed_name == COMMENTS_FEED:
-            model = BlogComment
+        elif feed_name == COMMENTS_FEED_NAME:
+            # Feed with all comments
+            entries = BlogComment.objects
             title += " - all blog comments"
 
+        elif feed_name.startswith(TAG_FEED_PREFIX):
+            # Feed with all blog entries tagged with the given tag
+            tag_slug = feed_name[len(TAG_FEED_PREFIX):]
+            #self.page_msg("Tag slug: '%s'" % tag_slug)
+            tag_obj = BlogTag.objects.get(slug = tag_slug)
+            title += " - all blog entries tagged with '%s'" % tag_obj.name
+            entries = tag_obj.blogentry_set
+
         else:
-            raise AttributeError("Wrong feed_name.")
+            return self.error(
+                _("Wrong URL."), " feed name '%s' unknown." % feed_name
+            )
 
-        items = model.objects.filter(is_public=True).all()[:10]
+        # Get the items
+        items = entries.filter(is_public=True).all()[:limit]
 
-        link = self.URLs.methodLink("feed", feed_name)
+        feed = self._get_feed(FeedGenerator, items, title)
+        feed_content = feed.writeString('utf8')
+        content_type = "%s; charset=utf-8" % feed.mime_type
 
-        feed = self._get_feed(FeedGenerator, items, title, link)
+        if FEED_DEBUG:
+            self.response.write("<h2>Debug:</h2>")
+            self.response.write("content type: %s" % content_type)
+            self.response.write("<pre>")
+            self.response.write(escape(feed_content))
+            self.response.write("</pre>")
+            return
 
-        return feed.writeString('utf8')
+        # send the feed as a file to the client
+        response = HttpResponse(content_type=content_type)
+        response.write(feed_content)
+        return response
 
 
-    def _get_feed(self, FeedGenerator, items, title, link):
+    def _get_feed(self, FeedGenerator, items, title):
         """
         returns the generated feed.
         """
         feed = FeedGenerator(
             title = title,
-            link = self.URLs.make_absolute_url(link),
+            link = self.URLs.make_absolute_url(self.index_url),
             description = self.preferences.get("description", ""), # XXX
             language = self.preferences.get("language", u"en"), # XXX
         )
@@ -958,7 +817,7 @@ class blog(PyLucidBasePlugin):
             )
 
         return feed
-'''
+
 
 class WrongReferer(Exception):
     """

@@ -60,7 +60,7 @@ class PreferencesForm(forms.Form):
     )
     max_anonym_count = forms.IntegerField(
         initial = 10,
-        min_value = 3,
+        min_value = 1,
         help_text=_(
             "The maximal numbers of blog entries, displayed together"
             " for anonymous users"
@@ -68,10 +68,17 @@ class PreferencesForm(forms.Form):
     )
     max_user_count = forms.IntegerField(
         initial = 30,
-        min_value = 3,
+        min_value = 1,
         help_text=_(
             "The maximal numbers of blog entries, displayed together"
             " for logged in PyLucid users."
+        ),
+    )
+    max_tag_feed = forms.IntegerField(
+        initial = 10,
+        min_value = 1,
+        help_text=_(
+            "The maximal numbers of tag feeds, displayed together."
         ),
     )
 
@@ -142,6 +149,7 @@ plugin_manager_data = {
     "tag":          anonymous_rights,
     "add_comment":  anonymous_rights,
     "detail":       anonymous_rights,
+    "feed":         anonymous_rights,
 
     #__________________________________________________________________________
     # Restricted views

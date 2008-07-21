@@ -3,7 +3,7 @@
 <ul id="input_fields">
     {% for field in form %}
         <li title="{{ field.help_text }}" class="{{ field.html_name }}">
-        <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+        <label for="{{ field.auto_id }}">{{ field.label }}:</label>
         {{ field }}
         <span class="field_help_text">{{ field.help_text }}</span>
         {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
