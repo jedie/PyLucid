@@ -1,4 +1,4 @@
-{% if back_url %}<p><a href="{{ back_url }}" class="action_link">Display all blog entries</a></p>{% endif %}
+{% if back_url %}<p><a href="{{ back_url }}" class="action_link">&laquo; Display all blog entries</a></p>{% endif %}
 {% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}
 
 {% if not entries %}no blog entry exists{% endif %}
@@ -96,19 +96,17 @@
 {% endfor %}
 
 <fieldset class="feeds"><legend>{% trans 'available syndication feeds' %}</legend>
-    {% regroup feed_info|dictsort:"feed_type" by feed_type as feeds_grouped %}
-    <ul>
-    {% for feed in feeds_grouped %}
-        <li class="grouper"><strong>{{ feed.grouper }}:</strong>
-        <ul class="feed_type">
-            {% for item in feed.list %}
-            <li><a href="{{ item.url }}">{{ item.title_info }}</a></li>
-            {% endfor %}
-        </ul>
-        </li>
+    <ul>{% trans 'normal feeds:' %}
+    {% for feed in feed_info %}
+        <li><a href="{{ feed.url }}">{{ feed.title_info }}</a></li>
+    {% endfor %}
+    </ul>
+    <ul>{% trans 'tag feeds:' %}
+    {% for feed in tag_feed_info %}
+        <li><a href="{{ feed.url }}">{{ feed.title_info }}</a></li>
     {% endfor %}
     </ul>
 </fieldset>
 
-{% if back_url %}<p><a href="{{ back_url }}" class="action_link">Display all blog entries</a></p>{% endif %}
+{% if back_url %}<p><a href="{{ back_url }}" class="action_link">&laquo;  Display all blog entries</a></p>{% endif %}
 {% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}

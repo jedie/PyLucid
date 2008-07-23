@@ -26,19 +26,21 @@ import os, datetime, posixpath
 # from django
 from django.conf import settings
 from django.http import HttpResponse
-from django.utils import feedgenerator
 from django.core.mail import send_mail
-from django.utils.safestring import mark_safe
-from django.utils.encoding import force_unicode
+#from django.utils.safestring import mark_safe
+#from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
-from django.utils import feedgenerator
-from django.contrib.syndication.feeds import Feed, FeedDoesNotExist
+#from django import newforms as forms
+#from django.newforms import ValidationError
+#from django.contrib.syndication.feeds import Feed, FeedDoesNotExist
 
 # from PyLucid
 from PyLucid.tools.utils import escape
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.utils import escape_django_tags
 from PyLucid.system.page_msg import PageMessages
+#from PyLucid.tools.newforms_utils import InternalURLField
+from PyLucid.tools.syndication_feed import FeedFormat, FEED_FORMAT_INFO
 
 # from blog plugin
 from PyLucid.plugins_internal.blog.forms import BlogCommentForm, \
@@ -64,35 +66,7 @@ FEED_DEBUG = False
 
 ENTRIES_FEED_NAME = u"entries"
 COMMENTS_FEED_NAME = u"comments"
-TAG_FEED_PREFIX = u"tag_" # The tag slug would be appended!
-
-# All file endings must be lower case and without "." !
-RSS = u"rss"
-ATOM = u"atom"
-
-#______________________________________________________________________________
-
-class FeedInfo(list):
-    """
-    A list of feed information.
-    I a normal list with one spectial add method.
-    Contains a dict for every feed info.
-    """
-    def add(self, title_info, url_parts):
-        assert(isinstance(url_parts, (list,tuple))) #Needed?
-        url_start = posixpath.join(*url_parts)
-
-        list.append(self, {
-            "feed_type": RSS,
-            "title_info": title_info,
-            "url": "%s.%s" % (url_start, RSS),
-        })
-        list.append(self, {
-            "feed_type": ATOM,
-            "title_info": title_info,
-            "url": "%s.%s" % (url_start, ATOM),
-        })
-
+TAG_FEED_PREFIX = u"tag-" # The tag slug would be appended!
 
 #______________________________________________________________________________
 
@@ -110,16 +84,15 @@ class blog(PyLucidBasePlugin):
             self.request, use_django_msg=False, html=False
         )
 
+        # URLs
+        self.index_url = self.current_page.get_absolute_url()
+        self.feed_url_prefix = self.URLs.methodLink("feed")
+
         # Get the default preference entry.
         self.preferences = self.get_preferences()
 
         # Change the page title.
         self.current_page.title = self.preferences["blog_title"]
-
-        # The absolute url to the page witch contains the blog
-        self.index_url = "FIXME"
-
-        self.feed_url_prefix = self.URLs.methodLink("feed")
 
 
     def _add_comment_admin_urls(self, comments):
@@ -175,6 +148,7 @@ class blog(PyLucidBasePlugin):
 
         # Add all available syndication feeds information
         context["feed_info"] = self._get_feeds_info()
+        context["tag_feed_info"] = self._get_tag_feeds_info()
 
         self._render_template("display_blog", context, debug=0)
 
@@ -255,7 +229,7 @@ class blog(PyLucidBasePlugin):
         context = {
             #"blog_entry": blog_entry,
             "add_comment_form": form,
-            "back_url": self.URLs.methodLink("lucidTag"),
+            "back_url": self.index_url,
         }
 
         self._list_entries([blog_entry], context, full_comments=True)
@@ -690,43 +664,95 @@ class blog(PyLucidBasePlugin):
 
         self._render_template("mod_comments", context)#, debug=2)
 
+    def _feed_filenames(self):
+        """
+        returns a list of all existing feed filenames
+        """
+        filenames = []
+        filenames.extend([ENTRIES_FEED_NAME, COMMENTS_FEED_NAME])
+
+        tags = self._get_tags()
+        filenames.extend([TAG_FEED_PREFIX + tag_slug for tag_slug, _ in tags])
+
+        return filenames
+
+    def _get_tags(self):
+        """
+        returns a list of all tags.
+        """
+        # Build a list of tag feeds
+        limit = self.preferences.get("max_tag_feed", 10)
+        tags = BlogTag.objects.values_list("slug", "name").all()[:limit]
+        return tags
+
     def _get_feeds_info(self):
         """
         returns information about all available syndication feeds.
         """
-        feed_info = FeedInfo()
+        feeds = []
 
-        # Add "normal" feeds
-        feed_info.add(
-            title_info = ENTRIES_FEED_NAME,
-            url_parts = (self.feed_url_prefix, ENTRIES_FEED_NAME,)
-        )
-        feed_info.add(
-            title_info = COMMENTS_FEED_NAME,
-            url_parts = (self.feed_url_prefix, COMMENTS_FEED_NAME,)
-        )
+        for feed_name in (ENTRIES_FEED_NAME, COMMENTS_FEED_NAME,):
+            feeds.append({
+                "url": self.URLs.methodLink("select_feed_format", feed_name),
+                "title_info": feed_name,
+                "filename": feed_name
+            })
 
-        # Build a list of tag feeds
-        limit = self.preferences.get("max_tag_feed", 10)
-        tags = BlogTag.objects.values_list("slug", "name").all()[:limit]
-        tag_feeds = [TAG_FEED_PREFIX + i[0] for i in tags]
-        #self.page_msg(tag_feeds)
+        #self.page_msg(feeds)
+        return feeds
 
+    def _get_tag_feeds_info(self):
+        """
+        returns information about all available syndication feeds.
+        """
+        tags = self._get_tags()
+
+        feeds = []
         # Add tag feeds
         for tag_slug, tag_name in tags:
             filename = TAG_FEED_PREFIX + tag_slug
+            feeds.append({
+                "url": self.URLs.methodLink("select_feed_format", filename),
+                "title_info": tag_name,
+                "filename": filename
+            })
 
-            feed_info.add(
-                title_info = tag_name,
-                url_parts = (self.feed_url_prefix, filename,)
-            )
+        #self.page_msg(feeds)
+        return feeds
 
-        return feed_info
-
-
-    def feed(self, raw_feed_name):
+    def select_feed_format(self, raw_feed_name=None):
         """
-        Generate and return a syndication feeds.
+        Build a html page with all existing feed formats
+        """
+        if raw_feed_name == None:
+            return self.error(_("Wrong URL."), "No feed filename given in URL.")
+
+        feed_name = raw_feed_name.strip("/")
+        existing_filenames = self._feed_filenames()
+        if feed_name not in existing_filenames:
+            return self.error(_("Wrong URL."), "Feed filename doesn't exist")
+
+        format_info = []
+        for feed_info in FEED_FORMAT_INFO:
+            filename = "%s.%s" % (feed_name, feed_info["ext"])
+            format_info.append({
+                "filename": filename,
+                "url": self.URLs.methodLink("feed", filename).rstrip("/"),
+                "title": feed_info["title"],
+                "info_link": feed_info["info_link"],
+                "mime_type": feed_info["generator"].mime_type,
+            })
+
+        context = {
+            "back_url": self.index_url,
+            "format_info": format_info,
+        }
+
+        self._render_template("select_feed_format", context, debug=0)
+
+    def feed(self, raw_feed_name=None):
+        """
+        Generate and return a syndication feed.
 
         feed_name e.g.:
             tag_%s.rss
@@ -734,22 +760,21 @@ class blog(PyLucidBasePlugin):
             entries .rss/.atom
             comments .rss/.atom
         """
+        if raw_feed_name == None:
+            return self.error(_("Wrong URL."), "No feed filename given in URL.")
+
         title = self.preferences["blog_title"]
 
+        feed_info = FeedFormat()
         try:
-            feed_name, feed_type = os.path.splitext(raw_feed_name)
-            feed_type = feed_type.lstrip(".")
+            feed_info.parse_filename(raw_feed_name)
         except Exception, err:
+            if self.request.debug: raise
             return self.error(_("Wrong URL."), err)
 
-        if feed_type == RSS:
-            FeedGenerator = feedgenerator.Rss201rev2Feed
-        elif feed_type == ATOM:
-            FeedGenerator = feedgenerator.Atom1Feed
-        else:
-            return self.error(
-                _("Wrong URL."), " feed type '%s' unknown." % feed_type
-            )
+        feed_name = feed_info["feed_name"]
+        format_info = feed_info["format_info"]
+        FeedGenerator = format_info["generator"]
 
         limit = self._get_max_count()
 
@@ -779,7 +804,7 @@ class blog(PyLucidBasePlugin):
         # Get the items
         items = entries.filter(is_public=True).all()[:limit]
 
-        feed = self._get_feed(FeedGenerator, items, title)
+        feed = self._get_feed(FeedGenerator, items, title, feed_name)
         feed_content = feed.writeString('utf8')
         content_type = "%s; charset=utf-8" % feed.mime_type
 
@@ -797,24 +822,41 @@ class blog(PyLucidBasePlugin):
         return response
 
 
-    def _get_feed(self, FeedGenerator, items, title):
+    def _get_feed(self, FeedGenerator, items, title, feed_name):
         """
         returns the generated feed.
         """
         feed = FeedGenerator(
             title = title,
             link = self.URLs.make_absolute_url(self.index_url),
-            description = self.preferences.get("description", ""), # XXX
-            language = self.preferences.get("language", u"en"), # XXX
+            description = self.preferences.get("description", ""),
+            language = self.preferences.get("language", u"en"),
         )
         for item in items:
-            feed.add_item(
-                title = item.headline,
-                link = self.URLs.make_absolute_url(
-                    self.URLs.methodLink("detail", item.id)
-                ),
-                description = item.html_content(self.context),
-            )
+            if feed_name == COMMENTS_FEED_NAME:
+                # Feed with all comments
+                feed.add_item(
+                    title = _("Comment from '%s' for blog entry '%s'") % (
+                        item.person_name, item.blog_entry.headline
+                    ),
+                    link = self.URLs.make_absolute_url(
+                        self.URLs.methodLink("detail", item.blog_entry.id)
+                    ),
+                    description = item.content,
+                    author_name=item.person_name,
+                    pubdate = item.createtime,
+                )
+            else:
+                # Feed with blog entries
+                feed.add_item(
+                    title = item.headline,
+                    link = self.URLs.make_absolute_url(
+                        self.URLs.methodLink("detail", item.id)
+                    ),
+                    description = item.html_content(self.context),
+                    author_name=item.createby,
+                    pubdate = item.createtime,
+                )
 
         return feed
 

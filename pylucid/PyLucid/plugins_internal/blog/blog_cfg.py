@@ -4,14 +4,14 @@
 # meta information
 __author__              = "Jens Diemer"
 __url__                 = "http://www.PyLucid.org"
-__description__         = "A simple blog system (extermental)"
+__description__         = "A simple blog system"
 __long_description__ = """
+More information: http://www.pylucid.org/_goto/165/blog/
 """
 
 #_____________________________________________________________________________
 # preferences
 
-from django.conf import settings
 from django import newforms as forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
@@ -34,6 +34,8 @@ class PreferencesForm(forms.Form):
 
     'mod_keywords' and 'spam_keywords' are case-insensitive and matches on every
     partial word. Be carefull with 'spam_keywords'.
+
+    More information: http://www.pylucid.org/_goto/165/blog/
     """
     blog_title = forms.CharField(
         initial = "blog",
@@ -42,7 +44,7 @@ class PreferencesForm(forms.Form):
         ),
     )
     description = forms.CharField(
-        initial = "",
+        initial = "", required=False,
         help_text = _(
             "The blog description (Used for RSS/Atom feeds)."
         ),
@@ -131,7 +133,8 @@ class PreferencesForm(forms.Form):
         ),
     )
 
-# Optional, this Plugin can't have multiple preferences
+
+# They can only exist one blog in a PyLucid instance
 multiple_pref = False
 
 #_____________________________________________________________________________
@@ -149,7 +152,9 @@ plugin_manager_data = {
     "tag":          anonymous_rights,
     "add_comment":  anonymous_rights,
     "detail":       anonymous_rights,
-    "feed":         anonymous_rights,
+
+    "select_feed_format":   anonymous_rights,
+    "feed":                 anonymous_rights,
 
     #__________________________________________________________________________
     # Restricted views

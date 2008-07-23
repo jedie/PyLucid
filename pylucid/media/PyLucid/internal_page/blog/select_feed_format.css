@@ -1,0 +1,13 @@
+.action_link {
+  color: #fff;
+  display:block;
+  background-color: #09C;
+}
+.info_link {
+  padding: 0em 0.5em 0em 0.5em;
+  text-decoration: none;
+  cursor:help;
+}
+.info_link:hover {
+  text-decoration: underline;
+}

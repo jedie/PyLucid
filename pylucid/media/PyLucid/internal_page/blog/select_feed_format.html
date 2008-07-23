@@ -1,0 +1,23 @@
+{% if back_url %}<p><a href="{{ back_url }}" class="action_link">&laquo; {% trans 'back' %}</a></p>{% endif %}
+
+<fieldset class="feeds"><legend>{% trans 'available syndication feed formats' %}</legend>
+    {% trans 'Please select:' %}
+    <table>
+        <tr>
+        <th>{% trans 'feed file' %}</th>
+        <th>{% trans 'feed format info' %}</th>
+        </tr>
+    {% for feed in format_info %}
+        <tr>
+            <td>
+              <a href="{{ feed.url }}" type="{{ feed.mime_type }}">{{ feed.filename }}</a>
+            </td>
+            <td>
+              <a href="{{ feed.info_link }}" class="info_link" title="{% blocktrans with feed.title as title %}Info link: What is a '{{ title }}' feed?{% endblocktrans %}">{{ feed.title }}</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+</fieldset>
+
+{% if back_url %}<p><a href="{{ back_url }}" class="action_link">&laquo; {% trans 'back' %}</a></p>{% endif %}

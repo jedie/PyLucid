@@ -32,12 +32,12 @@
   padding: 0.1em 0.5em 0.1em 0.5em;
 }
 /* -------------------------------------------------------------------------- */
-.action_link, .admin_info_line {
+.blog .action_link, .blog .admin_info_line {
   color: #fff;
   display:block;
   background-color: #09C;
 }
-.admin_info_line {
+.blog .admin_info_line {
   text-align: center;
   background-color: #33CC99;
 }
@@ -150,7 +150,7 @@
   padding: 0px;
   margin: 0px;
 }
-.feed_type, .feed_type li {
+.feeds, .feeds li {
   display:inline;
 }
 /* -------------------------------------------------------------------------- */
