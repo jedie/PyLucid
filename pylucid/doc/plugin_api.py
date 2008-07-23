@@ -161,6 +161,13 @@ class ExamplePlugin(PyLucidBasePlugin):
         # Get a entry (It's a dict api)
         my_entry_value = preferences["entry_key"]
 
+    def change_preference_entry(self):
+        """
+        A plugin can change a preference entry with self.set_preferences()
+        """
+        new_preference_dict = self.set_preferences("key", "new_value")
+
+        self.page_msg("Changed value:", new_preference_dict["key"])
 
     #__________________________________________________________________________
     # ENVIRONMENT

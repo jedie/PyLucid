@@ -183,6 +183,30 @@ class TestPluginPreferences(tests.TestCase):
         self.assertEqual(pref_obj3.get_data(), TEST_DICT2)
 
 
+    def test_plugin_manager(self):
+        """
+        Test Plugin.objects.set_preferences
+        """
+        pref_obj1 = self.test_plugin.set_default_preference(
+            comment = "default pref",
+            data = {"a":1, "b":2},
+            user = None,
+        )
+        self.assertEqual(pref_obj1.get_data(), {"a":1, "b":2})
+
+        # Test set_preferences
+        data_dict = Plugin.objects.set_preferences(
+            self.test_plugin.plugin_name, "b", 3, user=None
+        )
+        self.assertEqual(data_dict, {"a":1, "b":3})
+
+        # Check Plugin.objects.get_preferences
+        preference = Plugin.objects.get_preferences(
+            self.test_plugin.plugin_name, id=None
+        )
+        self.assertEqual(preference, {"a":1, "b":3})
+
+
     def test_user_assign(self):
         """
         Check user assign and timestamps

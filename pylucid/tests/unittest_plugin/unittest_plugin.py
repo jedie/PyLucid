@@ -157,6 +157,14 @@ class unittest_plugin(PyLucidBasePlugin):
             }
         )
 
+        # Change a preference entry
+        new_preference_dict = self.set_preferences('print_index', True)
+        assert(new_preference_dict['print_index'], True)
+
+        # Get the preference from the database again and check
+        preferences = self.get_preferences()
+        assert(preferences['print_index'], True)
+
         self.response.write("test preferences END")
 
 

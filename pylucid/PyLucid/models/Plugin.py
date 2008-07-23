@@ -75,10 +75,7 @@ class PluginManager(models.Manager):
 
     Adds caching to plugin preference queries.
     """
-    def get_preferences(self, plugin_name, id=None):
-        """
-        returns the preference data dict, use the cache
-        """
+    def get_pref_obj(self, plugin_name, id=None):
         # Get the name of the plugin, if __file__ used
         plugin_name = os.path.splitext(os.path.basename(plugin_name))[0]
         #print "plugin name: '%s'" % plugin_name
@@ -101,8 +98,25 @@ class PluginManager(models.Manager):
                 " This entry is for the plugin '%s' and not for '%s'!"
             ) % (id, pref.plugin, plugin)
 
-        data_dict = pref.get_data()
+        return pref
 
+    def get_preferences(self, plugin_name, id=None):
+        """
+        returns the preference data dict, use the cache
+        """
+        pref = self.get_pref_obj(plugin_name, id)
+        data_dict = pref.get_data()
+        return data_dict
+
+    def set_preferences(self, plugin_name, key, value, user, id=None):
+        """
+        set a new value to one preferences entry
+        """
+        pref_obj = self.get_pref_obj(plugin_name, id)
+        data_dict = pref_obj.get_data()
+        data_dict[key] = value
+        pref_obj.set_data(data_dict, user)
+        pref_obj.save()
         return data_dict
 
     def get_plugin_models(self, package_name, plugin_name, page_msg, verbosity):
