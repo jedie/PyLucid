@@ -27,7 +27,7 @@
 #______________________________________________________________________________
 # internal import functions
 
-def import2(from_name, fromlist=[], globals={}, locals={}):
+def import2(from_name, fromlist=None, globals={}, locals={}):
     """
     A easy __import__ function.
     TODO: Python 2.5 level argument not supported, yet.
@@ -70,7 +70,7 @@ def import2(from_name, fromlist=[], globals={}, locals={}):
         fromlist = [fromlist]
 
     obj = __import__(from_name, globals, locals, fromlist)
-    if fromlist==[]:
+    if fromlist==None:
         # Without a fromlist
         return obj
 
