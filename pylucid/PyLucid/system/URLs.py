@@ -153,6 +153,8 @@ class URLs(dict):
             self["host"],
         )
 
+        self["path_info"] = self.request.META.get("PATH_INFO", "")
+
 #        self["scriptRoot"] = self.request.META.get("SCRIPT_NAME", "/")
         self["scriptRoot"] = "/"
 
