@@ -19,8 +19,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
+from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
 
-from PyLucid.tools.content_processors import apply_markup
+from PyLucid.tools.content_processors import apply_markup, fallback_markup
 from PyLucid.models.Page import MARKUPS
 
 
@@ -65,6 +67,14 @@ class BlogComment(models.Model):
         help_text="User as last edit the current comment.",
         null=True, blank=True
     )
+
+    def html_content(self):
+        """
+        returns the content as html used a simple markup.
+        """
+        safe_content = strip_tags(self.content)
+        content = fallback_markup(safe_content)
+        return mark_safe(content)
 
     class Admin:
         pass

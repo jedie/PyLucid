@@ -20,6 +20,13 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
+import re
+
+if __name__ == "__main__":
+    # For doctest only
+    import os
+    os.environ["DJANGO_SETTINGS_MODULE"] = "PyLucid.settings"
+
 from django.conf import settings
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
@@ -35,15 +42,26 @@ add_to_builtins('PyLucid.template_addons')
 #______________________________________________________________________________
 # MARKUP
 
+BLOCK_RE = re.compile("\n{2,}")
+
+LINK_RE = re.compile(
+    r'''(?<!=")(?P<url>(http|ftp|svn|irc)://(?P<title>[^\s\<]+))(?uimx)'''
+)
+
 def fallback_markup(content):
     """
     A simplest markup, build only paragraphs.
+    >>> fallback_markup("line one\\nline two\\n\\nnext block")
+    '<p>line one<br />\\nline two</p>\\n\\n<p>next block</p>'
+
+    >>> fallback_markup("url: http://pylucid.org END")
+    '<p>url: <a href="http://pylucid.org">pylucid.org</a> END</p>'
     """
-    import re
     content = content.replace("\r\n", "\n").replace("\r","\n")
-    blocks = re.split("\n{2,}", content)
+    blocks = BLOCK_RE.split(content)
     blocks = [line.replace("\n", "<br />\n") for line in blocks]
     content = "<p>" + "</p>\n\n<p>".join(blocks) + "</p>"
+    content = LINK_RE.sub(r'<a href="\g<url>">\g<title></a>', content)
     return content
 
 def apply_tinytextile(content, context):
@@ -155,4 +173,10 @@ def render_string_template(content, context, autoescape=True):
 
 
 
-
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(
+#        verbose=True
+        verbose=False
+    )
+    print "DocTest end."

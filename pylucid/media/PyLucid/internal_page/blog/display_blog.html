@@ -54,7 +54,7 @@
                         {% if comment.delete_url %}<a href="{{ comment.delete_url }}" onClick="return confirm('Realy want to delete the comment entry?');">delete</a>{% endif %}
                       </div>
 
-                      <pre>{{ comment.content }}</pre>
+                      {{ comment.html_content }}
 
                       <small><p class="dateinfo">
                         created {{ comment.createtime }} by {% if comment.createby %}{{ comment.createby }}{% else %}{{ comment.ip_address }}{% endif %}

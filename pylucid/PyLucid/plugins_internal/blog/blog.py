@@ -27,7 +27,6 @@ import os, datetime, posixpath
 from django.conf import settings
 from django.http import HttpResponse
 from django.core.mail import send_mail
-#from django.utils.safestring import mark_safe
 #from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 #from django import newforms as forms
@@ -94,7 +93,6 @@ class blog(PyLucidBasePlugin):
         # Change the page title.
         self.current_page.title = self.preferences["blog_title"]
 
-
     def _add_comment_admin_urls(self, comments):
         for comment in comments:
             comment.edit_url = self.URLs.methodLink(
@@ -130,6 +128,7 @@ class blog(PyLucidBasePlugin):
                     self._add_comment_admin_urls(comments)
                 else:
                     comments = comments.filter(is_public = True).all()
+
                 entry.all_comments = comments
             else:
                 entry.detail_url = self.URLs.methodLink(
