@@ -81,6 +81,7 @@ class BlogComment(models.Model):
 
     class Meta:
         app_label = 'PyLucidPlugins'
+        ordering = ('createtime', 'lastupdatetime')
 
 #______________________________________________________________________________
 
@@ -111,7 +112,7 @@ class BlogTagManager(models.Manager):
 
 class BlogTag(models.Model):
     """
-    FIXME: How can we add ordering?
+    A blog entry tag
     """
     objects = BlogTagManager()
 
@@ -128,7 +129,7 @@ class BlogTag(models.Model):
 
     class Meta:
         app_label = 'PyLucidPlugins'
-
+        ordering = ('name',)
 
 #______________________________________________________________________________
 

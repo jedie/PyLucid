@@ -107,12 +107,12 @@ class blog(PyLucidBasePlugin):
         Display the blog.
         As a list of entries and as a detail view (see internal page).
         """
-        used_tags = []
+        used_tags = set()
         for entry in entries:
             # add tag_info
             tags = []
             for tag in entry.tags.all():
-                used_tags.append(tag) # Used in self._get_tag_feeds_info()
+                used_tags.add(tag) # Used in self._get_tag_feeds_info()
                 tags.append({
                     "name": tag.name,
                     "url": self.URLs.methodLink("tag", tag.slug),
@@ -716,8 +716,36 @@ class blog(PyLucidBasePlugin):
         """
         Build the tag cloud context.
         """
+        tags = BlogTag.objects.all()
 
-        return []
+        frequency = set()
+        # get the counter information
+        for tag in tags:
+            count = tag.blogentry_set.count()
+            tag.count = count
+            #self.page_msg(tag, count)
+            frequency.add(count)
+
+        min_frequency = float(min(frequency))
+        max_frequency = float(max(frequency))
+        diff_frequency = float(max_frequency - min_frequency)
+
+        max_font_size = self.preferences.get("max_cloud_size", 2.0)
+        min_font_size = self.preferences.get("min_cloud_size", 0.7)
+
+        # Calculate and add the font size
+        for tag in tags:
+            count = float(tag.count)
+            tag.font_size = (
+                (
+                    (max_font_size-min_font_size) * (count - min_frequency)
+                ) / diff_frequency
+            ) + min_font_size
+
+            tag.url = self.URLs.methodLink("tag", tag.slug)
+            #self.page_msg(tag, count, tag.font_size)
+
+        return tags
 
     def select_feed_format(self, raw_feed_name=None):
         """

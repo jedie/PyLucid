@@ -84,6 +84,21 @@ class PreferencesForm(forms.Form):
         ),
     )
 
+    max_cloud_size = forms.FloatField(
+        initial = 2.0,
+        min_value = 1,
+        help_text=_(
+            "max font size in the tag cloud (CSS 'em' unit)"
+        ),
+    )
+    min_cloud_size = forms.FloatField(
+        initial = 0.7,
+        min_value = 0.1,
+        help_text=_(
+            "min font size in the tag cloud (CSS 'em' unit)"
+        ),
+    )
+
     notify = forms.CharField(
         initial = "\n".join(
             [i["email"] \
