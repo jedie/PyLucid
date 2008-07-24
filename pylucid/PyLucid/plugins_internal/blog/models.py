@@ -86,33 +86,82 @@ class BlogComment(models.Model):
 #______________________________________________________________________________
 
 
+BAD_TAG_SLUG_CHARS = (" ", "/", ";")
 class BlogTagManager(models.Manager):
     """
     Manager for BlogTag model.
     """
-    def get_or_creates(self, tags_string):
+    def safe_get(self, slug):
         """
-        split the given tags_string and create not existing tags.
-        returns a list of all tag model objects and a list of all created tags.
+        Get a tag entry by slug. Try to verify the slug before we access the
+        database. Should be used, if the slug comes from the Client
+        (e.g. via url)
+        TODO: Exist there a better way to verify the tag slug?
         """
-        tag_objects = []
+        slug = slug.strip("/") # If it comes from url args
+        for char in BAD_TAG_SLUG_CHARS:
+            if char in slug:
+                raise self.model.DoesNotExist("Not allowed character in tag name!")
+
+        return self.model.objects.get(slug = slug)
+
+    def add_new_tags(self, tag_list, blog_obj):
+        """
+        Create new tag entries and add it to the given blog entry.
+        Skip existing tags and returns only the new created tags.
+        """
         new_tags = []
-        for tag_name in tags_string.split(" "):
-            tag_name = tag_name.strip().lower()
+        for tag_name in tag_list:
             try:
                 tag_obj = self.get(name = tag_name)
             except self.model.DoesNotExist:
                 new_tags.append(tag_name)
                 tag_obj = self.create(name = tag_name, slug = tag_name)
 
-            tag_objects.append(tag_obj)
+            # Add many-to-many
+            blog_obj.tags.add(tag_obj)
 
-        return tag_objects, new_tags
+        return new_tags
+
+    def get_tag_info(self):
+        """
+        Returns all tags with the additional information:
+         * tag.count     - How many blog entries used this tag?
+
+        returns min_frequency and max_frequency, too: The min/max usage of all
+        tags. Needed to build a tag cloud.
+        """
+        tags = self.model.objects.all()
+
+        frequency = set()
+        # get the counter information
+        for tag in tags:
+            count = tag.blogentry_set.count()
+            tag.count = count
+            frequency.add(count)
+
+        min_frequency = float(min(frequency))
+        max_frequency = float(max(frequency))
+
+        return tags, min_frequency, max_frequency
+
+#    def get_tag_choices(self):
+#        """
+#        returns >count< tags witch are the most used tags.
+#        """
+#        tags, min_frequency, max_frequency = self.get_tag_info()
+#
+#        tags = sorted(tags, key=lambda x: x.count, reverse=True)
+#
+#        choices = tuple([(t.id, t.name) for t in tags])
+#        return choices
 
 
 class BlogTag(models.Model):
     """
     A blog entry tag
+    TODO: Add a usage counter! So we can easy sort from more to less usages and
+          building a tag cloud is easier.
     """
     objects = BlogTagManager()
 

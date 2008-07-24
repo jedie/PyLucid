@@ -243,8 +243,19 @@ class blog(PyLucidBasePlugin):
         Display all blog entries with the given tag.
         """
         slug = urlargs.strip("/")
-        # TODO: Verify tag
-        tag_obj = BlogTag.objects.get(slug = slug)
+        # TODO: Exist there a better way to verify the tag slug?
+        for char in (" ", "/", ";"):
+            if char in slug:
+                return self.error(
+                    _("Wrong URL."), "Not allowed character in tag name!"
+                )
+
+        try:
+            tag_obj = BlogTag.objects.safe_get(slug)
+        except BlogTag.DoesNotExist, err:
+            return self.error(
+                _("Wrong URL."), "tag '%s' unknown: %s" % (slug, err)
+            )
 
         self.current_page.title += (
             " - " + _("all blog entries tagged with '%s'")
@@ -277,35 +288,31 @@ class blog(PyLucidBasePlugin):
             form = BlogEntryForm(self.request.POST)
             #self.page_msg(self.request.POST)
             if form.is_valid():
+                new_tags = form.cleaned_data.pop("new_tags") # ListCharField
                 if blog_obj == None:
                     # a new blog entry should be created
                     blog_obj = BlogEntry(
-                        headline = form.cleaned_data["headline"],
-                        content = form.cleaned_data["content"],
-                        markup = form.cleaned_data["markup"],
+                        headline  = form.cleaned_data["headline"],
+                        content   = form.cleaned_data["content"],
+                        markup    = form.cleaned_data["markup"],
                         is_public = form.cleaned_data["is_public"],
-                        createby = self.request.user,
+                        createby  = self.request.user,
                     )
                     blog_obj.save()
                     self.page_msg.green("New blog entry created.")
-                    tags_string = form.cleaned_data["tags"]
                 else:
                     # Update a existing blog entry
-                    tags_string = form.cleaned_data.pop("tags")
                     self.page_msg.green("Update existing blog entry.")
                     blog_obj.lastupdateby = self.request.user
                     for k,v in form.cleaned_data.iteritems():
                         setattr(blog_obj, k, v)
 
-                tag_objects, new_tags = BlogTag.objects.get_or_creates(
-                    tags_string
-                )
-                if new_tags:
-                    self.page_msg(_("New tags created: %s") % new_tags)
-
-                # Add many-to-many
-                for tag in tag_objects:
-                    blog_obj.tags.add(tag)
+                if new_tags != []:
+                    # There are new tags to create incoming via ListCharField
+                    # Create the new tags and add them to the blog entry
+                    new_tags = BlogTag.objects.add_new_tags(new_tags, blog_obj)
+                    if new_tags:
+                        self.page_msg(_("New tags created: %s") % new_tags)
 
                 blog_obj.save()
 
@@ -313,18 +320,12 @@ class blog(PyLucidBasePlugin):
         else:
             if blog_obj == None:
                 context["legend"] = _("Create a new blog entry")
-
                 form = BlogEntryForm(
-                    initial={
-                        "markup": self.preferences["default_markup"],
-                    }
+                    initial={"markup": self.preferences["default_markup"],}
                 )
             else:
                 context["legend"] = _("Edit a existing blog entry")
-                form = BlogEntryForm(
-                    instance=blog_obj,
-                    initial={"tags":blog_obj.get_tag_string()}
-                )
+                form = BlogEntryForm(instance=blog_obj)
 
         context["form"]= form
 
@@ -472,7 +473,6 @@ class blog(PyLucidBasePlugin):
             )
 
 
-
     def _save_new_comment(self, blog_entry, clean_data):
         """
         Save a valid submited comment form into the database.
@@ -498,8 +498,9 @@ class blog(PyLucidBasePlugin):
             self.submit_msg(msg)
             is_public = False
         else:
-            self.submit_msg("Blog comment published.")
-            mail_title = _("Blog comment published.")
+            msg = _("Blog comment published.")
+            self.submit_msg(msg)
+            mail_title = msg
             is_public = True
 
         content = escape_django_tags(content)
@@ -617,17 +618,9 @@ class blog(PyLucidBasePlugin):
             # Wrong url, page_msg was send to the user
             return
 
-#        CommentForm = AdminCommentForm
-#
-#
-#        CommentForm = forms.form_for_instance(
-#            instance=comment_entry#, form=BlogCommentForm
-#        )
-
         blog_entry = comment_entry.blog_entry # ForeignKey("BlogEntry")
 
         if self.request.method == 'POST':
-#            form = CommentForm(self.request.POST)
             form = AdminCommentForm(self.request.POST, instance=comment_entry)
             #self.page_msg(self.request.POST)
             if form.is_valid():
@@ -640,7 +633,6 @@ class blog(PyLucidBasePlugin):
                     [blog_entry], context={}, full_comments=True
                 )
         else:
-#            form = CommentForm()
             form = AdminCommentForm(instance=comment_entry)
 
         context = {
@@ -716,18 +708,8 @@ class blog(PyLucidBasePlugin):
         """
         Build the tag cloud context.
         """
-        tags = BlogTag.objects.all()
+        tags, min_frequency, max_frequency = BlogTag.objects.get_tag_info()
 
-        frequency = set()
-        # get the counter information
-        for tag in tags:
-            count = tag.blogentry_set.count()
-            tag.count = count
-            #self.page_msg(tag, count)
-            frequency.add(count)
-
-        min_frequency = float(min(frequency))
-        max_frequency = float(max(frequency))
         diff_frequency = float(max_frequency - min_frequency)
 
         max_font_size = self.preferences.get("max_cloud_size", 2.0)
@@ -756,7 +738,7 @@ class blog(PyLucidBasePlugin):
 
         feed_name = raw_feed_name.strip("/")
 
-        # Verify the feed name
+        # Verify raw_feed_name
         try:
             self._feed_info_by_filename(feed_name)
         except WrongFeedFilename, err:
@@ -798,7 +780,7 @@ class blog(PyLucidBasePlugin):
             # Feed with all blog entries tagged with the given tag
             tag_slug = feed_name[len(TAG_FEED_PREFIX):]
             try:
-                tag_obj = BlogTag.objects.get(slug = tag_slug)
+                tag_obj = BlogTag.objects.safe_get(tag_slug)
             except BlogTag.DoesNotExist, err:
                 raise WrongFeedFilename(
                     "tag '%s' unknown: %s" % (tag_slug, err)

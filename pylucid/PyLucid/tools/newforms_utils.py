@@ -14,6 +14,7 @@
 """
 
 from django import newforms as forms
+from django.newforms import ValidationError
 from django.utils.encoding import smart_unicode
 
 
@@ -86,7 +87,7 @@ class ChoiceField2(forms.ChoiceField):
 class StripedCharField(forms.CharField):
     """
     Same as forms.CharField but stripes the output.
-    
+
     >>> f = StripedCharField()
     >>> f.clean('\\n\\n[\\nTEST\\n]\\n\\n')
     u'[\\nTEST\\n]'
@@ -94,6 +95,62 @@ class StripedCharField(forms.CharField):
     def clean(self, value):
         value = super(StripedCharField, self).clean(value)
         return value.strip()
+
+
+class ListCharField(forms.CharField):
+    """
+    Items seperated by spaces.
+
+    >>> f = ListCharField()
+    >>> f.clean(' one two  tree')
+    [u'one', u'two', u'tree']
+    """
+    def clean(self, value):
+        raw_value = super(ListCharField, self).clean(value)
+        value = raw_value.strip()
+        items = [i.strip() for i in value.split(" ")]
+        items = [i for i in items if i] # eliminate empty items
+        return items
+
+
+class InternalURLField(forms.CharField):
+    """
+    Uses e.g. for back urls via a http GET parameter
+    validates the URL and check if is't a internal url and not
+    a external.
+
+    >>> f = InternalURLField()
+    >>> f.clean('/a/foobar/url/')
+    u'/a/foobar/url/'
+
+    >>> f.clean('http://eval.domain.tld')
+    Traceback (most recent call last):
+        ...
+    ValidationError: [u'Open redirect found.']
+
+    >>> f = InternalURLField(must_start_with="/_command/")
+    >>> f.clean('/_command/a/foobar/url/')
+    u'/_command/a/foobar/url/'
+
+    >>> f.clean('/a/wrong/url/')
+    Traceback (most recent call last):
+        ...
+    ValidationError: [u'Open redirect found.']
+    """
+    default_error_message = "Open redirect found."
+
+    def __init__(self, must_start_with=None, *args, **kwargs):
+        self.must_start_with = must_start_with
+        super(InternalURLField, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        value = super(InternalURLField, self).clean(value)
+        if "://" in value:
+            raise ValidationError(self.default_error_message)
+        if self.must_start_with and not value.startswith(self.must_start_with):
+            raise ValidationError(self.default_error_message)
+        return value
+
 
 
 if __name__ == "__main__":

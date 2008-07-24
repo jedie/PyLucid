@@ -19,7 +19,7 @@
 from django import newforms as forms
 from django.utils.translation import ugettext as _
 
-from PyLucid.tools.newforms_utils import StripedCharField
+from PyLucid.tools.newforms_utils import StripedCharField, ListCharField
 
 # from blog plugin
 from PyLucid.plugins_internal.blog.models import BlogComment, BlogEntry
@@ -57,19 +57,32 @@ class AdminCommentForm(BlogCommentForm):
             "createtime", "lastupdatetime", "createby", "lastupdateby"
         )
 
-
 class BlogEntryForm(forms.ModelForm):
     """
     Form for create/edit a blog entry.
     """
-    content = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': '15'}),
-    )
-
-    tags = forms.CharField(
+    new_tags = ListCharField( # New field, (no field from BlogEntry model)
         max_length=255, required=False,
-        help_text=_("Tags for this entry (separated by spaces.)"),
+        help_text=_(
+            "New tags for this entry, if there not in the list above"
+            " (separated by spaces.)"
+        ),
         widget=forms.TextInput(attrs={'class':'bigger'}),
     )
+
+    def __init__(self, *args, **kwargs):
+        """
+        set some widget attributes
+        """
+        super(BlogEntryForm, self).__init__(*args, **kwargs)
+
+        # Limit the MultipleChoiceField size
+        # Is there are a better way to do this? See:
+        # http://www.python-forum.de/topic-15503.html (de)
+        self.fields['tags'].widget.attrs["size"] = 7
+
+        # makes the content textarea bigger
+        self.fields['content'].widget.attrs["rows"] = 15
+
     class Meta:
         model = BlogEntry
