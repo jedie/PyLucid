@@ -151,6 +151,8 @@ class blog(PyLucidBasePlugin):
         context["feed_info"] = self._get_feeds_info()
         context["tag_feed_info"] = self._get_tag_feeds_info(used_tags)
 
+        context["tag_cloud"] = self._get_tag_cloud()
+
         self._render_template("display_blog", context, debug=0)
 
     def _get_max_count(self):
@@ -710,6 +712,13 @@ class blog(PyLucidBasePlugin):
         #self.page_msg(feeds)
         return feeds
 
+    def _get_tag_cloud(self):
+        """
+        Build the tag cloud context.
+        """
+
+        return []
+
     def select_feed_format(self, raw_feed_name=None):
         """
         Build a html page with all existing feed formats
@@ -718,9 +727,12 @@ class blog(PyLucidBasePlugin):
             return self.error(_("Wrong URL."), "No feed filename given in URL.")
 
         feed_name = raw_feed_name.strip("/")
-        existing_filenames = self._feed_filenames()
-        if feed_name not in existing_filenames:
-            return self.error(_("Wrong URL."), "Feed filename doesn't exist")
+
+        # Verify the feed name
+        try:
+            self._feed_info_by_filename(feed_name)
+        except WrongFeedFilename, err:
+            return self.error(_("Wrong URL."), " feed name unknown: %s" % err)
 
         format_info = []
         for feed_info in FEED_FORMAT_INFO:
@@ -740,6 +752,39 @@ class blog(PyLucidBasePlugin):
 
         self._render_template("select_feed_format", context, debug=0)
 
+    def _feed_info_by_filename(self, feed_name):
+        """
+        returns the queryset with all blog entries and a title of the feed.
+        raised WrongFeedFilename if feed_name is not valid.
+        used in self.select_feed_format() and self.feed()
+        """
+        if feed_name == ENTRIES_FEED_NAME:
+            title = _("Feed with all blog entries")
+            queryset = BlogEntry.objects
+
+        elif feed_name == COMMENTS_FEED_NAME:
+            title = _("Feed with all blog comments")
+            queryset = BlogComment.objects
+
+        elif feed_name.startswith(TAG_FEED_PREFIX):
+            # Feed with all blog entries tagged with the given tag
+            tag_slug = feed_name[len(TAG_FEED_PREFIX):]
+            try:
+                tag_obj = BlogTag.objects.get(slug = tag_slug)
+            except BlogTag.DoesNotExist, err:
+                raise WrongFeedFilename(
+                    "tag '%s' unknown: %s" % (tag_slug, err)
+                )
+
+            title = _("Feed with all blog entries tagged as '%s'") % (
+                tag_obj.name
+            )
+            queryset = tag_obj.blogentry_set
+        else:
+            raise WrongFeedFilename("feed name '%s' unknown." % feed_name)
+
+        return queryset, title
+
     def feed(self, raw_feed_name=None):
         """
         Generate and return a syndication feed.
@@ -753,8 +798,6 @@ class blog(PyLucidBasePlugin):
         if raw_feed_name == None:
             return self.error(_("Wrong URL."), "No feed filename given in URL.")
 
-        title = self.preferences["blog_title"]
-
         feed_info = FeedFormat()
         try:
             feed_info.parse_filename(raw_feed_name)
@@ -766,32 +809,15 @@ class blog(PyLucidBasePlugin):
         format_info = feed_info["format_info"]
         FeedGenerator = format_info["generator"]
 
-        limit = self._get_max_count()
+        try:
+            entries, title = self._feed_info_by_filename(feed_name)
+        except WrongFeedFilename, err:
+            return self.error(_("Wrong URL."), " feed name unknown: %s" % err)
 
-        if feed_name == ENTRIES_FEED_NAME:
-            # Feed with all blog entries
-            entries = BlogEntry.objects
-            title += " - all blog entries"
-
-        elif feed_name == COMMENTS_FEED_NAME:
-            # Feed with all comments
-            entries = BlogComment.objects
-            title += " - all blog comments"
-
-        elif feed_name.startswith(TAG_FEED_PREFIX):
-            # Feed with all blog entries tagged with the given tag
-            tag_slug = feed_name[len(TAG_FEED_PREFIX):]
-            #self.page_msg("Tag slug: '%s'" % tag_slug)
-            tag_obj = BlogTag.objects.get(slug = tag_slug)
-            title += " - all blog entries tagged with '%s'" % tag_obj.name
-            entries = tag_obj.blogentry_set
-
-        else:
-            return self.error(
-                _("Wrong URL."), " feed name '%s' unknown." % feed_name
-            )
+        title = "%s - %s" % (self.preferences["blog_title"], title)
 
         # Get the items
+        limit = self._get_max_count()
         items = entries.filter(is_public=True).all()[:limit]
 
         feed = self._get_feed(FeedGenerator, items, title, feed_name)
@@ -866,5 +892,11 @@ class RejectSpam(Exception):
 class ModerateSubmit(Exception):
     """
     A submitted comment should be moderated
+    """
+    pass
+
+class WrongFeedFilename(Exception):
+    """
+    The feed filename from the url is not valid.
     """
     pass
