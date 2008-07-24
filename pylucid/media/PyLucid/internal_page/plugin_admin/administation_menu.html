@@ -58,7 +58,8 @@
                         <input name="id" type="hidden" value="{{ plugin.id }}" />
                         <span class="action">
                             &uArr; <input type="submit" value="deinstall" name="deinstall"
-                                title="delete the Plugin with all Data (incl. internal pages)" />
+                                onClick="return confirm('{% trans 'Do you really want to deinstall the plugin? All plugin data lost!' %}');"
+                                title="delete the plugin with all Data" />
                         </span>
                     </form>
                 {% endif %}
@@ -106,7 +107,9 @@
             <td>
                 <form method="post" action="{{ action_url }}">
                     <input name="id" type="hidden" value="{{ plugin.id }}" />
-                    <input type="submit" value="reinit" name="reinit" />
+                    <input type="submit" value="reinit" name="reinit"
+                            onClick="return confirm('{% trans 'Do you really want to reinit the plugin? All plugin data lost!' %}');"
+                            title="delete the plugin with all Data and install it in one step" />
                 </form>
             </td>
         </tr>

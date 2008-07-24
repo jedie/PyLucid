@@ -18,7 +18,7 @@
             <a href="{{ entry.edit_url }}" title="edit this blog entry">edit</a>
         {% endif %}
         {% if entry.delete_url %}
-            <a href="{{ entry.delete_url }}" title="delete this blog entry">delete</a>
+            <a href="{{ entry.delete_url }}" title="delete this blog entry" onClick="return confirm('{% trans 'Do you really want to delete the entry?' %}');">{% trans 'delete' %}</a>
         {% endif %}
         </div>
 
@@ -60,7 +60,7 @@
 
                       <div class="admin_links">
                         {% if comment.edit_url %}<a href="{{ comment.edit_url }}">edit</a>{% endif %}
-                        {% if comment.delete_url %}<a href="{{ comment.delete_url }}" onClick="return confirm('Realy want to delete the comment entry?');">delete</a>{% endif %}
+                        {% if comment.delete_url %}<a href="{{ comment.delete_url }}" onClick="return confirm('{% trans 'Do you really want to delete the entry?' %}');">{% trans 'delete' %}</a>{% endif %}
                       </div>
 
                       {{ comment.html_content }}
