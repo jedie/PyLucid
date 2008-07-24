@@ -107,10 +107,12 @@ class blog(PyLucidBasePlugin):
         Display the blog.
         As a list of entries and as a detail view (see internal page).
         """
+        used_tags = []
         for entry in entries:
             # add tag_info
             tags = []
             for tag in entry.tags.all():
+                used_tags.append(tag) # Used in self._get_tag_feeds_info()
                 tags.append({
                     "name": tag.name,
                     "url": self.URLs.methodLink("tag", tag.slug),
@@ -147,7 +149,7 @@ class blog(PyLucidBasePlugin):
 
         # Add all available syndication feeds information
         context["feed_info"] = self._get_feeds_info()
-        context["tag_feed_info"] = self._get_tag_feeds_info()
+        context["tag_feed_info"] = self._get_tag_feeds_info(used_tags)
 
         self._render_template("display_blog", context, debug=0)
 
@@ -675,15 +677,6 @@ class blog(PyLucidBasePlugin):
 
         return filenames
 
-    def _get_tags(self):
-        """
-        returns a list of all tags.
-        """
-        # Build a list of tag feeds
-        limit = self.preferences.get("max_tag_feed", 10)
-        tags = BlogTag.objects.values_list("slug", "name").all()[:limit]
-        return tags
-
     def _get_feeds_info(self):
         """
         returns information about all available syndication feeds.
@@ -700,19 +693,17 @@ class blog(PyLucidBasePlugin):
         #self.page_msg(feeds)
         return feeds
 
-    def _get_tag_feeds_info(self):
+    def _get_tag_feeds_info(self, used_tags):
         """
         returns information about all available syndication feeds.
         """
-        tags = self._get_tags()
-
         feeds = []
         # Add tag feeds
-        for tag_slug, tag_name in tags:
-            filename = TAG_FEED_PREFIX + tag_slug
+        for tag in used_tags:
+            filename = TAG_FEED_PREFIX + tag.slug
             feeds.append({
                 "url": self.URLs.methodLink("select_feed_format", filename),
-                "title_info": tag_name,
+                "title_info": tag.name,
                 "filename": filename
             })
 
