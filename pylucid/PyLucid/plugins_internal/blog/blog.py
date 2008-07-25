@@ -289,19 +289,23 @@ class blog(PyLucidBasePlugin):
             #self.page_msg(self.request.POST)
             if form.is_valid():
                 new_tags = form.cleaned_data.pop("new_tags") # ListCharField
-                if blog_obj == None:
-                    # a new blog entry should be created
-                    blog_obj = BlogEntry(
-                        headline  = form.cleaned_data["headline"],
-                        content   = form.cleaned_data["content"],
-                        markup    = form.cleaned_data["markup"],
-                        is_public = form.cleaned_data["is_public"],
-                        createby  = self.request.user,
-                    )
+
+                if blog_obj == None: # a new blog entry should be created
+                    # take the many-to-many tags objects, for later assign
+                    tags = form.cleaned_data.pop("tags")
+
+                    form.cleaned_data["createby"] = self.request.user
+
+                    # Create new blog entry
+                    blog_obj = BlogEntry(**form.cleaned_data)
                     blog_obj.save()
+
+                    # Add all tags from the many-to-many tags field
+                    blog_obj.tags.add(*tags)
+
                     self.page_msg.green("New blog entry created.")
-                else:
-                    # Update a existing blog entry
+
+                else: # Update a existing blog entry
                     self.page_msg.green("Update existing blog entry.")
                     blog_obj.lastupdateby = self.request.user
                     for k,v in form.cleaned_data.iteritems():
