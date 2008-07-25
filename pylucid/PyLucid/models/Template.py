@@ -16,6 +16,7 @@
 """
 
 from django.db import models
+from django.contrib import admin
 from django.contrib.auth.models import User
 
 
@@ -45,11 +46,6 @@ class Template(models.Model):
 
         super(Template, self).save() # Call the "real" save() method
 
-    class Admin:
-        list_display = ("id", "name", "description")
-        list_display_links = ("name",)
-        js = ['tiny_mce/tiny_mce.js', 'js/textareas_raw.js']
-
     def __unicode__(self):
         return self.name
 
@@ -57,3 +53,10 @@ class Template(models.Model):
         db_table = 'PyLucid_template'
         app_label = 'PyLucid'
 
+
+class TemplateAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "description")
+    list_display_links = ("name",)
+
+
+admin.site.register(Template, TemplateAdmin)

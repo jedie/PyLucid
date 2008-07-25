@@ -20,6 +20,7 @@
 
 
 from django.db import models
+from django.contrib import admin
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group, UNUSABLE_PASSWORD
@@ -51,16 +52,18 @@ class JS_LoginData(models.Model):
     def __unicode__(self):
         return self.user.username
 
-    class Admin:
-        list_display = (
-            'user', 'sha_checksum', 'salt', 'createtime', 'lastupdatetime'
-        )
-
     class Meta:
         verbose_name = verbose_name_plural = 'JS-LoginData'
         db_table = 'PyLucid_js_logindata'
         app_label = 'PyLucid'
 
+
+class JS_LoginDataAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'sha_checksum', 'salt', 'createtime', 'lastupdatetime'
+    )
+
+admin.site.register(JS_LoginData, JS_LoginDataAdmin)
 
 #______________________________________________________________________________
 

@@ -77,12 +77,17 @@ class BlogComment(models.Model):
         content = fallback_markup(safe_content)
         return mark_safe(content)
 
-    class Admin:
-        pass
-
     class Meta:
         app_label = 'PyLucidPlugins'
         ordering = ('createtime', 'lastupdatetime')
+
+class BlogCommentAdmin(admin.ModelAdmin):
+    pass
+
+try:
+    admin.site.register(BlogComment, BlogCommentAdmin)
+except admin.sites.AlreadyRegistered:
+    pass # FIXME
 
 #______________________________________________________________________________
 
@@ -172,9 +177,6 @@ class BlogTag(models.Model):
     def __unicode__(self):
         return self.name
 
-    class Admin:
-        pass
-
     class Meta:
         app_label = 'PyLucidPlugins'
         ordering = ('name',)
@@ -183,8 +185,10 @@ class BlogTag(models.Model):
 class BlogTagAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
-admin.site.register(BlogTag, BlogTagAdmin)
-
+try:
+    admin.site.register(BlogTag, BlogTagAdmin)
+except admin.sites.AlreadyRegistered:
+    pass # FIXME
 
 #______________________________________________________________________________
 
@@ -223,8 +227,8 @@ class BlogEntry(models.Model):
         returns the generatet html code from the content applyed the markup.
         """
         return apply_markup(
-            content = self.content,
-            context = context,
+            content   = self.content,
+            context   = context,
             markup_no = self.markup
         )
 
@@ -239,9 +243,15 @@ class BlogEntry(models.Model):
     def __unicode__(self):
         return self.headline
 
-    class Admin:
-        pass
-
     class Meta:
         app_label = 'PyLucidPlugins'
         ordering = ('-createtime', '-lastupdatetime')
+
+
+class BlogEntryAdmin(admin.ModelAdmin):
+    pass
+
+try:
+    admin.site.register(BlogEntry, BlogEntryAdmin)
+except admin.sites.AlreadyRegistered:
+    pass # FIXME

@@ -14,6 +14,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from django.contrib import admin
 from django.conf.urls.defaults import include, patterns
 
 from django.conf import settings
@@ -59,6 +60,9 @@ else:
 #______________________________________________________________________________
 # The normal views:
 
+# DJANGO ADMIN PANEL urls
+admin.autodiscover()
+
 urls += (
     #_____________________________________
     # COMMAND VIEW
@@ -74,10 +78,7 @@ urls += (
     ),
     #_____________________________________
     # DJANGO ADMIN PANEL
-    (
-        r'^%s/' % settings.ADMIN_URL_PREFIX,
-        include('django.contrib.admin.urls')
-    ),
+    (r'^%s/(.*)' % settings.ADMIN_URL_PREFIX, admin.site.root),
     #_____________________________________
     # permalink
     (

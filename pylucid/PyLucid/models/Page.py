@@ -17,6 +17,7 @@
 
 
 from django.db import models
+from django.contrib import admin
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
@@ -257,38 +258,6 @@ class Page(models.Model):
         db_table = 'PyLucid_page'
         app_label = 'PyLucid'
 
-    class Admin:
-        list_display = (
-            "id", "shortcut", "name", "title", "description",
-            "lastupdatetime", "lastupdateby"
-        )
-        list_display_links = ("shortcut",)
-        list_filter = (
-            "createby","lastupdateby","permitViewPublic", "template", "style"
-        )
-        date_hierarchy = 'lastupdatetime'
-        search_fields = ["content", "name", "title", "description", "keywords"]
-
-        fields = (
-            ('basic', {'fields': ('content','parent','position',)}),
-            ('meta', {'fields': ('keywords', 'description')}),
-            ('name / shortcut / title', {
-                'classes': 'collapse',
-                'fields': ('name','shortcut','title')
-            }),
-            ('template / style / markup', {
-                'classes': 'collapse',
-                'fields': ('template','style','markup')
-            }),
-            ('Advanced options', {
-                'classes': 'collapse',
-                'fields' : (
-                    'showlinks', 'permitViewPublic',
-                    'permitViewGroup', 'permitEditGroup'
-                ),
-            }),
-        )
-
     def _check_default_page_settings(self):
         """
         The default page must have some settings.
@@ -462,6 +431,45 @@ class Page(models.Model):
         return self.shortcut
 
 
+class PageAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "shortcut", "name", "title", "description",
+        "lastupdatetime", "lastupdateby"
+    )
+    list_display_links = ("shortcut",)
+    list_filter = (
+        "createby","lastupdateby","permitViewPublic", "template", "style"
+    )
+    date_hierarchy = 'lastupdatetime'
+    search_fields = ["content", "name", "title", "description", "keywords"]
+
+    # FIXME:
+#    fields = (
+#
+#        ('meta', {'fields': ('keywords', 'description')}),
+#        ('name / shortcut / title', {
+#            'classes': 'collapse',
+#            'fields': ('name','shortcut','title')
+#        }),
+#        ('template / style / markup', {
+#            'classes': 'collapse',
+#            'fields': ('template','style','markup')
+#        }),
+#        ('Advanced options', {
+#            'classes': 'collapse',
+#            'fields' : (
+#                'showlinks', 'permitViewPublic',
+#                'permitViewGroup', 'permitEditGroup'
+#            ),
+#        }),
+#    )
+#    fieldsets = (
+#        ('basic', {'fields': ('content','parent','position',)}),
+#    )
+
+
+admin.site.register(Page, PageAdmin)
+
 #______________________________________________________________________________
 
 class PageArchiv(models.Model):
@@ -557,8 +565,12 @@ class PageArchiv(models.Model):
         db_table = 'PyLucid_pagearchiv'
         app_label = 'PyLucid'
 
-    class Admin:
-        list_display = (
-            "id", "page", "edit_comment", "shortcut", "name", "title",
-            "description", "lastupdatetime", "lastupdateby"
-        )
+
+class PageArchivAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "page", "edit_comment",
+        "shortcut", "name", "title",
+        "description", "lastupdatetime", "lastupdateby"
+    )
+
+admin.site.register(PageArchiv, PageArchivAdmin)

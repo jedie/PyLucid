@@ -18,8 +18,8 @@
 import os, inspect
 from pprint import pformat
 
+from django.contrib import admin
 from django.conf import settings
-
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
@@ -30,6 +30,7 @@ from PyLucid.system.plugin_import import get_plugin_module, \
 from PyLucid.tools.forms_utils import get_init_dict, setup_help_text
 from PyLucid.tools.data_eval import data_eval, DataEvalError
 from PyLucid.system.exceptions import PluginPreferencesError
+
 #preference_cache = {}
 PLUGIN_MODEL_LABEL = "PyLucidPlugins"
 PLUGIN_MODEL_APP = "PyLucid.system.PyLucidPlugins"
@@ -431,14 +432,6 @@ class Plugin(models.Model):
             ("can_use",                 "Can use the plugin"),
         )
 
-    class Admin:
-        list_display = (
-            "active", "plugin_name", "description", "can_deinstall"
-        )
-        list_display_links = ("plugin_name",)
-        ordering = ('package_name', 'plugin_name')
-        list_filter = ("author","package_name", "can_deinstall")
-
     def __unicode__(self):
         return self.plugin_name.replace(u"_",u" ")
 
@@ -446,6 +439,16 @@ class Plugin(models.Model):
         db_table = 'PyLucid_plugin'
         app_label = 'PyLucid'
 
+
+class PluginAdmin(admin.ModelAdmin):
+    list_display = (
+        "active", "plugin_name", "description", "can_deinstall"
+    )
+    list_display_links = ("plugin_name",)
+    ordering = ('package_name', 'plugin_name')
+    list_filter = ("author","package_name", "can_deinstall")
+
+admin.site.register(Plugin, PluginAdmin)
 
 
 #______________________________________________________________________________
@@ -537,14 +540,17 @@ class Preference(models.Model):
             self.plugin.package_name, self.plugin.plugin_name, self.id
         )
 
-    class Admin:
-        list_display = (
-            "id", "plugin", "comment",
-        )
-        list_display_links = ("comment",)
-        ordering = ("plugin", "id")
-        list_filter = ("plugin",)
-
     class Meta:
         db_table = 'PyLucid_preference'
         app_label = 'PyLucid'
+
+
+class PreferenceAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "plugin", "comment",
+    )
+    list_display_links = ("comment",)
+    ordering = ("plugin", "id")
+    list_filter = ("plugin",)
+
+admin.site.register(Preference, PreferenceAdmin)

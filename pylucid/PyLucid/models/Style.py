@@ -19,6 +19,7 @@ import os, posixpath
 
 from django.db import models
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth.models import User
 
 
@@ -50,13 +51,6 @@ class Style(models.Model):
 
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
-
-    class Admin:
-        list_display = (
-            "id", "name", "description", "createtime", "lastupdatetime"
-        )
-        list_display_links = ("name",)
-        js = ['tiny_mce/tiny_mce.js', 'js/textareas_raw.js']
 
     def __unicode__(self):
         return self.name
@@ -123,3 +117,13 @@ class Style(models.Model):
     class Meta:
         db_table = 'PyLucid_style'
         app_label = 'PyLucid'
+
+
+class StyleAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "name", "description", "createtime", "lastupdatetime"
+    )
+    list_display_links = ("name",)
+
+
+admin.site.register(Style, StyleAdmin)
