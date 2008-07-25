@@ -4,6 +4,10 @@
     PyLucid RSS news feed generator plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    TODO: Should use:
+        from django.utils import feedgenerator
+        see blog plugin
+
     example for a html link:
         <a href="{% lucidTag RSSfeedGenerator count="10" %}"
         type="application/rss+xml" title="page updates">RSS feed</a>
@@ -23,7 +27,7 @@
 """
 
 
-import sys, os, cgi, time, inspect
+import sys, os, time, inspect
 
 RSS_FILENAME = "RSS.xml"
 
@@ -33,7 +37,8 @@ from django.core.cache import cache
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.exceptions import PluginError
 from PyLucid import PYLUCID_VERSION_STRING
-from PyLucid.models import Plugin
+from PyLucid.tools.utils import escape
+from PyLucid.models import Plugin, Page
 
 
 
@@ -46,38 +51,31 @@ debug = False
 
 
 
-
-
-
-
-
 class RSSfeedGenerator(PyLucidBasePlugin):
 
-    def feed(self):
-        if self.request.user.is_staff:
-            hide_non_public = False
-        else:
-            hide_non_public = True
-
-        page_updates = Page.objects.get_update_info(hide_non_public)
-        page_updates = page_updates[:count]
+#    def feed(self):
+#        if self.request.user.is_staff:
+#            hide_non_public = False
+#        else:
+#            hide_non_public = True
+#
+#        page_updates = Page.objects.get_update_info(hide_non_public)
+#        page_updates = page_updates[:count]
 
     def lucidTag(self, count=10):
         """
         returned the link to the feed, with a count GET parameter.
         """
-        plugins = Plugin.objects.method_filter(
-            queryset = Plugin.objects.filter(active=True),
-            method_name="feed",
-            page_msg=self.page_msg, verbosity=1
-        )
-        for plugin in plugins:
-            self.page_msg(plugin)
-
-
-        return
-
-
+        #----------------------------------------------------------------------
+        # TEST
+#        plugins = Plugin.objects.method_filter(
+#            queryset = Plugin.objects.filter(active=True),
+#            method_name="feed",
+#            page_msg=self.page_msg, verbosity=1
+#        )
+#        for plugin in plugins:
+#            self.page_msg(plugin)
+        #----------------------------------------------------------------------
 
         count = self._prepare_count(count)
         link = self.URLs.methodLink("download")
@@ -138,7 +136,7 @@ class RSSfeedGenerator(PyLucidBasePlugin):
 
         if debug:
             self.response.write("<h2>Debug:</h2><pre>")
-            self.response.write(cgi.escape(content))
+            self.response.write(escape(content))
             self.response.write("</pre>")
             return
 
