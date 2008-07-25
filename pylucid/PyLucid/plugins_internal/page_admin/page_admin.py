@@ -198,9 +198,6 @@ class page_admin(PyLucidBasePlugin):
             # refresh the current page data:
             self._refresh_curent_page(page_instance)
 
-            # return the new page content for rendering
-            return self.current_page.content
-
 
     def edit_page(self, edit_page_id=None, new_page_instance=None):
         """
