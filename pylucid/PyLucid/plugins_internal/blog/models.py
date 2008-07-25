@@ -17,10 +17,11 @@
 """
 
 from django.db import models
-from django.contrib.auth.models import User
-from django.utils.translation import ugettext as _
+from django.contrib import admin
 from django.utils.html import strip_tags
+from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from PyLucid.tools.content_processors import apply_markup, fallback_markup
 from PyLucid.models.Page import MARKUPS
@@ -166,9 +167,7 @@ class BlogTag(models.Model):
     objects = BlogTagManager()
 
     name = models.CharField(max_length=255, core=True, unique=True)
-    slug = models.SlugField(
-        unique=True, prepopulate_from=('tag',), max_length=120
-    )
+    slug = models.SlugField(unique=True, max_length=120)
 
     def __unicode__(self):
         return self.name
@@ -179,6 +178,13 @@ class BlogTag(models.Model):
     class Meta:
         app_label = 'PyLucidPlugins'
         ordering = ('name',)
+
+
+class BlogTagAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
+
+admin.site.register(BlogTag, BlogTagAdmin)
+
 
 #______________________________________________________________________________
 
