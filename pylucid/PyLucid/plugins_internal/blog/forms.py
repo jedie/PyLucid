@@ -19,7 +19,7 @@
 from django import forms
 from django.utils.translation import ugettext as _
 
-from PyLucid.tools.newforms_utils import StripedCharField, ListCharField
+from PyLucid.tools.forms_utils import StripedCharField, ListCharField
 
 # from blog plugin
 from PyLucid.plugins_internal.blog.models import BlogComment, BlogEntry

@@ -38,7 +38,7 @@ from PyLucid.tools.utils import escape
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.utils import escape_django_tags
 from PyLucid.system.page_msg import PageMessages
-#from PyLucid.tools.newforms_utils import InternalURLField
+#from PyLucid.tools.forms_utils import InternalURLField
 from PyLucid.tools.syndication_feed import FeedFormat, FEED_FORMAT_INFO
 
 # from blog plugin

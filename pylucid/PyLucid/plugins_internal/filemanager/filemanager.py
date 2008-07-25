@@ -54,7 +54,7 @@ from datetime import datetime
 from django.conf import settings
 from django.http import Http404
 from django import forms
-from django.newforms.util import ValidationError
+from django.forms import ValidationError
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_unicode
 

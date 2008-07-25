@@ -27,7 +27,7 @@ from django.db import models, transaction, connection
 
 from PyLucid.system.plugin_import import get_plugin_module, \
                                         get_plugin_config, get_plugin_version
-from PyLucid.tools.newforms_utils import get_init_dict, setup_help_text
+from PyLucid.tools.forms_utils import get_init_dict, setup_help_text
 from PyLucid.tools.data_eval import data_eval, DataEvalError
 from PyLucid.system.exceptions import PluginPreferencesError
 #preference_cache = {}

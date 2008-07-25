@@ -22,7 +22,7 @@ __version__= "$Rev: $"
 from pprint import pformat
 
 from django import forms
-from django.newforms.util import ValidationError
+from django.forms import ValidationError
 from django.utils.translation import ugettext as _
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin

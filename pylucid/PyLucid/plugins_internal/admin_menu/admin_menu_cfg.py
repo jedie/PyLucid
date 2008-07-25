@@ -4,7 +4,7 @@ from pprint import pformat
 from PyLucid.tools.data_eval import data_eval, DataEvalError
 
 from django import forms
-from django.newforms.util import ValidationError
+from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 #_____________________________________________________________________________

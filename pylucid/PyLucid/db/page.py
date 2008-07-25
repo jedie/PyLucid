@@ -22,7 +22,7 @@
 #      url data for every page?
 
 from django import forms
-from django.newforms.util import ValidationError
+from django.forms import ValidationError
 from django.utils.translation import ugettext as _
 
 from PyLucid.models import Page

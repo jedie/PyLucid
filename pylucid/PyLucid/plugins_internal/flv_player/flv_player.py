@@ -30,7 +30,7 @@ from django.utils.translation import ugettext as _
 
 from PyLucid.tools.path_manager import media_path_helper
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.tools.newforms_utils import ChoiceField2
+from PyLucid.tools.forms_utils import ChoiceField2
 from PyLucid.models import Page, Plugin, Preference
 
 from flv_metadata import FLVReader
