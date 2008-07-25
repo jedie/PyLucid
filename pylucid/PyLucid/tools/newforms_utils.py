@@ -14,7 +14,7 @@
 """
 
 from django import forms
-from django.newforms import ValidationError
+from django.forms import ValidationError
 from django.utils.encoding import smart_unicode
 
 

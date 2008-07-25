@@ -17,7 +17,7 @@ It should never be installed/activated in a productive environment!
 #_____________________________________________________________________________
 # preferences
 
-from django import newforms as forms
+from django import forms
 from django.utils.translation import ugettext as _
 
 class PreferencesForm(forms.Form):

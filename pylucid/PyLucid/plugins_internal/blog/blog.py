@@ -30,7 +30,7 @@ from django.core.mail import send_mail
 #from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 #from django import forms
-#from django.newforms import ValidationError
+#from django.forms import ValidationError
 #from django.contrib.syndication.feeds import Feed, FeedDoesNotExist
 
 # from PyLucid
