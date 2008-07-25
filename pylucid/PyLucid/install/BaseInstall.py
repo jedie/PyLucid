@@ -14,7 +14,7 @@ from PyLucid.tools.content_processors import render_string_template
 
 from django.conf import settings
 from django.shortcuts import render_to_response
-from django import newforms as forms
+from django import forms
 from django.http import HttpResponse, Http404
 from django.utils.translation import ugettext as _
 from django.template import Template, Context, loader

@@ -13,7 +13,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django import newforms as forms
+from django import forms
 from django.newforms import ValidationError
 from django.utils.encoding import smart_unicode
 

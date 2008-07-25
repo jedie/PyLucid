@@ -7,7 +7,7 @@ import os, cgi, sys, time
 
 from django.conf import settings
 
-from django import newforms as forms
+from django import forms
 from django.core import management
 from django.core.cache import cache
 

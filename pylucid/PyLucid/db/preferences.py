@@ -17,7 +17,7 @@
 
 from pprint import pformat
 
-from django import newforms as forms
+from django import forms
 
 from PyLucid.models import Preference, Plugin
 from PyLucid.system.plugin_import import get_plugin_module

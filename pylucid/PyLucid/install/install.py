@@ -9,7 +9,7 @@ http://code.djangoproject.com/wiki/CookBookScriptsMiniFlush
 from django.conf import settings
 
 from django.utils.translation import ugettext as _
-from django import newforms as forms
+from django import forms
 from django.contrib.auth.models import User
 
 from PyLucid.install.BaseInstall import BaseInstall

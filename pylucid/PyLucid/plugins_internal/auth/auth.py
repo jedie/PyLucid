@@ -44,7 +44,7 @@ import datetime, posixpath
 
 from django.http import HttpResponseRedirect
 from django.core import mail
-from django import newforms as forms
+from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import ugettext as _

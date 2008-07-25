@@ -10,7 +10,7 @@ __long_description__ = """
 A universal file/picture gallery plugin.
 """
 
-from django import newforms as forms
+from django import forms
 from django.utils.translation import ugettext as _
 
 from django.conf import settings

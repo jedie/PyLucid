@@ -18,7 +18,7 @@
 
 __version__= "$Rev$"
 
-from django import newforms as forms
+from django import forms
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.utils.translation import ugettext as _

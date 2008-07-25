@@ -16,7 +16,7 @@
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
-from django import newforms as forms
+from django import forms
 from django.utils.translation import ugettext as _
 
 from PyLucid.tools.newforms_utils import StripedCharField, ListCharField

@@ -12,7 +12,7 @@ Used http://www.flv-player.net
 #_____________________________________________________________________________
 # preferences
 
-from django import newforms as forms
+from django import forms
 from django.utils.translation import ugettext as _
 
 class PreferencesForm(forms.Form):

@@ -22,7 +22,7 @@ import os, posixpath, fnmatch, pprint
 
 from django.db import models
 from django.conf import settings
-from django import newforms as forms
+from django import forms
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode

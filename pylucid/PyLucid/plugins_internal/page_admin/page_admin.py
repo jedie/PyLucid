@@ -27,7 +27,7 @@ import inspect
 
 from PyLucid.tools.utils import escape, escape_django_tags
 
-from django import newforms as forms
+from django import forms
 from django.newforms.util import ValidationError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.cache import cache

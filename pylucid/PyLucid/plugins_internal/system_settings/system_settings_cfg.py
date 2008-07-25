@@ -13,7 +13,7 @@ A pseudo plugin for holding the system settings via the plugin preferences.
 #_____________________________________________________________________________
 # preferences
 
-from django import newforms as forms
+from django import forms
 from django.utils.translation import ugettext as _
 
 from PyLucid.db.page import PageChoiceField, get_page_choices

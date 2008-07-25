@@ -12,7 +12,7 @@ from django.conf import settings
 from PyLucid.models import Page, Template
 from PyLucid.install.BaseInstall import BaseInstall
 
-from django import newforms as forms
+from django import forms
 from django.core import serializers
 
 

@@ -24,7 +24,7 @@ __version__= "$Rev$"
 import os
 
 from django.utils.translation import ugettext as _
-from django import newforms as forms
+from django import forms
 from django.conf import settings
 
 from PyLucid.system.plugin_manager import get_plugin_list, install_plugin

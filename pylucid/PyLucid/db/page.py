@@ -21,7 +21,7 @@
 #      page-ID  <-> parant-ID relation?
 #      url data for every page?
 
-from django import newforms as forms
+from django import forms
 from django.newforms.util import ValidationError
 from django.utils.translation import ugettext as _
 

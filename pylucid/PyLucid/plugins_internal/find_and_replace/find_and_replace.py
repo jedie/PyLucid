@@ -26,7 +26,7 @@ __version__= "$Rev$"
 
 import time
 
-from django import newforms as forms
+from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 

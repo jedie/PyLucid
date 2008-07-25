@@ -12,7 +12,7 @@ Puts links to every lower level page into the CMS page.
 #_____________________________________________________________________________
 # preferences
 
-from django import newforms as forms
+from django import forms
 from django.utils.translation import ugettext as _
 
 class PreferencesForm(forms.Form):
