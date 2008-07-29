@@ -79,6 +79,13 @@ class unittest_plugin(PyLucidBasePlugin):
         """
         self.response.write("Hello world!")
 
+    def test_restricted_method(self):
+        """
+        TODO: Must be update if ticket:199 is implemented!
+        ticket: "change plugin_manager_data (must_login and must_admin)"
+        """
+        self.response.write("<pre>This is restricted!</pre>")
+
     def test_attributes(self, attr_name):
         self.response.write(getattr(self, attr_name))
 

@@ -55,6 +55,7 @@ plugin_manager_data = {
         "must_login"    : False,
         "must_admin"    : False,
     },
+    "test_restricted_method" : global_rights,
     "test_attributes" : global_rights,
     "test_page_msg" : global_rights,
     "test_preferences": global_rights,

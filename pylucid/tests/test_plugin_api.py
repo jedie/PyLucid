@@ -60,11 +60,10 @@ class PluginAPI_Base(tests.TestCase):
             template=self.template
         )
 
-        self.command = "/%s/%s/%s/%%s/" % (
-            settings.COMMAND_URL_PREFIX,
-            self.test_page.id,
-            TEST_PLUGIN_NAME,
+        self.base_url = "/%s/%s" % ( # Used with self.assertPluginAccess()
+            settings.COMMAND_URL_PREFIX, self.test_page.id
         )
+        self.command = "%s/%s/%%s/" % (self.base_url, TEST_PLUGIN_NAME)
         self.test_url = self.test_page.get_absolute_url()
 
     #___________________________________________________________________________
@@ -329,6 +328,62 @@ class PluginPreferencesTest(PluginAPI_Base):
             content,
             "{'index': u'Index', 'print_index': False, 'print_last_page': True,"
             " 'index_url': u'/'}"
+        )
+
+class PluginPermissionsTest(PluginAPI_Base):
+    """
+    Test the permissions of a plugin method
+
+    Test the work-a-round if settings.TEMPLATE_DEBUG is on and a AccessDenied
+    would be catched and raised as a TemplateSyntaxError, see:
+     * django/template/debug.py
+     * PyLucid.index._render_cms_page()
+
+    TODO: Must be update if ticket:199 is implemented!
+    ticket: "change plugin_manager_data (must_login and must_admin)"
+    """
+    def test_restricted_method_deny(self):
+        """
+        Test to access a restricted method as a anonymous user.
+        Test with settings.TEMPLATE_DEBUG True/False
+        """
+        from PyLucid.system.exceptions import AccessDenied
+
+        def test():
+            try:
+                self.assertPluginAccess(
+                    self.base_url,
+                    plugin_name = TEST_PLUGIN_NAME,
+                    method_names = ("test_restricted_method",),
+                    must_contain=("[Permission Denied!]",),
+                    must_not_contain=("Traceback",)
+                )
+            except AccessDenied:
+                pass # It's ok.
+            except Exception:
+                raise
+
+        self.client.logout()
+        old_value = settings.TEMPLATE_DEBUG
+
+        settings.TEMPLATE_DEBUG = True
+        test()
+        settings.TEMPLATE_DEBUG = False
+        test()
+
+        settings.TEMPLATE_DEBUG = old_value
+
+    def test_restricted_method_allowed(self):
+        """
+        If the user logged in, he should see the plugin output
+        """
+        self.login("superuser") # login client as superuser
+        self.assertPluginAccess(
+            self.base_url,
+            plugin_name = TEST_PLUGIN_NAME,
+            method_names = ("test_restricted_method",),
+            must_contain=("This is restricted!",),
+            must_not_contain=("Traceback",)
         )
 
 

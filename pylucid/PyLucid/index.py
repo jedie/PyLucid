@@ -23,7 +23,7 @@
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, \
                                                            HttpResponseRedirect
 from django.conf import settings
-from django.template import RequestContext
+from django.template import RequestContext, TemplateSyntaxError
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -46,6 +46,27 @@ PAGE_MSG_INFO_LINK = (
     'http://www.pylucid.org/_goto/121/changes/#20-05-2008-page_msg'
     '">pylucid.org - Backwards-incompatible changes - page_msg</a>'
 )
+
+def _redirect_to_login(request):
+    """
+    Redirect to the _comment auth login with the default page
+    FIXME: We should build the auth command url in a better way.
+    """
+    path = "/%s/%s/auth/login/?next=%s" % (
+        settings.COMMAND_URL_PREFIX, Page.objects.default_page.id, request.path
+    )
+    return HttpResponseRedirect(path)
+
+def _redirect_access_denied(request):
+    """
+    Redirect to login page, if the user is anonymous.
+    """
+    if not request.user.is_anonymous():
+        # The user is logged in. But he hasn't the rights to see the page
+        # or run the plugin method
+        raise AccessDenied("User can see this page content!")
+
+    return _redirect_to_login(request)
 
 
 def _render_cms_page(request, context, page_content=None):
@@ -76,7 +97,28 @@ def _render_cms_page(request, context, page_content=None):
         page_content = apply_markup(page_content, context, markup_no)
 
     # Render only the CMS page content:
-    page_content = render_string_template(page_content, context)
+    try:
+        page_content = render_string_template(page_content, context)
+        # If a user access a public viewable cms page, but in the page content
+        # is a lucidTag witch is a restricted method, the pylucid plugin
+        # manager would normaly raise a AccessDenied.
+        # The Problem is, if settings.TEMPLATE_DEBUG is on, we didn't get a
+        # AccessDenied directly, we always get a TemplateSyntaxError! All
+        # other errors will catched and raised a TemplateSyntaxError, too.
+        # See django/template/debug.py
+        # TODO: Instead of a redirect to the login command, we can insert
+        # the ouput from auth.login directly
+    except TemplateSyntaxError, err:
+        # Check if it was a AccessDenied exception
+        # sys.exc_info() added in django/template/debug.py
+        error_class = err.exc_info[1]
+        if isinstance(error_class, AccessDenied):
+            return _redirect_access_denied(request)
+        else:
+            raise # raise the original error
+    except AccessDenied:
+        # settings.TEMPLATE_DEBUG is off
+        return _redirect_access_denied(request)
 
     # http://www.djangoproject.com/documentation/templates_python/#filters-and-auto-escaping
     page_content = mark_safe(page_content) # turn djngo auto-escaping off
@@ -155,25 +197,22 @@ def index(request, url):
     """
     try:
         current_page_obj = Page.objects.get_by_shortcut(url, request.user)
-    except AccessDenied:
-        if request.user.is_anonymous():
-            # FIXME: We should build the auth command url in a better way.
-            next = '?next=%s' % request.path
-            path = '/'.join(
-                ('',settings.COMMAND_URL_PREFIX,
-                 str(Page.objects.default_page.id),'auth','login',next)
-                )
-            return HttpResponseRedirect(path)
-        else:
-            # User is logged in but access is denied, probably due to group restrictions.
-            request.user.message_set.create(message=_("Access denied"))
-            return HttpResponseRedirect(Page.objects.default_page.get_absolute_url())
+    except Page.DoesNotExist:
+        raise Http404(_("Page '%s' doesn't exists.") % url)
     except Page.objects.WrongShortcut, correct_url:
         # Some parts of the URL was wrong, but we found a right page
         # shortcut -> redirect to the right url
         return HttpResponseRedirect(correct_url)
-    except Page.DoesNotExist:
-        raise Http404(_("Page '%s' doesn't exists.") % url)
+    except AccessDenied:
+        if request.user.is_anonymous():
+            # FIXME: We should build the auth command url in a better way.
+            return _redirect_to_login(request)
+        else:
+            # User is logged in but access is denied,
+            # probably due to group restrictions.
+            request.user.message_set.create(message=_("Access denied"))
+            new_url = Page.objects.default_page.get_absolute_url()
+            return HttpResponseRedirect(new_url)
 
     context = _get_context(request, current_page_obj)
 
