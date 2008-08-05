@@ -199,7 +199,7 @@ def get_create_table(plugin_models):
     for model in plugin_models:
         statements += sql.sql_model_create(model, style)[0]
         statements += sql.sql_indexes_for_model(model, style)
-        statements += sql.custom_sql_for_model(model)
+        statements += sql.custom_sql_for_model(model, style)
         statements += sql.many_to_many_sql_for_model(model, style)
     return statements
 
