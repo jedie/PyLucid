@@ -19,6 +19,9 @@ from django.db import models
 from django.contrib import admin
 from django.contrib.auth.models import User
 
+from PyLucid.tools.shortcuts import makeUnique
+from PyLucid.system.utils import delete_page_cache
+
 
 class Template(models.Model):
     name = models.CharField(unique=True, max_length=150)
@@ -40,7 +43,14 @@ class Template(models.Model):
         """
         Delete the page cache if a template was edited.
         """
-        from PyLucid.system.utils import delete_page_cache
+        if self.id == None:
+            # Create a new template (e.g. used the save_as function)
+            # http://www.djangoproject.com/documentation/admin/#save-as
+            # The name must be unique.
+            self.description += " (copy from %s)" % self.name
+            existing_names = Template.objects.values_list("name", flat=True)
+            # add a number if the name exist
+            self.name = makeUnique(self.name, existing_names)
 
         delete_page_cache()
 
@@ -57,6 +67,7 @@ class Template(models.Model):
 class TemplateAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "description")
     list_display_links = ("name",)
+    save_as = True
 
 
 admin.site.register(Template, TemplateAdmin)

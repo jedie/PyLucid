@@ -22,6 +22,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import User
 
+from PyLucid.tools.shortcuts import makeUnique
+from PyLucid.system.utils import delete_page_cache
+
 
 class Style(models.Model):
     """
@@ -97,7 +100,15 @@ class Style(models.Model):
         Save a new or updated stylesheet.
         try to store the content into the cache file in the media path.
         """
-        from PyLucid.system.utils import delete_page_cache
+        if self.id == None:
+            # Create a new stylesheet (e.g. used the save_as function)
+            # http://www.djangoproject.com/documentation/admin/#save-as
+            # The name must be unique.
+            self.description += " (copy from %s)" % self.name
+            existing_names = Style.objects.values_list("name", flat=True)
+            # add a number if the name exist
+            self.name = makeUnique(self.name, existing_names)
+
         filepath = self.get_filepath()
         try:
             f = file(filepath, "w") # FIXME: Encoding?
@@ -124,6 +135,7 @@ class StyleAdmin(admin.ModelAdmin):
         "id", "name", "description", "createtime", "lastupdatetime"
     )
     list_display_links = ("name",)
+    save_as = True
 
 
 admin.site.register(Style, StyleAdmin)
