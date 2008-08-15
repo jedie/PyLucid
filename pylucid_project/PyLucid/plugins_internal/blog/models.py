@@ -138,6 +138,9 @@ class BlogTagManager(models.Manager):
         tags. Needed to build a tag cloud.
         """
         tags = self.model.objects.all()
+        if not tags:
+            # There exist no tags
+            return [], 0, 0
 
         frequency = set()
         # get the counter information
