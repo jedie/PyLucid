@@ -13,7 +13,7 @@
     $Rev: $
     $Author: $
 
-    :copyright: 2007 by Jens Diemer
+    :copyright: 2007-2008 by Jens Diemer
     :license: GNU GPL v3, see LICENSE for more details.
 """
 
@@ -21,7 +21,7 @@ import os, sys
 
 from dev_scripts import ez_setup
 
-sys.path.insert(0, os.path.join(os.getcwd(), "pylucid"))
+sys.path.insert(0, os.path.join(os.getcwd(), "pylucid_project"))
 from PyLucid import PYLUCID_VERSION_STRING
 
 ez_setup.use_setuptools()
@@ -67,7 +67,10 @@ setup(
         ],
     },
     exclude_package_data = {'': ['setup.py']},
-    scripts = ["pylucid/django-admin.sh", "pylucid/standalone_linux.sh"],
+    scripts = [
+        "pylucid_project/django-admin.sh",
+        "pylucid_project/standalone_linux.sh"
+    ],
     classifiers = [
         "Development Status :: 4 - Beta",
         "Development Status :: 5 - Production/Stable",
