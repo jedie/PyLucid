@@ -157,6 +157,9 @@ class NewPasswordForm(forms.Form):
         return validate_sha1("sha_2", self.cleaned_data)
 
 
+#______________________________________________________________________________
+# FORMS
+
 class UsernameForm(forms.ModelForm):
     """
     form for input the username, used in auth.login()
@@ -164,6 +167,27 @@ class UsernameForm(forms.ModelForm):
     class Meta:
         model = User
         fields=("username",)
+
+class PasswordForm(forms.ModelForm):
+    """
+    form for input the username, used in auth._sha_login()
+    """
+    class Meta:
+        model = User
+        fields=("password",)
+
+
+class ResetForm(forms.ModelForm):
+    """
+    form for input the username, used in auth.pass_reset()
+    """
+    class Meta:
+        model = User
+        fields=("username", "email")
+
+
+#______________________________________________________________________________
+# PLUGIN CLASS
 
 
 class auth(PyLucidBasePlugin):
@@ -243,9 +267,6 @@ class auth(PyLucidBasePlugin):
         context["pass_reset_link"] = self.URLs.methodLink("pass_reset")
 
     def _plaintext_login(self, user):
-
-        PasswordForm = forms.form_for_model(User, fields=("password",))
-
         next_url = self.request.POST.get('next_url', "")
 
         # Change the default TextInput to a PasswordInput
@@ -389,7 +410,6 @@ class auth(PyLucidBasePlugin):
         # For later checking
         self.request.session['challenge'] = challenge
 
-        PasswordForm = forms.form_for_model(User, fields=("password",))
         password_form = PasswordForm()
 
         context["form"] = password_form
@@ -431,7 +451,7 @@ class auth(PyLucidBasePlugin):
             self.page_msg.red(msg)
             self.page_msg.green(_("You must reset your password."))
 
-        ResetForm = forms.form_for_model(User, fields=("username", "email"))
+
 
         def get_data(form):
             if not form.is_valid():
