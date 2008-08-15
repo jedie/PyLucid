@@ -40,7 +40,7 @@
 
 __version__ = "$Rev$"
 
-import datetime, posixpath
+import datetime
 
 from django.http import HttpResponseRedirect
 from django.core import mail
@@ -157,6 +157,15 @@ class NewPasswordForm(forms.Form):
         return validate_sha1("sha_2", self.cleaned_data)
 
 
+class UsernameForm(forms.ModelForm):
+    """
+    form for input the username, used in auth.login()
+    """
+    class Meta:
+        model = User
+        fields=("username",)
+
+
 class auth(PyLucidBasePlugin):
     def login(self):
         if DEBUG:
@@ -169,8 +178,6 @@ class auth(PyLucidBasePlugin):
         # But the html line <meta name="robots" content="{{ robots }}" />
         # should be set to "NONE,NOARCHIVE"
         self.request.anonymous_view = False
-
-        UsernameForm = forms.form_for_model(User, fields=("username",))
 
         next_url = self.request.GET.get("next", "")
 
