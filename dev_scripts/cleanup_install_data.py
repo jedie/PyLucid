@@ -6,7 +6,7 @@ Delete dump_db files not needed for a first-time-installation.
 """
 
 import os, sys
-os.chdir("../pylucid/") # go into PyLucid App root folder
+os.chdir("../pylucid_project/") # go into PyLucid App root folder
 #print os.getcwd()
 sys.path.insert(0, os.getcwd())
 
