@@ -26,12 +26,13 @@ debug = True
 
 from django.conf import settings
 
-from django.db.models import Model
+#from django.db.models import Model
 from django.core.management import sql
 from django.db import connection, transaction
 from django.utils.safestring import mark_safe
+from django.http import Http404#, HttpResponse
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse, Http404
+from django.core.management.color import no_style
 
 from PyLucid.models import Plugin
 from PyLucid.system.exceptions import *
@@ -192,15 +193,14 @@ def get_plugin_list(plugin_path):
 
 
 def get_create_table(plugin_models):
-    from django.core.management.color import no_style
     style = no_style()
 
     statements = []
     for model in plugin_models:
-        statements += sql.sql_model_create(model, style)[0]
-        statements += sql.sql_indexes_for_model(model, style)
+        statements += connection.creation.sql_create_model(model, style)[0]
+        statements += connection.creation.sql_indexes_for_model(model, style)
         statements += sql.custom_sql_for_model(model, style)
-        statements += sql.many_to_many_sql_for_model(model, style)
+        statements += connection.creation.sql_for_many_to_many(model, style)
     return statements
 
 

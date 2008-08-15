@@ -203,6 +203,15 @@ def _create_or_update_superuser(user_data):
         print _("update a existing User, OK")
 
 
+class CreateUserForm(forms.ModelForm):
+    """
+    form for input the username, used in auth.login()
+    """
+    class Meta:
+        model = User
+        fields=("username", "first_name", "last_name", "email", "password")
+
+
 class CreateUser(BaseInstall):
     def view(self):
         """
@@ -212,20 +221,16 @@ class CreateUser(BaseInstall):
         return self._render(create_user_template)
 
     def create_user(self):
-        UserForm = forms.form_for_model(
-            User,
-            fields=("username", "first_name", "last_name", "email", "password")
-        )
         # Change the help_text, because there is a URL in the default text
-        UserForm.base_fields['password'].help_text = ""
+        CreateUserForm.base_fields['password'].help_text = ""
 
         if self.request.method == 'POST':
-            user_form = UserForm(self.request.POST)
+            user_form = CreateUserForm(self.request.POST)
             if user_form.is_valid():
                 user_data = user_form.cleaned_data
                 _create_or_update_superuser(user_data)
         else:
-            user_form = UserForm()
+            user_form = CreateUserForm()
 
         self.context["form"] = user_form.as_table()
         self.context["admin_url_prefix"] = settings.ADMIN_URL_PREFIX
