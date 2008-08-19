@@ -713,21 +713,27 @@ class blog(PyLucidBasePlugin):
         Build the tag cloud context.
         """
         tags, min_frequency, max_frequency = BlogTag.objects.get_tag_info()
+        print tags, min_frequency, max_frequency
 
         diff_frequency = float(max_frequency - min_frequency)
 
         max_font_size = self.preferences.get("max_cloud_size", 2.0)
         min_font_size = self.preferences.get("min_cloud_size", 0.7)
+        normal_font_size = (max_font_size + min_font_size) / 2.0
 
         # Calculate and add the font size
         for tag in tags:
             count = float(tag.count)
-            tag.font_size = (
-                (
-                    (max_font_size-min_font_size) * (count - min_frequency)
-                ) / diff_frequency
-            ) + min_font_size
+            try:
+                font_size = (
+                    (
+                        (max_font_size-min_font_size) * (count - min_frequency)
+                    ) / diff_frequency
+                ) + min_font_size
+            except ZeroDivisionError:
+                font_size = normal_font_size
 
+            tag.font_size = font_size
             tag.url = self.URLs.methodLink("tag", tag.slug)
             #self.page_msg(tag, count, tag.font_size)
 
