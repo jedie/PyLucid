@@ -713,7 +713,6 @@ class blog(PyLucidBasePlugin):
         Build the tag cloud context.
         """
         tags, min_frequency, max_frequency = BlogTag.objects.get_tag_info()
-        print tags, min_frequency, max_frequency
 
         diff_frequency = float(max_frequency - min_frequency)
 
