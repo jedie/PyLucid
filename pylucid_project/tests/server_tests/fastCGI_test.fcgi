@@ -55,6 +55,7 @@ start_overall = time.time()
 try:
     def app(environ, start_response):
         start_response('200 OK', [('Content-Type', 'text/html')])
+        log("app() requestes")
         yield '<h1>FastCGI test app</h1>'
 
         # Display the overall running time
