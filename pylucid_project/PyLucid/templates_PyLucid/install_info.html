@@ -11,7 +11,7 @@
 <h2>{% trans 'solutions:' %}</h2>
 <p>
 {% trans "If you haven't installed PyLucid go into the _install section:" %}
-<a href="{% url PyLucid.install.index.menu . %}" title="{% trans 'goto the _install section' %}">{{ request.META.HTTP_HOST }}{% url PyLucid.install.index.menu . %}</a>
+<a href="{% url PyLucid.install.index.menu %}" title="{% trans 'goto the _install section' %}">{{ request.META.HTTP_HOST }}{% url PyLucid.install.index.menu %}</a>
 </p>
 
 <p>

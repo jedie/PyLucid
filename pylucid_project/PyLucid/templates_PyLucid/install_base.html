@@ -27,7 +27,7 @@ fieldset.error {
 
 {% block base_content %}
 <h3 class="header"><a href="http://www.pylucid.org">PyLucid</a> v{{ version }} - setup@<a href="/" title="{% trans 'goto your PyLucid CMS page' %}">{{ request.META.HTTP_HOST }}</a></h3>
-{% if not no_menu_link %}<p><a href="{% url PyLucid.install.index.menu . %}">&#xAB; {% trans 'back to menu' %}</a></p>{% endif %}
+{% if not no_menu_link %}<p><a href="{% url PyLucid.install.index.menu %}">&#xAB; {% trans 'back to menu' %}</a></p>{% endif %}
 {% block pre_page_msg_content %}{% endblock %}
 <!-- page_messages -->
 
@@ -90,8 +90,8 @@ try {
 
 {% block base_footer %}
 <div class="footer">
-{% if not no_menu_link %}<p><a href="{% url PyLucid.install.index.menu . %}">&#xAB; {% trans 'back to menu' %}</a> |{% endif %}
-<a href="#top">&#x5E; {% trans 'top' %}</a> | <a href="{% url PyLucid.install.index.logout . %}">{% trans 'Log out' %}</a>
+{% if not no_menu_link %}<p><a href="{% url PyLucid.install.index.menu %}">&#xAB; {% trans 'back to menu' %}</a> |{% endif %}
+<a href="#top">&#x5E; {% trans 'top' %}</a> | <a href="{% url PyLucid.install.index.logout %}">{% trans 'Log out' %}</a>
 {% if install_pass %}</p>{% endif %}
 |||
 <a href="http://pylucid.org/_goto/107/install-PyLucid/">install guide</a>
