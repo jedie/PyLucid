@@ -123,6 +123,13 @@ class BaseInstall(object):
 
         self.page_msg = request.page_msg
 
+        if settings.SECRET_KEY == "":
+            self.page_msg(
+                "Warning: SECRET_KEY is not filled with a random String! Please"
+                " edit your settings.py and insert some ASCII characters. More"
+                " information: http://pylucid.org/_goto/107/install-PyLucid/"
+            )
+
         self.request = request
 
         self.context = get_base_context(request)
