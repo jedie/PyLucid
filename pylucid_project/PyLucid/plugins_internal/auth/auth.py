@@ -160,13 +160,25 @@ class NewPasswordForm(forms.Form):
 #______________________________________________________________________________
 # FORMS
 
-class UsernameForm(forms.ModelForm):
+#class UsernameForm(forms.ModelForm):
+#    """
+#    form for input the username, used in auth.login()
+#    """
+#    class Meta:
+#        model = User
+#        fields=("username",)
+
+class UsernameForm(forms.Form):
     """
-    form for input the username, used in auth.login()
+    FIXME: If we use ModelForm from above, we always get the form error:
+        User with this Username already exists.
+    Why?
     """
-    class Meta:
-        model = User
-        fields=("username",)
+    username = forms.CharField(max_length=30, help_text=_(
+            "Required. 30 characters or fewer. Alphanumeric characters only"
+            " (letters, digits and underscores)."
+        )
+    )
 
 class PasswordForm(forms.ModelForm):
     """
@@ -231,7 +243,7 @@ class auth(PyLucidBasePlugin):
         if self.request.method != 'POST':
             username_form = UsernameForm()
         else:
-            #self.page_msg(self.request.POST)
+#            self.page_msg(self.request.POST)
             username_form = UsernameForm(self.request.POST)
             user = get_data(username_form)
             if user != None: # A valid form with a existing user was send.
