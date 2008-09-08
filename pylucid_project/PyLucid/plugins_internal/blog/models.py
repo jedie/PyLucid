@@ -174,7 +174,7 @@ class BlogTag(models.Model):
     """
     objects = BlogTagManager()
 
-    name = models.CharField(max_length=255, core=True, unique=True)
+    name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(unique=True, max_length=120)
 
     def __unicode__(self):
