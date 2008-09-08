@@ -39,11 +39,11 @@ class Template(models.Model):
     description = models.TextField()
     content = models.TextField()
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """
         Delete the page cache if a template was edited.
         """
-        if self.id == None:
+        if self.pk == None:
             # Create a new template (e.g. used the save_as function)
             # http://www.djangoproject.com/documentation/admin/#save-as
             # The name must be unique.
@@ -54,7 +54,7 @@ class Template(models.Model):
 
         delete_page_cache()
 
-        super(Template, self).save() # Call the "real" save() method
+        super(Template, self).save(*args, **kwargs) # Call the "real" save() method
 
     def __unicode__(self):
         return self.name

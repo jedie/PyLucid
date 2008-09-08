@@ -95,12 +95,12 @@ class Style(models.Model):
         # FIXME: Should we use os.path.abspath() ?
         return filepath
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """
         Save a new or updated stylesheet.
         try to store the content into the cache file in the media path.
         """
-        if self.id == None:
+        if self.pk == None:
             # Create a new stylesheet (e.g. used the save_as function)
             # http://www.djangoproject.com/documentation/admin/#save-as
             # The name must be unique.
@@ -111,19 +111,23 @@ class Style(models.Model):
 
         filepath = self.get_filepath()
         try:
+#            raise RuntimeWarning("Simulate exception a stylesheet save fail.")
             f = file(filepath, "w") # FIXME: Encoding?
             content = self.content.encode(settings.FILE_CHARSET)
             f.write(content)
             f.close()
         except Exception, e:
             # FIXME: How can we give feedback?
-#            print "Style save error:", e # Olny for dev server
-            pass
+            if settings.DEBUG:
+                msg = "Style save error: %s" % e
+                import warnings
+                warnings.warn(msg)
+#                print msg # Olny for dev server
 
         #Delete the page cache if a stylesheet was edited.
         delete_page_cache()
 
-        super(Style, self).save() # Call the "real" save() method
+        super(Style, self).save(*args, **kwargs) # Call the "real" save() method
 
     class Meta:
         db_table = 'PyLucid_style'

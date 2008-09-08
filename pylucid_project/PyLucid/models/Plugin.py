@@ -345,7 +345,7 @@ class Plugin(models.Model):
     #__________________________________________________________________________
     # SAVE
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """
         Save a new plugin or update changed data.
         before save: check some data consistency to prevents inconsistent data.
@@ -357,7 +357,7 @@ class Plugin(models.Model):
             # automaticly. So we activated it here:
             self.active = True
 
-        super(Plugin, self).save() # Call the "real" save() method
+        super(Plugin, self).save(*args, **kwargs) # Call the "real" save() method
 
     #___________________________________________________________________________
     # DELETE

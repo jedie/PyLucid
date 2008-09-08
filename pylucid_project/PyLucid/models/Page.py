@@ -340,7 +340,7 @@ class Page(models.Model):
 
         self.shortcut = getUniqueShortcut(self.shortcut, exclude_shortcut)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """
         Save a new page or update changed page data.
         before save: check some data consistency to prevents inconsistent data.
@@ -373,7 +373,7 @@ class Page(models.Model):
         cache_key = settings.PAGE_CACHE_PREFIX + self.shortcut
         cache.delete(cache_key)
 
-        super(Page, self).save() # Call the "real" save() method
+        super(Page, self).save(*args, **kwargs) # Call the "real" save() method
 
     def delete(self):
         # Delete all pages in the cache.
