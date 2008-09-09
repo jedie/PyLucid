@@ -19,7 +19,6 @@ import os, posixpath
 
 from django.db import models
 from django.conf import settings
-from django.contrib import admin
 from django.contrib.auth.models import User
 
 from PyLucid.tools.shortcuts import makeUnique
@@ -134,12 +133,3 @@ class Style(models.Model):
         app_label = 'PyLucid'
 
 
-class StyleAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "name", "description", "createtime", "lastupdatetime"
-    )
-    list_display_links = ("name",)
-    save_as = True
-
-
-admin.site.register(Style, StyleAdmin)

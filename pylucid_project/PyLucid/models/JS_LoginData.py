@@ -58,13 +58,6 @@ class JS_LoginData(models.Model):
         app_label = 'PyLucid'
 
 
-class JS_LoginDataAdmin(admin.ModelAdmin):
-    list_display = (
-        'user', 'sha_checksum', 'salt', 'createtime', 'lastupdatetime'
-    )
-
-admin.site.register(JS_LoginData, JS_LoginDataAdmin)
-
 #______________________________________________________________________________
 
 # Save the original method

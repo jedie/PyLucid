@@ -440,17 +440,6 @@ class Plugin(models.Model):
         app_label = 'PyLucid'
 
 
-class PluginAdmin(admin.ModelAdmin):
-    list_display = (
-        "active", "plugin_name", "description", "can_deinstall"
-    )
-    list_display_links = ("plugin_name",)
-    ordering = ('package_name', 'plugin_name')
-    list_filter = ("author","package_name", "can_deinstall")
-
-admin.site.register(Plugin, PluginAdmin)
-
-
 #______________________________________________________________________________
 # PREFERENCES
 
@@ -545,12 +534,3 @@ class Preference(models.Model):
         app_label = 'PyLucid'
 
 
-class PreferenceAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "plugin", "comment",
-    )
-    list_display_links = ("comment",)
-    ordering = ("plugin", "id")
-    list_filter = ("plugin",)
-
-admin.site.register(Preference, PreferenceAdmin)

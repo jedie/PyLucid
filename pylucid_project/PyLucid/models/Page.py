@@ -431,44 +431,7 @@ class Page(models.Model):
         return self.shortcut
 
 
-class PageAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "shortcut", "name", "title", "description",
-        "lastupdatetime", "lastupdateby"
-    )
-    list_display_links = ("shortcut",)
-    list_filter = (
-        "createby","lastupdateby","permitViewPublic", "template", "style"
-    )
-    date_hierarchy = 'lastupdatetime'
-    search_fields = ["content", "name", "title", "description", "keywords"]
 
-    # FIXME:
-#    fields = (
-#
-#        ('meta', {'fields': ('keywords', 'description')}),
-#        ('name / shortcut / title', {
-#            'classes': 'collapse',
-#            'fields': ('name','shortcut','title')
-#        }),
-#        ('template / style / markup', {
-#            'classes': 'collapse',
-#            'fields': ('template','style','markup')
-#        }),
-#        ('Advanced options', {
-#            'classes': 'collapse',
-#            'fields' : (
-#                'showlinks', 'permitViewPublic',
-#                'permitViewGroup', 'permitEditGroup'
-#            ),
-#        }),
-#    )
-#    fieldsets = (
-#        ('basic', {'fields': ('content','parent','position',)}),
-#    )
-
-
-admin.site.register(Page, PageAdmin)
 
 #______________________________________________________________________________
 
@@ -566,11 +529,3 @@ class PageArchiv(models.Model):
         app_label = 'PyLucid'
 
 
-class PageArchivAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "page", "edit_comment",
-        "shortcut", "name", "title",
-        "description", "lastupdatetime", "lastupdateby"
-    )
-
-admin.site.register(PageArchiv, PageArchivAdmin)
