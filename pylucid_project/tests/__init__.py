@@ -99,14 +99,12 @@ from StringIO import StringIO
 
 os.environ['DJANGO_SETTINGS_MODULE'] = "PyLucid.settings"
 
-from django.test.utils import setup_test_environment, teardown_test_environment
-from django.test.utils import create_test_db, destroy_test_db
-
 from django.conf import settings
-
+from django.db import connection
 from django.core.cache import cache
 from django.test import TestCase as DjangoTestCase
 from django.contrib.auth.models import User, UNUSABLE_PASSWORD
+from django.test.utils import setup_test_environment, teardown_test_environment
 
 from tests.utils.BrowserDebug import debug_response
 from tests.utils.FakeRequest import FakePageMsg
@@ -116,7 +114,6 @@ from PyLucid.tools.Diff import make_diff, diff_lines
 from PyLucid.install.install import DB_DumpFakeOptions
 from PyLucid.models import Page, Style, Template, Plugin
 from PyLucid.system.plugin_manager import auto_install_plugins, install_plugin
-
 
 # Display invalid (e.g. misspelled, unused) template variables
 # http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
@@ -532,7 +529,10 @@ def init_unittest_plugin():
 
 def remove_unittest_plugin():
     print "remove unittest plugin (%s)" % TEST_PLUGIN_DST
-    shutil.rmtree(os.path.abspath(TEST_PLUGIN_DST))
+    try:
+        shutil.rmtree(os.path.abspath(TEST_PLUGIN_DST))
+    except Exception, err:
+        print "Error:", err
 
 
 def create_user(username, password, email, is_staff, is_superuser):
@@ -741,15 +741,18 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     http://www.djangoproject.com/documentation/testing/#defining-a-test-runner
     """
     print "test start."
-    settings.DEBUG = False
+    settings.DEBUG = False   
     setup_test_environment()
     old_name = settings.DATABASE_NAME
-    db_name = create_test_db(verbosity=1, autoclobber=not interactive)
+    db_name = connection.creation.create_test_db(
+        verbosity=1, autoclobber=not interactive
+    )
+    print "Test database '%s' created" % db_name  
     init_pyluciddb(verbosity==2)
     suite = get_tests(test_labels, verbosity==2)
     print "Running tests"
     result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
-    destroy_test_db(old_name, verbosity)
+    connection.creation.destroy_test_db(old_name, verbosity)
     teardown_test_environment()
     teardown_pylucid()
 
@@ -757,3 +760,4 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
 
 
 print "PyLucid unittest"
+#run_tests(test_labels=["test_plugin_api",])
