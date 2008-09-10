@@ -67,15 +67,6 @@ class TestURLpatterns_reverse_test(unittest.TestCase):
             # _install section deactivaed
             self.failUnlessRaises(NoReverseMatch, reverse, view)        
 
-    def test_reverse_admin(self):
-        """
-        'django.contrib.admin.urls'
-        """
-        self.assertEqual(
-            reverse('django.contrib.admin.views.main.index'),
-            "/%s/" % settings.ADMIN_URL_PREFIX
-        )
-
     def test_reverse_command(self):
         """
         _command url
@@ -152,6 +143,10 @@ class TestURLpatterns(unittest.TestCase):
         if test_kwargs:
             self.assertEqual(kwargs, func_kwargs)
 
+    def test_admin_panel(self):
+        path = "/%s/" % settings.ADMIN_URL_PREFIX
+        module_name, func_name, func_args, func_kwargs = self._resolve(path)
+        self.assertEqual(module_name, "django.contrib.admin.sites")
 
     def test_install_section(self):
         """
