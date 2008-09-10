@@ -335,10 +335,10 @@ class TestMiddlewares(TestBase):
     def _drop_all_tables(self):
 #        print "drop all tables...",
         from django.db import connection
-        from django.core.management.sql import table_names
+        table_names = connection.introspection.table_names()
 
         cursor = connection.cursor()
-        for table_name in table_names():
+        for table_name in table_names:
             statement = u"DROP TABLE %s;" % table_name
             cursor.execute(statement)
 #        print "done"
