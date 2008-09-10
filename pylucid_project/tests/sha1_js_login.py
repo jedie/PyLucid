@@ -570,7 +570,10 @@ class TestPasswordReset(TestBase):
         form validating test: Check with not existing user.
         """
         response = self.client.post(self.pass_reset_url,
-            {"username": "wrong_user"}
+            {
+                "username": "wrong_user",
+                "email": "wrong@email-adress.org"
+            }
         )
         self.assertResponse(response, must_contain=("User does not exist.",))
 
@@ -589,6 +592,19 @@ class TestPasswordReset(TestBase):
             must_contain=("Wrong email address. Please correct.",)
         )
 
+    def test_pass_reset_form_errors4(self):
+        """
+        form validating test: Check with not existing user.
+        """
+        response = self.client.post(self.pass_reset_url,
+            {"username": "no_email_send"}
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "Form data is not valid. Please correct.",
+                "This field is required.",
+            )
+        )
 
     def test_pass_reset(self):
         """
