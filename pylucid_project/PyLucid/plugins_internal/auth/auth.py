@@ -180,22 +180,31 @@ class UsernameForm(forms.Form):
         )
     )
 
-class PasswordForm(forms.ModelForm):
+#class PasswordForm(forms.ModelForm):
+#    """
+#    form for input the username, used in auth._sha_login()
+#    """
+#    class Meta:
+#        model = User
+#        fields=("password",)
+class PasswordForm(forms.Form):
     """
-    form for input the username, used in auth._sha_login()
+    Same 'User with this Username already exists.' problem from above.
     """
-    class Meta:
-        model = User
-        fields=("password",)
+    password = forms.CharField(max_length=128)
 
 
-class ResetForm(forms.ModelForm):
+class ResetForm(forms.Form):
     """
-    form for input the username, used in auth.pass_reset()
+    We should not use a ModelForm from the User model, because, the email
+    is required here or we must patch a ModelForm.
     """
-    class Meta:
-        model = User
-        fields=("username", "email")
+    username = forms.CharField(max_length=30, help_text=_(
+            "Required. 30 characters or fewer. Alphanumeric characters only"
+            " (letters, digits and underscores)."
+        )
+    )
+    email = forms.EmailField()
 
 
 #______________________________________________________________________________
