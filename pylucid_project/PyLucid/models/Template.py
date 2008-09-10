@@ -46,6 +46,8 @@ class Template(models.Model):
             # Create a new template (e.g. used the save_as function)
             # http://www.djangoproject.com/documentation/admin/#save-as
             # The name must be unique.
+            if self.description == None:
+                self.description = ""
             self.description += " (copy from %s)" % self.name
             existing_names = Template.objects.values_list("name", flat=True)
             # add a number if the name exist
