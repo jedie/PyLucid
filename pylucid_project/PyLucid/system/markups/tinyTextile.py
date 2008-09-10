@@ -69,7 +69,7 @@ class TinyTextileParser:
                 r"<strong>\1</strong>"
             ],
             [ # manuell linebreak
-                r"\\",
+                r"\\{2,2}",
                 r"<br />"
             ],
             [ # img-Tag - Bsp.: !/Bilder/MeinBild.jpg!
@@ -471,5 +471,16 @@ class TinyTextileParser:
         for i in range(deep):
             self.out.write(post_tag)
 
-
+if __name__ == "__main__":
+    # Quick test
+    from tests.utils.FakeRequest import get_fake_context
+    fake_context = get_fake_context()
+    textile = TinyTextileParser(sys.stdout, fake_context)
+    textile.parse(r"""
+        a windows path:
+        C:\windows\foo\bar
+        a linux path:
+        /usr/bin/python
+        a manuel linebreak\\with two backslashes
+    """)
 

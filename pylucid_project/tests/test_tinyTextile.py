@@ -237,7 +237,7 @@ class tinyTextileTest(unittest.TestCase):
         self.assertEqual(out_string, "<p>text</p>\n")
 
     def testTextile_text2(self):
-        self.assertTinyTextile("""
+        self.assertTinyTextile(r"""
             two lines\\in one line
         """, """
             <p>two lines<br />in one line</p>\n
@@ -265,6 +265,22 @@ class tinyTextileTest(unittest.TestCase):
             windows 2</p>
             <p>mac 1<br />
             mac 2</p>
+
+        """)
+
+    def testTextile_backslash(self):
+        self.assertTinyTextile(r"""
+            a windows path:
+            C:\windows\foo\bar\
+            a linux path:
+            /usr/bin/python
+            a manuel linebreak\\with two backslashes
+        """, r"""
+            <p>a windows path:<br />
+            C:\windows\foo\bar\<br />
+            a linux path:<br />
+            /usr/bin/python<br />
+            a manuel linebreak<br />with two backslashes</p>
 
         """)
 
@@ -645,7 +661,7 @@ class tinyTextileTest(unittest.TestCase):
         """)
 
     def testTextile_table1(self):
-        self.assertTinyTextile("""
+        self.assertTinyTextile(r"""
             table 1 start
             |=Heading Col 1 |=Heading Col 2         |
             |Cell 1.1       |2 lines\\in Cell 1.2   |
