@@ -160,51 +160,48 @@ class NewPasswordForm(forms.Form):
 #______________________________________________________________________________
 # FORMS
 
-#class UsernameForm(forms.ModelForm):
-#    """
-#    form for input the username, used in auth.login()
-#    """
-#    class Meta:
-#        model = User
-#        fields=("username",)
-
-class UsernameForm(forms.Form):
-    """
-    FIXME: If we use ModelForm from above, we always get the form error:
-        User with this Username already exists.
-    Why?
-    """
-    username = forms.CharField(max_length=30, help_text=_(
-            "Required. 30 characters or fewer. Alphanumeric characters only"
-            " (letters, digits and underscores)."
-        )
-    )
-
-#class PasswordForm(forms.ModelForm):
-#    """
-#    form for input the username, used in auth._sha_login()
-#    """
-#    class Meta:
-#        model = User
-#        fields=("password",)
-class PasswordForm(forms.Form):
-    """
-    Same 'User with this Username already exists.' problem from above.
-    """
-    password = forms.CharField(max_length=128)
+class ModelForm2(forms.ModelForm):
+    def validate_unique(self):
+        """
+        Don't validate unique fields.
+        We used a ModelForm only for generating the forms and not for
+        create/update any database data. So a field unique Test would like
+        generate Errors like:
+            User with this Username already exists.
+        """
+        pass
 
 
-class ResetForm(forms.Form):
+class UsernameForm(ModelForm2):
     """
-    We should not use a ModelForm from the User model, because, the email
-    is required here or we must patch a ModelForm.
+    form for input the username, used in auth.login()
+    """    
+    class Meta:
+        model = User
+        fields=("username",)
+
+
+class PasswordForm(ModelForm2):
     """
-    username = forms.CharField(max_length=30, help_text=_(
-            "Required. 30 characters or fewer. Alphanumeric characters only"
-            " (letters, digits and underscores)."
-        )
-    )
-    email = forms.EmailField()
+    form for input the username, used in auth._sha_login()
+    """
+    class Meta:
+        model = User
+        fields=("password",)
+
+
+class ResetForm(ModelForm2):
+    """
+    from for input username and email, used in auth.pass_reset()
+    """
+    def __init__(self, *args, **kwargs):
+        super(ResetForm, self).__init__(*args, **kwargs)
+        # User.email is normaly a not required field, here it's required!
+        self.fields['email'].required = True
+        
+    class Meta:
+        model = User
+        fields=("username","email")
 
 
 #______________________________________________________________________________
@@ -252,8 +249,8 @@ class auth(PyLucidBasePlugin):
         if self.request.method != 'POST':
             username_form = UsernameForm()
         else:
-#            self.page_msg(self.request.POST)
-            username_form = UsernameForm(self.request.POST)
+            #self.page_msg(self.request.POST)
+            username_form = UsernameForm(self.request.POST)          
             user = get_data(username_form)
             if user != None: # A valid form with a existing user was send.
                 if not user.has_usable_password():

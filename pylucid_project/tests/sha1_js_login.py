@@ -594,7 +594,7 @@ class TestPasswordReset(TestBase):
 
     def test_pass_reset_form_errors4(self):
         """
-        form validating test: Check with not existing user.
+        form validating test: Check without sending a email Adress.
         """
         response = self.client.post(self.pass_reset_url,
             {"username": "no_email_send"}
