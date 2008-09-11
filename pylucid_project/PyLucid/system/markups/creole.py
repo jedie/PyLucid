@@ -43,12 +43,22 @@ class Rules:
             ([|] \s* (?P<link_text>.+?) \s*)?
             ]]
         )'''
+
+    #--------------------------------------------------------------------------    
+    # PyLucid Patch:
+    # The image rule should not match on django template tags! So we make it
+    # more restricted.
+    # It matches only if...
+    # ...image target ends with a picture extention
+    # ...separator >|< and the image text exist
     image = r'''(?P<image>
             {{
-            (?P<image_target>.+?) \s*
-            ([|] \s* (?P<image_text>.+?) \s*)?
+            (?P<image_target>.+?\.jpg|\.jpeg|\.gif|\.png) \s*
+            (\| \s* (?P<image_text>.+?) \s*)?
             }}
-        )'''
+        )(?i)'''
+    #--------------------------------------------------------------------------
+
     macro = r'''(?P<macro>
             <<
             (?P<macro_name> \w+)
