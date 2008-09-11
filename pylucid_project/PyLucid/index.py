@@ -110,12 +110,14 @@ def _render_cms_page(request, context, page_content=None):
         # the ouput from auth.login directly
     except TemplateSyntaxError, err:
         # Check if it was a AccessDenied exception
-        # sys.exc_info() added in django/template/debug.py
-        error_class = err.exc_info[1]
-        if isinstance(error_class, AccessDenied):
-            return _redirect_access_denied(request)
-        else:
-            raise # raise the original error
+        if hasattr(err, "exc_info"):
+            # sys.exc_info() added in django/template/debug.py
+            error_class = err.exc_info[1]
+            if isinstance(error_class, AccessDenied):
+                return _redirect_access_denied(request)
+            
+        raise # raise the original error
+    
     except AccessDenied:
         # settings.TEMPLATE_DEBUG is off
         return _redirect_access_denied(request)
