@@ -5,8 +5,8 @@ WikiCreole to HTML converter
 This program is an example of how the creole.py WikiCreole parser
 can be used.
 
-
 Copyright (c) 2007, Radomir Dopieralski <creole@sheep.art.pl>
+:copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
 
 All rights reserved.
 
@@ -159,7 +159,14 @@ class HtmlEmitter:
         return u"<br />\n"
 
     def preformatted_emit(self, node):
-        return u"<pre>%s</pre>" % self.html_escape(node.content)
+        return u"<pre>\n%s\n</pre>\n" % self.html_escape(node.content)
+    
+    #--------------------------------------------------------------------------
+    # PyLucid Patch:
+    # Pass-through all django template blocktags
+    def passthrough_emit(self, node):
+        return node.content + "\n"
+    #--------------------------------------------------------------------------
 
     def default_emit(self, node):
         """Fallback function for emitting unknown nodes."""
@@ -206,7 +213,51 @@ a {{/image.jpg|My Image}} image
 no image: {{ foo|bar }}!
 A picture [[http://google.com | {{ campfire.JPG | campfire.jpg }} ]] as a link.
 
+This should be **not** interpreded, it should //pass-through//:
+{% sourcecode py %}
+import sys
+
+sys.stdout("Hello World!")
+{% endsourcecode %}
+
+{{{
+a sourcecode
+
+one line
+two lines
+}}}
+And Text
+
+{% sourcecode py %}
+var = "Hello World!"
+# Jojojo
+#print var
+{% endsourcecode %}
 """
 
+    txt = r"""111
+222
+{{{
+333
+}}}
+444"""
+
+    txt = r"""This should be also interpreded as preformated:
+
+{% sourcecode py %}
+import sys
+
+sys.stdout("Hello World!")
+{% endsourcecode %}
+
+END"""
+    print "-"*80
     document = Parser(txt).parse()
+    print "="*80
+    def emit(node, ident=0):
+        for child in node.children:
+            print u"%s%s" % (u" "*ident, child)
+            emit(child, ident+4)
+    emit(document)
+    print "*"*80
     print HtmlEmitter(document).emit()

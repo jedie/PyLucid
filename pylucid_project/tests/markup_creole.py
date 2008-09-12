@@ -44,7 +44,7 @@ class CreoleTest(unittest_addons.MarkupTest):
         """
         document = Parser(txt).parse()
         out_string = HtmlEmitter(document).emit()
-        print ">>>%r<<<" % out_string
+        #print ">>>%r<<<" % out_string
         return out_string
     
     def _processCreole(self, source_string, should_string):
@@ -115,7 +115,6 @@ class CreoleTest(unittest_addons.MarkupTest):
             
             no image: {{ foo|bar }}!
             picture [[www.domain.tld | {{ foo.JPG | Foo }} ]] as a link
-
         """, """
             <p>The current page name: &gt;{{ PAGE.name }}&lt; great? <br />
             A {% lucidTag page_update_list count=10 %} PyLucid plugin </p>
@@ -127,27 +126,69 @@ class CreoleTest(unittest_addons.MarkupTest):
             picture <a href="www.domain.tld"><img src="foo.JPG" alt="Foo"></a> as a link </p>
         """)
         
+    def test_nowiki1(self):
+        """
+        Test preformatted text
+        """
+        self.assertCreole(r"""
+            {{{
+            //This// does **not** get [[formatted]]
+            }}}
+        """, """
+            <pre>
+            //This// does **not** get [[formatted]]
+            </pre>
+        """)
+        
+    def test_nowiki2(self):
+        """
+        Test preformatted text
+        """
+        self.assertCreole(r"""
+            111
+            222
+            
+            {{{
+            333
+            }}}
+            
+            444
+        """, """
+            <p>111 <br />
+            222 </p>
+            
+            <pre>
+            333
+            </pre>
+            <p>444 </p>
+        """)
+    
     def test_preformatted(self):
         """
         Test preformatted text
         """
         self.assertCreole(r"""
-            == preformatted
+            This should be also interpreded as preformated:
             
-            {{{
-            == [[NoWiki]]:
-            //**don't** format//
+            {% sourcecode py %}
+            import sys
             
-            {{ PAGE.name }}
-            }}}
-            OK?
+            sys.stdout("Hello World!")
+            {% endsourcecode %}
+            
+            END
         """, """
-            <h2>preformatted</h2>
-            <pre>== [[NoWiki]]:
-            //**don't** format//
+            <p>This should be also interpreded as preformated: </p>
             
-            {{ PAGE.name }}</pre><p>OK? </p>
+            {% sourcecode py %}
+            import sys
+            
+            sys.stdout("Hello World!")
+            {% endsourcecode %}
+            
+            <p>END </p>
         """)
+
 
 
 if __name__ == "__main__":

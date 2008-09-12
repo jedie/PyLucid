@@ -27,12 +27,14 @@ from django.template import Library
 from django.templatetags.i18n import do_translate, do_block_translate
 
 from PyLucid.template_addons.lucidTag import lucidTag
+from PyLucid.template_addons.blocktag_pygments import sourcecode
 from PyLucid.template_addons.filters import chmod_symbol, get_oct, \
                                                                 human_duration
 
 register = Library()
 
 register.tag(lucidTag)
+register.tag(sourcecode)
 register.filter(chmod_symbol)
 register.filter(get_oct)
 register.filter(human_duration)

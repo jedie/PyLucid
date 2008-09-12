@@ -15,9 +15,15 @@
     * We do not allow ":" before "//" italic markup to avoid urls with
       unrecognized schemes (like wtf://server/path) triggering italic rendering
       for the rest of the paragraph.
+      
+    PyLucid Updates by the PyLucid team:
+        - Make the image tag match more strict, so it doesn't clash with
+            django template tags
+        - Add a passthrough for all django template blocktags
 
     @copyright: 2007 MoinMoin:RadomirDopieralski (creole 0.5 implementation),
                 2007 MoinMoin:ThomasWaldmann (updates)
+                2008 PyLucid:JensDiemer (PyLucid patches)
     @license: GNU GPL, see COPYING for details.
 """
 
@@ -25,6 +31,7 @@ import re
 
 # Whether the parser should convert \n into <br>.
 bloglike_lines = True
+#bloglike_lines = False
 
 class Rules:
     """Hold all the rules for generating regular expressions."""
@@ -45,7 +52,7 @@ class Rules:
         )'''
 
     #--------------------------------------------------------------------------    
-    # PyLucid Patch:
+    # PyLucid patch:
     # The image rule should not match on django template tags! So we make it
     # more restricted.
     # It matches only if...
@@ -71,7 +78,7 @@ class Rules:
                                    # avoids italic rendering in urls with
                                    # unknown protocols
     strong = r'(?P<strong> \*\* )'
-    linebreak = r'(?P<break> \\\\ )'
+    linebreak = r'(?P<linebreak> \\\\ )'
     escape = r'(?P<escape> ~ (?P<escaped_char>\S) )'
     char =  r'(?P<char> . )'
 
@@ -86,9 +93,12 @@ class Rules:
             $
         )'''
     if bloglike_lines:
-        text = r'(?P<text> .+ ) (?P<break> (?<!\\)$\n(?!\s*$) )?'
-    else:
-        text = r'(?P<text> .+ )'
+        # FIXME: Doesn't work with PyLucid Pass-through patch
+#        text = r'(?P<text> .+ ) (?P<break> (?<!\\)$\n(?!\s*$) )?'
+        text = r'(?P<text> .+ )|(?P<break>\n*)'
+#        text = r'(?P<text> .+\n*)'
+#    else:
+#        text = r'(?P<text> .+ )'
     list = r'''(?P<list>
             ^ [ \t]* ([*][^*\#]|[\#][^\#*]).* $
             ( \n[ \t]* [*\#]+.* $ )*
@@ -111,6 +121,17 @@ class Rules:
             ^}}} \s*$
         )'''
     pre_escape = r' ^(?P<indent>\s*) ~ (?P<rest> \}\}\} \s*) $'
+        
+    #--------------------------------------------------------------------------    
+    # PyLucid patch:
+    # Pass-through all django template blocktags
+    passthrough = r'''(?P<passthrough>
+            ^ \s*{%.*?%}
+            (.|\n)+?
+            {%.*?%} \s*$
+        )'''
+    #--------------------------------------------------------------------------
+
     table = r'''(?P<table>
             ^ \s*
             [|].*? \s*
@@ -132,15 +153,28 @@ class Parser:
     Parse the raw text and create a document object
     that can be converted into output using Emitter.
     """
-
     # For pre escaping, in creole 1.0 done with ~:
     pre_escape_re = re.compile(Rules.pre_escape, re.M | re.X)
-    link_re = re.compile('|'.join([Rules.image, Rules.linebreak, Rules.char]), re.X | re.U) # for link descriptions
+    # for link descriptions:
+    link_re = re.compile(
+        '|'.join([Rules.image, Rules.linebreak, Rules.char]),
+        re.X | re.U
+    ) 
     item_re = re.compile(Rules.item, re.X | re.U | re.M) # for list items
     cell_re = re.compile(Rules.cell, re.X | re.U) # for table cells
     # For block elements:
-    block_re = re.compile('|'.join([Rules.line, Rules.head, Rules.separator,
-        Rules.pre, Rules.list, Rules.table, Rules.text]), re.X | re.U | re.M)
+    block_re = re.compile(
+        '|'.join([
+            #------------------------------------------------------------------
+            # PyLucid patch:
+            # Pass-through all django template blocktags
+            Rules.passthrough,
+            #------------------------------------------------------------------
+            Rules.line, Rules.head, Rules.separator, Rules.pre, Rules.list,
+            Rules.table, Rules.text,
+        ]),
+        re.X | re.U | re.M
+    )
     # For inline elements:
     inline_re = re.compile('|'.join([Rules.link, Rules.url, Rules.macro,
         Rules.code, Rules.image, Rules.strong, Rules.emph, Rules.linebreak,
@@ -267,19 +301,48 @@ class Parser:
     _head_head_repl = _head_repl
     _head_text_repl = _head_repl
 
+#    def _text_repl(self, groups):
+#        if self.cur.kind in ('table', 'table_row', 'bullet_list',
+#            'number_list'):
+#            self.cur = self._upto(self.cur,
+#                ('document', 'section', 'blockquote'))
+#        if self.cur.kind in ('document', 'section', 'blockquote'):
+#            self.cur = DocNode('paragraph', self.cur)
+#        self.parse_inline(groups.get('text', '')+' ')
+#        if groups.get('break') and self.cur.kind in ('paragraph',
+#            'emphasis', 'strong', 'code'):
+#            DocNode('break', self.cur, '')
+#        self.text = None
+#    _break_repl = _text_repl
+
     def _text_repl(self, groups):
+        text = groups.get('text', '')
+        #print "Text repl: %r" % text
+        
         if self.cur.kind in ('table', 'table_row', 'bullet_list',
             'number_list'):
             self.cur = self._upto(self.cur,
                 ('document', 'section', 'blockquote'))
         if self.cur.kind in ('document', 'section', 'blockquote'):
             self.cur = DocNode('paragraph', self.cur)
-        self.parse_inline(groups.get('text', '')+' ')
-        if groups.get('break') and self.cur.kind in ('paragraph',
-            'emphasis', 'strong', 'code'):
-            DocNode('break', self.cur, '')
+        
+        self.parse_inline(text+' ')
+        
+        kind_test = self.cur.kind in ('paragraph', 'emphasis', 'strong', 'code')
+        
+        if text.endswith("\n\n") and kind_test:
+            #print "+++"
+            self.cur = self._upto(
+                self.cur, ('document', 'section', 'blockquote')
+            )
+            self.cur = DocNode('paragraph', self.cur, "")
+        else:
+            if text.endswith("\n") and kind_test:
+                #print "***"
+                DocNode('break', self.cur)
+            
         self.text = None
-    _break_repl = _text_repl
+
 
     def _table_repl(self, groups):
         row = groups.get('table', '|').strip()
@@ -319,6 +382,16 @@ class Parser:
     _pre_head_repl = _pre_repl
     _pre_kind_repl = _pre_repl
 
+    #--------------------------------------------------------------------------
+    # PyLucid patch:
+    # Pass-through all django template blocktags
+    def _passthrough_repl(self, groups):
+        text = groups["passthrough"]
+        #print "_passthrough_repl: %r" % text
+        DocNode("passthrough", self.root, text)
+        self.text = None
+    #--------------------------------------------------------------------------
+    
     def _line_repl(self, groups):
         self.cur = self._upto(self.cur, ('document', 'section', 'blockquote'))
 
@@ -342,9 +415,29 @@ class Parser:
             self.cur = self._upto(self.cur, ('strong', )).parent
         self.text = None
 
-    def _break_repl(self, groups):
+    def _linebreak_repl(self, groups):
         DocNode('break', self.cur, None)
         self.text = None
+        
+    def _break_repl(self, groups):
+        break_string = groups.get('break', 'XXX')
+        #print "break repl: %r" % break_string
+        
+        if break_string == "\n":
+            #print "*", self.cur.kind
+            DocNode('break', self.cur, None)
+        elif break_string == "\n\n":
+            #print "2"
+            self.cur = self._upto(
+                self.cur, ('document', 'section', 'blockquote')
+            )
+        else:
+            #print "3"
+            self.cur = self._upto(
+                self.cur, ('document', 'section', 'blockquote')
+            )
+            DocNode('paragraph', self.cur, None)
+        self.text = None  
 
     def _escape_repl(self, groups):
         if self.text is None:
@@ -358,27 +451,25 @@ class Parser:
 
     def _replace(self, match):
         """Invoke appropriate _*_repl method. Called for every matched group."""
-
         groups = match.groupdict()
         for name, text in groups.iteritems():
             if text is not None:
+                #print "%15s: %r" % (name, text)
                 replace = getattr(self, '_%s_repl' % name)
                 replace(groups)
                 return
 
     def parse_inline(self, raw):
         """Recognize inline elements inside blocks."""
-
+        #print "parse inline: %r" % raw
         re.sub(self.inline_re, self._replace, raw)
 
     def parse_block(self, raw):
         """Recognize block elements."""
-
         re.sub(self.block_re, self._replace, raw)
 
     def parse(self):
         """Parse the text given as self.raw and return DOM tree."""
-
         self.parse_block(self.raw)
         return self.root
 
@@ -398,5 +489,118 @@ class DocNode:
         self.content = content
         if self.parent is not None:
             self.parent.children.append(self)
+            
+    def __str__(self):
+#        return "DocNode kind '%s', content: %r" % (self.kind, self.content)
+        return "%s: %r" % (self.kind, self.content)
 
 
+if __name__=="__main__":
+    txt = r"""== a headline
+    
+A **bold** stuff.
+
+Force\\linebreak
+
+{{{
+one
+
+two
+}}}
+
+111
+222
+333
+444
+555
+
+{% bla %}
+eins
+
+zwei
+{% blub %}
+
+44
+55
+
+{% sourcecode py %}
+import sys
+
+sys.stdout("Hello World!")
+{% endsourcecode %}
+
+END"""
+
+    txt = r"""This should be also interpreded as preformated:
+
+{% sourcecode py %}
+import sys
+
+sys.stdout("Hello World!")
+{% endsourcecode %}
+
+END"""
+
+    document = Parser(txt).parse()
+    print "="*80
+    def emit(node, ident=0):
+        for child in node.children:
+            print u"%s%s" % (u" "*ident, child)
+            emit(child, ident+4)
+    emit(document)
+    print "*"*80
+#    
+##    print re.findall(Rules.pre, txt, re.X | re.U | re.M)
+##    print re.findall(Rules.passthrough, txt, re.X | re.U | re.M)
+##    print re.findall(r'(?P<text> .+ ) (?P<break> (?<!\\)$\n(?!\s*$) )?', txt, re.X | re.U | re.M)
+#    print re.findall(r'(?P<text> .+ ) (?P<break> (?<!\\)$\n(?!\s*$) )?', txt, re.X | re.U | re.M)
+#    print re.findall(r'(?P<text> .+ )', txt, re.X | re.U | re.M)
+##    new_text = 
+##    print re.findall(new_text, txt, re.X | re.U | re.M)
+
+#    print "*"*80
+#    
+#    def display_match(match):
+#        groups = match.groupdict()
+#        for name, text in groups.iteritems():
+#            if text is not None:
+#                print "%13s: %r" % (name, text)
+#    
+#    def test_rules(rules, txt, re_settings):
+#        block_re = re.compile(rules,re_settings)
+#        print "-"*80
+#        re.sub(block_re, display_match, txt)
+#        print "-"*80
+#      
+#
+##    inline_re = re.compile(]), re.X | re.U)
+#    test_rules(
+#        '|'.join([Rules.link, Rules.url, Rules.macro,
+#        Rules.code, Rules.image, Rules.strong, Rules.emph, Rules.linebreak,
+#        Rules.escape, Rules.char]),
+#        txt,
+#        re_settings = re.X | re.U
+#    )
+
+#re.X | re.U | re.M
+#    test_rules('|'.join([ 
+#        #------------------------------------------------------------------
+#        Rules.passthrough,
+#        #------------------------------------------------------------------
+#        Rules.line, Rules.head, Rules.separator, Rules.pre, Rules.list,
+#        Rules.table, 
+#        Rules.text,
+#    ]), txt)
+#        
+##    test_rules('|'.join([ 
+##        #------------------------------------------------------------------
+##        Rules.passthrough,
+##        #------------------------------------------------------------------
+##        Rules.line, Rules.head, Rules.separator, Rules.pre, Rules.list,
+##        Rules.table, Rules.text,
+##    ]), txt)
+#    
+##    test_rules('|'.join([
+##        Rules.line, Rules.head, Rules.separator, Rules.pre, Rules.list,
+##        Rules.table, Rules.text,
+##    ]), txt)
