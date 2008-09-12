@@ -88,14 +88,7 @@ class Rules:
             (?P<head_text> .*? )
             =* \s*$
         )\n*'''
-
-    #--------------------------------------------------------------------------
-    # PyLucid patch:
-    # Original re doesn't work with PyLucid Pass-through
-    # original: text = r'(?P<text> .+ ) (?P<break> (?<!\\)$\n(?!\s*$) )?'
-    text = r'(?P<text> .+ )|(?P<break>\n*)'
-    #--------------------------------------------------------------------------
-
+    text = r'(?P<text> .+ ) (?P<break> (?<!\\)$\n(?!\s*$) )?'
     list = r'''(?P<list>
             ^ [ \t]* ([*][^*\#]|[\#][^\#*]).* $
             ( \n[ \t]* [*\#]+.* $ )*
@@ -196,65 +189,30 @@ class Parser:
     # The _*_repl methods called for matches in regexps. Sometimes the
     # same method needs several names, because of group names in regexps.
 
-    #--------------------------------------------------------------------------
-    # PyLucid patch START
-    #
     def _passthrough_repl(self, groups):
         """ Pass-through all django template blocktags """
+        self.cur = self._upto(
+            self.cur, ('document', 'section', 'blockquote')
+        )
         DocNode("passthrough", self.root, groups["passthrough"])
         self.text = None
 
-    def _break_repl(self, groups):
-        break_string = groups["break"]
-
-        if break_string == "\n":
-            DocNode('break', self.cur, None)
-        elif break_string == "\n\n":
-            self.cur = self._upto(
-                self.cur, ('document', 'section', 'blockquote')
-            )
-        else:
-            self.cur = self._upto(
-                self.cur, ('document', 'section', 'blockquote')
-            )
-            DocNode('paragraph', self.cur, None)
-        self.text = None
-
     def _text_repl(self, groups):
-        """
-        PyLucid patched version
-        """
-        text = groups.get('text', '')
-
         if self.cur.kind in ('table', 'table_row', 'bullet_list',
             'number_list'):
             self.cur = self._upto(self.cur,
                 ('document', 'section', 'blockquote'))
         if self.cur.kind in ('document', 'section', 'blockquote'):
             self.cur = DocNode('paragraph', self.cur)
-
-        self.parse_inline(text)#+' ')
-
-        kind_test = self.cur.kind in ('paragraph', 'emphasis', 'strong', 'code')
-
-        if text.endswith("\n\n") and kind_test:
-            self.cur = self._upto(
-                self.cur, ('document', 'section', 'blockquote')
-            )
-            self.cur = DocNode('paragraph', self.cur, "")
-        else:
-            if text.endswith("\n") and kind_test:
-                DocNode('break', self.cur)
-
+        self.parse_inline(groups.get('text', ''))
+        if groups.get('break') and self.cur.kind in ('paragraph',
+            'emphasis', 'strong', 'code'):
+            DocNode('break', self.cur, '')
         self.text = None
-
-    # PyLucid patch END
-    #--------------------------------------------------------------------------
-
+    _break_repl = _text_repl
 
     def _url_repl(self, groups):
         """Handle raw urls in text."""
-
         if not groups.get('escaped_url'):
             # this url is NOT escaped
             target = groups.get('url_target', '')
@@ -273,7 +231,6 @@ class Parser:
 
     def _link_repl(self, groups):
         """Handle all kinds of links."""
-
         target = groups.get('link_target', '')
         text = (groups.get('link_text', '') or '').strip()
         parent = self.cur
@@ -288,7 +245,6 @@ class Parser:
 
     def _macro_repl(self, groups):
         """Handles macros using the placeholder syntax."""
-
         name = groups.get('macro_name', '')
         text = (groups.get('macro_text', '') or '').strip()
         node = DocNode('macro', self.cur, name)
@@ -301,7 +257,6 @@ class Parser:
 
     def _image_repl(self, groups):
         """Handles images and attachemnts included in the page."""
-
         target = groups.get('image_target', '').strip()
         text = (groups.get('image_text', '') or '').strip()
         node = DocNode("image", self.cur, target)
@@ -439,7 +394,7 @@ class Parser:
         groups = match.groupdict()
         for name, text in groups.iteritems():
             if text is not None:
-                #print "%15s: %r" % (name, text)
+#                if name != "char": print "%15s: %r" % (name, text)
                 replace = getattr(self, '_%s_repl' % name)
                 replace(groups)
                 return
@@ -456,6 +411,31 @@ class Parser:
         """Parse the text given as self.raw and return DOM tree."""
         self.parse_block(self.raw)
         return self.root
+
+
+    #--------------------------------------------------------------------------
+    def debug(self):
+        """
+        Display the current document tree
+        """
+        print "_"*80
+        print "  document tree:"
+        print "="*80
+        def emit(node, ident=0):
+            for child in node.children:
+                print u"%s%s" % (u" "*ident, child)
+                emit(child, ident+4)
+        emit(self.root)
+        print "*"*80
+    
+    def debug_groups(self, groups):
+        print "_"*80
+        print "  debug groups:"
+        for name, text in groups.iteritems():
+            if text is not None:
+                print "%15s: %r" % (name, text)
+        print "-"*80
+
 
 
 #------------------------------------------------------------------------------
@@ -477,22 +457,6 @@ class DocNode:
 #        return "DocNode kind '%s', content: %r" % (self.kind, self.content)
         return "%s: %r" % (self.kind, self.content)
 
-
-#------------------------------------------------------------------------------
-
-def display_doc_tree(document):
-    """
-    print out the document as a tree
-    """
-    print "_"*80
-    print "  document tree:"
-    print "="*80
-    def emit(node, ident=0):
-        for child in node.children:
-            print u"%s%s" % (u" "*ident, child)
-            emit(child, ident+4)
-    emit(document)
-    print "*"*80
 
 #------------------------------------------------------------------------------
 
@@ -525,43 +489,28 @@ picture [[www.domain.tld | {{ foo.JPG | Foo }} ]] as a link
 
 END"""
 
-    txt = r"""
-* Item 1
-** Item 1.1
-* Item 2
-"""
+    txt = r"""one
+----
+two"""
 
-    document = Parser(txt).parse()
-    display_doc_tree(document)
+    p = Parser(txt)
+    document = p.parse()
+    p.debug()
 
-    def display_match(match):
-        groups = match.groupdict()
-        for name, text in groups.iteritems():
-            if name != "char" and text != None:
-                print "%13s: %r" % (name, text)
-
-    def test_rules(rules, txt, re_settings):
-        block_re = re.compile(rules,re_settings)
-        re.sub(block_re, display_match, txt)
-        print "-"*80
+    def test_rules(rules, txt):
+        def display_match(match):
+            groups = match.groupdict()
+            for name, text in groups.iteritems():
+                if name != "char" and text != None:
+                    print "%13s: %r" % (name, text)
+        re.sub(rules, display_match, txt)
 
     print "_"*80
     print "plain block rules match:"
-    test_rules('|'.join([
-        Rules.passthrough,
-        Rules.line, Rules.head, Rules.separator, Rules.pre, Rules.list,
-        Rules.table,
-        Rules.text]),
-        txt,
-        re_settings = re.X | re.U | re.M
-    )
+    test_rules(Parser("").block_re, txt)
 
     print "_"*80
     print "plain inline rules match:"
-    test_rules(
-        '|'.join([Rules.link, Rules.url, Rules.macro,
-        Rules.code, Rules.image, Rules.strong, Rules.emph, Rules.linebreak,
-        Rules.escape, Rules.char]),
-        txt,
-        re_settings = re.X | re.U
-    )
+    test_rules(Parser("").inline_re, txt)
+
+    print "---END---"

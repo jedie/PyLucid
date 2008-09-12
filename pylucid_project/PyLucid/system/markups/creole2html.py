@@ -47,6 +47,12 @@ class Rules:
             (?P<inter_page> .* )
         '''
 
+class Macro(object):
+#    def __init__(self):
+    def source_emit(self, node):
+        print node
+
+
 class HtmlEmitter:
     """
     Generate HTML output for the document
@@ -60,6 +66,7 @@ class HtmlEmitter:
 
     def __init__(self, root):
         self.root = root
+        self.macro = Macro()
 
     def get_text(self, node):
         """Try to emit whatever text is in the node."""
@@ -170,6 +177,8 @@ class HtmlEmitter:
             self.attr_escape(target), self.attr_escape(text))
 
     def macro_emit(self, node):
+#        try:
+#            return getattr(self.macro, 
         raise NotImplementedError("Node: %r" % node.content)
 
     def break_emit(self, node):
@@ -207,8 +216,6 @@ class HtmlEmitter:
         return self.emit_node(self.root)
 
 if __name__=="__main__":
-    from creole import display_doc_tree
-
     txt = r"""== a headline
 
 Here is [[a internal]] link.
@@ -235,20 +242,13 @@ no image: {{ foo|bar }}!
 picture [[www.domain.tld | {{ foo.JPG | Foo }} ]] as a link
 
 END"""
-    txt = r"""START
-
-* Item 1
-** Item 1.1
-** Item 1.2
-* Item 2
-** Item 2.1
-*** Item 3.1
-*** Item 3.2
-
-END"""
+    txt = r"""one
+----
+two"""
 
     print "-"*80
-    document = Parser(txt).parse()
-    display_doc_tree(document)
+    p = Parser(txt)
+    document = p.parse()
+    p.debug()
 
     print HtmlEmitter(document).emit()
