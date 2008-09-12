@@ -89,14 +89,31 @@ class HtmlEmitter:
     def paragraph_emit(self, node):
         return u'<p>%s</p>\n\n' % self.emit_children(node)
 
+    def _list_emit(self, node, list_type):
+        if node.parent.kind in ("document",):
+            # The first list item
+            formatter = u''
+        else:
+            formatter = u'\n'
+
+        formatter += (
+            u'%(i)s<%(t)s>%(c)s\n'
+            '%(i)s</%(t)s>'
+        )
+        return formatter % {
+            "i": "  "*node.level,
+            "c": self.emit_children(node),
+            "t": list_type,
+        }
+
     def bullet_list_emit(self, node):
-        return u'<ul>\n%s</ul>\n' % self.emit_children(node)
+        return self._list_emit(node, list_type=u"ul")
 
     def number_list_emit(self, node):
-        return u'<ol>\n%s</ol>\n' % self.emit_children(node)
+        return self._list_emit(node, list_type=u"ol")
 
     def list_item_emit(self, node):
-        return u'<li>%s</li>\n' % self.emit_children(node)
+        return self._list_emit(node, list_type=u"li")
 
     def table_emit(self, node):
         return u'<table>\n%s</table>\n' % self.emit_children(node)
@@ -160,7 +177,7 @@ class HtmlEmitter:
 
     def preformatted_emit(self, node):
         return u"<pre>\n%s\n</pre>\n" % self.html_escape(node.content)
-    
+
     #--------------------------------------------------------------------------
     # PyLucid Patch:
     # Pass-through all django template blocktags
@@ -180,7 +197,7 @@ class HtmlEmitter:
 
     def emit_node(self, node):
         """Emit a single node."""
-
+        #print "%s_emit: %r" % (node.kind, node.content)
         emit = getattr(self, '%s_emit' % node.kind, self.default_emit)
         return emit(node)
 
@@ -190,74 +207,48 @@ class HtmlEmitter:
         return self.emit_node(self.root)
 
 if __name__=="__main__":
-    """
-    http://code.google.com/p/creoleparser/source/browse/trunk/creoleparser/tests.py
-    http://hg.moinmo.in/moin/1.7/file/tip/MoinMoin/parser/
-    http://sheep.art.pl/devel/creole/file/tip
-    http://djikiki.googlecode.com/svn/trunk/djikiki/creole/
-    """
-    
-    txt = """
-== Headline
+    from creole import display_doc_tree
 
-This is **bold**...
-Wow...
+    txt = r"""== a headline
+
+Here is [[a internal]] link.
+This is [[http://domain.tld|external links]].
+A [[internal links|different]] link name.
+
+Basics: **bold** or //italic//
+or **//both//** or //**both**//
+Force\\linebreak.
 
 The current page name: >{{ PAGE.name }}< great?
-Some {% lucidTag page_update_list count=10 %} text.
+A {% lucidTag page_update_list count=10 %} PyLucid plugin
 
-a [[www.google.de|Google]] link
-a ((/image.jpg|My Image)) image
+{% sourcecode py %}
+import sys
+
+sys.stdout("Hello World!")
+{% endsourcecode %}
+
+A [[www.domain.tld|link]].
 a {{/image.jpg|My Image}} image
 
 no image: {{ foo|bar }}!
-A picture [[http://google.com | {{ campfire.JPG | campfire.jpg }} ]] as a link.
-
-This should be **not** interpreded, it should //pass-through//:
-{% sourcecode py %}
-import sys
-
-sys.stdout("Hello World!")
-{% endsourcecode %}
-
-{{{
-a sourcecode
-
-one line
-two lines
-}}}
-And Text
-
-{% sourcecode py %}
-var = "Hello World!"
-# Jojojo
-#print var
-{% endsourcecode %}
-"""
-
-    txt = r"""111
-222
-{{{
-333
-}}}
-444"""
-
-    txt = r"""This should be also interpreded as preformated:
-
-{% sourcecode py %}
-import sys
-
-sys.stdout("Hello World!")
-{% endsourcecode %}
+picture [[www.domain.tld | {{ foo.JPG | Foo }} ]] as a link
 
 END"""
+    txt = r"""START
+
+* Item 1
+** Item 1.1
+** Item 1.2
+* Item 2
+** Item 2.1
+*** Item 3.1
+*** Item 3.2
+
+END"""
+
     print "-"*80
     document = Parser(txt).parse()
-    print "="*80
-    def emit(node, ident=0):
-        for child in node.children:
-            print u"%s%s" % (u" "*ident, child)
-            emit(child, ident+4)
-    emit(document)
-    print "*"*80
+    display_doc_tree(document)
+
     print HtmlEmitter(document).emit()
