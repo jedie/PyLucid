@@ -14,22 +14,35 @@
 
 <hr />
 
-<p>Please note:<br />
-The Creole <b>image tag is more strict than the original</b>,
-because it should not match on django template tags!<br />
-It matches only if...
-</p>
-<ol>
-    <li>...image target ends with a picture extention</li>
-    <li>...separator &gt;|&lt; and the image text exist</li>
-</ol>
-
+<p>Changes to the original creole specs:<br />
+<ul>
+<li><b>image tag:</b><br />
+    We implemented a more stricted image tag than the original,
+    because it should not match on django template tags!<br />
+    It matches only if...
+    </p>
+    <ol>
+        <li>...image target ends with a picture extention</li>
+        <li>...separator &gt;|&lt; and the image text exist</li>
+    </ol>
+</li>
+<li><b>line break:</b><br />
+    We used blog-style line break insteat of
+    <a href="http://www.wikicreole.org/wiki/ParagraphsAndLineBreaksReasoning" title="creole 'Paragraphs And Line Breaks' spec">wiki-style</a>
+    (every \n would be convertet into &lt;br /&gt;)
+</li>
+<li><b>html code:</b><br />
+    You can insert html code. But every line must start with &lt; and end with &gt;<br />
+    If the line starts or ends with a other character, the complete line would
+    be interpreted as text, so every html characters would be escaped.
+</li>
+</ul>
 
 <hr />
 
 <h2 class="noanchor">Usefull links:</h2>
 <ul id="links">
-  <li><a href="http://www.wikicreole.org">www.wikicreole.org</a></li>
+  <li><a href="http://www.wikicreole.org/wiki/Creole1.0">www.wikicreole.org/wiki/Creole1.0</a></li>
 </ul>
 
 </div>

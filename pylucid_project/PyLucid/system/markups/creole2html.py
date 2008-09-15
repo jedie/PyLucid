@@ -8,6 +8,11 @@ can be used.
 Copyright (c) 2007, Radomir Dopieralski <creole@sheep.art.pl>
 :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
 
+    PyLucid Updates by the PyLucid team:
+        - Bugfixes and better html code style
+        - Add a passthrough for all django template blocktags
+        - Add a passthrough for html code lines
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -70,7 +75,6 @@ class HtmlEmitter:
 
     def get_text(self, node):
         """Try to emit whatever text is in the node."""
-
         try:
             return node.children[0].content or ''
         except:
@@ -94,7 +98,7 @@ class HtmlEmitter:
         return u'<hr />\n';
 
     def paragraph_emit(self, node):
-        return u'<p>%s</p>\n\n' % self.emit_children(node)
+        return u'<p>%s</p>\n' % self.emit_children(node)
 
     def _list_emit(self, node, list_type):
         if node.parent.kind in ("document",):
@@ -102,13 +106,18 @@ class HtmlEmitter:
             formatter = u''
         else:
             formatter = u'\n'
-
-        formatter += (
-            u'%(i)s<%(t)s>%(c)s\n'
-            '%(i)s</%(t)s>'
-        )
+        
+        if list_type == "li":
+            formatter += (
+                u'%(i)s<%(t)s>%(c)s</%(t)s>'
+            )
+        else:
+            formatter += (
+                u'%(i)s<%(t)s>%(c)s\n'
+                '%(i)s</%(t)s>'
+            )
         return formatter % {
-            "i": "  "*node.level,
+            "i": "\t"*node.level,
             "c": self.emit_children(node),
             "t": list_type,
         }
@@ -138,7 +147,7 @@ class HtmlEmitter:
         return u'<i>%s</i>' % self.emit_children(node)
 
     def strong_emit(self, node):
-        return u'<b>%s</b>' % self.emit_children(node)
+        return u'<strong>%s</strong>' % self.emit_children(node)
 
     def header_emit(self, node):
         return u'<h%d>%s</h%d>\n' % (
@@ -182,26 +191,30 @@ class HtmlEmitter:
         raise NotImplementedError("Node: %r" % node.content)
 
     def break_emit(self, node):
-        return u"<br />\n"
+        if node.parent.kind == "list_item":
+            return u"<br />\n" + "\t"*node.parent.level
+        elif node.parent.kind in ("table_head", "table_cell"):
+            return u"<br />\n\t\t"
+        else:
+            return u"<br />\n"
+
+    def line_emit(self, node):
+        return u"\n"
 
     def preformatted_emit(self, node):
         return u"<pre>\n%s\n</pre>\n" % self.html_escape(node.content)
 
-    #--------------------------------------------------------------------------
-    # PyLucid Patch:
-    # Pass-through all django template blocktags
     def passthrough_emit(self, node):
+        """ Pass-through all django template blocktags and html code lines """
         return node.content + "\n"
-    #--------------------------------------------------------------------------
+    html_emit = passthrough_emit
 
     def default_emit(self, node):
         """Fallback function for emitting unknown nodes."""
-
         raise TypeError
 
     def emit_children(self, node):
         """Emit all the children of a node."""
-
         return u''.join([self.emit_node(child) for child in node.children])
 
     def emit_node(self, node):
@@ -212,7 +225,6 @@ class HtmlEmitter:
 
     def emit(self):
         """Emit the document represented by self.root DOM tree."""
-
         return self.emit_node(self.root)
 
 if __name__=="__main__":
@@ -242,11 +254,9 @@ no image: {{ foo|bar }}!
 picture [[www.domain.tld | {{ foo.JPG | Foo }} ]] as a link
 
 END"""
-    txt = r"""one
-----
-two"""
 
     print "-"*80
+#    from creole_alt.creole import Parser
     p = Parser(txt)
     document = p.parse()
     p.debug()

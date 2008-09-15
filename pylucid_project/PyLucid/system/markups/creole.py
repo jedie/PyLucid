@@ -17,9 +17,11 @@
       for the rest of the paragraph.
 
     PyLucid Updates by the PyLucid team:
+        - Bugfixes and better html code style
         - Make the image tag match more strict, so it doesn't clash with
             django template tags
         - Add a passthrough for all django template blocktags
+        - Add a passthrough for html code lines
 
     @copyright: 2007 MoinMoin:RadomirDopieralski (creole 0.5 implementation),
                 2007 MoinMoin:ThomasWaldmann (updates)
@@ -49,7 +51,6 @@ class Rules:
         )'''
 
     #--------------------------------------------------------------------------
-    # PyLucid patch:
     # The image rule should not match on django template tags! So we make it
     # more restricted.
     # It matches only if...
@@ -94,12 +95,10 @@ class Rules:
             ( \n[ \t]* [*\#]+.* $ )*
         )''' # Matches the whole list, separate items are parsed later. The
              # list *must* start with a single bullet.
-    item = r'''(?P<item>
-            ^ \s*
+    item = r'''^ \s* (?P<item>
             (?P<item_head> [\#*]+) \s*
             (?P<item_text> .*?)
-            $
-        )''' # Matches single list items
+        ) \s* $''' # Matches single list items
     pre = r'''(?P<pre>
             ^{{{ \s* $
             (\n)?
@@ -112,22 +111,22 @@ class Rules:
         )'''
     pre_escape = r' ^(?P<indent>\s*) ~ (?P<rest> \}\}\} \s*) $'
 
-    #--------------------------------------------------------------------------
-    # PyLucid patch:
     # Pass-through all django template blocktags
-    passthrough = r'''(?P<passthrough>
-            ^ \s*{%.*?%}
+    passthrough = r'''^ \s*(?P<passthrough>
+            {%.*?%}
             (.|\n)+?
-            {%.*?%} \s*$
+            {%.*?%}
+        ) \s*$
+        '''
+    #Pass-through html code lines
+    html = r'''(?P<html>
+            ^ \s*<.*?> \s*$
         )'''
-    #--------------------------------------------------------------------------
 
-    table = r'''(?P<table>
-            ^ \s*
+    table = r'''^ \s*(?P<table>
             [|].*? \s*
-            [|]? \s*
-            $
-        )'''
+            [|]?
+        ) \s* $'''
 
     # For splitting table cells:
     cell = r'''
@@ -137,6 +136,12 @@ class Rules:
                 (?P<cell> (  %s | [^|])+ )
             ) \s*
         ''' % '|'.join([link, macro, image, code])
+        
+    #--------------------------------------------------------------------------
+    blockelements = (
+        "head", "list", "pre", "code", "table", "separator", "macro",
+        "passthrough", "html"
+    )
 
 class Parser:
     """
@@ -155,11 +160,7 @@ class Parser:
     # For block elements:
     block_re = re.compile(
         '|'.join([
-            #------------------------------------------------------------------
-            # PyLucid patch:
-            # Pass-through all django template blocktags
-            Rules.passthrough,
-            #------------------------------------------------------------------
+            Rules.passthrough, Rules.html,
             Rules.line, Rules.head, Rules.separator, Rules.pre, Rules.list,
             Rules.table, Rules.text,
         ]),
@@ -176,6 +177,8 @@ class Parser:
         self.cur = self.root        # The most recent document node
         self.text = None            # The node to add inline characters to
 
+    #--------------------------------------------------------------------------
+
     def _upto(self, node, kinds):
         """
         Look up the tree to the first occurence
@@ -186,28 +189,40 @@ class Parser:
             node = node.parent
         return node
 
+    def _upto_block(self):
+        self.cur = self._upto(self.cur, ('document',))# 'section', 'blockquote'))
+
+    #__________________________________________________________________________
     # The _*_repl methods called for matches in regexps. Sometimes the
     # same method needs several names, because of group names in regexps.
 
     def _passthrough_repl(self, groups):
         """ Pass-through all django template blocktags """
-        self.cur = self._upto(
-            self.cur, ('document', 'section', 'blockquote')
-        )
+        self._upto_block()
         DocNode("passthrough", self.root, groups["passthrough"])
+        self.text = None
+        
+    def _html_repl(self, groups):
+        """ Pass-through html code """
+        self._upto_block()
+        DocNode("html", self.root, groups["html"])
         self.text = None
 
     def _text_repl(self, groups):
+#        print "_text_repl()", self.cur.kind, groups.get('break') != None           
         if self.cur.kind in ('table', 'table_row', 'bullet_list',
-            'number_list'):
-            self.cur = self._upto(self.cur,
-                ('document', 'section', 'blockquote'))
+                                                                'number_list'):
+            self._upto_block()
+            
         if self.cur.kind in ('document', 'section', 'blockquote'):
             self.cur = DocNode('paragraph', self.cur)
+            
         self.parse_inline(groups.get('text', ''))
+        
         if groups.get('break') and self.cur.kind in ('paragraph',
             'emphasis', 'strong', 'code'):
             DocNode('break', self.cur, '')
+            
         self.text = None
     _break_repl = _text_repl
 
@@ -266,7 +281,7 @@ class Parser:
     _image_text_repl = _image_repl
 
     def _separator_repl(self, groups):
-        self.cur = self._upto(self.cur, ('document', 'section', 'blockquote'))
+        self._upto_block()
         DocNode('separator', self.cur)
 
     def _item_repl(self, groups):
@@ -293,19 +308,17 @@ class Parser:
             self.cur = DocNode(kind, self.cur)
             self.cur.level = level
         self.cur = DocNode('list_item', self.cur)
-        self.cur.level = level
+        self.cur.level = level+1
         self.parse_inline(text)
         self.text = None
     _item_text_repl = _item_repl
     _item_head_repl = _item_repl
 
     def _list_repl(self, groups):
-        text = groups.get('list', u'')
-        self.cur.start_list = True
-        self.item_re.sub(self._replace, text)
+        self.item_re.sub(self._replace, groups["list"])
 
     def _head_repl(self, groups):
-        self.cur = self._upto(self.cur, ('document', 'section', 'blockquote'))
+        self._upto_block()
         node = DocNode('header', self.cur, groups['head_text'].strip())
         node.level = len(groups['head_head'])
         self.text = None
@@ -321,23 +334,23 @@ class Parser:
         tb = self.cur
         tr = DocNode('table_row', tb)
 
-        text = ''
         for m in self.cell_re.finditer(row):
             cell = m.group('cell')
             if cell:
+                text = cell.strip()
                 self.cur = DocNode('table_cell', tr)
                 self.text = None
-                self.parse_inline(cell)
             else:
-                cell = m.group('head')
+                text = m.group('head').strip('= ') 
                 self.cur = DocNode('table_head', tr)
                 self.text = DocNode('text', self.cur, u'')
-                self.text.content = cell.strip('=')
+            self.parse_inline(text)
+            
         self.cur = tb
         self.text = None
 
     def _pre_repl(self, groups):
-        self.cur = self._upto(self.cur, ('document', 'section', 'blockquote'))
+        self._upto_block()
         kind = groups.get('pre_kind', None)
         text = groups.get('pre_text', u'')
         def remove_tilde(m):
@@ -351,7 +364,9 @@ class Parser:
     _pre_kind_repl = _pre_repl
 
     def _line_repl(self, groups):
-        self.cur = self._upto(self.cur, ('document', 'section', 'blockquote'))
+        """ Transfer newline from the original markup into the html code """
+        self._upto_block()
+        DocNode('line', self.cur, "")
 
     def _code_repl(self, groups):
         DocNode('code', self.cur, groups.get('code_text', u'').strip())
@@ -388,13 +403,30 @@ class Parser:
         self.text.content += groups.get('char', u'')
 
     #--------------------------------------------------------------------------
+    
+    def check_break(self):
+        """
+        remove unused end line breaks. Should be called on every block element.
+        e.g.:
+          <p>line one<br />
+          line two<br />     <--- remove this br-tag
+          </p>
+        """
+        if self.cur.children == []:
+            return
+        if self.cur.children[-1].kind == "break":
+            del(self.cur.children[-1])
+    
+    #--------------------------------------------------------------------------
 
     def _replace(self, match):
         """Invoke appropriate _*_repl method. Called for every matched group."""
         groups = match.groupdict()
         for name, text in groups.iteritems():
             if text is not None:
-#                if name != "char": print "%15s: %r" % (name, text)
+                #if name != "char": print "%15s: %r" % (name, text)
+                if name in Rules.blockelements:
+                    self.check_break()
                 replace = getattr(self, '_%s_repl' % name)
                 replace(groups)
                 return
@@ -488,10 +520,6 @@ no image: {{ foo|bar }}!
 picture [[www.domain.tld | {{ foo.JPG | Foo }} ]] as a link
 
 END"""
-
-    txt = r"""one
-----
-two"""
 
     p = Parser(txt)
     document = p.parse()

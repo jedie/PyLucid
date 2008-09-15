@@ -11,9 +11,12 @@
     Some Links
     ~~~~~~~~~~
     http://code.google.com/p/creoleparser/source/browse/trunk/creoleparser/tests.py
-    http://hg.moinmo.in/moin/1.7/file/tip/MoinMoin/parser/
+    http://hg.moinmo.in/moin/1.8/file/tip/MoinMoin/parser/
     http://sheep.art.pl/devel/creole/file/tip
-    http://djikiki.googlecode.com/svn/trunk/djikiki/creole/
+    http://code.google.com/p/djikiki/source/browse/#svn/trunk/djikiki/creole
+    http://creoleparser.googlepages.com/cheatsheetplus.html
+    http://www.wikicreole.org/creole-sandbox/EditX.jsp?page=Home
+    http://www.wikicreole.org/wiki/Sandbox
 
     Differences to Creole 1.0
     ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -82,7 +85,7 @@ class CreoleTest(unittest_addons.MarkupTest):
 
     def test_creole_basic1(self):
         out_string = self._parse("a text line.")
-        self.assertEqual(out_string, "<p>a text line.</p>\n\n")
+        self.assertEqual(out_string, "<p>a text line.</p>\n")
 
     def test_creole_basic2(self):
         self.assertCreole(r"""
@@ -93,15 +96,6 @@ class CreoleTest(unittest_addons.MarkupTest):
         """)
 
     def test_creole_basic3(self):
-        self.assertCreole(r"""
-            Basics: **bold** or //italic//
-            or **//both//** or //**both**//
-        """, """
-            <p>Basics: <b>bold</b> or <i>italic</i><br />
-            or <b><i>both</i></b> or <i><b>both</b></i></p>
-        """)
-
-    def test_creole_basic4(self):
         self.assertCreole(r"""
             Here is [[a internal]] link.
             This is [[http://domain.tld|external links]].
@@ -121,13 +115,11 @@ class CreoleTest(unittest_addons.MarkupTest):
         self.assertCreole(r"""
             The current page name: >{{ PAGE.name }}< great?
             A {% lucidTag page_update_list count=10 %} PyLucid plugin
-
             {% sourcecode py %}
             import sys
 
             sys.stdout("Hello World!")
             {% endsourcecode %}
-
             A [[www.domain.tld|link]].
             a {{/image.jpg|My Image}} image
 
@@ -136,28 +128,48 @@ class CreoleTest(unittest_addons.MarkupTest):
         """, """
             <p>The current page name: &gt;{{ PAGE.name }}&lt; great?<br />
             A {% lucidTag page_update_list count=10 %} PyLucid plugin</p>
-
             {% sourcecode py %}
             import sys
 
             sys.stdout("Hello World!")
             {% endsourcecode %}
-
             <p>A <a href="www.domain.tld">link</a>.<br />
             a <img src="/image.jpg" alt="My Image"> image</p>
-
+            
             <p>no image: {{ foo|bar }}!<br />
             picture <a href="www.domain.tld"><img src="foo.JPG" alt="Foo"></a> as a link</p>
         """)
 
     def test_nowiki1(self):
         self.assertCreole(r"""
+            this:
             {{{
             //This// does **not** get [[formatted]]
             }}}
+            and this: {{{** <i>this</i> ** }}}
+            
+            === Closing braces in nowiki:
+            {{{
+            if (x != NULL) {
+              for (i = 0; i < size; i++) {
+                if (x[i] > 0) {
+                  x[i]--;
+              }}}
+            }}}
         """, """
+            <p>this:</p>
             <pre>
             //This// does **not** get [[formatted]]
+            </pre>
+            <p>and this: <tt>** &lt;i&gt;this&lt;/i&gt; **</tt></p>
+            
+            <h3>Closing braces in nowiki:</h3>
+            <pre>
+            if (x != NULL) {
+              for (i = 0; i &lt; size; i++) {
+                if (x[i] &gt; 0) {
+                  x[i]--;
+              }}}
             </pre>
         """)
 
@@ -165,20 +177,45 @@ class CreoleTest(unittest_addons.MarkupTest):
         self.assertCreole(r"""
             111
             222
-
             {{{
             333
             }}}
-
             444
+            
+            one
+            {{{
+            foobar
+            }}}
+            
+            two
         """, """
             <p>111<br />
             222</p>
-
             <pre>
             333
             </pre>
             <p>444</p>
+            
+            <p>one</p>
+            <pre>
+            foobar
+            </pre>
+            <p>two</p>
+        """)
+
+    def test_escape_char(self):
+        self.assertCreole(r"""
+            ~#1
+            http://domain.tld/~bar/
+            ~http://domain.tld/
+            [[Link]]
+            ~[[Link]]
+        """, """
+            <p>#1<br />
+            <a href="http://domain.tld/~bar/">http://domain.tld/~bar/</a><br />
+            http://domain.tld/<br />
+            <a href="Link">Link</a><br />
+            [[Link]]</p>
         """)
 
     def test_bold_italics(self):
@@ -186,14 +223,22 @@ class CreoleTest(unittest_addons.MarkupTest):
             **//bold italics//**
             //**bold italics**//
             //This is **also** good.//
+            
+            //[[a page|this is italic]]//
+            **[[a page]]**
+            //**[[a page]]**//
         """, """
-            <p><b><i>bold italics</i></b><br />
-            <i><b>bold italics</b></i><br />
-            <i>This is <b>also</b> good.</i></p>
+            <p><strong><i>bold italics</i></strong><br />
+            <i><strong>bold italics</strong></i><br />
+            <i>This is <strong>also</strong> good.</i></p>
+            
+            <p><i><a href="a page">this is italic</a></i><br />
+            <strong><a href="a page">a page</a></strong><br />
+            <i><strong><a href="a page">a page</a></strong></i></p>
         """)
 
     def test_cross_paragraphs(self):
-        self.assertCreole("""
+        self.assertCreole(r"""
             Bold and italics should //be
             able// to cross lines.
 
@@ -203,14 +248,14 @@ class CreoleTest(unittest_addons.MarkupTest):
         """, """
             <p>Bold and italics should <i>be<br />
             able</i> to cross lines.</p>
-
+            
             <p>But, should <i>not be...</i></p>
-
+            
             <p>...able<i> to cross paragraphs.</i></p>
         """)
 
     def test_headlines(self):
-        self.assertCreole("""
+        self.assertCreole(r"""
             = Level 1 (largest) =
             == Level 2 ==
             === Level 3 ===
@@ -220,9 +265,9 @@ class CreoleTest(unittest_addons.MarkupTest):
             === Also level 3
             === Also level 3 =
             === Also level 3 ==
-            === **not** //parsed// ===
+            === **not** \\ //parsed// ===
             No == headline == or?
-        """, """
+        """, r"""
             <h1>Level 1 (largest)</h1>
             <h2>Level 2</h2>
             <h3>Level 3</h3>
@@ -232,64 +277,12 @@ class CreoleTest(unittest_addons.MarkupTest):
             <h3>Also level 3</h3>
             <h3>Also level 3</h3>
             <h3>Also level 3</h3>
-            <h3>**not** //parsed//</h3>
+            <h3>**not** \\ //parsed//</h3>
             <p>No == headline == or?</p>
         """)
 
-    def test_bullet_list(self):
-        self.assertCreole("""
-            * Item 1
-            ** Item 1.1
-            ** Item 1.2
-            * Item 2
-            ** Item 2.1
-            *** Item 3.1
-            *** Item 3.2
-        """, """
-            <ul>
-            <li>Item 1
-              <ul>
-              <li>Item 1.1
-              </li>
-              <li>Item 1.2
-              </li>
-              </ul>
-            </li>
-            <li>Item 2
-              <ul>
-              <li>Item 2.1
-                <ul>
-                <li>Item 3.1
-                </li>
-                <li>Item 3.2
-                </li>
-                </ul>
-              </li>
-              </ul>
-            </li>
-            </ul>
-        """)
-
-    def test_number_list(self):
-        self.assertCreole("""
-            # Item 1
-            ## Item 1.1
-            # Item 2
-        """, """
-            <ol>
-            <li>Item 1
-              <ol>
-              <li>Item 1.1
-              </li>
-              </ol>
-            </li>
-            <li>Item 2
-            </li>
-            </ol>
-        """)
-
     def test_horizontal_rule(self):
-        self.assertCreole("""
+        self.assertCreole(r"""
             one
             ----
             two
@@ -297,6 +290,185 @@ class CreoleTest(unittest_addons.MarkupTest):
             <p>one</p>
             <hr />
             <p>two</p>
+        """)
+
+    def test_bullet_list(self):
+        self.assertCreole(r"""
+            * Item 1
+            ** Item 1.1
+            ** a **bold** Item 1.2
+            * Item 2
+            ** Item 2.1
+            *** [[a link Item 3.1]]
+            *** Force\\linebreak 3.2
+                *** item 3.3
+              *** item 3.4
+              
+            up to five levels
+            * 1
+            ** 2
+            *** 3
+            **** 4
+            ***** 5
+        """, """
+            <ul>
+            \t<li>Item 1
+            \t<ul>
+            \t\t<li>Item 1.1</li>
+            \t\t<li>a <strong>bold</strong> Item 1.2</li>
+            \t</ul></li>
+            \t<li>Item 2
+            \t<ul>
+            \t\t<li>Item 2.1
+            \t\t<ul>
+            \t\t\t<li><a href="a link Item 3.1">a link Item 3.1</a></li>
+            \t\t\t<li>Force<br />
+            \t\t\tlinebreak 3.2</li>
+            \t\t\t<li>item 3.3</li>
+            \t\t\t<li>item 3.4</li>
+            \t\t</ul></li>
+            \t</ul></li>
+            </ul>
+            <p>up to five levels</p>
+            <ul>
+            \t<li>1
+            \t<ul>
+            \t\t<li>2
+            \t\t<ul>
+            \t\t\t<li>3
+            \t\t\t<ul>
+            \t\t\t\t<li>4
+            \t\t\t\t<ul>
+            \t\t\t\t\t<li>5</li>
+            \t\t\t\t</ul></li>
+            \t\t\t</ul></li>
+            \t\t</ul></li>
+            \t</ul></li>
+            </ul>
+        """)
+
+    def test_number_list(self):
+        self.assertCreole(r"""
+            # Item 1
+            ## Item 1.1
+            ## a **bold** Item 1.2
+            # Item 2
+            ## Item 2.1
+            ### [[a link Item 3.1]]
+            ### Force\\linebreak 3.2
+                ### item 3.3
+              ### item 3.4
+            
+            up to five levels
+            # 1
+            ## 2
+            ### 3
+            #### 4
+            ##### 5
+        """, """
+            <ol>
+            \t<li>Item 1
+            \t<ol>
+            \t\t<li>Item 1.1</li>
+            \t\t<li>a <strong>bold</strong> Item 1.2</li>
+            \t</ol></li>
+            \t<li>Item 2
+            \t<ol>
+            \t\t<li>Item 2.1
+            \t\t<ol>
+            \t\t\t<li><a href="a link Item 3.1">a link Item 3.1</a></li>
+            \t\t\t<li>Force<br />
+            \t\t\tlinebreak 3.2</li>
+            \t\t\t<li>item 3.3</li>
+            \t\t\t<li>item 3.4</li>
+            \t\t</ol></li>
+            \t</ol></li>
+            </ol>
+            <p>up to five levels</p>
+            <ol>
+            \t<li>1
+            \t<ol>
+            \t\t<li>2
+            \t\t<ol>
+            \t\t\t<li>3
+            \t\t\t<ol>
+            \t\t\t\t<li>4
+            \t\t\t\t<ol>
+            \t\t\t\t\t<li>5</li>
+            \t\t\t\t</ol></li>
+            \t\t\t</ol></li>
+            \t\t</ol></li>
+            \t</ol></li>
+            </ol>
+        """)
+        
+    def test_list(self):
+        """ Bold, Italics, Links, Pre in Lists """
+        self.assertCreole(r"""
+            * **bold** item
+            * //italic// item
+            
+            # item about a [[certain_page]]
+            # {{{ //this// is **not** [[processed]] }}}
+        """, """
+            <ul>
+            \t<li><strong>bold</strong> item</li>
+            \t<li><i>italic</i> item</li>
+            </ul>
+            <ol>
+            \t<li>item about a <a href="certain_page">certain_page</a></li>
+            \t<li><tt>//this// is **not** [[processed]]</tt></li>
+            </ol>
+        """)
+
+    def test_table(self):
+        self.assertCreole(r"""
+            A Table...
+            |= Headline  |= a other\\headline    |= the **big end        |
+            | a cell     | a **big** cell        |**//bold italics//**   |
+            | next\\line | No == headline == or? |                       |
+            |            |                       | open end
+            ...end
+        """, """
+            <p>A Table...</p>
+            <table>
+            <tr>
+            \t<th>Headline</th>
+            \t<th>a other<br />
+            \t\theadline</th>
+            \t<th>the <strong>big end</strong></th>
+            </tr>
+            <tr>
+            \t<td>a cell</td>
+            \t<td>a <strong>big</strong> cell</td>
+            \t<td><strong><i>bold italics</i></strong></td>
+            </tr>
+            <tr>
+            \t<td>next<br />
+            \t\tline</td>
+            \t<td>No == headline == or?</td>
+            \t<td></td>
+            </tr>
+            <tr>
+            \t<td></td>
+            \t<td></td>
+            \t<td>open end</td>
+            </tr>
+            </table>
+            <p>...end</p>
+        """)
+
+    def test_html_lines(self):
+        self.assertCreole(r"""
+            This is a normal Text block witch would
+            escape html chars like < and > ;)
+            <p>this <strong class="my">html code</strong> line pass-through</p>
+            end
+        """, """
+            <p>This is a normal Text block witch would<br />
+            escape html chars like &lt; and &gt; ;)</p>
+            <p>this <strong class="my">html code</strong> line pass-through</p>
+            <p>end</p>
         """)
 
 
