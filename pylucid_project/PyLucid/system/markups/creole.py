@@ -50,6 +50,18 @@ class Rules:
             ]]
         )'''
 
+#    link = r'''(?P<link1>
+#            \[\[
+#            (?P<link_target1>.+?)\|(?P<link_text1>.+?)
+#            ]]
+#        )|(?P<link2>
+#            \[\[
+#            (?P<link_target2> (%s)://[^ ]+) \s* (?P<link_text2>.+?)
+#            ]]
+#        )|
+#            \[\[(?P<internal_link>.+)\]\]
+#        ''' % proto
+
     #--------------------------------------------------------------------------
     # The image rule should not match on django template tags! So we make it
     # more restricted.
@@ -112,12 +124,16 @@ class Rules:
     pre_escape = r' ^(?P<indent>\s*) ~ (?P<rest> \}\}\} \s*) $'
 
     # Pass-through all django template blocktags
-    passthrough = r'''^ \s*(?P<passthrough>
+    passthrough_block = r'''^ \s*(?P<passthrough_block>
             {%.*?%}
             (.|\n)+?
             {%.*?%}
         ) \s*$
         '''
+    passthrough_line = r'''(?P<passthrough_line>
+            ({%.*?%})|
+            ({{.*?}})
+        )'''
     #Pass-through html code lines
     html = r'''(?P<html>
             ^ \s*<.*?> \s*$
@@ -140,7 +156,7 @@ class Rules:
     #--------------------------------------------------------------------------
     blockelements = (
         "head", "list", "pre", "code", "table", "separator", "macro",
-        "passthrough", "html"
+        "passthrough_block", "html"
     )
 
 class Parser:
@@ -160,16 +176,24 @@ class Parser:
     # For block elements:
     block_re = re.compile(
         '|'.join([
-            Rules.passthrough, Rules.html,
+            Rules.passthrough_block,
+            Rules.html,
             Rules.line, Rules.head, Rules.separator, Rules.pre, Rules.list,
             Rules.table, Rules.text,
         ]),
         re.X | re.U | re.M
     )
     # For inline elements:
-    inline_re = re.compile('|'.join([Rules.link, Rules.url, Rules.macro,
-        Rules.code, Rules.image, Rules.strong, Rules.emph, Rules.linebreak,
-        Rules.escape, Rules.char]), re.X | re.U)
+    inline_re = re.compile(
+        '|'.join([
+            Rules.link, Rules.url, Rules.macro,
+            Rules.code, Rules.image,
+            Rules.passthrough_line,
+            Rules.strong, Rules.emph, Rules.linebreak,
+            Rules.escape, Rules.char
+        ]),
+        re.X | re.U
+    )
 
     def __init__(self, raw):
         self.raw = raw
@@ -196,10 +220,15 @@ class Parser:
     # The _*_repl methods called for matches in regexps. Sometimes the
     # same method needs several names, because of group names in regexps.
 
-    def _passthrough_repl(self, groups):
+    def _passthrough_block_repl(self, groups):
         """ Pass-through all django template blocktags """
         self._upto_block()
-        DocNode("passthrough", self.root, groups["passthrough"])
+        DocNode("passthrough_block", self.root, groups["passthrough_block"])
+        self.text = None
+        
+    def _passthrough_line_repl(self, groups):
+        """ Pass-through all django tags """
+        DocNode("passthrough_line", self.cur, groups["passthrough_line"])
         self.text = None
         
     def _html_repl(self, groups):

@@ -21,6 +21,19 @@
 {% endfor %}
 </ul>
 
+<h2 class="noanchor">Additional django template tags:</h2>
+<ul id="django_tags">
+  <li>
+    <p>
+        Hightlight sourcecode via Pygments (if Pygments available):
+        &#x7B;% sourcecode py %&#x7D;
+        ...
+        &#x7B;% endsourcecode %&#x7D;<br />
+        <strong>Note:</strong> Works only in html mode (without markup) correctly!
+    </p>
+  </li>
+</ul>
+
 <h2 class="noanchor">List of all PAGE tags:</h2>
 <ul id="page_fields">
 {% for field in page_fields %}

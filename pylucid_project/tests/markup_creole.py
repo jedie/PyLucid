@@ -83,11 +83,11 @@ class CreoleTest(unittest_addons.MarkupTest):
 
     #--------------------------------------------------------------------------
 
-    def test_creole_basic1(self):
+    def test_creole_basic(self):
         out_string = self._parse("a text line.")
         self.assertEqual(out_string, "<p>a text line.</p>\n")
 
-    def test_creole_basic2(self):
+    def test_creole_linebreak(self):
         self.assertCreole(r"""
             Force\\linebreak
         """, """
@@ -95,16 +95,49 @@ class CreoleTest(unittest_addons.MarkupTest):
             linebreak</p>
         """)
 
-    def test_creole_basic3(self):
+    def test_bold_italics(self):
         self.assertCreole(r"""
-            Here is [[a internal]] link.
-            This is [[http://domain.tld|external links]].
-            A [[internal links|different]] link name.
+            **//bold italics//**
+            //**bold italics**//
+            //This is **also** good.//
         """, """
-            <p>Here is <a href="a internal">a internal</a> link.<br />
-            This is <a href="http://domain.tld">external links</a>.<br />
-            A <a href="internal links">different</a> link name.</p>
+            <p><strong><i>bold italics</i></strong><br />
+            <i><strong>bold italics</strong></i><br />
+            <i>This is <strong>also</strong> good.</i></p>
         """)
+
+    def test_internal_links(self):
+        self.assertCreole(r"""
+            A [[internal]] link...
+            ...and [[/a internal]] link.
+        """, """
+            <p>A <a href="internal">internal</a> link...<br />
+            ...and <a href="/a internal">/a internal</a> link.</p>
+        """)
+        
+    def test_external_links(self):
+        self.assertCreole(r"""
+            With pipe separator:
+            1 [[internal links|link A]] test.
+            2 [[http://domain.tld|link B]] test.
+        """, """
+            <p>With pipe separator:<br />
+            1 <a href="internal links">link A</a> test.<br />
+            2 <a href="http://domain.tld">link B</a> test.</p>
+        """)
+
+    def test_bolditalic_links(self):
+        self.assertCreole(r"""
+            //[[a internal]]//
+            **[[Shortcut2|a page2]]**
+            //**[[Shortcut3|a page3]]**//
+        """, """
+            <p><i><a href="a internal">a internal</a></i><br />
+            <strong><a href="Shortcut2">a page2</a></strong><br />
+            <i><strong><a href="Shortcut3">a page3</a></strong></i></p>
+        """)
+            
+
 
     def test_django1(self):
         """
@@ -169,7 +202,7 @@ class CreoleTest(unittest_addons.MarkupTest):
               for (i = 0; i &lt; size; i++) {
                 if (x[i] &gt; 0) {
                   x[i]--;
-              }}}
+              &#x7D;&#x7D;}
             </pre>
         """)
 
@@ -216,25 +249,6 @@ class CreoleTest(unittest_addons.MarkupTest):
             http://domain.tld/<br />
             <a href="Link">Link</a><br />
             [[Link]]</p>
-        """)
-
-    def test_bold_italics(self):
-        self.assertCreole(r"""
-            **//bold italics//**
-            //**bold italics**//
-            //This is **also** good.//
-            
-            //[[a page|this is italic]]//
-            **[[a page]]**
-            //**[[a page]]**//
-        """, """
-            <p><strong><i>bold italics</i></strong><br />
-            <i><strong>bold italics</strong></i><br />
-            <i>This is <strong>also</strong> good.</i></p>
-            
-            <p><i><a href="a page">this is italic</a></i><br />
-            <strong><a href="a page">a page</a></strong><br />
-            <i><strong><a href="a page">a page</a></strong></i></p>
         """)
 
     def test_cross_paragraphs(self):

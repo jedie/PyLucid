@@ -29,13 +29,13 @@ from PyLucid.system.exceptions import AccessDenied, LowLevelError
 
 
 MARKUPS = (
+    (6, u'Creole wiki markup'),
     (0, u'html'),
     (1, u'html + TinyMCE'),
     (2, u'textile'),
     (3, u'Textile (original)'),
     (4, u'Markdown'),
     (5, u'ReStructuredText'),
-    (6, u'Creole wiki markup'),
 )
 
 

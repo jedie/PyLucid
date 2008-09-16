@@ -57,7 +57,7 @@ class Macro(object):
     def source_emit(self, node):
         print node
 
-
+from PyLucid.tools.utils import escape
 class HtmlEmitter:
     """
     Generate HTML output for the document
@@ -81,7 +81,8 @@ class HtmlEmitter:
             return node.content or ''
 
     def html_escape(self, text):
-        return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        return escape(text)
+        #return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
     def attr_escape(self, text):
         return self.html_escape(text).replace('"', '&quot')
@@ -204,10 +205,14 @@ class HtmlEmitter:
     def preformatted_emit(self, node):
         return u"<pre>\n%s\n</pre>\n" % self.html_escape(node.content)
 
-    def passthrough_emit(self, node):
+    def passthrough_block_emit(self, node):
         """ Pass-through all django template blocktags and html code lines """
         return node.content + "\n"
-    html_emit = passthrough_emit
+    html_emit = passthrough_block_emit
+
+    def passthrough_line_emit(self, node):
+        """ Pass-through all django template tags """
+        return node.content
 
     def default_emit(self, node):
         """Fallback function for emitting unknown nodes."""
