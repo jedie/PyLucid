@@ -194,7 +194,7 @@ class ExamplePlugin(PyLucidBasePlugin):
     #
     def simple_error_feedback(self):
         """
-        with self._error() you can easy create a "abort" error messages.
+        with self.error() you can easy create a "abort" error messages.
         The goal is: The method gets two messages types:
             public_msg, debug_msg
         The public messages would be always displayed. The debug messages would
@@ -202,6 +202,6 @@ class ExamplePlugin(PyLucidBasePlugin):
         So you can easy gives feedback for anonymous users and developers, too.
         """
         try:
-            ...do something...
+            print "...do something..."
         except Exception, err:
             return self.error(_("Wrong URL."), err)
