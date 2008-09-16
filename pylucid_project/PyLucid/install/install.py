@@ -13,6 +13,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from PyLucid.install.BaseInstall import BaseInstall
+from PyLucid.tools.forms_utils import ModelForm2
 
 import sys, os
 
@@ -203,7 +204,7 @@ def _create_or_update_superuser(user_data):
         print _("update a existing User, OK")
 
 
-class CreateUserForm(forms.ModelForm):
+class CreateUserForm(ModelForm2):
     """
     form for input the username, used in auth.login()
     """

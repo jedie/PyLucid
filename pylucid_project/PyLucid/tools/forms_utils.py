@@ -152,6 +152,23 @@ class InternalURLField(forms.CharField):
         return value
 
 
+class ModelForm2(forms.ModelForm):
+    """
+    A model form witch don't validate unique fields.
+    
+    This ModelForm is only for generating the forms and not for create/update
+    any database data. So a field unique Test would like generate Errors like:
+        User with this Username already exists.
+        
+    see also:
+    http://www.jensdiemer.de/_command/118/blog/detail/30/ (de)
+    http://www.python-forum.de/topic-16000.html (de)
+    """
+    def validate_unique(self):
+        pass
+
+
+
 
 if __name__ == "__main__":
     import doctest

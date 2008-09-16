@@ -60,12 +60,14 @@ if DEBUG:
     import warnings
     warnings.warn("Debugmode is on", UserWarning)
 
-
 from django.conf import settings
+
 from PyLucid.tools import crypt
+from PyLucid.models import JS_LoginData, Page
+from PyLucid.tools.forms_utils import ModelForm2
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.system.context_processors import add_dynamic_context
-from PyLucid.models import JS_LoginData, Page
+
 
 
 class WrongPassword(Exception):
@@ -159,18 +161,6 @@ class NewPasswordForm(forms.Form):
 
 #______________________________________________________________________________
 # FORMS
-
-class ModelForm2(forms.ModelForm):
-    def validate_unique(self):
-        """
-        Don't validate unique fields.
-        We used a ModelForm only for generating the forms and not for
-        create/update any database data. So a field unique Test would like
-        generate Errors like:
-            User with this Username already exists.
-        """
-        pass
-
 
 class UsernameForm(ModelForm2):
     """
