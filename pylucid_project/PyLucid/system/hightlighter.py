@@ -34,12 +34,12 @@ except ImportError:
     PYGMENTS_AVAILABLE = False
 
 HTML = (
-    '<fieldset class="pygments_code">\n'
+    u'<fieldset class="pygments_code">\n'
     '<legend class="pygments_code">%(lexer_name)s</legend>'
     '%(code_html)s'
     '</fieldset>\n'
 )
-CSSCLASS = "pygments"
+CSSCLASS = u"pygments"
 
 def make_html(sourcecode, source_type):
     code_html, lexer_name = pygmentize(sourcecode, source_type)
@@ -47,7 +47,7 @@ def make_html(sourcecode, source_type):
     return code
 
 def no_hightlight(code):
-    html = '\n<pre><code>%s</code></pre>\n' % escape(code)
+    html = u'\n<pre><code>%s</code></pre>\n' % escape(code)
     return html
 
 def get_formatter():
@@ -75,7 +75,7 @@ def pygmentize(sourcecode, source_type):
             lexer = lexers.get_lexer_by_name(ext)
     except lexers.ClassNotFound, err:
         info = _("unknown type")
-        lexer_name = '<small title="%s">%s</small>' % (err, info)
+        lexer_name = u'<small title="%s">%s</small>' % (err, info)
         html = no_hightlight(sourcecode)
         return html, lexer_name
 
