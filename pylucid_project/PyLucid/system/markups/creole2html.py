@@ -40,8 +40,13 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-import re
+import sys, re, traceback
+
 from creole import Parser
+
+import macros
+
+from PyLucid.tools.utils import escape
 
 class Rules:
     # For the link targets:
@@ -52,12 +57,6 @@ class Rules:
             (?P<inter_page> .* )
         '''
 
-class Macro(object):
-#    def __init__(self):
-    def source_emit(self, node):
-        print node
-
-from PyLucid.tools.utils import escape
 class HtmlEmitter:
     """
     Generate HTML output for the document
@@ -69,9 +68,10 @@ class HtmlEmitter:
             Rules.interwiki,
         ]), re.X | re.U) # for addresses
 
-    def __init__(self, root):
+    def __init__(self, root, verbose=1, stderr=sys.stderr):
         self.root = root
-        self.macro = Macro()
+        self.verbose = verbose
+        self.stderr = stderr
 
     def get_text(self, node):
         """Try to emit whatever text is in the node."""
@@ -187,9 +187,31 @@ class HtmlEmitter:
             self.attr_escape(target), self.attr_escape(text))
 
     def macro_emit(self, node):
-#        try:
-#            return getattr(self.macro, 
-        raise NotImplementedError("Node: %r" % node.content)
+        #print node.debug()
+        macro_name = node.macro_name
+        try:
+            macro = getattr(macros, macro_name)
+        except AttributeError, e:
+            return self.error(
+                u"Macro '%s' doesn't exist" % macro_name,
+                handle_traceback = True
+            )
+        
+        try:
+            result = macro(args=node.macro_args, text=node.content)
+        except Exception, err:
+            return self.error(
+                u"Macro '%s' error: %s" % (macro_name, err),
+                handle_traceback = True
+            )
+        
+        if not isinstance(result, unicode):
+            msg = u"Macro '%s' doesn't return a unicode string!" % macro_name
+            if self.verbose>1:
+                msg += " - returns: %r, type %r" % (result, type(result))
+            return self.error(msg)
+        
+        return result
 
     def break_emit(self, node):
         if node.parent.kind == "list_item":
@@ -205,18 +227,19 @@ class HtmlEmitter:
     def preformatted_emit(self, node):
         return u"<pre>\n%s\n</pre>\n" % self.html_escape(node.content)
 
-    def passthrough_block_emit(self, node):
+    def pass_block_emit(self, node):
         """ Pass-through all django template blocktags and html code lines """
         return node.content + "\n"
-    html_emit = passthrough_block_emit
+    pass_line_emit = pass_block_emit
+    html_emit = pass_block_emit
 
-    def passthrough_line_emit(self, node):
+    def pass_inline_emit(self, node):
         """ Pass-through all django template tags """
         return node.content
 
     def default_emit(self, node):
         """Fallback function for emitting unknown nodes."""
-        raise TypeError
+        raise NotImplementedError("Node '%s' unknown" % node.kind)
 
     def emit_children(self, node):
         """Emit all the children of a node."""
@@ -231,6 +254,21 @@ class HtmlEmitter:
     def emit(self):
         """Emit the document represented by self.root DOM tree."""
         return self.emit_node(self.root)
+
+    def error(self, text, handle_traceback=False):
+        """
+        Error Handling.
+        """
+        if self.verbose>1 and handle_traceback:
+            self.stderr.write(
+                "<pre>%s</pre>" % traceback.format_exc()
+            )
+        
+        if self.verbose>0:
+            return u"[Error: %s]" % text
+        else:
+            # No error output
+            return u""
 
 if __name__=="__main__":
     txt = r"""== a headline
@@ -259,6 +297,41 @@ no image: {{ foo|bar }}!
 picture [[www.domain.tld | {{ foo.JPG | Foo }} ]] as a link
 
 END"""
+
+    
+    txt = r"""
+==== Headline 1
+
+On {% a tag 1 %} line
+line two
+
+==== Headline 2
+
+{% a tag 2 %}
+
+A block:
+{% block %}
+<Foo:> {{ Bar }}
+{% endblock %}
+end block
+
+{% block1 arg="jo" %}
+eofjwqp
+{% endblock1 %}
+
+A block without the right end block:
+{% block1 %}
+111
+{% endblock2 %}
+BBB
+
+A block without endblock:
+{% block3 %}
+222
+{% block3 %}
+CCC
+
+the end"""
 
     print "-"*80
 #    from creole_alt.creole import Parser

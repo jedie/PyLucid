@@ -57,7 +57,7 @@ class CreoleTest(unittest_addons.MarkupTest):
         Apply creole markup on txt
         """
         document = Parser(txt).parse()
-        out_string = HtmlEmitter(document).emit()
+        out_string = HtmlEmitter(document, verbose=1).emit()
         #print ">>>%r<<<" % out_string
         return out_string
 
@@ -137,8 +137,6 @@ class CreoleTest(unittest_addons.MarkupTest):
             <i><strong><a href="Shortcut3">a page3</a></strong></i></p>
         """)
             
-
-
     def test_django1(self):
         """
         Test if django template tags are not changed by Creole.
@@ -148,11 +146,9 @@ class CreoleTest(unittest_addons.MarkupTest):
         self.assertCreole(r"""
             The current page name: >{{ PAGE.name }}< great?
             A {% lucidTag page_update_list count=10 %} PyLucid plugin
-            {% sourcecode py %}
-            import sys
-
-            sys.stdout("Hello World!")
-            {% endsourcecode %}
+            {% block %}
+            FooBar
+            {% endblock %}
             A [[www.domain.tld|link]].
             a {{/image.jpg|My Image}} image
 
@@ -161,16 +157,71 @@ class CreoleTest(unittest_addons.MarkupTest):
         """, """
             <p>The current page name: &gt;{{ PAGE.name }}&lt; great?<br />
             A {% lucidTag page_update_list count=10 %} PyLucid plugin</p>
-            {% sourcecode py %}
-            import sys
-
-            sys.stdout("Hello World!")
-            {% endsourcecode %}
+            {% block %}
+            FooBar
+            {% endblock %}
             <p>A <a href="www.domain.tld">link</a>.<br />
             a <img src="/image.jpg" alt="My Image"> image</p>
             
             <p>no image: {{ foo|bar }}!<br />
             picture <a href="www.domain.tld"><img src="foo.JPG" alt="Foo"></a> as a link</p>
+        """)
+
+    def test_django2(self):
+        self.assertCreole(r"""
+            ==== Headline 1
+
+            On {% a tag 1 %} line
+            line two
+            
+            ==== Headline 2
+            
+            {% a tag 2 %}
+            
+            Right block with a end tag:
+            {% block %}
+            <Foo:> {{ Bar }}
+            {% endblock %}
+            end block
+            
+            A block without the right end block:
+            {% block1 %}
+            not matched
+            {% endblock2 %}
+            BBB
+            
+            A block without endblock:
+            {% noblock3 %}
+            not matched
+            {% noblock3 %}
+            CCC
+        """, """
+            <h4>Headline 1</h4>
+            
+            <p>On {% a tag 1 %} line<br />
+            line two</p>
+            
+            <h4>Headline 2</h4>
+            
+            {% a tag 2 %}
+            
+            <p>Right block with a end tag:</p>
+            {% block %}
+            <Foo:> {{ Bar }}
+            {% endblock %}
+            <p>end block</p>
+            
+            <p>A block without the right end block:<br />
+            {% block1 %}<br />
+            not matched<br />
+            {% endblock2 %}<br />
+            BBB</p>
+            
+            <p>A block without endblock:<br />
+            {% noblock3 %}<br />
+            not matched<br />
+            {% noblock3 %}<br />
+            CCC</p>
         """)
 
     def test_nowiki1(self):
@@ -476,13 +527,100 @@ class CreoleTest(unittest_addons.MarkupTest):
         self.assertCreole(r"""
             This is a normal Text block witch would
             escape html chars like < and > ;)
+            
+            html code must start and end with a tag:
             <p>this <strong class="my">html code</strong> line pass-through</p>
-            end
+            this works.
+
+            this:
+            <p>didn't<br />
+            match</p>
+            
+            <p>
+                didn't match
+            </p>
+            
+            <p>didn't match,too.< p >
         """, """
             <p>This is a normal Text block witch would<br />
             escape html chars like &lt; and &gt; ;)</p>
+            
+            <p>html code must start and end with a tag:</p>
             <p>this <strong class="my">html code</strong> line pass-through</p>
-            <p>end</p>
+            <p>this works.</p>
+            
+            <p>this:<br />
+            &lt;p&gt;didn\'t&lt;br /&gt;<br />
+            match&lt;/p&gt;</p>
+            
+            <p>&lt;p&gt;<br />
+                didn\'t match<br />
+            &lt;/p&gt;</p>
+            
+            <p>&lt;p&gt;didn\'t match,too.&lt; p &gt;</p>
+        """)
+        
+    def test_macro_html1(self):
+        self.assertCreole(r"""
+            <<a_not_existing_macro>>
+            
+            <<code>>
+            some code
+            <</code>>
+            
+            a macro:
+            <<code>>
+            <<code>>
+            the sourcecode
+            <</code>>
+        """, r"""
+            <p>[Error: Macro 'a_not_existing_macro' doesn't exist]</p>
+            <fieldset class="pygments_code">
+            <legend class="pygments_code"><small title="no lexer matching the text found">unknown type</small></legend>
+            <pre><code>some code</code></pre>
+            </fieldset>
+            <p>a macro:</p>
+            <fieldset class="pygments_code">
+            <legend class="pygments_code"><small title="no lexer matching the text found">unknown type</small></legend>
+            <pre><code>&lt;&lt;code&gt;&gt;
+            the sourcecode</code></pre>
+            </fieldset>
+        """)
+        
+    def test_macro_html2(self):
+        self.assertCreole(r"""
+            html macro:
+            <<html>>
+            <p><<this is 'html'>></p>
+            <</html>>
+        """, r"""
+            <p>html macro:</p>
+            <p><<this is 'html'>></p>
+        """)
+
+    def test_macro_pygments_code(self):
+        self.assertCreole(r"""
+            a macro:
+            <<code ext=.css>>
+            /* Stylesheet */
+            form * {
+              vertical-align:middle;
+            }
+            <</code>>
+            the end
+        """, """
+            <p>a macro:</p>
+            <fieldset class="pygments_code">
+            <legend class="pygments_code">CSS</legend><table class="pygmentstable"><tr><td class="linenos"><pre>1
+            2
+            3
+            4</pre></td><td class="code"><div class="pygments"><pre><span class="c">/* Stylesheet */</span>
+            <span class="nt">form</span> <span class="o">*</span> <span class="p">{</span>
+              <span class="k">vertical-align</span><span class="o">:</span><span class="k">middle</span><span class="p">;</span>
+            <span class="p">}</span>
+            </pre></div>
+            </td></tr></table></fieldset>
+            <p>the end</p>
         """)
 
 

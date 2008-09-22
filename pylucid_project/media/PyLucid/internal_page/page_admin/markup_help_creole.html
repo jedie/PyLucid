@@ -14,7 +14,31 @@
 
 <hr />
 
-<p>Changes to the original creole specs:<br />
+<h3>Creole Additions/Macros</h3>
+<ul>
+<li><b>source code:</b><br />
+    You can insert sourcecode:
+    Use <strong><tt>&lt;&lt;code ext=<i>.EXT</i>&gt;&gt;...&lt;&lt;/code&gt;&gt;</tt></strong>
+    and PyLucid used Pygments (if available) to highlight it.<br /> 
+    '<strong>.EXT</strong>' is the typical <a href="http://pygments.pocoo.org/docs/lexers/">fileextension/alias</a> of the code.
+</p>
+    <p>example:</p>
+<pre>
+&lt;&lt;code ext=.css&gt;&gt;
+/* CSS Stylesheet */
+.xs {font-family:verdana,arial,helvetica,sans-serif;font-size: x-small}
+.m {font-size: medium}
+&lt;&lt;/code&gt;&gt;
+</pre>
+</li>
+<li><b>html code:</b><br />
+    You can insert html code. But it will only pass-through without extra
+    decoration if all lines starts and ends with a normal html tag! Otherwise the code would be escaped.<br />
+    There exist also a macro to pass everything throught: <strong><tt>&lt;&lt;html&gt;&gt;...&lt;&lt;/html&gt;&gt;</tt></strong>
+</li>
+</ul>
+
+<h3>Changes to the original creole specs:</h3>
 <ul>
 <li><b>image tag:</b><br />
     We implemented a more stricted image tag than the original,
@@ -30,11 +54,6 @@
     We used blog-style line break insteat of
     <a href="http://www.wikicreole.org/wiki/ParagraphsAndLineBreaksReasoning" title="creole 'Paragraphs And Line Breaks' spec">wiki-style</a>
     (every \n would be convertet into &lt;br /&gt;)
-</li>
-<li><b>html code:</b><br />
-    You can insert html code. But every line must start with &lt; and end with &gt;<br />
-    If the line starts or ends with a other character, the complete line would
-    be interpreted as text, so every html characters would be escaped.
 </li>
 <li><b>django tags/blocktags:</b><br />
     You can insert django tags and blocktags. No extra decoration is not needed.

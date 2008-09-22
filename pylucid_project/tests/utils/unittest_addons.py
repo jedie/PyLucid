@@ -47,21 +47,42 @@ class MarkupDiffFailure(Exception):
     def __str__(self):
         try:
             msg = self.args[0]
+            
+            """
+            Get the right split_string is not easy. There are three kinds:
+            u"foo" != "bar"
+            u'foo' != "bar"
+            u"foo" != 'bar'
+            u'foo' != 'bar'
+            """
+            msg = msg.lstrip("u") # u"foobar" -> "foobar"
+            first_quote = msg[0]
+            last_quote = msg[-1]
+            split_string = "%s != %s" % (first_quote, last_quote)
+            msg = msg.strip(first_quote + last_quote)
 
-            # strip ' out
-            if msg.startswith("u'"):
-                msg = msg[2:-1]
-            else:
-                msg = msg[1:-1]
-
+#            # strip ' out
+#            if msg.startswith("u'"):
+#                msg = msg[2:-1]
+#            else:
+#                msg = msg[1:-1]
+#
+#            if "' != '" in msg:
+#                split_string = "' != '"
+#            elif '" != "' in msg:
+#                split_string = '" != "'
+#            else:
+#                msg = self._format_output(msg)
+#                return "Unknwon error output: %r" % msg
+                
             try:
-                block1, block2 = msg.split("' != '")
-            except ValueError:
+                block1, block2 = msg.split(split_string)
+            except ValueError, err:
                 msg = self._format_output(msg)
                 return (
-                    "Format error in output\n"
+                    "Can't split error output: %r\n"
                     "Info:\n%s"
-                ) % msg
+                ) % (err, msg)
 
             #~ block1 = block1.rstrip("\\n")
             #~ block2 = block2.rstrip("\\n")
