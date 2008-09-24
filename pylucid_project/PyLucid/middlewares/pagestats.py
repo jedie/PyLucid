@@ -8,6 +8,16 @@
     -replace the >TAG< with some stats. But only in HTML pages.
 
     Based on http://code.djangoproject.com/wiki/PageStatsMiddleware
+    
+    database queries
+    ~~~~~~~~~~~~~~~~
+    We display only the the database queries count if debug is on. Otherwise
+    the database cursor doesn't count the sql statements and we always get 0 ;)
+    
+    TODO:
+    ~~~~~
+    Put settings for debug_sql_queries() into settings.py:
+        http://trac.pylucid.net/ticket/230
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -21,6 +31,7 @@
 
 from time import time
 
+from django.conf import settings
 from django.db import connection
 
 from PyLucid.template_addons.filters import human_duration
@@ -31,11 +42,11 @@ start_overall = time()
 
 TAG = u"<!-- script_duration -->"
 
-FMT = (
-    u'render time: %(total_time)s -'
-    ' overall: %(overall_time)s -'
-    ' queries: %(queries)d'
-)
+# used if settings.DEBUG is off:
+FMT = u"render time: %(total_time)s - overall: %(overall_time)s"
+# used if settings.DEBUG is on:
+FMT_DEBUG = FMT + u" - queries: %(queries)d"
+
 
 class PageStatsMiddleware(object):
     def process_request(self, request):
@@ -43,8 +54,9 @@ class PageStatsMiddleware(object):
         save start time and database connections count.
         """
         self.start_time = time()
-        # get number of db queries before we do anything
-        self.old_queries = len(connection.queries)
+        if settings.DEBUG:
+            # get number of db queries before we do anything
+            self.old_queries = len(connection.queries)
 
     def process_response(self, request, response):
         """
@@ -55,19 +67,19 @@ class PageStatsMiddleware(object):
             # No HTML Page -> do nothing
             return response
 
-        # compute the db time for the queries just run
-        # FIXME: In my shared webhosting environment the queries is always = 0
-        queries = len(connection.queries) - self.old_queries
-
-        total_time = human_duration(time() - self.start_time)
-        overall_time = human_duration(time() - start_overall)
-
-        # replace the comment if found
-        stat_info = FMT % {
-            'total_time' : total_time,
-            'overall_time' : overall_time,
-            'queries' : queries,
+        context = {
+            'total_time' : human_duration(time() - self.start_time),
+            'overall_time' : human_duration(time() - start_overall),
         }
+
+        if settings.DEBUG:
+            # compute the db time for the queries just run, this information is
+            # only available if the debug cursor used
+            context["queries"] = len(connection.queries) - self.old_queries
+            stat_info = FMT_DEBUG % context
+        else:
+            # Used the template without queries
+            stat_info = FMT % context
 
         # insert the page statistic
         response = replace_content(response, TAG, stat_info)
