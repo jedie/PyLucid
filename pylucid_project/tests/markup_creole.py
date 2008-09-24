@@ -87,6 +87,17 @@ class CreoleTest(unittest_addons.MarkupTest):
         out_string = self._parse("a text line.")
         self.assertEqual(out_string, "<p>a text line.</p>\n")
 
+    def test_lineendings(self):
+        """ Test all existing lineending version """
+        out_string = self._parse(u"first\nsecond")
+        self.assertEqual(out_string, u"<p>first<br />\nsecond</p>\n")
+        
+        out_string = self._parse(u"first\rsecond")
+        self.assertEqual(out_string, u"<p>first<br />\nsecond</p>\n")
+        
+        out_string = self._parse(u"first\r\nsecond")
+        self.assertEqual(out_string, u"<p>first<br />\nsecond</p>\n")
+
     def test_creole_linebreak(self):
         self.assertCreole(r"""
             Force\\linebreak

@@ -520,7 +520,9 @@ class Parser:
 
     def parse(self):
         """Parse the text given as self.raw and return DOM tree."""
-        self.parse_block(self.raw)
+        # convert all lineendings to \n
+        text = self.raw.replace("\r\n", "\n").replace("\r", "\n")
+        self.parse_block(text)
         return self.root
 
 
