@@ -46,35 +46,36 @@ class MarkupDiffFailure(Exception):
 
     def __str__(self):
         try:
-            msg = self.args[0]
+            raw_msg = self.args[0]
             
             """
             Get the right split_string is not easy. There are three kinds:
-            u"foo" != "bar"
-            u'foo' != "bar"
-            u"foo" != 'bar'
-            u'foo' != 'bar'
+            "foo" != "bar"
+            'foo' != "bar"
+            "foo" != 'bar'
+            'foo' != 'bar'
+            With and without a 'u' ;)
             """
-            msg = msg.lstrip("u") # u"foobar" -> "foobar"
+            msg = raw_msg.lstrip("u")
+            
             first_quote = msg[0]
-            last_quote = msg[-1]
-            split_string = "%s != %s" % (first_quote, last_quote)
-            msg = msg.strip(first_quote + last_quote)
+            second_quote  = msg[-1]
+            
+            msg = msg.strip("'\"")
+            
+            split_string = "%s != %s" % (first_quote, second_quote)
 
-#            # strip ' out
-#            if msg.startswith("u'"):
-#                msg = msg[2:-1]
-#            else:
-#                msg = msg[1:-1]
-#
-#            if "' != '" in msg:
-#                split_string = "' != '"
-#            elif '" != "' in msg:
-#                split_string = '" != "'
-#            else:
-#                msg = self._format_output(msg)
-#                return "Unknwon error output: %r" % msg
+            if split_string not in msg:
+                # Second part is unicode?
+                split_string = "%s != u%s" % (first_quote, second_quote)
                 
+            if split_string not in msg:
+                msg = (
+                    "Split error output failed!"
+                    " - split string >%r< not in message: %r"
+                ) % (split_string, raw_msg)
+                raise AssertionError(msg)
+               
             try:
                 block1, block2 = msg.split(split_string)
             except ValueError, err:
@@ -92,10 +93,10 @@ class MarkupDiffFailure(Exception):
             block2 = self._format_output(block2)
 
             return (
-                "\n\n---[Output:]---\n%s\n"
+                "%r\n\n---[Output:]---\n%s\n"
                 "---[not equal to:]---\n%s"
                 "\n---[diff:]---\n%s"
-            ) % (block1, block2, diff)
+            ) % (raw_msg, block1, block2, diff)
         except:
             etype, value, tb = sys.exc_info()
             msg = traceback.format_exc(tb)
