@@ -424,27 +424,41 @@ def info(request):
 url_info_template = """
 {% extends "install_base.html" %}
 {% block content %}
-<h1>URL Info for '{{ domain }}':</h1>
+<h2>current used urlpatterns:</h2>
 <table>
-{% for item in url_info %}
+{% for item in urlpatterns %}
     <tr>
         <td>{{ item.0|escape }}</td>
         <td>{{ item.1|escape }}</td>
     </tr>
 {% endfor %}
 </table>
+<h2>PyLucid URLs:</h2>
+<pre>
+{{ URLs_info }}
+</pre>
 {% endblock %}
 """
 class URL_Info(BaseInstall):
     def view(self):
-#        from django.contrib.sites.models import Site
         from PyLucid.urls import urls
+        self.context["urlpatterns"] = urls
+        
+        
+        # FIXME: This part should be merged into URLs.py, because it's used
+        # in a simillar way in show_internals/app_info.py !
+        from PyLucid.system.URLs import URLs
+        URLs = URLs(self.context)
+        
+        max_len = max([len(key) for key in URLs])
+        line = "%%%ss: '%%s'\n" % max_len
 
-        self.context["url_info"] = urls
+        URLs_info = ""
+        for url, key in sorted([(url, key) for key,url in URLs.items()]):
+            URLs_info += line % (key, url)
+        
+        self.context["URLs_info"] = URLs_info
 
-#        current_site = Site.objects.get_current()
-#        domain = current_site.domain
-#        self.context["domain"] = domain
 
         return self._render(url_info_template)
 
