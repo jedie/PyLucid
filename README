@@ -16,16 +16,19 @@ and others...
 More information can you find on our Homepage:
     http://www.pylucid.org
 
-
 Install guides:
-    http://pylucid.org/_goto/107/install-PyLucid/
+    http://www.pylucid.org/_goto/107/install-PyLucid/
 
 How to update a old PyLucid installation:
-    http://pylucid.org/_goto/108/Update-PyLucid/
-
+    http://www.pylucid.org/_goto/108/Update-PyLucid/
 
 Any Questions? Start a new thread in our forum:
-    http://pylucid.org/phpBB2/
+    http://www.pylucid.org/phpBB2/
 
+Bug tracker:
+	http://trac.pylucid.net/
 
-(Readme text $Rev$)
+Sourceforge project homepage:
+	http://sourceforge.net/projects/pylucid/
+
+(Readme text $Rev:1374 $)
