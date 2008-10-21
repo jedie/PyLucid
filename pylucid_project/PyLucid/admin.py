@@ -37,7 +37,8 @@ class PageAdmin(admin.ModelAdmin):
     )
     list_display_links = ("shortcut",)
     list_filter = (
-        "createby","lastupdateby","permitViewPublic", "template", "style"
+        "createby","lastupdateby","permitViewPublic",
+        "template", "style", "markup",
     )
     date_hierarchy = 'lastupdatetime'
     search_fields = ["content", "name", "title", "description", "keywords"]
