@@ -7,15 +7,15 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: 2008-06-05 14:57:04 +0200 (Do, 05 Jun 2008) $
-    $Rev: 1634 $
-    $Author: JensDiemer $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2005-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-__version__= "$Rev: 1634 $"
+__version__= "$Rev$"
 
 import os, pprint
 
