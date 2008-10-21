@@ -44,9 +44,9 @@ except ImportError, e:
 config = Config
 config.repository = "." # PyLucid
 config.skip_dirs = (
-    "./pylucid/django",
-    "./pylucid/media",
-    "./pylucid/PyLucid/db_dump_datadir/",
+    "./pylucid_project/django",
+    "./pylucid_project/media",
+    "./pylucid_project/PyLucid/db_dump_datadir/",
 )
 config.skip_file_ext = (".pyc",".gif", ".png")
 #config.simulation = False
