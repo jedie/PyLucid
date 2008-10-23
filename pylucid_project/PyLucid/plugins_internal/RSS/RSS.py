@@ -23,6 +23,7 @@ __version__= "$Rev$"
 import time, socket
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
+from PyLucid.tools.utils import escape
 from PyLucid.tools import feedparser
 
 from django.core.cache import cache
@@ -40,7 +41,7 @@ class RSS(PyLucidBasePlugin):
         from pprint import pformat
         self.response.write("<h2>RSS debug for '%s':</h2>\n" % url)
         self.response.write("<pre>\n")
-        self.response.write(pformat(feed))
+        self.response.write(escape(pformat(feed)))
         self.response.write("</pre>\n")
 
     def lucidTag(self, url, internal_page=None, debug=None, pref_id=None, title=None):
