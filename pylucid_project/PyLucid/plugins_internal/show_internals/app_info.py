@@ -109,20 +109,23 @@ class DjangoInfo(PyLucidBasePlugin):
         self.response.write("</fieldset>")
 
     def django_info(self):
-        from django.core.management import sql
+        from django.db import connection
 
         self.response.write('<fieldset id="system_info">')
         self.response.write(
             '<legend>existing database tables</legend>'
         )
-        self.response.write("<h4>sql.table_names():</h4>")
+        
+        self.response.write("<h4>table names:</h4>")
         self.response.write("<pre>")
-        self.response.write("\n".join(sorted(sql.table_names())))
+        tables = connection.introspection.table_names()
+        self.response.write("\n".join(sorted(tables)))
         self.response.write("</pre>")
 
-        self.response.write("<h4>sql.django_table_names():</h4>")
+        self.response.write("<h4>django table names:</h4>")
         self.response.write("<pre>")
-        self.response.write("\n".join(sorted(sql.django_table_names())))
+        django_tables = connection.introspection.django_table_names()         
+        self.response.write("\n".join(sorted(django_tables)))
         self.response.write("</pre>")
 
         self.response.write("</fieldset>")
