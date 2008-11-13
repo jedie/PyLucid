@@ -17,9 +17,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
+    $LastChangedDate$
     $Rev$
-    $Author: $
+    $Author$
 
     :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
@@ -36,12 +36,14 @@ from django.utils.safestring import mark_safe
 
 class main_menu(PyLucidBasePlugin):
 
-    def lucidTag(self):
+    def lucidTag(self, min=1, max=0):
         """
         write the current opened tree menu
         """
         current_page = self.context["PAGE"]
         self.current_page_id  = current_page.id
+        self.min = min
+        self.max = max
 
         # Get the menu tree dict from the database:
         menu_tree = get_main_menu_tree(self.request, self.current_page_id)
@@ -51,8 +53,10 @@ class main_menu(PyLucidBasePlugin):
 
         context = {
             "menu": menu_html,
+            "min": min,
+            "max": max
         }
-        self._render_template("main_menu", context)
+        self._render_template("main_menu_ul", context)
 
 
     def get_html(self, menu_data, parent=None):
@@ -62,7 +66,6 @@ class main_menu(PyLucidBasePlugin):
         result = []
 
         for entry in menu_data:
-
             # Generate the absolute url to the page:
             href = []
             if parent:
@@ -72,26 +75,28 @@ class main_menu(PyLucidBasePlugin):
 
             entry["href"] = "/" + href + "/"
 
-            if entry.has_key("subitems"):
-                # go recusive deeper into the menu entries
-                entry["submenu"] = self.get_html(entry["subitems"], parent=href)
-            else:
-                entry["submenu"] = ""
+            if (int(entry["level"]) <= self.max or self.max<self.min) and \
+                                            int(entry["level"]) >= self.min:
 
-            if entry["id"] == self.current_page_id:
-                # Mark the last menu item, the current displayed page
-                entry["is_current"] = True
+                if entry.has_key("subitems"):
+                    # go recusive deeper into the menu entries
+                    entry["submenu"] = self.get_html(
+                        entry["subitems"], parent=href
+                    )
+                else:
+                    entry["submenu"] = ""
 
-            # Render one menu entry
-            html = self._get_rendered_template("main_menu_li", entry)
-            result.append(html)
+                # Render one menu entry
+                html = self._get_rendered_template("main_menu_li", entry)
+                result.append(html)
+            elif int(entry["level"]) < self.min:
+                if entry.has_key("subitems"):
+                    html = self.get_html(entry["subitems"],parent=href)
+                    result.append(html)
 
-        context = {
-            "menu": mark_safe("\n".join(result)),
-        }
-
-        # render all menu entries into a <ul> tag
-        menu_html = self._get_rendered_template("main_menu_ul", context)
+        if result == []:
+            menu_html = ""
+        else:           
+            menu_html = "\n".join(result)
 
         return mark_safe(menu_html)
-

@@ -1,4 +1,8 @@
 <li>
-  <a href="{{ href }}" title="{{ title }}" {% if is_current %}class="current"{% endif %}>{{ name }}</a>
-  {{ submenu }}
-</li>
+<a href="{{ href }}" title="{{ title }}"{% if is_current or active %} class="{% if active %}active{% endif %}{% if is_current %} current{% endif %}"{% endif %}>{{ name }}</a>
+  {% if submenu %}
+  <ul>
+    {{ submenu }}
+  </ul>
+  {% endif %}
+</li> 
