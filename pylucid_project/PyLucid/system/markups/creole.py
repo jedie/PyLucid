@@ -70,7 +70,7 @@ class Rules:
     # ...separator >|< and the image text exist
     image = r'''(?P<image>
             {{
-            (?P<image_target>.+?\.jpg|\.jpeg|\.gif|\.png) \s*
+            (?P<image_target>.+?(\.jpg|\.jpeg|\.gif|\.png)) \s*
             (\| \s* (?P<image_text>.+?) \s*)?
             }}
         )(?i)'''

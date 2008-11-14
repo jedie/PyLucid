@@ -147,6 +147,19 @@ class CreoleTest(unittest_addons.MarkupTest):
             <strong><a href="Shortcut2">a page2</a></strong><br />
             <i><strong><a href="Shortcut3">a page3</a></strong></i></p>
         """)
+        
+    def test_image(self):
+        self.assertCreole(r"""
+            a {{/image.jpg|JPG pictures}} and
+            a {{/image.jpeg|JPEG pictures}} and
+            a {{/image.gif|GIF pictures}} and
+            a {{/image.png|PNG pictures}} !
+        """, """
+            <p>a <img src="/image.jpg" alt="JPG pictures"> and<br />
+            a <img src="/image.jpeg" alt="JPEG pictures"> and<br />
+            a <img src="/image.gif" alt="GIF pictures"> and<br />
+            a <img src="/image.png" alt="PNG pictures"> !</p>
+        """)
             
     def test_django1(self):
         """
