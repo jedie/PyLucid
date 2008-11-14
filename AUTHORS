@@ -1,28 +1,33 @@
 
-PRIMARY AUTHORS are (and/or have been):
+PRIMARY AUTHORS are and/or have been (alphabetic order):
 
-* Jens Diemer
+* Diemer, Jens
   Main Developer since the first code line. (05.2005)
   ohloh.net profile: <http://www.ohloh.net/accounts/4179/>
   Homepage: <http://www.jensdiemer.de/>
 
-* Perttu Ranta-aho
-  'Homepage': <http://djangopeople.net/prantaaho/>
-
-* Christopher Grebs
+* Grebs, Christopher
   ohloh.net profile: <http://www.ohloh.net/accounts/3505/>
   Homepage: <http://webshox.org/>
+  
+* Herzog, Manuel
+  Homepage: <http://www.manuel-herzog.de/>
 
-CONTRIBUTORS are (and/or have been):
+* Ranta-aho, Perttu
+  'Homepage': <http://djangopeople.net/prantaaho/>
+  
+
+CONTRIBUTORS are and/or have been (alphabetic order):
+    Bergner, Martin <http://www.um-gottes-willen.net/>
+    Hirmus
+    Hopek, Alen <http://www.mactricks.de/>
     IbOn <ibonso@gmail.com/>
-    Guido Leisker <http://www.guido-leisker.de/>
-    Alen Hopek <http://www.mactricks.de/>
-    Benjamin Weber <http://builtin.de/>
-    Jürgen Schlag <http://www.frickelgrube.de/>
-    Martin Bergner <http://www.um-gottes-willen.net/>
-    Brian Johnson <http://sherbang.com/>
-    Manuel Herzog <http://www.manuel-herzog.de/>
-    Marc 'BlackJack' Rintsch <http://www.marc.rintsch.de/>
+    Johnson, Brian <http://sherbang.com/>
+    Leisker, Guido <http://www.guido-leisker.de/>
+    Rintsch, Marc 'BlackJack' <http://www.marc.rintsch.de/>
+    Schlag, Jürgen <http://www.frickelgrube.de/>
+    Weber, Benjamin <http://builtin.de/>
+
 
 Spezial thanks to the python-forum.de guys, particularly (in alphabetic order):
     birkenfeld
