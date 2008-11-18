@@ -1,3 +1,11 @@
+<fieldset class="tag_cloud"><legend>{% trans 'tag cloud' %}</legend>
+    <ul>
+    {% for tag in tag_cloud %}
+        <li><a href="{{ tag.url }}" style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</a></li>
+    {% endfor %}
+    </ul>
+</fieldset>
+
 {% if back_url %}<p><a href="{{ back_url }}" class="action_link">&laquo; Display all blog entries</a></p>{% endif %}
 {% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}
 
@@ -101,15 +109,6 @@
 
 {% if back_url %}<p><a href="{{ back_url }}" class="action_link">&laquo;  Display all blog entries</a></p>{% endif %}
 {% if create_url %}<p><a href="{{ create_url }}" class="action_link">create a new blog entry</a></p>{% endif %}
-
-<fieldset class="tag_cloud"><legend>{% trans 'tag cloud' %}</legend>
-    <ul>
-    {% for tag in tag_cloud %}
-        <li><a href="{{ tag.url }}" style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</a></li>
-    {% endfor %}
-    </ul>
-</fieldset>
-
 
 <fieldset class="feeds"><legend>{% trans 'available syndication feeds' %}</legend>
     <ul>{% trans 'normal feeds:' %}
