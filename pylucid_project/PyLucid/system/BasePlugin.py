@@ -144,11 +144,23 @@ class PyLucidBasePlugin(object):
         context.
         page_style.replace_add_data() puts the file links into the page.
         """
+        def is_added(slug_list, url):
+            for entry in slug_list:
+                if entry["url"] == url:
+                    return True
+            return False
+            
         for slug in ("js", "css"):
             url = self.internal_page.get_url(internal_page_name, slug)
             if url == None:
                 continue
-            self.context["%s_data" % slug].append({
+            
+            slug_list = self.context["%s_data" % slug]
+            if is_added(slug_list, url):
+                # The same url has been added in the past -> skip
+                continue
+                        
+            slug_list.append({
                 "plugin_name": self.plugin_name,
                 "url": url,
             })
