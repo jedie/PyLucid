@@ -29,6 +29,7 @@ class PyLucidInfo(PyLucidBasePlugin):
     def display_all(self):
         self.response.write("<hr>")
         self.PyLucid_info()
+        self.pygments_info()
         self.envion_info()
 
 
@@ -54,6 +55,33 @@ class PyLucidInfo(PyLucidBasePlugin):
 
         self.response.write("</pre>")
         self.response.write("</fieldset>")
+        
+    
+    def pygments_info(self):
+        self.response.write("<h3>Pygments information</h3>")
+        self.response.write("<pre>")
+        
+        from PyLucid.system import hightlighter
+        
+        if hightlighter.PYGMENTS_AVAILABLE == False:
+            self.response.write("pygments is not available!\n")
+            self.response.write(
+                "The import error was: %s\n" % hightlighter.import_error
+            )
+            self.response.write(
+                'PyPi url http://pypi.python.org/pypi/Pygments\n'
+            )
+        else:
+            self.response.write("pygments is available!\n")
+            pygments = hightlighter.pygments
+            self.response.write(
+                "module: %r\n" % getattr(pygments, "__file__", "?")
+            )
+            self.response.write(
+                "version: %r\n" % getattr(pygments, "__version__", "?")
+            )
+        
+        self.response.write("</pre>")
 
 
     def envion_info(self):
@@ -76,9 +104,9 @@ class DjangoInfo(PyLucidBasePlugin):
     def display_all(self):
         self.response.write("<hr>")
         self.response.write("<h3>Django environ information</h3>")
-        self.header_info()
         self.apps_models()
         self.django_info()
+        self.header_info()
 
     def apps_models(self):
         """
@@ -109,13 +137,22 @@ class DjangoInfo(PyLucidBasePlugin):
         self.response.write("</fieldset>")
 
     def django_info(self):
-        from django.db import connection
+        from django.db import connection, backend
 
         self.response.write('<fieldset id="system_info">')
         self.response.write(
-            '<legend>existing database tables</legend>'
+            '<legend>database info</legend>'
         )
-        
+
+        self.response.write("<h4>used dbapi:</h4>")
+        self.response.write("<pre>")
+        self.response.write("name: %s\n" % backend.Database.__name__)
+        self.response.write("module: %s\n" % backend.Database.__file__)
+        self.response.write(
+            "version: %s\n" % getattr(backend.Database, "version", "?")
+        )
+        self.response.write("</pre>")
+
         self.response.write("<h4>table names:</h4>")
         self.response.write("<pre>")
         tables = connection.introspection.table_names()
@@ -124,7 +161,7 @@ class DjangoInfo(PyLucidBasePlugin):
 
         self.response.write("<h4>django table names:</h4>")
         self.response.write("<pre>")
-        django_tables = connection.introspection.django_table_names()         
+        django_tables = connection.introspection.django_table_names()
         self.response.write("\n".join(sorted(django_tables)))
         self.response.write("</pre>")
 
