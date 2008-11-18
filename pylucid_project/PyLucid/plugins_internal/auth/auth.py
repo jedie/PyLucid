@@ -329,6 +329,16 @@ class auth(PyLucidBasePlugin):
 
         # rebuild the login/logout link:
         add_dynamic_context(self.request, self.context)
+        
+        if self.request.user.is_superuser:
+            if settings.ENABLE_INSTALL_SECTION:
+                self.page_msg(
+                    _("Info: You should disable the _install section!")
+                )
+            if settings.DEBUG:
+                self.page_msg(
+                    _("Info: settings.DEBUG is on!")
+                )                
 
         if self.request.POST.get("next_url","") != "":
             next_url = self.request.POST['next_url']
