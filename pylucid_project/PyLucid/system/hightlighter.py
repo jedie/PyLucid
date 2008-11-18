@@ -26,12 +26,14 @@ from django.conf import settings
 from PyLucid.system.response import SimpleStringIO
 
 try:
+    import pygments
     from pygments import lexers
     from pygments.formatters import HtmlFormatter
     from pygments import highlight
     PYGMENTS_AVAILABLE = True
-except ImportError:
+except ImportError, err:
     PYGMENTS_AVAILABLE = False
+    import_error = err
 
 HTML = (
     u'<fieldset class="pygments_code">\n'
@@ -39,7 +41,9 @@ HTML = (
     '%(code_html)s'
     '</fieldset>\n'
 )
-CSSCLASS = u"pygments"
+# There exist a bug in pygments, if cssclass is given as unicode:
+# http://dev.pocoo.org/projects/pygments/ticket/371
+CSSCLASS = "pygments"
 
 def make_html(sourcecode, source_type):
     code_html, lexer_name = pygmentize(sourcecode, source_type)
@@ -53,6 +57,7 @@ def no_hightlight(code):
 def get_formatter():
     formatter = HtmlFormatter(
         linenos=True, encoding="utf-8", style='colorful',
+        outencoding = "utf-8",
         cssclass = CSSCLASS,
     )
     return formatter
@@ -84,11 +89,19 @@ def pygmentize(sourcecode, source_type):
     formatter = get_formatter()
 
     out_object = SimpleStringIO()
-    highlight(sourcecode, lexer, formatter, out_object)
-    html = out_object.getvalue()
+    try:
+        highlight(sourcecode, lexer, formatter, out_object)
+    except Exception, err:
+        if settings.DEBUG:
+            raise
+        html = no_hightlight(sourcecode)
+        lexer_name += " (Error: %s)" % err
+    else:
+        html = out_object.getvalue()
 
-    # If there is e.g. html code with django tags, we must escape this:
-    html = escape_django_tags(html)
+        # If there is e.g. html code with django tags, we must escape this:
+        html = escape_django_tags(html)
+        html = html.decode("utf-8")
 
     return html, lexer_name
 
