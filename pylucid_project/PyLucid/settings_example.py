@@ -405,6 +405,9 @@ ALLOW_SEND_MAILS = True
 # Here you can defined witch CSS class name the tag should used:
 CSS_PLUGIN_CLASS_NAME = "PyLucidPlugins"
 
+# A tuple list of all plugins witch output should not surrounded with a
+# <div> tag:
+CSS_TAG_BLACKLIST = ("page_style", "RSSfeedGenerator",)
 
 
 # The table prefix from a old PyLucid installation, if exist.
