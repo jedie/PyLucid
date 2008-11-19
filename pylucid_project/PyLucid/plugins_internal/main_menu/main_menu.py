@@ -86,6 +86,10 @@ class main_menu(PyLucidBasePlugin):
                 else:
                     entry["submenu"] = ""
 
+                # Add min, max set in the lucidTag method to the local context 
+                entry["min"] = self.min
+                entry["max"] = self.max
+
                 # Render one menu entry
                 html = self._get_rendered_template("main_menu_li", entry)
                 result.append(html)
