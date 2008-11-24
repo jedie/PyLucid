@@ -37,7 +37,7 @@ class PageAdmin(admin.ModelAdmin):
     )
     list_display_links = ("shortcut",)
     list_filter = (
-        "createby","lastupdateby","permitViewPublic",
+        "createby", "lastupdateby", "permitViewPublic", "showlinks",
         "template", "style", "markup",
     )
     date_hierarchy = 'lastupdatetime'

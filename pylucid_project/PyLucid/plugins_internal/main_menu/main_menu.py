@@ -32,7 +32,8 @@ from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.utils import escape
 from django.utils.safestring import mark_safe
 
-
+TEMPLATE_DEBUG = False
+#TEMPLATE_DEBUG = True
 
 class main_menu(PyLucidBasePlugin):
 
@@ -56,7 +57,7 @@ class main_menu(PyLucidBasePlugin):
             "min": min,
             "max": max
         }
-        self._render_template("main_menu_ul", context)
+        self._render_template("main_menu_ul", context, debug=TEMPLATE_DEBUG)
 
 
     def get_html(self, menu_data, parent=None):
@@ -91,7 +92,9 @@ class main_menu(PyLucidBasePlugin):
                 entry["max"] = self.max
 
                 # Render one menu entry
-                html = self._get_rendered_template("main_menu_li", entry)
+                html = self._get_rendered_template(
+                    "main_menu_li", entry, debug=TEMPLATE_DEBUG
+                )
                 result.append(html)
             elif int(entry["level"]) < self.min:
                 if entry.has_key("subitems"):

@@ -88,11 +88,12 @@ class SiteMap(PyLucidBasePlugin):
                 href.append(parent)
 
             href.append(entry["shortcut"])
-
+            
             href = "/".join(href)
-            entry["href"] = self.URLs["absoluteIndex"] + href + "/"
 
-            result.append(HTML_TEMPLATE % entry)
+            if entry["showlinks"] == True:
+                entry["href"] = self.URLs["absoluteIndex"] + href + "/"
+                result.append(HTML_TEMPLATE % entry)
 
             if "subitems" in entry:
                 result.append(

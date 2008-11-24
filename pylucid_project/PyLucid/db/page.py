@@ -40,7 +40,7 @@ def flat_tree_list(generate_level_names=True):
         <option value="6">_________| SVN news</option>
     """
     page_data = Page.objects.values(
-        "id", "parent", "name", "title", "shortcut"
+        "id", "parent", "name", "title", "shortcut", "showlinks",
     ).order_by("position", "name", "id")
     tree = TreeGenerator(page_data)
     tree.activate_all()
@@ -64,8 +64,8 @@ def _get_page_data(request):
     shared function for get_sitemap_tree() and get_main_menu_tree()
     """
     page_data = Page.objects.values(
-        "id", "parent", "name", "title", "shortcut"
-    ).filter(showlinks = True).order_by("position", "name", "id")
+        "id", "parent", "name", "title", "shortcut", "showlinks",
+    ).order_by("position", "name", "id")
 
     if request.user.is_anonymous():
         page_data = page_data.exclude(permitViewPublic = False)
