@@ -46,8 +46,8 @@ from PyLucid.system.plugin_import import get_plugin_config, \
 
 class PyLucidBasePlugin(object):
 
-    def __init__(self, context, response):
-        self.plugin_name = self.__class__.__name__
+    def __init__(self, context, response, plugin_name):
+        self.plugin_name = plugin_name
         self.internal_page = InternalPage(context, self.plugin_name)
 
         self.request    = context["request"]
@@ -171,8 +171,11 @@ class PyLucidBasePlugin(object):
         """
         try:
             content = self.internal_page.get_content(internal_page_name, "html")
-        except InternalPageNotFound:
-            msg = "Internal page '%s' not found!" % internal_page_name
+        except InternalPageNotFound, err:
+            if debug:
+                msg = err
+            else:    
+                msg = "Internal page '%s' not found!" % internal_page_name
             self.page_msg.red(msg)
             return "[%s]" % msg
 

@@ -108,8 +108,8 @@ def _run(context, local_response, plugin_name, method_name, url_args,
     plugin_module = get_plugin_module(plugin.package_name, plugin_name)
 
     plugin_class = getattr(plugin_module, plugin_name)
-#    page_msg(plugin_class, type(plugin_class)
-    class_instance = plugin_class(context, local_response)
+    #request.page_msg(plugin_class, type(plugin_class), plugin_name)
+    class_instance = plugin_class(context, local_response, plugin_name)
     unbound_method = getattr(class_instance, method_name)
 
     output = unbound_method(*url_args, **method_kwargs)
