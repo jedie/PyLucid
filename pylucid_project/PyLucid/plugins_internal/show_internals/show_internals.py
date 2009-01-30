@@ -180,7 +180,7 @@ class show_internals(PyLucidBasePlugin):
         shared method to display info parts from show_internals.system_info
         """
         self.menu()
-        s = class_obj(self.context, self.response)
+        s = class_obj(self.context, self.response, self.plugin_name)
         s.display_all()
 
     def pylucid_info(self):
@@ -194,6 +194,7 @@ class show_internals(PyLucidBasePlugin):
         from PyLucid.plugins_internal.show_internals.app_info \
                                                             import DjangoInfo
         return self._info(DjangoInfo)
+
 
 
     def python_info(self):
