@@ -159,25 +159,27 @@ class search(PyLucidBasePlugin):
 
         for result in results:
             result["cutouts"] = []
-            content = result["page"].content
+            page = result["page"]
+            content = page.content         
 
             for term in search_strings:
-                start = 0
+                search_start = 0
                 for _ in xrange(text_cutout_lines):
                     try:
-                        index = content.index(term, start)
+                        index = content.index(term, search_start)
                     except ValueError:
                         # No more hits in the page content
                         break
-
-                    start = index+1
-
+                    
                     if index<text_cutout_len:
                         txt = content[:text_cutout_len]
                     else:
                         start = index-text_cutout_len
                         end = index+text_cutout_len
                         txt = content[start:end]
+
+                    # start the next search at the end position
+                    search_start = end 
 
                     txt = escape(txt)
                     txt = txt.replace(term, "<strong>%s</strong>" % term)

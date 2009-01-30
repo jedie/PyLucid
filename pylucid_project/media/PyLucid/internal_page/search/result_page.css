@@ -8,6 +8,7 @@
 }
 #search_result table tr:hover {
     background-color: #fafafa;
+    cursor: pointer;
 }
 #search_result .cutouts {
     font-size: 0.75em;
