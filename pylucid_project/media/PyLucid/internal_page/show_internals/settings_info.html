@@ -1,0 +1,8 @@
+<h3>current used 'settings.py'</h3>
+<table>
+{% for item in settings_info %}
+<tr>
+    <td>{{ item.attrname }}</td><td><pre>{{ item.value }}</pre></td>
+</tr>
+{% endfor %}
+</table>

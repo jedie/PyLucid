@@ -194,8 +194,12 @@ class show_internals(PyLucidBasePlugin):
         from PyLucid.plugins_internal.show_internals.app_info \
                                                             import DjangoInfo
         return self._info(DjangoInfo)
-
-
+    
+    def settings_info(self):
+        """ display current used 'settings.py' """
+        from PyLucid.plugins_internal.show_internals.app_info \
+                                                            import SettingsInfo
+        return self._info(SettingsInfo)
 
     def python_info(self):
         """ python information """

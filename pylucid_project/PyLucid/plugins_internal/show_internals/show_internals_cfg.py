@@ -47,6 +47,12 @@ plugin_manager_data = {
         "menu_section"      : "app info",
         "menu_description"  : "django info",
     },
+    "settings_info": {
+        "must_login"        : True,
+        "must_admin"        : True,
+        "menu_section"      : "app info",
+        "menu_description"  : "display current used 'settings.py'",
+    },
     "python_info": {
         "must_login"        : True,
         "must_admin"        : True,

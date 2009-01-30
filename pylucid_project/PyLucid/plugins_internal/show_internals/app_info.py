@@ -19,6 +19,9 @@ __version__= "$Rev$"
 
 import os, pprint
 
+from django.views.debug import get_safe_settings
+
+from PyLucid.tools.utils import escape
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 
 #______________________________________________________________________________
@@ -143,6 +146,8 @@ class DjangoInfo(PyLucidBasePlugin):
         self.response.write(
             '<legend>database info</legend>'
         )
+       
+        #----------------------------------------------------------------------
 
         self.response.write("<h4>used dbapi:</h4>")
         self.response.write("<pre>")
@@ -152,12 +157,16 @@ class DjangoInfo(PyLucidBasePlugin):
             "version: %s\n" % getattr(backend.Database, "version", "?")
         )
         self.response.write("</pre>")
+        
+        #----------------------------------------------------------------------
 
         self.response.write("<h4>table names:</h4>")
         self.response.write("<pre>")
         tables = connection.introspection.table_names()
         self.response.write("\n".join(sorted(tables)))
         self.response.write("</pre>")
+        
+        #----------------------------------------------------------------------
 
         self.response.write("<h4>django table names:</h4>")
         self.response.write("<pre>")
@@ -177,3 +186,38 @@ class DjangoInfo(PyLucidBasePlugin):
         self.response.write("</pre>")
 
         self.response.write("</fieldset>")
+
+
+#______________________________________________________________________________
+class SettingsInfo(PyLucidBasePlugin):
+    """
+    display current used 'settings.py'
+    """
+    def display_all(self):
+        self.context["settings_info"] = self.settings_info()
+        
+        self._render_template(
+            internal_page_name="settings_info",
+            context=self.context,
+            #debug=True,
+        )
+
+    def settings_info(self):
+        """
+        display current used 'settings.py'
+        """
+        context = []
+        
+        safe_settings = get_safe_settings()
+        for key, value in safe_settings.iteritems():
+            value = pprint.pformat(value)
+            value = escape(value)
+            context.append({
+                "attrname": key,
+                "value": value,
+            })
+        
+        context.sort()
+        
+        return context            
+
