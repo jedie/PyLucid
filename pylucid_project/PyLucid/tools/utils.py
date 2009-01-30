@@ -20,6 +20,9 @@
 import shlex
 from xml.sax.saxutils import escape as sax_escape
 
+from django.utils.safestring import mark_safe
+
+
 ENTITIES = {
     "{{" : "&#x7B;&#x7B;",
     "}}" : "&#x7D;&#x7D;",
@@ -34,7 +37,8 @@ def escape(txt):
     >>> escape("<test1> & {{ test2 }} {% test3 %}")
     '&lt;test1&gt; &amp; &#x7B;&#x7B; test2 &#x7D;&#x7D; &#x7B;% test3 %&#x7D;'
     """
-    return sax_escape(txt, entities=ENTITIES)
+    txt = sax_escape(txt, entities=ENTITIES)
+    return mark_safe(txt) 
 
 def escape_django_tags(txt):
     """
