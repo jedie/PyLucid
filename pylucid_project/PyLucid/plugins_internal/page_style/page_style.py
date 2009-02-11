@@ -34,13 +34,106 @@ __version__= "$Rev$"
 
 import sys, os, datetime
 
-from django.utils.translation import ugettext as _
-from django.http import HttpResponse, Http404
+from django import forms
 from django.conf import settings
+from django.http import HttpResponse, Http404
+from django.utils.translation import ugettext as _
 
-from PyLucid.models import Style
+from PyLucid.models import Style, Template
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.content_processors import render_string_template
+
+
+class SwitchForm(forms.Form):
+    """
+    Select style/template for overwriting.
+    """
+    style = forms.ModelChoiceField(queryset=Style.objects.all())
+    template = forms.ModelChoiceField(queryset=Template.objects.all())
+
+
+
+#------------------------------------------------------------------------------
+# ToDo: move the "get style/template" stuff out from here...
+
+
+def tolerant_delete(obj, key):
+    """
+    Usefull for e.g.:
+    tolerant_delete(request.session, "style")
+    tolerant_delete(request.session, "template")
+    """
+    try:
+        del obj[key]
+    except KeyError:
+        pass
+
+
+
+
+
+class StyleTemplate(object):
+    """
+    Generic class for getting template/style instance.
+    
+    1. Use the information in request.session["style" / "template"] and
+        get the instance from database.
+    2. Get style/template from the current page object
+    """
+    def __init__(self, request, Model, key):
+        self.request = request
+        self.Model = Model # PyLucid.models.Style or PyLucid.models.Template
+        self.key = key # "style" or "template"
+
+    def get_from_session(self):
+        """
+        Get style/template instance from database, if the name of it are stored
+        in the session.
+        """
+        item_name = self.request.session.get(self.key, None)
+        if not item_name:
+            # No override saved in the session data
+            return
+        
+        # Try to get the item from the database
+        try:
+            instance = self.Model.objects.get(name=item_name)
+        except:
+            # ToDo: self.Model.DoesNotExist should work here, isn't it?
+            tolerant_delete(self.request.session, self.key)
+            return
+        else:
+#            self.request.page_msg(
+#                "Info: Use %r as %s" % (instance.name, self.Model.__name__)
+#            )
+            return instance
+
+    def get(self):
+        """
+        return the instance
+        """
+        instance = self.get_from_session()
+        if instance:
+            return instance
+        
+        # Get style/template from the current page object
+        context = self.request.CONTEXT 
+        current_page = context["PAGE"]
+        instance = getattr(current_page, self.key)
+        return instance
+
+
+def get_template(request):
+    return StyleTemplate(request, Template, "template").get()
+
+def get_style(request):
+    return StyleTemplate(request, Style, "style").get()
+
+
+
+#------------------------------------------------------------------------------
+
+
 
 class page_style(PyLucidBasePlugin):
 
@@ -51,8 +144,7 @@ class page_style(PyLucidBasePlugin):
         """
         self.response.write(settings.ADD_DATA_TAG)
 
-        current_page = self.context["PAGE"]
-        current_style = current_page.style
+        current_style = get_style(self.request)
 
         style_filepath = current_style.get_filepath()
         if os.path.isfile(style_filepath):
@@ -80,12 +172,11 @@ class page_style(PyLucidBasePlugin):
         Used with the tag: {% lucidTag page_style.print_current_style %}
         """
         self.response.write(settings.ADD_DATA_TAG)
-
-        current_page = self.context["PAGE"]
-        stylesheet = current_page.style
+        
+        current_style = get_style(self.request)
 
         context = {
-            "content": stylesheet.content,
+            "content": current_style.content,
         }
         self._render_template("write_styles", context)#, debug=True)
 
@@ -113,6 +204,40 @@ class page_style(PyLucidBasePlugin):
         response.write(content)
 
         return response
+
+
+    def switch(self, url_args=None):
+        """
+        Switch the associated page template/stylesheet and save these info
+        into the session data.
+        """
+        if url_args:
+            tolerant_delete(self.request.session, "style")
+            tolerant_delete(self.request.session, "template")
+            self.page_msg("Delete saved style/template.")
+                    
+        if self.request.method == 'POST':
+            form = SwitchForm(self.request.POST)
+            if form.is_valid():
+                selected_style = form.cleaned_data['style']
+                selected_template = form.cleaned_data['template']
+                self.request.session['style'] = selected_style.name
+                self.request.session['template'] = selected_template.name
+                self.page_msg("Style/Template, saved.")
+        else:
+            form = SwitchForm({
+                "style": self.current_page.style.pk,
+                "template": self.current_page.template.pk,
+            })
+        
+        context = {
+            "current_page": self.current_page,
+            "reset_url": self.URLs.methodLink("switch", "reset"),
+            "form": form,
+        }
+        self._render_template("switch", context)
+
+
 
 from PyLucid.system.internal_page import get_internal_page, InternalPageNotFound
 def replace_add_data(context, content):

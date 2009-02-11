@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from django.utils.translation import gettext_lazy as _
+
 #_____________________________________________________________________________
 # meta information
 
@@ -20,4 +22,18 @@ plugin_manager_data = {
     "lucidTag" : global_rights,
     "print_current_style" : global_rights,
     "sendStyle" : global_rights,
+    "switch" : {
+        "must_login"    : True,
+        "must_admin"    : False,
+        "admin_sub_menu": {
+            "section"       : _("edit look"),
+            "title"         : _("Template/Style switcher"),
+            "help_text"     : _(
+                "Overwrite the associated template/stylesheet"
+                " (Good for testing new templates/styles)."
+            ),
+            "open_in_window": False,
+            "weight" : -5,
+        },
+    },
 }

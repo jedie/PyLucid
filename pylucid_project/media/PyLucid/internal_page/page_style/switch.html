@@ -1,0 +1,26 @@
+<fieldset><legend>Switch template/stylesheet</legend>
+<p>
+    Here you can overwrite the current associated page template/stylesheet.
+    <br />
+    Current page '<strong>{{ current_page }}</strong>' use normally
+    stylesheet '<strong>{{ current_page.style }}</strong>' and
+    template '<strong>{{ current_page.template }}</strong>'.
+</p>
+<form method="post" action=".">
+<ul id="input_fields">
+    {% for field in form %}
+        <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+        <label for="{{ field.auto_id }}">{{ field.label }}:</label>
+        {{ field }}
+        <span class="field_help_text">{{ field.help_text }}</span>
+        {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
+    </li>
+    {% endfor %}
+</ul>
+<input type="submit" name="save" value="{% trans 'save' %}" />
+<a href="{{ reset_url }}" title="{% trans 'Reset a saved style/template overwrite.' %}">
+<input name="reset" value="{% trans 'reset' %}" type="button" />
+</a>
+</form>
+<p>(To delete the 'overwrite', use the reset button.)</p>
+</fieldset>

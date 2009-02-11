@@ -38,6 +38,9 @@ from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
 from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 
+# ToDo: get_template should be move into a better place:
+from PyLucid.plugins_internal.page_style.page_style import get_template
+
 
 
 # TODO: Remove in PyLucid >v0.8.5
@@ -127,7 +130,11 @@ def _render_cms_page(request, context, page_content=None):
 
     context["PAGE"].content = page_content
 
-    template = current_page.template
+    # Get the template instance: consider the overwrite from page_style.switch()
+    # or get the template from the current page object.
+    template = get_template(request)
+    
+    # Get the content from the model instance
     template_content = template.content
 
     # Render the Template to build the complete html page:
