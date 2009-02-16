@@ -24,17 +24,6 @@ else:
     from django.conf import settings
 
 #______________________________________________________________________________
-# Build a list and a dict from the basepaths
-# The dict key is a string, not a integer. (GET/POST Data always returned
-# numbers as strings)
-
-BASE_PATHS = [
-    (str(no), unicode(path)) for no, path in enumerate(
-                                                settings.FILEMANAGER_BASEPATHS)
-]
-BASE_PATHS_DICT = dict(BASE_PATHS)
-
-#______________________________________________________________________________
 
 def _dir_walk(path):
     result = []

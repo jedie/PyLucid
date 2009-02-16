@@ -176,12 +176,16 @@ MEDIA_URL = "/media/"
 #     Examples-3: "http://django.media.your_domain.net/"
 ADMIN_MEDIA_PREFIX = "/django/contrib/admin/media/"
 
-# Base path for the filemanager plugin
-# You can add more path for the plugin.
-FILEMANAGER_BASEPATHS = (
-    MEDIA_ROOT,
-    #"./static/",
-)
+# Base path for all filesystem bases plugins, e.g. Filemanager, Gallery
+# The dict key would be inserted into the url.
+# Every item is a tupel containing the filesystem path and the url.
+# You can add more path, if you need them!
+FILESYSTEM_BASEPATHS = {
+    "media": (MEDIA_ROOT, MEDIA_URL),
+    # "downloads": ("/var/www/media/downloads/", "/downloads/"),
+    # "my files": ("./my_static_files/", "http://static.your_domain.net/"),
+    # ...
+}
 
 """
 _______________________________________________________________________________
