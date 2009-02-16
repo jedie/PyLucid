@@ -59,7 +59,10 @@ from django.utils.translation import ugettext as _
 from django.utils.encoding import force_unicode
 
 from PyLucid.models import Page
+from PyLucid.tools.utils import contains_char
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
+from PyLucid.forms.filesystem import FilenameField, DirnameField, \
+                                                BAD_DIR_CHARS, BAD_FILE_CHARS
 
 from PyLucid.tools.path_manager import BASE_PATHS, BASE_PATHS_DICT
 
@@ -92,55 +95,6 @@ def make_dirlist(path, result=[]):
     else:
         result.reverse()
         return result
-
-#______________________________________________________________________________
-
-BAD_DIR_CHARS = ("..", "//", "\\") # Bad characters in directories
-BAD_FILE_CHARS = ("..", "/", "\\") # Bad characters in a filename
-
-def contains_char(text, chars):
-    """
-    returns True if text contains a characters from the given chars list.
-    """
-    for char in chars:
-        if char in text:
-            return True
-    return False
-
-class BadCharField(forms.CharField):
-    """
-    A base class for DirnameField and FilenameField
-    """
-    def __init__(self, max_length=255, min_length=1, required=True,
-                                                            *args, **kwargs):
-        super(BadCharField, self).__init__(
-            max_length, min_length, required, *args, **kwargs
-        )
-
-    def clean(self, value):
-        """
-        Check if a bad caracter is in the form value.
-        """
-        super(BadCharField, self).clean(value)
-        if contains_char(value, self.bad_chars):
-            raise ValidationError(_(u"Error: Bad character found!"))
-
-        if value.startswith("."):
-            raise ValidationError(_(u"Hidden name are not allowed"))
-
-        return value
-
-class DirnameField(BadCharField):
-    """
-    newforms field for verify a dirname.
-    """
-    bad_chars = BAD_DIR_CHARS
-
-class FilenameField(BadCharField):
-    """
-    newforms field for verify a filename.
-    """
-    bad_chars = BAD_FILE_CHARS
 
 #______________________________________________________________________________
 

@@ -105,6 +105,29 @@ def make_kwargs(raw_content, encoding="UTF-8"):
 
 
 
+
+def contains_char(text, chars):
+    """
+    returns True if text contains a characters from the given chars list.
+    
+    >>> contains_char("1234", ["a", "b"])
+    False
+    >>> contains_char("1234", ["2", "b"])
+    True
+    >>> contains_char("1234", "wrong")
+    Traceback (most recent call last):
+    ...
+    AssertionError
+    """
+    assert isinstance(chars, (list, tuple))
+    for char in chars:
+        if char in text:
+            return True
+    return False
+
+
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod(
