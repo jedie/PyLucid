@@ -328,8 +328,8 @@ class filemanager(PyLucidBasePlugin):
     """
     The PyLucid plugin class.
     """
-    def __init__(self, context, response):
-        super(filemanager, self).__init__(context, response)
+    def __init__(self, context, response, plugin_name):
+        super(filemanager, self).__init__(context, response, plugin_name)
         self.path = Path(context)
 
     #--------------------------------------------------------------------------
