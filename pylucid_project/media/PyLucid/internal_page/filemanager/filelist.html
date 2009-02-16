@@ -31,10 +31,26 @@
     {% else %}
         <td class="s">{{ item.size|filesizeformat }}</td>
     {% endif %}
-    <td class="m">{{ item.time|date:_("DATE_WITH_TIME_FULL") }}</td>
-    <td class="o" title="octal mode: {{ item.mode|get_oct }}">{{ item.mode|chmod_symbol }}</td>
-    <td class="u">{{ item.uid }}</td>
-    <td class="g">{{ item.gid }}</td>
+    <td class="m">
+        {% if item.time %}
+            {{ item.time|date:_("DATETIME_FORMAT") }}
+        {% endif %}
+    </td>
+    <td class="o" title="octal mode: {{ item.mode|get_oct }}">
+        {% if item.mode %}
+            {{ item.mode|chmod_symbol }}
+        {% endif %}
+    </td>
+    <td class="u">
+        {% if item.uid %}
+            {{ item.uid }}
+        {% endif %}
+    </td>
+    <td class="g">
+        {% if item.gid %}
+            {{ item.gid }}
+        {% endif %}
+    </td>
     <td class="t">
       {% if item.deletable %}
       <form  method="post" id="fld{{ forloop.counter0 }}" action="{{ post_url }}">
