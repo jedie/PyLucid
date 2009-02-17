@@ -36,7 +36,9 @@ class PreferencesForm(forms.Form):
     if a new gallery would be created. After this you can edit the individual
     gallery settings in the gallery themself.
     """
-    base_path = forms.ChoiceField(choices=BASE_PATHS,
+    base_path = forms.ChoiceField(
+        initial = "0", # Use the first path in the BASE_PATHS choice list
+        choices = BASE_PATHS,
         help_text = _(
             "Index directory of the gallery."
             " You can select a path from settings.FILEMANAGER_BASEPATHS"
@@ -108,7 +110,7 @@ class PreferencesForm(forms.Form):
             "html meta information (e.g.: 'noindex,nofollow')"
             " (If empty, used the default template robots entry)"
         ),
-        #required = False #???
+        required = False
     )
 
     verbose_level = forms.IntegerField(
