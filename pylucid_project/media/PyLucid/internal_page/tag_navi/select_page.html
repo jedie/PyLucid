@@ -1,0 +1,11 @@
+<fieldset class="taglinks"><legend>tag navigation</legend>
+Pages tagged with <strong>{{ selected_tag }}</strong>:
+<ul>
+{% for page in pages %}
+  <li>
+    <a href="{{ page.get_absolute_url }}">{{ page.name|escape }}</a> -
+    {{ page.title }} 
+  </li>
+{% endfor %}
+</ul>
+</fieldset>
