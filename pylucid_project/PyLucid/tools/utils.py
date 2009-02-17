@@ -17,7 +17,7 @@
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
-import shlex
+import shlex, re
 from xml.sax.saxutils import escape as sax_escape
 
 from django.utils.safestring import mark_safe
@@ -124,6 +124,48 @@ def contains_char(text, chars):
         if char in text:
             return True
     return False
+
+
+
+
+def cutout(content, terms, max_lines=5, cutout_len=10):
+    """
+    Cut out all lines witch contains one of the terms.
+    
+    The >cutout_len< argument sets the size of the text around the match:
+    
+    >>> cutout("1234567890", ["3", "8"], cutout_len=2)
+    [('12', '3', '45'), ('67', '8', '90')]
+    >>> cutout("1234567890", ["1", "0"], cutout_len=3)
+    [('', '1', '234'), ('789', '0', '')]
+    
+    
+    The >max_lines< argument is the maximum cutouts for all terms:
+    
+    >>> cutout("1x1 2y2 3x3 4y4", ["x", "y"], max_lines=1, cutout_len=1)
+    [('1', 'x', '1')]
+    >>> cutout("1x1 2y2 3x3 4y4", ["x", "y"], max_lines=2, cutout_len=1)
+    [('1', 'x', '1'), ('2', 'y', '2')]
+    >>> cutout("1x1 2y2 3x3 4y4", ["x", "y"], max_lines=3, cutout_len=1)
+    [('1', 'x', '1'), ('2', 'y', '2'), ('3', 'x', '3')]
+    """
+    re_terms = [re.escape(term) for term in terms]
+    regex = re.compile(
+        r"(.{0,%(cutout)i})(%(terms)s)(.{0,%(cutout)i})" % {
+            "cutout": cutout_len,
+            "terms": "|".join(re_terms)
+        },
+        re.DOTALL | re.IGNORECASE
+    )
+
+    result = []
+    for no, m in enumerate(regex.finditer(content)):#, start=1):
+        result.append(m.groups())
+        if no+1 >= max_lines: # enumerate start argument it new in Python 2.6
+            break
+
+    return result
+
 
 
 

@@ -9,7 +9,10 @@
 {% if search_string %}
     <fieldset id="search_result">
     <legend>{% trans 'results' %}</legend>
-    <small class="search_info">{{ duration|human_duration }} - {{ hits }} hits</small>
+    <small class="search_info">
+        {{ duration|human_duration }} - {{ hits }} hits
+        {% if max_results %}(display only the fist {{ max_results }} pages.){% endif %}
+    </small>
     <table>
     {% for entry in results %}
     <tr onclick="JavaScript:window.location.href='{{ entry.page.get_absolute_url }}';" title="{{ entry.page.get_absolute_url }}">

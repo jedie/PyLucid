@@ -29,7 +29,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.tools.utils import escape
+from PyLucid.tools.utils import escape, cutout
 from PyLucid.models import Page, Plugin
 
 
@@ -41,6 +41,12 @@ class SearchForm(forms.Form):
         min_length = preferences["min_term_len"],
         max_length = preferences["max_term_len"],
     )
+
+
+
+
+
+
 
 
 class search(PyLucidBasePlugin):
@@ -86,6 +92,11 @@ class search(PyLucidBasePlugin):
                     context["hits"] = hits
                     context["results"] = results
                     context["search_string"] = search_string
+                    
+                    max_results = preferences["max_results"]
+                    if hits>max_results:
+                        context["max_results"] = max_results
+                    
         else:
             search_form = SearchForm()
 
@@ -122,15 +133,32 @@ class search(PyLucidBasePlugin):
 
         for term in search_strings:
             pages = pages.filter(content__icontains=term)
+            
+        def calc_score(txt, terms, multiplier):
+            score = 0
+            for term in terms:
+                score += txt.count(term) * multiplier
+            return score
 
-        # Value the hits. Make a sortable tuple.
+        # Evaluate the hits. Make a sortable tuple.
+        terms_lower = tuple([i.lower() for i in search_strings])
         results = []
         for page in pages:
-            score = 0
-            content = page.content
-
-            for term in search_strings:
-                score += content.count(term)
+            score = calc_score(
+                page.content.lower(), terms_lower, multiplier = 1
+            )
+            score += calc_score(
+                page.name.lower(), terms_lower, multiplier = 20
+            )
+            score += calc_score(
+                page.title.lower(), terms_lower, multiplier = 10
+            )
+            score += calc_score(
+                page.keywords.lower(), terms_lower, multiplier = 5
+            )
+            score += calc_score(
+                page.description.lower(), terms_lower, multiplier = 2
+            )
 
             results.append((score, page))
 
@@ -156,36 +184,30 @@ class search(PyLucidBasePlugin):
         """
         text_cutout_len = preferences["text_cutout_len"]
         text_cutout_lines = preferences["text_cutout_lines"]
-
+        
         for result in results:
             result["cutouts"] = []
             page = result["page"]
-            content = page.content         
+            
+            cutouts = cutout(
+                content=page.content,
+                terms = search_strings,
+                max_lines=text_cutout_lines,
+                cutout_len=text_cutout_len,
+            )
+            for matches in cutouts:
+                matches = map(escape, matches)
+                
+                matches[1] = "<strong>%s</strong>" % matches[1]
+                
+                txt = " ".join(matches)
+                txt = mark_safe(txt)
+                
+                result["cutouts"].append(txt)
 
-            for term in search_strings:
-                search_start = 0
-                for _ in xrange(text_cutout_lines):
-                    try:
-                        index = content.index(term, search_start)
-                    except ValueError:
-                        # No more hits in the page content
-                        break
-                    
-                    if index<text_cutout_len:
-                        txt = content[:text_cutout_len]
-                    else:
-                        start = index-text_cutout_len
-                        end = index+text_cutout_len
-                        txt = content[start:end]
-
-                    # start the next search at the end position
-                    search_start = end 
-
-                    txt = escape(txt)
-                    txt = txt.replace(term, "<strong>%s</strong>" % term)
-                    txt = mark_safe(txt)
-                    result["cutouts"].append(txt)
 
 
 class WrongSearchTerm(Exception):
     pass
+
+
