@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+    PyLucid own creole2html macros
+"""
+
 from PyLucid.system.hightlighter import make_html
 
 def html(args, text):

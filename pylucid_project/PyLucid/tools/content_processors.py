@@ -12,9 +12,9 @@
 
     Last commit info:
     ~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
@@ -131,9 +131,22 @@ def apply_restructuretext(content, page_msg):
 
 
 def apply_creole(content):
-    from PyLucid.system.markups.creole2html import Parser, HtmlEmitter
+    """
+    Use python-creole:
+    http://code.google.com/p/python-creole/
+    
+    We used verbose=1 for inser error information (e.g. not existing macro)
+    into the generated page
+    """
+    from PyLucid.system.markups import PyLucid_creole_macros
+    from PyLucid.system.markups.creole import Parser
+    from PyLucid.system.markups.creole.creole2html import HtmlEmitter
+   
+    # Create document tree from creole markup
     document = Parser(content).parse()
-    return HtmlEmitter(document).emit()
+    
+    # Build html code from document tree
+    return HtmlEmitter(document, macros=PyLucid_creole_macros, verbose=1).emit()
 
 
 def apply_markup(content, context, markup_no):
