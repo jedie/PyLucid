@@ -28,31 +28,29 @@ import inspect
 from PyLucid.tools.utils import escape, escape_django_tags
 
 from django import forms
-from django.forms import ValidationError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.cache import cache
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 
+
 from django.conf import settings
-from PyLucid.models import Page, Plugin, MARKUPS
-from PyLucid.db.page import flat_tree_list, get_sitemap_tree
+from PyLucid.models import Page, Plugin
 from PyLucid.db.page_archiv import archive_page
+from PyLucid.system.markups.creole import html2creole
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
-from PyLucid.system.plugin_import import get_plugin_module
+from PyLucid.plugins_internal.page_style.page_style import replace_add_data
 from PyLucid.tools.content_processors import apply_markup, \
                                                         render_string_template
-from PyLucid.plugins_internal.page_style.page_style import replace_add_data
-
-from PyLucid.db.page import PageChoiceField, get_page_choices, flat_tree_list
+from PyLucid.db.page import PageChoiceField, get_page_choices, \
+                                            flat_tree_list, get_sitemap_tree
 
 
 
 
 # Keys must be correspond with PyLucid.models.MARKUPS
 HELP_INFO = {
-    2: u'markup_help_tinyTextile',
-    6: u'markup_help_creole',
+    Page.MARKUP_TINYTEXTILE: u'markup_help_tinyTextile',
+    Page.MARKUP_CREOLE: u'markup_help_creole',
 }
 
 
@@ -80,11 +78,6 @@ class EditPageForm(forms.Form):
     title = forms.CharField(
         max_length=255, required=False, help_text=_("A long page title"),
     )
-    markup = forms.IntegerField(
-        widget=forms.Select(choices=MARKUPS),
-        help_text=_("the used markup language for this page"),
-    )
-
     keywords = forms.CharField(
         max_length=255, required=False,
         help_text=_("Keywords for the html header. (separated by commas)"),
@@ -108,8 +101,55 @@ class EditPageForm(forms.Form):
 
 #______________________________________________________________________________
 
+
+
+# Use only supported markups for converting choice field
+CONVERT_MARKUPS = [entry for entry in Page.MARKUP_CHOICES
+    if entry[0] in (
+        Page.MARKUP_CREOLE, Page.MARKUP_HTML, Page.MARKUP_HTML_EDITOR
+    )
+]
+
+class MarkupForm(forms.Form):
+    markup = forms.IntegerField(
+        widget=forms.Select(choices=Page.MARKUP_CHOICES),
+        help_text=_(
+            "the used markup language for this page (without converting!)"
+        ),
+    )
+    dest_markup = forms.IntegerField(
+        widget=forms.Select(choices=CONVERT_MARKUPS),
+        help_text=_("convert the current page data to a new markup"),
+    )
+
+
+
+
+#______________________________________________________________________________
+
 class SelectEditPageForm(forms.Form):
     page_id = forms.IntegerField()
+
+#______________________________________________________________________________
+
+
+def change_formdata(form, new_data):
+    """
+    Update form data, after the form instance was validated.
+    
+    Used in page_admin._convert_markup()
+   
+    form.data is a django.http.QueryDict with POST data
+    we must change it to mutable.
+    
+    FIXME: Ugly way to update data
+    http://www.python-forum.de/topic-17894.html (de)
+    """
+    old_mutable = form.data._mutable  
+    form.data._mutable = True
+    form.data.update(new_data)
+    form.data._mutable = old_mutable
+
 
 #______________________________________________________________________________
 
@@ -153,7 +193,7 @@ class page_admin(PyLucidBasePlugin):
         self.current_page = page_instance
         self.context["PAGE"] = page_instance
 
-    def _save_edited_page(self, page_instance, html_form):
+    def _save_edited_page(self, page_instance, page_form, markup_form):
         """
         Save a edited page into the database.
 
@@ -164,13 +204,13 @@ class page_admin(PyLucidBasePlugin):
         """
         if page_instance.id == self.current_page.id:
             # A existing page was edited
-            edit_comment = html_form.cleaned_data.pop("edit_comment")
+            edit_comment = page_form.cleaned_data.pop("edit_comment")
             # achive the old page data:
             archive_page(self.current_page, edit_comment)
             self.page_msg(_("Old page data archived."))
 
         # Assign parent page
-        parent_page_id = html_form.cleaned_data.pop("parent")
+        parent_page_id = page_form.cleaned_data.pop("parent")
         if parent_page_id != None:
             parent = Page.objects.get(id=parent_page_id)
             page_instance.parent = parent
@@ -178,8 +218,9 @@ class page_admin(PyLucidBasePlugin):
             page_instance.parent = None
 
         # Transfer the form values into the page instance
-        for key, value in html_form.cleaned_data.iteritems():
+        for key, value in page_form.cleaned_data.iteritems():
             setattr(page_instance, key, value)
+        page_instance.markup = markup_form.cleaned_data["markup"]
 
         try:
             page_instance.save()
@@ -197,7 +238,59 @@ class page_admin(PyLucidBasePlugin):
 
             # refresh the current page data:
             self._refresh_curent_page(page_instance)
+            
 
+    def _convert_markup(self, content, page_form, markup_form):
+        """
+        Convert the page markup in a POST preview.
+        After a succsessfull convert, we update the form instance data.
+        """
+        dest_markup = markup_form.cleaned_data["dest_markup"]
+        markup_name = Page.MARKUP_DICT[dest_markup]
+        
+        if dest_markup == Page.MARKUP_CREOLE:
+            try:
+                new_content = html2creole(
+                    html_string=content, debug=self.request.debug
+                )
+            except Exception, err:
+                self.page_msg.red(
+                    "Error converting markup to '%s': %s" % (markup_name, err)
+                )
+                return
+        else:
+            # Only 'html' left as the new "markup"
+            new_content = content
+        
+        # Update form instance data for display the converted new content
+        change_formdata(page_form, {"content": new_content})
+        
+        # update the old page markup to the new destination markup
+        change_formdata(markup_form, {"markup": dest_markup})
+        
+        self.page_msg.green(
+            "Markup successfull converted to '%s'" % markup_name
+        )
+
+    def _preview(self, context, page_form, markup_form):
+        # Apply the markup witch is selected in the form
+        content = apply_markup(
+            page_form.cleaned_data["content"],
+            self.context,
+            markup_form.cleaned_data["markup"]
+        )
+        
+        if "submit_dest_markup" in self.request.POST:
+            # We should convert the markup
+            self._convert_markup(content, page_form, markup_form)                    
+
+        preview_escape = page_form.cleaned_data["preview_escape"]
+        if preview_escape == True:
+            # escape django template tags for preview
+            content = escape_django_tags(content)
+
+        content = render_string_template(content, self.context)
+        context["preview_content"] = content
 
     def edit_page(self, edit_page_id=None, new_page_instance=None):
         """
@@ -232,46 +325,48 @@ class page_admin(PyLucidBasePlugin):
 
         if self.request.method != 'POST':
             parent = getattr(page_instance.parent, "id", 0) # Root is None
+            
+            markup_form = MarkupForm({
+                "markup": current_markup,
+                "dest_markup": Page.MARKUP_CREOLE,
+            })
 
-            html_form = EditPageForm({
+            page_form = EditPageForm({
                 "content": page_instance.content,
                 "parent": parent,
                 "name": page_instance.name,
                 "title": page_instance.title,
-                "markup": current_markup,
                 "keywords": page_instance.keywords,
                 "description": page_instance.description,
                 "preview_escape": True,
             })
         else: # POST
+            #self.page_msg(self.request.POST)
             #self.page_msg(dict(self.request.POST))
-            html_form = EditPageForm(self.request.POST)
-            if html_form.is_valid():
-                if "preview" in self.request.POST:
-                    cleaned_data = html_form.cleaned_data
-                    content = apply_markup(
-                        cleaned_data["content"], self.context,
-                        cleaned_data["markup"]
-                    )
-
-                    preview_escape = cleaned_data["preview_escape"]
-                    if preview_escape == True:
-                        # escape django template tags for preview
-                        content = escape_django_tags(content)
-
-                    content = render_string_template(content, self.context)
-                    context["preview_content"] = content
-
-                    # Use the current selected markup
-                    current_markup = html_form.cleaned_data["markup"]
+            
+            markup_form = MarkupForm(self.request.POST)
+            page_form = EditPageForm(self.request.POST)
+            
+            if page_form.is_valid() and markup_form.is_valid():
+                if "preview" in self.request.POST or \
+                                "submit_markup" in self.request.POST or \
+                                "submit_dest_markup" in self.request.POST:
+                    self._preview(context, page_form, markup_form)
+                    
+                    # For later use
+                    current_markup = markup_form.cleaned_data["markup"]
 
                 elif "save" in self.request.POST:
                     # Save the new page data. returns a new page instance
-                    return self._save_edited_page(page_instance, html_form)
+                    return self._save_edited_page(
+                        page_instance, page_form, markup_form
+                    )
                 else:
                     self.page_msg.red("Form error!")
 
-        context["edit_page_form"] = html_form
+
+        context["markup_form"] = markup_form
+        context["edit_page_form"] = page_form
 
         # Edit in the django admin panel:#
         if new_page_instance != None:
@@ -290,6 +385,7 @@ class page_admin(PyLucidBasePlugin):
         if current_markup in HELP_INFO:
             context["help_link"] = self.URLs.methodLink(
                 "markup_help", current_markup
+        
             )
             # TODO: make help link working
             #self.page_msg("help_link:", context["help_link"])

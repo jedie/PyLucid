@@ -16,7 +16,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from Page import Page, PageArchiv, MARKUPS
+from Page import Page, PageArchiv
 from Plugin import Plugin, Preference
 from JS_LoginData import JS_LoginData, User
 from Style import Style

@@ -33,12 +33,15 @@ legend {
 }
 #input_fields label {
     float: left;
-    padding-right: 4px;
+    padding: 0.4em;
     text-align: right;
-    width: 9em;
+    width: 11em;
 }
 #input_fields input, #input_fields select {
     width: 35%;
+}
+#input_fields input[type=submit] {
+    width: auto;
 }
 
 #input_fields .content label, #input_fields .content .field_help_text {
@@ -49,14 +52,17 @@ legend {
     /* make some text input fields bigger e.g. keywords,description */
     width: 75%;
 }
-#input_fields .edit_comment .field_help_text,
-#input_fields .keywords .field_help_text,
-#input_fields .description .field_help_text {
+#input_fields .field_help_text {
     /* setup the help text for keywords and description */
     /* put the help text for bigger input field in the second line */
     display: block;
     padding-left: 14em;
 }
+#input_fields input[type=checkbox] {
+    /* help text after a checkbox should not printed in the next line */
+    float: left;
+}
+
 #input_fields textarea, hr.seperator, #action_buttons {
     /* make the space between the action buttons and the text area smaller */
     margin: 0;

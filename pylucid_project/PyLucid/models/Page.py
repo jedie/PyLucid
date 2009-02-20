@@ -7,9 +7,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
@@ -26,17 +26,6 @@ from django.contrib.auth.models import User, Group
 from PyLucid.system.utils import get_uri_base
 from PyLucid.tools.shortcuts import getUniqueShortcut
 from PyLucid.system.exceptions import AccessDenied, LowLevelError
-
-
-MARKUPS = (
-    (6, u'Creole wiki markup'),
-    (0, u'html'),
-    (1, u'html + TinyMCE'),
-    (2, u'textile'),
-    (3, u'Textile (original)'),
-    (4, u'Markdown'),
-    (5, u'ReStructuredText'),
-)
 
 
 class PageManager(models.Manager):
@@ -170,6 +159,27 @@ class Page(models.Model):
     TODO: We should refactor the "pre_save" behavior, use signals:
     http://code.djangoproject.com/wiki/Signals
     """
+    
+    # IDs used in other parts of PyLucid, too  
+    MARKUP_CREOLE       = 6
+    MARKUP_HTML         = 0
+    MARKUP_HTML_EDITOR  = 1
+    MARKUP_TINYTEXTILE  = 2
+    MARKUP_TEXTILE      = 3
+    MARKUP_MARKDOWN     = 4
+    MARKUP_REST         = 5
+    
+    MARKUP_CHOICES = (
+        (MARKUP_CREOLE      , u'Creole wiki markup'),
+        (MARKUP_HTML        , u'html'),
+        (MARKUP_HTML_EDITOR , u'html + JS-Editor'),
+        (MARKUP_TINYTEXTILE , u'textile'),
+        (MARKUP_TEXTILE     , u'Textile (original)'),
+        (MARKUP_MARKDOWN    , u'Markdown'),
+        (MARKUP_REST        , u'ReStructuredText'),
+    )
+    MARKUP_DICT = dict(MARKUP_CHOICES)
+    #--------------------------------------------------------------------------
 
     objects = PageManager()
 
@@ -209,7 +219,7 @@ class Page(models.Model):
     )
     markup = models.IntegerField(
         db_column="markup_id", # Use the old column name.
-        max_length=1, choices=MARKUPS,
+        max_length=1, choices=MARKUP_CHOICES,
         help_text="the used markup language for this page",
     )
 
@@ -471,7 +481,7 @@ class PageArchiv(models.Model):
     )
     markup = models.IntegerField(
         db_column="markup_id", # Use the old column name.
-        max_length=1, choices=MARKUPS,
+        max_length=1, choices=Page.MARKUP_CHOICES,
         help_text="the used markup language for this page",
     )
 

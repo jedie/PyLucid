@@ -148,6 +148,9 @@ def apply_creole(content):
     # Build html code from document tree
     return HtmlEmitter(document, macros=PyLucid_creole_macros, verbose=1).emit()
 
+from PyLucid.models import Page
+
+
 
 def apply_markup(content, context, markup_no):
     """
@@ -158,15 +161,19 @@ def apply_markup(content, context, markup_no):
     request  = context["request"]
     page_msg = request.page_msg
 
-    if markup_no == 2: # textile
+    if markup_no == Page.MARKUP_TINYTEXTILE: # PyLucid's TinyTextile
         content = apply_tinytextile(content, context)
-    elif markup_no == 3: # Textile (original)
+        
+    elif markup_no == Page.MARKUP_TEXTILE: # Textile (original)
         content = apply_textile(content, page_msg)
-    elif markup_no == 4: # Markdown
+        
+    elif markup_no == Page.MARKUP_MARKDOWN:
         content = apply_markdown(content, page_msg)
-    elif markup_no == 5: # ReStructuredText
+        
+    elif markup_no == Page.MARKUP_REST:
         content = apply_restructuretext(content, page_msg)
-    elif markup_no == 6: # Creole wiki markup
+        
+    elif markup_no == Page.MARKUP_CREOLE:
         content = apply_creole(content)
 
     return mark_safe(content) # turn djngo auto-escaping off

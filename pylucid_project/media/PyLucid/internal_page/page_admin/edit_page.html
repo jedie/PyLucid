@@ -64,5 +64,21 @@
         </li>
         {% endfor %}
     </ul>
+    
+    <fieldset>
+    <legend>{% trans 'Change/convert markup' %}</legend>
+    <ul id="input_fields">
+        {% for field in markup_form %}
+            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+            <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+            {{ field }}
+            <input type="submit" name="submit_{{ field.html_name }}" value="{% trans 'preview' %}" />
+            <br />
+            <span class="field_help_text">{{ field.help_text }}</span>
+            {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    </fieldset>
 </form>
 </fieldset>
