@@ -24,7 +24,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from PyLucid.tools.content_processors import apply_markup, fallback_markup
-from PyLucid.models.Page import MARKUPS
+from PyLucid.models import Page
 
 
 class BlogComment(models.Model):
@@ -204,7 +204,7 @@ class BlogEntry(models.Model):
     )
     content = models.TextField(_('Content'))
     markup = models.IntegerField(
-        max_length=1, choices=MARKUPS,
+        max_length=1, choices=Page.MARKUP_CHOICES,
         help_text="the used markup language for this entry",
     )
 
