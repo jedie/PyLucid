@@ -16,7 +16,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
-from PyLucid.models.Page import MARKUPS
+from PyLucid.models import Page
 
 DONT_CHECK = 0
 REJECT_SPAM = 1
@@ -56,7 +56,7 @@ class PreferencesForm(forms.Form):
         ),
     )
     default_markup = forms.IntegerField(
-        widget=forms.Select(choices=MARKUPS),
+        widget=forms.Select(choices=Page.MARKUP_CHOICES),
         initial = 6,
         help_text=_("the used markup language for this entry"),
     )
