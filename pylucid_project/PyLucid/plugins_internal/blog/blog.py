@@ -123,6 +123,7 @@ class blog(PyLucidBasePlugin):
             entry.html = entry.html_content(self.context)
 
             if full_comments:
+                context["detail_view"] = True
                 # Display all comments
                 comments = entry.blogcomment_set
                 if self.request.user.is_staff:
@@ -133,9 +134,8 @@ class blog(PyLucidBasePlugin):
 
                 entry.all_comments = comments
             else:
-                entry.detail_url = self.URLs.methodLink(
-                    "detail", entry.id
-                )
+                context["detail_view"] = False
+                entry.detail_url = self.URLs.methodLink("detail", entry.id)
                 entry.comment_count = entry.blogcomment_set.count()
 
             if self.request.user.is_staff: # Add admin urls

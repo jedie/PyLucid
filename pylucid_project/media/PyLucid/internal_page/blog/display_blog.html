@@ -47,7 +47,7 @@
         {% endfor %}
         </fieldset>
 
-        {% if entry.all_comments %}
+        {% if detail_view %}
             <fieldset class="comments"><legend>comments</legend>
             <ul>
             {% for comment in entry.all_comments %}
@@ -74,6 +74,8 @@
                       {{ comment.html_content }}
                   </fieldset>
                 </li>
+            {% empty %}
+                there exist no comment
             {% endfor %}
             </ul>
             </fieldset>
