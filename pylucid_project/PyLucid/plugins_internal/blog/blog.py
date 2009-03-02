@@ -508,6 +508,11 @@ class blog(PyLucidBasePlugin):
             is_public = True
 
         content = escape_django_tags(content)
+        
+        if self.request.user.is_authenticated():
+            createby = self.request.user
+        else:
+            createby = None
 
         new_comment = BlogComment(
             blog_entry = blog_entry,
@@ -517,7 +522,7 @@ class blog(PyLucidBasePlugin):
             homepage = clean_data["homepage"],
             content = content,
             is_public = is_public,
-            createby = self.request.user,
+            createby = createby,
         )
         # We must save the entry got get the id of it for the notify mail
         new_comment.save()
