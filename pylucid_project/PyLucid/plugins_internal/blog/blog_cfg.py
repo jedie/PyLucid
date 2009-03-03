@@ -18,15 +18,17 @@ from django.utils.translation import ugettext as _
 
 from PyLucid.models import Page
 
-DONT_CHECK = 0
-REJECT_SPAM = 1
-MODERATED = 2
 
-ACTIONS = (
+DONT_CHECK  = u"D"
+REJECT_SPAM = u"R"
+MODERATED   = u"M"
+
+CHECK_REFERER_CHOICES = (
     (DONT_CHECK,    _("don't check")),
     (REJECT_SPAM,   _("reject as spam")),
     (MODERATED,     _("hide, for later moderation")),
 )
+
 
 class PreferencesForm(forms.Form):
     """
@@ -36,7 +38,7 @@ class PreferencesForm(forms.Form):
     partial word. Be carefull with 'spam_keywords'.
 
     More information: http://www.pylucid.org/_goto/165/blog/
-    """
+    """    
     blog_title = forms.CharField(
         initial = "blog",
         help_text = _(
@@ -141,7 +143,7 @@ class PreferencesForm(forms.Form):
     )
 
     check_referer = forms.ChoiceField(
-        choices = ACTIONS,
+        choices = CHECK_REFERER_CHOICES,
         initial = MODERATED,
         help_text = _(
             "What to do, if http referer contains not your domain?"

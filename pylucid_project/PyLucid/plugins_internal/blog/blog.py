@@ -592,12 +592,9 @@ class blog(PyLucidBasePlugin):
         if check_referer == REJECT_SPAM:
             # We should it rejected as spam
             raise RejectSpam(msg)
-        elif check_referer == MODERATED:
+        else:
             # We should moderate the comment
             raise ModerateSubmit(msg)
-        else:
-            # Should never appear
-            raise AttributeError("Wrong check_referer value?!?")
 
     def _delete_comment(self, comment_entry):
         """
