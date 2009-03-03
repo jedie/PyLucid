@@ -37,6 +37,16 @@ ONE_BROWSER_TRACEBACK = True
 # Run test with:
 PAGE_ID = 1
 
+
+BLOG_POST_DATA1 = {
+    u'headline': u'A unittest blog entry', 
+    u'markup': u'6', # Creole
+    u'content': u'The unittest blog content',
+    u'is_public': u'on', 
+    u'new_tags': u'unittest blog tags',
+}
+
+
 class TestPluginBlog(tests.TestCase):
     one_browser_traceback = ONE_BROWSER_TRACEBACK
     _open = []
@@ -102,6 +112,34 @@ class TestPluginBlog(tests.TestCase):
             must_not_contain=("Traceback", "Error",),
         )
         
+    def test_blog_entry_preview(self):
+        """
+        Test the markup preview
+        """
+        self.login("staff")
+        
+        post_data = {
+            u'headline': u'preview test', 
+            u'markup': u'6', # Creole
+            u'content': u'[[url|title]]\n*list1\n*list2',
+            u'preview': u'preview'
+        }
+        
+        # Create a new blog entry
+        response = self.client.post(self.add_entry_url, post_data)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(
+            response,
+            must_contain=(
+                '<p><a href="url">title</a></p>',
+                "<li>list1</li>", "<li>list2</li>",
+                "preview",
+                "Create a new blog entry",
+                "save", "preview", "abort",
+            ),
+            must_not_contain=("Traceback", "Error",),
+        )
+        
     def test_create_new_blog_entry(self):
         """
         as staff user:
@@ -109,19 +147,12 @@ class TestPluginBlog(tests.TestCase):
         2. Leave a comment 
         """
         self.login("staff")
-         
+        
+        post_data = BLOG_POST_DATA1.copy()
+        post_data.update({u'save': u'save'})
+        
         # Create a new blog entry
-        response = self.client.post(
-            self.add_entry_url,
-            {
-                u'headline': u'A unittest blog entry', 
-                u'markup': u'6', # Creole
-                u'content': u'The unittest blog content',
-                u'is_public': u'on', 
-                u'new_tags': u'unittest blog tags',
-                u'save': u'save',
-            }
-        )
+        response = self.client.post(self.add_entry_url, post_data)
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(
             response,

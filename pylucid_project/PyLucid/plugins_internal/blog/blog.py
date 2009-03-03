@@ -27,19 +27,15 @@ import os, datetime, posixpath
 from django.conf import settings
 from django.http import HttpResponse
 from django.core.mail import send_mail
-#from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
-#from django import forms
-#from django.forms import ValidationError
-#from django.contrib.syndication.feeds import Feed, FeedDoesNotExist
 
 # from PyLucid
-from PyLucid.tools.utils import escape
+from PyLucid.tools.syndication_feed import FeedFormat, FEED_FORMAT_INFO
+from PyLucid.tools.content_processors import apply_markup
 from PyLucid.system.BasePlugin import PyLucidBasePlugin
 from PyLucid.tools.utils import escape_django_tags
 from PyLucid.system.page_msg import PageMessages
-#from PyLucid.tools.forms_utils import InternalURLField
-from PyLucid.tools.syndication_feed import FeedFormat, FEED_FORMAT_INFO
+from PyLucid.tools.utils import escape
 
 # from blog plugin
 from PyLucid.plugins_internal.blog.forms import BlogCommentForm, \
@@ -284,10 +280,24 @@ class blog(PyLucidBasePlugin):
             "url_abort": self.URLs.methodLink("lucidTag")
         }
 
+        if blog_obj == None: # a new blog entry should be created
+            context["legend"] = _("Create a new blog entry")
+        else:
+            context["legend"] = _("Edit a existing blog entry")
+
         if self.request.method == 'POST':
             form = BlogEntryForm(self.request.POST)
             #self.page_msg(self.request.POST)
-            if form.is_valid():
+            if form.is_valid() and "preview" in self.request.POST:
+                # Do only a preview of the blog content with the markup
+                preview_content = apply_markup(
+                    content   = form.cleaned_data["content"],
+                    context   = self.context,
+                    markup_no = form.cleaned_data["markup"],
+                )
+                context["preview_content"] = preview_content
+            elif form.is_valid():
+                # Save the new/edited blog entry
                 new_tags = form.cleaned_data.pop("new_tags") # ListCharField
 
                 if blog_obj == None: # a new blog entry should be created
@@ -323,12 +333,10 @@ class blog(PyLucidBasePlugin):
                 return self.lucidTag()
         else:
             if blog_obj == None:
-                context["legend"] = _("Create a new blog entry")
                 form = BlogEntryForm(
                     initial={"markup": self.preferences["default_markup"],}
                 )
             else:
-                context["legend"] = _("Edit a existing blog entry")
                 form = BlogEntryForm(instance=blog_obj)
 
         context["form"]= form
@@ -486,8 +494,8 @@ class blog(PyLucidBasePlugin):
 
         Send notify emails.
         """
+        #self.page_msg(self.request.POST)
         content = clean_data["content"]
-
         try:
             mail_title = self._check_comment_submit(blog_entry, content)
         except RejectSpam, msg:

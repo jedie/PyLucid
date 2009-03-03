@@ -9,6 +9,13 @@ legend {
     background-color: #FFF;
 }
 /* -------------------------------------------------------------------------- */
+#blog_preview {
+    background-color: #EEE;
+}
+#blog_preview, #blog_preview legend {
+    border-color: #A00;
+}
+/* -------------------------------------------------------------------------- */
 #doc {
     padding: 0px;
     margin: 0px;
