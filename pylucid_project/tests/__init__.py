@@ -80,9 +80,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3, see LICENSE.txt for more details.
@@ -266,7 +266,7 @@ class TestCase(DjangoTestCase):
     fixtures = [FIXTURE_FILE.name]
 
     # A simple regex to get all html links out of a page content
-    HREF_RE = re.compile('<a href="(.+?)".*?>(.+?)</a>')
+    HREF_RE = re.compile('<a href="(.+?)".*?>(.+?)</a>', re.MULTILINE | re.DOTALL)
 
     def assertResponse(self, response, must_contain=(), must_not_contain=()):
         """
@@ -411,7 +411,9 @@ class TestCase(DjangoTestCase):
         """
         Return all links found with the HREF_RE.
         """
-        return self.HREF_RE.findall(content)
+        links = self.HREF_RE.findall(content)
+        links = [(i[0], i[1].strip()) for i in links]
+        return links
 
     # _________________________________________________________________________
     # link snapshot:
