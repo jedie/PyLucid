@@ -13,7 +13,7 @@
 <table id="page_list">
   <tr>
     <th></th>
-    <th>textile/creole copy&amp;paste</th>
+    <th>creole copy&amp;paste</th>
     <th>page title</th>
   </tr>
 {% for page in page_list %}
@@ -21,7 +21,7 @@
     <td><a href="/{{ prefix }}/{{ page.id }}/{{ page.shortcut }}/">{{ page.level_name }}</a></td>
     <td title="copy&amp;paste this into your cms page">
     <input type="text" size="40" name="link"
-    value="[/{{ prefix }}/{{ page.id }}/{{ page.shortcut }}/ {{ page.name }}]"
+    value="[[/{{ prefix }}/{{ page.id }}/{{ page.shortcut }}/|{{ page.name }}]]"
     onmouseover="this.select()"
     onclick="this.select()"
     >
