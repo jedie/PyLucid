@@ -35,6 +35,10 @@ from django.utils.safestring import mark_safe
 TEMPLATE_DEBUG = False
 #TEMPLATE_DEBUG = True
 
+POS_MIDDLE = "middle"
+POS_FIRST = "first"
+POS_LAST = "last"
+
 class main_menu(PyLucidBasePlugin):
 
     def lucidTag(self, min=1, max=0):
@@ -48,6 +52,9 @@ class main_menu(PyLucidBasePlugin):
 
         # Get the menu tree dict from the database:
         menu_tree = get_main_menu_tree(self.request, self.current_page_id)
+        
+        # Add 'position' meta data
+        menu_tree = self.add_meta_data(menu_tree)
 
         # Create from the tree dict a nested html list.
         menu_html = self.get_html(menu_tree)
@@ -58,6 +65,21 @@ class main_menu(PyLucidBasePlugin):
             "max": max
         }
         self._render_template("main_menu_ul", context, debug=TEMPLATE_DEBUG)
+
+    def add_meta_data(self, menu_tree):
+        """
+        Add the meta data 'position' to all menu_tree entries
+        """
+        for entry in menu_tree:
+            entry["position"] = POS_MIDDLE
+            
+            if entry.has_key("subitems"):
+                entry["subitems"] = self.add_meta_data(entry["subitems"])
+        
+        menu_tree[0]["position"] = POS_FIRST
+        menu_tree[-1]["position"] = POS_LAST
+       
+        return menu_tree
 
 
     def get_html(self, menu_data, parent=None):
@@ -70,35 +92,26 @@ class main_menu(PyLucidBasePlugin):
             # Generate the absolute url to the page:
             href = []
             if parent:
-                href.append(parent)
+                href.append(parent["href"].strip("/"))
             href.append(entry["shortcut"])
             href = "/".join(href)
 
             entry["href"] = "/" + href + "/"
 
-            if (int(entry["level"]) <= self.max or self.max<self.min) and \
-                                            int(entry["level"]) >= self.min:
-
+            if (entry["level"] <= self.max or self.max<self.min) and entry["level"] >= self.min:
                 if entry.has_key("subitems"):
                     # go recusive deeper into the menu entries
-                    entry["submenu"] = self.get_html(
-                        entry["subitems"], parent=href
-                    )
+                    entry["submenu"] = self.get_html(entry["subitems"], parent=entry)
                 else:
                     entry["submenu"] = ""
 
-                # Add min, max set in the lucidTag method to the local context 
-                entry["min"] = self.min
-                entry["max"] = self.max
-
                 # Render one menu entry
-                html = self._get_rendered_template(
-                    "main_menu_li", entry, debug=TEMPLATE_DEBUG
-                )
+                html = self._get_rendered_template("main_menu_li", entry, debug=TEMPLATE_DEBUG)
                 result.append(html)
-            elif int(entry["level"]) < self.min:
+            elif entry["level"] < self.min:
                 if entry.has_key("subitems"):
-                    html = self.get_html(entry["subitems"],parent=href)
+                    # add html code from all subitems
+                    html = self.get_html(entry["subitems"], parent=entry)
                     result.append(html)
 
         if result == []:

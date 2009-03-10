@@ -1,15 +1,17 @@
 {% spaceless %}
 
 {% if showlinks %}<li>
-<a href="{{ href }}" title="{{ title }}"{% if is_current or active %} class="{% if active %}active{% endif %}{% if is_current %} current{% endif %}"{% endif %}>{{ name }}</a>
+   <a href="{{ href }}" title="{{ title }}" class="level{{ level }} {{ position }}{% if active %} active{% endif %}{% if is_current %} current{% endif %}">{{ name }}</a>
 {% endif %}
 
   {% if submenu %}
-  <ul>
-    {{ submenu }}
-  </ul>
+      <ul>
+        {{ submenu }}
+      </ul>
   {% endif %}
   
-{% if showlinks %}</li>{% endif %}
+{% if showlinks %}
+    </li>
+{% endif %}
 
 {% endspaceless %}
