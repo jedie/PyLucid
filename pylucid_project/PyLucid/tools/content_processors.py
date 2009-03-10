@@ -146,7 +146,7 @@ def apply_creole(content):
     document = Parser(content).parse()
     
     # Build html code from document tree
-    return HtmlEmitter(document, macros=PyLucid_creole_macros, verbose=1).emit()
+    return HtmlEmitter(document, macros=PyLucid_creole_macros, verbose=0).emit()
 
 from PyLucid.models import Page
 

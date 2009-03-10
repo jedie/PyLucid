@@ -6,12 +6,8 @@
 
 from PyLucid.system.hightlighter import make_html
 
-def html(args, text):
-    """
-    Macro tag <<html>>...<</html>>
-    Pass-trought for html code (or other stuff) 
-    """
-    return text
+# use all existing macros
+from PyLucid.system.markups.creole.default_macros import *
 
 def code(args, text):
     """
