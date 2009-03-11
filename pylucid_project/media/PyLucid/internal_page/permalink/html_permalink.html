@@ -1,0 +1,11 @@
+{% spaceless %}
+{% if page %}
+    <a href="{{ page.get_absolute_url }}" title="{{ page.title }}">{{ page.name }}</a>
+{% else %}
+    {% if msg %}
+        [{{ msg }}]
+    {% else %}
+        <a href="/{{ prefix }}/{{ id }}/{{ shortcut }}/">{{ shortcut }}</a>
+    {% endif %}
+{% endif %}
+{% endspaceless %}
