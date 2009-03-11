@@ -13,15 +13,37 @@
 <table id="page_list">
   <tr>
     <th></th>
-    <th>creole copy&amp;paste</th>
+    <th>{{ format }} copy&amp;paste
+        <ul id="format_buttons">
+        {% for format in formats %}
+        <li>
+            <a href="?format={{ format }}" title="Use '{{ format }}' link syntax">
+                <button type="button">{{ format }}</button>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    </th>
     <th>page title</th>
   </tr>
 {% for page in page_list %}
   <tr>
     <td><a href="/{{ prefix }}/{{ page.id }}/{{ page.shortcut }}/">{{ page.level_name }}</a></td>
     <td title="copy&amp;paste this into your cms page">
-    <input type="text" size="40" name="link"
+    <input type="text" name="link" size="70%"
+    
+    {% ifequal format "creole" %}
     value="[[/{{ prefix }}/{{ page.id }}/{{ page.shortcut }}/|{{ page.name }}]]"
+    {% endifequal %}
+    
+    {% ifequal format "html" %}
+    value='<a href="/{{ prefix }}/{{ page.id }}/{{ page.shortcut }}/" title="{{ page.title }}">{{ page.name }}</a>'
+    {% endifequal %}
+    
+    {% ifequal format "plugin" %}
+    value='&#x7B;% lucidTag permalink id="{{ page.id }}" shortcut="{{ page.shortcut }}" %&#x7D;'
+    {% endifequal %}
+    
     onmouseover="this.select()"
     onclick="this.select()"
     >

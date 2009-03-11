@@ -1,3 +1,8 @@
+#page_list {
+  width: 100%;
+  margin: auto;
+  table-layout:auto;
+}
 #page_list a {
   text-decoration:none;
   color: #000;
@@ -7,6 +12,10 @@
     border:0px none;
     margin:0px;
     padding:0px;
+    width: 100%;
+}
+#page_list tr {
+  width: 100%
 }
 #page_list tr td {
     border: 1px solid #fff;
@@ -32,7 +41,7 @@ html {
   border:1px solid black;
 }
 #content {
-  padding:20px;
+  padding: 20px;
   background-color: #FFFFE5;
   font-size: 0.9em;
 }
@@ -43,4 +52,28 @@ pre {
 .big_hr {
   border:5px solid gray;
   margin-top: 7em;
+}
+/* -----------------------------------------------------------------------------
+    format_buttons
+----------------------------------------------------------------------------- */
+#format_buttons {
+    list-style-type:none;
+    padding: auto;
+}
+#format_buttons li {
+    float: left;
+    padding: 5px 10px 5px 10px;
+    background-color: #09C;
+}
+#format_buttons a {
+    text-decoration:none;
+}
+#format_buttons .resize_buttons {
+    width: 30px;
+}
+/* -------------------------------------------------------------------------- */
+hr.seperator {
+    border: 0;
+    height: 0;
+    clear: both;
 }

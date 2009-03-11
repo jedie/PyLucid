@@ -250,10 +250,13 @@ class page_admin(PyLucidBasePlugin):
         
         if dest_markup == Page.MARKUP_CREOLE:
             try:
+                from django.utils.encoding import smart_unicode
+                content = smart_unicode(content) # FIXME?
                 new_content = html2creole(
-                    html_string=content, debug=self.request.debug
+                    html_string=content, debug=False#self.request.debug
                 )
             except Exception, err:
+                if self.request.debug: raise
                 self.page_msg.red(
                     "Error converting markup to '%s': %s" % (markup_name, err)
                 )
@@ -740,13 +743,21 @@ class page_admin(PyLucidBasePlugin):
     #___________________________________________________________________________
 
     def page_link_list(self):
-
+        formats = ("creole", "html", "plugin")
+        format = self.request.GET.get('format')
+        if not format in formats:
+            format = formats[0]
+        
         page_list = flat_tree_list()
 
         context = {
             "page_list": page_list,
             "prefix": settings.PERMALINK_URL_PREFIX,
-            "add_data_tag": mark_safe(settings.ADD_DATA_TAG)
+            "plugin_prefix": self.URLs.commandLink("permalink", "build"),
+            "add_data_tag": mark_safe(settings.ADD_DATA_TAG),
+            
+            "formats": formats,
+            "format": format,
         }
         content = self._get_rendered_template("page_link_list", context)
         # insert CSS data from the internal page into the rendered page:
