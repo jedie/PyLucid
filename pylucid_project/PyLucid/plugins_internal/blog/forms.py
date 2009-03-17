@@ -51,11 +51,7 @@ class AdminCommentForm(BlogCommentForm):
     """
     class Meta:
         model = BlogComment
-        fields = (
-            'ip_address', 'person_name', 'email', "homepage",
-            "content", "is_public",
-            "createtime", "lastupdatetime", "createby", "lastupdateby"
-        )
+        exclude=('blog_entry',)
 
 class BlogEntryForm(forms.ModelForm):
     """
