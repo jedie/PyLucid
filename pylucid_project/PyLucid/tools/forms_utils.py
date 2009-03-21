@@ -5,13 +5,15 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
+import unittest
 
 from django import forms
 from django.forms import ValidationError
@@ -99,19 +101,47 @@ class StripedCharField(forms.CharField):
 
 class ListCharField(forms.CharField):
     """
-    Items seperated by spaces.
+    Items seperated by spaces or other characters.
+    If the initial is a list/tuple, it would be joined with the seperator.
 
     >>> f = ListCharField()
     >>> f.clean(' one two  tree')
     [u'one', u'two', u'tree']
+
+    >>> f = ListCharField(seperator="\\n")
+    >>> f.clean('one\\ntwo\\n\\ntree\\n\\n')
+    [u'one', u'two', u'tree']
     """
+    def __init__(self, seperator=" ", *args, **kwargs):
+        self.seperator = seperator
+        if "initial" in kwargs:
+            initial = kwargs["initial"]
+            if isinstance(initial, (list, tuple)):
+                kwargs["initial"] = self.seperator.join(initial)
+        super(ListCharField, self).__init__(*args, **kwargs)
+
     def clean(self, value):
         raw_value = super(ListCharField, self).clean(value)
         value = raw_value.strip()
-        items = [i.strip() for i in value.split(" ")]
+        items = [i.strip() for i in value.split(self.seperator)]
         items = [i for i in items if i] # eliminate empty items
         return items
 
+class ListCharFieldTest(unittest.TestCase):
+    def test(self):
+        """ Test if a give list would be joined with the seperator"""
+        class TestForm(forms.Form):
+            foo = ListCharField(
+                seperator="\n", initial=[u'one', u'two', u'tree']
+            )
+
+        f = TestForm()
+        self.failUnlessEqual(
+            f.as_p(),
+            '<p><label for="id_foo">Foo:</label> '
+            '<input type="text" name="foo" value="one\ntwo\ntree" id="id_foo" />'
+            '</p>'
+        )
 
 class InternalURLField(forms.CharField):
     """
@@ -155,11 +185,11 @@ class InternalURLField(forms.CharField):
 class ModelForm2(forms.ModelForm):
     """
     A model form witch don't validate unique fields.
-    
+
     This ModelForm is only for generating the forms and not for create/update
     any database data. So a field unique Test would like generate Errors like:
         User with this Username already exists.
-        
+
     see also:
     http://www.jensdiemer.de/_command/118/blog/detail/30/ (de)
     http://www.python-forum.de/topic-16000.html (de)
@@ -177,3 +207,5 @@ if __name__ == "__main__":
         verbose=False
     )
     print "DocTest end."
+
+    unittest.main()
