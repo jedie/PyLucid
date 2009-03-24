@@ -1,122 +1,36 @@
-"""
-    PyLucid.urls
-    ~~~~~~~~~~~~
-
-    The urls, manage the PyLucid CMS.
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: 2008-08-15 10:37:58 +0200 (Fr, 15 Aug 2008) $
-    $Rev: 1728 $
-    $Author: JensDiemer $
-
-    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v3 or above, see LICENSE for more details.
-"""
-
-from django.contrib import admin
-from django.conf.urls.defaults import include, patterns
+# -*- coding: utf-8 -*-
 
 from django.conf import settings
+from django.conf.urls.defaults import *
+from django.contrib.admin.views.decorators import staff_member_required as staff
+from django.views.generic.list_detail import object_detail
 
-handler404 = 'django.views.defaults.page_not_found'
-handler500 = 'django.views.defaults.server_error'
+from django.contrib import admin
+from pylucid_project.apps.pylucid.urls import dynamic_cms_urls
 
-#______________________________________________________________________________
-# The install section:
-
-# We insert the _install URLs only, if the _install section is activated.
-if settings.ENABLE_INSTALL_SECTION == True:
-    urls = (
-        #_____________________________________
-        # RUN A INSTALL VIEW
-        (
-            (
-                '^%s/'
-                '(?P<module_name>[^/]*?)/'
-                '(?P<method_name>[^/]*?)/'
-                '(?P<url_args>.*?)$'
-            ) % settings.INSTALL_URL_PREFIX,
-            "PyLucid.install.index.run_method",
-        ),
-        #_____________________________________
-        # LOGOUT
-        (
-            '^%s/logout/$' % settings.INSTALL_URL_PREFIX,
-            'PyLucid.install.index.logout'
-        ),
-        #_____________________________________
-        # INSTALL MENU
-        (
-            '^%s' % settings.INSTALL_URL_PREFIX,
-            'PyLucid.install.index.menu'
-        ),
-    )
-else:
-    # _install section is deactivated -> start with a empty urls
-    urls = ()
-
-
-#______________________________________________________________________________
-# The normal views:
-
-# DJANGO ADMIN PANEL urls
-admin.autodiscover()
-
-urls += (
-    #_____________________________________
-    # COMMAND VIEW
-    (
-        (
-            '^%s/'
-            '(?P<page_id>\d+)/'
-            '(?P<module_name>[^/]*?)/'
-            '(?P<method_name>[^/]*?)/'
-            '(?P<url_args>.*?)$'
-        ) % settings.COMMAND_URL_PREFIX,
-        'PyLucid.index.handle_command'
-    ),
+urlpatterns = patterns('',
     #_____________________________________
     # DJANGO ADMIN PANEL
     (r'^%s/(.*)' % settings.ADMIN_URL_PREFIX, admin.site.root),
-    #_____________________________________
-    # permalink
-    (
-        (
-            '^%s/'
-            '(?P<page_id>\d+)/(.*?)$'
-        ) % getattr(settings, "PERMALINK_URL_PREFIX", "_goto"),
-        'PyLucid.index.permalink'
-    ),
+    
+    
 )
 
-
-#______________________________________________________________________________
-# Dynamic urls:
-
-if getattr(settings, "REDIRECT_OLD_PYLUCID_URL", False):
-    # Redirect old PyLucid (with "index.py") to the new URLs.
-    # Only usefull, if you have a old PyLucid page used in the past ;)
-    urls += (r'^index.py(.*?)$', 'PyLucid.index.redirect'),
-
+"""
+FIXME: So einfach geht es nicht wirklich. Funktioniert zwar schon, aber ich denke, 
+die urls werden nur einmal beim start der Instanz initialisiert. Wenn man also eine CMS
+Seite hinzufügt, sieht man sie erst in den urls, nachdem der z.B. fastCGI Prozess neu gestartet
+ist, oder?
+"""
+urlpatterns += dynamic_cms_urls()
 
 # serve static files
 if getattr(settings, "SERVE_STATIC_FILES", False):
     # Should only enabled, if the django development server used.
-    urls += (
-        '^%s(?P<path>.*)$' % settings.MEDIA_URL.lstrip("/"),
+    urlpatterns += patterns('',
+        '^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"),
         'django.views.static.serve',
-        {'document_root': './%s' % settings.MEDIA_URL},
-    ),
+        {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}
+    )
 
-
-#______________________________________________________________________________
-# normal CMS page view
-
-# Important: This entry must be as the last!
-# A normal CMS page url simply consists of the page shortcuts.
-# The shortcuts contains only these chars: [a-zA-Z0-9_/-]
-urls += (r'([\w/-]*)', 'PyLucid.index.index'),
-
-
-urlpatterns = patterns('', *urls)
+admin.autodiscover()

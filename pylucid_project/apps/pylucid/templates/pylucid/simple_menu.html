@@ -1,0 +1,8 @@
+<h1>simple menu</h1>
+<ul>
+{% for page in pages %}
+    <li>
+        <a href="{{ page.get_absolute_url }}">{{ page.get_absolute_url }}</a>
+    </li>
+{% endfor %}
+</ul>
