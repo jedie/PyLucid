@@ -5,7 +5,7 @@
   </p>
   <strong>Note:</strong>
   <ul>
-    <li>The reset Link expiry on {{ expiry_date }} (in {{ expiry_time }}sec.)</li>
+    <li>The reset Link expiry on {{ expiry_date|date:_("DATETIME_FORMAT") }} (in {{ expiry_time }}sec.)</li>
     <li>You must use the reset Link with the same Browser</li>
     {% if expire_at_browser_close %}
     <li><strong>Importand:</strong> You sould not close your Browser! (Session expire at browser close.)</li>

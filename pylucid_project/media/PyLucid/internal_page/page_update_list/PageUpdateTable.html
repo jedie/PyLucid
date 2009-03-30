@@ -7,7 +7,7 @@
   </tr>
   {% for item in page_updates %}
   <tr>
-    <td>{{ item.lastupdatetime }}</td>
+    <td>{{ item.lastupdatetime|date:_("DATETIME_FORMAT") }}</td>
     <td><a href="{{ item.get_absolute_url }}">{% if item.title %}{{ item.title|escape }}{% else %}{{ item.name|escape }}{% endif %}</a></td>
     <td>{{ item.lastupdateby }}</td>
   </tr>

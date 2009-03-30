@@ -33,7 +33,7 @@
         <div class="content">{{ entry.html }}</div>
 
         <small><p class="date_info">
-            {% if entry.lastupdateby %}(Last update: {{ entry.lastupdatetime|date:"D d M Y H:i" }} by {{ entry.lastupdateby }}.){% endif %}
+            {% if entry.lastupdateby %}(Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.){% endif %}
         </p></small>
 
         <fieldset class="taglist"><legend>tags</legend>
@@ -60,7 +60,7 @@
                         <small class="headline_info">
                           {% blocktrans with comment.createtime|timesince as time %}Before {{ time }}{% endblocktrans %}
                           IP: {{ comment.ip_address }}
-                          {% if comment.lastupdateby %}<br />(Last update {{ comment.lastupdatetime }} by {{ comment.lastupdateby }}){% endif %}
+                          {% if comment.lastupdateby %}<br />(Last update {{ comment.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ comment.lastupdateby }}){% endif %}
                         </small>
                     </legend>
 
