@@ -164,7 +164,7 @@ class Page08(models.Model):
 
 
 
-class Template(models.Model):
+class Template08(models.Model):
     name = models.CharField(unique=True, max_length=150)
 
     createtime = models.DateTimeField(auto_now_add=True)
@@ -190,7 +190,7 @@ class Template(models.Model):
 
 
 
-class Style(models.Model):
+class Style08(models.Model):
     name = models.CharField(unique=True, max_length=150)
 
     createtime = models.DateTimeField(auto_now_add=True)
