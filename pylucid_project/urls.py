@@ -1,28 +1,36 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
+"""
+    global url patterns
+    ~~~~~~~~~~~~~~~~~~~
+
+
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate$
+    $Rev$
+    $Author:$
+
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
 
 from django.conf import settings
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, url, include
 from django.contrib.admin.views.decorators import staff_member_required as staff
 from django.views.generic.list_detail import object_detail
 
 from django.contrib import admin
-from pylucid_project.apps.pylucid.urls import dynamic_cms_urls
 
 urlpatterns = patterns('',
     #_____________________________________
     # DJANGO ADMIN PANEL
     (r'^%s/(.*)' % settings.ADMIN_URL_PREFIX, admin.site.root),
     
+    ('^update/', include('apps.pylucid_update.urls')),
     
+    ('^', include('apps.pylucid.urls')),
 )
-
-"""
-FIXME: So einfach geht es nicht wirklich. Funktioniert zwar schon, aber ich denke, 
-die urls werden nur einmal beim start der Instanz initialisiert. Wenn man also eine CMS
-Seite hinzufügt, sieht man sie erst in den urls, nachdem der z.B. fastCGI Prozess neu gestartet
-ist, oder?
-"""
-urlpatterns += dynamic_cms_urls()
 
 # serve static files
 if getattr(settings, "SERVE_STATIC_FILES", False):

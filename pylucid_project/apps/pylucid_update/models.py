@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
 """
     PyLucid.models.Page
     ~~~~~~~~~~~~~~~~~~~
@@ -92,10 +93,10 @@ class Page08(models.Model):
     )
 
     template = models.ForeignKey(
-        "Template", to_field="id", help_text="the used template for this page"
+        "Template08", to_field="id", help_text="the used template for this page"
     )
     style = models.ForeignKey(
-        "Style", to_field="id", help_text="the used stylesheet for this page"
+        "Style08", to_field="id", help_text="the used stylesheet for this page"
     )
     markup = models.IntegerField(
         db_column="markup_id", # Use the old column name.
@@ -146,7 +147,7 @@ class Page08(models.Model):
 
     class Meta:
         db_table = 'PyLucid_page'
-        app_label = 'PyLucid'
+        app_label = 'PyLucid_Update'
 
     def get_absolute_url(self):
         """
@@ -185,7 +186,7 @@ class Template08(models.Model):
 
     class Meta:
         db_table = 'PyLucid_template'
-        app_label = 'PyLucid'
+        app_label = 'PyLucid_Update'
 
 
 
@@ -211,4 +212,4 @@ class Style08(models.Model):
 
     class Meta:
         db_table = 'PyLucid_style'
-        app_label = 'PyLucid'
+        app_label = 'PyLucid_Update'

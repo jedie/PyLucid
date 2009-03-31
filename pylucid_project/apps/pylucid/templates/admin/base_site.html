@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}PyLucid - {{ title }}{% endblock %}
+
+{% block app_extrahead %}
+<!-- app_extrahead block start -->
+{# stylesheets for all PyLucid views #}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+<!-- app_extrahead block end -->
+{% endblock %}
+
+{% block branding %}PyLucid{% endblock %}
+
+{% block footer %}
+<!-- app footer block start -->
+<span class="page_stats">{% trans 'page stats:' %} <!-- script_duration --></span>
+<!-- app footer block end -->
+{% endblock %}

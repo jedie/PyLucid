@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
     PyLucid.models.Page
@@ -20,6 +20,7 @@ from django.db import models
 from django.contrib import admin
 from django.conf import settings
 from django.core.cache import cache
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 
@@ -32,6 +33,8 @@ class PageTree(models.Model):
     )
 
     id = models.AutoField(primary_key=True)
+
+    site = models.ForeignKey(Site, verbose_name=_('Site'))
 
     parent = models.ForeignKey("self", null=True, blank=True, help_text="the higher-ranking father page")
     position = models.SmallIntegerField(default=0,
@@ -46,18 +49,23 @@ class PageTree(models.Model):
 
     createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
-    createby = models.ForeignKey(User, editable=False, related_name="page_createby",
+    createby = models.ForeignKey(User, editable=False, related_name="pagetree_createby",
         help_text="User how create the current page.",)
-    lastupdateby = models.ForeignKey( User, editable=False, related_name="page_lastupdateby",
+    lastupdateby = models.ForeignKey( User, editable=False, related_name="pagetree_lastupdateby",
         help_text="User as last edit the current page.",)
 
     class Meta:
         unique_together =(("slug","parent"))
+        db_table = 'PyLucid_PageTree'
+#        app_label = 'PyLucid'
 
 
 class Language(models.Model):
     code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=150, help_text="Description of the Language")
+    class Meta:
+        db_table = 'PyLucid_Language'
+#        app_label = 'PyLucid'
 
 
 class PageContent(models.Model):
@@ -84,10 +92,12 @@ class PageContent(models.Model):
 
     createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
-    createby = models.ForeignKey(User, editable=False, related_name="page_createby",
+    createby = models.ForeignKey(User, editable=False, related_name="pagecontent_createby",
         help_text="User how create the current page.",)
-    lastupdateby = models.ForeignKey( User, editable=False, related_name="page_lastupdateby",
+    lastupdateby = models.ForeignKey( User, editable=False, related_name="pagecontent_lastupdateby",
         help_text="User as last edit the current page.",)
 
     class Meta:
         unique_together = (("page","lang"))
+        db_table = 'PyLucid_PageContent'
+#        app_label = 'PyLucid'

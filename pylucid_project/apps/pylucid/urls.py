@@ -1,26 +1,25 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
-    Generate dynamicly urls based on the database tree
+    PyLucid app url patterns
+    ~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate$
+    $Rev$
+    $Author:$
+
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.conf.urls.defaults import url
+from django.conf.urls.defaults import patterns, url
 
-from pylucid_project.apps.pylucid.models import Page08
+from pylucid_project.apps.pylucid.views import root_page, lang_root_page, resolve_url
 
-PAGE_VIEW = 'pylucid_project.apps.pylucid.views.get_page'
-
-def dynamic_cms_urls():
-    result = []
-    pages = Page08.objects.all()
-    for page in pages:
-        page_url = page.get_absolute_url()
-        page_url = page_url.lstrip("/")
-        page_re = '^%s$' % page_url
-        
-        slug = page.shortcut 
-
-        result.append(
-            url(page_re, PAGE_VIEW, kwargs={"page_id": page.id}, name='page-%s' % slug)
-        )
-    return tuple(result)
+urlpatterns = patterns('',
+    url(r'^$', root_page, name='PyLucid-root_page'),
+    url(r'^(?P<lang_code>[a-zA-Z-_]{2,}?)/$', lang_root_page, name='PyLucid-lang_root_page'),
+    url(r'^(?P<lang_code>[a-zA-Z-_]{2,}?)/(?P<url_path>[\w/]+?)/$', resolve_url, name='PyLucid-resolve_url'),
+)

@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}PyLucid update - {{ title }}{% endblock %}
+
+{% block app_extrahead %}
+<!-- app_extrahead block start -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+<!-- app_extrahead block end -->
+{% endblock %}
+
+{% block branding %}PyLucid update{% endblock %}
+
+{% block footer %}
+<!-- app footer block start -->
+<hr/>
+<a href="http://www.pylucid.org/_goto/107/install-PyLucid/">install guide</a>
+|
+<a href="http://www.pylucid.org/_goto/108/Update-PyLucid/">update instructions</a>
+|
+<span class="page_stats">{% trans 'page stats:' %} <!-- script_duration --></span>
+<!-- app footer block end -->
+{% endblock %}
