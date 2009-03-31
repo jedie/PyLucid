@@ -27,10 +27,14 @@ from django.contrib.auth.models import User, Group
 
 class PageTree(models.Model):
     """ The CMS page tree """
+    PAGE_TYPE = 'C'
+    PLUGIN_TYPE = 'P'
+
     TYPE_CHOICES = (
-        ('C', 'CMS-Page'),
-        ('P', 'PluginPage'),
+        (PAGE_TYPE, 'CMS-Page'),
+        (PLUGIN_TYPE , 'PluginPage'),
     )
+    TYPE_DICT = dict(TYPE_CHOICES)
 
     id = models.AutoField(primary_key=True)
 
@@ -51,8 +55,11 @@ class PageTree(models.Model):
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
     createby = models.ForeignKey(User, editable=False, related_name="pagetree_createby",
         help_text="User how create the current page.",)
-    lastupdateby = models.ForeignKey( User, editable=False, related_name="pagetree_lastupdateby",
+    lastupdateby = models.ForeignKey(User, editable=False, related_name="pagetree_lastupdateby",
         help_text="User as last edit the current page.",)
+
+    def __unicode__(self):
+        return u"PageTree '%s' (type: %s)" % (self.slug, self.TYPE_DICT[self.type])
 
     class Meta:
         unique_together =(("slug","parent"))
@@ -63,6 +70,10 @@ class PageTree(models.Model):
 class Language(models.Model):
     code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=150, help_text="Description of the Language")
+
+    def __unicode__(self):
+        return u"Language %s - %s" % (self.code, self.description)
+
     class Meta:
         db_table = 'PyLucid_Language'
 #        app_label = 'PyLucid'
@@ -96,6 +107,9 @@ class PageContent(models.Model):
         help_text="User how create the current page.",)
     lastupdateby = models.ForeignKey( User, editable=False, related_name="pagecontent_lastupdateby",
         help_text="User as last edit the current page.",)
+
+    def __unicode__(self):
+        return u"PageContent '%s' (%s)" % (self.page.slug, self.lang)
 
     class Meta:
         unique_together = (("page","lang"))

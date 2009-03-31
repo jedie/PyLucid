@@ -1,0 +1,26 @@
+{% extends "pylucid_update/base_site.html" %}
+{% load i18n %}
+
+{% block branding %}PyLucid update{% endblock %}
+
+{% block content %}
+<!-- view_content block -->
+<fieldset><legend>update</legend>
+<p>TODO: Insert info text here ;)</p>
+Please select:
+<form method="post" action="{{ url }}">
+<ul id="input_fields">
+    {% for field in form %}
+        <li title="{{ field.help_text }}" class="{{ field.html_name }}{% if field.errors %} error_field{% endif %}">
+        {% if field.errors %}{{ field.errors }}{% endif %}
+        <label for="{{ field.auto_id }}">{{ field.label }}:</label>
+        {{ field }}
+        <span class="field_help_text">{{ field.help_text }}</span>
+    </li>
+    {% endfor %}
+</ul>
+<input type="submit" name="save" value="save" />
+</form>
+</fieldset>
+<!-- view_content block end -->
+{% endblock %}
