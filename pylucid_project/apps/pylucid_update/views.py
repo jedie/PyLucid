@@ -2,8 +2,8 @@
 
 from django.conf import settings
 
-from pylucid_project.apps.pylucid.models import Page
-from pylucid_project.apps.pylucid_update.models import Page
+from pylucid_project.apps.pylucid.models.page import PageTree, PageContent
+from pylucid_project.apps.pylucid_update.models import Page08
 
 def menu(request):
     """ Display a menu with all update view links """

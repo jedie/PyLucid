@@ -6,7 +6,9 @@
 
 from django.conf.urls.defaults import patterns, url
 
-urlpatterns = patterns('Foo.views',
-    url(r'/$',          'menu',     name='PyLucidUpdate-menu'),
-    url(r'/update08/',  'update08', name='PyLucidUpdate-update08'),
+from pylucid_project.apps.pylucid_update.views import menu, update08
+
+urlpatterns = patterns('',
+    url(r'/$',          menu,     name='PyLucidUpdate-menu'),
+    url(r'/update08/',  update08, name='PyLucidUpdate-update08'),
 )
