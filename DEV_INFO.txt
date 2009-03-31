@@ -6,9 +6,9 @@
  Ein paar Notizen für Entwickler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
     Test SQlite Datei
     ~~~~~~~~~~~~~~~~~
-
  SQLite Datei pylucid_project/test.db3 enthält gefüllte Tabellen einer PyLucid v0.8 installation.
  Existierende User:
     Name....: test
@@ -21,9 +21,20 @@
  zurück kann...
  
  
+    Test Sever
+    ~~~~~~~~~~
+ Nach syncdb kann man den test Server starten, mit:
+    ./pylucid_project/manage.py syncdb
+ 
+ 
+    settings
+    ~~~~~~~~
+ Eine settings.py ist direkt dabei, die einfach alles aus settings_example.py importiert.
+ Diese sollte vor dem ersten Release gelöscht werden.
+
+
     urls
     ~~~~
- 
  Momentan existierende urls:
  
   * django admin Panel:
