@@ -1,0 +1,38 @@
+
+
+ TODO: This file should be removed, before first release
+
+
+ Ein paar Notizen für Entwickler
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Test SQlite Datei
+    ~~~~~~~~~~~~~~~~~
+
+ SQLite Datei pylucid_project/test.db3 enthält gefüllte Tabellen einer PyLucid v0.8 installation.
+ Existierende User:
+    Name....: test
+    Passwort: 12345678
+ 
+ Es muß also die neuen v0.9 Tabellen erst angelegt werden: 
+    ./pylucid_project/manage.py syncdb
+    
+ Die existierende test.db3 SQLite Datei sollte nicht comittet werden! Damit man immer schnell 
+ zurück kann...
+ 
+ 
+    urls
+    ~~~~
+ 
+ Momentan existierende urls:
+ 
+  * django admin Panel:
+    * http://127.0.0.1:8000/admin/
+    
+  * PyLucid app:
+    * http://127.0.0.1:8000/
+    * http://127.0.0.1:8000/de/
+    * http://127.0.0.1:8000/de/Foo/
+    
+  * PyLucid update:
+    * http://127.0.0.1:8000/update/ (Sollte wohl besser /admin/update/ heißen?!?)
