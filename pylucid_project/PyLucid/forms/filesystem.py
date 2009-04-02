@@ -1,8 +1,9 @@
+# coding: utf-8
 
 """
     forms around filesystem
     ~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     everything related to filenames, path, direcories etc.
 
 
@@ -32,24 +33,24 @@ BAD_FILE_CHARS = ("..", "/", "\\") # Bad characters in a filename
 class BasePathField(forms.ChoiceField):
     def __init__(self, required=True, label=None, initial=None, help_text=None,
                                                              *args, **kwargs):
-        
+
         widget = forms.Select
         choices = [(i,i) for i in settings.FILESYSTEM_BASEPATHS.keys()]
-        
+
         super(BasePathField, self).__init__(choices, required, widget, label,
                                             initial, help_text, *args, **kwargs)
-        
+
     def clean(self, value):
         path_key = super(BasePathField, self).clean(value)
         try:
             fs_path, url = settings.FILESYSTEM_BASEPATHS[path_key]
-             
+
         except KeyError:
             raise forms.ValidationError("Basepath doesn't exists!")
-        
+
         return path_key, fs_path, url
-        
-        
+
+
 
 class BadCharField(forms.CharField):
     """
