@@ -52,6 +52,7 @@ TEMPLATE_DIRS = (
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
+    'pylucid_project.contrib.dbtemplates.loader.load_template_source',
 )
 
 INSTALLED_APPS = (
@@ -60,8 +61,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+
+    # PyLucid own apps:
     'pylucid_project.apps.pylucid',
     'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
+
+    # external apps shipped and used with PyLucid:
+    'pylucid_project.contrib.dbtemplates',
 )
 
 #_____________________________________________________________________________
