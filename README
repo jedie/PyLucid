@@ -1,34 +1,41 @@
 
+======
+ info
+======
+
+This is the PyLucid v0.9 branch witch is in planing/pre-alpha state.
+
+Users should use the latest v0.8.x version, download:
+
+ * http://sourceforge.net/projects/pylucid/
+
+
+=============
+ description
+=============
+
 PyLucid is a Open Source content management system (CMS) written in Python
 using Django.
 
-A web based install is implemented, so no shell account is needed! You only
-need a standard webserver with Python (at least v2.4) CGI and one of the
-supported database engines (MySQL, SQLite3, Postgre, Oracle and MS-SQL) to run
-PyLucid.
 
-Nearly all output can be customized.
+=======
+ links
+=======
 
-PyLucid/django are WSGI conform, so you can run it as CGI, fastCGI, mod_Python
-and others...
+:homepage:
+  http://www.pylucid.org
+
+:Forum:
+ http://www.pylucid.org/phpBB2/
+
+:IRC:
+ #pylucid on freenode.net
+
+:Bug tracker:
+  http://trac.pylucid.net/
+
+:Sourceforge:
+  http://sourceforge.net/projects/pylucid/
 
 
-More information can you find on our Homepage:
-    http://www.pylucid.org
-
-Install guides:
-    http://www.pylucid.org/_goto/107/install-PyLucid/
-
-How to update a old PyLucid installation:
-    http://www.pylucid.org/_goto/108/Update-PyLucid/
-
-Any Questions? Start a new thread in our forum:
-    http://www.pylucid.org/phpBB2/
-
-Bug tracker:
-	http://trac.pylucid.net/
-
-Sourceforge project homepage:
-	http://sourceforge.net/projects/pylucid/
-
-(Readme text $Rev:1374 $)
+*(Readme text $Rev$)*
