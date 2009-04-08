@@ -8,11 +8,11 @@ from django.shortcuts import render_to_response
 
 
 def root_page(request):
-#    return HttpResponse("The root page!")
-    context = {
-        "page": "jojo",
-    }
-    return render_to_response('flatpages/default.html', context)
+    return HttpResponse("The root page!")
+#    context = {
+#        "page": "jojo",
+#    }
+#    return render_to_response('flatpages/default.html', context)
 
 def lang_root_page(request, lang_code):
     return HttpResponse("root page for lang: %r" % lang_code)

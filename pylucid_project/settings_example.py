@@ -52,7 +52,7 @@ TEMPLATE_DIRS = (
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
-    'pylucid_project.contrib.dbtemplates.loader.load_template_source',
+    #'pylucid_project.contrib.dbtemplates.loader.load_template_source',
 )
 
 INSTALLED_APPS = (
