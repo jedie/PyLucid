@@ -7,6 +7,19 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+    virtualenv
+    ~~~~~~~~~~
+ 
+ run only the script:
+    create_test_env.sh
+ 
+ the hard way:
+    wget http://svn.pylucid.net/pylucid/branches/0.9/scripts/pylucid-boot.py
+    python pylucid-boot.py pylucid-env
+    cd pylucid-env
+    source bin/activate
+    pip install --requirement src/pylucid/requirements/external_apps.txt
+
     Test SQlite Datei
     ~~~~~~~~~~~~~~~~~
  SQLite Datei pylucid_project/test.db3 enthält gefüllte Tabellen einer PyLucid v0.8 installation.
