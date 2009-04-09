@@ -1,5 +1,16 @@
 #!/usr/bin/env python
-from django.core.management import execute_manager
+
+try:
+    from django.core.management import execute_manager
+except ImportError:
+    print "Import Error:"
+    import traceback
+    traceback.print_exc()
+    print "-"*79
+    print "Did you activate the virtualenv?"
+    import sys
+    sys.exit(1)
+    
 try:
     import settings # Assumed to be in the same directory.
 except ImportError:
