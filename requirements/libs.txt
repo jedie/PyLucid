@@ -1,3 +1,14 @@
+# http://www.djangoproject.com/
+# http://pypi.python.org/pypi/Django :
+#Django
+# SVN Version from django:
+--editable svn+http://code.djangoproject.com/svn/django/trunk/#egg=django
+
+# http://pypi.python.org/pypi/FeedParser/
 feedparser
+
+# http://pygments.org/
 Pygments
-#http://python-creole.googlecode.com/svn/trunk/
+
+# http://code.google.com/p/python-creole/
+python-creole

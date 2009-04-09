@@ -28,7 +28,7 @@ verbose_eval source ${BIN}/activate
 
 echo _____________________________________________________________________
 echo Install external dependencies using pip:
-verbose_eval ${BIN}/python ${BIN}/pip install --requirement requirements/external_apps.txt
+verbose_eval ${BIN}/python ${BIN}/pip install --verbose --log=pip.log --requirement requirements/external_apps.txt
 
 echo =====================================================================
 echo
