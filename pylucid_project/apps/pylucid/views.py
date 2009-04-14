@@ -8,11 +8,14 @@ from django.shortcuts import render_to_response
 
 
 def root_page(request):
-    return HttpResponse("The root page!")
-#    context = {
-#        "page": "jojo",
-#    }
-#    return render_to_response('flatpages/default.html', context)
+    """
+    Display a root page with some usefull links 
+    XXX: Only for developing
+    """
+    context = {
+        "admin_url": "/%s/" % settings.ADMIN_URL_PREFIX,
+    }
+    return render_to_response('pylucid/root_page.html', context)
 
 def lang_root_page(request, lang_code):
     return HttpResponse("root page for lang: %r" % lang_code)
