@@ -27,6 +27,8 @@
 
 import os
 
+from pylucid_plugins import PluginList
+
 DEBUG = True
 
 #______________________________________________________________________________
@@ -43,13 +45,22 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 SITE_ID = 1
 ROOT_URLCONF = 'pylucid_project.urls'
 
+
 _BASE_PATH = os.path.join(os.path.dirname(__file__))
+
+_plugins = PluginList(
+    fs_path = os.path.join(_BASE_PATH, "pylucid_plugins"),
+    pkg_prefix = "pylucid_project.pylucid_plugins"
+)
+
 TEMPLATE_DIRS = (
     os.path.join(_BASE_PATH, "apps/pylucid/templates/"),
     os.path.join(_BASE_PATH, "apps/pylucid_update/templates/"),
 
     os.path.join(_BASE_PATH, "django/contrib/admin/templates"),
 )
+# Add all templates subdirs from all existing PyLucid plugins
+TEMPLATE_DIRS += _plugins.get_template_dirs()
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
@@ -71,6 +82,9 @@ INSTALLED_APPS = (
     # external apps shipped and used with PyLucid:
     #'pylucid_project.contrib.dbtemplates',
 )
+# Add all existing PyLucid plugins
+INSTALLED_APPS += _plugins.get_installed_apps()
+#print INSTALLED_APPS
 
 #_____________________________________________________________________________
 # PyLucid own settings

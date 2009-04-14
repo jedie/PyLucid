@@ -5,6 +5,9 @@
     ~~~~~~~~~~~~~~~~~~~
 
     New PyLucid models since v0.9
+    
+    TODO:
+        Where to store bools like: showlinks, permitViewPublic ?
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~

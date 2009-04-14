@@ -1,0 +1,18 @@
+
+<!-- TODO: Update me -->
+
+{% if from_cache %}<small>(from cache)</small>{% endif %}
+<table id="page_updates">
+  <tr>
+    <th>update time</th>
+    <th>page</th>
+    <th>update by</th>
+  </tr>
+  {% for page in pages %}
+  <tr>
+    <td>{{ page.lastupdatetime|date:_("DATETIME_FORMAT") }}</td>
+    <td><a href="{{ page.get_absolute_url }}">{% if page.title %}{{ page.title|escape }}{% else %}{{ page.name|escape }}{% endif %}</a></td>
+    <td>{{ page.lastupdateby }}</td>
+  </tr>
+  {% endfor %}
+</table>

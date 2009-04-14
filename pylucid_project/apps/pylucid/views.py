@@ -13,6 +13,7 @@ def root_page(request):
     XXX: Only for developing
     """
     context = {
+        "request": request, # FIXME: Can we add it throu a own context processors?
         "admin_url": "/%s/" % settings.ADMIN_URL_PREFIX,
     }
     return render_to_response('pylucid/root_page.html', context)

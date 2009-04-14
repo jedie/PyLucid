@@ -19,7 +19,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import cgi, re
+import re
+import cgi
+import shlex
 
 #from PyLucid.system.plugin_manager import run
 #from PyLucid.system.response import SimpleStringIO
@@ -27,6 +29,7 @@ import cgi, re
 
 from django.conf import settings
 from django import template
+from django.core.urlresolvers import get_callable
 
 
 # FIXME: The re should be more fault-tolerant:
@@ -117,7 +120,19 @@ class lucidTagNode(template.Node):
         )
 
     def render(self, context):
-        return cgi.escape(self.__repr__())
+        # callback is either a string like 'foo.views.news.stories.story_detail'
+        callback = "pylucid_plugins.%s.views.%s" % (self.plugin_name, self.method_name)
+        callable = get_callable(callback)
+        
+        try:
+            request = context["request"]
+        except KeyError:
+            raise KeyError("request object not in context! You must add it into the template context!")
+        
+        response = callable(request, **self.method_kwargs)
+        return response
+        return cgi.escape("%s - %s" % (self.__repr__(), repr(callable)))
+        
 #        local_response = SimpleStringIO()
 #        output = run(
 #            context, local_response,
