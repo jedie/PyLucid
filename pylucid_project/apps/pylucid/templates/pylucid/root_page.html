@@ -6,6 +6,14 @@
 <body>
 
 <h1>PyLucid v0.9 dev - root page</h1>
+
+<p>First Steps:<br />
+<ul>
+    <li>Go into django panel, and add one or more language(s).</li>
+    <li>Use update function to move v0.8 data into new models.</li>
+</ul>
+</p>
+
 <p>You can try these urls:</p>
 <ul>
     <li><a href="/">/</a> (this page)</li>
@@ -16,9 +24,12 @@
     <li><a href="{{ admin_url }}">{{ admin_url }}</a> - django admin panel</li>
     <li><a href="/update/">/update/</a> - update section</li>
 </li>
+
 <hr />
 {% lucidTag page_update_list count="5" %}
 <hr />
+
 <p><small>TODO: This page should be removed before first release</small></p>
+
 </body>
 </html>
