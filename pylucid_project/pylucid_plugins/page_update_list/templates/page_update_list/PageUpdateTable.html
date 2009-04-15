@@ -11,7 +11,7 @@
   {% for page in pages %}
   <tr>
     <td>{{ page.lastupdatetime|date:_("DATETIME_FORMAT") }}</td>
-    <td><a href="{{ page.get_absolute_url }}">{% if page.title %}{{ page.title|escape }}{% else %}{{ page.name|escape }}{% endif %}</a></td>
+    <td><a href="{{ page.get_absolute_url }}">{% if page.title %}{{ page.title|escape }}{% else %}{{ page.page.slug|escape }}{% endif %}</a></td>
     <td>{{ page.lastupdateby }}</td>
   </tr>
   {% endfor %}
