@@ -59,7 +59,17 @@ class PageTree(models.Model):
     createby = models.ForeignKey(User, editable=False, related_name="pagetree_createby",
         help_text="User how create the current page.",)
     lastupdateby = models.ForeignKey(User, editable=False, related_name="pagetree_lastupdateby",
-        help_text="User as last edit the current page.",)
+        help_text="User as last edit the current page.",)       
+
+    def get_absolute_url(self):
+        """
+        Get the absolute url (without the domain/host part)
+        """
+        if self.parent:
+            parent_shortcut = self.parent.get_absolute_url()
+            return parent_shortcut + self.slug + "/"
+        else:
+            return "/" + self.slug + "/"
 
     def __unicode__(self):
         return u"PageTree '%s' (type: %s)" % (self.slug, self.TYPE_DICT[self.type])
@@ -110,6 +120,12 @@ class PageContent(models.Model):
         help_text="User how create the current page.",)
     lastupdateby = models.ForeignKey( User, editable=False, related_name="pagecontent_lastupdateby",
         help_text="User as last edit the current page.",)
+
+    def get_absolute_url(self):
+        """
+        Get the absolute url (without the domain/host part)
+        """
+        return "/" + self.lang.code + self.page.get_absolute_url()
 
     def __unicode__(self):
         return u"PageContent '%s' (%s)" % (self.page.slug, self.lang)
