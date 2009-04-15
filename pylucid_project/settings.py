@@ -80,7 +80,7 @@ INSTALLED_APPS = (
     'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
 
     # external apps shipped and used with PyLucid:
-    #'pylucid_project.contrib.dbtemplates',
+    'dbtemplates',
 )
 # Add all existing PyLucid plugins
 INSTALLED_APPS += _plugins.get_installed_apps()
@@ -90,6 +90,8 @@ INSTALLED_APPS += _plugins.get_installed_apps()
 # PyLucid own settings
 
 ADMIN_URL_PREFIX = 'admin'
+
+SITE_TEMPLATE_PREFIX = 'site_template/'
 
 
 try:

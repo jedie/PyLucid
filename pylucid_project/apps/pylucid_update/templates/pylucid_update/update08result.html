@@ -1,0 +1,13 @@
+{% extends "pylucid_update/base_site.html" %}
+{% load i18n %}
+
+{% block branding %}PyLucid update - results{% endblock %}
+
+{% block content %}
+<!-- view_content block -->
+<fieldset><legend>update results</legend>
+<pre>{% for line in results %}{{ line }}
+{% endfor %}</pre>
+</fieldset>
+<!-- view_content block end -->
+{% endblock %}

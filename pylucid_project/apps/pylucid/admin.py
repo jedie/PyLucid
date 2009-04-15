@@ -18,13 +18,15 @@
 
 from django.contrib import admin
 
-from pylucid_project.apps.pylucid.models import PageTree, Language, PageContent
+from pylucid_project.apps.pylucid.models import PageTree, Language, PageContent, EditableStaticFile
 
 
 #------------------------------------------------------------------------------
 
 class PageTreeAdmin(admin.ModelAdmin):
+    #prepopulated_fields = {"slug": ("title",)}    
     pass
+
 #    list_display = (
 #        "id", "shortcut", "name", "title", "description",
 #        "lastupdatetime", "lastupdateby"
@@ -63,3 +65,7 @@ class PageContentAdmin(admin.ModelAdmin):
 admin.site.register(PageContent, PageContentAdmin)
 
 
+class EditableStaticFileAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(EditableStaticFile, EditableStaticFileAdmin)
