@@ -23,13 +23,18 @@ import re
 import cgi
 import shlex
 
-#from PyLucid.system.plugin_manager import run
-#from PyLucid.system.response import SimpleStringIO
-#from PyLucid.system.context_processors import add_css_tag
-
+if __name__ == "__main__":
+    # For doctest only
+    import os
+    os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
+    
 from django.conf import settings
 from django import template
 from django.core.urlresolvers import get_callable
+
+#from PyLucid.system.plugin_manager import run
+#from PyLucid.system.response import SimpleStringIO
+#from PyLucid.system.context_processors import add_css_tag
 
 
 # FIXME: The re should be more fault-tolerant:
@@ -42,7 +47,7 @@ CSS_TAG_BLACKLIST = getattr(
 
 
 
-# For make_kwargs()
+# For str2dict()
 KEYWORD_MAP = {
     "True": True,
     "False": False,
@@ -53,16 +58,16 @@ def str2dict(raw_content):
     """
     convert a string into a dictionary. e.g.:
 
-    >>> make_kwargs('key1="value1" key2="value2"')
+    >>> str2dict('key1="value1" key2="value2"')
     {'key2': 'value2', 'key1': 'value1'}
 
-    >>> make_kwargs('A="B" C=1 D=1.1 E=True F=False G=None')
+    >>> str2dict('A="B" C=1 D=1.1 E=True F=False G=None')
     {'A': 'B', 'C': 1, 'E': True, 'D': '1.1', 'G': None, 'F': False}
     
-    >>> make_kwargs('''key1="'1'" key2='"2"' key3="""'3'""" ''')
+    >>> str2dict('''key1="'1'" key2='"2"' key3="""'3'""" ''')
     {'key3': 3, 'key2': 2, 'key1': 1}
 
-    >>> make_kwargs(u'unicode=True')
+    >>> str2dict(u'unicode=True')
     {'unicode': True}
     """
     if isinstance(raw_content, unicode):
@@ -191,3 +196,12 @@ def lucidTag(parser, token):
 
     return lucidTagNode(plugin_name, method_name, method_kwargs)
 
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(
+#        verbose=True
+        verbose=False
+    )
+    print "DocTest end."
