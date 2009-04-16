@@ -28,22 +28,16 @@ if __name__ == "__main__":
     import os
     os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
     
-from django.conf import settings
 from django import template
+from django.conf import settings
+from django.http import HttpResponse
 from django.core.urlresolvers import get_callable
 
-#from PyLucid.system.plugin_manager import run
-#from PyLucid.system.response import SimpleStringIO
-#from PyLucid.system.context_processors import add_css_tag
+from pylucid_project.utils import slug 
 
 
 # FIXME: The re should be more fault-tolerant:
 KWARGS_REGEX = re.compile('''(\w*?)\=['"](.*?)['"]''')
-
-# TODO: Should be removed in the next release
-CSS_TAG_BLACKLIST = getattr(
-    settings, "CSS_TAG_BLACKLIST", ("page_style", "RSSfeedGenerator",)
-)
 
 
 
@@ -95,6 +89,32 @@ def str2dict(raw_content):
     return result
 
 
+def add_css_tag(context, content, plugin_name, method_name):
+    """
+    Add a div around the content with shylesheet class and ID anchor.
+    """
+    id = plugin_name + u"_" + method_name
+    
+    # XXX: Should be add the list on the context object???
+    LIST_KEY = "LUCIDTAG_CSS_ID_LIST"
+    if LIST_KEY not in context:
+        context[LIST_KEY] = []
+    id = slug.makeUniqueSlug(id, context[LIST_KEY])
+    context[LIST_KEY].append(id)
+
+    return (
+        u'<div class="%(c)s %(p)s" id="%(id)s">\n'
+        '%(content)s\n'
+        '</div>\n'
+    ) % {
+        "c": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        "p": plugin_name,
+        "m": method_name,
+        "id": id,
+        "content": content,
+    }
+
+
 
 
 class lucidTagNodeError(template.Node):
@@ -107,10 +127,7 @@ class lucidTagNodeError(template.Node):
         self.msg = msg
 
     def render(self, context):
-        txt = "[lucidTag %s.%s syntax error: %s]" % (
-            self.plugin_name, self.method_name, self.msg
-        )
-        return txt
+        return u"[lucidTag %s.%s syntax error: %s]" % (self.plugin_name, self.method_name, self.msg)
 
 
 class lucidTagNode(template.Node):
@@ -121,8 +138,7 @@ class lucidTagNode(template.Node):
 
     def __repr__(self):
         return "<lucidTag node ('%s.%s' kwargs:%s)>" % (
-            self.plugin_name, self.method_name, self.method_kwargs
-        )
+            self.plugin_name, self.method_name, self.method_kwargs)
 
     def render(self, context):
         # callback is either a string like 'foo.views.news.stories.story_detail'
@@ -135,37 +151,18 @@ class lucidTagNode(template.Node):
             raise KeyError("request object not in context! You must add it into the template context!")
         
         response = callable(request, **self.method_kwargs)
-        return response
-        return cgi.escape("%s - %s" % (self.__repr__(), repr(callable)))
         
-#        local_response = SimpleStringIO()
-#        output = run(
-#            context, local_response,
-#            self.plugin_name, self.method_name,
-#            method_kwargs = self.method_kwargs
-#        )
-#        if output == None:
-#            content = local_response.getvalue()
-#        elif isinstance(output, basestring):
-#            content = output
-#        else:
-#            msg = (
-#                "Error: Wrong output from inline Plugin!"
-#                " - It should be write into the response object and return None"
-#                " or return a basestring!"
-#                " - But %s.%s has returned: %s (%s)"
-#            ) % (
-#                self.plugin_name, self.method_name,
-#                repr(output), type(output)
-#            )
-#            raise AssertionError(msg)
-#
-#        if not self.plugin_name in CSS_TAG_BLACKLIST:
-#            content = add_css_tag(
-#                context, content, self.plugin_name, self.method_name
-#            )
-#
-#        return content
+        # FIXME:
+        assert(isinstance(response, HttpResponse), "pylucid plugins must return a HttpResponse instance!")
+        assert(response.status_code == 200, "Response status code != 200 ???")
+        
+        content = response.content
+
+        if not self.plugin_name in settings.PYLUCID.CSS_TAG_BLACKLIST:
+            # Add a div around the content with shylesheet class and ID anchor.
+            content = add_css_tag(context, content, self.plugin_name, self.method_name)
+
+        return content
 
 
 

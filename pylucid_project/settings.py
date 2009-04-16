@@ -89,6 +89,9 @@ INSTALLED_APPS += _plugins.get_installed_apps()
 #_____________________________________________________________________________
 # PyLucid own settings
 
+#from pylucid_project.apps.pylucid.app_settings import PYLUCID
+from pylucid_project.apps.pylucid import app_settings as PYLUCID
+
 ADMIN_URL_PREFIX = 'admin'
 
 SITE_TEMPLATE_PREFIX = 'site_template/'

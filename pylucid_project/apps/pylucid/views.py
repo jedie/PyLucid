@@ -6,6 +6,11 @@ from django.shortcuts import render_to_response
 
 #from pylucid_project.apps.pylucid.models import Page08
 
+# use the undocumented django function to add the "lucidTag" to the tag library.
+# see ./pylucid/defaulttags/__init__.py
+from django.template import add_to_builtins
+add_to_builtins('pylucid_project.apps.pylucid.defaulttags')
+
 
 def root_page(request):
     """
