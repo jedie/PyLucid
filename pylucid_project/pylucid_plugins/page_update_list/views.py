@@ -20,6 +20,7 @@
 __version__= "$Rev$"
 
 from django.http import HttpResponse
+from django.template import RequestContext
 from django.shortcuts import render_to_response
 
 from pylucid_project.apps.pylucid.models import PageContent
@@ -41,5 +42,7 @@ def lucidTag(request, count=10):
 #
     context = {"pages": pages}
 
-    return render_to_response('page_update_list/PageUpdateTable.html', context)
+    return render_to_response('page_update_list/PageUpdateTable.html', context, 
+        context_instance=RequestContext(request)
+    )
 

@@ -68,6 +68,28 @@ TEMPLATE_LOADERS = (
     #'pylucid_project.contrib.dbtemplates.loader.load_template_source',
 )
 
+# A tuple of callables that are used to populate the context in RequestContext.
+# These callables take a request object as their argument and return a
+# dictionary of items to be merged into the context.
+TEMPLATE_CONTEXT_PROCESSORS = (
+#    "django.core.context_processors.auth",
+#    "django.core.context_processors.debug",
+#    "django.core.context_processors.i18n",
+#    "django.core.context_processors.request",
+    "pylucid_project.apps.pylucid.context_processors.pylucid",
+)
+
+# A boolean that turns on/off template debug mode. If this is True, the fancy
+# error page will display a detailed report for any TemplateSyntaxError.
+# Note that Django only displays fancy error pages if DEBUG is True!
+TEMPLATE_DEBUG = DEBUG
+
+if TEMPLATE_DEBUG:
+    # Display invalid (e.g. misspelled, unused) template variables
+    # http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
+    # http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
+    TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',

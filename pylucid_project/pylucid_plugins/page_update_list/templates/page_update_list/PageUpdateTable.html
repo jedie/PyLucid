@@ -1,6 +1,8 @@
+{% extends "pylucid/css_anchor_div.html" %}
 
 <!-- TODO: Update me -->
 
+{% block plugin_content %}
 {% if from_cache %}<small>(from cache)</small>{% endif %}
 <table id="page_updates">
   <tr>
@@ -16,3 +18,4 @@
   </tr>
   {% endfor %}
 </table>
+{% endblock %}

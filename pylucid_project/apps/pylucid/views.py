@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.template import RequestContext
 from django.shortcuts import render_to_response
 
 #from pylucid_project.apps.pylucid.models import Page08
@@ -21,7 +22,7 @@ def root_page(request):
         "request": request, # FIXME: Can we add it throu a own context processors?
         "admin_url": "/%s/" % settings.ADMIN_URL_PREFIX,
     }
-    return render_to_response('pylucid/root_page.html', context)
+    return render_to_response('pylucid/root_page.html', context, context_instance=RequestContext(request))
 
 def lang_root_page(request, lang_code):
     return HttpResponse("root page for lang: %r" % lang_code)

@@ -33,12 +33,9 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.core.urlresolvers import get_callable
 
-from pylucid_project.utils import slug 
-
 
 # FIXME: The re should be more fault-tolerant:
 KWARGS_REGEX = re.compile('''(\w*?)\=['"](.*?)['"]''')
-
 
 
 # For str2dict()
@@ -89,33 +86,6 @@ def str2dict(raw_content):
     return result
 
 
-def add_css_tag(context, content, plugin_name, method_name):
-    """
-    Add a div around the content with shylesheet class and ID anchor.
-    """
-    id = plugin_name + u"_" + method_name
-    
-    # XXX: Should be add the list on the context object???
-    LIST_KEY = "LUCIDTAG_CSS_ID_LIST"
-    if LIST_KEY not in context:
-        context[LIST_KEY] = []
-    id = slug.makeUniqueSlug(id, context[LIST_KEY])
-    context[LIST_KEY].append(id)
-
-    return (
-        u'<div class="%(c)s %(p)s" id="%(id)s">\n'
-        '%(content)s\n'
-        '</div>\n'
-    ) % {
-        "c": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-        "p": plugin_name,
-        "m": method_name,
-        "id": id,
-        "content": content,
-    }
-
-
-
 
 class lucidTagNodeError(template.Node):
     """
@@ -150,19 +120,18 @@ class lucidTagNode(template.Node):
         except KeyError:
             raise KeyError("request object not in context! You must add it into the template context!")
         
+        # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
+        request.plugin_name = self.plugin_name
+        request.method_name = self.method_name
+        
+        # call the plugin view method
         response = callable(request, **self.method_kwargs)
         
-        # FIXME:
+        # FIXME: Witch error should we raised here?
         assert(isinstance(response, HttpResponse), "pylucid plugins must return a HttpResponse instance!")
         assert(response.status_code == 200, "Response status code != 200 ???")
         
-        content = response.content
-
-        if not self.plugin_name in settings.PYLUCID.CSS_TAG_BLACKLIST:
-            # Add a div around the content with shylesheet class and ID anchor.
-            content = add_css_tag(context, content, self.plugin_name, self.method_name)
-
-        return content
+        return response.content
 
 
 
