@@ -72,10 +72,10 @@ TEMPLATE_LOADERS = (
 # These callables take a request object as their argument and return a
 # dictionary of items to be merged into the context.
 TEMPLATE_CONTEXT_PROCESSORS = (
-#    "django.core.context_processors.auth",
-#    "django.core.context_processors.debug",
-#    "django.core.context_processors.i18n",
-#    "django.core.context_processors.request",
+    "django.core.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.request",
     "pylucid_project.apps.pylucid.context_processors.pylucid",
 )
 

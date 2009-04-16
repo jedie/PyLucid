@@ -14,6 +14,8 @@
 
 {% block footer %}
 <!-- app footer block start -->
-<span class="page_stats">{% trans 'page stats:' %} <!-- script_duration --></span>
+<div class="footer">
+    {% trans 'page stats:' %} <!-- script_duration --> | powered by: {{ powered_by }}
+</div>
 <!-- app footer block end -->
 {% endblock %}
