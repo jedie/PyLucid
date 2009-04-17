@@ -22,10 +22,12 @@ from django.views.generic.list_detail import object_detail
 
 from django.contrib import admin
 
+admin.autodiscover()
+
 urlpatterns = patterns('',
     #_____________________________________
     # DJANGO ADMIN PANEL
-    (r'^%s/(.*)' % settings.ADMIN_URL_PREFIX, admin.site.root),
+    (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
     
     ('^update/', include('apps.pylucid_update.urls')),
     
