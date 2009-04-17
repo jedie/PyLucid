@@ -27,7 +27,11 @@
 
 import os
 
-from pylucid_plugins import PluginList
+import pylucid_project
+import pylucid_plugins
+
+PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
 
 DEBUG = True
 
@@ -48,7 +52,7 @@ ROOT_URLCONF = 'pylucid_project.urls'
 
 _BASE_PATH = os.path.join(os.path.dirname(__file__))
 
-_plugins = PluginList(
+_plugins = pylucid_plugins.PluginList(
     fs_path = os.path.join(_BASE_PATH, "pylucid_plugins"),
     pkg_prefix = "pylucid_project.pylucid_plugins"
 )
@@ -63,9 +67,9 @@ TEMPLATE_DIRS = (
 TEMPLATE_DIRS += _plugins.get_template_dirs()
 
 TEMPLATE_LOADERS = (
+    'dbtemplates.loader.load_template_source',
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
-    #'pylucid_project.contrib.dbtemplates.loader.load_template_source',
 )
 
 # A tuple of callables that are used to populate the context in RequestContext.
@@ -100,6 +104,7 @@ INSTALLED_APPS = (
     # PyLucid own apps:
     'pylucid_project.apps.pylucid',
     'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
+    'pylucid_project.apps.dbpreferences',
 
     # external apps shipped and used with PyLucid:
     'dbtemplates',
