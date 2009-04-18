@@ -20,10 +20,11 @@ def _add_plugin_info(request, context):
     if not hasattr(request, "css_id_list"):
         request.css_id_list = []
     
-    css_plugin_id = plugin_name + u"_" + method_name    
-    css_plugin_id = slug.makeUniqueSlug(css_plugin_id, request.css_id_list)
+    css_plugin_id = plugin_name + u"_" + method_name
+    existing_slugs = request.css_id_list
+    css_plugin_id = slug.makeUniqueSlug(css_plugin_id, existing_slugs)
     
-    request.css_id_list.append(id)
+    request.css_id_list.append(css_plugin_id)
     
     context["css_plugin_id"] = css_plugin_id
     context["css_plugin_class"] = plugin_name
