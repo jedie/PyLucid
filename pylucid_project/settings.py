@@ -109,6 +109,7 @@ INSTALLED_APPS = (
 
     # external apps shipped and used with PyLucid:
     'dbtemplates',
+    'reversion',
 )
 # Add all existing PyLucid plugins
 INSTALLED_APPS += _plugins.get_installed_apps()

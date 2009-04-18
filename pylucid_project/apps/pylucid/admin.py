@@ -18,12 +18,14 @@
 
 from django.contrib import admin
 
+from reversion.admin import VersionAdmin
+
 from pylucid_project.apps.pylucid.models import PageTree, Language, PageContent, EditableStaticFile
 
 
 #------------------------------------------------------------------------------
 
-class PageTreeAdmin(admin.ModelAdmin):
+class PageTreeAdmin(VersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}    
     pass
 
@@ -42,13 +44,13 @@ class PageTreeAdmin(admin.ModelAdmin):
 admin.site.register(PageTree, PageTreeAdmin)
 
 
-class LanguageAdmin(admin.ModelAdmin):
+class LanguageAdmin(VersionAdmin):
     pass
 
 admin.site.register(Language, LanguageAdmin)
 
 
-class PageContentAdmin(admin.ModelAdmin):
+class PageContentAdmin(VersionAdmin):
     list_display = ("get_absolute_url", "title_or_slug", "description", "lastupdatetime", "lastupdateby",)
     list_display_links = ("title_or_slug",)
     list_filter = ("keywords", "markup", "createby", "lastupdateby",)
@@ -58,7 +60,7 @@ class PageContentAdmin(admin.ModelAdmin):
 admin.site.register(PageContent, PageContentAdmin)
 
 
-class EditableStaticFileAdmin(admin.ModelAdmin):
+class EditableStaticFileAdmin(VersionAdmin):
     pass
 
 admin.site.register(EditableStaticFile, EditableStaticFileAdmin)
