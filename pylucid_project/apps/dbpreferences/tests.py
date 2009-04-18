@@ -63,6 +63,8 @@ class TestDBPref(TestCase):
         self.failUnless(Preference.objects.count() == 0)
         pref_data = Preference.objects.get_pref(form)
         self.failUnless(Preference.objects.count() == 1)
+        self.failUnless(isinstance(pref_data, dict),
+            "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))
         self.failUnlessEqual(pref_data,
             {'count': 10, 'foo_bool': True, 'font_size': 0.7, 'subject': 'foobar'})
         
@@ -70,6 +72,8 @@ class TestDBPref(TestCase):
         self.failUnless(Preference.objects.count() == 1)
         pref_data = Preference.objects.get_pref(form)
         self.failUnless(Preference.objects.count() == 1)
+        self.failUnless(isinstance(pref_data, dict),
+            "It's not dict, it's: %s - %r" % (type(pref_data), pref_data))
         self.failUnlessEqual(pref_data,
             {'count': 10, 'foo_bool': True, 'font_size': 0.7, 'subject': 'foobar'})
 

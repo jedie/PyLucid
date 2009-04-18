@@ -42,18 +42,22 @@ def deserialize(stream):
 class PreferencesManager(models.Manager):
     """ Manager class for Preference model """
     def save_form_init(self, form, current_site, app_label, form_name):
-        data_dict = forms_utils.get_init_dict(form)
-        pref_data_string = serialize(data_dict)
+        """ save the initial form values as the preferences into the database """
+        form_dict = forms_utils.get_init_dict(form)
         new_entry = Preference(
             site = current_site,
             app_label = app_label,
             form_name = form_name,
-            pref_data_string = pref_data_string,
+            preferences = form_dict,
         )
         new_entry.save()
-        return data_dict
+        return form_dict
         
     def get_pref(self, form):
+        """
+        returns the preferences for the given form
+        stores the preferences into the database, if not exist.
+        """
         assert isinstance(form, forms.Form), ("You must give a form instance and not only the class!")
         
         current_site = Site.objects.get_current()
@@ -63,51 +67,93 @@ class PreferencesManager(models.Manager):
         try:
             db_entry = self.get(site=current_site, app_label=app_label, form_name=form_name)
         except Preference.DoesNotExist:
-            data_dict = self.save_form_init(form, current_site, app_label, form_name)
+            # Save initial form values into database
+            form_dict = self.save_form_init(form, current_site, app_label, form_name)
         else:
-            pref_data_string = db_entry.pref_data_string
-            data_dict = deserialize(pref_data_string)
+            form_dict = db_entry.preferences
         
-        return data_dict
+        return form_dict
+
+
+
+class DictFormWidget(forms.Textarea):
+    """ form widget for preferences dict """
+    def render(self, name, value, attrs=None):
+        """
+        FIXME: Can we get the original non-serialized db value here?
+        """
+        value = serialize(value)
+        return super(DictFormWidget, self).render(name, value, attrs)
+
+
+class DictFormField(forms.CharField):
+    """ form field for preferences dict """
+    widget = DictFormWidget
+    
+    def clean(self, value):
+        """
+        validate the form data
+        FIXME: How can we get the pref form class for validating???
+        """
+        value = super(DictFormField, self).clean(value)
+        try:
+            return deserialize(value)
+        except Exception, err:
+            raise forms.ValidationError("Can't deserialize: %s" % err)
+
+
+class DictField(models.TextField):
+    """
+    A dict field.
+    Stores a python dict into a text field. 
+    """
+    __metaclass__ = models.SubfieldBase
+
+    def to_python(self, value):
+        """ decode the data dict using simplejson.loads() """
+        if isinstance(value, dict):
+            return value
+        return deserialize(value)
+
+    def get_db_prep_save(self, value):
+        "Returns field's value prepared for saving into a database."
+        assert isinstance(value, dict)
+        return serialize(value)
+#    
+    def formfield(self, **kwargs):
+        # Always use own form field and widget:
+        kwargs['form_class'] = DictFormField
+        kwargs['widget'] = DictFormWidget
+        return super(DictField, self).formfield(**kwargs)
+
 
 
 class Preference(models.Model):
-    """
+    """    
     Plugin preferences
     """
     objects = PreferencesManager()
 
     id = models.AutoField(primary_key=True, help_text="The id of this preference entry, used for lucidTag")
 
-    site = models.ForeignKey(Site, verbose_name=_('Site'))
-    app_label = models.CharField(max_length=128, help_text="The app lable, must set via form.Meta.app_label")
-    form_name = models.CharField(max_length=128, help_text="The form class name")
+    site = models.ForeignKey(Site, editable=False, verbose_name=_('Site'))
+    app_label = models.CharField(max_length=128, editable=False,
+        help_text="app lable, must set via form.Meta.app_label")
+    form_name = models.CharField(max_length=128, editable=False,
+        help_text="preference form class name")
+
+    preferences = DictField(null=False, blank=False, #editable=False,
+        help_text="serialized preference form data dictionary")
 
     createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
     lastupdateby = models.ForeignKey(User, editable=False, null=True, blank=True,
         related_name="%(class)s_lastupdateby", help_text="User as last edit the current page.",)
 
-    comment = models.CharField(max_length=255, null=True, blank=True,
-        help_text="Small comment for this preference entry")
-    
-    pref_data_string = models.TextField(null=False, blank=False,
-        help_text="printable representation of the newform data dictionary")
-
-    #__________________________________________________________________________
-
-    def set_data(self, data_dict, user):
-        """ set the dict encoded via simplejson.dumps() """
-        self.pref_data_string = simplejson.dumps(data_dict, sort_keys=True, indent=4)
-        self.lastupdateby = user
-
-    def get_data(self):
-        """ decode the data dict using simplejson.loads() """
-        return simplejson.loads(self.pref_data_string)
-
     #__________________________________________________________________________
     
     def get_form_class(self):
+        """ returns the form class for this preferences item """
         from_name = "%s.%s" % (self.app_label, PREF_FORM_FILENAME)
         form = easy_import.import3(from_name, self.form_name)
         return form
@@ -119,6 +165,9 @@ class Preference(models.Model):
 
     class Meta:
         unique_together = ("site", "app_label", "form_name")
+        permissions = (("can_change_preferences", "Can change preferences"),)
+        ordering = ("site", "app_label", "form_name")
+        verbose_name = verbose_name_plural = "preferences"
 #        db_table = 'PyLucid_preference'
 #        app_label = 'PyLucid'
         

@@ -14,13 +14,14 @@
     :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
-
 from django.contrib import admin
+from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from django.conf.urls.defaults import patterns, url
 from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404, render_to_response
 
 from dbpreferences.models import Preference
 from dbpreferences.tools import forms_utils
@@ -28,6 +29,12 @@ from dbpreferences.tools import forms_utils
 #------------------------------------------------------------------------------
 
 class PreferenceAdmin(admin.ModelAdmin):
+    actions = None # Disable actions
+    list_display = ("site", "app_label", "form_name", "lastupdatetime", "lastupdateby", "edit_link")
+    list_display_links = ("form_name",)
+    list_filter = ("site", "app_label",)
+    search_fields = ("site", "app_label", "form_name",)
+    
     def edit_link(self, instance):
         """ For adding a edit link into django admin interface """      
         context = {
@@ -37,18 +44,17 @@ class PreferenceAdmin(admin.ModelAdmin):
     edit_link.allow_tags = True
         
     def edit_form(self, request, pk):
-        from django.template import RequestContext
-        from django.shortcuts import get_object_or_404, render_to_response
+        """ edit a preference entry using the associated form """
         
-        obj = Preference.objects.get(pk=pk)
+        obj = get_object_or_404(Preference, pk=pk)
         form_class = obj.get_form_class()
         
         if request.method == 'POST':
             form = form_class(request.POST)
             if form.is_valid():
-                data_dict = form.cleaned_data
-                user = request.user
-                obj.set_data(data_dict, user)
+                # save new preferences
+                obj.preferences = form.cleaned_data
+                obj.lastupdateby = request.user
                 obj.save()
                 
                 msg = "Preferences %s updated." % obj
@@ -67,9 +73,9 @@ class PreferenceAdmin(admin.ModelAdmin):
                 self.message_user(request, msg)
                 return HttpResponseRedirect(next_url)
         else:
-            data_dict = obj.get_data()
-            form = form_class(data_dict)
+            form = form_class(obj.preferences)
         
+        # Append initial form values into all field help_text
         forms_utils.setup_help_text(form)
         
         context = {
@@ -82,6 +88,7 @@ class PreferenceAdmin(admin.ModelAdmin):
             context_instance=RequestContext(request))
     
     def get_urls(self):
+        """ add own edit view into urls """
         urls = super(PreferenceAdmin, self).get_urls()
         my_urls = patterns('',
             url(r'^(?P<pk>\d+)/edit_form/$', self.admin_site.admin_view(self.edit_form),
@@ -89,9 +96,6 @@ class PreferenceAdmin(admin.ModelAdmin):
         )
         return my_urls + urls
 
-    list_display = ("site", "app_label", "form_name", "lastupdatetime", "lastupdateby", "edit_link")
-    list_display_links = ("form_name",)
-    list_filter = ("site", "app_label",)
-    search_fields = ("site", "app_label", "form_name",)
+
 
 admin.site.register(Preference, PreferenceAdmin)
