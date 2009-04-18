@@ -26,7 +26,10 @@ from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 
-from dbpreferences.tools import forms_utils# import get_init_dict, setup_help_text
+from dbpreferences.tools import forms_utils, easy_import
+
+# The filename in witch the form should be stored:
+PREF_FORM_FILENAME = "preference_forms"
 
 
 def serialize(data):
@@ -102,6 +105,13 @@ class Preference(models.Model):
         """ decode the data dict using simplejson.loads() """
         return simplejson.loads(self.pref_data_string)
 
+    #__________________________________________________________________________
+    
+    def get_form_class(self):
+        from_name = "%s.%s" % (self.app_label, PREF_FORM_FILENAME)
+        form = easy_import.import3(from_name, self.form_name)
+        return form
+    
     #__________________________________________________________________________
 
     def __unicode__(self):

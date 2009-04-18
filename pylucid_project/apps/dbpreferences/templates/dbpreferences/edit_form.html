@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_modify adminmedia %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../../">Home</a> ›
+     <a href="../../../">Dbpreferences</a> › 
+     <a href="../../">Preferences</a> › 
+     {{ obj }}
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+<form action="{{ form_url }}" method="post">
+<fieldset class="module aligned">
+  {% for field in form %}
+      <div class="form-row{% if field.errors %} errors{% endif %} {% for field in form %}{{ field.field.name }} {% endfor %} ">
+      {{ field.errors }}
+      <div class="field-box">
+          {% if field.is_checkbox %}
+              {{ field }}{{ field.label_tag }}
+          {% else %}
+              {{ field.label_tag }}{{ field }}
+          {% endif %}
+          {% if field.help_text %}<p class="help">{{ field.help_text|safe }}</p>{% endif %}
+      </div>
+      </div>
+  {% endfor %}
+</fieldset>
+
+<div class="submit-row">
+    <input type="submit" name="_save" class="default" value="Save"/>
+    <!-- TODO:
+    <p class="deletelink-box"><a class="deletelink" href="reset/">Reset to default values</a></p>
+    -->
+    <input type="submit" name="_continue" value="Save and continue editing"/>
+</div>
+
+</form>
+</div>
+{% endblock %}

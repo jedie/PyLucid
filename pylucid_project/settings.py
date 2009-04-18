@@ -60,6 +60,7 @@ _plugins = pylucid_plugins.PluginList(
 TEMPLATE_DIRS = (
     os.path.join(_BASE_PATH, "apps/pylucid/templates/"),
     os.path.join(_BASE_PATH, "apps/pylucid_update/templates/"),
+    os.path.join(_BASE_PATH, "apps/dbpreferences/templates/"),
 
     os.path.join(_BASE_PATH, "django/contrib/admin/templates"),
 )
