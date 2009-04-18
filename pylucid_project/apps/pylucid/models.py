@@ -155,6 +155,12 @@ class PageContent(models.Model):
         help_text="User how create the current page.",)
     lastupdateby = models.ForeignKey( User, editable=False, related_name="%(class)s_lastupdateby",
         help_text="User as last edit the current page.",)
+    
+    def title_or_slug(self):
+        """ The page title is optional, if not exist, used the slug from the page tree """
+        if self.title:
+            return self.title
+        return self.page.slug
 
     def get_absolute_url(self):
         """

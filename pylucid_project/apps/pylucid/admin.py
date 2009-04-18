@@ -49,16 +49,9 @@ admin.site.register(Language, LanguageAdmin)
 
 
 class PageContentAdmin(admin.ModelAdmin):
-    pass
-#    list_display = (
-#        "id", "shortcut", "name", "title", "description",
-#        "lastupdatetime", "lastupdateby"
-#    )
-#    list_display_links = ("shortcut",)
-#    list_filter = (
-#        "createby", "lastupdateby", "permitViewPublic", "showlinks",
-#        "template", "style", "markup",
-#    )
+    list_display = ("get_absolute_url", "title_or_slug", "description", "lastupdatetime", "lastupdateby",)
+    list_display_links = ("title_or_slug",)
+    list_filter = ("keywords", "markup", "createby", "lastupdateby",)
 #    date_hierarchy = 'lastupdatetime'
 #    search_fields = ["content", "name", "title", "description", "keywords"]
 
