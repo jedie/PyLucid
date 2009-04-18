@@ -29,6 +29,9 @@ from django.contrib.auth.models import User, Group
 
 from dbtemplates.models import Template
 
+from pylucid.django_addons.comma_separated_field import CommaSeparatedCharField
+
+
 class PageTree(models.Model):
     """ The CMS page tree """
     PAGE_TYPE = 'C'
@@ -131,7 +134,7 @@ class PageContent(models.Model):
 
     title = models.CharField(blank=True, max_length=150, help_text="A long page title")
     content = models.TextField(blank=True, help_text="The CMS page content.")
-    keywords = models.CharField(blank=True, max_length=255,
+    keywords = CommaSeparatedCharField(blank=True, max_length=255,
         help_text="Keywords for the html header. (separated by commas)")
     description = models.CharField(blank=True, max_length=255, help_text="For html header")
 
