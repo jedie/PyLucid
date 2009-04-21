@@ -3,7 +3,7 @@
     django addon - comma separated field
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    TODO: add docu
+    TODO: FIXME ;)
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -20,21 +20,26 @@ from django.db import models
 
 
 def list2string(l):
+    if not l:
+        return ""
+    assert isinstance(l, list)
     return ", ".join([i.strip() for i in l if i])
 def string2list(s):
+    assert isinstance(s, basestring)
     return [i.strip() for i in s.split(",") if i]
 
 
 class CommaSeparatedFormWidget(forms.TextInput):
     """ comma separated - form widget """
     def render(self, name, value, attrs=None):
-        value = list2string(value)
+        if isinstance(value, list):
+            value = list2string(value)
         return super(CommaSeparatedFormWidget, self).render(name, value, attrs)
 
 
 class CommaSeparatedFormField(forms.CharField):
     """ comma separated - form field """
-    widget = CommaSeparatedFormWidget
+#    widget = CommaSeparatedFormWidget
     
     def clean(self, value):
         value = super(CommaSeparatedFormField, self).clean(value)
