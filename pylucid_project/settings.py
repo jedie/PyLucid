@@ -85,17 +85,16 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "pylucid_project.apps.pylucid.context_processors.pylucid",
 )
 
-# A boolean that turns on/off template debug mode. If this is True, the fancy
-# error page will display a detailed report for any TemplateSyntaxError.
+# Template debug should be off, because you didn't see a good debug page, if the error
+# is in a lucidTag plugin view!
 # Note that Django only displays fancy error pages if DEBUG is True!
-#TEMPLATE_DEBUG = DEBUG
 TEMPLATE_DEBUG = False
 
-#if TEMPLATE_DEBUG:
-# Display invalid (e.g. misspelled, unused) template variables
-# http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
-# http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
-TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
+if DEBUG:
+    # Display invalid (e.g. misspelled, unused) template variables
+    # http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
+    # http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
+    TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
 
 
 INSTALLED_APPS = (
