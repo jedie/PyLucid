@@ -3,6 +3,9 @@
 # http://www.pylucid.org
 --editable svn+http://svn.pylucid.net/pylucid/branches/0.9/#egg=pylucid
 
+# http://code.google.com/p/django-dbpreferences
+--editable svn+http://django-dbpreferences.googlecode.com/svn/trunk/#egg=dbpreferences
+
 # http://code.google.com/p/django-reversion/
 --editable svn+http://django-reversion.googlecode.com/svn/trunk/src/#egg=reversion
 
