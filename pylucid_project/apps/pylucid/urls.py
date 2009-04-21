@@ -16,10 +16,11 @@
 
 from django.conf.urls.defaults import patterns, url
 
-from pylucid_project.apps.pylucid.views import root_page, lang_root_page, resolve_url
+from pylucid_project.apps.pylucid.views import root_page, lang_root_page, resolve_url, resolve_url_
 
 urlpatterns = patterns('',
     url(r'^$', root_page, name='PyLucid-root_page'),
     url(r'^(?P<lang_code>[a-zA-Z-_]{2,}?)/$', lang_root_page, name='PyLucid-lang_root_page'),
     url(r'^(?P<lang_code>[a-zA-Z-_]{2,}?)/(?P<url_path>[\w/-]+?)/$', resolve_url, name='PyLucid-resolve_url'),
+    url(r'^(?P<url_path>[\w/-]+?)/$', resolve_url_,name='PyLucid-resolve_url_without_lang')
 )

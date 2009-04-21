@@ -57,7 +57,7 @@ class PageTree(models.Model):
 
     template = models.ForeignKey(Template, to_field="id", help_text="the used template for this page")
 #    style = models.ForeignKey(Style, to_field="id", help_text="the used stylesheet for this page")
-    staticfiles = models.ManyToManyField("EditableStaticFile",
+    staticfiles = models.ManyToManyField("EditableStaticFile", null=True, blank=True,
         help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag")
 
 #    showlinks = models.BooleanField(default=True,
@@ -71,9 +71,9 @@ class PageTree(models.Model):
 
     createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
-    createby = models.ForeignKey(User, editable=False, related_name="%(class)s_createby",
+    createby = models.ForeignKey(User, editable=True, related_name="%(class)s_createby",
         help_text="User how create the current page.",)
-    lastupdateby = models.ForeignKey(User, editable=False, related_name="%(class)s_lastupdateby",
+    lastupdateby = models.ForeignKey(User, editable=True, related_name="%(class)s_lastupdateby",
         help_text="User as last edit the current page.",)       
 
     def get_absolute_url(self):
@@ -151,9 +151,9 @@ class PageContent(models.Model):
 
     createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
-    createby = models.ForeignKey(User, editable=False, related_name="%(class)s_createby",
+    createby = models.ForeignKey( User, editable=True, related_name="%(class)s_createby",
         help_text="User how create the current page.",)
-    lastupdateby = models.ForeignKey( User, editable=False, related_name="%(class)s_lastupdateby",
+    lastupdateby = models.ForeignKey( User, editable=True, related_name="%(class)s_lastupdateby",
         help_text="User as last edit the current page.",)
     
     def title_or_slug(self):
