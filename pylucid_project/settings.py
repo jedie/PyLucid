@@ -60,6 +60,7 @@ _plugins = pylucid_plugins.PluginList(
 TEMPLATE_DIRS = (
     os.path.join(_BASE_PATH, "apps/pylucid/templates/"),
     os.path.join(_BASE_PATH, "apps/pylucid_update/templates/"),
+    
     os.path.join(_BASE_PATH, "apps/dbpreferences/templates/"),
 
     os.path.join(_BASE_PATH, "django/contrib/admin/templates"),
@@ -87,13 +88,15 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 # A boolean that turns on/off template debug mode. If this is True, the fancy
 # error page will display a detailed report for any TemplateSyntaxError.
 # Note that Django only displays fancy error pages if DEBUG is True!
-TEMPLATE_DEBUG = DEBUG
+#TEMPLATE_DEBUG = DEBUG
+TEMPLATE_DEBUG = False
 
-if TEMPLATE_DEBUG:
-    # Display invalid (e.g. misspelled, unused) template variables
-    # http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
-    # http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
-    TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
+#if TEMPLATE_DEBUG:
+# Display invalid (e.g. misspelled, unused) template variables
+# http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
+# http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
+TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
+
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -105,9 +108,9 @@ INSTALLED_APPS = (
     # PyLucid own apps:
     'pylucid_project.apps.pylucid',
     'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
-    'pylucid_project.apps.dbpreferences',
 
     # external apps shipped and used with PyLucid:
+    'dbpreferences',
     'dbtemplates',
     'reversion',
 )
