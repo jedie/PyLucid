@@ -28,9 +28,9 @@ urlpatterns = patterns('',
     #_____________________________________
     # DJANGO ADMIN PANEL
     (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
-    
+
     ('^update/', include('apps.pylucid_update.urls')),
-    
+
     ('^', include('apps.pylucid.urls')),
 )
 
@@ -43,4 +43,3 @@ if getattr(settings, "SERVE_STATIC_FILES", False):
         {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}
     )
 
-admin.autodiscover()
