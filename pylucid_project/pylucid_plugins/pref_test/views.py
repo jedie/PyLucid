@@ -10,6 +10,6 @@ from pref_test.preference_forms import TestForm
 
 def lucidTag(request):
     form = TestForm()
-    pref_data = Preference.objects.get_pref(form)
+    pref_data = form.get_preferences()
     
     return HttpResponse("<pre>%s</pre>" % pprint.pformat(pref_data))

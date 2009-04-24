@@ -2,7 +2,10 @@
 
 from django import forms
 
-class TestForm(forms.Form):
+from dbpreferences.forms import DBPreferencesBaseForm
+
+
+class TestForm(DBPreferencesBaseForm):
     """ test preferences form """
     subject = forms.CharField(initial="foobar", help_text="Some foo text")   
     foo_bool = forms.BooleanField(initial=True, required=False, help_text="Yes or No?")
