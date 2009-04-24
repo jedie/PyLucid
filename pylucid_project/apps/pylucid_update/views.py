@@ -25,7 +25,7 @@ def menu(request):
 def _do_update(request, site, language):
     out = SimpleStringIO()
     out.write("Starting update")
-    
+
     out.write("Move template model")
     templates = {}
     for template in Template08.objects.all():
@@ -44,8 +44,8 @@ def _do_update(request, site, language):
             out.write("template '%s' transferted into dbtemplates." % template.name)
         else:
             out.write("dbtemplate '%s' exist." % template.name)
-        
-    
+
+
     out.write("Move style model")
     staticfiles = {}
     for style in Style08.objects.all():
@@ -63,8 +63,8 @@ def _do_update(request, site, language):
             out.write("stylesheet '%s' transferted into EditableStaticFile." % style.name)
         else:
             out.write("EditableStaticFile '%s' exist." % style.name)
-            
-    
+
+
     old_pages = Page08.objects.order_by('parent', 'id').all()
 
     page_dict = {}
@@ -83,15 +83,15 @@ def _do_update(request, site, language):
                 "site": site,
                 "parent": parent,
                 "position": old_page.position,
-    
+
                 "slug": old_page.shortcut,
                 "description": old_page.description,
-    
+
                 "type": PageTree.PAGE_TYPE, # FIXME: Find plugin entry in page content
-    
+
                 "template": templates[old_page.template.name],
             #    style = models.ForeignKey("Style")
-    
+
                 "createtime": old_page.createtime,
                 "lastupdatetime": old_page.lastupdatetime,
                 "createby": old_page.createby,
@@ -106,7 +106,7 @@ def _do_update(request, site, language):
             out.write("PageTree entry '%s' exist." % tree_entry.slug)
 
         page_dict[old_page.id] = tree_entry
-               
+
         content_entry, created = PageContent.objects.get_or_create(
             page = tree_entry,
             lang = language,
@@ -115,9 +115,9 @@ def _do_update(request, site, language):
                 "content": old_page.content,
                 "keywords": old_page.keywords,
                 "description": old_page.description,
-    
+
                 "markup": old_page.markup,
-    
+
                 "createtime": old_page.createtime,
                 "lastupdatetime": old_page.lastupdatetime,
                 "createby": old_page.createby,
@@ -150,6 +150,7 @@ def update08(request):
 
     context = {
         "title": "update data from PyLucid v0.8 to v0.9",
+        "url": reverse("PyLucidUpdate-update08"),
         "form": form,
     }
     return render_to_response('pylucid_update/update08.html', context,
