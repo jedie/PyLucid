@@ -5,7 +5,7 @@
     ~~~~~~~~~~~~~~~~~~~
 
     New PyLucid models since v0.9
-    
+
     TODO:
         Where to store bools like: showlinks, permitViewPublic ?
 
@@ -19,6 +19,8 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from xml.sax.saxutils import escape
+
 from django.db import models
 from django.contrib import admin
 from django.conf import settings
@@ -31,6 +33,25 @@ from dbtemplates.models import Template
 
 from pylucid.django_addons.comma_separated_field import CommaSeparatedCharField
 
+class PageTreeManager(models.Manager):
+    """ Manager class for PageTree model """
+    def get_page_from_url(self, url_path):
+        """ returns a tuple the page tree instance from the given url_path"""
+        path = url_path.split("/")
+        page = None
+        for no, page_slug in enumerate(path):
+            try:
+                page = PageTree.objects.get(parent=page, slug=page_slug)
+            except PageTree.DoesNotExist:
+                raise PageTree.DoesNotExist("Wrong url part: %s" % escape(page_slug))
+
+            if page.type == PageTree.PLUGIN_TYPE:
+                # It's a plugin
+                rest_url = "/".join(path[no+1:])
+                return (page, rest_url)
+
+        return (page, "")
+
 
 class PageTree(models.Model):
     """ The CMS page tree """
@@ -42,6 +63,8 @@ class PageTree(models.Model):
         (PLUGIN_TYPE , 'PluginPage'),
     )
     TYPE_DICT = dict(TYPE_CHOICES)
+
+    objects = PageTreeManager()
 
     id = models.AutoField(primary_key=True)
 
@@ -74,7 +97,7 @@ class PageTree(models.Model):
     createby = models.ForeignKey(User, editable=True, related_name="%(class)s_createby",
         help_text="User how create the current page.",)
     lastupdateby = models.ForeignKey(User, editable=True, related_name="%(class)s_lastupdateby",
-        help_text="User as last edit the current page.",)       
+        help_text="User as last edit the current page.",)
 
     def get_absolute_url(self):
         """
@@ -128,7 +151,7 @@ class PageContent(models.Model):
     )
     MARKUP_DICT = dict(MARKUP_CHOICES)
     #--------------------------------------------------------------------------
-    
+
     page = models.ForeignKey(PageTree)
     lang = models.ForeignKey(Language)
 
@@ -155,7 +178,7 @@ class PageContent(models.Model):
         help_text="User how create the current page.",)
     lastupdateby = models.ForeignKey( User, editable=True, related_name="%(class)s_lastupdateby",
         help_text="User as last edit the current page.",)
-    
+
     def title_or_slug(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
         if self.title:
@@ -187,7 +210,7 @@ class EditableStaticFile(models.Model):
     name = models.CharField(unique=True, max_length=150)
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
-    
+
     createtime = models.DateTimeField(auto_now_add=True)
     lastupdatetime = models.DateTimeField(auto_now=True)
     createby = models.ForeignKey(User, related_name="%(class)s_createby", null=True, blank=True)
