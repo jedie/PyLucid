@@ -37,8 +37,17 @@ def lang_root_page(request, lang_code):
 
 
 
+EXISTING_LANG_MSG = "message for existing lang page"
+
 def existing_lang(request, url_path):
-    return HttpResponse("TODO: existing lang page for: %s" % url_path)
+    result = "TODO: existing lang page for: %s" % url_path
+    
+    if EXISTING_LANG_MSG in request.session:
+        result += request.session.pop(EXISTING_LANG_MSG)
+        
+    return HttpResponse(result)
+
+ 
 
 def resolve_url(request, lang_code, url_path):
     """ get a page """
@@ -51,14 +60,24 @@ def resolve_url(request, lang_code, url_path):
     if page.type == PageTree.PLUGIN_TYPE:
         return HttpResponse("TODO: Plugin url: %r" % rest_url)
 
-    try:
-        lang = Language.objects.get(code=lang_code)
-        content = PageContent.objects.get(lang=lang,page=page)
-    except Language.DoesNotExist, PageContent.DoesNotExist:
-        request.user.message_set.create(message="The page doesn't exist in the requested language.")
+    def lang_error(msg):
+        """ send user a message and redirect to the existing lang. pagelist """
+        #request.user.message_set.create(message=msg) <<< works not for anonymous user, yet.
+        # work-a-round:
+        request.session[EXISTING_LANG_MSG] = msg
         # redirect to the existing language page
         new_url = reverse('PyLucid-existing_lang', kwargs={"url_path":url_path})
         return HttpResponseRedirect(new_url)
+
+    try:
+        lang = Language.objects.get(code=lang_code)
+    except Language.DoesNotExist:
+        return lang_error("The language '%s' doesn't exist." % lang_code)
+    
+    try:
+        content = PageContent.objects.get(lang=lang,page=page)
+    except PageContent.DoesNotExist:
+        return lang_error("The page doesn't exist in the requested language.")
 
     return HttpResponse("lang: %r path: %r resolved_id: %r\n\n%r" % (lang_code, url_path, str(page.id),content.content))
 
