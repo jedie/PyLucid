@@ -63,7 +63,7 @@ def resolve_url(request, lang_code, url_path):
     def lang_error(msg):
         """ send user a message and redirect to the existing lang. pagelist """
         #request.user.message_set.create(message=msg) <<< works not for anonymous user, yet.
-        # work-a-round:
+        # work-a-round since http://code.djangoproject.com/ticket/4604 lands:
         request.session[EXISTING_LANG_MSG] = msg
         # redirect to the existing language page
         new_url = reverse('PyLucid-existing_lang', kwargs={"url_path":url_path})
