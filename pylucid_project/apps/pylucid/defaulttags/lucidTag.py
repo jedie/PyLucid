@@ -115,7 +115,11 @@ class lucidTagNode(template.Node):
     def render(self, context):
         # callback is either a string like 'foo.views.news.stories.story_detail'
         callback = "pylucid_plugins.%s.views.%s" % (self.plugin_name, self.method_name)
-        callable = get_callable(callback)
+        try:
+            callable = get_callable(callback)
+        except ImportError, err:
+            # FIXME:
+            return u"[lucidTag %s.%s unknwon, error was: %s]" % (self.plugin_name, self.method_name, err)
         
         try:
             request = context["request"]
@@ -125,7 +129,6 @@ class lucidTagNode(template.Node):
         # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
         request.plugin_name = self.plugin_name
         request.method_name = self.method_name
-        
         
         try:
             # call the plugin view method

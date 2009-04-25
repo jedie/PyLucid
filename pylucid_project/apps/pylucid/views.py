@@ -47,7 +47,14 @@ def existing_lang(request, url_path):
         
     return HttpResponse(result)
 
- 
+
+def _render_page(request, pagetree, pagecontent):
+    template = pagetree.template
+    markup = pagecontent.markup
+    context = {
+        "PAGE": pagecontent, #FIXME: We sould split this into PageTree and PageContent (must update templates!)
+    }
+    return render_to_response(template, context, context_instance=RequestContext(request))
 
 def resolve_url(request, lang_code, url_path):
     """ get a page """
@@ -78,6 +85,8 @@ def resolve_url(request, lang_code, url_path):
         content = PageContent.objects.get(lang=lang,page=page)
     except PageContent.DoesNotExist:
         return lang_error("The page doesn't exist in the requested language.")
+
+    return _render_page(request, page, content)
 
     return HttpResponse("lang: %r path: %r resolved_id: %r\n\n%r" % (lang_code, url_path, str(page.id),content.content))
 
