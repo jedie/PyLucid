@@ -29,8 +29,9 @@ def _do_update(request, site, language):
     out.write("Move template model")
     templates = {}
     for template in Template08.objects.all():
+        new_template_name = settings.SITE_TEMPLATE_PREFIX + template.name + ".html"
         new_template, created = Template.objects.get_or_create(
-            name = settings.SITE_TEMPLATE_PREFIX + template.name,
+            name = new_template_name,
             defaults = {
                 "content": template.content,
                 "creation_date": template.createtime,
@@ -39,7 +40,7 @@ def _do_update(request, site, language):
         )
         new_template.save()
         new_template.sites.add(site)
-        templates[template.name] = new_template
+        templates[template.name] = new_template_name
         if created:
             out.write("template '%s' transferted into dbtemplates." % template.name)
         else:

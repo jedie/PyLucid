@@ -29,8 +29,6 @@ from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 
-from dbtemplates.models import Template
-
 from pylucid.django_addons.comma_separated_field import CommaSeparatedCharField
 
 class PageTreeManager(models.Manager):
@@ -78,8 +76,7 @@ class PageTree(models.Model):
 
     type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
-    template = models.ForeignKey(Template, to_field="id", help_text="the used template for this page")
-#    style = models.ForeignKey(Style, to_field="id", help_text="the used stylesheet for this page")
+    template = models.CharField(max_length=128, help_text="filename of the used template for this page")
     staticfiles = models.ManyToManyField("EditableStaticFile", null=True, blank=True,
         help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag")
 
