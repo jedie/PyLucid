@@ -20,6 +20,7 @@
 """
 
 import re
+import sys
 import cgi
 import shlex
 
@@ -101,7 +102,8 @@ class lucidTagNodeError(template.Node):
 
 
 class lucidTagNode(template.Node):
-    def __init__(self, plugin_name, method_name, method_kwargs):
+    def __init__(self, raw_content, plugin_name, method_name, method_kwargs):
+        self.raw_content = raw_content
         self.plugin_name = plugin_name
         self.method_name = method_name
         self.method_kwargs = method_kwargs
@@ -124,8 +126,15 @@ class lucidTagNode(template.Node):
         request.plugin_name = self.plugin_name
         request.method_name = self.method_name
         
-        # call the plugin view method
-        response = callable(request, **self.method_kwargs)
+        
+        try:
+            # call the plugin view method
+            response = callable(request, **self.method_kwargs)
+        except:
+            # insert more information into the traceback
+            etype, evalue, etb = sys.exc_info()
+            evalue = etype('Error rendering template tag "%s": %s' % (self.raw_content, evalue))
+            raise etype, evalue, etb 
         
         # FIXME: Witch error should we raised here?
         assert(isinstance(response, HttpResponse), "pylucid plugins must return a HttpResponse instance!")
@@ -160,7 +169,7 @@ def lucidTag(parser, token):
     else:
         method_kwargs = {}
 
-    return lucidTagNode(plugin_name, method_name, method_kwargs)
+    return lucidTagNode(raw_content, plugin_name, method_name, method_kwargs)
 
 
 
