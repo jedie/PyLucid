@@ -3,17 +3,34 @@
 from django.conf import settings
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
+from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 
 
-#from pylucid_project.apps.pylucid.models import Page08
-from pylucid_project.apps.pylucid.models import *
+from pylucid_project.apps.pylucid.models import PageTree, Language, PageContent, EditableHtmlHeadFile
+
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
 # see ./pylucid/defaulttags/__init__.py
 from django.template import add_to_builtins
 add_to_builtins('pylucid_project.apps.pylucid.defaulttags')
+
+
+def send_head_file(request, filename):
+    """
+    Sending a headfile
+    only a fall-back method if the file can't be stored into the media path
+    """
+    try:
+        headfile = EditableHtmlHeadFile.objects.get(filename=filename)
+    except EditableHtmlHeadFile.DoesNotExist:
+        raise Http404
+    
+    mimetype = headfile.get_mimetype()
+    content = headfile.content
+    
+    return HttpResponse(content, mimetype=mimetype)
+
 
 
 def root_page(request):
@@ -47,14 +64,22 @@ def existing_lang(request, url_path):
         
     return HttpResponse(result)
 
+class RequestObjects(object):
+    pass
 
 def _render_page(request, pagetree, pagecontent):
-    template = pagetree.template
+    # Add some pylucid objects for the plugins on the request object
+    request.PYLUCID = RequestObjects
+    request.PYLUCID.pagetree = pagetree
+    request.PYLUCID.pagecontent = pagecontent
+    
+    template = pagetree.design.template
     markup = pagecontent.markup
     context = {
         "PAGE": pagecontent, #FIXME: We sould split this into PageTree and PageContent (must update templates!)
     }
     return render_to_response(template, context, context_instance=RequestContext(request))
+
 
 def resolve_url(request, lang_code, url_path):
     """ get a page """

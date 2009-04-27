@@ -20,7 +20,7 @@ from django.contrib import admin
 
 from reversion.admin import VersionAdmin
 
-from pylucid_project.apps.pylucid.models import PageTree, Language, PageContent, EditableStaticFile
+from pylucid_project.apps.pylucid.models import PageTree, Language, PageContent, Design, EditableHtmlHeadFile
 
 
 #------------------------------------------------------------------------------
@@ -60,7 +60,13 @@ class PageContentAdmin(VersionAdmin):
 admin.site.register(PageContent, PageContentAdmin)
 
 
-class EditableStaticFileAdmin(VersionAdmin):
+class DesignAdmin(VersionAdmin):
     pass
 
-admin.site.register(EditableStaticFile, EditableStaticFileAdmin)
+admin.site.register(Design, DesignAdmin)
+
+
+class EditableHtmlHeadFileAdmin(VersionAdmin):
+    pass
+
+admin.site.register(EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)

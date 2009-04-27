@@ -50,7 +50,7 @@ def pylucid(request):
     if hasattr(request, "plugin_name"):
         # Add css anchor info
         context = _add_plugin_info(request, context)
-        
+    
     return context
 
 #

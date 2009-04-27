@@ -19,15 +19,18 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import os
 from xml.sax.saxutils import escape
 
 from django.db import models
 from django.contrib import admin
 from django.conf import settings
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
+from django.template.loader import render_to_string
 
 from pylucid.django_addons.comma_separated_field import CommaSeparatedCharField
 
@@ -76,9 +79,7 @@ class PageTree(models.Model):
 
     type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
-    template = models.CharField(max_length=128, help_text="filename of the used template for this page")
-    staticfiles = models.ManyToManyField("EditableStaticFile", null=True, blank=True,
-        help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag")
+    design = models.ForeignKey("Design", help_text="Page Template, CSS/JS files")
 
 #    showlinks = models.BooleanField(default=True,
 #        help_text="Put the Link to this page into Menu/Sitemap etc.?")
@@ -110,7 +111,7 @@ class PageTree(models.Model):
         return u"PageTree '%s' (type: %s)" % (self.slug, self.TYPE_DICT[self.type])
 
     class Meta:
-        unique_together =(("slug","parent"))
+        unique_together=(("slug","parent"),)
         db_table = 'PyLucid_PageTree'
 #        app_label = 'PyLucid'
 
@@ -192,19 +193,32 @@ class PageContent(models.Model):
         return u"PageContent '%s' (%s)" % (self.page.slug, self.lang)
 
     class Meta:
-        unique_together = (("page","lang"))
+        unique_together = (("page","lang"),)
         db_table = 'PyLucid_PageContent'
 #        app_label = 'PyLucid'
 
 
 
+class Design(models.Model):
+    """
+    Page design: template + CSS/JS files
+    """
+    name = models.CharField(unique=True, max_length=150, help_text="Name of this design combination",)
+    template = models.CharField(max_length=128, help_text="filename of the used template for this page")
+    headfiles = models.ManyToManyField("EditableHtmlHeadFile", null=True, blank=True,
+        help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag")
+
+    def __unicode__(self):
+        return u"Page design '%s'" % self.name
 
 
-class EditableStaticFile(models.Model):
+class EditableHtmlHeadFile(models.Model):
     """
     Storage for editable static text files, e.g.: stylesheet / javascript.
+    
+    TODO: the save() method should be try to store the file into media path!
     """
-    name = models.CharField(unique=True, max_length=150)
+    filename = models.CharField(unique=True, max_length=150)
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
 
@@ -213,8 +227,31 @@ class EditableStaticFile(models.Model):
     createby = models.ForeignKey(User, related_name="%(class)s_createby", null=True, blank=True)
     lastupdateby = models.ForeignKey(User, related_name="%(class)s_lastupdateby", null=True, blank=True)
 
+    def get_mimetype(self):
+        if self.filename.endswith(".css"):
+            return u"text/css"
+        elif self.filename.endswith(".js"):
+            return u"text/javascript"
+        else:
+            from mimetypes import guess_type
+            returnguess_type(self.filename)[0] or u"application/octet-stream"            
+
+    def get_head_template(self):
+        """ returns the template name for building the html head link. """
+        ext = os.path.splitext(self.filename)[1].strip(".")
+        return settings.PYLUCID.EDITABLE_HEAD_LINK_TEMPLATE % ext
+
+    def get_head_link(self):
+        """
+        TODO: Should check if the file was saved into media path
+        """
+        template_name = self.get_head_template()
+        url = reverse("PyLucid-send_head_file", kwargs={"filename":self.filename})
+        head_link = render_to_string(template_name, {'url': url})
+        return head_link
+
     def __unicode__(self):
-        return u"EditableStaticFile %r" % self.name
+        return u"EditableHtmlHeadFile '%s'" % self.name
 
     class Meta:
         db_table = 'PyLucid_EditableStaticFile'
