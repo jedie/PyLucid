@@ -38,8 +38,8 @@ urlpatterns = patterns('',
 if settings.SERVE_STATIC_FILES:
     # Should only enabled, if the django development server used.
     urlpatterns += patterns('',
-        '^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"),
-        'django.views.static.serve',
-        {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}
+        ('^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"), 'django.views.static.serve',
+            {'document_root': '/path/to/media', 'show_indexes': True}),
     )
+
 
