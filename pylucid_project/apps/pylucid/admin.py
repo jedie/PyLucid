@@ -67,6 +67,7 @@ admin.site.register(Design, DesignAdmin)
 
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
-    pass
+    list_display = ("filename", "description", "lastupdatetime", "lastupdateby")
+    list_display_links = ("filename", "description")
 
 admin.site.register(EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
