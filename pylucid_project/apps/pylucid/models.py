@@ -134,6 +134,7 @@ class PageContentManager(models.Manager):
         """
         returns a list of PageContent instance objects back to the tree root.
         Usefull for generating a "You are here" breadcrumb navigation
+        TODO: filter showlinks and permit settings
         """
         parent = pagecontent.page.parent          
         if parent:
@@ -143,7 +144,17 @@ class PageContentManager(models.Manager):
             backlist.append(pagecontent)
             return backlist
         else:
-            return [pagecontent]       
+            return [pagecontent]
+    
+    def get_sub_pages(self, pagecontent):
+        """
+        returns a list of all sub pages for the given PageContent instance
+        TODO: filter showlinks and permit settings
+        """
+        current_lang = pagecontent.lang
+        current_page = pagecontent.page
+        sub_pages = PageContent.objects.all().filter(page__parent=current_page, lang=current_lang)
+        return sub_pages   
 
 
 class PageContent(models.Model):
@@ -202,8 +213,6 @@ class PageContent(models.Model):
         if self.title:
             return self.title
         return self.page.slug
-
-
 
     def get_absolute_url(self):
         """

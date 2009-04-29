@@ -208,7 +208,7 @@ def update08templates(request):
     def replace(content, out, old, new):
         out.write("replace %r with %r" % (old, new))
         if not old in content:
-            out.write("String not found. Updated already?")
+            out.write("Source string not found, ok.")
         else:
             content = content.replace(old, new)
         return content
@@ -221,6 +221,11 @@ def update08templates(request):
 
         content = replace(content, out,"{% lucidTag page_style %}", "{% lucidTag head_files %}")
         content = replace(content, out,"{% lucidTag back_links %}", "{% lucidTag breadcrumb %}")
+        content = replace(content, out,"{{ PAGE.content }}", "{{ html_content }}")
+        content = replace(content, out,"{% if PAGE.title %}{{ PAGE.title|escape }}{% else %}{{ PAGE.name|escape }}{% endif %}", "{{ pagecontent.title_or_slug }}")
+        content = replace(content, out,"PAGE.title", "pagecontent.title")
+        content = replace(content, out,"{{ PAGE.datetime", "{{ pagecontent.createtime")
+        content = replace(content, out,"{{ PAGE.", "{{ pagecontent.")
         
         template.content = content
         template.save()

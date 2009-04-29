@@ -6,8 +6,8 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 
-
-from pylucid_project.apps.pylucid.models import PageTree, Language, PageContent, EditableHtmlHeadFile
+from pylucid.markup.converter import apply_markup
+from pylucid.models import PageTree, Language, PageContent, EditableHtmlHeadFile
 
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
@@ -38,6 +38,9 @@ def root_page(request):
     Display a root page with some usefull links
     XXX: Only for developing
     """
+    request.user.message_set.create(message="root_page view - Test with request.user.message_set.create")
+    request.page_msg("root_page view - Test with request.page_msg")
+    
     context = {
         "request": request, # FIXME: Can we add it throu a own context processors?
         "admin_url": "/%s/" % settings.ADMIN_URL_PREFIX,
@@ -73,12 +76,22 @@ def _render_page(request, pagetree, pagecontent):
     request.PYLUCID.pagetree = pagetree
     request.PYLUCID.pagecontent = pagecontent
     
+    context = RequestContext(request, {
+        "pagetree": pagetree,
+        "pagecontent": pagecontent,
+    })
+    
+    raw_html_content = apply_markup(pagecontent, request.page_msg)
+    
+    from django.template import Context, Template
+    t = Template(raw_html_content)
+    c = Context(context, context)
+    html_content = t.render(c)
+    
     template = pagetree.design.template
-    markup = pagecontent.markup
-    context = {
-        "PAGE": pagecontent, #FIXME: We sould split this into PageTree and PageContent (must update templates!)
-    }
-    return render_to_response(template, context, context_instance=RequestContext(request))
+    
+    context["html_content"] = html_content
+    return render_to_response(template, context)
 
 
 def resolve_url(request, lang_code, url_path):

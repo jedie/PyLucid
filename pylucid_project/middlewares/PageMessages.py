@@ -34,16 +34,13 @@ import os
 import sys
 import pprint
 import inspect
-from xml.sax.saxutils import escape
 
 from django.conf import settings
 from django.utils.encoding import smart_str
 from django.template import Context, Template
 from django.utils.safestring import mark_safe, SafeData
 
-#from PyLucid.tools.content_processors import render_string_template
-#from PyLucid.middlewares.utils import is_html, replace_content
-#from PyLucid.tools.utils import escape
+from pylucid_project.utils.escape import escape
 
 TAG = "<!-- page_messages -->"
 
