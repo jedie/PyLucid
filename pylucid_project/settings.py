@@ -123,8 +123,40 @@ INSTALLED_APPS += _plugins.get_installed_apps()
 #from pylucid_project.apps.pylucid.app_settings import PYLUCID
 from pylucid_project.apps.pylucid import app_settings as PYLUCID
 
+#_____________________________________________________________________________
+# STATIC FILES
+# http://www.djangoproject.com/documentation/static_files/
+
+# Serve static files for the development server?
+# Using this method is inefficient and insecure.
+# Do not use this in a production setting. Use this only for development.
+SERVE_STATIC_FILES = True
+
+# Note: Every URL/path...
+# ...must be a absolute path.
+# ...must have a trailing slash.
+
+# Absolute _local_filesystem_path_ to the directory that holds media.
+#     Example-1: "./media/" (default)
+#     Example-2: "/home/foo/htdocs/media/"
+MEDIA_ROOT = "./media/"
+
+# URL that handles the media served from MEDIA_ROOT.
+#     Example-1: "/media/" (default)
+#     Examlpe-2: "http://other_domain.net/media/"
+#     Example-3: "http://media.your_domain.net/"
+MEDIA_URL = "/media/"
+
+
 ADMIN_URL_PREFIX = 'admin'
 
+# TODO: must be used ;)
+SLUG_BLACKLIST = (
+    MEDIA_URL.strip("/").split("/",1)[0],
+    ADMIN_URL_PREFIX, PYLUCID.HEAD_FILES_URL_PREFIX,
+)
+
+# Prefix in filename, used for page templates and page styles
 SITE_TEMPLATE_PREFIX = 'site_template/'
 
 

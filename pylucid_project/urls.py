@@ -35,7 +35,7 @@ urlpatterns = patterns('',
 )
 
 # serve static files
-if getattr(settings, "SERVE_STATIC_FILES", False):
+if settings.SERVE_STATIC_FILES:
     # Should only enabled, if the django development server used.
     urlpatterns += patterns('',
         '^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"),
