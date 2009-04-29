@@ -1,5 +1,5 @@
 {# for sourounding plugin output with css anchors #}
 
 <div class="{{ CSS_PLUGIN_CLASS_NAME }} {{ css_plugin_class }}" id="{{ css_plugin_id }}">
-{% block plugin_content %}Plugin template must extends the 'plugin_content' block!{% endblock %}
+{% block plugin_content %}Error in template from plugin '{{ css_plugin_class }}': It must extends the block 'plugin_content'!{% endblock %}
 </div>
