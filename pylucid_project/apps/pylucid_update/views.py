@@ -4,6 +4,7 @@ from django.conf import settings
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
+from django.template.loader import find_template_source
 
 from dbtemplates.models import Template
 
@@ -22,11 +23,9 @@ def menu(request):
     }
     return render_to_response('pylucid_update/menu.html', context, context_instance=RequestContext(request))
 
-def _update_template(out, content):
-    """ update templates """
-    content = content.replace("{% lucidTag page_style %}", "{% lucidTag head_files %}")
-    out.write("Template updated")
-    return content
+
+
+
 
 def _do_update(request, site, language):
     out = SimpleStringIO()
@@ -37,11 +36,10 @@ def _do_update(request, site, language):
     templates = {}
     for template in Template08.objects.all():
         new_template_name = settings.SITE_TEMPLATE_PREFIX + template.name + ".html"
-        new_content = _update_template(out, template.content)
         new_template, created = Template.objects.get_or_create(
             name = new_template_name,
             defaults = {
-                "content": new_content,
+                "content": template.content,
                 "creation_date": template.createtime,
                 "last_changed": template.lastupdatetime,
             }
@@ -59,7 +57,7 @@ def _do_update(request, site, language):
     cssfiles = {}
     for style in Style08.objects.all():
         new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(
-            filename = style.name + ".css",
+            filename = settings.SITE_TEMPLATE_PREFIX + style.name + ".css",
             defaults = {
                 "description": style.description,
                 "content": style.content,
@@ -173,10 +171,12 @@ def _do_update(request, site, language):
             out.write("PageContent entry '%s' - '%s' exist." % (language, tree_entry.slug))
 
     context = {
+        "title": "update data from PyLucid v0.8 to v0.9",
         "results": out.getlines(),
     }
     return render_to_response('pylucid_update/update08result.html', context,
         context_instance=RequestContext(request))
+
 
 def update08(request):
     """ Update PyLucid v0.8 model data to v0.9 models """
@@ -198,3 +198,77 @@ def update08(request):
     return render_to_response('pylucid_update/update08.html', context,
         context_instance=RequestContext(request))
 
+
+def update08templates(request):
+    """ Update PyLucid v0.8 templates """
+    title = "Update PyLucid v0.8 templates"
+    out = SimpleStringIO()
+    out.write(title)
+    
+    def replace(content, out, old, new):
+        out.write("replace %r with %r" % (old, new))
+        if not old in content:
+            out.write("String not found. Updated already?")
+        else:
+            content = content.replace(old, new)
+        return content
+        
+    
+    for template in Template.objects.filter(name__istartswith=settings.SITE_TEMPLATE_PREFIX):       
+        out.write("Update Template: %s" % template.name)
+        
+        content = template.content
+
+        content = replace(content, out,"{% lucidTag page_style %}", "{% lucidTag head_files %}")
+        content = replace(content, out,"{% lucidTag back_links %}", "{% lucidTag breadcrumb %}")
+        
+        template.content = content
+        template.save()
+        
+        out.write("Template updated.")        
+    
+    context = {
+        "title": title,
+        "results": out.getlines(),
+    }
+    return render_to_response('pylucid_update/update08result.html', context,
+        context_instance=RequestContext(request))
+    
+    
+def update08styles(request):
+    """ Update PyLucid v0.8 styles """
+    title = "Update PyLucid v0.8 styles"
+    out = SimpleStringIO()
+    out.write(title)
+    
+    def replace(content, out, old, new):
+        out.write("replace %r with %r" % (old, new))
+        if not old in content:
+            out.write("String not found. Updated already?")
+        else:
+            content = content.replace(old, new)
+        return content
+    
+    # Get the file content via django template loader:
+    additional_styles, origin = find_template_source("pylucid_update/additional_styles.css")
+        
+    styles = EditableHtmlHeadFile.objects.filter(filename__istartswith=settings.SITE_TEMPLATE_PREFIX)
+    styles = styles.filter(filename__iendswith=".css")
+    for style in styles:       
+        out.write("Update Styles: %s" % style.filename)
+        
+        content = style.content
+        if additional_styles in content:
+            out.write("additional styles allready inserted.")
+        else:
+            content = additional_styles + content
+            style.content = content
+            style.save()
+            out.write("additional styles inserted.")        
+    
+    context = {
+        "title": title,
+        "results": out.getlines(),
+    }
+    return render_to_response('pylucid_update/update08result.html', context,
+        context_instance=RequestContext(request))

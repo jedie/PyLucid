@@ -1,0 +1,15 @@
+.back_links li {
+  display: inline;
+}
+.back_links ul {
+  list-style: inside none;
+  white-space: nowrap;
+  margin: 0px;
+  padding: 0px;
+}
+.back_links li:before {
+  content:" > ";
+}
+.back_links li:first-child:before {
+  content:"";
+}

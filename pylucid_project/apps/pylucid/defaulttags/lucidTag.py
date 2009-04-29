@@ -140,6 +140,8 @@ class lucidTagNode(template.Node):
             raise etype, evalue, etb 
         
         # FIXME: Witch error should we raised here?
+        if response==None:
+            return u""
         assert(isinstance(response, HttpResponse), "pylucid plugins must return a HttpResponse instance!")
         assert(response.status_code == 200, "Response status code != 200 ???")
         

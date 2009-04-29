@@ -1,0 +1,12 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+<p>{% trans "You are here:" %}
+{% if preferences.print_index %}
+  <a href="{{ preferences.index_url }}">{{ preferences.index|escape }}</a>{{ preferences.separator }}
+{% endif %}
+  {% for page in pagelist %}
+    <a href="{{ page.get_absolute_url }}">{{ page.title_or_slug|escape }}</a>{% if not forloop.last %}{{ preferences.separator }}{% endif %}
+  {% endfor %}
+</p>
+{% endblock %}

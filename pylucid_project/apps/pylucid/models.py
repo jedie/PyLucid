@@ -128,6 +128,24 @@ class Language(models.Model):
 #        app_label = 'PyLucid'
 
 
+class PageContentManager(models.Manager):
+    """ Manager class for PageContent model """
+    def get_backlist(self, pagecontent):
+        """
+        returns a list of PageContent instance objects back to the tree root.
+        Usefull for generating a "You are here" breadcrumb navigation
+        """
+        parent = pagecontent.page.parent          
+        if parent:
+            lang = pagecontent.lang
+            parent_content = self.get(page=parent, lang=lang)
+            backlist = self.get_backlist(parent_content)
+            backlist.append(pagecontent)
+            return backlist
+        else:
+            return [pagecontent]       
+
+
 class PageContent(models.Model):
     # IDs used in other parts of PyLucid, too
     MARKUP_CREOLE       = 6
@@ -149,6 +167,8 @@ class PageContent(models.Model):
     )
     MARKUP_DICT = dict(MARKUP_CHOICES)
     #--------------------------------------------------------------------------
+    
+    objects = PageContentManager()
 
     page = models.ForeignKey(PageTree)
     lang = models.ForeignKey(Language)
@@ -182,6 +202,8 @@ class PageContent(models.Model):
         if self.title:
             return self.title
         return self.page.slug
+
+
 
     def get_absolute_url(self):
         """
@@ -246,12 +268,13 @@ class EditableHtmlHeadFile(models.Model):
         TODO: Should check if the file was saved into media path
         """
         template_name = self.get_head_template()
-        url = reverse("PyLucid-send_head_file", kwargs={"filename":self.filename})
+        filename = self.filename
+        url = reverse("PyLucid-send_head_file", kwargs={"filename": filename})
         head_link = render_to_string(template_name, {'url': url})
         return head_link
 
     def __unicode__(self):
-        return u"EditableHtmlHeadFile '%s'" % self.name
+        return u"EditableHtmlHeadFile '%s'" % self.filename
 
     class Meta:
         db_table = 'PyLucid_EditableStaticFile'

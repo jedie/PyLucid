@@ -6,9 +6,11 @@
 
 from django.conf.urls.defaults import patterns, url
 
-from pylucid_project.apps.pylucid_update.views import menu, update08
+from pylucid_project.apps.pylucid_update import views
 
 urlpatterns = patterns('',
-    url(r'^$',          menu,     name='PyLucidUpdate-menu'),
-    url(r'^update08/$',  update08, name='PyLucidUpdate-update08'),
+    url(r'^$',                      views.menu,                 name='PyLucidUpdate-menu'),
+    url(r'^update08/$',             views.update08,             name='PyLucidUpdate-update08'),
+    url(r'^update08templates/$',    views.update08templates,    name='PyLucidUpdate-update08templates'),
+    url(r'^update08styles/$',       views.update08styles,       name='PyLucidUpdate-update08styles'),
 )

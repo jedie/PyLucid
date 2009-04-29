@@ -50,7 +50,15 @@
 <!-- app_extrahead block end -->
 {% endblock %}
 
-{% block branding %}PyLucid update{% endblock %}
+{% block branding %}<h1>PyLucid update</h1>{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="/">Home</a> ›
+     <a href="{% url PyLucidUpdate-menu %}">Update</a> ›
+     {{ title }}
+</div>{% endif %}
+{% endblock %}
 
 {% block footer %}
 <!-- app footer block start -->
