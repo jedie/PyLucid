@@ -78,12 +78,12 @@ class PluginGetResolver(object):
     def __call__(self, *args, **kwargs):
         return self.resolver
 
-def _call_plugin(request, page, lang_code, prefix_url, rest_url):
+def _call_plugin(request, pagetree, lang_code, prefix_url, rest_url):
     """
     Call a plugin and return the response.
     """
     # Get the information witch django app would be used
-    pluginpage = PluginPage.objects.get(page=page)
+    pluginpage = PluginPage.objects.get(page=pagetree)
     app_label = pluginpage.app_label
     plugin_urlconf_name = app_label + ".urls"
     
@@ -97,6 +97,10 @@ def _call_plugin(request, page, lang_code, prefix_url, rest_url):
 
     # The used urlpatterns
     urlpatterns2 = patterns('', url(prefix, [plugin_urlpatterns]))
+    
+    # Append projects own url patterns, so the plugin can reverse url from them, too.
+    current_urlpatterns = import_module(settings.ROOT_URLCONF).urlpatterns
+    urlpatterns2 += current_urlpatterns
     
     # Make a own url resolver
     resolver = urlresolvers.RegexURLResolver(r'^/', urlpatterns2)
@@ -117,6 +121,13 @@ def _call_plugin(request, page, lang_code, prefix_url, rest_url):
     # this urls would be prefixed with the current PageTree url.
     old_get_resolver = urlresolvers.get_resolver
     urlresolvers.get_resolver = PluginGetResolver(resolver)
+    
+    # Add some pylucid objects for the plugins on the request object
+    request.PYLUCID = RequestObjects
+    request.PYLUCID.pagetree = pagetree
+    
+    #FIXME: Some plugins needs a "current pagecontent" object!
+    #request.PYLUCID.pagecontent = 
     
     # Call the view
     response = view_func(request, *view_args, **view_kwargs)
