@@ -179,7 +179,9 @@ class PageMessages(object):
         if isinstance(txt, SafeData):
             return txt
 
-        if isinstance(txt, unicode):
+        if not isinstance(txt, basestring):
+            txt = repr(txt)
+        elif isinstance(txt, unicode):
             txt = smart_str(txt, encoding=self._charset)
 
         return escape(txt)
