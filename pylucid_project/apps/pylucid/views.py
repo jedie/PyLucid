@@ -1,9 +1,11 @@
 
 
 from django.conf import settings
+from django.core import urlresolvers
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.core.urlresolvers import RegexURLResolver
+from django.utils.importlib import import_module
+from django.conf.urls.defaults import patterns, url
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 
@@ -70,17 +72,57 @@ def existing_lang(request, url_path):
     return HttpResponse(result)
 
 
-def _call_plugin(request, page, rest_url):
+class PluginGetResolver(object):
+    def __init__(self, resolver):
+        self.resolver = resolver
+    def __call__(self, *args, **kwargs):
+        return self.resolver
 
+def _call_plugin(request, page, lang_code, prefix_url, rest_url):
+    """
+    Call a plugin and return the response.
+    """
+    # Get the information witch django app would be used
     pluginpage = PluginPage.objects.get(page=page)
     app_label = pluginpage.app_label
+    plugin_urlconf_name = app_label + ".urls"
     
-    resolver = RegexURLResolver(r'^/', app_label + ".urls")
+    # Get the urlpatterns from the plugin urls.py
+    plugin_urlpatterns = import_module(plugin_urlconf_name).urlpatterns
+    
+    # build the url prefix
+    prefix = "/".join(["^" + lang_code, prefix_url])
+    if not prefix_url.endswith("/"):
+        prefix += "/"
 
-    view_func, view_args, view_kwargs = resolver.resolve("/%s/" % rest_url)
+    # The used urlpatterns
+    urlpatterns2 = patterns('', url(prefix, [plugin_urlpatterns]))
     
-    # Call the view    
+    # Make a own url resolver
+    resolver = urlresolvers.RegexURLResolver(r'^/', urlpatterns2)
+    
+#    for key in resolver.reverse_dict:
+#        print key, resolver.reverse_dict[key]
+
+    # get the plugin view from the complete url
+    resolve_url = request.path_info
+    result = resolver.resolve(resolve_url)
+    if result == None:
+        raise urlresolvers.Resolver404, {'tried': resolver.url_patterns, 'path': rest_url}
+    
+    view_func, view_args, view_kwargs = result
+    
+    # Patch urlresolvers.get_resolver() function, so only our own resolver with urlpatterns2
+    # is active in the plugin. So the plugin can build urls with normal django function and
+    # this urls would be prefixed with the current PageTree url.
+    old_get_resolver = urlresolvers.get_resolver
+    urlresolvers.get_resolver = PluginGetResolver(resolver)
+    
+    # Call the view
     response = view_func(request, *view_args, **view_kwargs)
+    
+    # restore the patched function
+    urlresolvers.get_resolver = old_get_resolver
     
     return response
 
@@ -117,12 +159,12 @@ def resolve_url(request, lang_code, url_path):
     """ get a page """
 
     try:
-        page, rest_url = PageTree.objects.get_page_from_url(url_path)
+        page, prefix_url, rest_url = PageTree.objects.get_page_from_url(url_path)
     except PageTree.DoesNotExist, err:
         return HttpResponseNotFound("<h1>Page not found</h1><h2>%s</h2>" % err)
 
     if page.type == PageTree.PLUGIN_TYPE:
-        return _call_plugin(request, page, rest_url)
+        return _call_plugin(request, page, lang_code, prefix_url, rest_url)
 
     def lang_error(msg):
         """ send user a message and redirect to the existing lang. pagelist """

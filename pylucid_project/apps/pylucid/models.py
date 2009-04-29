@@ -48,12 +48,13 @@ class PageTreeManager(models.Manager):
 
             if page.type == PageTree.PLUGIN_TYPE:
                 # It's a plugin
+                prefix_url = "/".join(path[:no+1])
                 rest_url = "/".join(path[no+1:])
 #                if not rest_url.endswith("/"):
 #                    rest_url += "/"
-                return (page, rest_url)
+                return (page, prefix_url, rest_url)
 
-        return (page, "")
+        return (page, None, None)
 
 
 class PageTree(models.Model):
