@@ -20,7 +20,7 @@ from django.contrib import admin
 
 from reversion.admin import VersionAdmin
 
-from pylucid_project.apps.pylucid.models import PageTree, Language, PageContent, Design, EditableHtmlHeadFile
+from pylucid_project.apps.pylucid import models
 
 
 #------------------------------------------------------------------------------
@@ -41,13 +41,13 @@ class PageTreeAdmin(VersionAdmin):
 #    date_hierarchy = 'lastupdatetime'
 #    search_fields = ["content", "name", "title", "description", "keywords"]
 
-admin.site.register(PageTree, PageTreeAdmin)
+admin.site.register(models.PageTree, PageTreeAdmin)
 
 
 class LanguageAdmin(VersionAdmin):
     pass
 
-admin.site.register(Language, LanguageAdmin)
+admin.site.register(models.Language, LanguageAdmin)
 
 
 class PageContentAdmin(VersionAdmin):
@@ -57,17 +57,23 @@ class PageContentAdmin(VersionAdmin):
 #    date_hierarchy = 'lastupdatetime'
 #    search_fields = ["content", "name", "title", "description", "keywords"]
 
-admin.site.register(PageContent, PageContentAdmin)
+admin.site.register(models.PageContent, PageContentAdmin)
+
+
+class PluginPageAdmin(VersionAdmin):
+    pass
+
+admin.site.register(models.PluginPage, PluginPageAdmin)
 
 
 class DesignAdmin(VersionAdmin):
     pass
 
-admin.site.register(Design, DesignAdmin)
+admin.site.register(models.Design, DesignAdmin)
 
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
     list_display = ("filename", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filename", "description")
 
-admin.site.register(EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
+admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)

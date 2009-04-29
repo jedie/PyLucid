@@ -3,11 +3,12 @@
 from django.conf import settings
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.core.urlresolvers import RegexURLResolver
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 
 from pylucid.markup.converter import apply_markup
-from pylucid.models import PageTree, Language, PageContent, EditableHtmlHeadFile
+from pylucid.models import PageTree, Language, PageContent, PluginPage, EditableHtmlHeadFile
 
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
@@ -47,6 +48,7 @@ def root_page(request):
     }
     return render_to_response('pylucid/root_page.html', context, context_instance=RequestContext(request))
 
+
 def lang_root_page(request, lang_code):
     try:
         Language.objects.get(code=lang_code)
@@ -66,6 +68,23 @@ def existing_lang(request, url_path):
         result += request.session.pop(EXISTING_LANG_MSG)
         
     return HttpResponse(result)
+
+
+def _call_plugin(request, page, rest_url):
+
+    pluginpage = PluginPage.objects.get(page=page)
+    app_label = pluginpage.app_label
+    
+    resolver = RegexURLResolver(r'^/', app_label + ".urls")
+
+    view_func, view_args, view_kwargs = resolver.resolve("/%s/" % rest_url)
+    
+    # Call the view    
+    response = view_func(request, *view_args, **view_kwargs)
+    
+    return response
+
+
 
 class RequestObjects(object):
     pass
@@ -103,7 +122,7 @@ def resolve_url(request, lang_code, url_path):
         return HttpResponseNotFound("<h1>Page not found</h1><h2>%s</h2>" % err)
 
     if page.type == PageTree.PLUGIN_TYPE:
-        return HttpResponse("TODO: Plugin url: %r" % rest_url)
+        return _call_plugin(request, page, rest_url)
 
     def lang_error(msg):
         """ send user a message and redirect to the existing lang. pagelist """
@@ -125,8 +144,6 @@ def resolve_url(request, lang_code, url_path):
         return lang_error("The page doesn't exist in the requested language.")
 
     return _render_page(request, page, content)
-
-    return HttpResponse("lang: %r path: %r resolved_id: %r\n\n%r" % (lang_code, url_path, str(page.id),content.content))
 
 
 

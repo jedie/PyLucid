@@ -4,8 +4,9 @@ setup some "static" variables
 """
 
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from pylucid_project import PYLUCID_VERSION_STRING
 from pylucid_project.utils import slug
@@ -45,7 +46,18 @@ def pylucid(request):
         "robots": "index,follow", # TODO: remove in v0.9, see: ticket:161
         
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        
+        "login_link": "XXX",
     }
+    
+#    if request.user.is_authenticated():
+#        url = reverse("admin_logout")
+#        txt = "%s [%s]" % (_("Log out"), request.user.username)
+#    else:
+#        url = reverse("admin_index")
+#        txt = _("Log in")
+#        
+#    context["login_link"] = mark_safe('<a href="%s">%s</a>' % (url, txt))
     
     if hasattr(request, "plugin_name"):
         # Add css anchor info
@@ -58,20 +70,6 @@ def pylucid(request):
 #    """
 #    Add some dynamic stuff into the context.
 #    """
-#    URLs = context["URLs"]
-#
-#    #___________________________________________________________________________
-#
-#    if hasattr(request, "user") and request.user.username != "":
-#        # User is logged in
-#        url = URLs.commandLink("auth", "logout")
-#        txt = "%s [%s]" % (_("Log out"), request.user.username)
-#    else:
-##        url = URLs.commandLink("auth", "login/?next=%s" % request.path)
-#        url = URLs.commandLink("auth", "login")
-#        txt = _("Log in")
-#
-#    context["login_link"] = mark_safe('<a href="%s">%s</a>' % (url, txt))
 #
 #    # Put the language information into the context, if it exists.
 #    # see: http://www.djangoproject.com/documentation/i18n/

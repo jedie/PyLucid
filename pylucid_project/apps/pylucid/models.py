@@ -49,6 +49,8 @@ class PageTreeManager(models.Manager):
             if page.type == PageTree.PLUGIN_TYPE:
                 # It's a plugin
                 rest_url = "/".join(path[no+1:])
+#                if not rest_url.endswith("/"):
+#                    rest_url += "/"
                 return (page, rest_url)
 
         return (page, "")
@@ -116,6 +118,23 @@ class PageTree(models.Model):
 #        app_label = 'PyLucid'
 
 
+class PluginPage(models.Model):
+    APP_LABEL_CHOICES = [(app,app) for app in settings.INSTALLED_APPS]
+    page = models.ForeignKey(PageTree, unique=True)
+    app_label = models.CharField(max_length=256, choices=APP_LABEL_CHOICES,
+        help_text="The app lable witch is in settings.INSTALLED_APPS")
+    
+    def save(self):
+        if not self.page.type == self.page.PLUGIN_TYPE:
+            # FIXME: Better error with django model validation?
+            raise AssertionError("Plugin can only exist on a plugin type tree entry!")
+        return super(PluginPage, self).save()
+    
+    def __unicode__(self):
+        return u"PluginPage '%s' (page: %s)" % (self.app_label, self.page)
+
+
+
 class Language(models.Model):
     code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=150, help_text="Description of the Language")
@@ -135,6 +154,7 @@ class PageContentManager(models.Manager):
         returns a list of PageContent instance objects back to the tree root.
         Usefull for generating a "You are here" breadcrumb navigation
         TODO: filter showlinks and permit settings
+        TODO: filter current site
         """
         parent = pagecontent.page.parent          
         if parent:
@@ -150,6 +170,7 @@ class PageContentManager(models.Manager):
         """
         returns a list of all sub pages for the given PageContent instance
         TODO: filter showlinks and permit settings
+        TODO: filter current site
         """
         current_lang = pagecontent.lang
         current_page = pagecontent.page
@@ -219,6 +240,12 @@ class PageContent(models.Model):
         Get the absolute url (without the domain/host part)
         """
         return "/" + self.lang.code + self.page.get_absolute_url()
+
+    def save(self):
+        if not self.page.type == self.page.PAGE_TYPE:
+            # FIXME: Better error with django model validation?
+            raise AssertionError("PageContent can only exist on a page type tree entry!")
+        return super(PageContent, self).save()
 
     def __unicode__(self):
         return u"PageContent '%s' (%s)" % (self.page.slug, self.lang)
