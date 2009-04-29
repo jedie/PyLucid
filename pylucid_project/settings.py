@@ -49,6 +49,13 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 SITE_ID = 1
 ROOT_URLCONF = 'pylucid_project.urls'
 
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'pylucid_project.middlewares.PageMessages.PageMessagesMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+)
+
 
 _BASE_PATH = os.path.join(os.path.dirname(__file__))
 
