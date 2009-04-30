@@ -11,7 +11,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpRespons
 
 from pylucid.markup.converter import apply_markup
 from pylucid.models import PageTree, Language, PageContent, PluginPage, EditableHtmlHeadFile
-
+from pylucid.preference_forms import SystemPreferencesForm
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
 # see ./pylucid/defaulttags/__init__.py
@@ -62,24 +62,32 @@ def lang_root_page(request, lang_code):
 def existing_lang(request, url_path):
     """
     List all available languages.
-    """
+    """   
     try:
         pagetree, prefix_url, rest_url = PageTree.objects.get_page_from_url(url_path)
     except PageTree.DoesNotExist, err:
         return HttpResponseNotFound("<h1>Page not found</h1><h2>%s</h2>" % err)
+    
+    # Get the default language from system preferences
+    system_preferences = SystemPreferencesForm().get_preferences()  
+    lang_code = system_preferences["lang_code"]
+    default_lang = Language.objects.get(code=lang_code)
+
+    # Get the pagecontent instance in default language, for building the page
+    pagecontent = PageContent.objects.get(lang=default_lang,page=pagetree)
     
     # Get all page content for this pagetree entry
     pages = PageContent.objects.all().filter(page=pagetree)
     
     request.PYLUCID = RequestObjects
     request.PYLUCID.pagetree = pagetree
-    request.PYLUCID.pagecontent = pages[0] # FIXME: http://pylucid.org/phpBB2/viewtopic.php?t=276
+    request.PYLUCID.pagecontent = pagecontent
     
     template_name = pagetree.design.template
 
     context = RequestContext(request, {
         "pagetree": pagetree,
-        "pagecontent": pages[0], # FIXME: http://pylucid.org/phpBB2/viewtopic.php?t=276
+        "pagecontent": pagecontent,
         "template_name": template_name,
         "pages": pages,
     })    
