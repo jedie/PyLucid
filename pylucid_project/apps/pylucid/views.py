@@ -58,7 +58,6 @@ def lang_root_page(request, lang_code):
 
 
 
-EXISTING_LANG_MSG = "message for existing lang page"
 
 def existing_lang(request, url_path):
     """
@@ -214,10 +213,3 @@ def resolve_url(request, lang_code, url_path):
 
 
 
-
-#def get_page(request, page_id):
-#    page = Page08.objects.get(id=page_id)
-#    context = {
-#        "page": page,
-#    }
-#    return render_to_response('pylucid/test.html', context)
