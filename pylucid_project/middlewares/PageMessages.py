@@ -62,19 +62,27 @@ class PageMessages(object):
         self.request = request
         self.html = html # Should we generate colored html output?
 
-        if SESSION_KEY in request.session:
-            self.messages = request.session[SESSION_KEY]
-        else:
-            self.messages = request.session[SESSION_KEY] = []          
+        try:
+            session = request.session
+        except AttributeError, err:
+            raise AttributeError("Can't the sessin object."
+                " PageMessagesMiddleware must be added *after* SessionMiddleware!"
+                " original error was: %s" % err)
+
+        if SESSION_KEY not in session:
+            # Add a page_msg list into session
+            session[SESSION_KEY] = []
 
         self.debug_mode = settings.DEBUG
         self._charset = settings.DEFAULT_CHARSET
     
     def get_and_delete_messages(self):
-        """ delete messages from session and return them """
-        del(self.request.session[SESSION_KEY])
+        """ delete messages from session and return them """#
         self.append_django_messages()
-        return self.messages
+        msg = self.request.session[SESSION_KEY]
+        # remove "old" page_msg from session
+        del(self.request.session[SESSION_KEY])
+        return msg
     
     def append_django_messages(self):
         """ Append messages from django """
@@ -115,7 +123,7 @@ class PageMessages(object):
             msg = self.prepare(*msg)
 
         msg = mark_safe(msg) # turn djngo auto-escaping off
-        self.messages.append(msg)
+        self.request.session[SESSION_KEY].append(msg)
 
     def _get_fileinfo(self):
         """
@@ -189,16 +197,16 @@ class PageMessages(object):
     #________________________________________________________________
 
     def __repr__(self):
-        return "page messages: %s" % repr(self.messages)
+        return "page messages: %s" % repr(self.request.session[SESSION_KEY])
 
     def __str__(self):
-        return "pages messages: %s" % ", ".join(self.messages)
+        return "pages messages: %s" % ", ".join(self.request.session[SESSION_KEY])
 
     def __unicode__(self):
-        return u"page messages: %s" % u", ".join(self.messages)
+        return u"page messages: %s" % u", ".join(self.request.session[SESSION_KEY])
 
     def __len__(self):
-        return len(self.messages)
+        return len(self.request.session[SESSION_KEY])
 
 
 def render_string_template(template, context):
@@ -219,14 +227,21 @@ class PageMessagesMiddleware(object):
         """
         insert all page messages into the html page.
         """
+        def save_session(request):
+            if request.session[SESSION_KEY]:
+                # FIXME: Don't really know why this is needed
+                request.session.save()
+        
         if not "html" in response._headers["content-type"][1]:
             # No HTML Page -> do nothing
+            save_session(request)
             return response
 
         content = response.content
         if not TAG in content:
             # We can't replace the TAG with the page_msg if it's not in the content ;)
             # Do nothing and try it in the next request
+            save_session(request)
             return response
 
         page_msg = request.page_msg

@@ -64,7 +64,6 @@ def existing_lang(request, url_path):
     """
     List all available languages.
     """
-    #request.page_msg.red("TEST" )
     try:
         pagetree, prefix_url, rest_url = PageTree.objects.get_page_from_url(url_path)
     except PageTree.DoesNotExist, err:
@@ -196,7 +195,7 @@ def resolve_url(request, lang_code, url_path):
     def lang_error(msg):
         """ send user a message and redirect to the existing lang. pagelist """
         # Leave a messages for the next page
-        request.page_msg.red(msg) # FIXME: This doesn't work, why???
+        request.page_msg.red(msg)
         # redirect to the existing language page
         new_url = reverse('PyLucid-existing_lang', kwargs={"url_path":url_path})
         return HttpResponseRedirect(new_url)
