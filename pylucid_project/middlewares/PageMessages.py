@@ -238,7 +238,8 @@ class PageMessagesMiddleware(object):
             msg_list = page_msg.get_and_delete_messages()
             message_string = render_string_template(
                 TEMPLATE, context={"msg_list": msg_list}
-            )               
+            )
+            message_string = smart_str(message_string)
 
         new_content = content.replace(TAG, message_string)
         response.content = new_content
