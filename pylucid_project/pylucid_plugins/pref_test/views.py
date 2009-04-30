@@ -12,7 +12,4 @@ def lucidTag(request):
     form = TestForm()
     pref_data = form.get_preferences()
     
-    request.user.message_set.create(message="pref_test.lucidTag - Test with request.user.message_set.create")
-    request.page_msg("pref_test.lucidTag - Test with request.page_msg")
-    
     return HttpResponse("<pre>%s</pre>" % pprint.pformat(pref_data))

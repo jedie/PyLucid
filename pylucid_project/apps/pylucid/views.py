@@ -40,10 +40,7 @@ def root_page(request):
     """
     Display a root page with some usefull links
     XXX: Only for developing
-    """
-    request.user.message_set.create(message="root_page view - Test with request.user.message_set.create")
-    request.page_msg("root_page view - Test with request.page_msg")
-    
+    """   
     context = {
         "request": request, # FIXME: Can we add it throu a own context processors?
         "admin_url": "/%s/" % settings.ADMIN_URL_PREFIX,
