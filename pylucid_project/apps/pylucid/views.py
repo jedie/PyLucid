@@ -61,12 +61,31 @@ def lang_root_page(request, lang_code):
 EXISTING_LANG_MSG = "message for existing lang page"
 
 def existing_lang(request, url_path):
-    result = "TODO: existing lang page for: %s" % url_path
+    """
+    List all available languages.
+    """
+    #request.page_msg.red("TEST" )
+    try:
+        pagetree, prefix_url, rest_url = PageTree.objects.get_page_from_url(url_path)
+    except PageTree.DoesNotExist, err:
+        return HttpResponseNotFound("<h1>Page not found</h1><h2>%s</h2>" % err)
     
-    if EXISTING_LANG_MSG in request.session:
-        result += request.session.pop(EXISTING_LANG_MSG)
-        
-    return HttpResponse(result)
+    # Get all page content for this pagetree entry
+    pages = PageContent.objects.all().filter(page=pagetree)
+    
+    request.PYLUCID = RequestObjects
+    request.PYLUCID.pagetree = pagetree
+    request.PYLUCID.pagecontent = pages[0] # FIXME: http://pylucid.org/phpBB2/viewtopic.php?t=276
+    
+    template_name = pagetree.design.template
+
+    context = RequestContext(request, {
+        "pagetree": pagetree,
+        "pagecontent": pages[0], # FIXME: http://pylucid.org/phpBB2/viewtopic.php?t=276
+        "template_name": template_name,
+        "pages": pages,
+    })    
+    return render_to_response('pylucid/existing_lang.html', context)
 
 
 class PluginGetResolver(object):
@@ -176,9 +195,8 @@ def resolve_url(request, lang_code, url_path):
 
     def lang_error(msg):
         """ send user a message and redirect to the existing lang. pagelist """
-        #request.user.message_set.create(message=msg) <<< works not for anonymous user, yet.
-        # work-a-round since http://code.djangoproject.com/ticket/4604 lands:
-        request.session[EXISTING_LANG_MSG] = msg
+        # Leave a messages for the next page
+        request.page_msg.red(msg) # FIXME: This doesn't work, why???
         # redirect to the existing language page
         new_url = reverse('PyLucid-existing_lang', kwargs={"url_path":url_path})
         return HttpResponseRedirect(new_url)

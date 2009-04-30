@@ -1,0 +1,10 @@
+{% extends template_name %}
+
+{% block content %}
+The requested page 'FIXME: <strong>{{ pagetree.slug }}</strong>' exist in these languages:
+<ul>
+    {% for page in pages %}
+    <li><a href="{{ page.get_absolute_url }}">{{ page.lang }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock content %}
