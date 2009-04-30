@@ -21,7 +21,7 @@
 from django.conf import settings
 from django.utils.translation import ugettext as _
 
-from pylucid_project.utils import SimpleStringIO
+from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.escape import escape, escape_django_tags
 
 try:

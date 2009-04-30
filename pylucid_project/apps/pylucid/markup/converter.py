@@ -28,7 +28,8 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_str, force_unicode
 
-#from PyLucid.system.response import SimpleStringIO
+from pylucid.markup.django_tags import DjangoTagAssembler
+from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 
 #______________________________________________________________________________
 # MARKUP
@@ -149,24 +150,37 @@ def apply_markup(pagecontent, page_msg):
         ./PyLucid/models.py
     """
     markup_no = pagecontent.markup
-    content = pagecontent.content
+    raw_content = pagecontent.content
+    
+    assemble_tags = markup_no not in (pagecontent.MARKUP_HTML, pagecontent.MARKUP_HTML_EDITOR)
+    if assemble_tags:
+        # cut out every django tags from content
+        assembler = DjangoTagAssembler()
+        raw_content2, cut_data = assembler.cut_out(raw_content)
     
     if markup_no == pagecontent.MARKUP_TINYTEXTILE: # PyLucid's TinyTextile
-        content = apply_tinytextile(content, page_msg)
+        html_content = apply_tinytextile(raw_content2, page_msg)
         
     elif markup_no == pagecontent.MARKUP_TEXTILE: # Textile (original)
-        content = apply_textile(content, page_msg)
+        html_content = apply_textile(raw_content2, page_msg)
         
     elif markup_no == pagecontent.MARKUP_MARKDOWN:
-        content = apply_markdown(content, page_msg)
+        html_content = apply_markdown(raw_content2, page_msg)
         
     elif markup_no == pagecontent.MARKUP_REST:
-        content = apply_restructuretext(content, page_msg)
+        html_content = apply_restructuretext(raw_content2, page_msg)
         
     elif markup_no == pagecontent.MARKUP_CREOLE:
-        content = apply_creole(content)
+        html_content = apply_creole(raw_content2)
 
-    return mark_safe(content) # turn djngo auto-escaping off
+    if assemble_tags:
+        # reassembly cut out django tags into text
+        html_content2 = assembler.reassembly(html_content, cut_data)
+    else:
+        # html "markup" used
+        html_content2 = raw_content
+
+    return mark_safe(html_content2) # turn djngo auto-escaping off
 
 
 

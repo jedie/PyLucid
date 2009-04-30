@@ -36,8 +36,7 @@ __version__ = "$Rev:1561 $"
 
 import sys, re
 
-from PyLucid.tools.utils import escape
-from PyLucid.system.response import SimpleStringIO
+from xml.sax.saxutils import escape
 
 
 class TinyTextileParser:
@@ -403,7 +402,7 @@ class TinyTextileParser:
         code = "".join(code_lines)
         code = code.strip()
 
-        from PyLucid.system.hightlighter import make_html
+        from pylucid.markup.hightlighter import make_html
         html = make_html(code, source_type)
         self.out.write(html)
 
