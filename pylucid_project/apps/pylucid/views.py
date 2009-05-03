@@ -76,7 +76,7 @@ class PyLucidRequestObjects(object):
         #self.lang_entry - The current language instance
  
 
-def _activate_lang(request, lang_code, from_info):
+def _activate_lang(request, lang_code, from_info, save=False):
     """
     Try to use the given lang_code. If not exist fall back to lang from system preferences.
     Add the Language model entry to request.PYLUCID.lang_entry
@@ -96,15 +96,14 @@ def _activate_lang(request, lang_code, from_info):
     else:
         if settings.PYLUCID.I18N_DEBUG:
             request.page_msg.green("Use language %r (from: %s)" % (lang_code, from_info))
-    
+        if save:
+            # Save language in session for next requests
+            if settings.PYLUCID.I18N_DEBUG:
+                request.page_msg("Save lang code %r into request.session['django_language']" % lang_code)
+            request.session["django_language"] = lang_code
+      
     translation.activate(lang_code) # activate django i18n
-    
-    # Save in session for next requests
-    if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg("Save lang code %r into request.session['django_language']" % lang_code)
-    request.session["django_language"] = lang_code
     request.LANGUAGE_CODE = lang_code
-    
     request.PYLUCID.lang_entry = lang_entry
 
 
@@ -130,7 +129,7 @@ def _setup_language(request):
     key = settings.PYLUCID.FAVORED_LANG_GET_KEY
     lang_code = request.GET.get(key, False)
     if lang_code:
-        _activate_lang(request, lang_code, from_info="request.GET['%s']" % key)
+        _activate_lang(request, lang_code, from_info="request.GET['%s']" % key, save=True)
         return
         
     # Use language infomation from django locale middleware
@@ -185,7 +184,7 @@ def cms_page(request, url_path):
     try:
         pagecontent = queryset.get(lang=request.PYLUCID.lang_entry)
     except PageContent.DoesNotExist:
-        if settings.DEBUG:
+        if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
             request.page_msg.red(
                 "Page %r doesn't exist in language %r." % (pagetree, request.PYLUCID.lang_entry)
             )
