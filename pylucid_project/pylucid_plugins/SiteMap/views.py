@@ -27,7 +27,7 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
-from pylucid.models import PageContent, PageTree
+from pylucid.models import PageTree, PageContent, Language
 
 #HTML_TEMPLATE = (
 #    '<li>'
@@ -43,10 +43,13 @@ def lucidTag(request):
     Create the sitemap tree
     TODO: We need a real tree here!
     """
-    
+    languages = Language.objects.all()
     pages = PageContent.objects.all()
     
-    context = {"pages": pages}
+    context = {
+        "languages": languages,
+        "pages": pages,
+    }
 
     return render_to_response('SiteMap/SiteMap.html', context, 
         context_instance=RequestContext(request)

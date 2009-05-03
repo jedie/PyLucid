@@ -3,13 +3,24 @@
 <!-- TODO: Update me -->
 
 {% block plugin_content %}
+
 <ul>
-  {% for page in pages %}
+  {% for lang in languages %}
   <li>
-    <a href="{{ page.get_absolute_url }}">
-        {% if page.title %}{{ page.title|escape }}{% else %}{{ page.page.slug|escape }}{% endif %}
-    </a>
+    <h3>{{ lang }}</h3>
+	<ul>
+	  {% for page in pages %}
+	  {% ifequal page.lang lang %}
+	  <li>
+	    <a href="{{ page.get_absolute_url }}">{{ page.title_or_slug|escape }}</a>
+	  </li>
+	  {% endifequal %}
+	  {% endfor %}
+	</ul>
   </li>
   {% endfor %}
 </ul>
+
+
+
 {% endblock %}
