@@ -36,7 +36,7 @@ def lucidTag(request):
     pagecontent = request.PYLUCID.pagecontent
     
     # Get all pages back to the root page as a list
-    pagelist = PageContent.objects.get_backlist(pagecontent)
+    pagelist = PageContent.objects.get_backlist(request, pagecontent)
 
     context = {
         "preferences": pref_data,

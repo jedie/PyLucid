@@ -53,7 +53,7 @@ admin.site.register(models.Language, LanguageAdmin)
 class PageContentAdmin(VersionAdmin):
     list_display = ("get_absolute_url", "title_or_slug", "description", "lastupdatetime", "lastupdateby",)
     list_display_links = ("title_or_slug",)
-    list_filter = ("keywords", "markup", "createby", "lastupdateby",)
+    list_filter = ("lang", "keywords", "markup", "createby", "lastupdateby",)
 #    date_hierarchy = 'lastupdatetime'
 #    search_fields = ["content", "name", "title", "description", "keywords"]
 

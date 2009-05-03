@@ -31,14 +31,7 @@ urlpatterns = patterns('',
     url(r'^%s/(?P<filename>[\w/\.]{4,})?$' % settings.PYLUCID.HEAD_FILES_URL_PREFIX, views.send_head_file,
         name='PyLucid-send_head_file'
     ),
-    url(r'^(?P<lang_code>[a-zA-Z]{2}([-_][a-zA-Z]{2})*?)/$', views.lang_root_page,
-        name='PyLucid-lang_root_page'
-    ),
-        
-    url(r'^(?P<lang_code>[a-zA-Z]{2}([-_][a-zA-Z]{2})*?)/(?P<url_path>[\w/-]+?)/$', views.resolve_url,
-        name='PyLucid-resolve_url'
-    ),
-    url(r'^(?P<url_path>[\w/-]+?)/$', views.existing_lang,
-        name='PyLucid-existing_lang'
+    url(r'^(?P<url_path>[\w/-]+?)/$', views.cms_page,
+        name='PyLucid-cms_page'
     )
 )

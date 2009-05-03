@@ -150,18 +150,24 @@ class Language(models.Model):
 
 class PageContentManager(models.Manager):
     """ Manager class for PageContent model """
-    def get_backlist(self, pagecontent):
+    def get_backlist(self, request, pagecontent):
         """
         returns a list of PageContent instance objects back to the tree root.
         Usefull for generating a "You are here" breadcrumb navigation
         TODO: filter showlinks and permit settings
         TODO: filter current site
         """
-        parent = pagecontent.page.parent          
-        if parent:
-            lang = pagecontent.lang
-            parent_content = self.get(page=parent, lang=lang)
-            backlist = self.get_backlist(parent_content)
+        parent = pagecontent.page.parent
+        if parent:                
+            queryset = self.all().filter(page=parent)
+            
+            try:
+                parent_content = queryset.get(lang=pagecontent.lang)
+            except PageContent.DoesNotExist:
+                # The parant page doesn't exist in this language, use default
+                parent_content = queryset.get(lang=request.PYLUCID.default_lang_entry)
+            
+            backlist = self.get_backlist(request, parent_content)
             backlist.append(pagecontent)
             return backlist
         else:
@@ -240,7 +246,7 @@ class PageContent(models.Model):
         """
         Get the absolute url (without the domain/host part)
         """
-        return "/" + self.lang.code + self.page.get_absolute_url()
+        return self.page.get_absolute_url()
 
     def save(self):
         if not self.page.type == self.page.PAGE_TYPE:

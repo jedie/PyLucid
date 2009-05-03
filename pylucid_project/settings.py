@@ -50,8 +50,9 @@ SITE_ID = 1
 ROOT_URLCONF = 'pylucid_project.urls'
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     
     'pylucid_project.middlewares.PageMessages.PageMessagesMiddleware',
