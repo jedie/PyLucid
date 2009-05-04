@@ -32,7 +32,7 @@ def lucidTag(request):
     existing_languages = Language.objects.all()
     context = {
         "existing_languages": existing_languages,
-        "debug": (settings.DEBUG or settings.PYLUCID.I18N_DEBUG),
+        "debug": (settings.DEBUG or settings.PYLUCID.I18N_DEBUG), # TODO: Use a preferences for it!
         "reset_key": RESET_KEY,
     }
     return render_to_response('language/language_selector.html', context, 
