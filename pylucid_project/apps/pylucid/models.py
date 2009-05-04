@@ -125,11 +125,11 @@ class PluginPage(models.Model):
     app_label = models.CharField(max_length=256, choices=APP_LABEL_CHOICES,
         help_text="The app lable witch is in settings.INSTALLED_APPS")
     
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.page.type == self.page.PLUGIN_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("Plugin can only exist on a plugin type tree entry!")
-        return super(PluginPage, self).save()
+        return super(PluginPage, self).save(*args, **kwargs)
     
     def __unicode__(self):
         return u"PluginPage '%s' (page: %s)" % (self.app_label, self.page)
@@ -248,11 +248,11 @@ class PageContent(models.Model):
         """
         return self.page.get_absolute_url()
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.page.type == self.page.PAGE_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("PageContent can only exist on a page type tree entry!")
-        return super(PageContent, self).save()
+        return super(PageContent, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u"PageContent '%s' (%s)" % (self.page.slug, self.lang)
