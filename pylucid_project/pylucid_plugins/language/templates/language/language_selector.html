@@ -1,0 +1,13 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+<p class="info_text">{% trans "Available languages:" %}</p>
+<ul>
+  {% for lang in existing_languages %}
+  <li><a href="?language={{ lang.code }}" title="switch to {{ lang.description }}">{{ lang.code }}</li>
+  {% endfor %}
+  {% if debug %}
+  <li><a href="?language={{ reset_key }}">reset favored language</a></li>
+  {% endif %}
+</ul>
+{% endblock %}

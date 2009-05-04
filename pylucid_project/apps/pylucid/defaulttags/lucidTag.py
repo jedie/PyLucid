@@ -21,18 +21,18 @@
 
 import re
 import sys
-import cgi
 import shlex
 
 if __name__ == "__main__":
     # For doctest only
     import os
     os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
-    
+
 from django import template
 from django.conf import settings
 from django.http import HttpResponse
-from django.core.urlresolvers import get_callable
+
+from pylucid.system import pylucid_plugin
 
 
 # FIXME: The re should be more fault-tolerant:
@@ -113,31 +113,26 @@ class lucidTagNode(template.Node):
             self.plugin_name, self.method_name, self.method_kwargs)
 
     def render(self, context):
-        # callback is either a string like 'foo.views.news.stories.story_detail'
-        callback = "pylucid_plugins.%s.views.%s" % (self.plugin_name, self.method_name)
-        try:
-            callable = get_callable(callback)
-        except ImportError, err:
-            # FIXME:
-            return u"[lucidTag %s.%s unknwon, error was: %s]" % (self.plugin_name, self.method_name, err)
         
         try:
             request = context["request"]
         except KeyError:
             raise KeyError("request object not in context! You must add it into the template context!")
         
-        # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
-        request.plugin_name = self.plugin_name
-        request.method_name = self.method_name
+        plugin_name = self.plugin_name
+        method_name = self.method_name
+        method_kwargs = self.method_kwargs
         
         try:
-            # call the plugin view method
-            response = callable(request, **self.method_kwargs)
+            response = pylucid_plugin.call_plugin_view(request, plugin_name, method_name, method_kwargs)
+        except pylucid_plugin.GetCallableError, err:
+            # FIXME:
+            return u"[lucidTag %s.%s unknwon, error was: %s]" % (self.plugin_name, self.method_name, err)
         except:
             # insert more information into the traceback
             etype, evalue, etb = sys.exc_info()
             evalue = etype('Error rendering template tag "%s": %s' % (self.raw_content, evalue))
-            raise etype, evalue, etb 
+            raise etype, evalue, etb
         
         # FIXME: Witch error should we raised here?
         if response==None:
@@ -146,6 +141,33 @@ class lucidTagNode(template.Node):
         assert(response.status_code == 200, "Response status code != 200 ???")
         
         return response.content
+#        
+#        # callback is either a string like 'foo.views.news.stories.story_detail'
+#        callback = "pylucid_plugins.%s.views.%s" % (self.plugin_name, self.method_name)
+#        try:
+#            callable = get_callable(callback)
+#        except ImportError, err:
+#
+#        
+#
+#        
+#        # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
+#        request.plugin_name = self.plugin_name
+#        request.method_name = self.method_name
+#        
+#        try:
+#            # call the plugin view method
+#            response = callable(request, **self.method_kwargs)
+#        except:
+#
+#        
+#        # FIXME: Witch error should we raised here?
+#        if response==None:
+#            return u""
+#        assert(isinstance(response, HttpResponse), "pylucid plugins must return a HttpResponse instance!")
+#        assert(response.status_code == 200, "Response status code != 200 ???")
+#        
+#        return response.content
 
 
 

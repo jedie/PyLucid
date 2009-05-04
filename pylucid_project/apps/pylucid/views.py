@@ -1,4 +1,6 @@
+# coding: utf-8
 
+import sys
 
 from django.conf import settings
 from django.utils import translation
@@ -10,9 +12,11 @@ from django.conf.urls.defaults import patterns, url
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 
+from pylucid.system import pylucid_plugin, i18n
 from pylucid.markup.converter import apply_markup
-from pylucid.models import PageTree, Language, PageContent, PluginPage, EditableHtmlHeadFile
 from pylucid.preference_forms import SystemPreferencesForm
+from pylucid.models import PageTree, Language, PageContent, PluginPage, EditableHtmlHeadFile
+
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
 # see ./pylucid/defaulttags/__init__.py
@@ -48,7 +52,7 @@ def root_page(request):
     """
     request.PYLUCID = PyLucidRequestObjects()
     # Add the Language model entry to request.PYLUCID.lang_entry
-    _setup_language(request)
+    i18n.setup_language(request)
     
     context = {
         "request": request, # FIXME: Can we add it throu a own context processors?
@@ -76,70 +80,32 @@ class PyLucidRequestObjects(object):
         #self.lang_entry - The current language instance
  
 
-def _activate_lang(request, lang_code, from_info, save=False):
-    """
-    Try to use the given lang_code. If not exist fall back to lang from system preferences.
-    Add the Language model entry to request.PYLUCID.lang_entry
-    """   
-    try:
-        lang_entry = Language.objects.get(code=lang_code)
-    except Language.DoesNotExist:
-        if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.red(
-                "debug: Favored language %r (from: %s) doesn't exist." % (lang_code, from_info)
-            )
-        # The favored language doesn't exist -> use default lang from preferences
-        lang_entry = request.PYLUCID.default_lang_entry
-        lang_code = request.PYLUCID.default_lang_code
-        if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.green("Use default language %r (from preferences)" % lang_entry)
-    else:
-        if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.green("Use language %r (from: %s)" % (lang_code, from_info))
-        if save:
-            # Save language in session for next requests
-            if settings.PYLUCID.I18N_DEBUG:
-                request.page_msg("Save lang code %r into request.session['django_language']" % lang_code)
-            request.session["django_language"] = lang_code
-      
-    translation.activate(lang_code) # activate django i18n
-    request.LANGUAGE_CODE = lang_code
-    request.PYLUCID.lang_entry = lang_entry
 
 
-def _setup_language(request):
-    """
-    Add the Language model entry to request.PYLUCID.lang_entry.
-    Try to use GET parameter or fall back to django language information
-    from django local middleware, see: http://docs.djangoproject.com/en/dev/topics/i18n/#id2 
-    """
-    if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg("settings.PYLUCID.I18N_DEBUG:")
+
+
+
+
+def _call_get_views(request):
+    """ call a pylucid plugin "html get view" and return the response. """
+    method_name = settings.PYLUCID.HTML_GET_VIEW_NAME
+    for plugin_name in request.GET.keys():   
+        try:
+            response = pylucid_plugin.call_plugin_view(request, plugin_name, method_name)
+        except pylucid_plugin.GetCallableError, err:
+            # plugin or view doesn't exist -> ignore get parameter
+            if settings.DEBUG:
+                request.page_msg(
+                    "Error getting view %s.%s: %s" % (plugin_name, method_name, err))
+            continue
+        except:
+            # insert more information into the traceback
+            etype, evalue, etb = sys.exc_info()
+            evalue = etype('Error rendering plugin view "%s.%s": %s' % (plugin_name, method_name, evalue))
+            raise etype, evalue, etb
         
-        key = "HTTP_ACCEPT_LANGUAGE"
-        request.page_msg("%s:" % key, request.META.get(key, '---'))
-        
-        key = settings.LANGUAGE_COOKIE_NAME
-        request.page_msg("cookie %r:" % key, request.COOKIES.get(key, "---"))
-        
-        request.page_msg("session 'django_language':", request.session.get('django_language', "---"))
-        
-    
-    # consider language in GET parameter
-    key = settings.PYLUCID.FAVORED_LANG_GET_KEY
-    lang_code = request.GET.get(key, False)
-    if lang_code:
-        _activate_lang(request, lang_code, from_info="request.GET['%s']" % key, save=True)
-        return
-        
-    # Use language infomation from django locale middleware
-    lang_code = request.LANGUAGE_CODE
-    _activate_lang(request, lang_code, from_info="request.LANGUAGE_CODE")
-    
-    if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg("request.PYLUCID.default_lang_code:", request.PYLUCID.default_lang_code)
-        request.page_msg("request.PYLUCID.default_lang_entry:", request.PYLUCID.default_lang_entry)
-        request.page_msg("request.PYLUCID.lang_entry:", request.PYLUCID.lang_entry)
+        return response
+
 
 
 def _render_page(request):
@@ -149,16 +115,33 @@ def _render_page(request):
         "pagecontent": request.PYLUCID.pagecontent,
     })
     
-    raw_html_content = apply_markup(request.PYLUCID.pagecontent, request.page_msg)
+    # call a pylucid plugin "html get view", if exist
+    response = _call_get_views(request)
     
-    from django.template import Context, Template
-    t = Template(raw_html_content)
-    c = Context(context, context)
-    html_content = t.render(c)
-    
-    template = request.PYLUCID.pagetree.design.template
-    
-    context["html_content"] = html_content
+    if response != None:
+        # Use plugin response      
+        assert(isinstance(response, HttpResponse),
+            "pylucid plugins must return a HttpResponse instance or None!"
+        )
+        if response.status_code != 200:
+            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
+            return response
+        
+        # Plugin has return replacement for the page content
+        context["html_content"] = response.content
+    else:
+        # Plugin has not return a response object -> use the normal page content
+        raw_html_content = apply_markup(request.PYLUCID.pagecontent, request.page_msg)
+        
+        from django.template import Context, Template
+        t = Template(raw_html_content)
+        c = Context(context, context)
+        html_content = t.render(c)
+        
+        template = request.PYLUCID.pagetree.design.template
+        
+        context["html_content"] = html_content
+
     return render_to_response(template, context)
 
 
@@ -177,7 +160,7 @@ def cms_page(request, url_path):
     request.PYLUCID.pagetree = pagetree
     
     # Add the Language model entry to request.PYLUCID.lang_entry
-    _setup_language(request)
+    i18n.setup_language(request)
 
     # Get the pagecontent instance, for building the page
     queryset = PageContent.objects.all().filter(page=pagetree)
@@ -190,7 +173,8 @@ def cms_page(request, url_path):
             )
             request.page_msg("Use default language from system preferences.")
         # Use language from system preferences to get the content entry
-        _activate_lang(request, request.PYLUCID.default_lang_code, from_info="system preferences")
+        
+        i18n.activate_lang(request, request.PYLUCID.default_lang_code, from_info="system preferences")
         pagecontent = queryset.get(lang=request.PYLUCID.lang_entry)
         
     request.PYLUCID.pagecontent = pagecontent
