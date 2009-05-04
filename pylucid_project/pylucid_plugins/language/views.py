@@ -25,14 +25,21 @@ from django.shortcuts import render_to_response
 from pylucid.system import i18n
 from pylucid.models import Language
 
+from language.preference_forms import LanguagePrefForm
+
 RESET_KEY = "reset"
 
 def lucidTag(request):
     """ insert language selector list into page """
+    
+    # Get preferences
+    pref_form = LanguagePrefForm()
+    pref_data = pref_form.get_preferences()
+    
     existing_languages = Language.objects.all()
     context = {
         "existing_languages": existing_languages,
-        "debug": (settings.DEBUG or settings.PYLUCID.I18N_DEBUG), # TODO: Use a preferences for it!
+        "add_reset_link": pref_data["add_reset_link"],
         "reset_key": RESET_KEY,
     }
     return render_to_response('language/language_selector.html', context, 
