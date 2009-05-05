@@ -56,6 +56,39 @@ class PageTreeManager(models.Manager):
 
         return (page, None, None)
 
+    def get_backlist(self, request, pagetree=None):
+        """
+        Generate a list of backlinks, usefull for generating a "You are here" breadcrumb navigation.
+        TODO: filter showlinks and permit settings
+        TODO: filter current site
+        FIXME: Think this created many database requests
+        """
+        if pagetree == None:
+            pagetree = request.PYLUCID.pagetree
+            
+        def get_title_or_slug(pagetree):
+            queryset = PageContent.objects.all().filter(page=pagetree)
+            try:
+                queryset = queryset.get(lang=request.PYLUCID.lang_entry)
+            except PageContent.DoesNotExist:
+                # Get the PageContent entry in the system default language
+                queryset = queryset.get(lang=request.PYLUCID.default_lang_code)
+            return queryset.title_or_slug()
+        
+        if pagetree.type == PageTree.PAGE_TYPE:
+            url = pagetree.get_absolute_url()
+            title = get_title_or_slug(pagetree)
+            backlist = [{"url": url, "title": title}]
+        else:
+            backlist = []
+        
+        parent = pagetree.parent
+        if parent:
+            backlist = self.get_backlist(request, parent) + backlist
+
+        return backlist
+
+
 
 class PageTree(models.Model):
     """ The CMS page tree """
@@ -149,30 +182,7 @@ class Language(models.Model):
 
 
 class PageContentManager(models.Manager):
-    """ Manager class for PageContent model """
-    def get_backlist(self, request, pagecontent):
-        """
-        returns a list of PageContent instance objects back to the tree root.
-        Usefull for generating a "You are here" breadcrumb navigation
-        TODO: filter showlinks and permit settings
-        TODO: filter current site
-        """
-        parent = pagecontent.page.parent
-        if parent:                
-            queryset = self.all().filter(page=parent)
-            
-            try:
-                parent_content = queryset.get(lang=pagecontent.lang)
-            except PageContent.DoesNotExist:
-                # The parant page doesn't exist in this language, use default
-                parent_content = queryset.get(lang=request.PYLUCID.default_lang_entry)
-            
-            backlist = self.get_backlist(request, parent_content)
-            backlist.append(pagecontent)
-            return backlist
-        else:
-            return [pagecontent]
-    
+    """ Manager class for PageContent model """    
     def get_sub_pages(self, pagecontent):
         """
         returns a list of all sub pages for the given PageContent instance

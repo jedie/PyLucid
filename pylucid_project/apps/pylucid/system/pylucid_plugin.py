@@ -17,6 +17,7 @@
 
 __version__= "$Rev:$"
 
+import re
 import sys
 
 from django import http
@@ -48,7 +49,7 @@ def call_plugin_view(request, plugin_name, method_name, method_kwargs={}):
     response = callable(request, **method_kwargs)
     
     return response
-    
+
 class GetCallableError(Exception):
     pass
 
@@ -56,7 +57,7 @@ class GetCallableError(Exception):
 def call_get_views(request):
     """ call a pylucid plugin "html get view" and return the response. """
     method_name = settings.PYLUCID.HTML_GET_VIEW_NAME
-    for plugin_name in request.GET.keys():   
+    for plugin_name in request.GET.keys():
         try:
             response = call_plugin_view(request, plugin_name, method_name)
         except GetCallableError, err:
@@ -143,3 +144,68 @@ def call_plugin(request, prefix_url, rest_url):
     urlresolvers.get_resolver = old_get_resolver
     
     return response
+
+
+#______________________________________________________________________________
+# ContextMiddleware functions
+
+TAG_RE = re.compile("<!-- ContextMiddleware (.*?) -->", re.UNICODE)
+from django.utils.importlib import import_module
+from django.utils.functional import memoize
+
+_middleware_class_cache = {}
+
+def _get_middleware_class(plugin_name):
+    plugin_name = plugin_name.encode('ascii') # check non-ASCII strings
+    
+    mod_name = "pylucid_plugins.%s.context_middleware" % plugin_name
+    module = import_module(mod_name)
+    middleware_class = getattr(module, "ContextMiddleware")
+    return middleware_class
+_get_middleware_class = memoize(_get_middleware_class, _middleware_class_cache, 1)
+
+
+def context_middleware_request(request):
+    """
+    get from the template all context middleware plugins and call the request method.
+    """
+    context = request.PYLUCID.context
+    page_template = request.PYLUCID.page_template
+    
+    context["context_middlewares"] = {}
+    
+    plugin_names = TAG_RE.findall(page_template)
+    for plugin_name in plugin_names:
+        # Get the middleware class from the plugin
+        middleware_class = _get_middleware_class(plugin_name)
+        # make a instance 
+        instance = middleware_class(request, context)
+        # Add it to the context
+        context["context_middlewares"][plugin_name] = instance
+
+def context_middleware_response(request, complete_page):
+    """
+    replace the context middleware tags in the response, with the plugin render output
+    """
+    context = request.PYLUCID.context
+    def replace(match):
+        plugin_name = match.group(1)
+        middleware_class_instance = context["context_middlewares"][plugin_name]
+        response = middleware_class_instance.render()
+        if response == None:
+            return ""
+        assert(isinstance(response, http.HttpResponse),
+            "plugin context middleware render() must return a http.HttpResponse instance or None!"
+        )
+        result = response.content
+        return result
+    
+    # FIXME: A HttpResponse allways convert unicode into string. So we need to do that here:
+    # Or we say, context render should not return a HttpResponse?
+    from django.utils.encoding import smart_str
+    complete_page = smart_str(complete_page)
+    
+    complete_page = TAG_RE.sub(replace, complete_page)
+    return complete_page
+
+        

@@ -2,8 +2,8 @@
 
 from django import http
 from django.conf import settings
-from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.template import loader, RequestContext, Context, Template
 
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.markup.converter import apply_markup
@@ -32,13 +32,15 @@ def _prepage_request(request):
     i18n.setup_language(request)
 
 
-def _get_page_content(request, pagetree):
+def _get_page_content(request):
     """
     Returns the PageContent instance for the given pagetree:
     Try in client favored language, if not exist...
     ...try in default language set in the system preferences, if not exist...
     ...raise http.Http404()
     """
+    pagetree = request.PYLUCID.pagetree
+    
     queryset = PageContent.objects.all().filter(page=pagetree)
     try:
         return queryset.get(lang=request.PYLUCID.lang_entry)
@@ -61,45 +63,83 @@ def _get_page_content(request, pagetree):
                 )
             )
 
+def _render_string_template(template, context):
+    """ render the given template string """
+    t = Template(template)
+    c = Context(context)
+    return t.render(c)
 
-def _render_page(request):
-    """ render a cms page """   
-    pagecontent = _get_page_content(request, request.PYLUCID.pagetree)        
-    request.PYLUCID.pagecontent = pagecontent    
+def _render_template(request, page_content):
+    context = request.PYLUCID.context
+    page_template = request.PYLUCID.page_template
+    context["html_content"] = page_content
+    complete_page = _render_string_template(page_template, context)
     
-    context = RequestContext(request, {
-        "pagetree": request.PYLUCID.pagetree,
-        "pagecontent": pagecontent,
-    })
+    complete_page = pylucid_plugin.context_middleware_response(request, complete_page)
+    
+    return http.HttpResponse(complete_page, mimetype="text/html")
+
+
+def _render_page(request, pagetree, prefix_url=None, rest_url=None):
+    """ render a cms page """   
+    request.PYLUCID.pagetree = pagetree
+    
+    # Get template content and add it to PyLucid objects
+    template_name = pagetree.design.template
+    page_template, origin = loader.find_template_source(template_name)
+    request.PYLUCID.page_template = page_template
+    
+    # Create initial context object
+    context = RequestContext(request, {"pagetree": pagetree})
+    request.PYLUCID.context = context
+    
+    # Get all plugin context middlewares from the template and add them to the context
+    pylucid_plugin.context_middleware_request(request)
+    
+    pagecontent = _get_page_content(request)        
+    request.PYLUCID.pagecontent = pagecontent    
+    context["pagecontent"] = pagecontent
     
     # call a pylucid plugin "html get view", if exist
-    response = pylucid_plugin.call_get_views(request)
-    
-    if response != None:
+    get_view_response = pylucid_plugin.call_get_views(request)
+    if get_view_response != None:
         # Use plugin response      
-        assert(isinstance(response, http.HttpResponse),
+        assert(isinstance(get_view_response, http.HttpResponse),
             "pylucid plugins must return a http.HttpResponse instance or None!"
         )
-        if response.status_code != 200:
+        if get_view_response.status_code == 200:
+            # Plugin replace the page content
+            return _render_template(request, page_content=get_view_response.content)
+        else:
             # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
-            return response
+            return get_view_response
         
-        # Plugin has return replacement for the page content
-        context["html_content"] = response.content
-    else:
-        # Plugin has not return a response object -> use the normal page content
-        raw_html_content = apply_markup(request.PYLUCID.pagecontent, request.page_msg)
+    # call page plugin, if current page is a plugin page
+    page_plugin_response = None
+    if pagetree.type == PageTree.PLUGIN_TYPE:
+        # The current PageTree entry is a plugin page
+        page_plugin_response = pylucid_plugin.call_plugin(request, prefix_url, rest_url)
+        assert(isinstance(page_plugin_response, http.HttpResponse),
+            "pylucid plugins must return a http.HttpResponse instance or None!"
+        )
+        if page_plugin_response.status_code == 200:
+            # Plugin replace the page content
+            return _render_template(request, page_content=page_plugin_response.content)
+        else:
+            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
+            return page_plugin_response
         
-        from django.template import Context, Template
-        t = Template(raw_html_content)
-        c = Context(context, context)
-        html_content = t.render(c)
-        
-        template = request.PYLUCID.pagetree.design.template
-        
-        context["html_content"] = html_content
+    
+    # Plugin has not return a response object -> use the normal page content
+    raw_html_content = apply_markup(request.PYLUCID.pagecontent, request.page_msg)
+    
+    html_content = _render_string_template(raw_html_content, context)
 
-    return render_to_response(template, context)
+    return _render_template(request, page_content=html_content)
+
+
+
+
 
 
 
@@ -132,8 +172,8 @@ def root_page(request):
     
     # Get the first PageTree entry
     pagetree = PageTree.objects.all().filter(parent=None).order_by("position")[0]
-    request.PYLUCID.pagetree = pagetree
-    return _render_page(request)
+
+    return _render_page(request, pagetree)
 
 
 def cms_page(request, url_path):
@@ -145,13 +185,7 @@ def cms_page(request, url_path):
     except PageTree.DoesNotExist, err:
         return http.HttpResponseNotFound("<h1>Page not found</h1><h2>%s</h2>" % err)
     
-    request.PYLUCID.pagetree = pagetree
-    
-    if pagetree.type == PageTree.PLUGIN_TYPE:
-        # The current PageTree entry is a plugin page
-        return pylucid_plugin.call_plugin(request, prefix_url, rest_url)
-    else:
-        return _render_page(request)
+    return _render_page(request, pagetree, prefix_url, rest_url)
 
 
 
