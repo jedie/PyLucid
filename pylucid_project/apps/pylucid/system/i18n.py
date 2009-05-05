@@ -33,7 +33,7 @@ def reset_language_settings(request):
     -Delete djangos language cookie
     """
     if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg.green("reset the favored language information.")
+        request.page_msg.successful("reset the favored language information.")
 
     if "django_language" in request.session:
         # Remove language information from session.
@@ -92,7 +92,7 @@ def activate_lang(request, lang_code, from_info, save=False):
             tried_codes.append(code)
     
     if tried_codes and (settings.DEBUG or settings.PYLUCID.I18N_DEBUG):
-        request.page_msg.red(
+        request.page_msg.error(
             "debug: Favored language %r (from: %s) doesn't exist." % (tried_codes, from_info)
         )
     
@@ -101,11 +101,11 @@ def activate_lang(request, lang_code, from_info, save=False):
         lang_entry = request.PYLUCID.default_lang_entry
         lang_code = request.PYLUCID.default_lang_code
         if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.green("Use default language %r (from preferences)" % lang_entry)
+            request.page_msg.successful("Use default language %r (from preferences)" % lang_entry)
     else:
         # lang entry found
         if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.green("Use language %r (from: %s)" % (code, from_info))
+            request.page_msg.successful("Use language %r (from: %s)" % (code, from_info))
         if save:
             # Save language in session for next requests
             if settings.PYLUCID.I18N_DEBUG:

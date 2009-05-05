@@ -74,8 +74,9 @@ def lang_root_page(request, lang_code):
 class PyLucidRequestObjects(object):
     def __init__(self):
         self.system_preferences = SystemPreferencesForm().get_preferences()
-        self.default_lang_code = self.system_preferences["lang_code"]
-        self.default_lang_entry = Language.objects.get(code=self.default_lang_code)
+        default_lang_code = self.system_preferences["lang_code"]
+        self.default_lang_code = default_lang_code
+        self.default_lang_entry = Language.objects.get(code=default_lang_code)
         # objects witch will be set later:
         #self.lang_entry - The current language instance
  
@@ -168,7 +169,7 @@ def cms_page(request, url_path):
         pagecontent = queryset.get(lang=request.PYLUCID.lang_entry)
     except PageContent.DoesNotExist:
         if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.red(
+            request.page_msg.error(
                 "Page %r doesn't exist in language %r." % (pagetree, request.PYLUCID.lang_entry)
             )
             request.page_msg("Use default language from system preferences.")
