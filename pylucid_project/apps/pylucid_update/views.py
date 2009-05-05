@@ -220,7 +220,7 @@ def update08templates(request):
         content = template.content
 
         content = replace(content, out,"{% lucidTag page_style %}", "{% lucidTag head_files %}")
-        content = replace(content, out,"{% lucidTag back_links %}", "{% lucidTag breadcrumb %}")
+        content = replace(content, out,"{% lucidTag back_links %}", "<!-- ContextMiddleware breadcrumb -->")
         content = replace(content, out,"{{ PAGE.content }}", "{{ html_content }}")
         content = replace(content, out,"{% if PAGE.title %}{{ PAGE.title|escape }}{% else %}{{ PAGE.name|escape }}{% endif %}", "{{ pagecontent.title_or_slug }}")
         content = replace(content, out,"PAGE.title", "pagecontent.title")
