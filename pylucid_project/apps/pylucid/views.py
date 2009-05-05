@@ -2,6 +2,7 @@
 
 import sys
 
+from django import http
 from django.conf import settings
 from django.utils import translation
 from django.core import urlresolvers
@@ -10,7 +11,6 @@ from django.core.urlresolvers import reverse
 from django.utils.importlib import import_module
 from django.conf.urls.defaults import patterns, url
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import Http404, HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 
 from pylucid.system import pylucid_plugin, i18n
 from pylucid.markup.converter import apply_markup
@@ -36,12 +36,12 @@ def send_head_file(request, filename):
     try:
         headfile = EditableHtmlHeadFile.objects.get(filename=filename)
     except EditableHtmlHeadFile.DoesNotExist:
-        raise Http404
+        raise http.Http404
     
     mimetype = headfile.get_mimetype()
     content = headfile.content
     
-    return HttpResponse(content, mimetype=mimetype)
+    return http.HttpResponse(content, mimetype=mimetype)
 
 
 
@@ -67,7 +67,7 @@ def lang_root_page(request, lang_code):
     except:
         return resolve_url(request,"",lang_code)
 
-    return HttpResponse("root page for lang: %r" % lang_code)
+    return http.HttpResponse("root page for lang: %r" % lang_code)
 
 
 
@@ -121,8 +121,8 @@ def _render_page(request):
     
     if response != None:
         # Use plugin response      
-        assert(isinstance(response, HttpResponse),
-            "pylucid plugins must return a HttpResponse instance or None!"
+        assert(isinstance(response, http.HttpResponse),
+            "pylucid plugins must return a http.HttpResponse instance or None!"
         )
         if response.status_code != 200:
             # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
@@ -156,7 +156,7 @@ def cms_page(request, url_path):
     try:
         pagetree, prefix_url, rest_url = PageTree.objects.get_page_from_url(url_path)
     except PageTree.DoesNotExist, err:
-        return HttpResponseNotFound("<h1>Page not found</h1><h2>%s</h2>" % err)
+        return http.HttpResponseNotFound("<h1>Page not found</h1><h2>%s</h2>" % err)
     
     request.PYLUCID.pagetree = pagetree
     
@@ -176,7 +176,15 @@ def cms_page(request, url_path):
         # Use language from system preferences to get the content entry
         
         i18n.activate_lang(request, request.PYLUCID.default_lang_code, from_info="system preferences")
-        pagecontent = queryset.get(lang=request.PYLUCID.lang_entry)
+        try:
+            pagecontent = queryset.get(lang=request.PYLUCID.lang_entry)
+        except PageContent.DoesNotExist, err:
+            return http.HttpResponseServerError(
+                "<h1>Page '%s' does not exist in default language '%s'.</h1>"
+                "<p>Original error was: <strong>%s</strong>" % (
+                    pagetree.slug, request.PYLUCID.lang_entry.code, err
+                )
+            )
         
     request.PYLUCID.pagecontent = pagecontent
     
