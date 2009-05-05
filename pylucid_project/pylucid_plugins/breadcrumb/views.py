@@ -33,7 +33,11 @@ def lucidTag(request):
     pref_data = pref_form.get_preferences()
     
     # Get the current models.PageContent instance
-    pagecontent = request.PYLUCID.pagecontent
+    try:
+        pagecontent = request.PYLUCID.pagecontent
+    except AttributeError:
+        # FIXME, see: http://pylucid.org/phpBB2/viewtopic.php?t=276
+        return
     
     # Get all pages back to the root page as a list
     pagelist = PageContent.objects.get_backlist(request, pagecontent)
