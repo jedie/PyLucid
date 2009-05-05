@@ -49,18 +49,7 @@ SESSION_KEY = "PAGE_MESSAGES"
 MAX_FILEPATH_LEN = 60
 
 TEMPLATE = \
-"""<style type="text/css">
-/* TODO: Put these into page css file */
-#page_msg p { margin: 0px 0px 0.3em 0px; }
-#page_msg hr { border: 0px; border-top: 1px dashed #888; }
-#page_msg .successful { color: #0f0; }
-#page_msg .info { color: #888; }
-#page_msg .warning { color: #00f; }
-#page_msg .error { color: #f00; }
-#page_msg .critical { background-color: #f00; color: #ff0; }
-</style>
-
-<fieldset id="page_msg"><legend>page message</legend>
+"""<fieldset id="page_msg"><legend>page message</legend>
 {% for message in msg_list %}
 <p class="{{ message.msg_type }}"{% if message.fileinfo %} title="{{ message.fileinfo }}"{% endif %}>
 {% for line in message.lines %}{{ line }}{% if not forloop.last %}<br />{% endif %}
@@ -96,17 +85,15 @@ class PageMessages(object):
     
     def get_and_delete_messages(self):
         """ delete messages from session and return them """
-        self.append_django_messages()
+        django_msg = self.request.user.get_and_delete_messages()
+        for msg in django_msg:
+            # Append messages from django
+            self.info(msg)
+            
         msg = self.request.session[SESSION_KEY]
         # remove "old" page_msg from session
         del(self.request.session[SESSION_KEY])
         return msg
-    
-    def append_django_messages(self):
-        """ Append messages from django """
-        django_msg = self.request.user.get_and_delete_messages()
-        for msg in django_msg:
-            self.black(msg)
         
     #_________________________________________________________________________
 
@@ -133,10 +120,9 @@ class PageMessages(object):
 
     #_________________________________________________________________________
 
-    def append_message(self, msg_type, *msg):
-        self.append_django_messages()
-        
+    def append_message(self, msg_type, *msg):       
         """
+        Add a message with type info.
         -if debug_mode is on: insert a info from where the message sended.
         -for dict, list use pprint ;)
         """
