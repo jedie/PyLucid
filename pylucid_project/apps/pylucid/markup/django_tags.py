@@ -22,17 +22,37 @@ import unittest
 
 
 CUT_OUT_RE = re.compile(r'''
+    (?P<creole_image>
+        \{\{
+        .+?(\.jpg|\.jpeg|\.gif|\.png) \s*
+        (\| \s* .+? \s*)?
+        \}\}
+    )
+    |
+    (?P<creole_pre_inline> {{{ .*? }}} )
+    |
     (?P<block>
-        {% \s* (?P<pass_block_start>.+?) .*? %}
+        \{% \s* (?P<pass_block_start>.+?) .*? %\}
         (\n|.)*?
-        {% \s* end(?P=pass_block_start) \s* %}
-    )|(?P<tag>
-        {%.*?%}
-    )|(?P<variable>
-        {{.*?}}
+        \{% \s* end(?P=pass_block_start) \s* %\}
+    )
+    |
+    (?P<tag>
+        \{% [^\{\}]*? %\}
+    )
+    |
+    (?P<variable>
+        \{\{ [^\{\}]*? \}\}
     )
 ''', re.VERBOSE | re.UNICODE | re.MULTILINE)
+
+# Ignore this re groups:
+LEAVE_KEYS = ("creole_image","creole_pre_inline")
+
+# Cut out this re groups:
 CUT_OUT_KEYS = ("block", "tag", "variable")
+
+ALL_KEYS = LEAVE_KEYS + CUT_OUT_KEYS
 
 PLACEHOLDER_CUT_OUT = "DjangoTagAassembly%i"
 
@@ -44,9 +64,13 @@ class DjangoTagAssembler(object):
         
         def cut(match):
             groups = match.groupdict()
-            for key in CUT_OUT_KEYS:
+            
+            for key in ALL_KEYS:
                 if groups[key] != None:
                     data = groups[key]
+                    if key in LEAVE_KEYS:
+                        # Don't replace this re match
+                        return data
                     cut_out_pos = len(cut_data)
                     cut_data.append(data)
                     return PLACEHOLDER_CUT_OUT % cut_out_pos
@@ -73,6 +97,9 @@ The page title: {{ section.title }}
 
 <h1>{{ section.title }}</h1>
 
+Don't match {{{ **this** }}} stuff.
+Or {{/image.jpg| **that** }} it's from creole markup!
+
 <h2>
   <a href="{{ story.get_absolute_url }}">
     {{ story.headline|upper }}
@@ -87,6 +114,7 @@ The page title: {{ section.title }}
         text2, cut_data = self.assembler.cut_out(self.test_text)
 #        from pprint import pprint
 #        pprint(cut_data)
+#        print text2
         self.failUnlessEqual(cut_data, ['{% extends "base_generic.html" %}',
              '{% block title %}\nThe page title: {{ section.title }}\n{% endblock %}',
              '{{ section.title }}',
@@ -99,6 +127,9 @@ The page title: {{ section.title }}
 DjangoTagAassembly1
 
 <h1>DjangoTagAassembly2</h1>
+
+Don't match {{{ **this** }}} stuff.
+Or {{/image.jpg| **that** }} it's from creole markup!
 
 <h2>
   <a href="DjangoTagAassembly3">
