@@ -5,13 +5,8 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 
 def view_root(request):
-    pagetree = request.PYLUCID.pagetree
-    template_name = pagetree.design.template
-
-    context = {
-        "template_name": template_name,
-        "content": "pluginpage_text.view_root !",
-    }
+    context = request.PYLUCID.context
+    context["content"] = "pluginpage_text.view_root !"
 
     return render_to_response('pluginpage_test/test.html', context, 
         context_instance=RequestContext(request)

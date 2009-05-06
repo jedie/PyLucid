@@ -183,7 +183,7 @@ def context_middleware_request(request):
         # Add it to the context
         context["context_middlewares"][plugin_name] = instance
 
-def context_middleware_response(request, complete_page):
+def context_middleware_response(request, response):
     """
     replace the context middleware tags in the response, with the plugin render output
     """
@@ -202,10 +202,13 @@ def context_middleware_response(request, complete_page):
     
     # FIXME: A HttpResponse allways convert unicode into string. So we need to do that here:
     # Or we say, context render should not return a HttpResponse?
-    from django.utils.encoding import smart_str
-    complete_page = smart_str(complete_page)
+#    from django.utils.encoding import smart_str
+#    complete_page = smart_str(complete_page)
     
-    complete_page = TAG_RE.sub(replace, complete_page)
-    return complete_page
+    source_content = response.content
+    
+    new_content = TAG_RE.sub(replace, source_content)
+    response.content = new_content
+    return response
 
         

@@ -2,7 +2,6 @@
 
 from django import http
 from django.conf import settings
-from django.shortcuts import render_to_response
 from django.template import loader, RequestContext, Context, Template
 
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
@@ -69,16 +68,17 @@ def _render_string_template(template, context):
     c = Context(context)
     return t.render(c)
 
+   
 def _render_template(request, page_content):
     context = request.PYLUCID.context
     page_template = request.PYLUCID.page_template
-    context["html_content"] = page_content
+    context["page_content"] = page_content
     complete_page = _render_string_template(page_template, context)
+       
+    response = http.HttpResponse(complete_page, mimetype="text/html")
+    response = pylucid_plugin.context_middleware_response(request, response)
+    return response
     
-    complete_page = pylucid_plugin.context_middleware_response(request, complete_page)
-    
-    return http.HttpResponse(complete_page, mimetype="text/html")
-
 
 def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     """ render a cms page """   
@@ -89,8 +89,17 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     page_template, origin = loader.find_template_source(template_name)
     request.PYLUCID.page_template = page_template
     
+    # Get the pagemeta instance for the current pagetree and language
+    pagemeta = PageTree.objects.get_pagemeta(request)
+    
     # Create initial context object
-    context = RequestContext(request, {"pagetree": pagetree})
+    context = RequestContext(request, {
+        "pagetree": pagetree,
+        "template_name": template_name,
+        "page_title": pagemeta.title_or_slug(),
+        "page_keywords": pagemeta.keywords,
+        "page_description": pagemeta.description,
+    })
     request.PYLUCID.context = context
     
     # Get all plugin context middlewares from the template and add them to the context
@@ -98,7 +107,7 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     
     pagecontent = _get_page_content(request)        
     request.PYLUCID.pagecontent = pagecontent    
-    context["pagecontent"] = pagecontent
+    context["page_content"] = pagecontent
     
     # call a pylucid plugin "html get view", if exist
     get_view_response = pylucid_plugin.call_get_views(request)
@@ -107,12 +116,14 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
         assert(isinstance(get_view_response, http.HttpResponse),
             "pylucid plugins must return a http.HttpResponse instance or None!"
         )
-        if get_view_response.status_code == 200:
-            # Plugin replace the page content
-            return _render_template(request, page_content=get_view_response.content)
-        else:
-            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
-            return get_view_response
+        response = pylucid_plugin.context_middleware_response(request, get_view_response)
+        return response
+#        if get_view_response.status_code == 200:
+#            # Plugin replace the page content
+#            return _render_template(request, page_content=get_view_response.content)
+#        else:
+#            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
+#            return get_view_response
         
     # call page plugin, if current page is a plugin page
     page_plugin_response = None
@@ -122,12 +133,14 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
         assert(isinstance(page_plugin_response, http.HttpResponse),
             "pylucid plugins must return a http.HttpResponse instance or None!"
         )
-        if page_plugin_response.status_code == 200:
-            # Plugin replace the page content
-            return _render_template(request, page_content=page_plugin_response.content)
-        else:
-            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
-            return page_plugin_response
+        response = pylucid_plugin.context_middleware_response(request, page_plugin_response)
+        return response
+#        if page_plugin_response.status_code == 200:
+#            # Plugin replace the page content
+#            return _render_template(request, page_content=page_plugin_response.content)
+#        else:
+#            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
+#            return page_plugin_response
         
     
     # Plugin has not return a response object -> use the normal page content

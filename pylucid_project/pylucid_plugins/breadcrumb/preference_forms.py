@@ -19,7 +19,7 @@ class BreadcumbPrefForm(DBPreferencesBaseForm):
         ),
     )
     print_index = forms.BooleanField(
-        initial = False, required=False,
+        initial = True, required=False,
         help_text = _('If checked every back link bar starts with a link to "index_url"'),
     )
     index_url = forms.CharField(

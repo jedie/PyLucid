@@ -34,8 +34,36 @@ from django.template.loader import render_to_string
 
 from pylucid.django_addons.comma_separated_field import CommaSeparatedCharField
 
+
 class PageTreeManager(models.Manager):
     """ Manager class for PageTree model """
+    def get_model_instance(self, request, ModelClass, pagetree=None):
+        """
+        Shared function for getting a model instance from the given model witch has
+        a foreignkey to PageTree and Language model.
+        Use the current language or the system default language.
+        If pagetree==None: Use request.PYLUCID.pagetree
+        """
+        if not pagetree:
+            # current pagetree instance from PyLucid objects
+            pagetree = request.PYLUCID.pagetree
+            
+        queryset = ModelClass.objects.all().filter(page=pagetree)
+        try:
+            # Try to get the current used language
+            return queryset.get(lang=request.PYLUCID.lang_entry)
+        except ModelClass.DoesNotExist:
+            # Get the PageContent entry in the system default language
+            return queryset.get(lang=request.PYLUCID.default_lang_code)
+    
+    def get_pagemeta(self, request, pagetree=None):
+        """
+        Returns the pagemeta instance for pagetree and language.
+        If there is no pagemate in the current language, use the system default language.
+        If pagetree==None: Use request.PYLUCID.pagetree
+        """
+        return self.get_model_instance(request, PageMeta, pagetree)
+    
     def get_page_from_url(self, url_path):
         """ returns a tuple the page tree instance from the given url_path"""
         path = url_path.split("/")
@@ -65,25 +93,17 @@ class PageTreeManager(models.Manager):
         """
         if pagetree == None:
             pagetree = request.PYLUCID.pagetree
-            
-        def get_title_or_slug(pagetree):
-            queryset = PageContent.objects.all().filter(page=pagetree)
-            try:
-                queryset = queryset.get(lang=request.PYLUCID.lang_entry)
-            except PageContent.DoesNotExist:
-                # Get the PageContent entry in the system default language
-                queryset = queryset.get(lang=request.PYLUCID.default_lang_code)
-            return queryset.title_or_slug()
         
-        if pagetree.type == PageTree.PAGE_TYPE:
-            url = pagetree.get_absolute_url()
-            title = get_title_or_slug(pagetree)
-            backlist = [{"url": url, "title": title}]
-        else:
-            backlist = []
+        url = pagetree.get_absolute_url()
+        
+        pagemeta = self.get_pagemeta(request, pagetree)
+        title = pagemeta.title_or_slug()
+        
+        backlist = [{"url": url, "title": title}]
         
         parent = pagetree.parent
-        if parent:
+        if parent: 
+            # insert parent links
             backlist = self.get_backlist(request, parent) + backlist
 
         return backlist
@@ -133,6 +153,17 @@ class PageTree(models.Model):
     lastupdateby = models.ForeignKey(User, editable=True, related_name="%(class)s_lastupdateby",
         help_text="User as last edit the current page.",)
 
+#    def get_pagemeta(self, request):
+#        self.objects.get_model_instance(self, request, ModelClass)
+#        pagetree = request.PYLUCID.pagetree
+#        queryset = PageMeta.objects.all().filter(page=pagetree)
+#        try:
+#            # Try to get the current used language
+#            return queryset.get(lang=request.PYLUCID.lang_entry)
+#        except PageMeta.DoesNotExist:
+#            # Get the PageContent entry in the system default language
+#            return queryset.get(lang=request.PYLUCID.default_lang_code)
+
     def get_absolute_url(self):
         """
         Get the absolute url (without the domain/host part)
@@ -148,25 +179,12 @@ class PageTree(models.Model):
 
     class Meta:
         unique_together=(("slug","parent"),)
+        ordering = ["id", "position"] # FIXME
         db_table = 'PyLucid_PageTree'
 #        app_label = 'PyLucid'
 
 
-class PluginPage(models.Model):
-    APP_LABEL_CHOICES = [(app,app) for app in settings.INSTALLED_APPS]
-    page = models.ForeignKey(PageTree, unique=True)
-    app_label = models.CharField(max_length=256, choices=APP_LABEL_CHOICES,
-        help_text="The app lable witch is in settings.INSTALLED_APPS")
-    
-    def save(self, *args, **kwargs):
-        if not self.page.type == self.page.PLUGIN_TYPE:
-            # FIXME: Better error with django model validation?
-            raise AssertionError("Plugin can only exist on a plugin type tree entry!")
-        return super(PluginPage, self).save(*args, **kwargs)
-    
-    def __unicode__(self):
-        return u"PluginPage '%s' (page: %s)" % (self.app_label, self.page)
-
+#------------------------------------------------------------------------------
 
 
 class Language(models.Model):
@@ -179,6 +197,87 @@ class Language(models.Model):
     class Meta:
         db_table = 'PyLucid_Language'
 #        app_label = 'PyLucid'
+
+
+#------------------------------------------------------------------------------
+
+class BaseModel(models.Model):
+    """
+    Base model for PageMeta, PluginPage and PageContent
+    """
+    page = models.ForeignKey(PageTree)
+    lang = models.ForeignKey(Language)
+    
+    createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
+    lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
+    createby = models.ForeignKey(User, editable=True, related_name="%(class)s_createby",
+        help_text="User how create the current page.",)
+    lastupdateby = models.ForeignKey(User, editable=True, related_name="%(class)s_lastupdateby",
+        help_text="User as last edit the current page.",)
+    
+    def get_absolute_url(self):
+        """ Get the absolute url (without the domain/host part) """
+        return self.page.get_absolute_url()
+    
+    class Meta:
+        abstract = True
+
+
+
+class PageMeta(BaseModel):
+    """ Meta data for PageContent or PluginPage """    
+    title = models.CharField(blank=True, max_length=150, help_text="A long page title")
+    keywords = CommaSeparatedCharField(blank=True, max_length=255,
+        help_text="Keywords for the html header. (separated by commas)"
+    )
+    description = models.CharField(blank=True, max_length=255, help_text="For html header")
+
+    def title_or_slug(self):
+        """ The page title is optional, if not exist, used the slug from the page tree """
+        return self.title or self.page.slug
+
+    def __unicode__(self):
+        return u"PageMeta for page: '%s' (lang: '%s')" % (self.page.slug, self.lang.code)
+    
+    class Meta:
+        unique_together = (("page","lang"),)
+        ordering = ("page", "lang")
+
+#------------------------------------------------------------------------------
+
+
+class PluginPage(BaseModel):
+    """ A plugin page """
+    APP_LABEL_CHOICES = [(app,app) for app in settings.INSTALLED_APPS]
+    
+    pagemeta = models.ForeignKey(PageMeta)
+    
+    app_label = models.CharField(max_length=256, choices=APP_LABEL_CHOICES,
+        help_text="The app lable witch is in settings.INSTALLED_APPS"
+    )
+    
+    def title_or_slug(self):
+        """ The page title is optional, if not exist, used the slug from the page tree """
+        return self.pagemeta.title or self.page.slug
+    
+    def get_plugin_name(self):
+        return self.app_label.split(".")[-1]
+    
+    def save(self, *args, **kwargs):
+        if not self.page.type == self.page.PLUGIN_TYPE:
+            # FIXME: Better error with django model validation?
+            raise AssertionError("Plugin can only exist on a plugin type tree entry!")
+        return super(PluginPage, self).save(*args, **kwargs)
+    
+    def __unicode__(self):
+        return u"PluginPage '%s' (page: %s)" % (self.app_label, self.page)
+    
+    class Meta:
+        unique_together = (("page","lang"),)
+        ordering = ("page", "lang")
+
+
+#------------------------------------------------------------------------------
 
 
 class PageContentManager(models.Manager):
@@ -195,7 +294,8 @@ class PageContentManager(models.Manager):
         return sub_pages   
 
 
-class PageContent(models.Model):
+class PageContent(BaseModel):
+    """ A normal CMS Page with text content. """
     # IDs used in other parts of PyLucid, too
     MARKUP_CREOLE       = 6
     MARKUP_HTML         = 0
@@ -219,15 +319,9 @@ class PageContent(models.Model):
     
     objects = PageContentManager()
 
-    page = models.ForeignKey(PageTree)
-    lang = models.ForeignKey(Language)
+    pagemeta = models.ForeignKey(PageMeta)
 
-    title = models.CharField(blank=True, max_length=150, help_text="A long page title")
     content = models.TextField(blank=True, help_text="The CMS page content.")
-    keywords = CommaSeparatedCharField(blank=True, max_length=255,
-        help_text="Keywords for the html header. (separated by commas)")
-    description = models.CharField(blank=True, max_length=255, help_text="For html header")
-
     markup = models.IntegerField(db_column="markup_id", max_length=1, choices=MARKUP_CHOICES)
 
 #    showlinks = models.BooleanField(default=True,
@@ -239,24 +333,9 @@ class PageContent(models.Model):
 #    permitEditGroup = models.ForeignKey(Group, related_name="page_permitEditGroup", null=True, blank=True,
 #        help_text="Usergroup how can edit this page.")
 
-    createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
-    lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
-    createby = models.ForeignKey( User, editable=True, related_name="%(class)s_createby",
-        help_text="User how create the current page.",)
-    lastupdateby = models.ForeignKey( User, editable=True, related_name="%(class)s_lastupdateby",
-        help_text="User as last edit the current page.",)
-
     def title_or_slug(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
-        if self.title:
-            return self.title
-        return self.page.slug
-
-    def get_absolute_url(self):
-        """
-        Get the absolute url (without the domain/host part)
-        """
-        return self.page.get_absolute_url()
+        return self.pagemeta.title or self.page.slug
 
     def save(self, *args, **kwargs):
         if not self.page.type == self.page.PAGE_TYPE:
@@ -269,22 +348,27 @@ class PageContent(models.Model):
 
     class Meta:
         unique_together = (("page","lang"),)
+        ordering = ("page", "lang")
         db_table = 'PyLucid_PageContent'
 #        app_label = 'PyLucid'
 
 
+#------------------------------------------------------------------------------
+
 
 class Design(models.Model):
-    """
-    Page design: template + CSS/JS files
-    """
+    """ Page design: template + CSS/JS files """
     name = models.CharField(unique=True, max_length=150, help_text="Name of this design combination",)
     template = models.CharField(max_length=128, help_text="filename of the used template for this page")
     headfiles = models.ManyToManyField("EditableHtmlHeadFile", null=True, blank=True,
-        help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag")
+        help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag"
+    )
 
     def __unicode__(self):
         return u"Page design '%s'" % self.name
+
+
+#------------------------------------------------------------------------------
 
 
 class EditableHtmlHeadFile(models.Model):

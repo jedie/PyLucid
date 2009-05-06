@@ -9,7 +9,7 @@ from django.template.loader import find_template_source
 from dbtemplates.models import Template
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
-from pylucid_project.apps.pylucid.models import PageTree, PageContent, Design, EditableHtmlHeadFile
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Design, EditableHtmlHeadFile
 from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08
 from pylucid_project.apps.pylucid_update.forms import UpdateForm
 
@@ -80,7 +80,7 @@ def _do_update(request, site, language):
     designs = {}
     page_dict = {}
     for old_page in old_pages:
-        #out.write("%s - %s - %s" % (old_page.parent, old_page.id, old_page))
+        out.write("\nmove '%s' page (old ID:%s)" % (old_page.name, old_page.id))
 
         #---------------------------------------------------------------------
         # create/get Design entry
@@ -145,17 +145,37 @@ def _do_update(request, site, language):
         page_dict[old_page.id] = tree_entry
         
         #---------------------------------------------------------------------
+        # create/get PageMeta entry
+        
+        pagemeta_entry, created = PageMeta.objects.get_or_create(
+            page = tree_entry,
+            lang = language,
+            defaults = {
+                "title": old_page.title,
+                "keywords": old_page.keywords,
+                "description": old_page.description,
+
+                "createtime": old_page.createtime,
+                "lastupdatetime": old_page.lastupdatetime,
+                "createby": old_page.createby,
+                "lastupdateby": old_page.lastupdateby,
+            }
+        )
+        pagemeta_entry.save()
+        if created:
+            out.write("PageMeta entry '%s' - '%s' created." % (language, tree_entry.slug))
+        else:
+            out.write("PageMeta entry '%s' - '%s' exist." % (language, tree_entry.slug))
+        
+        #---------------------------------------------------------------------
         # create/get PageContent entry
 
         content_entry, created = PageContent.objects.get_or_create(
             page = tree_entry,
             lang = language,
+            pagemeta = pagemeta_entry,
             defaults = {
-                "title": old_page.title,
                 "content": old_page.content,
-                "keywords": old_page.keywords,
-                "description": old_page.description,
-
                 "markup": old_page.markup,
 
                 "createtime": old_page.createtime,
@@ -200,7 +220,6 @@ def update08(request):
 
 
 def update08templates(request):
-    """ Update PyLucid v0.8 templates """
     title = "Update PyLucid v0.8 templates"
     out = SimpleStringIO()
     out.write(title)
@@ -215,17 +234,25 @@ def update08templates(request):
         
     
     for template in Template.objects.filter(name__istartswith=settings.SITE_TEMPLATE_PREFIX):       
-        out.write("Update Template: %s" % template.name)
+        out.write("\nUpdate Template: '%s'" % template.name)
         
         content = template.content
 
         content = replace(content, out,"{% lucidTag page_style %}", "{% lucidTag head_files %}")
         content = replace(content, out,"{% lucidTag back_links %}", "<!-- ContextMiddleware breadcrumb -->")
-        content = replace(content, out,"{{ PAGE.content }}", "{{ html_content }}")
-        content = replace(content, out,"{% if PAGE.title %}{{ PAGE.title|escape }}{% else %}{{ PAGE.name|escape }}{% endif %}", "{{ pagecontent.title_or_slug }}")
-        content = replace(content, out,"PAGE.title", "pagecontent.title")
+        content = replace(content, out,
+            "{{ PAGE.content }}",
+            "{% block content %}{{ page_content }}{% endblock content %}"
+        )
+        content = replace(content, out,
+            "{% if PAGE.title %}{{ PAGE.title|escape }}{% else %}{{ PAGE.name|escape }}{% endif %}",
+            "{{ page_title }}"
+        )
+        content = replace(content, out,"PAGE.title", "page_title")
+        content = replace(content, out,"{{ PAGE.keywords }}", "{{ page_keywords }}")
+        content = replace(content, out,"{{ PAGE.description }}", "{{ page_description }}")
         content = replace(content, out,"{{ PAGE.datetime", "{{ pagecontent.createtime")
-        content = replace(content, out,"{{ PAGE.", "{{ pagecontent.")
+        content = replace(content, out,"{{ PAGE.", "{{ page_")
         
         template.content = content
         template.save()
@@ -241,7 +268,6 @@ def update08templates(request):
     
     
 def update08styles(request):
-    """ Update PyLucid v0.8 styles """
     title = "Update PyLucid v0.8 styles"
     out = SimpleStringIO()
     out.write(title)
@@ -260,7 +286,7 @@ def update08styles(request):
     styles = EditableHtmlHeadFile.objects.filter(filename__istartswith=settings.SITE_TEMPLATE_PREFIX)
     styles = styles.filter(filename__iendswith=".css")
     for style in styles:       
-        out.write("Update Styles: %s" % style.filename)
+        out.write("\nUpdate Styles: '%s'" % style.filename)
         
         content = style.content
         if additional_styles in content:
