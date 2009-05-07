@@ -56,8 +56,8 @@ def _get_page_content(request):
             return queryset.get(lang=request.PYLUCID.lang_entry)
         except PageContent.DoesNotExist, err:
             raise http.Http404(
-                "<h1>Page '%s' does not exist in default language '%s'.</h1>"
-                "<p>Original error was: <strong>%s</strong>" % (
+                "Page '%s' does not exist in default language '%s'.\n"
+                "Original error was: %s" % (
                     pagetree.slug, request.PYLUCID.lang_entry.code, err
                 )
             )
@@ -105,6 +105,23 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     # Get all plugin context middlewares from the template and add them to the context
     pylucid_plugin.context_middleware_request(request)
     
+    # call page plugin, if current page is a plugin page
+    page_plugin_response = None
+    if pagetree.type == PageTree.PLUGIN_TYPE:
+        # The current PageTree entry is a plugin page
+        page_plugin_response = pylucid_plugin.call_plugin(request, prefix_url, rest_url)
+        assert(isinstance(page_plugin_response, http.HttpResponse),
+            "pylucid plugins must return a http.HttpResponse instance or None!"
+        )
+        response = pylucid_plugin.context_middleware_response(request, page_plugin_response)
+        return response
+#        if page_plugin_response.status_code == 200:
+#            # Plugin replace the page content
+#            return _render_template(request, page_content=page_plugin_response.content)
+#        else:
+#            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
+#            return page_plugin_response
+    
     pagecontent = _get_page_content(request)        
     request.PYLUCID.pagecontent = pagecontent    
     context["page_content"] = pagecontent
@@ -127,25 +144,7 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
 #            return _render_template(request, page_content=get_view_response.content)
 #        else:
 #            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
-#            return get_view_response
-        
-    # call page plugin, if current page is a plugin page
-    page_plugin_response = None
-    if pagetree.type == PageTree.PLUGIN_TYPE:
-        # The current PageTree entry is a plugin page
-        page_plugin_response = pylucid_plugin.call_plugin(request, prefix_url, rest_url)
-        assert(isinstance(page_plugin_response, http.HttpResponse),
-            "pylucid plugins must return a http.HttpResponse instance or None!"
-        )
-        response = pylucid_plugin.context_middleware_response(request, page_plugin_response)
-        return response
-#        if page_plugin_response.status_code == 200:
-#            # Plugin replace the page content
-#            return _render_template(request, page_content=page_plugin_response.content)
-#        else:
-#            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
-#            return page_plugin_response
-        
+#            return get_view_response        
     
     # Plugin has not return a response object -> use the normal page content
     raw_html_content = apply_markup(request.PYLUCID.pagecontent, request.page_msg)

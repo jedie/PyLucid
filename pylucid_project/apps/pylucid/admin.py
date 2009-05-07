@@ -20,40 +20,13 @@ from django.contrib import admin
 
 from reversion.admin import VersionAdmin
 
-from pylucid_project.apps.pylucid import models
+from pylucid import models
+from pylucid.system.auto_model_info import UpdateInfoBaseAdmin
 
 
 #------------------------------------------------------------------------------
 
-class UpdateInfoBaseAdmin(VersionAdmin):
-    """
-    Base class for all models witch use UpdateInfoBaseModel():
-    The save method need the request object as the first argument (For automatic update user ForeignKey).
-    Add request object to save() methods witch used in the django admin site.
-    See also: http://code.djangoproject.com/wiki/CookBookNewformsAdminAndUser
-    """
-    def save_model(self, request, obj, form, change): 
-        instance = form.save(commit=False)
-        instance.save(request)
-        form.save_m2m()
-        return instance
-
-#    def save_formset(self, request, form, formset, change): 
-#        def set_user(instance):
-#            instance.user = request.user
-#            instance.save()
-#
-#        if formset.model == Comment:
-#            instances = formset.save(commit=False)
-#            map(set_user, instances)
-#            formset.save_m2m()
-#            return instances
-#        else:
-#            return formset.save()
-
-#------------------------------------------------------------------------------
-
-class PageTreeAdmin(UpdateInfoBaseAdmin):
+class PageTreeAdmin(UpdateInfoBaseAdmin, VersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}    
 
     list_display = (
@@ -74,7 +47,7 @@ class LanguageAdmin(VersionAdmin):
 admin.site.register(models.Language, LanguageAdmin)
 
 
-class PageMetaAdmin(UpdateInfoBaseAdmin):
+class PageMetaAdmin(UpdateInfoBaseAdmin, VersionAdmin):
     list_display = ("title_or_slug", "get_absolute_url", "lastupdatetime", "lastupdateby",)
     list_display_links = ("title_or_slug", "get_absolute_url")
     list_filter = ("lang", "keywords", "createby", "lastupdateby")
@@ -84,7 +57,7 @@ class PageMetaAdmin(UpdateInfoBaseAdmin):
 admin.site.register(models.PageMeta, PageMetaAdmin)
 
 
-class PageContentAdmin(UpdateInfoBaseAdmin):
+class PageContentAdmin(UpdateInfoBaseAdmin, VersionAdmin):
     list_display = ("title_or_slug", "get_absolute_url", "lastupdatetime", "lastupdateby",)
     list_display_links = ("title_or_slug", "get_absolute_url")
     list_filter = ("lang", "markup", "createby", "lastupdateby",)
@@ -94,7 +67,7 @@ class PageContentAdmin(UpdateInfoBaseAdmin):
 admin.site.register(models.PageContent, PageContentAdmin)
 
 
-class PluginPageAdmin(UpdateInfoBaseAdmin):
+class PluginPageAdmin(UpdateInfoBaseAdmin, VersionAdmin):
     list_display = ("get_plugin_name", "get_absolute_url", "app_label", "lastupdatetime", "lastupdateby",)
     list_display_links = ("get_plugin_name", "app_label")
     list_filter = ("createby", "lastupdateby",)
@@ -104,7 +77,7 @@ class PluginPageAdmin(UpdateInfoBaseAdmin):
 admin.site.register(models.PluginPage, PluginPageAdmin)
 
 
-class DesignAdmin(UpdateInfoBaseAdmin):    
+class DesignAdmin(UpdateInfoBaseAdmin, VersionAdmin):    
     list_display = ("name", "template", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     list_filter = ("template", "createby", "lastupdateby")
@@ -113,7 +86,7 @@ class DesignAdmin(UpdateInfoBaseAdmin):
 admin.site.register(models.Design, DesignAdmin)
 
 
-class EditableHtmlHeadFileAdmin(UpdateInfoBaseAdmin):
+class EditableHtmlHeadFileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
     list_display = ("filename", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filename", "description")
 
