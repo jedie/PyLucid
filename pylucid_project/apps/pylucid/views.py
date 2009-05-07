@@ -109,6 +109,10 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     request.PYLUCID.pagecontent = pagecontent    
     context["page_content"] = pagecontent
     
+    # Add UpdateInfoBaseModel meta data from PageContent instance into context
+    for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
+        context["page_%s" % itemname] = getattr(pagecontent, itemname)
+    
     # call a pylucid plugin "html get view", if exist
     get_view_response = pylucid_plugin.call_get_views(request)
     if get_view_response != None:

@@ -5,6 +5,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template.loader import find_template_source
+from django.contrib.auth.decorators import login_required
 
 from dbtemplates.models import Template
 
@@ -15,7 +16,7 @@ from pylucid_project.apps.pylucid_update.forms import UpdateForm
 
 
 
-
+@login_required
 def menu(request):
     """ Display a menu with all update view links """
     context = {
@@ -56,7 +57,7 @@ def _do_update(request, site, language):
     out.write("Move style model")
     cssfiles = {}
     for style in Style08.objects.all():
-        new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(
+        new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(request,
             filename = settings.SITE_TEMPLATE_PREFIX + style.name + ".css",
             defaults = {
                 "description": style.description,
@@ -93,7 +94,7 @@ def _do_update(request, site, language):
             else:
                 new_design_name = "%s + %s" % (old_page.template.name, old_page.style.name)
                 
-            design, created = Design.objects.get_or_create(
+            design, created = Design.objects.get_or_create(request,
                 name = new_design_name,
                 defaults = {
                     "template": templates[old_page.template.name],
@@ -116,7 +117,7 @@ def _do_update(request, site, language):
         else:
             parent = page_dict[old_page.parent.id]
 
-        tree_entry, created = PageTree.objects.get_or_create(
+        tree_entry, created = PageTree.objects.get_or_create(request,
             id = old_page.id,
             defaults = {
                 "site": site,
@@ -136,8 +137,8 @@ def _do_update(request, site, language):
                 "lastupdateby": old_page.lastupdateby,
             }
         )
-        tree_entry.save()
         if created:
+            tree_entry.save(request)
             out.write("PageTree entry '%s' created." % tree_entry.slug)
         else:
             out.write("PageTree entry '%s' exist." % tree_entry.slug)
@@ -147,7 +148,7 @@ def _do_update(request, site, language):
         #---------------------------------------------------------------------
         # create/get PageMeta entry
         
-        pagemeta_entry, created = PageMeta.objects.get_or_create(
+        pagemeta_entry, created = PageMeta.objects.get_or_create(request,
             page = tree_entry,
             lang = language,
             defaults = {
@@ -161,8 +162,8 @@ def _do_update(request, site, language):
                 "lastupdateby": old_page.lastupdateby,
             }
         )
-        pagemeta_entry.save()
         if created:
+            pagemeta_entry.save(request)
             out.write("PageMeta entry '%s' - '%s' created." % (language, tree_entry.slug))
         else:
             out.write("PageMeta entry '%s' - '%s' exist." % (language, tree_entry.slug))
@@ -170,7 +171,7 @@ def _do_update(request, site, language):
         #---------------------------------------------------------------------
         # create/get PageContent entry
 
-        content_entry, created = PageContent.objects.get_or_create(
+        content_entry, created = PageContent.objects.get_or_create(request,
             page = tree_entry,
             lang = language,
             pagemeta = pagemeta_entry,
@@ -184,8 +185,8 @@ def _do_update(request, site, language):
                 "lastupdateby": old_page.lastupdateby,
             }
         )
-        content_entry.save()
         if created:
+            content_entry.save(request)
             out.write("PageContent entry '%s' - '%s' created." % (language, tree_entry.slug))
         else:
             out.write("PageContent entry '%s' - '%s' exist." % (language, tree_entry.slug))
@@ -198,6 +199,7 @@ def _do_update(request, site, language):
         context_instance=RequestContext(request))
 
 
+@login_required
 def update08(request):
     """ Update PyLucid v0.8 model data to v0.9 models """
     if request.method == 'POST':
@@ -219,6 +221,7 @@ def update08(request):
         context_instance=RequestContext(request))
 
 
+@login_required
 def update08templates(request):
     title = "Update PyLucid v0.8 templates"
     out = SimpleStringIO()
@@ -251,8 +254,30 @@ def update08templates(request):
         content = replace(content, out,"PAGE.title", "page_title")
         content = replace(content, out,"{{ PAGE.keywords }}", "{{ page_keywords }}")
         content = replace(content, out,"{{ PAGE.description }}", "{{ page_description }}")
-        content = replace(content, out,"{{ PAGE.datetime", "{{ pagecontent.createtime")
+        
+        content = replace(content, out,"{{ PAGE.datetime", "{{ page_createtime")
+        
+        for timestring in ("lastupdatetime", "createtime"):
+            # Change time with filter:
+            content = replace(content, out,
+                "{{ PAGE.%s" % timestring,
+                "{{ page_%s" % timestring
+            )
+            # add i18n filter, if not exist:
+            content = replace(content, out,
+                "{{ page_%s }}" % timestring,
+                '{{ page_%s|date:_("DATETIME_FORMAT") }}' % timestring,
+            )
+        
         content = replace(content, out,"{{ PAGE.", "{{ page_")
+        
+        if "{% lucidTag language %}" not in content:
+            # Add language plugin after breadcrumb, if not exist
+            content = replace(content, out,
+                "<!-- ContextMiddleware breadcrumb -->",
+                "<!-- ContextMiddleware breadcrumb -->\n"
+                "<p>{% lucidTag language %}</p>\n"
+            )
         
         template.content = content
         template.save()
@@ -266,7 +291,8 @@ def update08templates(request):
     return render_to_response('pylucid_update/update08result.html', context,
         context_instance=RequestContext(request))
     
-    
+
+@login_required
 def update08styles(request):
     title = "Update PyLucid v0.8 styles"
     out = SimpleStringIO()
@@ -294,7 +320,7 @@ def update08styles(request):
         else:
             content = additional_styles + content
             style.content = content
-            style.save()
+            style.save(request)
             out.write("additional styles inserted.")        
     
     context = {
