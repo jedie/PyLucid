@@ -90,9 +90,9 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     without extension.
 
     See:
-    http://www.djangoproject.com/documentation/testing/#defining-a-test-runner
+    http://docs.djangoproject.com/en/dev/topics/testing/#defining-a-test-runner
     """
-    print "test start."
+    print "test %r start." % test_labels
     setup_test_environment()
     old_name = settings.DATABASE_NAME
     

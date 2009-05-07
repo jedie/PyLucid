@@ -126,6 +126,10 @@ INSTALLED_APPS = (
 INSTALLED_APPS += _plugins.get_installed_apps()
 #print INSTALLED_APPS
 
+#http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
+#Default: 'django.test.simple.run_tests'
+TEST_RUNNER='pylucid_project.tests.test_tools.test_runner.run_tests'
+
 #_____________________________________________________________________________
 # PyLucid own settings
 

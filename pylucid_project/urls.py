@@ -29,9 +29,9 @@ urlpatterns = patterns('',
     # DJANGO ADMIN PANEL
     (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
 
-    ('^update/', include('apps.pylucid_update.urls')),
+    ('^update/', include('pylucid_update.urls')),
 
-    ('^', include('apps.pylucid.urls')),
+    ('^', include('pylucid.urls')),
 )
 
 # serve static files
