@@ -26,12 +26,28 @@
 """
 
 import os
+import sys
 
 import pylucid_project
 import pylucid_plugins
 
 PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
+
+#______________________________________________________________________________
+# SYS PATH SETUP
+
+_path_list = (
+    PYLUCID_PLUGINS_ROOT,
+    PYLUCID_PROJECT_ROOT,
+    os.path.join(PYLUCID_PROJECT_ROOT, "apps")
+)
+for path in _path_list:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+#______________________________________________________________________________
+# DEBUGGING
 
 DEBUG = True
 

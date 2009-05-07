@@ -7,7 +7,8 @@ from django.contrib.sites.models import Site#
 
 from dbtemplates.models import Template
 
-from pylucid.models import PageTree, PageMeta, PageContent, Design, EditableHtmlHeadFile
+from pylucid.models import PageTree, PageMeta, PageContent, Design, \
+                                            EditableHtmlHeadFile, Language
 
 
 TEST_USERS = {
@@ -77,11 +78,43 @@ TEST_DESIGNS = {
         "headfiles": ("unittest/test.css",),
     }
 }
-
-
+TEST_PAGETREE = {
+    1: {
+        "parent": None,
+        "slug": "firstpage",
+        "description": "unittest page",
+        "type": PageTree.PAGE_TYPE,
+        "design": "unittest_design1",
+    }
+}
+TEST_PAGEMETA = {
+    1: {
+        "en": {
+            "title": "first english page",
+            "keywords": "first english page keywords",
+            "description": "first english page description",
+        },
+    },
+}
+TEST_PAGECONTENT = {
+    1: {
+        "en": {
+            "content": "<h1>The first test page!</h1>",
+            "markup": PageContent.MARKUP_HTML,
+        }
+    }
+}
 
 def get_user(usertype):
     return User.objects.get(username=TEST_USERS[usertype]["username"])
+
+def get_or_create_lang(lang_code):
+    language, created = Language.objects.get_or_create(
+        code=lang_code, defaults={"description": "%s - description" % lang_code}
+    )
+    if created:
+        print("Language '%s' created." % lang_code)
+    return language
 
 def create_testusers():
     """
@@ -162,6 +195,65 @@ def create_design(design_dict, request, template_map, headfile_map):
     return design_map
 
 
+def create_pagetree(pagetree_dict, request, site, design_map):
+    pagetree_map = {}
+    for id, defaults in pagetree_dict.iteritems():
+        defaults["site"] = site
+        design_name = defaults["design"]
+        defaults["design"] = design_map[design_name]
+        tree_entry, created = PageTree.objects.get_or_create(
+            request, id = id, defaults = defaults
+        )
+        if created:
+            tree_entry.save(request)
+            print("PageTree '%s' created." % tree_entry.slug)
+        else:
+            print("PageTree '%s' exist." % tree_entry.slug)
+        pagetree_map[id] = tree_entry
+    return pagetree_map
+
+def create_pagemeta(pagemeta_dict, request, pagetree_map):
+    pagemeta_map = {}
+    for id, lang_data in pagemeta_dict.iteritems():
+        tree_entry = pagetree_map[id]
+        
+        for lang_code, metadata in lang_data.iteritems():
+            language = get_or_create_lang(lang_code)
+            
+            pagemeta_entry, created = PageMeta.objects.get_or_create(
+                request, page = tree_entry, lang = language, defaults = metadata
+            )
+            if created:
+                pagemeta_entry.save(request)
+                print("PageMeta '%s' - '%s' created." % (language, tree_entry.slug))
+            else:
+                print("PageMeta '%s' - '%s' exist." % (language, tree_entry.slug))
+            pagemeta_map["%s-%s" % (id, lang_code)] = pagemeta_entry
+    return pagemeta_map
+
+
+def create_pagecontent(pagecontent_dict, request, pagetree_map, pagemeta_map):
+    pagecontent_map = {}
+    for id, lang_data in pagecontent_dict.iteritems():
+        tree_entry = pagetree_map[id]
+        
+        for lang_code, pagecontent_data in lang_data.iteritems():
+            language = get_or_create_lang(lang_code)
+            pagemeta_entry = pagemeta_map["%s-%s" % (id, lang_code)]
+            
+            content_entry, created = PageContent.objects.get_or_create(request,
+                page = tree_entry,
+                lang = language,
+                pagemeta = pagemeta_entry,
+                defaults = pagecontent_data
+            )
+            if created:
+                content_entry.save(request)
+                print("PageContent '%s' created." % content_entry)
+            else:
+                print("PageContent '%s' exist." % content_entry)
+            pagecontent_map["%s-%s" % (id, lang_code)] = content_entry
+    return pagecontent_map
 
 def create_pylucid_test_data(site=None):
     """ create complete test data for "running" PyLucid """
@@ -176,3 +268,6 @@ def create_pylucid_test_data(site=None):
     template_map = create_templates(TEST_TEMPLATES, site)
     headfile_map = create_headfiles(TEST_HEADFILES, request)
     design_map = create_design(TEST_DESIGNS, request, template_map, headfile_map)
+    pagetree_map = create_pagetree(TEST_PAGETREE, request, site, design_map)
+    pagemeta_map = create_pagemeta(TEST_PAGEMETA, request, pagetree_map)
+    pagecontent_map = create_pagecontent(TEST_PAGECONTENT, request, pagetree_map, pagemeta_map)

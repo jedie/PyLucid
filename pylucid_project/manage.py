@@ -45,8 +45,5 @@ except ImportError:
 # setup the environment before we start accessing things in the settings.
 setup_environ(settings_mod)
 
-sys.path.insert(0, os.path.join(settings_mod.PYLUCID_PROJECT_ROOT, "apps"))
-sys.path.insert(0, settings_mod.PYLUCID_PLUGINS_ROOT)
-
 if __name__ == "__main__":
     execute_from_command_line()
