@@ -76,6 +76,8 @@ def _get_request_from_args(args):
     assert isinstance(request, HttpRequest), \
         "First argument must be the request object! (It's type: %s)" % type(request)
     
+    assert isinstance(request.user, User)
+    
     return request, args
 
 
@@ -149,8 +151,8 @@ class UpdateInfoBaseModel(models.Model):
             # FIXME: How can we insert the original called method name?
             evalue = etype('request object has no user object!? (Original error: %s)' % err)
             raise etype, evalue, etb
-                
-        if self.pk == None: # New model entry
+        
+        if self.pk == None or kwargs.get("force_insert", False): # New model entry
             self.createby = current_user
         self.lastupdateby = current_user
         return super(UpdateInfoBaseModel, self).save(*args, **kwargs)
