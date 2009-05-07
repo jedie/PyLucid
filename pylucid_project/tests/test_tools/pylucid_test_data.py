@@ -90,16 +90,25 @@ TEST_PAGETREE = {
 TEST_PAGEMETA = {
     1: {
         "en": {
-            "title": "first english page",
-            "keywords": "first english page keywords",
-            "description": "first english page description",
+            "title": "1. en page",
+            "keywords": "keywords 1. en page",
+            "description": "description 1. en page",
+        },
+        "de": {
+            "title": "1. de Seite",
+            "keywords": "keywords 1. de Seite",
+            "description": "description 1. de Seite",
         },
     },
 }
 TEST_PAGECONTENT = {
     1: {
         "en": {
-            "content": "<h1>The first test page!</h1>",
+            "content": "<h1>1. en test page!</h1>",
+            "markup": PageContent.MARKUP_HTML,
+        },
+        "de": {
+            "content": "<h1>1. de test Seite!</h1>",
             "markup": PageContent.MARKUP_HTML,
         }
     }

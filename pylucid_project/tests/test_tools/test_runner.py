@@ -5,6 +5,7 @@ import unittest
 from django.conf import settings
 from django.test.utils import setup_test_environment, teardown_test_environment
 
+from test_tools import pylucid_test_data
 
 def _import_test(module_name, class_name=None):
     """
@@ -101,8 +102,10 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     db_name = connection.creation.create_test_db(
         verbosity=1, autoclobber=not interactive
     )
-    print "Test database '%s' created" % db_name  
-#    init_pyluciddb(verbosity==2)
+    print "Test database '%s' created" % db_name
+      
+    pylucid_test_data.create_pylucid_test_data()
+    
     suite = get_tests(test_labels, verbosity==2)
     print "Running tests"
     result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
