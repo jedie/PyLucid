@@ -407,6 +407,12 @@ class Design(UpdateInfoBaseModel):
         help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag"
     )
 
+    def save(self, *args, **kwargs):
+        assert isinstance(self.template, basestring), \
+            "Template must be name as a String, not a template instance!"
+
+        return super(Design, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return u"Page design '%s'" % self.name
     
