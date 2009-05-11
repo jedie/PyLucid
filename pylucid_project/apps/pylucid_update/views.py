@@ -279,6 +279,8 @@ def update08templates(request):
                 "<p>{% lucidTag language %}</p>\n"
             )
         
+        # TODO: add somthing like: <meta http-equiv="Content-Language" content="en" />
+        
         template.content = content
         template.save()
         
