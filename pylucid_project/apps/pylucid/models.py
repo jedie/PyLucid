@@ -44,6 +44,11 @@ class PageTreeManager(UpdateInfoBaseModelManager):
     inherited from UpdateInfoBaseModelManager:
         get_or_create() method, witch expected a request object as the first argument.
     """
+    def get_root_page(self):
+        """ returns the 'first' page tree entry for a '/'-root url """
+        pagetree = PageTree.objects.all().filter(parent=None).order_by("position")[0]
+        return pagetree
+    
     def get_model_instance(self, request, ModelClass, pagetree=None):
         """
         Shared function for getting a model instance from the given model witch has
@@ -166,7 +171,7 @@ class PageTree(UpdateInfoBaseModel):
 
     def get_absolute_url(self):
         """
-        Get the absolute url (without the domain/host part)
+        Get the absolute url (without language code and without domain/host part)
         """
         if self.parent:
             parent_shortcut = self.parent.get_absolute_url()

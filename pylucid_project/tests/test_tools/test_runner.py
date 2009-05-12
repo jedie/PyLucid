@@ -2,16 +2,22 @@
 import os
 import unittest
 
+if __name__ == "__main__":
+    # run all unittest directly
+    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+
 from django.conf import settings
 from django.test.utils import setup_test_environment, teardown_test_environment
+from django.test.simple import run_tests
 
-from test_tools import pylucid_test_data
+from pylucid_project.tests.test_tools import pylucid_test_data
 
 def _import_test(module_name, class_name=None):
     """
     Import test(s) from given module. Class_name is an array and may contain
     TestCase and test_method.
     """
+    print module_name, class_name
     test_module = __import__(module_name, globals(), {}, [])
     if class_name:
         test_class = getattr(test_module, class_name[0], None)
@@ -35,22 +41,35 @@ def get_all_tests(verbosity=False):
     package directory, and tries to load test suites from them. Does not go
     into subdirectories. Returns an instantiated test suite.
     """
+    raise EnvironmentError("TODO!!!")
     print "Contruct a test suite from all available tests."
     test_suite = unittest.TestSuite()
-    for dir_item in os.listdir(__path__[0]):
-        full_path = os.path.join(__path__[0], dir_item)
-        if full_path == __file__:
-            # Skip this file
-            continue
-        if os.path.isdir(full_path):
-            # Skip directories
-            if verbosity:
-                print "Skipping directory %s." % dir_item
-                continue
-        if dir_item.endswith('.py'):
-            if verbosity:
-                print "Inspecting %s" % dir_item
-            test_suite.addTests(_import_test(dir_item[:-3]))
+    
+    from pylucid_project import tests
+    
+    test_suite.addTests(tests)
+        
+#    app = get_app(label)
+#    suite.addTest(build_suite(app))
+        
+#    root_path = __path__[0]
+#    root_path = __path__[0]
+    
+#    for dir_item in os.listdir(root_path):
+#        full_path = os.path.join(root_path, dir_item)
+#        if full_path == __file__:
+#            # Skip this file
+#            continue
+#        if os.path.isdir(full_path):
+#            # Skip directories
+#            if verbosity:
+#                print "Skipping directory %s." % dir_item
+#                continue
+#        if dir_item.endswith('.py'):
+#            if verbosity:
+#                print "Inspecting %s" % dir_item
+#            test_suite.addTests(_import_test(dir_item[:-3]))
+    
     return test_suite
 
 def get_tests(test_labels, verbosity=False):
@@ -64,7 +83,7 @@ def get_tests(test_labels, verbosity=False):
     if test_labels:
         test_suite = unittest.TestSuite()
         for label in test_labels:
-            parts = label.split('.')
+            parts = label.rsplit('.', 1)
             if len(parts) == 1:
                 test_suite.addTest(_import_test(parts[0]))
             else:
@@ -93,7 +112,7 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     See:
     http://docs.djangoproject.com/en/dev/topics/testing/#defining-a-test-runner
     """
-    print "test %r start." % test_labels
+    print "start tests:",  test_labels
     setup_test_environment()
     old_name = settings.DATABASE_NAME
     
@@ -114,3 +133,8 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
 #    teardown_pylucid()
 
     return len(result.failures) + len(result.errors)
+
+if __name__ == "__main__":
+    # Run all unitest directly
+    from django.core import management
+    management.call_command('test')

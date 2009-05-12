@@ -2,12 +2,13 @@
 
 from django import http
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.template import loader, RequestContext, Context, Template
 
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.markup.converter import apply_markup
 
-from pylucid.models import PageTree, PageContent, EditableHtmlHeadFile
+from pylucid.models import PageTree, PageContent, EditableHtmlHeadFile, Language
 
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
@@ -19,16 +20,7 @@ add_to_builtins('pylucid_project.apps.pylucid.defaulttags')
 #_____________________________________________________________________________
 # helper functions
 
-def _prepage_request(request):
-    """
-    shared function for serval views.
-    * add PyLucid request objects
-    * setup i18n language settings
-    """
-    # Add PyLucid objects to the request object
-    request.PYLUCID = pylucid_objects.PyLucidRequestObjects()
-    # Add the Language model entry to request.PYLUCID.lang_entry
-    i18n.setup_language(request)
+
 
 
 def _get_page_content(request):
@@ -182,26 +174,108 @@ def send_head_file(request, filename):
     return http.HttpResponse(content, mimetype=mimetype)
 
 
+
+def _add_pylucid_request_objects(request):
+    """ Add PyLucid objects to the request object """
+    request.PYLUCID = pylucid_objects.PyLucidRequestObjects()
+
+
+def _prepage_request(request, lang_entry):
+    """
+    shared function for serval views.
+    * 
+    """
+    # setup i18n language settings
+    i18n.setup_language(request, lang_entry)
+
+#_____________________________________________________________________________
+# root_page + lang_root_page views:
+
 def root_page(request):
     """ render the first root page in system default language """
-    _prepage_request(request)
+    _add_pylucid_request_objects(request)
+    
+    # activate language via auto detection
+    i18n.activate_auto_language(request)
     
     # Get the first PageTree entry
-    pagetree = PageTree.objects.all().filter(parent=None).order_by("position")[0]
-
+    pagetree = PageTree.objects.get_root_page()
+    
     return _render_page(request, pagetree)
 
 
-def cms_page(request, url_path):
-    """ render cms page view """
-    _prepage_request(request)
+def lang_root_page(request, url_lang_code):
+    """ url with lang code but no page slug """
+    _add_pylucid_request_objects(request)
     
     try:
-        pagetree, prefix_url, rest_url = PageTree.objects.get_page_from_url(url_path)
+        lang_entry = Language.objects.get(code=url_lang_code)
+    except Language.DoesNotExist:
+        request.page_msg.error("Language '%s' doesn't exist." % url_lang_code)
+        # redirect to "/"
+        return http.HttpResponseRedirect("/")
+    
+    # activate i18n
+    i18n.activate_language(request, lang_entry, save=True)
+    
+    return _root_page(request, url_lang_code)
+
+#-----------------------------------------------------------------------------
+
+def _i18n_redirect(request, url_path):
+    """ Redirect to a url with the default language code. """
+    # activate language via auto detection
+    i18n.activate_auto_language(request) 
+    
+    # Check only, if url_path is right (if there exist a pagetree object)
+    # otherwise -> 404 would be raised
+    _get_pagetree(url_path)
+    
+    lang_code = request.LANGUAGE_CODE
+    url = reverse('PyLucid-resolve_url', kwargs={'url_lang_code': lang_code, 'url_path': url_path})
+    
+    # redirect to url with lang_code
+    return http.HttpResponseRedirect(url)
+
+
+def _get_pagetree(url_path):
+    try:
+        return PageTree.objects.get_page_from_url(url_path)
     except PageTree.DoesNotExist, err:
-        return http.HttpResponseNotFound("<h1>Page not found</h1><h2>%s</h2>" % err)
+        raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % err)
+
+def resolve_url(request, url_lang_code, url_path):
+    """ url with lang_code and sub page path """
+    _add_pylucid_request_objects(request)
+    
+    try:
+        lang_entry = Language.objects.get(code=url_lang_code)
+    except Language.DoesNotExist:
+        request.page_msg.error("Language '%s' doesn't exist." % url_lang_code)
+        # redirect to a url with the default language code.
+        return _i18n_redirect(request, url_path)
+    
+    # activate i18n
+    i18n.activate_language(request, lang_entry, save=True)
+    
+    pagetree, prefix_url, rest_url = _get_pagetree(url_path)
     
     return _render_page(request, pagetree, prefix_url, rest_url)
+
+    
+def page_without_lang(request, url_path):
+    """
+    url with sub page path, but without a lang_code part
+    We redirect to a url with language code.
+    """
+    _add_pylucid_request_objects(request)
+    
+    # redirect to a url with the default language code.
+    return _i18n_redirect(request, url_path)
+
+
+    
+
 
 
 

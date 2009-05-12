@@ -19,6 +19,11 @@ __version__= "$Rev:$"
 
 from xml.sax.saxutils import escape
 
+if __name__ == "__main__":
+    # For doctest only
+    import os
+    os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
+
 from django.conf import settings
 from django.utils import translation
 from django.http import HttpResponseRedirect
@@ -46,72 +51,126 @@ def reset_language_settings(request):
     return response
 
 
-def setup_language(request):
+#def setup_language(request, lang_entry):
+#    """
+#    Add the Language model entry to request.PYLUCID.lang_entry.
+#    Use the django language information
+#    from django local middleware, see: http://docs.djangoproject.com/en/dev/topics/i18n/#id2 
+#    """
+##    if settings.PYLUCID.I18N_DEBUG:
+##        request.page_msg("settings.PYLUCID.I18N_DEBUG:")
+##        
+##        request.page_msg("url_lang_code: %r" % url_lang_code)
+##        
+##        key = "HTTP_ACCEPT_LANGUAGE"
+##        request.page_msg("%s:" % key, request.META.get(key, '---'))
+##        
+##        key = settings.LANGUAGE_COOKIE_NAME
+##        request.page_msg("cookie %r:" % key, request.COOKIES.get(key, "---"))
+##        
+##        request.page_msg("session 'django_language':", request.session.get('django_language', "---"))
+#       
+#    if url_lang_code != None:
+#        # Use the language code from the url
+#        try:
+#            lang_entry = Language.objects.get(code=url_lang_code)
+#        except Language.DoesNotExist:
+#            # fall back to default 
+#        
+#    activate_language(request, lang_entry)
+#    
+#    if settings.PYLUCID.I18N_DEBUG:
+#        request.page_msg("request.PYLUCID.default_lang_code:", request.PYLUCID.default_lang_code)
+#        request.page_msg("request.PYLUCID.default_lang_entry:", request.PYLUCID.default_lang_entry)
+#        request.page_msg("request.PYLUCID.lang_entry:", request.PYLUCID.lang_entry)
+
+#def split_lang_codes(raw_lang_codes):
+#    """
+#    >>> split_lang_codes("de-AT")
+#    ['de', 'AT']
+#    >>> split_lang_codes(["en", "de-AT"])
+#    ['en', 'de', 'AT']
+#    """
+#    if isinstance(raw_lang_codes, basestring):
+#        raw_lang_codes = [raw_lang_codes]
+#    
+#    assert isinstance(raw_lang_codes, list)
+#    
+#    lang_codes = []
+#    for code in raw_lang_codes:
+#        if "-" in code:
+#            lang_codes += code.split("-")
+#        else:
+#            lang_codes.append(code)
+#    return lang_codes
+
+def activate_auto_language(request):
     """
-    Add the Language model entry to request.PYLUCID.lang_entry.
-    Use the django language information
-    from django local middleware, see: http://docs.djangoproject.com/en/dev/topics/i18n/#id2 
+    Activate language via auto detection.
+    
+    Use request.LANGUAGE_CODE from django locale middleware. If this language
+    doesn't exist -> fall back to language set in system preferences.
+    
+    FIXME: We must use the client list from request.META['HTTP_ACCEPT_LANGUAGE']
+        The PyLucid admin can setup a language witch doesn't exist in django MO files. 
     """
-    if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg("settings.PYLUCID.I18N_DEBUG:")
-        
-        key = "HTTP_ACCEPT_LANGUAGE"
-        request.page_msg("%s:" % key, request.META.get(key, '---'))
-        
-        key = settings.LANGUAGE_COOKIE_NAME
-        request.page_msg("cookie %r:" % key, request.COOKIES.get(key, "---"))
-        
-        request.page_msg("session 'django_language':", request.session.get('django_language', "---"))
-        
-    # Use language infomation from django locale middleware
     lang_code = request.LANGUAGE_CODE
-    activate_lang(request, lang_code, from_info="request.LANGUAGE_CODE")
-    
-    if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg("request.PYLUCID.default_lang_code:", request.PYLUCID.default_lang_code)
-        request.page_msg("request.PYLUCID.default_lang_entry:", request.PYLUCID.default_lang_entry)
-        request.page_msg("request.PYLUCID.lang_entry:", request.PYLUCID.lang_entry)
-
-
-def activate_lang(request, lang_code, from_info, save=False):
-    """
-    Try to use the given lang_code. If not exist fall back to lang from system preferences.
-    Add the Language model entry to request.PYLUCID.lang_entry
-    """
-    lang_codes = [lang_code]
-    if "-" in lang_code:
-         lang_codes += lang_code.split("-")
-    
-    lang_entry = None
-    tried_codes = []
-    for code in lang_codes:
-        try:
-            lang_entry = Language.objects.get(code=code)
-            break
-        except Language.DoesNotExist:
-            tried_codes.append(code)
-    
-    if tried_codes and (settings.DEBUG or settings.PYLUCID.I18N_DEBUG):
-        request.page_msg.error(
-            "debug: Favored language %r (from: %s) doesn't exist." % (tried_codes, from_info)
-        )
-    
-    if not lang_entry:
-        # The favored language doesn't exist -> use default lang from preferences
-        lang_entry = request.PYLUCID.default_lang_entry
-        lang_code = request.PYLUCID.default_lang_code
-        if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.successful("Use default language %r (from preferences)" % lang_entry)
+    try:
+        lang_entry = Language.objects.get(code=lang_code)
+    except Language.DoesNotExist:
+        activate_default_language(request)
     else:
-        # lang entry found
-        if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.successful("Use language %r (from: %s)" % (code, from_info))
-        if save:
-            # Save language in session for next requests
-            if settings.PYLUCID.I18N_DEBUG:
-                request.page_msg("Save lang code %r into request.session['django_language']" % code)
-            request.session["django_language"] = code
-      
-    translation.activate(code) # activate django i18n
-    request.LANGUAGE_CODE = code
+        activate_language(request, lang_entry)
+        
+
+def activate_default_language(request):
+    """ activate default lang from preferences """
+    lang_entry = request.PYLUCID.default_lang_entry
+
+    if settings.PYLUCID.I18N_DEBUG:
+        request.page_msg.successful("Use default language %r (from preferences)" % lang_entry.code)
+        
+    activate_language(request, lang_entry)
+
+
+def activate_language(request, lang_entry, save=False):
+    """
+    Activate django i18n language and set some request objects:
+    
+         * request.PYLUCID.lang_entry
+    Add lang_entry witch is the given Language model instance.
+        
+        * request.LANGUAGE_CODE
+    Set LANGUAGE_CODE from django.middleware.locale.LocaleMiddleware
+    see: http://docs.djangoproject.com/en/dev/topics/i18n/
+    """
+    request.LANGUAGE_CODE = lang_entry.code   
     request.PYLUCID.lang_entry = lang_entry
+
+    if settings.PYLUCID.I18N_DEBUG:
+        request.page_msg.successful("Activate language %r" % lang_entry.code)
+        
+    if save:
+        # Save language in session for next requests
+        if settings.PYLUCID.I18N_DEBUG:
+            request.page_msg("Save lang code %r into request.session['django_language']" % lang_entry.code)
+        request.session["django_language"] = lang_entry.code
+      
+    # activate django i18n:
+    translation.activate(lang_entry.code) 
+
+
+
+
+class UrlLangCodeWrong(Exception):
+    """ Would be raused, if the url code in the url doesn't exist """
+    pass
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod(
+#        verbose=True
+        verbose=False
+    )
+    print "DocTest end."

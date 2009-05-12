@@ -4,7 +4,7 @@
 <p class="info_text">{% trans "Available languages:" %}</p>
 <ul>
   {% for lang in existing_languages %}
-  <li><a href="?language={{ lang.code }}" title="switch to {{ lang.description }}">{{ lang.code }}</li>
+  <li><a href="{% url PyLucid-resolve_url url_lang_code=lang.code,url_path=current_url %}" title="switch to {{ lang.description }}">{{ lang.code }}</a></li>
   {% endfor %}
   {% if add_reset_link %}
   <li class="reset_link"><a href="?language={{ reset_key }}">reset favored language</a></li>

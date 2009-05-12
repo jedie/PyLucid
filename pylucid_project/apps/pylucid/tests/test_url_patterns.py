@@ -31,7 +31,7 @@ import os, unittest
 if __name__ == "__main__":
     # run unittest directly
     import os
-    os.environ["DJANGO_SETTINGS_MODULE"] = "pylucid.tests.testutils.settings"
+    os.environ["DJANGO_SETTINGS_MODULE"] = "pylucid.tests.testutils.test_settings"
 
 from django.conf import settings
 
@@ -47,17 +47,36 @@ class TestWithReverse(unittest.TestCase):
     def test_root_page(self):
         self.failUnlessEqual(reverse('PyLucid-root_page'), "/")
         
-    def test_resolve_url(self):
-        self.failUnlessEqual(reverse('PyLucid-resolve_url', kwargs={'lang_code': 'de', 'url_path': 'slug'}),
-            "/de/slug/")
-        self.failUnlessEqual(reverse('PyLucid-resolve_url', kwargs={'lang_code': 'de-at', 'url_path': 'slug'}),
-            "/de-at/slug/")
-        self.failUnlessEqual(reverse('PyLucid-resolve_url', kwargs={'lang_code': 'de_at', 'url_path': 'slug'}),
-            "/de_at/slug/")
+    def test_page_without_lang(self):
+        self.failUnlessEqual(
+            reverse('PyLucid-page_without_lang', kwargs={'url_path': 'slug'}),
+            "/slug/"
+        )
         
-    def test_existing_lang(self):
-        self.failUnlessEqual(reverse('PyLucid-existing_lang', kwargs={'url_path': 'slug1/slug2'}),
-            "/slug1/slug2/")
+    def test_lang_root_page(self):
+        self.failUnlessEqual(
+            reverse('PyLucid-lang_root_page', kwargs={'url_lang_code': 'en'}),
+            "/en/"
+        )
+        self.failUnlessEqual(
+            reverse('PyLucid-lang_root_page', kwargs={'url_lang_code': 'en-us'}),
+            "/en-us/"
+        )
+        
+    def test_resolve_url(self):
+        self.failUnlessEqual(
+            reverse('PyLucid-resolve_url', kwargs={'url_lang_code': 'de', 'url_path': 'slug'}),
+            "/de/slug/"
+        )
+        self.failUnlessEqual(
+            reverse('PyLucid-resolve_url', kwargs={'url_lang_code': 'de-at', 'url_path': 'slug'}),
+            "/de-at/slug/"
+        )
+        self.failUnlessEqual(
+            reverse('PyLucid-resolve_url', kwargs={'url_lang_code': 'de_at', 'url_path': 'slug'}),
+            "/de_at/slug/"
+        )
+
         
         
         
@@ -99,17 +118,22 @@ class TestWithRegexURLResolver(unittest.TestCase):
         self.func_name = "root_page"
         self.path_test("/")
         
+    def test_page_without_lang(self):
+        self.func_name = "page_without_lang"
+        self.path_test("/slug/", kwargs={'url_path': 'slug'})
+        self.path_test("/slug1/slug2/", kwargs={'url_path': 'slug1/slug2'})
+        
+    def test_lang_root_page(self):
+        self.func_name = "lang_root_page"
+        self.path_test("/en/", kwargs={'url_lang_code': 'en'})
+        self.path_test("/en-US/", kwargs={'url_lang_code': 'en-US'})
+        
     def test_resolve_url(self):
         self.func_name = "resolve_url"
-        self.path_test("/de/slug/", kwargs={'lang_code': 'de', 'url_path': 'slug'})
-        self.path_test("/de-at/slug/", kwargs={'lang_code': 'de-at', 'url_path': 'slug'})
-        self.path_test("/de_at/slug/", kwargs={'lang_code': 'de_at', 'url_path': 'slug'})
-        self.path_test("/de-AT/slug/", kwargs={'lang_code': 'de-AT', 'url_path': 'slug'})
-        
-    def test_existing_lang(self):
-        self.func_name = "existing_lang"
-        self.path_test("/slug1/slug2/", kwargs={'url_path': 'slug1/slug2'})
-        self.path_test("/abc/de/", kwargs={'url_path': 'abc/de'})
+        self.path_test("/de/slug/", kwargs={'url_lang_code': 'de', 'url_path': 'slug'})
+        self.path_test("/de-at/slug/", kwargs={'url_lang_code': 'de-at', 'url_path': 'slug'})
+        self.path_test("/de_at/slug/", kwargs={'url_lang_code': 'de_at', 'url_path': 'slug'})
+        self.path_test("/de-AT/slug/", kwargs={'url_lang_code': 'de-AT', 'url_path': 'slug'})
 
 
 

@@ -36,8 +36,13 @@ def lucidTag(request):
     pref_form = LanguagePrefForm()
     pref_data = pref_form.get_preferences()
     
+    current_pagetree = request.PYLUCID.pagetree
+    absolute_url = current_pagetree.get_absolute_url()
+    current_url = absolute_url.strip("/") # For {% url ... %}
+    
     existing_languages = Language.objects.all()
     context = {
+        "current_url": current_url,
         "existing_languages": existing_languages,
         "add_reset_link": pref_data["add_reset_link"],
         "reset_key": RESET_KEY,

@@ -4,7 +4,7 @@
     PyLucid app url patterns
     ~~~~~~~~~~~~~~~~~~~~~~~~
 
-    examples for the <lang_code> part:
+    examples for the <url_lang_code> part:
         'de'
         'de-at'
         'de_at'
@@ -25,13 +25,21 @@ from django.conf.urls.defaults import patterns, url
 from pylucid_project.apps.pylucid import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.root_page,
-        name='PyLucid-root_page'
-    ),
+    url(r'^$', views.root_page, name='PyLucid-root_page'),
+    
     url(r'^%s/(?P<filename>[\w/\.]{4,})?$' % settings.PYLUCID.HEAD_FILES_URL_PREFIX, views.send_head_file,
         name='PyLucid-send_head_file'
     ),
-    url(r'^(?P<url_path>[\w/-]+?)/$', views.cms_page,
-        name='PyLucid-cms_page'
-    )
+    
+    url(r'^(?P<url_lang_code>[a-zA-Z]{2}([-_][a-zA-Z]{2})*?)/$',
+        views.lang_root_page, name='PyLucid-lang_root_page' 
+    ), 
+          
+    url(r'^(?P<url_lang_code>[a-zA-Z]{2}([-_][a-zA-Z]{2})*?)/(?P<url_path>[\w/-]+?)/$',
+        views.resolve_url, name='PyLucid-resolve_url' 
+    ),
+    
+    url(r'^(?P<url_path>[\w/-]{3,}?)/$',
+        views.page_without_lang, name='PyLucid-page_without_lang'
+    ),
 )
