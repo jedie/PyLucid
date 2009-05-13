@@ -12,6 +12,12 @@ from django.test.simple import run_tests
 
 from pylucid_project.tests.test_tools import pylucid_test_data
 
+TEST_NAMES = ["pylucid_project.tests",]
+for app_name in settings.INSTALLED_APPS:
+    if app_name.startswith("pylucid"):
+        TEST_NAMES.append("%s.tests" % app_name)
+    
+    
 def _import_test(module_name, class_name=None):
     """
     Import test(s) from given module. Class_name is an array and may contain
@@ -36,40 +42,26 @@ def _import_test(module_name, class_name=None):
             raise TypeError("Test label '%s' wrong!" % module_name)
 
 def get_all_tests(verbosity=False):
-    """
-    Contruct a test suite from all available tests. Inspects all .py-files in the
-    package directory, and tries to load test suites from them. Does not go
-    into subdirectories. Returns an instantiated test suite.
-    """
-    raise EnvironmentError("TODO!!!")
-    print "Contruct a test suite from all available tests."
+    """ Contruct a test suite from all available tests. Returns an instantiated test suite. """
+    if verbosity:
+        print "\nContruct a test suite from all available tests."
+        
     test_suite = unittest.TestSuite()
     
-    from pylucid_project import tests
-    
-    test_suite.addTests(tests)
+    for name in TEST_NAMES:
+        try:
+            tests = unittest.defaultTestLoader.loadTestsFromName(name)
+        except AttributeError, err:
+            if verbosity>=2:
+                print "Skip %r: %s" % (name, err)
+        else:
+            if verbosity:
+                print "Add tests from %r" % name
+            test_suite.addTest(tests)
+            
+    if verbosity:
+        print
         
-#    app = get_app(label)
-#    suite.addTest(build_suite(app))
-        
-#    root_path = __path__[0]
-#    root_path = __path__[0]
-    
-#    for dir_item in os.listdir(root_path):
-#        full_path = os.path.join(root_path, dir_item)
-#        if full_path == __file__:
-#            # Skip this file
-#            continue
-#        if os.path.isdir(full_path):
-#            # Skip directories
-#            if verbosity:
-#                print "Skipping directory %s." % dir_item
-#                continue
-#        if dir_item.endswith('.py'):
-#            if verbosity:
-#                print "Inspecting %s" % dir_item
-#            test_suite.addTests(_import_test(dir_item[:-3]))
-    
     return test_suite
 
 def get_tests(test_labels, verbosity=False):
@@ -79,7 +71,9 @@ def get_tests(test_labels, verbosity=False):
     fname.TestClass or fname.TestClass.test_method. Returns an instantiated
     test suite corresponding to the label provided.
     """
-    print "Building test suite."
+    if verbosity:
+        print "Building test suite."
+        
     if test_labels:
         test_suite = unittest.TestSuite()
         for label in test_labels:
@@ -112,21 +106,25 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     See:
     http://docs.djangoproject.com/en/dev/topics/testing/#defining-a-test-runner
     """
-    print "start tests:",  test_labels
+    if verbosity:
+        print "start tests:", test_labels, "\n"
+        
     setup_test_environment()
     old_name = settings.DATABASE_NAME
     
     from django.db import connection
     
     db_name = connection.creation.create_test_db(
-        verbosity=1, autoclobber=not interactive
+        verbosity=verbosity, autoclobber=not interactive
     )
-    print "Test database '%s' created" % db_name
+    if verbosity:
+        print "\nTest database '%s' created" % db_name
       
-    pylucid_test_data.create_pylucid_test_data()
+    pylucid_test_data.create_pylucid_test_data(site=None, verbosity=verbosity)
     
-    suite = get_tests(test_labels, verbosity==2)
-    print "Running tests"
+    suite = get_tests(test_labels, verbosity)
+    if verbosity:
+        print "Running tests:"
     result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
     connection.creation.destroy_test_db(old_name, verbosity)
     teardown_test_environment()

@@ -125,11 +125,11 @@ def get_or_create_lang(lang_code):
         print("Language '%s' created." % lang_code)
     return language
 
-def create_testusers():
+def create_testusers(verbosity):
     """
     Create all available testusers.
     """
-    def create_user(username, password, email, is_staff, is_superuser):
+    def create_user(verbosity, username, password, email, is_staff, is_superuser):
         """
         Create a user and return the instance.
         """
@@ -143,12 +143,14 @@ def create_testusers():
         user.is_staff = is_staff
         user.is_superuser = is_superuser
         user.save()
+        if verbosity:
+            print "Test user %r created." % user
         
     for usertype, userdata in TEST_USERS.iteritems():
-        create_user(**userdata)
+        create_user(verbosity, **userdata)
 
 
-def create_templates(template_dict, site):
+def create_templates(verbosity, template_dict, site):
     """ create templates in dbtemplates model """
     template_map = {}
     for template_name, data in template_dict.iteritems():
@@ -158,14 +160,15 @@ def create_templates(template_dict, site):
         template.save()
         template.sites.add(site)
         template_map[template_name] = template
-        if created:
-            print("template '%s' created." % template_name)
-        else:
-            print("template '%s' exist." % template_name)
+        if verbosity:
+            if created:
+                print("template '%s' created." % template_name)
+            else:
+                print("template '%s' exist." % template_name)
     return template_map
 
 
-def create_headfiles(headfile_dict, request):
+def create_headfiles(verbosity, headfile_dict, request):
     headfile_map = {}
     for filename, data in headfile_dict.iteritems():    
         headfile, created = EditableHtmlHeadFile.objects.get_or_create(
@@ -173,14 +176,15 @@ def create_headfiles(headfile_dict, request):
         )
         headfile.save(request)
         headfile_map[filename] = headfile
-        if created:
-            print("EditableStaticFile '%s' created." % filename)
-        else:
-            print("EditableStaticFile '%s' exist." % filename)
+        if verbosity:
+            if created:
+                print("EditableStaticFile '%s' created." % filename)
+            else:
+                print("EditableStaticFile '%s' exist." % filename)
     return headfile_map
 
 
-def create_design(design_dict, request, template_map, headfile_map):   
+def create_design(verbosity, design_dict, request, template_map, headfile_map):   
     design_map = {}
     for design_name, data in design_dict.iteritems():
         template_name = data["template_name"]
@@ -189,22 +193,24 @@ def create_design(design_dict, request, template_map, headfile_map):
             name = design_name, defaults = {"template": template_name,}
         )
         if created:
-            print("design '%s' created." % design_name)
+            if verbosity:
+                print("design '%s' created." % design_name)
             # Add headfiles
             for filename in data["headfiles"]:
                 headfile = headfile_map[filename]
                 design.headfiles.add(headfile)
-                print("Add headfile '%s'." % headfile)
+                if verbosity:
+                    print("Add headfile '%s'." % headfile)
             design.save(request)
         else:
-            print("Design '%s' exist." % design_name)
-            
+            if verbosity:
+                print("Design '%s' exist." % design_name)
         
         design_map[design_name] = design
     return design_map
 
 
-def create_pagetree(pagetree_dict, request, site, design_map):
+def create_pagetree(verbosity, pagetree_dict, request, site, design_map):
     pagetree_map = {}
     for id, defaults in pagetree_dict.iteritems():
         defaults["site"] = site
@@ -213,15 +219,17 @@ def create_pagetree(pagetree_dict, request, site, design_map):
         tree_entry, created = PageTree.objects.get_or_create(
             request, id = id, defaults = defaults
         )
-        if created:
-            tree_entry.save(request)
-            print("PageTree '%s' created." % tree_entry.slug)
-        else:
-            print("PageTree '%s' exist." % tree_entry.slug)
+        tree_entry.save(request)
+        if verbosity:
+            if created:
+                print("PageTree '%s' created." % tree_entry.slug)
+            else:
+                print("PageTree '%s' exist." % tree_entry.slug)
         pagetree_map[id] = tree_entry
     return pagetree_map
 
-def create_pagemeta(pagemeta_dict, request, pagetree_map):
+
+def create_pagemeta(verbosity, pagemeta_dict, request, pagetree_map):
     pagemeta_map = {}
     for id, lang_data in pagemeta_dict.iteritems():
         tree_entry = pagetree_map[id]
@@ -232,16 +240,17 @@ def create_pagemeta(pagemeta_dict, request, pagetree_map):
             pagemeta_entry, created = PageMeta.objects.get_or_create(
                 request, page = tree_entry, lang = language, defaults = metadata
             )
-            if created:
-                pagemeta_entry.save(request)
-                print("PageMeta '%s' - '%s' created." % (language, tree_entry.slug))
-            else:
-                print("PageMeta '%s' - '%s' exist." % (language, tree_entry.slug))
+            pagemeta_entry.save(request)
+            if verbosity:
+                if created:
+                    print("PageMeta '%s' - '%s' created." % (language, tree_entry.slug))
+                else:
+                    print("PageMeta '%s' - '%s' exist." % (language, tree_entry.slug))
             pagemeta_map["%s-%s" % (id, lang_code)] = pagemeta_entry
     return pagemeta_map
 
 
-def create_pagecontent(pagecontent_dict, request, pagetree_map, pagemeta_map):
+def create_pagecontent(verbosity, pagecontent_dict, request, pagetree_map, pagemeta_map):
     pagecontent_map = {}
     for id, lang_data in pagecontent_dict.iteritems():
         tree_entry = pagetree_map[id]
@@ -256,27 +265,38 @@ def create_pagecontent(pagecontent_dict, request, pagetree_map, pagemeta_map):
                 pagemeta = pagemeta_entry,
                 defaults = pagecontent_data
             )
-            if created:
-                content_entry.save(request)
-                print("PageContent '%s' created." % content_entry)
-            else:
-                print("PageContent '%s' exist." % content_entry)
+            content_entry.save(request)
+            if verbosity:
+                if created:
+                    print("PageContent '%s' created." % content_entry)
+                else:
+                    print("PageContent '%s' exist." % content_entry)
             pagecontent_map["%s-%s" % (id, lang_code)] = content_entry
     return pagecontent_map
 
-def create_pylucid_test_data(site=None):
+
+def create_pylucid_test_data(site=None, verbosity=True):
     """ create complete test data for "running" PyLucid """
-    create_testusers()
+    if verbosity:
+        print "\nCreate complete test data for 'running' PyLucid"
+        
+    create_testusers(verbosity)
     
     request = HttpRequest()
     request.user = get_user(usertype="superuser")
     
     if site==None:
         site = Site.objects.get_current()
+    if verbosity:
+        print "use site: %r" % site
            
-    template_map = create_templates(TEST_TEMPLATES, site)
-    headfile_map = create_headfiles(TEST_HEADFILES, request)
-    design_map = create_design(TEST_DESIGNS, request, template_map, headfile_map)
-    pagetree_map = create_pagetree(TEST_PAGETREE, request, site, design_map)
-    pagemeta_map = create_pagemeta(TEST_PAGEMETA, request, pagetree_map)
-    pagecontent_map = create_pagecontent(TEST_PAGECONTENT, request, pagetree_map, pagemeta_map)
+    template_map = create_templates(verbosity, TEST_TEMPLATES, site)
+    headfile_map = create_headfiles(verbosity, TEST_HEADFILES, request)
+    design_map = create_design(verbosity, TEST_DESIGNS, request, template_map, headfile_map)
+    pagetree_map = create_pagetree(verbosity, TEST_PAGETREE, request, site, design_map)
+    pagemeta_map = create_pagemeta(verbosity, TEST_PAGEMETA, request, pagetree_map)
+    pagecontent_map = create_pagecontent(verbosity, TEST_PAGECONTENT, request, pagetree_map, pagemeta_map)
+
+    if verbosity:
+        print "Test database filled with test data."
+        print
