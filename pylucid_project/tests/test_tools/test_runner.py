@@ -48,6 +48,7 @@ def get_all_tests(verbosity=False):
         
     test_suite = unittest.TestSuite()
     
+    
     for name in TEST_NAMES:
         try:
             tests = unittest.defaultTestLoader.loadTestsFromName(name)
@@ -56,7 +57,13 @@ def get_all_tests(verbosity=False):
                 print "Skip %r: %s" % (name, err)
         else:
             if verbosity:
-                print "Add tests from %r" % name
+                print "Add %s tests from %r" % (tests.countTestCases(), name)
+            if verbosity>=2:
+                for testcase in tests:
+                    for test in testcase._tests:
+                        module_name = test.__class__.__module__
+                        file_name = module_name.split(".")[-1]
+                        print "\t%s.%s.%s" % (file_name, test.__class__.__name__, test._testMethodName)
             test_suite.addTest(tests)
             
     if verbosity:
@@ -135,4 +142,4 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
 if __name__ == "__main__":
     # Run all unitest directly
     from django.core import management
-    management.call_command('test')
+    management.call_command('test', verbosity=2)
