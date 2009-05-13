@@ -11,7 +11,7 @@ from django_tools.unittest.unittest_base import BaseTestCase, direct_run
 
 from pylucid.models import PageTree
 
-
+#settings.PYLUCID.I18N_DEBUG = True
 
 class PageContentTest(BaseTestCase, TransactionTestCase):
     def __init__(self, *args, **kwargs):
@@ -22,8 +22,15 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         system_preferences = SystemPreferencesForm().get_preferences()
         self.default_lang_code = system_preferences["lang_code"]
     
+    def assertContentLanguage(self, response, lang_code):
+        is_lang = response["content-language"]
+        self.failUnlessEqual(is_lang, lang_code,
+            "Header 'Content-Language' is not '%s' it's: '%s'" % (lang_code, is_lang)
+        )
+    
     def failUnlessEN(self, response):
         """ Check if **/firstpage/** is EN """
+        self.assertContentLanguage(response, "en")
         self.assertResponse(response,
             must_contain=(
                 '<a href="/firstpage/">1. en page</a>',
@@ -36,6 +43,7 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         
     def failUnlessDE(self, response):
         """ Check if **/firstpage/** is DE """
+        self.assertContentLanguage(response, "de")
         self.assertResponse(response,
             must_contain=(
                 '<a href="/firstpage/">1. de Seite</a>',
@@ -75,7 +83,7 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         self.failUnlessDE(response)
         response = self.client.get("/de/firstpage/")
         self.failUnlessDE(response)
-        
+                
     def test_not_avaiable(self):
         """
         If a requested language doesn't exist -> Use the default language
@@ -85,11 +93,21 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         and test different language codes.
         See also:
         http://code.google.com/p/django-dbpreferences/issues/detail?id=1
-        """        
+        """
+        settings.PYLUCID.I18N_DEBUG = True
+        
         response = self.client.get("/",
             HTTP_ACCEPT_LANGUAGE = "it,it-CH;q=0.8,es;q=0.5,ja-JP;q=0.3"
         )
         self.failUnlessDefaultLang(response)
+        self.assertResponse(response,
+            must_contain=(
+                "Favored language &quot;it&quot; does not exist",
+                "Use default language &quot;de&quot;",
+                "Activate language &quot;de&quot;",   
+            ),
+            must_not_contain=("Traceback",)#"error"),
+        )
 
     def test_wrong_url_lang1(self):
         response = self.client.get("/it/")

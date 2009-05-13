@@ -56,25 +56,41 @@ class PageTreeManager(UpdateInfoBaseModelManager):
         Use the current language or the system default language.
         If pagetree==None: Use request.PYLUCID.pagetree
         """
+        # client favored Language instance:
+        lang_entry = request.PYLUCID.lang_entry
+        # default Language instance set in system preferences:
+        default_lang_entry = request.PYLUCID.default_lang_entry
+        
+        lang_entry = request.PYLUCID.lang_entry
+        default_lang_entry = request.PYLUCID.default_lang_entry
+        
         if not pagetree:
-            # current pagetree instance from PyLucid objects
+            # current pagetree instance
             pagetree = request.PYLUCID.pagetree
             
         queryset = ModelClass.objects.all().filter(page=pagetree)
         try:
             # Try to get the current used language
-            return queryset.get(lang=request.PYLUCID.lang_entry)
+            return queryset.get(lang=lang_entry)
         except ModelClass.DoesNotExist:
             # Get the PageContent entry in the system default language
-            return queryset.get(lang=request.PYLUCID.default_lang_code)
+            return queryset.get(lang=default_lang_entry)
     
     def get_pagemeta(self, request, pagetree=None):
         """
-        Returns the pagemeta instance for pagetree and language.
-        If there is no pagemate in the current language, use the system default language.
+        Returns the PageMeta instance for pagetree and language.
+        If there is no PageMeta in the current language, use the system default language.
         If pagetree==None: Use request.PYLUCID.pagetree
         """
         return self.get_model_instance(request, PageMeta, pagetree)
+    
+    def get_pagecontent(self, request, pagetree=None):
+        """
+        Returns the PageContent instance for pagetree and language.
+        If there is no PageContent in the current language, use the system default language.
+        If pagetree==None: Use request.PYLUCID.pagetree
+        """
+        return self.get_model_instance(request, PageContent, pagetree)
     
     def get_page_from_url(self, url_path):
         """ returns a tuple the page tree instance from the given url_path"""

@@ -20,39 +20,39 @@ add_to_builtins('pylucid_project.apps.pylucid.defaulttags')
 #_____________________________________________________________________________
 # helper functions
 
-
-
-
 def _get_page_content(request):
     """
-    Returns the PageContent instance for the given pagetree:
+    Returns the PageContent instance for the current pagetree:
     Try in client favored language, if not exist...
     ...try in default language set in the system preferences, if not exist...
     ...raise http.Http404()
     """
+    # current pagetree instance:
     pagetree = request.PYLUCID.pagetree
+    # client favored Language instance:
+    lang_entry = request.PYLUCID.lang_entry
+    # default Language instance set in system preferences:
+    default_lang_entry = request.PYLUCID.default_lang_entry
     
-    queryset = PageContent.objects.all().filter(page=pagetree)
     try:
-        return queryset.get(lang=request.PYLUCID.lang_entry)
-    except PageContent.DoesNotExist:
-        if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.error(
-                "Page %r doesn't exist in language %r." % (pagetree, request.PYLUCID.lang_entry)
+        pagecontent = PageTree.objects.get_pagecontent(request)
+    except PageContent.DoesNotExist, err:
+        raise http.Http404(
+            "Page '%s' does not exist in default language '%s'.\n"
+            "Original error was: %s" % (
+                pagetree.slug, default_lang_entry.code, err
             )
-            request.page_msg("Use default language from system preferences.")
-            
-        # Get the PageContent entry in the system default language
-        i18n.activate_lang(request, request.PYLUCID.default_lang_code, from_info="system preferences")
-        try:
-            return queryset.get(lang=request.PYLUCID.lang_entry)
-        except PageContent.DoesNotExist, err:
-            raise http.Http404(
-                "Page '%s' does not exist in default language '%s'.\n"
-                "Original error was: %s" % (
-                    pagetree.slug, request.PYLUCID.lang_entry.code, err
-                )
+        )
+    
+    if (settings.DEBUG or settings.PYLUCID.I18N_DEBUG) and (pagecontent.lang != lang_entry):
+        request.page_msg.error(
+            "Page '%s' doesn't exist in client favored language '%s', use '%s' entry." % (
+                pagetree.slug, lang_entry.code, pagecontent.lang.code
             )
+        )
+        
+    return pagecontent
+
 
 def _render_string_template(template, context):
     """ render the given template string """
@@ -68,6 +68,7 @@ def _render_template(request, page_content):
     complete_page = _render_string_template(page_template, context)
        
     response = http.HttpResponse(complete_page, mimetype="text/html")
+    response["content-language"] = context["page_language"]
     response = pylucid_plugin.context_middleware_response(request, response)
     return response
     
@@ -91,6 +92,7 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
         "page_title": pagemeta.title_or_slug(),
         "page_keywords": pagemeta.keywords,
         "page_description": pagemeta.description,
+        "page_language": pagemeta.lang.code,
     })
     request.PYLUCID.context = context
     

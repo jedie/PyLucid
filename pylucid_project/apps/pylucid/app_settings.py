@@ -14,6 +14,7 @@ EDITABLE_HEAD_LINK_TEMPLATE = "pylucid/headlink_%s_file.html"
 HEAD_FILES_URL_PREFIX = "headfile"
 
 # i18n stuff:
-I18N_DEBUG = False # Display many info around detecting current language
+#I18N_DEBUG = False # Display many info around detecting current language
+I18N_DEBUG = True
 
 HTML_GET_VIEW_NAME = "html_get_view"
