@@ -37,8 +37,9 @@ import inspect
 
 from django.conf import settings
 from django.utils.encoding import smart_str
-from django.template import Context, Template
 from django.utils.safestring import SafeData, mark_safe
+
+from django_tools.template import render
 
 from pylucid_project.utils.escape import escape
 
@@ -223,13 +224,6 @@ class PageMessages(object):
         return len(self.request.session[SESSION_KEY])
 
 
-def render_string_template(template, context):
-    """ render the given template string """
-    t = Template(template)
-    c = Context(context)
-    return t.render(c)
-
-
 
 
 class PageMessagesMiddleware(object):
@@ -259,7 +253,7 @@ class PageMessagesMiddleware(object):
         else:
             # Get the messages and delete it from the session
             msg_list = page_msg.get_and_delete_messages()
-            message_string = render_string_template(
+            message_string = render.render_string_template(
                 TEMPLATE, context={"msg_list": msg_list}
             )
             message_string = smart_str(message_string)
