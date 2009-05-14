@@ -1,5 +1,9 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
 <ul>
 {% for page in sub_pages %}
   <li><a href="{{ page.get_absolute_url }}">{{ page.title_or_slug|escape }}</a></li>
 {% endfor %}
 </ul>
+{% endblock %}
