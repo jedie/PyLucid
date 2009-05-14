@@ -1,0 +1,13 @@
+#sha_button {}
+#sha_button:hover {
+  color:green;
+}
+#plaintext_button {
+  font-size: 0.65em;
+}
+#plaintext_button:hover {
+  color:red;
+}
+#js_error {
+    border: red 2px solid;
+}

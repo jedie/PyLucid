@@ -58,7 +58,8 @@ def pylucid(request):
         
         txt = "%s [%s]" % (_("Log out"), request.user.username)
     else:
-        url = reverse("admin_index")
+        #url = reverse("admin_index") # django admin panel index page
+        url = "?auth=login"
         txt = _("Log in")
         
     context["login_link"] = mark_safe('<a href="%s">%s</a>' % (url, txt))

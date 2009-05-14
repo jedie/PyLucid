@@ -5,9 +5,10 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template import loader, RequestContext, Context, Template
 
+from django_tools.template import render
+
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.markup.converter import apply_markup
-
 from pylucid.models import PageTree, PageContent, EditableHtmlHeadFile, Language
 
 
@@ -53,25 +54,27 @@ def _get_page_content(request):
         
     return pagecontent
 
-
-def _render_string_template(template, context):
-    """ render the given template string """
-    t = Template(template)
-    c = Context(context)
-    return t.render(c)
-
    
 def _render_template(request, page_content):
     context = request.PYLUCID.context
     page_template = request.PYLUCID.page_template
     context["page_content"] = page_content
-    complete_page = _render_string_template(page_template, context)
+    complete_page = render.render_string_template(page_template, context)
        
     response = http.HttpResponse(complete_page, mimetype="text/html")
     response["content-language"] = context["page_language"]
     response = pylucid_plugin.context_middleware_response(request, response)
     return response
-    
+
+
+def _apply_context_middleware(request, response):
+    """
+    Before we "send" the response back to the client, we replace all existing
+    context_middleware tags.
+    """
+    response = pylucid_plugin.context_middleware_response(request, response)
+    return response
+
 
 def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     """ render a cms page """   
@@ -107,7 +110,7 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
         assert(isinstance(page_plugin_response, http.HttpResponse),
             "pylucid plugins must return a http.HttpResponse instance or None!"
         )
-        response = pylucid_plugin.context_middleware_response(request, page_plugin_response)
+        response = _apply_context_middleware(request, page_plugin_response)
         return response
 #        if page_plugin_response.status_code == 200:
 #            # Plugin replace the page content
@@ -131,21 +134,28 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
         assert(isinstance(get_view_response, http.HttpResponse),
             "pylucid plugins must return a http.HttpResponse instance or None!"
         )
-        response = pylucid_plugin.context_middleware_response(request, get_view_response)
-        return response
-#        if get_view_response.status_code == 200:
-#            # Plugin replace the page content
-#            return _render_template(request, page_content=get_view_response.content)
-#        else:
-#            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
-#            return get_view_response        
+        if isinstance(get_view_response, http.HttpResponse):
+            # Plugin would be build the complete html page
+            response = _apply_context_middleware(request, get_view_response)
+            return response
+        
+        assert(isinstance(get_view_response, basestring),
+            "Plugin get view must return None, HttpResponse or a basestring!"
+        )
+        
+        # Plugin replace the page content
+        raw_html_content = get_view_response
+    else:
+        # No get view was called or Plugin has not return a response object
+        # -> use the normal page content
+        raw_html_content = apply_markup(request.PYLUCID.pagecontent, request.page_msg)
     
-    # Plugin has not return a response object -> use the normal page content
-    raw_html_content = apply_markup(request.PYLUCID.pagecontent, request.page_msg)
-    
-    html_content = _render_string_template(raw_html_content, context)
+    html_content = render.render_string_template(raw_html_content, context)
 
-    return _render_template(request, page_content=html_content)
+    response = _render_template(request, page_content=html_content)
+    
+    response = _apply_context_middleware(request, response)
+    return response
 
 
 

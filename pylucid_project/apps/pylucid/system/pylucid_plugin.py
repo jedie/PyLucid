@@ -56,7 +56,7 @@ class GetCallableError(Exception):
 
 def call_get_views(request):
     """ call a pylucid plugin "html get view" and return the response. """
-    method_name = settings.PYLUCID.HTML_GET_VIEW_NAME
+    method_name = settings.PYLUCID.HTTP_GET_VIEW_NAME
     for plugin_name in request.GET.keys():
         try:
             response = call_plugin_view(request, plugin_name, method_name)

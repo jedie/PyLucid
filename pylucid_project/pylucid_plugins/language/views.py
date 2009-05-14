@@ -52,7 +52,7 @@ def lucidTag(request):
     )
 
 
-def html_get_view(request):
+def http_get_view(request):
     lang_code = request.GET.get("language", False)
     if not lang_code:
         return

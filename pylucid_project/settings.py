@@ -152,6 +152,12 @@ TEST_RUNNER='pylucid_project.tests.test_tools.test_runner.run_tests'
 #from pylucid_project.apps.pylucid.app_settings import PYLUCID
 from pylucid_project.apps.pylucid import app_settings as PYLUCID
 
+# http://www.djangoproject.com/documentation/authentication/#other-authentication-sources
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "pylucid_project.pylucid_plugins.auth.auth_backend.JS_SHA_Backend",
+)
+
 #_____________________________________________________________________________
 # STATIC FILES
 # http://www.djangoproject.com/documentation/static_files/

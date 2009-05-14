@@ -1,0 +1,15 @@
+<fieldset><legend>PyLucid unsecure plaintext LogIn - step 2</legend>
+
+<form method="post" action=".">
+  <input type="hidden" name="username" value="{{ username }}" />
+  <input type="hidden" name="plaintext_login" value="unsecure plaintext login" />
+  <input type="hidden" name="next_url" value="{{ next_url }}" />
+  {{ form }}
+  <input type="submit" value="{% trans 'Log in' %}" />
+</form>
+{% if pass_reset_link %}
+  <a href="{{ pass_reset_link }}">{% trans 'Request a password reset.' %}</a>
+{% endif %}
+</fieldset>
+
+<script type="text/javascript">document.getElementById("id_password").focus();</script>
