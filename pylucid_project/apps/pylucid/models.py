@@ -46,8 +46,15 @@ class PageTreeManager(UpdateInfoBaseModelManager):
     """
     def get_root_page(self):
         """ returns the 'first' page tree entry for a '/'-root url """
-        pagetree = PageTree.objects.all().filter(parent=None).order_by("position")[0]
-        return pagetree
+        queryset = PageTree.objects.all().filter(parent=None).order_by("position")
+        try:
+            root_page = queryset[0]
+        except IndexError, err:
+            if PageTree.objects.count() == 0:
+                raise IndexError("There exist no PageTree items! Have you install PyLucid?")
+            else:
+                raise
+        return root_page
     
     def get_model_instance(self, request, ModelClass, pagetree=None):
         """
