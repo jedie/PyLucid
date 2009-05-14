@@ -17,7 +17,6 @@
 
 __version__= "$Rev:$"
 
-from xml.sax.saxutils import escape
 
 if __name__ == "__main__":
     # For doctest only
@@ -154,11 +153,6 @@ def activate_language(request, lang_entry, save=False):
     translation.activate(lang_entry.code) 
 
 
-
-
-class UrlLangCodeWrong(Exception):
-    """ Would be raused, if the url code in the url doesn't exist """
-    pass
 
 
 if __name__ == "__main__":
