@@ -46,18 +46,22 @@ def pylucid(request):
         "robots": "index,follow", # TODO: remove in v0.9, see: ticket:161
         
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-        
-        "login_link": "XXX",
     }
     
-#    if request.user.is_authenticated():
-#        url = reverse("admin_logout")
-#        txt = "%s [%s]" % (_("Log out"), request.user.username)
-#    else:
-#        url = reverse("admin_index")
-#        txt = _("Log in")
-#        
-#    context["login_link"] = mark_safe('<a href="%s">%s</a>' % (url, txt))
+    # TODO: Use internal SHA-Login plugin views, if implemented:
+    if request.user.is_authenticated():
+        # admin_logout reverse is still broken in django, see:
+        # http://code.djangoproject.com/ticket/11080
+        # http://code.djangoproject.com/attachment/ticket/10061
+        #url = reverse("admin_logout")
+        url = reverse("admin_index") + "logout/" # TODO: Update this if django is bugfixed
+        
+        txt = "%s [%s]" % (_("Log out"), request.user.username)
+    else:
+        url = reverse("admin_index")
+        txt = _("Log in")
+        
+    context["login_link"] = mark_safe('<a href="%s">%s</a>' % (url, txt))
     
     if hasattr(request, "plugin_name"):
         # Add css anchor info
