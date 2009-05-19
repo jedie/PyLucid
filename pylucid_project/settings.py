@@ -184,6 +184,7 @@ MEDIA_URL = "/media/"
 
 
 ADMIN_URL_PREFIX = 'admin'
+LOGIN_URL = "/admin/" # FIXME
 
 # TODO: must be used ;)
 SLUG_BLACKLIST = (
