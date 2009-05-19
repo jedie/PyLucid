@@ -66,6 +66,7 @@ def _do_update(request, site, language):
                 "lastupdatetime": style.lastupdatetime,
             }
         )
+        new_staticfile.site.add(site)
         cssfiles[style.name] = new_staticfile
         if created:
             out.write("stylesheet '%s' transferted into EditableStaticFile." % style.name)
@@ -100,6 +101,7 @@ def _do_update(request, site, language):
                     "template": templates[old_page.template.name],
                 }
             )
+            design.site.add(site)
             if created:
                 # Add old page css file
                 design.headfiles.add(cssfiles[old_page.style.name])
