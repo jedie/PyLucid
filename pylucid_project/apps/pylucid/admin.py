@@ -91,3 +91,10 @@ class EditableHtmlHeadFileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
     list_display_links = ("filename", "description")
 
 admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
+
+
+class UserProfileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
+    list_display = ("user", "lastupdatetime", "lastupdateby")
+    list_display_links = ("user",)
+
+admin.site.register(models.UserProfile, UserProfileAdmin)

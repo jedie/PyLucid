@@ -9,6 +9,7 @@ from django.contrib.sites.models import Site
 
 from django_tools.unittest.unittest_base import BaseTestCase, direct_run
 
+from pylucid_project.tests.test_tools.pylucid_test_data import TestSites
 from pylucid.models import PageTree
 
 #settings.PYLUCID.I18N_DEBUG = True
@@ -27,63 +28,83 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         self.failUnlessEqual(is_lang, lang_code,
             "Header 'Content-Language' is not '%s' it's: '%s'" % (lang_code, is_lang)
         )
+        self.assertResponse(response,
+            must_contain=('<meta name="DC.Language" content="%s">' % lang_code,)
+        )
     
-    def failUnlessEN(self, response):
+    def assertRenderedPage(self, response, slug, url, lang_code):
+        self.assertContentLanguage(response, lang_code)
+        site = Site.objects.get_current()
+        info_string = '(lang:'+lang_code+', site:'+site.name+')'
+        
+        data = {
+            "slug": slug,
+            "url": url, 
+            "info_string": info_string,
+        }
+        
+        self.assertResponse(response,
+            must_contain=(
+                #'<meta name="keywords" content="%(slug)s keywords %(info_string)s" />' % data,
+                '<meta name="description" content="%(slug)s description %(info_string)s" />' % data,                
+                '<a href="%(url)s">%(slug)s title %(info_string)s' % data,
+                '%(slug)s content %(info_string)s' % data,
+                '<a href="/de%(url)s" title="switch to deutsch">de</a>' % data,
+                '<a href="/en%(url)s" title="switch to english">en</a>' % data,
+            ),
+            must_not_contain=("Traceback",)#"error"),
+        )
+    
+    def failUnlessRootPageEN(self, response):
         """ Check if **/firstpage/** is EN """
-        self.assertContentLanguage(response, "en")
-        self.assertResponse(response,
-            must_contain=(
-                '<a href="/firstpage/">1. en page</a>',
-                '<h1>1. en test page!</h1>',
-                '<a href="/de/firstpage/" title="switch to de - description">de</a>',
-                '<a href="/en/firstpage/" title="switch to en - description">en</a>',
-            ),
-            must_not_contain=("Traceback",)#"error"),
-        )
+        self.assertRenderedPage(response, "1-rootpage", "/1-rootpage/", "en")
         
-    def failUnlessDE(self, response):
+    def failUnlessRootPageDE(self, response):
         """ Check if **/firstpage/** is DE """
-        self.assertContentLanguage(response, "de")
-        self.assertResponse(response,
-            must_contain=(
-                '<a href="/firstpage/">1. de Seite</a>',
-                '<h1>1. de test Seite!</h1>',
-                '<a href="/de/firstpage/" title="switch to de - description">de</a>',
-                '<a href="/en/firstpage/" title="switch to en - description">en</a>',          
-            ),
-            must_not_contain=("Traceback",)#"error"),
-        )
+        self.assertRenderedPage(response, "1-rootpage", "/1-rootpage/", "de")
         
-    def failUnlessDefaultLang(self, response):
+    def failUnlessRootPageDEfaultLang(self, response):
         """ Check if **/firstpage/** is in default language """
         if self.default_lang_code == "en":
-            self.failUnlessEN(response)
+            self.failUnlessRootPageEN(response)
         elif self.default_lang_code == "de":            
-            self.failUnlessDE(response)
+            self.failUnlessRootPageDE(response)
         else:
             raise AssertionError("default language %r unknown in unittest?!?" % self.default_lang_code)
 
-    def failUnlessDefaultLangRedirect(self, response):
+    def failUnlessRootPageDEfaultLangRedirect(self, response):
         """ Check if response is a redirect to the **/firstpage/** is in default language """
         expected_url = "http://testserver/%s/firstpage/" % self.default_lang_code
         self.assertRedirects(response, expected_url)
         response = self.client.get(expected_url)
-        self.failUnlessDefaultLang(response)
+        self.failUnlessRootPageDEfaultLang(response)
         
     #-------------------------------------------------------------------------
         
-    def test_en_request(self):      
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="en")
-        self.failUnlessEN(response)
-        response = self.client.get("/en/firstpage/")
-        self.failUnlessEN(response)
+    def test_en_request(self):
+        for site in TestSites():
+            response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="en")
+            self.failUnlessRootPageEN(response)
+            
+            response = self.client.get("/en/1-rootpage/")
+            self.failUnlessRootPageEN(response)
+            
+            url = "/2-rootpage/2-2-subpage/2-2-1-subpage/"
+            response = self.client.get("/en"+url)
+            self.assertRenderedPage(response, "2-2-1-subpage", url, "en")
 
     def test_de_request(self):
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE = "de")
-        self.failUnlessDE(response)
-        response = self.client.get("/de/firstpage/")
-        self.failUnlessDE(response)
-                
+        for site in TestSites():
+            response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de")
+            self.failUnlessRootPageDE(response)
+            
+            response = self.client.get("/de/1-rootpage/")
+            self.failUnlessRootPageDE(response)
+
+            url = "/2-rootpage/2-2-subpage/2-2-1-subpage/"
+            response = self.client.get("/de"+url)
+            self.assertRenderedPage(response, "2-2-1-subpage", url, "de")
+
     def test_not_avaiable(self):
         """
         If a requested language doesn't exist -> Use the default language
@@ -99,12 +120,11 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         response = self.client.get("/",
             HTTP_ACCEPT_LANGUAGE = "it,it-CH;q=0.8,es;q=0.5,ja-JP;q=0.3"
         )
-        self.failUnlessDefaultLang(response)
         self.assertResponse(response,
             must_contain=(
                 "Favored language &quot;it&quot; does not exist",
-                "Use default language &quot;de&quot;",
-                "Activate language &quot;de&quot;",   
+                "Use default language &quot;%s&quot;" % self.default_lang_code,
+                "Activate language &quot;%s&quot;" % self.default_lang_code,   
             ),
             must_not_contain=("Traceback",)#"error"),
         )
@@ -114,10 +134,13 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         self.assertRedirects(response, expected_url="/")
         
     def test_wrong_url_lang2(self):
-        response = self.client.get("/it/firstpage/")
-        self.failUnlessDefaultLangRedirect(response)
+        url = "/2-rootpage/2-1-subpage/"
+        response = self.client.get("/it"+url)
+        expected_url = "http://testserver/"+self.default_lang_code+url 
+        self.assertRedirects(response, expected_url)
+        response = self.client.get(expected_url)
+        self.assertRenderedPage(response, "2-1-subpage", url, self.default_lang_code)
         
-
 
 if __name__ == "__main__":
     # Run this unitest directly

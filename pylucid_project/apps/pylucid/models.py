@@ -28,8 +28,9 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 from django.template.loader import render_to_string
+from django.contrib.sites.managers import CurrentSiteManager
 
 from pylucid.django_addons.comma_separated_field import CommaSeparatedCharField
 from pylucid.system.auto_model_info import UpdateInfoBaseModel, UpdateInfoBaseModelManager
@@ -46,11 +47,11 @@ class PageTreeManager(UpdateInfoBaseModelManager):
     """
     def get_root_page(self):
         """ returns the 'first' page tree entry for a '/'-root url """
-        queryset = PageTree.objects.all().filter(parent=None).order_by("position")
+        queryset = PageTree.on_site.all().filter(parent=None).order_by("position")
         try:
             root_page = queryset[0]
         except IndexError, err:
-            if PageTree.objects.count() == 0:
+            if PageTree.on_site.count() == 0:
                 raise IndexError("There exist no PageTree items! Have you install PyLucid?")
             else:
                 raise
@@ -102,10 +103,11 @@ class PageTreeManager(UpdateInfoBaseModelManager):
     def get_page_from_url(self, url_path):
         """ returns a tuple the page tree instance from the given url_path"""
         path = url_path.split("/")
+        site = Site.objects.get_current()
         page = None
         for no, page_slug in enumerate(path):
             try:
-                page = PageTree.objects.get(parent=page, slug=page_slug)
+                page = PageTree.objects.get(site=site, parent=page, slug=page_slug)
             except PageTree.DoesNotExist:
                 raise PageTree.DoesNotExist("Wrong url part: %s" % escape(page_slug))
 
@@ -168,7 +170,8 @@ class PageTree(UpdateInfoBaseModel):
 
     id = models.AutoField(primary_key=True)
 
-    site = models.ForeignKey(Site, verbose_name=_('Site'))
+    site = models.ForeignKey(Site)
+    on_site = CurrentSiteManager()
 
     parent = models.ForeignKey("self", null=True, blank=True, help_text="the higher-ranking father page")
     position = models.SmallIntegerField(default=0,
@@ -206,10 +209,10 @@ class PageTree(UpdateInfoBaseModel):
         return u"PageTree '%s' (type: %s)" % (self.slug, self.TYPE_DICT[self.type])
 
     class Meta:
-        unique_together=(("slug","parent"),)
+        unique_together=(("site", "slug", "parent"),)
         
         # FIXME: It would be great if we can order by get_absolute_url()
-        ordering = ("id", "position")
+        ordering = ("site", "id", "position")
 
 
 #------------------------------------------------------------------------------
@@ -429,6 +432,9 @@ class Design(UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    site = models.ManyToManyField(Site, default=[settings.SITE_ID])
+    on_site = CurrentSiteManager()
+    
     name = models.CharField(unique=True, max_length=150, help_text="Name of this design combination",)
     template = models.CharField(max_length=128, help_text="filename of the used template for this page")
     headfiles = models.ManyToManyField("EditableHtmlHeadFile", null=True, blank=True,
@@ -463,8 +469,11 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
 
     
     TODO: the save() method should be try to store the file into media path!
-    """
-    filename = models.CharField(unique=True, max_length=150)
+    """   
+    site = models.ManyToManyField(Site, default=[settings.SITE_ID])
+    on_site = CurrentSiteManager()
+    
+    filename = models.CharField(max_length=150)
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
 
@@ -497,3 +506,20 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
 
     class Meta:
         ordering = ("filename",)
+
+
+class UserProfile(UpdateInfoBaseModel):
+    """
+    Stores additional information about PyLucid users
+    http://docs.djangoproject.com/en/dev/topics/auth/#storing-additional-information-about-users
+    """
+    id = models.AutoField(primary_key=True)
+
+    user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
+    site = models.ManyToManyField(Site,
+        help_text="User can access only these sites."
+    )
+    on_site = CurrentSiteManager()
+    
+    class Meta:
+        ordering = ("user",)
