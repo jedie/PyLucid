@@ -131,9 +131,8 @@ class PageTreeManager(UpdateInfoBaseModelManager):
         if pagetree == None:
             pagetree = request.PYLUCID.pagetree
         
-        url = pagetree.get_absolute_url()
-        
         pagemeta = self.get_pagemeta(request, pagetree)
+        url = pagemeta.get_absolute_url()
         title = pagemeta.title_or_slug()
         
         backlist = [{"url": url, "title": title}]
@@ -196,9 +195,7 @@ class PageTree(UpdateInfoBaseModel):
     )
 
     def get_absolute_url(self):
-        """
-        Get the absolute url (without language code and without domain/host part)
-        """
+        """ absolute url *without* language code (without domain/host part) """
         if self.parent:
             parent_shortcut = self.parent.get_absolute_url()
             return parent_shortcut + self.slug + "/"
@@ -244,8 +241,10 @@ class i18nPageTreeBaseModel(models.Model):
     lang = models.ForeignKey(Language)
     
     def get_absolute_url(self):
-        """ Get the absolute url (without the domain/host part) """
-        return self.page.get_absolute_url()
+        """ absolute url *with* language code (without domain/host part) """
+        lang_code = self.lang.code
+        page_url = self.page.get_absolute_url()
+        return "/" + lang_code + page_url
     
     class Meta:
         abstract = True
