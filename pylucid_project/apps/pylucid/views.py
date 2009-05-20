@@ -203,6 +203,14 @@ def _prepage_request(request, lang_entry):
 #_____________________________________________________________________________
 # root_page + lang_root_page views:
 
+def _render_root_page(request):
+    """ render the root page, used in root_page and lang_root_page views """
+    # Get the first PageTree entry
+    pagetree = PageTree.objects.get_root_page()
+    
+    return _render_page(request, pagetree)
+
+
 def root_page(request):
     """ render the first root page in system default language """
     _add_pylucid_request_objects(request)
@@ -210,10 +218,7 @@ def root_page(request):
     # activate language via auto detection
     i18n.activate_auto_language(request)
     
-    # Get the first PageTree entry
-    pagetree = PageTree.objects.get_root_page()
-    
-    return _render_page(request, pagetree)
+    return _render_root_page(request)
 
 
 def lang_root_page(request, url_lang_code):
@@ -230,7 +235,7 @@ def lang_root_page(request, url_lang_code):
     # activate i18n
     i18n.activate_language(request, lang_entry, save=True)
     
-    return _root_page(request, url_lang_code)
+    return _render_root_page(request)
 
 #-----------------------------------------------------------------------------
 

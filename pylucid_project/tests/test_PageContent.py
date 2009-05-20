@@ -96,6 +96,9 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
             response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="en")
             self.failUnlessRootPageEN(response)
             
+            response = self.client.get("/en/")
+            self.failUnlessRootPageEN(response)
+            
             response = self.client.get("/en/1-rootpage/")
             self.failUnlessRootPageEN(response)
             
@@ -106,6 +109,9 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
     def test_de_request(self):
         for site in TestSites():
             response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de")
+            self.failUnlessRootPageDE(response)
+            
+            response = self.client.get("/de/")
             self.failUnlessRootPageDE(response)
             
             response = self.client.get("/de/1-rootpage/")
