@@ -30,7 +30,7 @@ def menu(request):
 
 def _do_update(request, site, language):
     out = SimpleStringIO()
-    out.write("Starting update")
+    out.write("Starting update and move v0.8 data into v0.9 (on site: %s)" % site)
 
     #---------------------------------------------------------------------
     out.write("Move template model")
@@ -120,13 +120,12 @@ def _do_update(request, site, language):
             parent = page_dict[old_page.parent.id]
 
         tree_entry, created = PageTree.objects.get_or_create(request,
-            id = old_page.id,
+            site = site,
+            slug = old_page.shortcut,
+            parent = parent,
             defaults = {
-                "site": site,
-                "parent": parent,
                 "position": old_page.position,
 
-                "slug": old_page.shortcut,
                 "description": old_page.description,
 
                 "type": PageTree.PAGE_TYPE, # FIXME: Find plugin entry in page content

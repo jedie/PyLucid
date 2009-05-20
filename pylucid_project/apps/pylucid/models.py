@@ -203,7 +203,7 @@ class PageTree(UpdateInfoBaseModel):
             return "/" + self.slug + "/"
 
     def __unicode__(self):
-        return u"PageTree '%s' (type: %s)" % (self.slug, self.TYPE_DICT[self.type])
+        return u"PageTree '%s' (site: %s, type: %s)" % (self.slug, self.site.name, self.TYPE_DICT[self.type])
 
     class Meta:
         unique_together=(("site", "slug", "parent"),)
@@ -245,6 +245,9 @@ class i18nPageTreeBaseModel(models.Model):
         lang_code = self.lang.code
         page_url = self.page.get_absolute_url()
         return "/" + lang_code + page_url
+    
+    def get_site(self):
+        return self.page.site
     
     class Meta:
         abstract = True
