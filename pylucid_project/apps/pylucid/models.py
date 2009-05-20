@@ -20,7 +20,6 @@
 """
 
 import os
-import sys
 from xml.sax.saxutils import escape
 
 from django.db import models
@@ -32,7 +31,6 @@ from django.contrib.auth.models import User, Group
 from django.template.loader import render_to_string
 from django.contrib.sites.managers import CurrentSiteManager
 
-from pylucid.django_addons.comma_separated_field import CommaSeparatedCharField
 from pylucid.system.auto_model_info import UpdateInfoBaseModel, UpdateInfoBaseModelManager
 
 
@@ -275,7 +273,7 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     title = models.CharField(blank=True, max_length=256,
         help_text="A long page title (for e.g. page title or link title text)"
     )
-    keywords = CommaSeparatedCharField(blank=True, max_length=255,
+    keywords = models.CharField(blank=True, max_length=255,
         help_text="Keywords for the html header. (separated by commas)"
     )
     description = models.CharField(blank=True, max_length=255, help_text="For html header")

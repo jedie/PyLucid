@@ -49,7 +49,7 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         self.assertResponse(response,
             must_contain=(
                 # html meta tags (data from PageMeta):
-                #'<meta name="keywords" content="%(slug)s keywords %(info_string)s" />' % data,
+                '<meta name="keywords" content="%(slug)s keywords %(info_string)s" />' % data,
                 '<meta name="description" content="%(slug)s description %(info_string)s" />' % data,
                 
                 # Link from breadcrumbs plugin:
