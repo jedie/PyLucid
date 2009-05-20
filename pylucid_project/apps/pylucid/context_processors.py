@@ -4,6 +4,7 @@ setup some "static" variables
 """
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
@@ -39,6 +40,9 @@ def pylucid(request):
     A django TEMPLATE_CONTEXT_PROCESSORS
     http://www.djangoproject.com/documentation/templates_python/#writing-your-own-context-processors
     """
+    current_site = Site.objects.get_current()
+    all_sites = Site.objects.all()
+    
     context = {
         "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % PYLUCID_VERSION_STRING),
         # This value would be changed in index._render_cms_page(), if the
@@ -46,7 +50,12 @@ def pylucid(request):
         "robots": "index,follow", # TODO: remove in v0.9, see: ticket:161
         
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        
+        "current_site": current_site,
+        "sites": all_sites,
     }
+    
+    
     
     # TODO: Use internal SHA-Login plugin views, if implemented:
     if request.user.is_authenticated():

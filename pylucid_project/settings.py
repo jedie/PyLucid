@@ -62,7 +62,19 @@ DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
-SITE_ID = 1
+
+_used_port = os.environ.get("USED_PORT", "--not set--")
+if _used_port == "8000":
+    SITE_ID = 1
+elif _used_port == "8001":
+    SITE_ID = 2
+else:
+    SITE_ID = None
+
+print "Used port is %s -> set SITE_ID: %s" % (_used_port, SITE_ID)    
+
+
+
 ROOT_URLCONF = 'pylucid_project.urls'
 
 MIDDLEWARE_CLASSES = (
