@@ -33,6 +33,8 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         )
     
     def assertRenderedPage(self, response, slug, url, lang_code):
+        assert not url.startswith(lang_code)
+        
         self.assertContentLanguage(response, lang_code)
         site = Site.objects.get_current()
         info_string = '(lang:'+lang_code+', site:'+site.name+')'
@@ -40,15 +42,23 @@ class PageContentTest(BaseTestCase, TransactionTestCase):
         data = {
             "slug": slug,
             "url": url, 
+            "lang_code": lang_code,
             "info_string": info_string,
         }
         
         self.assertResponse(response,
             must_contain=(
+                # html meta tags (data from PageMeta):
                 #'<meta name="keywords" content="%(slug)s keywords %(info_string)s" />' % data,
-                '<meta name="description" content="%(slug)s description %(info_string)s" />' % data,                
-                '<a href="%(url)s">%(slug)s title %(info_string)s' % data,
+                '<meta name="description" content="%(slug)s description %(info_string)s" />' % data,
+                
+                # Link from breadcrumbs plugin:
+                '<a href="/%(lang_code)s%(url)s">%(slug)s title %(info_string)s' % data,
+                
+                # PageContent.content
                 '%(slug)s content %(info_string)s' % data,
+                
+                # Links from Language plugin:
                 '<a href="/de%(url)s" title="switch to deutsch">de</a>' % data,
                 '<a href="/en%(url)s" title="switch to english">en</a>' % data,
             ),
