@@ -1,0 +1,12 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+<ul>
+    <small>(temporary main menu)</small>
+    <li><a href="/">[index]</a></li>
+    <li><a href="..">..</a></li>
+{% for page in sub_pages %}
+  <li><a href="{{ page.get_absolute_url }}" title="{{ page.title_or_slug|escape }}">{{ page.pagemeta.name|escape }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

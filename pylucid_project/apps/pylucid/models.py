@@ -266,7 +266,12 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    title = models.CharField(blank=True, max_length=150, help_text="A long page title")
+    name = models.CharField(blank=True, max_length=150,
+        help_text="Sort page name (for link text in e.g. menu)"
+    )
+    title = models.CharField(blank=True, max_length=256,
+        help_text="A long page title (for e.g. page title or link title text)"
+    )
     keywords = CommaSeparatedCharField(blank=True, max_length=255,
         help_text="Keywords for the html header. (separated by commas)"
     )

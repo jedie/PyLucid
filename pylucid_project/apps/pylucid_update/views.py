@@ -154,6 +154,7 @@ def _do_update(request, site, language):
             page = tree_entry,
             lang = language,
             defaults = {
+                "name": old_page.name,
                 "title": old_page.title,
                 "keywords": old_page.keywords,
                 "description": old_page.description,
