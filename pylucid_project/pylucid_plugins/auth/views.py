@@ -1,13 +1,16 @@
 # coding:utf-8
 
-from django.http import HttpResponse
-from django.core.urlresolvers import reverse
+from django.contrib import auth
+from django.conf import settings
 from django.template import RequestContext
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
-
 from django.template.loader import render_to_string
+from django.http import HttpResponse, HttpResponseRedirect
 
-from auth.forms import UsernameForm
+
+from auth.forms import UsernameForm, PasswordForm
 
 
 # DEBUG is usefull for debugging password reset. It send no email, it puts the
@@ -20,7 +23,70 @@ if DEBUG:
     import warnings
     warnings.warn("Debugmode is on", UserWarning)
 
+def _logout_view(request):
+    auth.logout(request)
+#    request.page_msg("You logged out.")
+    return HttpResponseRedirect(request.path)
 
+
+def _plaintext_login(request, context, username):
+    """ input the password and login if auth ok """
+    if "password" in request.POST:
+        password_form = PasswordForm(request.POST)
+        if password_form.is_valid(username):
+            user = password_form.user # User instance added in UsernameForm.is_valid()
+            auth.login(request, user)
+            request.page_msg("You are logged in!")
+            return HttpResponseRedirect(request.path)
+    else:
+        password_form = PasswordForm()
+        
+    context["form"] = password_form
+    
+    # return a string for replacing the normal cms page content
+    return render_to_string('auth/plaintext_login.html', context)
+    
+    
+def _sha_login(request, context, user):
+    username_form = UsernameForm()
+        
+    context["form"] = username_form
+    
+    # return a string for replacing the normal cms page content
+    return render_to_string('auth/input_username.html', context)
+
+
+def _login_view(request):
+    if DEBUG:
+        request.page_msg(
+            "Warning: DEBUG is ON! Should realy only use for debugging!"
+        )
+    
+    context = request.PYLUCID.context
+    context["form_url"] = request.path + "?auth=login" # FIXME: How can we add the GET Parameter?
+
+    if request.method == 'POST':
+        request.page_msg(request.POST)
+        username_form = UsernameForm(request.POST)
+        if username_form.is_valid():
+            user = username_form.user # User instance added in UsernameForm.is_valid()
+            if not user.is_active:
+                request.page_msg.error("Error: Your account is disabled!")
+                return
+            
+            context["username"] = user.username
+            
+            if "plaintext_login" in request.POST:
+                return _plaintext_login(request, context, user.username)
+            else:
+                return _sha_login(request, context, user)
+    else:
+        username_form = UsernameForm()
+        
+    context["form"] = username_form
+    
+    # return a string for replacing the normal cms page content
+    return render_to_string('auth/input_username.html', context)
 
 def http_get_view(request):
     """
@@ -28,18 +94,14 @@ def http_get_view(request):
     """
     request.page_msg("TODO: refactor the rest from auth plugin ;)")
     
-    if DEBUG:
-        request.page_msg(
-            "Warning: DEBUG is ON! Should realy only use for debugging!"
-        )
+    action = request.GET["auth"]
+    print action
+    if action=="login":
+        return _login_view(request)
+    elif action=="logout":
+        return _logout_view(request)
     
-    context = request.PYLUCID.context
+    if settings.DEBUG:
+        request.page_msg("Wrong get view parameter!")
 
-    username_form = UsernameForm()
-    context["form"] = username_form
     
-    # return a string for replacing the normal cms page content
-    return render_to_string('auth/input_username.html', context)
-    
-def logout(request):
-    pass

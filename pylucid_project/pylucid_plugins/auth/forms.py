@@ -2,6 +2,7 @@
 
 
 from django import forms
+from django.contrib import auth
 from django.contrib.auth.models import User
 
 from pylucid_project.utils import crypt
@@ -115,7 +116,23 @@ class BaseModelForm(forms.ModelForm):
 class UsernameForm(BaseModelForm):
     """
     form for input the username, used in auth.login()
-    """    
+    """   
+    def is_valid(self):
+        """ do a secont validation: try to get the user from database and
+        check if he is active """        
+        is_valid = super(UsernameForm, self).is_valid()
+        if not is_valid:
+            return False
+        
+        username = self.cleaned_data["username"]
+        try:
+            self.user = User.objects.get(username = username)
+        except User.DoesNotExist, e:
+            self._errors["username"] = ("User doesn't exist!",)
+            return False
+    
+        return True
+        
     class Meta:
         model = User
         fields=("username",)
@@ -125,6 +142,26 @@ class PasswordForm(BaseModelForm):
     """
     form for input the username, used in auth._sha_login()
     """
+    def __init__(self, *args, **kwargs):
+        """ Change field meta in a DRY way """
+        super(PasswordForm, self).__init__(*args, **kwargs)
+
+        self.fields['password'].widget = forms.PasswordInput()
+        self.fields['password'].help_text = ""
+
+    def is_valid(self, username):
+        is_valid = super(PasswordForm, self).is_valid()
+        if not is_valid:
+            return False
+        
+        password = self.cleaned_data["password"]
+        self.user = auth.authenticate(username=username, password=password)
+        if not self.user:
+            self._errors["password"] = ("Wrong password!",)
+            return False
+        
+        return True
+
     class Meta:
         model = User
         fields=("password",)

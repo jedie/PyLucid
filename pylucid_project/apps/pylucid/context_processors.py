@@ -63,7 +63,8 @@ def pylucid(request):
         # http://code.djangoproject.com/ticket/11080
         # http://code.djangoproject.com/attachment/ticket/10061
         #url = reverse("admin_logout")
-        url = reverse("admin_index") + "logout/" # TODO: Update this if django is bugfixed
+        #url = reverse("admin_index") + "logout/" # TODO: Update this if django is bugfixed
+        url = "?auth=logout"
         
         txt = "%s [%s]" % (_("Log out"), request.user.username)
     else:
