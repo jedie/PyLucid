@@ -17,3 +17,9 @@ HEAD_FILES_URL_PREFIX = "headfile"
 I18N_DEBUG = False # Display many info around detecting current language
 
 HTTP_GET_VIEW_NAME = "http_get_view"
+
+# All PyLucid media files stored in a sub directory under the django media
+# path. Used for building filesystem path and URLs.
+# filesystem path: MEDIA_ROOT + PYLUCID_MEDIA_SUBDIR
+# URLs: MEDIA_URL + PYLUCID_MEDIA_SUBDIR
+PYLUCID_MEDIA_DIR = "PyLucid" # Without slashes at begin/end!

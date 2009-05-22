@@ -82,7 +82,7 @@ class WrongPassword(Exception):
 class auth(PyLucidBasePlugin):
     def login(self):
         if DEBUG:
-            self.page_msg.red(
+            request.page_msg.red(
                 "Warning: DEBUG is ON! Should realy only use for debugging!"
             )
 
@@ -95,11 +95,11 @@ class auth(PyLucidBasePlugin):
         next_url = self.request.GET.get("next", "")
 
         def get_data(form):
-            if DEBUG: self.page_msg(self.request.POST)
+            if DEBUG: request.page_msg(self.request.POST)
 
             if not form.is_valid():
-                self.page_msg.red("Form data is not valid. Please correct.")
-                if DEBUG: self.page_msg(form.errors)
+                request.page_msg.red("Form data is not valid. Please correct.")
+                if DEBUG: request.page_msg(form.errors)
                 return
 
             username = form.cleaned_data["username"]
@@ -108,11 +108,11 @@ class auth(PyLucidBasePlugin):
             except User.DoesNotExist, e:
                 msg = _("User does not exist.")
                 if DEBUG: msg += " %s" % e
-                self.page_msg.red(msg)
+                request.page_msg.red(msg)
                 return
 
             if not user.is_active:
-                self.page_msg.red(_("Error: Your account is disabled!"))
+                request.page_msg.red(_("Error: Your account is disabled!"))
                 return
 
             return user
@@ -120,7 +120,7 @@ class auth(PyLucidBasePlugin):
         if self.request.method != 'POST':
             username_form = UsernameForm()
         else:
-            #self.page_msg(self.request.POST)
+            #request.page_msg(self.request.POST)
             username_form = UsernameForm(self.request.POST)          
             user = get_data(username_form)
             if user != None: # A valid form with a existing user was send.
@@ -140,7 +140,7 @@ class auth(PyLucidBasePlugin):
                 # the button value in the POST data here.
                 return self._sha_login(user)
 
-        if DEBUG: self.page_msg("Next URL: %s" % next_url)
+        if DEBUG: request.page_msg("Next URL: %s" % next_url)
 
         context = {
             "form": username_form,
@@ -177,7 +177,7 @@ class auth(PyLucidBasePlugin):
                 try:
                     return self._check_plaintext_password(password, user)
                 except WrongPassword, msg:
-                    self.page_msg.red(msg)
+                    request.page_msg.red(msg)
                     self._insert_reset_link(context)
         else:
             password_form = PasswordForm()
@@ -188,7 +188,7 @@ class auth(PyLucidBasePlugin):
     def _check_plaintext_password(self, input_pass, user):
         db_pass = user.password
         if DEBUG:
-            self.page_msg("password:", input_pass, db_pass)
+            request.page_msg("password:", input_pass, db_pass)
 
         user = authenticate(username=user.username, password=input_pass)
 
@@ -205,7 +205,7 @@ class auth(PyLucidBasePlugin):
         Returns a redirect, if "next_url" exists otherwise returns None (for
         display the current page).
         """
-        self.page_msg.green(_("Password ok."))
+        request.page_msg.green(_("Password ok."))
         login(self.request, user)
 
         # rebuild the login/logout link:
@@ -213,11 +213,11 @@ class auth(PyLucidBasePlugin):
         
         if self.request.user.is_superuser:
             if settings.ENABLE_INSTALL_SECTION:
-                self.page_msg(
+                request.page_msg(
                     _("Info: You should disable the _install section!")
                 )
             if settings.DEBUG:
-                self.page_msg(
+                request.page_msg(
                     _("Info: settings.DEBUG is on!")
                 )                
 
@@ -254,29 +254,29 @@ class auth(PyLucidBasePlugin):
         }
 
         if "sha_a2" in self.request.POST and "sha_b" in self.request.POST:
-            SHA_login_form = SHA_LoginForm(self.request.POST)
+            SHA_login_form = SHA_LoginForm(request.POST)
             if not SHA_login_form.is_valid():
-                self.page_msg.red("Form data is not valid. Please correct.")
-                if DEBUG: self.page_msg(SHA_login_form.errors)
+                request.page_msg.red("Form data is not valid. Please correct.")
+                if DEBUG: request.page_msg(SHA_login_form.errors)
             else:
                 sha_a2 = SHA_login_form.cleaned_data["sha_a2"]
                 sha_b = SHA_login_form.cleaned_data["sha_b"]
                 if DEBUG:
-                    self.page_msg("sha_a2:", sha_a2)
-                    self.page_msg("sha_b:", sha_b)
+                    request.page_msg("sha_a2:", sha_a2)
+                    request.page_msg("sha_b:", sha_b)
 
                 # A submited SHA1-JS-Login form
                 try:
                     challenge = self.request.session['challenge']
-                    if DEBUG: self.page_msg("challenge:", challenge)
+                    if DEBUG: request.page_msg("challenge:", challenge)
                 except KeyError, e:
                     msg = _("Session Error.")
                     if DEBUG: msg = "%s (%s)" % (msg, e)
-                    self.page_msg.red(msg)
+                    request.page_msg.red(msg)
                     return
 
                 sha_checksum = js_login_data.sha_checksum
-                if DEBUG: self.page_msg("sha_checksum:", sha_checksum)
+                if DEBUG: request.page_msg("sha_checksum:", sha_checksum)
 
                 # authenticate with:
                 # PyLucid.plugins_internal.auth.auth_backend.JS_SHA_Backend
@@ -297,7 +297,7 @@ class auth(PyLucidBasePlugin):
                         return self._login_user(user)
 
                 self._insert_reset_link(context)
-                self.page_msg.red(msg)
+                request.page_msg.red(msg)
 
 
         if DEBUG:
@@ -329,7 +329,7 @@ class auth(PyLucidBasePlugin):
         # rebuild the login/logout link:
         add_dynamic_context(self.request, self.context)
 
-        self.page_msg.green("You logged out.")
+        request.page_msg.green("You logged out.")
 
         if not self.current_page.permitViewPublic:
             # The current page, can't see anonymous users -> redirect to the
@@ -347,15 +347,15 @@ class auth(PyLucidBasePlugin):
         """
         if msg:
             # Plaintext or SHA1 Login and the user has a unuseable password.
-            self.page_msg.red(msg)
-            self.page_msg.green(_("You must reset your password."))
+            request.page_msg.red(msg)
+            request.page_msg.green(_("You must reset your password."))
 
 
 
         def get_data(form):
             if not form.is_valid():
-                self.page_msg.red("Form data is not valid. Please correct.")
-                if DEBUG: self.page_msg(reset_form.errors)
+                request.page_msg.red("Form data is not valid. Please correct.")
+                if DEBUG: request.page_msg(reset_form.errors)
                 return
 
             username = form.cleaned_data["username"]
@@ -366,17 +366,17 @@ class auth(PyLucidBasePlugin):
             except User.DoesNotExist, e:
                 msg = _("User does not exist.")
                 if DEBUG: msg += " %s" % e
-                self.page_msg.red(msg)
+                request.page_msg.red(msg)
                 return
 
             if not "@" in user.email:
-                self.page_msg.red(
+                request.page_msg.red(
                     _("Can't reset password. User has no email address.")
                 )
                 return
 
             if not email == user.email:
-                self.page_msg.red(
+                request.page_msg.red(
                     _("Wrong email address. Please correct.")
                 )
                 return
@@ -385,7 +385,7 @@ class auth(PyLucidBasePlugin):
 
 
         if self.request.method == 'POST' and username==None:
-            if DEBUG: self.page_msg(self.request.POST)
+            if DEBUG: request.page_msg(self.request.POST)
 
             reset_form = ResetForm(self.request.POST)
 
@@ -436,7 +436,7 @@ class auth(PyLucidBasePlugin):
         )
 
         if DEBUG:
-            self.page_msg("Debug! No Email was sended!")
+            request.page_msg("Debug! No Email was sended!")
             self.response.write("<fieldset><legend>The email text:</legend>")
             self.response.write("<pre>")
             self.response.write(emailtext)
@@ -452,7 +452,7 @@ class auth(PyLucidBasePlugin):
                     [to_email], fail_silently=False
                 )
             except Exception, e:
-                self.page_msg.red("Error, can't send mail: %s" % e)
+                request.page_msg.red("Error, can't send mail: %s" % e)
                 return
 
         context = {
@@ -469,29 +469,29 @@ class auth(PyLucidBasePlugin):
         view to set a new password.
         """
         if client_reset_ID == None:
-            self.page_msg.red(_("Request Error!"))
+            request.page_msg.red(_("Request Error!"))
             return
         if not "pass_reset_ID" in self.request.session:
-            self.page_msg.red(
+            request.page_msg.red(
                 _("Session expired! Set a new password it is not possible.")
             )
-            self.page_msg.green(_("Please start a new password reset mail:"))
+            request.page_msg.green(_("Please start a new password reset mail:"))
             return self.pass_reset()
 
         client_reset_ID = client_reset_ID.strip("/")
         pass_reset_ID = self.request.session['pass_reset_ID']
         if client_reset_ID != pass_reset_ID:
-            self.page_msg.red(
+            request.page_msg.red(
                 _("Wrong ID! Set a new password it is not possible.")
             )
             if DEBUG:
-                self.page_msg("%s != %s" % (client_reset_ID, pass_reset_ID))
+                request.page_msg("%s != %s" % (client_reset_ID, pass_reset_ID))
             return self.pass_reset()
 
         def get_data(form):
             if not form.is_valid():
-                self.page_msg.red("Form data is not valid. Please correct.")
-                if DEBUG: self.page_msg(form.errors)
+                request.page_msg.red("Form data is not valid. Please correct.")
+                if DEBUG: request.page_msg(form.errors)
                 return
 
             sha_1 = form.cleaned_data["sha_1"]
@@ -500,7 +500,7 @@ class auth(PyLucidBasePlugin):
             return (sha_1, sha_2)
 
         if self.request.method == 'POST':
-            if DEBUG: self.page_msg(self.request.POST)
+            if DEBUG: request.page_msg(self.request.POST)
             new_pass_form = NewPasswordForm(self.request.POST)
 
             sha_values = get_data(new_pass_form)
@@ -511,10 +511,10 @@ class auth(PyLucidBasePlugin):
                 try:
                     user = User.objects.get(username = username)
                 except User.DoesNotExist, e:
-                    self.page_msg.red(_("Wrong Username!"))
+                    request.page_msg.red(_("Wrong Username!"))
                     if DEBUG:
-                        self.page_msg("Username:", username)
-                        self.page_msg(e)
+                        request.page_msg("Username:", username)
+                        request.page_msg(e)
                     return
 
                 # Set the django user account password:
@@ -532,7 +532,7 @@ class auth(PyLucidBasePlugin):
                 login_data.salt = self.request.session["salt_2"]
                 login_data.save()
 
-                self.page_msg.green(_("New password saved."))
+                request.page_msg.green(_("New password saved."))
                 del(self.request.session['pass_reset_ID'])
 
                 return

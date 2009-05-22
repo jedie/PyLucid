@@ -30,16 +30,17 @@ urlpatterns = patterns('',
     (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
 
     ('^update/', include('pylucid_update.urls')),
-
-    ('^', include('pylucid.urls')),
 )
 
 # serve static files
 if settings.SERVE_STATIC_FILES:
     # Should only enabled, if the django development server used.
+    print "Serve static file from MEDIA_ROOT:", settings.MEDIA_ROOT
     urlpatterns += patterns('',
         ('^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"), 'django.views.static.serve',
-            {'document_root': '/path/to/media', 'show_indexes': True}),
+            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     )
 
-
+urlpatterns += patterns('',
+        ('^', include('pylucid.urls')),
+)

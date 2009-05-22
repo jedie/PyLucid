@@ -213,3 +213,24 @@ class Style08(models.Model):
     class Meta:
         db_table = 'PyLucid_style'
         app_label = 'PyLucid_Update'
+
+
+class JS_LoginData08(models.Model):
+    """
+    SHA information for the PyLucid JS-SHA-Login.
+    """
+    user = models.ForeignKey(User)
+
+    sha_checksum = models.CharField(max_length=192)
+    salt = models.CharField(max_length=5)
+
+    createtime = models.DateTimeField(auto_now_add=True)
+    lastupdatetime = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return "old JS_LoginData for user '%s'" % self.user.username
+
+    class Meta:
+        verbose_name = verbose_name_plural = 'JS-LoginData'
+        db_table = 'PyLucid_js_logindata'
+        app_label = 'PyLucid_Update'

@@ -544,13 +544,22 @@ class UserProfile(UpdateInfoBaseModel):
     create/delete UserProfile entries.
     """
     objects = UserProfileManager()
-    
-    id = models.AutoField(primary_key=True)
 
     user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
+    
+    sha_login_checksum = models.CharField(max_length=192,
+        help_text="Checksum for PyLucid JS-SHA-Login"
+    )
+    sha_login_salt = models.CharField(max_length=5,
+        help_text="Salt value for PyLucid JS-SHA-Login"
+    )
+    
     site = models.ManyToManyField(Site,
         help_text="User can access only these sites."
     )
+
+    def __unicode__(self):
+        return u"UserProfile for user '%s'" % self.user.username
 
     def site_info(self):
         """ for pylucid.admin.UserProfileAdmin.list_display """

@@ -10,8 +10,9 @@ from django.contrib.auth.decorators import login_required
 from dbtemplates.models import Template
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Design, EditableHtmlHeadFile
-from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Design, \
+                                                            EditableHtmlHeadFile, UserProfile
+from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
 from pylucid_project.apps.pylucid_update.forms import UpdateForm
 
 
@@ -31,6 +32,26 @@ def menu(request):
 def _do_update(request, site, language):
     out = SimpleStringIO()
     out.write("Starting update and move v0.8 data into v0.9 (on site: %s)" % site)
+
+    #---------------------------------------------------------------------
+    out.write("Move JS-SHA-Login data into new UserProfile")
+    for old_entry in JS_LoginData08.objects.all():       
+        user = old_entry.user
+        sha_login_checksum = old_entry.sha_checksum
+        sha_login_salt = old_entry.salt
+        
+        userprofile, created = UserProfile.objects.get_or_create(request,
+            user = user,
+            defaults = {
+                "sha_login_checksum": sha_login_checksum,
+                "sha_login_salt": sha_login_salt,
+            }
+        )
+        userprofile.site.add(site)
+        if created:
+            out.write("UserProfile for user '%s' created." % user.username)
+        else:
+            out.write("UserProfile for user '%s' exist." % user.username)
 
     #---------------------------------------------------------------------
     out.write("Move template model")

@@ -9,8 +9,9 @@ from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseRedirect
 
+from pylucid_project.utils import crypt
 
-from auth.forms import UsernameForm, PasswordForm
+from auth.forms import UsernameForm, PasswordForm, SHA_LoginForm
 
 
 # DEBUG is usefull for debugging password reset. It send no email, it puts the
@@ -48,12 +49,45 @@ def _plaintext_login(request, context, username):
     
     
 def _sha_login(request, context, user):
-    username_form = UsernameForm()
+    user_profile = user.get_profile()
+    request.page_msg(user_profile)
+    
+    context["salt"] = user_profile.sha_login_salt
+    if DEBUG:
+        challenge = "debug"
+        # For JavaScript debug
+        context["debug"] = "true"
+    else:
+        # Create a new random salt value for the password challenge:
+        challenge = crypt.get_new_salt()
+        context["debug"] = "false"
+    
         
-    context["form"] = username_form
+    context["debug"] = "true"
+    
+        
+    # For later comparing with form data
+    request.session['challenge'] = challenge
+    context["challenge"] = challenge
+    
+    if "sha_a2" in request.POST and "sha_b" in request.POST:
+        SHA_login_form = SHA_LoginForm(request.POST)
+        if not SHA_login_form.is_valid():
+            request.page_msg.error("Form data is not valid. Please correct.")
+            if DEBUG: request.page_msg(SHA_login_form.errors)
+        else:
+            sha_a2 = SHA_login_form.cleaned_data["sha_a2"]
+            sha_b = SHA_login_form.cleaned_data["sha_b"]
+            if DEBUG:
+                request.page_msg("sha_a2:", sha_a2)
+                request.page_msg("sha_b:", sha_b)
+    else:
+        SHA_login_form = UsernameForm()
+        
+    context["form"] = SHA_login_form
     
     # return a string for replacing the normal cms page content
-    return render_to_string('auth/input_username.html', context)
+    return render_to_string('auth/input_password.html', context)
 
 
 def _login_view(request):

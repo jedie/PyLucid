@@ -189,13 +189,19 @@ SERVE_STATIC_FILES = True
 # Absolute _local_filesystem_path_ to the directory that holds media.
 #     Example-1: "./media/" (default)
 #     Example-2: "/home/foo/htdocs/media/"
-MEDIA_ROOT = "./media/"
+MEDIA_ROOT = os.path.join(_BASE_PATH, "media") + "/"
 
 # URL that handles the media served from MEDIA_ROOT.
 #     Example-1: "/media/" (default)
 #     Examlpe-2: "http://other_domain.net/media/"
 #     Example-3: "http://media.your_domain.net/"
 MEDIA_URL = "/media/"
+
+# URL prefix for admin media -- CSS, JavaScript and images.
+#     Examples-1: "/django/contrib/admin/media/" (default)
+#     Examples-2: "http://other_domain.net/media/django/"
+#     Examples-3: "http://django.media.your_domain.net/"
+ADMIN_MEDIA_PREFIX = "/django/contrib/admin/media/"
 
 
 ADMIN_URL_PREFIX = 'admin'
