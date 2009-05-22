@@ -17,12 +17,15 @@
 """
 
 from django.contrib import admin
+from django.conf import settings
 
 from reversion.admin import VersionAdmin
 
 from pylucid import models
 from pylucid.system.auto_model_info import UpdateInfoBaseAdmin
 
+# Quick work-a-round for http://code.djangoproject.com/ticket/10061
+admin.site.root_path = "/%s/" % settings.ADMIN_URL_PREFIX
 
 #------------------------------------------------------------------------------
 
@@ -97,7 +100,7 @@ admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
 
 class UserProfileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
-    list_display = ("user", "lastupdatetime", "lastupdateby")
+    list_display = ("user", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("user",)
     list_filter = ("site",)
 
