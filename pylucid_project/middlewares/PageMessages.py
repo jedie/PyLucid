@@ -60,31 +60,6 @@ TEMPLATE = \
 </fieldset>"""
 
 
-
-#import warnings, logging
-#
-## Needs to have the file rights to create/write into this file!
-#LOGFILE = "PyLucid_warnings.log"
-#
-#try:
-#    logging.basicConfig(
-#        level=logging.DEBUG,
-#        format='%(asctime)s %(levelname)s %(message)s',
-#        filename=LOGFILE,
-#        filemode='a'
-#    )
-#except IOError, err:
-#    raise IOError("Can't setup low level warning redirect: %s" % err)
-#
-#log = logging.debug
-#log("PyLucid warnings logging started.")
-#
-warning_container = []
-
-
-
-
-
 class PageMessages(object):
     """
     The page message container.
@@ -282,6 +257,10 @@ class PageMessagesMiddleware(object):
         insert all page messages into the html page.
         """
         warnings.showwarning = self.old_showwarning
+        
+        if SESSION_KEY not in request.session:
+            # There exist no page_msg -> do nothing
+            return response
         
         if not "html" in response._headers["content-type"][1]:
             # No HTML Page -> do nothing
