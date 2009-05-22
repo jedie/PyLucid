@@ -24,8 +24,27 @@ from reversion.admin import VersionAdmin
 from pylucid import models
 from pylucid.system.auto_model_info import UpdateInfoBaseAdmin
 
+#_____________________________________________________________________________
+# Some work-a-rounds for django bugs :(
+
 # Quick work-a-round for http://code.djangoproject.com/ticket/10061
 admin.site.root_path = "/%s/" % settings.ADMIN_URL_PREFIX
+
+#-----------------------------------------------------------------------------
+# add user brocken, if TEMPLATE_STRING_IF_INVALID != ""
+# http://code.djangoproject.com/ticket/11176
+from django.contrib.auth.admin import UserAdmin
+
+org_add_view = UserAdmin.add_view
+def ugly_patched_add_view(*args, **kwargs):
+    old = settings.TEMPLATE_STRING_IF_INVALID
+    settings.TEMPLATE_STRING_IF_INVALID = ""
+    result = org_add_view(*args, **kwargs)
+    settings.TEMPLATE_STRING_IF_INVALID = old
+    return result
+
+UserAdmin.add_view = ugly_patched_add_view
+    
 
 #------------------------------------------------------------------------------
 
