@@ -242,12 +242,14 @@ class PageMessages(object):
 
 
 class PageMessagesMiddleware(object):
+    def __init__(self):
+        self.old_showwarning = warnings.showwarning
+    
     def process_request(self, request):
         """ add page_msg object to request object """
         request.page_msg = PageMessages(request)
         
         # redirect warnings into page_msg
-        self.old_showwarning = warnings.showwarning
         warnings.showwarning = request.page_msg.showwarning
         
         #request.page_msg.add_test_lines()

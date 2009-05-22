@@ -35,7 +35,6 @@ from pylucid.system.auto_model_info import UpdateInfoBaseModel, UpdateInfoBaseMo
 
 
 
-
 class PageTreeManager(UpdateInfoBaseModelManager):
     """
     Manager class for PageTree model
@@ -471,7 +470,6 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         lastupdatetime -> datetime of the last change
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
-
     
     TODO: the save() method should be try to store the file into media path!
     """   
@@ -513,18 +511,51 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         ordering = ("filename",)
 
 
+class UserProfileManager(UpdateInfoBaseModelManager):
+    def create_user_profile(self, request, user):
+        userprofile, created = self.get_or_create(request, user=user)
+        if created:
+            request.user.message_set.create(
+                message="UserProfile entry for user '%s' created." % user
+            )
+        
+        if not user.is_superuser:
+            # Info: superuser can automaticly access all sites
+            site = Site.objects.get_current()
+            userprofile.site.add(site)
+            request.user.message_set.create(
+                message="Add site '%s' to '%s' UserProfile." % (site.name, user)
+            )
+            
+    def delete(self, request, user):
+        userprofile = self.get(user=user)
+        userprofile.delete()
+        request.user.message_set.create(
+            message="UserProfile entry from user '%s' deleted." % user
+        )
+
+    
 class UserProfile(UpdateInfoBaseModel):
     """
     Stores additional information about PyLucid users
     http://docs.djangoproject.com/en/dev/topics/auth/#storing-additional-information-about-users
+    
+    We hacked into django.contrib.auth.admin.UserAdmin in pylucid/admin.py for
+    create/delete UserProfile entries.
     """
+    objects = UserProfileManager()
+    
     id = models.AutoField(primary_key=True)
 
     user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
     site = models.ManyToManyField(Site,
         help_text="User can access only these sites."
     )
-    on_site = CurrentSiteManager()
+
+    def site_info(self):
+        """ for pylucid.admin.UserProfileAdmin.list_display """
+        sites = self.site.all()
+        return ", ".join([site.name for site in sites])
     
     class Meta:
         ordering = ("user",)

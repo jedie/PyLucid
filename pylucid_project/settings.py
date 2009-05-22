@@ -166,9 +166,12 @@ from pylucid_project.apps.pylucid import app_settings as PYLUCID
 
 # http://www.djangoproject.com/documentation/authentication/#other-authentication-sources
 AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend",
-    "pylucid_project.pylucid_plugins.auth.auth_backend.JS_SHA_Backend",
+    "pylucid.system.auth_backends.SiteAuthBackend",
+#    "django.contrib.auth.backends.ModelBackend",
+#    "pylucid_project.pylucid_plugins.auth.auth_backend.JS_SHA_Backend",
 )
+# http://docs.djangoproject.com/en/dev/topics/auth/#storing-additional-information-about-users
+AUTH_PROFILE_MODULE = "pylucid.UserProfile"
 
 #_____________________________________________________________________________
 # STATIC FILES

@@ -18,6 +18,8 @@
 
 from django.contrib import admin
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 
 from reversion.admin import VersionAdmin
 
@@ -47,6 +49,7 @@ UserAdmin.add_view = ugly_patched_add_view
     
 
 #------------------------------------------------------------------------------
+
 
 class PageTreeAdmin(UpdateInfoBaseAdmin, VersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}    
@@ -116,6 +119,33 @@ class EditableHtmlHeadFileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
     list_filter = ("site",)
 
 admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
+
+
+#------------------------------------------------------------------------------
+
+
+class PyLucidUserAdmin(UserAdmin):
+    """
+    extended version of User Model Admin class.
+    Add hooks for creating/deleting UserProfile model entries.
+    
+    We can use signals for this. But in singals handler, we get no request object.
+    Here we can give the request object into UserProfile methods for sending
+    feedback to the user and we need it for UpdateInfoBaseModel.
+    """
+    def log_addition(self, request, object):
+        """ called, after a new user created -> Create the UserProfile entry """
+        super(PyLucidUserAdmin, self).log_addition(request, object)
+        models.UserProfile.objects.create_user_profile(request, object)
+        
+    def log_deletion(self, request, object, object_repr):
+        """ called, after a user was deleted -> Delete the UserProfile entry """
+        super(PyLucidUserAdmin, self).log_deletion(request, object, object_repr)
+        models.UserProfile.objects.delete(request, object)
+        
+# Change the User Admin class with our externed version 
+admin.site.unregister([User])
+admin.site.register(User, PyLucidUserAdmin)
 
 
 class UserProfileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
