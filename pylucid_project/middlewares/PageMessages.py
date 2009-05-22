@@ -34,6 +34,7 @@ import os
 import sys
 import pprint
 import inspect
+import warnings
 
 from django.conf import settings
 from django.utils.encoding import smart_str
@@ -57,6 +58,30 @@ TEMPLATE = \
 {% endfor %}</p>
 {% endfor %}
 </fieldset>"""
+
+
+
+#import warnings, logging
+#
+## Needs to have the file rights to create/write into this file!
+#LOGFILE = "PyLucid_warnings.log"
+#
+#try:
+#    logging.basicConfig(
+#        level=logging.DEBUG,
+#        format='%(asctime)s %(levelname)s %(message)s',
+#        filename=LOGFILE,
+#        filemode='a'
+#    )
+#except IOError, err:
+#    raise IOError("Can't setup low level warning redirect: %s" % err)
+#
+#log = logging.debug
+#log("PyLucid warnings logging started.")
+#
+warning_container = []
+
+
 
 
 
@@ -119,6 +144,22 @@ class PageMessages(object):
     def critical(self, *msg):
         self.append_message("critical", *msg)
 
+    #_________________________________________________________________________
+    
+    def showwarning(self, message, category, filename, lineno):
+        """ for redirecting warnings """
+        msg = "%s: %s" % (category.__name__, message)
+        
+        old_debug_mode = self.debug_mode
+        self.debug_mode = False # no fileinfo would be added
+        self.warning(msg)
+        self.debug_mode = old_debug_mode
+        
+        # Add fileinfo
+        block_data = self.request.session[SESSION_KEY][-1]
+        filename = u"..." + filename[-30:]
+        block_data["fileinfo"] = "(%s - line %s)" % (filename, lineno)
+    
     #_________________________________________________________________________
 
     def append_message(self, msg_type, *msg):       
@@ -209,7 +250,6 @@ class PageMessages(object):
         self.append_message("info", "Here is:", {"a":"dict"}, "and text after a dict.")
         self.append_message("warning", "<html characters should be escaped.>")
         self.append_message("warning", mark_safe("You can use <strong>mark_safe</strong> to use html code."))
-        
 
     def __repr__(self):
         return "page messages: %s" % repr(self.request.session[SESSION_KEY])
@@ -230,12 +270,19 @@ class PageMessagesMiddleware(object):
     def process_request(self, request):
         """ add page_msg object to request object """
         request.page_msg = PageMessages(request)
+        
+        # redirect warnings into page_msg
+        self.old_showwarning = warnings.showwarning
+        warnings.showwarning = request.page_msg.showwarning
+        
         #request.page_msg.add_test_lines()
         
     def process_response(self, request, response):
         """
         insert all page messages into the html page.
-        """        
+        """
+        warnings.showwarning = self.old_showwarning
+        
         if not "html" in response._headers["content-type"][1]:
             # No HTML Page -> do nothing
             return response
