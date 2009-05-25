@@ -107,25 +107,31 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     if pagetree.type == PageTree.PLUGIN_TYPE:
         # The current PageTree entry is a plugin page
         page_plugin_response = pylucid_plugin.call_plugin(request, prefix_url, rest_url)
-        assert(isinstance(page_plugin_response, http.HttpResponse),
-            "pylucid plugins must return a http.HttpResponse instance or None!"
-        )
-        response = _apply_context_middleware(request, page_plugin_response)
-        return response
-#        if page_plugin_response.status_code == 200:
-#            # Plugin replace the page content
-#            return _render_template(request, page_content=page_plugin_response.content)
-#        else:
-#            # Plugin has return a response object, but not a normal content, it's a redirect, not found etc.
-#            return page_plugin_response
-    
-    pagecontent = _get_page_content(request)        
-    request.PYLUCID.pagecontent = pagecontent    
-    context["page_content"] = pagecontent
-    
-    # Add UpdateInfoBaseModel meta data from PageContent instance into context
+
+        if isinstance(page_plugin_response, http.HttpResponse):
+            # Plugin would be build the complete html page
+            response = _apply_context_middleware(request, page_plugin_response)
+            return response
+
+        
+    if page_plugin_response == None:
+        # No PluginPage or plugin has return None
+        pagecontent_instance = _get_page_content(request)
+        request.PYLUCID.pagecontent = pagecontent_instance
+        context["page_content"] = pagecontent_instance.content
+        updateinfo_object = pagecontent_instance
+    else:
+        # Plugin replace the page content
+        assert isinstance(page_plugin_response, basestring), \
+            "PluginPage must return None, HttpResponse or a basestring!"
+            
+        context["page_content"] = page_plugin_response
+        updateinfo_object = pagemeta
+
+    # Add UpdateInfoBaseModel meta data from PageContent/PageMeta instance into context
+    # FIXME: Do this erlear: So A plugin page can change the values!
     for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
-        context["page_%s" % itemname] = getattr(pagecontent, itemname)
+        context["page_%s" % itemname] = getattr(updateinfo_object, itemname)        
     
     # call a pylucid plugin "html get view", if exist
     get_view_response = pylucid_plugin.call_get_views(request)
@@ -139,16 +145,17 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
             response = _apply_context_middleware(request, get_view_response)
             return response
         
-        assert(isinstance(get_view_response, basestring),
+        assert isinstance(get_view_response, basestring), \
             "Plugin get view must return None, HttpResponse or a basestring!"
-        )
         
         # Plugin replace the page content
-        raw_html_content = get_view_response
+        context["page_content"] = get_view_response
+    
+    if page_plugin_response == None and get_view_response == None:
+        # No Plugin has changed the PageContent -> apply markup on PageContent
+        raw_html_content = apply_markup(pagecontent_instance, request.page_msg)
     else:
-        # No get view was called or Plugin has not return a response object
-        # -> use the normal page content
-        raw_html_content = apply_markup(request.PYLUCID.pagecontent, request.page_msg)
+        raw_html_content = context["page_content"]
     
     html_content = render.render_string_template(raw_html_content, context)
 

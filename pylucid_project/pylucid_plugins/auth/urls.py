@@ -2,9 +2,8 @@
 
 from django.conf.urls.defaults import patterns, url
 
-from auth.views import login, logout 
+from auth.views import authenticate
 
 urlpatterns = patterns('',
-    url(r'^login/$', login, name='PluginAuth-login'),
-    url(r'^logout/$', logout, name='PluginAuth-logout'),
+    url(r'^$', authenticate, name='PluginAuth'),
 )

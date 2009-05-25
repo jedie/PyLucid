@@ -97,7 +97,8 @@ def call_plugin(request, prefix_url, rest_url):
     plugin_urlpatterns = import_module(plugin_urlconf_name).urlpatterns
     
     # build the url prefix
-    prefix = "^" + prefix_url
+    lang_code = request.PYLUCID.lang_entry.code
+    prefix = "^%s/%s" % (lang_code, prefix_url)
     if not prefix_url.endswith("/"):
         prefix += "/"
 
@@ -112,8 +113,8 @@ def call_plugin(request, prefix_url, rest_url):
     # Make a own url resolver
     resolver = urlresolvers.RegexURLResolver(r'^/', urlpatterns2)
     
-#    for key in resolver.reverse_dict:
-#        print key, resolver.reverse_dict[key]
+    #for key in resolver.reverse_dict:
+    #    print key, resolver.reverse_dict[key]
 
     # get the plugin view from the complete url
     resolve_url = request.path_info

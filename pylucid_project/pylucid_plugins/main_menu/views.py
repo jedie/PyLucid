@@ -25,8 +25,12 @@ from pylucid_project.apps.pylucid.models import PageContent
 
 
 def lucidTag(request): 
-    # Get the current models.PageContent instance
-    pagecontent = request.PYLUCID.pagecontent
+    try:
+        # Get the current models.PageContent instance
+        pagecontent = request.PYLUCID.pagecontent
+    except AttributeError:
+        # Plugin page???
+        return
         
 #    request.page_msg(request.path)
     if request.path == "/":
