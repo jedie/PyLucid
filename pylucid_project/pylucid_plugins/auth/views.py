@@ -2,13 +2,9 @@
 
 from django.contrib import auth
 from django.conf import settings
-from django.template import RequestContext
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 
 from pylucid_project.utils import crypt
 
@@ -32,7 +28,7 @@ def _logout_view(request):
 
 def _login(request, user):
     auth.login(request, user)
-    request.page_msg("You are logged in!")
+    request.page_msg.successful(_("You are logged in!"))
     return HttpResponseRedirect(request.path)
 
 
@@ -63,7 +59,7 @@ def _sha_login(request, context, user):
     if "sha_a2" in request.POST and "sha_b" in request.POST:
         SHA_login_form = SHA_LoginForm(request.POST)
         if not SHA_login_form.is_valid():
-            request.page_msg.error("Form data is not valid. Please correct.")
+            request.page_msg.error(_("Form data is not valid. Please correct."))
             if DEBUG: request.page_msg(SHA_login_form.errors)
         else:
             sha_a2 = SHA_login_form.cleaned_data["sha_a2"]
@@ -87,24 +83,14 @@ def _sha_login(request, context, user):
 
             # authenticate with:
             # pylucid.system.auth_backends.SiteSHALoginAuthBackend
-            msg = _("Wrong password.")
-            try:
-                user = auth.authenticate(
-                    user=user, challenge=challenge,
-                    sha_a2=sha_a2, sha_b=sha_b,
-                    sha_checksum=sha_checksum
-                )
-            except Exception, e:
-                if settings.DEBUG or DEBUG:
-                    raise
-                    msg += " (%s) - " % e
-                    import sys, traceback
-                    msg += traceback.format_exc()
-            else:
-                if user:
-                    return _login(request, user)
-            request.page_msg.error(msg)
-                    
+            user = auth.authenticate(
+                user=user, challenge=challenge,
+                sha_a2=sha_a2, sha_b=sha_b,
+                sha_checksum=sha_checksum
+            )
+            if user:
+                return _login(request, user)
+            request.page_msg.error(_("Wrong password."))                    
     else:
         SHA_login_form = UsernameForm()
 
@@ -172,6 +158,6 @@ def http_get_view(request):
         return _logout_view(request)
     
     if settings.DEBUG:
-        request.page_msg("Wrong get view parameter!")
+        request.page_msg(_("Wrong get view parameter!"))
 
     
