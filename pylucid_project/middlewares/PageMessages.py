@@ -167,6 +167,10 @@ class PageMessages(object):
         if self.debug_mode == True:
             block_data["fileinfo"] = self._get_fileinfo()
 
+        if SESSION_KEY not in self.request.session:
+            # exemption: call page_msg directly after logout (session deleted)
+            self.request.session[SESSION_KEY] = []
+            
         self.request.session[SESSION_KEY].append(block_data)
         self.request.session.modified = True # FIXME: Don't really know why this is needed
 
