@@ -6,6 +6,7 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
+from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -22,11 +23,16 @@ DEBUG = False
 # Should realy only use for debugging!!!
 if DEBUG:
     import warnings
-    warnings.warn("Debugmode is on", UserWarning)
+    warnings.warn("Debug mode in auth plugin is on!", UserWarning)
 
 def _logout_view(request):
     auth.logout(request)
 #    request.page_msg("You logged out.")
+    return HttpResponseRedirect(request.path)
+
+def _login(request, user):
+    auth.login(request, user)
+    request.page_msg("You are logged in!")
     return HttpResponseRedirect(request.path)
 
 
@@ -36,9 +42,7 @@ def _plaintext_login(request, context, username):
         password_form = PasswordForm(request.POST)
         if password_form.is_valid(username):
             user = password_form.user # User instance added in UsernameForm.is_valid()
-            auth.login(request, user)
-            request.page_msg("You are logged in!")
-            return HttpResponseRedirect(request.path)
+            return _login(request, user)
     else:
         password_form = PasswordForm()
         
@@ -46,29 +50,15 @@ def _plaintext_login(request, context, username):
     
     # return a string for replacing the normal cms page content
     return render_to_string('auth/plaintext_login.html', context)
-    
+
+
     
 def _sha_login(request, context, user):
+    """
+    Login via JS-SHA-Login.
+    Display the JS-SHA-Login form and login if password is ok.
+    """
     user_profile = user.get_profile()
-    request.page_msg(user_profile)
-    
-    context["salt"] = user_profile.sha_login_salt
-    if DEBUG:
-        challenge = "debug"
-        # For JavaScript debug
-        context["debug"] = "true"
-    else:
-        # Create a new random salt value for the password challenge:
-        challenge = crypt.get_new_salt()
-        context["debug"] = "false"
-    
-        
-    context["debug"] = "true"
-    
-        
-    # For later comparing with form data
-    request.session['challenge'] = challenge
-    context["challenge"] = challenge
     
     if "sha_a2" in request.POST and "sha_b" in request.POST:
         SHA_login_form = SHA_LoginForm(request.POST)
@@ -81,9 +71,57 @@ def _sha_login(request, context, user):
             if DEBUG:
                 request.page_msg("sha_a2:", sha_a2)
                 request.page_msg("sha_b:", sha_b)
+                
+            # A submited SHA1-JS-Login form
+            try:
+                challenge = request.session['challenge']
+                if DEBUG: request.page_msg("challenge:", challenge)
+            except KeyError, e:
+                msg = _("Session Error.")
+                if DEBUG: msg = "%s (%s)" % (msg, e)
+                request.page_msg.error(msg)
+                return
+
+            sha_checksum = user_profile.sha_login_checksum
+            if DEBUG: request.page_msg("sha_checksum:", sha_checksum)
+
+            # authenticate with:
+            # pylucid.system.auth_backends.SiteSHALoginAuthBackend
+            msg = _("Wrong password.")
+            try:
+                user = auth.authenticate(
+                    user=user, challenge=challenge,
+                    sha_a2=sha_a2, sha_b=sha_b,
+                    sha_checksum=sha_checksum
+                )
+            except Exception, e:
+                if settings.DEBUG or DEBUG:
+                    raise
+                    msg += " (%s) - " % e
+                    import sys, traceback
+                    msg += traceback.format_exc()
+            else:
+                if user:
+                    return _login(request, user)
+            request.page_msg.error(msg)
+                    
     else:
         SHA_login_form = UsernameForm()
-        
+
+
+    context["salt"] = user_profile.sha_login_salt
+    if DEBUG:
+        challenge = "debug" # Use same challenge in debug mode
+        context["debug"] = "true" # For JavaScript debug
+    else:
+        # Create a new random salt value for the password challenge:
+        challenge = crypt.get_new_salt()
+        context["debug"] = "false"
+           
+    # For later comparing with form data
+    request.session['challenge'] = challenge
+    context["challenge"] = challenge
+    
     context["form"] = SHA_login_form
     
     # return a string for replacing the normal cms page content
@@ -100,7 +138,6 @@ def _login_view(request):
     context["form_url"] = request.path + "?auth=login" # FIXME: How can we add the GET Parameter?
 
     if request.method == 'POST':
-        request.page_msg(request.POST)
         username_form = UsernameForm(request.POST)
         if username_form.is_valid():
             user = username_form.user # User instance added in UsernameForm.is_valid()
@@ -122,12 +159,11 @@ def _login_view(request):
     # return a string for replacing the normal cms page content
     return render_to_string('auth/input_username.html', context)
 
+
 def http_get_view(request):
     """
     Login view
-    """
-    request.page_msg("TODO: refactor the rest from auth plugin ;)")
-    
+    """    
     action = request.GET["auth"]
     print action
     if action=="login":

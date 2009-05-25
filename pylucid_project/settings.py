@@ -165,6 +165,7 @@ from pylucid_project.apps.pylucid import app_settings as PYLUCID
 # http://www.djangoproject.com/documentation/authentication/#other-authentication-sources
 AUTHENTICATION_BACKENDS = (
     "pylucid.system.auth_backends.SiteAuthBackend",
+    "pylucid.system.auth_backends.SiteSHALoginAuthBackend",
 #    "django.contrib.auth.backends.ModelBackend",
 #    "pylucid_project.pylucid_plugins.auth.auth_backend.JS_SHA_Backend",
 )
