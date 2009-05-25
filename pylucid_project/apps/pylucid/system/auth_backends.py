@@ -42,6 +42,11 @@ if LOCAL_DEBUG:
 
 
 def can_access_site(user):
+    """
+    Check if the user can access the current site.
+    Use the UserProfile <-> site relationship.
+    Skip check for all superusers.
+    """
     if user.is_superuser:
         if LOCAL_DEBUG:
             warnings.warn("Superuser can access all sites.")
@@ -68,35 +73,43 @@ def can_access_site(user):
 
 
 class SiteAuthBackend(ModelBackend):
+    """
+    Normal username/plaintext password authentication, but we limit user to sites.
+    """
     def authenticate(self, username=None, password=None):
         try:
             user = User.objects.get(username=username)
             if not user.check_password(password):
                 if settings.DEBUG or LOCAL_DEBUG:
                     warnings.warn("Wrong password!")
-                return None
+                return
         except User.DoesNotExist, err:
             if settings.DEBUG:
                 warnings.warn("User %s doesn't exist: %s" % (username, err))
-            return None
+            return
     
         if LOCAL_DEBUG:
             warnings.warn("Username %s and password ok." % username)
         
-        # Limit the access to user_profile site relationship
+        # Limit the access to UserProfile <-> site relationship
         if can_access_site(user) == True:
             return user
                
 
 
 class SiteSHALoginAuthBackend(ModelBackend):
+    """
+    Used for PyLucid JS-SHA-Login.
+    Check challenge and limit access to sites.
+    """
     def authenticate(self, user=None, challenge=None, sha_a2=None, sha_b=None, sha_checksum=None):
-        if user == None:
-            # Nothing to do: Normal auth?
-            return None
+        if user == None: # Nothing to do: Normal auth?
+            return
 
-        check = crypt.check_js_sha_checksum(
-            challenge, sha_a2, sha_b, sha_checksum
-        )
-        if check == True:
+        check = crypt.check_js_sha_checksum(challenge, sha_a2, sha_b, sha_checksum)
+        if check != True:
+            return
+        
+        # Limit the access to UserProfile <-> site relationship
+        if can_access_site(user) == True:
             return user
