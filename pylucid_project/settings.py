@@ -64,12 +64,10 @@ DATABASE_PORT = ''             # Set to empty string for default. Not used with 
 
 
 _used_port = os.environ.get("USED_PORT", "--not set--")
-if _used_port == "8000":
-    SITE_ID = 1
-elif _used_port == "8001":
+if _used_port == "8001":
     SITE_ID = 2
 else:
-    SITE_ID = None
+    SITE_ID = 1
 
 print "Used port is %s -> set SITE_ID: %s" % (_used_port, SITE_ID)    
 
