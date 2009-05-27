@@ -24,12 +24,14 @@ from django.conf import settings
 
 from django_tools.unittest import unittest_base
 
+from pylucid_project.tests.test_tools.pylucid_test_data import TestSites, TestLanguages
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests import unittest_plugin
 
 UNITTEST_GET_PREFIX = "?%s=" % unittest_plugin.views.GET_KEY
+PLUGIN_PAGE_URL = "3-pluginpage" # Page created in pylucid_project.tests.test_tools.pylucid_test_data
 
-class PluginApiTest(basetest.BaseUnittest):
+class PluginGetViewTest(basetest.BaseUnittest):
     def test_get_view_none_response(self):
         """ http_get_view() returns None, the normal PageContent would be used. """
         url = UNITTEST_GET_PREFIX + unittest_plugin.views.ACTION_NONE_RESPONSE
@@ -64,15 +66,49 @@ class PluginApiTest(basetest.BaseUnittest):
         """ http_get_view() returns a django.http.HttpResponse object. """
         url = UNITTEST_GET_PREFIX + unittest_plugin.views.ACTION_HTTP_RESPONSE
         response = self.client.get(url)
-        self.assertContains(response, text=unittest_plugin.views.HTTP_RESPONSE, count=1, status_code=200)
+        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual(response.content, unittest_plugin.views.HTTP_RESPONSE)
         
-    def test_get_view_HttpResponse(self):
+    def test_get_view_Redirect(self):
         """ http_get_view() returns a django.http.HttpResponseRedirect object. """
         url = UNITTEST_GET_PREFIX + unittest_plugin.views.ACTION_REDIRECT
         response = self.client.get(url)
         self.assertRedirects(response, expected_url=unittest_plugin.views.REDIRECT_URL, status_code=302)
 
 
+class PluginPageTest(basetest.BaseUnittest):
+    def test_root_page(self):
+        """
+        Test the root view on all sites and in all test languages.
+        """
+        for site in TestSites():
+            for language in TestLanguages():
+                url = "/%s/%s/" % (language.code, PLUGIN_PAGE_URL)
+                response = self.client.get(url)
+                self.assertContentLanguage(response, language.code)
+                self.assertResponse(response,
+                    must_contain=(
+                        unittest_plugin.views.PLUGINPAGE_ROOT_STRING_RESPONSE,
+                        '3-pluginpage title (lang:%(lang)s, site:%(site_name)s) %(site_name)s' % {
+                            "lang": language.code,
+                            "site_name": site.name,
+                        },
+                    ),
+                    must_not_contain=(
+                        "Traceback",
+                        '1-rootpage content', # normal page content
+                    ),
+                )
+                
+    def test_view_a(self):
+        """
+        Test a "url sub view" unittest_plugin.view_a().
+        The view returns a HttpResponse object.
+        """
+        url = "/%s/%s/view_a/" % (self.default_lang_code, PLUGIN_PAGE_URL)
+        response = self.client.get(url)
+        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual(response.content, unittest_plugin.views.PLUGINPAGE_VIEW_A_STRING_RESPONSE)
 
 
 

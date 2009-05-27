@@ -13,7 +13,7 @@ from django.conf import settings
 
 from dbtemplates.models import Template
 
-from pylucid.models import PageTree, PageMeta, PageContent, Design, \
+from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design, \
                                             EditableHtmlHeadFile, Language
 
 SITEINFO_TAG = "***unittest siteinfo tag***"
@@ -178,6 +178,10 @@ TEST_PAGES = [
             }
         ],
     },
+    {
+        "slug": "3-pluginpage",
+        "plugin": "pylucid_project.pylucid_plugins.unittest_plugin",
+    },
 ]
 
 
@@ -247,18 +251,6 @@ def create_headfiles(verbosity, headfile_dict, site, request):
         if verbosity:
             print("EditableStaticFile '%s' created on site: %s" % (filename, site.name))
         
-#        headfile, created = EditableHtmlHeadFile.objects.get_or_create(
-#            request, filename = filename, defaults = data
-#        )
-#        if created:
-#            headfile.content = headfile.content.replace(SITEINFO_TAG, site.name)
-#            headfile.save(request)
-#            headfile.sites.add(site)
-#            if verbosity:
-#                print("EditableStaticFile '%s' created on site: %s" % (filename, site.name))
-#        elif verbosity:
-#                print("EditableStaticFile '%s' exist on site: %s" % (filename, site.name))
-        
         headfile_map[filename+site.name] = headfile
     return headfile_map
 
@@ -305,11 +297,16 @@ def create_pages(verbosity, request, design_map, site, pages, parent=None):
         print slug
         
         #____________________________________________________
+        if "plugin" in page_data:
+            page_type = PageTree.PLUGIN_TYPE
+        else:
+            page_type = PageTree.PAGE_TYPE
+        
         tree_entry, created = PageTree.objects.get_or_create(request,
             site=site, slug=slug, parent=parent,
             defaults={
                 "design": design,
-                "type": PageTree.PAGE_TYPE,
+                "type": page_type,
             }
         )
         url = tree_entry.get_absolute_url()
@@ -336,25 +333,38 @@ def create_pages(verbosity, request, design_map, site, pages, parent=None):
                     print("PageMeta '%s' - '%s' created." % (language, tree_entry.slug))
                 else:
                     print("PageMeta '%s' - '%s' exist." % (language, tree_entry.slug))
-            
-            # Create PageContent:
-            default_dict = create_meta(slug=tree_entry.slug, lang_code=language.code, site_name=site.name,
-                keys = ("content",)
-            )
-            default_dict["markup"] = PageContent.MARKUP_CREOLE
-            content_entry, created = PageContent.objects.get_or_create(request,
-                page = tree_entry,
-                lang = language,
-                pagemeta = pagemeta_entry,
-                defaults = default_dict
-            )
-            content_entry.content = content_entry.content.replace(SITEINFO_TAG, site.name)
-            content_entry.save(request)
-            if verbosity:
-                if created:
-                    print("PageContent '%s' created." % content_entry)
-                else:
-                    print("PageContent '%s' exist." % content_entry)
+
+            if tree_entry.type == PageTree.PLUGIN_TYPE:
+                # It's a plugin page
+                pluginpage, created = PluginPage.objects.get_or_create(request,
+                    page = tree_entry,
+                    lang = language,
+                    defaults = {"pagemeta": pagemeta_entry, "app_label": page_data["plugin"]},
+                )
+                if verbosity:
+                    if created:
+                        print("PluginPage '%s' created." % pluginpage)
+                    else:
+                        print("PluginPage '%s' exist." % pluginpage)
+            else:
+                # Create PageContent:
+                default_dict = create_meta(slug=tree_entry.slug, lang_code=language.code, site_name=site.name,
+                    keys = ("content",)
+                )
+                default_dict["markup"] = PageContent.MARKUP_CREOLE
+                content_entry, created = PageContent.objects.get_or_create(request,
+                    page = tree_entry,
+                    lang = language,
+                    pagemeta = pagemeta_entry,
+                    defaults = default_dict
+                )
+                content_entry.content = content_entry.content.replace(SITEINFO_TAG, site.name)
+                content_entry.save(request)
+                if verbosity:
+                    if created:
+                        print("PageContent '%s' created." % content_entry)
+                    else:
+                        print("PageContent '%s' exist." % content_entry)
         
         if "sub-pages" in page_data:
             print "--- create sub pages ---"

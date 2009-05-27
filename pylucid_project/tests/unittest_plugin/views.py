@@ -21,6 +21,9 @@
 
 from django import http
 
+#_____________________________________________________________________________
+# http_get_view()
+
 GET_KEY = "unittest_plugin" # plugin name
 
 ACTION_NONE_RESPONSE = "NoneResponse"
@@ -34,6 +37,7 @@ HTTP_RESPONSE = "HttpResponse from unittest plugin."
 ACTION_REDIRECT = "RedirectResponse"
 REDIRECT_URL = "/"
 
+
 def http_get_view(request):
     action = request.GET[GET_KEY]
     
@@ -46,10 +50,35 @@ def http_get_view(request):
         return STRING_RESPONSE
     
     elif action==ACTION_HTTP_RESPONSE:
-        return http.HttpResponse(content="HttpResponse from unittest plugin.")
+        # replace the complete response content.
+        return http.HttpResponse(content=HTTP_RESPONSE)
     
     elif action==ACTION_REDIRECT:
+        # redirect to a url
         return http.HttpResponseRedirect(REDIRECT_URL)
     
     else:
         raise AssertionError("Wrong GET action parameter!")
+
+
+#_____________________________________________________________________________
+# PluginPage views
+
+PLUGINPAGE_ROOT_STRING_RESPONSE = "String response from unittest_plugin.view_root()"
+PLUGINPAGE_VIEW_A_STRING_RESPONSE = "HttpResponse response from unittest_plugin.view_a()"
+
+def view_root(request):
+    """ String response """
+    return PLUGINPAGE_ROOT_STRING_RESPONSE
+
+def view_a(request):
+    """ replace the complete response with own HttpResponse object """
+    return http.HttpResponse(PLUGINPAGE_VIEW_A_STRING_RESPONSE)
+
+def view_b(request, url):
+    """ Test """
+    url2 = reverse("PluginTest-view_c")
+    return HttpResponse("response: %r pluginpage_text.view_b: %r" % (url2, url))
+
+def view_c(request):
+    return HttpResponse("response: pluginpage_text.view_c !")
