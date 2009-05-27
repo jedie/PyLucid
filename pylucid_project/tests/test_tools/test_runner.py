@@ -1,5 +1,6 @@
 
 import os
+import errno
 import unittest
 
 if __name__ == "__main__":
@@ -11,6 +12,10 @@ from django.test.utils import setup_test_environment, teardown_test_environment
 from django.test.simple import run_tests
 
 from pylucid_project.tests.test_tools import pylucid_test_data
+from pylucid_project.tests import unittest_plugin
+
+UNITTEST_PLUGIN_SRC_PATH = os.path.abspath(os.path.dirname(unittest_plugin.__file__))
+UNITTEST_PLUGIN_DST_PATH = os.path.join(settings.PYLUCID_PLUGINS_ROOT, "unittest_plugin")
 
 TEST_NAMES = ["pylucid_project.tests",]
 for app_name in settings.INSTALLED_APPS:
@@ -93,6 +98,24 @@ def get_tests(test_labels, verbosity=False):
     else:
         return get_all_tests(verbosity)
 
+def setup_unittest_plugin(verbosity):
+    if verbosity:
+        print "setup unittest plugin via symlink ",
+    try:
+        os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+    except OSError, err:
+        if err.errno == errno.EEXIST:
+            print "Error:", err
+        else:
+            raise
+    if verbosity:
+        print "OK"
+    
+def teardown_unittest_plugin(verbosity):
+    if verbosity:
+        print "remove unittest plugin symlink"
+    os.remove(UNITTEST_PLUGIN_DST_PATH)
+        
 def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     """
     PyLucid test runner. Sets up test environment, populates test database with
@@ -115,8 +138,11 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     """
     if verbosity:
         print "start tests:", test_labels, "\n"
-        
+       
     setup_test_environment()
+    
+    setup_unittest_plugin(verbosity)
+    
     old_name = settings.DATABASE_NAME
     
     from django.db import connection
@@ -135,7 +161,8 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
     connection.creation.destroy_test_db(old_name, verbosity)
     teardown_test_environment()
-#    teardown_pylucid()
+    
+    teardown_unittest_plugin(verbosity)
 
     return len(result.failures) + len(result.errors)
 
