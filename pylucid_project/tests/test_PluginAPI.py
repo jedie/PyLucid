@@ -1,4 +1,22 @@
-# coding:utf-8
+# coding: utf-8
+
+"""
+    PyLucid plugin API unittest
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    Test the plugin API with the unittest plugin. This plugin would be
+    symlinked into "./pylucid_project/pylucid_plugins/" before the test
+    starts. This would be done in pylucid_project.tests.test_tools.test_runner.
+
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate:$
+    $Rev:$
+    $Author: JensDiemer $
+
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
 
 import test_tools # before django imports!
 

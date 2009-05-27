@@ -1,4 +1,18 @@
-#coding:utf-8
+# coding: utf-8
+
+"""
+    PyLucid unittest base class
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate:$
+    $Rev:$
+    $Author: JensDiemer $
+
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
 
 from django.test import TransactionTestCase
 from django.contrib.sites.models import Site

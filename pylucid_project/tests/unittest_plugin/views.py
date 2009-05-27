@@ -1,4 +1,23 @@
-#coding:utf-8
+# coding: utf-8
+
+"""
+    PyLucid unittest plugin
+    ~~~~~~~~~~~~~~~~~~~~~~~
+    
+    For plugin API unittest. 
+    
+    This plugin would be symlinked into "./pylucid_project/pylucid_plugins/" before 
+    unittests starts. This would be done in pylucid_project.tests.test_tools.test_runner.
+
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate:$
+    $Rev:$
+    $Author: JensDiemer $
+
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
 
 from django import http
 
