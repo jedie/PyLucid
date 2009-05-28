@@ -112,21 +112,19 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
             # Plugin would be build the complete html page
             response = _apply_context_middleware(request, page_plugin_response)
             return response
-
-        
-    if page_plugin_response == None:
-        # No PluginPage or plugin has return None
+        elif page_plugin_response == None:
+            raise RuntimeError(
+                "PagePlugin has return None, but it must return a HttpResponse object or a basestring!"
+            )
+        # Plugin replace the page content           
+        context["page_content"] = page_plugin_response
+        updateinfo_object = pagemeta
+    else:
+        # No PluginPage
         pagecontent_instance = _get_page_content(request)
         request.PYLUCID.pagecontent = pagecontent_instance
         context["page_content"] = pagecontent_instance.content
         updateinfo_object = pagecontent_instance
-    else:
-        # Plugin replace the page content
-        assert isinstance(page_plugin_response, basestring), \
-            "PluginPage must return None, HttpResponse or a basestring!"
-            
-        context["page_content"] = page_plugin_response
-        updateinfo_object = pagemeta
 
     # Add UpdateInfoBaseModel meta data from PageContent/PageMeta instance into context
     # FIXME: Do this erlear: So A plugin page can change the values!
