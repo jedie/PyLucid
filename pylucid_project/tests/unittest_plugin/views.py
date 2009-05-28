@@ -20,6 +20,8 @@
 """
 
 from django import http
+from django.core.urlresolvers import reverse
+from django.shortcuts import render_to_response
 
 #_____________________________________________________________________________
 # http_get_view()
@@ -65,20 +67,55 @@ def http_get_view(request):
 # PluginPage views
 
 PLUGINPAGE_ROOT_STRING_RESPONSE = "String response from unittest_plugin.view_root()"
-PLUGINPAGE_VIEW_A_STRING_RESPONSE = "HttpResponse response from unittest_plugin.view_a()"
+PLUGINPAGE_HTTP_RESPONSE = "HttpResponse response from unittest_plugin.test_HttpResponse()"
+PLUGINPAGE_TEMPLATE_RESPONSE = "Template response from unittest_plugin.test_plugin_template()"
+PLUGINPAGE_URL_ARGS_PREFIX = "Unittest url args:"
+PLUGINPAGE_URL_REVERSE_PREFIX = "Unitest url reverse:"
+PLUGINPAGE_API_TEST_CONTENT = "Test content for unittest_plugin.test_PyLucid_api()"
+PLUGINPAGE_API_TEST_PAGE_MSG = "page messages test for unittest_plugin.test_PyLucid_api()"
 
 def view_root(request):
     """ String response """
     return PLUGINPAGE_ROOT_STRING_RESPONSE
 
-def view_a(request):
+def test_HttpResponse(request):
     """ replace the complete response with own HttpResponse object """
-    return http.HttpResponse(PLUGINPAGE_VIEW_A_STRING_RESPONSE)
+    return http.HttpResponse(PLUGINPAGE_HTTP_RESPONSE)
 
-def view_b(request, url):
-    """ Test """
-    url2 = reverse("PluginTest-view_c")
-    return HttpResponse("response: %r pluginpage_text.view_b: %r" % (url2, url))
+def test_plugin_template(request):
+    """ Use own template witch use {% extends template_name %} """
+    context = request.PYLUCID.context
+    context["content"] = PLUGINPAGE_TEMPLATE_RESPONSE
+    return render_to_response('unittest_plugin/template_test.html', context)
 
-def view_c(request):
-    return HttpResponse("response: pluginpage_text.view_c !")
+def test_url_args(request, arg1, arg2):
+    """ test arguments in urls """
+    return http.HttpResponse("%s [%r] [%r]" % (PLUGINPAGE_URL_ARGS_PREFIX, arg1, arg2))
+
+def test_return_none(request):
+    """ return None -> raised a error """
+    return None
+
+def test_url_reverse(request, url_name):
+    """ Test the django url reverse function """
+    url = reverse(url_name)
+    return http.HttpResponse("%s [%r]" % (PLUGINPAGE_URL_REVERSE_PREFIX, url))
+
+def test_PyLucid_api(request):
+    """ Test the PyLucid API """
+    request.page_msg(PLUGINPAGE_API_TEST_PAGE_MSG)
+    
+    context = request.PYLUCID.context
+    output = []
+    output.append("context_middlewares: %s" % context["context_middlewares"])
+    output.append("default_lang_code: %s" % request.PYLUCID.default_lang_code)
+    output.append("default_lang_entry: %r" % request.PYLUCID.default_lang_entry)
+    output.append("lang_entry: %r" % request.PYLUCID.lang_entry)
+    output.append("page_template: %r" % request.PYLUCID.page_template)
+    output.append("pagetree: %r" % request.PYLUCID.pagetree)
+    output.append("system_preferences: %r" % request.PYLUCID.system_preferences)
+
+    context["output"] = output
+    context["content"] = PLUGINPAGE_API_TEST_CONTENT
+    return render_to_response('unittest_plugin/API_test.html', context)
+

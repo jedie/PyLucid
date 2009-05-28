@@ -125,6 +125,9 @@ def setup_unittest_plugin(verbosity):
             raise
     if verbosity:
         print "OK"
+        
+    # Add unittest template dir
+    settings.TEMPLATE_DIRS += (os.path.join(UNITTEST_PLUGIN_DST_PATH, "templates"),)
     
 def teardown_unittest_plugin(verbosity):
     if verbosity:
