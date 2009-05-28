@@ -33,4 +33,8 @@ urlpatterns = patterns('',
         r'^test_PyLucid_api/$',
         views.test_PyLucid_api, name='UnittestPlugin-test_PyLucid_api'
     ),
+    url(
+        r'^test_BreadcrumbPlugin/$',
+        views.test_BreadcrumbPlugin, name='UnittestPlugin-test_BreadcrumbPlugin'
+    ),
 )

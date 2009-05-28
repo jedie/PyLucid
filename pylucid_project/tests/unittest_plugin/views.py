@@ -64,7 +64,7 @@ def http_get_view(request):
 
 
 #_____________________________________________________________________________
-# PluginPage views
+# PluginPage views for unittests in test_pluginAPI
 
 PLUGINPAGE_ROOT_STRING_RESPONSE = "String response from unittest_plugin.view_root()"
 PLUGINPAGE_HTTP_RESPONSE = "HttpResponse response from unittest_plugin.test_HttpResponse()"
@@ -119,3 +119,19 @@ def test_PyLucid_api(request):
     context["content"] = PLUGINPAGE_API_TEST_CONTENT
     return render_to_response('unittest_plugin/API_test.html', context)
 
+#_____________________________________________________________________________
+# PluginPage views for unittests in test_PluginBreadcrumb
+
+ADDED_LINK_TITLE = "Unittest added link"
+ADDED_LINK_URL = "/the/added/url/"
+ADDED_LINK_RESPONSE_STRING = "test_PluginBreadcrumb content"
+
+def test_BreadcrumbPlugin(request):
+    """
+    Test view for tests.test_PluginBreadcrumb.
+    Add a link to the bradcrumbs.
+    """
+    breadcrumb = request.PYLUCID.context["context_middlewares"]["breadcrumb"]
+    breadcrumb.add_link(title=ADDED_LINK_TITLE, url=ADDED_LINK_URL)
+    
+    return ADDED_LINK_RESPONSE_STRING

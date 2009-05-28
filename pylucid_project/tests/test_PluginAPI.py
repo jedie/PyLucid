@@ -29,7 +29,7 @@ from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests import unittest_plugin
 
 UNITTEST_GET_PREFIX = "?%s=" % unittest_plugin.views.GET_KEY
-PLUGIN_PAGE_URL = "3-pluginpage" # Page created in pylucid_project.tests.test_tools.pylucid_test_data
+
 
 
 
@@ -85,7 +85,7 @@ class PluginPageTest(basetest.BaseUnittest):
         """
         for site in TestSites():
             for language in TestLanguages():
-                url = "/%s/%s/" % (language.code, PLUGIN_PAGE_URL)
+                url = "/%s/%s/" % (language.code, unittest_plugin.PLUGIN_PAGE_URL)
                 response = self.client.get(url)
                 self.assertContentLanguage(response, language.code)
                 self.assertResponse(response,
@@ -110,7 +110,7 @@ class PluginPageTest(basetest.BaseUnittest):
                 test_no += 1
                 site_name = site.name.replace(" ", "-")
                 url = "/%s/%s/args_test/url_arg_%s/%s/" % (
-                    language.code, PLUGIN_PAGE_URL, test_no, site_name
+                    language.code, unittest_plugin.PLUGIN_PAGE_URL, test_no, site_name
                 )
                 response = self.client.get(url)
                 self.failUnlessEqual(response.status_code, 200)
@@ -124,7 +124,7 @@ class PluginPageTest(basetest.BaseUnittest):
         Test a "url sub view" unittest_plugin.test_HttpResponse().
         The view returns a HttpResponse object.
         """
-        url = "/%s/%s/test_HttpResponse/" % (self.default_lang_code, PLUGIN_PAGE_URL)
+        url = "/%s/%s/test_HttpResponse/" % (self.default_lang_code, unittest_plugin.PLUGIN_PAGE_URL)
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
         self.failUnlessEqual(response.content, unittest_plugin.views.PLUGINPAGE_HTTP_RESPONSE)
@@ -133,7 +133,7 @@ class PluginPageTest(basetest.BaseUnittest):
         """ Test the render_to_response() with own template witch use {% extends template_name %} """
         for site in TestSites():
             for language in TestLanguages():
-                url = "/%s/%s/test_plugin_template/" % (language.code, PLUGIN_PAGE_URL)
+                url = "/%s/%s/test_plugin_template/" % (language.code, unittest_plugin.PLUGIN_PAGE_URL)
                 response = self.client.get(url)
                 self.assertResponse(response,
                     must_contain=(
@@ -151,13 +151,13 @@ class PluginPageTest(basetest.BaseUnittest):
 
     def test_return_none(self):
         """ Test if a PagePlugin returns None -> This must raise a error. """
-        url = "/%s/%s/test_return_none/" % (self.default_lang_code, PLUGIN_PAGE_URL)
+        url = "/%s/%s/test_return_none/" % (self.default_lang_code, unittest_plugin.PLUGIN_PAGE_URL)
         self.assertRaises(RuntimeError, self.client.get, url)
     
     def test_url_reverse(self):
         """ Test the django url reverse function in a PagePlugin. """
         for language in TestLanguages():
-            url_prefix = "/%s/%s" % (language.code, PLUGIN_PAGE_URL)
+            url_prefix = "/%s/%s" % (language.code, unittest_plugin.PLUGIN_PAGE_URL)
             url_data = {
                 "UnittestPlugin-view_root": "%s/" % url_prefix,
                 "UnittestPlugin-test_HttpResponse": "%s/test_HttpResponse/" % url_prefix,
@@ -174,7 +174,7 @@ class PluginPageTest(basetest.BaseUnittest):
         """ Test the PyLucid API """
         for site in TestSites():
             for language in TestLanguages():
-                url = "/%s/%s/test_PyLucid_api/" % (language.code, PLUGIN_PAGE_URL)
+                url = "/%s/%s/test_PyLucid_api/" % (language.code, unittest_plugin.PLUGIN_PAGE_URL)
                 response = self.client.get(url)
                 self.assertResponse(response,
                     must_contain=(
