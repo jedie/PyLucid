@@ -1,0 +1,29 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish.css" />
+<ul class="sf-menu">
+    <li class="current">
+        <a href="{{ logout_link }}">{% trans 'logout' %} [{{ request.user.username }}]</a>
+    </li>
+    <li>
+        <a>{% trans 'edit page' %}</a>
+        <ul>
+            <li><a href="{{ edit_page_link }}">edit inline</a></li>
+            <li><a href="{{ edit_page_link }}">edit in admin panel</a></li>
+        </ul>
+    </li>
+    <li>
+        <a href="{{ new_page_link }}">{% trans 'new page' %}</a>
+    </li>
+    <li>
+        <a>{% trans 'admin menu' %}</a>
+        <ul>
+            <li><a href="{{ admin_menu_link }}">non popup</a></li>
+            <li><a href="{{ admin_menu_link }}">popup</a></li>
+        </ul>
+    </li>
+</ul>
+
+
+{% endblock %}
