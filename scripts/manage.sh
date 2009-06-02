@@ -20,9 +20,9 @@ verbose_eval cd src/pylucid/pylucid_project/
 echo - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 echo Info:
 echo For testing the site Framework, you can start the server with:
-echo    ./manage.sh 8000
+echo    ./manage.sh runserver 8000
 echo or:
-echo    ./manage.sh 8001
+echo    ./manage.sh runserver 8001
 echo 
 verbose_eval export USED_PORT=$2
 
