@@ -30,8 +30,13 @@ def _logout_view(request):
 
 
 def _login(request, user, next_url):
+    last_login = user.last_login
+    
     auth.login(request, user)
-    request.page_msg.successful(_("You are logged in!"))
+    
+    message = render_to_string('auth/login_info.html', {"last_login":last_login})
+    request.page_msg.successful(message)
+    
     return HttpResponseRedirect(next_url)
 
 
