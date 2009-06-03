@@ -7,6 +7,10 @@ from django.shortcuts import render_to_response
 
 
 def lucidTag(request):
+    if not request.user.is_authenticated():
+        # Don't insert the admin top menu
+        return
+    
     context = {
         "logout_link": "?auth=logout",
         "edit_page_link": "TODO",
