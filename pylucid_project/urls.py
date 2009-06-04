@@ -26,10 +26,12 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     #_____________________________________
+    # PYLUCID UPDATE SECTION
+    ('^%s/update/'% settings.ADMIN_URL_PREFIX, include('pylucid_update.urls')),
+    
+    #_____________________________________
     # DJANGO ADMIN PANEL
     (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
-
-    ('^update/', include('pylucid_update.urls')),
 )
 
 # serve static files
