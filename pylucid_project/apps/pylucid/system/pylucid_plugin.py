@@ -24,6 +24,7 @@ from django import http
 from django.conf import settings
 from django.http import HttpResponse
 from django.core import urlresolvers
+from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
 from django.conf.urls.defaults import patterns, url
 
@@ -88,8 +89,10 @@ def _raise_resolve_error(prefix, plugin_urlpatterns, rest_url):
 
 def call_plugin(request, prefix_url, rest_url):
     """ Call a plugin and return the response. """
+    lang_entry = request.PYLUCID.lang_entry
+    
     # Get the information witch django app would be used
-    pluginpage = PluginPage.objects.get(page=request.PYLUCID.pagetree)
+    pluginpage = PluginPage.objects.get(page=request.PYLUCID.pagetree, lang=lang_entry)
     app_label = pluginpage.app_label
     plugin_urlconf_name = app_label + ".urls"
     
@@ -97,8 +100,7 @@ def call_plugin(request, prefix_url, rest_url):
     plugin_urlpatterns = import_module(plugin_urlconf_name).urlpatterns
     
     # build the url prefix
-    lang_code = request.PYLUCID.lang_entry.code
-    prefix = "^%s/%s" % (lang_code, prefix_url)
+    prefix = "^%s/%s" % (lang_entry.code, prefix_url)
     if not prefix_url.endswith("/"):
         prefix += "/"
 
@@ -195,11 +197,17 @@ def context_middleware_response(request, response):
         response = middleware_class_instance.render()
         if response == None:
             return ""
-        assert(isinstance(response, http.HttpResponse),
-            "plugin context middleware render() must return a http.HttpResponse instance or None!"
-        )
-        result = response.content
-        return result
+        elif isinstance(response, unicode):
+            return smart_str(response, encoding=settings.DEFAULT_CHARSET)
+        elif isinstance(response, str):
+            return response
+        elif isinstance(response, http.HttpResponse):
+            return response.content
+        else:
+            raise RuntimeError(
+                "plugin context middleware render() must return"
+                " http.HttpResponse instance or a basestring or None!"
+            )
     
     # FIXME: A HttpResponse allways convert unicode into string. So we need to do that here:
     # Or we say, context render should not return a HttpResponse?
