@@ -130,6 +130,9 @@ if DEBUG:
     # http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
     # http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
     TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
+    from django_tools.template import warn_invalid_template_vars
+    warn_invalid_template_vars.add_warning()
+    
 
 
 INSTALLED_APPS = (

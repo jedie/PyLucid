@@ -130,7 +130,7 @@ TEST_TEMPLATES = {
 <meta name="DC.Date.created" content="{{ page_createtime|date:_("DATETIME_FORMAT") }}" />
 <meta name="DC.Language" content="{{ page_language }}">
 <link rel="canonical" href="{{ page_get_permalink }}" />
-{% lucidTag head_files %}
+<!-- ContextMiddleware extrahead -->
 </head>
 <body>
 {% lucidTag main_menu %}
@@ -240,18 +240,18 @@ def create_templates(verbosity, template_dict, site):
 
 def create_headfiles(verbosity, headfile_dict, site, request):
     headfile_map = {}
-    for filename, data in headfile_dict.iteritems():
+    for filepath, data in headfile_dict.iteritems():
         headfile = EditableHtmlHeadFile(
-            filename = filename,
+            filepath = filepath,
             description = data["description"],
             content = data["content"],
         )
         headfile.save(request)
         headfile.site.add(site)
         if verbosity:
-            print("EditableStaticFile '%s' created on site: %s" % (filename, site.name))
+            print("EditableStaticFile '%s' created on site: %s" % (filepath, site.name))
         
-        headfile_map[filename+site.name] = headfile
+        headfile_map[filepath+site.name] = headfile
     return headfile_map
 
 

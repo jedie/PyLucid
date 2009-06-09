@@ -20,6 +20,9 @@
 """
 
 import os
+import warnings
+import posixpath
+import mimetypes
 from xml.sax.saxutils import escape
 
 from django.db import models
@@ -32,7 +35,7 @@ from django.template.loader import render_to_string
 from django.contrib.sites.managers import CurrentSiteManager
 
 from pylucid.system.auto_model_info import UpdateInfoBaseModel, UpdateInfoBaseModelManager
-
+from pylucid.system import headfile
 
 
 class PageTreeManager(UpdateInfoBaseModelManager):
@@ -425,7 +428,6 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
 #------------------------------------------------------------------------------
 
-
 class Design(UpdateInfoBaseModel):
     """
     Page design: template + CSS/JS files
@@ -460,6 +462,14 @@ class Design(UpdateInfoBaseModel):
 
 #------------------------------------------------------------------------------
 
+class EditableHtmlHeadFileManager(UpdateInfoBaseModelManager):
+    def get_HeadfileLink(self, filename):
+        """
+        returns a pylucid.system.headfile.Headfile instance
+        """
+        db_instance = self.get(filename=filename)
+        return headfile.HeadfileLink(filename=db_instance.filename)#, content=db_instance.content)
+        
 
 class EditableHtmlHeadFile(UpdateInfoBaseModel):
     """
@@ -470,45 +480,82 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         lastupdatetime -> datetime of the last change
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
+    """
+    objects = EditableHtmlHeadFileManager()
     
-    TODO: the save() method should be try to store the file into media path!
-    """   
     site = models.ManyToManyField(Site, default=[settings.SITE_ID])
     on_site = CurrentSiteManager()
     
-    filename = models.CharField(max_length=150)
+    filepath = models.CharField(max_length=256)
+    mimetype = models.CharField(max_length=64)
+    html_attributes = models.CharField(max_length=256, null=False, blank=True,
+        help_text='Additional html tag attributes (CSS example: media="screen")'
+    )
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
+    
+    def get_cachepath(self):
+        """
+        filesystem path with filename.
+        TODO: Install section sould create the directories!
+        """
+        return os.path.join(
+            settings.MEDIA_ROOT, settings.PYLUCID.PYLUCID_MEDIA_DIR, settings.PYLUCID.CACHE_DIR,
+            self.filepath
+        )
+        
+    def save_cache_file(self):
+        """ Try to cache the head file into filesystem (Only worked, if python process has write rights) """
+        cachepath = self.get_cachepath()
+        try:
+            f = file(cachepath, "w")
+            f.write(self.content)
+            f.close()
+        except Exception, err:
+            warnings.warn("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
+        else:
+            if settings.DEBUG:
+                warnings.warn("EditableHtmlHeadFile cached successful into: %r" % cachepath)
+                
+    def get_headfilelink(self):
+        """ Get the link url to this head file. """
+        cachepath = self.get_cachepath()
+        if os.path.isfile(cachepath):
+            # The file exist in media path -> Let the webserver send this file ;)
+            url = posixpath.join(
+                settings.MEDIA_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, settings.PYLUCID.CACHE_DIR,
+                self.filepath
+            )
+        else:
+            # not cached into filesystem -> use pylucid.views.send_head_file for it
+            url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
+        return headfile.HeadfileLink(url)
 
-    def get_mimetype(self):
-        if self.filename.endswith(".css"):
+    def auto_mimetype(self):
+        """ returns the mimetype for the current filename """
+        fileext = os.path.splitext(self.filepath)[1].lower()
+        if fileext == ".css":
             return u"text/css"
-        elif self.filename.endswith(".js"):
+        elif fileext == ".js":
             return u"text/javascript"
         else:
-            from mimetypes import guess_type
-            returnguess_type(self.filename)[0] or u"application/octet-stream"            
+            mimetypes.guess_type(self.filepath)[0] or u"application/octet-stream"
 
-    def get_head_template(self):
-        """ returns the template name for building the html head link. """
-        ext = os.path.splitext(self.filename)[1].strip(".")
-        return settings.PYLUCID.EDITABLE_HEAD_LINK_TEMPLATE % ext
+    def save(self, *args, **kwargs):
+        if not self.mimetype:
+            # autodetect mimetype
+            self.mimetype = self.auto_mimetype()
 
-    def get_head_link(self):
-        """
-        TODO: Should check if the file was saved into media path
-        """
-        template_name = self.get_head_template()
-        filename = self.filename
-        url = reverse("PyLucid-send_head_file", kwargs={"filename": filename})
-        head_link = render_to_string(template_name, {'url': url})
-        return head_link
+        # Try to cache the head file into filesystem (Only worked, if python process has write rights)
+        self.save_cache_file()
+
+        return super(EditableHtmlHeadFile, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"EditableHtmlHeadFile '%s'" % self.filename
+        return u"EditableHtmlHeadFile '%s'" % self.filepath
 
     class Meta:
-        ordering = ("filename",)
+        ordering = ("filepath",)
 
 
 class UserProfileManager(UpdateInfoBaseModelManager):

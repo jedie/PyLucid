@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import posixpath
+
 from django.conf import settings
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -79,7 +81,7 @@ def _do_update(request, site, language):
     cssfiles = {}
     for style in Style08.objects.all():
         new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(request,
-            filename = settings.SITE_TEMPLATE_PREFIX + style.name + ".css",
+            filepath = settings.SITE_TEMPLATE_PREFIX + style.name + ".css",
             defaults = {
                 "description": style.description,
                 "content": style.content,
@@ -264,7 +266,20 @@ def update08templates(request):
         
         content = template.content
 
-        content = replace(content, out,"{% lucidTag page_style %}", "{% lucidTag head_files %}")
+        new_head_file_tag = (
+            '<script src="%(url)s"'
+            ' onerror="JavaScript:alert(\'Error loading file [%(url)s] !\');"'
+            ' type="text/javascript" /></script>\n'
+            '<!-- ContextMiddleware extrahead -->\n'
+        ) % {
+            "url": posixpath.join(settings.MEDIA_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, "jquery.js")
+        }
+        
+        content = replace(content, out,"{% lucidTag page_style %}", new_head_file_tag)
+        # temp in developer version:
+        content = replace(content, out,"{% lucidTag head_files %}", new_head_file_tag)
+        content = replace(content, out,"<!-- ContextMiddleware head_files -->", new_head_file_tag)
+        
         content = replace(content, out,"{% lucidTag back_links %}", "<!-- ContextMiddleware breadcrumb -->")
         content = replace(content, out,
             "{{ PAGE.content }}",
@@ -334,10 +349,10 @@ def update08styles(request):
     # Get the file content via django template loader:
     additional_styles, origin = find_template_source("pylucid_update/additional_styles.css")
         
-    styles = EditableHtmlHeadFile.objects.filter(filename__istartswith=settings.SITE_TEMPLATE_PREFIX)
-    styles = styles.filter(filename__iendswith=".css")
+    styles = EditableHtmlHeadFile.objects.filter(filepath__istartswith=settings.SITE_TEMPLATE_PREFIX)
+    styles = styles.filter(filepath__iendswith=".css")
     for style in styles:       
-        out.write("\nUpdate Styles: '%s'" % style.filename)
+        out.write("\nUpdate Styles: '%s'" % style.filepath)
         
         content = style.content
         if additional_styles in content:

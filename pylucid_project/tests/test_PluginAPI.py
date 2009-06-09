@@ -184,7 +184,7 @@ class PluginPageTest(basetest.BaseUnittest):
                             "lang": language.code,
                             "site_name": site.name,
                         },
-                        "context_middlewares: {u&#39;breadcrumb&#39;: &lt;pylucid_plugins.breadcrumb",
+                        "context_middlewares: [u&#39;extrahead&#39;, u&#39;breadcrumb&#39;]",
                         "default_lang_code: %s" % self.default_lang_code,
                         "default_lang_entry: &lt;Language: Language %s" % self.default_lang_code,
                         "lang_entry: &lt;Language: Language %s" % language.code,
@@ -202,6 +202,27 @@ class PluginPageTest(basetest.BaseUnittest):
                         "Traceback",
                         '1-rootpage content', # normal page content
                     ),
+                )
+
+    def test_add_headfiles(self):
+        """
+        Add content into html head with {% extrahead %} block tag in plugin template.
+        """
+        for site in TestSites():
+            for language in TestLanguages():
+                url = "/%s/%s/test_add_headfiles/" % (language.code, unittest_plugin.PLUGIN_PAGE_URL)
+                response = self.client.get(url)
+                self.assertResponse(response,
+                    must_contain=(
+                        "Here ist the unittest plugin extra head content ;)",
+                        '3-pluginpage title (lang:%(lang)s, site:%(site_name)s) %(site_name)s' % {
+                            "lang": language.code,
+                            "site_name": site.name,
+                        },
+                    ),
+                    must_not_contain=(
+                        "Traceback",
+                    )
                 )
 
 

@@ -25,7 +25,8 @@
 from django.template import Library
 from django.templatetags.i18n import do_translate, do_block_translate
 
-from pylucid_project.apps.pylucid.defaulttags.lucidTag import lucidTag
+from pylucid_project.apps.pylucid.defaulttags import lucidTag
+from pylucid_project.apps.pylucid.defaulttags import extraheadBlock
 #from PyLucid.template_addons.lucidTag import lucidTag
 #from PyLucid.template_addons.blocktag_pygments import sourcecode
 #from PyLucid.template_addons.filters import chmod_symbol, get_oct, \
@@ -33,7 +34,9 @@ from pylucid_project.apps.pylucid.defaulttags.lucidTag import lucidTag
 
 register = Library()
 
-register.tag(lucidTag)
+register.tag(lucidTag.lucidTag)
+register.tag("extrahead", extraheadBlock.do_extrahead)
+#register.tag(extraheadBlock.ExtraheadNode)
 #register.tag(sourcecode)
 #register.filter(chmod_symbol)
 #register.filter(get_oct)

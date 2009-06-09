@@ -11,7 +11,7 @@ from pylucid.models import PageTree
 def lucidTag(request):
     if not request.user.is_authenticated():
         # Don't insert the admin top menu
-        return
+        return  
     
     pagetree = request.PYLUCID.pagetree
     if pagetree.type == PageTree.PLUGIN_TYPE:
@@ -24,7 +24,6 @@ def lucidTag(request):
     pagemeta = PageTree.objects.get_pagemeta(request)
         
     edit_meta_admin_panel_link = reverse("admin_pylucid_pagemeta_change", args=(pagemeta.id,))
-        
     
     context = {
         "logout_link": "?auth=logout",

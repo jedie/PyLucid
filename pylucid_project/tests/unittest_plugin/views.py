@@ -20,6 +20,7 @@
 """
 
 from django import http
+from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 
@@ -107,7 +108,7 @@ def test_PyLucid_api(request):
     
     context = request.PYLUCID.context
     output = []
-    output.append("context_middlewares: %s" % context["context_middlewares"])
+    output.append("context_middlewares: %s" % context["context_middlewares"].keys())
     output.append("default_lang_code: %s" % request.PYLUCID.default_lang_code)
     output.append("default_lang_entry: %r" % request.PYLUCID.default_lang_entry)
     output.append("lang_entry: %r" % request.PYLUCID.lang_entry)
@@ -135,3 +136,17 @@ def test_BreadcrumbPlugin(request):
     breadcrumb.add_link(title=ADDED_LINK_TITLE, url=ADDED_LINK_URL)
     
     return ADDED_LINK_RESPONSE_STRING
+
+
+#_____________________________________________________________________________
+# Add headfiles tests
+
+def test_add_headfiles(request):
+    """
+    Add content into html head with {% extrahead %} block tag in plugin template.
+    """
+    context = request.PYLUCID.context
+    output = render_to_response('unittest_plugin/test_extrahead_blocktag.html', context)
+    return output
+
+    

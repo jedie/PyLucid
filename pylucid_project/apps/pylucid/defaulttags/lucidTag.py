@@ -137,10 +137,13 @@ class lucidTagNode(template.Node):
         # FIXME: Witch error should we raised here?
         if response==None:
             return u""
-        assert(isinstance(response, HttpResponse), "pylucid plugins must return a HttpResponse instance!")
-        assert(response.status_code == 200, "Response status code != 200 ???")
+        elif isinstance(response, basestring):
+            return response
+        elif isinstance(response, HttpResponse):
+            assert(response.status_code == 200, "Response status code != 200 ???")
+            return response.content
         
-        return response.content
+        raise RuntimeError("pylucid plugins must return None, a basestring or a HttpResponse instance!")
 #        
 #        # callback is either a string like 'foo.views.news.stories.story_detail'
 #        callback = "pylucid_plugins.%s.views.%s" % (self.plugin_name, self.method_name)

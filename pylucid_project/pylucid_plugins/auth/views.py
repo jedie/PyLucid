@@ -2,10 +2,11 @@
 
 from django.contrib import auth
 from django.conf import settings
-from django.utils.translation import ugettext as _
-from django.template.loader import render_to_string
+from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.utils.translation import ugettext as _
+from django.template.loader import render_to_string
 
 from pylucid_project.utils import crypt
 
@@ -23,10 +24,11 @@ if DEBUG:
     warnings.warn("Debug mode in auth plugin is on!", UserWarning)
 
 
-def _logout_view(request):
+def _logout_view(request, next_url):
     """ Logout the current user. """
     auth.logout(request)
     request.page_msg.successful(_("You are logged out!"))
+    return HttpResponseRedirect(next_url)
 
 
 def _login(request, user, next_url):
@@ -117,9 +119,11 @@ def _sha_login(request, context, user, next_url):
     context["challenge"] = challenge
     
     context["form"] = SHA_login_form
-    
+
     # return a string for replacing the normal cms page content
-    return render_to_string('auth/input_password.html', context)
+    return render_to_string('auth/input_password.html', context, 
+        context_instance=RequestContext(request)
+    )
 
 
 def _login_view(request, form_url, next_url):
@@ -158,13 +162,14 @@ def http_get_view(request):
     """
     Login+Logout view via GET parameters
     """
+    next_url = request.path
+    
     action = request.GET["auth"]
     if action=="login":
         form_url = request.path + "?auth=login" # FIXME: How can we add the GET Parameter?
-        next_url = request.path
         return _login_view(request, form_url, next_url)
     elif action=="logout":
-        return _logout_view(request)
+        return _logout_view(request, next_url)
     
     if settings.DEBUG:
         request.page_msg(_("Wrong get view parameter!"))

@@ -6,8 +6,7 @@
 {% block extrahead %}
 <!-- app_extrahead block start -->
 {# stylesheets for all PyLucid views #}
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
-
+<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.js"></script>
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/admin_design.css" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js"></script> 
@@ -55,9 +54,10 @@ $(document).ready(function(){
 
 {% block pretitle %}
 <!-- app pretitle block start -->
+{% if request.user.is_authenticated %}
 <ul class="sf-menu">
     <li class="current">
-        <a href="/">&lt;&lt; back to root dev page</a>
+        <a href="/">&lt;&lt; back to "/" root page</a>
     </li>
     <li>
         <a>{% trans 'switch site' %}</a>
@@ -83,6 +83,7 @@ $(document).ready(function(){
         <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
     </li>
 </ul>
+{% endif %}
 <!-- app pretitle block end -->
 {% endblock %}
 

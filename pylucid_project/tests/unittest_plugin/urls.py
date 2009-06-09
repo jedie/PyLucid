@@ -37,4 +37,10 @@ urlpatterns = patterns('',
         r'^test_BreadcrumbPlugin/$',
         views.test_BreadcrumbPlugin, name='UnittestPlugin-test_BreadcrumbPlugin'
     ),
+    
+    url(
+        r'^test_add_headfiles/$',
+        views.test_add_headfiles, name='UnittestPlugin-test_add_headfiles'
+    ),
+
 )

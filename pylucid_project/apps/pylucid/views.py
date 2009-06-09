@@ -173,21 +173,20 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
 # view functions
 
 
-def send_head_file(request, filename):
+def send_head_file(request, filepath):
     """
     Sending a headfile
     only a fall-back method if the file can't be stored into the media path
     """
     try:
-        headfile = EditableHtmlHeadFile.objects.get(filename=filename)
+        headfile = EditableHtmlHeadFile.objects.get(filepath=filepath)
     except EditableHtmlHeadFile.DoesNotExist:
         if settings.DEBUG:
-            request.page_msg.error("Headfile %r not found!" % filename)
+            request.page_msg.error("Headfile %r not found!" % filepath)
         raise http.Http404
     
-    mimetype = headfile.get_mimetype()
     content = headfile.content
-    
+    mimetype = headfile.mimetype    
     return http.HttpResponse(content, mimetype=mimetype)
 
 

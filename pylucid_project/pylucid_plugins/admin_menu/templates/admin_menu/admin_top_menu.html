@@ -1,7 +1,26 @@
 {% extends "pylucid/css_anchor_div.html" %}
 
+
 {% block plugin_content %}
-<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish.css" />
+
+{% extrahead %}
+<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.css');" />
+<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/admin_design.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/admin_design.css');" />
+<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.js');" ></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/pylucid_superfish_init.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/pylucid_superfish_init.js');" ></script>
+<style type="text/css">
+<!--
+/* setup superfish background urls */
+.sf-sub-indicator {
+    background: url('{{ PyLucid_media_url }}superfish/arrows-ffffff.png') no-repeat -10px -100px; /* 8-bit indexed alpha png. IE6 gets solid image only */
+}
+.sf-shadow ul {
+    background: url('{{ PyLucid_media_url }}superfish/shadow.png') no-repeat bottom right;
+}
+-->
+</style>
+{% endextrahead %}
+
 <ul class="sf-menu">
     <li class="current">
         <a href="{{ logout_link }}">{% trans 'logout' %} [{{ request.user.username }}]</a>
@@ -18,13 +37,10 @@
         <a href="{{ new_page_link }}">{% trans 'new page' %}</a>
     </li>
     <li>
-        <a>{% trans 'admin menu' %}</a>
+        <a href="{{ admin_menu_link }}">{% trans 'admin menu' %}</a>
         <ul>
-            <li><a href="{{ admin_menu_link }}">non popup</a></li>
-            <li><a href="{{ admin_menu_link }}">popup</a></li>
+            <li><a href="{{ admin_menu_link }}">in popup win</a></li>
         </ul>
     </li>
 </ul>
-
-
 {% endblock %}

@@ -180,7 +180,12 @@ def context_middleware_request(request):
     plugin_names = TAG_RE.findall(page_template)
     for plugin_name in plugin_names:
         # Get the middleware class from the plugin
-        middleware_class = _get_middleware_class(plugin_name)
+        try:
+            middleware_class = _get_middleware_class(plugin_name)
+        except ImportError, err:
+            request.page_msg.error("Can't import context middleware '%s': %s" % (plugin_name, err))
+            continue
+        
         # make a instance 
         instance = middleware_class(request, context)
         # Add it to the context
@@ -191,9 +196,14 @@ def context_middleware_response(request, response):
     replace the context middleware tags in the response, with the plugin render output
     """
     context = request.PYLUCID.context
+    context_middlewares = context["context_middlewares"]
     def replace(match):
         plugin_name = match.group(1)
-        middleware_class_instance = context["context_middlewares"][plugin_name]
+        try:
+            middleware_class_instance = context_middlewares[plugin_name]
+        except KeyError, err:
+            return "[Error: context middleware %r doesn't exist!]" % plugin_name
+        
         response = middleware_class_instance.render()
         if response == None:
             return ""
