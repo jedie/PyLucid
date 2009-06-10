@@ -47,7 +47,7 @@ class TestSites(object):
         site, created = Site.objects.get_or_create(
             id=self.index, defaults={"name": site_name, "domain": domain}
         )
-        if self.verbosity:
+        if self.verbosity>=2:
             if created:
                 print("sites entry '%s' created." % site)
             else:
@@ -86,7 +86,7 @@ class TestLanguages(object):
         language, created = Language.objects.get_or_create(
             code=lang_code, defaults={"description": description}
         )
-        if self.verbosity:
+        if self.verbosity>=2:
             if created:
                 print("Language '%s' created." % lang_code)
             else:
@@ -151,16 +151,23 @@ last modified: {{ page_lastupdatetime|date:_("DATETIME_FORMAT") }}
 </body></html>"""
     },
 }
+TEST_CSS_FILEPATH1 = "unittest/test1.css"
+TEST_CSS_FILEPATH2 = "unittest/test2.css"
+
 TEST_HEADFILES = {
-    "unittest/test.css": {
-        "description": "CSS file for unittests.",
-        "content": ".test { color:red; } /* "+SITEINFO_TAG+" */",
+    TEST_CSS_FILEPATH1: {
+        "description": "CSS file 1 for unittests.",
+        "content": ".test1 { color:red; } /* "+SITEINFO_TAG+" */",
+    },
+    TEST_CSS_FILEPATH2: {
+        "description": "CSS file 2 for unittests.",
+        "content": ".test2 { color:red; } /* "+SITEINFO_TAG+" */",
     }
 }
 TEST_DESIGNS = {
     "unittest_design": {
         "template_name": "site_template/normal.html",
-        "headfiles": ("unittest/test.css",),
+        "headfiles": (TEST_CSS_FILEPATH1,TEST_CSS_FILEPATH2),
     },
 }
 TEST_PAGES = [
@@ -208,7 +215,7 @@ def create_testusers(verbosity):
         user.is_staff = is_staff
         user.is_superuser = is_superuser
         user.save()
-        if verbosity:
+        if verbosity>=2:
             print "Test user %r created." % user
         
     for usertype, userdata in TEST_USERS.iteritems():
@@ -225,12 +232,12 @@ def create_templates(verbosity, template_dict, site):
         if created:
             template.content = template.content.replace(SITEINFO_TAG, site.name)
             template.save()
-            if verbosity:
+            if verbosity>=2:
                 print("template '%s' created" % template_name)
-        elif verbosity:
+        elif verbosity>=2:
                 print("template '%s' exist" % template_name)
                 
-        if verbosity:
+        if verbosity>=2:
             print("add template on site: %s" % site.name)
         template.sites.add(site)
                 
@@ -248,7 +255,7 @@ def create_headfiles(verbosity, headfile_dict, site, request):
         )
         headfile.save(request)
         headfile.site.add(site)
-        if verbosity:
+        if verbosity>=2:
             print("EditableStaticFile '%s' created on site: %s" % (filepath, site.name))
         
         headfile_map[filepath+site.name] = headfile
@@ -266,16 +273,16 @@ def create_design(verbosity, design_dict, request, site, template_map, headfile_
         if created:
             design.save(request)
             design.site.add(site)
-            if verbosity:
+            if verbosity>=2:
                 print("design '%s' created." % design_name)
             # Add headfiles
             for filename in data["headfiles"]:
                 headfile = headfile_map[filename+site.name]
                 design.headfiles.add(headfile)
-                if verbosity:
+                if verbosity>=2:
                     print("Add headfile '%s'." % headfile)
             design.save(request)
-        elif verbosity:
+        elif verbosity>=2:
                 print("Design '%s' exist." % design_name)
         
         design_map[design_name] = design
@@ -294,7 +301,6 @@ def create_pages(verbosity, request, design_map, site, pages, parent=None):
     design = design_map["unittest_design"]
     for page_data in pages:
         slug = page_data["slug"]
-        print slug
         
         #____________________________________________________
         if "plugin" in page_data:
@@ -310,7 +316,7 @@ def create_pages(verbosity, request, design_map, site, pages, parent=None):
             }
         )
         url = tree_entry.get_absolute_url()
-        if verbosity:
+        if verbosity>=2:
             if created:
                 #tree_entry.save(request)
                 print("PageTree '%s' created." % url)
@@ -327,7 +333,7 @@ def create_pages(verbosity, request, design_map, site, pages, parent=None):
                 page = tree_entry, lang = language,
                 defaults = default_dict
             )
-            if verbosity:
+            if verbosity>=2:
                 if created:
                     #pagemeta_entry.save(request)
                     print("PageMeta '%s' - '%s' created." % (language, tree_entry.slug))
@@ -341,7 +347,7 @@ def create_pages(verbosity, request, design_map, site, pages, parent=None):
                     lang = language,
                     defaults = {"pagemeta": pagemeta_entry, "app_label": page_data["plugin"]},
                 )
-                if verbosity:
+                if verbosity>=2:
                     if created:
                         print("PluginPage '%s' created." % pluginpage)
                     else:
@@ -360,18 +366,20 @@ def create_pages(verbosity, request, design_map, site, pages, parent=None):
                 )
                 content_entry.content = content_entry.content.replace(SITEINFO_TAG, site.name)
                 content_entry.save(request)
-                if verbosity:
+                if verbosity>=2:
                     if created:
                         print("PageContent '%s' created." % content_entry)
                     else:
                         print("PageContent '%s' exist." % content_entry)
         
         if "sub-pages" in page_data:
-            print "--- create sub pages ---"
+            if verbosity>=2:
+                print "--- create sub pages ---"
             create_pages(verbosity, request, design_map, site,
                 pages=page_data["sub-pages"], parent=tree_entry
             )
-            print "---"
+            if verbosity>=2:
+                print "---"
 
 
 
@@ -385,17 +393,22 @@ def create_test_data(request, site, verbosity):
     # Create PageTree, PageMeta and PageContent in every test language
     create_pages(verbosity, request, design_map, site, pages=TEST_PAGES)
     
+    
+def get_fake_request(usertype):
+    """ Create a fake HttpRequest instance. Needed in some UpdateInfoBaseModel save() methods """
+    request = HttpRequest()
+    request.user = get_user(usertype=usertype)
+    return request
 
 
 def create_pylucid_test_data(site=None, verbosity=True):
     """ create complete test data for "running" PyLucid """
-    if verbosity:
+    if verbosity>=2:
         print "\nCreate complete test data for 'running' PyLucid"
         
     create_testusers(verbosity)
     
-    request = HttpRequest()
-    request.user = get_user(usertype="superuser")
+    request = get_fake_request(usertype="superuser")
     
     for site in TestSites(verbosity):
         if verbosity:
