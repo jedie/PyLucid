@@ -516,19 +516,23 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         else:
             if settings.DEBUG:
                 warnings.warn("EditableHtmlHeadFile cached successful into: %r" % cachepath)
-                
-    def get_headfilelink(self):
-        """ Get the link url to this head file. """
+
+    def get_absolute_url(self):
         cachepath = self.get_cachepath()
         if os.path.isfile(cachepath):
             # The file exist in media path -> Let the webserver send this file ;)
-            url = posixpath.join(
+            return posixpath.join(
                 settings.MEDIA_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, settings.PYLUCID.CACHE_DIR,
                 self.filepath
             )
         else:
             # not cached into filesystem -> use pylucid.views.send_head_file for it
-            url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
+            return reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
+
+
+    def get_headfilelink(self):
+        """ Get the link url to this head file. """
+        url = self.get_absolute_url()
         return headfile.HeadfileLink(url)
 
     def auto_mimetype(self):

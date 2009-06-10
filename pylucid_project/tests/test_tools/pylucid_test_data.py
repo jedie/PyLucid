@@ -151,23 +151,23 @@ last modified: {{ page_lastupdatetime|date:_("DATETIME_FORMAT") }}
 </body></html>"""
     },
 }
-TEST_CSS_FILEPATH1 = "unittest/test1.css"
-TEST_CSS_FILEPATH2 = "unittest/test2.css"
+TEST_CSS_FILEPATH = "unittest/test.css"
+TEST_JS_FILEPATH = "unittest/test.js"
 
 TEST_HEADFILES = {
-    TEST_CSS_FILEPATH1: {
-        "description": "CSS file 1 for unittests.",
+    TEST_CSS_FILEPATH: {
+        "description": "CSS file for unittests.",
         "content": ".test1 { color:red; } /* "+SITEINFO_TAG+" */",
     },
-    TEST_CSS_FILEPATH2: {
-        "description": "CSS file 2 for unittests.",
-        "content": ".test2 { color:red; } /* "+SITEINFO_TAG+" */",
+    TEST_JS_FILEPATH: {
+        "description": "JS file for unittests.",
+        "content": "alert('Unittest JS file exists on \"+SITEINFO_TAG+\" ;)');",
     }
 }
 TEST_DESIGNS = {
     "unittest_design": {
         "template_name": "site_template/normal.html",
-        "headfiles": (TEST_CSS_FILEPATH1,TEST_CSS_FILEPATH2),
+        "headfiles": (TEST_CSS_FILEPATH,TEST_JS_FILEPATH),
     },
 }
 TEST_PAGES = [

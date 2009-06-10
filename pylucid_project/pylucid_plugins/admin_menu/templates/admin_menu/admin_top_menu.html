@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/admin_design.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/admin_design.css');" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.js');" ></script>
 <script type="text/javascript" src="{{ PyLucid_media_url }}superfish/pylucid_superfish_init.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/pylucid_superfish_init.js');" ></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}pylucid_js_tools.js');" ></script>
 <style type="text/css">
 <!--
 /* setup superfish background urls */
@@ -39,7 +40,7 @@
     <li>
         <a href="{{ admin_menu_link }}">{% trans 'admin menu' %}</a>
         <ul>
-            <li><a href="{{ admin_menu_link }}">in popup win</a></li>
+            <li><a href="{{ admin_menu_link }}?_popup=1" onclick="OpenInWindow(this); return false">in popup win</a></li>
         </ul>
     </li>
 </ul>
