@@ -215,6 +215,7 @@ class PluginPageTest(basetest.BaseUnittest):
                 self.assertResponse(response,
                     must_contain=(
                         "Here ist the unittest plugin extra head content ;)",
+                        "The unittest plugin content...",
                         '3-pluginpage title (lang:%(lang)s, site:%(site_name)s) %(site_name)s' % {
                             "lang": language.code,
                             "site_name": site.name,
