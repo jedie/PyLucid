@@ -9,25 +9,29 @@ from pylucid.models import PageTree
 
 
 def lucidTag(request):
+    """
+    TODO: The admin menu should be build dynamic
+    """
     if not request.user.is_authenticated():
         # Don't insert the admin top menu
         return  
     
-    pagetree = request.PYLUCID.pagetree
+    pagetree = request.PYLUCID.pagetree # Current PageTree model instance
     if pagetree.type == PageTree.PLUGIN_TYPE:
         edit_admin_panel_link = reverse("admin_pylucid_pagetree_change", args=(pagetree.id,))
     else:
         pagecontent = request.PYLUCID.pagecontent
         edit_admin_panel_link = reverse("admin_pylucid_pagecontent_change", args=(pagecontent.id,))
         
-    # Get the pagemeta instance for the current pagetree and language
-    pagemeta = PageTree.objects.get_pagemeta(request)
-        
+    pagemeta = request.PYLUCID.pagemeta # Current PageMeta model instance
     edit_meta_admin_panel_link = reverse("admin_pylucid_pagemeta_change", args=(pagemeta.id,))
     
     context = {
         "logout_link": "?auth=logout",
-        "edit_page_link": "TODO",
+        
+        "edit_page_link": "?page_admin=inline_edit",
+        "edit_page_ajax": "?page_admin=get_ajax_form",
+        
         "edit_admin_panel_link": edit_admin_panel_link,
         "edit_meta_admin_panel_link": edit_meta_admin_panel_link,
         "new_page_link": reverse("admin_pylucid_pagecontent_add"),

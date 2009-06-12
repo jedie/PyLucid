@@ -1,0 +1,79 @@
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#preview_fieldset").hide();
+    $("#preview").click(function() {   
+        var content = $("#id_content")[0].value;
+    
+        var url = encodeURI("{{ preview_url }}");
+        console.log("post:" + url);
+        console.log("content:" + content);
+        
+        $.post(url, { 'content': content }, function(form_html){
+            $("#edit_page_preview").html(form_html);
+            $("#preview_fieldset").slideDown();
+        });
+      return false; // The browser submit the form, if true
+    });
+});
+</script>
+
+<fieldset id="preview_fieldset">
+<legend>{% trans 'Preview' %}</legend>
+<div id="edit_page_preview"></div>
+</fieldset>
+
+<fieldset>
+<legend>
+    {% trans 'Edit the CMS page' %} '<strong>{{ pagemeta_instance.title_or_slug|escape }}</strong>'
+</legend>
+<form action="{{ form_url }}" method="post" id="edit_page_form">
+    <ul id="action_buttons">
+        <li>
+            <input type="submit" name="save" value="{% trans 'save' %}" />
+            <input type="submit" id="preview" name="preview" value="{% trans 'preview' %}" />
+            <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+        </li><li>
+
+        {% if help_link %}
+        <a href="{{ help_link }}" title="{% trans 'markup help page' %}">
+            <button type="button" onclick="OpenInWindow('{{ help_link }}'); return false">
+            {% trans 'markup help' %}
+            </button>
+        </a>
+        {% endif %}
+
+        <a href="{{ url_pagelinklist }}" title="{% trans 'List of all pages for creating links' %}">
+            <button type="button" onclick="OpenInWindow('{{ url_pagelinklist }}'); return false">
+             {% trans 'page list' %}
+            </button>
+        </a>
+        <a href="{{ url_taglist }}" title="{% trans 'List of all available PyLucid template tags' %}">
+            <button type="button" onclick="OpenInWindow('{{ url_taglist }}'); return false">
+             {% trans 'tag list' %}
+            </button>
+        </a>
+        </li>
+        {% if not use_tinymce %}
+        <li>
+        <button type="button" class="resize_buttons" onclick="JavaScript:resize_big(); return false" title="{% trans 'makes the textarea bigger' %}">
+            +
+        </button>
+        <button type="button" class="resize_buttons" onclick="JavaScript:resize_small(); return false" title="{% trans 'makes the textarea smaller' %}">
+            -
+        </button>
+        </li>
+        {% endif %}
+    </ul>
+    <hr class="seperator" />
+    <ul id="input_fields">
+        {% for field in edit_page_form %}
+            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+            <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+            {{ field }}
+            <span class="field_help_text">{{ field.help_text }}</span>
+            {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</form>
+</fieldset>
