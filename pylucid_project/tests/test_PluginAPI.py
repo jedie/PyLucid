@@ -196,6 +196,10 @@ class PluginPageTest(basetest.BaseUnittest):
                             "pagetree: &lt;PageTree: PageTree &#39;3-pluginpage&#39;"
                             " (site: %s, type: PluginPage)&gt;"
                         ) % site.name,
+                        (
+                            "pagemeta: &lt;PageMeta: PageMeta for page: &#39;3-pluginpage&#39;"
+                            " (lang: &#39;%s&#39;)&gt;"
+                        ) % language.code,
                         "system_preferences: {&#39;lang_code&#39;: u&#39;%s&#39;}" % self.default_lang_code,
                     ),
                     must_not_contain=(

@@ -79,14 +79,15 @@ def _apply_context_middleware(request, response):
 def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     """ render a cms page """   
     request.PYLUCID.pagetree = pagetree
+
+    # Get the pagemeta instance for the current pagetree and language
+    pagemeta = PageTree.objects.get_pagemeta(request)
+    request.PYLUCID.pagemeta = pagemeta
     
     # Get template content and add it to PyLucid objects
     template_name = pagetree.design.template
     page_template, origin = loader.find_template_source(template_name)
     request.PYLUCID.page_template = page_template
-    
-    # Get the pagemeta instance for the current pagetree and language
-    pagemeta = PageTree.objects.get_pagemeta(request)
     
     # Create initial context object
     context = RequestContext(request, {

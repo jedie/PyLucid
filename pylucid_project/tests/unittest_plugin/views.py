@@ -103,7 +103,10 @@ def test_url_reverse(request, url_name):
     return http.HttpResponse("%s [%r]" % (PLUGINPAGE_URL_REVERSE_PREFIX, url))
 
 def test_PyLucid_api(request):
-    """ Test the PyLucid API """
+    """
+    Test the PyLucid API
+    see also: http://www.pylucid.org/_goto/187/PyLucid-objects/
+    """
     request.page_msg(PLUGINPAGE_API_TEST_PAGE_MSG)
     
     context = request.PYLUCID.context
@@ -114,6 +117,7 @@ def test_PyLucid_api(request):
     output.append("lang_entry: %r" % request.PYLUCID.lang_entry)
     output.append("page_template: %r" % request.PYLUCID.page_template)
     output.append("pagetree: %r" % request.PYLUCID.pagetree)
+    output.append("pagemeta: %r" % request.PYLUCID.pagemeta)
     output.append("system_preferences: %r" % request.PYLUCID.system_preferences)
 
     context["output"] = output
