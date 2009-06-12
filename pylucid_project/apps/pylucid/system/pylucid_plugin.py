@@ -62,11 +62,12 @@ def call_get_views(request):
         try:
             response = call_plugin_view(request, plugin_name, method_name)
         except GetCallableError, err:
-            # plugin or view doesn't exist -> ignore get parameter
+            # plugin or view doesn't exist
             if settings.DEBUG:
-                request.page_msg(
-                    "Error getting view %s.%s: %s" % (plugin_name, method_name, err))
-            continue
+                raise # Give a developer the full traceback page ;)
+            else:
+                # ignore the get parameter
+                continue
         except:
             # insert more information into the traceback
             etype, evalue, etb = sys.exc_info()
