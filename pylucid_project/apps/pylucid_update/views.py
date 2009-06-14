@@ -283,7 +283,9 @@ def update08templates(request):
         content = replace(content, out,"{% lucidTag back_links %}", "<!-- ContextMiddleware breadcrumb -->")
         content = replace(content, out,
             "{{ PAGE.content }}",
-            "{% block content %}{{ page_content }}{% endblock content %}"
+            '<div id="page_content">\n'
+            '    {% block content %}{{ page_content }}{% endblock content %}\n'
+            '</div>'
         )
         content = replace(content, out,
             "{% if PAGE.title %}{{ PAGE.title|escape }}{% else %}{{ PAGE.name|escape }}{% endif %}",
