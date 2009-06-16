@@ -127,7 +127,7 @@ class lucidTagNode(template.Node):
             response = pylucid_plugin.call_plugin_view(request, plugin_name, method_name, method_kwargs)
         except pylucid_plugin.GetCallableError, err:
             # FIXME:
-            return u"[lucidTag %s.%s unknwon, error was: %s]" % (self.plugin_name, self.method_name, err)
+            return u"[lucidTag %s.%s unknown, error was: %s]" % (self.plugin_name, self.method_name, err)
         except:
             # insert more information into the traceback
             etype, evalue, etb = sys.exc_info()
@@ -144,33 +144,7 @@ class lucidTagNode(template.Node):
             return response.content
         
         raise RuntimeError("pylucid plugins must return None, a basestring or a HttpResponse instance!")
-#        
-#        # callback is either a string like 'foo.views.news.stories.story_detail'
-#        callback = "pylucid_plugins.%s.views.%s" % (self.plugin_name, self.method_name)
-#        try:
-#            callable = get_callable(callback)
-#        except ImportError, err:
-#
-#        
-#
-#        
-#        # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
-#        request.plugin_name = self.plugin_name
-#        request.method_name = self.method_name
-#        
-#        try:
-#            # call the plugin view method
-#            response = callable(request, **self.method_kwargs)
-#        except:
-#
-#        
-#        # FIXME: Witch error should we raised here?
-#        if response==None:
-#            return u""
-#        assert(isinstance(response, HttpResponse), "pylucid plugins must return a HttpResponse instance!")
-#        assert(response.status_code == 200, "Response status code != 200 ???")
-#        
-#        return response.content
+
 
 
 
