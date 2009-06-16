@@ -11,7 +11,6 @@ from django.utils.translation import ugettext as _
 
 from pylucid_project import PYLUCID_VERSION_STRING
 from pylucid_project.utils import slug
-from pylucid_plugins.auth.context_processors import auth_context_processors
 
 
 def _add_plugin_info(request, context):
@@ -57,9 +56,6 @@ def pylucid(request):
         
         "PyLucid_media_url": settings.MEDIA_URL + settings.PYLUCID.PYLUCID_MEDIA_DIR + "/",       
     }
-    
-    # TODO: Put all Plugin context processors into settings?
-    context.update(auth_context_processors(request))
     
     if hasattr(request, "plugin_name"):
         # Add css anchor info
