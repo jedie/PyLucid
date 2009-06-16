@@ -55,6 +55,10 @@ def _edit_page(request, render_function):
         "form_url": "%s?page_admin=inline_edit" % request.path,
         "abort_url": request.path,
         "preview_url": "%s?page_admin=preview" % request.path,
+        
+        "pagelinklist_url": "#TODO", #FIXME ;)
+        "taglist_url": "#TODO", #FIXME ;)
+        
         "edit_page_form": edit_page_form,
         "pagecontent_instance": pagecontent_instance,
         "pagemeta_instance": pagemeta_instance,

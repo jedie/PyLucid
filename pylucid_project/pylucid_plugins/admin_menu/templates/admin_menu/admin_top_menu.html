@@ -20,37 +20,12 @@
 }
 -->
 </style>
-<script type="text/javascript">
-$(document).ready(function(){
-    $("#edit_page").click(function() {
-        var url = encodeURI("{{ edit_page_ajax}}");
-        console.log("get:" + url);
-        
-        bodyContent = $.ajax({
-            type: "GET",
-            url: url,
-            dataType: "html",
-            
-            success: function(form_html){
-                $("#page_content").html(form_html);
-            },
-            error: function(XMLHttpRequest){
-                 // Display the complete Traceback html page
-                 document.write(XMLHttpRequest.responseText);
-            },       
-        });
-        return false; // The browser follow the link, if true
-	});
-});
-</script>
 {% endextrahead %}
 
 <ul class="sf-menu">
-    <li class="current">
-        <a href="{{ logout_link }}">{% trans 'logout' %} [{{ request.user.username }}]</a>
-    </li>
+    <li class="current">{% lucidTag auth %}</li>
     <li>
-        <li><a href="#{{ edit_page_link }}" title="edit inline" id="edit_page">{% trans 'edit page' %}</a></li>
+        <li><a href="{{ edit_page_link }}" title="edit inline" id="edit_page" onclick="return get_pylucid_ajax_view('{{ edit_page_ajax}}');">{% trans 'edit page' %}</a></li>
         <ul>
             <li><a href="{{ edit_admin_panel_link }}">edit in admin panel</a></li>
             <li><a href="{{ edit_meta_admin_panel_link }}">edit meta in admin panel</a></li>

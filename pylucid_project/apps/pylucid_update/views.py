@@ -266,19 +266,30 @@ def update08templates(request):
         
         content = template.content
 
-        new_head_file_tag = (
+
+        SCRIPT_TAG = (
             '<script src="%(url)s"'
             ' onerror="JavaScript:alert(\'Error loading file [%(url)s] !\');"'
             ' type="text/javascript" /></script>\n'
-            '<!-- ContextMiddleware extrahead -->\n'
-        ) % {
+        )
+
+        new_head_file_tag = ""
+        new_head_file_tag += SCRIPT_TAG % {
             "url": posixpath.join(settings.MEDIA_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, "jquery.js")
         }
+        new_head_file_tag += SCRIPT_TAG % {
+            "url": posixpath.join(
+                settings.MEDIA_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, "pylucid_js_tools.js"
+            )
+        }
+        new_head_file_tag += '<!-- ContextMiddleware extrahead -->\n'      
         
         content = replace(content, out,"{% lucidTag page_style %}", new_head_file_tag)
         # temp in developer version:
         content = replace(content, out,"{% lucidTag head_files %}", new_head_file_tag)
         content = replace(content, out,"<!-- ContextMiddleware head_files -->", new_head_file_tag)
+        
+        content = replace(content, out,"{{ login_link }}", "{% lucidTag auth %}")
         
         content = replace(content, out,"{% lucidTag back_links %}", "<!-- ContextMiddleware breadcrumb -->")
         content = replace(content, out,

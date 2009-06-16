@@ -1,7 +1,16 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+
+{# We can't use extrahead block here, because it's used in ajax view, too. #}
 <script type="text/javascript">
 $(document).ready(function(){
     $("#preview_fieldset").hide();
-    $("#preview").click(function() {   
+    
+    $("#preview").click(function() {
+        $("#edit_page_preview").html("<h2>loading...</h2>");
+        $("#preview_fieldset").slideDown();
+    
         var content = $("#id_content")[0].value;
     
         var url = encodeURI("{{ preview_url }}");
@@ -10,7 +19,7 @@ $(document).ready(function(){
         
         $.post(url, { 'content': content }, function(form_html){
             $("#edit_page_preview").html(form_html);
-            $("#preview_fieldset").slideDown();
+            
         });
       return false; // The browser submit the form, if true
     });
@@ -42,13 +51,13 @@ $(document).ready(function(){
         </a>
         {% endif %}
 
-        <a href="{{ url_pagelinklist }}" title="{% trans 'List of all pages for creating links' %}">
-            <button type="button" onclick="OpenInWindow('{{ url_pagelinklist }}'); return false">
+        <a href="{{ pagelinklist_url }}" title="{% trans 'List of all pages for creating links' %}">
+            <button type="button" onclick="OpenInWindow('{{ pagelinklist_url }}'); return false">
              {% trans 'page list' %}
             </button>
         </a>
-        <a href="{{ url_taglist }}" title="{% trans 'List of all available PyLucid template tags' %}">
-            <button type="button" onclick="OpenInWindow('{{ url_taglist }}'); return false">
+        <a href="{{ taglist_url }}" title="{% trans 'List of all available PyLucid template tags' %}">
+            <button type="button" onclick="OpenInWindow('{{ taglist_url }}'); return false">
              {% trans 'tag list' %}
             </button>
         </a>
@@ -77,3 +86,4 @@ $(document).ready(function(){
     </ul>
 </form>
 </fieldset>
+{% endblock %}

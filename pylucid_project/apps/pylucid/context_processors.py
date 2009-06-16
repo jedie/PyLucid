@@ -11,10 +11,11 @@ from django.utils.translation import ugettext as _
 
 from pylucid_project import PYLUCID_VERSION_STRING
 from pylucid_project.utils import slug
+from pylucid_plugins.auth.context_processors import auth_context_processors
 
 
 def _add_plugin_info(request, context):
-    """ Add css anchor into context. Used infomation from lucidTagNode. """
+    """ Add css anchor into context. Used information from lucidTagNode. """
     
     plugin_name = request.plugin_name
     method_name = request.method_name
@@ -57,24 +58,8 @@ def pylucid(request):
         "PyLucid_media_url": settings.MEDIA_URL + settings.PYLUCID.PYLUCID_MEDIA_DIR + "/",       
     }
     
-    
-    
-    # TODO: Use internal SHA-Login plugin views, if implemented:
-    if request.user.is_authenticated():
-        # admin_logout reverse is still broken in django, see:
-        # http://code.djangoproject.com/ticket/11080
-        # http://code.djangoproject.com/attachment/ticket/10061
-        #url = reverse("admin_logout")
-        #url = reverse("admin_index") + "logout/" # TODO: Update this if django is bugfixed
-        url = "?auth=logout"
-        
-        txt = "%s [%s]" % (_("Log out"), request.user.username)
-    else:
-        #url = reverse("admin_index") # django admin panel index page
-        url = "?auth=login"
-        txt = _("Log in")
-        
-    context["login_link"] = mark_safe('<a href="%s">%s</a>' % (url, txt))
+    # TODO: Put all Plugin context processors into settings?
+    context.update(auth_context_processors(request))
     
     if hasattr(request, "plugin_name"):
         # Add css anchor info

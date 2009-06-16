@@ -48,7 +48,15 @@ class ContextMiddleware(object):
     """
     def __init__(self, request, context):
         self.request = request
-        self.data = ""
+        if settings.DEBUG:
+            # Turn debug mode in JavaScript on
+            self.data = DEBUG_INFO % {
+                "fileinfo": os.path.basename(__file__),
+                "content": '<script type="text/javascript">var debug=true;log("debug is on");</script>'
+            }
+            self.data += "\n" 
+        else:
+            self.data = ""
         
     def add_content(self, content):
         content = content.strip()
@@ -88,19 +96,7 @@ class ContextMiddleware(object):
                     return True
             return False
         
-        def cut(filepath):
-            return "..." + filepath.split(FILEPATH_SPLIT,1)[1]
-            if len(filepath)>=MAX_FILEPATH_LEN:
-                return "...%s" % filepath[-MAX_FILEPATH_LEN:]
-            return filepath
-        
-        
-        try:
-            self_basename = os.path.basename(__file__)
-            if self_basename.endswith(".pyc"):
-                # cut: ".pyc" -> ".py"
-                self_basename = self_basename[:-1]
-    
+        try:    
             fileinfo = []
             step = 0
             for stack_frame in inspect.stack():
@@ -110,7 +106,9 @@ class ContextMiddleware(object):
                 if skip(filepath) or FILEPATH_SPLIT not in filepath:
                     continue
                 
-                fileinfo.append("%s line %s" % (cut(filepath), lineno))
+                filepath = "..." + filepath.split(FILEPATH_SPLIT,1)[1]
+                
+                fileinfo.append("%s line %s" % (filepath, lineno))
                 if step>=1:
                     break
                 step += 1
