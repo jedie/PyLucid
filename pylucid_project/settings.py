@@ -82,8 +82,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     
     'pylucid_project.middlewares.PageMessages.PageMessagesMiddleware',
+    
+    # slow down the django developer server
+    # From http://code.google.com/p/django-tools/
+    #'django_tools.middlewares.SlowerDevServer.SlowerDevServerMiddleware',
 )
-
+SLOWER_DEV_SERVER_SLEEP = 0.3 # time.sleep() value (in sec.)
 
 _BASE_PATH = os.path.join(os.path.dirname(__file__))
 
