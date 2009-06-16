@@ -19,6 +19,9 @@
 .sf-shadow ul {
     background: url('{{ PyLucid_media_url }}superfish/shadow.png') no-repeat bottom right;
 }
+textarea {
+    width:85%;
+}
 -->
 </style>
 
@@ -38,7 +41,7 @@ $(document).ready(function(){
   //
   // Resize all textareas
   //
-  $("textarea").each(function (i) {
+  $("textarea").each(function() {
     rows = this.value.split("\n").length;
     if (rows > MAX_ROWS) {rows = MAX_ROWS;}
     this.rows = rows;
