@@ -76,6 +76,8 @@ print "Used port is %s -> set SITE_ID: %s" % (_used_port, SITE_ID)
 ROOT_URLCONF = 'pylucid_project.urls'
 
 MIDDLEWARE_CLASSES = (
+    'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
+    
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,7 +87,7 @@ MIDDLEWARE_CLASSES = (
     
     # slow down the django developer server
     # From http://code.google.com/p/django-tools/
-    #'django_tools.middlewares.SlowerDevServer.SlowerDevServerMiddleware',
+#    'django_tools.middlewares.SlowerDevServer.SlowerDevServerMiddleware',
 )
 SLOWER_DEV_SERVER_SLEEP = 0.3 # time.sleep() value (in sec.)
 
@@ -187,6 +189,7 @@ AUTH_PROFILE_MODULE = "pylucid.UserProfile"
 # Using this method is inefficient and insecure.
 # Do not use this in a production setting. Use this only for development.
 SERVE_STATIC_FILES = True
+#SERVE_STATIC_FILES = False
 
 # Note: Every URL/path...
 # ...must be a absolute path.

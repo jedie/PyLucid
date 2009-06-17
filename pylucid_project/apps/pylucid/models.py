@@ -27,12 +27,17 @@ from xml.sax.saxutils import escape
 
 from django.db import models
 from django.conf import settings
+from django.db.models import signals
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 from django.template.loader import render_to_string
 from django.contrib.sites.managers import CurrentSiteManager
+
+from django_tools.middlewares import ThreadLocal
+
+from pylucid_project.utils import crypt
 
 from pylucid.system.auto_model_info import UpdateInfoBaseModel, UpdateInfoBaseModelManager
 from pylucid.system import headfile
@@ -562,28 +567,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         ordering = ("filepath",)
 
 
-class UserProfileManager(UpdateInfoBaseModelManager):
-    def create_user_profile(self, request, user):
-        userprofile, created = self.get_or_create(request, user=user)
-        if created:
-            request.user.message_set.create(
-                message="UserProfile entry for user '%s' created." % user
-            )
-        
-        if not user.is_superuser:
-            # Info: superuser can automaticly access all sites
-            site = Site.objects.get_current()
-            userprofile.site.add(site)
-            request.user.message_set.create(
-                message="Add site '%s' to '%s' UserProfile." % (site.name, user)
-            )
-            
-    def delete(self, request, user):
-        userprofile = self.get(user=user)
-        userprofile.delete()
-        request.user.message_set.create(
-            message="UserProfile entry from user '%s' deleted." % user
-        )
+
 
     
 class UserProfile(UpdateInfoBaseModel):
@@ -591,11 +575,8 @@ class UserProfile(UpdateInfoBaseModel):
     Stores additional information about PyLucid users
     http://docs.djangoproject.com/en/dev/topics/auth/#storing-additional-information-about-users
     
-    We hacked into django.contrib.auth.admin.UserAdmin in pylucid/admin.py for
-    create/delete UserProfile entries.
+    Created via post_save signal, if a new user created.
     """
-    objects = UserProfileManager()
-
     user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
     
     sha_login_checksum = models.CharField(max_length=192,
@@ -608,6 +589,19 @@ class UserProfile(UpdateInfoBaseModel):
     site = models.ManyToManyField(Site,
         help_text="User can access only these sites."
     )
+    
+    def set_sha_login_password(self, request, raw_password):
+        """
+        create salt+checksum for JS-SHA-Login.
+        see also: http://www.pylucid.org/_goto/8/JS-SHA-Login/
+        """
+        raw_password = str(raw_password)
+        salt, sha_checksum = crypt.make_sha_checksum2(raw_password)
+        self.sha_login_salt = salt
+        self.sha_login_checksum = sha_checksum
+        request.user.message_set.create(
+            message="SHA Login salt+checksum created for user '%s'." % self.user
+        )
 
     def __unicode__(self):
         return u"UserProfile for user '%s'" % self.user.username
@@ -619,3 +613,58 @@ class UserProfile(UpdateInfoBaseModel):
     
     class Meta:
         ordering = ("user",)
+
+
+#______________________________________________________________________________
+# Create user profile via signals
+
+def create_user_profile(sender, **kwargs):
+    """ signal handler: creating user profile, after a new user created. """
+    user = kwargs["instance"]
+    request = ThreadLocal.get_current_request()
+    
+    userprofile, created = UserProfile.objects.get_or_create(request, user=user)
+    if created:
+        request.user.message_set.create(message="UserProfile entry for user '%s' created." % user)
+    
+        if not user.is_superuser: # Info: superuser can automaticly access all sites
+            site = Site.objects.get_current()
+            userprofile.site.add(site)
+            request.user.message_set.create(
+                message="Add site '%s' to '%s' UserProfile." % (site.name, user)
+            )            
+
+signals.post_save.connect(create_user_profile, sender=User)
+
+
+#______________________________________________________________________________
+"""
+We make a Monkey-Patch and change the method set_password() from
+the model class django.contrib.auth.models.User.
+We need the raw plaintext password, this is IMHO not available via signals.
+"""
+
+# Save the original method
+orig_set_password = User.set_password
+
+
+def set_password(user, raw_password):
+    #print "set_password() debug:", user, raw_password
+    if user.id == None:
+        # It is a new user. We must save the django user accound first to get a
+        # existing user object with a ID and then the JS-SHA-Login Data can assign to it.
+        user.save()
+
+    # Use the original method to set the django User password:
+    orig_set_password(user, raw_password)
+    
+    user_profile = user.get_profile()
+    request = ThreadLocal.get_current_request()
+
+    # Save the password for the JS-SHA-Login:
+    user_profile.set_sha_login_password(request, raw_password)
+    user_profile.save(request)
+
+
+# replace the method 
+User.set_password = set_password
