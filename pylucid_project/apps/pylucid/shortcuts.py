@@ -17,10 +17,16 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import warnings
+
 from django import http
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
+
+from django_tools.middlewares import ThreadLocal
+
 
 def render_pylucid_response(request, template_name, context, **kwargs):
     """
@@ -58,3 +64,25 @@ def render_pylucid_response(request, template_name, context, **kwargs):
         # The {% extrahead %} content would be inserted into the globale template with
         # the PyLucid context middleware pylucid_plugin.extrahead.context_middleware
         return response_content
+
+
+
+
+
+
+def user_message_or_warn(msg):
+    """ Display a message with user.message_set.create if available or use warnings.warn """
+    user = ThreadLocal.get_current_user()
+    if user and isinstance(user, User):
+        user.message_set.create(message=msg)
+    else:
+        warnings.warn(msg)
+
+
+def page_msg_or_warn(msg):
+    """ Display a message with request.page_msg if available or use warnings.warn """
+    request = ThreadLocal.get_current_request()
+    if request:
+        request.page_msg(msg)
+    else:
+        warnings.warn(msg)

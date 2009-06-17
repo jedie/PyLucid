@@ -39,15 +39,16 @@ from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.utils import crypt
 
-from pylucid.system.auto_model_info import UpdateInfoBaseModel, UpdateInfoBaseModelManager
+from pylucid.system.auto_model_info import UpdateInfoBaseModel
 from pylucid.system import headfile
+from pylucid.shortcuts import user_message_or_warn
 
 
-class PageTreeManager(UpdateInfoBaseModelManager):
+class PageTreeManager(models.Manager):
     """
     Manager class for PageTree model
     
-    inherited from UpdateInfoBaseModelManager:
+    inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """
     def get_root_page(self):
@@ -351,11 +352,11 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 #------------------------------------------------------------------------------
 
 
-class PageContentManager(UpdateInfoBaseModelManager):
+class PageContentManager(models.Manager):
     """
     Manager class for PageContent model
     
-    inherited from UpdateInfoBaseModelManager:
+    inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """    
     def get_sub_pages(self, pagecontent):
@@ -433,6 +434,9 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
 #------------------------------------------------------------------------------
 
+class DesignManager(models.Manager):
+    pass
+
 class Design(UpdateInfoBaseModel):
     """
     Page design: template + CSS/JS files
@@ -443,6 +447,8 @@ class Design(UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    objects = DesignManager()
+    
     site = models.ManyToManyField(Site, default=[settings.SITE_ID])
     on_site = CurrentSiteManager()
     
@@ -467,7 +473,7 @@ class Design(UpdateInfoBaseModel):
 
 #------------------------------------------------------------------------------
 
-class EditableHtmlHeadFileManager(UpdateInfoBaseModelManager):
+class EditableHtmlHeadFileManager(models.Manager):
     def get_HeadfileLink(self, filename):
         """
         returns a pylucid.system.headfile.Headfile instance
@@ -517,10 +523,10 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
             f.write(self.content)
             f.close()
         except Exception, err:
-            warnings.warn("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
+            user_message_or_warn("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
         else:
             if settings.DEBUG:
-                warnings.warn("EditableHtmlHeadFile cached successful into: %r" % cachepath)
+                user_message_or_warn("EditableHtmlHeadFile cached successful into: %r" % cachepath)
 
     def get_absolute_url(self):
         cachepath = self.get_cachepath()
@@ -590,7 +596,7 @@ class UserProfile(UpdateInfoBaseModel):
         help_text="User can access only these sites."
     )
     
-    def set_sha_login_password(self, request, raw_password):
+    def set_sha_login_password(self, raw_password):
         """
         create salt+checksum for JS-SHA-Login.
         see also: http://www.pylucid.org/_goto/8/JS-SHA-Login/
@@ -599,9 +605,7 @@ class UserProfile(UpdateInfoBaseModel):
         salt, sha_checksum = crypt.make_sha_checksum2(raw_password)
         self.sha_login_salt = salt
         self.sha_login_checksum = sha_checksum
-        request.user.message_set.create(
-            message="SHA Login salt+checksum created for user '%s'." % self.user
-        )
+        user_message_or_warn("SHA Login salt+checksum created for user '%s'." % self.user)
 
     def __unicode__(self):
         return u"UserProfile for user '%s'" % self.user.username
@@ -621,18 +625,15 @@ class UserProfile(UpdateInfoBaseModel):
 def create_user_profile(sender, **kwargs):
     """ signal handler: creating user profile, after a new user created. """
     user = kwargs["instance"]
-    request = ThreadLocal.get_current_request()
-    
-    userprofile, created = UserProfile.objects.get_or_create(request, user=user)
+            
+    userprofile, created = UserProfile.objects.get_or_create(user=user)
     if created:
-        request.user.message_set.create(message="UserProfile entry for user '%s' created." % user)
-    
+        user_message_or_warn("UserProfile entry for user '%s' created." % user)
+            
         if not user.is_superuser: # Info: superuser can automaticly access all sites
             site = Site.objects.get_current()
             userprofile.site.add(site)
-            request.user.message_set.create(
-                message="Add site '%s' to '%s' UserProfile." % (site.name, user)
-            )            
+            user_message_or_warn("Add site '%s' to '%s' UserProfile." % (site.name, user))            
 
 signals.post_save.connect(create_user_profile, sender=User)
 
@@ -659,11 +660,10 @@ def set_password(user, raw_password):
     orig_set_password(user, raw_password)
     
     user_profile = user.get_profile()
-    request = ThreadLocal.get_current_request()
 
     # Save the password for the JS-SHA-Login:
-    user_profile.set_sha_login_password(request, raw_password)
-    user_profile.save(request)
+    user_profile.set_sha_login_password(raw_password)
+    user_profile.save()
 
 
 # replace the method 

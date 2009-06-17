@@ -18,13 +18,11 @@
 
 from django.contrib import admin
 
-from pylucid.system.auto_model_info import UpdateInfoBaseAdmin
-
 from redirect.models import RedirectModel
 
 #------------------------------------------------------------------------------
 
-class RedirectModelAdmin(UpdateInfoBaseAdmin):
+class RedirectModelAdmin(admin.ModelAdmin):
     pass
     #prepopulated_fields = {"slug": ("title",)}    
 

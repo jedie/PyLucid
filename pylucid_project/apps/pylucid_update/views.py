@@ -42,7 +42,7 @@ def _do_update(request, site, language):
         sha_login_checksum = old_entry.sha_checksum
         sha_login_salt = old_entry.salt
         
-        userprofile, created = UserProfile.objects.get_or_create(request,
+        userprofile, created = UserProfile.objects.get_or_create(
             user = user,
             defaults = {
                 "sha_login_checksum": sha_login_checksum,
@@ -80,7 +80,7 @@ def _do_update(request, site, language):
     out.write("Move style model")
     cssfiles = {}
     for style in Style08.objects.all():
-        new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(request,
+        new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(
             filepath = settings.SITE_TEMPLATE_PREFIX + style.name + ".css",
             defaults = {
                 "description": style.description,
@@ -118,7 +118,7 @@ def _do_update(request, site, language):
             else:
                 new_design_name = "%s + %s" % (old_page.template.name, old_page.style.name)
                 
-            design, created = Design.objects.get_or_create(request,
+            design, created = Design.objects.get_or_create(
                 name = new_design_name,
                 defaults = {
                     "template": templates[old_page.template.name],
@@ -142,7 +142,7 @@ def _do_update(request, site, language):
         else:
             parent = page_dict[old_page.parent.id]
 
-        tree_entry, created = PageTree.objects.get_or_create(request,
+        tree_entry, created = PageTree.objects.get_or_create(
             site = site,
             slug = old_page.shortcut,
             parent = parent,
@@ -162,7 +162,7 @@ def _do_update(request, site, language):
             }
         )
         if created:
-            tree_entry.save(request)
+            tree_entry.save()
             out.write("PageTree entry '%s' created." % tree_entry.slug)
         else:
             out.write("PageTree entry '%s' exist." % tree_entry.slug)
@@ -172,7 +172,7 @@ def _do_update(request, site, language):
         #---------------------------------------------------------------------
         # create/get PageMeta entry
         
-        pagemeta_entry, created = PageMeta.objects.get_or_create(request,
+        pagemeta_entry, created = PageMeta.objects.get_or_create(
             page = tree_entry,
             lang = language,
             defaults = {
@@ -188,7 +188,7 @@ def _do_update(request, site, language):
             }
         )
         if created:
-            pagemeta_entry.save(request)
+            pagemeta_entry.save()
             out.write("PageMeta entry '%s' - '%s' created." % (language, tree_entry.slug))
         else:
             out.write("PageMeta entry '%s' - '%s' exist." % (language, tree_entry.slug))
@@ -196,7 +196,7 @@ def _do_update(request, site, language):
         #---------------------------------------------------------------------
         # create/get PageContent entry
 
-        content_entry, created = PageContent.objects.get_or_create(request,
+        content_entry, created = PageContent.objects.get_or_create(
             page = tree_entry,
             lang = language,
             pagemeta = pagemeta_entry,
@@ -211,7 +211,7 @@ def _do_update(request, site, language):
             }
         )
         if created:
-            content_entry.save(request)
+            content_entry.save()
             out.write("PageContent entry '%s' - '%s' created." % (language, tree_entry.slug))
         else:
             out.write("PageContent entry '%s' - '%s' exist." % (language, tree_entry.slug))
@@ -373,7 +373,7 @@ def update08styles(request):
         else:
             content = additional_styles + content
             style.content = content
-            style.save(request)
+            style.save()
             out.write("additional styles inserted.")        
     
     context = {

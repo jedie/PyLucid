@@ -44,7 +44,7 @@ def _edit_page(request, form_url):
         if edit_page_form.is_valid():
             new_content = edit_page_form.cleaned_data["content"]
             pagecontent_instance.content = new_content
-            pagecontent_instance.save(request)
+            pagecontent_instance.save()
             request.page_msg.successful(_("Page content updated."))
             return HttpResponseRedirect(request.path)
     else:

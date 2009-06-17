@@ -95,4 +95,22 @@ class BaseUnittest(BaseTestCase, TransactionTestCase):
         self.failUnlessRootPageDEfaultLang(response)
         
     #-------------------------------------------------------------------------
+    
+    def login(self, usertype):
+        """
+        Login test user.
+        Add him to the site, otherwise he can't login ;)
+        """
+        site = Site.objects.get_current()
+        user = self._get_user(usertype="normal")
+        userprofile = user.get_profile()
+        
+        if not site in userprofile.site.all():
+            print "Info: Add user to site %s" % site
+            userprofile.site.add(site)
+        
+        ok = self.client.login(username=self.TEST_USERS[usertype]["username"],
+                               password=self.TEST_USERS[usertype]["password"])
+        self.failUnless(ok, "Can't login test user '%s'!" % usertype)
+        return user
 

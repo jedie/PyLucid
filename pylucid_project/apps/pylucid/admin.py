@@ -24,7 +24,6 @@ from django.contrib.auth.admin import UserAdmin
 from reversion.admin import VersionAdmin
 
 from pylucid import models
-from pylucid.system.auto_model_info import UpdateInfoBaseAdmin
 
 #_____________________________________________________________________________
 # Some work-a-rounds for django bugs :(
@@ -51,7 +50,7 @@ UserAdmin.add_view = ugly_patched_add_view
 #------------------------------------------------------------------------------
 
 
-class PageTreeAdmin(UpdateInfoBaseAdmin, VersionAdmin):
+class PageTreeAdmin(VersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}    
 
     list_display = (
@@ -72,7 +71,7 @@ class LanguageAdmin(VersionAdmin):
 admin.site.register(models.Language, LanguageAdmin)
 
 
-class PageMetaAdmin(UpdateInfoBaseAdmin, VersionAdmin):
+class PageMetaAdmin(VersionAdmin):
     list_display = ("title_or_slug", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
     list_display_links = ("title_or_slug", "get_absolute_url")
     list_filter = ("lang", "keywords", "createby", "lastupdateby")
@@ -82,7 +81,7 @@ class PageMetaAdmin(UpdateInfoBaseAdmin, VersionAdmin):
 admin.site.register(models.PageMeta, PageMetaAdmin)
 
 
-class PageContentAdmin(UpdateInfoBaseAdmin, VersionAdmin):
+class PageContentAdmin(VersionAdmin):
     list_display = ("title_or_slug", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
     list_display_links = ("title_or_slug", "get_absolute_url")
     list_filter = ("lang", "markup", "createby", "lastupdateby",)
@@ -92,7 +91,7 @@ class PageContentAdmin(UpdateInfoBaseAdmin, VersionAdmin):
 admin.site.register(models.PageContent, PageContentAdmin)
 
 
-class PluginPageAdmin(UpdateInfoBaseAdmin, VersionAdmin):
+class PluginPageAdmin(VersionAdmin):
     list_display = (
         "get_plugin_name", "get_absolute_url", "app_label", "get_site", "lastupdatetime", "lastupdateby",
     )
@@ -104,7 +103,7 @@ class PluginPageAdmin(UpdateInfoBaseAdmin, VersionAdmin):
 admin.site.register(models.PluginPage, PluginPageAdmin)
 
 
-class DesignAdmin(UpdateInfoBaseAdmin, VersionAdmin):    
+class DesignAdmin(VersionAdmin):    
     list_display = ("name", "template", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     list_filter = ("site", "template", "createby", "lastupdateby")
@@ -113,7 +112,7 @@ class DesignAdmin(UpdateInfoBaseAdmin, VersionAdmin):
 admin.site.register(models.Design, DesignAdmin)
 
 
-class EditableHtmlHeadFileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
+class EditableHtmlHeadFileAdmin(VersionAdmin):
     list_display = ("filepath", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
     list_filter = ("site",)
@@ -121,7 +120,7 @@ class EditableHtmlHeadFileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
 admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
 
-class UserProfileAdmin(UpdateInfoBaseAdmin, VersionAdmin):
+class UserProfileAdmin(VersionAdmin):
     list_display = ("user", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("user",)
     list_filter = ("site",)
