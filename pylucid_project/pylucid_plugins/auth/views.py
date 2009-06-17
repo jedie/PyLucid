@@ -4,9 +4,10 @@ from django.contrib import auth
 from django.conf import settings
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
+
+from pylucid.shortcuts import render_pylucid_response
 
 from pylucid_project.utils import crypt
 
@@ -24,8 +25,11 @@ if DEBUG:
     warnings.warn("Debug mode in auth plugin is on!", UserWarning)
 
 
+
+
+
 def lucidTag(request):
-    # TODO: Use internal SHA-Login plugin views, if implemented:
+    """ Create login/logout link """
     if request.user.is_authenticated():
         # admin_logout reverse is still broken in django, see:
         # http://code.djangoproject.com/ticket/11080
@@ -33,16 +37,12 @@ def lucidTag(request):
         #url = reverse("admin_logout")
         #url = reverse("admin_index") + "logout/" # TODO: Update this if django is bugfixed
         template_name = "auth/logout_link.html"
-        context = {"logout_url": "?auth=logout"}
+        url = "?auth=logout"
     else:
         template_name = "auth/login_link.html"
-        #url = reverse("admin_index") # django admin panel index page
-        context = {
-            "login_url": "?auth=login",
-            "login_url_ajax": "?auth=get_login_form",
-        }
-    
-    return render_to_string(template_name, context, context_instance=RequestContext(request))
+        url = "?auth=login"
+           
+    return render_to_string(template_name, {"url": url}, context_instance=RequestContext(request))
 
 
 
@@ -65,7 +65,7 @@ def _login(request, user, next_url):
     return HttpResponseRedirect(next_url)
 
 
-def _plaintext_login(request, context, username, next_url, render_function):
+def _plaintext_login(request, context, username, next_url):
     """ input the password and login if auth ok """
     if "password" in request.POST:
         password_form = PasswordForm(request.POST)
@@ -78,11 +78,11 @@ def _plaintext_login(request, context, username, next_url, render_function):
     context["form"] = password_form
     
     # return a string for replacing the normal cms page content
-    return render_function('auth/plaintext_login.html', context)
+    return render_pylucid_response(request, 'auth/plaintext_login.html', context)
 
 
     
-def _sha_login(request, context, user, next_url, render_function):
+def _sha_login(request, context, user, next_url):
     """
     Login via JS-SHA-Login.
     Display the JS-SHA-Login form and login if password is ok.
@@ -144,10 +144,12 @@ def _sha_login(request, context, user, next_url, render_function):
     context["form"] = SHA_login_form
 
     # return a string for replacing the normal cms page content
-    return render_function('auth/input_password.html', context, context_instance=RequestContext(request))
+    return render_pylucid_response(request, 'auth/input_password.html', context,
+        context_instance=RequestContext(request)
+    )
 
 
-def _login_view(request, form_url, next_url, render_function):
+def _login_view(request, form_url, next_url):
     if DEBUG:
         request.page_msg(
             "Warning: DEBUG is ON! Should realy only use for debugging!"
@@ -167,16 +169,16 @@ def _login_view(request, form_url, next_url, render_function):
             context["username"] = user.username
             
             if "plaintext_login" in request.POST:
-                return _plaintext_login(request, context, user.username, next_url, render_function)
+                return _plaintext_login(request, context, user.username, next_url)
             else:
-                return _sha_login(request, context, user, next_url, render_function)
+                return _sha_login(request, context, user, next_url)
     else:
         username_form = UsernameForm()
         
     context["form"] = username_form
     
     # return a string for replacing the normal cms page content
-    return render_function('auth/input_username.html', context)
+    return render_pylucid_response(request, 'auth/input_username.html', context)
 
 
 def http_get_view(request):
@@ -184,15 +186,10 @@ def http_get_view(request):
     Login+Logout view via GET parameters
     """
     next_url = request.path
-#    import time
-#    time.sleep(0.5)
     action = request.GET["auth"]
     if action=="login":
         form_url = request.path + "?auth=login" # FIXME: How can we add the GET Parameter?
-        return _login_view(request, form_url, next_url, render_function=render_to_string)
-    elif action=="get_login_form":
-        form_url = request.path + "?auth=get_login_form" # FIXME: How can we add the GET Parameter?
-        return _login_view(request, form_url, next_url, render_function=render_to_response)
+        return _login_view(request, form_url, next_url)
     elif action=="logout":
         return _logout_view(request, next_url)
     

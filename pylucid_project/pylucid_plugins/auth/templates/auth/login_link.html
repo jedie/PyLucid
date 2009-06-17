@@ -1,5 +1,5 @@
 {% extends "pylucid/css_anchor_span.html" %}
 
 {% block plugin_content %}
-<a href="{{ login_url }}" id="login_link" onclick="return get_pylucid_ajax_view('{{ login_url_ajax }}');">{% trans 'Log in' %}</a>
+<a href="{{ url }}" id="login_link" onclick="return get_pylucid_ajax_view('{{ url }}');">{% trans 'Log in' %}</a>
 {% endblock %}

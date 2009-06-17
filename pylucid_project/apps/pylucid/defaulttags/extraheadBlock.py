@@ -5,7 +5,8 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     Simple django template block tag. "Redirect" extra head content
-    into pylucid_plugin.head_files.context_middleware
+    into request.PYLUCID.extrahead
+    This data would be inserted with pylucid_plugin.extrahead.context_middleware
     
     PyLucid plugins should use {% extrahead %} block tag in plugin template for
     insert e.g. CSS/JS file links into html head.
@@ -39,6 +40,6 @@ class ExtraheadNode(template.Node):
         except KeyError:
             raise RuntimeError("Plugin must use RequestContext() or request.PYLUCID.context !")
          
-        head_files = request.PYLUCID.context["context_middlewares"]["extrahead"]
-        head_files.add_content(output)
+        extrahead = request.PYLUCID.extrahead
+        extrahead.append(output)
         return u""

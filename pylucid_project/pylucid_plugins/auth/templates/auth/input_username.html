@@ -1,39 +1,17 @@
 {% extends "pylucid/css_anchor_div.html" %}
 
 {% block plugin_content %}
-{# We can't use extrahead block here, because it's used in ajax view, too. #}
-<script type="text/javascript">
 
+{% extrahead %}
+<script type="text/javascript">
 $(document).ready(function(){
     log("input username ready");
     $("#id_username").focus();
     
-    $('#username_form').bind('submit', function() {
-        // get the input password form via ajax
-        $("#page_content").html('<h2>loading...</h2>');
-        $("#page_content").animate({opacity: 0.3}, 500 );
-    
-        log("continue login...");
-
-        var form = $(this);
-        var form_data = form.serialize();
-        log("form data:" + form_data);
-        
-        var url = encodeURI(form.attr('action'));
-        log("form url:" + url);
-        
-	    $.post(url, form_data,
-	        function(form_html){
-	            log("ajax get success.");
-	            $("#page_content").html(form_html);
-	            $("#page_content").animate({opacity: 1}, 500 );
-	        }
-	    );
-        
-        return false; // <-- important!
-    });    
+    pylucid_ajax_form_view('#username_form'); // send username form and get the input password form via ajax
 });
 </script>
+{% endextrahead %}
 
 <fieldset><legend>PyLucid <a href="http://www.pylucid.org/_goto/8/JS-SHA-Login/" title="What is the PyLucid JS-SHA-LogIn?">JS-SHA-LogIn</a> - step 1</legend>
 

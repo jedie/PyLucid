@@ -30,7 +30,6 @@ def lucidTag(request):
         "logout_link": "?auth=logout",
         
         "edit_page_link": "?page_admin=inline_edit",
-        "edit_page_ajax": "?page_admin=get_ajax_form",
         
         "edit_admin_panel_link": edit_admin_panel_link,
         "edit_meta_admin_panel_link": edit_meta_admin_panel_link,

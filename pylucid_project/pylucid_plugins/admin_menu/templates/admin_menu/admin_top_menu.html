@@ -8,7 +8,6 @@
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/admin_design.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/admin_design.css');" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.js');" ></script>
 <script type="text/javascript" src="{{ PyLucid_media_url }}superfish/pylucid_superfish_init.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/pylucid_superfish_init.js');" ></script>
-<script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}pylucid_js_tools.js');" ></script>
 <style type="text/css">
 <!--
 /* setup superfish background urls */
@@ -25,7 +24,7 @@
 <ul class="sf-menu">
     <li class="current">{% lucidTag auth %}</li>
     <li>
-        <li><a href="{{ edit_page_link }}" title="edit inline" id="edit_page" onclick="return get_pylucid_ajax_view('{{ edit_page_ajax}}');">{% trans 'edit page' %}</a></li>
+        <li><a href="{{ edit_page_link }}" title="edit inline" id="edit_page" onclick="return get_pylucid_ajax_view('{{ edit_page_link }}');">{% trans 'edit page' %}</a></li>
         <ul>
             <li><a href="{{ edit_admin_panel_link }}">edit in admin panel</a></li>
             <li><a href="{{ edit_meta_admin_panel_link }}">edit meta in admin panel</a></li>

@@ -4,13 +4,12 @@ import warnings
 
 from django.conf import settings
 from django.template import RequestContext
-from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 from django.core.exceptions import PermissionDenied
-from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseRedirect
 
 from pylucid.markup.converter import apply_markup
+from pylucid.shortcuts import render_pylucid_response
 
 from page_admin.forms import EditPageForm
 
@@ -34,7 +33,7 @@ def check_permissions(request, permissions):
     raise PermissionDenied
 
 
-def _edit_page(request, render_function):
+def _edit_page(request, form_url):
     check_permissions(request, EDIT_PERMISSIONS)
     
     pagemeta_instance = request.PYLUCID.pagemeta
@@ -52,7 +51,7 @@ def _edit_page(request, render_function):
         edit_page_form = EditPageForm({"content":pagecontent_instance.content})
     
     context = {
-        "form_url": "%s?page_admin=inline_edit" % request.path,
+        "form_url": form_url,
         "abort_url": request.path,
         "preview_url": "%s?page_admin=preview" % request.path,
         
@@ -63,7 +62,7 @@ def _edit_page(request, render_function):
         "pagecontent_instance": pagecontent_instance,
         "pagemeta_instance": pagemeta_instance,
     }
-    return render_function('page_admin/edit_page_form.html', context, 
+    return render_pylucid_response(request, 'page_admin/edit_page_form.html', context, 
         context_instance=RequestContext(request)
     )
 
@@ -88,10 +87,8 @@ def http_get_view(request):
     action = request.GET["page_admin"]
     if action=="inline_edit":
         # replace the page content with the edit page form
-        return _edit_page(request, render_function=render_to_string)
-    elif action=="get_ajax_form":
-        # return the edit page form only, for inserting it via jQuery
-        return _edit_page(request, render_function=render_to_response)
+        form_url = "%s?page_admin=inline_edit" % request.path
+        return _edit_page(request, form_url)
     elif action=="preview":
         # preview via jQuery
         return _edit_page_preview(request)

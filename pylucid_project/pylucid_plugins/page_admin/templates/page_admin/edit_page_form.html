@@ -1,12 +1,15 @@
 {% extends "pylucid/css_anchor_div.html" %}
 
+
 {% block plugin_content %}
 
-{# We can't use extrahead block here, because it's used in ajax view, too. #}
+{% extrahead %}
 <script type="text/javascript">
 $(document).ready(function(){
     $("#preview_fieldset").hide();
     
+    pylucid_ajax_form_view('#edit_page_form');
+        
     $("#preview").click(function() {
         $("#edit_page_preview").html("<h2>loading...</h2>");
         $("#preview_fieldset").slideDown();
@@ -21,10 +24,11 @@ $(document).ready(function(){
             $("#edit_page_preview").html(form_html);
             
         });
-      return false; // The browser submit the form, if true
+      return false; // <-- important: Don't send the form in normal way.
     });
 });
 </script>
+{% endextrahead %}
 
 <fieldset id="preview_fieldset">
 <legend>{% trans 'Preview' %}</legend>
