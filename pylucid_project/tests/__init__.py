@@ -6,3 +6,4 @@ from test_Design import *
 from test_PageContent import *
 from test_PluginAPI import *
 from test_PluginBreadcrumb import *
+from test_PluginEditPage import *
