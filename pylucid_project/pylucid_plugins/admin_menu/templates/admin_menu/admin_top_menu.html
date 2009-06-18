@@ -23,21 +23,27 @@
 
 <ul class="sf-menu">
     <li class="current">{% lucidTag auth %}</li>
-    <li>
-        <li><a href="{{ edit_page_link }}" title="edit inline" id="edit_page" onclick="return get_pylucid_ajax_view('{{ edit_page_link }}');">{% trans 'edit page' %}</a></li>
+    {% if perms.pylucid.change_pagecontent and perms.pylucid.change_pagemeta %}
+    <li>      
+        <a href="{{ edit_page_link }}" title="edit inline" id="edit_page" onclick="return get_pylucid_ajax_view('{{ edit_page_link }}');">{% trans 'edit page' %}</a>
         <ul>
             <li><a href="{{ edit_admin_panel_link }}">edit in admin panel</a></li>
             <li><a href="{{ edit_meta_admin_panel_link }}">edit meta in admin panel</a></li>
         </ul>
     </li>
+    {% endif %}
+    {% if perms.pylucid.add_pagecontent and perms.pylucid.add_pagemeta %}
     <li>
         <a href="{{ new_page_link }}">{% trans 'new page' %}</a>
     </li>
+    {% endif %}
+    {% if user.is_staff %}
     <li>
         <a href="{{ admin_menu_link }}">{% trans 'admin menu' %}</a>
         <ul>
             <li><a href="{{ admin_menu_link }}?_popup=1" onclick="OpenInWindow(this); return false">in popup win</a></li>
         </ul>
     </li>
+    {% endif %}
 </ul>
 {% endblock %}
