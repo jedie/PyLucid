@@ -65,14 +65,18 @@ def get_all_tests(verbosity=False):
     """ Contruct a test suite from all available tests. Returns an instantiated test suite. """
     if verbosity:
         print "\nContruct a test suite from all available tests."
+    if verbosity>=2:
+        print "Use test names: %r\n" % TEST_NAMES
         
     test_suite = unittest.TestSuite()
-    
     
     for name in TEST_NAMES:
         try:
             tests = unittest.defaultTestLoader.loadTestsFromName(name)
         except AttributeError, err:
+            if err.message != "'module' object has no attribute 'tests'":
+                # Skip only if no tests available
+                raise
             if verbosity>=2:
                 print "Skip %r: %s" % (name, err)
         else:
