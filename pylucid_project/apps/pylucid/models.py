@@ -20,6 +20,7 @@
 """
 
 import os
+import errno
 import warnings
 import posixpath
 import mimetypes
@@ -516,13 +517,32 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         )
         
     def save_cache_file(self):
-        """ Try to cache the head file into filesystem (Only worked, if python process has write rights) """
+        """
+        Try to cache the head file into filesystem (Only worked, if python process has write rights)
+        Try to create the out path, if it's not exist.
+        """
         cachepath = self.get_cachepath()
+        
+        def _save_cache_file(auto_create_dir=True):
+            try:
+                f = file(cachepath, "w")
+                f.write(self.content)
+                f.close()
+            except IOError, err:
+                if auto_create_dir and err.errno == errno.ENOENT: # No 2: No such file or directory
+                    # Try to create the out dir and save the cache file  
+                    path = os.path.dirname(cachepath)
+                    if not os.path.isdir(path):
+                        # Try to create cache path and save file
+                        os.makedirs(path)
+                        user_message_or_warn("Cache path %s created" % path)
+                        _save_cache_file(auto_create_dir=False)
+                        return
+                raise
+
         try:
-            f = file(cachepath, "w")
-            f.write(self.content)
-            f.close()
-        except Exception, err:
+            _save_cache_file()
+        except IOError, err:
             user_message_or_warn("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
         else:
             if settings.DEBUG:
