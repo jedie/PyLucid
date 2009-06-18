@@ -17,6 +17,7 @@ from pylucid_project.tests.test_tools import basetest
 from pylucid.models import EditableHtmlHeadFile, PageMeta, PageContent
 
 EDIT_PAGE_URL = "/?page_admin=inline_edit"
+PREVIEW_URL = "/?page_admin=preview"
 
 class EditPageTest(basetest.BaseUnittest):
     def assertCanNotEdit(self, response):
@@ -30,11 +31,16 @@ class EditPageTest(basetest.BaseUnittest):
         )
         
     def assertCanEdit(self, response):
+        """ assert that the response is the edit page form """
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
             must_contain=(
                 '1-rootpage content', # PageContent
                 '<title>1-rootpage title',
+                # Some form strings:
+                'input type="submit" name="save" value="save"',
+                'form action="/?page_admin=inline_edit"',
+                'textarea id="id_content"',
             ),
             must_not_contain=(
                 "Traceback", 'Permission denied',
@@ -96,6 +102,36 @@ class EditPageTest(basetest.BaseUnittest):
             assertion=self.assertCanEdit
         )
 
+    def test_ajax_form(self):
+        """ Test AJAX request of the edit page form """
+        self.login(usertype="superuser")
+        response = self.client.get(EDIT_PAGE_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(response,
+            must_contain=(
+                '1-rootpage content', # PageContent
+                # addition javascript from {% extrahead %} block:
+                '<!-- extrahead from .../apps/pylucid/defaulttags/extraheadBlock.py', 
+                # Some form strings:
+                'input type="submit" name="save" value="save"',
+                'form action="/?page_admin=inline_edit"',
+                'textarea id="id_content"',
+            ),
+            must_not_contain=(
+                '<title>1-rootpage title', "<body", "<head>", # <- not a complete page
+                "Traceback", 'Permission denied',
+            ),
+        )
+    
+    def test_ajax_preview(self):
+        """ Test ajax edit page preview """
+        self.login(usertype="superuser")       
+        response = self.client.post(PREVIEW_URL,
+            {"content": "==headline"},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual("<h2>headline</h2>\n", response.content)
 
 
 
