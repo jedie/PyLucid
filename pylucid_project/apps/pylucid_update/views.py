@@ -258,7 +258,6 @@ def update08(request):
 def update08templates(request):
     title = "Update PyLucid v0.8 templates"
     out = SimpleStringIO()
-    out.write(title)
     
     def replace(content, out, old, new):
         out.write("replace %r with %r" % (old, new))
@@ -269,8 +268,9 @@ def update08templates(request):
         return content
         
     
-    for template in Template.objects.filter(name__istartswith=settings.SITE_TEMPLATE_PREFIX):       
-        out.write("\nUpdate Template: '%s'" % template.name)
+    for template in Template.objects.filter(name__istartswith=settings.SITE_TEMPLATE_PREFIX):
+        out.write("\n______________________________________________________________")
+        out.write("Update Template: '%s'\n" % template.name)
         
         content = template.content
 
@@ -355,9 +355,12 @@ def update08templates(request):
 
 
 def update08styles(request):
+    """
+    TODO: We should not add any styles... We should create a new EditableHtmlHeadFile stylesheet
+    file and add this to all Design!
+    """
     title = "Update PyLucid v0.8 styles"
     out = SimpleStringIO()
-    out.write(title)
     
     def replace(content, out, old, new):
         out.write("replace %r with %r" % (old, new))
@@ -372,8 +375,9 @@ def update08styles(request):
         
     styles = EditableHtmlHeadFile.objects.filter(filepath__istartswith=settings.SITE_TEMPLATE_PREFIX)
     styles = styles.filter(filepath__iendswith=".css")
-    for style in styles:       
-        out.write("\nUpdate Styles: '%s'" % style.filepath)
+    for style in styles:
+        out.write("\n______________________________________________________________")
+        out.write("\nUpdate Style: '%s'" % style.filepath)
         
         content = style.content
         if additional_styles in content:
