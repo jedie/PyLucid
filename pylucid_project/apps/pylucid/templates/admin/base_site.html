@@ -62,10 +62,10 @@ $(document).ready(function(){
     <li class="current">
         <a href="/">&lt;&lt; back to "/" root page</a>
     </li>
+    {% if not sites|length_is:"1" %}
     <li>
         <a>{% trans 'switch site' %}</a>
         <ul>
-        
         {% for site in sites %}
           <li>
             {% ifequal site current_site %}
@@ -79,6 +79,7 @@ $(document).ready(function(){
         {% endfor %}
         </ul>
     </li>
+    {% endif %}
     <li>
         <a href="#TODO">{% trans 'admin menu' %}</a>
     </li>
