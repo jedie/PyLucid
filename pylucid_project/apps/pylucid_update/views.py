@@ -44,28 +44,29 @@ def _do_update(request, site, language):
     out = SimpleStringIO()
     out.write("Starting update and move v0.8 data into v0.9 (on site: %s)" % site)
 
-    #---------------------------------------------------------------------
-    out.write("Move JS-SHA-Login data into new UserProfile")
+    out.write("\n______________________________________________________________")
+    out.write("Move JS-SHA-Login data into new UserProfile\n")
     for old_entry in JS_LoginData08.objects.all():       
         user = old_entry.user
         sha_login_checksum = old_entry.sha_checksum
         sha_login_salt = old_entry.salt
         
-        userprofile, created = UserProfile.objects.get_or_create(
-            user = user,
-            defaults = {
-                "sha_login_checksum": sha_login_checksum,
-                "sha_login_salt": sha_login_salt,
-            }
-        )
-        userprofile.site.add(site)
+        userprofile, created = UserProfile.objects.get_or_create(user = user)
+        userprofile.site.add(site)           
         if created:
             out.write("UserProfile for user '%s' created." % user.username)
         else:
             out.write("UserProfile for user '%s' exist." % user.username)
+            
+        if not userprofile.sha_login_checksum:
+            # Add old sha login data, only if not exist.
+            userprofile.sha_login_checksum = sha_login_checksum
+            userprofile.sha_login_salt = sha_login_salt
+            userprofile.save()
+            out.write("Add old JS-SHA-Login data.")
 
-    #---------------------------------------------------------------------
-    out.write("Move template model")
+    out.write("\n______________________________________________________________")
+    out.write("Move template model\n")
     templates = {}
     for template in Template08.objects.all():
         new_template_name = settings.SITE_TEMPLATE_PREFIX + template.name + ".html"
@@ -85,8 +86,8 @@ def _do_update(request, site, language):
         else:
             out.write("dbtemplate '%s' exist." % template.name)
 
-    #---------------------------------------------------------------------
-    out.write("Move style model")
+    out.write("\n______________________________________________________________")
+    out.write("Move style model\n")
     cssfiles = {}
     for style in Style08.objects.all():
         new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(
@@ -106,8 +107,8 @@ def _do_update(request, site, language):
             out.write("EditableStaticFile '%s' exist." % style.name)
 
 
-    #---------------------------------------------------------------------
-    # migrate old page model data
+    out.write("\n______________________________________________________________")
+    out.write("migrate old page model data")
 
     old_pages = Page08.objects.order_by('parent', 'id').all()
 
