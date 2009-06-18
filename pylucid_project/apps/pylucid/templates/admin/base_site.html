@@ -82,9 +82,11 @@ $(document).ready(function(){
     <li>
         <a href="#TODO">{% trans 'admin menu' %}</a>
     </li>
+    {% if user.is_superuser %}
     <li>
         <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
     </li>
+    {% endif %}
 </ul>
 {% endif %}
 <!-- app pretitle block end -->

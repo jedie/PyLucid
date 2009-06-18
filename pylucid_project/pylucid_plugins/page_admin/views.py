@@ -1,50 +1,38 @@
-# coding:utf-8
+# coding: utf-8
 
-import warnings
+"""
+    PyLucid page admin
+    ~~~~~~~~~~~~~~~~~~
+
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate:$
+    $Rev:$
+    $Author: JensDiemer $
+
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
 
 from django.conf import settings
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 
 from pylucid.markup.converter import apply_markup
 from pylucid.shortcuts import render_pylucid_response
+from pylucid.decorators import check_permissions
 
 from page_admin.forms import EditPageForm
 
 
-EDIT_PERMISSIONS = (
+PAGE_EDIT_PERMISSIONS = (
     u'pylucid.change_pagecontent',
     u'pylucid.change_pagemeta'
-)
+) 
 
 
-def check_permissions(request, permissions):
-    """
-    TODO: Add a log entry, if user has not all permissions.
-    """
-    assert isinstance(permissions, (list, tuple))
-    user = request.user
-    
-    if not user.is_authenticated():
-        if settings.DEBUG: # Usefull??
-            warnings.warn("Anonymous can't edit page.")
-        raise PermissionDenied
-        
-    if not user.has_perms(permissions):
-        if settings.DEBUG: # Usefull??
-            msg = "User %r has not all permissions: %r (existing permissions: %r)" % (
-                user, permissions, user.get_all_permissions()
-            )
-            warnings.warn(msg)
-        raise PermissionDenied()
-    
-
-
-def _edit_page(request, form_url):
-    check_permissions(request, EDIT_PERMISSIONS)
-    
+def _edit_page(request, form_url):   
     pagemeta_instance = request.PYLUCID.pagemeta
     pagecontent_instance = request.PYLUCID.pagecontent
     
@@ -92,6 +80,7 @@ def _edit_page_preview(request):
     return HttpResponse(html_content)
 
 
+@check_permissions(permissions=PAGE_EDIT_PERMISSIONS)
 def http_get_view(request):  
     action = request.GET["page_admin"]
     if action=="inline_edit":

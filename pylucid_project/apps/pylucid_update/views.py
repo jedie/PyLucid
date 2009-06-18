@@ -1,5 +1,19 @@
 # coding: utf-8
 
+"""
+    PyLucid update views
+    ~~~~~~~~~~~~~~~~~~~~
+
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate:$
+    $Rev:$
+    $Author: JensDiemer $
+
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 import posixpath
 
 from django.conf import settings
@@ -7,7 +21,6 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template.loader import find_template_source
-from django.contrib.auth.decorators import login_required
 
 from dbtemplates.models import Template
 
@@ -19,16 +32,12 @@ from pylucid_project.apps.pylucid_update.forms import UpdateForm
 
 
 
-@login_required
 def menu(request):
     """ Display a menu with all update view links """
     context = {
         "title": "menu",
     }
     return render_to_response('pylucid_update/menu.html', context, context_instance=RequestContext(request))
-
-
-
 
 
 def _do_update(request, site, language):
@@ -224,7 +233,6 @@ def _do_update(request, site, language):
         context_instance=RequestContext(request))
 
 
-@login_required
 def update08(request):
     """ Update PyLucid v0.8 model data to v0.9 models """
     if request.method == 'POST':
@@ -246,7 +254,6 @@ def update08(request):
         context_instance=RequestContext(request))
 
 
-@login_required
 def update08templates(request):
     title = "Update PyLucid v0.8 templates"
     out = SimpleStringIO()
@@ -345,7 +352,7 @@ def update08templates(request):
         context_instance=RequestContext(request))
     
 
-@login_required
+
 def update08styles(request):
     title = "Update PyLucid v0.8 styles"
     out = SimpleStringIO()
