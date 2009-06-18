@@ -7,13 +7,14 @@ import test_tools # before django imports!
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 from django_tools.unittest import unittest_base
 
 from pylucid_project.tests.test_tools import pylucid_test_data
 from pylucid_project.tests.test_tools import basetest
-from pylucid.models import EditableHtmlHeadFile
-
+from pylucid.models import EditableHtmlHeadFile, PageMeta, PageContent
 
 EDIT_PAGE_URL = "/?page_admin=inline_edit"
 
@@ -52,39 +53,53 @@ class EditPageTest(basetest.BaseUnittest):
         self.assertCanEdit(response)
         
     def test_permissions_normal(self):
-        """
-        A normal user must have explicit permissions to edit a page.
+        """ A normal user must have explicit permissions to edit a page. """
         
-        FIXME: Why can't i add permissions here??? They allways empty?!?!
-        """
-        user = self.login(usertype="normal")
-        response = self.client.get(EDIT_PAGE_URL)
-        self.assertCanNotEdit(response)
+        def check_permissions(permissions, assertion):
+            user = self.login(usertype="normal")
+            user.user_permissions.clear() # Delete all existing permissions
+            for permission, model in permissions:
+                # Give the test user the permissions:
+                content_type=ContentType.objects.get_for_model(model)
+                perm = Permission.objects.get(content_type=content_type, codename=permission)
+                user.user_permissions.add(perm)
+            
+            user = self.login(usertype="normal") # "reloading" user to purge user._perm_cache 
+            
+            # low level check permissions:
+            codenames = [u"pylucid.%s" % permission for permission,model in permissions]
+            self.failUnless(user.has_perms(codenames),
+                "Low level error, user has not permissions: %r, he has: %r" % (
+                    codenames, user.get_all_permissions()
+                )
+            )
+            # Check if he can now edit the page:
+            response = self.client.get(EDIT_PAGE_URL)
+            assertion(response)
         
-        # Give the test user the permissions:
-        from django.contrib.auth.models import Permission
-        for i in Permission.objects.all():
-            print i.pk, i
+        # normal user has no permissions
+        check_permissions(permissions=[], assertion=self.assertCanNotEdit)
         
-        print user
-        print user.get_all_permissions()
-        print user._perm_cache
-        user.user_permissions.add("pylucid.can_edit_pagecontent")
-        user.user_permissions.add("pylucid.can_edit_pagemeta")
-        user.save()
-        user = self.login(usertype="normal")
-        print user.get_all_permissions()
-        print user._perm_cache
+        # normal user has only one permission
+        check_permissions(
+            permissions=[("change_pagecontent", PageContent)],
+            assertion=self.assertCanNotEdit
+        )
+        check_permissions(
+            permissions=[("change_pagemeta", PageMeta)],
+            assertion=self.assertCanNotEdit
+        )
         
-        self.failUnless(user.has_perms(["pylucid.can_edit_page", "pylucid.can_edit_pagemeta"]), "FIXME!!!")
-        
-        settings.DEBUG = True
-        # Check if he can now edit the page:
-        response = self.client.get(EDIT_PAGE_URL)
-        self.assertCanEdit(response)
+        # normal user has all permission -> he can edit the page
+        check_permissions(
+            permissions=[("change_pagecontent", PageContent), ("change_pagemeta", PageMeta)],
+            assertion=self.assertCanEdit
+        )
+
 
 
 
 if __name__ == "__main__":
     # Run this unitest directly
+#    from django_tools.utils import info_print; info_print.redirect_stdout()
     unittest_base.direct_run(__file__)

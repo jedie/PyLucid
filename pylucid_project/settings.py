@@ -76,6 +76,7 @@ print "Used port is %s -> set SITE_ID: %s" % (_used_port, SITE_ID)
 ROOT_URLCONF = 'pylucid_project.urls'
 
 MIDDLEWARE_CLASSES = (
+    # From http://code.google.com/p/django-tools/
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
     
     'django.contrib.sessions.middleware.SessionMiddleware',

@@ -61,6 +61,7 @@ def _import_test(module_name, class_name=None):
         except TypeError:
             raise TypeError("Test label '%s' wrong!" % module_name)
 
+
 def get_all_tests(verbosity=False):
     """ Contruct a test suite from all available tests. Returns an instantiated test suite. """
     if verbosity:
@@ -95,6 +96,7 @@ def get_all_tests(verbosity=False):
         
     return test_suite
 
+
 def get_tests(test_labels, verbosity=False):
     """
     Construct a test suite with specified labels or all from all available
@@ -117,6 +119,7 @@ def get_tests(test_labels, verbosity=False):
     else:
         return get_all_tests(verbosity)
 
+
 def setup_unittest_plugin(verbosity):
     if verbosity:
         print "setup unittest plugin via symlink ",
@@ -132,12 +135,14 @@ def setup_unittest_plugin(verbosity):
         
     # Add unittest template dir
     settings.TEMPLATE_DIRS += (os.path.join(UNITTEST_PLUGIN_DST_PATH, "templates"),)
-    
+
+
 def teardown_unittest_plugin(verbosity):
     if verbosity:
         print "remove unittest plugin symlink"
     os.remove(UNITTEST_PLUGIN_DST_PATH)
-        
+
+
 def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     """
     PyLucid test runner. Sets up test environment, populates test database with
@@ -187,6 +192,7 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     teardown_unittest_plugin(verbosity)
 
     return len(result.failures) + len(result.errors)
+
 
 if __name__ == "__main__":
     # Run all unitest directly

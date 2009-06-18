@@ -24,9 +24,6 @@ class DesignTest(basetest.BaseUnittest):
         
         self.test_css = EditableHtmlHeadFile.objects.get(filepath=pylucid_test_data.TEST_CSS_FILEPATH)
         self.test_js = EditableHtmlHeadFile.objects.get(filepath=pylucid_test_data.TEST_JS_FILEPATH)
-        
-        # fake django HttpRequest object, needed in UpdateInfoBaseModel save() method
-        self.fake_request = pylucid_test_data.get_fake_request(usertype="superuser")
 
     def _assert_headfiles(self, test_css_url, test_js_url):
         """ Test get_absolute_url() and head links in reponse content """
@@ -58,7 +55,7 @@ class DesignTest(basetest.BaseUnittest):
             cachepath = headfile.get_cachepath()
             if not os.path.isfile(cachepath):
                 os.makedirs(os.path.dirname(cachepath)) # Cache dir doesn't exist?
-                headfile.save(self.fake_request) # The save method should create the cache file
+                headfile.save() # The save method should create the cache file
             # Check if file exist
             self.failUnless(os.path.isfile(cachepath), "Can't create cache file???")
 

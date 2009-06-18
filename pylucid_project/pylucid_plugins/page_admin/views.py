@@ -15,22 +15,31 @@ from page_admin.forms import EditPageForm
 
 
 EDIT_PERMISSIONS = (
-    "pylucid.can_edit_page",
-    "pylucid.can_edit_pagemeta",
+    u'pylucid.change_pagecontent',
+    u'pylucid.change_pagemeta'
 )
 
 
 def check_permissions(request, permissions):
+    """
+    TODO: Add a log entry, if user has not all permissions.
+    """
+    assert isinstance(permissions, (list, tuple))
     user = request.user
-    if user.has_perms(permissions):
-        return
     
-    if settings.DEBUG: # Usefull??
-        for permission in permissions:
-            if not user.has_perm(permission):
-                warnings.warn("User %r has not the permission: %r" % (user, permission))
+    if not user.is_authenticated():
+        if settings.DEBUG: # Usefull??
+            warnings.warn("Anonymous can't edit page.")
+        raise PermissionDenied
+        
+    if not user.has_perms(permissions):
+        if settings.DEBUG: # Usefull??
+            msg = "User %r has not all permissions: %r (existing permissions: %r)" % (
+                user, permissions, user.get_all_permissions()
+            )
+            warnings.warn(msg)
+        raise PermissionDenied()
     
-    raise PermissionDenied
 
 
 def _edit_page(request, form_url):
