@@ -45,14 +45,27 @@ def validate_css_color_value(value):
     if not CSS_VALUE_RE.match(value):
         raise exceptions.ValidationError(_("Error: %r is not a CSS hex color value") % value)
 
+class ColorInputWidget(forms.TextInput):
+    """
+    Add background-color into input tag
+    TODO: Change text color, if background is to dark ;)
+    TODO2: Use jQuery to change the <td> background color ;)
+    """
+    def render(self, name, value, attrs=None):
+        if not attrs:
+            attrs = {}
+        attrs["style"] = "background-color:#%s;" % value
+        return super(ColorInputWidget, self).render(name, value, attrs)
+
 
 class ColorFormField(forms.CharField):
     """ form field for a CSS color value """
-#    widget = DictFormWidget
+    widget = ColorInputWidget
     def clean(self, value):
         """ validate the form data """
         value = super(ColorFormField, self).clean(value)
         validate_css_color_value(value)
+        self.value = value
         return value
 
 
@@ -75,6 +88,7 @@ class ColorField(models.CharField):
     def formfield(self, **kwargs):
         # Always use own form field and widget:
         kwargs['form_class'] = ColorFormField
+        kwargs['widget'] = ColorInputWidget
         return super(ColorField, self).formfield(**kwargs)
 
 
