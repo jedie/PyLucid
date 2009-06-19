@@ -28,6 +28,7 @@ from xml.sax.saxutils import escape
 
 from django.db import models
 from django.conf import settings
+from django.core import exceptions
 from django.db.models import signals
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
@@ -40,9 +41,10 @@ from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.utils import crypt
 
-from pylucid.system.auto_model_info import UpdateInfoBaseModel
-from pylucid.system import headfile
+from pylucid.system.auto_model_info import UpdateInfoBaseModel,AutoSiteM2M
 from pylucid.shortcuts import user_message_or_warn
+from pylucid.fields import ColorField
+from pylucid.system import headfile
 
 
 class PageTreeManager(models.Manager):
@@ -432,15 +434,69 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         unique_together = (("page","lang"),)
         ordering = ("page", "lang")
 
+#------------------------------------------------------------------------------
+
+class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
+    """
+    inherited attributes from AutoSiteM2M:
+        site    -> ManyToManyField to Site
+        on_site -> sites.managers.CurrentSiteManager instance
+    """
+    name = models.CharField(max_length=255, help_text="The name of this color scheme.")
+    
+    def update(self, colors):
+        assert isinstance(colors, dict)
+        new = []
+        updated = []
+        exists = []
+        for name, value in colors.iteritems():
+            color, created = Color.objects.get_or_create(
+                colorscheme=self, name=name,
+                defaults={"colorscheme":self, "name":name, "value":value}
+            )
+            if created:
+                new.append(color)
+            elif color.value != value:
+                color.value = value
+                updated.append(color)
+                color.save()
+            else:
+                exists.append(color)
+        return new, updated, exists
+
+    def __unicode__(self):
+        sites = [site.name for site in self.site.all()]
+        return u"ColorScheme '%s' (on sites: %r)" % (self.name, sites)
+
+
+class Color(AutoSiteM2M, UpdateInfoBaseModel):
+    """
+    inherited attributes from AutoSiteM2M:
+        site    -> ManyToManyField to Site
+        on_site -> sites.managers.CurrentSiteManager instance
+    """
+    colorscheme = models.ForeignKey(ColorScheme)
+    name = models.CharField(max_length=128,
+        help_text="Name if this color (e.g. main_color, head_background)"
+    )
+    value = ColorField(help_text="CSS hex color value.")
+    
+    def __unicode__(self):
+        sites = [site.name for site in self.site.all()]
+        return u"Color '%s' (%s, on sites: %r)" % (self.name, self.colorscheme, sites)
 
 #------------------------------------------------------------------------------
 
 class DesignManager(models.Manager):
     pass
 
-class Design(UpdateInfoBaseModel):
+class Design(AutoSiteM2M, UpdateInfoBaseModel):
     """
     Page design: template + CSS/JS files
+    
+    inherited attributes from AutoSiteM2M:
+        site    -> ManyToManyField to Site
+        on_site -> sites.managers.CurrentSiteManager instance
     
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -450,14 +506,12 @@ class Design(UpdateInfoBaseModel):
     """
     objects = DesignManager()
     
-    site = models.ManyToManyField(Site, default=[settings.SITE_ID])
-    on_site = CurrentSiteManager()
-    
     name = models.CharField(unique=True, max_length=150, help_text="Name of this design combination",)
     template = models.CharField(max_length=128, help_text="filename of the used template for this page")
     headfiles = models.ManyToManyField("EditableHtmlHeadFile", null=True, blank=True,
         help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag"
     )
+    colorscheme = models.ForeignKey(ColorScheme, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         assert isinstance(self.template, basestring), \
@@ -466,7 +520,8 @@ class Design(UpdateInfoBaseModel):
         return super(Design, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"Page design '%s'" % self.name
+        sites = [site.name for site in self.site.all()]
+        return u"Page design '%s' (on sites: %r)" % (self.name, sites)
     
     class Meta:
         ordering = ("template",)
@@ -483,9 +538,13 @@ class EditableHtmlHeadFileManager(models.Manager):
         return headfile.HeadfileLink(filename=db_instance.filename)#, content=db_instance.content)
         
 
-class EditableHtmlHeadFile(UpdateInfoBaseModel):
+class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     """
     Storage for editable static text files, e.g.: stylesheet / javascript.
+    
+    inherited attributes from AutoSiteM2M:
+        site    -> ManyToManyField to Site
+        on_site -> sites.managers.CurrentSiteManager instance
     
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -495,13 +554,14 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
     """
     objects = EditableHtmlHeadFileManager()
     
-    site = models.ManyToManyField(Site, default=[settings.SITE_ID])
-    on_site = CurrentSiteManager()
-    
     filepath = models.CharField(max_length=256)
     mimetype = models.CharField(max_length=64)
     html_attributes = models.CharField(max_length=256, null=False, blank=True,
+        # TODO: Use this!
         help_text='Additional html tag attributes (CSS example: media="screen")'
+    )
+    render = models.BooleanField(default = False,
+        help_text="Are there CSS ColorScheme entries in the content?"
     )
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
@@ -587,7 +647,8 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         return super(EditableHtmlHeadFile, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"EditableHtmlHeadFile '%s'" % self.filepath
+        sites = [site.name for site in self.site.all()]
+        return u"EditableHtmlHeadFile '%s' (on sites: %r)" % (self.filepath, sites)
 
     class Meta:
         ordering = ("filepath",)
@@ -596,12 +657,16 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
 
 
     
-class UserProfile(UpdateInfoBaseModel):
+class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     """
     Stores additional information about PyLucid users
     http://docs.djangoproject.com/en/dev/topics/auth/#storing-additional-information-about-users
     
     Created via post_save signal, if a new user created.
+    
+    inherited attributes from AutoSiteM2M:
+        site    -> ManyToManyField to Site
+        on_site -> sites.managers.CurrentSiteManager instance
     """
     user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
     
@@ -612,9 +677,10 @@ class UserProfile(UpdateInfoBaseModel):
         help_text="Salt value for PyLucid JS-SHA-Login"
     )
     
-    site = models.ManyToManyField(Site,
-        help_text="User can access only these sites."
-    )
+    # TODO: Overwrite help_text:
+#    site = models.ManyToManyField(Site,
+#        help_text="User can access only these sites."
+#    )
     
     def set_sha_login_password(self, raw_password):
         """
@@ -649,11 +715,11 @@ def create_user_profile(sender, **kwargs):
     userprofile, created = UserProfile.objects.get_or_create(user=user)
     if created:
         user_message_or_warn("UserProfile entry for user '%s' created." % user)
-            
-        if not user.is_superuser: # Info: superuser can automaticly access all sites
-            site = Site.objects.get_current()
-            userprofile.site.add(site)
-            user_message_or_warn("Add site '%s' to '%s' UserProfile." % (site.name, user))            
+#            
+#        if not user.is_superuser: # Info: superuser can automaticly access all sites
+#            site = Site.objects.get_current()
+#            userprofile.site.add(site)
+#            user_message_or_warn("Add site '%s' to '%s' UserProfile." % (site.name, user))            
 
 signals.post_save.connect(create_user_profile, sender=User)
 

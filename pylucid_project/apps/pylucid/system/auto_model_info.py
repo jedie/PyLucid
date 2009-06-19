@@ -21,12 +21,41 @@ import sys
 import warnings
 
 from django.db import models
+from django.conf import settings
 from django.contrib import admin
 from django.http import HttpRequest
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.db import transaction, IntegrityError
+from pylucid.shortcuts import user_message_or_warn
+from django.contrib.sites.managers import CurrentSiteManager
 
 from django_tools.middlewares import ThreadLocal
+
+
+class AutoSiteM2M(models.Model):
+    """
+    Add site and on_site to model, and add at least the current site in save method.
+    """
+    site = models.ManyToManyField(Site)
+    on_site = CurrentSiteManager()
+
+    def save(self, *args, **kwargs):
+        """ Automatic current site, if not exist. """
+        if self.pk==None:
+            # instance needs to have a primary key value before a many-to-many relationship can be used.
+            super(AutoSiteM2M, self).save(*args, **kwargs)
+        
+        if self.site.count()==0:
+            site = Site.objects.get_current()
+            if settings.DEBUG:
+                user_message_or_warn("Automatic add site '%s' to %r" % (site.name, self))             
+            self.site.add(site)
+            
+        super(AutoSiteM2M, self).save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
 
 
 class UpdateInfoBaseModel(models.Model):
@@ -34,9 +63,9 @@ class UpdateInfoBaseModel(models.Model):
     Base model with update info attributes, used by many models.
     The createby and lastupdateby ForeignKey would be automaticly updated. This needs the 
     request object as the first argument in the save method.
-    
-    Important: Every own objects manager should be inherit from UpdateInfoBaseModelManager!
-    """    
+    """
+    objects = models.Manager()
+            
     createtime = models.DateTimeField(auto_now_add=True, help_text="Create time",)
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
     

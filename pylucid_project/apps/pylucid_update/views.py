@@ -14,34 +14,39 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import re
 import posixpath
 
 from django.conf import settings
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
 from django.template.loader import find_template_source
 
 from dbtemplates.models import Template
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Design, \
-                                                            EditableHtmlHeadFile, UserProfile
+from pylucid.models import PageTree, PageMeta, PageContent, ColorScheme, Design, EditableHtmlHeadFile, \
+                                                                                            UserProfile
 from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
+from pylucid.system.css_color_utils import filter_content, extract_colors
 from pylucid_project.apps.pylucid_update.forms import UpdateForm
-
+from pylucid.fields import CSS_VALUE_RE
 
 
 def menu(request):
     """ Display a menu with all update view links """
     context = {
         "title": "menu",
+        "site": Site.objects.get_current()
     }
     return render_to_response('pylucid_update/menu.html', context, context_instance=RequestContext(request))
 
 
-def _do_update(request, site, language):
+def _do_update(request, language):
     out = SimpleStringIO()
+    site = Site.objects.get_current()
     out.write("Starting update and move v0.8 data into v0.9 (on site: %s)" % site)
 
     out.write("\n______________________________________________________________")
@@ -52,7 +57,7 @@ def _do_update(request, site, language):
         sha_login_salt = old_entry.salt
         
         userprofile, created = UserProfile.objects.get_or_create(user = user)
-        userprofile.site.add(site)           
+        #userprofile.site.add(site)           
         if created:
             out.write("UserProfile for user '%s' created." % user.username)
         else:
@@ -99,7 +104,6 @@ def _do_update(request, site, language):
                 "lastupdatetime": style.lastupdatetime,
             }
         )
-        new_staticfile.site.add(site)
         cssfiles[style.name] = new_staticfile
         if created:
             out.write("stylesheet '%s' transferted into EditableStaticFile." % style.name)
@@ -122,11 +126,12 @@ def _do_update(request, site, language):
         
         design_key = "%s %s" % (old_page.template.name, old_page.style.name)
         if design_key not in designs:
+            style_name = old_page.style.name
             # The template/style combination was not created, yet.
-            if old_page.template.name == old_page.style.name:
+            if old_page.template.name == style_name:
                 new_design_name = old_page.template.name
             else:
-                new_design_name = "%s + %s" % (old_page.template.name, old_page.style.name)
+                new_design_name = "%s + %s" % (old_page.template.name, style_name)
                 
             design, created = Design.objects.get_or_create(
                 name = new_design_name,
@@ -134,15 +139,29 @@ def _do_update(request, site, language):
                     "template": templates[old_page.template.name],
                 }
             )
-            design.site.add(site)
             if created:
-                # Add old page css file
-                design.headfiles.add(cssfiles[old_page.style.name])
                 out.write("New design created: %s" % new_design_name)
-            
+            else:
+                out.write("Use existing Design: %r" % design)
+
+            # Add old page css file
+            css_file = cssfiles[style_name] # EditableHtmlHeadFile instance
+            assert isinstance(css_file, EditableHtmlHeadFile)
+            design.headfiles.add(css_file)
+                
+            colorscheme, created = ColorScheme.objects.get_or_create(name=style_name)
+            if created:
+                out.write("Use new color scheme: %s" % colorscheme.name)
+                out.write("Colors can be extracted later.")
+            else:
+                out.write("Use color scheme: %s" % colorscheme.name)
+                
+            design.colorscheme = colorscheme
+            design.save()
             designs[design_key] = design
         else:
             design = designs[design_key]
+            out.write("Use existing Design: %r" % design)
             
         #---------------------------------------------------------------------
         # create/get PageTree entry
@@ -239,16 +258,15 @@ def update08(request):
     if request.method == 'POST':
         form = UpdateForm(request.POST)
         if form.is_valid():
-            site = form.cleaned_data["site"]
             language = form.cleaned_data["language"]
-
-            return _do_update(request, site, language)
+            return _do_update(request, language)
     else:
         form = UpdateForm()
 
     context = {
         "title": "update data from PyLucid v0.8 to v0.9",
         "url": reverse("PyLucidUpdate-update08"),
+        "site": Site.objects.get_current(),
         "form": form,
     }
     return render_to_response('pylucid_update/update08.html', context,
@@ -354,6 +372,7 @@ def update08templates(request):
     
 
 
+
 def update08styles(request):
     """
     TODO: We should not add any styles... We should create a new EditableHtmlHeadFile stylesheet
@@ -362,31 +381,93 @@ def update08styles(request):
     title = "Update PyLucid v0.8 styles"
     out = SimpleStringIO()
     
-    def replace(content, out, old, new):
-        out.write("replace %r with %r" % (old, new))
-        if not old in content:
-            out.write("String not found. Updated already?")
-        else:
-            content = content.replace(old, new)
-        return content
+    def update_headfile_colorscheme(design, headfile):
+        out.write("\nExtract colors from: '%s'" % headfile.filepath)
+
+        colorscheme = design.colorscheme
+        if colorscheme == None:
+            # This design has no color scheme, yet -> create one
+            colorscheme=ColorScheme(name=headfile.filepath)
+#            colorscheme.site.add(site = Site.objects.get_current()) # FIXME ?!?
+            colorscheme.save()
+            out.write("Add color scheme %r to %r" % (colorscheme.name, design.name))
+            design.colorscheme = colorscheme
+            design.save()
+        
+        out.write("Use color scheme %r" % colorscheme.name)
+        
+        content = headfile.content
+        new_content, color_dict = extract_colors(content)
+        out.write(repr(new_content))
+        out.write(repr(color_dict))
+
+        created, updated, exists = colorscheme.update(color_dict)
+        out.write("created colors: %r" % created)
+        out.write("updated colors: %r" % updated)
+        out.write("exists colors: %r" % exists)
+        
+        colorscheme.save()
+        
+        headfile.content = new_content
+        headfile.save()
+        
+        
+    def update_all_design_colorscheme(design):
+        headfiles = design.headfiles.all()
+        out.write("\nExisting headfiles: %r" % headfiles)
+        
+        for headfile in headfiles:
+            if not headfile.filepath.lower().endswith(".css"):
+                out.write("Skip headfile: %r" % headfile)
+            else:
+                update_headfile_colorscheme(design, headfile)
     
-    # Get the file content via django template loader:
-    additional_styles, origin = find_template_source("pylucid_update/additional_styles.css")
-        
-    styles = EditableHtmlHeadFile.objects.filter(filepath__istartswith=settings.SITE_TEMPLATE_PREFIX)
-    styles = styles.filter(filepath__iendswith=".css")
-    for style in styles:
+    for design in Design.objects.all():
         out.write("\n______________________________________________________________")
-        out.write("\nUpdate Style: '%s'" % style.filepath)
-        
-        content = style.content
-        if additional_styles in content:
-            out.write("additional styles allready inserted.")
-        else:
-            content = additional_styles + content
-            style.content = content
-            style.save()
-            out.write("additional styles inserted.")        
+        out.write("\nUpdate color scheme for design: '%s'" % design.name)
+                
+        update_all_design_colorscheme(design)
+    
+    
+#    styles = EditableHtmlHeadFile.objects.filter(filepath__istartswith=settings.SITE_TEMPLATE_PREFIX)
+#    styles = styles.filter(filepath__iendswith=".css")
+#    for style in styles:
+#        out.write("\n______________________________________________________________")
+#        out.write("\nUpdate Style: '%s'" % style.filepath)
+#        
+#        content = style.content
+#        filtered_content = filter_content(content) # Skip all pygments styles
+#        out.write(filtered_content)
+#        
+#        new_content, color_dict = extract_colors(content)
+#        out.write(new_content)
+#        out.write(repr(color_dict))
+    
+#    def replace(content, out, old, new):
+#        out.write("replace %r with %r" % (old, new))
+#        if not old in content:
+#            out.write("String not found. Updated already?")
+#        else:
+#            content = content.replace(old, new)
+#        return content
+#    
+#    # Get the file content via django template loader:
+#    additional_styles, origin = find_template_source("pylucid_update/additional_styles.css")
+#        
+#    styles = EditableHtmlHeadFile.objects.filter(filepath__istartswith=settings.SITE_TEMPLATE_PREFIX)
+#    styles = styles.filter(filepath__iendswith=".css")
+#    for style in styles:
+#        out.write("\n______________________________________________________________")
+#        out.write("\nUpdate Style: '%s'" % style.filepath)
+#        
+#        content = style.content
+#        if additional_styles in content:
+#            out.write("additional styles allready inserted.")
+#        else:
+#            content = additional_styles + content
+#            style.content = content
+#            style.save()
+#            out.write("additional styles inserted.")        
     
     context = {
         "title": title,

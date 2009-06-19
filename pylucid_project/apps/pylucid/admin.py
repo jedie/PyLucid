@@ -102,12 +102,28 @@ class PluginPageAdmin(VersionAdmin):
 
 admin.site.register(models.PluginPage, PluginPageAdmin)
 
+#-----------------------------------------------------------------------------
+
+class ColorInline(admin.TabularInline):
+    model = models.Color
+
+class ColorSchemeAdmin(VersionAdmin):    
+    list_display = ("name",)
+    list_display_links = ("name",)
+    search_fields = ("name",)
+    inlines = [
+        ColorInline,
+    ]
+    
+admin.site.register(models.ColorScheme, ColorSchemeAdmin)
+
+
 
 class DesignAdmin(VersionAdmin):    
-    list_display = ("name", "template", "lastupdatetime", "lastupdateby")
+    list_display = ("name", "template", "colorscheme", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
-    list_filter = ("site", "template", "createby", "lastupdateby")
-    search_fields = ("name", "template")
+    list_filter = ("site", "template", "colorscheme", "createby", "lastupdateby")
+    search_fields = ("name", "template", "colorscheme")
 
 admin.site.register(models.Design, DesignAdmin)
 
@@ -119,6 +135,7 @@ class EditableHtmlHeadFileAdmin(VersionAdmin):
 
 admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
+#-----------------------------------------------------------------------------
 
 class UserProfileAdmin(VersionAdmin):
     list_display = ("user", "site_info", "lastupdatetime", "lastupdateby")

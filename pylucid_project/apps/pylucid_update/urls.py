@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    Generate dynamicly urls based on the database tree
+    urls for update section
 """
 
 from django.conf.urls.defaults import patterns, url
