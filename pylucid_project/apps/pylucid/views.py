@@ -9,7 +9,7 @@ from django_tools.template import render
 
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.markup.converter import apply_markup
-from pylucid.models import PageTree, PageContent, EditableHtmlHeadFile, Language
+from pylucid.models import PageTree, PageContent, ColorScheme, EditableHtmlHeadFile, Language
 
 
 # use the undocumented django function to add the "lucidTag" to the tag library.
@@ -173,20 +173,36 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
 #_____________________________________________________________________________
 # view functions
 
-
 def send_head_file(request, filepath):
     """
     Sending a headfile
     only a fall-back method if the file can't be stored into the media path
     """
+    if "ColorScheme" in request.GET:
+        colorscheme_pk = request.GET["ColorScheme"]
+        try:
+            colorscheme = ColorScheme.objects.get(pk=colorscheme_pk)
+        except ColorScheme.DoesNotExist:
+            if settings.DEBUG:
+                msg = "ColorScheme %r not found!" % colorscheme_pk
+            else:
+                msg = ""
+            raise http.Http404(msg)
+    
     try:
         headfile = EditableHtmlHeadFile.objects.get(filepath=filepath)
     except EditableHtmlHeadFile.DoesNotExist:
         if settings.DEBUG:
-            request.page_msg.error("Headfile %r not found!" % filepath)
-        raise http.Http404
+            msg = "Headfile %r not found!" % filepath
+        else:
+            msg = ""
+        raise http.Http404(msg)
     
-    content = headfile.content
+    if headfile.render:
+        content = headfile.get_rendered(colorscheme)
+    else:
+        content = headfile.content
+        
     mimetype = headfile.mimetype    
     return http.HttpResponse(content, mimetype=mimetype)
 

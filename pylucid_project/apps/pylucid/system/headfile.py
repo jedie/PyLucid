@@ -75,7 +75,11 @@ class HeadfileLink(HeadfileBase):
     """
     def __init__(self, url, tag_attrs={}):
         self.url = url
-        self.data_type = os.path.splitext(self.url)[1].lstrip(".")
+        if "?" in url:
+            path = url.split("?",1)[0]
+        else:
+            path = url
+        self.data_type = os.path.splitext(path)[1].lstrip(".")
         self.check_type()
 
         self.tag_attrs = self.make_tag_attrs(tag_attrs)

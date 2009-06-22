@@ -129,9 +129,9 @@ admin.site.register(models.Design, DesignAdmin)
 
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
-    list_display = ("filepath", "description", "lastupdatetime", "lastupdateby")
+    list_display = ("filepath", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
-    list_filter = ("site",)
+    list_filter = ("site","render")
 
 admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 

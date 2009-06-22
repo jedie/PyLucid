@@ -38,6 +38,7 @@ from django.template.loader import render_to_string
 from django.contrib.sites.managers import CurrentSiteManager
 
 from django_tools.middlewares import ThreadLocal
+from django_tools.template import render
 
 from pylucid_project.utils import crypt
 
@@ -468,6 +469,11 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
         sites = [site.name for site in self.site.all()]
         return u"ColorScheme '%s' (on sites: %r)" % (self.name, sites)
 
+class ColorManager(models.Manager):
+    def get_color_dict(self, colorscheme):
+        colors = self.all().filter(colorscheme=colorscheme)
+        color_list = colors.values_list('name', 'value')
+        return dict([(name, "#%s" % value) for name,value in color_list])
 
 class Color(AutoSiteM2M, UpdateInfoBaseModel):
     """
@@ -475,6 +481,8 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
         site    -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
     """
+    objects = ColorManager()
+    
     colorscheme = models.ForeignKey(ColorScheme)
     name = models.CharField(max_length=128,
         help_text="Name if this color (e.g. main_color, head_background)"
@@ -566,27 +574,41 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
     
-    def get_cachepath(self):
+    def get_color_filepath(self, colorscheme):
+        """ Colorscheme + filepath """
+        assert isinstance(colorscheme, ColorScheme)
+        return os.path.join("ColorScheme_%s" % colorscheme.pk, self.filepath)
+        
+    def get_path(self, colorscheme):
+        """ Path for filesystem cache path and link url. """
+        return os.path.join(
+            settings.PYLUCID.PYLUCID_MEDIA_DIR, settings.PYLUCID.CACHE_DIR,
+            self.get_color_filepath(colorscheme)
+        )
+    
+    def get_cachepath(self, colorscheme):
         """
         filesystem path with filename.
         TODO: Install section sould create the directories!
         """
-        return os.path.join(
-            settings.MEDIA_ROOT, settings.PYLUCID.PYLUCID_MEDIA_DIR, settings.PYLUCID.CACHE_DIR,
-            self.filepath
-        )
+        return os.path.join(settings.MEDIA_ROOT, self.get_path(colorscheme))
         
-    def save_cache_file(self):
+    def get_rendered(self, colorscheme):
+        color_dict = Color.objects.get_color_dict(colorscheme)
+        return render.render_string_template(self.content, color_dict)        
+        
+    def save_cache_file(self, colorscheme):
         """
         Try to cache the head file into filesystem (Only worked, if python process has write rights)
         Try to create the out path, if it's not exist.
         """
-        cachepath = self.get_cachepath()
+        cachepath = self.get_cachepath(colorscheme)
         
         def _save_cache_file(auto_create_dir=True):
+            rendered_content = self.get_rendered(colorscheme)
             try:
                 f = file(cachepath, "w")
-                f.write(self.content)
+                f.write(rendered_content)
                 f.close()
             except IOError, err:
                 if auto_create_dir and err.errno == errno.ENOENT: # No 2: No such file or directory
@@ -608,22 +630,29 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             if settings.DEBUG:
                 user_message_or_warn("EditableHtmlHeadFile cached successful into: %r" % cachepath)
 
-    def get_absolute_url(self):
-        cachepath = self.get_cachepath()
+    def save_all_color_cachfiles(self):
+        """ this headfile was changed: resave all cache files in every existing colors"""
+        designs = Design.objects.all().filter(colorscheme=colorscheme)
+        for design in designs:
+            print design
+            headfiles = design.headfiles.all()
+            for headfile in headfiles:
+                print headfile
+                headfile.save_cache_file(colorscheme)
+
+    def get_absolute_url(self, colorscheme):
+        cachepath = self.get_cachepath(colorscheme)
         if os.path.isfile(cachepath):
             # The file exist in media path -> Let the webserver send this file ;)
-            return posixpath.join(
-                settings.MEDIA_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, settings.PYLUCID.CACHE_DIR,
-                self.filepath
-            )
+            return os.path.join(settings.MEDIA_URL, self.get_path(colorscheme))
         else:
             # not cached into filesystem -> use pylucid.views.send_head_file for it
-            return reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
+            url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
+            return url + "?ColorScheme=%s" % colorscheme.pk
 
-
-    def get_headfilelink(self):
+    def get_headfilelink(self, colorscheme):
         """ Get the link url to this head file. """
-        url = self.get_absolute_url()
+        url = self.get_absolute_url(colorscheme)
         return headfile.HeadfileLink(url)
 
     def auto_mimetype(self):
@@ -642,7 +671,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             self.mimetype = self.auto_mimetype()
 
         # Try to cache the head file into filesystem (Only worked, if python process has write rights)
-        self.save_cache_file()
+        self.save_all_color_cachfiles()
 
         return super(EditableHtmlHeadFile, self).save(*args, **kwargs)
 
@@ -704,6 +733,22 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     class Meta:
         ordering = ("user",)
 
+
+#______________________________________________________________________________
+
+def cache_headfiles(sender, **kwargs):
+    """
+    One colorscheme was changes: resave all cache headfiles with new color values. 
+    """
+    colorscheme = kwargs["instance"]
+
+    designs = Design.objects.all().filter(colorscheme=colorscheme)
+    for design in designs:
+        headfiles = design.headfiles.all()
+        for headfile in headfiles:
+            headfile.save_cache_file(colorscheme)
+    
+signals.post_save.connect(cache_headfiles, sender=ColorScheme)
 
 #______________________________________________________________________________
 # Create user profile via signals

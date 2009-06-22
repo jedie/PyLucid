@@ -41,11 +41,12 @@ class ContextMiddleware(object):
         pagetree = self.request.PYLUCID.pagetree
         design = pagetree.design
         
+        colorscheme = design.colorscheme
         headfiles = design.headfiles.all()
         
         for headfile in headfiles:
             # Get a instance from pylucid.system.headfile.HeadfileLink():
-            headfilelink = headfile.get_headfilelink()
+            headfilelink = headfile.get_headfilelink(colorscheme)
             head_tag = headfilelink.get_head_tag()
             self.extrahead.append(head_tag)
         
