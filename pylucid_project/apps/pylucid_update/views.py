@@ -388,7 +388,6 @@ def update08styles(request):
         if colorscheme == None:
             # This design has no color scheme, yet -> create one
             colorscheme=ColorScheme(name=headfile.filepath)
-#            colorscheme.site.add(site = Site.objects.get_current()) # FIXME ?!?
             colorscheme.save()
             out.write("Add color scheme %r to %r" % (colorscheme.name, design.name))
             design.colorscheme = colorscheme
@@ -409,6 +408,7 @@ def update08styles(request):
         colorscheme.save()
         
         headfile.content = new_content
+        headfile.render = True
         headfile.save()
         
         
@@ -421,9 +421,6 @@ def update08styles(request):
                 out.write("Skip headfile: %r" % headfile)
             else:
                 update_headfile_colorscheme(design, headfile)
-                
-            headfile.render = True
-            headfile.save()
     
     for design in Design.objects.all():
         out.write("\n______________________________________________________________")
