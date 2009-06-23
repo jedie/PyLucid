@@ -54,7 +54,9 @@ def pylucid(request):
         "current_site": current_site,
         "sites": all_sites,
         
-        "PyLucid_media_url": settings.MEDIA_URL + settings.PYLUCID.PYLUCID_MEDIA_DIR + "/",       
+        "PyLucid_media_url": settings.MEDIA_URL + settings.PYLUCID.PYLUCID_MEDIA_DIR + "/",
+        
+        "debug": settings.DEBUG,
     }
     
     if hasattr(request, "plugin_name"):

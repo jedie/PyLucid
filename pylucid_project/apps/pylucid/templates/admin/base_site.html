@@ -6,7 +6,13 @@
 {% block extrahead %}
 <!-- app_extrahead block start -->
 {# stylesheets for all PyLucid views #}
-<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.js"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.js] !');" ></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js"></script>
+{% if debug %}
+    <script type="text/javascript">var debug=true;log("debug is on");</script>
+{% else %}
+    <script type="text/javascript">var debug=false;</script>
+{% endif %}
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish.css" />
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/admin_design.css" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js"></script> 
@@ -35,7 +41,7 @@ $(document).ready(function(){
   $('ul.sf-menu').superfish({ 
       delay:       1000,                            // one second delay on mouseout 
       animation:   {opacity:'show',height:'show'},  // fade-in and slide-down animation 
-      speed:       'fast',                          // faster animation speed
+      speed:       'fast'                           // faster animation speed
   }); 
 
   //

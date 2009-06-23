@@ -1,0 +1,40 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrahead %}{{ block.super }}
+<!-- colorscheme/change_form extrahead - START -->
+<link rel="stylesheet" media="screen" type="text/css" href="{{ PyLucid_media_url }}colorpicker/css/colorpicker.css" />
+<script type="text/javascript" src="{{ PyLucid_media_url }}colorpicker/js/colorpicker.js"></script>
+<script type="text/javascript">
+var color_name_re = new RegExp(/^color\S+value$/);
+$(document).ready(function(){
+    //
+    // Add color picker to every color field
+    // 
+    $(':input').each(function(i, selected){
+        input_name = $(selected).attr("name");
+        if (input_name.match(color_name_re)) {
+            log("Add color picker to:" + $(selected));
+            color_value = $(selected).attr("value");
+            log(color_value);
+            $(selected).parent().ColorPicker({
+                color: color_value,
+			    onChange: function (hsb, hex, rgb) {
+                    $(selected).attr("value", hex);		         
+			        $(selected).parent().css('backgroundColor', '#' + hex);
+			    }
+
+            });
+            log("remove style");
+            $(selected).removeAttr("style");
+            if (color_value != "") {
+                log("change background color to #"+color_value);
+                $(selected).parent().css('backgroundColor', '#' + color_value);
+            }
+        }
+    });
+    //.ColorPicker(options);
+});
+</script>
+<!-- colorscheme/change_form extrahead - END -->
+{% endblock %}
