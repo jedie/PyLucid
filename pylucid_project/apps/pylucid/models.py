@@ -44,7 +44,7 @@ from pylucid_project.utils import crypt
 
 from pylucid.system.auto_model_info import UpdateInfoBaseModel,AutoSiteM2M
 from pylucid.shortcuts import user_message_or_warn
-from pylucid.fields import ColorField
+from pylucid.fields import ColorValueField
 from pylucid.system import headfile
 
 
@@ -487,9 +487,10 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
     name = models.CharField(max_length=128,
         help_text="Name if this color (e.g. main_color, head_background)"
     )
-    value = ColorField(help_text="CSS hex color value.")
+    value = ColorValueField(help_text="CSS hex color value.")
     
     def save(self, *args, **kwargs):
+        self.name = self.name.replace(" ", "_")
         new_name = self.name
         old_name = Color.objects.get(id=self.id).name
         if new_name != old_name:
@@ -521,8 +522,7 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
         return super(Color, self).save(*args, **kwargs)
     
     def __unicode__(self):
-        sites = [site.name for site in self.site.all()]
-        return u"Color '%s' (%s, on sites: %r)" % (self.name, self.colorscheme, sites)
+        return u"Color '%s' #%s (%s)" % (self.name, self.value, self.colorscheme)
     
     class Meta:
         unique_together=(("colorscheme", "name"),)
@@ -756,7 +756,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
         salt, sha_checksum = crypt.make_sha_checksum2(raw_password)
         self.sha_login_salt = salt
         self.sha_login_checksum = sha_checksum
-        user_message_or_warn("SHA Login salt+checksum created for user '%s'." % self.user)
+        user_message_or_warn("SHA Login salt+checksum set for user '%s'." % self.user)
 
     def __unicode__(self):
         return u"UserProfile for user '%s'" % self.user.username
@@ -792,7 +792,7 @@ signals.post_save.connect(cache_headfiles, sender=ColorScheme)
 def create_user_profile(sender, **kwargs):
     """ signal handler: creating user profile, after a new user created. """
     user = kwargs["instance"]
-            
+        
     userprofile, created = UserProfile.objects.get_or_create(user=user)
     if created:
         user_message_or_warn("UserProfile entry for user '%s' created." % user)
@@ -826,11 +826,13 @@ def set_password(user, raw_password):
     # Use the original method to set the django User password:
     orig_set_password(user, raw_password)
     
-    user_profile = user.get_profile()
+    userprofile, created = UserProfile.objects.get_or_create(user=user)
+    if created:
+        user_message_or_warn("UserProfile entry for user '%s' created." % user)
 
     # Save the password for the JS-SHA-Login:
-    user_profile.set_sha_login_password(raw_password)
-    user_profile.save()
+    userprofile.set_sha_login_password(raw_password)
+    userprofile.save()
 
 
 # replace the method 

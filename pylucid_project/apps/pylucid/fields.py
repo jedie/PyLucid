@@ -45,32 +45,36 @@ def validate_css_color_value(value):
     if not CSS_VALUE_RE.match(value):
         raise exceptions.ValidationError(_("Error: %r is not a CSS hex color value") % value)
 
-class ColorInputWidget(forms.TextInput):
+
+#-----------------------------------------------------------------------------
+
+
+class ColorValueInputWidget(forms.TextInput):
     """
-    Add background-color into input tag
-    TODO: Change text color, if background is to dark ;)
-    TODO2: Use jQuery to change the <td> background color ;)
+    Add background-ColorValue into input tag
+    TODO: Change text ColorValue, if background is to dark ;)
+    TODO2: Use jQuery to change the <td> background ColorValue ;)
     """
     def render(self, name, value, attrs=None):
         if not attrs:
             attrs = {}
-        attrs["style"] = "background-color:#%s;" % value
-        return super(ColorInputWidget, self).render(name, value, attrs)
+        attrs["style"] = "background-ColorValue:#%s;" % value
+        return super(ColorValueInputWidget, self).render(name, value, attrs)
 
 
-class ColorFormField(forms.CharField):
-    """ form field for a CSS color value """
-    widget = ColorInputWidget
+class ColorValueFormField(forms.CharField):
+    """ form field for a CSS ColorValue value """
+    widget = ColorValueInputWidget
     def clean(self, value):
         """ validate the form data """
-        value = super(ColorFormField, self).clean(value)
-        validate_css_color_value(value)
+        value = super(ColorValueFormField, self).clean(value)
+        validate_css_ColorValue_value(value)
         self.value = value
         return value
 
 
-class ColorField(models.CharField):
-    """ CSS color hex value field. """
+class ColorValueField(models.CharField):
+    """ CSS ColorValue hex value field. """
     #__metaclass__ = models.SubfieldBase
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 6
@@ -78,18 +82,18 @@ class ColorField(models.CharField):
 
     def get_db_prep_save(self, value):
         "Returns field's value prepared for saving into a database."
-        validate_css_color_value(value)
+        validate_css_ColorValue_value(value)
         return value
 
     def to_python(self, value):
-        validate_css_color_value(value)
+        validate_css_ColorValue_value(value)
         return value
 
     def formfield(self, **kwargs):
         # Always use own form field and widget:
-        kwargs['form_class'] = ColorFormField
-        kwargs['widget'] = ColorInputWidget
-        return super(ColorField, self).formfield(**kwargs)
+        kwargs['form_class'] = ColorValueFormField
+        kwargs['widget'] = ColorValueInputWidget
+        return super(ColorValueField, self).formfield(**kwargs)
 
 
 
