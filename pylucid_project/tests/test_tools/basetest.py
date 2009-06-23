@@ -103,7 +103,13 @@ class BaseUnittest(BaseTestCase, TransactionTestCase):
         """
         site = Site.objects.get_current()
         user = self._get_user(usertype="normal")
-        userprofile = user.get_profile()
+        
+        from pylucid.models import UserProfile
+        try:
+            userprofile = user.get_profile()
+        except UserProfile.DoesNotExist:
+            # FIXME: Why does in some case user.get_profile() not work???
+            userprofile = UserProfile.objects.get(user=user)
         
         if not site in userprofile.site.all():
             print "Info: Add user to site %s" % site
