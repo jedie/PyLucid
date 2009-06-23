@@ -104,6 +104,10 @@ admin.site.register(models.PluginPage, PluginPageAdmin)
 
 #-----------------------------------------------------------------------------
 
+#class ColorAdmin(VersionAdmin):
+#    list_display = ("id", "name","value")
+#admin.site.register(models.Color, ColorAdmin)
+
 class ColorInline(admin.TabularInline):
     model = models.Color
 

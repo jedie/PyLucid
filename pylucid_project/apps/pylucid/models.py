@@ -489,9 +489,44 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
     )
     value = ColorField(help_text="CSS hex color value.")
     
+    def save(self, *args, **kwargs):
+        new_name = self.name
+        old_name = Color.objects.get(id=self.id).name
+        if new_name != old_name:
+            # Color name has been changed -> Rename template placeholder in every headfile, too.
+            designs = Design.objects.all().filter(colorscheme=self.colorscheme)
+            for design in designs:
+                headfiles = design.headfiles.all()
+                for headfile in headfiles:
+                    if headfile.render != True: # File used no color placeholder
+                        continue
+
+                    old_content = headfile.content
+                    # FIXME: Use flexibler regexp. for this:
+                    new_content = old_content.replace("{{ %s }}" % old_name, "{{ %s }}" % new_name)
+                    if old_content == new_content:
+                        # content not changed?!?
+                        user_message_or_warn(
+                            "Color '{{ %s }}' not exist in headfile %r" % (old_name, headfile)
+                        )
+                        continue
+                    
+                    if settings.DEBUG:
+                        user_message_or_warn(
+                            "change color name from '%s' to '%s' in %r" % (old_name, new_name, headfile)
+                        )
+                    headfile.content = new_content
+                    headfile.save()
+
+        return super(Color, self).save(*args, **kwargs)
+    
     def __unicode__(self):
         sites = [site.name for site in self.site.all()]
         return u"Color '%s' (%s, on sites: %r)" % (self.name, self.colorscheme, sites)
+    
+    class Meta:
+        unique_together=(("colorscheme", "name"),)
+        ordering = ("colorscheme", "name")
 
 #------------------------------------------------------------------------------
 
@@ -632,13 +667,14 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
 
     def save_all_color_cachfiles(self):
         """ this headfile was changed: resave all cache files in every existing colors"""
-        designs = Design.objects.all().filter(colorscheme=colorscheme)
-        for design in designs:
-            print design
-            headfiles = design.headfiles.all()
-            for headfile in headfiles:
-                print headfile
-                headfile.save_cache_file(colorscheme)
+        warnings.warn("TODO")
+#        designs = Design.objects.all().filter(colorscheme=colorscheme)
+#        for design in designs:
+#            print design
+#            headfiles = design.headfiles.all()
+#            for headfile in headfiles:
+#                print headfile
+#                headfile.save_cache_file(colorscheme)
 
     def get_absolute_url(self, colorscheme):
         cachepath = self.get_cachepath(colorscheme)
@@ -677,7 +713,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
 
     def __unicode__(self):
         sites = [site.name for site in self.site.all()]
-        return u"EditableHtmlHeadFile '%s' (on sites: %r)" % (self.filepath, sites)
+        return u"'%s' (on sites: %r)" % (self.filepath, sites)
 
     class Meta:
         ordering = ("filepath",)
