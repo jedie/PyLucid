@@ -54,7 +54,7 @@ class PageTreeAdmin(VersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}    
 
     list_display = (
-        "slug", "site", "get_absolute_url", "description",
+        "id", "slug", "site", "get_absolute_url", "description",
         "lastupdatetime", "lastupdateby"
     )
     list_display_links = ("slug", "get_absolute_url")
@@ -72,17 +72,20 @@ admin.site.register(models.Language, LanguageAdmin)
 
 
 class PageMetaAdmin(VersionAdmin):
-    list_display = ("title_or_slug", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
+    list_display = ("id", "title_or_slug", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
     list_display_links = ("title_or_slug", "get_absolute_url")
     list_filter = ("lang", "keywords", "createby", "lastupdateby")
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
+    
 
 admin.site.register(models.PageMeta, PageMetaAdmin)
 
+class PageContentInline(admin.StackedInline):
+    model = models.PageContent
 
 class PageContentAdmin(VersionAdmin):
-    list_display = ("title_or_slug", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
+    list_display = ("id", "title_or_slug", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
     list_display_links = ("title_or_slug", "get_absolute_url")
     list_filter = ("lang", "markup", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
@@ -93,7 +96,8 @@ admin.site.register(models.PageContent, PageContentAdmin)
 
 class PluginPageAdmin(VersionAdmin):
     list_display = (
-        "get_plugin_name", "get_absolute_url", "app_label", "get_site", "lastupdatetime", "lastupdateby",
+        "id", "get_plugin_name", "get_absolute_url", "app_label",
+        "get_site", "lastupdatetime", "lastupdateby",
     )
     list_display_links = ("get_plugin_name", "app_label")
     list_filter = ("createby", "lastupdateby",)
@@ -112,19 +116,27 @@ class ColorInline(admin.TabularInline):
     model = models.Color
 
 class ColorSchemeAdmin(VersionAdmin):    
-    list_display = ("name",)
+    list_display = ("id", "name", "preview", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     search_fields = ("name",)
-    inlines = [
-        ColorInline,
-    ]
+    inlines = [ColorInline,]
+    
+    def preview(self, obj):
+        colors = models.Color.objects.all().filter(colorscheme=obj)
+        result = ""
+        for color in colors:
+            result += '<span style="background-color:#%s;" title="%s">&nbsp;&nbsp;&nbsp;</span>' % (
+                color.value, color.name
+            )
+        return result
+    preview.short_description = 'color preview'
+    preview.allow_tags = True
     
 admin.site.register(models.ColorScheme, ColorSchemeAdmin)
 
 
-
 class DesignAdmin(VersionAdmin):    
-    list_display = ("name", "template", "colorscheme", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "name", "template", "colorscheme", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     list_filter = ("site", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")
@@ -133,7 +145,7 @@ admin.site.register(models.Design, DesignAdmin)
 
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
-    list_display = ("filepath", "render", "description", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "filepath", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
     list_filter = ("site","render")
 
@@ -142,7 +154,7 @@ admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 #-----------------------------------------------------------------------------
 
 class UserProfileAdmin(VersionAdmin):
-    list_display = ("user", "site_info", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "user", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("user",)
     list_filter = ("site",)
 
