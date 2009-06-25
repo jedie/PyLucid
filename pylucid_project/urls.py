@@ -27,8 +27,12 @@ admin.autodiscover()
 urlpatterns = patterns('',
     #_____________________________________
     # PYLUCID UPDATE SECTION
-    ('^%s/update/'% settings.ADMIN_URL_PREFIX, include('pylucid_update.urls')),
-    
+    ('^%s/update/' % settings.ADMIN_URL_PREFIX, include('pylucid_update.urls')),
+
+    #_____________________________________
+    # PYLUCID ADMIN
+    (r'^%s/' % settings.ADMIN_URL_PREFIX, include('pylucid_admin.urls')),
+
     #_____________________________________
     # DJANGO ADMIN PANEL
     (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),

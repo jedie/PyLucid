@@ -69,7 +69,7 @@ if _used_port == "8001":
 else:
     SITE_ID = 1
 
-print "Used port is %s -> set SITE_ID: %s" % (_used_port, SITE_ID)    
+print "Used port is %s -> set SITE_ID: %s" % (_used_port, SITE_ID)
 
 
 
@@ -78,14 +78,14 @@ ROOT_URLCONF = 'pylucid_project.urls'
 MIDDLEWARE_CLASSES = (
     # From http://code.google.com/p/django-tools/
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
-    
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    
+
     'pylucid_project.middlewares.PageMessages.PageMessagesMiddleware',
-    
+
     # slow down the django developer server
     # From http://code.google.com/p/django-tools/
 #    'django_tools.middlewares.SlowerDevServer.SlowerDevServerMiddleware',
@@ -95,14 +95,15 @@ SLOWER_DEV_SERVER_SLEEP = 0.3 # time.sleep() value (in sec.)
 _BASE_PATH = os.path.join(os.path.dirname(__file__))
 
 _plugins = pylucid_plugins.PluginList(
-    fs_path = os.path.join(_BASE_PATH, "pylucid_plugins"),
-    pkg_prefix = "pylucid_project.pylucid_plugins"
+    fs_path=os.path.join(_BASE_PATH, "pylucid_plugins"),
+    pkg_prefix="pylucid_project.pylucid_plugins"
 )
 
 TEMPLATE_DIRS = (
     os.path.join(_BASE_PATH, "apps/pylucid/templates/"),
+    os.path.join(_BASE_PATH, "apps/pylucid_admin/templates/"),
     os.path.join(_BASE_PATH, "apps/pylucid_update/templates/"),
-    
+
     os.path.join(_BASE_PATH, "apps/dbpreferences/templates/"),
 
     os.path.join(_BASE_PATH, "django/contrib/admin/templates"),
@@ -139,7 +140,7 @@ if DEBUG:
     TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
 #    from django_tools.template import warn_invalid_template_vars
 #    warn_invalid_template_vars.add_warning()
-    
+
 
 
 INSTALLED_APPS = (
@@ -164,7 +165,7 @@ INSTALLED_APPS += _plugins.get_installed_apps()
 
 #http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
 #Default: 'django.test.simple.run_tests'
-TEST_RUNNER='pylucid_project.tests.test_tools.test_runner.run_tests'
+TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.run_tests'
 
 #_____________________________________________________________________________
 # PyLucid own settings
@@ -219,7 +220,7 @@ LOGIN_URL = "/admin/" # FIXME
 
 # TODO: must be used ;)
 SLUG_BLACKLIST = (
-    MEDIA_URL.strip("/").split("/",1)[0],
+    MEDIA_URL.strip("/").split("/", 1)[0],
     ADMIN_URL_PREFIX, PYLUCID.HEAD_FILES_URL_PREFIX,
 )
 

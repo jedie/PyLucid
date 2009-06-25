@@ -66,7 +66,7 @@ $(document).ready(function(){
 {% if request.user.is_authenticated %}
 <ul class="sf-menu">
     <li class="current">
-        <a href="/">&lt;&lt; back to "/" root page</a>
+        <a href="/" title="<< goto {{ current_site.name }} root page">&lt;&lt; {{ current_site.domain }}</a>
     </li>
     {% if not sites|length_is:"1" %}
     <li>
@@ -87,11 +87,16 @@ $(document).ready(function(){
     </li>
     {% endif %}
     <li>
-        <a href="#TODO">{% trans 'admin menu' %}</a>
+        <a href="{% url admin_index %}">{% trans 'Django admin site' %}</a>
     </li>
     {% if user.is_superuser %}
     <li>
-        <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
+        <a href="{% url PyLucidAdmin-menu %}">{% trans 'PyLucid admin menu' %}</a>
+        <ul>
+		    <li>
+		        <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
+		    </li>
+	    </ul>
     </li>
     {% endif %}
 </ul>
