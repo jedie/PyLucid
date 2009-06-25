@@ -674,7 +674,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             if settings.DEBUG:
                 user_message_or_warn("EditableHtmlHeadFile cached successful into: %r" % cachepath)
 
-    def save_all_color_cachfiles(self):
+    def save_all_color_cachefiles(self):
         """
         this headfile was changed: resave all cache files in every existing colors
         TODO: Update Queyset lookup
@@ -722,7 +722,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             self.mimetype = self.auto_mimetype()
 
         # Try to cache the head file into filesystem (Only worked, if python process has write rights)
-        self.save_all_color_cachfiles()
+        self.save_all_color_cachefiles()
 
         return super(EditableHtmlHeadFile, self).save(*args, **kwargs)
 
