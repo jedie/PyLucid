@@ -32,12 +32,12 @@ from pylucid_project.tests import unittest_plugin
 UNITTEST_PLUGIN_SRC_PATH = os.path.abspath(os.path.dirname(unittest_plugin.__file__))
 UNITTEST_PLUGIN_DST_PATH = os.path.join(settings.PYLUCID_PLUGINS_ROOT, "unittest_plugin")
 
-TEST_NAMES = ["pylucid_project.tests",]
+TEST_NAMES = ["pylucid_project.tests", ]
 for app_name in settings.INSTALLED_APPS:
     if app_name.startswith("pylucid"):
         TEST_NAMES.append("%s.tests" % app_name)
-    
-    
+
+
 def _import_test(module_name, class_name=None):
     """
     Import test(s) from given module. Class_name is an array and may contain
@@ -52,7 +52,7 @@ def _import_test(module_name, class_name=None):
                 return unittest.defaultTestLoader.loadTestsFromTestCase(test_class)
             except TypeError:
                 raise ValueError("Test label '%s.%s' does not refer to a test class" %
-                                 (module_name,'.'.join(class_name)))
+                                 (module_name, '.'.join(class_name)))
         else: # label is fname.TestClass.test_method
             return test_class(class_name[1])
     else:
@@ -66,34 +66,34 @@ def get_all_tests(verbosity=False):
     """ Contruct a test suite from all available tests. Returns an instantiated test suite. """
     if verbosity:
         print "\nContruct a test suite from all available tests."
-    if verbosity>=2:
+    if verbosity >= 2:
         print "Use test names: %r\n" % TEST_NAMES
-        
+
     test_suite = unittest.TestSuite()
-    
+
     for name in TEST_NAMES:
         try:
             tests = unittest.defaultTestLoader.loadTestsFromName(name)
         except AttributeError, err:
-            if err.message != "'module' object has no attribute 'tests'":
+            if str(err) != "'module' object has no attribute 'tests'":
                 # Skip only if no tests available
                 raise
-            if verbosity>=2:
+            if verbosity >= 2:
                 print "Skip %r: %s" % (name, err)
         else:
             if verbosity:
                 print "Add %s tests from %r" % (tests.countTestCases(), name)
-            if verbosity>=2:
+            if verbosity >= 2:
                 for testcase in tests:
                     for test in testcase._tests:
                         module_name = test.__class__.__module__
                         file_name = module_name.split(".")[-1]
                         print "\t%s.%s.%s" % (file_name, test.__class__.__name__, test._testMethodName)
             test_suite.addTest(tests)
-            
+
     if verbosity:
         print
-        
+
     return test_suite
 
 
@@ -106,7 +106,7 @@ def get_tests(test_labels, verbosity=False):
     """
     if verbosity:
         print "Building test suite."
-        
+
     if test_labels:
         test_suite = unittest.TestSuite()
         for label in test_labels:
@@ -114,7 +114,7 @@ def get_tests(test_labels, verbosity=False):
             if len(parts) == 1:
                 test_suite.addTest(_import_test(parts[0]))
             else:
-                test_suite.addTest(_import_test(parts[0],parts[1:]))
+                test_suite.addTest(_import_test(parts[0], parts[1:]))
         return test_suite
     else:
         return get_all_tests(verbosity)
@@ -132,7 +132,7 @@ def setup_unittest_plugin(verbosity):
             raise
     if verbosity:
         print "OK"
-        
+
     # Add unittest template dir
     settings.TEMPLATE_DIRS += (os.path.join(UNITTEST_PLUGIN_DST_PATH, "templates"),)
 
@@ -165,30 +165,30 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     """
     if verbosity:
         print "start tests:", test_labels, "\n"
-       
+
     setup_test_environment()
-    
+
     setup_unittest_plugin(verbosity)
-    
+
     old_name = settings.DATABASE_NAME
-    
+
     from django.db import connection
-    
+
     db_name = connection.creation.create_test_db(
         verbosity=verbosity, autoclobber=not interactive
     )
     if verbosity:
         print "\nTest database '%s' created" % db_name
-      
+
     pylucid_test_data.create_pylucid_test_data(site=None, verbosity=verbosity)
-    
+
     suite = get_tests(test_labels, verbosity)
     if verbosity:
         print "Running tests:"
     result = unittest.TextTestRunner(verbosity=verbosity).run(suite)
     connection.creation.destroy_test_db(old_name, verbosity)
     teardown_test_environment()
-    
+
     teardown_unittest_plugin(verbosity)
 
     return len(result.failures) + len(result.errors)
