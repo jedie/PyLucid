@@ -614,10 +614,14 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
 
-    def get_color_filepath(self, colorscheme):
+    def get_color_filepath(self, colorscheme=None):
         """ Colorscheme + filepath """
-        assert isinstance(colorscheme, ColorScheme)
-        return os.path.join("ColorScheme_%s" % colorscheme.pk, self.filepath)
+        if colorscheme:
+            assert isinstance(colorscheme, ColorScheme)
+            return os.path.join("ColorScheme_%s" % colorscheme.pk, self.filepath)
+        else:
+            # The Design used no colorscheme
+            return self.filepath
 
     def get_path(self, colorscheme):
         """ Path for filesystem cache path and link url. """
@@ -671,15 +675,17 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                 user_message_or_warn("EditableHtmlHeadFile cached successful into: %r" % cachepath)
 
     def save_all_color_cachfiles(self):
-        """ this headfile was changed: resave all cache files in every existing colors"""
-        warnings.warn("TODO")
-#        designs = Design.objects.all().filter(colorscheme=colorscheme)
-#        for design in designs:
-#            print design
-#            headfiles = design.headfiles.all()
-#            for headfile in headfiles:
-#                print headfile
-#                headfile.save_cache_file(colorscheme)
+        """
+        this headfile was changed: resave all cache files in every existing colors
+        TODO: Update Queyset lookup
+        """
+        designs = Design.objects.all()
+        for design in designs:
+            headfiles = design.headfiles.all()
+            for headfile in headfiles:
+                if headfile == self:
+                    colorscheme = design.colorscheme
+                    self.save_cache_file(colorscheme)
 
     def get_absolute_url(self, colorscheme):
         cachepath = self.get_cachepath(colorscheme)
@@ -689,7 +695,11 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         else:
             # not cached into filesystem -> use pylucid.views.send_head_file for it
             url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
-            return url + "?ColorScheme=%s" % colorscheme.pk
+            if colorscheme:
+                return url + "?ColorScheme=%s" % colorscheme.pk
+            else:
+                # Design used no colorscheme
+                return url
 
     def get_headfilelink(self, colorscheme):
         """ Get the link url to this head file. """
