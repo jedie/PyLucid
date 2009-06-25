@@ -42,7 +42,7 @@ from django_tools.template import render
 
 from pylucid_project.utils import crypt
 
-from pylucid.system.auto_model_info import UpdateInfoBaseModel,AutoSiteM2M
+from pylucid.system.auto_model_info import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid.shortcuts import user_message_or_warn
 from pylucid.fields import ColorValueField
 from pylucid.system import headfile
@@ -51,7 +51,7 @@ from pylucid.system import headfile
 class PageTreeManager(models.Manager):
     """
     Manager class for PageTree model
-    
+
     inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """
@@ -66,7 +66,7 @@ class PageTreeManager(models.Manager):
             else:
                 raise
         return root_page
-    
+
     def get_model_instance(self, request, ModelClass, pagetree=None):
         """
         Shared function for getting a model instance from the given model witch has
@@ -78,14 +78,14 @@ class PageTreeManager(models.Manager):
         lang_entry = request.PYLUCID.lang_entry
         # default Language instance set in system preferences:
         default_lang_entry = request.PYLUCID.default_lang_entry
-        
+
         lang_entry = request.PYLUCID.lang_entry
         default_lang_entry = request.PYLUCID.default_lang_entry
-        
+
         if not pagetree:
             # current pagetree instance
             pagetree = request.PYLUCID.pagetree
-            
+
         queryset = ModelClass.objects.all().filter(page=pagetree)
         try:
             # Try to get the current used language
@@ -93,7 +93,7 @@ class PageTreeManager(models.Manager):
         except ModelClass.DoesNotExist:
             # Get the PageContent entry in the system default language
             return queryset.get(lang=default_lang_entry)
-    
+
     def get_pagemeta(self, request, pagetree=None):
         """
         Returns the PageMeta instance for pagetree and language.
@@ -101,7 +101,7 @@ class PageTreeManager(models.Manager):
         If pagetree==None: Use request.PYLUCID.pagetree
         """
         return self.get_model_instance(request, PageMeta, pagetree)
-    
+
     def get_pagecontent(self, request, pagetree=None):
         """
         Returns the PageContent instance for pagetree and language.
@@ -109,7 +109,7 @@ class PageTreeManager(models.Manager):
         If pagetree==None: Use request.PYLUCID.pagetree
         """
         return self.get_model_instance(request, PageContent, pagetree)
-    
+
     def get_page_from_url(self, url_path):
         """ returns a tuple the page tree instance from the given url_path"""
         path = url_path.split("/")
@@ -123,8 +123,8 @@ class PageTreeManager(models.Manager):
 
             if page.type == PageTree.PLUGIN_TYPE:
                 # It's a plugin
-                prefix_url = "/".join(path[:no+1])
-                rest_url = "/".join(path[no+1:])
+                prefix_url = "/".join(path[:no + 1])
+                rest_url = "/".join(path[no + 1:])
 #                if not rest_url.endswith("/"):
 #                    rest_url += "/"
                 return (page, prefix_url, rest_url)
@@ -140,15 +140,15 @@ class PageTreeManager(models.Manager):
         """
         if pagetree == None:
             pagetree = request.PYLUCID.pagetree
-        
+
         pagemeta = self.get_pagemeta(request, pagetree)
         url = pagemeta.get_absolute_url()
         title = pagemeta.title_or_slug()
-        
+
         backlist = [{"url": url, "title": title}]
-        
+
         parent = pagetree.parent
-        if parent: 
+        if parent:
             # insert parent links
             backlist = self.get_backlist(request, parent) + backlist
 
@@ -159,7 +159,7 @@ class PageTreeManager(models.Manager):
 class PageTree(UpdateInfoBaseModel):
     """
     The CMS page tree
-    
+
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
         lastupdatetime -> datetime of the last change
@@ -197,7 +197,7 @@ class PageTree(UpdateInfoBaseModel):
     )
     permitViewGroup = models.ForeignKey(Group, related_name="%(class)s_permitViewGroup",
         help_text="Limit viewable to a group?",
-        null=True, blank=True, 
+        null=True, blank=True,
     )
     permitEditGroup = models.ForeignKey(Group, related_name="%(class)s_permitEditGroup",
         help_text="Usergroup how can edit this page.",
@@ -216,8 +216,8 @@ class PageTree(UpdateInfoBaseModel):
         return u"PageTree '%s' (site: %s, type: %s)" % (self.slug, self.site.name, self.TYPE_DICT[self.type])
 
     class Meta:
-        unique_together=(("site", "slug", "parent"),)
-        
+        unique_together = (("site", "slug", "parent"),)
+
         # FIXME: It would be great if we can order by get_absolute_url()
         ordering = ("site", "id", "position")
 
@@ -231,7 +231,7 @@ class Language(models.Model):
 
     permitViewGroup = models.ForeignKey(Group, related_name="%(class)s_permitViewGroup",
         help_text="Limit viewable to a group for a complete language section?",
-        null=True, blank=True, 
+        null=True, blank=True,
     )
 
     def __unicode__(self):
@@ -249,16 +249,16 @@ class i18nPageTreeBaseModel(models.Model):
     """
     page = models.ForeignKey(PageTree)
     lang = models.ForeignKey(Language)
-    
+
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
         lang_code = self.lang.code
         page_url = self.page.get_absolute_url()
         return "/" + lang_code + page_url
-    
+
     def get_site(self):
         return self.page.site
-    
+
     class Meta:
         abstract = True
 
@@ -267,12 +267,12 @@ class i18nPageTreeBaseModel(models.Model):
 class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     """
     Meta data for PageContent or PluginPage
-    
+
     inherited attributes from i18nPageTreeBaseModel:
         page -> ForeignKey to PageTree
         lang -> ForeignKey to Language
         get_absolute_url()
-    
+
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
         lastupdatetime -> datetime of the last change
@@ -292,7 +292,7 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
     permitViewGroup = models.ForeignKey(Group, related_name="%(class)s_permitViewGroup",
         help_text="Limit viewable to a group?",
-        null=True, blank=True, 
+        null=True, blank=True,
     )
 
     def title_or_slug(self):
@@ -301,9 +301,9 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
     def __unicode__(self):
         return u"PageMeta for page: '%s' (lang: '%s')" % (self.page.slug, self.lang.code)
-    
+
     class Meta:
-        unique_together = (("page","lang"),)
+        unique_together = (("page", "lang"),)
         ordering = ("page", "lang")
 
 #------------------------------------------------------------------------------
@@ -312,44 +312,44 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     """
     A plugin page
-    
+
     inherited attributes from i18nPageTreeBaseModel:
         page -> ForeignKey to PageTree
         lang -> ForeignKey to Language
         get_absolute_url()
-    
+
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
         lastupdatetime -> datetime of the last change
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    APP_LABEL_CHOICES = [(app,app) for app in settings.INSTALLED_APPS]
-    
+    APP_LABEL_CHOICES = [(app, app) for app in settings.INSTALLED_APPS]
+
     pagemeta = models.ForeignKey(PageMeta)
-    
+
     app_label = models.CharField(max_length=256, choices=APP_LABEL_CHOICES,
         help_text="The app lable witch is in settings.INSTALLED_APPS"
     )
-    
+
     def title_or_slug(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
         return self.pagemeta.title or self.page.slug
-    
+
     def get_plugin_name(self):
         return self.app_label.split(".")[-1]
-    
+
     def save(self, *args, **kwargs):
         if not self.page.type == self.page.PLUGIN_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("Plugin can only exist on a plugin type tree entry!")
         return super(PluginPage, self).save(*args, **kwargs)
-    
+
     def __unicode__(self):
         return u"PluginPage '%s' (page: %s)" % (self.app_label, self.page)
-    
+
     class Meta:
-        unique_together = (("page","lang"),)
+        unique_together = (("page", "lang"),)
         ordering = ("page", "lang")
 
 
@@ -359,10 +359,10 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 class PageContentManager(models.Manager):
     """
     Manager class for PageContent model
-    
+
     inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
-    """    
+    """
     def get_sub_pages(self, pagecontent):
         """
         returns a list of all sub pages for the given PageContent instance
@@ -372,7 +372,7 @@ class PageContentManager(models.Manager):
         current_lang = pagecontent.lang
         current_page = pagecontent.page
         sub_pages = PageContent.objects.all().filter(page__parent=current_page, lang=current_lang)
-        return sub_pages   
+        return sub_pages
 
 
 class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
@@ -391,13 +391,13 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
     # IDs used in other parts of PyLucid, too
-    MARKUP_CREOLE       = 6
-    MARKUP_HTML         = 0
-    MARKUP_HTML_EDITOR  = 1
-    MARKUP_TINYTEXTILE  = 2
-    MARKUP_TEXTILE      = 3
-    MARKUP_MARKDOWN     = 4
-    MARKUP_REST         = 5
+    MARKUP_CREOLE = 6
+    MARKUP_HTML = 0
+    MARKUP_HTML_EDITOR = 1
+    MARKUP_TINYTEXTILE = 2
+    MARKUP_TEXTILE = 3
+    MARKUP_MARKDOWN = 4
+    MARKUP_REST = 5
 
     MARKUP_CHOICES = (
         (MARKUP_CREOLE      , u'Creole wiki markup'),
@@ -410,7 +410,7 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     )
     MARKUP_DICT = dict(MARKUP_CHOICES)
     #--------------------------------------------------------------------------
-    
+
     objects = PageContentManager()
 
     pagemeta = models.ForeignKey(PageMeta)
@@ -432,7 +432,7 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         return u"PageContent '%s' (%s)" % (self.page.slug, self.lang)
 
     class Meta:
-        unique_together = (("page","lang"),)
+        unique_together = (("page", "lang"),)
         ordering = ("page", "lang")
 
 #------------------------------------------------------------------------------
@@ -444,7 +444,7 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
         on_site -> sites.managers.CurrentSiteManager instance
     """
     name = models.CharField(max_length=255, help_text="The name of this color scheme.")
-    
+
     def update(self, colors):
         assert isinstance(colors, dict)
         new = []
@@ -473,7 +473,7 @@ class ColorManager(models.Manager):
     def get_color_dict(self, colorscheme):
         colors = self.all().filter(colorscheme=colorscheme)
         color_list = colors.values_list('name', 'value')
-        return dict([(name, "#%s" % value) for name,value in color_list])
+        return dict([(name, "#%s" % value) for name, value in color_list])
 
 class Color(AutoSiteM2M, UpdateInfoBaseModel):
     """
@@ -482,50 +482,55 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
         on_site -> sites.managers.CurrentSiteManager instance
     """
     objects = ColorManager()
-    
+
     colorscheme = models.ForeignKey(ColorScheme)
     name = models.CharField(max_length=128,
         help_text="Name if this color (e.g. main_color, head_background)"
     )
     value = ColorValueField(help_text="CSS hex color value.")
-    
+
     def save(self, *args, **kwargs):
         self.name = self.name.replace(" ", "_")
         new_name = self.name
-        old_name = Color.objects.get(id=self.id).name
-        if new_name != old_name:
-            # Color name has been changed -> Rename template placeholder in every headfile, too.
-            designs = Design.objects.all().filter(colorscheme=self.colorscheme)
-            for design in designs:
-                headfiles = design.headfiles.all()
-                for headfile in headfiles:
-                    if headfile.render != True: # File used no color placeholder
-                        continue
+        try:
+            old_name = Color.objects.get(id=self.id).name
+        except Color.DoesNotExist:
+            # New color
+            pass
+        else:
+            if new_name != old_name:
+                # Color name has been changed -> Rename template placeholder in every headfile, too.
+                designs = Design.objects.all().filter(colorscheme=self.colorscheme)
+                for design in designs:
+                    headfiles = design.headfiles.all()
+                    for headfile in headfiles:
+                        if headfile.render != True: # File used no color placeholder
+                            continue
 
-                    old_content = headfile.content
-                    # FIXME: Use flexibler regexp. for this:
-                    new_content = old_content.replace("{{ %s }}" % old_name, "{{ %s }}" % new_name)
-                    if old_content == new_content:
-                        # content not changed?!?
-                        user_message_or_warn(
-                            "Color '{{ %s }}' not exist in headfile %r" % (old_name, headfile)
-                        )
-                        continue
-                    
-                    if settings.DEBUG:
-                        user_message_or_warn(
-                            "change color name from '%s' to '%s' in %r" % (old_name, new_name, headfile)
-                        )
-                    headfile.content = new_content
-                    headfile.save()
+                        old_content = headfile.content
+                        # FIXME: Use flexibler regexp. for this:
+                        new_content = old_content.replace("{{ %s }}" % old_name, "{{ %s }}" % new_name)
+                        if old_content == new_content:
+                            # content not changed?!?
+                            user_message_or_warn(
+                                "Color '{{ %s }}' not exist in headfile %r" % (old_name, headfile)
+                            )
+                            continue
+
+                        if settings.DEBUG:
+                            user_message_or_warn(
+                                "change color name from '%s' to '%s' in %r" % (old_name, new_name, headfile)
+                            )
+                        headfile.content = new_content
+                        headfile.save()
 
         return super(Color, self).save(*args, **kwargs)
-    
+
     def __unicode__(self):
         return u"Color '%s' #%s (%s)" % (self.name, self.value, self.colorscheme)
-    
+
     class Meta:
-        unique_together=(("colorscheme", "name"),)
+        unique_together = (("colorscheme", "name"),)
         ordering = ("colorscheme", "name")
 
 #------------------------------------------------------------------------------
@@ -536,11 +541,11 @@ class DesignManager(models.Manager):
 class Design(AutoSiteM2M, UpdateInfoBaseModel):
     """
     Page design: template + CSS/JS files
-    
+
     inherited attributes from AutoSiteM2M:
         site    -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
-    
+
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
         lastupdatetime -> datetime of the last change
@@ -548,7 +553,7 @@ class Design(AutoSiteM2M, UpdateInfoBaseModel):
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
     objects = DesignManager()
-    
+
     name = models.CharField(unique=True, max_length=150, help_text="Name of this design combination",)
     template = models.CharField(max_length=128, help_text="filename of the used template for this page")
     headfiles = models.ManyToManyField("EditableHtmlHeadFile", null=True, blank=True,
@@ -565,7 +570,7 @@ class Design(AutoSiteM2M, UpdateInfoBaseModel):
     def __unicode__(self):
         sites = [site.name for site in self.site.all()]
         return u"Page design '%s' (on sites: %r)" % (self.name, sites)
-    
+
     class Meta:
         ordering = ("template",)
 
@@ -579,16 +584,16 @@ class EditableHtmlHeadFileManager(models.Manager):
         """
         db_instance = self.get(filename=filename)
         return headfile.HeadfileLink(filename=db_instance.filename)#, content=db_instance.content)
-        
+
 
 class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     """
     Storage for editable static text files, e.g.: stylesheet / javascript.
-    
+
     inherited attributes from AutoSiteM2M:
         site    -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
-    
+
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
         lastupdatetime -> datetime of the last change
@@ -596,49 +601,49 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
     objects = EditableHtmlHeadFileManager()
-    
+
     filepath = models.CharField(max_length=256)
     mimetype = models.CharField(max_length=64)
     html_attributes = models.CharField(max_length=256, null=False, blank=True,
         # TODO: Use this!
         help_text='Additional html tag attributes (CSS example: media="screen")'
     )
-    render = models.BooleanField(default = False,
+    render = models.BooleanField(default=False,
         help_text="Are there CSS ColorScheme entries in the content?"
     )
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
-    
+
     def get_color_filepath(self, colorscheme):
         """ Colorscheme + filepath """
         assert isinstance(colorscheme, ColorScheme)
         return os.path.join("ColorScheme_%s" % colorscheme.pk, self.filepath)
-        
+
     def get_path(self, colorscheme):
         """ Path for filesystem cache path and link url. """
         return os.path.join(
             settings.PYLUCID.PYLUCID_MEDIA_DIR, settings.PYLUCID.CACHE_DIR,
             self.get_color_filepath(colorscheme)
         )
-    
+
     def get_cachepath(self, colorscheme):
         """
         filesystem path with filename.
         TODO: Install section sould create the directories!
         """
         return os.path.join(settings.MEDIA_ROOT, self.get_path(colorscheme))
-        
+
     def get_rendered(self, colorscheme):
         color_dict = Color.objects.get_color_dict(colorscheme)
-        return render.render_string_template(self.content, color_dict)        
-        
+        return render.render_string_template(self.content, color_dict)
+
     def save_cache_file(self, colorscheme):
         """
         Try to cache the head file into filesystem (Only worked, if python process has write rights)
         Try to create the out path, if it's not exist.
         """
         cachepath = self.get_cachepath(colorscheme)
-        
+
         def _save_cache_file(auto_create_dir=True):
             rendered_content = self.get_rendered(colorscheme)
             try:
@@ -647,7 +652,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                 f.close()
             except IOError, err:
                 if auto_create_dir and err.errno == errno.ENOENT: # No 2: No such file or directory
-                    # Try to create the out dir and save the cache file  
+                    # Try to create the out dir and save the cache file
                     path = os.path.dirname(cachepath)
                     if not os.path.isdir(path):
                         # Try to create cache path and save file
@@ -721,32 +726,32 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
 
 
 
-    
+
 class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     """
     Stores additional information about PyLucid users
     http://docs.djangoproject.com/en/dev/topics/auth/#storing-additional-information-about-users
-    
+
     Created via post_save signal, if a new user created.
-    
+
     inherited attributes from AutoSiteM2M:
         site    -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
     """
     user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
-    
+
     sha_login_checksum = models.CharField(max_length=192,
         help_text="Checksum for PyLucid JS-SHA-Login"
     )
     sha_login_salt = models.CharField(max_length=5,
         help_text="Salt value for PyLucid JS-SHA-Login"
     )
-    
+
     # TODO: Overwrite help_text:
 #    site = models.ManyToManyField(Site,
 #        help_text="User can access only these sites."
 #    )
-    
+
     def set_sha_login_password(self, raw_password):
         """
         create salt+checksum for JS-SHA-Login.
@@ -765,7 +770,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
         """ for pylucid.admin.UserProfileAdmin.list_display """
         sites = self.site.all()
         return ", ".join([site.name for site in sites])
-    
+
     class Meta:
         ordering = ("user",)
 
@@ -774,7 +779,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
 
 def cache_headfiles(sender, **kwargs):
     """
-    One colorscheme was changes: resave all cache headfiles with new color values. 
+    One colorscheme was changes: resave all cache headfiles with new color values.
     """
     colorscheme = kwargs["instance"]
 
@@ -783,7 +788,7 @@ def cache_headfiles(sender, **kwargs):
         headfiles = design.headfiles.all()
         for headfile in headfiles:
             headfile.save_cache_file(colorscheme)
-    
+
 signals.post_save.connect(cache_headfiles, sender=ColorScheme)
 
 #______________________________________________________________________________
@@ -792,15 +797,15 @@ signals.post_save.connect(cache_headfiles, sender=ColorScheme)
 def create_user_profile(sender, **kwargs):
     """ signal handler: creating user profile, after a new user created. """
     user = kwargs["instance"]
-        
+
     userprofile, created = UserProfile.objects.get_or_create(user=user)
     if created:
         user_message_or_warn("UserProfile entry for user '%s' created." % user)
-#            
+#
 #        if not user.is_superuser: # Info: superuser can automaticly access all sites
 #            site = Site.objects.get_current()
 #            userprofile.site.add(site)
-#            user_message_or_warn("Add site '%s' to '%s' UserProfile." % (site.name, user))            
+#            user_message_or_warn("Add site '%s' to '%s' UserProfile." % (site.name, user))
 
 signals.post_save.connect(create_user_profile, sender=User)
 
@@ -825,7 +830,7 @@ def set_password(user, raw_password):
 
     # Use the original method to set the django User password:
     orig_set_password(user, raw_password)
-    
+
     userprofile, created = UserProfile.objects.get_or_create(user=user)
     if created:
         user_message_or_warn("UserProfile entry for user '%s' created." % user)
@@ -835,5 +840,5 @@ def set_password(user, raw_password):
     userprofile.save()
 
 
-# replace the method 
+# replace the method
 User.set_password = set_password
