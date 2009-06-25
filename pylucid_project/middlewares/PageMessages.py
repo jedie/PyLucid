@@ -83,19 +83,19 @@ class PageMessages(object):
         elif session[SESSION_KEY] != []:
             # There exist old messages from previous requests -> add a seperator after them. 
             self.info(mark_safe("<hr />"))
-    
+
     def get_and_delete_messages(self):
         """ delete messages from session and return them """
         django_msg = self.request.user.get_and_delete_messages()
         for msg in django_msg:
             # Append messages from django
             self.info(msg)
-            
+
         msg = self.request.session[SESSION_KEY]
         # remove "old" page_msg from session
         del(self.request.session[SESSION_KEY])
         return msg
-        
+
     #_________________________________________________________________________
 
     def write(self, *msg):
@@ -120,24 +120,28 @@ class PageMessages(object):
         self.append_message("critical", *msg)
 
     #_________________________________________________________________________
-    
-    def showwarning(self, message, category, filename, lineno):
+
+    def showwarning(self, message, category, filename, lineno, file=None, line=None):
         """ for redirecting warnings """
-        msg = "%s: %s" % (category.__name__, message)
-        
         old_debug_mode = self.debug_mode
         self.debug_mode = False # no fileinfo would be added
-        self.warning(msg)
+        self.warning(str(message))
         self.debug_mode = old_debug_mode
-        
+
         # Add fileinfo
         block_data = self.request.session[SESSION_KEY][-1]
         filename = u"..." + filename[-30:]
-        block_data["fileinfo"] = "(%s - line %s)" % (filename, lineno)
-    
+        block_data["fileinfo"] = "(%s from %s - line %s)" % (category.__name__, filename, lineno)
+
+        if file is not None:
+            try:
+                file.write(warnings.formatwarning(message, category, filename, lineno, line))
+            except IOError:
+                pass
+
     #_________________________________________________________________________
 
-    def append_message(self, msg_type, *msg):       
+    def append_message(self, msg_type, *msg):
         """
         Add a message with type info.
         -if debug_mode is on: insert a info from where the message sended.
@@ -157,20 +161,20 @@ class PageMessages(object):
                 if pos == 0:
                     lines.append(item)
                 else:
-                    lines[pos-1] += " " + item
-        
+                    lines[pos - 1] += " " + item
+
         block_data = {
             "msg_type": msg_type,
             "lines": lines,
         }
-        
+
         if self.debug_mode == True:
             block_data["fileinfo"] = self._get_fileinfo()
 
         if SESSION_KEY not in self.request.session:
             # exemption: call page_msg directly after logout (session deleted)
             self.request.session[SESSION_KEY] = []
-            
+
         self.request.session[SESSION_KEY].append(block_data)
         self.request.session.modified = True # FIXME: Don't really know why this is needed
 
@@ -191,7 +195,7 @@ class PageMessages(object):
                 if os.path.basename(filename) != self_basename:
                     break
 
-            if len(filename)>=MAX_FILEPATH_LEN:
+            if len(filename) >= MAX_FILEPATH_LEN:
                 filename = "...%s" % filename[-MAX_FILEPATH_LEN:]
             fileinfo = "%s line %s" % (filename, lineno)
         except Exception, e:
@@ -204,7 +208,7 @@ class PageMessages(object):
         """ prepare the given text """
         if isinstance(txt, SafeData):
             # pass string witch marked with django.utils.safestring.mark_safe
-            return txt            
+            return txt
         elif isinstance(txt, unicode):
             # encode unicode strings
             return smart_str(txt, encoding=self._charset)
@@ -214,10 +218,10 @@ class PageMessages(object):
         else:
             # return the printable representation of an object
             return repr(txt)
-        
+
 
     #________________________________________________________________
-    
+
     def add_test_lines(self):
         """ Add many test lines """
         self.append_message("successful", "test successful line")
@@ -248,26 +252,26 @@ class PageMessages(object):
 class PageMessagesMiddleware(object):
     def __init__(self):
         self.old_showwarning = warnings.showwarning
-    
+
     def process_request(self, request):
         """ add page_msg object to request object """
         request.page_msg = PageMessages(request)
-        
+
         # redirect warnings into page_msg
         warnings.showwarning = request.page_msg.showwarning
-        
+
         #request.page_msg.add_test_lines()
-        
+
     def process_response(self, request, response):
         """
         insert all page messages into the html page.
         """
         warnings.showwarning = self.old_showwarning
-        
+
         if SESSION_KEY not in request.session:
             # There exist no page_msg -> do nothing
             return response
-        
+
         if not "html" in response._headers["content-type"][1]:
             # No HTML Page -> do nothing
             return response
@@ -292,5 +296,5 @@ class PageMessagesMiddleware(object):
 
         new_content = content.replace(TAG, message_string)
         response.content = new_content
-        
+
         return response
