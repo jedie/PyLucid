@@ -38,10 +38,10 @@ def validate_css_color_value(value):
     """
     if not isinstance(value, basestring):
         raise exceptions.ValidationError(_("CSS color value is not a basestring!"))
-    
+
     if len(value) not in (3, 6):
         raise exceptions.ValidationError(_("Wrong CSS color length (only 3 or 6 characters)"))
-    
+
     if not CSS_VALUE_RE.match(value):
         raise exceptions.ValidationError(_("Error: %r is not a CSS hex color value") % value)
 
@@ -68,7 +68,7 @@ class ColorValueFormField(forms.CharField):
     def clean(self, value):
         """ validate the form data """
         value = super(ColorValueFormField, self).clean(value)
-        validate_css_ColorValue_value(value)
+        validate_css_color_value(value)
         self.value = value
         return value
 
@@ -82,11 +82,11 @@ class ColorValueField(models.CharField):
 
     def get_db_prep_save(self, value):
         "Returns field's value prepared for saving into a database."
-        validate_css_ColorValue_value(value)
+        validate_css_color_value(value)
         return value
 
     def to_python(self, value):
-        validate_css_ColorValue_value(value)
+        validate_css_color_value(value)
         return value
 
     def formfield(self, **kwargs):
