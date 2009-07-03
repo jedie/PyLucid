@@ -29,16 +29,16 @@ import os
 import sys
 
 import pylucid_project
-import pylucid_plugins
+from pylucid_project.utils import pylucid_plugins
 
 PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__))
-PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
+#PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
 
 #______________________________________________________________________________
 # SYS PATH SETUP
 
 _path_list = (
-    PYLUCID_PLUGINS_ROOT,
+#    PYLUCID_PLUGINS_ROOT,
     PYLUCID_PROJECT_ROOT,
     os.path.join(PYLUCID_PROJECT_ROOT, "apps")
 )
@@ -84,6 +84,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 
+    'pylucid_project.middlewares.PyLucidMiddleware.PyLucidMiddleware',
     'pylucid_project.middlewares.PageMessages.PageMessagesMiddleware',
 
     # slow down the django developer server
@@ -92,24 +93,26 @@ MIDDLEWARE_CLASSES = (
 )
 SLOWER_DEV_SERVER_SLEEP = 0.3 # time.sleep() value (in sec.)
 
-_BASE_PATH = os.path.join(os.path.dirname(__file__))
+PYLUCID_BASE_PATH = os.path.join(os.path.dirname(__file__))
 
-_plugins = pylucid_plugins.PluginList(
-    fs_path=os.path.join(_BASE_PATH, "pylucid_plugins"),
-    pkg_prefix="pylucid_project.pylucid_plugins"
+_PYLUCID_PLUGIN_PACKAGES = (
+    (os.path.join(PYLUCID_BASE_PATH, "pylucid_plugins"), "pylucid_project.pylucid_plugins"),
+    #(os.path.join(PYLUCID_BASE_PATH, "external_plugins"), "pylucid_project.external_pylucid_plugins"),
 )
+pylucid_plugins.setup_plugins(_PYLUCID_PLUGIN_PACKAGES)
 
 TEMPLATE_DIRS = (
-    os.path.join(_BASE_PATH, "apps/pylucid/templates/"),
-    os.path.join(_BASE_PATH, "apps/pylucid_admin/templates/"),
-    os.path.join(_BASE_PATH, "apps/pylucid_update/templates/"),
+    os.path.join(PYLUCID_BASE_PATH, "apps/pylucid/templates/"),
+    os.path.join(PYLUCID_BASE_PATH, "apps/pylucid_admin/templates/"),
+    os.path.join(PYLUCID_BASE_PATH, "apps/pylucid_update/templates/"),
 
-    os.path.join(_BASE_PATH, "apps/dbpreferences/templates/"),
+    os.path.join(PYLUCID_BASE_PATH, "apps/dbpreferences/templates/"),
 
-    os.path.join(_BASE_PATH, "django/contrib/admin/templates"),
+    os.path.join(PYLUCID_BASE_PATH, "django/contrib/admin/templates"),
 )
 # Add all templates subdirs from all existing PyLucid plugins
-TEMPLATE_DIRS += _plugins.get_template_dirs()
+TEMPLATE_DIRS += pylucid_plugins.PLUGINS.template_dirs
+#print "settings.TEMPLATE_DIRS:", TEMPLATE_DIRS
 
 TEMPLATE_LOADERS = (
     'dbtemplates.loader.load_template_source',
@@ -160,8 +163,8 @@ INSTALLED_APPS = (
     'reversion',
 )
 # Add all existing PyLucid plugins
-INSTALLED_APPS += _plugins.get_installed_apps()
-#print INSTALLED_APPS
+INSTALLED_APPS += pylucid_plugins.PLUGINS.pkg_list
+#print "settings.INSTALLED_APPS:", INSTALLED_APPS
 
 #http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
 #Default: 'django.test.simple.run_tests'
@@ -200,7 +203,7 @@ SERVE_STATIC_FILES = True
 # Absolute _local_filesystem_path_ to the directory that holds media.
 #     Example-1: "./media/" (default)
 #     Example-2: "/home/foo/htdocs/media/"
-MEDIA_ROOT = os.path.join(_BASE_PATH, "media") + "/"
+MEDIA_ROOT = os.path.join(PYLUCID_BASE_PATH, "media") + "/"
 
 # URL that handles the media served from MEDIA_ROOT.
 #     Example-1: "/media/" (default)

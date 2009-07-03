@@ -96,6 +96,7 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
         "page_title": pagemeta.title_or_slug(),
         "page_keywords": pagemeta.keywords,
         "page_description": pagemeta.description,
+        "page_robots": pagemeta.robots,
         "page_language": pagemeta.lang.code,
     })
     request.PYLUCID.context = context
@@ -206,11 +207,6 @@ def send_head_file(request, filepath):
 
 
 
-def _add_pylucid_request_objects(request):
-    """ Add PyLucid objects to the request object """
-    request.PYLUCID = pylucid_objects.PyLucidRequestObjects()
-
-
 def _prepage_request(request, lang_entry):
     """
     shared function for serval views.
@@ -232,8 +228,6 @@ def _render_root_page(request):
 
 def root_page(request):
     """ render the first root page in system default language """
-    _add_pylucid_request_objects(request)
-
     # activate language via auto detection
     i18n.activate_auto_language(request)
 
@@ -242,8 +236,6 @@ def root_page(request):
 
 def lang_root_page(request, url_lang_code):
     """ url with lang code but no page slug """
-    _add_pylucid_request_objects(request)
-
     try:
         lang_entry = Language.objects.get(code=url_lang_code)
     except Language.DoesNotExist:
@@ -282,8 +274,6 @@ def _get_pagetree(url_path):
 
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
-    _add_pylucid_request_objects(request)
-
     try:
         lang_entry = Language.objects.get(code=url_lang_code)
     except Language.DoesNotExist:
@@ -304,8 +294,6 @@ def page_without_lang(request, url_path):
     url with sub page path, but without a lang_code part
     We redirect to a url with language code.
     """
-    _add_pylucid_request_objects(request)
-
     # redirect to a url with the default language code.
     return _i18n_redirect(request, url_path)
 

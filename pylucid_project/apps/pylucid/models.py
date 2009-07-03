@@ -155,7 +155,6 @@ class PageTreeManager(models.Manager):
         return backlist
 
 
-
 class PageTree(UpdateInfoBaseModel):
     """
     The CMS page tree
@@ -290,6 +289,10 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     )
     description = models.CharField(blank=True, max_length=255, help_text="For html header")
 
+    robots = models.CharField(max_length=255, default="index,follow",
+        help_text="for html 'robots' meta content."
+    )
+
     permitViewGroup = models.ForeignKey(Group, related_name="%(class)s_permitViewGroup",
         help_text="Limit viewable to a group?",
         null=True, blank=True,
@@ -330,6 +333,9 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
     app_label = models.CharField(max_length=256, choices=APP_LABEL_CHOICES,
         help_text="The app lable witch is in settings.INSTALLED_APPS"
+    )
+    urls_filename = models.CharField(max_length=256, default="urls.py",
+        help_text="Filename of the urls.py"
     )
 
     def title_or_slug(self):
