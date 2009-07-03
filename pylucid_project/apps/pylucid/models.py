@@ -56,14 +56,6 @@ class TreeBaseModel(models.Model):
         help_text="ordering weight for sorting the pages in the menu.")
     slug = models.SlugField(unique=False, help_text="(for building URLs)")
 
-    def get_absolute_url(self):
-        """ absolute url *without* language code (without domain/host part) """
-        if self.parent:
-            parent_shortcut = self.parent.get_absolute_url()
-            return parent_shortcut + self.slug + "/"
-        else:
-            return "/" + self.slug + "/"
-
     def __unicode__(self):
         return u"%r tree object (%r)" % (self.slug, self.get_absolute_url())
 
@@ -100,7 +92,19 @@ class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
     plugin_name = models.CharField(max_length=150, help_text="Name of the plugin")
     view_name = models.CharField(max_length=150, help_text="The view name")
 
+    def get_absolute_url(self):
+        """ absolute url *without* language code (without domain/host part) """
 
+        return reverse(
+            viewname="PyLucidAdmin-do",
+            kwargs={"plugin_name":self.plugin_name, "view_name":self.view_name}
+        )
+
+        if self.parent:
+            parent_shortcut = self.parent.get_absolute_url()
+            return parent_shortcut + self.slug + "/"
+        else:
+            return "/".join(["", settings.ADMIN_URL_PREFIX, self.slug, ""])
 
 
 

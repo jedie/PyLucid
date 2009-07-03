@@ -1,6 +1,8 @@
 
-from django.utils.translation import ugettext_lazy as _
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 from django.contrib.auth.models import User, Group
+from django.utils.translation import ugettext_lazy as _
 
 from pylucid.models import PyLucidAdminPage, Design
 from pylucid.preference_forms import SystemPreferencesForm
@@ -63,8 +65,19 @@ def install(request):
 
 
 def new_content_page(request):
-    return """ Create a new page """
+    context = {
+        "title": "Create a new page",
+        "content": "TODO",
+    }
+    return render_to_response('admin/base_site.html', context,
+        context_instance=RequestContext(request)
+    )
 
 def new_plugin_page(request):
-    return """ Create a new plugin page """
-
+    context = {
+        "title": "Create a new plugin page",
+        "content": "TODO",
+    }
+    return render_to_response('admin/base_site.html', context,
+        context_instance=RequestContext(request)
+    )

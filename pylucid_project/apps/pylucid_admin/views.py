@@ -2,6 +2,7 @@
 
 import os
 
+from django import http
 from django.conf import settings
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -25,6 +26,21 @@ def menu(request):
     return render_to_response('pylucid_admin/menu.html', context,
         context_instance=RequestContext(request)
     )
+
+def do(request, plugin_name, view_name):
+    plugin = pylucid_plugins.PLUGINS[plugin_name]
+
+    response = plugin.call_plugin_view(
+        request, settings.ADMIN.VIEW_FILENAME, view_name, method_kwargs={}
+    )
+    if not isinstance(response, http.HttpResponse):
+        raise RuntimeError(
+            "Plugin view %s.%s must return a django.http.HttpResponse object! (it returns: %r)" % (
+                plugin_name, view_name, type(response)
+            )
+        )
+
+    return response
 
 
 
