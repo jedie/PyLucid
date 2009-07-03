@@ -19,5 +19,8 @@ from django.conf.urls.defaults import patterns, url
 from pylucid_project.apps.pylucid_admin import views
 
 urlpatterns = patterns('',
-    url(r'^menu$', views.menu, name='PyLucidAdmin-menu'),
+    url(r'^menu/$', views.menu, name='PyLucidAdmin-menu'),
+
+    url(r'^install/pylucid/$', views.install_pylucid, name='PyLucidAdmin-install_pylucid'),
+    url(r'^install/plugins/$', views.install_plugins, name='PyLucidAdmin-install_plugins'),
 )

@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block branding %}<h1>PyLucid admin</h1>
+<!-- page_messages -->
+{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="{% url admin_index %}">Home</a> ›
+     <a href="{% url PyLucidAdmin-menu %}">PyLucid admin</a> ›
+     {{ title }}
+</div>{% endif %}
+{% endblock %}

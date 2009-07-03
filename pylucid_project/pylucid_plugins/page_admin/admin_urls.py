@@ -14,11 +14,16 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from django.conf.urls.defaults import patterns, url
 
 from extrahead import admin_views
 
 urlpatterns = patterns('',
-    url(r'^view1$', admin_views.test1, name='extrahead-The view 1!'),
-    url(r'^view2$', admin_views.test2, name='extrahead-The view 2!'),
+    url(r'^new_page$', admin_views.new_page, name='PageAdmin-new_page'),
+    #url(r'^view2$', admin_views.test2, name='extrahead-view2'),
 )
+#menu_info = (
+#    {"menu section": _("Page Admin"), "name":False}
+#)
+

@@ -48,6 +48,63 @@ from pylucid.fields import ColorValueField
 from pylucid.system import headfile
 
 
+
+class TreeBaseModel(models.Model):
+    """ Base tree model used in PyLucidAdminPage and PageTree """
+    parent = models.ForeignKey("self", null=True, blank=True, help_text="the higher-ranking father page")
+    position = models.SmallIntegerField(default=0,
+        help_text="ordering weight for sorting the pages in the menu.")
+    slug = models.SlugField(unique=False, help_text="(for building URLs)")
+
+    def get_absolute_url(self):
+        """ absolute url *without* language code (without domain/host part) """
+        if self.parent:
+            parent_shortcut = self.parent.get_absolute_url()
+            return parent_shortcut + self.slug + "/"
+        else:
+            return "/" + self.slug + "/"
+
+    def __unicode__(self):
+        return u"%r tree object (%r)" % (self.slug, self.get_absolute_url())
+
+    class Meta:
+        abstract = True
+        unique_together = (("slug", "parent"),)
+
+        # FIXME: It would be great if we can order by get_absolute_url()
+        ordering = ("id", "position")
+
+
+
+class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
+    """
+    PyLucid Admin page tree
+    
+    inherited attributes from TreeBaseModel:
+        parent
+        position
+        slug
+
+    inherited attributes from UpdateInfoBaseModel:
+        createtime     -> datetime of creation
+        lastupdatetime -> datetime of the last change
+        createby       -> ForeignKey to user who creaded this entry
+        lastupdateby   -> ForeignKey to user who has edited this entry
+    """
+    name = models.CharField(blank=True, max_length=150,
+        help_text="Sort page name (for link text in e.g. menu)"
+    )
+    title = models.CharField(blank=True, max_length=256,
+        help_text="A long page title (for e.g. page title or link title text)"
+    )
+    plugin_name = models.CharField(max_length=150, help_text="Name of the plugin")
+    view_name = models.CharField(max_length=150, help_text="The view name")
+
+
+
+
+
+
 class PageTreeManager(models.Manager):
     """
     Manager class for PageTree model
@@ -155,9 +212,14 @@ class PageTreeManager(models.Manager):
         return backlist
 
 
-class PageTree(UpdateInfoBaseModel):
+class PageTree(TreeBaseModel, UpdateInfoBaseModel):
     """
     The CMS page tree
+
+    inherited attributes from TreeBaseModel:
+        parent
+        position
+        slug
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -181,10 +243,7 @@ class PageTree(UpdateInfoBaseModel):
     site = models.ForeignKey(Site)
     on_site = CurrentSiteManager()
 
-    parent = models.ForeignKey("self", null=True, blank=True, help_text="the higher-ranking father page")
-    position = models.SmallIntegerField(default=0,
-        help_text="ordering weight for sorting the pages in the menu.")
-    slug = models.SlugField(unique=False, help_text="(for building URLs)")
+
     description = models.CharField(blank=True, max_length=150, help_text="For internal use")
 
     type = models.CharField(max_length=1, choices=TYPE_CHOICES)

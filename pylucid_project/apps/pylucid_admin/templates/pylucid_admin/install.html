@@ -1,0 +1,11 @@
+{% extends "pylucid_admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<!-- view_content block -->
+<fieldset><legend>result</legend>
+<pre>{% for line in output %}{{ line }}
+{% endfor %}</pre>
+</fieldset>
+<!-- view_content block end -->
+{% endblock %}

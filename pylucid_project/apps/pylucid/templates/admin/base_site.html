@@ -94,6 +94,17 @@ $(document).ready(function(){
         <a href="{% url PyLucidAdmin-menu %}">{% trans 'PyLucid admin menu' %}</a>
         <ul>
 		    <li>
+		        <a>{% trans 'PyLucid install' %}</a>
+		        <ul>
+		            <li>
+		                <a href="{% url PyLucidAdmin-install_pylucid %}">{% trans 'PyLucid install' %}</a>
+		            </li>
+		            <li>
+		                <a href="{% url PyLucidAdmin-install_plugins %}">{% trans 'install PyLucid plugins' %}</a>
+		            </li>
+		        </ul>
+		    </li>
+		    <li>
 		        <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
 		    </li>
 	    </ul>

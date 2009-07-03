@@ -173,8 +173,10 @@ TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.run_tests'
 #_____________________________________________________________________________
 # PyLucid own settings
 
-#from pylucid_project.apps.pylucid.app_settings import PYLUCID
+# Add app settings
 from pylucid_project.apps.pylucid import app_settings as PYLUCID
+from pylucid_project.apps.pylucid_admin import app_settings as ADMIN
+
 
 # http://www.djangoproject.com/documentation/authentication/#other-authentication-sources
 AUTHENTICATION_BACKENDS = (

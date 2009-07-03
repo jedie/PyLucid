@@ -18,7 +18,7 @@
 
 from django.contrib import admin
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.contrib.auth.admin import UserAdmin
 
 from reversion.admin import VersionAdmin
@@ -45,9 +45,29 @@ def ugly_patched_add_view(*args, **kwargs):
     return result
 
 UserAdmin.add_view = ugly_patched_add_view
-    
+
 
 #------------------------------------------------------------------------------
+
+class PermissionAdmin(admin.ModelAdmin):
+    """ django auth Permission """
+    list_display = ("id", "name", "content_type", "codename")
+    list_display_links = ("name", "codename")
+    list_filter = ("content_type",)
+admin.site.register(Permission, PermissionAdmin)
+
+#------------------------------------------------------------------------------
+
+class PyLucidAdminPageAdmin(VersionAdmin):
+    list_display = (
+        "id", "get_absolute_url", "slug", "name", "title", "plugin_name", "view_name",
+    )
+    list_display_links = ("slug", "get_absolute_url")
+    list_filter = ("createby", "lastupdateby",)
+    date_hierarchy = 'lastupdatetime'
+    search_fields = ("slug", "name", "title")
+
+admin.site.register(models.PyLucidAdminPage, PyLucidAdminPageAdmin)
 
 
 class PageTreeAdmin(VersionAdmin):
@@ -58,7 +78,7 @@ class PageTreeAdmin(VersionAdmin):
         "lastupdatetime", "lastupdateby"
     )
     list_display_links = ("slug", "get_absolute_url")
-    list_filter = ("site", "type", "design", "createby", "lastupdateby", )
+    list_filter = ("site", "type", "design", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     search_fields = ("slug", "description")
 
@@ -77,7 +97,7 @@ class PageMetaAdmin(VersionAdmin):
     list_filter = ("lang", "keywords", "createby", "lastupdateby")
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
-    
+
 
 admin.site.register(models.PageMeta, PageMetaAdmin)
 
@@ -115,12 +135,12 @@ admin.site.register(models.PluginPage, PluginPageAdmin)
 class ColorInline(admin.TabularInline):
     model = models.Color
 
-class ColorSchemeAdmin(VersionAdmin):    
+class ColorSchemeAdmin(VersionAdmin):
     list_display = ("id", "name", "preview", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     search_fields = ("name",)
-    inlines = [ColorInline,]
-    
+    inlines = [ColorInline, ]
+
     def preview(self, obj):
         colors = models.Color.objects.all().filter(colorscheme=obj)
         result = ""
@@ -131,11 +151,11 @@ class ColorSchemeAdmin(VersionAdmin):
         return result
     preview.short_description = 'color preview'
     preview.allow_tags = True
-    
+
 admin.site.register(models.ColorScheme, ColorSchemeAdmin)
 
 
-class DesignAdmin(VersionAdmin):    
+class DesignAdmin(VersionAdmin):
     list_display = ("id", "name", "template", "colorscheme", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     list_filter = ("site", "template", "colorscheme", "createby", "lastupdateby")
@@ -147,7 +167,7 @@ admin.site.register(models.Design, DesignAdmin)
 class EditableHtmlHeadFileAdmin(VersionAdmin):
     list_display = ("id", "filepath", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
-    list_filter = ("site","render")
+    list_filter = ("site", "render")
 
 admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
