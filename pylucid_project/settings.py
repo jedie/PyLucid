@@ -28,8 +28,13 @@
 import os
 import sys
 
-import pylucid_project
-from pylucid_project.utils import pylucid_plugins
+try:
+    import pylucid_project
+    from pylucid_project.utils import pylucid_plugins
+except Exception, e:
+    import traceback
+    print traceback.format_exc()
+    raise
 
 PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 #PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
@@ -174,8 +179,13 @@ TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.run_tests'
 # PyLucid own settings
 
 # Add app settings
-from pylucid_project.apps.pylucid import app_settings as PYLUCID
-from pylucid_project.apps.pylucid_admin import app_settings as ADMIN
+try:
+    from pylucid_project.apps.pylucid import app_settings as PYLUCID
+    from pylucid_project.apps.pylucid_admin import app_settings as ADMIN
+except Exception, e:
+    import traceback
+    print traceback.format_exc()
+    raise
 
 
 # http://www.djangoproject.com/documentation/authentication/#other-authentication-sources
