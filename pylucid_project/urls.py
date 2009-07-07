@@ -50,3 +50,9 @@ if settings.SERVE_STATIC_FILES:
 urlpatterns += patterns('',
         ('^', include('pylucid.urls')),
 )
+
+#_____________________________________________________________________________
+# use the undocumented django function to add the "lucidTag" to the tag library.
+# 
+from django.template import add_to_builtins
+add_to_builtins('pylucid_project.apps.pylucid.defaulttags')
