@@ -1,6 +1,7 @@
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django.core import urlresolvers
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 
@@ -18,13 +19,15 @@ class AdminMenu(object):
         self.request = request
         self.output = output
 
-        sys_preferences = SystemPreferencesForm().get_preferences()
-        admin_design_id = sys_preferences["pylucid_admin_design"]
-        self.admin_design = Design.objects.get(id=admin_design_id)
+#        sys_preferences = SystemPreferencesForm().get_preferences()
+#        admin_design_id = sys_preferences["pylucid_admin_design"]
+#        self.admin_design = Design.objects.get(id=admin_design_id)
 
     def add_menu_entry(self, **kwargs):
-        if "slug" not in kwargs:
-            kwargs["slug"] = kwargs["name"].replace(" ", "_")
+        if "url_name" in kwargs:
+            url_name = kwargs.pop("url_name")
+            url = urlresolvers.reverse(viewname=url_name)
+            kwargs["url"] = url
 
         adminpage_entry, created = PyLucidAdminPage.objects.get_or_create(**kwargs)
         if created:
@@ -51,14 +54,12 @@ def install(request):
     admin_menu.add_menu_entry(
         parent=menu_section_entry,
         name="new content page", title="Create a new content page.",
-        plugin_name=request.plugin_name,
-        view_name="new_content_page",
+        url_name="PageAdmin-new_content_page"
     )
     admin_menu.add_menu_entry(
         parent=menu_section_entry,
         name="new plugin page", title="Create a new plugin page.",
-        plugin_name=request.plugin_name,
-        view_name="new_plugin_page",
+        url_name="PageAdmin-new_plugin_page"
     )
 
     return "\n".join(output)

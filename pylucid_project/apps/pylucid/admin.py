@@ -59,13 +59,11 @@ admin.site.register(Permission, PermissionAdmin)
 #------------------------------------------------------------------------------
 
 class PyLucidAdminPageAdmin(VersionAdmin):
-    list_display = (
-        "id", "get_absolute_url", "slug", "name", "title", "plugin_name", "view_name",
-    )
-    list_display_links = ("slug", "get_absolute_url")
+    list_display = ("id", "name", "title", "url",)
+    list_display_links = ("name",)
     list_filter = ("createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
-    search_fields = ("slug", "name", "title")
+    search_fields = ("name", "title", "url")
 
 admin.site.register(models.PyLucidAdminPage, PyLucidAdminPageAdmin)
 

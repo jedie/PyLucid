@@ -30,7 +30,6 @@ from django.db import models
 from django.conf import settings
 from django.core import exceptions
 from django.db.models import signals
-from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
@@ -54,15 +53,9 @@ class TreeBaseModel(models.Model):
     parent = models.ForeignKey("self", null=True, blank=True, help_text="the higher-ranking father page")
     position = models.SmallIntegerField(default=0,
         help_text="ordering weight for sorting the pages in the menu.")
-    slug = models.SlugField(unique=False, help_text="(for building URLs)")
-
-    def __unicode__(self):
-        return u"%r tree object (%r)" % (self.slug, self.get_absolute_url())
 
     class Meta:
         abstract = True
-        unique_together = (("slug", "parent"),)
-
         # FIXME: It would be great if we can order by get_absolute_url()
         ordering = ("id", "position")
 
@@ -75,7 +68,6 @@ class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
     inherited attributes from TreeBaseModel:
         parent
         position
-        slug
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -83,28 +75,25 @@ class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    name = models.CharField(blank=True, max_length=150,
+    name = models.CharField(max_length=150,
         help_text="Sort page name (for link text in e.g. menu)"
     )
-    title = models.CharField(blank=True, max_length=256,
+    title = models.CharField(blank=True, null=False, max_length=256,
         help_text="A long page title (for e.g. page title or link title text)"
     )
-    plugin_name = models.CharField(max_length=150, help_text="Name of the plugin")
-    view_name = models.CharField(max_length=150, help_text="The view name")
+    url = models.CharField(blank=True, null=False, unique=True, max_length=256,
+        help_text="Name of url, defined in plugin/admin_urls.py"
+    )
+
+    def __unicode__(self):
+        return u"PyLucidAdminPage %r (%r)" % (self.name, self.get_absolute_url())
 
     def get_absolute_url(self):
-        """ absolute url *without* language code (without domain/host part) """
+        """ absolute url (without domain/host part) """
+        return self.url
 
-        return reverse(
-            viewname="PyLucidAdmin-do",
-            kwargs={"plugin_name":self.plugin_name, "view_name":self.view_name}
-        )
-
-        if self.parent:
-            parent_shortcut = self.parent.get_absolute_url()
-            return parent_shortcut + self.slug + "/"
-        else:
-            return "/".join(["", settings.ADMIN_URL_PREFIX, self.slug, ""])
+    class Meta:
+        ordering = ("url",)
 
 
 
@@ -223,7 +212,6 @@ class PageTree(TreeBaseModel, UpdateInfoBaseModel):
     inherited attributes from TreeBaseModel:
         parent
         position
-        slug
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -242,7 +230,7 @@ class PageTree(TreeBaseModel, UpdateInfoBaseModel):
 
     objects = PageTreeManager()
 
-    id = models.AutoField(primary_key=True)
+    slug = models.SlugField(unique=False, help_text="(for building URLs)")
 
     site = models.ForeignKey(Site)
     on_site = CurrentSiteManager()

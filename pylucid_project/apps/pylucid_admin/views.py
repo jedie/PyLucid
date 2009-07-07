@@ -11,7 +11,7 @@ from django.shortcuts import render_to_response
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, Group
 
-from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design
+from pylucid.models import PyLucidAdminPage, PageTree, PageMeta, PageContent, PluginPage, Design
 from pylucid.preference_forms import SystemPreferencesForm
 from pylucid.system import pylucid_plugin, pylucid_objects
 
@@ -22,25 +22,12 @@ from pylucid_project.utils import pylucid_plugins
 def menu(request):
     context = {
         "title": "PyLucid admin menu",
+
     }
     return render_to_response('pylucid_admin/menu.html', context,
         context_instance=RequestContext(request)
     )
 
-def do(request, plugin_name, view_name):
-    plugin = pylucid_plugins.PLUGINS[plugin_name]
-
-    response = plugin.call_plugin_view(
-        request, settings.ADMIN.VIEW_FILENAME, view_name, method_kwargs={}
-    )
-    if not isinstance(response, http.HttpResponse):
-        raise RuntimeError(
-            "Plugin view %s.%s must return a django.http.HttpResponse object! (it returns: %r)" % (
-                plugin_name, view_name, type(response)
-            )
-        )
-
-    return response
 
 
 
@@ -141,7 +128,7 @@ def install_plugins(request):
             response = plugin_instance.call_plugin_view(
                 request, settings.ADMIN.VIEW_FILENAME, settings.ADMIN.PLUGIN_INSTALL_VIEW_NAME, method_kwargs={}
             )
-        except plugin_instance.GetCallableError, err:
+        except plugin_instance.ObjectNotFound, err:
             if settings.DEBUG:
                 output.append("Skip plugin %r, because it has no install view (%s)" % (plugin_name, err))
         else:

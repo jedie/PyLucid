@@ -4,6 +4,7 @@ import os
 import sys
 
 from django.core import urlresolvers
+from django.utils.importlib import import_module
 
 PLUGINS = None
 
@@ -14,8 +15,8 @@ PLUGINS = None
 class PyLucidPlugin(object):
     """ represents one PyLucid plugins """
 
-    class GetCallableError(Exception):
-        """ Can't import a plugin view or the view doesn't exits """
+    class ObjectNotFound(Exception):
+        """ Can't import a plugin modul or a modul Attribute doesn't exist. """
         pass
 
     def __init__(self, fs_path, pkg_prefix, plugin_name):
@@ -32,14 +33,23 @@ class PyLucidPlugin(object):
         else:
             return None
 
+    def get_plugin_object(self, mod_name, obj_name):
+        pkg = ".".join([self.pkg_string, mod_name])
+        try:
+            mod = import_module(pkg)
+        except ImportError, err:
+            raise self.ObjectNotFound("Can't import %r: %s" % (pkg, err))
+
+        try:
+            object = getattr(mod, obj_name)
+        except AttributeError, err:
+            raise self.ObjectNotFound(err)
+
+        return object
+
     def get_callable(self, mod_name, func_name):
         """ returns the callable function. """
-        lookup_view = ".".join([self.pkg_string, mod_name, func_name])
-        try:
-            callable = urlresolvers.get_callable(lookup_view)
-        except (ImportError, AttributeError), err:
-            raise self.GetCallableError(err)
-
+        callable = self.get_plugin_object(mod_name, obj_name=func_name)
         return callable
 
     def call_plugin_view(self, request, mod_name, func_name, method_kwargs):
@@ -66,6 +76,27 @@ class PyLucidPlugins(dict):
 
         self.template_dirs = None # for expand: settings.TEMPLATE.DIRS
         self.pkg_list = None # for expand: settings.INSTALLED_APPS
+
+    def get_admin_urls(self):
+        """
+        return all existing plugin.admin_urls
+        Used in apps/pylucid_admin/urls.py
+        """
+        urls = None
+        for plugin_name, plugin_instance in self.iteritems():
+            try:
+                admin_urls = plugin_instance.get_plugin_object(
+                    mod_name="admin_urls", obj_name="urlpatterns"
+                )
+            except plugin_instance.ObjectNotFound, err:
+                continue
+
+            if urls == None:
+                urls = admin_urls
+            else:
+                urls += admin_urls
+
+        return urls
 
     def add(self, fs_path, pkg_prefix):
         """ All all plugins in one filesystem path/packages """
