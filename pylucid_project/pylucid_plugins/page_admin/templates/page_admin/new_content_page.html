@@ -1,0 +1,65 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<fieldset id="preview_fieldset">
+<legend>{% trans 'Preview' %}</legend>
+<div id="edit_page_preview"></div>
+</fieldset>
+
+<fieldset>
+<legend>{% trans 'Create a new content page' %}</legend>
+<form action="{{ form_url }}" method="post" id="edit_page_form">
+    <ul id="action_buttons">
+        <li>
+            <input type="submit" name="save" value="{% trans 'save' %}" />
+            <input type="submit" id="preview" name="preview" value="{% trans 'preview' %}" />
+            <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+        </li><li>
+
+        {% if help_link %}
+        <a href="{{ help_link }}" title="{% trans 'markup help page' %}">
+            <button type="button" onclick="OpenInWindow('{{ help_link }}'); return false">
+            {% trans 'markup help' %}
+            </button>
+        </a>
+        {% endif %}
+
+        <a href="{{ pagelinklist_url }}" title="{% trans 'List of all pages for creating links' %}">
+            <button type="button" onclick="OpenInWindow('{{ pagelinklist_url }}'); return false">
+             {% trans 'page list' %}
+            </button>
+        </a>
+        <a href="{{ taglist_url }}" title="{% trans 'List of all available PyLucid template tags' %}">
+            <button type="button" onclick="OpenInWindow('{{ taglist_url }}'); return false">
+             {% trans 'tag list' %}
+            </button>
+        </a>
+        </li>
+        {% if not use_tinymce %}
+        <li>
+        <button type="button" class="resize_buttons" onclick="JavaScript:resize_big(); return false" title="{% trans 'makes the textarea bigger' %}">
+            +
+        </button>
+        <button type="button" class="resize_buttons" onclick="JavaScript:resize_small(); return false" title="{% trans 'makes the textarea smaller' %}">
+            -
+        </button>
+        </li>
+        {% endif %}
+    </ul>
+    <hr class="seperator" />
+    
+    {% for form in formset %}
+    <ul id="input_fields">
+        {% for field in form %}
+            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+            <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+            {{ field }}
+            <span class="field_help_text">{{ field.help_text }}</span>
+            {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</form>
+</fieldset>
+{% endblock %}

@@ -1,13 +1,16 @@
+# coding:utf-8
 
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django import forms
 from django.core import urlresolvers
+from django.template import RequestContext
+from django.contrib.sites.models import Site
+from django.shortcuts import render_to_response
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid.models import PyLucidAdminPage, Design
+from pylucid.models import PageTree, PageMeta, PageContent, PyLucidAdminPage, Design
 from pylucid.preference_forms import SystemPreferencesForm
-from django.contrib.sites.models import Site
+
 
 ADMIN_SECTIONS = {
     "create content": "Create new content."
@@ -65,12 +68,47 @@ def install(request):
     return "\n".join(output)
 
 
+class PageTreeForm(forms.ModelForm):
+    class Meta:
+        model = PageTree
+        exclude = ('site',)
+
+class PageContentForm(forms.ModelForm):
+    class Meta:
+        model = PageContent
+
+class PageMetaForm(forms.ModelForm):
+    class Meta:
+        model = PageMeta
+
+
 def new_content_page(request):
+    """
+    can use django.forms.models.inlineformset_factory:
+        PageFormSet = inlineformset_factory(PageTree, PageContent, PageMeta)
+    get:
+        metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of
+        the metaclasses of all its bases
+    see also: http://code.djangoproject.com/ticket/7837
+    """
+    forms = (PageTreeForm, PageContentForm, PageMetaForm)
+
+    if request.method == "POST":
+        pass
+#        formset = PageFormSet(request.POST)#, instance=author)
+#        if formset.is_valid():
+#            formset.save()
+#            # Do something.
+    else:
+        formset = []
+        for form in forms:
+            formset.append(form())
+
     context = {
         "title": "Create a new page",
-        "content": "TODO",
+        "formset": formset,
     }
-    return render_to_response('admin/base_site.html', context,
+    return render_to_response('page_admin/new_content_page.html', context,
         context_instance=RequestContext(request)
     )
 
