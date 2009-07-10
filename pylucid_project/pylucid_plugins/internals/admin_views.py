@@ -55,7 +55,7 @@ def textform_for_model(model):
                     elif a == 'queryset':
                         kw.append("%s=%s" % (a, "%s.objects.all()" % attr.model.__name__))
                     elif attr:
-                        kw.append("%s='%s'" % (a, attr))
+                        kw.append("%s=_('%s')" % (a, attr))
 
             f_text = "    %s = forms.%s(%s)" % (f.name, formfield.__class__.__name__ , ', '.join(kw))
             field_list.append(f_text)
