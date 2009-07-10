@@ -55,14 +55,32 @@ def install(request):
 #class PageForm(PageTreeForm, PageContentForm, PageMetaForm):
 #    pass
 
+
+
+class AboluteUrlChoiceField(forms.ModelChoiceField):
+    """
+    FIXME: The root page order is wrong!
+    """
+    def __iter__(self):
+        if self.empty_label is not None:
+            yield (u"", self.empty_label)
+
+        for item in sorted(self.queryset.all(), key=lambda i: i.get_absolute_url()):
+            yield (item.pk, item.get_absolute_url())
+
+    def _get_choices(self):
+        return self
+
+    choices = property(_get_choices, forms.ChoiceField._set_choices)
+
+
 class PageContentForm(forms.Form):
     """
     Form vor creating a new content page.
     TODO: Find a DRY way to get the fields directly from the PageTree, PageContent and PageMeta models.
     """
-    parent = forms.ModelChoiceField(queryset=PageTree.objects.all(), label=_('Parent'), initial=None, help_text=_('the higher-ranking father page'), required=False)
+    parent = AboluteUrlChoiceField(queryset=PageTree.objects.all(), label=_('Parent'), initial=None, help_text=_('the higher-ranking father page'), required=False)
     position = forms.IntegerField(label=_('Position'), initial=0, help_text=_('ordering weight for sorting the pages in the menu.'))
-    slug = forms.SlugField(label=_('Slug'), initial=None, help_text=_('(for building URLs)'))
     design = forms.ModelChoiceField(queryset=Design.objects.all(), label=_('Design'), initial=None, help_text=_('Page Template, CSS/JS files'))
     showlinks = forms.BooleanField(label=_('Showlinks'), initial=True, help_text=_('Put the Link to this page into Menu/Sitemap etc.?'), required=False)
     permitViewGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitViewGroup'), initial=None, help_text=_('Limit viewable to a group?'), required=False)
@@ -70,11 +88,16 @@ class PageContentForm(forms.Form):
 
     lang = forms.ModelChoiceField(queryset=Language.objects.all(), label=_('Language'), initial=None)
 
-    content = forms.CharField(label=_('Content'), initial=None, help_text=_('The CMS page content.'), required=False)
+    content = forms.CharField(
+        label=_('Content'), initial=None, help_text=_('The CMS page content.'), required=False,
+        widget=forms.Textarea(attrs={'rows': '15'}),
+    )
     markup = forms.TypedChoiceField(choices=PageContent.MARKUP_CHOICES, label=_('Markup'), initial=None)
 
     name = forms.CharField(label=_('Name'), initial=None, help_text=_('Sort page name (for link text in e.g. menu)'), required=False)
+    slug = forms.SlugField(label=_('Slug'), initial=None, help_text=_('(for building URLs)'))
     title = forms.CharField(label=_('Title'), initial=None, help_text=_('A long page title (for e.g. page title or link title text)'), required=False)
+
     keywords = forms.CharField(label=_('Keywords'), initial=None, help_text=_('Keywords for the html header. (separated by commas)'), required=False)
     description = forms.CharField(label=_('Description'), initial=None, help_text=_('For html header'), required=False)
     robots = forms.CharField(label=_('Robots'), initial='index,follow', help_text=_("for html 'robots' meta content."))
@@ -82,9 +105,15 @@ class PageContentForm(forms.Form):
 
 
 
-
 def new_content_page(request):
     """
+    Create a new content page.
+    
+    TODO:
+        * setup design via ajax, if not set and a parent page tree was selected
+        * Auto generate slug from page name with javascript
+    
+    
     can use django.forms.models.inlineformset_factory:
         PageFormSet = inlineformset_factory(PageTree, PageContent, PageMeta)
     get:
