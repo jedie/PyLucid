@@ -1,6 +1,7 @@
 # coding:utf-8
 
-from django import forms
+from django import forms, http
+from django.db import transaction
 from django.core import urlresolvers
 from django.template import RequestContext
 from django.contrib.sites.models import Site
@@ -8,43 +9,11 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid.models import PageTree, PageMeta, PageContent, PyLucidAdminPage, Design
+from pylucid.models import PageTree, PageMeta, PageContent, PyLucidAdminPage, Design, Language
 from pylucid.preference_forms import SystemPreferencesForm
 
+from pylucid_admin.admin_menu import AdminMenu
 
-ADMIN_SECTIONS = {
-    "create content": "Create new content."
-}
-
-
-class AdminMenu(object):
-    def __init__(self, request, output):
-        self.request = request
-        self.output = output
-
-#        sys_preferences = SystemPreferencesForm().get_preferences()
-#        admin_design_id = sys_preferences["pylucid_admin_design"]
-#        self.admin_design = Design.objects.get(id=admin_design_id)
-
-    def add_menu_entry(self, **kwargs):
-        if "url_name" in kwargs:
-            url_name = kwargs.pop("url_name")
-            url = urlresolvers.reverse(viewname=url_name)
-            kwargs["url"] = url
-
-        adminpage_entry, created = PyLucidAdminPage.objects.get_or_create(**kwargs)
-        if created:
-            self.output.append("PyLucidAdminPage %r created." % adminpage_entry)
-        else:
-            self.output.append("PyLucidAdminPage %r exist." % adminpage_entry)
-
-        return adminpage_entry
-
-
-    def get_or_create_section(self, section_name):
-        title = ADMIN_SECTIONS[section_name]
-        adminpage_entry = self.add_menu_entry(name=section_name, title=title, parent=None)
-        return adminpage_entry
 
 
 def install(request):
@@ -68,18 +37,50 @@ def install(request):
     return "\n".join(output)
 
 
-class PageTreeForm(forms.ModelForm):
-    class Meta:
-        model = PageTree
-        exclude = ('site',)
+#class PageTreeForm(forms.ModelForm):
+#    class Meta:
+#        model = PageTree
+#        exclude = ("site",)
+#
+#class PageContentForm(forms.ModelForm):
+#    class Meta:
+#        model = PageContent
+#        exclude = ("page", "pagemeta")
+#
+#class PageMetaForm(forms.ModelForm):
+#    class Meta:
+#        model = PageMeta
+#        exclude = ("page", "lang")
+#
+#class PageForm(PageTreeForm, PageContentForm, PageMetaForm):
+#    pass
 
-class PageContentForm(forms.ModelForm):
-    class Meta:
-        model = PageContent
+class PageContentForm(forms.Form):
+    """
+    Form vor creating a new content page.
+    TODO: Find a DRY way to get the fields directly from the PageTree, PageContent and PageMeta models.
+    """
+    parent = forms.ModelChoiceField(queryset=PageTree.objects.all(), label=_('Parent'), initial=None, help_text=_('the higher-ranking father page'), required=False)
+    position = forms.IntegerField(label=_('Position'), initial=0, help_text=_('ordering weight for sorting the pages in the menu.'))
+    slug = forms.SlugField(label=_('Slug'), initial=None, help_text=_('(for building URLs)'))
+    design = forms.ModelChoiceField(queryset=Design.objects.all(), label=_('Design'), initial=None, help_text=_('Page Template, CSS/JS files'))
+    showlinks = forms.BooleanField(label=_('Showlinks'), initial=True, help_text=_('Put the Link to this page into Menu/Sitemap etc.?'), required=False)
+    permitViewGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitViewGroup'), initial=None, help_text=_('Limit viewable to a group?'), required=False)
+    permitEditGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitEditGroup'), initial=None, help_text=_('Usergroup how can edit this page.'), required=False)
 
-class PageMetaForm(forms.ModelForm):
-    class Meta:
-        model = PageMeta
+    lang = forms.ModelChoiceField(queryset=Language.objects.all(), label=_('Language'), initial=None)
+
+    content = forms.CharField(label=_('Content'), initial=None, help_text=_('The CMS page content.'), required=False)
+    markup = forms.TypedChoiceField(choices=PageContent.MARKUP_CHOICES, label=_('Markup'), initial=None)
+
+    name = forms.CharField(label=_('Name'), initial=None, help_text=_('Sort page name (for link text in e.g. menu)'), required=False)
+    title = forms.CharField(label=_('Title'), initial=None, help_text=_('A long page title (for e.g. page title or link title text)'), required=False)
+    keywords = forms.CharField(label=_('Keywords'), initial=None, help_text=_('Keywords for the html header. (separated by commas)'), required=False)
+    description = forms.CharField(label=_('Description'), initial=None, help_text=_('For html header'), required=False)
+    robots = forms.CharField(label=_('Robots'), initial='index,follow', help_text=_("for html 'robots' meta content."))
+    permitViewGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitViewGroup'), initial=None, help_text=_('Limit viewable to a group?'), required=False)
+
+
 
 
 def new_content_page(request):
@@ -91,22 +92,55 @@ def new_content_page(request):
         the metaclasses of all its bases
     see also: http://code.djangoproject.com/ticket/7837
     """
-    forms = (PageTreeForm, PageContentForm, PageMetaForm)
+    def make_kwargs(data, keys):
+        kwargs = {}
+        for key in keys:
+            kwargs[key] = data[key]
+        return kwargs
 
+    formset = []
     if request.method == "POST":
-        pass
-#        formset = PageFormSet(request.POST)#, instance=author)
-#        if formset.is_valid():
-#            formset.save()
-#            # Do something.
+        form = PageContentForm(request.POST)
+        if form.is_valid():
+            sid = transaction.savepoint()
+            try:
+                pagetree_kwargs = make_kwargs(
+                    form.cleaned_data, keys=(
+                        "parent", "position", "slug", "design", "showlinks",
+                        "permitViewGroup", "permitEditGroup"
+                    )
+                )
+                pagetree_kwargs["type"] = PageTree.PAGE_TYPE
+                pagetree_instance = PageTree(**pagetree_kwargs)
+                pagetree_instance.save()
+
+                pagemeta_kwargs = make_kwargs(
+                    form.cleaned_data,
+                    keys=("lang", "name", "title", "keywords", "description", "robots", "permitViewGroup")
+                )
+                pagemeta_kwargs["page"] = pagetree_instance
+                pagemeta_instance = PageMeta(**pagemeta_kwargs)
+                pagemeta_instance.save()
+
+                pagecontent_kwargs = make_kwargs(form.cleaned_data, keys=("lang", "content", "markup"))
+                pagecontent_kwargs["page"] = pagetree_instance
+                pagecontent_kwargs["pagemeta"] = pagemeta_instance
+                pagecontent_instance = PageContent(**pagecontent_kwargs)
+                pagecontent_instance.save()
+            except:# IntegrityError, e:
+                transaction.savepoint_rollback(sid)
+                raise
+            else:
+                transaction.savepoint_commit(sid)
+                request.page_msg("New page %r created." % pagecontent_instance)
+                return http.HttpResponseRedirect(pagecontent_instance.get_absolute_url())
     else:
-        formset = []
-        for form in forms:
-            formset.append(form())
+        form = PageContentForm()
 
     context = {
         "title": "Create a new page",
-        "formset": formset,
+        "form_url": request.path,
+        "form": form,
     }
     return render_to_response('page_admin/new_content_page.html', context,
         context_instance=RequestContext(request)
