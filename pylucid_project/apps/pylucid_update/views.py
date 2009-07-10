@@ -18,6 +18,7 @@ import re
 import posixpath
 
 from django.conf import settings
+from django.db import transaction
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
@@ -178,8 +179,6 @@ def _do_update(request, language):
             defaults={
                 "position": old_page.position,
 
-                "description": old_page.description,
-
                 "type": PageTree.PAGE_TYPE, # FIXME: Find plugin entry in page content
 
                 "design": design,
@@ -259,7 +258,15 @@ def update08(request):
         form = UpdateForm(request.POST)
         if form.is_valid():
             language = form.cleaned_data["language"]
-            return _do_update(request, language)
+            sid = transaction.savepoint()
+            try:
+                response = _do_update(request, language)
+            except:# IntegrityError, e:
+                transaction.savepoint_rollback(sid)
+                raise
+            else:
+                transaction.savepoint_commit(sid)
+                return response
     else:
         form = UpdateForm()
 
