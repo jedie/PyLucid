@@ -4,7 +4,7 @@ from django import http
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template import loader, RequestContext, Context, Template
-
+from django.utils.translation import ugettext as _
 from django_tools.template import render
 
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
@@ -214,8 +214,13 @@ def _prepage_request(request, lang_entry):
 
 def _render_root_page(request):
     """ render the root page, used in root_page and lang_root_page views """
-    # Get the first PageTree entry
-    pagetree = PageTree.objects.get_root_page()
+    try:
+        pagetree = PageTree.objects.get_root_page() # Get the first PageTree entry
+    except PageTree.DoesNotExist, err:
+        request.page_msg.error(
+            _("There exist no pages items! Have you install PyLucid? At least you must create one page!")
+        )
+        return http.HttpResponseRedirect(reverse("PageAdmin-new_content_page"))
 
     return _render_page(request, pagetree)
 

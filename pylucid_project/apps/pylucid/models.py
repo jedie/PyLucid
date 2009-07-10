@@ -113,9 +113,12 @@ class PageTreeManager(models.Manager):
             root_page = queryset[0]
         except IndexError, err:
             if PageTree.on_site.count() == 0:
-                raise IndexError("There exist no PageTree items! Have you install PyLucid?")
-            else:
-                raise
+                #request.page_msg.error(_("There exist no PageTree items! Have you install PyLucid?"))
+                raise PageTree.DoesNotExist("There exist no PageTree items! Have you install PyLucid?")
+#                raise 
+#                raise IndexError("There exist no PageTree items! Have you install PyLucid?")
+#            else:
+#                raise
         return root_page
 
     def get_model_instance(self, request, ModelClass, pagetree=None):
@@ -233,11 +236,8 @@ class PageTree(TreeBaseModel, UpdateInfoBaseModel):
 
     slug = models.SlugField(unique=False, help_text="(for building URLs)")
 
-    site = models.ForeignKey(Site)
+    site = models.ForeignKey(Site, default=Site.objects.get_current)
     on_site = CurrentSiteManager()
-
-
-    description = models.CharField(blank=True, max_length=150, help_text="For internal use")
 
     # TODO: rename type to page_type! see also: http://trac.pylucid.net/ticket/281
     type = models.CharField(max_length=1, choices=TYPE_CHOICES)
@@ -265,7 +265,7 @@ class PageTree(TreeBaseModel, UpdateInfoBaseModel):
             return "/" + self.slug + "/"
 
     def __unicode__(self):
-        return u"PageTree '%s' (site: %s, type: %s)" % (self.slug, self.site.name, self.TYPE_DICT[self.type])
+        return u"PageTree '%s' (site: %s, type: %s)" % (self.slug, self.site.name, self.TYPE_DICT.get(self.type))
 
     class Meta:
         unique_together = (("site", "slug", "parent"),)
