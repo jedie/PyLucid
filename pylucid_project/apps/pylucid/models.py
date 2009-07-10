@@ -32,7 +32,7 @@ from django.core import exceptions
 from django.db.models import signals
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User, Group, Permission
 from django.template.loader import render_to_string
 from django.contrib.sites.managers import CurrentSiteManager
 
@@ -81,9 +81,10 @@ class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
     title = models.CharField(blank=True, null=False, max_length=256,
         help_text="A long page title (for e.g. page title or link title text)"
     )
-    url = models.CharField(blank=True, null=False, unique=True, max_length=256,
+    url = models.CharField(blank=True, null=False, max_length=256,
         help_text="Name of url, defined in plugin/admin_urls.py"
     )
+    access_permissions = models.ManyToManyField(Permission, verbose_name=_('access permissions'), blank=True)
 
     def __unicode__(self):
         return u"PyLucidAdminPage %r (%r)" % (self.name, self.get_absolute_url())
@@ -238,6 +239,7 @@ class PageTree(TreeBaseModel, UpdateInfoBaseModel):
 
     description = models.CharField(blank=True, max_length=150, help_text="For internal use")
 
+    # TODO: rename type to page_type! see also: http://trac.pylucid.net/ticket/281
     type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
     design = models.ForeignKey("Design", help_text="Page Template, CSS/JS files")
