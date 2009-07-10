@@ -99,7 +99,7 @@ class PyLucidPlugins(dict):
         return urls
 
     def add(self, fs_path, pkg_prefix):
-        """ All all plugins in one filesystem path/packages """
+        """ Add all plugins in one filesystem path/packages """
         for plugin_name in os.listdir(fs_path):
             if plugin_name.startswith("."):
                 continue
