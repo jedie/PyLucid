@@ -29,28 +29,39 @@ def install(request):
 
     return "\n".join(output)
 
-def _form_generator(model):
-    output = []
-    fields = model._meta.fields + model._meta.many_to_many
-
-    output.append("class %sForm(forms.Form):" % (model.__class__.__name__))
-    for field in fields:
-        formfield = field.formfield()
+def textform_for_model(model):
+    """
+    based on http://www.djangosnippets.org/snippets/458/
+    """
+    opts = model._meta
+    field_list = []
+    for f in opts.fields + opts.many_to_many:
+        if not f.editable:
+            continue
+        formfield = f.formfield()
         if formfield:
-            fieldtype = str(formfield).split()[0].split('.')[-1]
-            print field.name, field
-            arguments = {}
-            if field.verbose_name != field.name:
-                arguments['verbose_name'] = '\'%s\'' % field.verbose_name
-            if field.help_text:
-                arguments['help_text'] = '\'%s\'' % field.help_text
-            if field.blank:
-                arguments['required'] = False
+            kw = []
+            for a in  ('queryset', 'maxlength', 'label', 'initial', 'help_text', 'required'):
+                if hasattr(formfield, a):
+                    attr = getattr(formfield, a)
+                    if a in ("label", "help_text"): # "translate" lazy text
+                        attr = unicode(attr)
 
-            output.append("    %s = forms.%s(%s)" % (
-                field.name, fieldtype, ', '.join(['%s=%s' % (k, v) for k, v in arguments.iteritems()])
-            ))
-    return output
+                    if a == 'required': # Add required only if it's False
+                        if attr == False:
+                            kw.append("%s=%s" % (a, attr))
+                    elif attr in [True, False, None]:
+                        kw.append("%s=%s" % (a, attr))
+                    elif a == 'queryset':
+                        kw.append("%s=%s" % (a, "%s.objects.all()" % attr.model.__name__))
+                    elif attr:
+                        kw.append("%s='%s'" % (a, attr))
+
+            f_text = "    %s = forms.%s(%s)" % (f.name, formfield.__class__.__name__ , ', '.join(kw))
+            field_list.append(f_text)
+    return "class %sForm(forms.Form):\n" % model.__name__ + '\n'.join(field_list)
+
+
 
 def form_generator(request, model_no=None):
     apps = models.get_apps()
@@ -64,8 +75,8 @@ def form_generator(request, model_no=None):
 
     if model_no:
         model = models_dict[int(model_no)]
-        lines = _form_generator(model)
-        sourcecode = "\n".join(lines)
+        sourcecode = textform_for_model(model)
+
         output = hightlighter.make_html(sourcecode, source_type="py")
         output = mark_safe(output)
     else:
