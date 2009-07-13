@@ -38,6 +38,7 @@ from django.contrib.sites.managers import CurrentSiteManager
 
 from django_tools.middlewares import ThreadLocal
 from django_tools.template import render
+from django_tools import model_utils
 
 from pylucid_project.utils import crypt
 
@@ -240,6 +241,9 @@ class PageTree(TreeBaseModel, UpdateInfoBaseModel):
         # FIXME: It would be great if we can order by get_absolute_url()
         ordering = ("site", "id", "position")
 
+# Check Meta.unique_together manually
+model_utils.auto_add_check_unique_together(PageTree)
+
 
 #------------------------------------------------------------------------------
 
@@ -329,6 +333,9 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         unique_together = (("page", "lang"),)
         ordering = ("page", "lang")
 
+# Check Meta.unique_together manually
+model_utils.auto_add_check_unique_together(PageMeta)
+
 #------------------------------------------------------------------------------
 
 
@@ -378,6 +385,8 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         unique_together = (("page", "lang"),)
         ordering = ("page", "lang")
 
+# Check Meta.unique_together manually
+model_utils.auto_add_check_unique_together(PluginPage)
 
 #------------------------------------------------------------------------------
 
@@ -460,6 +469,9 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     class Meta:
         unique_together = (("page", "lang"),)
         ordering = ("page", "lang")
+
+# Check Meta.unique_together manually
+model_utils.auto_add_check_unique_together(PageContent)
 
 #------------------------------------------------------------------------------
 
