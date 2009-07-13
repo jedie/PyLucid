@@ -5,7 +5,9 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 
-from pylucid.models import PageTree, PyLucidAdminPage
+from pylucid.models import PageTree
+
+from pylucid_admin.models import PyLucidAdminPage
 
 
 def lucidTag(request):

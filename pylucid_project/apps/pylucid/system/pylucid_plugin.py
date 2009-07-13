@@ -33,29 +33,29 @@ from pylucid.models import PluginPage
 from pylucid.system import pylucid_objects
 
 
-def call_plugin_view(request, plugin_name, method_name, method_kwargs={}):
-    """
-    """
-    warnings.warn("TODO: Move into utils.pylucid_plugins!")
-
-    # callback is either a string like 'foo.views.news.stories.story_detail'
-    callback = "pylucid_plugins.%s.views.%s" % (plugin_name, method_name)
-    try:
-        callable = urlresolvers.get_callable(callback)
-    except (ImportError, AttributeError), err:
-        raise GetCallableError(err)
-
-    # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
-    request.plugin_name = plugin_name
-    request.method_name = method_name
-
-    # call the plugin view method
-    response = callable(request, **method_kwargs)
-
-    return response
-
-class GetCallableError(Exception):
-    pass
+#def call_plugin_view(request, plugin_name, method_name, method_kwargs={}):
+#    """
+#    """
+#    warnings.warn("TODO: Move into utils.pylucid_plugins!")
+#
+#    # callback is either a string like 'foo.views.news.stories.story_detail'
+#    callback = "pylucid_plugins.%s.views.%s" % (plugin_name, method_name)
+#    try:
+#        callable = urlresolvers.get_callable(callback)
+#    except (ImportError, AttributeError), err:
+#        raise GetCallableError(err)
+#
+#    # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
+#    request.plugin_name = plugin_name
+#    request.method_name = method_name
+#
+#    # call the plugin view method
+#    response = callable(request, **method_kwargs)
+#
+#    return response
+#
+#class GetCallableError(Exception):
+#    pass
 
 
 def call_get_views(request):

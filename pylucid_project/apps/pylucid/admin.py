@@ -58,14 +58,7 @@ admin.site.register(Permission, PermissionAdmin)
 
 #------------------------------------------------------------------------------
 
-class PyLucidAdminPageAdmin(VersionAdmin):
-    list_display = ("id", "name", "title", "url",)
-    list_display_links = ("name",)
-    list_filter = ("createby", "lastupdateby",)
-    date_hierarchy = 'lastupdatetime'
-    search_fields = ("name", "title", "url")
 
-admin.site.register(models.PyLucidAdminPage, PyLucidAdminPageAdmin)
 
 
 class PageTreeAdmin(VersionAdmin):

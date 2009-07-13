@@ -30,7 +30,7 @@ import sys
 
 try:
     import pylucid_project
-    from pylucid_project.utils import pylucid_plugins
+    from pylucid_project.system import pylucid_plugins
 except Exception, e:
     import traceback
     print traceback.format_exc()
@@ -89,6 +89,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 
+    'dbpreferences.middleware.DBPreferencesMiddleware',
+
     'pylucid_project.middlewares.PyLucidMiddleware.PyLucidMiddleware',
     'pylucid_project.middlewares.PageMessages.PageMessagesMiddleware',
 
@@ -116,7 +118,7 @@ TEMPLATE_DIRS = (
     os.path.join(PYLUCID_BASE_PATH, "django/contrib/admin/templates"),
 )
 # Add all templates subdirs from all existing PyLucid plugins
-TEMPLATE_DIRS += pylucid_plugins.PLUGINS.template_dirs
+TEMPLATE_DIRS += pylucid_plugins.PYLUCID_PLUGINS.template_dirs
 #print "settings.TEMPLATE_DIRS:", TEMPLATE_DIRS
 
 TEMPLATE_LOADERS = (
@@ -160,6 +162,7 @@ INSTALLED_APPS = (
 
     # PyLucid own apps:
     'pylucid_project.apps.pylucid',
+    'pylucid_project.apps.pylucid_admin',
     'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
 
     # external apps shipped and used with PyLucid:
@@ -168,7 +171,7 @@ INSTALLED_APPS = (
     'reversion',
 )
 # Add all existing PyLucid plugins
-INSTALLED_APPS += pylucid_plugins.PLUGINS.pkg_list
+INSTALLED_APPS += pylucid_plugins.PYLUCID_PLUGINS.pkg_list
 #print "settings.INSTALLED_APPS:", INSTALLED_APPS
 
 #http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
@@ -233,10 +236,12 @@ ADMIN_MEDIA_PREFIX = "/django/contrib/admin/media/"
 ADMIN_URL_PREFIX = 'admin'
 LOGIN_URL = "/admin/" # FIXME
 
+PYLUCID_ADMIN_URL_PREFIX = 'pylucid_admin'
+
 # TODO: must be used ;)
 SLUG_BLACKLIST = (
     MEDIA_URL.strip("/").split("/", 1)[0],
-    ADMIN_URL_PREFIX, PYLUCID.HEAD_FILES_URL_PREFIX,
+    ADMIN_URL_PREFIX, PYLUCID_ADMIN_URL_PREFIX, PYLUCID.HEAD_FILES_URL_PREFIX,
 )
 
 # Prefix in filename, used for page templates and page styles
@@ -247,3 +252,4 @@ try:
     from local_settings import *
 except ImportError:
     pass
+

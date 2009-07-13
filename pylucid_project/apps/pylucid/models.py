@@ -61,40 +61,7 @@ class TreeBaseModel(models.Model):
 
 
 
-class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
-    """
-    PyLucid Admin page tree
-    
-    inherited attributes from TreeBaseModel:
-        parent
-        position
 
-    inherited attributes from UpdateInfoBaseModel:
-        createtime     -> datetime of creation
-        lastupdatetime -> datetime of the last change
-        createby       -> ForeignKey to user who creaded this entry
-        lastupdateby   -> ForeignKey to user who has edited this entry
-    """
-    name = models.CharField(max_length=150,
-        help_text="Sort page name (for link text in e.g. menu)"
-    )
-    title = models.CharField(blank=True, null=False, max_length=256,
-        help_text="A long page title (for e.g. page title or link title text)"
-    )
-    url = models.CharField(blank=True, null=False, max_length=256,
-        help_text="Name of url, defined in plugin/admin_urls.py"
-    )
-    access_permissions = models.ManyToManyField(Permission, verbose_name=_('access permissions'), blank=True)
-
-    def __unicode__(self):
-        return u"PyLucidAdminPage %r (%r)" % (self.name, self.get_absolute_url())
-
-    def get_absolute_url(self):
-        """ absolute url (without domain/host part) """
-        return self.url
-
-    class Meta:
-        ordering = ("url",)
 
 
 

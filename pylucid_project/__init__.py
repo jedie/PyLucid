@@ -38,3 +38,5 @@ __version__ = (0, 9, 0, 'pre-alpha', svn_revision)
 # - No spaces: "0.8.0 RC2" -> "0.8.0RC2"
 # http://peak.telecommunity.com/DevCenter/setuptools#specifying-your-project-s-version
 PYLUCID_VERSION_STRING = "%s.%s.%s%s%s" % __version__
+
+

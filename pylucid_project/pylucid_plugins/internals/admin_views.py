@@ -10,7 +10,6 @@ from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid.markup import hightlighter
-from pylucid.models import PageTree, PageMeta, PageContent, PyLucidAdminPage, Design
 
 from pylucid_admin.admin_menu import AdminMenu
 

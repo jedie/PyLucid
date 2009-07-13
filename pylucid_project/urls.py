@@ -24,6 +24,7 @@ from django.contrib import admin
 
 admin.autodiscover()
 
+
 urlpatterns = patterns('',
     #_____________________________________
     # PYLUCID UPDATE SECTION
@@ -31,7 +32,7 @@ urlpatterns = patterns('',
 
     #_____________________________________
     # PYLUCID ADMIN
-    (r'^%s/' % settings.ADMIN_URL_PREFIX, include('pylucid_admin.urls')),
+    (r'^%s/' % settings.PYLUCID_ADMIN_URL_PREFIX, include('pylucid_admin.urls')),
 
     #_____________________________________
     # DJANGO ADMIN PANEL

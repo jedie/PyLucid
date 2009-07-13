@@ -17,13 +17,17 @@ from django.conf import settings
 from django.conf.urls.defaults import patterns, url, include
 
 from pylucid_project.apps.pylucid_admin import views
-from pylucid_project.utils import pylucid_plugins
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+
+from pylucid.decorators import superuser_only
+
+_admin_urls = PYLUCID_PLUGINS.get_admin_urls()
 
 urlpatterns = patterns('',
     url(r'^menu/$', views.menu, name='PyLucidAdmin-menu'),
 
-    url(r'^pylucid/', include(pylucid_plugins.PLUGINS.get_admin_urls())),
+    url(r'^pylucid/', include(_admin_urls)),
 
-    url(r'^install/pylucid/$', views.install_pylucid, name='PyLucidAdmin-install_pylucid'),
-    url(r'^install/plugins/$', views.install_plugins, name='PyLucidAdmin-install_plugins'),
+    url(r'^install/pylucid/$', superuser_only(views.install_pylucid), name='PyLucidAdmin-install_pylucid'),
+    url(r'^install/plugins/$', superuser_only(views.install_plugins), name='PyLucidAdmin-install_plugins'),
 )

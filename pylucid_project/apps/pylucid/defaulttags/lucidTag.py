@@ -32,7 +32,8 @@ from django import template
 from django.conf import settings
 from django.http import HttpResponse
 
-from pylucid.system import pylucid_plugin
+#from pylucid.system import pylucid_plugin
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 
 # FIXME: The re should be more fault-tolerant:
@@ -113,36 +114,43 @@ class lucidTagNode(template.Node):
             self.plugin_name, self.method_name, self.method_kwargs)
 
     def render(self, context):
-        
+
         try:
             request = context["request"]
         except KeyError:
             raise KeyError("request object not in context! You must add it into the template context!")
-        
+
         plugin_name = self.plugin_name
         method_name = self.method_name
         method_kwargs = self.method_kwargs
-        
+
         try:
-            response = pylucid_plugin.call_plugin_view(request, plugin_name, method_name, method_kwargs)
-        except pylucid_plugin.GetCallableError, err:
-            # FIXME:
-            return u"[lucidTag %s.%s unknown, error was: %s]" % (self.plugin_name, self.method_name, err)
+            plugin_instance = PYLUCID_PLUGINS[plugin_name]
+        except KeyError:
+            return u"[PyLucid Plugin %s unknown]" % plugin_name
+
+        try:
+            response = plugin_instance.call_plugin_view(request, "views", method_name, method_kwargs)
+        except plugin_instance.ObjectNotFound, err:
+            if str(err) == "No module named %s.%s" % (plugin_name, method_name):
+                return u"[lucidTag %s.%s unknown, error was: %s]" % (self.plugin_name, self.method_name, err)
+            else:
+                raise
         except:
             # insert more information into the traceback
             etype, evalue, etb = sys.exc_info()
             evalue = etype('Error rendering template tag "%s": %s' % (self.raw_content, evalue))
             raise etype, evalue, etb
-        
+
         # FIXME: Witch error should we raised here?
-        if response==None:
+        if response == None:
             return u""
         elif isinstance(response, basestring):
             return response
         elif isinstance(response, HttpResponse):
             assert response.status_code == 200, "Response status code != 200 ???"
             return response.content
-        
+
         raise RuntimeError("pylucid plugins must return None, a basestring or a HttpResponse instance!")
 
 

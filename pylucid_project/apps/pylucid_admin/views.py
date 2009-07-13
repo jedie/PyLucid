@@ -11,11 +11,13 @@ from django.shortcuts import render_to_response
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, Group
 
-from pylucid.models import PyLucidAdminPage, PageTree, PageMeta, PageContent, PluginPage, Design
+from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design
 from pylucid.preference_forms import SystemPreferencesForm
 from pylucid.system import pylucid_plugin, pylucid_objects
 
-from pylucid_project.utils import pylucid_plugins
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+
+from pylucid_admin.models import PyLucidAdminPage
 
 
 
@@ -121,16 +123,26 @@ def install_plugins(request):
     """ Simple call all plugin install view, if exist. """
     output = []
 
+#    PyLucidAdminPage.objects.all().delete()
+
     output.append("*** Install Plugins:")
 
-    for plugin_name, plugin_instance in pylucid_plugins.PLUGINS.iteritems():
+    for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
         try:
             response = plugin_instance.call_plugin_view(
                 request, settings.ADMIN.VIEW_FILENAME, settings.ADMIN.PLUGIN_INSTALL_VIEW_NAME, method_kwargs={}
             )
-        except plugin_instance.ObjectNotFound, err:
-            if settings.DEBUG:
-                output.append("Skip plugin %r, because it has no install view (%s)" % (plugin_name, err))
+#        except plugin_instance.ObjectNotFound, err:
+        except (ImportError, AttributeError), err:
+            if str(err).endswith("No module named admin_views"):
+                if settings.DEBUG:
+                    output.append("Skip plugin %r, because it has no install view (%s)" % (plugin_name, err))
+                    continue
+            else:
+                if settings.DEBUG:
+                    raise
+                else:
+                    output.append(" *** %s" % err)
         else:
             output.append("_" * 79)
             output.append(" *** install plugin %r ***" % plugin_name)

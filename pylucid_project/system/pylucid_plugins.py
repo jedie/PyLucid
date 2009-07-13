@@ -3,10 +3,11 @@
 import os
 import sys
 
+from django.conf import settings
 from django.core import urlresolvers
 from django.utils.importlib import import_module
 
-PLUGINS = None
+PYLUCID_PLUGINS = None
 
 
 
@@ -38,12 +39,15 @@ class PyLucidPlugin(object):
         try:
             mod = import_module(pkg)
         except ImportError, err:
-            raise self.ObjectNotFound("Can't import %r: %s" % (pkg, err))
+            if str(err) == "No module named admin_urls":
+                raise self.ObjectNotFound("Can't import %r: %s" % (pkg, err))
+            else:
+                raise
 
-        try:
-            object = getattr(mod, obj_name)
-        except AttributeError, err:
-            raise self.ObjectNotFound(err)
+#        try:
+        object = getattr(mod, obj_name)
+#        except AttributeError, err:
+#            raise self.ObjectNotFound(err)
 
         return object
 
@@ -63,8 +67,10 @@ class PyLucidPlugin(object):
         # call the plugin view method
         response = callable(request, **method_kwargs)
 
-        del(request.plugin_name)
-        del(request.method_name)
+        request.plugin_name = None
+        request.method_name = None
+#        del(request.plugin_name)
+#        del(request.method_name)
 
         return response
 
@@ -96,7 +102,10 @@ class PyLucidPlugins(dict):
             else:
                 urls += admin_urls
 
-        return urls
+        if urls == None:
+            return ()
+        else:
+            return urls
 
     def add(self, fs_path, pkg_prefix):
         """ Add all plugins in one filesystem path/packages """
@@ -131,14 +140,14 @@ class PyLucidPlugins(dict):
 
 
 def setup_plugins(plugin_package_list):
-    global PLUGINS
+    global PYLUCID_PLUGINS
 
-    if PLUGINS == None:
-        PLUGINS = PyLucidPlugins()
+    if PYLUCID_PLUGINS == None:
+        PYLUCID_PLUGINS = PyLucidPlugins()
         for fs_path, pkg_prefix in plugin_package_list:
             sys.path.insert(0, fs_path)
-            PLUGINS.add(fs_path, pkg_prefix)
-        PLUGINS.init2()
+            PYLUCID_PLUGINS.add(fs_path, pkg_prefix)
+        PYLUCID_PLUGINS.init2()
 
 
 
