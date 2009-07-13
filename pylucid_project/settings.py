@@ -91,8 +91,8 @@ MIDDLEWARE_CLASSES = (
 
     'dbpreferences.middleware.DBPreferencesMiddleware',
 
-    'pylucid_project.middlewares.PyLucidMiddleware.PyLucidMiddleware',
     'pylucid_project.middlewares.PageMessages.PageMessagesMiddleware',
+    'pylucid_project.middlewares.PyLucidMiddleware.PyLucidMiddleware',
 
     # slow down the django developer server
     # From http://code.google.com/p/django-tools/
