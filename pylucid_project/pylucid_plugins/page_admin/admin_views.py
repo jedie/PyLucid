@@ -9,12 +9,17 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid.models import PageTree, PageMeta, PageContent, Design, Language
+from pylucid_project.utils.form_utils import make_kwargs
+
+from pylucid.models import PageTree, PageMeta, PageContent, Design, Language, PluginPage
 from pylucid.preference_forms import SystemPreferencesForm
 
 from pylucid_admin.admin_menu import AdminMenu
 
 from page_admin.forms import PageContentForm, PluginPageForm
+
+
+
 
 
 
@@ -57,42 +62,22 @@ def new_content_page(request):
         the metaclasses of all its bases
     see also: http://code.djangoproject.com/ticket/7837
     """
-    def make_kwargs(data, keys):
-        kwargs = {}
-        for key in keys:
-            kwargs[key] = data[key]
-        return kwargs
-
-    formset = []
     if request.method == "POST":
         form = PageContentForm(request.POST)
         if form.is_valid():
+            cleaned_data = form.cleaned_data
             sid = transaction.savepoint()
             try:
-                pagetree_kwargs = make_kwargs(
-                    form.cleaned_data, keys=(
-                        "parent", "position", "slug", "design", "showlinks",
-                        "permitViewGroup", "permitEditGroup"
-                    )
+                pagetree_instance = PageTree.objects.easy_create(cleaned_data,
+                    extra={"type": PageTree.PAGE_TYPE}
                 )
-                pagetree_kwargs["type"] = PageTree.PAGE_TYPE
-                pagetree_instance = PageTree(**pagetree_kwargs)
-                pagetree_instance.save()
-
-                pagemeta_kwargs = make_kwargs(
-                    form.cleaned_data,
-                    keys=("lang", "name", "title", "keywords", "description", "robots", "permitViewGroup")
+                pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
+                    extra={"page": pagetree_instance}
                 )
-                pagemeta_kwargs["page"] = pagetree_instance
-                pagemeta_instance = PageMeta(**pagemeta_kwargs)
-                pagemeta_instance.save()
-
-                pagecontent_kwargs = make_kwargs(form.cleaned_data, keys=("lang", "content", "markup"))
-                pagecontent_kwargs["page"] = pagetree_instance
-                pagecontent_kwargs["pagemeta"] = pagemeta_instance
-                pagecontent_instance = PageContent(**pagecontent_kwargs)
-                pagecontent_instance.save()
-            except:# IntegrityError, e:
+                pagecontent_instance = PageContent.objects.easy_create(cleaned_data,
+                    extra={"page": pagetree_instance, "pagemeta": pagemeta_instance}
+                )
+            except:
                 transaction.savepoint_rollback(sid)
                 raise
             else:
@@ -116,7 +101,31 @@ def new_plugin_page(request):
     """
     Create a new plugin page.
     """
-    form = PluginPageForm()
+    if request.method == "POST":
+        form = PluginPageForm(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            sid = transaction.savepoint()
+            try:
+                pagetree_instance = PageTree.objects.easy_create(cleaned_data,
+                    extra={"type": PageTree.PLUGIN_TYPE}
+                )
+                pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
+                    extra={"page": pagetree_instance}
+                )
+                pagecontent_instance = PluginPage.objects.easy_create(cleaned_data,
+                    extra={"page": pagetree_instance, "pagemeta": pagemeta_instance}
+                )
+            except:
+                transaction.savepoint_rollback(sid)
+                raise
+            else:
+                transaction.savepoint_commit(sid)
+                request.page_msg("New page %r created." % pagecontent_instance)
+                return http.HttpResponseRedirect(pagecontent_instance.get_absolute_url())
+    else:
+        form = PluginPageForm()
+
     context = {
         "title": "Create a new plugin page",
         "form_url": request.path,

@@ -44,10 +44,10 @@ class PyLucidPlugin(object):
             else:
                 raise
 
-#        try:
-        object = getattr(mod, obj_name)
-#        except AttributeError, err:
-#            raise self.ObjectNotFound(err)
+        try:
+            object = getattr(mod, obj_name)
+        except AttributeError, err:
+            raise self.ObjectNotFound(err)
 
         return object
 

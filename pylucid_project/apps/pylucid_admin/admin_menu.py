@@ -10,6 +10,9 @@ ADMIN_SECTIONS = {
 
 
 class AdminMenu(object):
+    """
+    TODO: The section should display a page with a "sub menu" of all sub sections.
+    """
     def __init__(self, request, output):
         self.request = request
         self.output = output

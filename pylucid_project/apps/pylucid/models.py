@@ -30,22 +30,47 @@ from django.db import models
 from django.conf import settings
 from django.core import exceptions
 from django.db.models import signals
+from django.core.urlresolvers import resolve
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group, Permission
 from django.template.loader import render_to_string
 from django.contrib.sites.managers import CurrentSiteManager
 
+from django_tools.utils import installed_apps_utils
 from django_tools.middlewares import ThreadLocal
 from django_tools.template import render
 from django_tools import model_utils
 
-from pylucid_project.utils import crypt
+from pylucid_project.utils import crypt, form_utils
 
 from pylucid.system.auto_model_info import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid.shortcuts import user_message_or_warn
 from pylucid.fields import ColorValueField
 from pylucid.system import headfile
+
+
+# Create a list of all settings.INSTALLED_APPS witch can resolve the url "/"
+# Used in PluginPage for the app label choices
+#print "XXX"
+##help(installed_apps_utils)
+#ROOT_APPS = installed_apps_utils.get_filtered_apps(resolve_url="/")
+#print ROOT_APPS, "***"
+
+
+class BaseModelManager(models.Manager):
+    def easy_create(self, cleaned_form_data, extra={}):
+        """
+        Creating a new model instance with cleaned form data witch can hold more data than for
+        this model needed.
+        """
+        keys = self.model._meta.get_all_field_names()
+        model_kwargs = form_utils.make_kwargs(cleaned_form_data, keys)
+        model_kwargs.update(extra)
+        model_instance = self.model(**model_kwargs)
+        model_instance.save()
+        return model_instance
+
 
 
 
@@ -67,13 +92,28 @@ class TreeBaseModel(models.Model):
 
 
 
-class PageTreeManager(models.Manager):
+class PageTreeManager(BaseModelManager):
     """
     Manager class for PageTree model
 
     inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """
+#    def easy_create(self, cleaned_form_data, page_type):
+#        """
+#        Creating a new PageTree entry with cleaned form data witch can hold more data than for
+#        this model
+#        """
+#        pagetree_kwargs = form_utils.make_kwargs(
+#            cleaned_form_data, keys=PageTree._meta.get_all_field_names()
+#        )
+#        assert page_type in PageTree.TYPE_DICT
+#        pagetree_kwargs["type"] = page_type
+#
+#        pagetree_instance = PageTree(**pagetree_kwargs)
+#        pagetree_instance.save()
+#        return pagetree_instance
+
     def get_root_page(self):
         """ returns the 'first' page tree entry for a '/'-root url """
         queryset = PageTree.on_site.all().filter(parent=None).order_by("position")
@@ -302,6 +342,8 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    objects = BaseModelManager()
+
     name = models.CharField(blank=True, max_length=150,
         help_text="Sort page name (for link text in e.g. menu)"
     )
@@ -338,6 +380,17 @@ model_utils.auto_add_check_unique_together(PageMeta)
 
 #------------------------------------------------------------------------------
 
+class RootAppChoiceField(models.CharField):
+    def get_choices_default(self):
+        PluginPage.objects.get_app_choices()
+
+class PluginPageManager(BaseModelManager):
+    _APP_CHOICES = None
+    def get_app_choices(self):
+        if self._APP_CHOICES == None:
+            root_apps = installed_apps_utils.get_filtered_apps(resolve_url="/")
+            self._APP_CHOICES = [(app, app) for app in root_apps]
+        return self._APP_CHOICES
 
 class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     """
@@ -354,11 +407,14 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    APP_LABEL_CHOICES = [(app, app) for app in settings.INSTALLED_APPS]
+    objects = PluginPageManager()
+
+#    _ROOT_APPS = installed_apps_utils.get_filtered_apps(resolve_url="/")
+#    APP_LABEL_CHOICES = [(app, app) for app in _ROOT_APPS]
 
     pagemeta = models.ForeignKey(PageMeta)
 
-    app_label = models.CharField(max_length=256, choices=APP_LABEL_CHOICES,
+    app_label = RootAppChoiceField(max_length=256, #choices=RootAppChoices(),
         help_text="The app lable witch is in settings.INSTALLED_APPS"
     )
     urls_filename = models.CharField(max_length=256, default="urls.py",
@@ -391,7 +447,7 @@ model_utils.auto_add_check_unique_together(PluginPage)
 #------------------------------------------------------------------------------
 
 
-class PageContentManager(models.Manager):
+class PageContentManager(BaseModelManager):
     """
     Manager class for PageContent model
 
@@ -732,7 +788,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             return os.path.join(settings.MEDIA_URL, self.get_path(colorscheme))
         else:
             # not cached into filesystem -> use pylucid.views.send_head_file for it
-            url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
+            url = resolve('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
             if colorscheme:
                 return url + "?ColorScheme=%s" % colorscheme.pk
             else:
