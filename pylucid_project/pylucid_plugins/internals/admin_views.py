@@ -1,13 +1,19 @@
 # coding:utf-8
 
+from pprint import pformat
+
 from django import forms
 from django.db import models
+from django.conf import settings
 from django.core import urlresolvers
-from django.template import RequestContext, mark_safe
+from django.db import connection, backend
+from django.template import RequestContext
 from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
+from django.utils.importlib import import_module
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
+from django.views.debug import get_safe_settings
 
 from pylucid.markup import hightlighter
 
@@ -25,8 +31,62 @@ def install(request):
         name="form generator", title="Form generator from existing models.",
         url_name="Internal-form_generator"
     )
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry,
+        name="show internals", title="Display some internal information.",
+        url_name="Internal-show_internals"
+    )
 
     return "\n".join(output)
+
+#-----------------------------------------------------------------------------
+
+def show_internals(request):
+
+#            self.response.write("name: %s\n" % )
+#        self.response.write("module: %s\n" % )
+#        self.response.write(
+#            "version: %s\n" % 
+#        )
+#        self.response.write("</pre>")
+#        
+#        #----------------------------------------------------------------------
+#
+#        self.response.write("<h4>table names:</h4>")
+#        self.response.write("<pre>")
+#        tables = connection.introspection.table_names()
+#        self.response.write("\n".join(sorted(tables)))
+#        self.response.write("</pre>")
+#        
+#        #----------------------------------------------------------------------
+#
+#        self.response.write("<h4>django table names:</h4>")
+#        self.response.write("<pre>")
+#        django_tables = connection.introspection.django_table_names()
+#        self.response.write("\n".join(sorted(django_tables)))
+#        self.response.write("</pre>")
+
+    context = {
+        "title": "Show internals",
+
+        "urlpatterns": hightlighter.make_html(pformat(import_module(settings.ROOT_URLCONF).urlpatterns), source_type="py"),
+        "settings": hightlighter.make_html(pformat(get_safe_settings()), source_type="py"),
+
+        "db_backend_name": backend.Database.__name__,
+        "db_backend_module": backend.Database.__file__,
+        "db_backend_version": getattr(backend.Database, "version", "?"),
+
+        "db_table_names": sorted(connection.introspection.table_names()),
+        "django_tables": sorted(connection.introspection.django_table_names()),
+
+        "request_meta": hightlighter.make_html(pformat(request.META), source_type="py"),
+    }
+
+    return render_to_response('internals/show_internals.html', context,
+        context_instance=RequestContext(request)
+    )
+
+#-----------------------------------------------------------------------------
 
 def textform_for_model(model):
     """
@@ -78,7 +138,6 @@ def form_generator(request, model_no=None):
         sourcecode = textform_for_model(model)
 
         output = hightlighter.make_html(sourcecode, source_type="py")
-        output = mark_safe(output)
     else:
         output = None
 
