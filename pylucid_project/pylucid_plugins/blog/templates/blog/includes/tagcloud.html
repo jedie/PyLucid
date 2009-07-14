@@ -1,0 +1,6 @@
+<fieldset class="tag_cloud"><legend>{% trans 'tag cloud' %}</legend>
+{% for tag in tag_cloud %}
+    {% if not forloop.first %}|{% endif %}
+    <a href="{% url Blog-tag_view tag=tag.name %}" style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</a>
+{% endfor %}
+</fieldset>

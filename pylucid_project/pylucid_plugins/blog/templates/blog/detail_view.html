@@ -3,14 +3,7 @@
 
 {% block content %}
 
-<fieldset class="tag_cloud"><legend>{% trans 'tag cloud' %}</legend>
-    <ul>
-    {% for tag in tag_cloud %}
-        <li><a href="{% url Blog-tag_view tag=tag.name %}" style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</a></li>
-    {% endfor %}
-    </ul>
-</fieldset>
-
+{% include "blog/includes/tagcloud.html" %}
 
 <h2>{{ entry.headline }}</h2>
 <small class="headline_info">
@@ -36,13 +29,7 @@
     {% if entry.lastupdateby %}(Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.){% endif %}
 </p></small>
 
-<fieldset class="taglist"><legend>tags</legend>
-{% for tag in entry.tags %}
-    {% if not forloop.first %}|{% endif %}
-    <a href="{% url Blog-tag_view tag=tag.name %}">{{ tag }}</a>
-{% endfor %}
-</fieldset>
-
+{% include "blog/includes/taglist.html" %}
 
 {% get_comment_count for entry as comment_count %}
 <fieldset class="comments"><legend>        

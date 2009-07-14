@@ -20,9 +20,10 @@ from django.db import models
 from django.contrib import admin
 from django.utils.html import strip_tags
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.core import urlresolvers
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+from django.template.defaultfilters import slugify
 
 # http://code.google.com/p/django-tagging/
 import tagging
@@ -53,9 +54,12 @@ class BlogEntry(UpdateInfoBaseModel):
     )
 
     def get_absolute_url(self):
-        url_title = self.headline.replace(" ", "-") # FIXME
-        url = reverse('Blog-detail_view', kwargs={"id": self.pk, "title":url_title})
-        return url
+        url_title = slugify(self.headline)
+        try:
+            return urlresolvers.reverse('Blog-detail_view', kwargs={"id": self.pk, "title":url_title})
+        except urlresolvers.NoReverseMatch:
+            # FIXME: plugin urls can reverse in every situation :(
+            return "#FIXME"
 
     def get_html(self):
         """

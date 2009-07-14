@@ -1,0 +1,6 @@
+<fieldset class="taglist"><legend>tags</legend>
+{% for tag in entry.tags %}
+    {% if not forloop.first %}|{% endif %}
+    <a href="{% url Blog-tag_view tag=tag.name %}">{{ tag }}</a>
+{% endfor %}
+</fieldset>

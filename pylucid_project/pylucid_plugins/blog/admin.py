@@ -29,10 +29,10 @@ class BlogEntryAdmin(VersionAdmin):
     pass
 #    #prepopulated_fields = {"slug": ("title",)}    
 #
-#    list_display = ("id", "parent", "slug", "site", "get_absolute_url", "lastupdatetime", "lastupdateby")
-#    list_display_links = ("slug", "get_absolute_url")
-#    list_filter = ("site", "page_type", "design", "createby", "lastupdateby",)
-#    date_hierarchy = 'lastupdatetime'
-#    search_fields = ("slug",)
-#
+    list_display = ("id", "headline", "is_public", "get_absolute_url", "lastupdatetime", "lastupdateby")
+    list_display_links = ("headline",)
+    list_filter = ("is_public", "createby", "lastupdateby",)
+    date_hierarchy = 'lastupdatetime'
+    search_fields = ("headline", "content")
+
 admin.site.register(BlogEntry, BlogEntryAdmin)
