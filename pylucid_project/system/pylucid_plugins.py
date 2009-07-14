@@ -41,8 +41,11 @@ class PyLucidPlugin(object):
         except ImportError, err:
             if str(err) == "No module named admin_urls":
                 raise self.ObjectNotFound("Can't import %r: %s" % (pkg, err))
-            else:
-                raise
+
+            # insert more information into the traceback
+            etype, evalue, etb = sys.exc_info()
+            evalue = etype('Plugin %r error while importing %r: %s' % (self.name, pkg, evalue))
+            raise etype, evalue, etb
 
         try:
             object = getattr(mod, obj_name)
@@ -80,7 +83,7 @@ class PyLucidPlugins(dict):
     def __init__(self):
         super(PyLucidPlugins, self).__init__()
 
-        self.template_dirs = None # for expand: settings.TEMPLATE.DIRS
+        self.template_dirs = None # for expand: settings.TEMPLATE_DIRS
         self.pkg_list = None # for expand: settings.INSTALLED_APPS
 
     def get_admin_urls(self):
@@ -136,6 +139,34 @@ class PyLucidPlugins(dict):
 
         self.template_dirs = self._get_template_dirs()
         self.pkg_list = tuple([plugin.pkg_string for plugin in self.values()])
+
+    def call_get_views(self, request):
+        """ call a pylucid plugin "html get view" and return the response. """
+        method_name = settings.PYLUCID.HTTP_GET_VIEW_NAME
+        for plugin_name in request.GET.keys():
+            if plugin_name not in self:
+                # get parameter is not a plugin or unknwon plugin
+                continue
+
+            plugin_instance = self[plugin_name]
+            try:
+                response = plugin_instance.call_plugin_view(
+                    request, mod_name="views", func_name=method_name, method_kwargs={}
+                )
+            except plugin_instance.ObjectNotFound, err:
+                # plugin or view doesn't exist
+                if settings.DEBUG:
+                    raise # Give a developer the full traceback page ;)
+                else:
+                    # ignore the get parameter
+                    continue
+            except:
+                # insert more information into the traceback
+                etype, evalue, etb = sys.exc_info()
+                evalue = etype('Error rendering plugin view "%s.%s": %s' % (plugin_name, method_name, evalue))
+                raise etype, evalue, etb
+
+            return response
 
 
 

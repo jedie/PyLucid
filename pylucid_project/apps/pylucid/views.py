@@ -7,6 +7,8 @@ from django.template import loader, RequestContext, Context, Template
 from django.utils.translation import ugettext as _
 from django_tools.template import render
 
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.markup.converter import apply_markup
 from pylucid.models import PageTree, PageContent, ColorScheme, EditableHtmlHeadFile, Language
@@ -128,7 +130,7 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
         context["page_%s" % itemname] = getattr(updateinfo_object, itemname)
 
     # call a pylucid plugin "html get view", if exist
-    get_view_response = pylucid_plugin.call_get_views(request)
+    get_view_response = PYLUCID_PLUGINS.call_get_views(request)
     if get_view_response != None:
         # Use plugin response      
         if isinstance(get_view_response, http.HttpResponse):

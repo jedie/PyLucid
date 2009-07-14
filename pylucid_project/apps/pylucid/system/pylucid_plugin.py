@@ -58,26 +58,7 @@ from pylucid.system import pylucid_objects
 #    pass
 
 
-def call_get_views(request):
-    """ call a pylucid plugin "html get view" and return the response. """
-    method_name = settings.PYLUCID.HTTP_GET_VIEW_NAME
-    for plugin_name in request.GET.keys():
-        try:
-            response = call_plugin_view(request, plugin_name, method_name)
-        except GetCallableError, err:
-            # plugin or view doesn't exist
-            if settings.DEBUG:
-                raise # Give a developer the full traceback page ;)
-            else:
-                # ignore the get parameter
-                continue
-        except:
-            # insert more information into the traceback
-            etype, evalue, etb = sys.exc_info()
-            evalue = etype('Error rendering plugin view "%s.%s": %s' % (plugin_name, method_name, evalue))
-            raise etype, evalue, etb
 
-        return response
 
 
 
