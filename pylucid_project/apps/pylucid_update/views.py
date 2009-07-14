@@ -179,7 +179,7 @@ def _do_update(request, language):
             defaults={
                 "position": old_page.position,
 
-                "type": PageTree.PAGE_TYPE, # FIXME: Find plugin entry in page content
+                "page_type": PageTree.PAGE_TYPE, # FIXME: Find plugin entry in page content
 
                 "design": design,
 

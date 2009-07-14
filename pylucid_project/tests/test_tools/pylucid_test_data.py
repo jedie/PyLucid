@@ -313,7 +313,7 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
             site=site, slug=slug, parent=parent,
             defaults={
                 "design": design,
-                "type": page_type,
+                "page_type": page_type,
             }
         )
         url = tree_entry.get_absolute_url()
@@ -341,7 +341,7 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
                 else:
                     print("PageMeta '%s' - '%s' exist." % (language, tree_entry.slug))
 
-            if tree_entry.type == PageTree.PLUGIN_TYPE:
+            if tree_entry.page_type == PageTree.PLUGIN_TYPE:
                 # It's a plugin page
                 pluginpage, created = PluginPage.objects.get_or_create(
                     page=tree_entry,

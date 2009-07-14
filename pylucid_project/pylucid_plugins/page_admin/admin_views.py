@@ -69,7 +69,7 @@ def new_content_page(request):
             sid = transaction.savepoint()
             try:
                 pagetree_instance = PageTree.objects.easy_create(cleaned_data,
-                    extra={"type": PageTree.PAGE_TYPE}
+                    extra={"page_type": PageTree.PAGE_TYPE}
                 )
                 pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
                     extra={"page": pagetree_instance}
@@ -108,7 +108,7 @@ def new_plugin_page(request):
             sid = transaction.savepoint()
             try:
                 pagetree_instance = PageTree.objects.easy_create(cleaned_data,
-                    extra={"type": PageTree.PLUGIN_TYPE}
+                    extra={"page_type": PageTree.PLUGIN_TYPE}
                 )
                 pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
                     extra={"page": pagetree_instance}

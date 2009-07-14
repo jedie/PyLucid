@@ -19,7 +19,7 @@ def lucidTag(request):
         return
 
     pagetree = request.PYLUCID.pagetree # Current PageTree model instance
-    if pagetree.type == PageTree.PLUGIN_TYPE:
+    if pagetree.page_type == PageTree.PLUGIN_TYPE:
         edit_admin_panel_link = reverse("admin_pylucid_pagetree_change", args=(pagetree.id,))
     else:
         pagecontent = request.PYLUCID.pagecontent

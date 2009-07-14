@@ -102,7 +102,7 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
 
     # call page plugin, if current page is a plugin page
     page_plugin_response = None
-    if pagetree.type == PageTree.PLUGIN_TYPE:
+    if pagetree.page_type == PageTree.PLUGIN_TYPE:
         # The current PageTree entry is a plugin page
         page_plugin_response = pylucid_plugin.call_plugin(request, prefix_url, rest_url)
 

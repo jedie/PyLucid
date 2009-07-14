@@ -183,7 +183,7 @@ class PageTreeManager(BaseModelManager):
             except PageTree.DoesNotExist:
                 raise PageTree.DoesNotExist("Wrong url part: %s" % escape(page_slug))
 
-            if page.type == PageTree.PLUGIN_TYPE:
+            if page.page_type == PageTree.PLUGIN_TYPE:
                 # It's a plugin
                 prefix_url = "/".join(path[:no + 1])
                 rest_url = "/".join(path[no + 1:])
@@ -247,8 +247,7 @@ class PageTree(TreeBaseModel, UpdateInfoBaseModel):
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     on_site = CurrentSiteManager()
 
-    # TODO: rename type to page_type! see also: http://trac.pylucid.net/ticket/281
-    type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+    page_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
     design = models.ForeignKey("Design", help_text="Page Template, CSS/JS files")
 
@@ -273,7 +272,9 @@ class PageTree(TreeBaseModel, UpdateInfoBaseModel):
             return "/" + self.slug + "/"
 
     def __unicode__(self):
-        return u"PageTree '%s' (site: %s, type: %s)" % (self.slug, self.site.name, self.TYPE_DICT.get(self.type))
+        return u"PageTree '%s' (site: %s, type: %s)" % (
+            self.slug, self.site.name, self.TYPE_DICT.get(self.page_type)
+        )
 
     class Meta:
         unique_together = (("site", "slug", "parent"),)
@@ -429,7 +430,7 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         return self.app_label.split(".")[-1]
 
     def save(self, *args, **kwargs):
-        if not self.page.type == self.page.PLUGIN_TYPE:
+        if not self.page.page_type == self.page.PLUGIN_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("Plugin can only exist on a plugin type tree entry!")
         return super(PluginPage, self).save(*args, **kwargs)
@@ -514,7 +515,7 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         return self.pagemeta.title or self.page.slug
 
     def save(self, *args, **kwargs):
-        if not self.page.type == self.page.PAGE_TYPE:
+        if not self.page.page_type == self.page.PAGE_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("PageContent can only exist on a page type tree entry!")
         return super(PageContent, self).save(*args, **kwargs)
