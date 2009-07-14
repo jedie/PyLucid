@@ -46,10 +46,11 @@ def textform_for_model(model):
                     if a in ("label", "help_text"): # "translate" lazy text
                         attr = unicode(attr)
 
-                    if a == 'required': # Add required only if it's False
-                        if attr == False:
-                            kw.append("%s=%s" % (a, attr))
-                    elif attr in [True, False, None]:
+                    if attr in [True, False, None]:
+                        if a == 'required' and attr == True: # Don't add default
+                            continue
+                        if a == 'initial' and attr == None: # Don't add default
+                            continue
                         kw.append("%s=%s" % (a, attr))
                     elif a == 'queryset':
                         kw.append("%s=%s" % (a, "%s.objects.all()" % attr.model.__name__))
