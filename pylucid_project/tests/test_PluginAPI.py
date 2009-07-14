@@ -28,12 +28,23 @@ from pylucid_project.tests.test_tools.pylucid_test_data import TestSites, TestLa
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests import unittest_plugin
 
+#from django_tools.utils import info_print
+#info_print.redirect_stdout()
+
 UNITTEST_GET_PREFIX = "?%s=" % unittest_plugin.views.GET_KEY
 
-
+# Should we open a bwoser traceback?
+BROWSER_TRACEBACK = True
 
 
 class PluginGetViewTest(basetest.BaseUnittest):
+    # Should we open a bwoser traceback?
+    browser_traceback = BROWSER_TRACEBACK
+
+    def test_existing(self):
+        from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+        self.failUnless("unittest_plugin" in PYLUCID_PLUGINS, "unittest plugin is not in plugin dict!")
+
     def test_get_view_none_response(self):
         """ http_get_view() returns None, the normal PageContent would be used. """
         url = UNITTEST_GET_PREFIX + unittest_plugin.views.ACTION_NONE_RESPONSE
@@ -48,7 +59,7 @@ class PluginGetViewTest(basetest.BaseUnittest):
                 unittest_plugin.views.STRING_RESPONSE,
             ),
         )
-        
+
     def test_get_view_string_response(self):
         """ http_get_view() returns a string, witch replace the PageContent. """
         url = UNITTEST_GET_PREFIX + unittest_plugin.views.ACTION_STRING_RESPONSE
@@ -63,14 +74,14 @@ class PluginGetViewTest(basetest.BaseUnittest):
                 '1-rootpage content', # normal page content
             ),
         )
-        
+
     def test_get_view_HttpResponse(self):
         """ http_get_view() returns a django.http.HttpResponse object. """
         url = UNITTEST_GET_PREFIX + unittest_plugin.views.ACTION_HTTP_RESPONSE
         response = self.client.get(url)
         self.failUnlessEqual(response.status_code, 200)
         self.failUnlessEqual(response.content, unittest_plugin.views.HTTP_RESPONSE)
-        
+
     def test_get_view_Redirect(self):
         """ http_get_view() returns a django.http.HttpResponseRedirect object. """
         url = UNITTEST_GET_PREFIX + unittest_plugin.views.ACTION_REDIRECT
@@ -79,6 +90,9 @@ class PluginGetViewTest(basetest.BaseUnittest):
 
 
 class PluginPageTest(basetest.BaseUnittest):
+    # Should we open a bwoser traceback?
+    browser_traceback = BROWSER_TRACEBACK
+
     def test_root_page(self):
         """
         Test the root view on all sites and in all test languages.
@@ -101,7 +115,7 @@ class PluginPageTest(basetest.BaseUnittest):
                         '1-rootpage content', # normal page content
                     ),
                 )
-                
+
     def test_urls_args(self):
         """ Test arguments in urls. """
         test_no = 0
@@ -118,7 +132,7 @@ class PluginPageTest(basetest.BaseUnittest):
                     unittest_plugin.views.PLUGINPAGE_URL_ARGS_PREFIX, test_no, site_name
                 )
                 self.failUnlessEqual(response.content, should_be)
-        
+
     def test_HttpResponse(self):
         """
         Test a "url sub view" unittest_plugin.test_HttpResponse().
@@ -153,7 +167,7 @@ class PluginPageTest(basetest.BaseUnittest):
         """ Test if a PagePlugin returns None -> This must raise a error. """
         url = "/%s/%s/test_return_none/" % (self.default_lang_code, unittest_plugin.PLUGIN_PAGE_URL)
         self.assertRaises(RuntimeError, self.client.get, url)
-    
+
     def test_url_reverse(self):
         """ Test the django url reverse function in a PagePlugin. """
         for language in TestLanguages():
@@ -162,7 +176,7 @@ class PluginPageTest(basetest.BaseUnittest):
                 "UnittestPlugin-view_root": "%s/" % url_prefix,
                 "UnittestPlugin-test_HttpResponse": "%s/test_HttpResponse/" % url_prefix,
             }
-            
+
             for url_name, sould_url in url_data.iteritems():
                 url = "%s/test_url_reverse/%s/" % (url_prefix, url_name)
                 response = self.client.get(url)
@@ -200,7 +214,8 @@ class PluginPageTest(basetest.BaseUnittest):
                             "pagemeta: &lt;PageMeta: PageMeta for page: &#39;3-pluginpage&#39;"
                             " (lang: &#39;%s&#39;)&gt;"
                         ) % language.code,
-                        "system_preferences: {&#39;lang_code&#39;: u&#39;%s&#39;}" % self.default_lang_code,
+                        "system_preferences: {",
+                        "&#39;lang_code&#39;: u&#39;%s&#39;" % self.default_lang_code,
                     ),
                     must_not_contain=(
                         "Traceback",
@@ -233,4 +248,4 @@ class PluginPageTest(basetest.BaseUnittest):
 
 if __name__ == "__main__":
     # Run this unitest directly
-    unittest_base.direct_run(__file__)
+    unittest_base.direct_run(__file__) # Run all tests in this file

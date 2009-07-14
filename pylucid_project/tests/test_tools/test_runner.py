@@ -15,6 +15,7 @@
 """
 
 import os
+import sys
 import errno
 import unittest
 
@@ -30,27 +31,6 @@ PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__)
 UNITTEST_PLUGIN_SRC_PATH = os.path.join(PYLUCID_PROJECT_ROOT, "tests", "unittest_plugin")
 UNITTEST_PLUGIN_DST_PATH = os.path.join(PYLUCID_PROJECT_ROOT, "pylucid_plugins", "unittest_plugin")
 
-def setup_unittest_plugin():
-    """
-    This must be done before the settings file would be imported, because in this
-    moment all plugins will be scanned in the file system and "inserted" plugins after
-    this, would be ignored. 
-    """
-    if os.path.isdir(UNITTEST_PLUGIN_DST_PATH):
-        return
-
-    print "setup unittest plugin via symlink ",
-    try:
-        os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
-    except OSError, err:
-        if err.errno == errno.EEXIST:
-            print "Error:", err
-        else:
-            raise
-    print "OK"
-
-setup_unittest_plugin()
-
 #-----------------------------------------------------------------------------
 
 from django.conf import settings
@@ -59,11 +39,48 @@ from django.test.simple import run_tests
 
 from pylucid_project.tests.test_tools import pylucid_test_data
 
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS, PyLucidPlugin
+
 
 TEST_NAMES = ["pylucid_project.tests", ]
 for app_name in settings.INSTALLED_APPS:
     if app_name.startswith("pylucid"):
         TEST_NAMES.append("%s.tests" % app_name)
+
+def setup_unittest_plugin(verbosity):
+    """
+    This must be done before the settings file would be imported, because in this
+    moment all plugins will be scanned in the file system and "inserted" plugins after
+    this, would be ignored. 
+    """
+    if not os.path.isdir(UNITTEST_PLUGIN_DST_PATH):
+        if verbosity:
+            print "insert unittest plugin via symlink ",
+        try:
+            os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+        except OSError, err:
+            if err.errno == errno.EEXIST:
+                print "Error:", err
+            else:
+                raise
+        if verbosity:
+            print "OK"
+
+    if verbosity:
+        print "register unittest plugin",
+    sys.path.insert(0, UNITTEST_PLUGIN_DST_PATH)
+
+    unittest_plugin_instance = PyLucidPlugin(
+        fs_path=UNITTEST_PLUGIN_DST_PATH, pkg_prefix="pylucid_project.pylucid_plugins",
+        plugin_name="unittest_plugin"
+    )
+    PYLUCID_PLUGINS["unittest_plugin"] = unittest_plugin_instance
+    PYLUCID_PLUGINS.init2()
+
+    settings.INSTALLED_APPS += (unittest_plugin_instance.pkg_string,)
+    settings.TEMPLATE_DIRS += (unittest_plugin_instance.get_template_path(),)
+    if verbosity:
+        print "OK"
 
 
 def teardown_unittest_plugin(verbosity):
@@ -176,6 +193,8 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     """
     if verbosity:
         print "start tests:", test_labels, "\n"
+
+    setup_unittest_plugin(verbosity)
 
     setup_test_environment()
 
