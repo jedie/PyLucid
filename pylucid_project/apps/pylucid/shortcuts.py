@@ -24,8 +24,39 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
+from django.template import RequestContext
 
 from django_tools.middlewares import ThreadLocal
+
+# TODO: merge render_to() and render_pylucid_response()
+
+def render_to(template_name):
+    """
+    Based on the decorators from django-annoying.
+
+    Example:
+ 
+    @render_to('foo/template.html')
+    def PyLucidPluginFoo(request):
+        bar = Bar.object.all()  
+        return {'bar': bar}
+    """
+    def renderer(function):
+        def wrapper(request, *args, **kwargs):
+            local_view_context = function(request, *args, **kwargs)
+            assert isinstance(local_view_context, dict) == True, "view must return a dict!"
+
+            context = request.PYLUCID.context
+            context.update(local_view_context)
+
+            return render_to_response(
+                template_name, context, #context_instance=RequestContext(request)
+            )
+
+        return wrapper
+
+    return renderer
+
 
 
 def render_pylucid_response(request, template_name, context, **kwargs):
@@ -40,23 +71,23 @@ def render_pylucid_response(request, template_name, context, **kwargs):
     rendered.
     """
     response_content = render_to_string(template_name, context, **kwargs)
-    
+
     if request.is_ajax():
         #if settings.DEBUG: print "make ajax response..."
-            
+
         # Get the extrahead storage (pylucid.system.extrahead.ExtraHead)
         extrahead = request.PYLUCID.extrahead
 
         # Get the extra head content as a string
         extra_head_content = extrahead.get()
-        
+
         # insert the extra head content into the response content
         # Note: In a ajax view the {% extrahead %} block would normaly not rendered into
         # the response content. Because the view returns a HttpResponse object, so all
         # other processing skip and all PyLucid context middleware (in the global template)
         # would not rendered.
         response_content = extra_head_content + "\n" + response_content
-        
+
         http_response_kwargs = {'mimetype': kwargs.pop('mimetype', None)}
         return http.HttpResponse(response_content, **http_response_kwargs)
     else:

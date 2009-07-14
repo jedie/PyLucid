@@ -18,8 +18,8 @@
 
 from django.contrib import admin
 
-from pylucid_project.apps.pylucid_update.models import Page08, Style08, Template08
-
+from pylucid_project.apps.pylucid_update.models import Page08, Style08, Template08, \
+                                        BlogComment08, BlogTag08, BlogEntry08
 
 #------------------------------------------------------------------------------
 
@@ -89,3 +89,19 @@ class TemplateAdmin(admin.ModelAdmin):
     save_as = True
 
 admin.site.register(Template08, TemplateAdmin)
+
+
+#______________________________________________________________________________
+# Models from old Blog plugin
+
+class BlogComment08Admin(admin.ModelAdmin):
+    pass
+admin.site.register(BlogComment08, BlogComment08Admin)
+
+class BlogTag08Admin(admin.ModelAdmin):
+    pass
+admin.site.register(BlogTag08, BlogTag08Admin)
+
+class BlogEntry08Admin(admin.ModelAdmin):
+    pass
+admin.site.register(BlogEntry08, BlogEntry08Admin)
