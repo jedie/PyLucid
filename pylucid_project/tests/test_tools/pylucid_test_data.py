@@ -123,7 +123,7 @@ TEST_TEMPLATES = {
     "site_template/normal.html": {
         "content": \
 """<html><head><title>{{ page_title }} """ + SITEINFO_TAG + """</title>
-<meta name="robots" content="{{ robots }}" />
+<meta name="robots" content="{{ page_robots }}" />
 <meta name="keywords" content="{{ page_keywords }}" />
 <meta name="description" content="{{ page_description }}" />
 <meta name="DC.Date" content="{{ page_lastupdatetime|date:_("DATETIME_FORMAT") }}" />
