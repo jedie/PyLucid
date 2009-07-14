@@ -14,6 +14,7 @@ from django.utils.importlib import import_module
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 from django.views.debug import get_safe_settings
+from django.db.models import get_apps, get_models
 
 from pylucid.markup import hightlighter
 
@@ -43,28 +44,17 @@ def install(request):
 
 def show_internals(request):
 
-#            self.response.write("name: %s\n" % )
-#        self.response.write("module: %s\n" % )
-#        self.response.write(
-#            "version: %s\n" % 
-#        )
-#        self.response.write("</pre>")
-#        
-#        #----------------------------------------------------------------------
-#
-#        self.response.write("<h4>table names:</h4>")
-#        self.response.write("<pre>")
-#        tables = connection.introspection.table_names()
-#        self.response.write("\n".join(sorted(tables)))
-#        self.response.write("</pre>")
-#        
-#        #----------------------------------------------------------------------
-#
-#        self.response.write("<h4>django table names:</h4>")
-#        self.response.write("<pre>")
-#        django_tables = connection.introspection.django_table_names()
-#        self.response.write("\n".join(sorted(django_tables)))
-#        self.response.write("</pre>")
+    apps_info = []
+    for app in get_apps():
+        model_info = []
+        for model in get_models(app):
+            model_info.append({
+                "name":model._meta.object_name,
+            })
+        apps_info.append({
+            "app_name": app.__name__,
+            "app_models": model_info,
+        })
 
     context = {
         "title": "Show internals",
@@ -75,6 +65,8 @@ def show_internals(request):
         "db_backend_name": backend.Database.__name__,
         "db_backend_module": backend.Database.__file__,
         "db_backend_version": getattr(backend.Database, "version", "?"),
+
+        "apps_info": apps_info,
 
         "db_table_names": sorted(connection.introspection.table_names()),
         "django_tables": sorted(connection.introspection.django_table_names()),

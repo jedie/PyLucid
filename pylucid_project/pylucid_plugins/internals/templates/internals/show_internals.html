@@ -99,6 +99,19 @@
     <li>module: {{ db_backend_module }}</li>
     <li>version: {{ db_backend_version }}</li>
 </ul>
+
+<ul><h4>app/model info:</h4>       
+    {% for app_info in apps_info %}
+    <li><strong>{{ app_info.app_name }}</strong>
+    <ul>
+        {% for app_model in app_info.app_models %}
+        <li>{{ app_model.name }}</li>
+        {% endfor %}
+    </ul>
+    </li>
+    {% endfor %}
+</ul>
+
 <ul><h4>database table names:</h4>
     {% for table_name in db_table_names %}<li>{{ table_name }}</li>{% endfor %}
 </ul>
