@@ -30,7 +30,7 @@ from django.db import models
 from django.conf import settings
 from django.core import exceptions
 from django.db.models import signals
-from django.core.urlresolvers import resolve
+from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group, Permission
@@ -788,7 +788,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             return os.path.join(settings.MEDIA_URL, self.get_path(colorscheme))
         else:
             # not cached into filesystem -> use pylucid.views.send_head_file for it
-            url = resolve('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
+            url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
             if colorscheme:
                 return url + "?ColorScheme=%s" % colorscheme.pk
             else:
