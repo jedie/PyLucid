@@ -19,6 +19,7 @@
 """
 
 from django.conf import settings
+from django.template import mark_safe
 from django.utils.translation import ugettext as _
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
@@ -47,7 +48,7 @@ CSSCLASS = "pygments"
 def make_html(sourcecode, source_type):
     code_html, lexer_name = pygmentize(sourcecode, source_type)
     code = HTML % {"lexer_name": lexer_name, "code_html": code_html}
-    return code
+    return mark_safe(code)
 
 def no_hightlight(code):
     html = u'\n<pre><code>%s</code></pre>\n' % escape(code)
@@ -56,8 +57,8 @@ def no_hightlight(code):
 def get_formatter():
     formatter = HtmlFormatter(
         linenos=True, encoding="utf-8", style='colorful',
-        outencoding = "utf-8",
-        cssclass = CSSCLASS,
+        outencoding="utf-8",
+        cssclass=CSSCLASS,
     )
     return formatter
 
