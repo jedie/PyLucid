@@ -43,23 +43,23 @@ REDIRECT_URL = "/"
 
 def http_get_view(request):
     action = request.GET[GET_KEY]
-    
-    if action==ACTION_NONE_RESPONSE:
+
+    if action == ACTION_NONE_RESPONSE:
         # normal PageContent would be used.
         return None
-    
-    elif action==ACTION_STRING_RESPONSE:
+
+    elif action == ACTION_STRING_RESPONSE:
         # replace the PageContent with the returned string.
         return STRING_RESPONSE
-    
-    elif action==ACTION_HTTP_RESPONSE:
+
+    elif action == ACTION_HTTP_RESPONSE:
         # replace the complete response content.
         return http.HttpResponse(content=HTTP_RESPONSE)
-    
-    elif action==ACTION_REDIRECT:
+
+    elif action == ACTION_REDIRECT:
         # redirect to a url
         return http.HttpResponseRedirect(REDIRECT_URL)
-    
+
     else:
         raise AssertionError("Wrong GET action parameter!")
 
@@ -108,7 +108,7 @@ def test_PyLucid_api(request):
     see also: http://www.pylucid.org/_goto/187/PyLucid-objects/
     """
     request.page_msg(PLUGINPAGE_API_TEST_PAGE_MSG)
-    
+
     context = request.PYLUCID.context
     output = []
     output.append("context_middlewares: %s" % context["context_middlewares"].keys())
@@ -138,7 +138,7 @@ def test_BreadcrumbPlugin(request):
     """
     breadcrumb = request.PYLUCID.context["context_middlewares"]["breadcrumb"]
     breadcrumb.add_link(title=ADDED_LINK_TITLE, url=ADDED_LINK_URL)
-    
+
     return ADDED_LINK_RESPONSE_STRING
 
 
@@ -153,4 +153,3 @@ def test_add_headfiles(request):
     output = render_to_response('unittest_plugin/test_extrahead_blocktag.html', context)
     return output
 
-    
