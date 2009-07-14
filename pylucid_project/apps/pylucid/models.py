@@ -355,7 +355,7 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     )
     description = models.CharField(blank=True, max_length=255, help_text="For html header")
 
-    robots = models.CharField(max_length=255, default="index,follow",
+    robots = models.CharField(blank=True, max_length=255, default="index,follow",
         help_text="for html 'robots' meta content."
     )
 
