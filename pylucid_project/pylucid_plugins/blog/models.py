@@ -20,6 +20,7 @@ from django.db import models
 from django.contrib import admin
 from django.utils.html import strip_tags
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -50,6 +51,11 @@ class BlogEntry(UpdateInfoBaseModel):
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"
     )
+
+    def get_absolute_url(self):
+        url_title = self.headline.replace(" ", "-") # FIXME
+        url = reverse('Blog-detail_view', kwargs={"id": self.pk, "title":url_title})
+        return url
 
     def get_html(self):
         """

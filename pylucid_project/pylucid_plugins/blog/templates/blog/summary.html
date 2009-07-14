@@ -1,4 +1,5 @@
 {% extends template_name %}
+{% load comments %}
 
 {% block content %}
 
@@ -14,7 +15,7 @@
 {% for entry in entries %}
     <fieldset class="entry">
         <legend class="headline">
-             <a href="{{ entry.detail_url }}">{{ entry.headline }}<br />
+             <a href="{{ entry.get_absolute_url }}">{{ entry.headline }}<br />
              <small class="headline_info">{% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.</small>
              </a>
         </legend>
@@ -77,7 +78,8 @@
             </ul>
             </fieldset>
         {% else %}
-            <a href="{{ entry.detail_url }}" class="comment_link" title="Display all comments">{{ entry.comment_count }} comment{{ entry.comment_count|pluralize:"s" }}...</a>
+            {% get_comment_count for entry as comment_count %}            
+            <a href="{{ entry.get_absolute_url }}" class="comment_link" title="Display all comments">{{ comment_count }} comment{{ comment_count|pluralize:"s" }}...</a>
         {% endif %}
 
         {% if add_comment_form %}

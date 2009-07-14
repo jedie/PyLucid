@@ -1,0 +1,87 @@
+{% extends template_name %}
+{% load comments %}
+
+{% block content %}
+
+<fieldset class="tag_cloud"><legend>{% trans 'tag cloud' %}</legend>
+    <ul>
+    {% for tag in tag_cloud %}
+        <li><a href="{% url Blog-tag_view tag=tag.name %}" style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</a></li>
+    {% endfor %}
+    </ul>
+</fieldset>
+
+
+<h2>{{ entry.headline }}</h2>
+<small class="headline_info">
+    {% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.
+</small>
+
+{% if not entry.is_public %}
+    <p class="admin_info_line">not public</p>
+{% endif %}
+
+<div class="admin_links">
+{% if entry.edit_url %}
+    <a href="{{ entry.edit_url }}" title="edit this blog entry">edit</a>
+{% endif %}
+{% if entry.delete_url %}
+    <a href="{{ entry.delete_url }}" title="delete this blog entry" onClick="return confirm('{% trans 'Do you really want to delete the entry?' %}');">{% trans 'delete' %}</a>
+{% endif %}
+</div>
+
+<div class="content">{{ entry.get_html }}</div>
+
+<small><p class="date_info">
+    {% if entry.lastupdateby %}(Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.){% endif %}
+</p></small>
+
+<fieldset class="taglist"><legend>tags</legend>
+{% for tag in entry.tags %}
+    {% if not forloop.first %}|{% endif %}
+    <a href="{% url Blog-tag_view tag=tag.name %}">{{ tag }}</a>
+{% endfor %}
+</fieldset>
+
+
+{% get_comment_count for entry as comment_count %}
+<fieldset class="comments"><legend>        
+{{ comment_count }} comment{{ comment_count|pluralize:"s" }}:</legend>
+<ul>
+{% get_comment_list for entry as comment_list %}
+{% for comment in comment_list %}
+    <li>
+      <fieldset class="comment {% if comment.user_name %}{{ comment.user_name }}{% else %}anonymous{% endif %}_comment">
+        <legend class="headline">
+          {% if comment.user_url %}<a href="{{ comment.user_url }}" title="{{ comment.user_url }}">{% endif %}
+            {{ comment.user_name }}
+            {% if comment.user_url %}</a>{% endif %}<br />
+            <small class="headline_info">
+              {% blocktrans with comment.submit_date|timesince as time %}Before {{ time }}{% endblocktrans %}
+              IP: {{ comment.ip_address }}
+              {% if comment.lastupdateby %}<br />(Last update {{ comment.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ comment.lastupdateby }}){% endif %}
+            </small>
+        </legend>
+
+          {% if not comment.is_public %}<p class="admin_info_line">not public</p>
+          {% else %}
+          {{ comment.comment }}
+          {% endif %}
+
+          <div class="admin_links">
+            {% if comment.edit_url %}<a href="{{ comment.edit_url }}">edit</a>{% endif %}
+            {% if comment.delete_url %}<a href="{{ comment.delete_url }}" onClick="return confirm('{% trans 'Do you really want to delete the entry?' %}');">{% trans 'delete' %}</a>{% endif %}
+        </div>       
+    </fieldset>
+  </li>
+{% empty %}
+    there exist no comment
+{% endfor %}
+</ul>
+</fieldset>
+
+<fieldset class="comments"><legend>Leave a comment</legend>
+    {% render_comment_form for entry %}
+</fieldset>
+
+{% endblock content %}

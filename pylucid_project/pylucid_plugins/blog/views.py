@@ -7,6 +7,10 @@
     A simple blog system.
 
     http://feedvalidator.org/
+    
+    TODO:
+        * Detail view, use BlogEntry.get_absolute_url()
+    
 
     Last commit info:
     ~~~~~~~~~
@@ -61,3 +65,13 @@ def tag_view(request, tag):
         "entries": TaggedItem.objects.get_by_model(BlogEntry, tags)
     }
     return _render_summary(request, context)
+
+
+@render_to("blog/detail_view.html")
+def detail_view(request, id, title):
+    entry = BlogEntry.objects.get(pk=id)
+    context = {
+        "entry": entry,
+        "tag_cloud": Tag.objects.cloud_for_model(BlogEntry, steps=2),
+    }
+    return context

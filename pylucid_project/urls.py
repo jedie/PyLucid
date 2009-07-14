@@ -34,6 +34,9 @@ urlpatterns = patterns('',
     # PYLUCID ADMIN
     (r'^%s/' % settings.PYLUCID_ADMIN_URL_PREFIX, include('pylucid_admin.urls')),
 
+    # move it somewhere?
+    (r'^comments/', include('django.contrib.comments.urls')),
+
     #_____________________________________
     # DJANGO ADMIN PANEL
     (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),

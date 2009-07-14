@@ -159,6 +159,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
+    'django.contrib.comments',
 
     # PyLucid own apps:
     'pylucid_project.apps.pylucid',
@@ -169,10 +170,13 @@ INSTALLED_APPS = (
     'dbpreferences',
     'dbtemplates',
     'reversion',
+    'tagging',
 )
 # Add all existing PyLucid plugins
 INSTALLED_APPS += pylucid_plugins.PYLUCID_PLUGINS.pkg_list
 #print "settings.INSTALLED_APPS:", INSTALLED_APPS
+
+COMMENTS_APP = "pylucid_project.pylucid_plugins.pylucid_comments"
 
 #http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
 #Default: 'django.test.simple.run_tests'
