@@ -22,20 +22,54 @@ if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
+import pylucid_project
+
+#-----------------------------------------------------------------------------
+
+PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+UNITTEST_PLUGIN_SRC_PATH = os.path.join(PYLUCID_PROJECT_ROOT, "tests", "unittest_plugin")
+UNITTEST_PLUGIN_DST_PATH = os.path.join(PYLUCID_PROJECT_ROOT, "pylucid_plugins", "unittest_plugin")
+
+def setup_unittest_plugin():
+    """
+    This must be done before the settings file would be imported, because in this
+    moment all plugins will be scanned in the file system and "inserted" plugins after
+    this, would be ignored. 
+    """
+    if os.path.isdir(UNITTEST_PLUGIN_DST_PATH):
+        return
+
+    print "setup unittest plugin via symlink ",
+    try:
+        os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+    except OSError, err:
+        if err.errno == errno.EEXIST:
+            print "Error:", err
+        else:
+            raise
+    print "OK"
+
+setup_unittest_plugin()
+
+#-----------------------------------------------------------------------------
+
 from django.conf import settings
 from django.test.utils import setup_test_environment, teardown_test_environment
 from django.test.simple import run_tests
 
 from pylucid_project.tests.test_tools import pylucid_test_data
-from pylucid_project.tests import unittest_plugin
 
-UNITTEST_PLUGIN_SRC_PATH = os.path.abspath(os.path.dirname(unittest_plugin.__file__))
-UNITTEST_PLUGIN_DST_PATH = os.path.join(settings.PYLUCID_PLUGINS_ROOT, "unittest_plugin")
 
 TEST_NAMES = ["pylucid_project.tests", ]
 for app_name in settings.INSTALLED_APPS:
     if app_name.startswith("pylucid"):
         TEST_NAMES.append("%s.tests" % app_name)
+
+
+def teardown_unittest_plugin(verbosity):
+    if verbosity:
+        print "remove unittest plugin symlink"
+    os.remove(UNITTEST_PLUGIN_DST_PATH)
 
 
 def _import_test(module_name, class_name=None):
@@ -120,29 +154,6 @@ def get_tests(test_labels, verbosity=False):
         return get_all_tests(verbosity)
 
 
-def setup_unittest_plugin(verbosity):
-    if verbosity:
-        print "setup unittest plugin via symlink ",
-    try:
-        os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
-    except OSError, err:
-        if err.errno == errno.EEXIST:
-            print "Error:", err
-        else:
-            raise
-    if verbosity:
-        print "OK"
-
-    # Add unittest template dir
-    settings.TEMPLATE_DIRS += (os.path.join(UNITTEST_PLUGIN_DST_PATH, "templates"),)
-
-
-def teardown_unittest_plugin(verbosity):
-    if verbosity:
-        print "remove unittest plugin symlink"
-    os.remove(UNITTEST_PLUGIN_DST_PATH)
-
-
 def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
     """
     PyLucid test runner. Sets up test environment, populates test database with
@@ -167,8 +178,6 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
         print "start tests:", test_labels, "\n"
 
     setup_test_environment()
-
-    setup_unittest_plugin(verbosity)
 
     old_name = settings.DATABASE_NAME
 
