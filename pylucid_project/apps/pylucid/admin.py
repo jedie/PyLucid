@@ -16,10 +16,11 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.contrib import admin
-from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.admin import UserAdmin
+from django.contrib import admin
+from django.conf import settings
 
 from reversion.admin import VersionAdmin
 
@@ -49,12 +50,19 @@ UserAdmin.add_view = ugly_patched_add_view
 
 #------------------------------------------------------------------------------
 
-class PermissionAdmin(admin.ModelAdmin):
-    """ django auth Permission """
-    list_display = ("id", "name", "content_type", "codename")
-    list_display_links = ("name", "codename")
-    list_filter = ("content_type",)
-admin.site.register(Permission, PermissionAdmin)
+if settings.DEBUG:
+    class PermissionAdmin(admin.ModelAdmin):
+        """ django auth Permission """
+        list_display = ("id", "name", "content_type", "codename")
+        list_display_links = ("name", "codename")
+        list_filter = ("content_type",)
+    admin.site.register(Permission, PermissionAdmin)
+
+    class ContentTypeAdmin(admin.ModelAdmin):
+        """ django ContentType """
+        list_display = list_display_links = ("id", "app_label", "name", "model")
+        list_filter = ("app_label",)
+    admin.site.register(ContentType, ContentTypeAdmin)
 
 #------------------------------------------------------------------------------
 
