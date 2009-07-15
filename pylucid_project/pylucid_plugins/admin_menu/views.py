@@ -46,6 +46,10 @@ def panel_extras(request):
     items = PyLucidAdminPage.objects.all()
     output = []
     for item in items:
+        if not item.get_absolute_url():
+            # FIXME: Skip the section entries
+            # TODO: This should be removed, if a tree can be build!
+            continue
         output.append(
             '<li><a href="%s" title="%s">%s</a></li>' % (item.get_absolute_url(), item.title, item.name)
         )
