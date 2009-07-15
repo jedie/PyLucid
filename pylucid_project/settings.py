@@ -236,11 +236,15 @@ MEDIA_URL = "/media/"
 #     Examples-3: "http://django.media.your_domain.net/"
 ADMIN_MEDIA_PREFIX = "/django/contrib/admin/media/"
 
+# FIXME:
+#LOGIN_REDIRECT_URL = "/?%s" % PYLUCID.AUTH_GET_VIEW
+#LOGIN_URL = "/?%s" % PYLUCID.AUTH_GET_VIEW
+#LOGOUT_URL = "/?%s" % PYLUCID.AUTH_LOGOUT_GET_VIEW
+
 
 ADMIN_URL_PREFIX = 'admin'
-LOGIN_URL = "/admin/" # FIXME
-
 PYLUCID_ADMIN_URL_PREFIX = 'pylucid_admin'
+
 
 # TODO: must be used ;)
 SLUG_BLACKLIST = (
