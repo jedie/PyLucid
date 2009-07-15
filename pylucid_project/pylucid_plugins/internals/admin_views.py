@@ -26,15 +26,15 @@ def install(request):
     output = []
 
     admin_menu = AdminMenu(request, output)
-    menu_section_entry = admin_menu.get_or_create_section("internals")
+    menu_section_entry = admin_menu.get_or_create_section("internals", superuser_only=True)
 
     admin_menu.add_menu_entry(
-        parent=menu_section_entry,
+        parent=menu_section_entry, access_permissions=(), superuser_only=True,
         name="form generator", title="Form generator from existing models.",
         url_name="Internal-form_generator"
     )
     admin_menu.add_menu_entry(
-        parent=menu_section_entry,
+        parent=menu_section_entry, access_permissions=(), superuser_only=True,
         name="show internals", title="Display some internal information.",
         url_name="Internal-show_internals"
     )

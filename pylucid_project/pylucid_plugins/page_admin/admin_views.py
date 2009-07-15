@@ -13,13 +13,15 @@ from pylucid_project.utils.form_utils import make_kwargs
 
 from pylucid.models import PageTree, PageMeta, PageContent, Design, Language, PluginPage
 from pylucid.preference_forms import SystemPreferencesForm
+from pylucid.decorators import check_permissions
 
 from pylucid_admin.admin_menu import AdminMenu
 
 from page_admin.forms import PageContentForm, PluginPageForm
 
 
-
+NEW_CONTENT_PERMISSIONS = ("pylucid.add_pagecontent", "pylucid.add_pagemeta", "pylucid.add_pagetree")
+NEW_PLUGIN_PERMISSIONS = ("pylucid.add_pluginpage", "pylucid.add_pagemeta", "pylucid.add_pagetree")
 
 
 
@@ -28,15 +30,15 @@ def install(request):
     output = []
 
     admin_menu = AdminMenu(request, output)
-    menu_section_entry = admin_menu.get_or_create_section("create content")
+    menu_section_entry = admin_menu.get_or_create_section("create content", superuser_only=False)
 
     admin_menu.add_menu_entry(
-        parent=menu_section_entry,
+        parent=menu_section_entry, access_permissions=NEW_CONTENT_PERMISSIONS, superuser_only=False,
         name="new content page", title="Create a new content page.",
         url_name="PageAdmin-new_content_page"
     )
     admin_menu.add_menu_entry(
-        parent=menu_section_entry,
+        parent=menu_section_entry, access_permissions=NEW_PLUGIN_PERMISSIONS, superuser_only=False,
         name="new plugin page", title="Create a new plugin page.",
         url_name="PageAdmin-new_plugin_page"
     )
@@ -45,7 +47,7 @@ def install(request):
 
 
 
-
+@check_permissions(permissions=NEW_CONTENT_PERMISSIONS)
 def new_content_page(request):
     """
     Create a new content page.
@@ -97,6 +99,7 @@ def new_content_page(request):
     )
 
 
+@check_permissions(permissions=NEW_PLUGIN_PERMISSIONS)
 def new_plugin_page(request):
     """
     Create a new plugin page.

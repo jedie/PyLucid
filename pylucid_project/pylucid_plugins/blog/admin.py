@@ -26,9 +26,6 @@ from reversion.admin import VersionAdmin
 from blog.models import BlogEntry
 
 class BlogEntryAdmin(VersionAdmin):
-    pass
-#    #prepopulated_fields = {"slug": ("title",)}    
-#
     list_display = ("id", "headline", "is_public", "get_absolute_url", "lastupdatetime", "lastupdateby")
     list_display_links = ("headline",)
     list_filter = ("is_public", "createby", "lastupdateby",)
