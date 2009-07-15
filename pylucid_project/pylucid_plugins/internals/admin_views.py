@@ -10,11 +10,12 @@ from django.db import connection, backend
 from django.template import RequestContext
 from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
-from django.utils.importlib import import_module
-from django.contrib.auth.models import User, Group
-from django.utils.translation import ugettext_lazy as _
 from django.views.debug import get_safe_settings
+from django.utils.importlib import import_module
 from django.db.models import get_apps, get_models
+from django.contrib.auth.models import User, Group, Permission
+from django.utils.translation import ugettext_lazy as _
+
 
 from pylucid.markup import hightlighter
 
@@ -58,6 +59,8 @@ def show_internals(request):
 
     context = {
         "title": "Show internals",
+
+        "permissions": Permission.objects.all(),
 
         "urlpatterns": hightlighter.make_html(pformat(import_module(settings.ROOT_URLCONF).urlpatterns), source_type="py"),
         "settings": hightlighter.make_html(pformat(get_safe_settings()), source_type="py"),

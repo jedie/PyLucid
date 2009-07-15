@@ -88,7 +88,19 @@
 <h2>urlpatterns</h2>
 {{ urlpatterns }}
 
-
+<h2>permissions</h2>
+<table>
+    <tr>
+    <th>app_label.codename</th>
+    <th>verbose title</th>
+    </tr>
+{% for permission in permissions %}
+    <tr>
+    <td><strong>{{ permission.content_type.app_label }}.{{ permission.codename }}</strong></td>
+    <td>{{ permission }}</td>
+    </tr>
+{% endfor %}
+</table>
 
 <h2>settings</h2>
 {{ settings }}
