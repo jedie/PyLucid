@@ -17,12 +17,16 @@
 import warnings
 
 from django.conf import settings
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
-
+from django.contrib.auth.models import Permission
 
 
 def check_permissions(permissions):
     """
+    Protect a view and limit it to users witch are log in and has the permissions.
+    If the user is not log in -> Redirect him to a log in view with a next_url back to the requested page.
+    
     TODO: Add a log entry, if user has not all permissions.
     
     Usage:
@@ -35,17 +39,16 @@ def check_permissions(permissions):
     --------------------------------------------------------------------------
     """
     assert isinstance(permissions, (list, tuple))
-    
+
     def _inner(view_function):
-        def _check_permissions(request, *args, **kwargs):    
+        def _check_permissions(request, *args, **kwargs):
             user = request.user
-            
+
             if not user.is_authenticated():
-                msg = "Permission denied for anonymous user."
-                if settings.DEBUG: # Usefull??
-                    warnings.warn(msg)
-                raise PermissionDenied(msg)
-                
+                request.page_msg.error("Permission denied for anonymous user. Please log in.")
+                url = settings.PYLUCID.AUTH_NEXT_URL % {"path": "/", "next_url": request.path}
+                return HttpResponseRedirect(url)
+
             if not user.has_perms(permissions):
                 msg = "User %r has not all permissions: %r (existing permissions: %r)" % (
                     user, permissions, user.get_all_permissions()

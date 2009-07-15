@@ -41,7 +41,7 @@ def lucidTag(request):
     else:
         template_name = "auth/login_link.html"
         url = "?auth=login"
-           
+
     return render_to_string(template_name, {"url": url}, context_instance=RequestContext(request))
 
 
@@ -56,12 +56,12 @@ def _logout_view(request, next_url):
 
 def _login(request, user, next_url):
     last_login = user.last_login
-    
+
     auth.login(request, user)
-    
+
     message = render_to_string('auth/login_info.html', {"last_login":last_login})
     request.page_msg.successful(message)
-    
+
     return HttpResponseRedirect(next_url)
 
 
@@ -74,21 +74,21 @@ def _plaintext_login(request, context, username, next_url):
             return _login(request, user, next_url)
     else:
         password_form = PasswordForm()
-        
+
     context["form"] = password_form
-    
+
     # return a string for replacing the normal cms page content
     return render_pylucid_response(request, 'auth/plaintext_login.html', context)
 
 
-    
+
 def _sha_login(request, context, user, next_url):
     """
     Login via JS-SHA-Login.
     Display the JS-SHA-Login form and login if password is ok.
     """
     user_profile = user.get_profile()
-    
+
     if "sha_a2" in request.POST and "sha_b" in request.POST:
         SHA_login_form = SHA_LoginForm(request.POST)
         if not SHA_login_form.is_valid():
@@ -100,7 +100,7 @@ def _sha_login(request, context, user, next_url):
             if DEBUG:
                 request.page_msg("sha_a2:", sha_a2)
                 request.page_msg("sha_b:", sha_b)
-                
+
             # A submited SHA1-JS-Login form
             try:
                 challenge = request.session['challenge']
@@ -123,7 +123,7 @@ def _sha_login(request, context, user, next_url):
             )
             if user:
                 return _login(request, user, next_url)
-            request.page_msg.error(_("Wrong password."))                    
+            request.page_msg.error(_("Wrong password."))
     else:
         SHA_login_form = UsernameForm()
 
@@ -136,11 +136,11 @@ def _sha_login(request, context, user, next_url):
         # Create a new random salt value for the password challenge:
         challenge = crypt.get_new_salt()
         context["debug"] = "false"
-           
+
     # For later comparing with form data
     request.session['challenge'] = challenge
     context["challenge"] = challenge
-    
+
     context["form"] = SHA_login_form
 
     # return a string for replacing the normal cms page content
@@ -154,7 +154,7 @@ def _login_view(request, form_url, next_url):
         request.page_msg(
             "Warning: DEBUG is ON! Should realy only use for debugging!"
         )
-    
+
     context = request.PYLUCID.context
     context["form_url"] = form_url
 
@@ -165,18 +165,18 @@ def _login_view(request, form_url, next_url):
             if not user.is_active:
                 request.page_msg.error("Error: Your account is disabled!")
                 return
-            
+
             context["username"] = user.username
-            
+
             if "plaintext_login" in request.POST:
                 return _plaintext_login(request, context, user.username, next_url)
             else:
                 return _sha_login(request, context, user, next_url)
     else:
         username_form = UsernameForm()
-        
+
     context["form"] = username_form
-    
+
     # return a string for replacing the normal cms page content
     return render_pylucid_response(request, 'auth/input_username.html', context)
 
@@ -185,14 +185,20 @@ def http_get_view(request):
     """
     Login+Logout view via GET parameters
     """
-    next_url = request.path
     action = request.GET["auth"]
-    if action=="login":
-        form_url = request.path + "?auth=login" # FIXME: How can we add the GET Parameter?
+    if action == "login":
+        next_url = request.GET.get("next_url", None)
+        if next_url:
+            form_url = settings.PYLUCID.AUTH_NEXT_URL % {"path": request.path, "next_url": next_url}
+        else:
+            next_url = request.path
+            form_url = "%s?%s" % (request.path, settings.PYLUCID.AUTH_GET_VIEW)
+
         return _login_view(request, form_url, next_url)
-    elif action=="logout":
+    elif action == "logout":
+        next_url = request.path
         return _logout_view(request, next_url)
-    
+
     if settings.DEBUG:
         request.page_msg(_("Wrong get view parameter!"))
 

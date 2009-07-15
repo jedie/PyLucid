@@ -5,6 +5,9 @@ import posixpath
 
 import test_tools # before django imports!
 
+#from django_tools.utils import info_print
+#info_print.redirect_stdout()
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -20,10 +23,12 @@ from pylucid_project.tests import unittest_plugin
 
 EDIT_PAGE_URL = "/?page_admin=inline_edit"
 PREVIEW_URL = "/?page_admin=preview"
+LOGIN_URL = "http://testserver/?auth=login&next_url=/"
 
 class EditPageInlineTest(basetest.BaseUnittest):
     """ Test for editing a page inline. """
     def assertCanNotEdit(self, response):
+        #BrowserDebug.debug_response(response)
         self.failUnlessEqual(response.status_code, 403)
         self.assertResponse(response,
             must_contain=('Permission denied',),
@@ -51,9 +56,12 @@ class EditPageInlineTest(basetest.BaseUnittest):
         )
 
     def test_permissions_anonymous(self):
-        """ Test edit a page as a anonymous user """
+        """
+        Test edit a page as a anonymous user
+        The user should be redirected to a login page with next_url == EDIT_PAGE_URL
+        """
         response = self.client.get(EDIT_PAGE_URL)
-        self.assertCanNotEdit(response)
+        self.assertRedirects(response, expected_url=LOGIN_URL, status_code=302)
 
     def test_permissions_superuser(self):
         """ Test edit a page as superuser """

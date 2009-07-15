@@ -30,3 +30,7 @@ HTTP_GET_VIEW_NAME = "http_get_view"
 # filesystem path: MEDIA_ROOT + PYLUCID_MEDIA_DIR
 # URLs: MEDIA_URL + PYLUCID_MEDIA_DIR
 PYLUCID_MEDIA_DIR = "PyLucid" # Without slashes at begin/end!
+
+AUTH_GET_VIEW = "auth=login"
+AUTH_NEXT_URL = "%%(path)s?%s&next_url=%%(next_url)s" % AUTH_GET_VIEW
+# e.g.: settings.PYLUCID.AUTH_NEXT_URL % {"path": request.path, "next_url": url}
