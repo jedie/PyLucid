@@ -15,7 +15,7 @@
 
 """
 
-__version__= "$Rev:$"
+__version__ = "$Rev:$"
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -24,22 +24,24 @@ from django.shortcuts import render_to_response
 
 from pylucid.system import i18n
 from pylucid.models import Language
+from pylucid.decorators import render_to
 
 from language.preference_forms import LanguagePrefForm
 
 RESET_KEY = "reset"
 
+@render_to("language/language_selector.html")
 def lucidTag(request):
     """ insert language selector list into page """
-    
+
     # Get preferences
     pref_form = LanguagePrefForm()
     pref_data = pref_form.get_preferences()
-    
+
     current_pagetree = request.PYLUCID.pagetree
     absolute_url = current_pagetree.get_absolute_url()
     current_url = absolute_url.strip("/") # For {% url ... %}
-    
+
     existing_languages = Language.objects.all()
     context = {
         "current_url": current_url,
@@ -47,9 +49,8 @@ def lucidTag(request):
         "add_reset_link": pref_data["add_reset_link"],
         "reset_key": RESET_KEY,
     }
-    return render_to_response('language/language_selector.html', context, 
-        context_instance=RequestContext(request)
-    )
+    return context
+
 
 
 def http_get_view(request):
@@ -60,9 +61,8 @@ def http_get_view(request):
         # We should reset the favored language settings
         response = i18n.reset_language_settings(request)
         return response
-    
+
     i18n.activate_lang(request, lang_code, from_info="GET parameter", save=True)
-    
+
     # redirect, so the new selected language would be used
     return HttpResponseRedirect(request.path)
-    

@@ -7,13 +7,14 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 
 from pylucid.models import PageTree
+from pylucid.decorators import render_to
 
 from pylucid_admin.models import PyLucidAdminPage
 
-
+@render_to("admin_menu/admin_top_menu.html")
 def lucidTag(request):
     """
-    TODO: The admin menu should be build dynamic
+    Render the pylucid admin menu, if the user is authentivated.
     """
     if not request.user.is_authenticated():
         # Don't insert the admin top menu
@@ -38,13 +39,20 @@ def lucidTag(request):
         "edit_meta_admin_panel_link": edit_meta_admin_panel_link,
         "new_page_link": reverse("admin_pylucid_pagecontent_add"),
     }
-    return render_to_response('admin_menu/admin_top_menu.html', context,
-        context_instance=RequestContext(request)
-    )
+    return context
+
 
 def panel_extras(request):
+    """
+    returns all PyLucid admin menu items with can the current user use.
+    Used in the inline admin menu and for the pylucid admin menu in the django admin panel.
+    
+    Usage in template:
+        {% lucidTag admin_menu.panel_extras %}
+        
+    TODO: Use a tree generator to build a real tree menu
+    """
     items = PyLucidAdminPage.objects.get_for_user(request.user)
-
     output = []
     for item in items:
         if not item.get_absolute_url():

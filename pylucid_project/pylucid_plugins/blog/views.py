@@ -37,7 +37,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 
-from pylucid.shortcuts import render_to
+from pylucid.decorators import render_to
 
 from blog.models import BlogEntry
 

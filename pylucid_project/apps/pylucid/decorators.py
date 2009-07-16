@@ -14,12 +14,15 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import sys
 import warnings
 
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.exceptions import PermissionDenied
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 from django.contrib.auth.models import Permission
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse, HttpResponseRedirect
 
 
 def check_permissions(superuser_only, permissions=()):
@@ -95,3 +98,43 @@ def superuser_only(view_function):
             raise PermissionDenied
         return view_function(request, *args, **kwargs)
     return _inner
+
+
+def render_to(template_name=None):
+    """
+    Based on the decorators from django-annoying.
+
+    Example:
+ 
+    @render_to('foo/template.html')
+    def PyLucidPluginFoo(request):
+        bar = Bar.object.all()  
+        return {'bar': bar}
+        
+    TODO: merge render_to() and render_pylucid_response()
+    """
+    def renderer(function):
+        def wrapper(request, *args, **kwargs):
+            local_view_context = function(request, *args, **kwargs)
+            assert isinstance(local_view_context, dict) == True, \
+                "view must return a dict! (%r returns %r)" % (function.__name__, type(local_view_context))
+
+            template = local_view_context.pop('template_name', template_name)
+            assert template != None, \
+                ("Template name must be passed as render_to parameter"
+                " or 'template_name' must be inserted into context!")
+
+            try:
+                context = request.PYLUCID.context
+            except AttributeError:
+                # The pylucid objects doesn't exist  e.g. in context middleware or admin views               
+                return render_to_response(
+                    template, local_view_context, context_instance=RequestContext(request)
+                )
+
+            context.update(local_view_context)
+            return render_to_response(template_name, context)
+
+        return wrapper
+
+    return renderer

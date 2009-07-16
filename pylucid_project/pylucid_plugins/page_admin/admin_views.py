@@ -13,7 +13,7 @@ from pylucid_project.utils.form_utils import make_kwargs
 
 from pylucid.models import PageTree, PageMeta, PageContent, Design, Language, PluginPage
 from pylucid.preference_forms import SystemPreferencesForm
-from pylucid.decorators import check_permissions
+from pylucid.decorators import check_permissions, render_to
 
 from pylucid_admin.admin_menu import AdminMenu
 
@@ -45,6 +45,7 @@ def install(request):
 @check_permissions(superuser_only=False,
     permissions=("pylucid.add_pagecontent", "pylucid.add_pagemeta", "pylucid.add_pagetree")
 )
+@render_to("page_admin/new_content_page.html")
 def new_content_page(request):
     """
     Create a new content page.
@@ -91,14 +92,13 @@ def new_content_page(request):
         "form_url": request.path,
         "form": form,
     }
-    return render_to_response('page_admin/new_content_page.html', context,
-        context_instance=RequestContext(request)
-    )
+    return context
 
 
 @check_permissions(superuser_only=False,
     permissions=("pylucid.add_pluginpage", "pylucid.add_pagemeta", "pylucid.add_pagetree")
 )
+@render_to("page_admin/new_content_page.html")
 def new_plugin_page(request):
     """
     Create a new plugin page.
@@ -133,6 +133,4 @@ def new_plugin_page(request):
         "form_url": request.path,
         "form": form,
     }
-    return render_to_response('page_admin/new_content_page.html', context,
-        context_instance=RequestContext(request)
-    )
+    return context

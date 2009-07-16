@@ -19,15 +19,11 @@
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
-__version__= "$Rev$"
+__version__ = "$Rev$"
 
-from django.utils.safestring import mark_safe
-
-from django.http import HttpResponse
-from django.template import RequestContext
-from django.shortcuts import render_to_response
 
 from pylucid.models import PageTree, PageContent, Language
+from pylucid.decorators import render_to
 
 #HTML_TEMPLATE = (
 #    '<li>'
@@ -37,7 +33,7 @@ from pylucid.models import PageTree, PageContent, Language
 #    '</li>'
 #)
 
-
+@render_to("SiteMap/SiteMap.html")
 def lucidTag(request):
     """
     Create the sitemap tree
@@ -45,17 +41,15 @@ def lucidTag(request):
     """
     languages = Language.objects.all()
     pages = PageContent.objects.all()
-    
+
     context = {
         "languages": languages,
         "pages": pages,
     }
 
-    return render_to_response('SiteMap/SiteMap.html', context, 
-        context_instance=RequestContext(request)
-    )
-    
-    
+    return context
+
+
 #
 #    # Get a tree dict of all pages:
 #    sitemap_tree = get_sitemap_tree(self.request)

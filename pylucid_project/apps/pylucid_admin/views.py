@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design
 from pylucid.preference_forms import SystemPreferencesForm
 from pylucid.system import pylucid_plugin, pylucid_objects
+from pylucid.decorators import check_permissions, render_to
 
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
@@ -22,19 +23,17 @@ from pylucid_admin.models import PyLucidAdminPage
 
 
 @login_required
+@render_to("pylucid_admin/menu.html")
 def menu(request):
-    context = {
-        "title": "PyLucid admin menu",
-
-    }
-    return render_to_response('pylucid_admin/menu.html', context,
-        context_instance=RequestContext(request)
-    )
+    return {"title": "PyLucid admin menu"}
 
 
-
-
+@check_permissions(superuser_only=True)
+@render_to("pylucid_admin/install.html")
 def install_pylucid(request):
+    """
+    FIXME: obsolete???
+    """
     output = []
     output.append("*** PyLucid install:")
 
@@ -115,11 +114,11 @@ def install_pylucid(request):
         "title": "PyLucid - install",
         "output": output,
     }
-    return render_to_response('pylucid_admin/install.html', context,
-        context_instance=RequestContext(request)
-    )
+    return context
 
 
+@check_permissions(superuser_only=True)
+@render_to("pylucid_admin/install.html")
 def install_plugins(request):
     """ Simple call all plugin install view, if exist. """
     output = []
@@ -156,6 +155,4 @@ def install_plugins(request):
         "title": "PyLucid - Plugin install",
         "output": output,
     }
-    return render_to_response('pylucid_admin/install.html', context,
-        context_instance=RequestContext(request)
-    )
+    return context

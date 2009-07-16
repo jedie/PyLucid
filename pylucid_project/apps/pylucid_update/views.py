@@ -28,21 +28,26 @@ from django.template.loader import find_template_source
 from dbtemplates.models import Template
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
+
+from pylucid.fields import CSS_VALUE_RE
+from pylucid.decorators import check_permissions, render_to
+from pylucid.system.css_color_utils import filter_content, extract_colors
 from pylucid.models import PageTree, PageMeta, PageContent, ColorScheme, Design, EditableHtmlHeadFile, \
                                                                                             UserProfile
-from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
-from pylucid.system.css_color_utils import filter_content, extract_colors
-from pylucid_project.apps.pylucid_update.forms import UpdateForm
-from pylucid.fields import CSS_VALUE_RE
+
+from pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
+from pylucid_update.forms import UpdateForm
 
 
+@check_permissions(superuser_only=True)
+@render_to("pylucid_update/menu.html")
 def menu(request):
     """ Display a menu with all update view links """
     context = {
         "title": "menu",
         "site": Site.objects.get_current()
     }
-    return render_to_response('pylucid_update/menu.html', context, context_instance=RequestContext(request))
+    return context
 
 
 def _do_update(request, language):
@@ -245,13 +250,17 @@ def _do_update(request, language):
             out.write("PageContent entry '%s' - '%s' exist." % (language, tree_entry.slug))
 
     context = {
+        "template_name": "pylucid_update/update08result.html",
         "title": "update data from PyLucid v0.8 to v0.9",
         "results": out.getlines(),
     }
+    return context
     return render_to_response('pylucid_update/update08result.html', context,
         context_instance=RequestContext(request))
 
 
+@check_permissions(superuser_only=True)
+@render_to() # set template_name in context
 def update08(request):
     """ Update PyLucid v0.8 model data to v0.9 models """
     if request.method == 'POST':
@@ -271,15 +280,20 @@ def update08(request):
         form = UpdateForm()
 
     context = {
-        "title": "update data from PyLucid v0.8 to v0.9",
+        "template_name": "pylucid_update/update08.html",
+        "title": "Update PyLucid v0.8 model data to v0.9 models",
         "url": reverse("PyLucidUpdate-update08"),
         "site": Site.objects.get_current(),
         "form": form,
     }
-    return render_to_response('pylucid_update/update08.html', context,
+    return context
+    return render_to_response("pylucid_update/update08.html", context,
         context_instance=RequestContext(request))
 
 
+
+@check_permissions(superuser_only=True)
+@render_to("pylucid_update/update08result.html")
 def update08templates(request):
     title = "Update PyLucid v0.8 templates"
     out = SimpleStringIO()
@@ -375,12 +389,12 @@ def update08templates(request):
         "title": title,
         "results": out.getlines(),
     }
-    return render_to_response('pylucid_update/update08result.html', context,
-        context_instance=RequestContext(request))
+    return context
 
 
 
-
+@check_permissions(superuser_only=True)
+@render_to("pylucid_update/update08result.html")
 def update08styles(request):
     """
     TODO: We should not add any styles... We should create a new EditableHtmlHeadFile stylesheet
@@ -481,5 +495,4 @@ def update08styles(request):
         "title": title,
         "results": out.getlines(),
     }
-    return render_to_response('pylucid_update/update08result.html', context,
-        context_instance=RequestContext(request))
+    return context

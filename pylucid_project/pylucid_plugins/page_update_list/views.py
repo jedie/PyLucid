@@ -12,19 +12,18 @@
     $Rev$
     $Author$
 
-    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
 
-__version__= "$Rev$"
+__version__ = "$Rev$"
 
-from django.http import HttpResponse
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from pylucid.models import PageContent
+from pylucid.decorators import render_to
 
-from pylucid_project.apps.pylucid.models import PageContent
 
+@render_to("page_update_list/PageUpdateTable.html")
 def lucidTag(request, count=10):
     try:
         count = int(count)
@@ -32,7 +31,7 @@ def lucidTag(request, count=10):
         # FIXME:
         request.user.message_set.create(message="page_update_list error: count must be a integer (%s)" % e)
         count = 10
-    
+
     pages = PageContent.objects.order_by('-lastupdatetime')[:count]
 
     # TODO:
@@ -40,9 +39,5 @@ def lucidTag(request, count=10):
 #        pages = pages.filter(showlinks = True)
 #        pages = pages.exclude(permitViewPublic = False)
 #
-    context = {"pages": pages}
-
-    return render_to_response('page_update_list/PageUpdateTable.html', context, 
-        context_instance=RequestContext(request)
-    )
+    return {"pages": pages}
 

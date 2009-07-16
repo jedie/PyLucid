@@ -24,39 +24,9 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
-from django.template import RequestContext
+
 
 from django_tools.middlewares import ThreadLocal
-
-# TODO: merge render_to() and render_pylucid_response()
-
-def render_to(template_name):
-    """
-    Based on the decorators from django-annoying.
-
-    Example:
- 
-    @render_to('foo/template.html')
-    def PyLucidPluginFoo(request):
-        bar = Bar.object.all()  
-        return {'bar': bar}
-    """
-    def renderer(function):
-        def wrapper(request, *args, **kwargs):
-            local_view_context = function(request, *args, **kwargs)
-            assert isinstance(local_view_context, dict) == True, "view must return a dict!"
-
-            context = request.PYLUCID.context
-            context.update(local_view_context)
-
-            return render_to_response(
-                template_name, context, #context_instance=RequestContext(request)
-            )
-
-        return wrapper
-
-    return renderer
-
 
 
 def render_pylucid_response(request, template_name, context, **kwargs):
@@ -69,6 +39,8 @@ def render_pylucid_response(request, template_name, context, **kwargs):
     If it's not a ajax request: render the plugin template and return it as a String: So it
     will be replace the cms page content in the global template. The complete page would be
     rendered.
+    
+    TODO: merge render_to() and render_pylucid_response()
     """
     response_content = render_to_string(template_name, context, **kwargs)
 

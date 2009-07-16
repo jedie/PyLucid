@@ -16,34 +16,31 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__= "$Rev: 1934 $"
+__version__ = "$Rev: 1934 $"
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
-from pylucid_project.apps.pylucid.models import PageContent
+from pylucid.models import PageContent
+from pylucid.decorators import render_to
 
 
-def lucidTag(request): 
+@render_to("main_menu/main_menu.html")
+def lucidTag(request):
     try:
         # Get the current models.PageContent instance
         pagecontent = request.PYLUCID.pagecontent
     except AttributeError:
         # Plugin page???
         return
-        
+
 #    request.page_msg(request.path)
     if request.path == "/":
         sub_pages = PageContent.objects.all().filter(page__parent=None, lang=pagecontent.lang)
     else:
         sub_pages = PageContent.objects.get_sub_pages(pagecontent)
 
-    context = {
-        "sub_pages": sub_pages,
-    }
-    return render_to_response('main_menu/main_menu.html', context, 
-        context_instance=RequestContext(request)
-    )
+    return {"sub_pages": sub_pages}
 
 
 

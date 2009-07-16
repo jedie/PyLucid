@@ -17,7 +17,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid.markup import hightlighter
-from pylucid.decorators import check_permissions
+from pylucid.decorators import check_permissions, render_to
 
 from pylucid_admin.admin_menu import AdminMenu
 
@@ -44,6 +44,7 @@ def install(request):
 #-----------------------------------------------------------------------------
 
 @check_permissions(superuser_only=True)
+@render_to("internals/show_internals.html")
 def show_internals(request):
     apps_info = []
     for app in get_apps():
@@ -86,6 +87,7 @@ def show_internals(request):
 
         "request_meta": hightlighter.make_html(pformat(request.META), source_type="py"),
     }
+    return context
 
     return render_to_response('internals/show_internals.html', context,
         context_instance=RequestContext(request)
@@ -128,6 +130,7 @@ def textform_for_model(model):
 
 
 @check_permissions(superuser_only=True)
+@render_to("internals/form_generator.html")
 def form_generator(request, model_no=None):
     apps = models.get_apps()
     app_models = []
@@ -151,7 +154,4 @@ def form_generator(request, model_no=None):
         "models_dict": models_dict,
         "output": output,
     }
-
-    return render_to_response('internals/form_generator.html', context,
-        context_instance=RequestContext(request)
-    )
+    return context
