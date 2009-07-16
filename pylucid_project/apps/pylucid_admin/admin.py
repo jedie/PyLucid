@@ -2,6 +2,8 @@
 
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.conf.urls.defaults import patterns, url, include
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -66,6 +68,9 @@ class PyLucidAdminSite(admin.AdminSite):
 
 pylucid_admin_site = PyLucidAdminSite()
 
+# FIXME: We used our own admin site, so we must register all django contrib apps again :(
+pylucid_admin_site.register(Group, GroupAdmin)
+pylucid_admin_site.register(User, UserAdmin)
 
 
 class PyLucidAdminPageAdmin(VersionAdmin):
