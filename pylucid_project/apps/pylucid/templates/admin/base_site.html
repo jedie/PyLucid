@@ -89,10 +89,10 @@ $(document).ready(function(){
     <li>
         <a href="{% url admin_index %}">{% trans 'Django admin site' %}</a>
     </li>
-    {% if user.is_superuser %}
     <li>
         <a href="{% url PyLucidAdmin-menu %}">{% trans 'PyLucid admin menu' %}</a>
         <ul>
+            {% if user.is_superuser %}
 		    <li>
 		        <a>{% trans 'PyLucid install' %}</a>
 		        <ul>
@@ -107,10 +107,10 @@ $(document).ready(function(){
 		    <li>
 		        <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
 		    </li>
+	        {% endif %}
 		    {% lucidTag admin_menu.panel_extras %}
 	    </ul>
     </li>
-    {% endif %}
 </ul>
 {% endif %}
 <!-- app pretitle block end -->

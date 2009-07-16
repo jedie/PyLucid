@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.conf import settings
+from django.core import urlresolvers
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
@@ -36,14 +37,14 @@ def lucidTag(request):
         "edit_admin_panel_link": edit_admin_panel_link,
         "edit_meta_admin_panel_link": edit_meta_admin_panel_link,
         "new_page_link": reverse("admin_pylucid_pagecontent_add"),
-        "admin_menu_link": reverse("admin_index"),
     }
     return render_to_response('admin_menu/admin_top_menu.html', context,
         context_instance=RequestContext(request)
     )
 
 def panel_extras(request):
-    items = PyLucidAdminPage.objects.all()
+    items = PyLucidAdminPage.objects.get_for_user(request.user)
+
     output = []
     for item in items:
         if not item.get_absolute_url():

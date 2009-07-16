@@ -39,7 +39,7 @@
     {% endif %}
     {% if user.is_staff %}
     <li>
-        <a href="{{ admin_menu_link }}">{% trans 'admin menu' %}</a>
+        <a href="{% url PyLucidAdmin-menu %}">{% trans 'PyLucid admin menu' %}</a>
         <ul>
             {% lucidTag admin_menu.panel_extras %}            
         </ul>
