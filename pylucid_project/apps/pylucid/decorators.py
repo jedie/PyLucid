@@ -106,18 +106,31 @@ def render_to(template_name=None):
 
     Example:
  
-    @render_to('foo/template.html')
-    def PyLucidPluginFoo(request):
-        bar = Bar.object.all()  
-        return {'bar': bar}
+        @render_to('foo/template.html')
+        def PyLucidPluginFoo(request):
+            bar = Bar.object.all()  
+            return {'bar': bar}
         
+    The view can also insert the template name in the context, e.g.:
+
+        @render_to
+        def PyLucidPluginFoo(request):
+            bar = Bar.object.all()  
+            return {'bar': bar, 'template_name': 'foo/template.html'}
+
     TODO: merge render_to() and render_pylucid_response()
     """
     def renderer(function):
         def wrapper(request, *args, **kwargs):
             local_view_context = function(request, *args, **kwargs)
-            assert isinstance(local_view_context, dict) == True, \
-                "view must return a dict! (%r returns %r)" % (function.__name__, type(local_view_context))
+
+            if not isinstance(local_view_context, dict):
+                # view has not return a context dict
+#                if settings.DEBUG:
+#                    print "%s must return a dict, has return: %r (%r)" % (
+#                        function.__name__, type(local_view_context), function.func_code
+#                    )
+                return local_view_context
 
             template = local_view_context.pop('template_name', template_name)
             assert template != None, \
