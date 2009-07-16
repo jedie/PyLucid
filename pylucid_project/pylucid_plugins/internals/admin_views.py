@@ -61,7 +61,6 @@ def show_internals(request):
     # from http://www.djangosnippets.org/snippets/1434/
     # generate a list of (pattern-name, pattern) tuples
     resolver = urlresolvers.get_resolver(None)
-    print resolver.reverse_dict.items()
     urlpatterns = sorted([
         (key, value[0][0][0])
         for key, value in resolver.reverse_dict.items()
