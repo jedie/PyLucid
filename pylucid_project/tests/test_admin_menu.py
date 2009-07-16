@@ -14,10 +14,17 @@ from django_tools.unittest.unittest_base import BaseTestCase, direct_run
 
 class PyLucidAdminMenu(BaseTestCase, TransactionTestCase):
 
+    def setUp(self):
+        """ install all existing plugins """
+        self.login(usertype="superuser")
+        response = self.client.get(reverse("PyLucidAdmin-install_plugins"))
+        self.assertResponse(response,
+            must_contain=("PyLucid - Plugin install", "install plugin", "page_admin"),
+            must_not_contain=("Traceback",)
+        )
+
     def test_superuser_admin_menu(self):
-        """
-        TODO: PyLucid install plugin must be run in test environment!
-        """
+        """ get the admin menu as a superuser """
         self.login(usertype="superuser")
         response = self.client.get("/")
         self.assertResponse(response,
@@ -27,7 +34,7 @@ class PyLucidAdminMenu(BaseTestCase, TransactionTestCase):
                 reverse("PageAdmin-new_content_page"),
                 reverse("PageAdmin-new_plugin_page"),
             ),
-            must_not_contain=("Log in", "Traceback",)#"error")
+            must_not_contain=("Error", "Traceback",)
         )
 
 
