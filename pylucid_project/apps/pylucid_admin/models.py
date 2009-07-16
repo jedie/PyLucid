@@ -24,6 +24,12 @@ class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    #TODO: check if url_name is unique. We can't set unique==True,
+    #      because menu section has always url_name=None
+    url_name = models.CharField(blank=True, null=True, max_length=256,
+        help_text="Name of url, defined in plugin/admin_urls.py"
+    )
+
     name = models.CharField(max_length=150, unique=True,
         help_text="Sort page name (for link text in e.g. menu)"
     )
@@ -31,32 +37,24 @@ class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
         help_text="A long page title (for e.g. page title or link title text)"
     )
 
-    #TODO: check if url_name is unique. We can't set unique==True,
-    #      because menu section has always url_name=None
-    url_name = models.CharField(blank=True, null=True, max_length=256,
-        help_text="Name of url, defined in plugin/admin_urls.py"
-    )
-    access_permissions = models.ManyToManyField(Permission, verbose_name=_('access permissions'), blank=True,
-        help_text="The user must have these permissions to see the menu point."
-    )
-    superuser_only = models.BooleanField(
-        help_text="Limit the access to superusers only. If True the access permission list would be ignored!"
-    )
-
-    def add_access_permissions(self, permissions):
+    def get_permissions(self):
         """
-        Add all access permissions from the given list.
-        FIXME: Get the ContentType instance seems to be ugly?
+        returns the access permissions for this menu entry.
+        TODO: Should be cache this?
         """
-        assert isinstance(permissions, (list, tuple))
+        if not self.url_name: # a menu section
+            return (False, ())
 
-        for permission in permissions:
-            app_label, codename = permission.split(".")
-            action, modelname = codename.split("_")
+        # Get the view function for this url_name
+        # FIXME: Can we get it faster and not with resolve the url?
+        url = urlresolvers.reverse(self.url_name)
+        view_func, func_args, func_kwargs = urlresolvers.resolve(url)
 
-            content_type = ContentType.objects.get(app_label=app_label, model=modelname)
-            perm = Permission.objects.get(content_type=content_type, codename=codename)
-            self.access_permissions.add(perm)
+        # get the rights from pylucid.decorators.check_permissions
+        access_permissions = view_func.permissions
+        superuser_only = view_func.superuser_only
+
+        return (superuser_only, access_permissions)
 
     def __unicode__(self):
         return u"PyLucidAdminPage %r (%r)" % (self.name, self.get_absolute_url())

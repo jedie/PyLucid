@@ -26,16 +26,11 @@ from pylucid.decorators import check_permissions
 from page_admin.forms import EditPageForm
 
 
-PAGE_EDIT_PERMISSIONS = (
-    u'pylucid.change_pagecontent',
-    u'pylucid.change_pagemeta'
-) 
 
-
-def _edit_page(request, form_url):   
+def _edit_page(request, form_url):
     pagemeta_instance = request.PYLUCID.pagemeta
     pagecontent_instance = request.PYLUCID.pagecontent
-    
+
     if request.method == 'POST':
         edit_page_form = EditPageForm(request.POST)
         if edit_page_form.is_valid():
@@ -46,20 +41,20 @@ def _edit_page(request, form_url):
             return HttpResponseRedirect(request.path)
     else:
         edit_page_form = EditPageForm({"content":pagecontent_instance.content})
-    
+
     context = {
         "form_url": form_url,
         "abort_url": request.path,
         "preview_url": "%s?page_admin=preview" % request.path,
-        
+
         "pagelinklist_url": "#TODO", #FIXME ;)
         "taglist_url": "#TODO", #FIXME ;)
-        
+
         "edit_page_form": edit_page_form,
         "pagecontent_instance": pagecontent_instance,
         "pagemeta_instance": pagemeta_instance,
     }
-    return render_pylucid_response(request, 'page_admin/edit_page_form.html', context, 
+    return render_pylucid_response(request, 'page_admin/edit_page_form.html', context,
         context_instance=RequestContext(request)
     )
 
@@ -72,24 +67,26 @@ def _edit_page_preview(request):
     if not edit_page_form.is_valid():
         return HttpResponse("ERROR: Form not valid!")
     content = edit_page_form.cleaned_data["content"]
-    
+
     pagecontent_instance = request.PYLUCID.pagecontent
     pagecontent_instance.content = edit_page_form.cleaned_data["content"]
     html_content = apply_markup(pagecontent_instance, request.page_msg)
-    
+
     return HttpResponse(html_content)
 
 
-@check_permissions(permissions=PAGE_EDIT_PERMISSIONS)
-def http_get_view(request):  
+@check_permissions(superuser_only=False,
+    permissions=('pylucid.change_pagecontent', 'pylucid.change_pagemeta')
+)
+def http_get_view(request):
     action = request.GET["page_admin"]
-    if action=="inline_edit":
+    if action == "inline_edit":
         # replace the page content with the edit page form
         form_url = "%s?page_admin=inline_edit" % request.path
         return _edit_page(request, form_url)
-    elif action=="preview":
+    elif action == "preview":
         # preview via jQuery
         return _edit_page_preview(request)
-    
+
     if settings.DEBUG:
         request.page_msg(_("Wrong get view parameter!"))

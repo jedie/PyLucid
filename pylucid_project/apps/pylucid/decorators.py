@@ -22,7 +22,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Permission
 
 
-def check_permissions(permissions):
+def check_permissions(superuser_only, permissions=()):
     """
     Protect a view and limit it to users witch are log in and has the permissions.
     If the user is not log in -> Redirect him to a log in view with a next_url back to the requested page.
@@ -38,6 +38,7 @@ def check_permissions(permissions):
         ...
     --------------------------------------------------------------------------
     """
+    assert isinstance(superuser_only, bool)
     assert isinstance(permissions, (list, tuple))
 
     def _inner(view_function):
@@ -57,6 +58,12 @@ def check_permissions(permissions):
                     warnings.warn(msg)
                 raise PermissionDenied(msg)
             return view_function(request, *args, **kwargs)
+
+        # Add superuser_only and permissions attributes, so they are accessible
+        # Used to build the admin menu
+        _check_permissions.superuser_only = superuser_only
+        _check_permissions.permissions = permissions
+
         return _check_permissions
     return _inner
 

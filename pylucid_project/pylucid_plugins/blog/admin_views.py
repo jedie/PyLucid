@@ -19,26 +19,25 @@ from pylucid_admin.admin_menu import AdminMenu
 
 from blog.forms import BlogEntryForm
 
-NEEDED_PERMISSIONS = ("blog.add_blogentry",)
+
 
 def install(request):
     """ insert PyLucid admin views into PageTree """
     output = []
 
     admin_menu = AdminMenu(request, output)
-    menu_section_entry = admin_menu.get_or_create_section("blog", superuser_only=False)
+    menu_section_entry = admin_menu.get_or_create_section("blog")
 
     admin_menu.add_menu_entry(
-        parent=menu_section_entry, access_permissions=NEEDED_PERMISSIONS, superuser_only=False,
+        parent=menu_section_entry, url_name="Blog-new_blog_entry",
         name="new blog entry", title="Create a new blog entry.",
-        url_name="Blog-new_blog_entry",
     )
 
     return "\n".join(output)
 
 
 
-@check_permissions(permissions=NEEDED_PERMISSIONS)
+@check_permissions(superuser_only=False, permissions=("blog.add_blogentry",))
 def new_blog_entry(request):
     """
     TODO:

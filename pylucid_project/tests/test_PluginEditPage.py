@@ -155,10 +155,13 @@ class CreateNewContentTest(basetest.BaseUnittest):
         self.new_plugin_url = reverse("PageAdmin-new_plugin_page")
 
     def test_permissions(self):
+        """ anonymous user should be redirectet to the login page with a next_url. """
         for url in (self.new_content_url, self.new_plugin_url):
             response = self.client.get(url)
-            self.failUnlessEqual(response.status_code, 403)
-            self.failUnlessEqual("<h1>Permission denied</h1>", response.content)
+            self.assertRedirects(response,
+                expected_url="http://testserver/?auth=login&next_url=" + url,
+                status_code=302
+            )
 
     def test_new_content_form(self):
         """ Test if we get the "new content" input form """
@@ -168,7 +171,7 @@ class CreateNewContentTest(basetest.BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 "Create a new page", "Create a new content page",
-                'form action="/pylucid_admin/pylucid/new_content_page" method="post" id="edit_page_form"',
+                'form action="/pylucid_admin/pylucid/new_content_page/" method="post" id="edit_page_form"',
                 'input type="submit" name="save" value="save"',
                 'textarea id="id_content"',
             ),
@@ -185,7 +188,7 @@ class CreateNewContentTest(basetest.BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 "Create a new plugin page",
-                'form action="/pylucid_admin/pylucid/new_plugin_page" method="post"',
+                'form action="/pylucid_admin/pylucid/new_plugin_page/" method="post"',
                 'input type="submit" name="save" value="save"',
                 'select name="app_label" id="id_app_label"',
                 'option value="pylucid_project.pylucid_plugins.unittest_plugin"',

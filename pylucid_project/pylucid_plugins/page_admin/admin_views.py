@@ -20,9 +20,6 @@ from pylucid_admin.admin_menu import AdminMenu
 from page_admin.forms import PageContentForm, PluginPageForm
 
 
-NEW_CONTENT_PERMISSIONS = ("pylucid.add_pagecontent", "pylucid.add_pagemeta", "pylucid.add_pagetree")
-NEW_PLUGIN_PERMISSIONS = ("pylucid.add_pluginpage", "pylucid.add_pagemeta", "pylucid.add_pagetree")
-
 
 
 def install(request):
@@ -30,24 +27,24 @@ def install(request):
     output = []
 
     admin_menu = AdminMenu(request, output)
-    menu_section_entry = admin_menu.get_or_create_section("create content", superuser_only=False)
+    menu_section_entry = admin_menu.get_or_create_section("create content")
 
     admin_menu.add_menu_entry(
-        parent=menu_section_entry, access_permissions=NEW_CONTENT_PERMISSIONS, superuser_only=False,
+        parent=menu_section_entry, url_name="PageAdmin-new_content_page",
         name="new content page", title="Create a new content page.",
-        url_name="PageAdmin-new_content_page"
     )
     admin_menu.add_menu_entry(
-        parent=menu_section_entry, access_permissions=NEW_PLUGIN_PERMISSIONS, superuser_only=False,
+        parent=menu_section_entry, url_name="PageAdmin-new_plugin_page",
         name="new plugin page", title="Create a new plugin page.",
-        url_name="PageAdmin-new_plugin_page"
     )
 
     return "\n".join(output)
 
 
 
-@check_permissions(permissions=NEW_CONTENT_PERMISSIONS)
+@check_permissions(superuser_only=False,
+    permissions=("pylucid.add_pagecontent", "pylucid.add_pagemeta", "pylucid.add_pagetree")
+)
 def new_content_page(request):
     """
     Create a new content page.
@@ -99,7 +96,9 @@ def new_content_page(request):
     )
 
 
-@check_permissions(permissions=NEW_PLUGIN_PERMISSIONS)
+@check_permissions(superuser_only=False,
+    permissions=("pylucid.add_pluginpage", "pylucid.add_pagemeta", "pylucid.add_pagetree")
+)
 def new_plugin_page(request):
     """
     Create a new plugin page.

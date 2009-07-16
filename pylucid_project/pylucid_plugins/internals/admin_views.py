@@ -5,7 +5,6 @@ from pprint import pformat
 from django import forms
 from django.db import models
 from django.conf import settings
-from django.core import urlresolvers
 from django.db import connection, backend
 from django.template import RequestContext
 from django.contrib.sites.models import Site
@@ -18,6 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 from pylucid.markup import hightlighter
+from pylucid.decorators import check_permissions
 
 from pylucid_admin.admin_menu import AdminMenu
 
@@ -26,15 +26,15 @@ def install(request):
     output = []
 
     admin_menu = AdminMenu(request, output)
-    menu_section_entry = admin_menu.get_or_create_section("internals", superuser_only=True)
+    menu_section_entry = admin_menu.get_or_create_section("internals")
 
     admin_menu.add_menu_entry(
-        parent=menu_section_entry, access_permissions=(), superuser_only=True,
+        parent=menu_section_entry,
         name="form generator", title="Form generator from existing models.",
         url_name="Internal-form_generator"
     )
     admin_menu.add_menu_entry(
-        parent=menu_section_entry, access_permissions=(), superuser_only=True,
+        parent=menu_section_entry,
         name="show internals", title="Display some internal information.",
         url_name="Internal-show_internals"
     )
@@ -43,8 +43,8 @@ def install(request):
 
 #-----------------------------------------------------------------------------
 
+@check_permissions(superuser_only=True)
 def show_internals(request):
-
     apps_info = []
     for app in get_apps():
         model_info = []
@@ -117,7 +117,7 @@ def textform_for_model(model):
     return "class %sForm(forms.Form):\n" % model.__name__ + '\n'.join(field_list)
 
 
-
+@check_permissions(superuser_only=True)
 def form_generator(request, model_no=None):
     apps = models.get_apps()
     app_models = []
