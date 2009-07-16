@@ -14,7 +14,7 @@ from pylucid_admin.models import PyLucidAdminPage
 @render_to("admin_menu/admin_top_menu.html")
 def lucidTag(request):
     """
-    Render the pylucid admin menu, if the user is authentivated.
+    Render the pylucid admin menu, if the user is authenticated.
     """
     if not request.user.is_authenticated():
         # Don't insert the admin top menu
