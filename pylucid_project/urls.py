@@ -22,6 +22,8 @@ from django.views.generic.list_detail import object_detail
 
 from django.contrib import admin
 
+from pylucid_admin.admin import pylucid_admin_site
+
 admin.autodiscover()
 
 
@@ -39,7 +41,8 @@ urlpatterns = patterns('',
 
     #_____________________________________
     # DJANGO ADMIN PANEL
-    (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
+#    (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
+    (r'^%s/' % settings.ADMIN_URL_PREFIX, include(pylucid_admin_site.urls)),
 )
 
 # serve static files

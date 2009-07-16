@@ -10,6 +10,7 @@ from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import login_required
 
 from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design
 from pylucid.preference_forms import SystemPreferencesForm
@@ -20,7 +21,7 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_admin.models import PyLucidAdminPage
 
 
-
+@login_required
 def menu(request):
     context = {
         "title": "PyLucid admin menu",

@@ -18,7 +18,10 @@
 
 from django.contrib import admin
 
+from pylucid_admin.admin import pylucid_admin_site
+
 from redirect.models import RedirectModel
+
 
 #------------------------------------------------------------------------------
 
@@ -35,4 +38,4 @@ class RedirectModelAdmin(admin.ModelAdmin):
 #    date_hierarchy = 'lastupdatetime'
 #    search_fields = ("slug", "description")
 
-admin.site.register(RedirectModel, RedirectModelAdmin)
+pylucid_admin_site.register(RedirectModel, RedirectModelAdmin)

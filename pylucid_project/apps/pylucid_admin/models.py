@@ -9,6 +9,24 @@ from django.contrib.auth.models import User, Group, Permission
 from pylucid.models import TreeBaseModel
 from pylucid.system.auto_model_info import UpdateInfoBaseModel
 
+class PyLucidAdminManager(models.Manager):
+    def get_for_user(self, user):
+        """
+        returns only the menu items, for which the user has the rights.
+        TODO: Filter menu sections, too. (If there is no sub items, remove the section)
+        """
+        all_items = self.all()
+        filtered_items = []
+        for item in all_items:
+            superuser_only, access_permissions = item.get_permissions()
+            if superuser_only == True and user.is_superuser == False:
+                continue
+            if not user.has_perms(access_permissions):
+                continue
+
+            filtered_items.append(item)
+
+        return filtered_items
 
 class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
     """
@@ -24,6 +42,8 @@ class PyLucidAdminPage(TreeBaseModel, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    objects = PyLucidAdminManager()
+
     #TODO: check if url_name is unique. We can't set unique==True,
     #      because menu section has always url_name=None
     url_name = models.CharField(blank=True, null=True, max_length=256,

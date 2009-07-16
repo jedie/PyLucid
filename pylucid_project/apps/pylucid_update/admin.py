@@ -20,6 +20,7 @@ from django.contrib import admin
 
 from pylucid_project.apps.pylucid_update.models import Page08, Style08, Template08, \
                                         BlogComment08, BlogTag08, BlogEntry08
+from pylucid_admin.admin import pylucid_admin_site
 
 #------------------------------------------------------------------------------
 
@@ -36,7 +37,7 @@ class PageAdmin(admin.ModelAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ["content", "name", "title", "description", "keywords"]
 
-admin.site.register(Page08, PageAdmin)
+pylucid_admin_site.register(Page08, PageAdmin)
 
 
 #class PluginAdmin(admin.ModelAdmin):
@@ -47,7 +48,7 @@ admin.site.register(Page08, PageAdmin)
 #    ordering = ('package_name', 'plugin_name')
 #    list_filter = ("author","package_name", "can_deinstall")
 #
-#admin.site.register(Plugin, PluginAdmin)
+#pylucid_admin_site.register(Plugin, PluginAdmin)
 #
 #
 #class PageArchivAdmin(admin.ModelAdmin):
@@ -57,7 +58,7 @@ admin.site.register(Page08, PageAdmin)
 #        "description", "lastupdatetime", "lastupdateby"
 #    )
 #
-#admin.site.register(PageArchiv, PageArchivAdmin)
+#pylucid_admin_site.register(PageArchiv, PageArchivAdmin)
 
 #------------------------------------------------------------------------------
 
@@ -69,7 +70,7 @@ admin.site.register(Page08, PageAdmin)
 #    ordering = ("plugin", "id")
 #    list_filter = ("plugin",)
 #
-#admin.site.register(Preference, PreferenceAdmin)
+#pylucid_admin_site.register(Preference, PreferenceAdmin)
 
 #------------------------------------------------------------------------------
 
@@ -80,7 +81,7 @@ class StyleAdmin(admin.ModelAdmin):
     list_display_links = ("name",)
     save_as = True
 
-admin.site.register(Style08, StyleAdmin)
+pylucid_admin_site.register(Style08, StyleAdmin)
 
 
 class TemplateAdmin(admin.ModelAdmin):
@@ -88,7 +89,7 @@ class TemplateAdmin(admin.ModelAdmin):
     list_display_links = ("name",)
     save_as = True
 
-admin.site.register(Template08, TemplateAdmin)
+pylucid_admin_site.register(Template08, TemplateAdmin)
 
 
 #______________________________________________________________________________
@@ -96,12 +97,12 @@ admin.site.register(Template08, TemplateAdmin)
 
 class BlogComment08Admin(admin.ModelAdmin):
     pass
-admin.site.register(BlogComment08, BlogComment08Admin)
+pylucid_admin_site.register(BlogComment08, BlogComment08Admin)
 
 class BlogTag08Admin(admin.ModelAdmin):
     pass
-admin.site.register(BlogTag08, BlogTag08Admin)
+pylucid_admin_site.register(BlogTag08, BlogTag08Admin)
 
 class BlogEntry08Admin(admin.ModelAdmin):
     pass
-admin.site.register(BlogEntry08, BlogEntry08Admin)
+pylucid_admin_site.register(BlogEntry08, BlogEntry08Admin)

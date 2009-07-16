@@ -26,29 +26,9 @@ from reversion.admin import VersionAdmin
 
 from pylucid import models
 
-#_____________________________________________________________________________
-# Some work-a-rounds for django bugs :(
-
-# Quick work-a-round for http://code.djangoproject.com/ticket/10061
-admin.site.root_path = "/%s/" % settings.ADMIN_URL_PREFIX
-
-#-----------------------------------------------------------------------------
-# add user brocken, if TEMPLATE_STRING_IF_INVALID != ""
-# http://code.djangoproject.com/ticket/11176
-from django.contrib.auth.admin import UserAdmin
-
-org_add_view = UserAdmin.add_view
-def ugly_patched_add_view(*args, **kwargs):
-    old = settings.TEMPLATE_STRING_IF_INVALID
-    settings.TEMPLATE_STRING_IF_INVALID = ""
-    result = org_add_view(*args, **kwargs)
-    settings.TEMPLATE_STRING_IF_INVALID = old
-    return result
-
-UserAdmin.add_view = ugly_patched_add_view
+from pylucid_admin.admin import pylucid_admin_site
 
 
-#------------------------------------------------------------------------------
 
 if settings.DEBUG:
     class PermissionAdmin(admin.ModelAdmin):
@@ -56,13 +36,13 @@ if settings.DEBUG:
         list_display = ("id", "name", "content_type", "codename")
         list_display_links = ("name", "codename")
         list_filter = ("content_type",)
-    admin.site.register(Permission, PermissionAdmin)
+    pylucid_admin_site.register(Permission, PermissionAdmin)
 
     class ContentTypeAdmin(admin.ModelAdmin):
         """ django ContentType """
         list_display = list_display_links = ("id", "app_label", "name", "model")
         list_filter = ("app_label",)
-    admin.site.register(ContentType, ContentTypeAdmin)
+    pylucid_admin_site.register(ContentType, ContentTypeAdmin)
 
 #------------------------------------------------------------------------------
 
@@ -78,13 +58,13 @@ class PageTreeAdmin(VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("slug",)
 
-admin.site.register(models.PageTree, PageTreeAdmin)
+pylucid_admin_site.register(models.PageTree, PageTreeAdmin)
 
 
 class LanguageAdmin(VersionAdmin):
     pass
 
-admin.site.register(models.Language, LanguageAdmin)
+pylucid_admin_site.register(models.Language, LanguageAdmin)
 
 
 class PageMetaAdmin(VersionAdmin):
@@ -95,7 +75,7 @@ class PageMetaAdmin(VersionAdmin):
     search_fields = ("description", "keywords")
 
 
-admin.site.register(models.PageMeta, PageMetaAdmin)
+pylucid_admin_site.register(models.PageMeta, PageMetaAdmin)
 
 class PageContentInline(admin.StackedInline):
     model = models.PageContent
@@ -107,7 +87,7 @@ class PageContentAdmin(VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("content", "title_or_slug", "get_absolute_url")
 
-admin.site.register(models.PageContent, PageContentAdmin)
+pylucid_admin_site.register(models.PageContent, PageContentAdmin)
 
 
 class PluginPageAdmin(VersionAdmin):
@@ -120,13 +100,13 @@ class PluginPageAdmin(VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("app_label",)
 
-admin.site.register(models.PluginPage, PluginPageAdmin)
+pylucid_admin_site.register(models.PluginPage, PluginPageAdmin)
 
 #-----------------------------------------------------------------------------
 
 #class ColorAdmin(VersionAdmin):
 #    list_display = ("id", "name","value")
-#admin.site.register(models.Color, ColorAdmin)
+#pylucid_admin_site.register(models.Color, ColorAdmin)
 
 class ColorInline(admin.TabularInline):
     model = models.Color
@@ -148,7 +128,7 @@ class ColorSchemeAdmin(VersionAdmin):
     preview.short_description = 'color preview'
     preview.allow_tags = True
 
-admin.site.register(models.ColorScheme, ColorSchemeAdmin)
+pylucid_admin_site.register(models.ColorScheme, ColorSchemeAdmin)
 
 
 class DesignAdmin(VersionAdmin):
@@ -157,7 +137,7 @@ class DesignAdmin(VersionAdmin):
     list_filter = ("site", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")
 
-admin.site.register(models.Design, DesignAdmin)
+pylucid_admin_site.register(models.Design, DesignAdmin)
 
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
@@ -165,7 +145,7 @@ class EditableHtmlHeadFileAdmin(VersionAdmin):
     list_display_links = ("filepath", "description")
     list_filter = ("site", "render")
 
-admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
+pylucid_admin_site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
 #-----------------------------------------------------------------------------
 
@@ -174,4 +154,4 @@ class UserProfileAdmin(VersionAdmin):
     list_display_links = ("user",)
     list_filter = ("site",)
 
-admin.site.register(models.UserProfile, UserProfileAdmin)
+pylucid_admin_site.register(models.UserProfile, UserProfileAdmin)

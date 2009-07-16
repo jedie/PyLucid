@@ -23,7 +23,10 @@ from django.contrib.auth.admin import UserAdmin
 
 from reversion.admin import VersionAdmin
 
+from pylucid_admin.admin import pylucid_admin_site
+
 from blog.models import BlogEntry
+
 
 class BlogEntryAdmin(VersionAdmin):
     list_display = ("id", "headline", "is_public", "get_absolute_url", "lastupdatetime", "lastupdateby")
@@ -32,4 +35,4 @@ class BlogEntryAdmin(VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("headline", "content")
 
-admin.site.register(BlogEntry, BlogEntryAdmin)
+pylucid_admin_site.register(BlogEntry, BlogEntryAdmin)
