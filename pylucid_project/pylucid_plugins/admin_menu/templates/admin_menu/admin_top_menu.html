@@ -37,13 +37,11 @@
         <a href="{{ new_page_link }}">{% trans 'new page' %}</a>
     </li>
     {% endif %}
-    {% if user.is_staff %}
     <li>
         <a href="{% url PyLucidAdmin-menu %}">{% trans 'PyLucid admin menu' %}</a>
         <ul>
             {% lucidTag admin_menu.panel_extras %}
         </ul>
     </li>
-    {% endif %}
 </ul>
 {% endblock %}

@@ -86,9 +86,11 @@ $(document).ready(function(){
         </ul>
     </li>
     {% endif %}
+    {% if user.is_staff %}
     <li>
         <a href="{% url admin_index %}">{% trans 'Django admin site' %}</a>
     </li>
+    {% endif %}
     <li>
         <a href="{% url PyLucidAdmin-menu %}">{% trans 'PyLucid admin menu' %}</a>
         <ul>
