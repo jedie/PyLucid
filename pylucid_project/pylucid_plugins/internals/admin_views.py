@@ -5,6 +5,7 @@ from pprint import pformat
 from django import forms
 from django.db import models
 from django.conf import settings
+from django.core import urlresolvers
 from django.db import connection, backend
 from django.template import RequestContext
 from django.contrib.sites.models import Site
@@ -14,7 +15,6 @@ from django.utils.importlib import import_module
 from django.db.models import get_apps, get_models
 from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext_lazy as _
-
 
 from pylucid.markup import hightlighter
 from pylucid.decorators import check_permissions
@@ -57,12 +57,22 @@ def show_internals(request):
             "app_models": model_info,
         })
 
+    # from http://www.djangosnippets.org/snippets/1434/
+    # generate a list of (pattern-name, pattern) tuples
+    resolver = urlresolvers.get_resolver(None)
+    print resolver.reverse_dict.items()
+    urlpatterns = sorted([
+        (key, value[0][0][0])
+        for key, value in resolver.reverse_dict.items()
+        if isinstance(key, basestring)
+    ])
+
     context = {
         "title": "Show internals",
 
         "permissions": Permission.objects.all(),
 
-        "urlpatterns": hightlighter.make_html(pformat(import_module(settings.ROOT_URLCONF).urlpatterns), source_type="py"),
+        "urlpatterns": urlpatterns,
         "settings": hightlighter.make_html(pformat(get_safe_settings()), source_type="py"),
 
         "db_backend_name": backend.Database.__name__,

@@ -85,10 +85,33 @@
 {% block content %}
 <!-- view_content block -->
 
-<h2>urlpatterns</h2>
-{{ urlpatterns }}
+<ul id="top"><h2>content</h2>
+    <li><a href="#urlpatterns">urlpatterns</a></li>
+    <li><a href="#permissions">permissions</a></li>
+    <li><a href="#settings">settings</a></li>
+    <li><a href="#database_info">database info</a></li>
+    <li><a href="#request_meta">request.META</a></li>
+</ul>
 
-<h2>permissions</h2>
+<hr/>
+
+<h2 id="urlpatterns">urlpatterns</h2>
+<a href="#container">&#x2912; up to top</a>
+<table>
+    <tr>
+    <th>url name</th>
+    <th>url pattern</th>
+    </tr>
+{% for urlname, pattern in urlpatterns %}
+    <tr>
+    <td><strong>{{ urlname }}</strong></td>
+    <td>{{ pattern }}</td>
+    </tr>
+{% endfor %}
+</table>
+
+<h2 id="permissions">permissions</h2>
+<a href="#container">&#x2912; up to top</a>
 <table>
     <tr>
     <th>app_label.codename</th>
@@ -102,17 +125,20 @@
 {% endfor %}
 </table>
 
-<h2>settings</h2>
+<h2 id="settings">settings</h2>
+<a href="#container">&#x2912; up to top</a>
 {{ settings }}
 
-<fieldset id="system_info"><legend>database info</legend>
+<fieldset id="database_info"><legend>database info</legend>
 <ul><h4>database backend information:</h4>
+<a href="#container">&#x2912; up to top</a>
     <li>name: {{ db_backend_name }}</li>
     <li>module: {{ db_backend_module }}</li>
     <li>version: {{ db_backend_version }}</li>
 </ul>
 
-<ul><h4>app/model info:</h4>       
+<ul><h4>app/model info:</h4>
+<a href="#container">&#x2912; up to top</a>
     {% for app_info in apps_info %}
     <li><strong>{{ app_info.app_name }}</strong>
     <ul>
@@ -125,14 +151,17 @@
 </ul>
 
 <ul><h4>database table names:</h4>
+<a href="#container">&#x2912; up to top</a>
     {% for table_name in db_table_names %}<li>{{ table_name }}</li>{% endfor %}
 </ul>
 <ul><h4>django table names:</h4>
+<a href="#container">&#x2912; up to top</a>
     {% for table_name in django_tables %}<li>{{ table_name }}</li>{% endfor %}
 </ul>
 </fieldset>
 
-<h2>request.META</h2>
+<h2 id="request_meta">request.META</h2>
+<a href="#container">&#x2912; up to top</a>
 {{ request_meta }}
 <!-- view_content block end -->
 {% endblock %}
