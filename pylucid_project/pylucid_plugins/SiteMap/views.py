@@ -39,15 +39,19 @@ def lucidTag(request):
     Create the sitemap tree
     TODO: We need a real tree here!
     """
-    languages = Language.objects.all()
-    pages = PageContent.objects.all()
+    tree = PageTree.objects.get_tree()
+    tree.debug()
+    return {"nodes": tree.get_first_nodes()}
 
-    context = {
-        "languages": languages,
-        "pages": pages,
-    }
-
-    return context
+#    languages = Language.objects.all()
+#    pages = PageContent.objects.all()
+#
+#    context = {
+#        "languages": languages,
+#        "pages": pages,
+#    }
+#
+#    return context
 
 
 #

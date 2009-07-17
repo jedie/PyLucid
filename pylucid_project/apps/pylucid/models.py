@@ -48,6 +48,7 @@ from pylucid.system.auto_model_info import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid.shortcuts import user_message_or_warn
 from pylucid.fields import ColorValueField
 from pylucid.system import headfile
+from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
 
 
 # Create a list of all settings.INSTALLED_APPS witch can resolve the url "/"
@@ -74,16 +75,7 @@ class BaseModelManager(models.Manager):
 
 
 
-class TreeBaseModel(models.Model):
-    """ Base tree model used in PyLucidAdminPage and PageTree """
-    parent = models.ForeignKey("self", null=True, blank=True, help_text="the higher-ranking father page")
-    position = models.SmallIntegerField(default=0,
-        help_text="ordering weight for sorting the pages in the menu.")
 
-    class Meta:
-        abstract = True
-        # FIXME: It would be great if we can order by get_absolute_url()
-        ordering = ("id", "position")
 
 
 
@@ -99,6 +91,12 @@ class PageTreeManager(BaseModelManager):
     inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """
+    def get_tree(self):
+        data = self.model.objects.all().order_by("position")
+        tree = TreeGenerator(data)
+        tree.add_related(PageMeta, field="page", attrname="pagemeta")
+        return tree
+
 #    def easy_create(self, cleaned_form_data, page_type):
 #        """
 #        Creating a new PageTree entry with cleaned form data witch can hold more data than for
@@ -217,7 +215,7 @@ class PageTreeManager(BaseModelManager):
         return backlist
 
 
-class PageTree(TreeBaseModel, UpdateInfoBaseModel):
+class PageTree(BaseTreeModel, UpdateInfoBaseModel):
     """
     The CMS page tree
 

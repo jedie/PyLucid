@@ -1,0 +1,14 @@
+<ul>
+{% for node in nodes %}
+    {% spaceless %}
+    <li>
+        <a href="{{ node.pagemeta.get_absolute_url }}" title="{{ node.pagemeta.title }}" class="level_{{ node.level }}">{{ node.pagemeta.title_or_slug }}</a>
+	    {% with "SiteMap/li_item.html" as filename %}
+	    {% with node.subnodes as nodes %}
+	        {% include filename %}      
+	    {% endwith %}
+	    {% endwith %}
+    </li>
+    {% endspaceless %}
+{% endfor %}
+</ul>

@@ -5,22 +5,7 @@
 {% block plugin_content %}
 
 <ul>
-  {% for lang in languages %}
-  <li>
-    <h3>{{ lang }}</h3>
-	<ul>
-	  {% for page in pages %}
-	  {% ifequal page.lang lang %}
-	  <li>
-	    <a href="{{ page.get_absolute_url }}">{{ page.title_or_slug|escape }}</a>
-	  </li>
-	  {% endifequal %}
-	  {% endfor %}
-	</ul>
-  </li>
-  {% endfor %}
+  {% include "SiteMap/li_item.html" %}
 </ul>
-
-
 
 {% endblock %}

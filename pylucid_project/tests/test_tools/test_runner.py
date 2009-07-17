@@ -210,6 +210,8 @@ def run_tests(test_labels, verbosity=1, interactive=True, extra_tests=[]):
 
     pylucid_test_data.create_pylucid_test_data(site=None, verbosity=verbosity)
 
+
+
     suite = get_tests(test_labels, verbosity)
     if verbosity:
         print "Running tests:"
