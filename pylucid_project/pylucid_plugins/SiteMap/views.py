@@ -22,7 +22,7 @@
 __version__ = "$Rev$"
 
 
-from pylucid.models import PageTree, PageContent, Language
+from pylucid.models import PageTree, PageMeta, PageContent, Language
 from pylucid.decorators import render_to
 
 #HTML_TEMPLATE = (
@@ -39,7 +39,13 @@ def lucidTag(request):
     Create the sitemap tree
     TODO: We need a real tree here!
     """
+    current_lang = request.PYLUCID.lang_entry
+
     tree = PageTree.objects.get_tree()
+
+    pagemeta = PageMeta.objects.filter(lang=current_lang)
+
+    tree.add_related(pagemeta, field="page", attrname="pagemeta")
     tree.debug()
     return {"nodes": tree.get_first_nodes()}
 

@@ -94,7 +94,7 @@ class PageTreeManager(BaseModelManager):
     def get_tree(self):
         data = self.model.objects.all().order_by("position")
         tree = TreeGenerator(data)
-        tree.add_related(PageMeta, field="page", attrname="pagemeta")
+
         return tree
 
 #    def easy_create(self, cleaned_form_data, page_type):

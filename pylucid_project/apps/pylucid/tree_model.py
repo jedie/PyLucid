@@ -171,18 +171,19 @@ class TreeGenerator(object):
 
             print indent, "  ^- related objects %r added:" % self.related_objects
             for related_object_name in self.related_objects:
-                print indent, "     * %r: %r" % (related_object_name, getattr(node, related_object_name))
+                if hasattr(node, related_object_name):
+                    print indent, "     * %r: %r" % (related_object_name, getattr(node, related_object_name))
 
             if node.subnodes:
                 self.debug(node.subnodes)
 
-    def add_related(self, model_class, field, attrname):
+    def add_related(self, queryset, field, attrname):
         ids = self.nodes.keys()
         print ids
         del(ids[ids.index(None)]) # remove root entry
         lookup_kwargs = {"%s__in" % field: ids}
         print "lookup_kwargs:", lookup_kwargs
-        related_objects = model_class.objects.all().filter(**lookup_kwargs)
+        related_objects = queryset.filter(**lookup_kwargs)
         print "related objects:", related_objects
         for related_object in related_objects:
             parent_field = getattr(related_object, field)

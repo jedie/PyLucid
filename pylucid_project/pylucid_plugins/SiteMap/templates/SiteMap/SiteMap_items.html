@@ -1,5 +1,6 @@
 <ul>
 {% for node in nodes %}
+    {% if node.pagemeta %}
     <li>
         <a href="{{ node.pagemeta.get_absolute_url }}" title="{{ node.pagemeta.title }}" class="level_{{ node.level }}">{{ node.pagemeta.title_or_slug }}</a>
         {% for other_lang in node.pagemeta.get_other_languages %}
@@ -8,9 +9,10 @@
             <a href="{{ other_lang.get_absolute_url}}" title="{{ other_lang.lang.description }}: {{ other_lang.title_or_slug }}">{{ other_lang.lang.code }}</a>
             {% if forloop.last %}){% endif %}
         {% endfor %}
+	    {% endif %}
 	    {% with node.subnodes as nodes %}
 	        {% include "SiteMap/SiteMap_items.html" %}
 	    {% endwith %}
-    </li>
+    {% if node.pagemeta %}</li>{% endif %}
 {% endfor %}
 </ul>
