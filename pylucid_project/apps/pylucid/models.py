@@ -363,6 +363,9 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         null=True, blank=True,
     )
 
+    def get_other_languages(self):
+        return PageMeta.objects.all().filter(page=self.page).exclude(lang=self.lang)
+
     def title_or_slug(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
         return self.title or self.page.slug

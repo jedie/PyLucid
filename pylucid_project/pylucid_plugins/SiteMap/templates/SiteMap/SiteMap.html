@@ -1,11 +1,7 @@
 {% extends "pylucid/css_anchor_div.html" %}
 
-<!-- TODO: Update me -->
-
 {% block plugin_content %}
-
-<ul>
-  {% include "SiteMap/li_item.html" %}
-</ul>
-
+{% spaceless %}
+    {% include "SiteMap/SiteMap_items.html" %}
+{% endspaceless %}
 {% endblock %}
