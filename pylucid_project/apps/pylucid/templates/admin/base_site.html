@@ -13,37 +13,12 @@
 {% else %}
     <script type="text/javascript">var debug=false;</script>
 {% endif %}
-<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish.css" />
-<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/admin_design.css" />
-<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js"></script> 
-<style type="text/css">
-<!--
-/* setup superfish background urls */
-.sf-sub-indicator {
-    background: url('{{ PyLucid_media_url }}superfish/arrows-ffffff.png') no-repeat -10px -100px; /* 8-bit indexed alpha png. IE6 gets solid image only */
-}
-.sf-shadow ul {
-    background: url('{{ PyLucid_media_url }}superfish/shadow.png') no-repeat bottom right;
-}
-textarea {
-    width:85%;
-}
--->
-</style>
 
+{% include "admin_menu/includes/superfish_extrahead.html" %}
 
 <script type="text/javascript">
 MAX_ROWS = 25;
 $(document).ready(function(){
-  //
-  // initialise Superfish menu
-  // 
-  $('ul.sf-menu').superfish({ 
-      delay:       1000,                            // one second delay on mouseout 
-      animation:   {opacity:'show',height:'show'},  // fade-in and slide-down animation 
-      speed:       'fast'                           // faster animation speed
-  }); 
-
   //
   // Resize all textareas
   //
@@ -64,56 +39,7 @@ $(document).ready(function(){
 {% block pretitle %}
 <!-- app pretitle block start -->
 {% if request.user.is_authenticated %}
-<ul class="sf-menu">
-    <li class="current">
-        <a href="/" title="<< goto {{ current_site.name }} root page">&lt;&lt; {{ current_site.domain }}</a>
-    </li>
-    {% if not sites|length_is:"1" %}
-    <li>
-        <a>{% trans 'switch site' %}</a>
-        <ul>
-        {% for site in sites %}
-          <li>
-            {% ifequal site current_site %}
-                <strong> 
-                <a href="http://{{ site.domain }}{{ request.path }}" class="current_site" title="current used site">{{ site.name }}</a>
-                </strong>
-            {% else %}
-                <a href="http://{{ site.domain }}{{ request.path }}">{{ site.name }}</a>
-            {% endifequal %}
-           </li>
-        {% endfor %}
-        </ul>
-    </li>
-    {% endif %}
-    {% if user.is_staff %}
-    <li>
-        <a href="{% url admin_index %}">{% trans 'Django admin site' %}</a>
-    </li>
-    {% endif %}
-    <li>
-        <a href="{% url PyLucidAdmin-menu %}">{% trans 'PyLucid admin menu' %}</a>
-        <ul>
-            {% if user.is_superuser %}
-		    <li>
-		        <a>{% trans 'PyLucid install' %}</a>
-		        <ul>
-		            <li>
-		                <a href="{% url PyLucidAdmin-install_pylucid %}">{% trans 'PyLucid install' %}</a>
-		            </li>
-		            <li>
-		                <a href="{% url PyLucidAdmin-install_plugins %}">{% trans 'install PyLucid plugins' %}</a>
-		            </li>
-		        </ul>
-		    </li>
-		    <li>
-		        <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
-		    </li>
-	        {% endif %}
-		    {% lucidTag admin_menu.panel_extras %}
-	    </ul>
-    </li>
-</ul>
+{% include "admin_menu/includes/pylucid_admin_menu.html" %}
 {% endif %}
 <!-- app pretitle block end -->
 {% endblock %}

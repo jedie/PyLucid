@@ -1,8 +1,0 @@
-.sf-menu {
-    float: none;
-    clear: both;
-    height: 2.7em;
-}
-.sf-menu a { /* make the menu smaller */
-    padding: 0.4em 1em 0.4em 1em;
-}

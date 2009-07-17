@@ -4,44 +4,8 @@
 {% block plugin_content %}
 
 {% extrahead %}
-<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.css');" />
-<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/admin_design.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/admin_design.css');" />
-<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.js');" ></script>
-<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/pylucid_superfish_init.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/pylucid_superfish_init.js');" ></script>
-<style type="text/css">
-<!--
-/* setup superfish background urls */
-.sf-sub-indicator {
-    background: url('{{ PyLucid_media_url }}superfish/arrows-ffffff.png') no-repeat -10px -100px; /* 8-bit indexed alpha png. IE6 gets solid image only */
-}
-.sf-shadow ul {
-    background: url('{{ PyLucid_media_url }}superfish/shadow.png') no-repeat bottom right;
-}
--->
-</style>
+{% include "admin_menu/includes/superfish_extrahead.html" %}
 {% endextrahead %}
 
-<ul class="sf-menu">
-    <li class="current">{% lucidTag auth %}</li>
-    {% if perms.pylucid.change_pagecontent and perms.pylucid.change_pagemeta %}
-    <li>      
-        <a href="{{ edit_page_link }}" title="edit inline" id="edit_page" onclick="return get_pylucid_ajax_view('{{ edit_page_link }}');">{% trans 'edit page' %}</a>
-        <ul>
-            <li><a href="{{ edit_admin_panel_link }}">edit in admin panel</a></li>
-            <li><a href="{{ edit_meta_admin_panel_link }}">edit meta in admin panel</a></li>
-        </ul>
-    </li>
-    {% endif %}
-    {% if perms.pylucid.add_pagecontent and perms.pylucid.add_pagemeta %}
-    <li>
-        <a href="{{ new_page_link }}">{% trans 'new page' %}</a>
-    </li>
-    {% endif %}
-    <li>
-        <a href="{% url PyLucidAdmin-menu %}">{% trans 'PyLucid admin menu' %}</a>
-        <ul>
-            {% lucidTag admin_menu.panel_extras %}
-        </ul>
-    </li>
-</ul>
+{% include "admin_menu/includes/pylucid_admin_menu.html" %}
 {% endblock %}

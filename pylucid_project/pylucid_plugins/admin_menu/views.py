@@ -6,7 +6,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 
-from pylucid.models import PageTree
+from pylucid.models import PageTree, PluginPage
 from pylucid.decorators import render_to
 
 from pylucid_admin.models import PyLucidAdminPage
@@ -22,21 +22,26 @@ def lucidTag(request):
 
     pagetree = request.PYLUCID.pagetree # Current PageTree model instance
     if pagetree.page_type == PageTree.PLUGIN_TYPE:
-        edit_admin_panel_link = reverse("admin_pylucid_pagetree_change", args=(pagetree.id,))
+        # Plugin page -> edit PluginPage model entry
+        lang_entry = request.PYLUCID.lang_entry
+        pluginpage = PluginPage.objects.get(page=pagetree, lang=lang_entry)
+        edit_admin_panel_link = reverse("admin_pylucid_pluginpage_change", args=(pluginpage.id,))
     else:
+        # Content page -> edit PageContent model entry
         pagecontent = request.PYLUCID.pagecontent
         edit_admin_panel_link = reverse("admin_pylucid_pagecontent_change", args=(pagecontent.id,))
 
-    pagemeta = request.PYLUCID.pagemeta # Current PageMeta model instance
-    edit_meta_admin_panel_link = reverse("admin_pylucid_pagemeta_change", args=(pagemeta.id,))
-
     context = {
+        "inline": True,
+
+        "pagemeta_id": request.PYLUCID.pagemeta.id, # Current PageMeta model instance
+
         "logout_link": "?auth=logout",
 
         "edit_page_link": "?page_admin=inline_edit",
 
         "edit_admin_panel_link": edit_admin_panel_link,
-        "edit_meta_admin_panel_link": edit_meta_admin_panel_link,
+
         "new_page_link": reverse("admin_pylucid_pagecontent_add"),
     }
     return context
