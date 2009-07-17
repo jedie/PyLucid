@@ -54,5 +54,5 @@ class PyLucidRequestObjects(object):
         #self.pagetree - The current PageTree model instance
         #self.pagemeta - The current PageMeta model instance
         #self.pagecontent - PageContent instance, but only if the current page is not a PagePlugin!
-        #self.page_template - The globale page template as a string
-        #self.context - The globale context
+        #self.page_template - The global page template as a string
+        #self.context - The global context
