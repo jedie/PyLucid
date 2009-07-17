@@ -43,10 +43,11 @@ def lucidTag(request):
 
     tree = PageTree.objects.get_tree()
 
+    # insert all PageMeta objects into tree
     pagemeta = PageMeta.objects.filter(lang=current_lang)
-
     tree.add_related(pagemeta, field="page", attrname="pagemeta")
-    tree.debug()
+
+    #tree.debug()
     return {"nodes": tree.get_first_nodes()}
 
 #    languages = Language.objects.all()

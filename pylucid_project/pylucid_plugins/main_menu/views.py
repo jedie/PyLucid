@@ -21,26 +21,41 @@ __version__ = "$Rev: 1934 $"
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
-from pylucid.models import PageContent
+from pylucid.models import PageTree, PageMeta, PageContent
 from pylucid.decorators import render_to
 
 
 @render_to("main_menu/main_menu.html")
 def lucidTag(request):
-    try:
-        # Get the current models.PageContent instance
-        pagecontent = request.PYLUCID.pagecontent
-    except AttributeError:
-        # Plugin page???
-        return
+    current_lang = request.PYLUCID.lang_entry
+    current_pagetree = request.PYLUCID.pagetree
 
-#    request.page_msg(request.path)
-    if request.path == "/":
-        sub_pages = PageContent.objects.all().filter(page__parent=None, lang=pagecontent.lang)
-    else:
-        sub_pages = PageContent.objects.get_sub_pages(pagecontent)
+    tree = PageTree.objects.get_tree()
 
-    return {"sub_pages": sub_pages}
+    # activate the current pagetree node (for main menu template)
+    tree.set_current_node(current_pagetree.id)
+
+    # add all PageMeta objects into tree
+    pagemeta = PageMeta.objects
+    tree.add_related(pagemeta, field="page", attrname="pagemeta")
+
+    #tree.debug()
+    return {"nodes": tree.get_first_nodes()}
+
+#    try:
+#        # Get the current models.PageContent instance
+#        pagecontent = request.PYLUCID.pagecontent
+#    except AttributeError:
+#        # Plugin page???
+#        return
+#
+##    request.page_msg(request.path)
+#    if request.path == "/":
+#        sub_pages = PageContent.objects.all().filter(page__parent=None, lang=pagecontent.lang)
+#    else:
+#        sub_pages = PageContent.objects.get_sub_pages(pagecontent)
+#
+#    return {"sub_pages": sub_pages}
 
 
 
