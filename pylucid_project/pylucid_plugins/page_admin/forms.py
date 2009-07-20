@@ -71,8 +71,9 @@ class BasePageForm(forms.Form):
     permitViewGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitViewGroup'), help_text=_('Limit viewable to a group?'), required=False)
     permitEditGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitEditGroup'), help_text=_('Usergroup how can edit this page.'), required=False)
 
-    name = forms.CharField(label=_('Name'), help_text=_('Sort page name (for link text in e.g. menu)'), required=False)
     slug = forms.SlugField(label=_('Slug'), help_text=_('(for building URLs)'))
+
+    name = forms.CharField(label=_('Name'), help_text=_('Sort page name (for link text in e.g. menu)'), required=False)
     title = forms.CharField(label=_('Title'), help_text=_('A long page title (for e.g. page title or link title text)'), required=False)
 
     lang = forms.ModelChoiceField(queryset=Language.objects.all(), label=_('Language'))

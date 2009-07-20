@@ -35,3 +35,7 @@ AUTH_LOGOUT_GET_VIEW = "auth=logout"
 AUTH_GET_VIEW = "auth=login"
 AUTH_NEXT_URL = "%%(path)s?%s&next_url=%%(next_url)s" % AUTH_GET_VIEW
 # e.g.: settings.PYLUCID.AUTH_NEXT_URL % {"path": request.path, "next_url": url}
+
+
+UPDATE_LIST_FILENAME = "update_list"
+UPDATE_LIST_VIEWNAME = "get_update_list"

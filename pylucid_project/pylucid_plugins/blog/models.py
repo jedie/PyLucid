@@ -30,7 +30,7 @@ import tagging
 from tagging.fields import TagField
 
 from pylucid.shortcuts import page_msg_or_warn
-from pylucid.models import PageContent
+from pylucid.models import PageContent, Language
 from pylucid.markup.converter import apply_markup
 from pylucid.system.auto_model_info import UpdateInfoBaseModel
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
@@ -44,6 +44,7 @@ class BlogEntry(UpdateInfoBaseModel):
         help_text=_("The blog entry headline"), max_length=255
     )
     content = models.TextField(_('Content'))
+    lang = models.ForeignKey(Language)
     markup = models.IntegerField(
         max_length=1, choices=PageContent.MARKUP_CHOICES,
         help_text="the used markup language for this entry",

@@ -1,20 +1,23 @@
 {% extends "pylucid/css_anchor_div.html" %}
 
-<!-- TODO: Update me -->
-
 {% block plugin_content %}
-{% if from_cache %}<small>(from cache)</small>{% endif %}
 <table id="page_updates">
   <tr>
+    <th>no</th>
     <th>update time</th>
+    <th>type</th>
+    <th title="content language">lang</th>
     <th>page</th>
     <th>update by</th>
   </tr>
-  {% for page in pages %}
-  <tr>
-    <td>{{ page.lastupdatetime|date:_("DATETIME_FORMAT") }}</td>
-    <td><a href="{{ page.get_absolute_url }}">{% if page.title %}{{ page.title|escape }}{% else %}{{ page.page.slug|escape }}{% endif %}</a></td>
-    <td>{{ page.lastupdateby }}</td>
+  {% for item in update_list %}
+  <tr class="{% cycle 'row1' 'row2' %}">
+    <td>{{ forloop.counter }}</td>
+    <td>{{ item.lastupdatetime|date:_("DATETIME_FORMAT") }}</td>
+    <td>{{ item.content_type }}</td>
+    <td title="{{ item.language.description }}">{{ item.language.code }}</td>
+    <td><a href="{{ item.url }}">{{ item.title|escape }}</a></td>
+    <td>{{ item.lastupdateby }}</td>
   </tr>
   {% endfor %}
 </table>
