@@ -6,10 +6,15 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group, Permission
 
-from pylucid.tree_model import TreeManager, BaseTreeModel
+from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
 from pylucid.system.auto_model_info import UpdateInfoBaseModel
 
 class PyLucidAdminManager(TreeManager):
+    def get_tree_for_user(self, user):
+        filtered_items = self.get_for_user(user)
+        tree = TreeGenerator(data)
+        return tree
+
     def get_for_user(self, user):
         """
         returns only the menu items, for which the user has the rights.

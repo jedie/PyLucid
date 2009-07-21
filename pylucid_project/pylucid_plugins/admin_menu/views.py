@@ -47,6 +47,7 @@ def lucidTag(request):
     return context
 
 
+@render_to("admin_menu/admin_menu_items.html")
 def panel_extras(request):
     """
     returns all PyLucid admin menu items with can the current user use.
@@ -54,17 +55,9 @@ def panel_extras(request):
     
     Usage in template:
         {% lucidTag admin_menu.panel_extras %}
-        
-    TODO: Use a tree generator to build a real tree menu
     """
-    items = PyLucidAdminPage.objects.get_for_user(request.user)
-    output = []
-    for item in items:
-        if not item.get_absolute_url():
-            # FIXME: Skip the section entries
-            # TODO: This should be removed, if a tree can be build!
-            continue
-        output.append(
-            '<li><a href="%s" title="%s">%s</a></li>' % (item.get_absolute_url(), item.title, item.name)
-        )
-    return "\n".join(output)
+    tree = PyLucidAdminPage.objects.get_tree()
+    #tree.debug()
+    nodes = tree.get_first_nodes()
+    return {"nodes":nodes}
+

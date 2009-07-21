@@ -1,0 +1,10 @@
+{% for node in nodes %}
+<li>
+    <a href="{{ node.db_instance.get_absolute_url }}" title="{{ node.db_instance.title }}">{{ node.db_instance.name }}</a>
+    {% with node.subnodes as nodes %}
+        {% if nodes %}
+            <ul>{% include "admin_menu/admin_menu_items.html" %}</ul>
+        {% endif %}
+    {% endwith %}
+</li>
+{% endfor %}
