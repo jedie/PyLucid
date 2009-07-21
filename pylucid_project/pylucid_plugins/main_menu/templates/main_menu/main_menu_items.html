@@ -1,15 +1,16 @@
-<ul>
 {% for node in nodes %}
-    {% if node.visible %}
+    {% if node.visible and node.pagemeta.name %}
 	    <li>
 	        {% if node.current %}<strong>{% endif %}
 	        <a href="{{ node.pagemeta.get_absolute_url }}" title="{{ node.pagemeta.title }}" class="level_{{ node.level }}{% if node.active %} active{% endif %}{% if node.current %} current{% endif %}">{{ node.pagemeta.name }}</a>
 	        {% if node.current %}</strong>{% endif %}
 
 	        {% with node.subnodes as nodes %}
-	            {% include "main_menu/main_menu_items.html" %}
+	           {% if nodes %}<ul>
+	           {% include "main_menu/main_menu_items.html" %}
+	           </ul>{% endif %}
 	        {% endwith %}
+	        
 	    </li>
     {% endif %}
 {% endfor %}
-</ul>
