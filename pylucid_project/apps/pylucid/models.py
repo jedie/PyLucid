@@ -485,16 +485,7 @@ class PageContentManager(BaseModelManager):
     inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """
-    def get_sub_pages(self, pagecontent):
-        """
-        returns a list of all sub pages for the given PageContent instance
-        TODO: filter showlinks and permit settings
-        TODO: filter current site
-        """
-        current_lang = pagecontent.lang
-        current_page = pagecontent.page
-        sub_pages = PageContent.objects.all().filter(page__parent=current_page, lang=current_lang)
-        return sub_pages
+    pass
 
 
 class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
