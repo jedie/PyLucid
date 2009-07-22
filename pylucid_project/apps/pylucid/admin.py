@@ -68,8 +68,8 @@ pylucid_admin_site.register(models.Language, LanguageAdmin)
 
 
 class PageMetaAdmin(VersionAdmin):
-    list_display = ("id", "title_or_slug", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
-    list_display_links = ("title_or_slug", "get_absolute_url")
+    list_display = ("id", "get_title", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
+    list_display_links = ("get_title", "get_absolute_url")
     list_filter = ("lang", "keywords", "createby", "lastupdateby")
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
@@ -81,11 +81,11 @@ class PageContentInline(admin.StackedInline):
     model = models.PageContent
 
 class PageContentAdmin(VersionAdmin):
-    list_display = ("id", "title_or_slug", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
-    list_display_links = ("title_or_slug", "get_absolute_url")
+    list_display = ("id", "get_title", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
+    list_display_links = ("get_title", "get_absolute_url")
     list_filter = ("lang", "markup", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
-    search_fields = ("content", "title_or_slug", "get_absolute_url")
+    search_fields = ("content", "get_title", "get_absolute_url")
 
 pylucid_admin_site.register(models.PageContent, PageContentAdmin)
 

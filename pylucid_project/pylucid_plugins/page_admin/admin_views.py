@@ -102,29 +102,34 @@ def new_content_page(request):
 def new_plugin_page(request):
     """
     Create a new plugin page.
+    TODO: add in form all PageMeta fields in all existing languages.
     """
     if request.method == "POST":
         form = PluginPageForm(request.POST)
         if form.is_valid():
             cleaned_data = form.cleaned_data
             sid = transaction.savepoint()
+            created_pluginpages = []
             try:
                 pagetree_instance = PageTree.objects.easy_create(cleaned_data,
                     extra={"page_type": PageTree.PLUGIN_TYPE}
                 )
-                pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
-                    extra={"page": pagetree_instance}
-                )
-                pagecontent_instance = PluginPage.objects.easy_create(cleaned_data,
-                    extra={"page": pagetree_instance, "pagemeta": pagemeta_instance}
-                )
+                # Create plugin page in every language
+                for lang in Language.objects.all():
+                    pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
+                        extra={"page": pagetree_instance, "lang": lang}
+                    )
+                    pluginpage_instance = PluginPage.objects.easy_create(cleaned_data,
+                        extra={"page": pagetree_instance, "pagemeta": pagemeta_instance, "lang": lang}
+                    )
+                    created_pluginpages.append(pluginpage_instance)
             except:
                 transaction.savepoint_rollback(sid)
                 raise
             else:
                 transaction.savepoint_commit(sid)
-                request.page_msg("New page %r created." % pagecontent_instance)
-                return http.HttpResponseRedirect(pagecontent_instance.get_absolute_url())
+                request.page_msg("New plugin page %r created." % created_pluginpages)
+                return http.HttpResponseRedirect(pagetree_instance.get_absolute_url())
     else:
         form = PluginPageForm()
 

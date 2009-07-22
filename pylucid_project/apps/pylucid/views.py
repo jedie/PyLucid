@@ -89,7 +89,7 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     context = RequestContext(request, {
         "pagetree": pagetree,
         "template_name": template_name,
-        "page_title": pagemeta.title_or_slug(),
+        "page_title": pagemeta.get_title(),
         "page_keywords": pagemeta.keywords,
         "page_description": pagemeta.description,
         "page_robots": pagemeta.robots,

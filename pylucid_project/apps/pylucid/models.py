@@ -94,7 +94,7 @@ class PageTreeManager(BaseModelManager):
         get_or_create() method, witch expected a request object as the first argument.
     """
     def get_tree(self):
-        data = self.model.objects.all().order_by("position")
+        data = self.model.on_site.all().order_by("position")
         tree = TreeGenerator(data)
         return tree
 
@@ -115,11 +115,11 @@ class PageTreeManager(BaseModelManager):
 
     def get_root_page(self):
         """ returns the 'first' page tree entry for a '/'-root url """
-        queryset = PageTree.on_site.all().filter(parent=None).order_by("position")
+        queryset = self.model.on_site.all().filter(parent=None).order_by("position")
         try:
             root_page = queryset[0]
         except IndexError, err:
-            if PageTree.on_site.count() == 0:
+            if self.model.on_site.count() == 0:
                 #request.page_msg.error(_("There exist no PageTree items! Have you install PyLucid?"))
                 raise PageTree.DoesNotExist("There exist no PageTree items! Have you install PyLucid?")
 #                raise 
@@ -204,7 +204,7 @@ class PageTreeManager(BaseModelManager):
 
         pagemeta = self.get_pagemeta(request, pagetree)
         url = pagemeta.get_absolute_url()
-        title = pagemeta.title_or_slug()
+        title = pagemeta.get_title()
 
         backlist = [{"url": url, "title": title}]
 
@@ -367,9 +367,12 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     def get_other_languages(self):
         return PageMeta.objects.all().filter(page=self.page).exclude(lang=self.lang)
 
-    def title_or_slug(self):
+    def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
-        return self.title or self.page.slug
+        return self.title or self.get_name()
+
+    def get_name(self):
+        return self.name or self.page.slug
 
     def __unicode__(self):
         return u"PageMeta for page: '%s' (lang: '%s')" % (self.page.slug, self.lang.code)
@@ -443,7 +446,7 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         help_text="Filename of the urls.py"
     )
 
-    def title_or_slug(self):
+    def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
         return self.pagemeta.title or self.page.slug
 
@@ -463,7 +466,7 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         return super(PluginPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"PluginPage '%s' (page: %s)" % (self.app_label, self.page)
+        return u"PluginPage '%s' (%s)" % (self.app_label, self.get_absolute_url())
 
     class Meta:
         unique_together = (("page", "lang"),)
@@ -544,10 +547,10 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
             "user_name": self.lastupdateby,
             "lang": self.lang,
             "object_url": self.get_absolute_url(),
-            "title": self.title_or_slug()
+            "title": self.get_title()
         }
 
-    def title_or_slug(self):
+    def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
         return self.pagemeta.title or self.page.slug
 

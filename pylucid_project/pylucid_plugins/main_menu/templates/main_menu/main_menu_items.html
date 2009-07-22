@@ -1,8 +1,8 @@
 {% for node in nodes %}
-    {% if node.visible and node.pagemeta.name %}
+    {% if node.visible and node.pagemeta %}
 	    <li>
 	        {% if node.current %}<strong>{% endif %}
-	        <a href="{{ node.pagemeta.get_absolute_url }}" title="{{ node.pagemeta.title }}" class="level_{{ node.level }}{% if node.active %} active{% endif %}{% if node.current %} current{% endif %}">{{ node.pagemeta.name }}</a>
+	        <a href="{{ node.pagemeta.get_absolute_url }}" title="{{ node.pagemeta.get_title }}" class="level_{{ node.level }}{% if node.active %} active{% endif %}{% if node.current %} current{% endif %}">{{ node.pagemeta.get_name }}</a>
 	        {% if node.current %}</strong>{% endif %}
 
 	        {% with node.subnodes as nodes %}

@@ -36,26 +36,12 @@ def lucidTag(request):
     tree.set_current_node(current_pagetree.id)
 
     # add all PageMeta objects into tree
-    pagemeta = PageMeta.objects
+    pagemeta = PageMeta.objects.all().filter(lang=current_lang)
     tree.add_related(pagemeta, field="page", attrname="pagemeta")
-
     #tree.debug()
+
     return {"nodes": tree.get_first_nodes()}
 
-#    try:
-#        # Get the current models.PageContent instance
-#        pagecontent = request.PYLUCID.pagecontent
-#    except AttributeError:
-#        # Plugin page???
-#        return
-#
-##    request.page_msg(request.path)
-#    if request.path == "/":
-#        sub_pages = PageContent.objects.all().filter(page__parent=None, lang=pagecontent.lang)
-#    else:
-#        sub_pages = PageContent.objects.get_sub_pages(pagecontent)
-#
-#    return {"sub_pages": sub_pages}
 
 
 
