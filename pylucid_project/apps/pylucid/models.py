@@ -50,6 +50,7 @@ from pylucid.fields import ColorValueField
 from pylucid.system import headfile
 from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
 
+from pylucid_plugins import page_update_list
 
 # Create a list of all settings.INSTALLED_APPS witch can resolve the url "/"
 # Used in PluginPage for the app label choices
@@ -510,6 +511,16 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     content = models.TextField(blank=True, help_text="The CMS page content.")
     markup = models.IntegerField(db_column="markup_id", max_length=1, choices=MARKUP_CHOICES)
 
+    def get_update_info(self):
+        """ update info for page_update_list.models.UpdateJournal used by page_update_list.save_receiver """
+        return {
+            "lastupdatetime": self.lastupdatetime,
+            "user_name": self.lastupdateby,
+            "lang": self.lang,
+            "object_url": self.get_absolute_url(),
+            "title": self.title_or_slug()
+        }
+
     def title_or_slug(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
         return self.pagemeta.title or self.page.slug
@@ -529,6 +540,8 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageContent)
+
+signals.post_save.connect(receiver=page_update_list.save_receiver, sender=PageContent)
 
 #------------------------------------------------------------------------------
 

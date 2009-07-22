@@ -18,9 +18,10 @@
 
 from django.db import models
 from django.contrib import admin
+from django.core import urlresolvers
+from django.db.models import signals
 from django.utils.html import strip_tags
 from django.contrib.auth.models import User
-from django.core import urlresolvers
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 from django.template.defaultfilters import slugify
@@ -29,12 +30,15 @@ from django.template.defaultfilters import slugify
 import tagging
 from tagging.fields import TagField
 
+from pylucid_plugins import page_update_list
+
 from pylucid.shortcuts import page_msg_or_warn
 from pylucid.models import PageContent, Language
 from pylucid.markup.converter import apply_markup
 from pylucid.system.auto_model_info import UpdateInfoBaseModel
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
 #from PyLucid.models import Page
+
 
 class BlogEntry(UpdateInfoBaseModel):
     """
@@ -53,6 +57,19 @@ class BlogEntry(UpdateInfoBaseModel):
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"
     )
+
+    def get_update_info(self):
+        """ update info for page_update_list.models.UpdateJournal used by page_update_list.save_receiver """
+        if not self.is_public: # Don't list non public articles
+            return
+
+        return {
+            "lastupdatetime": self.lastupdatetime,
+            "user_name": self.lastupdateby,
+            "lang": self.lang,
+            "object_url": self.get_absolute_url(),
+            "title": self.headline,
+        }
 
     def get_absolute_url(self):
         url_title = slugify(self.headline)
@@ -73,6 +90,10 @@ class BlogEntry(UpdateInfoBaseModel):
 
     class Meta:
         ordering = ('-createtime', '-lastupdatetime')
+
+
+signals.post_save.connect(receiver=page_update_list.save_receiver, sender=BlogEntry)
+
 
 try:
     tagging.register(BlogEntry)
