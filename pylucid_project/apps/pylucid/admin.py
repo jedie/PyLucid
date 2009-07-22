@@ -29,25 +29,7 @@ from pylucid import models
 from pylucid_admin.admin import pylucid_admin_site
 
 
-
-if settings.DEBUG:
-    class PermissionAdmin(admin.ModelAdmin):
-        """ django auth Permission """
-        list_display = ("id", "name", "content_type", "codename")
-        list_display_links = ("name", "codename")
-        list_filter = ("content_type",)
-    pylucid_admin_site.register(Permission, PermissionAdmin)
-
-    class ContentTypeAdmin(admin.ModelAdmin):
-        """ django ContentType """
-        list_display = list_display_links = ("id", "app_label", "name", "model")
-        list_filter = ("app_label",)
-    pylucid_admin_site.register(ContentType, ContentTypeAdmin)
-
 #------------------------------------------------------------------------------
-
-
-
 
 class PageTreeAdmin(VersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}    

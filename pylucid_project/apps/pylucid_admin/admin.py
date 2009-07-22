@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.conf.urls.defaults import patterns, url, include
@@ -50,6 +51,14 @@ class PyLucidAdminSite(admin.AdminSite):
 #        )
 #        return my_urls + urls
 
+    def register(self, *args, **kwargs):
+        """ FIXME: Don't know why some models are already registered """
+        try:
+            super(PyLucidAdminSite, self).register(*args, **kwargs)
+        except AlreadyRegistered, err:
+            import traceback
+            traceback.print_exc()
+
     def logout(self, request):
         url = "/?" + settings.PYLUCID.AUTH_LOGOUT_GET_VIEW
         return HttpResponseRedirect(url)
@@ -68,9 +77,31 @@ class PyLucidAdminSite(admin.AdminSite):
 
 pylucid_admin_site = PyLucidAdminSite()
 
-# FIXME: We used our own admin site, so we must register all django contrib apps again :(
-pylucid_admin_site.register(Group, GroupAdmin)
-pylucid_admin_site.register(User, UserAdmin)
+# Use all django contrib model admins in our own admin site ;)
+pylucid_admin_site._registry = admin.site._registry
+
+#-----------------------------------------------------------------------------
+
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User, Permission
+from django.contrib.auth.admin import UserAdmin
+
+if settings.DEBUG:
+    class PermissionAdmin(admin.ModelAdmin):
+        """ django auth Permission """
+        list_display = ("id", "name", "content_type", "codename")
+        list_display_links = ("name", "codename")
+        list_filter = ("content_type",)
+    pylucid_admin_site.register(Permission, PermissionAdmin)
+
+    class ContentTypeAdmin(admin.ModelAdmin):
+        """ django ContentType """
+        list_display = list_display_links = ("id", "app_label", "name", "model")
+        list_filter = ("app_label",)
+    pylucid_admin_site.register(ContentType, ContentTypeAdmin)
+
+
+#-----------------------------------------------------------------------------
 
 
 class PyLucidAdminPageAdmin(VersionAdmin):
