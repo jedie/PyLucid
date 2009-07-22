@@ -289,7 +289,6 @@ class TreeGenerator(object):
 class TreeManager(models.Manager):
     def get_tree(self):
         data = self.model.objects.all()
-        print data
         tree = TreeGenerator(data)
         return tree
 
