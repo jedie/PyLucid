@@ -5,7 +5,6 @@
 
 {% include "blog/includes/tagcloud.html" %}
 
-<h2>{{ entry.headline }}</h2>
 <small class="headline_info">
     {% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.
 </small>
@@ -42,7 +41,9 @@
         <legend class="headline">
           {% if comment.user_url %}<a href="{{ comment.user_url }}" title="{{ comment.user_url }}">{% endif %}
             {{ comment.user_name }}
-            {% if comment.user_url %}</a>{% endif %}<br />
+            {% if comment.user_url %}</a>{% endif %}
+            : {{ comment.title }}
+            <br />
             <small class="headline_info">
               {% blocktrans with comment.submit_date|timesince as time %}Before {{ time }}{% endblocktrans %}
               IP: {{ comment.ip_address }}

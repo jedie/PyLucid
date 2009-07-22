@@ -23,6 +23,7 @@ import warnings
 
 from django import http
 from django.conf import settings
+from django.template import loader
 from django.http import HttpResponse
 from django.core import urlresolvers
 from django.utils.encoding import smart_str
@@ -151,10 +152,9 @@ def context_middleware_request(request):
     get from the template all context middleware plugins and call the request method.
     """
     context = request.PYLUCID.context
-    page_template = request.PYLUCID.page_template
-
     context["context_middlewares"] = {}
 
+    page_template = request.PYLUCID.page_template # page template content
     plugin_names = TAG_RE.findall(page_template)
     for plugin_name in plugin_names:
         # Get the middleware class from the plugin

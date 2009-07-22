@@ -80,22 +80,15 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     pagemeta = PageTree.objects.get_pagemeta(request)
     request.PYLUCID.pagemeta = pagemeta
 
-    # Get template content and add it to PyLucid objects
-    template_name = pagetree.design.template
+    # Create initial context object
+    context = RequestContext(request)
+    request.PYLUCID.context = context
+
+    # Add the page template content to the pylucid objects
+    # Used to find context middleware plugins and in _render_template()
+    template_name = context["template_name"] # Added in pylucid.context_processors
     page_template, origin = loader.find_template_source(template_name)
     request.PYLUCID.page_template = page_template
-
-    # Create initial context object
-    context = RequestContext(request, {
-        "pagetree": pagetree,
-        "template_name": template_name,
-        "page_title": pagemeta.get_title(),
-        "page_keywords": pagemeta.keywords,
-        "page_description": pagemeta.description,
-        "page_robots": pagemeta.robots,
-        "page_language": pagemeta.lang.code,
-    })
-    request.PYLUCID.context = context
 
     # Get all plugin context middlewares from the template and add them to the context
     pylucid_plugin.context_middleware_request(request)

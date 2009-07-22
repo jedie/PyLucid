@@ -5,7 +5,6 @@ setup some "static" variables
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -59,65 +58,23 @@ def pylucid(request):
         "debug": settings.DEBUG,
     }
 
-    if getattr(request, "plugin_name", None):
+    pagetree = getattr(request.PYLUCID, "pagetree", None)
+    if pagetree:
+        template_name = pagetree.design.template
+        context["template_name"] = template_name
+
+    pagemeta = getattr(request.PYLUCID, "pagemeta", None)
+    if pagemeta:
+        context.update({
+            "page_title": pagemeta.get_title(),
+            "page_keywords": pagemeta.keywords,
+            "page_description": pagemeta.description,
+            "page_robots": pagemeta.robots,
+            "page_language": pagemeta.lang.code,
+        })
+
+    if getattr(request, "plugin_name", None) != None:
         # Add css anchor info
         context = _add_plugin_info(request, context)
 
     return context
-
-#
-#def add_dynamic_context(request, context):
-#    """
-#    Add some dynamic stuff into the context.
-#    """
-#
-#    # Put the language information into the context, if it exists.
-#    # see: http://www.djangoproject.com/documentation/i18n/
-#    if hasattr(request, 'session') and 'django_language' in request.session:
-#        context['django_language']=request.session['django_language']
-#    else:
-#        context['django_language']=''
-#
-#
-#def add_css_tag(context, content, plugin_name, method_name):
-#    """
-#    Add a unique CSS-ID and a class name defined in the settings.py
-#    """
-#    id = plugin_name + u"_" + method_name
-#    id = makeUnique(id, context["CSS_ID_list"])
-#    context["CSS_ID_list"].append(id)
-#    class_name = getattr(settings, "CSS_PLUGIN_CLASS_NAME", "PyLucidPlugins")
-#
-#    try:
-#        return (
-#            u'<div class="%(c)s %(p)s" id="%(id)s">\n'
-#            '%(content)s\n'
-#            '</div>\n'
-#        ) % {
-#            "c": class_name, "p": plugin_name, "m": method_name,
-#            "id": id, "content": content,
-#        }
-#    except UnicodeDecodeError:
-#        # FIXME: In some case (with mysql_old) we have trouble here.
-#        # I get this traceback on www.jensdiemer.de like this:
-#        #
-#        #Traceback (most recent call last):
-#        #File ".../django/template/__init__.py" in render_node
-#        #    750. result = node.render(context)
-#        #File ".../PyLucid/defaulttags/lucidTag.py" in render
-#        #    102. content = self._add_unique_div(context, content)
-#        #File ".../PyLucid/defaulttags/lucidTag.py" in _add_unique_div
-#        #    73. return u'<div class="%s" id="%s">\n%s\n</div>\n' % (
-#        #
-#        #UnicodeDecodeError at /FH-D-sseldorf/
-#        #'ascii' codec can't decode byte 0xc3 in position 55: ordinal not in range(128)
-#        #
-#        #content += "UnicodeDecodeError hack active!"
-#        return (
-#            '<div class="%(c)s %(p)s" id="%(id)s">\n'
-#            '%(content)s\n'
-#            '</div>\n'
-#        ) % {
-#            "c": class_name, "p": str(plugin_name), "m": str(method_name),
-#            "id": str(id), "content": content,
-#        }

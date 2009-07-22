@@ -36,6 +36,7 @@ from django import http
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
+from django.contrib.comments.views.comments import post_comment
 
 from pylucid.decorators import render_to
 
@@ -70,7 +71,19 @@ def tag_view(request, tag):
 @render_to("blog/detail_view.html")
 def detail_view(request, id, title):
     entry = BlogEntry.objects.get(pk=id)
+
+    # Add link to the breadcrumbs ;)
+    context = request.PYLUCID.context
+    breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+    breadcrumb_context_middlewares.add_link(title=entry.headline, url=entry.get_absolute_url())
+
+    if request.POST:
+        # Use django.contrib.comments.views.comments.post_comment to hanlde a comment
+        # post.
+        return post_comment(request, next=entry.get_absolute_url())
+
     context = {
+        "page_title": entry.headline, # Change the global title with blog headline
         "entry": entry,
         "tag_cloud": Tag.objects.cloud_for_model(BlogEntry, steps=2),
     }

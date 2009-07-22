@@ -6,3 +6,7 @@ def get_model():
 
 def get_form():
     return PyLucidCommentForm
+
+def get_form_target():
+    # The Plugin must handle this
+    return ""
