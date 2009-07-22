@@ -19,16 +19,22 @@
 __version__ = "$Rev$"
 
 
-from pylucid.models import PageContent
+from pylucid.models import PageMeta
 from pylucid.decorators import render_to
 
 
 @render_to("sub_menu/sub_menu.html")
 def lucidTag(request):
+    """
+    build the sub menu with all existing sub pages
+    TODO: filter showlinks and permit settings
+    TODO: sort by PageTree position!
+    """
     # Get the current models.PageContent instance
-    pagecontent = request.PYLUCID.pagecontent
+    pagetree = request.PYLUCID.pagetree
+    current_lang = request.PYLUCID.lang_entry
 
-    sub_pages = PageContent.objects.get_sub_pages(pagecontent)
+    sub_pages = PageMeta.objects.all().filter(page__parent=pagetree, lang=current_lang)
 
     return {"sub_pages": sub_pages}
 
