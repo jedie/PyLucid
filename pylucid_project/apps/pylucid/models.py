@@ -43,12 +43,13 @@ from django_tools.template import render
 from django_tools import model_utils
 
 from pylucid_project.utils import crypt, form_utils
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid.system.auto_model_info import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
 from pylucid.shortcuts import user_message_or_warn
 from pylucid.fields import ColorValueField
 from pylucid.system import headfile
-from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
 
 from pylucid_plugins import page_update_list
 
@@ -394,6 +395,25 @@ class PluginPageManager(BaseModelManager):
             self._APP_CHOICES = [(app, app) for app in root_apps]
         return self._APP_CHOICES
 
+    def reverse(self, plugin_name, viewname, args=(), kwargs={}):
+        """
+        reverse a plugin url.
+        Please note: this will always use the first PluginPage entry as url prefix!
+        """
+        # get the app label from 
+        plugin_instance = PYLUCID_PLUGINS["blog"]
+        app_label = plugin_instance.pkg_string
+
+        # Get the first PluginPage entry for this plugin
+        queryset = PluginPage.objects.all()
+        queryset = queryset.filter(page__site=Site.objects.get_current())
+        queryset = queryset.filter(app_label=app_label)
+        plugin_page = queryset[0]
+
+        url_prefix = plugin_page.get_absolute_url()
+        plugin_url_resolver = plugin_instance.get_plugin_url_resolver(url_prefix, plugin_page.urls_filename)
+        return plugin_url_resolver.reverse(viewname, *args, **kwargs)
+
 class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     """
     A plugin page
@@ -429,6 +449,12 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
     def get_plugin_name(self):
         return self.app_label.split(".")[-1]
+
+    def get_plugin(self):
+        """ returns pylucid_project.system.pylucid_plugins instance """
+        plugin_name = self.get_plugin_name()
+        plugin_instance = PYLUCID_PLUGINS[plugin_name]
+        return plugin_instance
 
     def save(self, *args, **kwargs):
         if not self.page.page_type == self.page.PLUGIN_TYPE:

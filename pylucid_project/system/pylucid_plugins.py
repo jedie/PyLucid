@@ -1,13 +1,18 @@
 # coding: utf-8
 
+
 import os
 import sys
 
 from django.conf import settings
 from django.core import urlresolvers
 from django.utils.importlib import import_module
+from django.conf.urls.defaults import patterns, url
 
 PYLUCID_PLUGINS = None
+
+_PLUGIN_OBJ_CACHE = {} # cache for PyLucidPlugin.get_plugin_object()
+_PLUGIN_URL_CACHE = {} # cache for PyLucidPlugin.get_prefix_urlpatterns()
 
 
 
@@ -35,22 +40,32 @@ class PyLucidPlugin(object):
             return None
 
     def get_plugin_object(self, mod_name, obj_name):
-        pkg = ".".join([self.pkg_string, mod_name])
+        """ return a object from this plugin """
+        mod_pkg = ".".join([self.pkg_string, mod_name])
+
+        cache_key = mod_pkg + obj_name
+        if cache_key in _PLUGIN_OBJ_CACHE:
+            #print "use _PLUGIN_OBJ_CACHE[%r]" % cache_key
+            return _PLUGIN_OBJ_CACHE[cache_key]
+
         try:
-            mod = import_module(pkg)
+            mod = import_module(mod_pkg)
         except ImportError, err:
             if str(err) == "No module named admin_urls":
-                raise self.ObjectNotFound("Can't import %r: %s" % (pkg, err))
+                raise self.ObjectNotFound("Can't import %r: %s" % (mod_pkg, err))
 
             # insert more information into the traceback
             etype, evalue, etb = sys.exc_info()
-            evalue = etype('Plugin %r error while importing %r: %s' % (self.name, pkg, evalue))
+            evalue = etype('Plugin %r error while importing %r: %s' % (self.name, mod_pkg, evalue))
             raise etype, evalue, etb
 
         try:
             object = getattr(mod, obj_name)
         except AttributeError, err:
             raise self.ObjectNotFound(err)
+
+        #print "put in _PLUGIN_OBJ_CACHE[%r]" % cache_key
+        _PLUGIN_OBJ_CACHE[cache_key] = object
 
         return object
 
@@ -76,6 +91,58 @@ class PyLucidPlugin(object):
 #        del(request.method_name)
 
         return response
+
+    def get_urlpatterns(self, urls_filename):
+        """ returns the plugin urlpatterns """
+        if "." in urls_filename:
+            urls_filename = os.path.splitext(urls_filename)[0]
+
+        raw_plugin_urlpatterns = self.get_plugin_object(mod_name=urls_filename, obj_name="urlpatterns")
+        return raw_plugin_urlpatterns
+
+
+    def get_prefix_urlpatterns(self, url_prefix, urls_filename):
+        """ include the plugin urlpatterns with the url prefix """
+        if not url_prefix.endswith("/"):
+            url_prefix += "/"
+
+        cache_key = self.pkg_string + url_prefix
+        if cache_key in _PLUGIN_URL_CACHE:
+            #print "use _PLUGIN_URL_CACHE[%r]" % cache_key
+            return _PLUGIN_URL_CACHE[cache_key]
+
+        raw_plugin_urlpatterns = self.get_urlpatterns(urls_filename)
+
+        # like django.conf.urls.defaults.include
+        plugin_urlpatterns = patterns('', url(url_prefix, [raw_plugin_urlpatterns]))
+
+        #print "put in _PLUGIN_URL_CACHE[%r]" % cache_key
+        _PLUGIN_URL_CACHE[cache_key] = plugin_urlpatterns
+
+        return plugin_urlpatterns
+
+
+    def get_plugin_url_resolver(self, url_prefix, urls_filename="urls"):
+        prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
+
+        plugin_url_resolver = urlresolvers.RegexURLResolver(r'^/', prefix_urlpatterns)
+
+        #for key, value in plugin_url_resolver.reverse_dict.items(): print key, value
+
+        return plugin_url_resolver
+
+    def get_merged_url_resolver(self, url_prefix, urls_filename="urls"):
+        """ Merge the globale url patterns with the plugin one, so the plugin can reverse all urls """
+        prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
+
+        ROOT_URLCONF_PATTERNS = import_module(settings.ROOT_URLCONF).urlpatterns
+        merged_urlpatterns = ROOT_URLCONF_PATTERNS + prefix_urlpatterns
+
+        # Make a own url resolver
+        merged_url_resolver = urlresolvers.RegexURLResolver(r'^/', merged_urlpatterns)
+        return merged_url_resolver
+
+
 
 
 class PyLucidPlugins(dict):

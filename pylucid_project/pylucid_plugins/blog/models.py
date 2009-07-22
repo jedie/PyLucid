@@ -33,7 +33,7 @@ from tagging.fields import TagField
 from pylucid_plugins import page_update_list
 
 from pylucid.shortcuts import page_msg_or_warn
-from pylucid.models import PageContent, Language
+from pylucid.models import PageContent, Language, PluginPage
 from pylucid.markup.converter import apply_markup
 from pylucid.system.auto_model_info import UpdateInfoBaseModel
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
@@ -73,11 +73,14 @@ class BlogEntry(UpdateInfoBaseModel):
 
     def get_absolute_url(self):
         url_title = slugify(self.headline)
+        viewname = "Blog-detail_view"
+        reverse_kwargs = {"id": self.pk, "title":url_title}
         try:
-            return urlresolvers.reverse('Blog-detail_view', kwargs={"id": self.pk, "title":url_title})
+            # This only worked inner lucidTag
+            return urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
         except urlresolvers.NoReverseMatch:
-            # FIXME: plugin urls can reverse in every situation :(
-            return "#FIXME"
+            # Use the first PluginPage instance
+            return PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
 
     def get_html(self):
         """
