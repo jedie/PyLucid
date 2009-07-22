@@ -155,10 +155,10 @@ class PyLucidPlugins(dict):
 
     def get_admin_urls(self):
         """
-        return all existing plugin.admin_urls
+        return all existing plugin.admin_urls prefixed with the plugin name.
         Used in apps/pylucid_admin/urls.py
         """
-        urls = None
+        urls = []
         for plugin_name, plugin_instance in self.iteritems():
             try:
                 admin_urls = plugin_instance.get_plugin_object(
@@ -167,15 +167,12 @@ class PyLucidPlugins(dict):
             except plugin_instance.ObjectNotFound, err:
                 continue
 
-            if urls == None:
-                urls = admin_urls
-            else:
-                urls += admin_urls
+            url_prefix = plugin_name + "/"
 
-        if urls == None:
-            return ()
-        else:
-            return urls
+            # like django.conf.urls.defaults.include, use plugin name as url prefix
+            urls += patterns('', url(url_prefix, [admin_urls]))
+
+        return urls
 
     def add(self, fs_path, pkg_prefix):
         """ Add all plugins in one filesystem path/packages """

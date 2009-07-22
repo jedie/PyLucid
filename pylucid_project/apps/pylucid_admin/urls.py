@@ -21,12 +21,10 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid.decorators import superuser_only
 
-_admin_urls = PYLUCID_PLUGINS.get_admin_urls()
-
 urlpatterns = patterns('',
     url(r'^menu/$', views.menu, name='PyLucidAdmin-menu'),
 
-    url(r'^pylucid/', include(_admin_urls)),
+    url(r'^plugins/', include(PYLUCID_PLUGINS.get_admin_urls())),
 
     url(r'^install/pylucid/$', superuser_only(views.install_pylucid), name='PyLucidAdmin-install_pylucid'),
     url(r'^install/plugins/$', superuser_only(views.install_plugins), name='PyLucidAdmin-install_plugins'),
