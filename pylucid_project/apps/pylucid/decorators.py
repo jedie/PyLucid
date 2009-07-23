@@ -100,7 +100,7 @@ def superuser_only(view_function):
     return _inner
 
 
-def render_to(template_name=None):
+def render_to(template_name=None, debug=False):
     """
     Based on the decorators from django-annoying.
 
@@ -122,32 +122,27 @@ def render_to(template_name=None):
     """
     def renderer(function):
         def wrapper(request, *args, **kwargs):
-            local_view_context = function(request, *args, **kwargs)
+            context = function(request, *args, **kwargs)
 
-            if not isinstance(local_view_context, dict):
-                # view has not return a context dict
-#                if settings.DEBUG:
-#                    print "%s must return a dict, has return: %r (%r)" % (
-#                        function.__name__, type(local_view_context), function.func_code
-#                    )
-                return local_view_context
+            if not isinstance(context, dict):
+                if debug:
+                    print "renter_to info: %s (template: %r) has not return a dict, has return: %r (%r)" % (
+                    function.__name__, template_name, type(context), function.func_code
+                )
+                return context
 
-            template = local_view_context.pop('template_name', template_name)
-            assert template != None, \
+            template_name2 = context.pop('template_name', template_name)
+            assert template_name2 != None, \
                 ("Template name must be passed as render_to parameter"
                 " or 'template_name' must be inserted into context!")
 
-            try:
-                context = request.PYLUCID.context
-            except AttributeError:
-                # The pylucid objects doesn't exist  e.g. in context middleware or admin views               
-                return render_to_response(
-                    template, local_view_context, context_instance=RequestContext(request)
-                )
+            response = render_to_response(template_name2, context, context_instance=RequestContext(request))
 
-            context.update(local_view_context)
-            return render_to_response(template_name, context)
+            if debug:
+                request.page_msg("render debug for %r (template: %r):" % (function.__name__, template_name2))
+                request.page_msg("local view context:", context)
+                request.page_msg("response:", response.content)
 
+            return response
         return wrapper
-
     return renderer
