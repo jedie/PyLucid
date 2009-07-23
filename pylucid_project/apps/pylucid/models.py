@@ -287,8 +287,15 @@ model_utils.auto_add_check_unique_together(PageTree)
 
 #------------------------------------------------------------------------------
 
+class LanguageManager(models.Manager):
+    def get_choices(self):
+        """ return a tuple list for e.g. forms.ChoiceField """
+        return self.values_list('code', 'description')
+
 
 class Language(models.Model):
+    objects = LanguageManager()
+
     code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=150, help_text="Description of the Language")
 

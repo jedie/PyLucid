@@ -1,0 +1,13 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+<form id="search_form" method="get">
+{% for field in form %}
+    {% if field.errors %}<fieldset>{% endif %}
+    {{ field }}
+    {% if field.errors %}<p class="search_form_errors">{{ field.errors }}</p>{% endif %}
+    <input type="submit" value="search" />
+    {% if field.errors %}</fieldset>{% endif %}
+{% endfor %}
+</form>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends template_name %}
+
+{% block content %}
+	<form id="search_form" method="post" action="{{ form_url }}">
+
+    <ul id="input_fields">
+        {% for field in form %}
+            
+            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
+            <label for="{{ field.auto_id }}">
+            {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
+             :</label>
+            {{ field }}
+            <span class="field_help_text">{{ field.help_text }}</span>
+            {% if field.errors %}<li class="field_errors" title="'{{ field.label }}' field error.">{{ field.errors }}</li>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    <input type="submit" value="search" />
+	</form>
+	
+{% if search_results %}
+<h2>Search results:</h2>
+<table>
+	<tr>
+	    <th>score</th>
+	    <th title="language of the hit">language</th>
+	    <th>content_type</th>
+	    <th>hits</th>
+	</tr>
+{% for hit in search_results %}   
+     <tr onclick="JavaScript:window.location.href='{{ hit.url }}';" title="{{ hit.url }}">
+        <td title="score">{{ hit.score }}</td>
+        <td title="hit language is: {{ hit.lang.description }}">{{ hit.lang.code }}</td>
+        <td title="content_type">{{ hit.content_type }}</td>
+        <td>
+            <a href="{{ hit.url }}">
+            {{ hit.headline }}
+            </a><br />
+            <ul class="cutouts">
+            {% for pre_txt, hit_txt, post_txt in hit.cutouts %}
+                <li>...{{ pre_txt }} <strong>{{ hit_txt }}</strong> {{ post_txt }}...</li>
+            {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    
+{% endfor %}
+</table>
+{% endif %}
+	
+{% endblock content %}
