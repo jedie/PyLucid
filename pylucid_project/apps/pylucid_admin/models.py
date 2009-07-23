@@ -95,4 +95,6 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
             return ""
 
     class Meta:
+        verbose_name = _('PyLucid admin page')
+        verbose_name_plural = _('PyLucid admin pages')
         ordering = ("url_name",)
