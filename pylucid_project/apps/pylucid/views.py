@@ -215,7 +215,7 @@ def _render_root_page(request):
         msg = _("There exist no pages items! Have you install PyLucid? At least you must create one page!")
         # TODO: Redirect to install page?
         request.page_msg.error(msg)
-        return http.HttpResponseRedirect(reverse("admin_index"))
+        return http.HttpResponseRedirect(reverse("admin:index"))
 
     return _render_page(request, pagetree)
 
