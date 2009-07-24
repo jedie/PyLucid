@@ -35,9 +35,9 @@
 	        <a href="{{ edit_page_link }}" title="edit inline" id="edit_page" onclick="return get_pylucid_ajax_view('{{ edit_page_link }}');">{% trans 'edit page' %}</a>
 	        <ul>
 	            <li><a href="{{ edit_admin_panel_link }}">edit in admin panel</a></li>
-	            <li><a href="{% url admin_pylucid_pagemeta_change pagemeta_id %}">edit meta in admin panel</a></li>
+	            <li><a href="{% url admin:pylucid_pagemeta_change pagemeta_id %}">edit meta in admin panel</a></li>
 	            {% if perms.pylucid.delete_pageplugin and perms.pylucid.delete_pagecontent and perms.pylucid.delete_pagemeta %}
-	               <li><a href="{% url admin_pylucid_pagemeta_delete pagemeta_id %}">delete page</a></li>
+	               <li><a href="{% url admin:pylucid_pagemeta_delete pagemeta_id %}">delete page</a></li>
 	            {% endif %}
 	        </ul>
 	    </li>
@@ -47,7 +47,7 @@
     
     {% if user.is_staff %}
     <li>
-        <a href="{% url admin_index %}">{% trans 'Django admin site' %}</a>
+        <a href="{% url admin:index %}">{% trans 'Django admin site' %}</a>
     </li>
     {% endif %}
     

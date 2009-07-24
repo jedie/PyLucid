@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}{% if not is_popup %}
 <div class="breadcrumbs">
-     <a href="{% url admin_index %}">Home</a> ›
+     <a href="{% url admin:index %}">Home</a> ›
      <a href="{% url PyLucidUpdate-menu %}">Update</a> ›
      {{ title }}
 </div>{% endif %}
