@@ -56,8 +56,8 @@ class PyLucidAdminSite(admin.AdminSite):
         try:
             super(PyLucidAdminSite, self).register(*args, **kwargs)
         except AlreadyRegistered, err:
-            import traceback
-            traceback.print_exc()
+            import traceback, warnings
+            warnings.warn(traceback.format_exc())
 
     def logout(self, request):
         url = "/?" + settings.PYLUCID.AUTH_LOGOUT_GET_VIEW
