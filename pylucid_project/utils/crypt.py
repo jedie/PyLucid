@@ -15,12 +15,18 @@
     $Rev$
     $Author$
 
-    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
-import os, sys, time, sha, random, base64, re
+import os, sys, time, random, base64, re
+try:
+    import hashlib
+    sha_constructor = hashlib.sha1
+except ImportError:
+    import sha
+    sha_constructor = sha.new
 
 if __name__ == "__main__":
     print "Local DocTest..."
@@ -93,7 +99,7 @@ def validate_sha_value(sha_value):
 #______________________________________________________________________________
 
 
-def get_new_seed(can_debug = True):
+def get_new_seed(can_debug=True):
     """
     Generate a new, random seed value.
 
@@ -110,12 +116,12 @@ def get_new_seed(can_debug = True):
             random.randint(0, sys.maxint - 1), os.getpid(), time.time(),
             settings.SECRET_KEY
         )
-        seed = sha.new(raw_seed).hexdigest()
+        seed = sha_constructor(raw_seed).hexdigest()
 
     return seed
 
 
-def get_new_salt(can_debug = True):
+def get_new_salt(can_debug=True):
     """
     Generate a new, random salt value.
 
@@ -139,7 +145,7 @@ def make_hash(txt, salt):
     >>> make_hash(txt="test", salt='DEBUG')
     '790f2ebcb902c966fb0e232515ec1319dc9118af'
     """
-    hash = sha.new(salt + smart_str(txt)).hexdigest()
+    hash = sha_constructor(salt + smart_str(txt)).hexdigest()
     return hash
 
 def get_salt_and_hash(txt):
@@ -235,13 +241,13 @@ def crypt(txt, key):
     >>> crypt("1234", "ABCD")
     u'pppp'
     """
-    assert len(txt)==len(key), "Error: txt and key must have the same length!"
+    assert len(txt) == len(key), "Error: txt and key must have the same length!"
 
-    crypted = [unichr(ord(t) ^ ord(k)) for t,k in zip(txt, key)]
+    crypted = [unichr(ord(t) ^ ord(k)) for t, k in zip(txt, key)]
     return u"".join(crypted)
 
 
-def encrypt(txt, key, use_base64=True, can_debug = True):
+def encrypt(txt, key, use_base64=True, can_debug=True):
     """
     XOR ciphering with a SHA salt-hash checksum
 
@@ -264,12 +270,12 @@ def encrypt(txt, key, use_base64=True, can_debug = True):
     salt_hash = unicode(salt_hash)
 
     crypted = crypt(txt, key)
-    if use_base64==True:
+    if use_base64 == True:
         crypted = base64.b64encode(crypted)
     return salt_hash + crypted
 
 
-def decrypt(crypted, key, use_base64=True, can_debug = True):
+def decrypt(crypted, key, use_base64=True, can_debug=True):
     """
     1. Decrypt a XOR crypted String.
     2. Compare the inserted sSHA salt-hash checksum.
@@ -297,7 +303,7 @@ def decrypt(crypted, key, use_base64=True, can_debug = True):
 
     salt_hash = str(crypted[:SALT_HASH_LEN])
     crypted = crypted[SALT_HASH_LEN:]
-    if use_base64==True:
+    if use_base64 == True:
         crypted = base64.b64decode(crypted)
         crypted = unicode(crypted)
 
@@ -328,8 +334,8 @@ def django_to_sha_checksum(django_salt_hash):
     assert len(hash) == HASH_LEN, "Wrong hash length! (Not a SHA1 hash?)"
 
     # Split the SHA1-Hash in two pieces
-    sha_a = hash[:(HASH_LEN/2)]
-    sha_b = hash[(HASH_LEN/2):]
+    sha_a = hash[:(HASH_LEN / 2)]
+    sha_b = hash[(HASH_LEN / 2):]
 
     sha_a = unicode(sha_a)
     sha_b = unicode(sha_b)
@@ -356,8 +362,8 @@ def make_sha_checksum(hash_value):
     u'crypt 50b412a7ef09f4035f2d with aca882a1f8bfbe263b62'
     """
     # Split the SHA1-Hash in two pieces
-    sha_a = hash_value[:(HASH_LEN/2)]
-    sha_b = hash_value[(HASH_LEN/2):]
+    sha_a = hash_value[:(HASH_LEN / 2)]
+    sha_b = hash_value[(HASH_LEN / 2):]
 
     sha_a = unicode(sha_a)
     sha_b = unicode(sha_b)
