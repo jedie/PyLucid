@@ -14,3 +14,6 @@
 
 # http://code.google.com/p/django-dbtemplates/
 django-dbtemplates
+
+# http://code.google.com/p/django-tagging/
+--editable svn+http://django-tagging.googlecode.com/svn/trunk#egg=tagging
