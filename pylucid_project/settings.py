@@ -28,6 +28,8 @@
 import os
 import sys
 
+#from django_tools.utils import info_print ; info_print.redirect_stdout()
+
 try:
     import pylucid_project
     from pylucid_project.system import pylucid_plugins
@@ -254,6 +256,10 @@ SLUG_BLACKLIST = (
 
 # Prefix in filename, used for page templates and page styles
 SITE_TEMPLATE_PREFIX = 'site_template/'
+
+
+# The PyLucid install instrucion page:
+INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
 
 
 try:
