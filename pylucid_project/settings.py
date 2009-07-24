@@ -70,14 +70,7 @@ DATABASE_HOST = ''             # Set to empty string for localhost. Not used wit
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
 
-_used_port = os.environ.get("USED_PORT", "--not set--")
-if _used_port == "8001":
-    SITE_ID = 2
-else:
-    SITE_ID = 1
-
-print "Used port is %s -> set SITE_ID: %s" % (_used_port, SITE_ID)
-
+SITE_ID = 1 # Can be changed in local_settings
 
 
 ROOT_URLCONF = 'pylucid_project.urls'
@@ -260,6 +253,8 @@ SITE_TEMPLATE_PREFIX = 'site_template/'
 
 # The PyLucid install instrucion page:
 INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
+
+
 
 
 try:
