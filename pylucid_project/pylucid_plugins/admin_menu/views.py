@@ -25,11 +25,11 @@ def lucidTag(request):
         # Plugin page -> edit PluginPage model entry
         lang_entry = request.PYLUCID.lang_entry
         pluginpage = PluginPage.objects.get(page=pagetree, lang=lang_entry)
-        edit_admin_panel_link = reverse("admin_pylucid_pluginpage_change", args=(pluginpage.id,))
+        edit_admin_panel_link = reverse("admin:pylucid_pluginpage_change", args=(pluginpage.id,))
     else:
         # Content page -> edit PageContent model entry
         pagecontent = request.PYLUCID.pagecontent
-        edit_admin_panel_link = reverse("admin_pylucid_pagecontent_change", args=(pagecontent.id,))
+        edit_admin_panel_link = reverse("admin:pylucid_pagecontent_change", args=(pagecontent.id,))
 
     context = {
         "inline": True,
@@ -42,7 +42,7 @@ def lucidTag(request):
 
         "edit_admin_panel_link": edit_admin_panel_link,
 
-        "new_page_link": reverse("admin_pylucid_pagecontent_add"),
+        "new_page_link": reverse("admin:pylucid_pagecontent_add"),
     }
     return context
 

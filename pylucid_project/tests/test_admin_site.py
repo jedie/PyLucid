@@ -17,13 +17,13 @@ class AdminSiteTest(BaseTestCase, TransactionTestCase):
 
     def test_login_page(self):
         """ request the admin page index """
-        url = reverse("admin_index")
+        url = reverse("admin:index")
         response = self.client.get(url)
         self.assertRedirects(response, status_code=302, expected_url=self.LOGIN_URL % url)
 
     def test_summary_page(self):
         self.login(usertype="superuser")
-        response = self.client.get(reverse("admin_index"))
+        response = self.client.get(reverse("admin:index"))
         self.assertResponse(response,
             must_contain=("PyLucid", "Page trees", "Page contents"),
             must_not_contain=("Log in", "Traceback",)#"error")
@@ -31,7 +31,7 @@ class AdminSiteTest(BaseTestCase, TransactionTestCase):
 
     def test_anonymous_add(self):
         """ Try to create a PageTree entry as a anonymous user. """
-        url = reverse("admin_pylucid_pagetree_add")
+        url = reverse("admin:pylucid_pagetree_add")
         response = self.client.get(url)
         self.assertRedirects(response, status_code=302, expected_url=self.LOGIN_URL % url)
 
