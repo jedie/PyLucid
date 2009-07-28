@@ -175,14 +175,14 @@ def apply_markup(pagecontent, page_msg):
     elif markup_no == PageContent.MARKUP_CREOLE:
         html_content = apply_creole(raw_content2)
 
-    if not isinstance(html_content, unicode):
-        if settings.DEBUG:
-            markup_name = PageContent.MARKUP_DICT[markup_no]
-            page_msg("Info: Markup converter %r doesn't return unicode!" % markup_name)
-        html_content = force_unicode(html_content)
-
     if assemble_tags:
         # reassembly cut out django tags into text
+        if not isinstance(html_content, unicode):
+            if settings.DEBUG:
+                markup_name = PageContent.MARKUP_DICT[markup_no]
+                page_msg("Info: Markup converter %r doesn't return unicode!" % markup_name)
+            html_content = force_unicode(html_content)
+
         html_content2 = assembler.reassembly(html_content, cut_data)
     else:
         # html "markup" used
