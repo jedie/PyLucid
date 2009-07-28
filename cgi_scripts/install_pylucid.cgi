@@ -1,6 +1,30 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+    PyLucid install CGI script
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    You should check if the shebang is ok for your environment!
+    some examples:
+        #!/usr/bin/env python
+        #!/usr/bin/env python2.4
+        #!/usr/bin/env python2.5
+        #!/usr/bin/python
+        #!/usr/bin/python2.4
+        #!/usr/bin/python2.5
+        #!C:\python\python.exe
+
+    Last commit info:
+    ~~~~~~~~~~~~~~~~~
+    $LastChangedDate: $
+    $Rev: $
+    $Author: $
+
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 print "Content-Type: text/html; charset=utf-8\n"
 print "<h1>Install PyLucid</h1>"
 
@@ -38,6 +62,7 @@ def syncdb():
     management.call_command('syncdb', verbosity=1, interactive=False)
     print "</pre>"
 
+
 def info():
     print "<p>Python %s</p>" % sys.version.replace("\n", " ")
     print "<p>os.uname(): %s</p>" % " - ".join(os.uname())
@@ -52,6 +77,39 @@ def info():
     cgi.print_environ()
     cgi.print_environ_usage()
 
+
+def mysqldb_info():
+    # http://paste.pocoo.org/show/301/
+
+    import MySQLdb
+    print "<pre>"
+    print "MySQLdb Version:", MySQLdb.__version__
+    print "MySQLdb version_info:", MySQLdb.version_info
+
+    from django.db import connection, backend
+    print "django db backend name: %s" % backend.Database.__name__
+    print "django db backend module: %s" % backend.Database.__file__
+
+    cursor = connection.cursor()
+    print "\nMySQL server encoding:"
+    cursor.execute("SHOW VARIABLES LIKE %s;", ("character_set_server",))
+    server_encoding = cursor.fetchone()[1]
+    print "\tMySQL variable 'character_set_server':", server_encoding
+
+    if server_encoding != "utf8":
+        print "Try to changen the encoding to utf8"
+        sql = "ALTER DATABASE %s CHARACTER SET utf8 COLLATE utf8_unicode_ci;" % settings.DATABASE_NAME
+        print sql
+        cursor.execute(sql)
+        print "OK"
+
+    # http://dev.mysql.com/doc/refman/5.1/en/charset-database.html
+
+    #~ ALTER DATABASE db_name
+    #~ [[DEFAULT] CHARACTER SET charset_name]
+    #~ [[DEFAULT] COLLATE collation_name]
+
+    print "</pre>"
 
 
 def setupSites():
@@ -143,6 +201,10 @@ actions = {
     "info": {
         "func":info,
         "title": "Display some system informations",
+    },
+    "mysqldb_info": {
+        "func":mysqldb_info,
+        "title": "MySQLdb informations",
     },
     "setupSites": {
         "func": setupSites,
