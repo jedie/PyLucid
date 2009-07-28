@@ -47,24 +47,24 @@ CUT_OUT_RE = re.compile(r'''
 ''', re.VERBOSE | re.UNICODE | re.MULTILINE)
 
 # Ignore this re groups:
-LEAVE_KEYS = ("creole_image","creole_pre_inline")
+LEAVE_KEYS = ("creole_image", "creole_pre_inline")
 
 # Cut out this re groups:
 CUT_OUT_KEYS = ("block", "tag", "variable")
 
 ALL_KEYS = LEAVE_KEYS + CUT_OUT_KEYS
 
-PLACEHOLDER_CUT_OUT = "DjangoTagAassembly%i"
+PLACEHOLDER_CUT_OUT = u"DjangoTagAassembly%i"
 
 
 class DjangoTagAssembler(object):
-        
+
     def cut_out(self, text):
         cut_data = []
-        
+
         def cut(match):
             groups = match.groupdict()
-            
+
             for key in ALL_KEYS:
                 if groups[key] != None:
                     data = groups[key]
@@ -74,10 +74,10 @@ class DjangoTagAssembler(object):
                     cut_out_pos = len(cut_data)
                     cut_data.append(data)
                     return PLACEHOLDER_CUT_OUT % cut_out_pos
-        
+
         new_text = CUT_OUT_RE.sub(cut, text)
         return new_text, cut_data
-        
+
     def reassembly(self, text, cut_data):
         for cut_out_pos, data in enumerate(cut_data):
             placeholder = PLACEHOLDER_CUT_OUT % cut_out_pos
@@ -139,6 +139,15 @@ Or {{/image.jpg| **that** }} it's from creole markup!
 <p>DjangoTagAassembly5</p>""")
         text = self.assembler.reassembly(text2, cut_data)
         self.failUnlessEqual(self.test_text, text)
+
+    def test_unicode(self):
+        input_text = u"äöü {{ test }} äöü"
+        text2, cut_data = self.assembler.cut_out(input_text)
+        self.failUnlessEqual(cut_data, [u'{{ test }}'])
+        self.failUnlessEqual(text2, u"äöü DjangoTagAassembly0 äöü")
+
+        text3 = self.assembler.reassembly(text2, cut_data)
+        self.failUnlessEqual(text3, input_text)
 
 if __name__ == '__main__':
     unittest.main()
