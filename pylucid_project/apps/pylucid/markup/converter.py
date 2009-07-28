@@ -63,8 +63,8 @@ def apply_tinytextile(content, page_msg):
     from pylucid.markup.tinyTextile import TinyTextileParser
     out_obj = SimpleStringIO()
     markup_parser = TinyTextileParser(out_obj, page_msg)
-    markup_parser.parse(content)
-    return out_obj.getvalue()
+    markup_parser.parse(smart_str(content))
+    return force_unicode(out_obj.getvalue())
 
 
 def apply_textile(content, page_msg):
@@ -128,7 +128,7 @@ def apply_creole(content):
     """
     Use python-creole:
     http://code.google.com/p/python-creole/
-    
+
     We used verbose=1 for inser error information (e.g. not existing macro)
     into the generated page
     """
@@ -174,6 +174,12 @@ def apply_markup(pagecontent, page_msg):
 
     elif markup_no == PageContent.MARKUP_CREOLE:
         html_content = apply_creole(raw_content2)
+
+    if not isinstance(html_content, unicode):
+        if settings.DEBUG:
+            markup_name = PageContent.MARKUP_DICT[markup_no]
+            page_msg("Info: Markup converter %r doesn't return unicode!" % markup_name)
+        html_content = force_unicode(html_content)
 
     if assemble_tags:
         # reassembly cut out django tags into text
