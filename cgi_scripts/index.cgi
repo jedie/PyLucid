@@ -99,10 +99,18 @@ if settings.DEBUG:
         Base class for HeaderChecker and StdErrorHandler
         -global header_send variable
         """
+        wrong_header = True
+        header_send = False
+        second_header = False
+
         def __init__(self, out):
             self.out = out
             self.oldFileinfo = ""
-            self.header_send = False
+
+        def print_head(self, headline):
+            self.out.write("Content-type: text/html; charset=utf-8\r\n\r\n")
+            self.out.write("<h2>%s</h2>\n" % headline)
+            self.header_send = True
 
         def _get_fileinfo(self):
             """
@@ -121,7 +129,7 @@ if settings.DEBUG:
                     if os.path.basename(filename) != self_basename:
                         break
 
-                filename = "...%s" % filename[-25:]
+                filename = "...%s" % filename[-80:]
                 fileinfo = "%-25s line %3s" % (filename, lineno)
             except Exception, e:
                 fileinfo = "(inspect Error: %s)" % e
@@ -139,8 +147,9 @@ if settings.DEBUG:
                 # Send the fileinfo only once.
                 self.oldFileinfo = fileinfo
                 self.out.write(
-                    "<br />[stdout/stderr write from: %s]\n" % fileinfo
+                    "stdout/stderr write from: <strong>%s</strong>:\n" % fileinfo
                 )
+                raise
 
         def isatty(self):
             return False
@@ -165,21 +174,26 @@ if settings.DEBUG:
             txt = " ".join([i for i in txt])
             if self.header_send:
                 # headers was send in the past
-                pass
+                if self.check(txt) == True:
+                    # second, normal header comes
+                    self.second_header = True
+                    self.out.write("</pre>")
+
             elif self.check(txt) == True:
                 # the first Line is a header line -> send it
+                self.wrong_header = False
                 self.header_send = True
             else:
-                self.wrong_header_info()
+                self.print_head(headline="Wrong Header!")
+                self.out.write("<pre>")
+
+            if self.wrong_header == True and self.second_header == False:
+                # Escape all content, since the second, normal header would be send
+                self.send_info()
                 txt = cgi.escape(txt)
 
             self.out.write(txt)
 
-        def wrong_header_info(self):
-            self.out.write("Content-type: text/html; charset=utf-8\r\n\r\n")
-            self.out.write("Wrong Header!!!\n")
-            self.header_send = True
-            self.send_info()
 
     class StdErrorHandler(BaseOut):
         """
@@ -189,12 +203,10 @@ if settings.DEBUG:
         def write(self, *txt):
             txt = " ".join([i for i in txt])
             if not self.header_send:
-                self.out.write("Content-type: text/html; charset=utf-8\r\n\r\n")
-                self.out.write("Write to stderr!!!\n")
-                self.header_send = True
+                self.print_head(headline="Write to stderr!")
 
             self.send_info()
-            self.out.write("<pre>%s</pre>" % txt)
+            self.out.write("<pre>%s</pre>" % cgi.escape(txt))
 
     old_stdout = sys.stdout
     sys.stdout = HeaderChecker(old_stdout)
