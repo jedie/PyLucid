@@ -56,8 +56,11 @@ class PyLucidAdminSite(admin.AdminSite):
         try:
             super(PyLucidAdminSite, self).register(*args, **kwargs)
         except AlreadyRegistered, err:
-            import traceback, warnings
-            warnings.warn(traceback.format_exc())
+            from django_tools.middlewares import ThreadLocal
+            request = ThreadLocal.get_current_request()
+            if request.META["SERVER_SOFTWARE"].startswith("WSGIServer"):
+                import traceback
+                print traceback.format_exc()
 
     def logout(self, request):
         url = "/?" + settings.PYLUCID.AUTH_LOGOUT_GET_VIEW
