@@ -1,5 +1,6 @@
 # coding:utf-8
 
+import sys
 from pprint import pformat
 
 from django import forms
@@ -85,6 +86,8 @@ def show_internals(request):
         "django_tables": sorted(connection.introspection.django_table_names()),
 
         "request_meta": hightlighter.make_html(pformat(request.META), source_type="py"),
+
+        "sys_path": sys.path,
     }
     return context
 

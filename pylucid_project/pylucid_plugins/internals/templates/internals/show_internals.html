@@ -91,6 +91,7 @@
     <li><a href="#settings">settings</a></li>
     <li><a href="#database_info">database info</a></li>
     <li><a href="#request_meta">request.META</a></li>
+    <li><a href="#sys_path">python sys.path</a></li>
 </ul>
 
 <hr/>
@@ -163,5 +164,14 @@
 <h2 id="request_meta">request.META</h2>
 <a href="#container">&#x2912; up to top</a>
 {{ request_meta }}
+
+<h2 id="sys_path">python sys.path</h2>
+<a href="#container">&#x2912; up to top</a>
+<ul>
+    {% for path in sys_path %}
+    <li>{{ path }}
+    </li>
+    {% endfor %}
+</ul>
 <!-- view_content block end -->
 {% endblock %}
