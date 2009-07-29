@@ -36,6 +36,9 @@ def lucidTag(request):
     # insert all PageMeta objects into tree
     queryset = PageMeta.objects.all().filter(lang=current_lang)
 
+    # Filter PageTree.showlinks
+    queryset = queryset.filter(page__showlinks=True)
+
     # Filter PageTree view permissions:
     if request.user.is_anonymous(): # Anonymous user are in no user group
         queryset = queryset.filter(page__permitViewGroup=None)
