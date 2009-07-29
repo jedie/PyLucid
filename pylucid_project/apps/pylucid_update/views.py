@@ -124,6 +124,7 @@ def _do_update(request, language):
 
     designs = {}
     page_dict = {}
+    parent_attach_data = {}
     for old_page in old_pages:
         out.write("\nmove '%s' page (old ID:%s)" % (old_page.name, old_page.id))
 
@@ -172,10 +173,20 @@ def _do_update(request, language):
         #---------------------------------------------------------------------
         # create/get PageTree entry
 
+        page_parent_exist = True # Exist the parent page tree or was he not created, yet?
         if old_page.parent == None:
             parent = None
         else:
-            parent = page_dict[old_page.parent.id]
+            old_parent_id = old_page.parent.id
+            try:
+                parent = page_dict[old_parent_id]
+            except KeyError, err:
+                page_parent_exist = False
+                msg = (
+                    " *** Error: parent id %r not found!"
+                    " Attach as root page and try later."
+                ) % old_parent_id
+                out.write(msg)
 
         tree_entry, created = PageTree.objects.get_or_create(
             site=site,
@@ -201,6 +212,25 @@ def _do_update(request, language):
             out.write("PageTree entry '%s' exist." % tree_entry.slug)
 
         page_dict[old_page.id] = tree_entry
+
+        if old_page.id in parent_attach_data:
+            # We have create a page tree witch was missing in the past.
+            # Attach the right parent
+            out.write(" +++ Attach the now created page tree %r as parent to:" % tree_entry)
+            for created_page in parent_attach_data[old_page.id]:
+                out.write("\t%r" % created_page)
+                created_page.parent = tree_entry
+                created_page.save()
+            del(parent_attach_data[old_page.id]) # No longer needed
+
+        if not page_parent_exist:
+            # The parent page for the created tree_entry was not created yed.
+            # Save this and attach the right parent page, after create.
+            out.write("Remember page %r for later parent attach." % tree_entry)
+            if old_parent_id not in parent_attach_data:
+                parent_attach_data[old_parent_id] = [tree_entry]
+            else:
+                parent_attach_data[old_parent_id].append(tree_entry)
 
         #---------------------------------------------------------------------
         # create/get PageMeta entry
