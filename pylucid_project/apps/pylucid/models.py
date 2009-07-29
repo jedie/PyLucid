@@ -171,16 +171,34 @@ class PageTreeManager(BaseModelManager):
         """
         return self.get_model_instance(request, PageContent, pagetree)
 
-    def get_page_from_url(self, url_path):
-        """ returns a tuple the page tree instance from the given url_path"""
+    def get_page_from_url(self, request, url_path):
+        """
+        returns a tuple the page tree instance from the given url_path
+        XXX: move it out from model?
+        """
         path = url_path.split("/")
-        site = Site.objects.get_current()
         page = None
         for no, page_slug in enumerate(path):
             try:
-                page = PageTree.objects.get(site=site, parent=page, slug=page_slug)
+                page = PageTree.on_site.get(parent=page, slug=page_slug)
             except PageTree.DoesNotExist:
                 raise PageTree.DoesNotExist("Wrong url part: %s" % escape(page_slug))
+
+            # Check permissions
+            if request.user.is_anonymous():
+                # Anonymous user are in no user group
+                if page.permitViewGroup != None:
+                    # XXX: raise permission deny?
+                    msg = "Permission deny"
+                    if settings.DEBUG:
+                        msg += " (url part: %s)" % escape(page_slug)
+                    raise PageTree.DoesNotExist(msg)
+            elif not request.user.is_superuser: # Superuser can see everything ;)
+                if page.permitViewGroup not in request.user.groups:
+                    msg = "Permission deny"
+                    if settings.DEBUG:
+                        msg += " (not in view group, url part: %s)" % escape(page_slug)
+                    raise PageTree.DoesNotExist(msg)
 
             if page.page_type == PageTree.PLUGIN_TYPE:
                 # It's a plugin
@@ -803,7 +821,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
 
         try:
             _save_cache_file()
-        except IOError, err:
+        except (IOError, OSError), err:
             user_message_or_warn("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
         else:
             if settings.DEBUG:

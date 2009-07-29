@@ -251,7 +251,7 @@ def _i18n_redirect(request, url_path):
 
     # Check only, if url_path is right (if there exist a pagetree object)
     # otherwise -> 404 would be raised
-    _get_pagetree(url_path)
+    _get_pagetree(request, url_path)
 
     lang_code = request.LANGUAGE_CODE
     url = reverse('PyLucid-resolve_url', kwargs={'url_lang_code': lang_code, 'url_path': url_path})
@@ -260,9 +260,9 @@ def _i18n_redirect(request, url_path):
     return http.HttpResponseRedirect(url)
 
 
-def _get_pagetree(url_path):
+def _get_pagetree(request, url_path):
     try:
-        return PageTree.objects.get_page_from_url(url_path)
+        return PageTree.objects.get_page_from_url(request, url_path)
     except PageTree.DoesNotExist, err:
         raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % err)
 
@@ -278,7 +278,7 @@ def resolve_url(request, url_lang_code, url_path):
     # activate i18n
     i18n.activate_language(request, lang_entry, save=True)
 
-    pagetree, prefix_url, rest_url = _get_pagetree(url_path)
+    pagetree, prefix_url, rest_url = _get_pagetree(request, url_path)
 
     return _render_page(request, pagetree, prefix_url, rest_url)
 
