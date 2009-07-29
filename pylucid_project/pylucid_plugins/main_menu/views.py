@@ -36,8 +36,15 @@ def lucidTag(request):
     tree.set_current_node(current_pagetree.id)
 
     # add all PageMeta objects into tree
-    pagemeta = PageMeta.objects.all().filter(lang=current_lang)
-    tree.add_related(pagemeta, field="page", attrname="pagemeta")
+    queryset = PageMeta.objects.all().filter(lang=current_lang)
+
+    # Filter PageTree view permissions:
+    if request.user.is_anonymous(): # Anonymous user are in no user group
+        queryset = queryset.filter(page__permitViewGroup=None)
+    elif not request.user.is_superuser: # Superuser can see everything ;)
+        queryset = queryset.filter(page__permitViewGroup__in=request.user.groups)
+
+    tree.add_related(queryset, field="page", attrname="pagemeta")
     #tree.debug()
 
     return {"nodes": tree.get_first_nodes()}
