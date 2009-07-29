@@ -1,5 +1,6 @@
 .sf-menu {
     float: none;
+    width: 600px; /* no linebreak */
     height: 2.7em;
     
     /* from django admin panel: */
