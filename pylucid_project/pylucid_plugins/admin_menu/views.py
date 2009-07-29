@@ -11,7 +11,7 @@ from pylucid.decorators import render_to
 
 from pylucid_admin.models import PyLucidAdminPage
 
-@render_to("admin_menu/admin_top_menu.html")
+@render_to("admin_menu/admin_top_menu.html")#, debug=True)
 def lucidTag(request):
     """
     Render the pylucid admin menu, if the user is authenticated.
@@ -21,29 +21,29 @@ def lucidTag(request):
         return
 
     pagetree = request.PYLUCID.pagetree # Current PageTree model instance
-    if pagetree.page_type == PageTree.PLUGIN_TYPE:
-        # Plugin page -> edit PluginPage model entry
-        lang_entry = request.PYLUCID.lang_entry
-        pluginpage = PluginPage.objects.get(page=pagetree, lang=lang_entry)
-        edit_admin_panel_link = reverse("admin:pylucid_pluginpage_change", args=(pluginpage.id,))
-    else:
-        # Content page -> edit PageContent model entry
-        pagecontent = request.PYLUCID.pagecontent
-        edit_admin_panel_link = reverse("admin:pylucid_pagecontent_change", args=(pagecontent.id,))
 
     context = {
         "inline": True,
 
-        "pagemeta_id": request.PYLUCID.pagemeta.id, # Current PageMeta model instance
+        "pagetree": pagetree,
+        "pagemeta": request.PYLUCID.pagemeta, # Current PageMeta model instance
 
         "logout_link": "?auth=logout",
 
         "edit_page_link": "?page_admin=inline_edit",
 
-        "edit_admin_panel_link": edit_admin_panel_link,
-
         "new_page_link": reverse("admin:pylucid_pagecontent_add"),
     }
+
+    if pagetree.page_type == PageTree.PLUGIN_TYPE:
+        # Plugin page -> edit PluginPage model entry
+        lang_entry = request.PYLUCID.lang_entry
+        pluginpage = PluginPage.objects.get(page=pagetree, lang=lang_entry)
+        context["pluginpage"] = pluginpage
+    else:
+        # Content page -> edit PageContent model entry
+        context["pagecontent"] = request.PYLUCID.pagecontent
+
     return context
 
 
