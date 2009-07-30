@@ -35,6 +35,7 @@ import sys
 import pprint
 import inspect
 import warnings
+import traceback
 
 from django.conf import settings
 from django.utils.encoding import smart_str
@@ -118,6 +119,15 @@ class PageMessages(object):
 
     def critical(self, *msg):
         self.append_message("critical", *msg)
+
+    def insert_traceback(self):
+        """ Insert last traceback, if DEBUG==True """
+        if not settings.DEBUG:
+            return
+
+        exc = traceback.format_exc()
+        msg = mark_safe("<pre>%s</pre>" % exc)
+        self.error(msg)
 
     #_________________________________________________________________________
 

@@ -182,8 +182,11 @@ class Search(object):
             try:
                 plugin_instance.call_plugin_view(self.request, filename, view_name, method_kwargs)
             except Exception, err:
-                if not str(err).endswith("No module named %s" % filename):
-                    raise
+                if str(err).endswith("No module named %s" % filename):
+                    # Plugin has no search API
+                    continue
+                self.request.page_msg.error("Can't collect search results from %s." % plugin_name)
+                self.request.page_msg.insert_traceback()
 
 
 @render_to("search/search.html")#, debug=True)
