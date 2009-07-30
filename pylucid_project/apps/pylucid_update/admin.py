@@ -19,7 +19,7 @@
 from django.contrib import admin
 
 from pylucid_project.apps.pylucid_update.models import Page08, Style08, Template08, \
-                                        BlogComment08, BlogTag08, BlogEntry08
+                                        BlogComment08, BlogTag, BlogEntry
 from pylucid_admin.admin import pylucid_admin_site
 
 #------------------------------------------------------------------------------
@@ -99,10 +99,10 @@ class BlogComment08Admin(admin.ModelAdmin):
     pass
 pylucid_admin_site.register(BlogComment08, BlogComment08Admin)
 
-class BlogTag08Admin(admin.ModelAdmin):
+class BlogTagAdmin(admin.ModelAdmin):
     pass
-pylucid_admin_site.register(BlogTag08, BlogTag08Admin)
+pylucid_admin_site.register(BlogTag, BlogTagAdmin)
 
-class BlogEntry08Admin(admin.ModelAdmin):
+class BlogEntryAdmin(admin.ModelAdmin):
     pass
-pylucid_admin_site.register(BlogEntry08, BlogEntry08Admin)
+pylucid_admin_site.register(BlogEntry, BlogEntryAdmin)

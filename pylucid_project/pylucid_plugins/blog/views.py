@@ -89,7 +89,7 @@ def detail_view(request, id, title):
     _add_breadcrumb(request, title=entry.headline, url=entry.get_absolute_url())
 
     if request.POST:
-        # Use django.contrib.comments.views.comments.post_comment to hanlde a comment
+        # Use django.contrib.comments.views.comments.post_comment to handle a comment
         # post.
         return post_comment(request, next=entry.get_absolute_url())
 
@@ -99,3 +99,10 @@ def detail_view(request, id, title):
         "tag_cloud": Tag.objects.cloud_for_model(BlogEntry, steps=2),
     }
     return context
+
+
+def lucidTag(request):
+    """
+    TODO: Update the page automaticly???
+    """
+    return u"[Update Info: You must delete this PageTree entry and create a new blog plugin page here!]"

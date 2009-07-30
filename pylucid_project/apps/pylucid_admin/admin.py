@@ -49,7 +49,9 @@ class PyLucidAdminSite(admin.AdminSite):
         except AlreadyRegistered, err:
             from django_tools.middlewares import ThreadLocal
             request = ThreadLocal.get_current_request()
-            if request.META["SERVER_SOFTWARE"].startswith("WSGIServer"):
+            import os
+            server_soft = os.environ.get("SERVER_SOFTWARE", "")
+            if "apache" not in server_soft.lower():
                 import traceback
                 print traceback.format_exc()
 

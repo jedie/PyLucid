@@ -22,9 +22,11 @@ from django.core import urlresolvers
 from django.db.models import signals
 from django.utils.html import strip_tags
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.sites.managers import CurrentSiteManager
 
 # http://code.google.com/p/django-tagging/
 import tagging
@@ -48,6 +50,9 @@ class BlogEntry(UpdateInfoBaseModel):
     """
     A blog entry
     """
+    site = models.ForeignKey(Site, default=Site.objects.get_current)
+    on_site = CurrentSiteManager()
+
     headline = models.CharField(_('Headline'),
         help_text=_("The blog entry headline"), max_length=255
     )

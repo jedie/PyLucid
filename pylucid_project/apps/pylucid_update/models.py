@@ -245,7 +245,7 @@ class BlogComment08(models.Model):
     """
     comment from non-registered users
     """
-    blog_entry = models.ForeignKey("BlogEntry08", related_name="%(class)s_blog_entry")
+    blog_entry = models.ForeignKey("BlogEntry", related_name="%(class)s_blog_entry")
 
     ip_address = models.IPAddressField(_('ip address'),)
     person_name = models.CharField(
@@ -374,7 +374,7 @@ class BlogTagManager(models.Manager):
 #        return choices
 
 
-class BlogTag08(models.Model):
+class BlogTag(models.Model):
     """
     A blog entry tag
     TODO: Add a usage counter! So we can easy sort from more to less usages and
@@ -395,7 +395,7 @@ class BlogTag08(models.Model):
         ordering = ('name',)
 
 
-class BlogEntry08(models.Model):
+class BlogEntry(models.Model):
     """
     A blog entry
     """
@@ -408,7 +408,9 @@ class BlogEntry08(models.Model):
         help_text="the used markup language for this entry",
     )
 
-    tags = models.ManyToManyField(BlogTag08, blank=True, related_name="blogentry_tags",)
+    tags = models.ManyToManyField(BlogTag, blank=True,
+        db_table="PyLucidPlugins_blogentry_tags", related_name="blogentry_tags",
+    )
 
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"
@@ -417,12 +419,14 @@ class BlogEntry08(models.Model):
     createtime = models.DateTimeField(auto_now_add=True)
     lastupdatetime = models.DateTimeField(auto_now=True)
     createby = models.ForeignKey(User,
-        editable=False, related_name="%(class)s_createby"
+        editable=False,
+        related_name="%(class)s_08_createby"
     )
     lastupdateby = models.ForeignKey(
         User,
         editable=False,
-        null=True, blank=True
+        null=True, blank=True,
+        related_name="%(class)s_08_lastupdateby",
     )
 
 #    def html_content(self, context):

@@ -28,6 +28,7 @@ from django.template.loader import find_template_source
 from dbtemplates.models import Template
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid.fields import CSS_VALUE_RE
 from pylucid.decorators import check_permissions, render_to
@@ -285,21 +286,22 @@ def _do_update(request, language):
         "results": out.getlines(),
     }
     return context
-    return render_to_response('pylucid_update/update08result.html', context,
-        context_instance=RequestContext(request))
 
 
-@check_permissions(superuser_only=True)
 @render_to() # set template_name in context
-def update08(request):
-    """ Update PyLucid v0.8 model data to v0.9 models """
+def _select_lang(request, context, call_func):
+    """
+    Select language before start updating.
+    """
+    assert "template_name" in context
+
     if request.method == 'POST':
         form = UpdateForm(request.POST)
         if form.is_valid():
             language = form.cleaned_data["language"]
             sid = transaction.savepoint()
             try:
-                response = _do_update(request, language)
+                response = call_func(request, language)
             except:# IntegrityError, e:
                 transaction.savepoint_rollback(sid)
                 raise
@@ -309,16 +311,26 @@ def update08(request):
     else:
         form = UpdateForm()
 
+    context.update({
+        "site": Site.objects.get_current(),
+        "form": form,
+    })
+
+    return context
+
+
+@check_permissions(superuser_only=True)
+def update08(request):
+    """
+    Update PyLucid v0.8 model data to v0.9 models
+    Before start updating, select the language.
+    """
     context = {
         "template_name": "pylucid_update/update08.html",
         "title": "Update PyLucid v0.8 model data to v0.9 models",
         "url": reverse("PyLucidUpdate-update08"),
-        "site": Site.objects.get_current(),
-        "form": form,
     }
-    return context
-    return render_to_response("pylucid_update/update08.html", context,
-        context_instance=RequestContext(request))
+    return _select_lang(request, context, call_func=_do_update)
 
 
 
@@ -526,6 +538,55 @@ def update08styles(request):
 
     context = {
         "title": title,
+        "results": out.getlines(),
+    }
+    return context
+
+
+@check_permissions(superuser_only=True)
+def update08plugins(request):
+    """
+    Update PyLucid v0.8 model data to v0.9 models
+    Before start updating, select the language.
+    """
+    context = {
+        "template_name": "pylucid_update/update08plugins.html",
+        "title": "Update PyLucid v0.8 plugin data",
+        "url": reverse("PyLucidUpdate-update08plugins"),
+    }
+    return _select_lang(request, context, call_func=_update08plugins)
+
+
+
+
+def _update08plugins(request, language):
+    out = SimpleStringIO()
+
+    method_kwargs = {
+        "out": out,
+        "language": language,
+    }
+
+    filename = settings.PYLUCID.UPDATE08_PLUGIN_FILENAME
+    view_name = settings.PYLUCID.UPDATE08_PLUGIN_VIEWNAME
+
+    for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
+        try:
+            plugin_instance.call_plugin_view(request, filename, view_name, method_kwargs)
+        except Exception, err:
+            if str(err).endswith("No module named %s" % filename):
+                # Plugin has no update API
+                continue
+            if settings.DEBUG:
+                raise
+            request.page_msg.error("failed updating %s." % plugin_name)
+            request.page_msg.insert_traceback()
+        else:
+            out.write(" --- %s END ---" % plugin_name)
+
+    context = {
+        "template_name": "pylucid_update/update08result.html",
+        "title": "Update PyLucid v0.8 plugin data",
         "results": out.getlines(),
     }
     return context

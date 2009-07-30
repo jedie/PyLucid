@@ -1,21 +1,21 @@
 # coding: utf-8
 
 from django.db import models
-from django.contrib import admin
 from django.db.models import signals
 from django.contrib.comments.models import Comment
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.comments.signals import comment_was_posted
-
-from pylucid_admin.admin import pylucid_admin_site
 
 from pylucid_plugins import page_update_list
 
 from pylucid.models import PageContent, Language
 
 
-
 class PyLucidComment(Comment):
+    # site manager seems not to work here!
+    #on_site = CurrentSiteManager()
+
     title = models.CharField(max_length=300)
     lang = models.ForeignKey(Language)
 
@@ -34,18 +34,6 @@ class PyLucidComment(Comment):
 
     class Meta:
         verbose_name = _('PyLucid comment')
-        verbose_name_plural = _('PyLucid comments')
+        verbose_name_plural = _('PyLucid pylucid_comments')
 
 signals.post_save.connect(receiver=page_update_list.save_receiver, sender=PyLucidComment)
-
-
-
-class PyLucidCommentAdmin(admin.ModelAdmin):
-    pass
-#    list_display = ("id", "headline", "is_public", "get_absolute_url", "lastupdatetime", "lastupdateby")
-#    list_display_links = ("headline",)
-#    list_filter = ("is_public", "createby", "lastupdateby",)
-#    date_hierarchy = 'lastupdatetime'
-#    search_fields = ("headline", "content")
-
-pylucid_admin_site.register(PyLucidComment, PyLucidCommentAdmin)

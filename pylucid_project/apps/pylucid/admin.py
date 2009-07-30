@@ -18,6 +18,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Permission
+from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
@@ -39,7 +40,7 @@ class BaseAdmin(VersionAdmin):
         html = render_to_string('admin/pylucid/includes/absolute_url.html', context)
         return html
 
-    absolute_url.short_description = 'absolute url'
+    absolute_url.short_description = _("View on site")
     absolute_url.allow_tags = True
 
 #------------------------------------------------------------------------------

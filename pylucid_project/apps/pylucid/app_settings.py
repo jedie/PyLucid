@@ -41,3 +41,7 @@ AUTH_NEXT_URL = "%%(path)s?%s&next_url=%%(next_url)s" % AUTH_GET_VIEW
 #UPDATE_LIST_VIEWNAME = "get_update_list"
 SEARCH_FILENAME = "search"
 SEARCH_VIEWNAME = "get_search_results"
+
+# plugin update hook
+UPDATE08_PLUGIN_FILENAME = "update"
+UPDATE08_PLUGIN_VIEWNAME = "update08"
