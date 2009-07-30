@@ -131,16 +131,15 @@ class lucidTagNode(template.Node):
 
         try:
             response = plugin_instance.call_plugin_view(request, "views", method_name, method_kwargs)
-        except plugin_instance.ObjectNotFound, err:
-            if str(err) == "No module named %s.%s" % (plugin_name, method_name):
-                return u"[lucidTag %s.%s unknown, error was: %s]" % (self.plugin_name, self.method_name, err)
-            else:
-                raise
         except:
-            # insert more information into the traceback
-            etype, evalue, etb = sys.exc_info()
-            evalue = etype('Error rendering template tag "%s": %s' % (self.raw_content, evalue))
-            raise etype, evalue, etb
+            pkg = "%s.views.%s" % (plugin_name, method_name)
+            if settings.DEBUG:
+                # insert more information into the traceback
+                etype, evalue, etb = sys.exc_info()
+                evalue = etype('Error call plugin view %s (%r): %s' % (pkg, self.raw_content, evalue))
+                raise etype, evalue, etb
+            else:
+                return u"[Error call PyLucid plugin view %s]" % pkg
 
         # FIXME: Witch error should we raised here?
         if response == None:
