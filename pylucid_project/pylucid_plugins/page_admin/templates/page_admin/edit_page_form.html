@@ -46,26 +46,20 @@ $(document).ready(function(){
             <input type="submit" name="save" value="{% trans 'save' %}" />
             <input type="submit" id="preview" name="preview" value="{% trans 'preview' %}" />
             <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
-        </li><li>
-
-        {% if help_link %}
-        <a href="{{ help_link }}" title="{% trans 'markup help page' %}">
-            <button type="button" onclick="OpenInWindow('{{ help_link }}'); return false">
-            {% trans 'markup help' %}
-            </button>
-        </a>
-        {% endif %}
-
-        <a href="{{ pagelinklist_url }}" title="{% trans 'List of all pages for creating links' %}">
-            <button type="button" onclick="OpenInWindow('{{ pagelinklist_url }}'); return false">
-             {% trans 'page list' %}
-            </button>
-        </a>
-        <a href="{{ taglist_url }}" title="{% trans 'List of all available PyLucid template tags' %}">
-            <button type="button" onclick="OpenInWindow('{{ taglist_url }}'); return false">
-             {% trans 'tag list' %}
-            </button>
-        </a>
+        </li>
+        <li>
+	        {% if help_link %}
+	        <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
+	            <button type="button">{% trans 'markup help' %}</button>
+	        </a>
+	        {% endif %}
+	
+	        <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
+	            <button type="button" >{% trans 'page list' %}</button>
+	        </a>
+	        <a href="{{ taglist_url }}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
+	            <button type="button">{% trans 'tag list' %}</button>
+	        </a>
         </li>
         {% if not use_tinymce %}
         <li>

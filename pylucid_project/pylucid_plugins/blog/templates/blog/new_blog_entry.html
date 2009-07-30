@@ -7,7 +7,7 @@
 </fieldset>
 
 <fieldset>
-<legend>{% trans 'Create a new content page' %}</legend>
+<legend>{% trans 'Create a new blog entry' %}</legend>
 <form action="{{ form_url }}" method="post" id="edit_page_form">
     <ul id="action_buttons">
         <li>
@@ -15,19 +15,15 @@
             <input type="submit" id="preview" name="preview" value="{% trans 'preview' %}" />
             <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
         </li>
+        {% if help_link %}
         <li>
-	        {% if help_link %}
-	        <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
-	            <button type="button">{% trans 'markup help' %}</button>
-	        </a>
-	        {% endif %}
-	        <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
-	            <button type="button">{% trans 'page list' %}</button>
-	        </a>
-	        <a href="{{ taglist_url }}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
-	            <button type="button">{% trans 'tag list' %}</button>
-	        </a>
+        <a href="{{ help_link }}" title="{% trans 'markup help page' %}">
+            <button type="button" class="openinwindow">
+            {% trans 'markup help' %}
+            </button>
+        </a>
         </li>
+        {% endif %}
         {% if not use_tinymce %}
         <li>
         <button type="button" class="resize_buttons" onclick="JavaScript:resize_big(); return false" title="{% trans 'makes the textarea bigger' %}">
@@ -50,7 +46,7 @@
             {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
              :</label>
             {{ field }}
-            <span class="field_help_text">{{ field.help_text }}</span>
+            <span class="field_help_text">{{ field.help_text|safe }}</span>
             {% if field.errors %}<li class="field_errors" title="'{{ field.label }}' field error.">{{ field.errors }}</li>{% endif %}
         </li>
         {% endfor %}

@@ -23,8 +23,8 @@ from django.db.models import signals
 from django.utils.html import strip_tags
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
 from django.template.defaultfilters import slugify
+from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tagging/
 import tagging
@@ -40,6 +40,10 @@ from pylucid.system.auto_model_info import UpdateInfoBaseModel
 #from PyLucid.models import Page
 
 
+TAG_INPUT_HELP_URL = \
+"http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+
+
 class BlogEntry(UpdateInfoBaseModel):
     """
     A blog entry
@@ -53,7 +57,12 @@ class BlogEntry(UpdateInfoBaseModel):
         max_length=1, choices=PageContent.MARKUP_CHOICES,
         help_text="the used markup language for this entry",
     )
-#    tags = TagField()
+    tags = TagField(# from django-tagging
+        help_text=_(
+            'tags for this entry. <a href="%s" class="openinwindow"'
+            ' title="Information about tag splitting.">tag format help</a>'
+        ) % TAG_INPUT_HELP_URL
+    )
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"
     )

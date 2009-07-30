@@ -38,7 +38,7 @@ def install(request):
 
 
 @check_permissions(superuser_only=False, permissions=("blog.add_blogentry",))
-@render_to("page_admin/new_content_page.html")
+@render_to("blog/new_blog_entry.html")
 def new_blog_entry(request):
     """
     TODO:
@@ -52,7 +52,7 @@ def new_blog_entry(request):
         form = BlogEntryForm()
 
     context = {
-        "title": "Create a new page",
+        "title": "Create a new blog entry",
         "form_url": request.path,
         "form": form,
     }

@@ -8,11 +8,42 @@ function log() {
 };
 
 
-function OpenInWindow(URL) {
-    // Open links in a JavaScript window
-    win = window.open(URL, "", "width=900, height=760, dependent=yes, resizable=yes, scrollbars=yes");
+function OpenInWindow(link) {
+	/*************************************************************************
+	Open link in a new JavaScript window.
+	Usage e.g.:
+		<a href="/foobar/" onclick="return OpenInWindow(this);">foobar</a>
+	Better usage:
+		<a href="/foobar/" class="openinwindow">foobar</a>
+	*************************************************************************/
+	var url = $(link).attr("href");
+    win = window.open(url, "", "width=900, height=760, dependent=yes, resizable=yes, scrollbars=yes");
     win.focus();
+    return false;
 }
+
+$(document).ready(function() {
+	/*************************************************************************
+	change all links with:
+		class="openinwindow"
+		
+	Open the url in a new JavaScript window, using OpenInWindow()
+	usage, e.g.:
+		<a href="/foobar/" class="openinwindow">foobar</a>
+	*************************************************************************/
+    $('a.openinwindow').each(function(){
+    	var url = $(this).attr("href");
+    	log("add open in window for link:"+url)
+    	
+    	var org_title = $(this).attr("title");
+    	
+    	$(this).attr({
+    		onclick: "return OpenInWindow(this);",
+    		title: org_title + " (Opens in a new window)"
+	    })//.append(' [^]');
+    });
+});
+
 
 
 function replace_complete_page(html) {
