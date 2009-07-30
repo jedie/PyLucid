@@ -32,7 +32,7 @@
         {% if entry.lastupdateby %}(Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.){% endif %}
     </p></small>
 
-{% include "blog/includes/taglist.html" %}
+   {% include "blog/includes/taglist.html" %}
 
    {% get_comment_count for entry as comment_count %}            
    <a href="{{ entry.get_absolute_url }}" class="comment_link" title="Display all comments | Leave a comment">{{ comment_count }} comment{{ comment_count|pluralize:"s" }}...</a>
