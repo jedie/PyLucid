@@ -51,7 +51,7 @@ class PyLucidPlugin(object):
         try:
             mod = import_module(mod_pkg)
         except ImportError, err:
-            if str(err) == "No module named admin_urls":
+            if str(err) == "No module named %s" % mod_name:
                 raise self.ObjectNotFound("Can't import %r: %s" % (mod_pkg, err))
 
             # insert more information into the traceback
