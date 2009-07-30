@@ -26,7 +26,10 @@ from pylucid.decorators import render_to
 
 
 @render_to("main_menu/main_menu.html")
-def lucidTag(request):
+def lucidTag(request, min=1, max=0):
+    """
+    TODO: use min, max options!
+    """
     current_lang = request.PYLUCID.lang_entry
     current_pagetree = request.PYLUCID.pagetree
     user = request.user
