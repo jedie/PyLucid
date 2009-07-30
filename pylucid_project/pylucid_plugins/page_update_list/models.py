@@ -34,6 +34,8 @@ class UpdateJournal(models.Model):
     staff_only = models.BooleanField(help_text="Viewable only by staff users?")
 
     class Meta:
+        verbose_name = 'Update Journal entry'
+        verbose_name_plural = 'Update Journal entries'
         ordering = ("-lastupdatetime",)
 
 
