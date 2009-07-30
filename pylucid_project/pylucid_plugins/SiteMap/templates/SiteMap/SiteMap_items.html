@@ -9,11 +9,12 @@
             <a href="{{ other_lang.get_absolute_url}}" title="{{ other_lang.lang.description }}: {{ other_lang.get_title }}">{{ other_lang.lang.code }}</a>
             {% if forloop.last %}){% endif %}
         {% endfor %}
-	    
+	    {% with "SiteMap/SiteMap_items.html" as filename %}
 	    {% with node.subnodes as nodes %}
 	       {% if nodes %}<ul>
-	       {% include "SiteMap/SiteMap_items.html" %}
+	       {% include filename %}
 	       </ul>{% endif %}
+	    {% endwith %}
 	    {% endwith %}
     </li>
     {% endif %}

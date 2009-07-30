@@ -5,12 +5,13 @@
 	        <a href="{{ node.pagemeta.get_absolute_url }}" title="{{ node.pagemeta.get_title }}" class="level_{{ node.level }}{% if node.active %} active{% endif %}{% if node.current %} current{% endif %}">{{ node.pagemeta.get_name }}</a>
 	        {% if node.current %}</strong>{% endif %}
 
+            {% with "main_menu/main_menu_items.html" as filename %}
 	        {% with node.subnodes as nodes %}
 	           {% if nodes %}<ul>
-	           {% include "main_menu/main_menu_items.html" %}
+	           {% include filename %}
 	           </ul>{% endif %}
 	        {% endwith %}
-	        
+	        {% endwith %}	        
 	    </li>
     {% endif %}
 {% endfor %}
