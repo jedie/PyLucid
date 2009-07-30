@@ -7,7 +7,7 @@ import sys
 from django.conf import settings
 from django.core import urlresolvers
 from django.utils.importlib import import_module
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls.defaults import patterns, url, include
 
 PYLUCID_PLUGINS = None
 
@@ -113,8 +113,9 @@ class PyLucidPlugin(object):
 
         raw_plugin_urlpatterns = self.get_urlpatterns(urls_filename)
 
-        # like django.conf.urls.defaults.include
-        plugin_urlpatterns = patterns('', url(url_prefix, [raw_plugin_urlpatterns]))
+        plugin_urlpatterns = patterns('',
+            (url_prefix, include(raw_plugin_urlpatterns)),
+        )
 
         #print "put in _PLUGIN_URL_CACHE[%r]" % cache_key
         _PLUGIN_URL_CACHE[cache_key] = plugin_urlpatterns
@@ -123,6 +124,7 @@ class PyLucidPlugin(object):
 
 
     def get_plugin_url_resolver(self, url_prefix, urls_filename="urls"):
+
         prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
 
         plugin_url_resolver = urlresolvers.RegexURLResolver(r'^/', prefix_urlpatterns)
