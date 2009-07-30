@@ -61,6 +61,13 @@ def syncdb():
     print "<pre>"
     management.call_command('syncdb', verbosity=1, interactive=False)
     print "</pre>"
+    print "<p><strong>syncdb done.</strong></p>"
+    print "<hr/>"
+
+    print "<ul><h4>list of settings.INSTALLED_APPS:</h4>"
+    for app_name in settings.INSTALLED_APPS:
+        print "<li>%s</li>" % app_name
+    print "</ul>"
 
 
 def info():
