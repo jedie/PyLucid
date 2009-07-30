@@ -42,20 +42,6 @@ class PyLucidAdminSite(admin.AdminSite):
     """
     Own PyLucid Admin Site.
     """
-#    def __init__(self, *args, **kwargs):
-#        super(PyLucidAdminSite, self).__init__(*args, **kwargs)
-
-        # Quick work-a-round for http://code.djangoproject.com/ticket/10061
-        #self.root_path = "/%s/" % settings.ADMIN_URL_PREFIX
-
-#    def get_urls(self):
-#        urls = super(PyLucidAdminSite, self).get_urls()
-#        my_urls = patterns('',
-#            url(r'/?auth=logout', self.logout, name='%sadmin_logout'),
-#            url(r'/?auth=logout', self.logout, name='%sadmin_logout' % self.name),
-#        )
-#        return my_urls + urls
-
     def register(self, *args, **kwargs):
         """ FIXME: Don't know why some models are already registered """
         try:
