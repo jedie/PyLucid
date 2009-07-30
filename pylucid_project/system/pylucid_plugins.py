@@ -169,13 +169,9 @@ class PyLucidPlugins(dict):
             except plugin_instance.ObjectNotFound, err:
                 continue
 
-            url_prefix = "^" + plugin_name + "/"
-
-            # like django.conf.urls.defaults.include, use plugin name as url prefix
-            # OLD: urls += patterns('', url(url_prefix, [admin_urls]))
-            # NEW:
-            urls += patterns(url_prefix, *admin_urls)
-            # FIXME: url prefix doesn't work :(
+            urls += patterns('',
+                (r"^%s/" % plugin_name, include(admin_urls)),
+            )
 
         return urls
 
