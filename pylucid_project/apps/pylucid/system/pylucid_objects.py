@@ -31,7 +31,7 @@ class PyLucidRequestObjects(object):
         self.system_preferences = SystemPreferencesForm().get_preferences()
         default_lang_code = self.system_preferences["lang_code"]
         self.default_lang_code = default_lang_code
-        self.default_lang_entry = Language.objects.get(code=default_lang_code)
+        self.default_lang_entry, created = Language.objects.get_or_create(code=default_lang_code)
 
         # The current language instance
         try:
