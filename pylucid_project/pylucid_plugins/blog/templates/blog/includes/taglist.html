@@ -1,6 +1,9 @@
+{% load tagging_tags %}
+
 <fieldset class="taglist"><legend>tags</legend>
-{% for tag in entry.tags %}
+{% tags_for_object entry as tags %}
+{% for tag in tags %}
     {% if not forloop.first %}|{% endif %}
-    <a href="{% url Blog-tag_view tag=tag.name %}">{{ tag }}</a>
+    <a href="{% url Blog-tag_view tag=tag.name %}">{{ tag.name }}</a>
 {% endfor %}
-</fieldset>
+</fieldset

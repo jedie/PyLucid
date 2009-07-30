@@ -45,10 +45,18 @@ from blog.models import BlogEntry
 # from django-tagging
 from tagging.models import Tag, TaggedItem
 
+def _add_breadcrumb(request, title, url):
+    """ shortcut for add breadcrumb link """
+    context = request.PYLUCID.context
+    breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+    breadcrumb_context_middlewares.add_link(title, url)
+
+
 @render_to("blog/summary.html")
 def _render_summary(request, context):
+    tag_cloud = Tag.objects.cloud_for_model(BlogEntry, steps=2)
     context.update({
-        "tag_cloud": Tag.objects.cloud_for_model(BlogEntry, steps=2),
+        "tag_cloud": tag_cloud,
     })
     return context
 
@@ -62,8 +70,13 @@ def summary(request):
 
 def tag_view(request, tag):
     tags = tag.strip("/").split("/")
+    entries = TaggedItem.objects.get_by_model(BlogEntry, tags)
+
+    # Add link to the breadcrumbs ;)
+    _add_breadcrumb(request, title=_("All '%s' tagged items" % ",".join(tags)), url=request.path)
+
     context = {
-        "entries": TaggedItem.objects.get_by_model(BlogEntry, tags)
+        "entries": entries
     }
     return _render_summary(request, context)
 
@@ -73,9 +86,7 @@ def detail_view(request, id, title):
     entry = BlogEntry.objects.get(pk=id)
 
     # Add link to the breadcrumbs ;)
-    context = request.PYLUCID.context
-    breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
-    breadcrumb_context_middlewares.add_link(title=entry.headline, url=entry.get_absolute_url())
+    _add_breadcrumb(request, title=entry.headline, url=entry.get_absolute_url())
 
     if request.POST:
         # Use django.contrib.comments.views.comments.post_comment to hanlde a comment

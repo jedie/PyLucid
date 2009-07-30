@@ -106,8 +106,9 @@ class BlogEntry(UpdateInfoBaseModel):
 
 signals.post_save.connect(receiver=page_update_list.save_receiver, sender=BlogEntry)
 
-
-try:
-    tagging.register(BlogEntry)
-except tagging.AlreadyRegistered: # FIXME
-    pass
+# Bug in django tagging?
+# http://code.google.com/p/django-tagging/issues/detail?id=151#c2
+#try:
+#    tagging.register(BlogEntry)
+#except tagging.AlreadyRegistered: # FIXME
+#    pass

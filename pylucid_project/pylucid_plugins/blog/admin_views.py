@@ -46,8 +46,9 @@ def new_blog_entry(request):
     if request.method == "POST":
         form = BlogEntryForm(request.POST)
         if form.is_valid():
-            form.save()
+            instance = form.save()
             request.page_msg("blog entry saved.")
+            return http.HttpResponseRedirect(instance.get_absolute_url())
     else:
         form = BlogEntryForm()
 
