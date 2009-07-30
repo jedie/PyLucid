@@ -127,28 +127,29 @@ def install_plugins(request):
 
     output.append("*** Install Plugins:")
 
+    filename = settings.ADMIN.VIEW_FILENAME
+    view_name = settings.ADMIN.PLUGIN_INSTALL_VIEW_NAME
+
     for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
         try:
-            response = plugin_instance.call_plugin_view(
-                request, settings.ADMIN.VIEW_FILENAME, settings.ADMIN.PLUGIN_INSTALL_VIEW_NAME, method_kwargs={}
-            )
-#        except plugin_instance.ObjectNotFound, err:
-        except (ImportError, AttributeError), err:
-            if str(err).endswith("No module named admin_views"):
+            response = plugin_instance.call_plugin_view(request, filename, view_name, method_kwargs={})
+        except Exception, err:
+            if str(err).endswith("No module named %s" % filename):
+                # Plugin has no install API
                 if settings.DEBUG:
                     output.append("Skip plugin %r, because it has no install view (%s)" % (plugin_name, err))
-                    continue
-            else:
-                if settings.DEBUG:
-                    raise
-                else:
-                    output.append(" *** %s" % err)
-        else:
-            output.append("_" * 79)
-            output.append(" *** install plugin %r ***" % plugin_name)
-            assert isinstance(response, basestring) == True, "Plugin install view must return a basestring!"
-            output.append(response)
+                continue
 
+            request.page_msg.error("failed call %s.%s" % (plugin_name, view_name))
+            request.page_msg.insert_traceback()
+            continue
+
+        output.append("_" * 79)
+        output.append(" *** install plugin %r ***" % plugin_name)
+        assert isinstance(response, basestring) == True, "Plugin install view must return a basestring!"
+        output.append(response)
+
+        output.append(" --- %s END ---" % plugin_name)
         output.append("")
 
     context = {
