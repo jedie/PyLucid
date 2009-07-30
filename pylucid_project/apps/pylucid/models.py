@@ -93,9 +93,34 @@ class PageTreeManager(BaseModelManager):
     inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """
-    def get_tree(self):
-        data = self.model.on_site.all().order_by("position")
-        tree = TreeGenerator(data)
+    def filter_accessible(self, queryset, user):
+        """ filter all pages with can't accessible for the given user """
+        # Filter PageTree view permissions:
+        if user.is_anonymous(): # Anonymous user are in no user group
+            queryset = queryset.filter(permitViewGroup=None)
+        elif not user.is_superuser: # Superuser can see everything ;)
+            user_groups = user.groups
+            queryset = queryset.filter(permitViewGroup__in=user_groups)
+
+        return queryset
+
+    def all_accessible(self, user):
+        """ returns all pages that the given user can access. """
+        queryset = self.model.on_site
+        queryset = self.filter_accessible(queryset, user)
+        return queryset
+
+    def get_tree(self, user, filter_showlinks=False):
+        """ return a TreeGenerator instance with all accessable page tree instance """
+        queryset = self.all_accessible(user)
+
+        if filter_showlinks:
+            # Filter PageTree.showlinks
+            queryset = queryset.filter(showlinks=True)
+
+        queryset = queryset.order_by("position")
+        tree = TreeGenerator(queryset, skip_no_parent=True)
+
         return tree
 
 #    def easy_create(self, cleaned_form_data, page_type):
@@ -113,20 +138,28 @@ class PageTreeManager(BaseModelManager):
 #        pagetree_instance.save()
 #        return pagetree_instance
 
-    def get_root_page(self):
-        """ returns the 'first' page tree entry for a '/'-root url """
-        queryset = self.model.on_site.all().filter(parent=None).order_by("position")
+    def get_root_page(self, user, filter_parent=True):
+        """ returns the 'first' root page tree entry witch the user can access """
+        queryset = self.all_accessible(user)
+
+        if filter_parent:
+            # All "root" pages
+            queryset = queryset.filter(parent=None).order_by("position")
+        else:
+            # fallback if no "root" page is accessable
+            queryset = queryset.order_by("parent", "position")
+
         try:
-            root_page = queryset[0]
+            return queryset[0]
         except IndexError, err:
             if self.model.on_site.count() == 0:
-                #request.page_msg.error(_("There exist no PageTree items! Have you install PyLucid?"))
                 raise PageTree.DoesNotExist("There exist no PageTree items! Have you install PyLucid?")
-#                raise 
-#                raise IndexError("There exist no PageTree items! Have you install PyLucid?")
-#            else:
-#                raise
-        return root_page
+            elif filter_parent == True:
+                # If all root pages not accessible for the current user
+                # -> try to get the first accessable page
+                return self.get_root_page(user, filter_parent=False)
+            else:
+                raise
 
     def get_model_instance(self, request, ModelClass, pagetree=None):
         """
@@ -269,7 +302,7 @@ class PageTree(BaseTreeModel, UpdateInfoBaseModel):
     design = models.ForeignKey("Design", help_text="Page Template, CSS/JS files")
 
     showlinks = models.BooleanField(default=True,
-        help_text="Put the Link to this page into Menu/Sitemap etc.?"
+        help_text="Accessable for all users, but don't put a Link to this page into menu/sitemap etc."
     )
     permitViewGroup = models.ForeignKey(Group, related_name="%(class)s_permitViewGroup",
         help_text="Limit viewable to a group?",

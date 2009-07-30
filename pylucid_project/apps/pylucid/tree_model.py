@@ -135,7 +135,11 @@ class MenuNode(object):
 
 
 class TreeGenerator(object):
-    def __init__(self, queryset):
+    def __init__(self, queryset, skip_no_parent=False):
+        """
+        Load the tree with all queryset items.
+        Use skip_no_parent if the tree has "holes": e.g.: Filtered not accessible items.
+        """
         self.related_objects = [] # List of added related objects
 
         # Create a dict with all pages as nodes
@@ -153,7 +157,16 @@ class TreeGenerator(object):
             else:
                 parent_id = None
 
-            self.nodes[parent_id].add(self.nodes[node_data.id])
+            try:
+                parent = self.nodes[parent_id]
+            except KeyError:
+                if skip_no_parent == True:
+                    # Skip item if parent does not exist.
+                    continue
+                else:
+                    raise
+
+            parent.add(self.nodes[node_data.id])
 
         # add level number to all nodes
         self.setup_level()
@@ -229,7 +242,8 @@ class TreeGenerator(object):
         setup all node visible item for main menu template. 
         """
         self.deactivate_all()
-        current_node = self.nodes[id]
+        nodes = self.nodes
+        current_node = nodes[id]
         current_node.activate()
         current_node.current = True
 

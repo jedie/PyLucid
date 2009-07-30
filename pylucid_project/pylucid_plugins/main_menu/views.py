@@ -29,23 +29,16 @@ from pylucid.decorators import render_to
 def lucidTag(request):
     current_lang = request.PYLUCID.lang_entry
     current_pagetree = request.PYLUCID.pagetree
+    user = request.user
 
-    tree = PageTree.objects.get_tree()
+    # Get a pylucid.tree_model.TreeGenerator instance with all accessible PageTree for the current user
+    tree = PageTree.objects.get_tree(user, filter_showlinks=True)
 
     # activate the current pagetree node (for main menu template)
     tree.set_current_node(current_pagetree.id)
 
     # add all PageMeta objects into tree
-    queryset = PageMeta.objects.all().filter(lang=current_lang)
-
-    # Filter PageTree.showlinks
-    queryset = queryset.filter(page__showlinks=True)
-
-    # Filter PageTree view permissions:
-    if request.user.is_anonymous(): # Anonymous user are in no user group
-        queryset = queryset.filter(page__permitViewGroup=None)
-    elif not request.user.is_superuser: # Superuser can see everything ;)
-        queryset = queryset.filter(page__permitViewGroup__in=request.user.groups)
+    queryset = PageMeta.objects.filter(lang=current_lang)
 
     tree.add_related(queryset, field="page", attrname="pagemeta")
     #tree.debug()

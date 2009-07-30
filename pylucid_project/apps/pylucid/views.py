@@ -209,8 +209,9 @@ def _prepage_request(request, lang_entry):
 
 def _render_root_page(request):
     """ render the root page, used in root_page and lang_root_page views """
+    user = request.user
     try:
-        pagetree = PageTree.objects.get_root_page() # Get the first PageTree entry
+        pagetree = PageTree.objects.get_root_page(user) # Get the first PageTree entry
     except PageTree.DoesNotExist, err:
         msg = _("There exist no pages items! Have you install PyLucid? At least you must create one page!")
         # TODO: Redirect to install page?
