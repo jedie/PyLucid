@@ -2,11 +2,13 @@
 
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.admin.sites import AlreadyRegistered
+from django.shortcuts import render_to_response
 from django.contrib.auth.models import User, Group
+from django.contrib.admin.sites import AlreadyRegistered
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.conf.urls.defaults import patterns, url, include
-from django.http import HttpResponse, HttpResponseRedirect
+
 
 from reversion.admin import VersionAdmin
 
@@ -15,20 +17,23 @@ from pylucid_admin import models
 
 
 #-----------------------------------------------------------------------------
-# add user broken, if TEMPLATE_STRING_IF_INVALID != ""
-# http://code.djangoproject.com/ticket/11176
-from django.contrib.auth.admin import UserAdmin
+# some django admin stuff is broken if TEMPLATE_STRING_IF_INVALID != ""
+# http://code.djangoproject.com/ticket/3579
 
-org_add_view = UserAdmin.add_view
-def ugly_patched_add_view(*args, **kwargs):
-    old = settings.TEMPLATE_STRING_IF_INVALID
-    settings.TEMPLATE_STRING_IF_INVALID = ""
-    result = org_add_view(*args, **kwargs)
-    settings.TEMPLATE_STRING_IF_INVALID = old
-    return result
+if settings.TEMPLATE_STRING_IF_INVALID != "":
+    # Patch the render_to_response function ;)
+    from django.contrib.auth import admin as auth_admin
+    from django.contrib.admin import options
 
-UserAdmin.add_view = ugly_patched_add_view
+    def patched_render_to_response(*args, **kwargs):
+        old = settings.TEMPLATE_STRING_IF_INVALID
+        settings.TEMPLATE_STRING_IF_INVALID = ""
+        result = render_to_response(*args, **kwargs)
+        settings.TEMPLATE_STRING_IF_INVALID = old
+        return result
 
+    options.render_to_response = patched_render_to_response
+    auth_admin.render_to_response = patched_render_to_response
 
 #------------------------------------------------------------------------------
 

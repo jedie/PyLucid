@@ -137,11 +137,15 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 # is in a lucidTag plugin view!
 # Note that Django only displays fancy error pages if DEBUG is True!
 TEMPLATE_DEBUG = False
+#TEMPLATE_DEBUG = True
 
 if DEBUG:
     # Display invalid (e.g. misspelled, unused) template variables
     # http://www.djangoproject.com/documentation/templates_python/#how-invalid-variables-are-handled
     # http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
+    # But note: Some django admin stuff is broken if TEMPLATE_STRING_IF_INVALID != ""
+    # see also: http://code.djangoproject.com/ticket/3579
+    # A work-a-round for this lives in ./pylucid_project/apps/pylucid_admin/admin.py 
     TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
 #    from django_tools.template import warn_invalid_template_vars
 #    warn_invalid_template_vars.add_warning()
