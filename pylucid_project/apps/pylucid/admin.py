@@ -18,9 +18,11 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Permission
+from django.template.loader import render_to_string
 from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
 from django.conf import settings
+
 
 from reversion.admin import VersionAdmin
 
@@ -31,14 +33,28 @@ from pylucid_admin.admin import pylucid_admin_site
 
 #------------------------------------------------------------------------------
 
-class PageTreeAdmin(VersionAdmin):
+class BaseAdmin(VersionAdmin):
+    def absolute_url(self, obj):
+        context = {"absolute_url": obj.get_absolute_url()}
+        html = render_to_string('admin/pylucid/includes/absolute_url.html', context)
+        return html
+
+    absolute_url.short_description = 'absolute url'
+    absolute_url.allow_tags = True
+
+#------------------------------------------------------------------------------
+
+
+
+class PageTreeAdmin(BaseAdmin):
     #prepopulated_fields = {"slug": ("title",)}    
 
-    list_display = ("id", "parent", "slug", "site", "get_absolute_url", "lastupdatetime", "lastupdateby")
-    list_display_links = ("slug", "get_absolute_url")
+    list_display = ("id", "parent", "slug", "site", "absolute_url", "lastupdatetime", "lastupdateby")
+    list_display_links = ("id", "slug")
     list_filter = ("site", "page_type", "design", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     search_fields = ("slug",)
+
 
 pylucid_admin_site.register(models.PageTree, PageTreeAdmin)
 
@@ -49,9 +65,9 @@ class LanguageAdmin(VersionAdmin):
 pylucid_admin_site.register(models.Language, LanguageAdmin)
 
 
-class PageMetaAdmin(VersionAdmin):
-    list_display = ("id", "get_title", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
-    list_display_links = ("get_title", "get_absolute_url")
+class PageMetaAdmin(BaseAdmin):
+    list_display = ("id", "get_title", "absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
+    list_display_links = ("id", "get_title")
     list_filter = ("lang", "keywords", "createby", "lastupdateby")
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
@@ -62,19 +78,19 @@ pylucid_admin_site.register(models.PageMeta, PageMetaAdmin)
 class PageContentInline(admin.StackedInline):
     model = models.PageContent
 
-class PageContentAdmin(VersionAdmin):
-    list_display = ("id", "get_title", "get_absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
-    list_display_links = ("get_title", "get_absolute_url")
+class PageContentAdmin(BaseAdmin):
+    list_display = ("id", "get_title", "absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
+    list_display_links = ("id", "get_title")
     list_filter = ("lang", "markup", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
-    search_fields = ("content", "get_title", "get_absolute_url")
+    search_fields = ("content", "get_title", "absolute_url")
 
 pylucid_admin_site.register(models.PageContent, PageContentAdmin)
 
 
-class PluginPageAdmin(VersionAdmin):
+class PluginPageAdmin(BaseAdmin):
     list_display = (
-        "id", "get_plugin_name", "get_absolute_url", "app_label",
+        "id", "get_plugin_name", "absolute_url", "app_label",
         "get_site", "lastupdatetime", "lastupdateby",
     )
     list_display_links = ("get_plugin_name", "app_label")
