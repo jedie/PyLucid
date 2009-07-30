@@ -410,6 +410,9 @@ def update08templates(request):
 
         # TODO: add somthing like: <meta http-equiv="Content-Language" content="en" />
 
+        if "<!-- page_messages -->" not in content:
+            out.write(" *** IMPORTANT: You must insert <!-- page_messages --> in this template!")
+
         template.content = content
         template.save()
 
