@@ -126,9 +126,11 @@ def render_to(template_name=None, debug=False):
 
             if not isinstance(context, dict):
                 if debug:
-                    print "renter_to info: %s (template: %r) has not return a dict, has return: %r (%r)" % (
-                    function.__name__, template_name, type(context), function.func_code
-                )
+                    msg = (
+                        "renter_to info: %s (template: %r)"
+                        " has not return a dict, has return: %r (%r)"
+                    ) % (function.__name__, template_name, type(context), function.func_code)
+                    request.page_msg(msg)
                 return context
 
             template_name2 = context.pop('template_name', template_name)
