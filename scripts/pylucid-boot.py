@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 ## WARNING: This file is generated
+## using: '/usr/local/lib/python2.6/dist-packages/virtualenv-1.3.3-py2.6.egg/virtualenv.pyc'
+## Generate with 'create_bootstrap_script.py'
 #!/usr/bin/env python
 """Create a "virtual" Python installation
 """
@@ -966,11 +968,9 @@ def create_bootstrap_script(extra_text, python_version=''):
                + content)
     return content.replace('##EXT' 'END##', extra_text)
 
-# coding: utf-8
-
-"""
-    Source PyLucid bootstrap script.
-"""
+# source bootstrap script: 'source-pylucid-boot.py'
+#-----------------------------------------------------------------------------
+# PyLucid bootstrap script START
 
 import os, subprocess
 
@@ -978,10 +978,13 @@ def after_install(options, home_dir):
     etc = os.path.join(home_dir, 'etc')
     if not os.path.exists(etc):
         os.makedirs(etc)
-        
+
     easy_install = os.path.join(home_dir, 'bin', 'easy_install')
-        
+
     subprocess.call([easy_install, '--always-copy', 'pip'])
+
+# PyLucid bootstrap script END
+#-----------------------------------------------------------------------------
 
 ##file site.py
 SITE_PY = """
