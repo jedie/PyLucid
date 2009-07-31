@@ -2,6 +2,7 @@
 
 function verbose_eval {
     echo - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    echo PWD: ${PWD}
     echo $*
     echo - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     eval $*
@@ -9,8 +10,14 @@ function verbose_eval {
     echo
 }
 
-PYLUCID_ENV=../PyLucid_env
+BASE_DIR=${PWD%/*}
+echo "use base dir: ${BASE_DIR}"
+cd ${BASE_DIR}
+
+PYLUCID_ENV=PyLucid_env
 BIN=${PYLUCID_ENV}/bin
+PIP_LOG=${PYLUCID_ENV}/pip_update.log
+EXT_APPS_TXT=scripts/requirements/external_apps.txt
 
 #${BIN}/python ${BIN}/pip install --help
 
@@ -20,12 +27,7 @@ verbose_eval source ${BIN}/activate
 
 echo _____________________________________________________________________
 echo Install external dependencies using pip:
-verbose_eval ${BIN}/python ${BIN}/pip install --upgrade --verbose --log=pip_update.log --requirement requirements/external_apps.txt
-
-echo _____________________________________________________________________
-echo add a manage.sh script:
-verbose_eval ln ${PYLUCID_ENV}/src/pylucid/scripts/manage.sh ${PYLUCID_ENV}/
-verbose_eval chmod +x ${PYLUCID_ENV}/manage.sh
+verbose_eval ${BIN}/python ${BIN}/pip install --upgrade --verbose --log=${PIP_LOG} --requirement ${EXT_APPS_TXT}
 
 echo =====================================================================
 echo
