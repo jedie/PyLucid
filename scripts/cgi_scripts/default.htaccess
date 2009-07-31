@@ -13,12 +13,20 @@
 #     after every step.
 #
 
+# environment variables
+# If you can set SetEnv here, you can try to put it into a other context, see: 
+#     http://httpd.apache.org/docs/2.2/mod/directive-dict.html#Context
+#
+# If you can't set the path in a other context, you can edit the existing .cgi files.
+# see also:
+#    http://httpd.apache.org/docs/2.2/mod/mod_env.html#setenv|SetEnv
+#    http://httpd.apache.org/docs/2.2/mod/core.html#allowoverride
+#
 # Please update this path for your needs:
 SetEnv VIRTUALENV_FILE ./PyLucid_env/bin/activate_this.py
-
-
+#
+# You must normaly not change this:
 SetEnv DJANGO_SETTINGS_MODULE pylucid_project.settings
-
 
 # Enable execution of CGI scripts using mod_cgi
 # http://httpd.apache.org/docs/2.0/mod/core.html#options
@@ -41,7 +49,6 @@ RewriteEngine On
 # You can add more directories if needed.
 RewriteRule ^media - [L]
 RewriteRule ^django_media - [L]
-#RewriteRule ^dev_scripts/server_tests - [L]
 
 # Forbid the directly access to the dispatcher file (send 403 HTTP response)
 # FIXME: Is it save to default activate both rules?
@@ -61,5 +68,8 @@ RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
 # also deny the access for everybody.
 # http://httpd.apache.org/docs/2.2/mod/core.html#files
 <Files settings.py>
+    Deny from all
+</Files>
+<Files local_settings.py>
     Deny from all
 </Files>
