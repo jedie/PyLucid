@@ -21,7 +21,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.admin import UserAdmin
 
-from pylucid_admin.admin import pylucid_admin_site
+from pylucid_admin.admin_site import pylucid_admin_site
 
 from page_update_list.models import UpdateJournal, PageUpdateListObjects
 

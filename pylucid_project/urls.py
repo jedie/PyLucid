@@ -17,12 +17,11 @@
 
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url, include
-from django.contrib.admin.views.decorators import staff_member_required as staff
-from django.views.generic.list_detail import object_detail
 
 from django.contrib import admin
 
-from pylucid_admin.admin import pylucid_admin_site
+from pylucid_admin.admin_site import pylucid_admin_site
+
 
 admin.autodiscover()
 
@@ -30,19 +29,18 @@ admin.autodiscover()
 urlpatterns = patterns('',
     #_____________________________________
     # PYLUCID UPDATE SECTION
-    ('^%s/update/' % settings.ADMIN_URL_PREFIX, include('pylucid_update.urls')),
+    url('^%s/update/' % settings.ADMIN_URL_PREFIX, include('pylucid_update.urls')),
 
     #_____________________________________
     # PYLUCID ADMIN
-    (r'^%s/' % settings.PYLUCID_ADMIN_URL_PREFIX, include('pylucid_admin.urls')),
+    url(r'^%s/' % settings.PYLUCID_ADMIN_URL_PREFIX, include('pylucid_admin.urls')),
 
     # move it somewhere?
-    (r'^comments/', include('django.contrib.comments.urls')),
+    url(r'^comments/', include('django.contrib.comments.urls')),
 
     #_____________________________________
     # DJANGO ADMIN PANEL
-#    (r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
-    (r'^%s/' % settings.ADMIN_URL_PREFIX, include(pylucid_admin_site.urls)),
+    url(r'^%s/' % settings.ADMIN_URL_PREFIX, include(pylucid_admin_site.urls)),
 )
 
 # serve static files
@@ -50,12 +48,12 @@ if settings.SERVE_STATIC_FILES:
     # Should only enabled, if the django development server used.
     print "Serve static file from MEDIA_ROOT:", settings.MEDIA_ROOT
     urlpatterns += patterns('',
-        ('^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"), 'django.views.static.serve',
+        url('^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"), 'django.views.static.serve',
             {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     )
 
 urlpatterns += patterns('',
-        ('^', include('pylucid.urls')),
+    url('^', include('pylucid.urls')),
 )
 
 #_____________________________________________________________________________

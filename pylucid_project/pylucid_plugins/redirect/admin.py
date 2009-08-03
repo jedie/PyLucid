@@ -18,7 +18,7 @@
 
 from django.contrib import admin
 
-from pylucid_admin.admin import pylucid_admin_site
+from pylucid_admin.admin_site import pylucid_admin_site
 
 from redirect.models import RedirectModel
 

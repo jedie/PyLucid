@@ -20,7 +20,7 @@ from django.contrib import admin
 
 from pylucid_project.apps.pylucid_update.models import Page08, Style08, Template08, \
                                         BlogComment08, BlogTag, BlogEntry
-from pylucid_admin.admin import pylucid_admin_site
+from pylucid_admin.admin_site import pylucid_admin_site
 
 #------------------------------------------------------------------------------
 
