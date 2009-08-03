@@ -32,19 +32,12 @@ def _get_page_content(request):
     default_lang_entry = request.PYLUCID.default_lang_entry
 
     try:
-        pagecontent = PageTree.objects.get_pagecontent(request)
+        pagecontent = PageTree.objects.get_pagecontent(request, show_lang_info=True)
     except PageContent.DoesNotExist, err:
         raise http.Http404(
             "Page '%s' does not exist in default language '%s'.\n"
             "Original error was: %s" % (
                 pagetree.slug, default_lang_entry.code, err
-            )
-        )
-
-    if (settings.DEBUG or settings.PYLUCID.I18N_DEBUG) and (pagecontent.lang != lang_entry):
-        request.page_msg.error(
-            "Page '%s' doesn't exist in client favored language '%s', use '%s' entry." % (
-                pagetree.slug, lang_entry.code, pagecontent.lang.code
             )
         )
 

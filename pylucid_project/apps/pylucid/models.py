@@ -161,12 +161,13 @@ class PageTreeManager(BaseModelManager):
             else:
                 raise
 
-    def get_model_instance(self, request, ModelClass, pagetree=None):
+    def get_model_instance(self, request, ModelClass, pagetree=None, show_lang_info=True):
         """
         Shared function for getting a model instance from the given model witch has
         a foreignkey to PageTree and Language model.
         Use the current language or the system default language.
         If pagetree==None: Use request.PYLUCID.pagetree
+        If show_lang_info: Create a page_msg if requested item doesn't exist in client favored language.
         """
         # client favored Language instance:
         lang_entry = request.PYLUCID.lang_entry
@@ -188,7 +189,7 @@ class PageTreeManager(BaseModelManager):
             # Get the PageContent entry in the system default language
             instance = queryset.get(lang=default_lang_entry)
 
-            if (settings.DEBUG or settings.PYLUCID.I18N_DEBUG):
+            if show_lang_info and (settings.DEBUG or settings.PYLUCID.I18N_DEBUG):
                 request.page_msg.error(
                     "Page '%s' doesn't exist in client favored language '%s', use '%s' entry." % (
                         pagetree.slug, lang_entry.code, instance.lang.code
@@ -197,21 +198,21 @@ class PageTreeManager(BaseModelManager):
             return instance
 
 
-    def get_pagemeta(self, request, pagetree=None):
+    def get_pagemeta(self, request, pagetree=None, show_lang_info=False):
         """
         Returns the PageMeta instance for pagetree and language.
         If there is no PageMeta in the current language, use the system default language.
         If pagetree==None: Use request.PYLUCID.pagetree
         """
-        return self.get_model_instance(request, PageMeta, pagetree)
+        return self.get_model_instance(request, PageMeta, pagetree, show_lang_info)
 
-    def get_pagecontent(self, request, pagetree=None):
+    def get_pagecontent(self, request, pagetree=None, show_lang_info=False):
         """
         Returns the PageContent instance for pagetree and language.
         If there is no PageContent in the current language, use the system default language.
         If pagetree==None: Use request.PYLUCID.pagetree
         """
-        return self.get_model_instance(request, PageContent, pagetree)
+        return self.get_model_instance(request, PageContent, pagetree, show_lang_info)
 
     def get_page_from_url(self, request, url_path):
         """

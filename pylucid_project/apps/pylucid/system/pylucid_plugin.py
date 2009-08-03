@@ -85,7 +85,7 @@ def call_plugin(request, prefix_url, rest_url):
     url_prefix = "^%s/%s" % (lang_entry.code, prefix_url)
 
     # Get PluginPage instance from current PageTree. (Has a fallback if current language doesn't exist)
-    pluginpage = PageTree.objects.get_model_instance(request, PluginPage)
+    pluginpage = PageTree.objects.get_model_instance(request, PluginPage, show_lang_info=True)
 
     # Add to globale pylucid objects. Use e.g. in admin_menu plugin
     request.PYLUCID.pluginpage = pluginpage
