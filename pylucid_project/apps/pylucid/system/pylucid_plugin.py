@@ -30,7 +30,7 @@ from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
 from django.conf.urls.defaults import patterns, url
 
-from pylucid.models import PluginPage
+from pylucid.models import PluginPage, PageTree
 from pylucid.system import pylucid_objects
 
 
@@ -80,14 +80,19 @@ def _raise_resolve_error(plugin_url_resolver, rest_url):
 def call_plugin(request, prefix_url, rest_url):
     """ Call a plugin and return the response. """
     lang_entry = request.PYLUCID.lang_entry
+    pagetree = request.PYLUCID.pagetree
     # build the url prefix
     url_prefix = "^%s/%s" % (lang_entry.code, prefix_url)
 
-    # Get the information witch django app would be used
-    pluginpage = PluginPage.objects.get(page=request.PYLUCID.pagetree, lang=lang_entry)
+    # Get PluginPage instance from current PageTree. (Has a fallback if current language doesn't exist)
+    pluginpage = PageTree.objects.get_model_instance(request, PluginPage)
 
+    # Add to globale pylucid objects. Use e.g. in admin_menu plugin
+    request.PYLUCID.pluginpage = pluginpage
+
+    # Get pylucid_project.system.pylucid_plugins instance
     plugin_instance = pluginpage.get_plugin()
-#    print plugin_instance
+
     plugin_url_resolver = plugin_instance.get_plugin_url_resolver(
         url_prefix, urls_filename=pluginpage.urls_filename,
     )

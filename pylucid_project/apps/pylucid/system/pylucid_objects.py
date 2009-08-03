@@ -53,6 +53,11 @@ class PyLucidRequestObjects(object):
         # objects witch will be set later:
         #self.pagetree - The current PageTree model instance
         #self.pagemeta - The current PageMeta model instance
-        #self.pagecontent - PageContent instance, but only if the current page is not a PagePlugin!
+        #
+        # if current page == PageTree.PAGE_TYPE: # a normal content page
+        #     self.pagecontent - PageContent instance, attached at pylucid.views._render_page()
+        # elif  current page == PageTree.PLUGIN_TYPE: # a plugin page
+        #     self.pluginpage - PluginPage instance, attached at pylucid.system.pylucid_plugin.call_plugin()
+        #
         #self.page_template - The global page template as a string
         #self.context - The global context

@@ -186,7 +186,16 @@ class PageTreeManager(BaseModelManager):
             return queryset.get(lang=lang_entry)
         except ModelClass.DoesNotExist:
             # Get the PageContent entry in the system default language
-            return queryset.get(lang=default_lang_entry)
+            instance = queryset.get(lang=default_lang_entry)
+
+            if (settings.DEBUG or settings.PYLUCID.I18N_DEBUG):
+                request.page_msg.error(
+                    "Page '%s' doesn't exist in client favored language '%s', use '%s' entry." % (
+                        pagetree.slug, lang_entry.code, instance.lang.code
+                    )
+                )
+            return instance
+
 
     def get_pagemeta(self, request, pagetree=None):
         """

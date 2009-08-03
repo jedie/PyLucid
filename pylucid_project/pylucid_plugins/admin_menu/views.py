@@ -37,9 +37,7 @@ def lucidTag(request):
 
     if pagetree.page_type == PageTree.PLUGIN_TYPE:
         # Plugin page -> edit PluginPage model entry
-        lang_entry = request.PYLUCID.lang_entry
-        pluginpage = PluginPage.objects.get(page=pagetree, lang=lang_entry)
-        context["pluginpage"] = pluginpage
+        context["pluginpage"] = request.PYLUCID.pluginpage
     else:
         # Content page -> edit PageContent model entry
         context["pagecontent"] = request.PYLUCID.pagecontent
