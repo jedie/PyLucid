@@ -49,12 +49,14 @@ TAG = "<!-- page_messages -->"
 
 SESSION_KEY = "PAGE_MESSAGES"
 
-MAX_FILEPATH_LEN = 60
+MAX_FILEPATH_LEN = 50
+FILEPATH_SPLIT = "src/pylucid" # try to cut the filepath or MAX_FILEPATH_LEN used
+STACK_LIMIT = 6
 
 TEMPLATE = \
 """<fieldset id="page_msg"><legend>page message</legend>
 {% for message in msg_list %}
-<p class="{{ message.msg_type }}"{% if message.fileinfo %} title="{{ message.fileinfo }}"{% endif %}>
+<p class="{{ message.msg_type }}"{% if message.fileinfo %} title="click for stack info" onclick="alert('Stack info (limit: {{ stack_limit }}):\\n\\n{{ message.fileinfo }}');"{% endif %}>
 {% for line in message.lines %}{{ line }}{% if not forloop.last %}<br />{% endif %}
 {% endfor %}</p>
 {% endfor %}
@@ -192,27 +194,36 @@ class PageMessages(object):
         """
         return fileinfo: Where from the announcement comes?
         """
-        try:
-            self_basename = os.path.basename(__file__)
-            if self_basename.endswith(".pyc"):
-                # cut: ".pyc" -> ".py"
-                self_basename = self_basename[:-1]
-
-            for stack_frame in inspect.stack():
-                # go forward in the stack, to outside of this file.
-                filename = stack_frame[1]
-                lineno = stack_frame[2]
-                if os.path.basename(filename) != self_basename:
-                    break
-
+        def cut_filename(filename):
+            if FILEPATH_SPLIT in filename:
+                return "...%s" % filename.split(FILEPATH_SPLIT)[1]
             if len(filename) >= MAX_FILEPATH_LEN:
                 filename = "...%s" % filename[-MAX_FILEPATH_LEN:]
-            fileinfo = "%s line %s" % (filename, lineno)
-        except Exception, e:
-            fileinfo = "(inspect Error: %s)" % e
+            return filename
 
+        self_basename = os.path.basename(__file__)
+        if self_basename.endswith(".pyc"):
+            # cut: ".pyc" -> ".py"
+            self_basename = self_basename[:-1]
+
+        stack_list = inspect.stack()
+        # go forward in the stack, to outside of this file.
+        for no, stack_line in enumerate(stack_list):
+            filename = stack_line[1]
+            if os.path.basename(filename) != self_basename:
+                break
+
+        stack_list = stack_list[no:no + STACK_LIMIT] # limit the displayed stack info
+
+        fileinfo = []
+        for stack_line in reversed(stack_list):
+            filename = cut_filename(stack_line[1])
+            lineno = stack_line[2]
+            func_name = stack_line[3]
+            fileinfo.append("%s %4s %s" % (filename, lineno, func_name))
+
+        fileinfo = "\\n\\n".join(fileinfo)
         return fileinfo
-
 
     def encode_and_prepare(self, txt):
         """ prepare the given text """
@@ -299,9 +310,11 @@ class PageMessagesMiddleware(object):
         else:
             # Get the messages and delete it from the session
             msg_list = page_msg.get_and_delete_messages()
-            message_string = render.render_string_template(
-                TEMPLATE, context={"msg_list": msg_list}
-            )
+            context = {
+                "msg_list": msg_list,
+                "stack_limit": STACK_LIMIT,
+            }
+            message_string = render.render_string_template(TEMPLATE, context)
             message_string = smart_str(message_string)
 
         new_content = content.replace(TAG, message_string)
