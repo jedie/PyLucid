@@ -489,8 +489,8 @@ class PluginPageManager(BaseModelManager):
     def get_app_choices(self):
         if self._APP_CHOICES == None:
             root_apps = installed_apps_utils.get_filtered_apps(resolve_url="/")
-            #apps = [app for app in root_apps if app in PYLUCID_PLUGINS.pkg_list]
-            self._APP_CHOICES = [(app, app) for app in apps]
+            #root_apps = [app for app in root_apps if app in PYLUCID_PLUGINS.pkg_list]
+            self._APP_CHOICES = [(app, app) for app in root_apps]
         return self._APP_CHOICES
 
     def reverse(self, plugin_name, viewname, args=(), kwargs={}):
