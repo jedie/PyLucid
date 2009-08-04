@@ -95,14 +95,27 @@ class PageTreeManager(BaseModelManager):
     """
     def filter_accessible(self, queryset, user):
         """ filter all pages with can't accessible for the given user """
-        # Filter PageTree view permissions:
-        if user.is_anonymous(): # Anonymous user are in no user group
-            queryset = queryset.filter(permitViewGroup=None)
-        elif not user.is_superuser: # Superuser can see everything ;)
-            user_groups = user.groups
-            queryset = queryset.filter(permitViewGroup__in=user_groups)
 
-        return queryset
+        if user.is_anonymous():
+            # Anonymous user are in no user group
+            return queryset.filter(permitViewGroup__isnull=True)
+
+        if user.is_superuser:
+            # Superuser can see everything ;)
+            return queryset
+
+        # filter pages for not superuser and not anonymous
+
+        user_groups = user.groups.values_list('pk', flat=True)
+
+        if not user_groups:
+            # User is in no group
+            return queryset.filter(permitViewGroup__isnull=True)
+
+        # Filter out all view group
+        return queryset.filter(
+            models.Q(permitViewGroup__isnull=True) | models.Q(permitViewGroup__in=user_groups)
+        )
 
     def all_accessible(self, user):
         """ returns all pages that the given user can access. """
@@ -219,6 +232,9 @@ class PageTreeManager(BaseModelManager):
         returns a tuple the page tree instance from the given url_path
         XXX: move it out from model?
         """
+        if not request.user.is_superuser:
+            user_groups = request.user.groups.all()
+
         path = url_path.split("/")
         page = None
         for no, page_slug in enumerate(path):
@@ -227,20 +243,22 @@ class PageTreeManager(BaseModelManager):
             except PageTree.DoesNotExist:
                 raise PageTree.DoesNotExist("Wrong url part: %s" % escape(page_slug))
 
+            page_view_group = page.permitViewGroup
+
             # Check permissions
             if request.user.is_anonymous():
                 # Anonymous user are in no user group
-                if page.permitViewGroup != None:
+                if page_view_group != None:
                     # XXX: raise permission deny?
                     msg = "Permission deny"
                     if settings.DEBUG:
                         msg += " (url part: %s)" % escape(page_slug)
                     raise PageTree.DoesNotExist(msg)
             elif not request.user.is_superuser: # Superuser can see everything ;)
-                if page.permitViewGroup not in request.user.groups:
+                if (page_view_group != None) and (page_view_group not in user_groups):
                     msg = "Permission deny"
                     if settings.DEBUG:
-                        msg += " (not in view group, url part: %s)" % escape(page_slug)
+                        msg += " (not in view group %r, url part: %r)" % (page_view_group, escape(page_slug))
                     raise PageTree.DoesNotExist(msg)
 
             if page.page_type == PageTree.PLUGIN_TYPE:
