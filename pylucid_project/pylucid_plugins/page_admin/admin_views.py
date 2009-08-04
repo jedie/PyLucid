@@ -159,7 +159,7 @@ def edit_page(request, pagetree_id=None):
 
     if not pagetree_id:
         raise
-    print "edit page:", pagetree_id
+
     pagetree = PageTree.objects.get(id=pagetree_id)
 
     context = {}
@@ -187,7 +187,7 @@ def edit_page(request, pagetree_id=None):
         form = Form(request.POST)
         if form.is_valid():
             cleaned_data = form.cleaned_data
-            print cleaned_data
+            request.page_msg(cleaned_data)
     else:
         pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_info=True)
         form_models = [pagetree, pagemeta]
@@ -206,10 +206,9 @@ def edit_page(request, pagetree_id=None):
                 if key not in form_base_fields:
                     continue
                 value = getattr(model, key)
-                print "*", key, value
+                #request.page_msg("*", key, value)
                 form_data[key] = value
-        print form_data["design"]
-        print form_data["parent"]
+
         form = Form(initial=form_data)
 
 #    from django.forms.models import inlineformset_factory
