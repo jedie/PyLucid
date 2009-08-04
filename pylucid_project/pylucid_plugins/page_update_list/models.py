@@ -56,6 +56,9 @@ class PageUpdateListObjectsManager(models.Manager):
             user_name = user.get_full_name() or user.username
             update_info["user_name"] = user_name
 
+        if update_info["user_name"] == None:
+            update_info["user_name"] = ""
+
         content_type = ContentType.objects.get_for_model(model_instance)
         instance, created = PageUpdateListObjects.on_site.get_or_create(content_type=content_type)
         update_info.update({
