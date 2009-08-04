@@ -19,14 +19,6 @@
 
 <fieldset>
   <h2 class="form_collapse">Content</h2>
-	{% with form.design as field %}
-	    {% include "admin/pylucid/includes/form_field.html" %}
-	{% endwith %}
-	
-	{% with form.lang as field %}
-	    {% include "admin/pylucid/includes/form_field.html" %}
-	{% endwith %}
-	
 	{% with form.content as field %}
 	<div title="{{ field.help_text }}" class="field {{ field.html_name }}">
 	    <label for="{{ field.auto_id }}"{% if field.errors %} class="error"{% endif %}>
@@ -63,6 +55,14 @@
 	{% with form.markup as field %}
 	    {% include "admin/pylucid/includes/form_field.html" %}
 	{% endwith %}
+    
+    {% with form.design as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.lang as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
 </fieldset>
 
 {% include "page_admin/includes/same_fields.html" %}

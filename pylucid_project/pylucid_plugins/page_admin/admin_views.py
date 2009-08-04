@@ -7,6 +7,7 @@ from django.template import RequestContext
 from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.utils.form_utils import make_kwargs
@@ -19,6 +20,9 @@ from pylucid_admin.admin_menu import AdminMenu
 
 from page_admin.forms import PageContentForm, PluginPageForm
 
+
+EDIT_PLUGIN_TEMPLATE = "page_admin/edit_plugin_page.html"
+EDIT_CONTENT_TEMPLATE = "page_admin/edit_content_page.html"
 
 
 
@@ -45,7 +49,7 @@ def install(request):
 @check_permissions(superuser_only=False,
     permissions=("pylucid.add_pagecontent", "pylucid.add_pagemeta", "pylucid.add_pagetree")
 )
-@render_to("page_admin/new_content_page.html")
+@render_to(EDIT_CONTENT_TEMPLATE)
 def new_content_page(request):
     """
     Create a new content page.
@@ -95,10 +99,11 @@ def new_content_page(request):
     return context
 
 
+
 @check_permissions(superuser_only=False,
     permissions=("pylucid.add_pluginpage", "pylucid.add_pagemeta", "pylucid.add_pagetree")
 )
-@render_to("page_admin/new_plugin_page.html")
+@render_to(EDIT_PLUGIN_TEMPLATE)
 def new_plugin_page(request):
     """
     Create a new plugin page.
@@ -138,4 +143,81 @@ def new_plugin_page(request):
         "form_url": request.path,
         "form": form,
     }
+    return context
+
+
+@check_permissions(superuser_only=False,
+    permissions=("pylucid.change_pagemeta", "pylucid.change_pagetree")
+)
+@render_to()
+def edit_page(request, pagetree_id=None):
+    """
+    edit a PageContent or a PluginPage.
+    """
+    request.page_msg("TODO: Implement the save routine.")
+    request.page_msg("FIXME: Why does the form not fill all existing data, e.g: design, parent fields etc.")
+
+    if not pagetree_id:
+        raise
+    print "edit page:", pagetree_id
+    pagetree = PageTree.objects.get(id=pagetree_id)
+
+    context = {}
+
+    is_pluginpage = pagetree.page_type == PageTree.PLUGIN_TYPE
+
+    if is_pluginpage:
+        if not request.user.has_perms("pylucid.change_pluginpage"):
+            raise PermissionDenied("You have not the permission to change a plugin page!")
+        Form = PluginPageForm
+        context.update({
+            "title": "Edit plugin page",
+            "template_name": EDIT_PLUGIN_TEMPLATE,
+        })
+    else:
+        if not request.user.has_perms("pylucid.change_pagecontent"):
+            raise PermissionDenied("You have not the permission to change a content page!")
+        Form = PageContentForm
+        context.update({
+            "title": "Edit content page",
+            "template_name": EDIT_CONTENT_TEMPLATE,
+        })
+
+    if request.method == "POST":
+        form = Form(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            print cleaned_data
+    else:
+        pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_info=True)
+        form_models = [pagetree, pagemeta]
+        if is_pluginpage:
+            pluginpage = PluginPage.objects.get(page=pagetree)
+            form_models.append(pluginpage)
+        else:
+            pagecontent = PageTree.objects.get_pagecontent(request, pagetree, show_lang_info=True)
+            form_models.append(pagecontent)
+
+        form_base_fields = Form.base_fields.keys()
+        form_data = {}
+        for model in form_models:
+            keys = model._meta.get_all_field_names()
+            for key in keys:
+                if key not in form_base_fields:
+                    continue
+                value = getattr(model, key)
+                print "*", key, value
+                form_data[key] = value
+        print form_data["design"]
+        print form_data["parent"]
+        form = Form(initial=form_data)
+
+#    from django.forms.models import inlineformset_factory
+#    FormSet = inlineformset_factory(PageTree, PageMeta, extra=1)
+#    form = FormSet(instance=pagetree)
+
+    context.update({
+        "form_url": request.path,
+        "form": form,
+    })
     return context

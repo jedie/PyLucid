@@ -42,8 +42,8 @@ class AboluteUrlChoiceField(forms.ModelChoiceField):
 
 class BasePageForm(forms.ModelForm):
     """ Base form class for PageContentForm and PluginPageForm. """
-    parent = AboluteUrlChoiceField(queryset=PageTree.objects.all(), label=_('Parent'), help_text=_('the higher-ranking father page'), required=False)
-
+    # TODO: Use TreeGenerator for parent field!
+    parent = AboluteUrlChoiceField(queryset=PageTree.on_site, label=_('Parent'), help_text=_('the higher-ranking father page'), required=False)
 
 
 class PageContentModel(PageTree, PageMeta, PageContent):

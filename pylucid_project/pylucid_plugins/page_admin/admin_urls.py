@@ -22,9 +22,6 @@ from page_admin import admin_views
 urlpatterns = patterns('',
     url(r'^new_content_page/$', admin_views.new_content_page, name='PageAdmin-new_content_page'),
     url(r'^new_plugin_page/$', admin_views.new_plugin_page, name='PageAdmin-new_plugin_page'),
-    #url(r'^view2$', admin_views.test2, name='extrahead-view2'),
-)
-#menu_info = (
-#    {"menu section": _("Page Admin"), "name":False}
-#)
 
+    url(r'^edit_page/(?P<pagetree_id>\d+?)/$', admin_views.edit_page, name='PageAdmin-edit_page'),
+)
