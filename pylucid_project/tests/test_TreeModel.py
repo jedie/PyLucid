@@ -1,10 +1,12 @@
 # coding:utf-8
 
+from pprint import pprint
+
 import test_tools # before django imports!
 
 from django.conf import settings
 
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import Group, AnonymousUser
 from django.contrib.sites.models import Site
 
 from django_tools.unittest import unittest_base
@@ -16,77 +18,184 @@ from pylucid.models import PageTree, PageMeta
 #settings.PYLUCID.I18N_DEBUG = True
 
 class TreeModelTest(basetest.BaseUnittest):
-    def test(self):
-        tree = PageTree.objects.get_tree()
-        tree.debug()
-#        print tree.get_sitemap_tree()
-#        
-#    def test_en_request(self):
-#        for site in TestSites():
-#            response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="en")
-#            self.failUnlessRootPageEN(response)
-#            
-#            response = self.client.get("/en/")
-#            self.failUnlessRootPageEN(response)
-#            
-#            response = self.client.get("/en/1-rootpage/")
-#            self.failUnlessRootPageEN(response)
-#            
-#            url = "/2-rootpage/2-2-subpage/2-2-1-subpage/"
-#            response = self.client.get("/en"+url)
-#            self.assertRenderedPage(response, "2-2-1-subpage", url, "en")
+    """
+    Low level test for pylucid.models.PageTree + pylucid.tree_model.TreeGenerator
+    """
+    def _flat_tree_generator(self, nodes):
+        for node in nodes:
+            indent = "*" * (node.level + 1)
+            pagetree = node.db_instance
+            yield "%-4s (id:%s) %s" % (indent, pagetree.pk, pagetree.slug)
+#            print indent, node.id, "v:", node.visible, node
 #
-#    def test_de_request(self):
-#        for site in TestSites():
-#            response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de")
-#            self.failUnlessRootPageDE(response)
-#            
-#            response = self.client.get("/de/")
-#            self.failUnlessRootPageDE(response)
-#            
-#            response = self.client.get("/de/1-rootpage/")
-#            self.failUnlessRootPageDE(response)
-#
-#            url = "/2-rootpage/2-2-subpage/2-2-1-subpage/"
-#            response = self.client.get("/de"+url)
-#            self.assertRenderedPage(response, "2-2-1-subpage", url, "de")
-#
-#    def test_not_avaiable(self):
-#        """
-#        If a requested language doesn't exist -> Use the default language
-#        set in the preferences.
-#        
-#        TODO: If we can easy change a preferences value, we should use it
-#        and test different language codes.
-#        See also:
-#        http://code.google.com/p/django-dbpreferences/issues/detail?id=1
-#        """
-#        settings.PYLUCID.I18N_DEBUG = True
-#        
-#        response = self.client.get("/",
-#            HTTP_ACCEPT_LANGUAGE = "it,it-CH;q=0.8,es;q=0.5,ja-JP;q=0.3"
-#        )
-#        self.assertResponse(response,
-#            must_contain=(
-#                "Favored language &quot;it&quot; does not exist",
-#                "Use default language &quot;%s&quot;" % self.default_lang_code,
-#                "Activate language &quot;%s&quot;" % self.default_lang_code,   
-#            ),
-#            must_not_contain=("Traceback",)#"error"),
-#        )
-#
-#    def test_wrong_url_lang1(self):
-#        response = self.client.get("/it/")
-#        self.assertRedirects(response, expected_url="/")
-#        
-#    def test_wrong_url_lang2(self):
-#        url = "/2-rootpage/2-1-subpage/"
-#        response = self.client.get("/it"+url)
-#        expected_url = "http://testserver/"+self.default_lang_code+url 
-#        self.assertRedirects(response, expected_url)
-#        response = self.client.get(expected_url)
-#        self.assertRenderedPage(response, "2-1-subpage", url, self.default_lang_code)
-#        
+#            for related_object_name in self.related_objects:
+#                if hasattr(node, related_object_name):
+#                    print indent, "   * %r: %r" % (related_object_name, getattr(node, related_object_name))
+
+            if node.subnodes:
+                for item in self._flat_tree_generator(node.subnodes):
+                    yield item
+
+    def _print_flat_tree(self, tree):
+        nodes = tree.get_first_nodes()
+        flat_tree_generator = self._flat_tree_generator(nodes)
+        pprint(list(flat_tree_generator))
+
+    def assertTree(self, tree, should_data):
+        nodes = tree.get_first_nodes()
+        flat_tree_generator = self._flat_tree_generator(nodes)
+        for no, is_item in enumerate(flat_tree_generator):
+            self.failUnlessEqual(is_item, should_data[no])
+
+    def test_all(self):
+        user = AnonymousUser()
+        # returns a TreeGenerator instance with all accessable page tree instance
+        tree = PageTree.objects.get_tree(user)
+        #tree.debug()
+#        self._print_flat_tree(tree)
+
+        self.assertTree(tree, should_data=
+            [u'*    (id:1) 1-rootpage',
+             u'**   (id:2) 1-1-subpage',
+             u'**   (id:3) 1-2-subpage',
+             u'*    (id:4) 2-rootpage',
+             u'**   (id:5) 2-1-subpage',
+             u'**   (id:6) 2-2-subpage',
+             u'***  (id:7) 2-2-1-subpage',
+             u'***  (id:8) 2-2-2-subpage',
+             u'*    (id:9) 3-pluginpage']
+        )
+
+    def test_permitViewGroup1(self):
+        """
+        Test filtering permitViewGroup.
+        """
+        test_group1 = Group(name="test group1")
+        test_group1.save()
+
+        page = PageTree.objects.get(id=6)
+        page.permitViewGroup = test_group1
+        page.save()
+
+        test_group2 = Group(name="test group2")
+        test_group2.save()
+
+        page = PageTree.objects.get(id=7)
+        page.permitViewGroup = test_group2
+        page.save()
+
+        # --------------------------------------------------------------------
+        # Test as AnonymousUser:
+        # He can see only pages with permitViewGroup==None
+
+        user = AnonymousUser()
+        tree = PageTree.objects.get_tree(user)
+        #tree.debug()
+        #self._print_flat_tree(tree)
+        self.assertTree(tree, should_data=
+            [u'*    (id:1) 1-rootpage',
+             u'**   (id:2) 1-1-subpage',
+             u'**   (id:3) 1-2-subpage',
+             u'*    (id:4) 2-rootpage',
+             u'**   (id:5) 2-1-subpage',
+             #u'**   (id:6) 2-2-subpage',   # permitViewGroup == test_group1
+             #u'***  (id:7) 2-2-1-subpage', # permitViewGroup == test_group2
+             #u'***  (id:8) 2-2-2-subpage',
+             u'*    (id:9) 3-pluginpage']
+        )
+
+        # --------------------------------------------------------------------
+        # Test as Superuser:
+        # He can see all pages
+
+        user = self._get_user(usertype="superuser")
+        tree = PageTree.objects.get_tree(user)
+        #tree.debug()
+        #self._print_flat_tree(tree)
+        self.assertTree(tree, should_data=
+            [u'*    (id:1) 1-rootpage',
+             u'**   (id:2) 1-1-subpage',
+             u'**   (id:3) 1-2-subpage',
+             u'*    (id:4) 2-rootpage',
+             u'**   (id:5) 2-1-subpage',
+             u'**   (id:6) 2-2-subpage', # permitViewGroup == test_group1
+             u'***  (id:7) 2-2-1-subpage', # permitViewGroup == test_group2
+             u'***  (id:8) 2-2-2-subpage',
+             u'*    (id:9) 3-pluginpage']
+        )
+
+        # --------------------------------------------------------------------
+        # Test as normal user:
+        # He can see all pages 
+
+        # Test without any groups -> He can see only pages with permitViewGroup==None
+        user = self._get_user(usertype="normal")
+        tree = PageTree.objects.get_tree(user)
+        #tree.debug()
+        #self._print_flat_tree(tree)
+        self.assertTree(tree, should_data=
+            [u'*    (id:1) 1-rootpage',
+             u'**   (id:2) 1-1-subpage',
+             u'**   (id:3) 1-2-subpage',
+             u'*    (id:4) 2-rootpage',
+             u'**   (id:5) 2-1-subpage',
+             #u'**   (id:6) 2-2-subpage',   # permitViewGroup == test_group1
+             #u'***  (id:7) 2-2-1-subpage', # permitViewGroup == test_group2
+             #u'***  (id:8) 2-2-2-subpage',
+             u'*    (id:9) 3-pluginpage']
+        )
+
+        # Add user to "test group1"
+        user.groups.add(test_group1)
+        tree = PageTree.objects.get_tree(user)
+        #tree.debug()
+        #self._print_flat_tree(tree)
+        self.assertTree(tree, should_data=
+            [u'*    (id:1) 1-rootpage',
+             u'**   (id:2) 1-1-subpage',
+             u'**   (id:3) 1-2-subpage',
+             u'*    (id:4) 2-rootpage',
+             u'**   (id:5) 2-1-subpage',
+             u'**   (id:6) 2-2-subpage', # permitViewGroup == test_group1
+             #u'***  (id:7) 2-2-1-subpage', # permitViewGroup == test_group2
+             u'***  (id:8) 2-2-2-subpage',
+             u'*    (id:9) 3-pluginpage']
+        )
+
+        # Add user to "test group2", too.
+        user.groups.add(test_group2)
+        tree = PageTree.objects.get_tree(user)
+        #tree.debug()
+        #self._print_flat_tree(tree)
+        self.assertTree(tree, should_data=
+            [u'*    (id:1) 1-rootpage',
+             u'**   (id:2) 1-1-subpage',
+             u'**   (id:3) 1-2-subpage',
+             u'*    (id:4) 2-rootpage',
+             u'**   (id:5) 2-1-subpage',
+             u'**   (id:6) 2-2-subpage', # permitViewGroup == test_group1
+             u'***  (id:7) 2-2-1-subpage', # permitViewGroup == test_group2
+             u'***  (id:8) 2-2-2-subpage',
+             u'*    (id:9) 3-pluginpage']
+        )
+
+        # Put user *only* in "test group2"
+        user.groups.remove(test_group1)
+        tree = PageTree.objects.get_tree(user)
+        #tree.debug()
+        #self._print_flat_tree(tree)
+        self.assertTree(tree, should_data=
+            [u'*    (id:1) 1-rootpage',
+             u'**   (id:2) 1-1-subpage',
+             u'**   (id:3) 1-2-subpage',
+             u'*    (id:4) 2-rootpage',
+             u'**   (id:5) 2-1-subpage',
+             #u'**   (id:6) 2-2-subpage',   # permitViewGroup == test_group1
+             #u'***  (id:7) 2-2-1-subpage', # permitViewGroup == test_group2
+             #u'***  (id:8) 2-2-2-subpage',
+             u'*    (id:9) 3-pluginpage']
+        )
+
 
 if __name__ == "__main__":
     # Run this unitest directly
