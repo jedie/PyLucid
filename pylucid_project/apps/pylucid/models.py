@@ -200,7 +200,15 @@ class PageTreeManager(BaseModelManager):
             return queryset.get(lang=lang_entry)
         except ModelClass.DoesNotExist:
             # Get the PageContent entry in the system default language
-            instance = queryset.get(lang=default_lang_entry)
+            try:
+                instance = queryset.get(lang=default_lang_entry)
+            except ModelClass.DoesNotExist, err:
+                msg = (
+                    "%r doesn't exist in client favored language %r"
+                    " and not in system default language %r!"
+                    " Original Error was: %s"
+                ) % (ModelClass, lang_entry, default_lang_entry, err)
+                raise ModelClass.DoesNotExist(msg)
 
             if show_lang_info and (settings.DEBUG or settings.PYLUCID.I18N_DEBUG):
                 request.page_msg.error(
@@ -481,7 +489,8 @@ class PluginPageManager(BaseModelManager):
     def get_app_choices(self):
         if self._APP_CHOICES == None:
             root_apps = installed_apps_utils.get_filtered_apps(resolve_url="/")
-            self._APP_CHOICES = [(app, app) for app in root_apps]
+            #apps = [app for app in root_apps if app in PYLUCID_PLUGINS.pkg_list]
+            self._APP_CHOICES = [(app, app) for app in apps]
         return self._APP_CHOICES
 
     def reverse(self, plugin_name, viewname, args=(), kwargs={}):
