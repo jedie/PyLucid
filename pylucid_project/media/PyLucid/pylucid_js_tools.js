@@ -250,7 +250,7 @@ $(document).ready(function(){
 	//
 	// resize input fields
 	//
-	$("input").each(function() {
+	$(".pylucid_form input").each(function() {
 		maxlength = $(this).attr("maxlength");
 		if (maxlength<=0) {
 			return;
@@ -262,11 +262,11 @@ $(document).ready(function(){
 	//
 	// hide/unhide form fieldset stuff.
 	//
-	$(".form_hide").nextAll().hide();
-	$(".form_collapse").each(function() {
+	$(".pylucid_form .form_hide").nextAll().hide();
+	$(".pylucid_form .form_collapse").each(function() {
 		$(this).css("cursor","n-resize");
 	});
-	$(".form_collapse").click(function () {
+	$(".pylucid_form .form_collapse").click(function () {
 		if ($(this).css("cursor") == "n-resize") {
 			$(this).css("cursor","s-resize");
 		} else {
