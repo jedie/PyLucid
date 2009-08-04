@@ -98,7 +98,7 @@ def new_content_page(request):
 @check_permissions(superuser_only=False,
     permissions=("pylucid.add_pluginpage", "pylucid.add_pagemeta", "pylucid.add_pagetree")
 )
-@render_to("page_admin/new_content_page.html")
+@render_to("page_admin/new_plugin_page.html")
 def new_plugin_page(request):
     """
     Create a new plugin page.

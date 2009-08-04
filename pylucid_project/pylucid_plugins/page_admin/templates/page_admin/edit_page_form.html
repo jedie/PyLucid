@@ -76,7 +76,7 @@ $(document).ready(function(){
     <ul id="input_fields">
         {% for field in edit_page_form %}
             <li title="{{ field.help_text }}" class="{{ field.html_name }}">
-            <label for="{{ field.auto_id }}">{{ field.label }} :</label>
+            <label for="{{ field.auto_id }}">{{ field.label }} :</label><br />
             {{ field }}
             <span class="field_help_text">{{ field.help_text }}</span>
             {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}

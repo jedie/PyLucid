@@ -22,29 +22,6 @@ function OpenInWindow(link) {
     return false;
 }
 
-$(document).ready(function() {
-	/*************************************************************************
-	change all links with:
-		class="openinwindow"
-		
-	Open the url in a new JavaScript window, using OpenInWindow()
-	usage, e.g.:
-		<a href="/foobar/" class="openinwindow">foobar</a>
-	*************************************************************************/
-    $('a.openinwindow').each(function(){
-    	var url = $(this).attr("href");
-    	log("add open in window for link:"+url)
-    	
-    	var org_title = $(this).attr("title");
-    	
-    	$(this).attr({
-    		onclick: "return OpenInWindow(this);",
-    		title: org_title + " (Opens in a new window)"
-	    })//.append(' [^]');
-    });
-});
-
-
 
 function replace_complete_page(html) {
 	// replace the complete page
@@ -198,3 +175,104 @@ function get_pylucid_ajax_view(url) {
     	return load_normal_link; // The browser follow the link, if true
     }    
 }
+
+
+MIN_ROWS = 5;
+MAX_ROWS = 25;
+MAX_LENGTH = 100;
+RESIZE_FACTOR = 1.3;
+$(document).ready(function(){
+	//
+	// textarea resize buttons
+	//
+	$(".resize_textarea" ).click(function () {
+		button_id = $(this).attr('id');
+//		log("Clicked on: " + button_id);
+		var pos = button_id.indexOf("_");
+		var action = button_id.slice(0, pos);
+		var textarea_id = button_id.slice(pos+1, button_id.length);
+//		log("action:" + action);
+//		log("textarea id:" + textarea_id);
+		var textarea = $("#"+textarea_id);
+		var old_rows = textarea.attr("rows");
+		
+		var new_rows = false;
+		if (action=="smaller") {
+			if (old_rows<3) {
+				log("no more smaller ;)")
+				return;
+			}
+			new_rows = Math.floor(old_rows / RESIZE_FACTOR);
+		}
+		if (action=="bigger") {
+			new_rows = Math.ceil(old_rows * RESIZE_FACTOR);
+		}
+		
+		if (new_rows == false) {
+			log("Error: Wrong textarea resize action:" + action);
+			return;
+		}
+//		log("old rows:" + old_rows + " - new rows:" + new_rows);
+		textarea.animate({rows: new_rows}, 100 );
+	});
+	
+	/*************************************************************************
+	change all links with:
+		class="openinwindow"
+		
+	Open the url in a new JavaScript window, using OpenInWindow()
+	usage, e.g.:
+		<a href="/foobar/" class="openinwindow">foobar</a>
+	*************************************************************************/
+    $('a.openinwindow').each(function(){
+    	var url = $(this).attr("href");
+    	log("add open in window for link:"+url)
+    	
+    	var org_title = $(this).attr("title");
+    	
+    	$(this).attr({
+    		onclick: "return OpenInWindow(this);",
+    		title: org_title + " (Opens in a new window)"
+	    })//.append(' [^]');
+    });
+    
+    //
+	// Resize all textareas
+	//
+	$("textarea").each(function() {
+		rows = this.value.split("\n").length;
+		if (rows > MAX_ROWS) {rows = MAX_ROWS;}
+	    if (rows < MIN_ROWS) {rows = MIN_ROWS;}
+	    log("set textarea row to:" + rows)
+	    this.rows = rows;
+	});
+	
+	//
+	// resize input fields
+	//
+	$("input").each(function() {
+		maxlength = $(this).attr("maxlength");
+		if (maxlength<=0) {
+			return;
+		}
+		if (maxlength > MAX_LENGTH) {maxlength = MAX_LENGTH;}
+		this.size=maxlength;
+	});
+
+	//
+	// hide/unhide form fieldset stuff.
+	//
+	$(".form_hide").nextAll().hide();
+	$(".form_collapse").each(function() {
+		$(this).css("cursor","n-resize");
+	});
+	$(".form_collapse").click(function () {
+		if ($(this).css("cursor") == "n-resize") {
+			$(this).css("cursor","s-resize");
+		} else {
+			$(this).css("cursor","n-resize");
+		}
+		$(this).nextAll().slideToggle("fast");
+	});
+	
+});

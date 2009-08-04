@@ -1,0 +1,11 @@
+{% if not field %}ERROR: field doesn't exist!{% endif %}
+<div title="{{ field.help_text|striptags }}" class="field {{ field.html_name }}{% if field.errors %} error{% endif %}">
+    {{ field.errors }}
+
+    <label for="{{ field.auto_id }}">
+    {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
+    :</label>
+  
+    {{ field }}
+    <div class="field_help_text">{{ field.help_text }}</div>
+</div>

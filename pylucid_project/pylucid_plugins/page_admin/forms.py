@@ -40,66 +40,36 @@ class AboluteUrlChoiceField(forms.ModelChoiceField):
     choices = property(_get_choices, forms.ChoiceField._set_choices)
 
 
-#class PageTreeForm(forms.ModelForm):
-#    class Meta:
-#        model = PageTree
-#        exclude = ("site",)
-#
-#class PageContentForm(forms.ModelForm):
-#    class Meta:
-#        model = PageContent
-#        exclude = ("page", "pagemeta")
-#
-#class PageMetaForm(forms.ModelForm):
-#    class Meta:
-#        model = PageMeta
-#        exclude = ("page", "lang")
-#
-#class PageForm(PageTreeForm, PageContentForm, PageMetaForm):
-#    pass
-
-class BasePageForm(forms.Form):
-    """
-    Base form class for PageContentForm and PluginPageForm.
-    All fields for PageTree and PageMeta models.
-    """
+class BasePageForm(forms.ModelForm):
+    """ Base form class for PageContentForm and PluginPageForm. """
     parent = AboluteUrlChoiceField(queryset=PageTree.objects.all(), label=_('Parent'), help_text=_('the higher-ranking father page'), required=False)
-    position = forms.IntegerField(label=_('Position'), initial=0, help_text=_('ordering weight for sorting the pages in the menu.'))
 
-    design = forms.ModelChoiceField(queryset=Design.objects.all(), label=_('Design'), help_text=_('Page Template, CSS/JS files'))
-    showlinks = forms.BooleanField(label=_('Showlinks'), initial=True, help_text=_('Put the Link to this page into Menu/Sitemap etc.?'), required=False)
-    permitViewGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitViewGroup'), help_text=_('Limit viewable to a group?'), required=False)
-    permitEditGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitEditGroup'), help_text=_('Usergroup how can edit this page.'), required=False)
 
-    slug = forms.SlugField(label=_('Slug'), help_text=_('(for building URLs)'))
 
-    name = forms.CharField(label=_('Name'), help_text=_('Sort page name (for link text in e.g. menu)'), required=False)
-    title = forms.CharField(label=_('Title'), help_text=_('A long page title (for e.g. page title or link title text)'), required=False)
-
-    lang = forms.ModelChoiceField(queryset=Language.objects.all(), label=_('Language'))
-
-    keywords = forms.CharField(label=_('Keywords'), help_text=_('Keywords for the html header. (separated by commas)'), required=False)
-    description = forms.CharField(label=_('Description'), help_text=_('For html header'), required=False)
-    robots = forms.CharField(label=_('Robots'), initial='index,follow', help_text=_("for html 'robots' meta content."), required=False)
-    permitViewGroup = forms.ModelChoiceField(queryset=Group.objects.all(), label=_('PermitViewGroup'), help_text=_('Limit viewable to a group?'), required=False)
+class PageContentModel(PageTree, PageMeta, PageContent):
+    """ merged model for PageContentForm """
+    class Meta:
+        #managed = False
+        abstract = True
 
 class PageContentForm(BasePageForm):
-    """
-    Form for creating a new content page.
-    TODO: Find a DRY way to get the fields directly from the PageTree, PageContent and PageMeta models.
-    """
-    content = forms.CharField(
-        label=_('Content'), help_text=_('The CMS page content.'), required=False,
-        widget=forms.Textarea(attrs={'rows': '15'}),
-    )
-    markup = forms.TypedChoiceField(choices=PageContent.MARKUP_CHOICES, label=_('Markup'))
+    class Meta:
+        model = PageContentModel
+        exclude = ('page', "pagemeta", "page_type")
 
+
+class PluginPageModel(PageTree, PageMeta, PluginPage):
+    """ merged model for PluginPageForm """
+    class Meta:
+        #managed = False
+        abstract = True
 
 class PluginPageForm(BasePageForm):
     """
-    Form for creating a new plugin page.
-    TODO: Find a DRY way to get the fields directly from the PageTree, PagePlugin and PageMeta models.
+    TODO: 
     """
     app_label = forms.TypedChoiceField(choices=PluginPage.objects.get_app_choices(), label=_('App label'), help_text=_('The app lable witch is in settings.INSTALLED_APPS'))
     urls_filename = forms.CharField(label=_('Urls filename'), initial=_('urls.py'), help_text=_('Filename of the urls.py'))
-
+    class Meta:
+        model = PluginPageModel
+        exclude = ('page', "pagemeta", "page_type")

@@ -8,7 +8,7 @@
 
 <fieldset>
 <legend>{% trans 'Create a new blog entry' %}</legend>
-<form action="{{ form_url }}" method="post" id="edit_page_form">
+<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
     <ul id="action_buttons">
         <li>
             <input type="submit" name="save" value="{% trans 'save' %}" />
@@ -24,34 +24,20 @@
         </a>
         </li>
         {% endif %}
-        {% if not use_tinymce %}
-        <li>
-        <button type="button" class="resize_buttons" onclick="JavaScript:resize_big(); return false" title="{% trans 'makes the textarea bigger' %}">
+        
+        <button type="button" class="button resize_textarea" id="bigger_id_content" title="{% trans 'makes the textarea bigger' %}">
             +
         </button>
-        <button type="button" class="resize_buttons" onclick="JavaScript:resize_small(); return false" title="{% trans 'makes the textarea smaller' %}">
+        <button type="button" class="button resize_textarea" id="smaller_id_content" title="{% trans 'makes the textarea smaller' %}">
             -
         </button>
-        </li>
-        {% endif %}
     </ul>
     
     <hr class="seperator" /> 
 
-    <ul id="input_fields">
-        {% for field in form %}
-            
-            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
-            <label for="{{ field.auto_id }}">
-            {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
-             :</label>
-            {{ field }}
-            <span class="field_help_text">{{ field.help_text|safe }}</span>
-            {% if field.errors %}<li class="field_errors" title="'{{ field.label }}' field error.">{{ field.errors }}</li>{% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-
+    {% for field in form %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endfor %}
 
 </form>
 </fieldset>

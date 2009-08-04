@@ -1,62 +1,71 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-<fieldset id="preview_fieldset">
-<legend>{% trans 'Preview' %}</legend>
-<div id="edit_page_preview"></div>
-</fieldset>
+<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+<ul id="action_buttons">
+    <li>
+        <input type="submit" name="save" value="{% trans 'save' %}" />
+        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
+    </li>
+    <li>
+     {% if help_link %}
+     <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
+         <button type="button">{% trans 'markup help' %}</button>
+     </a>
+     {% endif %}
+
+    </li>
+</ul>
 
 <fieldset>
-<legend>{% trans 'Create a new content page' %}</legend>
-<form action="{{ form_url }}" method="post" id="edit_page_form">
-    <ul id="action_buttons">
-        <li>
-            <input type="submit" name="save" value="{% trans 'save' %}" />
-            <input type="submit" id="preview" name="preview" value="{% trans 'preview' %}" />
-            <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
-        </li>
-        <li>
-	        {% if help_link %}
-	        <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
-	            <button type="button">{% trans 'markup help' %}</button>
-	        </a>
-	        {% endif %}
-	        <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
-	            <button type="button">{% trans 'page list' %}</button>
-	        </a>
-	        <a href="{{ taglist_url }}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
-	            <button type="button">{% trans 'tag list' %}</button>
-	        </a>
-        </li>
-        {% if not use_tinymce %}
-        <li>
-        <button type="button" class="resize_buttons" onclick="JavaScript:resize_big(); return false" title="{% trans 'makes the textarea bigger' %}">
-            +
-        </button>
-        <button type="button" class="resize_buttons" onclick="JavaScript:resize_small(); return false" title="{% trans 'makes the textarea smaller' %}">
-            -
-        </button>
-        </li>
-        {% endif %}
-    </ul>
-    
-    <hr class="seperator" /> 
+  <h2 class="form_collapse">Content</h2>
+	{% with form.design as field %}
+	    {% include "admin/pylucid/includes/form_field.html" %}
+	{% endwith %}
+	
+	{% with form.lang as field %}
+	    {% include "admin/pylucid/includes/form_field.html" %}
+	{% endwith %}
+	
+	{% with form.content as field %}
+	<div title="{{ field.help_text }}" class="field {{ field.html_name }}">
+	    <label for="{{ field.auto_id }}"{% if field.errors %} class="error"{% endif %}>
+		    {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
+		    :       
+		    {% if field.errors %}
+		        {% for error in field.errors %}{{ error|escape }}{% endfor %}
+		    {% endif %}
+	    </label>
+	     <div class="helper_buttons">
+	         <input type="submit" id="preview" name="preview" value="{% trans 'markup preview' %}" />
+		     <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
+		         <button type="button" class="button">{% trans 'page list' %}</button>
+		     </a>
+		     <a href="{{ taglist_url }}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
+		         <button type="button" class="button">{% trans 'tag list' %}</button>
+		     </a>
+             <button type="button" class="button resize_textarea" id="bigger_{{ field.auto_id }}" title="{% trans 'makes the textarea bigger' %}">
+                 +
+             </button>
+             <button type="button" class="button resize_textarea" id="smaller_{{ field.auto_id }}" title="{% trans 'makes the textarea smaller' %}">
+                 -
+             </button>
+	     </div>
+		<fieldset id="preview_fieldset">
+			<legend>{% trans 'Preview' %}</legend>
+			<div id="edit_page_preview">TODO</div>
+		</fieldset>
+	    {{ field }}
+	    <div class="field_help_text">{{ field.help_text }}</div>
+	</div>
+	{% endwith %}
+	
+	{% with form.markup as field %}
+	    {% include "admin/pylucid/includes/form_field.html" %}
+	{% endwith %}
+</fieldset>
 
-    <ul id="input_fields">
-        {% for field in form %}
-            
-            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
-            <label for="{{ field.auto_id }}">
-            {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
-             :</label>
-            {{ field }}
-            <span class="field_help_text">{{ field.help_text }}</span>
-            {% if field.errors %}<li class="field_errors" title="'{{ field.label }}' field error.">{{ field.errors }}</li>{% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-
+{% include "page_admin/includes/same_fields.html" %}
 
 </form>
-</fieldset>
 {% endblock %}

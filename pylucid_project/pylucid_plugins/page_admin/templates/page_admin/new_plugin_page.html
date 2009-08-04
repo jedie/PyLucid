@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+<ul id="action_buttons">
+    <li>
+        <input type="submit" name="save" value="{% trans 'save' %}" />
+        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
+    </li>
+    <li>
+        {% if help_link %}
+        <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
+            <button type="button">{% trans 'markup help' %}</button>
+        </a>
+        {% endif %}
+    </li>
+</ul>
+
+<fieldset>
+  <h2 class="form_collapse">Plugin Page</h2>
+    {% with form.app_label as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.urls_filename as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+  
+    {% with form.design as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.lang as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+</fieldset>
+
+{% include "page_admin/includes/same_fields.html" %}
+
+</form>
+{% endblock %}

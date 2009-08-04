@@ -63,10 +63,10 @@ class BlogEntry(UpdateInfoBaseModel):
         help_text="the used markup language for this entry",
     )
     tags = TagField(# from django-tagging
-        help_text=_(
-            'tags for this entry. <a href="%s" class="openinwindow"'
-            ' title="Information about tag splitting.">tag format help</a>'
-        ) % TAG_INPUT_HELP_URL
+        help_text=mark_safe(
+            _('tags for this entry. <a href="%s" class="openinwindow"'
+            ' title="Information about tag splitting.">tag format help</a>') % TAG_INPUT_HELP_URL
+        )
     )
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"

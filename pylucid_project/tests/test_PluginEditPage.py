@@ -24,6 +24,7 @@ from pylucid_project.tests import unittest_plugin
 EDIT_PAGE_URL = "/?page_admin=inline_edit"
 PREVIEW_URL = "/?page_admin=preview"
 LOGIN_URL = "http://testserver/?auth=login&next_url=/"
+FORM_URL_PREFIX = "/pylucid_admin/plugins/page_admin"
 
 class EditPageInlineTest(basetest.BaseUnittest):
     """ Test for editing a page inline. """
@@ -171,7 +172,7 @@ class CreateNewContentTest(basetest.BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 "Create a new page", "Create a new content page",
-                'form action="/pylucid_admin/pylucid/new_content_page/" method="post" id="edit_page_form"',
+                'form action="%s/new_content_page/" method="post" id="edit_page_form"' % FORM_URL_PREFIX,
                 'input type="submit" name="save" value="save"',
                 'textarea id="id_content"',
             ),
@@ -188,7 +189,7 @@ class CreateNewContentTest(basetest.BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 "Create a new plugin page",
-                'form action="/pylucid_admin/pylucid/new_plugin_page/" method="post"',
+                'form action="%s/new_plugin_page/" method="post"' % FORM_URL_PREFIX,
                 'input type="submit" name="save" value="save"',
                 'select name="app_label" id="id_app_label"',
                 'option value="pylucid_project.pylucid_plugins.unittest_plugin"',
@@ -258,8 +259,10 @@ class CreateNewContentTest(basetest.BaseUnittest):
             "urls_filename": "urls.py",
         }
         response = self.client.post(self.new_plugin_url, post_data)
-        #BrowserDebug.debug_response(response)
+#        BrowserDebug.debug_response(response)
         new_page_url = "http://testserver/en/%s/" % post_data["slug"]
+        response2 = self.client.get(new_page_url)
+        BrowserDebug.debug_response(response2)
         self.assertRedirects(response, expected_url=new_page_url, status_code=302)
 
         # Check the new page
@@ -284,4 +287,8 @@ class CreateNewContentTest(basetest.BaseUnittest):
 if __name__ == "__main__":
     # Run this unitest directly
 #    from django_tools.utils import info_print; info_print.redirect_stdout()
-    unittest_base.direct_run(__file__)
+
+    #unittest_base.direct_run(__file__) # run all test from this file
+
+    from django.core import management
+    management.call_command('test', "test_PluginEditPage.EditPageInlineTest")

@@ -6,6 +6,7 @@
 {% block extrahead %}
 <!-- app_extrahead block start -->
 {# stylesheets for all PyLucid views #}
+<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_admin.css] !');"/>
 <script type="text/javascript" src="{{ PyLucid_media_url }}jquery.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.js] !');" ></script>
 <script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js"></script>
 {% if debug %}
@@ -15,20 +16,6 @@
 {% endif %}
 
 {% include "admin_menu/includes/superfish_extrahead.html" %}
-
-<script type="text/javascript">
-MAX_ROWS = 25;
-$(document).ready(function(){
-  //
-  // Resize all textareas
-  //
-  $("textarea").each(function() {
-    rows = this.value.split("\n").length;
-    if (rows > MAX_ROWS) {rows = MAX_ROWS;}
-    this.rows = rows;
-  });
-});
-</script>
 <!-- app_extrahead block end -->
 {% endblock %}
 
