@@ -1,13 +1,8 @@
 .sf-menu {
-    float: none;
     width: 700px; /* no linebreak */
-    padding: 2px 0px 20px 0px;
     
     /* from django admin panel: */
     font-size:11px;
     line-height:14px;
     font-family:"Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
-}
-.sf-menu a { /* make the menu smaller */
-    padding: 0.4em 1em 0.4em 1em;
 }
