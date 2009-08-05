@@ -30,6 +30,12 @@
     border:2px solid #f00;
     background-color: #ffeeee;
 }
+.pylucid_form .errorlist a {
+    color: #ffffff;
+}
+.pylucid_form .errorlist a:hover {
+    color: #ffff00;
+}
 .pylucid_form label {
     width: 150px;
     float: left;
@@ -47,4 +53,20 @@
 }
 .pylucid_form textarea {
     width: 100%;
+}
+
+/* hover highlight all fields */
+.pylucid_form .field {
+    border:1px solid #ffffff;
+    background-color: #ffffff;
+}
+.pylucid_form .field:hover {
+    border-color: #dddddd;
+    background-color: #fafafa;
+}
+.pylucid_form .field input, .pylucid_form .field select, .pylucid_form .field textarea {
+    border:1px solid #cccccc;
+}
+.pylucid_form .field:hover input, .pylucid_form .field:hover select, .pylucid_form .field:hover textarea {
+    border-color: #000000;
 }

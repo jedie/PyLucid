@@ -1,7 +1,7 @@
 .sf-menu {
     float: none;
-    width: 600px; /* no linebreak */
-    height: 2.7em;
+    width: 700px; /* no linebreak */
+    padding: 2px 0px 20px 0px;
     
     /* from django admin panel: */
     font-size:11px;
