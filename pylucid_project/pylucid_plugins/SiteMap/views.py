@@ -35,9 +35,12 @@ def lucidTag(request):
     # Get a pylucid.tree_model.TreeGenerator instance with all accessible PageTree for the current user
     tree = PageTree.objects.get_tree(user, filter_showlinks=True)
 
-    # add all related PageMeta objects into tree
-    queryset = PageMeta.objects.filter(lang=current_lang)
-    tree.add_related(queryset, field="page", attrname="pagemeta")
+    # add all PageMeta objects into tree
+    tree.add_pagemeta(request)
+
+#    # add all related PageMeta objects into tree
+#    queryset = PageMeta.objects.filter(lang=current_lang)
+#    tree.add_related(queryset, field="page", attrname="pagemeta")
 
     #tree.debug()
 

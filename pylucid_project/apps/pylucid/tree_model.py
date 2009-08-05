@@ -1,16 +1,14 @@
 # encoding: utf-8
 
 """
-    Tree Model/Manager
-    ~~~~~~~~~~~~~~~~~~
+    PyLucid - Tree Model/Manager
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Generate a tree of the cms pages, who are orginised in a parent-model.
     usefull for the main menu and the sitemap.
 
     Based on code by Marc 'BlackJack' Rintsch
     see: http://www.python-forum.de/topic-10852.html (de)
-
-    TODO: move this to django-tools
 
 
     Last commit info:
@@ -32,6 +30,8 @@ if __name__ == "__main__":
     sys.exit()
 
 from django.db import models
+
+
 
 
 class MenuNode(object):
@@ -216,12 +216,16 @@ class TreeGenerator(object):
         debug2(nodes)
         print "-" * 79
 
-    def add_related(self, queryset, field, attrname):
-        """ Attach related objects from querset to all visible nodes. """
+#    def add_related(self, queryset, field, attrname):
+#        """ Attach related objects from querset to all visible nodes. """
+#
+#        # Generate a id list of all visible nodes 
+#        ids = [id for id, node in self.nodes.items() if node.visible and id != None]
+#
 
-        # Generate a id list of all visible nodes 
-        ids = [id for id, node in self.nodes.items() if node.visible and id != None]
 
+    def add_related(self, queryset, ids, field, attrname):
+        """ Attach related objects from a queryset """
         lookup_kwargs = {"%s__in" % field: ids}
         #print "lookup_kwargs:", lookup_kwargs
         related_objects = queryset.filter(**lookup_kwargs)
@@ -236,6 +240,35 @@ class TreeGenerator(object):
 
         # append the attribute name into self.related_objects list
         self.related_objects.append(attrname)
+
+    def add_pagemeta(self, request):
+        """ add all PageMeta objects into tree """
+        # import here -> import-loop
+        from pylucid.models import PageMeta
+
+        current_lang = request.PYLUCID.lang_entry
+        default_lang = request.PYLUCID.default_lang_entry
+
+        # Generate a id list of all visible nodes 
+        ids = [id for id, node in self.nodes.items() if node.visible and id != None]
+
+        queryset = PageMeta.objects.filter(lang=current_lang)
+
+        # Add all pagemeta in current client lang
+        self.add_related(queryset, ids, field="page", attrname="pagemeta")
+
+        # Generate a id list of all missing pagemeta
+        ids = [
+            id for id, node in self.nodes.items()
+            if node.visible and id != None and not hasattr(node, "pagemeta")
+        ]
+#        print ids
+
+        queryset = PageMeta.objects.filter(lang=default_lang)
+        # Add all pagemeta in current client lang
+        self.add_related(queryset, ids, field="page", attrname="pagemeta")
+
+
 
     def set_current_node(self, id):
         """

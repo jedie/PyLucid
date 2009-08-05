@@ -46,23 +46,25 @@ def lucidTag(request, min=1, max=0):
         return pagetree
 
     first_showlink = get_first_showlink(current_pagetree)
-#    try:
-    tree.set_current_node(first_showlink.id)
-#    except KeyError, err:
-#        tree.set_current_node(None) # Root node
-#        if settings.DEBUG:
-#            request.page_msg.error("Can't activate menu item %r KeyError: %s" % (current_pagetree, err))
-#            request.page_msg("tree nodes: %r" % tree.nodes)
-#            request.page_msg("All PageTree:", PageTree.objects.all())
-#            request.page_msg("Current user:", request.user)
-#            request.page_msg("all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
-
+    try:
+        tree.set_current_node(first_showlink.id)
+    except KeyError, err:
+        tree.set_current_node(None) # Root node
+        if settings.DEBUG:
+            request.page_msg.error("Can't activate menu item %r KeyError: %s" % (current_pagetree, err))
+            request.page_msg("tree nodes: %r" % tree.nodes)
+            request.page_msg("All PageTree:", PageTree.objects.all())
+            request.page_msg("Current user:", request.user)
+            request.page_msg("all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
 
     # add all PageMeta objects into tree
-    queryset = PageMeta.objects.filter(lang=current_lang)
+    tree.add_pagemeta(request)
 
-    tree.add_related(queryset, field="page", attrname="pagemeta")
-    #tree.debug()
+#    # add all PageMeta objects into tree
+#    queryset = PageMeta.objects.filter(lang=current_lang)
+#
+#    tree.add_related(queryset, field="page", attrname="pagemeta")
+#    #tree.debug()
 
     return {"nodes": tree.get_first_nodes()}
 
