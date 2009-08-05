@@ -81,7 +81,7 @@ class PageContentInline(admin.StackedInline):
 class PageContentAdmin(BaseAdmin):
     list_display = ("id", "get_title", "absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
-    list_filter = ("lang", "markup", "createby", "lastupdateby",)
+    list_filter = ("markup", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     search_fields = ("content", "get_title", "absolute_url")
 

@@ -261,8 +261,6 @@ def _do_update(request, language):
         # create/get PageContent entry
 
         content_entry, created = PageContent.objects.get_or_create(
-            page=tree_entry,
-            lang=language,
             pagemeta=pagemeta_entry,
             defaults={
                 "content": old_page.content,

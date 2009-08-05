@@ -233,7 +233,9 @@ class PageTreeManager(BaseModelManager):
         If there is no PageContent in the current language, use the system default language.
         If pagetree==None: Use request.PYLUCID.pagetree
         """
-        return self.get_model_instance(request, PageContent, pagetree, show_lang_info)
+        pagemeta = self.get_model_instance(request, PageMeta, pagetree, show_lang_info)
+        pagecontent = PageContent.objects.get(pagemeta=pagemeta)
+        return pagecontent
 
     def get_page_from_url(self, request, url_path):
         """
@@ -402,35 +404,9 @@ class Language(models.Model):
 
 #------------------------------------------------------------------------------
 
-class i18nPageTreeBaseModel(models.Model):
-    """
-    Base model for PageMeta, PluginPage and PageContent
-    """
-    page = models.ForeignKey(PageTree)
-    lang = models.ForeignKey(Language)
-
-    def get_absolute_url(self):
-        """ absolute url *with* language code (without domain/host part) """
-        lang_code = self.lang.code
-        page_url = self.page.get_absolute_url()
-        return "/" + lang_code + page_url
-
-    def get_site(self):
-        return self.page.site
-
-    class Meta:
-        abstract = True
-
-
-
-class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
+class PageMeta(UpdateInfoBaseModel):
     """
     Meta data for PageContent or PluginPage
-
-    inherited attributes from i18nPageTreeBaseModel:
-        page -> ForeignKey to PageTree
-        lang -> ForeignKey to Language
-        get_absolute_url()
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -439,6 +415,9 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
     objects = BaseModelManager()
+
+    page = models.ForeignKey(PageTree)
+    lang = models.ForeignKey(Language)
 
     name = models.CharField(blank=True, max_length=150,
         help_text="Sort page name (for link text in e.g. menu)"
@@ -459,6 +438,15 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         help_text="Limit viewable to a group?",
         null=True, blank=True,
     )
+
+    def get_absolute_url(self):
+        """ absolute url *with* language code (without domain/host part) """
+        lang_code = self.lang.code
+        page_url = self.page.get_absolute_url()
+        return "/" + lang_code + page_url
+
+    def get_site(self):
+        return self.page.site
 
     def get_other_languages(self):
         return PageMeta.objects.all().filter(page=self.page).exclude(lang=self.lang)
@@ -516,14 +504,10 @@ class PluginPageManager(BaseModelManager):
         plugin_url_resolver = plugin_instance.get_plugin_url_resolver(url_prefix, plugin_page.urls_filename)
         return plugin_url_resolver.reverse(viewname, *args, **kwargs)
 
-class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
+
+class PluginPage(UpdateInfoBaseModel):
     """
     A plugin page
-
-    inherited attributes from i18nPageTreeBaseModel:
-        page -> ForeignKey to PageTree
-        lang -> ForeignKey to Language
-        get_absolute_url()
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -536,7 +520,7 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 #    _ROOT_APPS = installed_apps_utils.get_filtered_apps(resolve_url="/")
 #    APP_LABEL_CHOICES = [(app, app) for app in _ROOT_APPS]
 
-    pagemeta = models.ForeignKey(PageMeta)
+    pagemeta = models.ManyToManyField(PageMeta)
 
     app_label = RootAppChoiceField(max_length=256, #choices=RootAppChoices(),
         help_text="The app lable witch is in settings.INSTALLED_APPS"
@@ -544,6 +528,17 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
     urls_filename = models.CharField(max_length=256, default="urls.py",
         help_text="Filename of the urls.py"
     )
+
+    def get_site(self):
+        return "TODO"
+
+    def get_absolute_url(self):
+        """ absolute url *with* language code (without domain/host part) """
+        # TODO
+        return "/#TODO"
+        lang_code = self.lang.code
+        page_url = self.page.get_absolute_url()
+        return "/" + lang_code + page_url
 
     def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
@@ -559,9 +554,9 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         return plugin_instance
 
     def save(self, *args, **kwargs):
-        if not self.page.page_type == self.page.PLUGIN_TYPE:
-            # FIXME: Better error with django model validation?
-            raise AssertionError("Plugin can only exist on a plugin type tree entry!")
+#        if not self.page.page_type == self.page.PLUGIN_TYPE:
+#            # FIXME: Better error with django model validation?
+#            raise AssertionError("Plugin can only exist on a plugin type tree entry!")
         return super(PluginPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -569,7 +564,6 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
     class Meta:
         verbose_name_plural = verbose_name = "PluginPage"
-        unique_together = (("page", "lang"),)
         ordering = ("-lastupdatetime",)
 #        ordering = ("page", "lang")
 
@@ -589,14 +583,9 @@ class PageContentManager(BaseModelManager):
     pass
 
 
-class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
+class PageContent(UpdateInfoBaseModel):
     """
     A normal CMS Page with text content.
-
-    inherited attributes from i18nPageTreeBaseModel:
-        page -> ForeignKey to PageTree
-        lang -> ForeignKey to Language
-        get_absolute_url()
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -627,37 +616,45 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
 
     objects = PageContentManager()
 
-    pagemeta = models.ForeignKey(PageMeta)
+    pagemeta = models.OneToOneField(PageMeta)
 
     content = models.TextField(blank=True, help_text="The CMS page content.")
     markup = models.IntegerField(db_column="markup_id", max_length=1, choices=MARKUP_CHOICES)
+
+    def get_absolute_url(self):
+        """ absolute url *with* language code (without domain/host part) """
+        lang_code = self.pagemeta.lang.code
+        page_url = self.pagemeta.page.get_absolute_url()
+        return "/" + lang_code + page_url
+
+    def get_site(self):
+        return self.pagemeta.page.site
 
     def get_update_info(self):
         """ update info for page_update_list.models.UpdateJournal used by page_update_list.save_receiver """
         return {
             "lastupdatetime": self.lastupdatetime,
             "user_name": self.lastupdateby,
-            "lang": self.lang,
+            "lang": self.pagemeta.lang,
             "object_url": self.get_absolute_url(),
             "title": self.get_title()
         }
 
     def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
-        return self.pagemeta.title or self.page.slug
+        return self.pagemeta.title or self.pagemeta.page.slug
 
     def save(self, *args, **kwargs):
-        if not self.page.page_type == self.page.PAGE_TYPE:
+        if self.pagemeta.page.page_type != PageTree.PAGE_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("PageContent can only exist on a page type tree entry!")
         return super(PageContent, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"PageContent '%s' (%s)" % (self.page.slug, self.lang)
+        return u"PageContent '%s' (%s)" % (self.pagemeta.page.slug, self.pagemeta.lang)
 
     class Meta:
         verbose_name_plural = verbose_name = "PageContent"
-        unique_together = (("page", "lang"),)
         ordering = ("-lastupdatetime",)
 #        ordering = ("page", "lang")
 

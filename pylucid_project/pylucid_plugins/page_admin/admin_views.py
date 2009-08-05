@@ -169,24 +169,25 @@ def new_plugin_page(request):
             sid = transaction.savepoint()
             created_pluginpages = []
             try:
+                pluginpage_instance = PluginPage.objects.easy_create(cleaned_data,
+#                    extra={"pagemeta": pagemetas}
+                )
                 pagetree_instance = PageTree.objects.easy_create(cleaned_data,
                     extra={"page_type": PageTree.PLUGIN_TYPE}
                 )
-                # Create plugin page in every language
+
+                # Create PageMeta in every language
                 for lang in Language.objects.all():
                     pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
                         extra={"page": pagetree_instance, "lang": lang}
                     )
-                    pluginpage_instance = PluginPage.objects.easy_create(cleaned_data,
-                        extra={"page": pagetree_instance, "pagemeta": pagemeta_instance, "lang": lang}
-                    )
-                    created_pluginpages.append(pluginpage_instance)
+                    pluginpage_instance.pagemeta.add(pagemeta_instance)
             except:
                 transaction.savepoint_rollback(sid)
                 raise
             else:
                 transaction.savepoint_commit(sid)
-                request.page_msg("New plugin page %r created." % created_pluginpages)
+                request.page_msg("New plugin page %r created." % pluginpage_instance)
                 return http.HttpResponseRedirect(pagemeta_instance.get_absolute_url())
     else:
         form = PluginPageForm()
