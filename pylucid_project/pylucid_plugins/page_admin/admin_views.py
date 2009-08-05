@@ -1,6 +1,7 @@
 # coding:utf-8
 
 from django import forms, http
+from django.conf import settings
 from django.db import transaction
 from django.core import urlresolvers
 from django.template import RequestContext
@@ -36,13 +37,60 @@ def install(request):
     admin_menu.add_menu_entry(
         parent=menu_section_entry, url_name="PageAdmin-new_content_page",
         name="new content page", title="Create a new content page.",
+        get_pagetree=True
     )
     admin_menu.add_menu_entry(
         parent=menu_section_entry, url_name="PageAdmin-new_plugin_page",
         name="new plugin page", title="Create a new plugin page.",
+        get_pagetree=True
     )
 
     return "\n".join(output)
+
+
+def _build_form_initial(request):
+    """
+    Build a initial dict for preselecting some form fields.
+    """
+    initial_data = {}
+
+    raw_pagetree_id = request.GET.get("pagetree")
+    if not raw_pagetree_id:
+        return {}
+
+    err_msg = "Wrong PageTree ID."
+
+    try:
+        pagetree_id = int(raw_pagetree_id)
+    except Exception, err:
+        if settings.DEBUG:
+            err_msg += " (ID: %r, original error was: %r)" % (raw_pagetree_id, err)
+        request.page_msg.error(err_msg)
+        return {}
+
+    try:
+        parent_pagetree = PageTree.on_site.get(id=pagetree_id)
+    except PageTree.DoesNotExist, err:
+        if settings.DEBUG:
+            err_msg += " (ID: %r, original error was: %r)" % (pagetree_id, err)
+        request.page_msg.error(err_msg)
+        return {}
+
+    info_msg = "preselect some values from %r" % parent_pagetree.get_absolute_url()
+    if settings.DEBUG:
+        info_msg += " (PageTree: %r)" % parent_pagetree
+    request.page_msg.info(info_msg)
+
+    for attr_name in ("parent", "design", "showlinks", "permitViewGroup", "permitEditGroup"):
+        model_attr = getattr(parent_pagetree, attr_name)
+        if hasattr(model_attr, "pk"):
+            # XXX: Why must we discover the ID here? A django Bug?
+            initial_data[attr_name] = model_attr.pk
+        else:
+            initial_data[attr_name] = model_attr
+
+    return initial_data
+
 
 
 
@@ -57,7 +105,6 @@ def new_content_page(request):
     TODO:
         * setup design via ajax, if not set and a parent page tree was selected
         * Auto generate slug from page name with javascript
-    
     
     can use django.forms.models.inlineformset_factory:
         PageFormSet = inlineformset_factory(PageTree, PageContent, PageMeta)
@@ -76,23 +123,29 @@ def new_content_page(request):
                     extra={"page_type": PageTree.PAGE_TYPE}
                 )
                 pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
-                    extra={"page": pagetree_instance}
+                    extra={"page": pagetree_instance, "lang": request.PYLUCID.default_lang_entry}
                 )
                 pagecontent_instance = PageContent.objects.easy_create(cleaned_data,
-                    extra={"page": pagetree_instance, "pagemeta": pagemeta_instance}
+                    extra={
+                        "page": pagetree_instance, "lang": request.PYLUCID.default_lang_entry,
+                        "pagemeta": pagemeta_instance,
+                    }
                 )
             except:
                 transaction.savepoint_rollback(sid)
                 raise
             else:
                 transaction.savepoint_commit(sid)
-                request.page_msg("New page %r created." % pagecontent_instance)
-                return http.HttpResponseRedirect(pagecontent_instance.get_absolute_url())
+                request.page_msg("New content page %r created." % pagecontent_instance)
+                return http.HttpResponseRedirect(pagemeta_instance.get_absolute_url())
     else:
-        form = PageContentForm()
+        initial_data = _build_form_initial(request)
+        form = PageContentForm(initial=initial_data)
 
     context = {
         "title": "Create a new page",
+        "item_name": "page",
+        "default_lang_entry": request.PYLUCID.default_lang_entry,
         "form_url": request.path,
         "form": form,
     }
@@ -134,12 +187,13 @@ def new_plugin_page(request):
             else:
                 transaction.savepoint_commit(sid)
                 request.page_msg("New plugin page %r created." % created_pluginpages)
-                return http.HttpResponseRedirect(pagetree_instance.get_absolute_url())
+                return http.HttpResponseRedirect(pagemeta_instance.get_absolute_url())
     else:
         form = PluginPageForm()
 
     context = {
         "title": "Create a new plugin page",
+        "item_name": "plugin",
         "form_url": request.path,
         "form": form,
     }

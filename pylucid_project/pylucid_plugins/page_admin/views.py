@@ -54,7 +54,7 @@ def _edit_page(request, form_url):
         "pagecontent_instance": pagecontent_instance,
         "pagemeta_instance": pagemeta_instance,
     }
-    return render_pylucid_response(request, 'page_admin/edit_page_form.html', context,
+    return render_pylucid_response(request, 'page_admin/edit_inline_form.html', context,
         context_instance=RequestContext(request)
     )
 

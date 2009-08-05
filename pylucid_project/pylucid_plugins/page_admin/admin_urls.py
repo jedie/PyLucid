@@ -17,11 +17,9 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.conf.urls.defaults import patterns, url
 
-from page_admin import admin_views
 
-urlpatterns = patterns('',
-    url(r'^new_content_page/$', admin_views.new_content_page, name='PageAdmin-new_content_page'),
-    url(r'^new_plugin_page/$', admin_views.new_plugin_page, name='PageAdmin-new_plugin_page'),
-
-    url(r'^edit_page/(?P<pagetree_id>\d+?)/$', admin_views.edit_page, name='PageAdmin-edit_page'),
+urlpatterns = patterns('page_admin.admin_views',
+    url(r'^new_content_page/$', "new_content_page", name='PageAdmin-new_content_page'),
+    url(r'^new_plugin_page/$', "new_plugin_page", name='PageAdmin-new_plugin_page'),
+    url(r'^edit_page/(?P<pagetree_id>\d+?)/$', "edit_page", name='PageAdmin-edit_page'),
 )

@@ -2,17 +2,21 @@
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+{% if not sites|length_is:"1" %}
+    <p><small>(The new {{ item_name }} will be create on site: '<strong>{{ current_site }}</strong>'.)</small></p>
+{% endif %}
 <ul id="action_buttons">
     <li>
         <input type="submit" name="save" value="{% trans 'save' %}" />
         <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
     </li>
     <li>
-        {% if help_link %}
-        <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
-            <button type="button">{% trans 'markup help' %}</button>
-        </a>
-        {% endif %}
+     {% if help_link %}
+     <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
+         <button type="button">{% trans 'markup help' %}</button>
+     </a>
+     {% endif %}
+
     </li>
 </ul>
 
@@ -25,7 +29,6 @@
     {% with form.urls_filename as field %}
         {% include "admin/pylucid/includes/form_field.html" %}
     {% endwith %}
-  
     {% with form.design as field %}
         {% include "admin/pylucid/includes/form_field.html" %}
     {% endwith %}
@@ -35,7 +38,60 @@
     {% endwith %}
 </fieldset>
 
-{% include "page_admin/includes/same_fields.html" %}
+
+<fieldset>
+  <h2 class="form_collapse">Tree</h2>
+    {% with form.parent as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.position as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+</fieldset>
+
+<fieldset>
+  <h2 class="form_collapse">Meta</h2>
+    {% with form.name as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.slug as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.title as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.keywords as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.description as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+</fieldset>
+
+<fieldset>
+  <h2 class="form_collapse form_hide">Permissions</h2>
+    {% with form.showlinks as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+      
+    {% with form.permitViewGroup as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.permitEditGroup as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with form.robots as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+</fieldset>
+
 
 </form>
 {% endblock %}

@@ -5,8 +5,7 @@ import posixpath
 
 import test_tools # before django imports!
 
-#from django_tools.utils import info_print
-#info_print.redirect_stdout()
+#from django_tools.utils import info_print; info_print.redirect_stdout()
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -17,14 +16,20 @@ from django.contrib.contenttypes.models import ContentType
 from django_tools.unittest import unittest_base, BrowserDebug
 
 from pylucid.models import EditableHtmlHeadFile, PageMeta, PageContent
+from pylucid.preference_forms import SystemPreferencesForm
+
+from pylucid_project.tests.test_tools.pylucid_test_data import TestSites, TEST_LANGUAGES
 from pylucid_project.tests.test_tools import pylucid_test_data
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests import unittest_plugin
 
+
 EDIT_PAGE_URL = "/?page_admin=inline_edit"
 PREVIEW_URL = "/?page_admin=preview"
-LOGIN_URL = "http://testserver/?auth=login&next_url=/"
+LOGIN_URL_PREFIX = "http://testserver/?auth=login"
+LOGIN_URL = LOGIN_URL_PREFIX + "&next_url=/"
 FORM_URL_PREFIX = "/pylucid_admin/plugins/page_admin"
+
 
 class EditPageInlineTest(basetest.BaseUnittest):
     """ Test for editing a page inline. """
@@ -155,14 +160,21 @@ class CreateNewContentTest(basetest.BaseUnittest):
         self.new_content_url = reverse("PageAdmin-new_content_page")
         self.new_plugin_url = reverse("PageAdmin-new_plugin_page")
 
-    def test_permissions(self):
+    def test_new_plugin_permissions(self):
         """ anonymous user should be redirectet to the login page with a next_url. """
-        for url in (self.new_content_url, self.new_plugin_url):
-            response = self.client.get(url)
-            self.assertRedirects(response,
-                expected_url="http://testserver/?auth=login&next_url=" + url,
-                status_code=302
-            )
+        response = self.client.get(self.new_plugin_url)
+        self.failUnlessEqual(response.status_code, 302)
+        self.failUnlessEqual(response['Location'],
+            "http://testserver/?auth=login&next_url=/pylucid_admin/plugins/page_admin/new_plugin_page/"
+        )
+
+    def test_new_content_permissions(self):
+        """ anonymous user should be redirectet to the login page with a next_url. """
+        response = self.client.get(self.new_content_url)
+        self.failUnlessEqual(response.status_code, 302)
+        self.failUnlessEqual(response['Location'],
+            "http://testserver/?auth=login&next_url=/pylucid_admin/plugins/page_admin/new_content_page/"
+        )
 
     def test_new_content_form(self):
         """ Test if we get the "new content" input form """
@@ -171,7 +183,7 @@ class CreateNewContentTest(basetest.BaseUnittest):
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
             must_contain=(
-                "Create a new page", "Create a new content page",
+                "Create a new page",
                 'form action="%s/new_content_page/" method="post" id="edit_page_form"' % FORM_URL_PREFIX,
                 'input type="submit" name="save" value="save"',
                 'textarea id="id_content"',
@@ -181,114 +193,132 @@ class CreateNewContentTest(basetest.BaseUnittest):
             ),
         )
 
-    def test_new_plugin_form(self):
-        """ Test if we get the "new plugin" input form """
-        self.login(usertype="superuser")
-        response = self.client.get(self.new_plugin_url)
-        self.failUnlessEqual(response.status_code, 200)
-        self.assertResponse(response,
-            must_contain=(
-                "Create a new plugin page",
-                'form action="%s/new_plugin_page/" method="post"' % FORM_URL_PREFIX,
-                'input type="submit" name="save" value="save"',
-                'select name="app_label" id="id_app_label"',
-                'option value="pylucid_project.pylucid_plugins.unittest_plugin"',
-            ),
-            must_not_contain=(
-                "Traceback", 'Permission denied',
-            ),
-        )
+# TODO:
+#    def test_new_plugin_form(self):
+#        """ Test if we get the "new plugin" input form """
+#        self.login(usertype="superuser")
+#        response = self.client.get(self.new_plugin_url)
+#        self.failUnlessEqual(response.status_code, 200)
+#        self.assertResponse(response,
+#            must_contain=(
+#                "Create a new plugin page",
+#                'form action="%s/new_plugin_page/" method="post"' % FORM_URL_PREFIX,
+#                'input type="submit" name="save" value="save"',
+#                'select name="app_label" id="id_app_label"',
+#                'option value="pylucid_project.pylucid_plugins.unittest_plugin"',
+#            ),
+#            must_not_contain=(
+#                "Traceback", 'Permission denied',
+#            ),
+#        )
+
+    def _test_create_page(self, form_url, page_type, extra_post_data, extra_must_contain):
+        """
+        Create a new page via POST.
+        And check the created page via GET.
+        """
+        system_preferences = SystemPreferencesForm().get_preferences()
+        lang_code = system_preferences["lang_code"]
+        lang_desc = dict(TEST_LANGUAGES)[lang_code]
+
+        for site in TestSites():
+            info_string = "(lang: %s, site: %s)" % (lang_code, site.name)
+            user = self.login(usertype="superuser")
+
+            response = self.client.get("/%s/" % lang_code)
+#            self.client.session['django_language'] = lang_code
+#            print self.client.session['django_language']
+
+            # Get the empty form
+            response = self.client.get(form_url)
+            self.assertResponse(response,
+                must_contain=(
+                    "Create a new page",
+                    "This new page will be create on site: '<strong>%s</strong>'" % site.domain,
+                    "<legend>Language: <strong>%s</strong></legend>" % lang_desc,
+                ),
+                must_not_contain=('This field is required', "traceback")
+            )
+
+            post_data = {
+                "position": "0",
+                "design": "1",
+                "slug": "new_%s_page_%s_%s" % (page_type, lang_code, site.name.replace(" ", "_")),
+                "name": "New %s page name %s" % (page_type, info_string),
+                "title": "New %s page title %s" % (page_type, info_string),
+                "robots": "follow and index me!",
+                "keywords": "some, keywords, here ?",
+                "description": "The %s page description. %s" % (page_type, info_string),
+                "showlinks": "on",
+            }
+            for key, value in extra_post_data.items():
+                post_data[key] = value % {"info_string": info_string}
+
+            response = self.client.post(form_url, post_data)
+            self.assertResponse(response,
+                must_not_contain=('This field is required', "error", "traceback")
+            )
+            #BrowserDebug.debug_response(response)
+
+            new_page_url = "http://testserver/%s/%s/" % (lang_code, post_data["slug"])
+            # Don't use self.assertRedirects here, because we can check the page_msg.
+            self.failUnlessEqual(response.status_code, 302)
+            self.failUnlessEqual(response['Location'], str(new_page_url)) # no unicode in headers
+
+            # Check the new page
+            response = self.client.get(new_page_url)
+
+            must_contain = [
+                "New %s page" % page_type, "created.",
+                post_data["name"],
+                post_data["slug"],
+                'meta name="robots" content="%s"' % post_data["robots"],
+                'meta name="keywords" content="%s"' % post_data["keywords"],
+                'meta name="description" content="%s"' % post_data["description"],
+                '<title>%s' % post_data["title"],
+                '<a href="/%s/%s/">%s</a>' % (lang_code, post_data["slug"], post_data["title"])
+            ]
+            for extra in extra_must_contain:
+                must_contain.append(extra % {"info_string": info_string})
+
+            self.assertResponse(response, must_contain,
+                must_not_contain=(
+                    "Traceback", 'Permission denied', 'This field is required',
+                ),
+            )
 
     def test_create_new_content_page(self):
         """ Create a new content page via POST and check the created page. """
-        self.login(usertype="superuser")
-        post_data = {
-            "position": "0",
-            "design": "1",
-            "slug": "new_content_page",
-            "name": "The page name",
-            "title": "A long page title",
-            "lang": "1", # en
-            "robots": "follow and index me!",
-            "keywords": "some, keywords, here ?",
-            "description": "a nice page description should be inserted here...",
-            "content": "The new content page content ;)",
+        extra_post_data = {
+            "content": "New page content %(info_string)s",
             "markup": "0",
-
         }
-        response = self.client.post(self.new_content_url, post_data)
-        #BrowserDebug.debug_response(response)
-        new_page_url = "http://testserver/en/%s/" % post_data["slug"]
-        self.assertRedirects(response, expected_url=new_page_url, status_code=302)
+        extra_must_contain = [
+            extra_post_data["content"]
+        ]
+        self._test_create_page(self.new_content_url, "content", extra_post_data, extra_must_contain)
 
-        # Check the new page
-        response = self.client.get(new_page_url)
-        self.assertResponse(response,
-            must_contain=(
-                post_data["content"],
-                post_data["slug"],
-                'meta name="robots" content="%s"' % post_data["robots"],
-                'meta name="keywords" content="%s"' % post_data["keywords"],
-                'meta name="description" content="%s"' % post_data["description"],
-                '<title>%s' % post_data["title"],
-                '<a href="/en/%s/">%s</a>' % (post_data["slug"], post_data["title"])
-            ),
-            must_not_contain=(
-                "Traceback", 'Permission denied',
-                'This field is required',
-            ),
-        )
 
-    def test_create_new_plugin_page(self):
-        """
-        Create a new plugin page via POST and check the created page.
-        Use the unittest_plugin.views.view_root() for this.
-        """
-        self.login(usertype="superuser")
-        post_data = {
-            "position": "0",
-            "design": "1",
-            "slug": "new_plugin_page",
-            "name": "The page name",
-            "title": "A long page title",
-            "lang": "1", # en
-            "robots": "follow and index me!",
-            "keywords": "some, keywords, here ?",
-            "description": "a nice page description should be inserted here...",
-            "app_label": "pylucid_project.pylucid_plugins.unittest_plugin",
-            "urls_filename": "urls.py",
-        }
-        response = self.client.post(self.new_plugin_url, post_data)
-#        BrowserDebug.debug_response(response)
-        new_page_url = "http://testserver/en/%s/" % post_data["slug"]
-        response2 = self.client.get(new_page_url)
-        BrowserDebug.debug_response(response2)
-        self.assertRedirects(response, expected_url=new_page_url, status_code=302)
-
-        # Check the new page
-        response = self.client.get(new_page_url)
-        self.assertResponse(response,
-            must_contain=(
-                unittest_plugin.views.PLUGINPAGE_ROOT_STRING_RESPONSE,
-                post_data["slug"],
-                'meta name="robots" content="%s"' % post_data["robots"],
-                'meta name="keywords" content="%s"' % post_data["keywords"],
-                'meta name="description" content="%s"' % post_data["description"],
-                '<title>%s' % post_data["title"],
-                '<a href="/en/%s/">%s</a>' % (post_data["slug"], post_data["title"])
-            ),
-            must_not_contain=(
-                "Traceback", 'Permission denied',
-                'This field is required',
-            ),
-        )
+#    def test_create_new_plugin_page(self):
+#        """
+#        Create a new plugin page via POST and check the created page.
+#        Use the unittest_plugin.views.view_root() for this.
+#        """
+#        extra_post_data = {
+#            "app_label": "pylucid_project.pylucid_plugins.unittest_plugin",
+#            "urls_filename": "urls.py",
+#        }
+#        extra_must_contain = [
+#            unittest_plugin.views.PLUGINPAGE_ROOT_STRING_RESPONSE
+#        ]
+#        self._test_create_page(self.new_plugin_url, "plugin", extra_post_data, extra_must_contain)
 
 
 if __name__ == "__main__":
     # Run this unitest directly
 #    from django_tools.utils import info_print; info_print.redirect_stdout()
 
-    #unittest_base.direct_run(__file__) # run all test from this file
+#    unittest_base.direct_run(__file__) # run all test from this file
 
     from django.core import management
-    management.call_command('test', "test_PluginEditPage.EditPageInlineTest")
+    management.call_command('test', "test_PluginEditPage.CreateNewContentTest")
