@@ -145,7 +145,7 @@ TEST_TEMPLATES = {
 <a href="{{ page_get_permalink }}" title="permalink to this page">permalink</a>
 
 powered by {{ powered_by }}
-{{ login_link }}
+{% lucidTag auth %}
 <!-- script_duration -->
 last modified: {{ page_lastupdatetime|date:_("DATETIME_FORMAT") }}
 </body></html>"""
