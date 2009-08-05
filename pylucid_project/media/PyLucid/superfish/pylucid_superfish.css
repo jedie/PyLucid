@@ -1,5 +1,9 @@
 .sf-menu {
-    width: 700px; /* no linebreak */
+    /* border: 2px solid #ff0000; */
+
+    clear: both;
+    width: 100%;
+    min-width: 725px; /* no linebreak in admin index */
     
     /* from django admin panel: */
     font-size:11px;
