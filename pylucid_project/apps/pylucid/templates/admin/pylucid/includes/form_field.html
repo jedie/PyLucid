@@ -1,4 +1,4 @@
-{% if not field %}ERROR: field doesn't exist!{% endif %}
+{% if not field.auto_id %}<h2>ERROR: field doesn't exist: {{ field }}</h2>{% endif %}
 <div title="{{ field.help_text|striptags }}" class="field {{ field.html_name }}{% if field.errors %} error{% endif %}">
     {% if field.errors %}
     <ul class="errorlist" title="Errors for field '{{ field.html_name }}'">
