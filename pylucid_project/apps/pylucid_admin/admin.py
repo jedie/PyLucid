@@ -54,7 +54,11 @@ if settings.DEBUG:
 
 
 class PyLucidAdminPageAdmin(VersionAdmin):
-    list_display = ("id", "name", "title", "url_name", "superuser_only", "access_permissions")
+    list_display = (
+        "id", "name", "title", "url_name",
+        "get_pagetree", "get_pagemeta", "get_page",
+        "superuser_only", "access_permissions"
+    )
     list_display_links = ("name",)
     list_filter = ("createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'

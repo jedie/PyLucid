@@ -21,12 +21,14 @@ class AdminMenu(object):
 #        admin_design_id = sys_preferences["pylucid_admin_design"]
 #        self.admin_design = Design.objects.get(id=admin_design_id)
 
-    def add_menu_entry(self, name, title, parent, url_name=None):
+    def add_menu_entry(self, name, title, parent, url_name=None, **extra):
         if url_name: # verify the url
             url = urlresolvers.reverse(viewname=url_name)
 
+        defaults = {"title": title, "parent": parent, "url_name": url_name}
+        defaults.update(extra)
         adminpage_entry, created = PyLucidAdminPage.objects.get_or_create(
-            name=name, defaults={"title": title, "parent": parent, "url_name": url_name, }
+            name=name, defaults=defaults
         )
         if created:
             self.output.append("PyLucidAdminPage %r created." % adminpage_entry)

@@ -6,8 +6,11 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group, Permission
 
+from django_tools.middlewares import ThreadLocal
+
 from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
 from pylucid.system.auto_model_info import UpdateInfoBaseModel
+
 
 class PyLucidAdminManager(TreeManager):
     def get_tree_for_user(self, user):
@@ -62,6 +65,19 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         help_text="A long page title (for e.g. page title or link title text)"
     )
 
+    get_pagetree = models.BooleanField(default=False,
+        verbose_name="get PageTree",
+        help_text="Add current PageTree ID via GET Parameter to the url, if available"
+    )
+    get_pagemeta = models.BooleanField(default=False,
+        verbose_name="get PageMeta",
+        help_text="Add current PageMeta ID via GET Parameter to the url, if available"
+    )
+    get_page = models.BooleanField(default=False,
+        verbose_name="get PageContent/PluginPage",
+        help_text="Add current PageContent or current PluginPage ID via GET Parameter to the url, if available"
+    )
+
     def get_permissions(self):
         """
         returns the access permissions for this menu entry.
@@ -89,10 +105,28 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         absolute url (without domain/host part)
         TODO: Should be used a cache here?
         """
-        if self.url_name:
-            return urlresolvers.reverse(viewname=self.url_name)
-        else:
-            return ""
+        if not self.url_name:
+            return "" # menu section
+
+        url = urlresolvers.reverse(viewname=self.url_name)
+        request = ThreadLocal.get_current_request()
+        get_data = {}
+        if self.get_pagetree and hasattr(request.PYLUCID, "pagetree"):
+            get_data["pagetree"] = request.PYLUCID.pagetree.pk
+        if self.get_pagemeta and hasattr(request.PYLUCID, "pagemeta"):
+            get_data["pagemeta"] = request.PYLUCID.pagemeta.pk
+        if self.get_page:
+            if hasattr(request.PYLUCID, "pagecontent"):
+                get_data["pagecontent"] = request.PYLUCID.pagecontent.pk
+            elif hasattr(request.PYLUCID, "pluginpage"):
+                get_data["pluginpage"] = request.PYLUCID.pluginpage.pk
+
+        if get_data:
+            # FIXME: There must be a better was to to this.
+            # TODO: escape it.
+            url += "?" + "&".join(["%s=%s" % (key, value) for key, value in get_data.items()])
+
+        return url
 
     class Meta:
         verbose_name = _('PyLucid admin page')

@@ -56,7 +56,6 @@ class PageTreeAdmin(BaseAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("slug",)
 
-
 pylucid_admin_site.register(models.PageTree, PageTreeAdmin)
 
 
