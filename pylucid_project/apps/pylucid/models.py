@@ -204,10 +204,10 @@ class PageTreeManager(BaseModelManager):
                 instance = queryset.get(lang=default_lang_entry)
             except ModelClass.DoesNotExist, err:
                 msg = (
-                    "%r doesn't exist in client favored language %r"
+                    "%r doesn't exist for %r in client favored language %r"
                     " and not in system default language %r!"
                     " Original Error was: %s"
-                ) % (ModelClass, lang_entry, default_lang_entry, err)
+                ) % (ModelClass, pagetree, lang_entry, default_lang_entry, err)
                 raise ModelClass.DoesNotExist(msg)
 
             if show_lang_info and (settings.DEBUG or settings.PYLUCID.I18N_DEBUG):
@@ -358,15 +358,17 @@ class PageTree(BaseTreeModel, UpdateInfoBaseModel):
             return "/" + self.slug + "/"
 
     def __unicode__(self):
-        return u"PageTree '%s' (site: %s, type: %s)" % (
-            self.slug, self.site.name, self.TYPE_DICT.get(self.page_type)
+        return u"PageTree '%s' (id: %r, site: %r, type: %r)" % (
+            self.slug, self.id, self.site.name, self.TYPE_DICT.get(self.page_type)
         )
 
     class Meta:
+        verbose_name_plural = verbose_name = "PageTree"
         unique_together = (("site", "slug", "parent"),)
 
         # FIXME: It would be great if we can order by get_absolute_url()
-        ordering = ("site", "id", "position")
+#        ordering = ("site", "id", "position")
+        ordering = ("-lastupdatetime",)
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageTree)
@@ -472,8 +474,10 @@ class PageMeta(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         return u"PageMeta for page: '%s' (lang: '%s')" % (self.page.slug, self.lang.code)
 
     class Meta:
+        verbose_name_plural = verbose_name = "PageMeta"
         unique_together = (("page", "lang"),)
-        ordering = ("page", "lang")
+        ordering = ("-lastupdatetime",)
+#        ordering = ("page", "lang")
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageMeta)
@@ -564,8 +568,10 @@ class PluginPage(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         return u"PluginPage '%s' (%s)" % (self.app_label, self.get_absolute_url())
 
     class Meta:
+        verbose_name_plural = verbose_name = "PluginPage"
         unique_together = (("page", "lang"),)
-        ordering = ("page", "lang")
+        ordering = ("-lastupdatetime",)
+#        ordering = ("page", "lang")
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PluginPage)
@@ -650,8 +656,10 @@ class PageContent(i18nPageTreeBaseModel, UpdateInfoBaseModel):
         return u"PageContent '%s' (%s)" % (self.page.slug, self.lang)
 
     class Meta:
+        verbose_name_plural = verbose_name = "PageContent"
         unique_together = (("page", "lang"),)
-        ordering = ("page", "lang")
+        ordering = ("-lastupdatetime",)
+#        ordering = ("page", "lang")
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageContent)
@@ -791,7 +799,7 @@ class Design(AutoSiteM2M, UpdateInfoBaseModel):
         return super(Design, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        sites = [site.name for site in self.site.all()]
+        sites = self.site.values_list('name', flat=True)
         return u"Page design '%s' (on sites: %r)" % (self.name, sites)
 
     class Meta:
