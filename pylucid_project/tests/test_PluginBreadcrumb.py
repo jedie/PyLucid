@@ -18,42 +18,45 @@ import test_tools # before django imports!
 
 from django_tools.unittest import unittest_base
 
-from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests import unittest_plugin
+from pylucid_project.tests.test_tools import basetest
+from pylucid_project.tests.test_tools.pylucid_test_data import TestLanguages
 
 
 class PluginBreadcrumbTest(basetest.BaseUnittest):
     def test(self):
-        url = "/2-rootpage/2-2-subpage/2-2-1-subpage/"
-        response = self.client.get("/%s%s" % (self.default_lang_code, url))
-        self.assertRenderedPage(response, "2-2-1-subpage", url, self.default_lang_code)
-        self.assertResponse(response,
-            must_contain=(
-                '<p>You are here:',
-                '<a href="/">Index</a>',                
-                '<a href="/de/2-rootpage/">2-rootpage title', 
-                '<a href="/de/2-rootpage/2-2-subpage/">2-2-subpage title',
-                '<a href="/de/2-rootpage/2-2-subpage/2-2-1-subpage/">2-2-1-subpage title',
-            ),
-            must_not_contain=("Traceback", unittest_plugin.views.STRING_RESPONSE,),
-        )
-        
+        for lang in TestLanguages():
+            response = self.client.get(
+                "/%s/2-rootpage/2-2-subpage/2-2-1-subpage/" % lang.code,
+                HTTP_ACCEPT_LANGUAGE=lang.code
+            )
+            self.assertResponse(response,
+                must_contain=(
+                    '<p>You are here:',
+                    '<a href="/">Index</a>',
+                    '<a href="/%s/2-rootpage/">2-rootpage title' % lang.code,
+                    '<a href="/%s/2-rootpage/2-2-subpage/">2-2-subpage title' % lang.code,
+                    '<a href="/%s/2-rootpage/2-2-subpage/2-2-1-subpage/">2-2-1-subpage title' % lang.code,
+                ),
+                must_not_contain=("Traceback", unittest_plugin.views.STRING_RESPONSE,),
+            )
+
     def test_add_link(self):
         """
         A plugin can add a link to the breadcrumb list.
         Use the view pylucid_project.tests.unittest_plugin.views.test_BreadcrumbPlugin()
         """
-        url = "/%s/%s/test_BreadcrumbPlugin/" % (self.default_lang_code, unittest_plugin.PLUGIN_PAGE_URL)
-        response = self.client.get(url)
-        self.assertResponse(response,
-            must_contain=(
-                '<a href="%s">%s</a>' % (
-                    unittest_plugin.views.ADDED_LINK_URL, unittest_plugin.views.ADDED_LINK_TITLE
+        for lang in TestLanguages():
+            url = "/%s/%s/test_BreadcrumbPlugin/" % (lang.code, unittest_plugin.PLUGIN_PAGE_URL)
+            response = self.client.get(url, HTTP_ACCEPT_LANGUAGE=lang.code)
+            added_url = "/%s/%s" % (lang.code, unittest_plugin.views.ADDED_LINK_URL)
+            self.assertResponse(response,
+                must_contain=(
+                    '<a href="%s">%s</a>' % (added_url, unittest_plugin.views.ADDED_LINK_TITLE),
+                    unittest_plugin.views.ADDED_LINK_RESPONSE_STRING,
                 ),
-                unittest_plugin.views.ADDED_LINK_RESPONSE_STRING,
-            ),
-            must_not_contain=("Traceback",),
-        )
+                must_not_contain=("Traceback",),
+            )
 
 
 if __name__ == "__main__":

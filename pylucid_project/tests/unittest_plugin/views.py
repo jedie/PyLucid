@@ -128,7 +128,7 @@ def test_PyLucid_api(request):
 # PluginPage views for unittests in test_PluginBreadcrumb
 
 ADDED_LINK_TITLE = "Unittest added link"
-ADDED_LINK_URL = "/the/added/url/"
+ADDED_LINK_URL = "the/added/url/"
 ADDED_LINK_RESPONSE_STRING = "test_PluginBreadcrumb content"
 
 def test_BreadcrumbPlugin(request):
@@ -136,8 +136,10 @@ def test_BreadcrumbPlugin(request):
     Test view for tests.test_PluginBreadcrumb.
     Add a link to the bradcrumbs.
     """
+    lang = request.PYLUCID.lang_entry
     breadcrumb = request.PYLUCID.context["context_middlewares"]["breadcrumb"]
-    breadcrumb.add_link(title=ADDED_LINK_TITLE, url=ADDED_LINK_URL)
+    add_url = "/%s/%s" % (lang.code, ADDED_LINK_URL)
+    breadcrumb.add_link(title=ADDED_LINK_TITLE, url=add_url)
 
     return ADDED_LINK_RESPONSE_STRING
 
