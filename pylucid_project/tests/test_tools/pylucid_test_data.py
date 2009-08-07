@@ -343,11 +343,8 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
 
             if tree_entry.page_type == PageTree.PLUGIN_TYPE:
                 # It's a plugin page
-                pluginpage, created = PluginPage.objects.get_or_create(
-                    page=tree_entry,
-                    lang=language,
-                    defaults={"pagemeta": pagemeta_entry, "app_label": page_data["plugin"]},
-                )
+                pluginpage, created = PluginPage.objects.get_or_create(app_label=page_data["plugin"])
+                pluginpage.pagemeta.add(pagemeta_entry)
                 if verbosity >= 2:
                     if created:
                         print("PluginPage '%s' created." % pluginpage)
@@ -360,8 +357,6 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
                 )
                 default_dict["markup"] = PageContent.MARKUP_CREOLE
                 content_entry, created = PageContent.objects.get_or_create(
-                    page=tree_entry,
-                    lang=language,
                     pagemeta=pagemeta_entry,
                     defaults=default_dict
                 )
