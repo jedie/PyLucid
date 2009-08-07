@@ -40,8 +40,7 @@ import traceback
 from django.conf import settings
 from django.utils.encoding import smart_str
 from django.utils.safestring import SafeData, mark_safe
-
-from django_tools.template import render
+from django.template.loader import render_to_string
 
 from pylucid_project.utils.escape import escape
 
@@ -52,15 +51,6 @@ SESSION_KEY = "PAGE_MESSAGES"
 MAX_FILEPATH_LEN = 50
 FILEPATH_SPLIT = "src/pylucid" # try to cut the filepath or MAX_FILEPATH_LEN used
 STACK_LIMIT = 6
-
-TEMPLATE = \
-"""<fieldset id="page_msg"><legend>page message</legend>
-{% for message in msg_list %}
-<p class="{{ message.msg_type }}"{% if message.fileinfo %} title="click for stack info" onclick="alert('Stack info (limit: {{ stack_limit }}):\\n\\n{{ message.fileinfo }}');"{% endif %}>
-{% for line in message.lines %}{{ line }}{% if not forloop.last %}<br />{% endif %}
-{% endfor %}</p>
-{% endfor %}
-</fieldset>"""
 
 
 class PageMessages(object):
@@ -136,14 +126,14 @@ class PageMessages(object):
     def showwarning(self, message, category, filename, lineno, file=None, line=None):
         """ for redirecting warnings """
         old_debug_mode = self.debug_mode
-        self.debug_mode = False # no fileinfo would be added
+        self.debug_mode = False # no stack_info would be added
         self.warning(str(message))
         self.debug_mode = old_debug_mode
 
-        # Add fileinfo
+        # Add stack_info
         block_data = self.request.session[SESSION_KEY][-1]
         filename = u"..." + filename[-30:]
-        block_data["fileinfo"] = "(%s from %s - line %s)" % (category.__name__, filename, lineno)
+        block_data["stack_info"] = "(%s from %s - line %s)" % (category.__name__, filename, lineno)
 
         if file is not None:
             try:
@@ -181,7 +171,8 @@ class PageMessages(object):
         }
 
         if self.debug_mode == True:
-            block_data["fileinfo"] = self._get_fileinfo()
+            block_data["full_url"] = self.request.get_full_path()
+            block_data["stack_info"] = self._get_stack_info()
 
         if SESSION_KEY not in self.request.session:
             # exemption: call page_msg directly after logout (session deleted)
@@ -190,9 +181,9 @@ class PageMessages(object):
         self.request.session[SESSION_KEY].append(block_data)
         self.request.session.modified = True # FIXME: Don't really know why this is needed
 
-    def _get_fileinfo(self):
+    def _get_stack_info(self):
         """
-        return fileinfo: Where from the announcement comes?
+        return stack_info: Where from the announcement comes?
         """
         def cut_filename(filename):
             if FILEPATH_SPLIT in filename:
@@ -215,15 +206,14 @@ class PageMessages(object):
 
         stack_list = stack_list[no:no + STACK_LIMIT] # limit the displayed stack info
 
-        fileinfo = []
+        stack_info = []
         for stack_line in reversed(stack_list):
             filename = cut_filename(stack_line[1])
             lineno = stack_line[2]
             func_name = stack_line[3]
-            fileinfo.append("%s %4s %s" % (filename, lineno, func_name))
+            stack_info.append("%s %4s %s" % (filename, lineno, func_name))
 
-        fileinfo = "\\n\\n".join(fileinfo)
-        return fileinfo
+        return "\\n\\n".join(stack_info)
 
     def encode_and_prepare(self, txt):
         """ prepare the given text """
@@ -314,7 +304,7 @@ class PageMessagesMiddleware(object):
                 "msg_list": msg_list,
                 "stack_limit": STACK_LIMIT,
             }
-            message_string = render.render_string_template(TEMPLATE, context)
+            message_string = render_to_string("pylucid/page_msg.html", context)
             message_string = smart_str(message_string)
 
         new_content = content.replace(TAG, message_string)

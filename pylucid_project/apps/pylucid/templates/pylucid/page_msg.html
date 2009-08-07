@@ -1,0 +1,9 @@
+<fieldset id="page_msg"><legend>page message</legend>
+{% for message in msg_list %}
+    <p class="{{ message.msg_type }}" {% if message.stack_info %} title="click for stack info" onclick="alert('Stack info (limit: {{ stack_limit }}, url: [{{ message.full_url }}]): {{ message.stack_info }}');"{% endif %}>
+    {% for line in message.lines %}
+        {{ line }}{% if not forloop.last %}<br />{% endif %}
+    {% endfor %}
+    </p>
+{% endfor %}
+</fieldset>
