@@ -31,7 +31,7 @@ class TestSites(object):
     """
     def __init__(self, verbosity=False):
         self.verbosity = verbosity
-        self.index = 1
+        self.index = 0
 
     def __iter__(self):
         return self
@@ -92,6 +92,16 @@ class TestLanguages(object):
             else:
                 print("Language '%s' exists." % lang_code)
         return language
+
+
+def iter_lang_site():
+    """
+    Interator over all test languages and test sites.
+    """
+    for lang in TestLanguages():
+        for site in TestSites():
+            info_string = "(lang:%s, site:%s)" % (lang.code, site.name)
+            yield (lang, site, info_string)
 
 
 

@@ -229,15 +229,8 @@ def root_page(request):
 
 def lang_root_page(request, url_lang_code):
     """ url with lang code but no page slug """
-    try:
-        lang_entry = Language.objects.get(code=url_lang_code)
-    except Language.DoesNotExist:
-        request.page_msg.error("Language '%s' doesn't exist." % url_lang_code)
-        # redirect to "/"
-        return http.HttpResponseRedirect("/")
-
     # activate i18n
-    i18n.activate_language(request, lang_entry, save=True)
+    i18n.activate_auto_language(request)
 
     return _render_root_page(request)
 
@@ -267,13 +260,6 @@ def _get_pagetree(request, url_path):
 
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
-#    try:
-#        lang_entry = Language.objects.get(code=url_lang_code)
-#    except Language.DoesNotExist:
-#        request.page_msg.error("Language '%s' doesn't exist." % url_lang_code)
-#        # redirect to a url with the default language code.
-#        return _i18n_redirect(request, url_path)
-
     # activate i18n
     i18n.activate_auto_language(request)
 
