@@ -22,8 +22,8 @@ class DesignTest(basetest.BaseUnittest):
     def __init__(self, *args, **kwargs):
         super(DesignTest, self).__init__(*args, **kwargs)
 
-        self.test_css = EditableHtmlHeadFile.objects.get(filepath=pylucid_test_data.TEST_CSS_FILEPATH)
-        self.test_js = EditableHtmlHeadFile.objects.get(filepath=pylucid_test_data.TEST_JS_FILEPATH)
+        self.test_css = EditableHtmlHeadFile.on_site.get(filepath=pylucid_test_data.TEST_CSS_FILEPATH)
+        self.test_js = EditableHtmlHeadFile.on_site.get(filepath=pylucid_test_data.TEST_JS_FILEPATH)
 
     def _assert_headfiles(self, colorscheme, test_css_url, test_js_url):
         """ Test get_absolute_url() and head links in reponse content """
