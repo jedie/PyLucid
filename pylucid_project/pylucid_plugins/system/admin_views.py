@@ -4,7 +4,7 @@ from django.conf import settings
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 
-from pylucid.models import Language
+from pylucid.models import Language, PageTree, PageMeta
 from pylucid.decorators import check_permissions, render_to
 
 from pylucid_admin.admin_menu import AdminMenu
@@ -72,7 +72,24 @@ def base_check(request):
         out.write("\tset/change LANGUAGE_CODE in local-settings.py or create language %r." % settings.LANGUAGE_CODE)
     else:
         out.write("settings.LANGUAGE_CODE, ok.")
-    #out.write("- "*40)
+    out.write("- "*40)
+
+    out.write("Check if all PageTree has at lease a PageMeta instance in the default system language:")
+    default_lang_entry = request.PYLUCID.default_lang_entry
+    exist_all = True
+    # TODO: Can we but this into a big QuerySet?
+    for pagetree in PageTree.on_site.all():
+        exist = PageMeta.objects.filter(page=pagetree, lang=default_lang_entry)
+        if not exist:
+            exist_all = False
+            out.write(
+                "*** Error: PageTree entry %r has no PageMeta in default language (%r)!!!" % (
+                    pagetree, default_lang_entry
+                )
+            )
+    if exist_all:
+        out.write("ok.")
+    out.write("- "*40)
 
     context = {
         "title": "Basic system setup check",
