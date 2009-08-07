@@ -77,18 +77,14 @@ def _raise_resolve_error(plugin_url_resolver, rest_url):
 #    tried = [prefix + pattern.regex.pattern.lstrip("^") for pattern in plugin_urlpatterns]
     raise urlresolvers.Resolver404, {'tried': tried, 'path': rest_url + "XXX"}
 
+
 def call_plugin(request, prefix_url, rest_url):
     """ Call a plugin and return the response. """
     lang_entry = request.PYLUCID.lang_entry
-    pagetree = request.PYLUCID.pagetree
+    pluginpage = request.PYLUCID.pluginpage
+
     # build the url prefix
     url_prefix = "^%s/%s" % (lang_entry.code, prefix_url)
-
-    # Get PluginPage instance from current PageTree. (Has a fallback if current language doesn't exist)
-    pluginpage = PageTree.objects.get_model_instance(request, PluginPage, show_lang_info=True)
-
-    # Add to globale pylucid objects. Use e.g. in admin_menu plugin
-    request.PYLUCID.pluginpage = pluginpage
 
     # Get pylucid_project.system.pylucid_plugins instance
     plugin_instance = pluginpage.get_plugin()
@@ -120,9 +116,6 @@ def call_plugin(request, prefix_url, rest_url):
     # this urls would be prefixed with the current PageTree url.
     old_get_resolver = urlresolvers.get_resolver
     urlresolvers.get_resolver = PluginGetResolver(merged_url_resolver)
-
-    #FIXME: Some plugins needs a "current pagecontent" object!
-    #request.PYLUCID.pagecontent = 
 
     # Call the view
     response = view_func(request, *view_args, **view_kwargs)

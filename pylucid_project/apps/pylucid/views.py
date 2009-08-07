@@ -11,7 +11,7 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.markup.converter import apply_markup
-from pylucid.models import PageTree, PageContent, ColorScheme, EditableHtmlHeadFile, Language
+from pylucid.models import PageTree, PageContent, PluginPage, ColorScheme, EditableHtmlHeadFile, Language
 
 
 #_____________________________________________________________________________
@@ -90,6 +90,11 @@ def _render_page(request, pagetree, prefix_url=None, rest_url=None):
     page_plugin_response = None
     if pagetree.page_type == PageTree.PLUGIN_TYPE:
         # The current PageTree entry is a plugin page
+
+        # Add to globale pylucid objects. Use e.g. in admin_menu plugin
+        pluginpage = PluginPage.objects.get(pagemeta=pagemeta)
+        request.PYLUCID.pluginpage = pluginpage
+
         page_plugin_response = pylucid_plugin.call_plugin(request, prefix_url, rest_url)
 
         if isinstance(page_plugin_response, http.HttpResponse):
