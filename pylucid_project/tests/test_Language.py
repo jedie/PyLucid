@@ -204,6 +204,16 @@ class DetectLang(BaseLangTest):
             self.failUnless(response['Location'], "/%s/1-rootpage/" % lang.code)
             self.failUnless(response.status_code, 302)
 
+    def test_redirect(self):
+        """
+        Test if we only redirectet to existing entries.
+        """
+        # Create a language, but for this language exist no content.
+        test_lang = Language(code="xx", description="has no content")
+        response = self.client.get("/xx/1-rootpage/", HTTP_ACCEPT_LANGUAGE="xx")
+        self.failUnless(response['Location'], "/%s/1-rootpage/" % self.default_lang_entry)
+        self.failUnless(response.status_code, 302)
+
     def test_not_avaiable(self):
         """
         If a requested language doesn't exist -> Use the default language

@@ -11,7 +11,8 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.markup.converter import apply_markup
-from pylucid.models import PageTree, PageContent, PluginPage, ColorScheme, EditableHtmlHeadFile, Language
+from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, \
+                                                                    EditableHtmlHeadFile, Language
 
 
 #_____________________________________________________________________________
@@ -65,13 +66,39 @@ def _apply_context_middleware(request, response):
     return response
 
 
-def _render_page(request, pagetree, prefix_url=None, rest_url=None):
+def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=None):
     """ render a cms page """
     request.PYLUCID.pagetree = pagetree
 
     # Get the pagemeta instance for the current pagetree and language
-    pagemeta = PageTree.objects.get_pagemeta(request)
+    try:
+        pagemeta = PageTree.objects.get_pagemeta(request)
+    except PageMeta.DoesNotExist, err:
+        # Note: This should normaly never happen. Because all PageMeta must exist at least in system
+        # default language. Also: The main_manu doesn't show links to not existing PageMeta entries!
+        if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
+            msg = (
+                "PageMeta for %r doesn't exist in system default language: %r! Please create it!"
+                " (Original error was: %r)"
+            ) % (pagetree, request.PYLUCID.default_lang_entry, err)
+            request.page_msg.error(msg)
+        else:
+            msg = ""
+        raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % msg)
+
     request.PYLUCID.pagemeta = pagemeta
+
+    # Check the language code in the url, if exist
+    if url_lang_code and url_lang_code != pagemeta.lang.code:
+        # The language code in the url is wrong. e.g.: The client followed a external url with was wrong.
+        # Note: The main_manu doesn't show links to not existing PageMeta entries!
+        # redirect the client to the right url, otherwise e.g. plugin urls doesn's work!
+        url = pagemeta.get_absolute_url()
+        if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
+            request.page_msg.error(
+                "Language code in url %r is wrong! Redirect to %r." % (url_lang_code, url)
+            )
+        return http.HttpResponseRedirect(url)
 
     # Create initial context object
     context = RequestContext(request)
@@ -205,7 +232,7 @@ def _prepage_request(request, lang_entry):
 #_____________________________________________________________________________
 # root_page + lang_root_page views:
 
-def _render_root_page(request):
+def _render_root_page(request, url_lang_code=None):
     """ render the root page, used in root_page and lang_root_page views """
     user = request.user
     try:
@@ -216,7 +243,7 @@ def _render_root_page(request):
         request.page_msg.error(msg)
         return http.HttpResponseRedirect(reverse("admin:index"))
 
-    return _render_page(request, pagetree)
+    return _render_page(request, pagetree, url_lang_code)
 
 
 def root_page(request):
@@ -232,13 +259,7 @@ def lang_root_page(request, url_lang_code):
     # activate i18n
     i18n.activate_auto_language(request)
 
-    if url_lang_code != request.PYLUCID.lang_entry.code:
-        # The language code in the url is not the client prefered language
-        # redirect the client to the right url, otherwise e.g. plugin urls doen's work!
-        url = "/%s/" % (request.PYLUCID.lang_entry.code)
-        return http.HttpResponseRedirect(url)
-
-    return _render_root_page(request)
+    return _render_root_page(request, url_lang_code)
 
 #-----------------------------------------------------------------------------
 
@@ -270,15 +291,9 @@ def resolve_url(request, url_lang_code, url_path):
     # activate i18n
     i18n.activate_auto_language(request)
 
-    if url_lang_code != request.PYLUCID.lang_entry.code:
-        # The language code in the url is not the client prefered language
-        # redirect the client to the right url, otherwise e.g. plugin urls doen's work!
-        url = "/%s/%s" % (request.PYLUCID.lang_entry.code, url_path)
-        return http.HttpResponseRedirect(url)
-
     pagetree, prefix_url, rest_url = _get_pagetree(request, url_path)
 
-    return _render_page(request, pagetree, prefix_url, rest_url)
+    return _render_page(request, pagetree, url_lang_code, prefix_url, rest_url)
 
 
 def page_without_lang(request, url_path):
