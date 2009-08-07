@@ -232,6 +232,12 @@ def lang_root_page(request, url_lang_code):
     # activate i18n
     i18n.activate_auto_language(request)
 
+    if url_lang_code != request.PYLUCID.lang_entry.code:
+        # The language code in the url is not the client prefered language
+        # redirect the client to the right url, otherwise e.g. plugin urls doen's work!
+        url = "/%s/" % (request.PYLUCID.lang_entry.code)
+        return http.HttpResponseRedirect(url)
+
     return _render_root_page(request)
 
 #-----------------------------------------------------------------------------
@@ -258,10 +264,17 @@ def _get_pagetree(request, url_path):
     except PageTree.DoesNotExist, err:
         raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % err)
 
+
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
     # activate i18n
     i18n.activate_auto_language(request)
+
+    if url_lang_code != request.PYLUCID.lang_entry.code:
+        # The language code in the url is not the client prefered language
+        # redirect the client to the right url, otherwise e.g. plugin urls doen's work!
+        url = "/%s/%s" % (request.PYLUCID.lang_entry.code, url_path)
+        return http.HttpResponseRedirect(url)
 
     pagetree, prefix_url, rest_url = _get_pagetree(request, url_path)
 

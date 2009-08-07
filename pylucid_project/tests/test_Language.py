@@ -12,22 +12,26 @@ from django.contrib.sites.models import Site
 
 from django_tools.unittest import unittest_base, BrowserDebug
 
+from pylucid.models import Language
+
+from pylucid_project.tests import unittest_plugin
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.tests.test_tools.pylucid_test_data import TestLanguages
+from pylucid_project.tests.test_tools.pylucid_test_data import TEST_LANGUAGES, TestLanguages
 
 
 GET_VIEW_PREFIX = "?language="
 RESET_GET_VIEW = GET_VIEW_PREFIX + "reset"
 
 
-class LoginTest(basetest.BaseUnittest):
+class BaseLangTest(basetest.BaseUnittest):
     def __init__(self, *args, **kwargs):
-        super(LoginTest, self).__init__(*args, **kwargs)
+        super(BaseLangTest, self).__init__(*args, **kwargs)
 
         # Get the default lang code from system preferences
         from pylucid.preference_forms import SystemPreferencesForm
         system_preferences = SystemPreferencesForm().get_preferences()
         self.default_lang_code = system_preferences["lang_code"]
+        self.default_lang_entry = Language.objects.get(code=self.default_lang_code)
 
         self.admin_index_url = reverse("admin:index")
 
@@ -125,8 +129,11 @@ class LoginTest(basetest.BaseUnittest):
             must_not_contain=("Log in", "Traceback",)#"error")
         )
 
-    #-------------------------------------------------------------------------
 
+
+
+class LanguagePluginTest(BaseLangTest):
+    """ Test pylucid_plugins.Language """
     def test_get_views(self):
         """
         Test Language get views
@@ -174,6 +181,29 @@ class LoginTest(basetest.BaseUnittest):
             # Test if django admin page is in client favored language
             self.assertAdminLang(lang)
 
+
+
+class DetectLang(BaseLangTest):
+    def test_wrong_url_lang1(self):
+        """
+        Test if we would be redirectet to the url with the right land code.
+        Test view: pylucid.views.lang_root_page
+        """
+        for lang in TestLanguages():
+            response = self.client.get("/it/", HTTP_ACCEPT_LANGUAGE=lang.code)
+            self.failUnless(response['Location'], "/%s/" % lang.code)
+            self.failUnless(response.status_code, 302)
+
+    def test_wrong_url_lang2(self):
+        """
+        Test if we would be redirectet to the url with the right land code.
+        Test view: pylucid.views.resolve_url
+        """
+        for lang in TestLanguages():
+            response = self.client.get("/it/1-rootpage/", HTTP_ACCEPT_LANGUAGE=lang.code)
+            self.failUnless(response['Location'], "/%s/1-rootpage/" % lang.code)
+            self.failUnless(response.status_code, 302)
+
     def test_not_avaiable(self):
         """
         If a requested language doesn't exist -> Use the default language
@@ -187,6 +217,7 @@ class LoginTest(basetest.BaseUnittest):
         response = self.client.get("/",
             HTTP_ACCEPT_LANGUAGE="it,it-CH;q=0.8,es;q=0.5,ja-JP;q=0.3"
         )
+        self.assertContentLanguage(response, self.default_lang_entry)
         self.assertResponse(response,
             must_contain=(
                 "Favored language &quot;it&quot; does not exist",
@@ -203,4 +234,4 @@ if __name__ == "__main__":
     unittest_base.direct_run(__file__) # run all test from this file
 
 #    from django.core import management
-#    management.call_command('test', "test_PluginEditPage.CreateNewContentTest")
+#    management.call_command('test', "test_Language.DetectLang")
