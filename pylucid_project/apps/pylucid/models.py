@@ -1019,11 +1019,6 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     def __unicode__(self):
         return u"UserProfile for user '%s'" % self.user.username
 
-    def site_info(self):
-        """ for pylucid.admin.UserProfileAdmin.list_display """
-        sites = self.site.all()
-        return ", ".join([site.name for site in sites])
-
     class Meta:
         ordering = ("user",)
 

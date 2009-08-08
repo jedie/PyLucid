@@ -139,7 +139,7 @@ pylucid_admin_site.register(models.Design, DesignAdmin)
 
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
-    list_display = ("id", "filepath", "render", "description", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "filepath", "site_info", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
     list_filter = ("site", "render")
 
