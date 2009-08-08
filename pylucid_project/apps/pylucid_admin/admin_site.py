@@ -20,7 +20,7 @@ class PyLucidAdminSite(admin.AdminSite):
         """
         redirect to PyLucid's own login view
         """
-        if PageTree.objects.all().count() == 0:
+        if PageTree.on_site.all().count() == 0:
             # FIXME: The PyLucid inline login view does only work after install...
             # Work-a-round: Use the normal django login view
             return super(PyLucidAdminSite, self).login(request)
