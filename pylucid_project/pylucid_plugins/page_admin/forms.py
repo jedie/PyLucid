@@ -69,6 +69,12 @@ class BasePageForm(forms.ModelForm):
 
         return cleaned_data
 
+    def __init__(self, *args, **kwargs):
+        super(BasePageForm, self).__init__(*args, **kwargs)
+
+        # Change field in a DRY way
+        self.fields['design'].choices = Design.on_site.values_list("id", "name")
+
 
 
 class PageContentModel(PageTree, PageMeta, PageContent):
