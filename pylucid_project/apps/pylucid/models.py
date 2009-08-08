@@ -140,13 +140,16 @@ class PageTreeManager(BaseModelManager):
             models.Q(permitViewGroup__isnull=True) | models.Q(permitViewGroup__in=user_groups)
         )
 
-    def all_accessible(self, user):
+    def all_accessible(self, user=None):
         """ returns all pages that the given user can access. """
+        if user == None:
+            user = ThreadLocal.get_current_user()
+
         queryset = self.model.on_site
         queryset = self.filter_accessible(queryset, user)
         return queryset
 
-    def get_tree(self, user, filter_showlinks=False):
+    def get_tree(self, user=None, filter_showlinks=False):
         """ return a TreeGenerator instance with all accessable page tree instance """
         queryset = self.all_accessible(user)
 
@@ -156,8 +159,17 @@ class PageTreeManager(BaseModelManager):
 
         queryset = queryset.order_by("position")
         tree = TreeGenerator(queryset, skip_no_parent=True)
-
         return tree
+
+    def get_choices(self, user=None):
+        """ returns a choices list for e.g. a forms select widget. """
+        tree = PageTree.objects.get_tree(user)
+        choices = [("", "---------")] + [
+            (node.db_instance.pk, node.db_instance.get_absolute_url())
+            for node in tree.iter_flat_list()
+        ]
+        return choices
+
 
 #    def easy_create(self, cleaned_form_data, page_type):
 #        """

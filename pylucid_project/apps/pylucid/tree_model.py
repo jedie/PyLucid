@@ -73,63 +73,6 @@ class MenuNode(object):
             return "Root MenuNode object"
         return repr(self.db_instance)
 
-#    def activate_expanded(self, group_key, group_value):
-#        """
-#        enlarged the visible group.
-#        Same as 'activate', but makes only self node, sub nodes and parent node 
-#        visible, if data[group_key] == group_value
-#        """
-#        def conditional_activate(node):
-#            if node.data[group_key] == group_value:
-#                node.visible = True
-#            else:
-#                node.visible = False
-#
-#        conditional_activate(self)
-#        for subnode in self.subnodes:
-#            conditional_activate(subnode)
-#
-#        if self.parent is not None:
-#            conditional_activate(self.parent)
-
-
-#    def _get_current_entry(self, level):
-#        if self.id == None:
-#            # root item
-#            return self
-#
-#        self.db_instance.level = level
-#        self.db_instance.active = self.active
-#        return self.db_instance
-
-#    def to_dict(self, level=0):
-#        """
-#        built the tree dict of all active nodes and insert a level info
-#        """
-#        current_entry = self._get_current_entry(level)
-#
-#        subnodes = [subnode.to_dict(level + 1)
-#                    for subnode in self.subnodes
-#                    if subnode.visible]
-#        if subnodes:
-#            current_entry.subnodes = subnodes
-#
-#        return current_entry
-#
-#    def get_flat_list(self, level=0):
-#        """
-#        genrate a flat list for all visible pages and insert a level info
-#        """
-#        flat_list = []
-#
-#        current_entry = self._get_current_entry(level)
-#        flat_list.append(current_entry)
-#
-#        for subnode in self.subnodes:
-#            if subnode.visible:
-#                flat_list += subnode.get_flat_list(level + 1)
-#
-#        return flat_list
 
 
 
@@ -216,14 +159,6 @@ class TreeGenerator(object):
         debug2(nodes)
         print "-" * 79
 
-#    def add_related(self, queryset, field, attrname):
-#        """ Attach related objects from querset to all visible nodes. """
-#
-#        # Generate a id list of all visible nodes 
-#        ids = [id for id, node in self.nodes.items() if node.visible and id != None]
-#
-
-
     def add_related(self, queryset, ids, field, attrname):
         """ Attach related objects from a queryset """
         lookup_kwargs = {"%s__in" % field: ids}
@@ -280,12 +215,6 @@ class TreeGenerator(object):
         current_node.activate()
         current_node.current = True
 
-#    def to_dict(self):
-#        """
-#        built the tree dict of all visible nodes.
-#        """
-#        return self.root.to_dict().subnodes
-
     def activate_all(self):
         """
         make all nodes visible (for a sitemap)
@@ -300,35 +229,23 @@ class TreeGenerator(object):
         for node in self.nodes.itervalues():
             node.visible = False
 
-#    def activate(self, id):
-#        """
-#        make one node visible. (for the main menu)
-#        """
-#        self.nodes[id].activate()
+    def iter_flat_list(self, nodes=None):
+        """
+        returns a flat list of all visible pages with the level info.
+        """
+        if nodes == None:
+            nodes = self.get_first_nodes()
 
-#    def get_menu_tree(self, id=None):
-#        """
-#        generate a tree dirct for the main menu.
-#        If id==None: Only the top pages are visible!
-#        """
-#        self.deactivate_all()
-#        self.activate(id)
-#        if id:
-#            self.nodes[id].data["is_current"] = True
-#        return self.to_dict()
-#
-#    def get_sitemap_tree(self):
-#        """
-#        generate a tree wih all nodes for a sitemap
-#        """
-#        self.activate_all()
-#        return self.to_dict()
-#
-#    def get_flat_list(self):
-#        """
-#        returns a flat list of all visible pages with the level info.
-#        """
-#        return self.root.get_flat_list()[1:]
+        for node in nodes:
+            if node.visible:
+                yield node
+            if node.subnodes:
+                for node in self.iter_flat_list(nodes=node.subnodes):
+                    if node.visible:
+                        yield node
+
+
+
 
 
 

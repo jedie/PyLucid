@@ -63,7 +63,7 @@ class PageTreeAdmin(BaseAdmin):
 
     list_display = ("id", "parent", "slug", "site", "view_on_site_link", "lastupdatetime", "lastupdateby")
     list_display_links = ("id", "slug")
-    list_filter = ("site", "page_type", "design", "createby", "lastupdateby",)
+    list_filter = ("site", "page_type", "permitViewGroup", "design", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     search_fields = ("slug",)
 

@@ -14,9 +14,7 @@ from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design, 
 
 
 class EditPageForm(forms.Form):
-    """
-    Form for "quick inline" edit.
-    """
+    """ Form for "quick inline" edit. """
     edit_comment = forms.CharField(
         max_length=255, required=False,
         help_text=_("The reason for editing."),
@@ -29,28 +27,7 @@ class EditPageForm(forms.Form):
 
 
 
-class AboluteUrlChoiceField(forms.ModelChoiceField):
-    """
-    FIXME: The root page order is wrong!
-    """
-    def __iter__(self):
-        if self.empty_label is not None:
-            yield (u"", self.empty_label)
-
-        for item in sorted(self.queryset.all(), key=lambda i: i.get_absolute_url()):
-            yield (item.pk, item.get_absolute_url())
-
-    def _get_choices(self):
-        return self
-
-    choices = property(_get_choices, forms.ChoiceField._set_choices)
-
-
 class PageTreeForm(forms.ModelForm):
-    # TODO: Use TreeGenerator for parent field!
-    parent = AboluteUrlChoiceField(queryset=PageTree.on_site, required=False, label=_('Parent'),
-        help_text=_('the higher-ranking father page')
-    )
     def clean(self):
         """ Validate if page with same slug and parent exist. """
         cleaned_data = self.cleaned_data
@@ -77,6 +54,8 @@ class PageTreeForm(forms.ModelForm):
         super(PageTreeForm, self).__init__(*args, **kwargs)
         designs = Design.on_site.values_list("id", "name")
         self.fields['design'].choices = [("", "---------")] + list(designs)
+
+        self.fields["parent"].widget = forms.widgets.Select(choices=PageTree.objects.get_choices())
 
     class Meta:
         model = PageTree
