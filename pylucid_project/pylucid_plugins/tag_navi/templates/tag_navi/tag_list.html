@@ -1,0 +1,11 @@
+{% extends template_name %}
+
+{% block content %}
+<fieldset class="taglist"><legend>Pages with tags '{{ tags|escape }}'</legend>
+<ul>
+{% for pagemeta in entries %}
+    <li><a href="{{ pagemeta.get_absolute_url }}">{{ pagemeta.get_title }}</a></li>
+{% endfor %}
+</ul>
+</fieldset>
+{% endblock content %}

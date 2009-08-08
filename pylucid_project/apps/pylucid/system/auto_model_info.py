@@ -27,7 +27,7 @@ from django.http import HttpRequest
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.db import transaction, IntegrityError
-from pylucid.shortcuts import user_message_or_warn
+from pylucid.shortcuts import failsafe_message
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.managers import CurrentSiteManager
 
@@ -50,7 +50,7 @@ class AutoSiteM2M(models.Model):
         if self.site.count() == 0:
             site = Site.objects.get_current()
             if settings.DEBUG:
-                user_message_or_warn("Automatic add site '%s' to %r" % (site.name, self))
+                failsafe_message("Automatic add site '%s' to %r" % (site.name, self))
             self.site.add(site)
 
         super(AutoSiteM2M, self).save(*args, **kwargs)

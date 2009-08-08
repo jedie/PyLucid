@@ -72,7 +72,7 @@ class BaseLangTest(basetest.BaseUnittest):
             '<meta name="description" content="%(slug)s description %(info_string)s" />' % data,
 
             # Link from breadcrumbs plugin:
-            '<a href="%(url)s">%(slug)s title %(info_string)s' % data,
+            '<a href="%(url)s" title="%(slug)s title %(info_string)s" class=' % data,
 
             # PageContent.content
             '%(slug)s content %(info_string)s' % data,

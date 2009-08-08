@@ -32,11 +32,17 @@ from django.core import exceptions
 from django.db.models import signals
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User, Group, Permission
+from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.managers import CurrentSiteManager
+from django.contrib.auth.models import User, Group, Permission
 
+# http://code.google.com/p/django-tagging/
+import tagging
+from tagging.fields import TagField
+
+# http://code.google.com/p/django-tools/
 from django_tools.utils import installed_apps_utils
 from django_tools.middlewares import ThreadLocal
 from django_tools.template import render
@@ -47,18 +53,45 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid.system.auto_model_info import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
-from pylucid.shortcuts import user_message_or_warn
+from pylucid.shortcuts import failsafe_message
+from pylucid.system import pylucid_objects
 from pylucid.fields import ColorValueField
 from pylucid.system import headfile
 
 from pylucid_plugins import page_update_list
 
-# Create a list of all settings.INSTALLED_APPS witch can resolve the url "/"
-# Used in PluginPage for the app label choices
-#print "XXX"
-##help(installed_apps_utils)
-#ROOT_APPS = installed_apps_utils.get_filtered_apps(resolve_url="/")
-#print ROOT_APPS, "***"
+
+TAG_INPUT_HELP_URL = \
+"http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+
+
+
+class BaseModel(models.Model):
+    def get_absolute_url(self):
+        raise NotImplementedError
+    get_absolute_url.short_description = _('absolute url')
+
+    def get_site(self):
+        raise NotImplementedError
+    get_site.short_description = _('on site')
+
+    def get_absolute_uri(self):
+        """ returned the complete absolute URI (with the domain/host part) """
+        request = ThreadLocal.get_current_request()
+        is_secure = request.is_secure()
+        if is_secure:
+            protocol = "https://"
+        else:
+            protocol = "http://"
+        site = self.get_site()
+        domain = site.domain
+        absolute_url = self.get_absolute_url()
+        return protocol + domain + absolute_url
+    get_absolute_uri.short_description = _('absolute uri')
+
+    class Meta:
+        abstract = True
+
 
 
 class BaseModelManager(models.Manager):
@@ -73,16 +106,6 @@ class BaseModelManager(models.Manager):
         model_instance = self.model(**model_kwargs)
         model_instance.save()
         return model_instance
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -293,9 +316,10 @@ class PageTreeManager(BaseModelManager):
 
         pagemeta = self.get_pagemeta(request, pagetree)
         url = pagemeta.get_absolute_url()
-        title = pagemeta.get_title()
+        page_name = pagemeta.get_name()
+        page_title = pagemeta.get_title()
 
-        backlist = [{"url": url, "title": title}]
+        backlist = [{"url": url, "name": page_name, "title": page_title}]
 
         parent = pagetree.parent
         if parent:
@@ -305,7 +329,7 @@ class PageTreeManager(BaseModelManager):
         return backlist
 
 
-class PageTree(BaseTreeModel, UpdateInfoBaseModel):
+class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
     """
     The CMS page tree
 
@@ -359,6 +383,10 @@ class PageTree(BaseTreeModel, UpdateInfoBaseModel):
         else:
             return "/" + self.slug + "/"
 
+    def get_site(self):
+        """ used e.g. for self.get_absolute_uri() and the admin page """
+        return self.site
+
     def __unicode__(self):
         return u"PageTree '%s' (id: %r, site: %r, type: %r)" % (
             self.slug, self.id, self.site.name, self.TYPE_DICT.get(self.page_type)
@@ -383,6 +411,40 @@ class LanguageManager(models.Manager):
         """ return a tuple list for e.g. forms.ChoiceField """
         return self.values_list('code', 'description')
 
+    def get_default_lang_entry(self,):
+        """ returns default Language instance, setup in system preferences. """
+        from pylucid.preference_forms import SystemPreferencesForm # FIXME: import here, against import loop.
+        system_preferences = SystemPreferencesForm().get_preferences()
+        default_lang_code = system_preferences["lang_code"]
+        default_lang_entry, created = self.get_or_create(code=default_lang_code)
+        if created:
+            failsafe_message("Default system language %r created!" % default_lang_entry)
+        return default_lang_entry
+
+    def get_current_lang_entry(self, request=None):
+        """ return client Language instance, if not available, use get_default_lang_entry() """
+        if request == None:
+            request = ThreadLocal.get_current_request()
+
+        if request:
+            if hasattr(request, "PYLUCID"):
+                return request.PYLUCID.lang_entry
+
+            if hasattr(request, "LANGUAGE_CODE"):
+                lang_code = request.LANGUAGE_CODE
+                if "-" in lang_code:
+                    lang_code = lang_code.split("-", 1)[0]
+                try:
+                    return self.get(code=lang_code)
+                except Language.DoesNotExist:
+                    if settings.PYLUCID.I18N_DEBUG:
+                        msg = (
+                            'Favored language "%s" does not exist -> use default lang from system preferences'
+                        ) % request.LANGUAGE_CODE
+                        failsafe_message(msg)
+
+        return self.get_default_lang_entry()
+
 
 class Language(models.Model):
     objects = LanguageManager()
@@ -404,7 +466,7 @@ class Language(models.Model):
 
 #------------------------------------------------------------------------------
 
-class PageMeta(UpdateInfoBaseModel):
+class PageMeta(BaseModel, UpdateInfoBaseModel):
     """
     Meta data for PageContent or PluginPage
 
@@ -425,6 +487,14 @@ class PageMeta(UpdateInfoBaseModel):
     title = models.CharField(blank=True, max_length=256,
         help_text="A long page title (for e.g. page title or link title text)"
     )
+
+    tags = TagField(# from django-tagging
+        help_text=mark_safe(
+            _('tags for this entry. <a href="%s" class="openinwindow"'
+            ' title="Information about tag splitting.">tag format help</a>') % TAG_INPUT_HELP_URL
+        )
+    )
+
     keywords = models.CharField(blank=True, max_length=255,
         help_text="Keywords for the html header. (separated by commas)"
     )
@@ -446,7 +516,10 @@ class PageMeta(UpdateInfoBaseModel):
         return "/" + lang_code + page_url
 
     def get_site(self):
+        """ used e.g. for self.get_absolute_uri() and the admin page """
         return self.page.site
+    get_site.short_description = _('on site')
+    get_site.allow_tags = False
 
     def get_other_languages(self):
         return PageMeta.objects.all().filter(page=self.page).exclude(lang=self.lang)
@@ -490,7 +563,7 @@ class PluginPageManager(BaseModelManager):
         reverse a plugin url.
         Please note: this will always use the first PluginPage entry as url prefix!
         """
-        # get the app label from 
+        # get the app label from
         plugin_instance = PYLUCID_PLUGINS["blog"]
         app_label = plugin_instance.pkg_string
 
@@ -505,7 +578,7 @@ class PluginPageManager(BaseModelManager):
         return plugin_url_resolver.reverse(viewname, *args, **kwargs)
 
 
-class PluginPage(UpdateInfoBaseModel):
+class PluginPage(BaseModel, UpdateInfoBaseModel):
     """
     A plugin page
 
@@ -529,20 +602,27 @@ class PluginPage(UpdateInfoBaseModel):
         help_text="Filename of the urls.py"
     )
 
+    def get_pagemeta(self):
+        lang_entry = Language.objects.get_current_lang_entry()
+        try:
+            return self.pagemeta.get(lang=lang_entry)
+        except PageMeta.DoesNotExist:
+            default_lang_entry = Language.objects.get_default_lang_entry()
+            return self.pagemeta.get(lang=default_lang_entry)
+
     def get_site(self):
-        return "TODO"
+        pagemeta = self.get_pagemeta()
+        return pagemeta.page.site
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
-        # TODO
-        return "/#TODO"
-        lang_code = self.lang.code
-        page_url = self.page.get_absolute_url()
-        return "/" + lang_code + page_url
+        pagemeta = self.get_pagemeta()
+        return pagemeta.get_absolute_url()
 
     def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
-        return self.pagemeta.title or self.page.slug
+        pagemeta = self.get_pagemeta()
+        return pagemeta.get_title()
 
     def get_plugin_name(self):
         return self.app_label.split(".")[-1]
@@ -583,7 +663,7 @@ class PageContentManager(BaseModelManager):
     pass
 
 
-class PageContent(UpdateInfoBaseModel):
+class PageContent(BaseModel, UpdateInfoBaseModel):
     """
     A normal CMS Page with text content.
 
@@ -740,13 +820,13 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
                         new_content = old_content.replace("{{ %s }}" % old_name, "{{ %s }}" % new_name)
                         if old_content == new_content:
                             # content not changed?!?
-                            user_message_or_warn(
+                            failsafe_message(
                                 "Color '{{ %s }}' not exist in headfile %r" % (old_name, headfile)
                             )
                             continue
 
                         if settings.DEBUG:
-                            user_message_or_warn(
+                            failsafe_message(
                                 "change color name from '%s' to '%s' in %r" % (old_name, new_name, headfile)
                             )
                         headfile.content = new_content
@@ -889,7 +969,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                     if not os.path.isdir(path):
                         # Try to create cache path and save file
                         os.makedirs(path)
-                        user_message_or_warn("Cache path %s created" % path)
+                        failsafe_message("Cache path %s created" % path)
                         _save_cache_file(auto_create_dir=False)
                         return
                 raise
@@ -897,10 +977,10 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         try:
             _save_cache_file()
         except (IOError, OSError), err:
-            user_message_or_warn("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
+            failsafe_message("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
         else:
             if settings.DEBUG:
-                user_message_or_warn("EditableHtmlHeadFile cached successful into: %r" % cachepath)
+                failsafe_message("EditableHtmlHeadFile cached successful into: %r" % cachepath)
 
     def save_all_color_cachefiles(self):
         """
@@ -1014,7 +1094,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
         salt, sha_checksum = crypt.make_sha_checksum2(raw_password)
         self.sha_login_salt = salt
         self.sha_login_checksum = sha_checksum
-        user_message_or_warn("SHA Login salt+checksum set for user '%s'." % self.user)
+        failsafe_message("SHA Login salt+checksum set for user '%s'." % self.user)
 
     def __unicode__(self):
         return u"UserProfile for user '%s'" % self.user.username
@@ -1048,12 +1128,12 @@ def create_user_profile(sender, **kwargs):
 
     userprofile, created = UserProfile.objects.get_or_create(user=user)
     if created:
-        user_message_or_warn("UserProfile entry for user '%s' created." % user)
+        failsafe_message("UserProfile entry for user '%s' created." % user)
 #
 #        if not user.is_superuser: # Info: superuser can automaticly access all sites
 #            site = Site.objects.get_current()
 #            userprofile.site.add(site)
-#            user_message_or_warn("Add site '%s' to '%s' UserProfile." % (site.name, user))
+#            failsafe_message("Add site '%s' to '%s' UserProfile." % (site.name, user))
 
 signals.post_save.connect(create_user_profile, sender=User)
 
@@ -1081,7 +1161,7 @@ def set_password(user, raw_password):
 
     userprofile, created = UserProfile.objects.get_or_create(user=user)
     if created:
-        user_message_or_warn("UserProfile entry for user '%s' created." % user)
+        failsafe_message("UserProfile entry for user '%s' created." % user)
 
     # Save the password for the JS-SHA-Login:
     userprofile.set_sha_login_password(raw_password)

@@ -49,7 +49,8 @@ def _add_breadcrumb(request, title, url):
     """ shortcut for add breadcrumb link """
     context = request.PYLUCID.context
     breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
-    breadcrumb_context_middlewares.add_link(title, url)
+    # Blog entries have only a headline, use it for name and title
+    breadcrumb_context_middlewares.add_link(title, title, url)
 
 
 @render_to("blog/summary.html")

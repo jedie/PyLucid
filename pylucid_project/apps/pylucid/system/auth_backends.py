@@ -29,14 +29,14 @@ from django.contrib.sites.models import Site
 from django.contrib.auth.backends import ModelBackend
 
 from pylucid_project.utils import crypt
-from pylucid.shortcuts import page_msg_or_warn
+from pylucid.shortcuts import failsafe_message
 
 
 #LOCAL_DEBUG = True
 LOCAL_DEBUG = False
 
 if LOCAL_DEBUG:
-    page_msg_or_warn("Debug mode in auth_backends is on!", UserWarning)
+    failsafe_message("Debug mode in auth_backends is on!", UserWarning)
 
 
 def can_access_site(user):
@@ -47,26 +47,26 @@ def can_access_site(user):
     """
     if user.is_superuser:
         if LOCAL_DEBUG:
-            page_msg_or_warn("Superuser can access all sites.")
+            failsafe_message("Superuser can access all sites.")
         return True
     else:
         if LOCAL_DEBUG:
-            page_msg_or_warn("No superuser -> check UserProfile.")
+            failsafe_message("No superuser -> check UserProfile.")
 
     try:
         user_profile = user.get_profile()
     except Exception, err:
-        page_msg_or_warn("Error getting user profile: %s" % err)
+        failsafe_message("Error getting user profile: %s" % err)
         return
 
     current_site = Site.objects.get_current()
     sites = user_profile.site.all()
     if current_site in sites:
         if LOCAL_DEBUG:
-            page_msg_or_warn("User can access these site.")
+            failsafe_message("User can access these site.")
         return True
     else:
-        page_msg_or_warn("You can't access these site!")
+        failsafe_message("You can't access these site!")
         return
 
 
@@ -79,17 +79,17 @@ class SiteAuthBackend(ModelBackend):
             user = User.objects.get(username=username)
             if not user.check_password(password):
                 if settings.DEBUG or LOCAL_DEBUG:
-                    page_msg_or_warn("Wrong password!")
+                    failsafe_message("Wrong password!")
                 return
         except User.DoesNotExist, err:
             if LOCAL_DEBUG:
                 raise
             if settings.DEBUG:
-                page_msg_or_warn("User %s doesn't exist: %s" % (username, err))
+                failsafe_message("User %s doesn't exist: %s" % (username, err))
             return
 
         if LOCAL_DEBUG:
-            page_msg_or_warn("Username %s and password ok." % username)
+            failsafe_message("Username %s and password ok." % username)
 
         # Limit the access to UserProfile <-> site relationship
         if can_access_site(user) == True:
@@ -113,7 +113,7 @@ class SiteSHALoginAuthBackend(ModelBackend):
             if LOCAL_DEBUG:
                 raise
             if settings.DEBUG:
-                page_msg_or_warn(err)
+                failsafe_message(err)
             return None
 
         if check != True:

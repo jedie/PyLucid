@@ -6,6 +6,10 @@
 
     Register all PyLucid model in django admin interface.
 
+    TODO:
+        * if http://code.djangoproject.com/ticket/3400 is implement:
+            Add site to list_filter for e.g. PageMeta, PageContent etc.      
+    
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate$
@@ -35,13 +39,20 @@ from pylucid_admin.admin_site import pylucid_admin_site
 #------------------------------------------------------------------------------
 
 class BaseAdmin(VersionAdmin):
-    def absolute_url(self, obj):
-        context = {"absolute_url": obj.get_absolute_url()}
-        html = render_to_string('admin/pylucid/includes/absolute_url.html', context)
+    def view_on_site_link(self, obj):
+        """ view on site link in admin changelist, try to use complete uri with site info. """
+        absolute_url = obj.get_absolute_url()
+        if hasattr(obj, "get_absolute_uri"):
+            url = obj.get_absolute_uri() # complete uri contains protocol and site domain.
+        else:
+            url = absolute_url
+
+        context = {"absolute_url": absolute_url, "url": url}
+        html = render_to_string('admin/pylucid/includes/view_on_site_link.html', context)
         return html
 
-    absolute_url.short_description = _("View on site")
-    absolute_url.allow_tags = True
+    view_on_site_link.short_description = _("View on site")
+    view_on_site_link.allow_tags = True
 
 #------------------------------------------------------------------------------
 
@@ -50,7 +61,7 @@ class BaseAdmin(VersionAdmin):
 class PageTreeAdmin(BaseAdmin):
     #prepopulated_fields = {"slug": ("title",)}    
 
-    list_display = ("id", "parent", "slug", "site", "absolute_url", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "parent", "slug", "site", "view_on_site_link", "lastupdatetime", "lastupdateby")
     list_display_links = ("id", "slug")
     list_filter = ("site", "page_type", "design", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
@@ -65,10 +76,19 @@ class LanguageAdmin(VersionAdmin):
 pylucid_admin_site.register(models.Language, LanguageAdmin)
 
 
+#class OnSitePageMeta(models.PageMeta):
+#    def get_site(self):
+#        return self.page.site
+#    site = property(get_site)
+#    class Meta:
+#        proxy = True
+
+
+
 class PageMetaAdmin(BaseAdmin):
-    list_display = ("id", "get_title", "absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
+    list_display = ("id", "get_title", "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
-    list_filter = ("lang", "keywords", "createby", "lastupdateby")
+    list_filter = ("lang", "createby", "lastupdateby", "tags")#"keywords"
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
 
@@ -79,7 +99,7 @@ class PageContentInline(admin.StackedInline):
     model = models.PageContent
 
 class PageContentAdmin(BaseAdmin):
-    list_display = ("id", "get_title", "absolute_url", "get_site", "lastupdatetime", "lastupdateby",)
+    list_display = ("id", "get_title", "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
     list_filter = ("markup", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
@@ -90,8 +110,8 @@ pylucid_admin_site.register(models.PageContent, PageContentAdmin)
 
 class PluginPageAdmin(BaseAdmin):
     list_display = (
-        "id", "get_plugin_name", "absolute_url", "app_label",
-        "get_site", "lastupdatetime", "lastupdateby",
+        "id", "get_plugin_name", "app_label",
+        "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",
     )
     list_display_links = ("get_plugin_name", "app_label")
     list_filter = ("createby", "lastupdateby",)

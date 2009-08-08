@@ -4,20 +4,23 @@ from django.db import models
 from django.db.models import signals
 from django.contrib.comments.models import Comment
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.comments.signals import comment_was_posted
 
 from pylucid_plugins import page_update_list
 
-from pylucid.models import PageContent, Language
+from pylucid.models import Language
 
 
 class PyLucidComment(Comment):
-    # site manager seems not to work here!
+    # CurrentSiteManager seems not to work here!
+    # But no problem: The parent object should be have a CurrentSiteManager.
     #on_site = CurrentSiteManager()
 
     title = models.CharField(max_length=300)
-    lang = models.ForeignKey(Language)
+    notify = models.BooleanField(
+        help_text="Send me a mail if someone replay on my comment. (Needs a email address ;)"
+    )
+    lang = models.ForeignKey(Language) # Should be set automaticly
 
     def get_update_info(self):
         """ update info for page_update_list.models.UpdateJournal used by page_update_list.save_receiver """

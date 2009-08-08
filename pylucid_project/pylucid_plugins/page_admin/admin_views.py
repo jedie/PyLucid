@@ -126,10 +126,7 @@ def new_content_page(request):
                     extra={"page": pagetree_instance, "lang": request.PYLUCID.default_lang_entry}
                 )
                 pagecontent_instance = PageContent.objects.easy_create(cleaned_data,
-                    extra={
-                        "page": pagetree_instance, "lang": request.PYLUCID.default_lang_entry,
-                        "pagemeta": pagemeta_instance,
-                    }
+                    extra={"pagemeta": pagemeta_instance, }
                 )
             except:
                 transaction.savepoint_rollback(sid)

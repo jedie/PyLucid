@@ -34,7 +34,7 @@ from tagging.fields import TagField
 
 from pylucid_plugins import page_update_list
 
-from pylucid.shortcuts import page_msg_or_warn
+from pylucid.shortcuts import failsafe_message
 from pylucid.models import PageContent, Language, PluginPage
 from pylucid.markup.converter import apply_markup
 from pylucid.system.auto_model_info import UpdateInfoBaseModel
@@ -100,7 +100,7 @@ class BlogEntry(UpdateInfoBaseModel):
         """
         returns the generate html code from the content applyed the markup.
         """
-        return apply_markup(self, page_msg_or_warn)
+        return apply_markup(self, failsafe_message)
 
     def __unicode__(self):
         return self.headline

@@ -1,0 +1,12 @@
+{% extends "pylucid/css_anchor_div.html" %}
+{% load tagging_tags %}
+
+{% block plugin_content %}
+{% tags_for_object pagemeta as tags %}
+<fieldset class="taglist"><legend>tag navi</legend>
+{% for tag in tags %}
+    {% if not forloop.first %}|{% endif %}
+    <a href="?tag_navi={{ tag.name }}">{{ tag.name }}</a>
+{% endfor %}
+</fieldset>
+{% endblock plugin_content %}

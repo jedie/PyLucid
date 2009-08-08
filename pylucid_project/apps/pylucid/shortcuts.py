@@ -70,22 +70,24 @@ def render_pylucid_response(request, template_name, context, **kwargs):
 
 
 
+def failsafe_message(msg):
+    """
+    Display a message to the user. Try to use:
+    1. PyLucid page_msg
+    2. django user messages
+    3. Python warnings
+    """
+    # Try to create a PyLucid page_msg
+    request = ThreadLocal.get_current_request()
+    if request and hasattr(request, "page_msg"):
+        request.page_msg(msg)
+        return
 
-
-
-def user_message_or_warn(msg):
-    """ Display a message with user.message_set.create if available or use warnings.warn """
+    # Try to use django user message systen.
     user = ThreadLocal.get_current_user()
     if user and isinstance(user, User):
         user.message_set.create(message=msg)
-    else:
-        warnings.warn(msg)
+        return
 
-
-def page_msg_or_warn(msg):
-    """ Display a message with request.page_msg if available or use warnings.warn """
-    request = ThreadLocal.get_current_request()
-    if request:
-        request.page_msg(msg)
-    else:
-        warnings.warn(msg)
+    # use normal warnings
+    warnings.warn(msg)

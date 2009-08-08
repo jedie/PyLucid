@@ -16,7 +16,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__= "$Rev:$"
+__version__ = "$Rev:$"
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
@@ -30,23 +30,23 @@ class ContextMiddleware(object):
     def __init__(self, request, context):
         self.request = request
         self.context = context
-        
+
         # Get preferences
         pref_form = BreadcumbPrefForm()
         self.pref_data = pref_form.get_preferences()
-        
+
         # Get all pages back to the root page as a list
         self.linklist = PageTree.objects.get_backlist(request)
-        
-    def add_link(self, title, url):
+
+    def add_link(self, name, title, url):
         """ Can be called from plugins, to insert own virtual sub pages """
-        self.linklist.append({"title": title, "url": url})
-        
+        self.linklist.append({"name": name, "title": title, "url": url})
+
     def render(self):
         context = {
             "preferences": self.pref_data,
             "linklist": self.linklist,
         }
-        return render_to_response('breadcrumb/breadcrumb.html', context, 
+        return render_to_response('breadcrumb/breadcrumb.html', context,
             context_instance=RequestContext(self.request)
         )

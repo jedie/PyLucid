@@ -104,6 +104,7 @@ def _do_update(request, language):
     for style in Style08.objects.all():
         new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(
             filepath=settings.SITE_TEMPLATE_PREFIX + style.name + ".css",
+            site=site,
             defaults={
                 "description": style.description,
                 "content": style.content,
@@ -244,6 +245,8 @@ def _do_update(request, language):
                 "title": old_page.title,
                 "keywords": old_page.keywords,
                 "description": old_page.description,
+
+                "tags": old_page.keywords,
 
                 "createtime": old_page.createtime,
                 "lastupdatetime": old_page.lastupdatetime,
