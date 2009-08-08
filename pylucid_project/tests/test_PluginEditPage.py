@@ -234,7 +234,9 @@ class CreateNewContentTest(basetest.BaseUnittest):
             self.assertResponse(response,
                 must_contain=(
                     "Create a new page",
-                    "This new page will be create on site: '<strong>%s</strong>'" % site.domain,
+                    "This new %s page will be create on site: '<strong>%s</strong>'" % (
+                        page_type, site.domain
+                    ),
                     "<legend>Language: <strong>%s</strong></legend>" % lang_desc,
                 ),
                 must_not_contain=('This field is required', "traceback")
@@ -243,7 +245,7 @@ class CreateNewContentTest(basetest.BaseUnittest):
             post_data = {
                 "position": "0",
                 "design": "1",
-                "slug": "new_%s_page_%s_%s" % (page_type, lang_code, site.name.replace(" ", "_")),
+                "slug": "new_%s_page_%s_%s" % (page_type, lang_code, site.name.replace(".", "_")),
                 "name": "New %s page name %s" % (page_type, info_string),
                 "title": "New %s page title %s" % (page_type, info_string),
                 "robots": "follow and index me!",

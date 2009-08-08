@@ -19,7 +19,7 @@ from pylucid.decorators import check_permissions, render_to
 
 from pylucid_admin.admin_menu import AdminMenu
 
-from page_admin.forms import PageContentForm, PluginPageForm
+from page_admin.forms import PageTreeForm, PageMetaForm, PageContentForm, PluginPageForm
 
 
 EDIT_PLUGIN_TEMPLATE = "page_admin/edit_plugin_page.html"
@@ -113,38 +113,57 @@ def new_content_page(request):
         the metaclasses of all its bases
     see also: http://code.djangoproject.com/ticket/7837
     """
+    default_lang_entry = request.PYLUCID.default_lang_entry
+
     if request.method == "POST":
-        form = PageContentForm(request.POST)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
+        pagetree_form = PageTreeForm(request.POST)
+        pagemeta_form = PageMetaForm(request.POST, prefix=default_lang_entry.code)
+        pagecontent_form = PageContentForm(request.POST)
+        if pagetree_form.is_valid() and pagemeta_form.is_valid() and pagecontent_form.is_valid():
             sid = transaction.savepoint()
             try:
-                pagetree_instance = PageTree.objects.easy_create(cleaned_data,
-                    extra={"page_type": PageTree.PAGE_TYPE}
-                )
-                pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
-                    extra={"page": pagetree_instance, "lang": request.PYLUCID.default_lang_entry}
-                )
-                pagecontent_instance = PageContent.objects.easy_create(cleaned_data,
-                    extra={"pagemeta": pagemeta_instance, }
-                )
+                # Create new PageTree entry
+                new_pagetree = pagetree_form.save(commit=False)
+                new_pagetree.page_type = PageTree.PAGE_TYPE
+                new_pagetree.save()
+
+                # Create new PageMeta entry
+                new_pagemeta = pagemeta_form.save(commit=False)
+                new_pagemeta.page = new_pagetree
+                new_pagemeta.lang = default_lang_entry
+                new_pagemeta.save()
+
+                # Create new PageContent entry
+                new_pagecontent = pagecontent_form.save(commit=False)
+                new_pagecontent.pagemeta = new_pagemeta
+                new_pagecontent.save()
             except:
                 transaction.savepoint_rollback(sid)
                 raise
             else:
                 transaction.savepoint_commit(sid)
-                request.page_msg("New content page %r created." % pagecontent_instance)
-                return http.HttpResponseRedirect(pagemeta_instance.get_absolute_url())
+                request.page_msg("New content page %r created." % new_pagecontent)
+                return http.HttpResponseRedirect(new_pagecontent.get_absolute_url())
     else:
         initial_data = _build_form_initial(request)
-        form = PageContentForm(initial=initial_data)
+        pagetree_form = PageTreeForm(initial=initial_data)
+        pagemeta_form = PageMetaForm(prefix=default_lang_entry.code)
+        pagecontent_form = PageContentForm()
+
+    # A list of all existing forms -> for form errorlist
+    all_forms = [pagecontent_form, pagemeta_form, pagetree_form]
 
     context = {
         "title": "Create a new page",
-        "item_name": "page",
         "default_lang_entry": request.PYLUCID.default_lang_entry,
         "form_url": request.path,
-        "form": form,
+
+        "all_forms": all_forms, # For display the form error list from all existing forms.
+        "has_errors": request.method == "POST", # At least one form has errors.
+
+        "pagetree_form": pagetree_form,
+        "pagemeta_form":pagemeta_form,
+        "pagecontent_form": pagecontent_form,
     }
     return context
 
@@ -157,43 +176,73 @@ def new_content_page(request):
 def new_plugin_page(request):
     """
     Create a new plugin page.
-    TODO: add in form all PageMeta fields in all existing languages.
+    Create PageMeta in all existing languages.
     """
-    if request.method == "POST":
-        form = PluginPageForm(request.POST)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            sid = transaction.savepoint()
-            created_pluginpages = []
-            try:
-                pluginpage_instance = PluginPage.objects.easy_create(cleaned_data,
-#                    extra={"pagemeta": pagemetas}
-                )
-                pagetree_instance = PageTree.objects.easy_create(cleaned_data,
-                    extra={"page_type": PageTree.PLUGIN_TYPE}
-                )
+    languages = Language.objects.all()
 
-                # Create PageMeta in every language
-                for lang in Language.objects.all():
-                    pagemeta_instance = PageMeta.objects.easy_create(cleaned_data,
-                        extra={"page": pagetree_instance, "lang": lang}
-                    )
-                    pluginpage_instance.pagemeta.add(pagemeta_instance)
+    # Create for every language a own PageMeta model form.
+    pagemeta_formset = []
+    pagemeta_is_valid = True # Needed for check if all forms are valid.
+    for lang in languages:
+        if request.method == "POST":
+            form = PageMetaForm(request.POST, prefix=lang.code)
+            if not form.is_valid():
+                pagemeta_is_valid = False
+        else:
+            form = PageMetaForm(prefix=lang.code)
+        form.lang = lang # for language info in fieldset legend
+        pagemeta_formset.append(form)
+
+    if request.method == "POST":
+        pagetree_form = PageTreeForm(request.POST)
+        pluginpage_form = PluginPageForm(request.POST)
+        if pagemeta_is_valid and pagetree_form.is_valid() and pluginpage_form.is_valid():
+            sid = transaction.savepoint()
+            try:
+                # Create new PageTree entry
+                new_pagetree = pagetree_form.save(commit=False)
+                new_pagetree.page_type = PageTree.PLUGIN_TYPE
+                new_pagetree.save()
+
+                # Create new PluginPage entry
+                new_pluginpage = pluginpage_form.save(commit=False)
+                new_pluginpage.save() # needs primary key before a many-to-many relationship can be used.
+
+                # Create all PageMeta entries and attach them to PluginPage
+                new_pluginpage_instance = []
+                for language, pagemeta_form in zip(languages, pagemeta_formset):
+                    new_pagemeta = pagemeta_form.save(commit=False)
+                    new_pagemeta.page = new_pagetree
+                    new_pagemeta.lang = language
+                    new_pagemeta.save()
+                    new_pluginpage.pagemeta.add(new_pagemeta)
+
+                new_pluginpage.save()
             except:
                 transaction.savepoint_rollback(sid)
                 raise
             else:
                 transaction.savepoint_commit(sid)
-                request.page_msg("New plugin page %r created." % pluginpage_instance)
-                return http.HttpResponseRedirect(pagemeta_instance.get_absolute_url())
+                request.page_msg("New plugin page %r created." % new_pluginpage)
+                return http.HttpResponseRedirect(new_pluginpage.get_absolute_url())
     else:
-        form = PluginPageForm()
+        initial_data = _build_form_initial(request)
+        pagetree_form = PageTreeForm(initial=initial_data)
+        pluginpage_form = PluginPageForm()
+
+    # A list of all existing forms -> for form errorlist
+    all_forms = pagemeta_formset[:] + [pluginpage_form, pagetree_form]
 
     context = {
         "title": "Create a new plugin page",
-        "item_name": "plugin",
         "form_url": request.path,
-        "form": form,
+
+        "all_forms": all_forms, # For display the form error list from all existing forms.
+        "has_errors": request.method == "POST", # At least one form has errors.
+        # The forms:
+        "pluginpage_form": pluginpage_form,
+        "pagetree_form": pagetree_form,
+        "pagemeta_formset": pagemeta_formset,
     }
     return context
 

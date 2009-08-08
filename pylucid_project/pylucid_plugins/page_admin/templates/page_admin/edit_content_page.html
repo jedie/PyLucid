@@ -11,7 +11,7 @@
 
 {% if not sites|length_is:"1" %}
 <p>
-    <small>This new {{ item_name }} will be create on site: '<strong>{{ current_site }}</strong>'.</small>
+    <small>This new content page will be create on site: '<strong>{{ current_site }}</strong>'.</small>
 </p>
 {% endif %}
 
@@ -29,12 +29,18 @@
     </li>
 </ul>
 
-{% include "admin/pylucid/includes/form_errorlist.html" %}
+{% if has_errors %}
+<fieldset><legend>{% trans 'Form errors:' %}</legend>
+{% for form in all_forms %}      
+    {% include "admin/pylucid/includes/form_errorlist.html" %}
+{% endfor %}
+</fieldset>
+{% endif %}
 
 <fieldset>
   <legend>{% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong></legend>
   <h2 class="form_collapse">PageContent</h2>
-    {% with form.content as field %}
+    {% with pagecontent_form.content as field %}
     <div title="{{ field.help_text }}" class="field {{ field.html_name }}">
         <label for="{{ field.auto_id }}"{% if field.errors %} class="error"{% endif %}>
             {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
@@ -67,69 +73,19 @@
     </div>
     {% endwith %}
     
-    {% with form.markup as field %}
+    {% with pagecontent_form.markup as field %}
         {% include "admin/pylucid/includes/form_field.html" %}
     {% endwith %}
 </fieldset>
 
-<fieldset>
-  <legend>{% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong></legend>
-  <h2 class="form_collapse">PageMeta</h2>
-    {% with form.name as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-    
-    {% with form.title as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-    
-    {% with form.keywords as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-    
-    {% with form.description as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
+<fieldset><legend>{% trans 'Language' %}: <strong>{{ default_lang_entry.description }}</strong></legend>
+    <h2 class="form_collapse">PageMeta</h2>
+    {% with pagemeta_form as form %}
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
     {% endwith %}
 </fieldset>
 
-<fieldset>
-  <h2 class="form_collapse">PageTree</h2>
-    {% with form.parent as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-    
-    {% with form.slug as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-    
-    {% with form.position as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-    
-    {% with form.design as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-</fieldset>
-
-<fieldset>
-  <h2 class="form_collapse form_hide">PageTree - Permissions</h2>
-    {% with form.showlinks as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-      
-    {% with form.permitViewGroup as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-    
-    {% with form.permitEditGroup as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-    
-    {% with form.robots as field %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endwith %}
-</fieldset>
-
+{% include "page_admin/includes/fieldsets_pagetree.html" %}
 
 </form>
 {% endblock %}

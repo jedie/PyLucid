@@ -1,17 +1,23 @@
 {% if not field.auto_id %}<h2>ERROR: field doesn't exist: {{ field }}</h2>{% endif %}
-<div title="{{ field.help_text|striptags }}" class="field {{ field.html_name }}{% if field.errors %} error{% endif %}">
-    {% if field.errors %}
-    <ul class="errorlist" id="{{ field.html_name }}_errors" title="Errors for field '{{ field.html_name }}'">
-    {% for error in field.errors %}
-        <li>{{ error }}</li>
-    {% endfor %}
-    </ul>
-    {% endif %}
-
-    <label for="{{ field.auto_id }}">
-    {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
-    :</label>
-  
-    {{ field }}
-    <div class="field_help_text">{{ field.help_text }}</div>
-</div>
+{% if field.is_hidden %}
+   <!-- hidden field START -->
+   {{ field }}
+   <!-- hidden field END -->
+{% else %}
+    <div title="{{ field.help_text|striptags }}" class="field {{ field.html_name }}{% if field.errors %} error{% endif %}">
+        {% if field.errors %}
+        <ul class="errorlist" id="{{ field.html_name }}_errors" title="Errors for field '{{ field.html_name }}'">
+        {% for error in field.errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    
+        <label for="{{ field.auto_id }}">
+        {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
+        :</label>
+      
+        {{ field }}
+        <div class="field_help_text">{{ field.help_text }}</div>
+    </div>
+{% endif %}

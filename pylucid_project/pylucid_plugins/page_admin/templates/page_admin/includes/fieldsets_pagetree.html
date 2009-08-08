@@ -1,0 +1,33 @@
+<fieldset>
+  <h2 class="form_collapse">PageTree</h2>
+    {% with pagetree_form.parent as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with pagetree_form.slug as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with pagetree_form.position as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with pagetree_form.design as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+</fieldset>
+
+<fieldset>
+  <h2 class="form_collapse form_hide">PageTree - Permissions</h2>
+    {% with pagetree_form.showlinks as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+      
+    {% with pagetree_form.permitViewGroup as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+    
+    {% with pagetree_form.permitEditGroup as field %}
+        {% include "admin/pylucid/includes/form_field.html" %}
+    {% endwith %}
+</fieldset>

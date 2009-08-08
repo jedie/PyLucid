@@ -554,8 +554,7 @@ class PluginPageManager(BaseModelManager):
     def get_app_choices(self):
         if self._APP_CHOICES == None:
             root_apps = installed_apps_utils.get_filtered_apps(resolve_url="/")
-            #root_apps = [app for app in root_apps if app in PYLUCID_PLUGINS.pkg_list]
-            self._APP_CHOICES = [(app, app) for app in root_apps]
+            self._APP_CHOICES = [("", "---------")] + [(app, app) for app in root_apps]
         return self._APP_CHOICES
 
     def reverse(self, plugin_name, viewname, args=(), kwargs={}):
@@ -590,13 +589,13 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
     """
     objects = PluginPageManager()
 
-#    _ROOT_APPS = installed_apps_utils.get_filtered_apps(resolve_url="/")
-#    APP_LABEL_CHOICES = [(app, app) for app in _ROOT_APPS]
-
     pagemeta = models.ManyToManyField(PageMeta)
 
-    app_label = RootAppChoiceField(max_length=256, #choices=RootAppChoices(),
-        help_text="The app lable witch is in settings.INSTALLED_APPS"
+    app_label = RootAppChoiceField(max_length=256,
+        help_text=(
+            "The plugin app label witch is in settings.INSTALLED_APPS"
+            " (Only apps witch can handle a root url.)"
+        )
     )
     urls_filename = models.CharField(max_length=256, default="urls.py",
         help_text="Filename of the urls.py"

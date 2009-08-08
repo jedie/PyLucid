@@ -1,0 +1,6 @@
+{% if not form %}ERROR: Form unknown!{% endif %}
+{% if form.errors %}
+<fieldset><legend>{% trans 'Form errors:' %}</legend>
+    {% include "admin/pylucid/includes/form_errorlist.html" %}
+</fieldset>
+{% endif %}

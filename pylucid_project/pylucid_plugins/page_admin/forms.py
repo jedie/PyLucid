@@ -3,6 +3,8 @@
 from django import forms
 from django.template import mark_safe
 from django.forms.util import ErrorList
+from django.forms import ModelForm
+from django.forms.models import BaseModelFormSet, modelformset_factory
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext as _
 
@@ -44,10 +46,11 @@ class AboluteUrlChoiceField(forms.ModelChoiceField):
     choices = property(_get_choices, forms.ChoiceField._set_choices)
 
 
-class BasePageForm(forms.ModelForm):
-    """ Base form class for PageContentForm and PluginPageForm. """
+class PageTreeForm(forms.ModelForm):
     # TODO: Use TreeGenerator for parent field!
-    parent = AboluteUrlChoiceField(queryset=PageTree.on_site, label=_('Parent'), help_text=_('the higher-ranking father page'), required=False)
+    parent = AboluteUrlChoiceField(queryset=PageTree.on_site, required=False, label=_('Parent'),
+        help_text=_('the higher-ranking father page')
+    )
     def clean(self):
         """ Validate if page with same slug and parent exist. """
         cleaned_data = self.cleaned_data
@@ -70,37 +73,38 @@ class BasePageForm(forms.ModelForm):
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
-        super(BasePageForm, self).__init__(*args, **kwargs)
+        """ Change form field data in a DRY way """
+        super(PageTreeForm, self).__init__(*args, **kwargs)
+        designs = Design.on_site.values_list("id", "name")
+        self.fields['design'].choices = [("", "---------")] + list(designs)
 
-        # Change field in a DRY way
-        self.fields['design'].choices = Design.on_site.values_list("id", "name")
-
-
-
-class PageContentModel(PageTree, PageMeta, PageContent):
-    """ merged model for PageContentForm """
     class Meta:
-        #managed = False
-        abstract = True
+        model = PageTree
+        exclude = ("page_type", "site")
 
-class PageContentForm(BasePageForm):
+
+class PageMetaForm(ModelForm):
     class Meta:
-        model = PageContentModel
-        exclude = ("page", "pagemeta", "page_type", "site", "lang")
+        model = PageMeta
+        exclude = ("page", "lang")
 
 
-class PluginPageModel(PageTree, PageMeta, PluginPage):
-    """ merged model for PluginPageForm """
+class PageContentForm(ModelForm):
     class Meta:
-        #managed = False
-        abstract = True
+        model = PageContent
+        exclude = ("pagemeta",)
 
-class PluginPageForm(BasePageForm):
-    """
-    TODO: 
-    """
-    app_label = forms.TypedChoiceField(choices=PluginPage.objects.get_app_choices(), label=_('App label'), help_text=_('The app lable witch is in settings.INSTALLED_APPS'))
-    urls_filename = forms.CharField(label=_('Urls filename'), initial=_('urls.py'), help_text=_('Filename of the urls.py'))
+
+class PluginPageForm(ModelForm):
+#    app_label = forms.TypedChoiceField(
+#        choices=PluginPage.objects.get_app_choices(), label=_('App label'),
+#        help_text=_('The app lable witch is in settings.INSTALLED_APPS')
+#    )
+    def __init__(self, *args, **kwargs):
+        """ Change form field data in a DRY way """
+        super(PluginPageForm, self).__init__(*args, **kwargs)
+        self.fields["app_label"].widget = forms.widgets.Select(choices=PluginPage.objects.get_app_choices())
+
     class Meta:
-        model = PluginPageModel
-        exclude = ("page", "pagemeta", "page_type", "site")
+        model = PluginPage
+        exclude = ("pagemeta")
