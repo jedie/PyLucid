@@ -5,27 +5,30 @@
 	    <li class="current">
 	        <a href="/" title="<< goto {{ current_site.name }} root page">&lt;&lt; {{ current_site.domain }}</a>
 	    </li>
-	    {% if not sites|length_is:"1" %}
-	    <li>
-	        <a>{% trans 'switch site' %}</a>
-	        <ul>
-	        {% for site in sites %}
-	          <li>
-	            {% ifequal site current_site %}
-	                <strong> 
-	                <a href="http://{{ site.domain }}{{ request.path }}" class="current_site" title="current used site">{{ site.name }}</a>
-	                </strong>
-	            {% else %}
-	                <a href="http://{{ site.domain }}{{ request.path }}">{{ site.name }}</a>
-	            {% endifequal %}
-	           </li>
-	        {% endfor %}
-	        </ul>
-	    </li>
-	    {% endif %}
     {% endif %}
 
-    <li>{% lucidTag auth %}</li>
+    <li>{% lucidTag auth %}
+        {% if not sites|length_is:"1" %}
+        <ul>
+            <li>
+                <a>{% trans 'switch site' %}</a>
+                <ul>
+                {% for site in sites %}
+                  <li>
+                    {% ifequal site current_site %}
+                        <strong> 
+                        <a href="http://{{ site.domain }}{{ request.path }}" class="current_site" title="current used site">{{ site.name }}</a>
+                        </strong>
+                    {% else %}
+                        <a href="http://{{ site.domain }}{{ request.path }}">{{ site.name }}</a>
+                    {% endifequal %}
+                   </li>
+                {% endfor %}
+                </ul>
+            </li>
+        </ul>
+        {% endif %}
+    </li>
     
     {% if inline %}
     {# is true, if this menu would be included inside the cms page and not in the django admin panel #}
