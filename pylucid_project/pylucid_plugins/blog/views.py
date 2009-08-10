@@ -28,14 +28,14 @@ __version__ = "$Rev$ Alpha"
 import os, datetime, posixpath
 
 # from django
-from django.conf import settings
-from django.http import HttpResponse
-from django.core.mail import send_mail
-from django.utils.translation import ugettext as _
 from django import http
+from django.conf import settings
+from django.core.mail import send_mail
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
+from django.utils.translation import ugettext as _
 from django.contrib.comments.views.comments import post_comment
 
 from pylucid.decorators import render_to
@@ -44,6 +44,24 @@ from blog.models import BlogEntry
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
+
+
+def _filter_blog_entries(request, queryset):
+    current_lang = request.PYLUCID.lang_entry
+    queryset = queryset.filter(lang=current_lang)
+    if not request.user.is_superuser:
+        queryset = queryset.filter(is_public=True)
+    return queryset
+
+
+def _get_tag_cloud(request):
+    current_site = Site.objects.get_current()
+    current_lang = request.PYLUCID.lang_entry
+    tag_cloud = Tag.objects.cloud_for_model(BlogEntry, steps=2,
+        filters={"site": current_site, "is_public":True, "lang":current_lang}
+    )
+    return tag_cloud
+
 
 def _add_breadcrumb(request, title, url):
     """ shortcut for add breadcrumb link """
@@ -55,29 +73,29 @@ def _add_breadcrumb(request, title, url):
 
 @render_to("blog/summary.html")
 def _render_summary(request, context):
-    tag_cloud = Tag.objects.cloud_for_model(BlogEntry, steps=2)
-    context.update({
-        "tag_cloud": tag_cloud,
-    })
+    context["tag_cloud"] = _get_tag_cloud(request)
     return context
 
 
 def summary(request):
+    queryset = BlogEntry.on_site
+    queryset = _filter_blog_entries(request, queryset)
     context = {
-        "entries": BlogEntry.objects.all()
+        "entries": queryset
     }
     return _render_summary(request, context)
 
 
 def tag_view(request, tag):
     tags = tag.strip("/").split("/")
-    entries = TaggedItem.objects.get_by_model(BlogEntry, tags)
+    queryset = TaggedItem.objects.get_by_model(BlogEntry, tags)
+    queryset = _filter_blog_entries(request, queryset)
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, title=_("All '%s' tagged items" % ",".join(tags)), url=request.path)
 
     context = {
-        "entries": entries
+        "entries": queryset
     }
     return _render_summary(request, context)
 
@@ -97,7 +115,7 @@ def detail_view(request, id, title):
     context = {
         "page_title": entry.headline, # Change the global title with blog headline
         "entry": entry,
-        "tag_cloud": Tag.objects.cloud_for_model(BlogEntry, steps=2),
+        "tag_cloud": _get_tag_cloud(request),
     }
     return context
 
