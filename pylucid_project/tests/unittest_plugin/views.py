@@ -118,7 +118,6 @@ def test_PyLucid_api(request):
     output.append("page_template: %r" % request.PYLUCID.page_template)
     output.append("pagetree: %r" % request.PYLUCID.pagetree)
     output.append("pagemeta: %r" % request.PYLUCID.pagemeta)
-    output.append("system_preferences: %r" % request.PYLUCID.system_preferences)
 
     context["output"] = output
     context["content"] = PLUGINPAGE_API_TEST_CONTENT

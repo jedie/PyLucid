@@ -19,7 +19,31 @@ from django.contrib.sites.models import Site
 
 from django_tools.unittest.unittest_base import BaseTestCase
 
+from pylucid.models import Language
+
+
+
 class BaseUnittest(BaseTestCase, TransactionTestCase):
+    def __init__(self, *args, **kwargs):
+        super(BaseUnittest, self).__init__(*args, **kwargs)
+
+        # Get the default lang code from system preferences
+        from pylucid.preference_forms import SystemPreferencesForm
+        self.system_preferences = SystemPreferencesForm().get_preferences()
+        self.default_lang_code = self.system_preferences["lang_code"]
+        self.default_lang_entry = Language.objects.get(code=self.default_lang_code)
+
+    def assertContentLanguage(self, response, lang):
+        assert isinstance(lang, Language)
+        is_lang = response["content-language"]
+        if is_lang != lang.code:
+            self.raise_browser_traceback(response,
+                msg="Header 'Content-Language' is not %r it's: %r" % (lang.code, is_lang)
+            )
+        self.assertResponse(response,
+            must_contain=('<meta name="DC.Language" content="%s">' % lang.code,)
+        )
+
     def login(self, usertype):
         """
         Login test user.

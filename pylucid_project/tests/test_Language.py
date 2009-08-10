@@ -27,12 +27,6 @@ class BaseLangTest(basetest.BaseUnittest):
     def __init__(self, *args, **kwargs):
         super(BaseLangTest, self).__init__(*args, **kwargs)
 
-        # Get the default lang code from system preferences
-        from pylucid.preference_forms import SystemPreferencesForm
-        system_preferences = SystemPreferencesForm().get_preferences()
-        self.default_lang_code = system_preferences["lang_code"]
-        self.default_lang_entry = Language.objects.get(code=self.default_lang_code)
-
         self.admin_index_url = reverse("admin:index")
 
     def setUp(self):
@@ -42,15 +36,6 @@ class BaseLangTest(basetest.BaseUnittest):
 
     def tearDown(self):
         settings.PYLUCID.I18N_DEBUG = self.old_i18n_debug
-
-    def assertContentLanguage(self, response, lang):
-        is_lang = response["content-language"]
-        self.failUnlessEqual(is_lang, lang.code,
-            "Header 'Content-Language' is not '%s' it's: '%s'" % (lang.code, is_lang)
-        )
-        self.assertResponse(response,
-            must_contain=('<meta name="DC.Language" content="%s">' % lang.code,)
-        )
 
     def assertRenderedPage(self, response, slug, url, lang, site):
         sys.stdout.write(".")
@@ -192,7 +177,7 @@ class DetectLang(BaseLangTest):
         for lang in TestLanguages():
             response = self.client.get("/it/", HTTP_ACCEPT_LANGUAGE=lang.code)
             self.failUnless(response['Location'], "/%s/" % lang.code)
-            self.failUnless(response.status_code, 302)
+            self.assertStatusCode(response, 302)
 
     def test_wrong_url_lang2(self):
         """
@@ -201,18 +186,21 @@ class DetectLang(BaseLangTest):
         """
         for lang in TestLanguages():
             response = self.client.get("/it/1-rootpage/", HTTP_ACCEPT_LANGUAGE=lang.code)
-            self.failUnless(response['Location'], "/%s/1-rootpage/" % lang.code)
-            self.failUnless(response.status_code, 302)
+            self.assertRedirect(response,
+                url="http://testserver/%s/1-rootpage/" % lang.code, status_code=302
+            )
 
     def test_redirect(self):
         """
-        Test if we only redirectet to existing entries.
+        Test if we only redirected to existing entries.
         """
         # Create a language, but for this language exist no content.
         test_lang = Language(code="xx", description="has no content")
-        response = self.client.get("/xx/1-rootpage/", HTTP_ACCEPT_LANGUAGE="xx")
-        self.failUnless(response['Location'], "/%s/1-rootpage/" % self.default_lang_entry)
-        self.failUnless(response.status_code, 302)
+        test_lang.save()
+        response = self.client.get("/1-rootpage/", HTTP_ACCEPT_LANGUAGE="xx")
+        self.assertRedirect(response,
+            url="http://testserver/%s/1-rootpage/" % self.default_lang_code, status_code=302
+        )
 
     def test_not_avaiable(self):
         """

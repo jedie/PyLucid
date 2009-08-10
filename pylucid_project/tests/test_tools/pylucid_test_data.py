@@ -132,7 +132,7 @@ TEST_USERS = {
 TEST_TEMPLATES = {
     "site_template/normal.html": {
         "content": \
-"""<html><head><title>{{ page_title }} """ + SITEINFO_TAG + """</title>
+"""<html><head><title>{{ page_title }}</title>
 <meta name="robots" content="{{ page_robots }}" />
 <meta name="keywords" content="{{ page_keywords }}" />
 <meta name="description" content="{{ page_description }}" />
@@ -167,11 +167,11 @@ TEST_JS_FILEPATH = "unittest/test.js"
 TEST_HEADFILES = {
     TEST_CSS_FILEPATH: {
         "description": "CSS file for unittests.",
-        "content": ".test1 { color: #ff0000; } /* " + SITEINFO_TAG + " */",
+        "content": ".test1 { color: #ff0000; }",
     },
     TEST_JS_FILEPATH: {
         "description": "JS file for unittests.",
-        "content": "alert('Unittest JS file exists on \"+SITEINFO_TAG+\" ;)');",
+        "content": "alert('Unittest JS file exists.');",
     }
 }
 TEST_DESIGNS = {
@@ -241,8 +241,7 @@ def create_templates(verbosity, template_dict, site):
             name=template_name, defaults=data
         )
         if created:
-            template.content = template.content.replace(SITEINFO_TAG, site.name)
-            template.save()
+#            template.save()
             if verbosity >= 2:
                 print("template '%s' created" % template_name)
         elif verbosity >= 2:
@@ -319,20 +318,19 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
         else:
             page_type = PageTree.PAGE_TYPE
 
-        tree_entry, created = PageTree.objects.get_or_create(
+        tree_entry, created = PageTree.on_site.get_or_create(
             site=site, slug=slug, parent=parent,
             defaults={
                 "design": design,
                 "page_type": page_type,
             }
         )
-        url = tree_entry.get_absolute_url()
         if verbosity >= 2:
             if created:
                 #tree_entry.save()
-                print("PageTree '%s' created." % url)
+                print("PageTree created...: %r" % tree_entry)
             else:
-                print("PageTree '%s' exist." % url)
+                print("PageTree exists....: %r" % tree_entry)
 
         # Create PageMeta, PageContent for the PageTree entry in all test languages
         for language in TestLanguages():
@@ -346,20 +344,21 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
             )
             if verbosity >= 2:
                 if created:
-                    #pagemeta_entry.save()
-                    print("PageMeta '%s' - '%s' created." % (language, tree_entry.slug))
+                    print("PageMeta created...: %r" % pagemeta_entry)
                 else:
-                    print("PageMeta '%s' - '%s' exist." % (language, tree_entry.slug))
+                    print("PageMeta exists....: %r" % pagemeta_entry)
 
             if tree_entry.page_type == PageTree.PLUGIN_TYPE:
                 # It's a plugin page
-                pluginpage, created = PluginPage.objects.get_or_create(app_label=page_data["plugin"])
+                pluginpage, created = PluginPage.objects.get_or_create(
+                    app_label=page_data["plugin"], pagemeta__page=tree_entry
+                )
                 pluginpage.pagemeta.add(pagemeta_entry)
                 if verbosity >= 2:
                     if created:
-                        print("PluginPage '%s' created." % pluginpage)
+                        print("PluginPage created.: %r" % pluginpage)
                     else:
-                        print("PluginPage '%s' exist." % pluginpage)
+                        print("PluginPage exists..: %r" % pluginpage)
             else:
                 # Create PageContent:
                 default_dict = create_meta(slug=tree_entry.slug, lang_code=language.code, site_name=site.name,
@@ -374,9 +373,9 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
                 content_entry.save()
                 if verbosity >= 2:
                     if created:
-                        print("PageContent '%s' created." % content_entry)
+                        print("PageContent created: %r" % content_entry)
                     else:
-                        print("PageContent '%s' exist." % content_entry)
+                        print("PageContent exists.:" % content_entry)
 
         if "sub-pages" in page_data:
             if verbosity >= 2:
@@ -418,14 +417,28 @@ def create_pylucid_test_data(site=None, verbosity=True):
 
     for site in TestSites(verbosity):
         if verbosity:
-            print("------------------------------------")
+            print("-"*79)
             print("create test data for site: %r" % site)
 
         create_test_data(site, verbosity)
 
     if verbosity:
-        print "Test database filled with test data."
-        print
+        print("\nTest database filled with test data.\n")
+
+    if verbosity >= 2:
+        print(" --- Debug all existing PageTree entries: ---")
+        for pagetree in PageTree.objects.all():
+            print pagetree
+        print(" --- Debug all existing PageMeta entries: ---")
+        for pagemeta in PageMeta.objects.all():
+            print pagemeta
+        print(" --- Debug all existing PageContent entries: ---")
+        for pagecontent in PageContent.objects.all():
+            print pagecontent
+        print(" --- Debug all existing PluginPage entries: ---")
+        for pluginpage in PluginPage.objects.all():
+            print pluginpage
+        print("-"*79)
 
 
 if __name__ == "__main__":
