@@ -113,9 +113,26 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Get all plugin context middlewares from the template and add them to the context
     pylucid_plugin.context_middleware_request(request)
 
+    # call a pylucid plugin "html get view", if exist
+    get_view_replace_content = False
+    get_view_response = PYLUCID_PLUGINS.call_get_views(request)
+    if get_view_response != None: # Use plugin response
+        if isinstance(get_view_response, http.HttpResponse):
+            # Plugin would be build the complete html page
+            response = _apply_context_middleware(request, get_view_response)
+            return response
+
+        assert isinstance(get_view_response, basestring), (
+            "Plugin get view must return None, HttpResponse or a basestring! (returned: %r)"
+        ) % type(get_view_response)
+
+        # Plugin replace the page content
+        context["page_content"] = get_view_response
+        get_view_replace_content = True
+
     # call page plugin, if current page is a plugin page
     page_plugin_response = None
-    if pagetree.page_type == PageTree.PLUGIN_TYPE:
+    if get_view_replace_content == False and pagetree.page_type == PageTree.PLUGIN_TYPE:
         # The current PageTree entry is a plugin page
 
         # Add to globale pylucid objects. Use e.g. in admin_menu plugin
@@ -139,29 +156,15 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         # No PluginPage
         pagecontent_instance = _get_page_content(request)
         request.PYLUCID.pagecontent = pagecontent_instance
-        context["page_content"] = pagecontent_instance.content
+        if get_view_replace_content == False:
+            # Use only PageContent if no get view will replace the content
+            context["page_content"] = pagecontent_instance.content
         updateinfo_object = pagecontent_instance
 
     # Add UpdateInfoBaseModel meta data from PageContent/PageMeta instance into context
     # FIXME: Do this erlear: So A plugin page can change the values!
     for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
         context["page_%s" % itemname] = getattr(updateinfo_object, itemname)
-
-    # call a pylucid plugin "html get view", if exist
-    get_view_response = PYLUCID_PLUGINS.call_get_views(request)
-    if get_view_response != None:
-        # Use plugin response      
-        if isinstance(get_view_response, http.HttpResponse):
-            # Plugin would be build the complete html page
-            response = _apply_context_middleware(request, get_view_response)
-            return response
-
-        assert isinstance(get_view_response, basestring), (
-            "Plugin get view must return None, HttpResponse or a basestring! (returned: %r)"
-        ) % type(get_view_response)
-
-        # Plugin replace the page content
-        context["page_content"] = get_view_response
 
     if page_plugin_response == None and get_view_response == None:
         # No Plugin has changed the PageContent -> apply markup on PageContent
