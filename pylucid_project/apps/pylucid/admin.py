@@ -130,9 +130,10 @@ class ColorInline(admin.TabularInline):
     model = models.Color
 
 class ColorSchemeAdmin(VersionAdmin):
-    list_display = ("id", "name", "preview", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "name", "preview", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     search_fields = ("name",)
+    list_filter = ("site",)
     inlines = [ColorInline, ]
 
     def preview(self, obj):
@@ -150,7 +151,7 @@ pylucid_admin_site.register(models.ColorScheme, ColorSchemeAdmin)
 
 
 class DesignAdmin(VersionAdmin):
-    list_display = ("id", "name", "template", "colorscheme", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "name", "template", "colorscheme", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     list_filter = ("site", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")
