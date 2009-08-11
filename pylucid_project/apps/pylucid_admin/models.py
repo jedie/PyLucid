@@ -9,7 +9,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django_tools.middlewares import ThreadLocal
 
 from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
-from pylucid.system.auto_model_info import UpdateInfoBaseModel
+from pylucid.models.base_models import UpdateInfoBaseModel
 
 
 class PyLucidAdminManager(TreeManager):

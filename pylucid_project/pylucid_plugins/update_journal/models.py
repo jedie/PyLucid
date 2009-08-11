@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.managers import CurrentSiteManager
 
-from pylucid.system.auto_model_info import UpdateInfoBaseModel
+from pylucid.models.base_models import UpdateInfoBaseModel
 from pylucid.models import Language
 
 

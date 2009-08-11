@@ -3,7 +3,7 @@
 from django import http
 from django.db import models
 
-from pylucid.models import UpdateInfoBaseModel
+from pylucid.models.base_models import UpdateInfoBaseModel
 
 
 class RedirectModel(UpdateInfoBaseModel):

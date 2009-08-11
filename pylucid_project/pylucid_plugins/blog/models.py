@@ -37,7 +37,7 @@ from pylucid_plugins import update_journal
 from pylucid.shortcuts import failsafe_message
 from pylucid.models import PageContent, Language, PluginPage
 from pylucid.markup.converter import apply_markup
-from pylucid.system.auto_model_info import UpdateInfoBaseModel
+from pylucid.models.base_models import UpdateInfoBaseModel
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
 #from PyLucid.models import Page
 

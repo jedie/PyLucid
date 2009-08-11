@@ -1,37 +1,84 @@
 # coding: utf-8
 
 """
-    PyLucid auto model info
-    ~~~~~~~~~~~~~~~~~~~~~~~
+    PyLucid models
+    ~~~~~~~~~~~~~~
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate: $
     $Rev: $
-    $Author: JensDiemer $
+    $Author: $
 
     :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v3 or above, see LICENSE for more details.p
-
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
-
-__version__ = "$Rev:$"
-
-import sys
-import warnings
 
 from django.db import models
 from django.conf import settings
-from django.contrib import admin
-from django.http import HttpRequest
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.db import transaction, IntegrityError
-from pylucid.shortcuts import failsafe_message
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.managers import CurrentSiteManager
 
+# http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
+
+from pylucid_project.utils import form_utils
+from pylucid.shortcuts import failsafe_message
+from pylucid_plugins import update_journal
+
+
+TAG_INPUT_HELP_URL = \
+"http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+
+
+
+class BaseModel(models.Model):
+    def get_absolute_url(self):
+        raise NotImplementedError
+    get_absolute_url.short_description = _('absolute url')
+
+    def get_site(self):
+        raise NotImplementedError
+    get_site.short_description = _('on site')
+
+    def get_absolute_uri(self):
+        """ returned the complete absolute URI (with the domain/host part) """
+        request = ThreadLocal.get_current_request()
+        is_secure = request.is_secure()
+        if is_secure:
+            protocol = "https://"
+        else:
+            protocol = "http://"
+        site = self.get_site()
+        domain = site.domain
+        absolute_url = self.get_absolute_url()
+        return protocol + domain + absolute_url
+    get_absolute_uri.short_description = _('absolute uri')
+
+    class Meta:
+        abstract = True
+
+
+
+class BaseModelManager(models.Manager):
+    def easy_create(self, cleaned_form_data, extra={}):
+        """
+        Creating a new model instance with cleaned form data witch can hold more data than for
+        this model needed.
+        """
+        keys = self.model._meta.get_all_field_names()
+        model_kwargs = form_utils.make_kwargs(cleaned_form_data, keys)
+        model_kwargs.update(extra)
+        model_instance = self.model(**model_kwargs)
+        model_instance.save()
+        return model_instance
+
+
+
+
+
 
 
 class AutoSiteM2M(models.Model):

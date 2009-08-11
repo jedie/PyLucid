@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """
-    PyLucid.models.Page
+    pylucid.models.Page
     ~~~~~~~~~~~~~~~~~~~
 
     Old PyLucid v0.8 models, used for migrating data into the new v0.9 models.
