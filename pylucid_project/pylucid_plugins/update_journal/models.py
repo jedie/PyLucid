@@ -41,7 +41,7 @@ class UpdateJournal(models.Model):
 
 class PageUpdateListObjectsManager(models.Manager):
     def add_entry(self, model_instance):
-        """ Add a new update journal entry. Called by signal handler page_update_list.save_receiver """
+        """ Add a new update journal entry. Called by signal handler update_journal.save_receiver """
         update_info = model_instance.get_update_info()
         if update_info == None:
             # This entry should not be inserted in the update journal

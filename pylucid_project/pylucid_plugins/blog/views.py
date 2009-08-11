@@ -46,20 +46,33 @@ from blog.models import BlogEntry
 from tagging.models import Tag, TaggedItem
 
 
-def _filter_blog_entries(request, queryset):
+def _get_filters(request, with_site=True):
+    """
+    Construct queryset filter.
+    Used for blog entry filtering and for Tag.objects.cloud_for_model()
+    """
     current_lang = request.PYLUCID.lang_entry
-    queryset = queryset.filter(lang=current_lang)
-    if not request.user.is_superuser:
-        queryset = queryset.filter(is_public=True)
+    filters = {"lang":current_lang}
+
+    if with_site:
+        current_site = Site.objects.get_current()
+        filters["site"] = current_site
+
+    if not request.user.has_perm("blog.change_blogentry"):
+        filters["is_public"] = True
+
+    return filters
+
+
+def _filter_blog_entries(request, queryset):
+    filters = _get_filters(request, with_site=False)
+    queryset = queryset.filter(**filters)
     return queryset
 
 
 def _get_tag_cloud(request):
-    current_site = Site.objects.get_current()
-    current_lang = request.PYLUCID.lang_entry
-    tag_cloud = Tag.objects.cloud_for_model(BlogEntry, steps=2,
-        filters={"site": current_site, "is_public":True, "lang":current_lang}
-    )
+    filters = _get_filters(request, with_site=True)
+    tag_cloud = Tag.objects.cloud_for_model(BlogEntry, steps=2, filters=filters)
     return tag_cloud
 
 
@@ -72,21 +85,24 @@ def _add_breadcrumb(request, title, url):
 
 
 @render_to("blog/summary.html")
-def _render_summary(request, context):
-    context["tag_cloud"] = _get_tag_cloud(request)
-    return context
-
-
 def summary(request):
+    """
+    Display summary list with all blog entries.
+    """
     queryset = BlogEntry.on_site
     queryset = _filter_blog_entries(request, queryset)
     context = {
-        "entries": queryset
+        "entries": queryset,
+        "tag_cloud": _get_tag_cloud(request),
     }
-    return _render_summary(request, context)
+    return context
 
 
+@render_to("blog/summary.html")
 def tag_view(request, tag):
+    """
+    Display summary list with blog entries filtered by the giben tag.
+    """
     tags = tag.strip("/").split("/")
     queryset = TaggedItem.objects.get_by_model(BlogEntry, tags)
     queryset = _filter_blog_entries(request, queryset)
@@ -95,9 +111,10 @@ def tag_view(request, tag):
     _add_breadcrumb(request, title=_("All '%s' tagged items" % ",".join(tags)), url=request.path)
 
     context = {
-        "entries": queryset
+        "entries": queryset,
+        "tag_cloud": _get_tag_cloud(request),
     }
-    return _render_summary(request, context)
+    return context
 
 
 @render_to("blog/detail_view.html")

@@ -23,7 +23,7 @@ from django.contrib.auth.admin import UserAdmin
 
 from pylucid_admin.admin_site import pylucid_admin_site
 
-from page_update_list.models import UpdateJournal, PageUpdateListObjects
+from update_journal.models import UpdateJournal, PageUpdateListObjects
 
 
 class UpdateJournalAdmin(admin.ModelAdmin):

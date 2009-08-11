@@ -6,7 +6,7 @@ from django.contrib.comments.models import Comment
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.comments.signals import comment_was_posted
 
-from pylucid_plugins import page_update_list
+from pylucid_plugins import update_journal
 
 from pylucid.models import Language
 
@@ -23,7 +23,7 @@ class PyLucidComment(Comment):
     lang = models.ForeignKey(Language) # Should be set automaticly
 
     def get_update_info(self):
-        """ update info for page_update_list.models.UpdateJournal used by page_update_list.save_receiver """
+        """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
         if self.is_public == False or self.is_removed == True: # Don't list non public articles
             return
 
@@ -39,4 +39,4 @@ class PyLucidComment(Comment):
         verbose_name = _('PyLucid comment')
         verbose_name_plural = _('PyLucid pylucid_comments')
 
-signals.post_save.connect(receiver=page_update_list.save_receiver, sender=PyLucidComment)
+signals.post_save.connect(receiver=update_journal.save_receiver, sender=PyLucidComment)

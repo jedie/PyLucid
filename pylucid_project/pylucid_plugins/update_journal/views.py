@@ -29,7 +29,7 @@ from models import UpdateJournal
 
 
 
-@render_to("page_update_list/PageUpdateTable.html")
+@render_to("update_journal/update_journal_table.html")
 def lucidTag(request, count=10):
     try:
         count = int(count)

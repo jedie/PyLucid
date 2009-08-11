@@ -32,7 +32,7 @@ from django.contrib.sites.managers import CurrentSiteManager
 import tagging
 from tagging.fields import TagField
 
-from pylucid_plugins import page_update_list
+from pylucid_plugins import update_journal
 
 from pylucid.shortcuts import failsafe_message
 from pylucid.models import PageContent, Language, PluginPage
@@ -73,7 +73,7 @@ class BlogEntry(UpdateInfoBaseModel):
     )
 
     def get_update_info(self):
-        """ update info for page_update_list.models.UpdateJournal used by page_update_list.save_receiver """
+        """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
         if not self.is_public: # Don't list non public articles
             return
 
@@ -109,7 +109,7 @@ class BlogEntry(UpdateInfoBaseModel):
         ordering = ('-createtime', '-lastupdatetime')
 
 
-signals.post_save.connect(receiver=page_update_list.save_receiver, sender=BlogEntry)
+signals.post_save.connect(receiver=update_journal.save_receiver, sender=BlogEntry)
 
 # Bug in django tagging?
 # http://code.google.com/p/django-tagging/issues/detail?id=151#c2

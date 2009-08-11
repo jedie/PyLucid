@@ -335,27 +335,54 @@ def update08(request):
 
 
 
+def _replace(content, out, old, new):
+    out.write("replace %r with %r" % (old, new))
+    if not old in content:
+        out.write("Source string not found, ok.")
+    else:
+        content = content.replace(old, new)
+    return content
+
+
+
+@check_permissions(superuser_only=True)
+@render_to("pylucid_update/update08result.html")
+def update08pages(request):
+    title = "Update PageContent"
+    out = SimpleStringIO()
+
+    for pagecontent in PageContent.objects.all():
+        content = pagecontent.content
+        content = _replace(content, out,
+            "{% lucidTag page_update_list %}", "{% lucidTag update_journal %}"
+        )
+        if content == pagecontent.content:
+            # Nothing changed
+            continue
+        pagecontent.content = content
+        pagecontent.save()
+        out.write("PageContent updated: %r" % pagecontent)
+
+    out.write("All PageContent updated.")
+
+    context = {
+        "title": title,
+        "results": out.getlines(),
+    }
+    return context
+
+
 @check_permissions(superuser_only=True)
 @render_to("pylucid_update/update08result.html")
 def update08templates(request):
     title = "Update PyLucid v0.8 templates"
     out = SimpleStringIO()
 
-    def replace(content, out, old, new):
-        out.write("replace %r with %r" % (old, new))
-        if not old in content:
-            out.write("Source string not found, ok.")
-        else:
-            content = content.replace(old, new)
-        return content
-
-
     for template in Template.objects.filter(name__istartswith=settings.SITE_TEMPLATE_PREFIX):
         out.write("\n______________________________________________________________")
         out.write("Update Template: '%s'\n" % template.name)
 
         content = template.content
-
 
         SCRIPT_TAG = (
             '<script src="%(url)s"'
@@ -374,48 +401,48 @@ def update08templates(request):
         }
         new_head_file_tag += '<!-- ContextMiddleware extrahead -->\n'
 
-        content = replace(content, out, "{% lucidTag page_style %}", new_head_file_tag)
+        content = _replace(content, out, "{% lucidTag page_style %}", new_head_file_tag)
         # temp in developer version:
-        content = replace(content, out, "{% lucidTag head_files %}", new_head_file_tag)
-        content = replace(content, out, "<!-- ContextMiddleware head_files -->", new_head_file_tag)
+        content = _replace(content, out, "{% lucidTag head_files %}", new_head_file_tag)
+        content = _replace(content, out, "<!-- ContextMiddleware head_files -->", new_head_file_tag)
 
-        content = replace(content, out, "{{ login_link }}", "{% lucidTag auth %}")
+        content = _replace(content, out, "{{ login_link }}", "{% lucidTag auth %}")
 
-        content = replace(content, out, "{% lucidTag back_links %}", "<!-- ContextMiddleware breadcrumb -->")
-        content = replace(content, out,
+        content = _replace(content, out, "{% lucidTag back_links %}", "<!-- ContextMiddleware breadcrumb -->")
+        content = _replace(content, out,
             "{{ PAGE.content }}",
             '<div id="page_content">\n'
             '    {% block content %}{{ page_content }}{% endblock content %}\n'
             '</div>'
         )
-        content = replace(content, out,
+        content = _replace(content, out,
             "{% if PAGE.title %}{{ PAGE.title|escape }}{% else %}{{ PAGE.name|escape }}{% endif %}",
             "{{ page_title }}"
         )
-        content = replace(content, out, "PAGE.title", "page_title")
-        content = replace(content, out, "{{ PAGE.keywords }}", "{{ page_keywords }}")
-        content = replace(content, out, "{{ PAGE.description }}", "{{ page_description }}")
-        content = replace(content, out, "{{ robots }}", "{{ page_robots }}")
+        content = _replace(content, out, "PAGE.title", "page_title")
+        content = _replace(content, out, "{{ PAGE.keywords }}", "{{ page_keywords }}")
+        content = _replace(content, out, "{{ PAGE.description }}", "{{ page_description }}")
+        content = _replace(content, out, "{{ robots }}", "{{ page_robots }}")
 
-        content = replace(content, out, "{{ PAGE.datetime", "{{ page_createtime")
+        content = _replace(content, out, "{{ PAGE.datetime", "{{ page_createtime")
 
         for timestring in ("lastupdatetime", "createtime"):
             # Change time with filter:
-            content = replace(content, out,
+            content = _replace(content, out,
                 "{{ PAGE.%s" % timestring,
                 "{{ page_%s" % timestring
             )
             # add i18n filter, if not exist:
-            content = replace(content, out,
+            content = _replace(content, out,
                 "{{ page_%s }}" % timestring,
                 '{{ page_%s|date:_("DATETIME_FORMAT") }}' % timestring,
             )
 
-        content = replace(content, out, "{{ PAGE.", "{{ page_")
+        content = _replace(content, out, "{{ PAGE.", "{{ page_")
 
         if "{% lucidTag language %}" not in content:
             # Add language plugin after breadcrumb, if not exist
-            content = replace(content, out,
+            content = _replace(content, out,
                 "<!-- ContextMiddleware breadcrumb -->",
                 "<!-- ContextMiddleware breadcrumb -->\n"
                 "<p>{% lucidTag language %}</p>\n"

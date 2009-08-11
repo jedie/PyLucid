@@ -58,7 +58,7 @@ from pylucid.system import pylucid_objects
 from pylucid.fields import ColorValueField
 from pylucid.system import headfile
 
-from pylucid_plugins import page_update_list
+from pylucid_plugins import update_journal
 
 
 TAG_INPUT_HELP_URL = \
@@ -400,8 +400,8 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         return self.site
 
     def __unicode__(self):
-        return u"PageTree '%s' (id: %r, site: %r, type: %r)" % (
-            self.slug, self.id, self.site.name, self.TYPE_DICT.get(self.page_type)
+        return u"PageTree %r (id: %i, site: %s, type: %s)" % (
+            self.slug, self.id, self.site.domain, self.TYPE_DICT.get(self.page_type)
         )
 
     class Meta:
@@ -544,7 +544,9 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         return self.name or self.page.slug
 
     def __unicode__(self):
-        return u"PageMeta for page: '%s' (lang: '%s')" % (self.page.slug, self.lang.code)
+        return u"PageMeta for page: %r (lang: %s, site: %s)" % (
+            self.page.slug, self.lang.code, self.get_site().domain
+        )
 
     class Meta:
         verbose_name_plural = verbose_name = "PageMeta"
@@ -651,7 +653,7 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
         return super(PluginPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"PluginPage '%s' (%s)" % (self.app_label, self.get_absolute_url())
+        return u"PluginPage '%s' (pagemeta: %r)" % (self.app_label, self.pagemeta.all())
 
     class Meta:
         verbose_name_plural = verbose_name = "PluginPage"
@@ -722,7 +724,7 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
         return self.pagemeta.page.site
 
     def get_update_info(self):
-        """ update info for page_update_list.models.UpdateJournal used by page_update_list.save_receiver """
+        """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
         return {
             "lastupdatetime": self.lastupdatetime,
             "user_name": self.lastupdateby,
@@ -742,7 +744,9 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
         return super(PageContent, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"PageContent '%s' (%s)" % (self.pagemeta.page.slug, self.pagemeta.lang)
+        return u"PageContent %r (lang: %s, site: %s)" % (
+            self.pagemeta.page.slug, self.pagemeta.lang.code, self.get_site().domain
+        )
 
     class Meta:
         verbose_name_plural = verbose_name = "PageContent"
@@ -752,7 +756,7 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageContent)
 
-signals.post_save.connect(receiver=page_update_list.save_receiver, sender=PageContent)
+signals.post_save.connect(receiver=update_journal.save_receiver, sender=PageContent)
 
 #------------------------------------------------------------------------------
 

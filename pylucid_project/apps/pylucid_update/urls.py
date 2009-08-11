@@ -12,6 +12,7 @@ from pylucid.decorators import superuser_only
 urlpatterns = patterns('',
     url(r'^$', views.menu, name='PyLucidUpdate-menu'),
     url(r'^update08/$', views.update08, name='PyLucidUpdate-update08'),
+    url(r'^update08pages/$', views.update08pages, name='PyLucidUpdate-update08pages'),
     url(r'^update08templates/$', views.update08templates, name='PyLucidUpdate-update08templates'),
     url(r'^update08styles/$', views.update08styles, name='PyLucidUpdate-update08styles'),
     url(r'^update08plugins/$', views.update08plugins, name='PyLucidUpdate-update08plugins'),

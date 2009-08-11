@@ -1,6 +1,7 @@
 {% extends "pylucid/css_anchor_div.html" %}
 
 {% block plugin_content %}
+{% if update_list %}
 <table id="page_updates">
   <tr>
     <th>no</th>
@@ -21,4 +22,7 @@
   </tr>
   {% endfor %}
 </table>
+{% else %}
+    <p>No updates recorded in update journal.</p>
+{% endif %}
 {% endblock %}
