@@ -87,7 +87,7 @@ function pylucid_ajax_form_view(form_id) {
     *************************************************************************/
     $(form_id).bind('submit', function() {
         
-        $("#page_content").html('<h2>loading...</h2>');
+        $("#page_content").html('<h2>send...</h2>');
         $("#page_content").animate({opacity: 0.3}, 500 );
 
         var form = $(this);

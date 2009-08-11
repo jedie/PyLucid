@@ -19,40 +19,60 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseRedirect
 
-from pylucid.markup.converter import apply_markup
 from pylucid.shortcuts import render_pylucid_response
+from pylucid.markup.converter import apply_markup
 from pylucid.decorators import check_permissions
+from pylucid.models import PageTree, PageContent
 
 from page_admin.forms import EditPageForm
 
 
+def _get_pageobjects(request):
+    """
+    returns current PageContent instance.
+    Note: In get views, the page content doesn't exist on PyLucid objects.
+    """
+    pagemeta = request.PYLUCID.pagemeta
+    pagecontent = PageContent.objects.get(pagemeta=pagemeta)
+    return pagemeta, pagecontent
 
 def _edit_page(request, form_url):
-    pagemeta_instance = request.PYLUCID.pagemeta
-    pagecontent_instance = request.PYLUCID.pagecontent
+    pagetree = request.PYLUCID.pagetree
+    if pagetree.page_type != PageTree.PAGE_TYPE:
+        request.page_msg("Current page is not a content page.")
+        return
+
+    pagemeta, pagecontent = _get_pageobjects(request)
+    preview_html = ""
 
     if request.method == 'POST':
         edit_page_form = EditPageForm(request.POST)
         if edit_page_form.is_valid():
-            new_content = edit_page_form.cleaned_data["content"]
-            pagecontent_instance.content = new_content
-            pagecontent_instance.save()
-            request.page_msg.successful(_("Page content updated."))
-            return HttpResponseRedirect(request.path)
+            if "preview" in request.POST:
+                pagecontent.content = edit_page_form.cleaned_data["content"]
+                preview_html = apply_markup(pagecontent, request.page_msg)
+            else:
+                new_content = edit_page_form.cleaned_data["content"]
+                pagecontent.content = new_content
+                pagecontent.save()
+                request.page_msg.successful(_("Page content updated."))
+                return HttpResponseRedirect(request.path)
     else:
-        edit_page_form = EditPageForm({"content":pagecontent_instance.content})
+        edit_page_form = EditPageForm(initial={"content":pagecontent.content})
 
     context = {
         "form_url": form_url,
         "abort_url": request.path,
         "preview_url": "%s?page_admin=preview" % request.path,
 
+        "preview_html": preview_html,
+
         "pagelinklist_url": "#TODO", #FIXME ;)
         "taglist_url": "#TODO", #FIXME ;)
 
         "edit_page_form": edit_page_form,
-        "pagecontent_instance": pagecontent_instance,
-        "pagemeta_instance": pagemeta_instance,
+        "pagecontent": pagecontent,
+        "pagemeta": pagemeta,
     }
     return render_pylucid_response(request, 'page_admin/edit_inline_form.html', context,
         context_instance=RequestContext(request)
@@ -65,12 +85,13 @@ def _edit_page_preview(request):
         return HttpResponse("ERROR: Wrong request")
     edit_page_form = EditPageForm(request.POST)
     if not edit_page_form.is_valid():
-        return HttpResponse("ERROR: Form not valid!")
+        return HttpResponse("ERROR: Form not valid: %r" % edit_page_form.errors)
     content = edit_page_form.cleaned_data["content"]
 
-    pagecontent_instance = request.PYLUCID.pagecontent
-    pagecontent_instance.content = edit_page_form.cleaned_data["content"]
-    html_content = apply_markup(pagecontent_instance, request.page_msg)
+    pagemeta, pagecontent = _get_pageobjects(request)
+
+    pagecontent.content = edit_page_form.cleaned_data["content"]
+    html_content = apply_markup(pagecontent, request.page_msg)
 
     return HttpResponse(html_content)
 

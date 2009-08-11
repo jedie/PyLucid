@@ -4,85 +4,81 @@
 {% block plugin_content %}
 
 {% extrahead %}
+<style type="text/css">
+<!--
+{% if not preview_html %}
+{# Hide preview div only, if no preview html content exist. #}
+#preview_fieldset {
+    display: none;
+}
+{% endif %}
+#ajax_preview { /* hide Ajax preview button and unhide it with JS */
+    display: none;
+}
+-->
+</style>
+
 <script type="text/javascript">
 $(document).ready(function(){
-    $("#preview_fieldset").hide();
-    
+    $("#ajax_preview").show(); // unhide ajax preview button
+   
     // from media/PyLucid/pylucid_js_tools.js
     pylucid_ajax_form_view('#edit_page_form');
-        
-    $("#preview").click(function() {
+    
+    var preview_div = $("#edit_page_preview");
+    
+    $("#ajax_preview").click(function() {
         $("#edit_page_preview").html("<h2>loading...</h2>");
         $("#preview_fieldset").slideDown();
     
         var content = $("#id_content")[0].value;
     
         var url = encodeURI("{{ preview_url }}");
-        console.log("post:" + url);
-        console.log("content:" + content);
+        log("post:" + url);
+        log("content:" + content);
         
-        $.post(url, { 'content': content }, function(form_html){
-            $("#edit_page_preview").html(form_html);
-            
+        $.post(url, { "content": content, "preview": true }, function(form_html){
+            preview_div.html(form_html);
         });
-      return false; // <-- important: Don't send the form in normal way.
     });
+    $("#submit_preview").hide();
 });
 </script>
 {% endextrahead %}
 
 <fieldset id="preview_fieldset">
 <legend>{% trans 'Preview' %}</legend>
-<div id="edit_page_preview"></div>
+<div id="edit_page_preview">{{ preview_html }}</div>
 </fieldset>
 
 <fieldset>
 <legend>
-    {% trans 'Edit the CMS page' %} '<strong>{{ pagemeta_instance.title_or_slug|escape }}</strong>'
+    {% trans 'Edit the CMS page' %} '<strong>{{ pagemeta.get_title|escape }}</strong>'
 </legend>
-<form action="{{ form_url }}" method="post" id="edit_page_form">
-    <ul id="action_buttons">
-        <li>
-            <input type="submit" name="save" value="{% trans 'save' %}" />
-            <input type="submit" id="preview" name="preview" value="{% trans 'preview' %}" />
-            <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
-        </li>
-        <li>
-	        {% if help_link %}
-	        <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
-	            <button type="button">{% trans 'markup help' %}</button>
-	        </a>
-	        {% endif %}
-	
-	        <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
-	            <button type="button" >{% trans 'page list' %}</button>
-	        </a>
-	        <a href="{{ taglist_url }}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
-	            <button type="button">{% trans 'tag list' %}</button>
-	        </a>
-        </li>
-        {% if not use_tinymce %}
-        <li>
-        <button type="button" class="resize_buttons" onclick="JavaScript:resize_big(); return false" title="{% trans 'makes the textarea bigger' %}">
-            +
-        </button>
-        <button type="button" class="resize_buttons" onclick="JavaScript:resize_small(); return false" title="{% trans 'makes the textarea smaller' %}">
-            -
-        </button>
-        </li>
-        {% endif %}
-    </ul>
-    <hr class="seperator" />
-    <ul id="input_fields">
-        {% for field in edit_page_form %}
-            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
-            <label for="{{ field.auto_id }}">{{ field.label }} :</label><br />
-            {{ field }}
-            <span class="field_help_text">{{ field.help_text }}</span>
-            {% if field.errors %}<li class="field_errors">{{ field.errors }}</li>{% endif %}
-        </li>
-        {% endfor %}
-    </ul>
+<form action="{{ form_url }}" method="post" id="edit_page_form">   
+ <div class="helper_buttons">
+     <input type="submit" name="save" value="{% trans 'save' %}" />
+     <input type="submit" id="submit_preview" name="preview" value="{% trans 'markup preview' %}" />
+     <button type="button" id="ajax_preview" title="{% trans 'markup preview' %}">
+         {% trans 'markup preview' %}
+     </button>
+     <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+     <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
+         <button type="button" class="button">{% trans 'page list' %}</button>
+     </a>
+     <a href="{{ taglist_url }}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
+         <button type="button" class="button">{% trans 'tag list' %}</button>
+     </a>
+     <button type="button" class="button resize_textarea" id="bigger_id_content" title="{% trans 'makes the textarea bigger' %}">
+         +
+     </button>
+     <button type="button" class="button resize_textarea" id="smaller_id_content" title="{% trans 'makes the textarea smaller' %}">
+         -
+     </button>
+ </div>   
+{% with edit_page_form as form %}
+    {% include "admin/pylucid/includes/pylucid_formset.html" %}
+{% endwith %}
 </form>
 </fieldset>
 {% endblock %}

@@ -10,21 +10,25 @@ from django.utils.translation import ugettext as _
 
 from django_tools.middlewares import ThreadLocal
 
+from pylucid_project.utils.escape import escape
+
 from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design, Language
+
+
+class PageContentTextarea(forms.Textarea):
+    def __init__(self):
+        # The 'rows' and 'cols' attributes are required for HTML correctness.
+        self.attrs = {'cols': '40', 'rows': '15'}
+
+    def render(self, name, value, attrs=None):
+        if value:
+            value = escape(value)
+        return super(PageContentTextarea, self).render(name, value, attrs)
 
 
 class EditPageForm(forms.Form):
     """ Form for "quick inline" edit. """
-    edit_comment = forms.CharField(
-        max_length=255, required=False,
-        help_text=_("The reason for editing."),
-        widget=forms.TextInput(attrs={'class':'bigger'}),
-    )
-
-    content = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': '15'}),
-    )
-
+    content = forms.CharField(widget=PageContentTextarea())
 
 
 class PageTreeForm(forms.ModelForm):

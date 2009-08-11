@@ -217,20 +217,14 @@ class CreateNewContentTest(basetest.BaseUnittest):
         Create a new page via POST.
         And check the created page via GET.
         """
-        system_preferences = SystemPreferencesForm().get_preferences()
-        lang_code = system_preferences["lang_code"]
-        lang_desc = dict(TEST_LANGUAGES)[lang_code]
-
+        lang_code = self.default_lang_entry.code
+        lang_desc = self.default_lang_entry.description
         for site in TestSites():
             info_string = "(lang: %s, site: %s)" % (lang_code, site.name)
             user = self.login(usertype="superuser")
 
-            response = self.client.get("/%s/" % lang_code)
-#            self.client.session['django_language'] = lang_code
-#            print self.client.session['django_language']
-
             # Get the empty form
-            response = self.client.get(form_url)
+            response = self.client.get(form_url, HTTP_ACCEPT_LANGUAGE=lang_code)
             self.assertResponse(response,
                 must_contain=(
                     "Create a new page",
@@ -256,7 +250,7 @@ class CreateNewContentTest(basetest.BaseUnittest):
             for key, value in extra_post_data.items():
                 post_data[key] = value % {"info_string": info_string}
 
-            response = self.client.post(form_url, post_data)
+            response = self.client.post(form_url, post_data, HTTP_ACCEPT_LANGUAGE=lang_code)
             self.assertResponse(response,
                 must_not_contain=('This field is required', "error", "traceback")
             )
@@ -268,7 +262,7 @@ class CreateNewContentTest(basetest.BaseUnittest):
             self.failUnlessEqual(response['Location'], str(new_page_url)) # no unicode in headers
 
             # Check the new page
-            response = self.client.get(new_page_url)
+            response = self.client.get(new_page_url, HTTP_ACCEPT_LANGUAGE=lang_code)
 
             must_contain = [
                 "New %s page" % page_type, "created.",
