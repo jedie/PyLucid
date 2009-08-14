@@ -356,6 +356,7 @@ def update08pages(request):
         content = _replace(content, out,
             "{% lucidTag page_update_list %}", "{% lucidTag update_journal %}"
         )
+        content = _replace(content, out, "{% lucidTag RSS ", "{% lucidTag rss ")
         if content == pagecontent.content:
             # Nothing changed
             continue
@@ -439,6 +440,8 @@ def update08templates(request):
             )
 
         content = _replace(content, out, "{{ PAGE.", "{{ page_")
+
+        content = _replace(content, out, "{% lucidTag RSS ", "{% lucidTag rss ")
 
         if "{% lucidTag language %}" not in content:
             # Add language plugin after breadcrumb, if not exist

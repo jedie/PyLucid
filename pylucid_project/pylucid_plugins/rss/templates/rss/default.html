@@ -1,0 +1,21 @@
+<fieldset>
+<legend><a href="{{ url }}">{{ feed.feed.title }}</a></legend>
+{% if user.is_staff %}
+<p><small>
+    Use feed {% if from_cache %}from cache{% else %}not from cache{% endif %}.
+    Feed server response time was: {{ duration|floatformat:3 }}sec.<br />
+    Used preferences: {{ preferences }}
+</small></p>
+{% endif %}
+<ul>
+{% for entry in feed.entries %}
+    <li>
+    <h1><a href="{{ entry.link }}">{{ entry.title|safe }}</a></h1>
+    <p>
+      {{ entry.updated }}<br />
+      {{ entry.summary|safe }}
+    </p>
+    </li>
+{% endfor %}
+</ul>
+</fieldset>

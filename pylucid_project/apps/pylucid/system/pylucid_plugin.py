@@ -34,30 +34,23 @@ from pylucid.models import PluginPage, PageTree
 from pylucid.system import pylucid_objects
 
 
-#def call_plugin_view(request, plugin_name, method_name, method_kwargs={}):
-#    """
-#    """
-#    warnings.warn("TODO: Move into utils.pylucid_plugins!")
-#
-#    # callback is either a string like 'foo.views.news.stories.story_detail'
-#    callback = "pylucid_plugins.%s.views.%s" % (plugin_name, method_name)
-#    try:
-#        callable = urlresolvers.get_callable(callback)
-#    except (ImportError, AttributeError), err:
-#        raise GetCallableError(err)
-#
-#    # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
-#    request.plugin_name = plugin_name
-#    request.method_name = method_name
-#
-#    # call the plugin view method
-#    response = callable(request, **method_kwargs)
-#
-#    return response
-#
-#class GetCallableError(Exception):
-#    pass
+from dbpreferences.forms import DBPreferencesBaseForm
 
+class PyLucidDBPreferencesBaseForm(DBPreferencesBaseForm):
+    def get_preferences(self, request, lucidtag_kwargs):
+        """
+        Update the preferences dict with the given kwargs dict.
+        Send a staff user feedback if a kwargs key is invalid.
+        """
+        preferences = super(PyLucidDBPreferencesBaseForm, self).get_preferences()
+        if request.user.is_staff:
+            for key in lucidtag_kwargs.keys():
+                if key not in preferences:
+                    request.page_msg.info(
+                        "Keyword argument %r is invalid for lucidTag %r !" % (key, self.Meta.app_label)
+                    )
+        preferences.update(lucidtag_kwargs)
+        return preferences
 
 
 
