@@ -20,45 +20,18 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User, Permission
 from django.utils.translation import ugettext_lazy as _
-from django.template.loader import render_to_string
-from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
-from django.conf import settings
-
 
 from reversion.admin import VersionAdmin
 
 from pylucid import models
+from pylucid.base_admin import BaseAdmin
 
 from pylucid_admin.admin_site import pylucid_admin_site
 
 
-#------------------------------------------------------------------------------
-
-class BaseAdmin(VersionAdmin):
-    def view_on_site_link(self, obj):
-        """ view on site link in admin changelist, try to use complete uri with site info. """
-        absolute_url = obj.get_absolute_url()
-        if hasattr(obj, "get_absolute_uri"):
-            url = obj.get_absolute_uri() # complete uri contains protocol and site domain.
-        else:
-            url = absolute_url
-
-        context = {"absolute_url": absolute_url, "url": url}
-        html = render_to_string('admin/pylucid/includes/view_on_site_link.html', context)
-        return html
-
-    view_on_site_link.short_description = _("View on site")
-    view_on_site_link.allow_tags = True
-
-#------------------------------------------------------------------------------
-
-
-
-class PageTreeAdmin(BaseAdmin):
+class PageTreeAdmin(BaseAdmin, VersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}    
 
     list_display = ("id", "parent", "slug", "site", "view_on_site_link", "lastupdatetime", "lastupdateby")
@@ -85,7 +58,7 @@ pylucid_admin_site.register(models.Language, LanguageAdmin)
 
 
 
-class PageMetaAdmin(BaseAdmin):
+class PageMetaAdmin(BaseAdmin, VersionAdmin):
     list_display = ("id", "get_title", "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
     list_filter = ("lang", "createby", "lastupdateby", "tags")#"keywords"
@@ -98,7 +71,7 @@ pylucid_admin_site.register(models.PageMeta, PageMetaAdmin)
 class PageContentInline(admin.StackedInline):
     model = models.PageContent
 
-class PageContentAdmin(BaseAdmin):
+class PageContentAdmin(BaseAdmin, VersionAdmin):
     list_display = ("id", "get_title", "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
     list_filter = ("markup", "createby", "lastupdateby",)
@@ -108,7 +81,7 @@ class PageContentAdmin(BaseAdmin):
 pylucid_admin_site.register(models.PageContent, PageContentAdmin)
 
 
-class PluginPageAdmin(BaseAdmin):
+class PluginPageAdmin(BaseAdmin, VersionAdmin):
     list_display = (
         "id", "get_plugin_name", "app_label",
         "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",

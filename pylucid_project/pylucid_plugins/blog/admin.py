@@ -12,7 +12,7 @@
     $Rev$
     $Author$
 
-    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -24,12 +24,13 @@ from django.contrib.auth.admin import UserAdmin
 from reversion.admin import VersionAdmin
 
 from pylucid_admin.admin_site import pylucid_admin_site
+from pylucid.base_admin import BaseAdmin
 
 from blog.models import BlogEntry
 
 
-class BlogEntryAdmin(VersionAdmin):
-    list_display = ("id", "headline", "is_public", "get_absolute_url", "lastupdatetime", "lastupdateby")
+class BlogEntryAdmin(BaseAdmin):
+    list_display = ("id", "headline", "is_public", "view_on_site_link", "lastupdatetime", "lastupdateby")
     list_display_links = ("headline",)
     list_filter = ("is_public", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
