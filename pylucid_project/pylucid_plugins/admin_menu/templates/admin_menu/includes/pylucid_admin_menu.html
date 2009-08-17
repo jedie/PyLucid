@@ -38,32 +38,33 @@
 	        <a href="{{ edit_page_link }}" title="edit inline" id="edit_page" onclick="return get_pylucid_ajax_view('{{ edit_page_link }}');">{% trans 'edit page' %}</a>
 	        <ul>
                 {% if perms.pylucid.change_pagetree %}
-                   <li><a href="{% url PageAdmin-edit_page pagetree.id %}">edit all</a></li>
+                   <li><a href="{% url PageAdmin-edit_page PYLUCID.pagetree.id %}">edit all</a></li>
                 {% endif %}
                 <li>
                     <a title="edit in django admin panel">djano admin</a>
                     <ul>
-                    {% if pluginpage %}
+                    {% if PYLUCID.pluginpage %}
                         {% if perms.pylucid.change_pluginpage %}
-                        <li><a href="{% url admin:pylucid_pluginpage_change pluginpage.id %}">edit plugin page</a></li>
+                        <li><a href="{% url admin:pylucid_pluginpage_change PYLUCID.pluginpage.id %}">edit plugin page</a></li>
                         {% endif %}
-                    {% else %}
+                    {% endif %}
+                    {% if PYLUCID.pagecontent %}
                         {% if perms.pylucid.change_pagecontent %}
-                        <li><a href="{% url admin:pylucid_pagecontent_change pagecontent.id %}">edit page content</a></li>
+                        <li><a href="{% url admin:pylucid_pagecontent_change PYLUCID.pagecontent.id %}">edit page content</a></li>
                         {% endif %}
                     {% endif %}
     
     	            {% if perms.pylucid.change_pagetree %}
-    	               <li><a href="{% url admin:pylucid_pagetree_change pagetree.id %}">edit page tree</a></li>
+    	               <li><a href="{% url admin:pylucid_pagetree_change PYLUCID.pagetree.id %}">edit page tree</a></li>
     	            {% endif %}
     	            {% if perms.pylucid.change_pagemeta %}
-    	               <li><a href="{% url admin:pylucid_pagemeta_change pagemeta.id %}">edit page meta</a></li>
+    	               <li><a href="{% url admin:pylucid_pagemeta_change PYLUCID.pagemeta.id %}">edit page meta</a></li>
     	            {% endif %}
                     </ul>
                 </li>
 	            
 	            {% if perms.pylucid.delete_pageplugin and perms.pylucid.delete_pagecontent and perms.pylucid.delete_pagemeta and perms.pylucid.delete_pagetree %}
-	               <li><a href="{% url admin:pylucid_pagetree_delete pagemeta.id %}">delete page</a></li>
+	               <li><a href="{% url admin:pylucid_pagetree_delete PYLUCID.pagemeta.id %}">delete page</a></li>
 	            {% endif %}
 	        </ul>
 	    </li>

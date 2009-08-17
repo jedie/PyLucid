@@ -58,6 +58,8 @@ def pylucid(request):
         "debug": settings.DEBUG,
     }
 
+    context["PYLUCID"] = request.PYLUCID
+
     pagetree = getattr(request.PYLUCID, "pagetree", None)
     if pagetree:
         template_name = pagetree.design.template

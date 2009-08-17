@@ -20,28 +20,12 @@ def lucidTag(request):
         # Don't insert the admin top menu
         return
 
-    pagetree = request.PYLUCID.pagetree # Current PageTree model instance
-
     context = {
         "inline": True,
-
-        "pagetree": pagetree,
-        "pagemeta": request.PYLUCID.pagemeta, # Current PageMeta model instance
-
         "logout_link": "?auth=logout",
-
         "edit_page_link": "?page_admin=inline_edit",
-
         "new_page_link": reverse("admin:pylucid_pagecontent_add"),
     }
-
-    if pagetree.page_type == PageTree.PLUGIN_TYPE:
-        # Plugin page -> edit PluginPage model entry
-        context["pluginpage"] = request.PYLUCID.pluginpage
-    else:
-        # Content page -> edit PageContent model entry
-        context["pagecontent"] = request.PYLUCID.pagecontent
-
     return context
 
 
