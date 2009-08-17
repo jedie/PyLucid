@@ -26,7 +26,7 @@ def install(request):
     output = []
 
     admin_menu = AdminMenu(request, output)
-    menu_section_entry = admin_menu.get_or_create_section("blog")
+    menu_section_entry = admin_menu.get_or_create_section("create content")
 
     admin_menu.add_menu_entry(
         parent=menu_section_entry, url_name="Blog-new_blog_entry",

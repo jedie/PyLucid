@@ -82,18 +82,18 @@
         <ul>
             {% if user.is_superuser %}
             <li>
-                <a>{% trans 'PyLucid install' %}</a>
+                <a>PyLucid</a>
                 <ul>
                     <li>
-                        <a href="{% url PyLucidAdmin-install_pylucid %}">{% trans 'PyLucid install' %}</a>
+                        <a href="{% url PyLucidAdmin-install_pylucid %}">{% trans 'install PyLucid' %}</a>
                     </li>
                     <li>
-                        <a href="{% url PyLucidAdmin-install_plugins %}">{% trans 'install PyLucid plugins' %}</a>
+                        <a href="{% url PyLucidAdmin-install_plugins %}">{% trans 'install plugins' %}</a>
+                    </li>
+                    <li>
+                        <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
                     </li>
                 </ul>
-            </li>
-            <li>
-                <a href="{% url PyLucidUpdate-menu %}">{% trans 'update section' %}</a>
             </li>
             {% endif %}
             {% lucidTag admin_menu.panel_extras %}
