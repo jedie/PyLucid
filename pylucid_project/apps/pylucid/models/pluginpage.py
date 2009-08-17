@@ -54,7 +54,7 @@ class PluginPageManager(BaseModelManager):
         Please note: this will always use the first PluginPage entry as url prefix!
         """
         # get the app label from
-        plugin_instance = PYLUCID_PLUGINS["blog"]
+        plugin_instance = PYLUCID_PLUGINS[plugin_name]
         app_label = plugin_instance.pkg_string
 
         # Get the first PluginPage entry for this plugin
