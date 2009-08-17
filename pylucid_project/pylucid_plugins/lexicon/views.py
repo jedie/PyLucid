@@ -79,9 +79,28 @@ def detail_view(request, term=None):
     queryset = _get_filtered_queryset(request)
     entry = queryset.get(term=term)
 
+    if request.POST:
+        # Use django.contrib.comments.views.comments.post_comment to handle a comment
+        # post.
+        return post_comment(request, next=entry.get_absolute_url())
+
     _add_breadcrumb(request, title="%s: %s" % (entry.term, entry.short_definition), url=request.path)
 
-    context = {
-        "entry": entry,
-    }
+    context = {"entry": entry}
+    return context
+
+
+@render_to("lexicon/detail_popup.html")
+def http_get_view(request):
+    term = request.GET["lexicon"]
+
+    queryset = _get_filtered_queryset(request)
+    entry = queryset.get(term=term)
+
+    if request.POST:
+        # Use django.contrib.comments.views.comments.post_comment to handle a comment
+        # post.
+        return post_comment(request, next=entry.get_absolute_url())
+
+    context = {"entry": entry}
     return context

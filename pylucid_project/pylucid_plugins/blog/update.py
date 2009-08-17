@@ -77,9 +77,6 @@ def update08(request, out, language):
                 submit_date=old_comment.createtime,
 
                 defaults={
-                    "title": "re: %s" % old_blog_entry.headline, # A title doesn't exist in old model
-                    "lang": language,
-
                     "site": Site.objects.get_current(),
 
                     "user": user,

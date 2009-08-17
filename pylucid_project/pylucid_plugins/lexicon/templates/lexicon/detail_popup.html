@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{{ PYLUCID.lang_entry.code }}" lang="{{ PYLUCID.lang_entry.code }}">
+<head>
+<title>{{ entry.term }}</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="robots" content="{{ page_robots }}" />
+<meta name="keywords" content="{{ entry.term }}{% if entry.alias %} {{ entry.alias }}{% endif %}{% if entry.tags %} {{ entry.tags }}{% endif %}" />
+<meta name="description" content="{{ entry.short_definition }}" />
+<meta name="DC.Date" content="{{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }}" />
+<meta name="DC.Date.created" content="{{ entry.createtime|date:_("DATETIME_FORMAT") }}" />
+<link rel="canonical" href="{{ page_get_permalink }}" />
+<!-- ContextMiddleware extrahead -->
+</head>
+<body>
+<div id="page_content">
+    <h1>{{ entry.term }}</h1>
+    {# {% include "blog/includes/tagcloud.html" %} #}
+    <dl>   
+        <dt>{% trans "Short definition" %}:</dt>
+        <dd>{{ entry.short_definition }}</dd>
+        
+        <dt>{% trans "Content" %}:</dt>
+        <dd>{{ entry.content }}</dd>
+    </dl>
+    
+    {% include "pylucid_comments/includes/comments_list.html" %}
+</div>
+<div id="footer">
+    <p>
+      powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }}
+    </p>
+</div>
+</body>
+</html>

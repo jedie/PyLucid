@@ -12,15 +12,12 @@ from pylucid.models import Language
 
 
 class PyLucidComment(Comment):
-    # CurrentSiteManager seems not to work here!
-    # But no problem: The parent object should be have a CurrentSiteManager.
-    #on_site = CurrentSiteManager()
-
-    title = models.CharField(max_length=300)
     notify = models.BooleanField(
         help_text="Send me a mail if someone replay on my comment. (Needs a email address ;)"
     )
-    lang = models.ForeignKey(Language) # Should be set automaticly
+
+    def get_absolute_url(self):
+        return self.content_object.get_absolute_url()
 
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
@@ -30,9 +27,9 @@ class PyLucidComment(Comment):
         return {
             "lastupdatetime": self.submit_date,
             "user_name": self.userinfo["name"],
-            "lang": self.lang,
+            "lang": self.content_object.lang,
             "object_url": self.get_absolute_url(),
-            "title": self.title,
+            "title": "New '%s' comment." % self.content_type,
         }
 
     class Meta:

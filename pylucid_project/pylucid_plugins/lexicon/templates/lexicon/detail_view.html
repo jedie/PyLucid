@@ -1,11 +1,8 @@
 {% extends template_name %}
-{% load comments %}
+{% load comments %} 
 
 {% block content %}
-
 {# {% include "blog/includes/tagcloud.html" %} #}
-
-{% if not entries %}no lexicon entry exists{% endif %}
 <dl>
     <dt>{% trans "Term" %}:</dt>
     <dd>{{ entry.term }}</dd>
@@ -16,4 +13,6 @@
     <dt>{% trans "Content" %}:</dt>
     <dd>{{ entry.content }}</dd>
 </dl>
+
+{% include "pylucid_comments/includes/comments_list.html" %}
 {% endblock content %}
