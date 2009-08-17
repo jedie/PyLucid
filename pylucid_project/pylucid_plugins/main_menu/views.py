@@ -57,6 +57,8 @@ def lucidTag(request, min=1, max=0):
             request.page_msg("Current user:", request.user)
             request.page_msg("all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
 
+    tree.slice_menu(min, max)
+
     # add all PageMeta objects into tree
     tree.add_pagemeta(request)
 

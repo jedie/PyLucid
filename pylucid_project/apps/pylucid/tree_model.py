@@ -114,14 +114,26 @@ class TreeGenerator(object):
         # add level number to all nodes
         self.setup_level()
 
-    def get_first_nodes(self):
+    def get_first_nodes(self, nodes=None):
         """ return a list of all 'top' nodes (all root subnodes) """
         return self.root.subnodes
+        if nodes == None:
+            nodes = self.root.subnodes
+
+        for node in nodes:
+            if node.visible:
+                return nodes
+
+        for node in nodes:
+            if node.subnodes:
+                nodes2 = self.get_first_nodes(node.subnodes)
+                if nodes2:
+                    return nodes2
 
     def setup_level(self, nodes=None, level=0):
         """ add level number to all nodes """
         if nodes == None:
-            nodes = self.get_first_nodes()
+            nodes = self.root.subnodes
         for node in nodes:
             node.level = level
             if node.subnodes:
@@ -149,7 +161,7 @@ class TreeGenerator(object):
                     debug2(node.subnodes)
 
         if nodes == None:
-            nodes = self.get_first_nodes()
+            nodes = self.root.subnodes
 
         print "_" * 79
         print "Tree model debug:"
@@ -186,7 +198,7 @@ class TreeGenerator(object):
 
         # Generate a id list of all visible nodes 
         ids = [id for id, node in self.nodes.items() if node.visible and id != None]
-
+        #print "Get pagemeta for: %r" % ids
         queryset = PageMeta.objects.filter(lang=current_lang)
 
         # Add all pagemeta in current client lang
@@ -197,15 +209,50 @@ class TreeGenerator(object):
             id for id, node in self.nodes.items()
             if node.visible and id != None and not hasattr(node, "pagemeta")
         ]
-#        print ids
+        #print "Add missing pagemeta for: %r" % ids
 
         queryset = PageMeta.objects.filter(lang=default_lang)
         # Add all pagemeta in current client lang
         self.add_related(queryset, ids, field="page", attrname="pagemeta")
 
+    def slice_menu(self, min, max, parent=None):
+        """
+        Slice the visible menu items.
+        """
+        #print "slice menu - min: %r - max: %r" % (min, max)
+        def remove_max(max, parent):
+            """ Remove subnodes, if there are too deep. """
+            for node in parent.subnodes:
+                if node.level >= max - 1:
+                    node.subnodes = [] # remove subnodes
+                elif node.subnodes:
+                    remove_max(max, parent=node)
+
+        if max > 0: # skip if max == 0
+            remove_max(max, parent=self.root)
+
+        def reassign_root(min, parent):
+            """ Reassign the root node, for cut the menu tree start point. """
+            for node in parent.subnodes:
+                if node.active != True: # Walk only through active nodes
+                    continue
+
+                if node.level < min - 1:
+                    self.root = node
+                    if node.level <= min - 2:
+                        # Found the needed menu start point.
+                        return
+
+                if node.subnodes: # go deeper to find the menu start point.
+                    reassign_root(min, parent=node)
+
+        if min > 1: # reassign menu start point only if needed
+            reassign_root(min, parent=self.root)
+
+#        self.debug()
 
 
-    def set_current_node(self, id):
+    def set_current_node(self, id, delete_hidden=True):
         """
         setup all node visible item for main menu template. 
         """
@@ -214,6 +261,19 @@ class TreeGenerator(object):
         current_node = nodes[id]
         current_node.activate()
         current_node.current = True
+
+        if delete_hidden:
+            # Remove all not visible items, because they not needed anymore.
+            def build_tree(nodes):
+                new_node_list = []
+                for node in nodes:
+                    if node.visible:
+                        new_node_list.append(node)
+                        if node.subnodes:
+                            node.subnodes = build_tree(node.subnodes)
+                return new_node_list
+
+            self.root.subnodes = build_tree(self.root.subnodes)
 
     def activate_all(self):
         """
@@ -234,7 +294,7 @@ class TreeGenerator(object):
         returns a flat list of all visible pages with the level info.
         """
         if nodes == None:
-            nodes = self.get_first_nodes()
+            nodes = self.root.subnodes
 
         for node in nodes:
             if node.visible:
