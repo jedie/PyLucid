@@ -1,0 +1,15 @@
+{% extends template_name %}
+{% load comments %}
+
+{% block content %}
+
+{# {% include "blog/includes/tagcloud.html" %} #}
+
+{% if not entries %}no lexicon entry exists{% endif %}
+<dl>
+{% for entry in entries %}
+    <dt><a href="{{ entry.get_absolute_url }}">{{ entry.term }}</a></dt>
+    <dt>{{ entry.short_definition }}</dt>
+{% endfor %}
+</dl>
+{% endblock content %}

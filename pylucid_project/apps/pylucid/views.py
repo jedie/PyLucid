@@ -9,8 +9,9 @@ from django_tools.template import render
 
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
-from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.markup.converter import apply_markup
+from pylucid.signals import pre_render_global_template
+from pylucid.system import pylucid_plugin, i18n, pylucid_objects
 from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, \
                                                                     EditableHtmlHeadFile, Language
 
@@ -45,16 +46,6 @@ def _get_page_content(request):
     return pagecontent
 
 
-def _render_template(request, page_content):
-    context = request.PYLUCID.context
-    page_template = request.PYLUCID.page_template
-    context["page_content"] = page_content
-    complete_page = render.render_string_template(page_template, context)
-
-    response = http.HttpResponse(complete_page, mimetype="text/html")
-    response["content-language"] = context["page_language"]
-    response = pylucid_plugin.context_middleware_response(request, response)
-    return response
 
 
 def _apply_context_middleware(request, response):
@@ -172,10 +163,22 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     else:
         raw_html_content = context["page_content"]
 
-    html_content = render.render_string_template(raw_html_content, context)
+    # Render django tags in PageContent with the global context
+    pagecontent_html = render.render_string_template(raw_html_content, context)
+    print "replace page_content with html version"
+    context["page_content"] = pagecontent_html
 
-    response = _render_template(request, page_content=html_content)
+    pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
+    # Render django tags in global template with global context
+    print "render template"
+    complete_page = render.render_string_template(page_template, context)
+
+    # create response object
+    response = http.HttpResponse(complete_page, mimetype="text/html")
+    response["content-language"] = context["page_language"]
+
+    # replace/render pylucid plugin context middlewares
     response = _apply_context_middleware(request, response)
     return response
 
