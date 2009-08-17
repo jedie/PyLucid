@@ -82,19 +82,19 @@ class LexiconEntry(UpdateInfoBaseModel):
         default=True, help_text="Is post public viewable?"
     )
 
-#    def get_update_info(self):
-#        """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
-#        if not self.is_public: # Don't list non public articles
-#            return
-#
-#        return {
-#            "lastupdatetime": self.lastupdatetime,
-#            "user_name": self.lastupdateby,
-#            "lang": self.lang,
-#            "object_url": self.get_absolute_url(),
-#            "title": self.headline,
-#        }
-#
+    def get_update_info(self):
+        """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
+        if not self.is_public: # Don't list non public articles
+            return
+
+        return {
+            "lastupdatetime": self.lastupdatetime,
+            "user_name": self.lastupdateby,
+            "lang": self.lang,
+            "object_url": self.get_absolute_url(),
+            "title": _("New lexicon entry '%s'.") % self.term,
+        }
+
     def get_absolute_url(self):
         viewname = "Lexicon-detail_view"
         reverse_kwargs = {"term":self.term} #slugify(self.term)
@@ -106,7 +106,7 @@ class LexiconEntry(UpdateInfoBaseModel):
             try:
                 return PluginPage.objects.reverse("lexicon", viewname, kwargs=reverse_kwargs)
             except urlresolvers.NoReverseMatch:
-                return ""
+                return "?lexicon=%s" % self.term
 
     def get_html(self):
         """
@@ -121,7 +121,7 @@ class LexiconEntry(UpdateInfoBaseModel):
         ordering = ('term',)
 
 
-#signals.post_save.connect(receiver=update_journal.save_receiver, sender=BlogEntry)
+signals.post_save.connect(receiver=update_journal.save_receiver, sender=LexiconEntry)
 
 # Bug in django tagging?
 # http://code.google.com/p/django-tagging/issues/detail?id=151#c2
