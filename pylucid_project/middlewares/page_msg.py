@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+ # coding: utf-8
 
 """
     PyLucid page messages
@@ -43,8 +43,9 @@ from django.utils.safestring import SafeData, mark_safe
 from django.template.loader import render_to_string
 
 from pylucid_project.utils.escape import escape
+from pylucid_project.middlewares.utils import replace_content
 
-TAG = "<!-- page_messages -->"
+TAG = u"<!-- page_messages -->"
 
 SESSION_KEY = "PAGE_MESSAGES"
 
@@ -263,6 +264,7 @@ class PageMessages(object):
 class PageMessagesMiddleware(object):
     def __init__(self):
         self.old_showwarning = warnings.showwarning
+        self.tag = smart_str(TAG, encoding=settings.DEFAULT_CHARSET)
 
     def process_request(self, request):
         """ add page_msg object to request object """
@@ -288,7 +290,7 @@ class PageMessagesMiddleware(object):
             return response
 
         content = response.content
-        if not TAG in content:
+        if self.tag not in content:
             # We can't replace the TAG with the page_msg if it's not in the content ;)
             # Do nothing and try it in the next request
             return response
@@ -305,9 +307,8 @@ class PageMessagesMiddleware(object):
                 "stack_limit": STACK_LIMIT,
             }
             message_string = render_to_string("pylucid/page_msg.html", context)
-            message_string = smart_str(message_string)
+            message_string = smart_str(message_string, encoding=settings.DEFAULT_CHARSET)
 
-        new_content = content.replace(TAG, message_string)
-        response.content = new_content
+        response = replace_content(response, self.tag, message_string)
 
         return response

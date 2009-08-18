@@ -17,7 +17,7 @@ import pkg_resources
 pkg_resources.require('django-dbpreferences >= 0.3.1beta')
 
 # http://code.google.com/p/django-tools/
-pkg_resources.require('django-tools >= 0.4.0beta')
+pkg_resources.require('django-tools >= 0.5.0beta')
 
 # http://code.google.com/p/python-creole/
 pkg_resources.require('python-creole >= 0.2.4')

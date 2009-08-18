@@ -78,6 +78,9 @@ ROOT_URLCONF = 'pylucid_project.urls'
 MIDDLEWARE_CLASSES = (
     'pylucid_project.middlewares.ip_ban.IPBanMiddleware',
 
+    # Insert a statistic line into the generated page:
+    'pylucid_project.middlewares.pagestats.PageStatsMiddleware',
+
     # From http://code.google.com/p/django-tools/
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
 
