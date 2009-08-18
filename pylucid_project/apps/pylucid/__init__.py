@@ -14,7 +14,7 @@
 import pkg_resources
 
 # http://code.google.com/p/django-dbpreferences
-pkg_resources.require('django-dbpreferences >= 0.3.0beta')
+pkg_resources.require('django-dbpreferences >= 0.3.1beta')
 
 # http://code.google.com/p/django-tools/
 pkg_resources.require('django-tools >= 0.4.0beta')
