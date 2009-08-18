@@ -33,7 +33,7 @@ TAG_INPUT_HELP_URL = \
 class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
     """
     inherited attributes from AutoSiteM2M:
-        site    -> ManyToManyField to Site
+        sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
     """
     name = models.CharField(max_length=255, help_text="The name of this color scheme.")
@@ -59,7 +59,7 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
         return new, updated, exists
 
     def __unicode__(self):
-        sites = [site.name for site in self.site.all()]
+        sites = self.sites.values_list('name', flat=True)
         return u"ColorScheme '%s' (on sites: %r)" % (self.name, sites)
 
     class Meta:
@@ -75,7 +75,7 @@ class ColorManager(models.Manager):
 class Color(AutoSiteM2M, UpdateInfoBaseModel):
     """
     inherited attributes from AutoSiteM2M:
-        site    -> ManyToManyField to Site
+        sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
     """
     objects = ColorManager()

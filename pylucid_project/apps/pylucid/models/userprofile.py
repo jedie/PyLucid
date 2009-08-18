@@ -48,7 +48,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     Created via post_save signal, if a new user created.
 
     inherited attributes from AutoSiteM2M:
-        site    -> ManyToManyField to Site
+        sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
     """
     user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
@@ -61,7 +61,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     )
 
     # TODO: Overwrite help_text:
-#    site = models.ManyToManyField(Site,
+#    sites = models.ManyToManyField(Site,
 #        help_text="User can access only these sites."
 #    )
 
@@ -77,7 +77,8 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
         failsafe_message("SHA Login salt+checksum set for user '%s'." % self.user)
 
     def __unicode__(self):
-        return u"UserProfile for user '%s'" % self.user.username
+        sites = self.sites.values_list('name', flat=True)
+        return u"UserProfile for user '%s' (on sites: %r)" % (self.user.username, sites)
 
     class Meta:
         app_label = 'pylucid'

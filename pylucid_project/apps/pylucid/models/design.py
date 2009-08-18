@@ -36,7 +36,7 @@ class Design(AutoSiteM2M, UpdateInfoBaseModel):
     Page design: template + CSS/JS files
 
     inherited attributes from AutoSiteM2M:
-        site    -> ManyToManyField to Site
+        sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
 
     inherited attributes from UpdateInfoBaseModel:
@@ -61,7 +61,7 @@ class Design(AutoSiteM2M, UpdateInfoBaseModel):
         return super(Design, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        sites = self.site.values_list('name', flat=True)
+        sites = self.sites.values_list('name', flat=True)
         return u"Page design '%s' (on sites: %r)" % (self.name, sites)
 
     class Meta:

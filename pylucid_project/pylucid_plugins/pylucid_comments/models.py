@@ -8,13 +8,16 @@ from django.contrib.comments.signals import comment_was_posted
 
 from pylucid_plugins import update_journal
 
-from pylucid.models import Language
-
 
 class PyLucidComment(Comment):
     notify = models.BooleanField(
         help_text="Send me a mail if someone replay on my comment. (Needs a email address ;)"
     )
+
+#    def save(self, *args, **kwargs):
+#        if self.submit_date is None:
+#            self.submit_date = datetime.datetime.now()
+#        super(Comment, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
         return self.content_object.get_absolute_url()

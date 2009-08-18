@@ -22,9 +22,8 @@ from django_tools.utils import installed_apps_utils
 from django_tools import model_utils
 
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-
+from pylucid.shortcuts import failsafe_message
 from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
-
 from pylucid_plugins import update_journal
 
 # other PyLucid models
@@ -61,7 +60,11 @@ class PluginPageManager(BaseModelManager):
         queryset = PluginPage.objects.all()
         queryset = queryset.filter(pagemeta__page__site=Site.objects.get_current())
         queryset = queryset.filter(app_label=app_label)
-        plugin_page = queryset[0]
+        try:
+            plugin_page = queryset[0]
+        except KeyError:
+            failsafe_message("Can't get a PluginPage for plugin %r, please create one." % plugin_name)
+            raise
 
         url_prefix = plugin_page.get_absolute_url()
         plugin_url_resolver = plugin_instance.get_plugin_url_resolver(url_prefix, plugin_page.urls_filename)

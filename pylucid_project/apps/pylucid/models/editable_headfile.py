@@ -57,7 +57,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     Storage for editable static text files, e.g.: stylesheet / javascript.
 
     inherited attributes from AutoSiteM2M:
-        site    -> ManyToManyField to Site
+        sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
 
     inherited attributes from UpdateInfoBaseModel:
@@ -206,7 +206,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         return super(EditableHtmlHeadFile, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        sites = [site.name for site in self.site.all()]
+        sites = self.sites.values_list('name', flat=True)
         return u"'%s' (on sites: %r)" % (self.filepath, sites)
 
     class Meta:

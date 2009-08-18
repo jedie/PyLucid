@@ -122,7 +122,7 @@ class ColorSchemeAdmin(VersionAdmin):
     list_display = ("id", "name", "preview", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     search_fields = ("name",)
-    list_filter = ("site",)
+    list_filter = ("sites",)
     inlines = [ColorInline, ]
 
     def preview(self, obj):
@@ -142,7 +142,7 @@ pylucid_admin_site.register(models.ColorScheme, ColorSchemeAdmin)
 class DesignAdmin(VersionAdmin):
     list_display = ("id", "name", "template", "colorscheme", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
-    list_filter = ("site", "template", "colorscheme", "createby", "lastupdateby")
+    list_filter = ("sites", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")
 
 pylucid_admin_site.register(models.Design, DesignAdmin)
@@ -151,7 +151,7 @@ pylucid_admin_site.register(models.Design, DesignAdmin)
 class EditableHtmlHeadFileAdmin(VersionAdmin):
     list_display = ("id", "filepath", "site_info", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
-    list_filter = ("site", "render")
+    list_filter = ("sites", "render")
 
 pylucid_admin_site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
@@ -160,6 +160,6 @@ pylucid_admin_site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdm
 class UserProfileAdmin(VersionAdmin):
     list_display = ("id", "user", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("user",)
-    list_filter = ("site",)
+    list_filter = ("sites",)
 
 pylucid_admin_site.register(models.UserProfile, UserProfileAdmin)

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
     PyLucid blog models
@@ -12,7 +12,7 @@
     $Rev$
     $Author$
 
-    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
@@ -94,7 +94,10 @@ class BlogEntry(UpdateInfoBaseModel):
             return urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
         except urlresolvers.NoReverseMatch:
             # Use the first PluginPage instance
-            return PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
+            try:
+                return PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
+            except:
+                return "FIXME" # FIXME: Use get view???
 
     def get_html(self):
         """
