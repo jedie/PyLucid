@@ -5,7 +5,9 @@
 """
 
 from django.contrib.sites.models import Site
+from django.db.models import Q
 
+# http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
 
 from lexicon.models import LexiconEntry
@@ -21,7 +23,10 @@ def get_search_results(request, search_languages, search_strings, search_results
     queryset = queryset.filter(lang__in=search_languages)
 
     for term in search_strings:
-        queryset = queryset.filter(content__icontains=term)
+        queryset = queryset.filter(
+            Q(term__icontains=term) | Q(tags__icontains=term) | Q(alias__icontains=term) |
+            Q(content__icontains=term) | Q(short_definition__icontains=term)
+        )
 
     for item in queryset:
         meta_content = parse_tag_input(item.tags)
@@ -34,7 +39,7 @@ def get_search_results(request, search_languages, search_strings, search_results
             model_instance=item,
 
             # displayed short_definition of the result hit
-            headline=item.short_definition,
+            headline="%s: %s" % (item.term, item.short_definition),
 
             # displayed in the result list
             lang=item.lang,

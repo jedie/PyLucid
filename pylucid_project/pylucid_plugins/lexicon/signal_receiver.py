@@ -3,8 +3,9 @@
 __version__ = "$Rev:$"
 
 from django.template import RequestContext
-from django.template.loader import render_to_string
+from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
+from django.template.loader import render_to_string
 
 from tagging.utils import parse_tag_input
 
