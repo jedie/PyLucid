@@ -28,9 +28,9 @@
 import os
 import sys
 
-#from django_tools.utils import info_print ; info_print.redirect_stdout()
-
 try:
+    #from django_tools.utils import info_print;info_print.redirect_stdout()
+
     import pylucid_project
     from pylucid_project.system import pylucid_plugins
 except Exception, e:
@@ -76,6 +76,8 @@ SITE_ID = 1 # Can be changed in local_settings
 ROOT_URLCONF = 'pylucid_project.urls'
 
 MIDDLEWARE_CLASSES = (
+    'pylucid_project.middlewares.ip_ban.IPBanMiddleware',
+
     # From http://code.google.com/p/django-tools/
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
 
@@ -86,8 +88,8 @@ MIDDLEWARE_CLASSES = (
 
     'dbpreferences.middleware.DBPreferencesMiddleware',
 
-    'pylucid_project.middlewares.PageMessages.PageMessagesMiddleware',
-    'pylucid_project.middlewares.PyLucidMiddleware.PyLucidMiddleware',
+    'pylucid_project.middlewares.page_msg.PageMessagesMiddleware',
+    'pylucid_project.middlewares.pylucid_objects.PyLucidMiddleware',
 
     # slow down the django developer server
     # From http://code.google.com/p/django-tools/

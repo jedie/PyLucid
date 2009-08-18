@@ -279,8 +279,8 @@ class PageMessagesMiddleware(object):
         """
         warnings.showwarning = self.old_showwarning
 
-        if SESSION_KEY not in request.session:
-            # There exist no page_msg -> do nothing
+        if not hasattr(request, "session") or SESSION_KEY not in request.session:
+            # There exist no session or page_msg -> do nothing
             return response
 
         if not "html" in response._headers["content-type"][1]:

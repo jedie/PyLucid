@@ -32,21 +32,37 @@ from pylucid_admin.admin_site import pylucid_admin_site
 
 
 class PageTreeAdmin(BaseAdmin, VersionAdmin):
-    #prepopulated_fields = {"slug": ("title",)}    
-
-    list_display = ("id", "parent", "slug", "site", "view_on_site_link", "lastupdatetime", "lastupdateby")
+    #prepopulated_fields = {"slug": ("title",)}
+    list_display = (
+        "id", "parent", "slug", "showlinks", "site", "view_on_site_link", "lastupdatetime", "lastupdateby"
+    )
     list_display_links = ("id", "slug")
-    list_filter = ("site", "page_type", "permitViewGroup", "design", "createby", "lastupdateby",)
+    list_filter = (
+        "site", "page_type", "permitViewGroup", "showlinks", "createby", "lastupdateby", "design",
+    )
     date_hierarchy = 'lastupdatetime'
     search_fields = ("slug",)
 
 pylucid_admin_site.register(models.PageTree, PageTreeAdmin)
 
 
+class BanEntryAdmin(admin.ModelAdmin):
+    list_display = list_display_links = ("ip_address", "createtime",)
+    search_fields = ("ip_address",)
+pylucid_admin_site.register(models.BanEntry, BanEntryAdmin)
+
+
 class LanguageAdmin(VersionAdmin):
     pass
-
 pylucid_admin_site.register(models.Language, LanguageAdmin)
+
+
+class LogEntryAdmin(BaseAdmin):
+    list_display = ("createtime", "createby", "app_label", "action", "message")
+    list_filter = (
+        "app_label", "action", "createby"
+    )
+pylucid_admin_site.register(models.LogEntry, LogEntryAdmin)
 
 
 #class OnSitePageMeta(models.PageMeta):

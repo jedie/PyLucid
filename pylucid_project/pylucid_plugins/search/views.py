@@ -17,30 +17,40 @@
 __version__ = "$Rev: 2151 $"
 
 import re
+import time
+import datetime
 
 from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
-from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design, Language
-from pylucid.decorators import render_to
+# http://code.google.com/p/django-tagging/
+from tagging.utils import parse_tag_input
 
+from pylucid.models import Language, LogEntry, BanEntry
+from pylucid.decorators import render_to
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.python_tools import cutout
 
 from pylucid_plugins.search.preference_forms import SearchPreferencesForm
 
 
-pref_form = SearchPreferencesForm()
-preferences = pref_form.get_preferences()
+def get_preferences():
+    pref_form = SearchPreferencesForm()
+    preferences = pref_form.get_preferences()
+    return preferences
 
 #-----------------------------------------------------------------------------
 
 class SearchForm(forms.Form):
-    search = forms.CharField(
-        min_length=preferences["min_term_len"],
-        max_length=preferences["max_term_len"],
-    )
+    search = forms.CharField()
+    def __init__(self, *args, **kwargs):
+        super(SearchForm, self).__init__(*args, **kwargs)
+
+        preferences = get_preferences()
+        self.fields['search'].min_length = preferences["min_term_len"]
+        self.fields['search'].max_length = preferences["max_term_len"]
+
 
 class AdvancedSearchForm(SearchForm):
     language = forms.MultipleChoiceField(choices=Language.objects.get_choices())
@@ -51,7 +61,9 @@ def _filter_search_terms(request, search_string):
     """
     Split and filter the search terms.
     """
-    raw_search_strings = search_string.split(" ")
+    preferences = get_preferences()
+
+    raw_search_strings = parse_tag_input(search_string) # split with django-tagging
     search_strings = []
     for term in raw_search_strings:
         if len(term) < preferences["min_term_len"]:
@@ -67,10 +79,6 @@ def _filter_search_terms(request, search_string):
 
 class SearchHit(object):
     """ one hit entry in the result page """
-
-    text_cutout_len = preferences["text_cutout_len"]
-    text_cutout_lines = preferences["text_cutout_lines"]
-
     def __init__(self, model_instance, search_strings, score, headline, lang, url, content):
         self.model_instance = model_instance
         self.search_strings = search_strings
@@ -79,6 +87,10 @@ class SearchHit(object):
         self.lang = lang
         self.url = url
         self.content = content
+
+        preferences = get_preferences()
+        self.text_cutout_len = preferences["text_cutout_len"]
+        self.text_cutout_lines = preferences["text_cutout_lines"]
 
     def content_type(self):
         content_type = ContentType.objects.get_for_model(self.model_instance)
@@ -115,6 +127,10 @@ class SearchResults(object):
         self.search_strings_lower = tuple([i.lower() for i in search_strings])
         self.hits = []
 
+        self.duration = None # set in self.done()
+        self.plugin_count = None # set in self.done()
+        self.start_time = time.time()
+
     def _calc_score(self, txt, multiplier):
         score = 0
         for term in self.search_strings_lower:
@@ -147,6 +163,10 @@ class SearchResults(object):
 
         self.hits.append((score, search_hit))
 
+    def done(self, plugin_count):
+        self.duration = time.time() - self.start_time
+        self.plugin_count = plugin_count
+
     def __iter__(self):
         for score, hit in sorted(self.hits, reverse=True):
             yield hit
@@ -163,7 +183,9 @@ class Search(object):
         search_languages = Language.objects.filter(code__in=search_lang_codes)
 
         # Call every plugin. The plugin adds all results into SearchResults object.
-        self.call_searchs(search_languages, search_strings, search_results)
+        plugin_count = self.call_searchs(search_languages, search_strings, search_results)
+
+        search_results.done(plugin_count)
 
         return search_results
 
@@ -178,6 +200,7 @@ class Search(object):
         filename = settings.PYLUCID.SEARCH_FILENAME
         view_name = settings.PYLUCID.SEARCH_VIEWNAME
 
+        plugin_count = 0
         for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
             try:
                 plugin_instance.call_plugin_view(self.request, filename, view_name, method_kwargs)
@@ -187,6 +210,58 @@ class Search(object):
                     continue
                 self.request.page_msg.error("Can't collect search results from %s." % plugin_name)
                 self.request.page_msg.insert_traceback()
+            else:
+                plugin_count += 1
+        return plugin_count
+
+
+def _search(request, cleaned_data):
+    search_strings = _filter_search_terms(request, cleaned_data["search"])
+    if len(search_strings) == 0:
+        request.page_msg.error("Error: no search term left, can't search.")
+        return
+
+    preferences = get_preferences()
+    min_pause = preferences["min_pause"]
+    ban_limit = preferences["ban_limit"]
+
+    timedelta = datetime.timedelta(seconds=min_pause)
+    last_actions = LogEntry.objects.last_remote_addr_actions(request, timedelta).count()
+
+    if last_actions >= ban_limit:
+        msg = "Add ban entry, because %s searches started in the last %ssec." % (last_actions, min_pause)
+        LogEntry.objects.log_action(app_label="search", action="ban ip", message=msg)
+        BanEntry.objects.add(request) # raise 404!
+
+    if last_actions > 0:
+        msg = "Too mutch searches from you!"
+        info = "(%s in the last %ssec.)" % (last_actions, min_pause)
+        if request.user.is_staff:
+            msg += " %s" % info
+        request.page_msg.error(msg)
+        LogEntry.objects.log_action(
+            app_label="search", action="search aborted", message="DoS min_pause %s" % info,
+        )
+        return
+
+    print LogEntry.objects.get_same_remote_addr(request).count()
+    for entry in LogEntry.objects.last_remote_addr_actions(request, timedelta):
+        print entry
+        print repr(entry.data)
+#                print repr(entry.data.get_data())
+        print
+
+    search_lang_codes = cleaned_data["language"]
+    search_results = Search(request).search(search_lang_codes, search_strings)
+    LogEntry.objects.log_action(
+        app_label="search", action="search done", message=None,
+        data={
+            "search_strings": search_strings,
+            "duration": search_results.duration,
+            "hits": len(search_results.hits),
+        }
+    )
+    return search_results
 
 
 @render_to("search/search.html")#, debug=True)
@@ -208,15 +283,10 @@ def http_get_view(request):
 
     form = AdvancedSearchForm(form_data)
 
-    search_results = None
-
     if form.is_valid():
-        search_strings = _filter_search_terms(request, form.cleaned_data["search"])
-        if len(search_strings) == 0:
-            request.page_msg.error("Error: no search term left, can't search.")
-        else:
-            search_lang_codes = form.cleaned_data["language"]
-            search_results = Search(request).search(search_lang_codes, search_strings)
+        search_results = _search(request, form.cleaned_data)
+    else:
+        search_results = None
 
     context = {
         "page_title": "Advanced search", # Change the global title with blog headline

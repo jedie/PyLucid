@@ -17,7 +17,9 @@
 from pylucid.models.colorscheme import ColorScheme, Color
 from pylucid.models.design import Design
 from pylucid.models.editable_headfile import EditableHtmlHeadFile
+from pylucid.models.ip_ban_list import BanEntry
 from pylucid.models.language import Language
+from pylucid.models.log import LogEntry
 from pylucid.models.pagecontent import PageContent
 from pylucid.models.pagemeta import PageMeta
 from pylucid.models.pagetree import PageTree

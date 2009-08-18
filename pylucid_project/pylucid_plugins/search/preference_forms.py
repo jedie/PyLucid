@@ -28,5 +28,15 @@ class SearchPreferencesForm(DBPreferencesBaseForm):
         initial=5, min_value=1, max_value=20
     )
 
+    ban_limit = forms.IntegerField(
+        help_text=_("Numbers of limit overstepping after IP would be banned."),
+        initial=5, min_value=1, max_value=20
+    )
+    min_pause = forms.IntegerField(
+        help_text=_("Minimum pause in seconds between two search from the same user. (Used 'REMOTE_ADDR')"),
+        initial=3, min_value=1, max_value=60
+    )
+#    max_
+
     class Meta:
         app_label = 'search'
