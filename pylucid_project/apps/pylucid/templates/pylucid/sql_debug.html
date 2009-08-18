@@ -1,4 +1,5 @@
 <h2>Debug SQL queries:</h2>
+<p>render time: {{ total_time }} - overall: {{ overall_time }} - query count: {{ query_count }}</p>
 <ul>
 {% for query in queries %}
     <li><pre>{{ query.pformat }}</pre>

@@ -52,10 +52,10 @@ TAG = u"<!-- script_duration -->"
 # used if settings.DEBUG is off:
 FMT = u"render time: %(total_time)s - overall: %(overall_time)s"
 # used if settings.DEBUG is on:
-FMT_DEBUG = FMT + u" - queries: %(queries)d"
+FMT_DEBUG = FMT + u" - queries: %(query_count)d"
 
-#DEBUG_SQL = True # ONLY for developers!
-DEBUG_SQL = False
+DEBUG_SQL = True # ONLY for developers!
+#DEBUG_SQL = False
 STACK_LIMIT = 5
 
 class SqlLoggingList(list):
@@ -125,7 +125,7 @@ class PageStatsMiddleware(object):
         if settings.DEBUG:
             # compute the db time for the queries just run, this information is
             # only available if the debug cursor used
-            context["queries"] = len(connection.queries) - self.old_queries
+            context["query_count"] = len(connection.queries) - self.old_queries
             stat_info = FMT_DEBUG % context
         else:
             # Used the template without queries
@@ -136,7 +136,7 @@ class PageStatsMiddleware(object):
 
         if settings.DEBUG and DEBUG_SQL:
             # Insert all SQL queries into html page
-            context = {"queries": connection.queries}
+            context["queries"] = connection.queries
             sql_info = render_to_string("pylucid/sql_debug.html", context)
             response = replace_content(response, "</body>", sql_info)
 
