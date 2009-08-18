@@ -1,24 +1,14 @@
 {% extends template_name %}
 
 {% block content %}
-	<form id="search_form" method="post" action="{{ form_url }}">
+<fieldset>
+    <h2 class="form_collapse">Search Form</h2>
+    <form id="search_form" method="post" action="{{ form_url }}">
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        <input type="submit" value="search" />
+    </form>
+</fieldset>
 
-    <ul id="input_fields">
-        {% for field in form %}
-            
-            <li title="{{ field.help_text }}" class="{{ field.html_name }}">
-            <label for="{{ field.auto_id }}">
-            {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
-             :</label>
-            {{ field }}
-            <span class="field_help_text">{{ field.help_text }}</span>
-            {% if field.errors %}<li class="field_errors" title="'{{ field.label }}' field error.">{{ field.errors }}</li>{% endif %}
-        </li>
-        {% endfor %}
-    </ul>
-    <input type="submit" value="search" />
-	</form>
-	
 {% if search_results %}
 <h2>Search results:</h2>
 <table>
