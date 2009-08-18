@@ -1,13 +1,13 @@
 {% extends template_name %}
 
 {% block content %}
-<fieldset>
+<form id="search_form" method="post" action="{{ form_url }}" class="pylucid_form">
+    <fieldset>
     <h2 class="form_collapse">Search Form</h2>
-    <form id="search_form" method="post" action="{{ form_url }}">
         {% include "admin/pylucid/includes/pylucid_formset.html" %}
         <input type="submit" value="search" />
-    </form>
-</fieldset>
+    </fieldset>
+</form>
 
 {% if search_results %}
 <h2>Search results:</h2>
