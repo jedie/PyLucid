@@ -14,6 +14,9 @@
     We display only the the database queries count if debug is on. Otherwise
     the database cursor doesn't count the sql statements and we always get 0 ;)
     
+    Some SQL print stuff from: 
+        http://www.djangosnippets.org/snippets/817/
+    
     TODO:
     ~~~~~
     Put settings for debug_sql_queries() into settings.py:
@@ -30,14 +33,16 @@
 """
 
 import time
+import inspect
 
 from django.conf import settings
 from django.db import connection
+from django.template.loader import render_to_string
 
 # http://code.google.com/p/django-tools/
 from django_tools.template.filters import human_duration
 
-from pylucid_project.middlewares.utils import replace_content
+from pylucid_project.middlewares.utils import replace_content, cut_filename
 
 # Save the start time of the current running python instance
 start_overall = time.time()
@@ -49,6 +54,47 @@ FMT = u"render time: %(total_time)s - overall: %(overall_time)s"
 # used if settings.DEBUG is on:
 FMT_DEBUG = FMT + u" - queries: %(queries)d"
 
+#DEBUG_SQL = True # ONLY for developers!
+DEBUG_SQL = False
+STACK_LIMIT = 5
+
+class SqlLoggingList(list):
+    def _pformat_sql(self, query):
+        sql = query["sql"]
+        sql = sql.replace('`', '')
+        sql = sql.replace(' FROM ', '\nFROM ')
+        sql = sql.replace(' WHERE ', '\nWHERE ')
+        sql = sql.replace(' ORDER BY ', '\nORDER BY ')
+        return sql
+
+    def append(self, query):
+
+        query["pformat"] = self._pformat_sql(query)
+
+        stack_list = inspect.stack()[1:]
+        # go forward in the stack, to outside of this file.
+        for no, stack_line in enumerate(stack_list):
+            filename = stack_line[1]
+#            print filename
+            if "pylucid" in filename or "pylucid_project" in filename:
+                break
+#
+        stack_list = stack_list[no:no + STACK_LIMIT] # limit the displayed stack info
+
+        stack_info = []
+        for stack_line in reversed(stack_list):
+            filename = cut_filename(stack_line[1])
+            lineno = stack_line[2]
+            func_name = stack_line[3]
+            stack_info.append("%s %4s %s" % (filename, lineno, func_name))
+
+        query["stack_info"] = stack_info
+
+        list.append(self, query)
+
+
+
+
 
 class PageStatsMiddleware(object):
     def process_request(self, request):
@@ -59,6 +105,8 @@ class PageStatsMiddleware(object):
         if settings.DEBUG:
             # get number of db queries before we do anything
             self.old_queries = len(connection.queries)
+            if DEBUG_SQL:
+                connection.queries = SqlLoggingList(connection.queries)
 
     def process_response(self, request, response):
         """
@@ -86,25 +134,11 @@ class PageStatsMiddleware(object):
         # insert the page statistic
         response = replace_content(response, TAG, stat_info)
 
-#        response = self.debug_sql_queries(response)
+        if settings.DEBUG and DEBUG_SQL:
+            # Insert all SQL queries into html page
+            context = {"queries": connection.queries}
+            sql_info = render_to_string("pylucid/sql_debug.html", context)
+            response = replace_content(response, "</body>", sql_info)
 
         return response
 
-    def debug_sql_queries(self, response):
-        """
-        Insert all SQL queries.
-        ONLY for developers!
-        """
-        sql_info = "<h2>Debug SQL queries:</h2>"
-        sql_info += "<pre>"
-        for q in connection.queries:
-            sql = q['sql']
-            time = float(q['time'])
-            sql = sql.replace(' FROM "', '\nFROM "')
-            sql = sql.replace(' WHERE "', '\nWHERE "')
-            sql_info += "\n%s\n%s\n" % (time, sql)
-        sql_info += "</pre></body>"
-
-        response = replace_content(response, "</body>", sql_info)
-
-        return response

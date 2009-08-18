@@ -43,14 +43,13 @@ from django.utils.safestring import SafeData, mark_safe
 from django.template.loader import render_to_string
 
 from pylucid_project.utils.escape import escape
-from pylucid_project.middlewares.utils import replace_content
+from pylucid_project.middlewares.utils import replace_content, cut_filename
 
 TAG = u"<!-- page_messages -->"
 
 SESSION_KEY = "PAGE_MESSAGES"
 
-MAX_FILEPATH_LEN = 50
-FILEPATH_SPLIT = "src/pylucid" # try to cut the filepath or MAX_FILEPATH_LEN used
+
 STACK_LIMIT = 6
 
 
@@ -186,13 +185,6 @@ class PageMessages(object):
         """
         return stack_info: Where from the announcement comes?
         """
-        def cut_filename(filename):
-            if FILEPATH_SPLIT in filename:
-                return "...%s" % filename.split(FILEPATH_SPLIT)[1]
-            if len(filename) >= MAX_FILEPATH_LEN:
-                filename = "...%s" % filename[-MAX_FILEPATH_LEN:]
-            return filename
-
         self_basename = os.path.basename(__file__)
         if self_basename.endswith(".pyc"):
             # cut: ".pyc" -> ".py"

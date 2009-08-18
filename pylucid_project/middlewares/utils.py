@@ -17,6 +17,9 @@
 from django.conf import settings
 from django.utils.encoding import smart_str
 
+MAX_FILEPATH_LEN = 50
+FILEPATH_SPLIT = "src/pylucid" # try to cut the filepath or MAX_FILEPATH_LEN used
+
 
 def replace_content(response, old, new):
     """
@@ -33,3 +36,12 @@ def replace_content(response, old, new):
         pass
 
     return response
+
+
+def cut_filename(filename):
+    """ used in page_msg and pagestats """
+    if FILEPATH_SPLIT in filename:
+        return "...%s" % filename.split(FILEPATH_SPLIT)[1]
+    if len(filename) >= MAX_FILEPATH_LEN:
+        filename = "...%s" % filename[-MAX_FILEPATH_LEN:]
+    return filename

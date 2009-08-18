@@ -1,0 +1,12 @@
+<h2>Debug SQL queries:</h2>
+<ul>
+{% for query in queries %}
+    <li><pre>{{ query.pformat }}</pre>
+        <ul>
+        {% for stack_line in query.stack_info %}
+            <li>{{ stack_line }}</li>
+        {% endfor %}
+        </ul>
+    </li>
+{% endfor %}
+</ul>
