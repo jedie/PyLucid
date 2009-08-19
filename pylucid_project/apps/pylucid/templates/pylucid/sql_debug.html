@@ -1,13 +1,57 @@
 <h2>Debug SQL queries:</h2>
 <p>render time: {{ total_time }} - overall: {{ overall_time }} - query count: {{ query_count }}</p>
-<ul>
+<style>
+#sql_debug {
+    border:thin solid #f00; border-spacing:1px;
+    padding: 2px;
+    color:#000;
+    background-color:#aaa;
+}
+#sql_debug th {
+    color:#55a;
+    font-size:0.8em;
+    background-color:#ccc;
+}
+#sql_debug hr {
+    margin: 30px;
+    color:#ddd;
+}
+#sql_debug .spacer {
+    margin: 30px;
+    padding: 30px;
+    color:#ddd;
+}
+#sql_debug .spacer th {
+    background-color:#bbb;
+}
+#sql_debug .sql {
+    background-color:#fff;
+}
+#sql_debug .sql td {
+    padding: 0.7em;
+}
+#sql_debug .stack_info {
+    font-size:0.9em;
+    background-color:#eee;
+}
+</style>
+<table id="sql_debug">
 {% for query in queries %}
-    <li><pre>{{ query.pformat }}</pre>
-        <ul>
-        {% for stack_line in query.stack_info %}
-            <li>{{ stack_line }}</li>
-        {% endfor %}
-        </ul>
-    </li>
+{% if query.pformat %}
+    <tr><th colspan="4">sql</th></tr>
+    <tr class="sql"><td colspan="4">{{ query.pformat|join:"<br/>" }}</td></tr>
+    <tr class="stack_title">
+        <th>filename</th><th>lineno</th><th>function name</th><th>code</th>
+    </tr>
+    {% for stack_line in query.stack_info %}
+    <tr class="stack_info">
+        <td>{{ stack_line.filename }}</td>
+        <td>{{ stack_line.lineno }}</td>
+        <td>{{ stack_line.func_name }}</td>
+        <td>{{ stack_line.code|join:"<br/>" }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="spacer"><th colspan="4"><hr/></th></tr>
+{% endif %}
 {% endfor %}
-</ul>
+</table>

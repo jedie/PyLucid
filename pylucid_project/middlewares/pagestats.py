@@ -62,10 +62,10 @@ class SqlLoggingList(list):
     def _pformat_sql(self, query):
         sql = query["sql"]
         sql = sql.replace('`', '')
-        sql = sql.replace(' FROM ', '\nFROM ')
-        sql = sql.replace(' WHERE ', '\nWHERE ')
-        sql = sql.replace(' ORDER BY ', '\nORDER BY ')
-        return sql
+        sql = sql.replace(' FROM ', '`FROM ')
+        sql = sql.replace(' WHERE ', '`WHERE ')
+        sql = sql.replace(' ORDER BY ', '`ORDER BY ')
+        return sql.split('`')
 
     def append(self, query):
 
@@ -83,10 +83,12 @@ class SqlLoggingList(list):
 
         stack_info = []
         for stack_line in reversed(stack_list):
-            filename = cut_filename(stack_line[1])
-            lineno = stack_line[2]
-            func_name = stack_line[3]
-            stack_info.append("%s %4s %s" % (filename, lineno, func_name))
+            stack_info.append({
+                "filename": cut_filename(stack_line[1]),
+                "lineno": stack_line[2],
+                "func_name": stack_line[3],
+                "code": stack_line[4]
+            })
 
         query["stack_info"] = stack_info
 
