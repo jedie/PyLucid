@@ -92,6 +92,12 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         self._url_cache[self.pk] = url
         return url
 
+    def save(self, *args, **kwargs):
+        """ reset PageMeta and PageTree url cache """
+        self._url_cache.clear()
+        self.page._url_cache.clear()
+        return super(PageMeta, self).save(*args, **kwargs)
+
     def get_site(self):
         """ used e.g. for self.get_absolute_uri() and the admin page """
         return self.page.site
