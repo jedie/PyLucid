@@ -320,13 +320,21 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         null=True, blank=True,
     )
 
+    _url_cache = {}
     def get_absolute_url(self):
         """ absolute url *without* language code (without domain/host part) """
+        if self.pk in self._url_cache:
+            #print "PageTree url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
+            return self._url_cache[self.pk]
+
         if self.parent:
             parent_shortcut = self.parent.get_absolute_url()
-            return parent_shortcut + self.slug + "/"
+            url = parent_shortcut + self.slug + "/"
         else:
-            return "/" + self.slug + "/"
+            url = "/" + self.slug + "/"
+
+        self._url_cache[self.pk] = url
+        return url
 
     def get_site(self):
         """ used e.g. for self.get_absolute_uri() and the admin page """

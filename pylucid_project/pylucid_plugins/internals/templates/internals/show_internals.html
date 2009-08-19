@@ -86,6 +86,7 @@
 <!-- view_content block -->
 
 <ul id="top"><h2>content</h2>
+    <li><a href="#cache">Cache status</a></li>
     <li><a href="#urlpatterns">urlpatterns</a></li>
     <li><a href="#permissions">permissions</a></li>
     <li><a href="#settings">settings</a></li>
@@ -96,18 +97,21 @@
 
 <hr/>
 
+<h2 id="cache">Cache status</h2>
+<a href="#container">&#x2912; up to top</a>
+<table>
+    <tr><th>item</th><th>length</th></tr>
+{% for item in cache_status %}
+    <tr><td>{{ item.key }}</td><td>{{ item.length }}</td></tr>
+{% endfor %}
+</table>
+
 <h2 id="urlpatterns">urlpatterns</h2>
 <a href="#container">&#x2912; up to top</a>
 <table>
-    <tr>
-    <th>url name</th>
-    <th>url pattern</th>
-    </tr>
+    <tr><th>url name</th><th>url pattern</th></tr>
 {% for urlname, pattern in urlpatterns %}
-    <tr>
-    <td><strong>{{ urlname }}</strong></td>
-    <td>{{ pattern }}</td>
-    </tr>
+    <tr><td><strong>{{ urlname }}</strong></td><td>{{ pattern }}</td></tr>
 {% endfor %}
 </table>
 

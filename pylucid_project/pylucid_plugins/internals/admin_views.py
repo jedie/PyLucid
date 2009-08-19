@@ -1,6 +1,7 @@
 # coding:utf-8
 
 import sys
+import inspect
 from pprint import pformat
 
 from django import forms
@@ -19,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from pylucid.markup import hightlighter
 from pylucid.decorators import check_permissions, render_to
+from pylucid import models
 
 from pylucid_admin.admin_menu import AdminMenu
 
@@ -68,8 +70,21 @@ def show_internals(request):
         if isinstance(key, basestring)
     ])
 
+    cache_object_names = ("_url_cache",)
+    cache_status = []
+    for model_name, model in inspect.getmembers(models, inspect.isclass):
+        for cache_object_name in cache_object_names:
+            if hasattr(model, cache_object_name):
+                cache_obj = getattr(model, cache_object_name)
+                cache_status.append({
+                    "key":"%s.%s" % (model_name, cache_object_name),
+                    "length": len(cache_obj),
+                })
+
     context = {
         "title": "Show internals",
+
+        "cache_status": cache_status,
 
         "permissions": Permission.objects.all(),
 

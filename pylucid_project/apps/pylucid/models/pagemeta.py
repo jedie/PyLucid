@@ -78,11 +78,19 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         null=True, blank=True,
     )
 
+    _url_cache = {}
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
+        if self.pk in self._url_cache:
+            #print "PageMeta url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
+            return self._url_cache[self.pk]
+
         lang_code = self.lang.code
         page_url = self.page.get_absolute_url()
-        return "/" + lang_code + page_url
+        url = "/" + lang_code + page_url
+
+        self._url_cache[self.pk] = url
+        return url
 
     def get_site(self):
         """ used e.g. for self.get_absolute_uri() and the admin page """
