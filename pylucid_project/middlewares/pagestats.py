@@ -54,11 +54,11 @@ FMT = u"render time: %(total_time)s - overall: %(overall_time)s"
 # used if settings.DEBUG is on:
 FMT_DEBUG = FMT + u" - queries: %(query_count)d"
 
-DEBUG_SQL = True # ONLY for developers!
-#DEBUG_SQL = False
 STACK_LIMIT = 5
 
+
 class SqlLoggingList(list):
+    """ Append some infomation on every query in debug mode. """
     def _pformat_sql(self, query):
         sql = query["sql"]
         sql = sql.replace('`', '')
@@ -105,7 +105,7 @@ class PageStatsMiddleware(object):
         if settings.DEBUG:
             # get number of db queries before we do anything
             self.old_queries = len(connection.queries)
-            if DEBUG_SQL:
+            if settings.SQL_DEBUG:
                 connection.queries = SqlLoggingList(connection.queries)
 
     def process_response(self, request, response):
@@ -134,7 +134,7 @@ class PageStatsMiddleware(object):
         # insert the page statistic
         response = replace_content(response, TAG, stat_info)
 
-        if settings.DEBUG and DEBUG_SQL:
+        if settings.DEBUG and settings.SQL_DEBUG:
             # Insert all SQL queries into html page
             context["queries"] = connection.queries
             sql_info = render_to_string("pylucid/sql_debug.html", context)

@@ -56,7 +56,11 @@ for path in _path_list:
 #______________________________________________________________________________
 # DEBUGGING
 
-DEBUG = True
+DEBUG = False
+
+# Append all SQL queries into the html page. (Works only if DEBUG==True)
+# Should allways be False. It's only for developing! 
+SQL_DEBUG = False
 
 #______________________________________________________________________________
 # DATABASE SETUP
@@ -261,6 +265,7 @@ SITE_TEMPLATE_PREFIX = 'site_template/'
 
 # The PyLucid install instrucion page:
 INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
+
 
 
 
