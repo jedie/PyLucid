@@ -24,7 +24,7 @@ pkg_resources.require('python-creole >= 0.2.4')
 
 
 # http://code.google.com/p/django-reversion/
-pkg_resources.require('django-reversion >= 1.2')
+pkg_resources.require('django-reversion >= 1.1.2')
 
 # http://code.google.com/p/django-dbtemplates/
 pkg_resources.require('django-dbtemplates >= 0.5.8')
