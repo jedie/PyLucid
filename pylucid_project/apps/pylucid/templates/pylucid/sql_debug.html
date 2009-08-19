@@ -38,7 +38,7 @@
 <table id="sql_debug">
 {% for query in queries %}
 {% if query.pformat %}
-    <tr><th colspan="4">sql</th></tr>
+    <tr><th colspan="4">sql - execution time: {{ query.time}}sec.</th></tr>
     <tr class="sql"><td colspan="4">{{ query.pformat|join:"<br/>" }}</td></tr>
     <tr class="stack_title">
         <th>filename</th><th>lineno</th><th>function name</th><th>code</th>
