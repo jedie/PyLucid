@@ -98,7 +98,7 @@ class LogEntry(UpdateInfoBaseModel):
     on_site = CurrentSiteManager()
 
     # Data from request.META
-    remote_addr = models.IPAddressField(_('Remote IP Address'), blank=True, null=True,
+    remote_addr = models.IPAddressField(_('Remote IP Address'), blank=True, null=True, db_index=True,
         help_text="The IP address of the client. From request.META['REMOTE_ADDR']"
     )
     remote_user = models.CharField(_('Remote User'), max_length=255, blank=True, null=True,
@@ -130,10 +130,10 @@ class LogEntry(UpdateInfoBaseModel):
     )
 
     # Log information:
-    app_label = models.CharField(_('App Label'), max_length=255,
+    app_label = models.CharField(_('App Label'), max_length=255, db_index=True,
         help_text="The App name witch has created this log entry."
     )
-    action = models.CharField(_('Action'), max_length=128,
+    action = models.CharField(_('Action'), max_length=128, db_index=True,
         help_text="Short action key. (e.g.: 'do search', 'login')"
     )
     message = models.CharField(_('Message'), max_length=255, blank=True, null=True,

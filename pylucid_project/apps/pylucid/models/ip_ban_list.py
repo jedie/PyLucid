@@ -5,8 +5,6 @@
     ~~~~~~~~~~~~~~~~~~~~
     
     A simple model witch contains IP addresses with a timestamp.
-    Every existing IP address would be banned in:
-        pylucid_project.middlewares.ip_ban.IPBanMiddleware
         
     e.g. usage in plugins:
     --------------------------------------------------------------------------
@@ -67,16 +65,16 @@ class BanEntryManager(models.Manager):
 
 class BanEntry(models.Model):
     """
-    We don't use auto_now_add because we want datetime.utcnow() and not datetime.now()!
+    IP Address in this model would be banned in:
+        pylucid_project.middlewares.ip_ban.IPBanMiddleware
+    The middleware also remove IP after some times with BanEntry.objects.cleanup()
     """
     objects = BanEntryManager()
 
-    createtime = models.DateTimeField(default=datetime.datetime.utcnow,
-        help_text="Create time (datetime is UTC)"
-    )
     ip_address = models.IPAddressField(_('Remote IP Address'),
-        help_text="Ban this IP address."
+        primary_key=True, help_text="This IP address will be banned."
     )
+    createtime = models.DateTimeField(auto_now_add=True, help_text="Create time")
 
     def __unicode__(self):
         return u"BanEntry %s %s" % (self.ip_address, self.createtime)

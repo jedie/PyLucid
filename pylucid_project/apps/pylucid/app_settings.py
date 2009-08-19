@@ -45,3 +45,9 @@ SEARCH_VIEWNAME = "get_search_results"
 # plugin update hook
 UPDATE08_PLUGIN_FILENAME = "update"
 UPDATE08_PLUGIN_VIEWNAME = "update08"
+
+# Number of seconds after the IP ban cleanup method would be called.
+# This removed the outdated IPs from the ban list.
+# You can setup how long a IP address banned in:
+# Dbpreferences / pylucid / SystemPreferencesForm / ban_release_time - 
+CLEANUP_IP_BAN = 60

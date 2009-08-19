@@ -19,12 +19,12 @@ forbidden_response = http.HttpResponseForbidden(
 
 sys_pref_form = SystemPreferencesForm()
 sys_pref = sys_pref_form.get_preferences()
-ban_release_time = sys_pref.get("ban_release_time", 10)
+ban_release_time = sys_pref["ban_release_time"]
 ban_release_timedelta = datetime.timedelta(minutes=ban_release_time)
 
 class IPBanMiddleware(object):
     def __init__(self):
-        self.cleanup_ip_ban = getattr(settings.PYLUCID, "cleanup_ip_ban", 10)
+        self.cleanup_ip_ban = settings.PYLUCID.CLEANUP_IP_BAN
         self.next_check = 0 # Check the first call
 
     def process_request(self, request):

@@ -25,7 +25,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     lang_code = forms.ChoiceField(
         choices=Language.objects.values_list('code', 'description'),
         initial=Language.objects.all()[0].code,
-        help_text=_("Default language")
+        help_text=_("The default system language")
     )
     ban_release_time = forms.IntegerField(
         help_text=_("How long should a IP address banned in minutes. (Changes need app restart)"),
