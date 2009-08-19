@@ -171,7 +171,7 @@ class TreeGenerator(object):
         """ Attach related objects from a queryset """
         lookup_kwargs = {"%s__in" % field: ids}
         #print "lookup_kwargs:", lookup_kwargs
-        related_objects = queryset.filter(**lookup_kwargs)
+        related_objects = queryset.filter(**lookup_kwargs).select_related()
         #print "related objects:", related_objects
 
         # Attach objects to the related node
