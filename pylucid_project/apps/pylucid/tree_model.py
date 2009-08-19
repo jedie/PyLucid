@@ -35,9 +35,9 @@ from django.db import models
 
 
 class MenuNode(object):
-    def __init__(self, id, db_instance=None, parent=None):
+    def __init__(self, id, data=None, parent=None):
         self.id = id
-        self.db_instance = db_instance
+        self.data = data
         self.parent = parent
         self.subnodes = []
         self.active = False  # the complete path back to root
@@ -71,14 +71,14 @@ class MenuNode(object):
     def __repr__(self):
         if self.id == None:
             return "Root MenuNode object"
-        return repr(self.db_instance)
+        return repr(self.data)
 
 
 
 
 
 class TreeGenerator(object):
-    def __init__(self, queryset, skip_no_parent=False):
+    def __init__(self, items, skip_no_parent=False):
         """
         Load the tree with all queryset items.
         Use skip_no_parent if the tree has "holes": e.g.: Filtered not accessible items.
@@ -86,20 +86,16 @@ class TreeGenerator(object):
         self.related_objects = [] # List of added related objects
 
         # Create a dict with all pages as nodes
-        self.nodes = dict((n.id, MenuNode(n.id, n))
-                          for n in queryset)
+        self.nodes = dict((n["id"], MenuNode(n["id"], n))
+                          for n in items)
 
         # Create the root node
         self.root = MenuNode(id=None)
         self.nodes[None] = self.root
 
         # built the node tree
-        for node_data in queryset:
-            if node_data.parent:
-                parent_id = node_data.parent.id
-            else:
-                parent_id = None
-
+        for node_data in items:
+            parent_id = node_data["parent"]
             try:
                 parent = self.nodes[parent_id]
             except KeyError:
@@ -109,7 +105,7 @@ class TreeGenerator(object):
                 else:
                     raise
 
-            parent.add(self.nodes[node_data.id])
+            parent.add(self.nodes[node_data["id"]])
 
         # add level number to all nodes
         self.setup_level()

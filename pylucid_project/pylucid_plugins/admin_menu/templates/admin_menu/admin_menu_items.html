@@ -1,6 +1,6 @@
 {% for node in nodes %}
 <li>
-    <a href="{{ node.db_instance.get_absolute_url }}" title="{{ node.db_instance.title }}">{{ node.db_instance.name }}</a>
+    <a href="{{ node.data.absolute_url }}" title="{{ node.data.title }}">{{ node.data.name }}</a>
     {% with "admin_menu/admin_menu_items.html" as filename %}
     {% with node.subnodes as nodes %}
        {% if nodes %}<ul>

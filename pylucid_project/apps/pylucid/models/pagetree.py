@@ -91,7 +91,8 @@ class PageTreeManager(BaseModelManager):
             queryset = queryset.filter(showlinks=True)
 
         queryset = queryset.order_by("position")
-        tree = TreeGenerator(queryset, skip_no_parent=True)
+        items = queryset.values("id", "parent")
+        tree = TreeGenerator(items, skip_no_parent=True)
         return tree
 
     def get_choices(self, user=None):

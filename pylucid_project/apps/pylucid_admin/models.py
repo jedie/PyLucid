@@ -1,6 +1,7 @@
 # coding:utf-8
 
 from django.db import models
+from django.core.cache import cache
 from django.core import urlresolvers
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
@@ -15,7 +16,7 @@ from pylucid.models.base_models import UpdateInfoBaseModel
 class PyLucidAdminManager(TreeManager):
     def get_tree_for_user(self, user):
         filtered_items = self.get_for_user(user)
-        tree = TreeGenerator(data)
+        tree = TreeGenerator(filtered_items)
         return tree
 
     def get_for_user(self, user):
@@ -23,7 +24,7 @@ class PyLucidAdminManager(TreeManager):
         returns only the menu items, for which the user has the rights.
         TODO: Filter menu sections, too. (If there is no sub items, remove the section)
         """
-        all_items = self.all()
+        all_items = self.all().order_by("position")
         filtered_items = []
         for item in all_items:
             superuser_only, access_permissions = item.get_permissions()
@@ -32,7 +33,13 @@ class PyLucidAdminManager(TreeManager):
             if not user.has_perms(access_permissions):
                 continue
 
-            filtered_items.append(item)
+            filtered_items.append({
+                "id": item.id,
+                "parent": getattr(item.parent, "id", None),
+                "absolute_url": item.get_absolute_url(),
+                "name": item.name,
+                "title": item.title,
+            })
 
         return filtered_items
 
@@ -96,6 +103,17 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         superuser_only = view_func.superuser_only
 
         return (superuser_only, access_permissions)
+
+    def save(self, *args, **kwargs):
+        """
+        After change, deletes panel_extra from cache.
+        cache filled in pylucid_plugins.admin_menu.views.panel_extras()
+        """
+        for user_id in User.objects.values_list('id', flat=True):
+            cache_key = "panel_extras_%s" % user_id
+            cache.delete(cache_key)
+
+        return super(PyLucidAdminPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u"PyLucidAdminPage %r (%r)" % (self.name, self.get_absolute_url())
