@@ -267,7 +267,9 @@ SITE_TEMPLATE_PREFIX = 'site_template/'
 INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
 
 
-
+# use Django cache in dbtemplates.
+# see: http://api.rst2a.com/1.0/rst2/html?uri=http%3A//bitbucket.org/jezdez/django-dbtemplates/raw/tip/docs/overview.txt#caching
+DBTEMPLATES_CACHE_BACKEND = "dbtemplates.cache.DjangoCacheBackend"
 
 
 try:
