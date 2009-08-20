@@ -226,7 +226,9 @@ def _search(request, cleaned_data):
     ban_limit = preferences["ban_limit"]
 
     timedelta = datetime.timedelta(seconds=min_pause)
-    last_actions = LogEntry.objects.last_remote_addr_actions(request, timedelta).count()
+    queryset = LogEntry.objects.last_remote_addr_actions(request, timedelta)
+    queryset = queryset.filter(app_label="search")
+    last_actions = queryset.count()
 
     if last_actions >= ban_limit:
         msg = "Add ban entry, because %s searches started in the last %ssec." % (last_actions, min_pause)
