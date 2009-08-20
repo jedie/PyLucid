@@ -18,7 +18,7 @@ forbidden_response = http.HttpResponseForbidden(
 
 sys_pref_form = SystemPreferencesForm()
 sys_pref = sys_pref_form.get_preferences()
-ban_release_time = sys_pref["ban_release_time"]
+ban_release_time = sys_pref.get("ban_release_time", 15)
 ban_release_timedelta = datetime.timedelta(minutes=ban_release_time)
 
 class IPBanMiddleware(object):
