@@ -23,14 +23,11 @@ from django.contrib.sites.models import Site
 from django_tools.utils import installed_apps_utils
 from django_tools import model_utils
 
-from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid.shortcuts import failsafe_message
-from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 from pylucid_project.pylucid_plugins import update_journal
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
-# other PyLucid models
-from language import Language
-from pagemeta import PageMeta
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
@@ -100,6 +97,10 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
     )
 
     def get_pagemeta(self):
+        # import here against import loops
+        from language import Language
+        from pagemeta import PageMeta
+
         lang_entry = Language.objects.get_current_lang_entry()
         try:
             return self.pagemeta.get(lang=lang_entry)

@@ -7,7 +7,6 @@ from django import http
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
-from pylucid.models import BanEntry
 from pylucid.preference_forms import SystemPreferencesForm
 
 
@@ -28,6 +27,8 @@ class IPBanMiddleware(object):
         self.next_check = 0 # Check the first call
 
     def process_request(self, request):
+        from pylucid.models import BanEntry # FIXME: against import loops.
+
         remote_addr = request.META["REMOTE_ADDR"]
         should_ban = BanEntry.objects.filter(ip_address=remote_addr).count()
         if should_ban > 0:
