@@ -247,15 +247,5 @@ except Exception, e:
     print "If not, follow the instruction here:"
     print settings.INSTALL_HELP_URL
     print
-    print "Note:"
-    print "If you will go into the _install section, you must temporaly"
-    print "deactivate some middlewares in your settings.py:"
-    print
-    print "Edit the MIDDLEWARE_CLASSES data and deactivate:"
-    print " - django.contrib.sessions.middleware.SessionMiddleware"
-    print " - django.contrib.auth.middleware.AuthenticationMiddleware"
-    print
-    print "After 'syncdb' the needed tables created and you must activate the"
-    print "middleware classes!"
 
     traceback_end()
