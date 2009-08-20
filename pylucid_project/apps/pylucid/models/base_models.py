@@ -120,15 +120,11 @@ class UpdateInfoBaseModel(models.Model):
     Base model with update info attributes, used by many models.
     The createby and lastupdateby ForeignKey would be automaticly updated. This needs the 
     request object as the first argument in the save method.
-    
-    We don't use auto_now_add and auto_now, because we want datetime.utcnow() and not datetime.now()!
     """
     objects = models.Manager()
 
-    createtime = models.DateTimeField(default=datetime.datetime.utcnow,
-        help_text="Create time (datetime is UTC)"
-    )
-    lastupdatetime = models.DateTimeField(help_text="Time of the last change. (datetime is UTC)")
+    createtime = models.DateTimeField(auto_now_add=True, help_text="Create time")
+    lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.")
 
     createby = models.ForeignKey(User, editable=False, related_name="%(class)s_createby",
         null=True, blank=True, # <- If the model used outsite a real request (e.g. unittest, db shell)
@@ -148,8 +144,6 @@ class UpdateInfoBaseModel(models.Model):
             if self.pk == None or kwargs.get("force_insert", False): # New model entry
                 self.createby = current_user
             self.lastupdateby = current_user
-
-        self.lastupdatetime = datetime.datetime.utcnow()
 
         return super(UpdateInfoBaseModel, self).save(*args, **kwargs)
 
