@@ -1,17 +1,8 @@
 # coding:utf-8
 
-from django import forms, http
-from django.db import transaction
-from django.core import urlresolvers
-from django.template import RequestContext
-from django.contrib.sites.models import Site
-from django.shortcuts import render_to_response
-from django.contrib.auth.models import User, Group
+from django import http
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.utils.form_utils import make_kwargs
-
-from pylucid.models import PageTree, PageMeta, PageContent, Design, Language, PluginPage
 from pylucid.preference_forms import SystemPreferencesForm
 from pylucid.decorators import check_permissions, render_to
 
@@ -41,17 +32,26 @@ def install(request):
 @render_to("lexicon/new_entry.html")
 def new_entry(request):
     """ create a new lexicon entry """
+
+    user_profile = request.user.get_profile()
+    # All accessible sites from the current user:
+    user_site_ids = user_profile.sites.values_list("id", "name")
+    m2m_limit = {"sites": user_site_ids}
+
     if request.method == "POST":
-        form = LexiconEntryForm(request.POST)
+        request.page_msg(request.POST)
+        form = LexiconEntryForm(m2m_limit, request.POST)
         if form.is_valid():
             instance = form.save()
-            request.page_msg("Lexicon entry '%s' saved." % instance.term)
+            request.page_msg(_("Lexicon entry '%s' saved.") % instance.term)
             return http.HttpResponseRedirect(instance.get_absolute_url())
     else:
-        form = LexiconEntryForm()
+        # preselect all accessable sites
+        initial = {"sites": [i[0] for i in user_site_ids]}
+        form = LexiconEntryForm(m2m_limit, initial=initial)
 
     context = {
-        "title": "Create a new lexicon entry",
+        "title": _("Create a new lexicon entry"),
         "form_url": request.path,
         "form": form,
     }

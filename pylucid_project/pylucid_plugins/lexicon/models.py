@@ -15,27 +15,21 @@
 """
 
 from django.db import models
-from django.contrib import admin
 from django.core import urlresolvers
 from django.db.models import signals
-from django.utils.html import strip_tags
-from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
-from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.sites.managers import CurrentSiteManager
 
 # http://code.google.com/p/django-tagging/
-import tagging
+#import tagging
 from tagging.fields import TagField
 
-from pylucid_plugins import update_journal
+from pylucid_project.pylucid_plugins import update_journal
 
 from pylucid.shortcuts import failsafe_message
-from pylucid.models import PageContent, Language, PluginPage
 from pylucid.markup.converter import apply_markup
-from pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid.models import PageContent, Language, PluginPage
+from pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
 #from PyLucid.models import Page
 
@@ -48,13 +42,20 @@ class Links(UpdateInfoBaseModel):
     title = models.CharField(_('Title'), help_text=_("Url title"), max_length=255)
     entrie = models.ForeignKey("LexiconEntry")
 
-class LexiconEntry(UpdateInfoBaseModel):
+class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
     """
-    A blog entry
-    """
-    site = models.ForeignKey(Site, default=Site.objects.get_current)
-    on_site = CurrentSiteManager()
+    A lexicon entry.
 
+    inherited attributes from AutoSiteM2M:
+        sites   -> ManyToManyField to Site
+        on_site -> sites.managers.CurrentSiteManager instance
+
+    inherited attributes from UpdateInfoBaseModel:
+        createtime     -> datetime of creation
+        lastupdatetime -> datetime of the last change
+        createby       -> ForeignKey to user who creaded this entry
+        lastupdateby   -> ForeignKey to user who has edited this entry
+    """
     term = models.CharField(_('Term'), help_text=_("Term in primitive form"), max_length=255)
     lang = models.ForeignKey(Language)
     alias = TagField(# from django-tagging
@@ -118,6 +119,7 @@ class LexiconEntry(UpdateInfoBaseModel):
         return self.term
 
     class Meta:
+        unique_together = (("lang", "term"),)
         ordering = ('term',)
 
 

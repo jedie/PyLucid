@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
     PyLucid lexicon forms
@@ -17,17 +17,17 @@
 """
 
 from django import forms
-from django.utils.translation import ugettext as _
 
-import tagging # http://code.google.com/p/django-tagging/
+# http://code.google.com/p/django-tools/
+from django_tools.forms_utils import LimitManyToManyFields
 
 from lexicon.models import LexiconEntry
 
 
-class LexiconEntryForm(forms.ModelForm):
+class LexiconEntryForm(LimitManyToManyFields, forms.ModelForm):
     """
     Form for create/edit a lexicon entry.
+    The ManyToMany field "sites" from Model would be limited with LimitManyToManyFields
     """
     class Meta:
         model = LexiconEntry
-        exclude = ("site",)

@@ -2,9 +2,6 @@
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
-{% if not sites|length_is:"1" %}
-    <p><small>(The new lexicon entry will be create on site: '<strong>{{ current_site }}</strong>'.)</small></p>
-{% endif %}
 <ul id="action_buttons">
     <li>
         <input type="submit" name="save" value="{% trans 'save' %}" />
