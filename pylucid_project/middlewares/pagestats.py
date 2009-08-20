@@ -44,6 +44,7 @@ from django_tools.template.filters import human_duration
 
 from pylucid_project.middlewares.utils import replace_content, cut_filename
 
+
 # Save the start time of the current running python instance
 start_overall = time.time()
 
@@ -68,17 +69,14 @@ class SqlLoggingList(list):
         return sql.split('`')
 
     def append(self, query):
-
         query["pformat"] = self._pformat_sql(query)
 
         stack_list = inspect.stack()[1:]
-        # go forward in the stack, to outside of this file.
         for no, stack_line in enumerate(stack_list):
             filename = stack_line[1]
-#            print filename
             if "pylucid" in filename or "pylucid_project" in filename:
                 break
-#
+
         stack_list = stack_list[no:no + STACK_LIMIT] # limit the displayed stack info
 
         stack_info = []
