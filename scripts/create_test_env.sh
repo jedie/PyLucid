@@ -60,7 +60,7 @@ if [ -f ${PYLUCID_ENV}/src/pylucid/scripts/manage.sh ]
     echo You can make this:
     echo
     echo Go into virtual environment:
-    echo   cd ${PYLUCID_ENV}
+    echo   cd ../${PYLUCID_ENV}/
     echo
     echo create tables:
     echo   ./manage.sh syncdb
