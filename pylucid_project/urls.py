@@ -23,6 +23,11 @@ from django.contrib import admin
 from pylucid_admin.admin_site import pylucid_admin_site
 
 
+# TODO: Use own error views?
+handler500 = "django.views.defaults.server_error"
+handler404 = "django.views.defaults.page_not_found"
+
+
 admin.autodiscover()
 
 

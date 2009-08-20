@@ -1,0 +1,16 @@
+{% extends "PyLucid_base.html" %}
+{% load i18n %}
+
+{% block title %}PyLucid - {% trans 'Page not found' %}{% endblock %}
+
+{% block base_content %}
+<h2>404 {% trans 'Page not found' %}</h2>
+<pre>{{ request.META.PATH_INFO }}</pre>
+<p>{% trans "We're sorry, but the requested page could not be found." %}</p>
+<a href="/" title="{% trans 'goto your PyLucid CMS page' %}">&#xAB; back to {{ request.META.HTTP_HOST }}</a>
+{% endblock %}
+
+{% block base_footer %}
+<hr />
+{{ request.META.SERVER_SIGNATURE }}
+{% endblock %}
