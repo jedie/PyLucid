@@ -21,7 +21,7 @@ from pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid.shortcuts import failsafe_message
 from pylucid.fields import ColorValueField
 
-from pylucid_plugins import update_journal
+from pylucid_project.pylucid_plugins import update_journal
 
 
 

@@ -23,7 +23,7 @@ from django_tools.middlewares import ThreadLocal
 
 from pylucid.shortcuts import failsafe_message
 
-from pylucid_plugins import update_journal
+from pylucid_project.pylucid_plugins import update_journal
 
 
 TAG_INPUT_HELP_URL = \

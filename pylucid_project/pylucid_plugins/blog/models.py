@@ -32,7 +32,7 @@ from django.contrib.sites.managers import CurrentSiteManager
 import tagging
 from tagging.fields import TagField
 
-from pylucid_plugins import update_journal
+from pylucid_project.pylucid_plugins import update_journal
 
 from pylucid.shortcuts import failsafe_message
 from pylucid.models import PageContent, Language, PluginPage

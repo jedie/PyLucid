@@ -6,7 +6,7 @@ from django.contrib.comments.models import Comment
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.comments.signals import comment_was_posted
 
-from pylucid_plugins import update_journal
+from pylucid_project.pylucid_plugins import update_journal
 
 
 class PyLucidComment(Comment):

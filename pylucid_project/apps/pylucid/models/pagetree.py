@@ -29,12 +29,7 @@ from django_tools import model_utils
 from pylucid.tree_model import BaseTreeModel, TreeGenerator
 from pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel
 
-from pylucid_plugins import update_journal
-
-# Other PyLucid models
-from design import Design
-from pagemeta import PageMeta
-from pagecontent import PageContent
+from pylucid_project.pylucid_plugins import update_journal
 
 
 TAG_INPUT_HELP_URL = \
@@ -104,22 +99,6 @@ class PageTreeManager(BaseModelManager):
         ]
         return choices
 
-
-#    def easy_create(self, cleaned_form_data, page_type):
-#        """
-#        Creating a new PageTree entry with cleaned form data witch can hold more data than for
-#        this model
-#        """
-#        pagetree_kwargs = form_utils.make_kwargs(
-#            cleaned_form_data, keys=PageTree._meta.get_all_field_names()
-#        )
-#        assert page_type in PageTree.TYPE_DICT
-#        pagetree_kwargs["type"] = page_type
-#
-#        pagetree_instance = PageTree(**pagetree_kwargs)
-#        pagetree_instance.save()
-#        return pagetree_instance
-
     def get_root_page(self, user, filter_parent=True):
         """ returns the 'first' root page tree entry witch the user can access """
         queryset = self.all_accessible(user)
@@ -143,14 +122,16 @@ class PageTreeManager(BaseModelManager):
             else:
                 raise
 
-    def get_model_instance(self, request, ModelClass, pagetree=None, show_lang_info=True):
+    def get_pagemeta(self, request, pagetree, show_lang_errors=True):
         """
-        Shared function for getting a model instance from the given model witch has
-        a foreignkey to PageTree and Language model.
-        Use the current language or the system default language.
-        If pagetree==None: Use request.PYLUCID.pagetree
-        If show_lang_info: Create a page_msg if requested item doesn't exist in client favored language.
+        retuns the PageMeta instance witch associated to the given >pagetree< instance.
+        Used first the current client favored language. If not exist use the system default language.
+            
+        If show_lang_errors==True:
+            create a page_msg if PageMeta doesn't exist in client favored language.
         """
+        from pagemeta import PageMeta # against import loops.
+
         # client favored Language instance:
         lang_entry = request.PYLUCID.lang_entry
         # default Language instance set in system preferences:
@@ -159,52 +140,30 @@ class PageTreeManager(BaseModelManager):
         lang_entry = request.PYLUCID.lang_entry
         default_lang_entry = request.PYLUCID.default_lang_entry
 
-        if not pagetree:
-            # current pagetree instance
-            pagetree = request.PYLUCID.pagetree
-
-        queryset = ModelClass.objects.all().filter(page=pagetree)
+        queryset = PageMeta.objects.filter(page=pagetree)
         try:
             # Try to get the current used language
             return queryset.get(lang=lang_entry)
-        except ModelClass.DoesNotExist:
+        except PageMeta.DoesNotExist:
             # Get the PageContent entry in the system default language
             try:
                 instance = queryset.get(lang=default_lang_entry)
-            except ModelClass.DoesNotExist, err:
+            except PageMeta.DoesNotExist, err:
                 msg = (
-                    "%r doesn't exist for %r in client favored language %r"
+                    "PageMeta doesn't exist for %r in client favored language %r"
                     " and not in system default language %r!"
                     " Original Error was: %s"
-                ) % (ModelClass, pagetree, lang_entry, default_lang_entry, err)
-                raise ModelClass.DoesNotExist(msg)
+                ) % (pagetree, lang_entry, default_lang_entry, err)
+                raise PageMeta.DoesNotExist(msg)
 
-            if show_lang_info and (settings.DEBUG or settings.PYLUCID.I18N_DEBUG):
+            if show_lang_errors:
                 request.page_msg.error(
-                    "Page '%s' doesn't exist in client favored language '%s', use '%s' entry." % (
+                    "PageMeta '%s' doesn't exist in client favored language '%s', use '%s' entry." % (
                         pagetree.slug, lang_entry.code, instance.lang.code
                     )
                 )
             return instance
 
-
-    def get_pagemeta(self, request, pagetree=None, show_lang_info=False):
-        """
-        Returns the PageMeta instance for pagetree and language.
-        If there is no PageMeta in the current language, use the system default language.
-        If pagetree==None: Use request.PYLUCID.pagetree
-        """
-        return self.get_model_instance(request, PageMeta, pagetree, show_lang_info)
-
-    def get_pagecontent(self, request, pagetree=None, show_lang_info=False):
-        """
-        Returns the PageContent instance for pagetree and language.
-        If there is no PageContent in the current language, use the system default language.
-        If pagetree==None: Use request.PYLUCID.pagetree
-        """
-        pagemeta = self.get_model_instance(request, PageMeta, pagetree, show_lang_info)
-        pagecontent = PageContent.objects.get(pagemeta=pagemeta)
-        return pagecontent
 
     def get_page_from_url(self, request, url_path):
         """
@@ -260,7 +219,7 @@ class PageTreeManager(BaseModelManager):
         if pagetree == None:
             pagetree = request.PYLUCID.pagetree
 
-        pagemeta = self.get_pagemeta(request, pagetree)
+        pagemeta = self.get_pagemeta(request, pagetree, show_lang_errors=False)
         url = pagemeta.get_absolute_url()
         page_name = pagemeta.get_name()
         page_title = pagemeta.get_title()
@@ -307,7 +266,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
 
     page_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
-    design = models.ForeignKey(Design, help_text="Page Template, CSS/JS files")
+    design = models.ForeignKey("Design", help_text="Page Template, CSS/JS files")
 
     showlinks = models.BooleanField(default=True,
         help_text="Accessable for all users, but don't put a Link to this page into menu/sitemap etc."

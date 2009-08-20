@@ -17,7 +17,7 @@
 from django.db import models
 
 from pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
-from pylucid_plugins import update_journal
+from pylucid_project.pylucid_plugins import update_journal
 
 # other PyLucid models
 from colorscheme import ColorScheme

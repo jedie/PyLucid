@@ -26,15 +26,16 @@ def _get_page_content(request):
     ...try in default language set in the system preferences, if not exist...
     ...raise http.Http404()
     """
-    # current pagetree instance:
-    pagetree = request.PYLUCID.pagetree
+    pagetree = request.PYLUCID.pagetree # current PageTree instance
+    pagemeta = request.PYLUCID.pagemeta # current PageMeta instance
+
     # client favored Language instance:
     lang_entry = request.PYLUCID.lang_entry
     # default Language instance set in system preferences:
     default_lang_entry = request.PYLUCID.default_lang_entry
 
     try:
-        pagecontent = PageTree.objects.get_pagecontent(request, show_lang_info=True)
+        pagecontent = PageContent.objects.get(pagemeta=pagemeta)
     except PageContent.DoesNotExist, err:
         raise http.Http404(
             "Page '%s' does not exist in default language '%s'.\n"
@@ -63,7 +64,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
 
     # Get the pagemeta instance for the current pagetree and language
     try:
-        pagemeta = PageTree.objects.get_pagemeta(request)
+        pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=True)
     except PageMeta.DoesNotExist, err:
         # Note: This should normaly never happen. Because all PageMeta must exist at least in system
         # default language. Also: The main_manu doesn't show links to not existing PageMeta entries!
@@ -165,13 +166,11 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
 
     # Render django tags in PageContent with the global context
     pagecontent_html = render.render_string_template(raw_html_content, context)
-    print "replace page_content with html version"
     context["page_content"] = pagecontent_html
 
     pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
     # Render django tags in global template with global context
-    print "render template"
     complete_page = render.render_string_template(page_template, context)
 
     # create response object
