@@ -298,6 +298,8 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
 
     def save(self, *args, **kwargs):
         """ reset PageMeta and PageTree url cache """
+        from pagemeta import PageMeta # against import loops.
+
         self._url_cache.clear()
         PageMeta._url_cache.clear()
         return super(PageTree, self).save(*args, **kwargs)
