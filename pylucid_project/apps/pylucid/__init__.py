@@ -2,6 +2,7 @@
 
 """
     Check some external libs with pkg_resources.require()
+    We only create warnings on VersionConflict and DistributionNotFound exceptions.
     
     See also: ./scripts/requirements/external_apps.txt
     See also: ./scripts/requirements/libs.txt
@@ -10,24 +11,42 @@
     http://peak.telecommunity.com/DevCenter/PkgResources#requirement-objects
 """
 
+import warnings
 
 import pkg_resources
 
-# http://code.google.com/p/django-dbpreferences
-pkg_resources.require('django-dbpreferences >= 0.3.1beta')
+def check_require(requirements):
+    """
+    Check a package list.
+    Display only warnings on VersionConflict and DistributionNotFound exceptions.
+    """
+    for requirement in requirements:
+        try:
+            pkg_resources.require(requirement)
+        except pkg_resources.VersionConflict, err:
+            warnings.warn("Version conflict: %s" % err)
+        except pkg_resources.DistributionNotFound, err:
+            warnings.warn("Distribution not found: %s" % err)
 
-# http://code.google.com/p/django-tools/
-pkg_resources.require('django-tools >= 0.5.0beta')
 
-# http://code.google.com/p/python-creole/
-pkg_resources.require('python-creole >= 0.2.4')
+requirements = (
+    # http://code.google.com/p/django-dbpreferences
+    "django-dbpreferences >= 0.3.1beta",
 
+    # http://code.google.com/p/django-tools/
+    "django-tools >= 0.6.0beta",
 
-# http://code.google.com/p/django-reversion/
-pkg_resources.require('django-reversion >= 1.1.2')
+    # http://code.google.com/p/python-creole/
+    "python-creole >= 0.2.4",
 
-# http://code.google.com/p/django-dbtemplates/
-pkg_resources.require('django-dbtemplates >= 0.5.8')
+    # http://code.google.com/p/django-reversion/
+    "django-reversion >= 1.1.2",
 
-# http://code.google.com/p/django-tagging/
-pkg_resources.require('tagging >= 0.3-pre')
+    # http://code.google.com/p/django-dbtemplates/
+    "django-dbtemplates >= 0.5.8",
+
+    # http://code.google.com/p/django-tagging/
+    "tagging >= 0.3-pre",
+)
+
+check_require(requirements)
