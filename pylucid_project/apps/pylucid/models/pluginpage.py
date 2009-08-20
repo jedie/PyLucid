@@ -15,6 +15,8 @@
 """
 
 from django.db import models
+from django.conf import settings
+from django.core import urlresolvers
 from django.contrib.sites.models import Site
 
 # http://code.google.com/p/django-tools/
@@ -24,7 +26,7 @@ from django_tools import model_utils
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid.shortcuts import failsafe_message
 from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
-from pylucid_plugins import update_journal
+from pylucid_project.pylucid_plugins import update_journal
 
 # other PyLucid models
 from language import Language
@@ -62,9 +64,11 @@ class PluginPageManager(BaseModelManager):
         queryset = queryset.filter(app_label=app_label)
         try:
             plugin_page = queryset[0]
-        except KeyError:
-            failsafe_message("Can't get a PluginPage for plugin %r, please create one." % plugin_name)
-            raise
+        except (IndexError, KeyError):
+            msg = "Can't get a PluginPage for plugin %r, please create one." % plugin_name
+            if settings.DEBUG:
+                failsafe_message(msg)
+            raise urlresolvers.NoReverseMatch(msg)
 
         url_prefix = plugin_page.get_absolute_url()
         plugin_url_resolver = plugin_instance.get_plugin_url_resolver(url_prefix, plugin_page.urls_filename)
