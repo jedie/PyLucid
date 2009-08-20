@@ -174,7 +174,7 @@ def create_superuser():
     from django.contrib.auth.models import User
 
     username = "admin"
-    password = "admin"
+    password = "12345678"
     email = "test@test.org"
 
     defaults = {'password':password, 'email':email}
@@ -186,7 +186,9 @@ def create_superuser():
     user.is_staff = True
     user.is_superuser = True
     user.save()
-    print "<p>Superuser %s with password %s created." % (username, password)
+    print "<p>Superuser <strong>%s</strong> with password <strong>%s</strong> created." % (
+        username, password
+    )
 
 
 
