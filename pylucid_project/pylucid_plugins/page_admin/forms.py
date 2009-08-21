@@ -42,7 +42,14 @@ class PageTreeForm(forms.ModelForm):
 
         slug = cleaned_data["slug"]
         parent = cleaned_data["parent"]
-        exists = PageTree.on_site.all().filter(slug=slug, parent=parent).count()
+        queryset = PageTree.on_site.all().filter(slug=slug, parent=parent)
+
+        # Exclude the current object from the query if we are editing an
+        # instance (as opposed to creating a new one)
+        if self.instance.pk is not None:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        exists = queryset.count()
         if exists:
             if parent == None: # parent is the tree root
                 parent_url = "/"

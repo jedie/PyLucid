@@ -17,7 +17,7 @@
 <fieldset><legend>PluginPage</legend>
     <div class="helper_buttons">
         <input type="submit" name="save" value="{% trans 'save' %}" />
-        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
+        <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
      </div>
     
     {% with pluginpage_form as form %}
@@ -36,7 +36,7 @@
 
     <div class="helper_buttons">
         <input type="submit" name="save" value="{% trans 'save' %}" />
-        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
+        <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
      </div>
      
 </form>

@@ -5,11 +5,13 @@ from django.conf import settings
 from django.db import transaction
 from django.core import urlresolvers
 from django.template import RequestContext
+from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
+
 
 from pylucid_project.utils.form_utils import make_kwargs
 
@@ -119,6 +121,7 @@ def new_content_page(request):
         "title": "Create a new page",
         "default_lang_entry": request.PYLUCID.default_lang_entry,
         "form_url": request.path,
+        "abort_url": "#FIXME",
         "has_errors": request.method == "POST", # At least one form has errors.
     }
 
@@ -249,6 +252,126 @@ def new_plugin_page(request):
     context = {
         "title": "Create a new plugin page",
         "form_url": request.path,
+        "abort_url": "#FIXME",
+
+        "all_forms": all_forms, # For display the form error list from all existing forms.
+        "has_errors": request.method == "POST", # At least one form has errors.
+        # The forms:
+        "pluginpage_form": pluginpage_form,
+        "pagetree_form": pagetree_form,
+        "pagemeta_formset": pagemeta_formset,
+    }
+    return context
+
+
+def _edit_content_page(request, context, pagetree):
+    """ edit a PageContent """
+    default_lang_entry = request.PYLUCID.default_lang_entry
+    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=True)
+    pagecontent = PageContent.objects.get(pagemeta=pagemeta)
+
+    if request.method != "POST":
+        pagetree_form = PageTreeForm(instance=pagetree)
+        pagemeta_form = PageMetaForm(instance=pagemeta, prefix=default_lang_entry.code)
+        pagecontent_form = PageContentForm(instance=pagecontent)
+    else:
+        pagetree_form = PageTreeForm(request.POST, instance=pagetree)
+        pagemeta_form = PageMetaForm(request.POST, instance=pagemeta, prefix=default_lang_entry.code)
+        pagecontent_form = PageContentForm(request.POST, instance=pagecontent)
+        if not (pagetree_form.is_valid() and pagemeta_form.is_valid() and pagecontent_form.is_valid()):
+            context["has_errors"] = True
+        else:
+            if "preview" in request.POST:
+                context["preview"] = apply_markup(
+                    pagecontent_form.cleaned_data["content"],
+                    pagecontent_form.cleaned_data["markup"],
+                    request.page_msg, escape_django_tags=True
+                )
+                context["has_errors"] = False
+            else: # All forms are valid and it's not a preview -> Save all.
+                sid = transaction.savepoint()
+                try:
+                    pagetree_form.save()
+                    pagemeta_form.save()
+                    pagecontent_form.save()
+                except:
+                    transaction.savepoint_rollback(sid)
+                    raise
+                else:
+                    transaction.savepoint_commit(sid)
+                    request.page_msg("Content page %r updated." % pagecontent)
+                    return http.HttpResponseRedirect(pagecontent.get_absolute_url())
+
+    # A list of all existing forms -> for form errorlist
+    all_forms = [pagecontent_form, pagemeta_form, pagetree_form]
+
+    context.update({
+        "title": _("Edit a content page"),
+        "template_name": EDIT_CONTENT_TEMPLATE,
+        "abort_url": pagecontent.get_absolute_url(),
+
+        "all_forms": all_forms, # For display the form error list from all existing forms.
+
+        "pagetree_form": pagetree_form,
+        "pagemeta_form":pagemeta_form,
+        "pagecontent_form": pagecontent_form,
+
+        "taglist_url": "#TODO",
+        "pagelinklist_url": "#TODO",
+    })
+    return context
+
+
+def _edit_plugin_page(request, context, pagetree):
+    """ edit a PluginPage entry with PageMeta in all Languages """
+
+    pagemetas = PageMeta.objects.filter(page=pagetree)
+    pluginpage = PluginPage.objects.get(pagemeta=pagemetas[0])
+
+    # Create for every language a own PageMeta model form.
+    pagemeta_formset = []
+    pagemeta_is_valid = True # Needed for check if all forms are valid.
+    for pagemeta in pagemetas:
+        if request.method == "POST":
+            form = PageMetaForm(request.POST, prefix=pagemeta.lang.code, instance=pagemeta)
+            if not form.is_valid():
+                pagemeta_is_valid = False
+        else:
+            form = PageMetaForm(prefix=pagemeta.lang.code, instance=pagemeta)
+        form.lang = pagemeta.lang # for language info in fieldset legend
+        pagemeta_formset.append(form)
+
+    if request.method == "POST":
+        pagetree_form = PageTreeForm(request.POST, instance=pagetree)
+        pluginpage_form = PluginPageForm(request.POST, instance=pluginpage)
+        if pagemeta_is_valid and pagetree_form.is_valid() and pluginpage_form.is_valid():
+            sid = transaction.savepoint()
+            try:
+                pagetree_form.save()
+                pluginpage_form.save()
+
+                # Save all PageMeta entries and attach them to PluginPage
+                new_pluginpage_instance = []
+                for pagemeta_form in pagemeta_formset:
+                    pagemeta_form.save()
+            except:
+                transaction.savepoint_rollback(sid)
+                raise
+            else:
+                transaction.savepoint_commit(sid)
+                request.page_msg("Plugin page %r updated." % pluginpage)
+                return http.HttpResponseRedirect(pluginpage.get_absolute_url())
+    else:
+        pagetree_form = PageTreeForm(instance=pagetree)
+        pluginpage_form = PluginPageForm(instance=pluginpage)
+
+    # A list of all existing forms -> for form errorlist
+    all_forms = pagemeta_formset[:] + [pluginpage_form, pagetree_form]
+
+    context = {
+        "title": _("Edit a plugin page"),
+        "template_name": EDIT_PLUGIN_TEMPLATE,
+        "abort_url": pluginpage.get_absolute_url(),
 
         "all_forms": all_forms, # For display the form error list from all existing forms.
         "has_errors": request.method == "POST", # At least one form has errors.
@@ -268,69 +391,22 @@ def edit_page(request, pagetree_id=None):
     """
     edit a PageContent or a PluginPage.
     """
-    request.page_msg("TODO: Implement the save routine.")
-    request.page_msg("FIXME: Why does the form not fill all existing data, e.g: design, parent fields etc.")
+#    request.page_msg("FIXME: Why does the form not fill all existing data, e.g: design, parent fields etc.")
 
     if not pagetree_id:
         raise
 
     pagetree = PageTree.objects.get(id=pagetree_id)
 
-    context = {}
+    context = {
+        "form_url": request.path,
+    }
 
     is_pluginpage = pagetree.page_type == PageTree.PLUGIN_TYPE
-
     if is_pluginpage:
-        if not request.user.has_perms("pylucid.change_pluginpage"):
-            raise PermissionDenied("You have not the permission to change a plugin page!")
-        Form = PluginPageForm
-        context.update({
-            "title": "Edit plugin page",
-            "template_name": EDIT_PLUGIN_TEMPLATE,
-        })
+#        return _edit_plugin_page(request)
+
+        return _edit_plugin_page(request, context, pagetree)
     else:
-        if not request.user.has_perms("pylucid.change_pagecontent"):
-            raise PermissionDenied("You have not the permission to change a content page!")
-        Form = PageContentForm
-        context.update({
-            "title": "Edit content page",
-            "template_name": EDIT_CONTENT_TEMPLATE,
-        })
+        return _edit_content_page(request, context, pagetree)
 
-    if request.method == "POST":
-        form = Form(request.POST)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            request.page_msg(cleaned_data)
-    else:
-        pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_info=True)
-        form_models = [pagetree, pagemeta]
-        if is_pluginpage:
-            pluginpage = PluginPage.objects.get(page=pagetree)
-            form_models.append(pluginpage)
-        else:
-            pagecontent = PageTree.objects.get_pagecontent(request, pagetree, show_lang_info=True)
-            form_models.append(pagecontent)
-
-        form_base_fields = Form.base_fields.keys()
-        form_data = {}
-        for model in form_models:
-            keys = model._meta.get_all_field_names()
-            for key in keys:
-                if key not in form_base_fields:
-                    continue
-                value = getattr(model, key)
-                #request.page_msg("*", key, value)
-                form_data[key] = value
-
-        form = Form(initial=form_data)
-
-#    from django.forms.models import inlineformset_factory
-#    FormSet = inlineformset_factory(PageTree, PageMeta, extra=1)
-#    form = FormSet(instance=pagetree)
-
-    context.update({
-        "form_url": request.path,
-        "form": form,
-    })
-    return context
