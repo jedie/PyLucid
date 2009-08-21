@@ -53,7 +53,9 @@ pylucid_admin_site.register(models.BanEntry, BanEntryAdmin)
 
 
 class LanguageAdmin(VersionAdmin):
-    pass
+    list_display = ("code", "description", "permitViewGroup")
+    list_display_links = ("code", "description")
+    list_filter = ("permitViewGroup",)
 pylucid_admin_site.register(models.Language, LanguageAdmin)
 
 
