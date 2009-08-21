@@ -46,17 +46,13 @@ from blog.models import BlogEntry
 from tagging.models import Tag, TaggedItem
 
 
-def _get_filters(request, with_site=True):
+def _get_filters(request):
     """
     Construct queryset filter.
     Used for blog entry filtering and for Tag.objects.cloud_for_model()
     """
     current_lang = request.PYLUCID.lang_entry
     filters = {"lang":current_lang}
-
-    if with_site:
-        current_site = Site.objects.get_current()
-        filters["site"] = current_site
 
     if not request.user.has_perm("blog.change_blogentry"):
         filters["is_public"] = True
@@ -65,13 +61,13 @@ def _get_filters(request, with_site=True):
 
 
 def _filter_blog_entries(request, queryset):
-    filters = _get_filters(request, with_site=False)
+    filters = _get_filters(request)
     queryset = queryset.filter(**filters)
     return queryset
 
 
 def _get_tag_cloud(request):
-    filters = _get_filters(request, with_site=True)
+    filters = _get_filters(request)
     tag_cloud = Tag.objects.cloud_for_model(BlogEntry, steps=2, filters=filters)
     return tag_cloud
 
