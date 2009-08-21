@@ -47,8 +47,9 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
     A lexicon entry.
 
     inherited attributes from AutoSiteM2M:
-        sites   -> ManyToManyField to Site
-        on_site -> sites.managers.CurrentSiteManager instance
+        sites     -> ManyToManyField to Site
+        on_site   -> sites.managers.CurrentSiteManager instance
+        site_info -> a string with all site names, for admin.ModelAdmin list_display
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -113,7 +114,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         """
         returns the generate html code from the content applyed the markup.
         """
-        return apply_markup(self, failsafe_message)
+        return apply_markup(self.content, self.markup, failsafe_message)
 
     def __unicode__(self):
         return self.term

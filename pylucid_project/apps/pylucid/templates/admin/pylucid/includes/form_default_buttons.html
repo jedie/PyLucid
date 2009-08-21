@@ -1,0 +1,18 @@
+<div class="helper_buttons">
+    <input type="submit" name="save" value="{% trans 'save' %}" />
+    <input type="submit" id="preview" name="preview" value="{% trans 'markup preview' %}" />
+    <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+
+    {% if help_link %}
+    <a href="{{ help_link }}" title="{% trans 'markup help page' %}">
+        <button type="button" class="openinwindow">{% trans 'markup help' %}</button>
+    </a>
+    {% endif %}
+    
+    <button type="button" class="button resize_textarea" id="bigger_id_content" title="{% trans 'makes the textarea bigger' %}">
+        +
+    </button>
+    <button type="button" class="button resize_textarea" id="smaller_id_content" title="{% trans 'makes the textarea smaller' %}">
+        -
+    </button>
+</div>

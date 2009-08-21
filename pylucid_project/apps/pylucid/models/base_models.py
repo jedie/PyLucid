@@ -108,7 +108,7 @@ class AutoSiteM2M(models.Model):
         """ for admin.ModelAdmin list_display """
         sites = self.sites.all()
         return ", ".join([site.name for site in sites])
-    site_info.short_description = _('on sites')
+    site_info.short_description = _('Exists on site')
     site_info.allow_tags = False
 
     class Meta:

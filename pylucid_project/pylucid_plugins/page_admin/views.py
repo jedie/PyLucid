@@ -49,8 +49,10 @@ def _edit_page(request, form_url):
         edit_page_form = EditPageForm(request.POST)
         if edit_page_form.is_valid():
             if "preview" in request.POST:
-                pagecontent.content = edit_page_form.cleaned_data["content"]
-                preview_html = apply_markup(pagecontent, request.page_msg)
+                raw_content = edit_page_form.cleaned_data["content"]
+                preview_html = apply_markup(
+                    raw_content, pagecontent.markup, request.page_msg, escape_django_tags=True
+                )
             else:
                 new_content = edit_page_form.cleaned_data["content"]
                 pagecontent.content = new_content

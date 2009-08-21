@@ -2,19 +2,12 @@
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
-<ul id="action_buttons">
-    <li>
-        <input type="submit" name="save" value="{% trans 'save' %}" />
-        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
-    </li>
-</ul>
-
-{% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
-
-<fieldset>
-    <h2 class="form_collapse">New lexicon entry</h2>
-    {% include "admin/pylucid/includes/pylucid_formset.html" %}
-</fieldset>
-
+    {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
+    {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
+    <fieldset>
+        {% include "admin/pylucid/includes/form_default_buttons.html" %}
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        {% include "admin/pylucid/includes/form_default_buttons.html" %}
+    </fieldset>
 </form>
 {% endblock %}

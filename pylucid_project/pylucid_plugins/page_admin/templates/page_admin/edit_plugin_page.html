@@ -5,12 +5,6 @@
 {% if not sites|length_is:"1" %}
     <p><small>(The new PluginPage will be create on site: '<strong>{{ current_site }}</strong>'.)</small></p>
 {% endif %}
-<ul id="action_buttons">
-    <li>
-        <input type="submit" name="save" value="{% trans 'save' %}" />
-        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
-    </li>
-</ul>
 
 {% if has_errors %}
 <fieldset><legend>{% trans 'Form errors:' %}</legend>
@@ -20,8 +14,12 @@
 </fieldset>
 {% endif %}
 
-<fieldset>
-    <h2 class="form_collapse">Plugin Page</h2>
+<fieldset><legend>PluginPage</legend>
+    <div class="helper_buttons">
+        <input type="submit" name="save" value="{% trans 'save' %}" />
+        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
+     </div>
+    
     {% with pluginpage_form as form %}
         {% include "admin/pylucid/includes/pylucid_formset.html" %}
     {% endwith %}
@@ -36,5 +34,10 @@
 
 {% include "page_admin/includes/fieldsets_pagetree.html" %}
 
+    <div class="helper_buttons">
+        <input type="submit" name="save" value="{% trans 'save' %}" />
+        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
+     </div>
+     
 </form>
 {% endblock %}

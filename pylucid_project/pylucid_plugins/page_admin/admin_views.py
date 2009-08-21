@@ -16,6 +16,7 @@ from pylucid_project.utils.form_utils import make_kwargs
 from pylucid.models import PageTree, PageMeta, PageContent, Design, Language, PluginPage
 from pylucid.preference_forms import SystemPreferencesForm
 from pylucid.decorators import check_permissions, render_to
+from pylucid.markup.converter import apply_markup
 
 from pylucid_admin.admin_menu import AdminMenu
 
@@ -97,7 +98,7 @@ def _build_form_initial(request):
 @check_permissions(superuser_only=False,
     permissions=("pylucid.add_pagecontent", "pylucid.add_pagemeta", "pylucid.add_pagetree")
 )
-@render_to(EDIT_CONTENT_TEMPLATE)
+@render_to(EDIT_CONTENT_TEMPLATE)#, debug=True)
 def new_content_page(request):
     """
     Create a new content page.
@@ -114,36 +115,50 @@ def new_content_page(request):
     see also: http://code.djangoproject.com/ticket/7837
     """
     default_lang_entry = request.PYLUCID.default_lang_entry
+    context = {
+        "title": "Create a new page",
+        "default_lang_entry": request.PYLUCID.default_lang_entry,
+        "form_url": request.path,
+        "has_errors": request.method == "POST", # At least one form has errors.
+    }
 
     if request.method == "POST":
         pagetree_form = PageTreeForm(request.POST)
         pagemeta_form = PageMetaForm(request.POST, prefix=default_lang_entry.code)
         pagecontent_form = PageContentForm(request.POST)
         if pagetree_form.is_valid() and pagemeta_form.is_valid() and pagecontent_form.is_valid():
-            sid = transaction.savepoint()
-            try:
-                # Create new PageTree entry
-                new_pagetree = pagetree_form.save(commit=False)
-                new_pagetree.page_type = PageTree.PAGE_TYPE
-                new_pagetree.save()
-
-                # Create new PageMeta entry
-                new_pagemeta = pagemeta_form.save(commit=False)
-                new_pagemeta.page = new_pagetree
-                new_pagemeta.lang = default_lang_entry
-                new_pagemeta.save()
-
-                # Create new PageContent entry
-                new_pagecontent = pagecontent_form.save(commit=False)
-                new_pagecontent.pagemeta = new_pagemeta
-                new_pagecontent.save()
-            except:
-                transaction.savepoint_rollback(sid)
-                raise
+            if "preview" in request.POST:
+                context["preview"] = apply_markup(
+                    pagecontent_form.cleaned_data["content"],
+                    pagecontent_form.cleaned_data["markup"],
+                    request.page_msg, escape_django_tags=True
+                )
+                context["has_errors"] = False
             else:
-                transaction.savepoint_commit(sid)
-                request.page_msg("New content page %r created." % new_pagecontent)
-                return http.HttpResponseRedirect(new_pagecontent.get_absolute_url())
+                sid = transaction.savepoint()
+                try:
+                    # Create new PageTree entry
+                    new_pagetree = pagetree_form.save(commit=False)
+                    new_pagetree.page_type = PageTree.PAGE_TYPE
+                    new_pagetree.save()
+
+                    # Create new PageMeta entry
+                    new_pagemeta = pagemeta_form.save(commit=False)
+                    new_pagemeta.page = new_pagetree
+                    new_pagemeta.lang = default_lang_entry
+                    new_pagemeta.save()
+
+                    # Create new PageContent entry
+                    new_pagecontent = pagecontent_form.save(commit=False)
+                    new_pagecontent.pagemeta = new_pagemeta
+                    new_pagecontent.save()
+                except:
+                    transaction.savepoint_rollback(sid)
+                    raise
+                else:
+                    transaction.savepoint_commit(sid)
+                    request.page_msg("New content page %r created." % new_pagecontent)
+                    return http.HttpResponseRedirect(new_pagecontent.get_absolute_url())
     else:
         initial_data = _build_form_initial(request)
         pagetree_form = PageTreeForm(initial=initial_data)
@@ -153,18 +168,16 @@ def new_content_page(request):
     # A list of all existing forms -> for form errorlist
     all_forms = [pagecontent_form, pagemeta_form, pagetree_form]
 
-    context = {
-        "title": "Create a new page",
-        "default_lang_entry": request.PYLUCID.default_lang_entry,
-        "form_url": request.path,
-
+    context.update({
         "all_forms": all_forms, # For display the form error list from all existing forms.
-        "has_errors": request.method == "POST", # At least one form has errors.
 
         "pagetree_form": pagetree_form,
         "pagemeta_form":pagemeta_form,
         "pagecontent_form": pagecontent_form,
-    }
+
+        "taglist_url": "#TODO",
+        "pagelinklist_url": "#TODO",
+    })
     return context
 
 

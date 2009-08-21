@@ -1,19 +1,11 @@
 # coding:utf-8
 
-from django import forms, http
-from django.db import transaction
-from django.core import urlresolvers
-from django.template import RequestContext
+from django import http
 from django.contrib.sites.models import Site
-from django.shortcuts import render_to_response
-from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.utils.form_utils import make_kwargs
-
-from pylucid.models import PageTree, PageMeta, PageContent, Design, Language, PluginPage
-from pylucid.preference_forms import SystemPreferencesForm
 from pylucid.decorators import check_permissions, render_to
+from pylucid.markup.converter import apply_markup
 
 from pylucid_admin.admin_menu import AdminMenu
 
@@ -41,21 +33,37 @@ def install(request):
 @render_to("blog/new_blog_entry.html")
 def new_blog_entry(request):
     """
-    TODO:
+    TODO: Use Ajax in preview
     """
-    if request.method == "POST":
-        form = BlogEntryForm(request.POST)
-        if form.is_valid():
-            instance = form.save()
-            request.page_msg("blog entry saved.")
-            return http.HttpResponseRedirect(instance.get_absolute_url())
-    else:
-        form = BlogEntryForm()
+    user_profile = request.user.get_profile()
+    # All accessible sites from the current user:
+    user_site_ids = user_profile.sites.values_list("id", "name")
+    m2m_limit = {"sites": user_site_ids} # Limit the site choice field with LimitManyToManyFields
 
     context = {
-        "title": "Create a new blog entry",
+        "title": _("Create a new blog entry"),
         "form_url": request.path,
-        "form": form,
     }
+
+    if request.method == "POST":
+        form = BlogEntryForm(m2m_limit, request.POST)
+        if form.is_valid():
+            if "preview" in request.POST:
+                context["preview"] = apply_markup(
+                    form.cleaned_data["content"], form.cleaned_data["markup"],
+                    request.page_msg, escape_django_tags=True
+                )
+            else:
+                instance = form.save()
+                request.page_msg(_("New blog entry '%s' saved.") % instance.headline)
+                return http.HttpResponseRedirect(instance.get_absolute_url())
+    else:
+        initial = {
+            "sites": [Site.objects.get_current().pk], # preselect current site
+            "lang": request.PYLUCID.lang_entry.pk, # preselect current language
+        }
+        form = BlogEntryForm(m2m_limit, initial=initial)
+
+    context["form"] = form
     return context
 

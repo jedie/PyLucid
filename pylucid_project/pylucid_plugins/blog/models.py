@@ -17,19 +17,13 @@
 """
 
 from django.db import models
-from django.contrib import admin
 from django.core import urlresolvers
 from django.db.models import signals
-from django.utils.html import strip_tags
-from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.sites.managers import CurrentSiteManager
 
 # http://code.google.com/p/django-tagging/
-import tagging
 from tagging.fields import TagField
 
 from pylucid_project.pylucid_plugins import update_journal
@@ -37,22 +31,28 @@ from pylucid_project.pylucid_plugins import update_journal
 from pylucid.shortcuts import failsafe_message
 from pylucid.models import PageContent, Language, PluginPage
 from pylucid.markup.converter import apply_markup
-from pylucid.models.base_models import UpdateInfoBaseModel
-#from PyLucid.tools.content_processors import apply_markup, fallback_markup
-#from PyLucid.models import Page
+from pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
 
-class BlogEntry(UpdateInfoBaseModel):
+class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
     """
     A blog entry
-    """
-    site = models.ForeignKey(Site, default=Site.objects.get_current)
-    on_site = CurrentSiteManager()
+    
+    inherited attributes from AutoSiteM2M:
+        sites     -> ManyToManyField to Site
+        on_site   -> sites.managers.CurrentSiteManager instance
+        site_info -> a string with all site names, for admin.ModelAdmin list_display
 
+    inherited attributes from UpdateInfoBaseModel:
+        createtime     -> datetime of creation
+        lastupdatetime -> datetime of the last change
+        createby       -> ForeignKey to user who creaded this entry
+        lastupdateby   -> ForeignKey to user who has edited this entry
+    """
     headline = models.CharField(_('Headline'),
         help_text=_("The blog entry headline"), max_length=255
     )
@@ -97,13 +97,14 @@ class BlogEntry(UpdateInfoBaseModel):
             try:
                 return PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
             except:
-                return "FIXME" # FIXME: Use get view???
+                failsafe_message("No blog PagePlugin found! Please create one.")
+                return "#No-Blog-PagePlugin-exists"
 
     def get_html(self):
         """
         returns the generate html code from the content applyed the markup.
         """
-        return apply_markup(self, failsafe_message)
+        return apply_markup(self.content, self.markup, failsafe_message)
 
     def __unicode__(self):
         return self.headline

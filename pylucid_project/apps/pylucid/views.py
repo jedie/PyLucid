@@ -160,7 +160,9 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
 
     if page_plugin_response == None and get_view_response == None:
         # No Plugin has changed the PageContent -> apply markup on PageContent
-        raw_html_content = apply_markup(pagecontent_instance, request.page_msg)
+        raw_html_content = apply_markup(
+            pagecontent_instance.content, pagecontent_instance.markup, request.page_msg
+        )
     else:
         raw_html_content = context["page_content"]
 

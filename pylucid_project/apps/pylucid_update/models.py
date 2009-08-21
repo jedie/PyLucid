@@ -18,9 +18,6 @@
 
 
 from django.db import models
-from django.contrib import admin
-from django.conf import settings
-from django.core.cache import cache
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User, Group
 
@@ -428,16 +425,6 @@ class BlogEntry(models.Model):
         null=True, blank=True,
         related_name="%(class)s_08_lastupdateby",
     )
-
-#    def html_content(self, context):
-#        """
-#        returns the generatet html code from the content applyed the markup.
-#        """
-#        return apply_markup(
-#            content=self.content,
-#            context=context,
-#            markup_no=self.markup
-#        )
 
     def get_tag_string(self):
         """

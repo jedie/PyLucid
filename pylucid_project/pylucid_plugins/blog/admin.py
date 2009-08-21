@@ -29,10 +29,14 @@ from pylucid.base_admin import BaseAdmin
 from blog.models import BlogEntry
 
 
-class BlogEntryAdmin(BaseAdmin):
-    list_display = ("id", "headline", "is_public", "view_on_site_link", "lastupdatetime", "lastupdateby")
+class BlogEntryAdmin(BaseAdmin, VersionAdmin):
+    """
+    inherited attributes from BaseAdmin:
+        view_on_site_link -> html link with the absolute uri.
+    """
+    list_display = ("id", "headline", "is_public", "view_on_site_link", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("headline",)
-    list_filter = ("is_public", "createby", "lastupdateby",)
+    list_filter = ("is_public", "sites", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     search_fields = ("headline", "content")
 

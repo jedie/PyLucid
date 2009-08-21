@@ -1,44 +1,13 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-<fieldset id="preview_fieldset">
-<legend>{% trans 'Preview' %}</legend>
-<div id="edit_page_preview"></div>
-</fieldset>
-
-<fieldset>
-<legend>{% trans 'Create a new blog entry' %}</legend>
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
-    <ul id="action_buttons">
-        <li>
-            <input type="submit" name="save" value="{% trans 'save' %}" />
-            <input type="submit" id="preview" name="preview" value="{% trans 'preview' %}" />
-            <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
-        </li>
-        {% if help_link %}
-        <li>
-        <a href="{{ help_link }}" title="{% trans 'markup help page' %}">
-            <button type="button" class="openinwindow">
-            {% trans 'markup help' %}
-            </button>
-        </a>
-        </li>
-        {% endif %}
-        
-        <button type="button" class="button resize_textarea" id="bigger_id_content" title="{% trans 'makes the textarea bigger' %}">
-            +
-        </button>
-        <button type="button" class="button resize_textarea" id="smaller_id_content" title="{% trans 'makes the textarea smaller' %}">
-            -
-        </button>
-    </ul>
-    
-    <hr class="seperator" /> 
-
-    {% for field in form %}
-        {% include "admin/pylucid/includes/form_field.html" %}
-    {% endfor %}
-
+    {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
+    {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
+    <fieldset>    
+        {% include "admin/pylucid/includes/form_default_buttons.html" %}
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        {% include "admin/pylucid/includes/form_default_buttons.html" %}
+    </fieldset>
 </form>
-</fieldset>
 {% endblock %}

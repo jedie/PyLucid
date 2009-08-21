@@ -8,38 +8,35 @@
     This is <strong>{{ default_lang_entry.description }}</strong>. You can translate it later.
     </small>
 </p>
-
 {% if not sites|length_is:"1" %}
 <p>
     <small>This new content page will be create on site: '<strong>{{ current_site }}</strong>'.</small>
 </p>
 {% endif %}
 
-<ul id="action_buttons">
-    <li>
-        <input type="submit" name="save" value="{% trans 'save' %}" />
-        <input type="reset" class="button" name="abort" value="{% trans 'abort' %}" />
-    </li>
-    <li>
-     {% if help_link %}
-     <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
-         <button type="button">{% trans 'markup help' %}</button>
-     </a>
-     {% endif %}
-    </li>
-</ul>
+
 
 {% if has_errors %}
-<fieldset><legend>{% trans 'Form errors:' %}</legend>
-{% for form in all_forms %}      
-    {% include "admin/pylucid/includes/form_errorlist.html" %}
-{% endfor %}
-</fieldset>
+    <fieldset><legend>{% trans 'Form errors:' %}</legend>
+    {% for form in all_forms %}      
+        {% include "admin/pylucid/includes/form_errorlist.html" %}
+    {% endfor %}
+    </fieldset>
+{% endif %}
+
+{% if preview %}
+    <fieldset id="preview_fieldset"><legend>{% trans 'Markup preview' %}</legend>
+        <div id="edit_page_preview">{{ preview }}</div>
+    </fieldset>
 {% endif %}
 
 <fieldset>
-  <legend>{% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong></legend>
-  <h2 class="form_collapse">PageContent</h2>
+    <legend>
+        PluginContent - {% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong>
+    </legend>
+    
+    {% include "page_admin/includes/edit_content_page_buttons.html" %}
+    
     {% with pagecontent_form.content as field %}
     <div title="{{ field.help_text }}" class="field {{ field.html_name }}">
         <label for="{{ field.auto_id }}"{% if field.errors %} class="error"{% endif %}>
@@ -49,25 +46,8 @@
                 {% for error in field.errors %}{{ error|escape }}{% endfor %}
             {% endif %}
         </label>
-         <div class="helper_buttons">
-             <input type="submit" id="preview" name="preview" value="{% trans 'markup preview' %}" />
-             <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
-                 <button type="button" class="button">{% trans 'page list' %}</button>
-             </a>
-             <a href="{{ taglist_url }}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
-                 <button type="button" class="button">{% trans 'tag list' %}</button>
-             </a>
-             <button type="button" class="button resize_textarea" id="bigger_{{ field.auto_id }}" title="{% trans 'makes the textarea bigger' %}">
-                 +
-             </button>
-             <button type="button" class="button resize_textarea" id="smaller_{{ field.auto_id }}" title="{% trans 'makes the textarea smaller' %}">
-                 -
-             </button>
-         </div>
-        <fieldset id="preview_fieldset">
-            <legend>{% trans 'Preview' %}</legend>
-            <div id="edit_page_preview">TODO</div>
-        </fieldset>
+
+
         {{ field }}
         <div class="field_help_text">{{ field.help_text }}</div>
     </div>
@@ -86,6 +66,8 @@
 </fieldset>
 
 {% include "page_admin/includes/fieldsets_pagetree.html" %}
+
+{% include "page_admin/includes/edit_content_page_buttons.html" %}
 
 </form>
 {% endblock %}

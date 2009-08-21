@@ -24,12 +24,12 @@ if __name__ == "__main__":
     os.environ["DJANGO_SETTINGS_MODULE"] = "PyLucid.settings"
 
 from django.conf import settings
-#from django.template import Template, Context
 from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_str, force_unicode
 
-from pylucid.markup.django_tags import DjangoTagAssembler
+from pylucid_project.utils.escape import escape_django_tags as escape_django_template_tags
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
+from pylucid.markup.django_tags import DjangoTagAssembler
 
 from pylucid.models import PageContent
 
@@ -145,18 +145,11 @@ def apply_creole(content):
 
 
 
-def apply_markup(pagecontent, page_msg):
-    """
-    Apply to the content the given markup.
-    Makrups IDs defined in
-        ./PyLucid/models.py
-    """
-    markup_no = pagecontent.markup
-    raw_content = pagecontent.content
-
+def apply_markup(raw_content, markup_no, page_msg, escape_django_tags=False):
+    """ render markup content to html. """
     assemble_tags = markup_no not in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
     if assemble_tags:
-        # cut out every django tags from content
+        # cut out every Django tags from content
         assembler = DjangoTagAssembler()
         raw_content2, cut_data = assembler.cut_out(raw_content)
 
@@ -188,7 +181,10 @@ def apply_markup(pagecontent, page_msg):
         # html "markup" used
         html_content2 = raw_content
 
-    return mark_safe(html_content2) # turn djngo auto-escaping off
+    if escape_django_tags:
+        html_content2 = escape_django_template_tags(html_content2)
+
+    return mark_safe(html_content2) # turn Django auto-escaping off
 
 
 
