@@ -86,7 +86,7 @@ class PageTreeManager(BaseModelManager):
             queryset = queryset.filter(showlinks=True)
 
         queryset = queryset.order_by("position")
-        items = queryset.values("id", "parent")
+        items = queryset.values("id", "parent", "slug")
         tree = TreeGenerator(items, skip_no_parent=True)
         return tree
 
@@ -94,8 +94,7 @@ class PageTreeManager(BaseModelManager):
         """ returns a choices list for e.g. a forms select widget. """
         tree = PageTree.objects.get_tree(user)
         choices = [("", "---------")] + [
-            (node.db_instance.pk, node.db_instance.get_absolute_url())
-            for node in tree.iter_flat_list()
+            (node.id, node.get_absolute_url()) for node in tree.iter_flat_list()
         ]
         return choices
 

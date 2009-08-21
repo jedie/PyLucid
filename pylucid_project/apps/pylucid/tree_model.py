@@ -68,6 +68,16 @@ class MenuNode(object):
         if self.parent is not None:
             self.parent.activate()
 
+    def get_absolute_url(self):
+        """ absolute url *without* language code (without domain/host part) """
+        data = self.data
+
+        if self.parent:
+            parent_shortcut = self.parent.get_absolute_url()
+            return parent_shortcut + data["slug"] + "/"
+        else:
+            return "/" # root node
+
     def __repr__(self):
         if self.id == None:
             return "Root MenuNode object"
