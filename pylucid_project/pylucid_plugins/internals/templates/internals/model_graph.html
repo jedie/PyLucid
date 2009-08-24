@@ -1,0 +1,23 @@
+{% extends "pylucid_admin/base_site.html" %}
+{% load i18n %}
+
+{% block extrahead %}{{ block.super }}
+<!-- internals.model_graph extrahead block start -->
+<style type="text/css">
+#graph {
+    width: 100%;
+}
+</style>
+<!-- internals.model_graph extrahead block end -->
+{% endblock %}
+
+{% block content %}
+<!-- view_content block -->
+{% if error %}
+    {{ error }}
+    Can be installed with: 'easy_install pygraphviz' - http://pypi.python.org/pypi/pygraphviz
+{% else %}
+    <p><img id="graph" src="{{ url }}" alt="model graph"></p>
+{% endif %}
+<!-- view_content block end -->
+{% endblock %}

@@ -1,7 +1,9 @@
 # coding:utf-8
 
+import os
 import sys
 import inspect
+import posixpath
 from pprint import pformat
 
 from django import http
@@ -183,16 +185,20 @@ def form_generator(request, model_no=None):
 
 
 @check_permissions(superuser_only=True)
+@render_to("internals/model_graph.html")
 def model_graph(request):
     try:
         import pygraphviz as P
     except ImportError, err:
-        msg = "Error: PyGraphviz can't import! (graphviz-dev or graphviz-devel needed, too.)"
+        msg = (
+            "Error: PyGraphviz can't import!"
+            " (Original Error was: %s "
+            "- Please note, you need graphviz-dev or graphviz-devel, too.)"
+        ) % err
         request.page_msg.error(msg)
-        request.page_msg.error("Original Error was: %s" % err)
-        request.page_msg("Can be installed with: 'easy_install pygraphviz'")
-        request.page_msg("http://pypi.python.org/pypi/pygraphviz")
-        return http.HttpResponse(msg) # FIXME
+        request.page_msg()
+        request.page_msg()
+        return {"error": msg}
 
     A = P.AGraph() # init empty graph
 
@@ -232,8 +238,16 @@ def model_graph(request):
                         add_relation(field)
 
     A.layout(prog='dot') # layout with default (neato)
-    png = A.draw(format='png') # draw png
-    return http.HttpResponse(png, mimetype='image/png')
+
+    filename = "models_graph.png"
+    f = file(os.path.join(settings.MEDIA_ROOT, filename), "wb")
+    f.write(A.draw(format='png')) # draw png
+    f.close()
+
+    context = {
+        "url": posixpath.join(settings.MEDIA_URL, filename),
+    }
+    return context
 
 
 
