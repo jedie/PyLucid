@@ -4,7 +4,7 @@
     PyLucid lexicon plugin
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    
+    connect signals
 
     Last commit info:
     ~~~~~~~~~
@@ -12,7 +12,7 @@
     $Rev: 2264 $
     $Author: JensDiemer $
 
-    :copyleft: 2008-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
