@@ -4,6 +4,7 @@ import sys
 import inspect
 from pprint import pformat
 
+from django import http
 from django import forms
 from django.db import models
 from django.conf import settings
@@ -17,10 +18,10 @@ from django.utils.importlib import import_module
 from django.db.models import get_apps, get_models
 from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes import generic
 
 from pylucid.markup import hightlighter
 from pylucid.decorators import check_permissions, render_to
-from pylucid import models
 
 from pylucid_admin.admin_menu import AdminMenu
 
@@ -40,6 +41,11 @@ def install(request):
         parent=menu_section_entry,
         name="show internals", title="Display some internal information.",
         url_name="Internal-show_internals"
+    )
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry,
+        name="model_graph", title="Display a model UML graph.",
+        url_name="Internal-model_graph"
     )
 
     return "\n".join(output)
@@ -172,3 +178,62 @@ def form_generator(request, model_no=None):
         "output": output,
     }
     return context
+
+
+
+
+@check_permissions(superuser_only=True)
+def model_graph(request):
+    try:
+        import pygraphviz as P
+    except ImportError, err:
+        msg = "Error: PyGraphviz can't import! (graphviz-dev or graphviz-devel needed, too.)"
+        request.page_msg.error(msg)
+        request.page_msg.error("Original Error was: %s" % err)
+        request.page_msg("Can be installed with: 'easy_install pygraphviz'")
+        request.page_msg("http://pypi.python.org/pypi/pygraphviz")
+        return http.HttpResponse(msg) # FIXME
+
+    A = P.AGraph() # init empty graph
+
+    collapse_relation = ("lastupdateby", "createby")
+
+    apps = models.get_apps()
+    for app in apps:
+        for appmodel in models.get_models(app):
+            model_name = appmodel.__module__
+            if "pylucid" in model_name:
+                color = "green"
+            else:
+                color = "grey"
+
+            A.add_node(model_name, color=color, shape='box', fontsize="12")
+
+            def add_relation(field):
+                if field.name in collapse_relation:
+                    return
+
+                target_app = field.rel.to.__module__
+                target = field.rel.to.__name__
+                field_type = type(field).__name__
+                field_name = field.name
+                A.add_edge(model_name, target_app,
+                    key=field.name, label="%s(%s)" % (field_type, field.name), color=color,
+                    fontsize="10",
+                )
+
+            for field in appmodel._meta.fields:
+                if isinstance(field, (models.ForeignKey, models.OneToOneField)):
+                    add_relation(field)
+
+            if appmodel._meta.many_to_many:
+                for field in appmodel._meta.many_to_many:
+                    if isinstance(field, (models.ManyToManyField, generic.GenericRelation)):
+                        add_relation(field)
+
+    A.layout(prog='dot') # layout with default (neato)
+    png = A.draw(format='png') # draw png
+    return http.HttpResponse(png, mimetype='image/png')
+
+
+
