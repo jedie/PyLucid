@@ -3,7 +3,6 @@
 from django import forms
 from django.template import mark_safe
 from django.forms.util import ErrorList
-from django.forms import ModelForm
 from django.forms.models import BaseModelFormSet, modelformset_factory
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext as _
@@ -73,19 +72,19 @@ class PageTreeForm(forms.ModelForm):
         exclude = ("page_type", "site")
 
 
-class PageMetaForm(ModelForm):
+class PageMetaForm(forms.ModelForm):
     class Meta:
         model = PageMeta
         exclude = ("page", "lang")
 
 
-class PageContentForm(ModelForm):
+class PageContentForm(forms.ModelForm):
     class Meta:
         model = PageContent
         exclude = ("pagemeta",)
 
 
-class PluginPageForm(ModelForm):
+class PluginPageForm(forms.ModelForm):
 #    app_label = forms.TypedChoiceField(
 #        choices=PluginPage.objects.get_app_choices(), label=_('App label'),
 #        help_text=_('The app lable witch is in settings.INSTALLED_APPS')
@@ -98,3 +97,12 @@ class PluginPageForm(ModelForm):
     class Meta:
         model = PluginPage
         exclude = ("pagemeta")
+
+
+class LanguageSelectForm(forms.Form):
+    language = forms.ChoiceField()
+
+    def __init__(self, languages, *args, **kwargs):
+        """ Change form field data in a DRY way """
+        super(LanguageSelectForm, self).__init__(*args, **kwargs)
+        self.fields['language'].choices = [(lang.code, lang.description) for lang in languages]

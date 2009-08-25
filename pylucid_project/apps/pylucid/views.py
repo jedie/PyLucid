@@ -127,7 +127,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     if get_view_replace_content == False and pagetree.page_type == PageTree.PLUGIN_TYPE:
         # The current PageTree entry is a plugin page
 
-        # Add to globale pylucid objects. Use e.g. in admin_menu plugin
+        # Add to global pylucid objects. Use e.g. in admin_menu plugin
         pluginpage = PluginPage.objects.get(pagemeta=pagemeta)
         request.PYLUCID.pluginpage = pluginpage
 

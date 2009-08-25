@@ -53,7 +53,7 @@
                         <li><a href="{% url admin:pylucid_pagecontent_change PYLUCID.pagecontent.id %}">edit page content</a></li>
                         {% endif %}
                     {% endif %}
-    
+
     	            {% if perms.pylucid.change_pagetree %}
     	               <li><a href="{% url admin:pylucid_pagetree_change PYLUCID.pagetree.id %}">edit page tree</a></li>
     	            {% endif %}
@@ -62,7 +62,13 @@
     	            {% endif %}
                     </ul>
                 </li>
-	            
+
+                {% if add_translate %}
+    	            {% if perms.pylucid.add_pagecontent and perms.pylucid.add_pagemeta and perms.pylucid.add_pluginpage %}
+    	               <li><a href="{% url PageAdmin-translate PYLUCID.pagemeta.id %}">{% trans 'translate' %}</a></li>
+    	            {% endif %}
+	            {% endif %}
+
 	            {% if perms.pylucid.delete_pageplugin and perms.pylucid.delete_pagecontent and perms.pylucid.delete_pagemeta and perms.pylucid.delete_pagetree %}
 	               <li><a href="{% url admin:pylucid_pagetree_delete PYLUCID.pagemeta.id %}">delete page</a></li>
 	            {% endif %}

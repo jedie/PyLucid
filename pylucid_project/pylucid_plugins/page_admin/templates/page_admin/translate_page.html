@@ -1,0 +1,141 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}{{ block.super }}
+<!-- page_admin.translate extrahead block start -->
+<style type="text/css">
+.pylucid_form .dest_float {float: right;}
+.pylucid_form .source_float {float: left;}
+.pylucid_form .across_fields textarea {
+    width: 100%;
+    height: 80%;
+}
+.pylucid_form .across_fields .source_float,
+.pylucid_form .across_fields .dest_float {
+    width: 49%;
+    height: 100%;
+    border: 1px solid #fff;
+}
+.pylucid_form .across_fields .source_float:hover,
+.pylucid_form .across_fields .dest_float:hover {
+    border: 1px solid #000;
+    background-color: #efefef;
+}
+.pylucid_form .across_fields {
+    /* border: 1px solid red; */
+    clear: both;
+    width: 100%;
+}
+.pylucid_form .center {
+    text-align: center;
+    display: block;
+    /* border: 1px solid green; */
+    height: 2em;
+    line-height: 2em;
+    width: auto;
+    padding: 2px;
+    margin: 2px;
+}
+.pylucid_form #preview_fieldset .source_float,
+.pylucid_form #preview_fieldset .dest_float {
+    border: 1px solid #ddd;
+}
+</style>
+<script type="text/javascript">
+<!--
+$(document).ready(function(){
+    log("sync textarea rows");
+    var rows = $("#id_source-content").attr("rows");
+    $("#id_dest-content").attr("rows", rows);
+});
+//-->
+</script>
+<!-- page_admin.translate extrahead block end -->
+{% endblock extrahead %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+{% if not sites|length_is:"1" %}
+<p>
+    <small>This new content page will be create on site: '<strong>{{ current_site }}</strong>'.</small>
+</p>
+{% endif %}
+
+{% if has_errors %}
+    <fieldset><legend>{% trans 'Form errors:' %}</legend>
+    {% for form in all_forms %}      
+        {% include "admin/pylucid/includes/form_errorlist.html" %}
+    {% endfor %}
+    </fieldset>
+{% endif %}
+
+{% if source_preview %}
+    {% include "page_admin/includes/edit_content_page_buttons.html" %}
+    <fieldset id="preview_fieldset"><legend>{% trans 'Markup preview' %}</legend>    
+        <div class="across_fields">
+            <div class="source_float">{{ source_preview }}</div>
+            <div class="dest_float">{{ dest_preview }}</div>
+        </div>
+    </fieldset>
+{% endif %}
+
+<fieldset>
+    <legend>
+        PluginContent - {% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong>
+    </legend>
+    
+    {% include "page_admin/includes/edit_content_page_buttons.html" %}
+    
+    {% with source_pagecontent_form.content as field %}
+    <div class="across_fields" title="{{ field.help_text }}">
+        <div class="source_float" title="{{ source_pagecontent_form.lang.description }} - {{ field.help_text }}">
+            <p class="center">{{ source_pagecontent_form.lang.description }} - {{ field.help_text }}</p>
+            {{ field }}
+            {% with source_pagecontent_form.markup as field %}
+                {% include "admin/pylucid/includes/form_field.html" %}
+            {% endwith %}
+        </div>
+        <div class="dest_float" title="{{ dest_pagecontent_form.lang.description }} - {{ field.help_text }}">
+            <p class="center">{{ dest_pagecontent_form.lang.description }} - {{ field.help_text }}</p>
+            {{ dest_pagecontent_form.content }}
+            {% with dest_pagecontent_form.markup as field %}
+                {% include "admin/pylucid/includes/form_field.html" %}
+            {% endwith %}
+        </div>
+    </div>
+    {% endwith %}
+</fieldset>
+
+<fieldset><legend>{% trans 'Language' %}: <strong>{{ default_lang_entry.description }}</strong></legend>
+    <h2 class="form_collapse">PageMeta</h2>
+    
+    {% for field in pagemeta_fields %}
+        {% if field.is_hidden %}
+           <!-- hidden field START -->
+           {{ field }}
+           <!-- hidden field END -->
+        {% else %}
+            <div title="{{ field.lang.description }} - {{ field.help_text|striptags }}" class="field {{ field.html_name }}{% if field.errors %} error{% endif %}">
+                {% if field.errors %}
+                <ul class="errorlist" id="{{ field.html_name }}_errors" title="Errors for field '{{ field.html_name }}'">
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+            
+                <label for="{{ field.auto_id }}">
+                    {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
+                    ({{ field.lang.code }}):
+                </label>
+              
+                {{ field }}
+                <div class="field_help_text">{{ field.lang.description }} - {{ field.help_text }}</div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</fieldset>
+
+{% include "page_admin/includes/edit_content_page_buttons.html" %}
+
+</form>
+{% endblock %}

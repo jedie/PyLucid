@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 
-from pylucid.models import PageTree, PluginPage
+from pylucid.models import PageTree, PluginPage, Language
 from pylucid.decorators import render_to
 
 from pylucid_admin.models import PyLucidAdminPage
@@ -22,11 +22,14 @@ def lucidTag(request):
         # Don't insert the admin top menu
         return
 
+    lang_count = Language.objects.count()
+
     context = {
         "inline": True,
         "logout_link": "?auth=logout",
         "edit_page_link": "?page_admin=inline_edit",
         "new_page_link": reverse("admin:pylucid_pagecontent_add"),
+        "add_translate": lang_count > 1,
     }
     return context
 
