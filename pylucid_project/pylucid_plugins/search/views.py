@@ -181,6 +181,7 @@ class Search(object):
         """ collect all plugin searches and return the results """
         search_results = SearchResults(self.request, search_strings)
         search_languages = Language.objects.filter(code__in=search_lang_codes)
+#        search_languages = Language.objects.all_accessible().filter(code__in=search_lang_codes)
 
         # Call every plugin. The plugin adds all results into SearchResults object.
         plugin_count = self.call_searchs(search_languages, search_strings, search_results)
@@ -245,13 +246,6 @@ def _search(request, cleaned_data):
             app_label="search", action="search aborted", message="DoS min_pause %s" % info,
         )
         return
-
-    print LogEntry.objects.get_same_remote_addr(request).count()
-    for entry in LogEntry.objects.last_remote_addr_actions(request, timedelta):
-        print entry
-        print repr(entry.data)
-#                print repr(entry.data.get_data())
-        print
 
     search_lang_codes = cleaned_data["language"]
     search_results = Search(request).search(search_lang_codes, search_strings)
