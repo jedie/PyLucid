@@ -59,9 +59,9 @@ class BaseUnittest(BaseTestCase, TransactionTestCase):
             # FIXME: Why does in some case user.get_profile() not work???
             userprofile = UserProfile.objects.get(user=user)
 
-        if not site in userprofile.site.all():
+        if not site in userprofile.sites.all():
             print "Info: Add user to site %s" % site
-            userprofile.site.add(site)
+            userprofile.sites.add(site)
 
         ok = self.client.login(username=self.TEST_USERS[usertype]["username"],
                                password=self.TEST_USERS[usertype]["password"])

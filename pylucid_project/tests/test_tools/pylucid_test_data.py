@@ -264,7 +264,7 @@ def create_headfiles(verbosity, headfile_dict, site):
             content=data["content"],
         )
         headfile.save()
-        headfile.site.add(site)
+        headfile.sites.add(site)
         if verbosity >= 2:
             print("EditableStaticFile '%s' created on site: %s" % (filepath, site.name))
 
@@ -280,7 +280,7 @@ def create_design(verbosity, design_dict, site, template_map, headfile_map):
         design, created = Design.objects.get_or_create(
             name=design_name, defaults={"template": template_name, }
         )
-        design.site.add(site)
+        design.sites.add(site)
         if verbosity >= 2:
             if created:
                 print("Design '%s' created." % design_name)
