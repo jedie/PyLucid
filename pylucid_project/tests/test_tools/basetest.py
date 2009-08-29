@@ -27,11 +27,7 @@ class BaseUnittest(BaseTestCase, TransactionTestCase):
     def __init__(self, *args, **kwargs):
         super(BaseUnittest, self).__init__(*args, **kwargs)
 
-        # Get the default lang code from system preferences
-        from pylucid.preference_forms import SystemPreferencesForm
-        self.system_preferences = SystemPreferencesForm().get_preferences()
-        self.default_lang_code = self.system_preferences["lang_code"]
-        self.default_lang_entry = Language.objects.get(code=self.default_lang_code)
+        self.default_lang_entry = Language.objects.get_default()
 
     def assertContentLanguage(self, response, lang):
         assert isinstance(lang, Language)

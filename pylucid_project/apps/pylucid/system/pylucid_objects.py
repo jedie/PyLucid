@@ -20,6 +20,7 @@
 
 from django.conf import settings
 
+from pylucid.shortcuts import failsafe_message
 from pylucid.system import extrahead
 
 
@@ -29,11 +30,8 @@ class PyLucidRequestObjects(object):
     def __init__(self, request):
         from pylucid.models import Language # FIXME: import here, against import loop.
 
-        self.default_lang_entry = Language.objects.get_default_lang_entry()
-        self.default_lang_code = self.default_lang_entry.code
-
         # Client prefered language instance, use default, if not exist
-        self.lang_entry = Language.objects.get_current_lang_entry(request)
+        self.lang_entry = Language.objects.get_current(request)
 
         # Storing extra html head code from plugins, used in:
         # pylucid.defaulttags.extraheadBlock - redirect {% extrahead %} block tag content

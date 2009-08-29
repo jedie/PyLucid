@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-    PyLucid lexivon models
+    PyLucid lexicon models
     ~~~~~~~~~~~~~~~~~~~~~~
 
     Last commit info:
@@ -28,7 +28,7 @@ from pylucid_project.pylucid_plugins import update_journal
 
 from pylucid.shortcuts import failsafe_message
 from pylucid.markup.converter import apply_markup
-from pylucid.models import PageContent, Language, PluginPage
+from pylucid.models import PageContent, Language
 from pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
 #from PyLucid.models import Page
@@ -105,6 +105,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
             return urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
         except urlresolvers.NoReverseMatch:
             # Use the first PluginPage instance
+            from pylucid.models import PluginPage # import here, against import loops
             try:
                 return PluginPage.objects.reverse("lexicon", viewname, kwargs=reverse_kwargs)
             except urlresolvers.NoReverseMatch:

@@ -92,7 +92,7 @@ def activate_auto_language(request):
 
 def activate_default_language(request):
     """ activate default lang from preferences """
-    lang_entry = request.PYLUCID.default_lang_entry
+    lang_entry = Language.objects.get_default()
 
     if settings.PYLUCID.I18N_DEBUG:
         request.page_msg.successful('Use default language "%s"' % lang_entry.code)

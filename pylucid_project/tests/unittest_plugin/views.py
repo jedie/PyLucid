@@ -113,7 +113,7 @@ def test_PyLucid_api(request):
     output = []
     output.append("context_middlewares: %s" % context["context_middlewares"].keys())
     output.append("default_lang_code: %s" % request.PYLUCID.default_lang_code)
-    output.append("default_lang_entry: %r" % request.PYLUCID.default_lang_entry)
+    output.append("default_lang_entry: %r" % Language.objects.get_default())
     output.append("lang_entry: %r" % request.PYLUCID.lang_entry)
     output.append("page_template: %r" % request.PYLUCID.page_template)
     output.append("pagetree: %r" % request.PYLUCID.pagetree)

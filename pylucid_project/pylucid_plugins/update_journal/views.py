@@ -21,6 +21,7 @@ __version__ = "$Rev$"
 
 from django.conf import settings
 
+from pylucid.models import Language
 from pylucid.decorators import render_to
 
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
@@ -39,6 +40,10 @@ def lucidTag(request, count=10):
         count = 10
 
     queryset = UpdateJournal.on_site.all()
+
+    accessible_lang = Language.objects.all_accessible(request.user)
+    queryset = queryset.filter(lang__in=accessible_lang)
+
     if not request.user.is_staff:
         queryset = queryset.filter(staff_only=False)
 

@@ -97,15 +97,13 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
     )
 
     def get_pagemeta(self):
-        # import here against import loops
-        from language import Language
-        from pagemeta import PageMeta
+        from pylucid.models import Language, PageMeta # import here against import loops
 
-        lang_entry = Language.objects.get_current_lang_entry()
+        lang_entry = Language.objects.get_current()
         try:
             return self.pagemeta.get(lang=lang_entry)
         except PageMeta.DoesNotExist:
-            default_lang_entry = Language.objects.get_default_lang_entry()
+            default_lang_entry = Language.objects.get_default()
             return self.pagemeta.get(lang=default_lang_entry)
 
     def get_site(self):

@@ -197,10 +197,10 @@ class TreeGenerator(object):
     def add_pagemeta(self, request):
         """ add all PageMeta objects into tree """
         # import here -> import-loop
-        from pylucid.models import PageMeta
+        from pylucid.models import PageMeta, Language
 
         current_lang = request.PYLUCID.lang_entry
-        default_lang = request.PYLUCID.default_lang_entry
+        default_lang = Language.objects.get_default()
 
         # Generate a id list of all visible nodes 
         ids = [id for id, node in self.nodes.items() if node.visible and id != None]

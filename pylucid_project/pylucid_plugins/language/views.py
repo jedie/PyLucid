@@ -46,7 +46,8 @@ def lucidTag(request):
     absolute_url = current_pagetree.get_absolute_url()
     current_url = absolute_url.strip("/") # For {% url ... %}
 
-    existing_languages = Language.objects.all()
+    user = request.user
+    existing_languages = Language.objects.all_accessible(user)
     context = {
         "current_lang": current_lang,
         "current_url": current_url,
@@ -64,6 +65,8 @@ def http_get_view(request):
     """
 #    if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
 #        request.page_msg("Switch the client favored language.")
+
+    user = request.user
 
     raw_lang_code = request.GET.get("language", False)
     if not raw_lang_code:
@@ -90,8 +93,9 @@ def http_get_view(request):
         if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
             request.page_msg.error("Save current lang entry.")
     else:
+        existing_languages = Language.objects.all_accessible(user)
         try:
-            lang_entry = Language.objects.get(code=raw_lang_code)
+            lang_entry = existing_languages.get(code=raw_lang_code)
         except Language.DoesNotExist, err:
             if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
                 request.page_msg.error("Wrong lang code in get parameter: %s" % err)

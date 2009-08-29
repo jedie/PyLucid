@@ -32,7 +32,7 @@ def _get_page_content(request):
     # client favored Language instance:
     lang_entry = request.PYLUCID.lang_entry
     # default Language instance set in system preferences:
-    default_lang_entry = request.PYLUCID.default_lang_entry
+    default_lang_entry = Language.objects.get_default()
 
     try:
         pagecontent = PageContent.objects.get(pagemeta=pagemeta)
@@ -72,7 +72,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
             msg = (
                 "PageMeta for %r doesn't exist in system default language: %r! Please create it!"
                 " (Original error was: %r)"
-            ) % (pagetree, request.PYLUCID.default_lang_entry, err)
+            ) % (pagetree, Language.objects.get_default(), err)
             request.page_msg.error(msg)
         else:
             msg = ""

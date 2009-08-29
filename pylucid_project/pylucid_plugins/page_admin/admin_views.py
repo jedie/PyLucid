@@ -116,10 +116,10 @@ def new_content_page(request):
         the metaclasses of all its bases
     see also: http://code.djangoproject.com/ticket/7837
     """
-    default_lang_entry = request.PYLUCID.default_lang_entry
+    default_lang_entry = Language.objects.get_default()
     context = {
         "title": "Create a new page",
-        "default_lang_entry": request.PYLUCID.default_lang_entry,
+        "default_lang_entry": Language.objects.get_default(),
         "form_url": request.path,
         "abort_url": "#FIXME",
         "has_errors": request.method == "POST", # At least one form has errors.
@@ -267,7 +267,7 @@ def new_plugin_page(request):
 @check_permissions(superuser_only=False, permissions=("pylucid.change_pagecontent",))
 def _edit_content_page(request, context, pagetree):
     """ edit a PageContent """
-    default_lang_entry = request.PYLUCID.default_lang_entry
+    default_lang_entry = Language.objects.get_default()
     pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=True)
     pagecontent = PageContent.objects.get(pagemeta=pagemeta)
 
@@ -433,7 +433,7 @@ def _select_language(request, context, source_pagemeta):
                         return lang
                 raise RuntimeError() # should never happen
         else:
-            default_lang_entry = request.PYLUCID.default_lang_entry
+            default_lang_entry = Language.objects.get_default()
             form = LanguageSelectForm(other_languages, initial={
                     "language": default_lang_entry.code, # FIXME: Seems not to work
                 })

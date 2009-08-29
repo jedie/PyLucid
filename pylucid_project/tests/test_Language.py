@@ -8,6 +8,7 @@ import test_tools # before django imports!
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 
 from django_tools.unittest import unittest_base, BrowserDebug
@@ -33,6 +34,7 @@ class BaseLangTest(basetest.BaseUnittest):
         """ I18N_DEBUG==True -> Display lang stuff in page_msg. """
         self.old_i18n_debug = settings.PYLUCID.I18N_DEBUG
         settings.PYLUCID.I18N_DEBUG = True
+        self.client.logout()
 
     def tearDown(self):
         settings.PYLUCID.I18N_DEBUG = self.old_i18n_debug
@@ -193,14 +195,20 @@ class DetectLang(BaseLangTest):
     def test_redirect(self):
         """
         Test if we only redirected to existing entries.
+        FIXME!
         """
         # Create a language, but for this language exist no content.
         test_lang = Language(code="xx", description="has no content")
-        test_lang.save()
-        response = self.client.get("/1-rootpage/", HTTP_ACCEPT_LANGUAGE="xx")
-        self.assertRedirect(response,
-            url="http://testserver/%s/1-rootpage/" % self.default_lang_code, status_code=302
-        )
+        try:
+            test_lang.save()
+            response = self.client.get("/1-rootpage/", HTTP_ACCEPT_LANGUAGE="xx")
+            self.assertRedirect(response,
+                url="http://testserver/%s/1-rootpage/" % self.default_lang_entry.code, status_code=302
+            )
+            response = self.client.get("/")
+            self.assertContentLanguage(response, self.default_lang_entry)
+        finally:
+            test_lang.delete()
 
     def test_not_avaiable(self):
         """
@@ -219,12 +227,47 @@ class DetectLang(BaseLangTest):
         self.assertResponse(response,
             must_contain=(
                 "Favored language &quot;it&quot; does not exist",
-                "Use default language &quot;%s&quot;" % self.default_lang_code,
-                "Activate language &quot;%s&quot;" % self.default_lang_code,
+                "Use default language &quot;%s&quot;" % self.default_lang_entry.code,
+                "Activate language &quot;%s&quot;" % self.default_lang_entry.code,
+
             ),
             must_not_contain=("Traceback",)#"error"),
         )
 
+    def test_noaccess(self):
+        """
+        Test Language permitViewGroup
+        Request a language witch are not accessable for this user.
+        
+        TODO in PyLucid!
+        """
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=self.default_lang_entry.code)
+        self.assertContentLanguage(response, self.default_lang_entry)
+
+        test_group = Group(name="lang_test")
+        test_group.save()
+        lang = Language.objects.get(code=self.default_lang_entry.code)
+        for lang in TestLanguages():
+            lang.permitViewGroup = test_group
+            lang.save()
+            try:
+                response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=lang.code)
+                self.assertResponse(response, must_contain=(),
+                    must_not_contain=("content (lang:%s" % lang.code,
+                ))
+                BrowserDebug.debug_response(response)
+                #self.assertContentLanguage(response, self.default_lang_entry)
+            finally:
+                lang.permitViewGroup = None
+                lang.save()
+
+        # Create a language, but for this language exist no content.
+#        test_lang = Language(code="xx", description="has no content")
+#        test_lang.save()
+#        response = self.client.get("/1-rootpage/", HTTP_ACCEPT_LANGUAGE="xx")
+#        self.assertRedirect(response,
+#            url="http://testserver/%s/1-rootpage/" % self.default_lang_entry.code, status_code=302
+#        )
 
 
 if __name__ == "__main__":

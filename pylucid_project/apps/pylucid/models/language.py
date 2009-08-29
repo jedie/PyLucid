@@ -33,21 +33,52 @@ TAG_INPUT_HELP_URL = \
 
 
 class LanguageManager(models.Manager):
+    def filter_accessible(self, queryset, user):
+        """ filter all pages with can't accessible for the given user """
+
+        if user.is_anonymous():
+            # Anonymous user are in no user group
+            return queryset.filter(permitViewGroup__isnull=True)
+
+        if user.is_superuser:
+            # Superuser can see everything ;)
+            return queryset
+
+        # filter pages for not superuser and not anonymous
+
+        user_groups = user.groups.values_list('pk', flat=True)
+
+        if not user_groups:
+            # User is in no group
+            return queryset.filter(permitViewGroup__isnull=True)
+
+        # Filter out all view group
+        return queryset.filter(
+            models.Q(permitViewGroup__isnull=True) | models.Q(permitViewGroup__in=user_groups)
+        )
+
+    def all_accessible(self, user):
+        """ returns all pages that the given user can access. """
+        queryset = self.all()
+        queryset = self.filter_accessible(queryset, user)
+        return queryset
+
     def get_choices(self):
         """ return a tuple list for e.g. forms.ChoiceField """
         return self.values_list('code', 'description')
 
-    def get_default_lang_entry(self,):
-        """ returns default Language instance, setup in system preferences. """
-        from pylucid.preference_forms import SystemPreferencesForm # FIXME: import here, against import loop.
-        system_preferences = SystemPreferencesForm().get_preferences()
-        default_lang_code = system_preferences["lang_code"]
-        default_lang_entry, created = self.get_or_create(code=default_lang_code)
-        if created:
-            failsafe_message("Default system language %r created!" % default_lang_entry)
-        return default_lang_entry
+    default_lang_entry = None
+    def get_default(self):
+        if self.default_lang_entry is None:
+            lang_code = settings.LANGUAGE_CODE.split("-")[0]
+            self.default_lang_entry, created = self.get_or_create(
+                code=lang_code, defaults={'description': lang_code}
+            )
+            if created:
+                failsafe_message("Default language entry %r created." % self.default_lang_entry)
+        return self.default_lang_entry
 
-    def get_current_lang_entry(self, request=None):
+    def get_current(self, request=None):
         """ return client Language instance, if not available, use get_default_lang_entry() """
         if request == None:
             request = ThreadLocal.get_current_request()
@@ -69,7 +100,7 @@ class LanguageManager(models.Manager):
                         ) % request.LANGUAGE_CODE
                         failsafe_message(msg)
 
-        return self.get_default_lang_entry()
+        return self.get_default()
 
 
 class Language(models.Model):

@@ -9,10 +9,10 @@ from dbpreferences.forms import DBPreferencesBaseForm
 
 from pylucid.models import PageTree, Design, Language
 
-if Language.objects.count() == 0:
-    # FIXME: Insert first language
-    Language(code="en", description="english").save()
-    warnings.warn("First language 'en' created.")
+#if Language.objects.count() == 0:
+#    # FIXME: Insert first language
+#    Language(code="en", description="english").save()
+#    warnings.warn("First language 'en' created.")
 
 
 class SystemPreferencesForm(DBPreferencesBaseForm):
@@ -22,11 +22,14 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         required=False, initial=None,
         help_text=_("ID of the PyLucid Admin Design.")
     )
-    lang_code = forms.ChoiceField(
-        choices=Language.objects.values_list('code', 'description'),
-        initial=Language.objects.all()[0].code,
-        help_text=_("The default system language")
-    )
+    # We use settings.LANGUAGE_CODE as default language:
+    # http://docs.djangoproject.com/en/dev/ref/settings/#language-code
+    # Because django does many things for us.
+#    lang_code = forms.ChoiceField(
+#        choices=Language.objects.values_list('code', 'description'),
+#        initial=Language.objects.all()[0].code,
+#        help_text=_("The default system language")
+#    )
     ban_release_time = forms.IntegerField(
         help_text=_("How long should a IP address banned in minutes. (Changes need app restart)"),
         initial=15, min_value=1, max_value=60 * 24 * 7
