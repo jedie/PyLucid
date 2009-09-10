@@ -339,7 +339,7 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
                 keys=("title", "description", "keywords")
             )
             pagemeta_entry, created = PageMeta.objects.get_or_create(
-                page=tree_entry, lang=language,
+                pagetree=tree_entry, language=language,
                 defaults=default_dict
             )
             if verbosity >= 2:
@@ -351,9 +351,8 @@ def create_pages(verbosity, design_map, site, pages, parent=None):
             if tree_entry.page_type == PageTree.PLUGIN_TYPE:
                 # It's a plugin page
                 pluginpage, created = PluginPage.objects.get_or_create(
-                    app_label=page_data["plugin"], pagemeta__page=tree_entry
+                    app_label=page_data["plugin"], pagetree=tree_entry
                 )
-                pluginpage.pagemeta.add(pagemeta_entry)
                 if verbosity >= 2:
                     if created:
                         print("PluginPage created.: %r" % pluginpage)
