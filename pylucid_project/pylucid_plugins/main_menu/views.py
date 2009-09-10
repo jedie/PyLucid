@@ -31,7 +31,7 @@ def lucidTag(request, min=1, max=0):
     """
     TODO: use min, max options!
     """
-    current_lang = request.PYLUCID.lang_entry
+    current_lang = request.PYLUCID.language_entry
     current_pagetree = request.PYLUCID.pagetree
     user = request.user
 
@@ -63,9 +63,9 @@ def lucidTag(request, min=1, max=0):
     tree.add_pagemeta(request)
 
 #    # add all PageMeta objects into tree
-#    queryset = PageMeta.objects.filter(lang=current_lang)
+#    queryset = PageMeta.objects.filter(language=current_lang)
 #
-#    tree.add_related(queryset, field="page", attrname="pagemeta")
+#    tree.add_related(queryset, field="pagetree", attrname="pagemeta")
 #    #tree.debug()
 
     return {"nodes": tree.get_first_nodes()}

@@ -26,7 +26,7 @@ class UpdateJournal(models.Model):
     )
     object_url = models.URLField(verbose_name=_('object url'), help_text="absolute url to the item.",)
 
-    lang = models.ForeignKey(Language)
+    language = models.ForeignKey(Language)
 
     title = models.CharField(blank=True, max_length=256,
         help_text="A long page title (for e.g. page title or link title text)"

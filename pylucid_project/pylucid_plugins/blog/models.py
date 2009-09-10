@@ -57,7 +57,7 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         help_text=_("The blog entry headline"), max_length=255
     )
     content = models.TextField(_('Content'))
-    lang = models.ForeignKey(Language)
+    language = models.ForeignKey(Language)
     markup = models.IntegerField(
         max_length=1, choices=PageContent.MARKUP_CHOICES,
         help_text="the used markup language for this entry",
@@ -80,7 +80,7 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         return {
             "lastupdatetime": self.lastupdatetime,
             "user_name": self.lastupdateby,
-            "lang": self.lang,
+            "language": self.language,
             "object_url": self.get_absolute_url(),
             "title": self.headline,
         }

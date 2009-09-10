@@ -42,7 +42,7 @@ def lucidTag(request, count=10):
     queryset = UpdateJournal.on_site.all()
 
     accessible_lang = Language.objects.all_accessible(request.user)
-    queryset = queryset.filter(lang__in=accessible_lang)
+    queryset = queryset.filter(language__in=accessible_lang)
 
     if not request.user.is_staff:
         queryset = queryset.filter(staff_only=False)

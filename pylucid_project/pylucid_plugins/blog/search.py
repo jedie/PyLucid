@@ -18,7 +18,7 @@ def get_search_results(request, search_languages, search_strings, search_results
     queryset = queryset.filter(is_public=True)
 
     # Only items in the selected search language
-    queryset = queryset.filter(lang__in=search_languages)
+    queryset = queryset.filter(language__in=search_languages)
 
     for term in search_strings:
         queryset = queryset.filter(content__icontains=term)
@@ -34,7 +34,7 @@ def get_search_results(request, search_languages, search_strings, search_results
             headline=item.headline,
 
             # displayed in the result list
-            lang=item.lang,
+            lang=item.language,
 
             # Link to the hit
             url=item.get_absolute_url(),

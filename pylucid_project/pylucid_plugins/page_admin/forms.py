@@ -41,6 +41,16 @@ class PageTreeForm(forms.ModelForm):
 
         slug = cleaned_data["slug"]
         parent = cleaned_data["parent"]
+
+        if parent and parent.page_type == parent.PLUGIN_TYPE:
+            # A plugin page can't have any sub pages!
+            parent_url = parent.get_absolute_url()
+            msg = _(
+                "Can't use the <strong>plugin</strong> page '%s' as parent page!"
+                " Please choose a <strong>content</strong> page."
+            ) % parent_url
+            self._errors["parent"] = ErrorList([mark_safe(msg)])
+
         queryset = PageTree.on_site.all().filter(slug=slug, parent=parent)
 
         # Exclude the current object from the query if we are editing an
@@ -75,7 +85,7 @@ class PageTreeForm(forms.ModelForm):
 class PageMetaForm(forms.ModelForm):
     class Meta:
         model = PageMeta
-        exclude = ("page", "lang")
+        exclude = ("pagetree", "language")
 
 
 class PageContentForm(forms.ModelForm):
@@ -96,7 +106,7 @@ class PluginPageForm(forms.ModelForm):
 
     class Meta:
         model = PluginPage
-        exclude = ("pagemeta")
+        exclude = ("pagetree")
 
 
 class LanguageSelectForm(forms.Form):

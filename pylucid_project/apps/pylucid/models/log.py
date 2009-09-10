@@ -70,7 +70,7 @@ class LogEntryManager(models.Manager):
         }
 
         if hasattr(request, "PYLUCID"):
-            kwargs["used_language"] = request.PYLUCID.lang_entry
+            kwargs["used_language"] = request.PYLUCID.language_entry
 
         for key in META_KEYS:
             value = request.META.get(key)

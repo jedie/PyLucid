@@ -72,7 +72,7 @@ def pylucid(request):
             "page_keywords": pagemeta.keywords,
             "page_description": pagemeta.description,
             "page_robots": pagemeta.robots,
-            "page_language": pagemeta.lang.code,
+            "page_language": pagemeta.language.code,
         })
 
     if getattr(request, "plugin_name", None) != None:

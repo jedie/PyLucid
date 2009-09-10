@@ -66,10 +66,10 @@ def pre_render_global_template_handler(**kwargs):
     """
     request = kwargs["request"]
 
-    current_lang = request.PYLUCID.lang_entry
+    current_lang = request.PYLUCID.language_entry
     page_content = request.PYLUCID.context["page_content"]
 
-    queryset = LexiconEntry.on_site.filter(is_public=True).filter(lang=current_lang)
+    queryset = LexiconEntry.on_site.filter(is_public=True).filter(language=current_lang)
     entries = queryset.values_list("term", "alias", "short_definition")
 
     lexicon_data = LexiconData()

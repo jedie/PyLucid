@@ -23,7 +23,7 @@
 </fieldset>
 
 {% for form in pagemeta_formset %}
-<fieldset><legend>{% trans 'Language' %}: <strong>{{ form.lang.description }}</strong></legend>
+<fieldset><legend>{% trans 'Language' %}: <strong>{{ form.language.description }}</strong></legend>
     <h2 class="form_collapse">PageMeta</h2>
     {% include "admin/pylucid/includes/pylucid_formset.html" %}
 </fieldset>

@@ -174,7 +174,7 @@ class DetectLang(BaseLangTest):
     def test_wrong_url_lang1(self):
         """
         Test if we would be redirectet to the url with the right land code.
-        Test view: pylucid.views.lang_root_page
+        Test view: pylucid.views.language_root_page
         """
         for lang in TestLanguages():
             response = self.client.get("/it/", HTTP_ACCEPT_LANGUAGE=lang.code)

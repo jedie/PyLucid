@@ -58,7 +58,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
     term = models.CharField(_('Term'), help_text=_("Term in primitive form"), max_length=255)
-    lang = models.ForeignKey(Language)
+    language = models.ForeignKey(Language)
     alias = TagField(# from django-tagging
         help_text=mark_safe(
             _('alias for this entry. <a href="%s" class="openinwindow"'
@@ -92,7 +92,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         return {
             "lastupdatetime": self.lastupdatetime,
             "user_name": self.lastupdateby,
-            "lang": self.lang,
+            "language": self.language,
             "object_url": self.get_absolute_url(),
             "title": _("New lexicon entry '%s'.") % self.term,
         }
@@ -121,7 +121,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         return self.term
 
     class Meta:
-        unique_together = (("lang", "term"),)
+        unique_together = (("language", "term"),)
         ordering = ('term',)
 
 

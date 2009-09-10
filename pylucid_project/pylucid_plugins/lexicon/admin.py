@@ -26,12 +26,12 @@ from lexicon.models import LexiconEntry
 
 class LexiconEntryAdmin(BaseAdmin, VersionAdmin):
     list_display = (
-        "id", "term", "lang", "tags", "is_public",
+        "id", "term", "language", "tags", "is_public",
         "view_on_site_link", "site_info",
         "lastupdatetime", "lastupdateby"
     )
     list_display_links = ("term", "tags",)
-    list_filter = ("is_public", "lang", "createby", "lastupdateby",)
+    list_filter = ("is_public", "language", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     search_fields = ("term", "tags", "content")
 

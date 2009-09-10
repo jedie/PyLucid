@@ -50,6 +50,12 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     inherited attributes from AutoSiteM2M:
         sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
+        
+    inherited attributes from UpdateInfoBaseModel:
+        createtime     -> datetime of creation
+        lastupdatetime -> datetime of the last change
+        createby       -> ForeignKey to user who creaded this entry
+        lastupdateby   -> ForeignKey to user who has edited this entry
     """
     user = models.ForeignKey(User, unique=True, related_name="%(class)s_user")
 

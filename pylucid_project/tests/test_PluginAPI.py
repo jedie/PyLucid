@@ -106,7 +106,7 @@ class PluginPageTest(basetest.BaseUnittest):
                     must_contain=(
                         unittest_plugin.views.PLUGINPAGE_ROOT_STRING_RESPONSE,
                         '3-pluginpage title (lang:%(lang)s, site:%(site_name)s)' % {
-                            "lang": language.code,
+                            "language": language.code,
                             "site_name": site.name,
                         },
                     ),
@@ -153,7 +153,7 @@ class PluginPageTest(basetest.BaseUnittest):
                     must_contain=(
                         unittest_plugin.views.PLUGINPAGE_TEMPLATE_RESPONSE,
                         '3-pluginpage title (lang:%(lang)s, site:%(site_name)s)' % {
-                            "lang": language.code,
+                            "language": language.code,
                             "site_name": site.name,
                         },
                     ),
@@ -195,7 +195,7 @@ class PluginPageTest(basetest.BaseUnittest):
                         unittest_plugin.views.PLUGINPAGE_API_TEST_PAGE_MSG,
                         unittest_plugin.views.PLUGINPAGE_API_TEST_CONTENT,
                         '3-pluginpage title (lang:%(lang)s, site:%(site_name)s)' % {
-                            "lang": language.code,
+                            "language": language.code,
                             "site_name": site.name,
                         },
                         "context_middlewares: [u&#39;extrahead&#39;, u&#39;breadcrumb&#39;]",
@@ -232,7 +232,7 @@ class PluginPageTest(basetest.BaseUnittest):
                         "Here ist the unittest plugin extra head content ;)",
                         "The unittest plugin content...",
                         '3-pluginpage title (lang:%(lang)s, site:%(site_name)s)' % {
-                            "lang": language.code,
+                            "language": language.code,
                             "site_name": site.name,
                         },
                     ),

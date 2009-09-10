@@ -199,16 +199,16 @@ class TreeGenerator(object):
         # import here -> import-loop
         from pylucid.models import PageMeta, Language
 
-        current_lang = request.PYLUCID.lang_entry
+        current_lang = request.PYLUCID.language_entry
         default_lang = Language.objects.get_default()
 
         # Generate a id list of all visible nodes 
         ids = [id for id, node in self.nodes.items() if node.visible and id != None]
         #print "Get pagemeta for: %r" % ids
-        queryset = PageMeta.objects.filter(lang=current_lang)
+        queryset = PageMeta.objects.filter(language=current_lang)
 
         # Add all pagemeta in current client lang
-        self.add_related(queryset, ids, field="page", attrname="pagemeta")
+        self.add_related(queryset, ids, field="pagetree", attrname="pagemeta")
 
         # Generate a id list of all missing pagemeta
         ids = [
@@ -217,9 +217,9 @@ class TreeGenerator(object):
         ]
         #print "Add missing pagemeta for: %r" % ids
 
-        queryset = PageMeta.objects.filter(lang=default_lang)
+        queryset = PageMeta.objects.filter(language=default_lang)
         # Add all pagemeta in current client lang
-        self.add_related(queryset, ids, field="page", attrname="pagemeta")
+        self.add_related(queryset, ids, field="pagetree", attrname="pagemeta")
 
     def slice_menu(self, min, max, parent=None):
         """

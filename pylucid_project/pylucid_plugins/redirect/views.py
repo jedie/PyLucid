@@ -13,7 +13,7 @@ def setup_view(request):
 
 def redirect(request):
     pagetree = request.PYLUCID.pagetree
-    lang_entry = request.PYLUCID.lang_entry
+    lang_entry = request.PYLUCID.language_entry
     
     try:
         redirect_info = RedirectModel.objects.get(page=pagetree, lang=lang_entry)

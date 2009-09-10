@@ -85,7 +85,7 @@ class BaseModelManager(models.Manager):
 
 class AutoSiteM2M(models.Model):
     """
-    Add site and on_site to model, and add at least the current site in save method.
+    Add sites and on_site to model, and add at least the current site in save method.
     """
     sites = models.ManyToManyField(Site)
     on_site = CurrentSiteManager('sites')

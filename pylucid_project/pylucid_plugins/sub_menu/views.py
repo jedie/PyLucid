@@ -32,7 +32,7 @@ def lucidTag(request):
     """
     # Get the current models.PageContent instance
     pagetree = request.PYLUCID.pagetree
-    current_lang = request.PYLUCID.lang_entry
+    current_lang = request.PYLUCID.language_entry
 
     sub_pages = PageMeta.objects.all().filter(page__parent=pagetree, lang=current_lang)
 

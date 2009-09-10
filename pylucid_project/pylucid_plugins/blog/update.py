@@ -39,7 +39,7 @@ def update08(request, out, language):
             headline=old_blog_entry.headline,
             defaults={
                 "content": old_blog_entry.content,
-                "lang": language,
+                "language": language,
                 "markup": old_blog_entry.markup,
                 "tags": old_tags,
                 "is_public": old_blog_entry.is_public,

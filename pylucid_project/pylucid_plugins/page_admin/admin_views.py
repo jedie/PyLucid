@@ -147,8 +147,8 @@ def new_content_page(request):
 
                     # Create new PageMeta entry
                     new_pagemeta = pagemeta_form.save(commit=False)
-                    new_pagemeta.page = new_pagetree
-                    new_pagemeta.lang = default_lang_entry
+                    new_pagemeta.pagetree = new_pagetree
+                    new_pagemeta.language = default_lang_entry
                     new_pagemeta.save()
 
                     # Create new PageContent entry
@@ -206,7 +206,7 @@ def new_plugin_page(request):
                 pagemeta_is_valid = False
         else:
             form = PageMetaForm(prefix=lang.code)
-        form.lang = lang # for language info in fieldset legend
+        form.language = lang # for language info in fieldset legend
         pagemeta_formset.append(form)
 
     if request.method == "POST":
@@ -222,18 +222,17 @@ def new_plugin_page(request):
 
                 # Create new PluginPage entry
                 new_pluginpage = pluginpage_form.save(commit=False)
+                new_pluginpage.pagetree = new_pagetree
                 new_pluginpage.save() # needs primary key before a many-to-many relationship can be used.
 
                 # Create all PageMeta entries and attach them to PluginPage
                 new_pluginpage_instance = []
                 for language, pagemeta_form in zip(languages, pagemeta_formset):
                     new_pagemeta = pagemeta_form.save(commit=False)
-                    new_pagemeta.page = new_pagetree
-                    new_pagemeta.lang = language
+                    new_pagemeta.pagetree = new_pagetree
+                    new_pagemeta.language = language
                     new_pagemeta.save()
-                    new_pluginpage.pagemeta.add(new_pagemeta)
 
-                new_pluginpage.save()
             except:
                 transaction.savepoint_rollback(sid)
                 raise
@@ -335,12 +334,12 @@ def _edit_plugin_page(request, context, pagetree):
     pagemeta_is_valid = True # Needed for check if all forms are valid.
     for pagemeta in pagemetas:
         if request.method == "POST":
-            form = PageMetaForm(request.POST, prefix=pagemeta.lang.code, instance=pagemeta)
+            form = PageMetaForm(request.POST, prefix=pagemeta.language.code, instance=pagemeta)
             if not form.is_valid():
                 pagemeta_is_valid = False
         else:
-            form = PageMetaForm(prefix=pagemeta.lang.code, instance=pagemeta)
-        form.lang = pagemeta.lang # for language info in fieldset legend
+            form = PageMetaForm(prefix=pagemeta.language.code, instance=pagemeta)
+        form.language = pagemeta.language # for language info in fieldset legend
         pagemeta_formset.append(form)
 
     if request.method == "POST":
@@ -414,7 +413,7 @@ def _select_language(request, context, source_pagemeta):
     choose the translation destination language.
     If one one other language available -> return it directly.
     """
-    other_languages = Language.objects.exclude(code=source_pagemeta.lang.code)
+    other_languages = Language.objects.exclude(code=source_pagemeta.language.code)
     if len(other_languages) == 0:
         # should not happend
         request.page_msg.error("Error: There exist only one Language!")
@@ -439,7 +438,7 @@ def _select_language(request, context, source_pagemeta):
                 })
         context.update({
             "title": _("Translate page '%s' (%s) - Select destination language") % (
-                source_pagemeta.name, source_pagemeta.lang.description
+                source_pagemeta.name, source_pagemeta.language.description
             ),
             "template_name": "page_admin/select_translate_language.html",
             "form": form,
@@ -458,7 +457,7 @@ def translate(request, pagemeta_id=None):
 
     source_pagemeta = PageMeta.objects.get(id=pagemeta_id)
     pagetree = source_pagemeta.page
-    source_language = source_pagemeta.lang
+    source_language = source_pagemeta.language
 
     is_pluginpage = pagetree.page_type == PageTree.PLUGIN_TYPE
     if is_pluginpage:
@@ -488,7 +487,7 @@ def translate(request, pagemeta_id=None):
 
     context.update({
         "title": _("Translate page '%s' (%s) into %s.") % (
-            source_pagemeta.name, source_pagemeta.lang.description, dest_language.description
+            source_pagemeta.name, source_pagemeta.language.description, dest_language.description
         ),
         "template_name": "page_admin/translate_page.html",
     })
@@ -543,8 +542,8 @@ def translate(request, pagemeta_id=None):
 
                     # Create new PageMeta entry
                     new_pagemeta = dest_pagemeta_form.save(commit=False)
-                    new_pagemeta.page = pagetree
-                    new_pagemeta.lang = dest_language
+                    new_pagemeta.pagetree = pagetree
+                    new_pagemeta.language = dest_language
                     new_pagemeta.save()
 
                     # Create new PageContent entry
@@ -589,14 +588,14 @@ def translate(request, pagemeta_id=None):
                 prefix=dest_language.code, instance=dest_pagecontent
             )
 
-    source_pagecontent_form.lang = source_language
-    dest_pagecontent_form.lang = dest_language
+    source_pagecontent_form.language = source_language
+    dest_pagecontent_form.language = dest_language
 
     pagemeta_fields = []
     for source_field, dest_field in zip(source_pagemeta_form, dest_pagemeta_form):
-        source_field.lang = source_language
+        source_field.language = source_language
         pagemeta_fields.append(source_field)
-        dest_field.lang = dest_language
+        dest_field.language = dest_language
         pagemeta_fields.append(dest_field)
 
     context.update({

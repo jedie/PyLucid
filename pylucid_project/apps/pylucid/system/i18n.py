@@ -104,7 +104,7 @@ def activate_language(request, lang_entry, save=False):
     """
     Activate django i18n language and set some request objects:
     
-         * request.PYLUCID.lang_entry
+         * request.PYLUCID.language_entry
     Add lang_entry witch is the given Language model instance.
         
         * request.LANGUAGE_CODE
@@ -112,7 +112,7 @@ def activate_language(request, lang_entry, save=False):
     see: http://docs.djangoproject.com/en/dev/topics/i18n/
     """
     request.LANGUAGE_CODE = lang_entry.code
-    request.PYLUCID.lang_entry = lang_entry
+    request.PYLUCID.language_entry = lang_entry
 
     if settings.PYLUCID.I18N_DEBUG:
         request.page_msg.successful('Activate language "%s"' % lang_entry.code)

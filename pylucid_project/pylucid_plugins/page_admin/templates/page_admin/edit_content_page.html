@@ -5,7 +5,7 @@
 <p>
     <small>
     Note: A new page can only create the default system language.
-    This is <strong>{{ default_lang_entry.description }}</strong>. You can translate it later.
+    This is <strong>{{ default_language_entry.description }}</strong>. You can translate it later.
     </small>
 </p>
 {% if not sites|length_is:"1" %}
@@ -33,7 +33,7 @@
 
 <fieldset>
     <legend>
-        PluginContent - {% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong>
+        PluginContent - {% trans 'Language:' %} <strong>{{ default_language_entry.description }}</strong>
     </legend>
     
     {% include "page_admin/includes/edit_content_page_buttons.html" %}
@@ -59,7 +59,7 @@
     {% endwith %}
 </fieldset>
 
-<fieldset><legend>{% trans 'Language' %}: <strong>{{ default_lang_entry.description }}</strong></legend>
+<fieldset><legend>{% trans 'Language' %}: <strong>{{ default_language_entry.description }}</strong></legend>
     <h2 class="form_collapse">PageMeta</h2>
     {% with pagemeta_form as form %}
         {% include "admin/pylucid/includes/pylucid_formset.html" %}

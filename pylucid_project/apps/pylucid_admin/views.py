@@ -83,7 +83,7 @@ def install_pylucid(request):
 #    # ------------------------------------------------------------------------
 #    pylucid_admin_pagemeta, created = PageMeta.objects.get_or_create(
 #        page=pylucid_admin_pagetree,
-#        lang=request.PYLUCID.lang_entry, # FIXME: Create in all existing languages?
+#        lang=request.PYLUCID.language_entry, # FIXME: Create in all existing languages?
 #        defaults={"name": "PyLucid Admin", "robots":"noindex,nofollow"}
 #    )
 #    if created:
@@ -94,7 +94,7 @@ def install_pylucid(request):
 #    # ------------------------------------------------------------------------
 #    pylucid_admin_pagecontent, created = PageContent.objects.get_or_create(
 #        page=pylucid_admin_pagetree,
-#        lang=request.PYLUCID.lang_entry, # FIXME: Create in all existing languages?
+#        lang=request.PYLUCID.language_entry, # FIXME: Create in all existing languages?
 #        pagemeta=pylucid_admin_pagemeta,
 #        defaults={
 #            "content":"PyLucid Admin section. Please seletect a menu item.",

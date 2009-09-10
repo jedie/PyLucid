@@ -60,7 +60,7 @@ def new_blog_entry(request):
     else:
         initial = {
             "sites": [Site.objects.get_current().pk], # preselect current site
-            "lang": request.PYLUCID.lang_entry.pk, # preselect current language
+            "language": request.PYLUCID.language_entry.pk, # preselect current language
         }
         form = BlogEntryForm(m2m_limit, initial=initial)
 

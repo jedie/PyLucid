@@ -64,7 +64,6 @@ def _do_update(request, language):
         sha_login_salt = old_entry.salt
 
         userprofile, created = UserProfile.objects.get_or_create(user=user)
-        #userprofile.site.add(site)           
         if created:
             out.write("UserProfile for user '%s' created." % user.username)
         else:
@@ -91,7 +90,6 @@ def _do_update(request, language):
             }
         )
         new_template.save()
-        new_template.sites.add(site)
         templates[template.name] = new_template_name
         if created:
             out.write("template '%s' transferted into dbtemplates." % template.name)
@@ -111,7 +109,6 @@ def _do_update(request, language):
                 "lastupdatetime": style.lastupdatetime,
             }
         )
-        new_staticfile.sites.add(site)
         cssfiles[style.name] = new_staticfile
         if created:
             out.write("stylesheet '%s' transferted into EditableStaticFile." % style.name)
@@ -238,8 +235,8 @@ def _do_update(request, language):
         # create/get PageMeta entry
 
         pagemeta_entry, created = PageMeta.objects.get_or_create(
-            page=tree_entry,
-            lang=language,
+            pagetree=tree_entry,
+            language=language,
             defaults={
                 "name": old_page.name,
                 "title": old_page.title,
@@ -255,7 +252,6 @@ def _do_update(request, language):
             }
         )
         if created:
-            pagemeta_entry.save()
             out.write("PageMeta entry '%s' - '%s' created." % (language, tree_entry.slug))
         else:
             out.write("PageMeta entry '%s' - '%s' exist." % (language, tree_entry.slug))
@@ -276,7 +272,6 @@ def _do_update(request, language):
             }
         )
         if created:
-            content_entry.save()
             out.write("PageContent entry '%s' - '%s' created." % (language, tree_entry.slug))
         else:
             out.write("PageContent entry '%s' - '%s' exist." % (language, tree_entry.slug))

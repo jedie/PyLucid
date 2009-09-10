@@ -30,7 +30,7 @@ class PyLucidComment(Comment):
         return {
             "lastupdatetime": self.submit_date,
             "user_name": self.userinfo["name"],
-            "lang": self.content_object.lang,
+            "language": self.content_object.language,
             "object_url": self.get_absolute_url(),
             "title": "New '%s' comment." % self.content_type,
         }

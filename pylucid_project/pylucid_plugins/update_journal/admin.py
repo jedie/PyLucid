@@ -27,7 +27,7 @@ from update_journal.models import UpdateJournal, PageUpdateListObjects
 
 
 class UpdateJournalAdmin(admin.ModelAdmin):
-    list_display = ("id", "lastupdatetime", "user_name", "content_type", "object_url", "lang", "title", "staff_only")
+    list_display = ("id", "lastupdatetime", "user_name", "content_type", "object_url", "language", "title", "staff_only")
     list_display_links = ("object_url",)
     list_filter = ("user_name", "content_type", "staff_only")
 #    date_hierarchy = 'lastupdatetime'

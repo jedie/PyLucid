@@ -84,7 +84,7 @@ class SearchHit(object):
         self.search_strings = search_strings
         self.score = score
         self.headline = headline
-        self.lang = lang
+        self.language = lang
         self.url = url
         self.content = content
 
@@ -274,7 +274,7 @@ def http_get_view(request):
         # If the client has uses the lucidTag form, there exist no language information
         # -> use the default language 
         form_data._mutable = True
-        form_data["language"] = request.PYLUCID.lang_entry.code
+        form_data["language"] = request.PYLUCID.language_entry.code
         form_data._mutable = False
 
     form = AdvancedSearchForm(form_data)

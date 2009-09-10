@@ -47,8 +47,8 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
     """
     objects = BaseModelManager()
 
-    page = models.ForeignKey("PageTree")
-    lang = models.ForeignKey("Language")
+    pagetree = models.ForeignKey("PageTree")
+    language = models.ForeignKey("Language")
 
     name = models.CharField(blank=True, max_length=150,
         help_text="Sort page name (for link text in e.g. menu)"
@@ -85,8 +85,8 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
             #print "PageMeta url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
             return self._url_cache[self.pk]
 
-        lang_code = self.lang.code
-        page_url = self.page.get_absolute_url()
+        lang_code = self.language.code
+        page_url = self.pagetree.get_absolute_url()
         url = "/" + lang_code + page_url
 
         self._url_cache[self.pk] = url
@@ -95,36 +95,36 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
     def save(self, *args, **kwargs):
         """ reset PageMeta and PageTree url cache """
         self._url_cache.clear()
-        self.page._url_cache.clear()
+        self.pagetree._url_cache.clear()
         return super(PageMeta, self).save(*args, **kwargs)
 
     def get_site(self):
         """ used e.g. for self.get_absolute_uri() and the admin page """
-        return self.page.site
+        return self.pagetree.site
     get_site.short_description = _('on site')
     get_site.allow_tags = False
 
     def get_other_languages(self):
-        return PageMeta.objects.all().filter(page=self.page).exclude(lang=self.lang)
+        return PageMeta.objects.all().filter(page=self.pagetree).exclude(lang=self.language)
 
     def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
         return self.title or self.get_name()
 
     def get_name(self):
-        return self.name or self.page.slug
+        return self.name or self.pagetree.slug
 
     def __unicode__(self):
         return u"PageMeta for page: %r (lang: %s, site: %s)" % (
-            self.page.slug, self.lang.code, self.get_site().domain
+            self.pagetree.slug, self.language.code, self.get_site().domain
         )
 
     class Meta:
         app_label = 'pylucid'
         verbose_name_plural = verbose_name = "PageMeta"
-        unique_together = (("page", "lang"),)
+        unique_together = (("pagetree", "language"),)
         ordering = ("-lastupdatetime",)
-#        ordering = ("page", "lang")
+#        ordering = ("pagetree", "language")
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageMeta)

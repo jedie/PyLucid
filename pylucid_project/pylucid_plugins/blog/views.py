@@ -51,8 +51,8 @@ def _get_filters(request):
     Construct queryset filter.
     Used for blog entry filtering and for Tag.objects.cloud_for_model()
     """
-    current_lang = request.PYLUCID.lang_entry
-    filters = {"lang":current_lang}
+    current_lang = request.PYLUCID.language_entry
+    filters = {"language":current_lang}
 
     if not request.user.has_perm("blog.change_blogentry"):
         filters["is_public"] = True

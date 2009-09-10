@@ -44,8 +44,8 @@ from lexicon.models import LexiconEntry, Links
 
 
 def _get_filtered_queryset(request):
-    current_lang = request.PYLUCID.lang_entry
-    queryset = LexiconEntry.on_site.filter(is_public=True).filter(lang=current_lang)
+    current_lang = request.PYLUCID.language_entry
+    queryset = LexiconEntry.on_site.filter(is_public=True).filter(language=current_lang)
     return queryset
 
 

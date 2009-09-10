@@ -73,7 +73,7 @@ def _raise_resolve_error(plugin_url_resolver, rest_url):
 
 def call_plugin(request, prefix_url, rest_url):
     """ Call a plugin and return the response. """
-    lang_entry = request.PYLUCID.lang_entry
+    lang_entry = request.PYLUCID.language_entry
     pluginpage = request.PYLUCID.pluginpage
 
     # build the url prefix

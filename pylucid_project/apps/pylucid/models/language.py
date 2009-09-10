@@ -22,6 +22,7 @@ from django.contrib.auth.models import Group
 from django_tools.middlewares import ThreadLocal
 
 from pylucid.shortcuts import failsafe_message
+from pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 
 from pylucid_project.pylucid_plugins import update_journal
 
@@ -85,7 +86,7 @@ class LanguageManager(models.Manager):
 
         if request:
             if hasattr(request, "PYLUCID"):
-                return request.PYLUCID.lang_entry
+                return request.PYLUCID.language_entry
 
             if hasattr(request, "LANGUAGE_CODE"):
                 lang_code = request.LANGUAGE_CODE
@@ -103,7 +104,18 @@ class LanguageManager(models.Manager):
         return self.get_default()
 
 
-class Language(models.Model):
+class Language(AutoSiteM2M, UpdateInfoBaseModel):
+    """
+    inherited attributes from AutoSiteM2M:
+        sites   -> ManyToManyField to Site
+        on_site -> sites.managers.CurrentSiteManager instance
+        
+    inherited attributes from UpdateInfoBaseModel:
+        createtime     -> datetime of creation
+        lastupdatetime -> datetime of the last change
+        createby       -> ForeignKey to user who creaded this entry
+        lastupdateby   -> ForeignKey to user who has edited this entry
+    """
     objects = LanguageManager()
 
     code = models.CharField(unique=True, max_length=5)

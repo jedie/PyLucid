@@ -79,7 +79,7 @@ pylucid_admin_site.register(models.LogEntry, LogEntryAdmin)
 class PageMetaAdmin(BaseAdmin, VersionAdmin):
     list_display = ("id", "get_title", "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
-    list_filter = ("lang", "createby", "lastupdateby", "tags")#"keywords"
+    list_filter = ("language", "createby", "lastupdateby", "tags")#"keywords"
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
 

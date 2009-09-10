@@ -58,7 +58,7 @@ def new_entry(request):
     else:
         initial = {
             "sites": [i[0] for i in user_site_ids], # preselect all accessable sites
-            "lang": request.PYLUCID.lang_entry.pk, # preselect current language
+            "language": request.PYLUCID.language_entry.pk, # preselect current language
         }
         form = LexiconEntryForm(m2m_limit, initial=initial)
 

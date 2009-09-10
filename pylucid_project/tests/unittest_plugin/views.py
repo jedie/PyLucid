@@ -114,7 +114,7 @@ def test_PyLucid_api(request):
     output.append("context_middlewares: %s" % context["context_middlewares"].keys())
     output.append("default_lang_code: %s" % request.PYLUCID.default_lang_code)
     output.append("default_lang_entry: %r" % Language.objects.get_default())
-    output.append("lang_entry: %r" % request.PYLUCID.lang_entry)
+    output.append("lang_entry: %r" % request.PYLUCID.language_entry)
     output.append("page_template: %r" % request.PYLUCID.page_template)
     output.append("pagetree: %r" % request.PYLUCID.pagetree)
     output.append("pagemeta: %r" % request.PYLUCID.pagemeta)
@@ -135,7 +135,7 @@ def test_BreadcrumbPlugin(request):
     Test view for tests.test_PluginBreadcrumb.
     Add a link to the bradcrumbs.
     """
-    lang = request.PYLUCID.lang_entry
+    lang = request.PYLUCID.language_entry
     breadcrumb = request.PYLUCID.context["context_middlewares"]["breadcrumb"]
     add_url = "/%s/%s" % (lang.code, ADDED_LINK_URL)
     breadcrumb.add_link(title=ADDED_LINK_TITLE, url=add_url)

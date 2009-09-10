@@ -77,13 +77,16 @@ class PageTreeManager(BaseModelManager):
         queryset = self.filter_accessible(queryset, user)
         return queryset
 
-    def get_tree(self, user=None, filter_showlinks=False):
+    def get_tree(self, user=None, filter_showlinks=False, exclude_plugin_pages=False):
         """ return a TreeGenerator instance with all accessable page tree instance """
         queryset = self.all_accessible(user)
 
         if filter_showlinks:
             # Filter PageTree.showlinks
             queryset = queryset.filter(showlinks=True)
+
+        if exclude_plugin_pages:
+            queryset = queryset.exclude(page_type=PageTree.PLUGIN_TYPE)
 
         queryset = queryset.order_by("position")
         items = queryset.values("id", "parent", "slug")
@@ -92,7 +95,7 @@ class PageTreeManager(BaseModelManager):
 
     def get_choices(self, user=None):
         """ returns a choices list for e.g. a forms select widget. """
-        tree = PageTree.objects.get_tree(user)
+        tree = PageTree.objects.get_tree(user, exclude_plugin_pages=True)
         choices = [("", "---------")] + [
             (node.id, node.get_absolute_url()) for node in tree.iter_flat_list()
         ]
@@ -132,20 +135,20 @@ class PageTreeManager(BaseModelManager):
         from pylucid.models import PageMeta, Language # against import loops.
 
         # client favored Language instance:
-        lang_entry = request.PYLUCID.lang_entry
+        lang_entry = request.PYLUCID.language_entry
         # default Language instance set in system preferences:
         default_lang_entry = Language.objects.get_default()
 
-        lang_entry = request.PYLUCID.lang_entry
+        lang_entry = request.PYLUCID.language_entry
 
-        queryset = PageMeta.objects.filter(page=pagetree)
+        queryset = PageMeta.objects.filter(pagetree=pagetree)
         try:
             # Try to get the current used language
-            return queryset.get(lang=lang_entry)
+            return queryset.get(language=lang_entry)
         except PageMeta.DoesNotExist:
             # Get the PageContent entry in the system default language
             try:
-                instance = queryset.get(lang=default_lang_entry)
+                instance = queryset.get(language=default_lang_entry)
             except PageMeta.DoesNotExist, err:
                 msg = (
                     "PageMeta doesn't exist for %r in client favored language %r"
@@ -157,7 +160,7 @@ class PageTreeManager(BaseModelManager):
             if show_lang_errors:
                 request.page_msg.error(
                     "PageMeta '%s' doesn't exist in client favored language '%s', use '%s' entry." % (
-                        pagetree.slug, lang_entry.code, instance.lang.code
+                        pagetree.slug, lang_entry.code, instance.language.code
                     )
                 )
             return instance

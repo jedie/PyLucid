@@ -84,7 +84,7 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
     """
     objects = PluginPageManager()
 
-    pagemeta = models.ManyToManyField("PageMeta")
+    pagetree = models.OneToOneField("PageTree")
 
     app_label = RootAppChoiceField(max_length=256,
         help_text=(
@@ -96,24 +96,17 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
         help_text="Filename of the urls.py"
     )
 
-    def get_pagemeta(self):
-        from pylucid.models import Language, PageMeta # import here against import loops
-
-        lang_entry = Language.objects.get_current()
-        try:
-            return self.pagemeta.get(lang=lang_entry)
-        except PageMeta.DoesNotExist:
-            default_lang_entry = Language.objects.get_default()
-            return self.pagemeta.get(lang=default_lang_entry)
-
     def get_site(self):
-        pagemeta = self.get_pagemeta()
-        return pagemeta.page.site
+        return self.pagetree.site
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
-        pagemeta = self.get_pagemeta()
-        return pagemeta.get_absolute_url()
+        from pylucid.models import Language # import here against import loops
+
+        pagetree_url = self.pagetree.get_absolute_url()
+        lang_entry = Language.objects.get_current()
+        url = "/" + lang_entry.code + pagetree_url
+        return url
 
     def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
@@ -130,19 +123,19 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
         return plugin_instance
 
     def save(self, *args, **kwargs):
-#        if not self.page.page_type == self.page.PLUGIN_TYPE:
-#            # FIXME: Better error with django model validation?
-#            raise AssertionError("Plugin can only exist on a plugin type tree entry!")
+        if not self.pagetree.page_type == self.pagetree.PLUGIN_TYPE:
+            # FIXME: Better error with django model validation?
+            raise AssertionError("Plugin can only exist on a plugin type tree entry!")
         return super(PluginPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"PluginPage '%s' (pagemeta: %r)" % (self.app_label, self.pagemeta.all())
+        return u"PluginPage '%s' (pagetree: %r)" % (self.app_label, self.pagetree)
 
     class Meta:
         app_label = 'pylucid'
         verbose_name_plural = verbose_name = "PluginPage"
         ordering = ("-lastupdatetime",)
-#        ordering = ("page", "lang")
+#        ordering = ("pagetree", "language")
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PluginPage)

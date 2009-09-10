@@ -7,7 +7,7 @@
     <th>no</th>
     <th>update time</th>
     <th>type</th>
-    <th title="content language">lang</th>
+    <th title="content language">language</th>
     <th>title</th>
     <th>user name</th>
   </tr>
@@ -16,7 +16,7 @@
     <td>{{ forloop.counter }}</td>
     <td>{{ item.lastupdatetime|date:_("DATETIME_FORMAT") }}</td>
     <td>{{ item.content_type }}</td>
-    <td title="{{ item.lang.description }}">{{ item.lang.code }}</td>
+    <td title="{{ item.language.description }}">{{ item.language.code }}</td>
     <td><a href="{{ item.object_url }}">{{ item.title|escape }}</a></td>
     <td>{{ item.user_name }}</td>
   </tr>

@@ -80,43 +80,43 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
-        lang_code = self.pagemeta.lang.code
-        page_url = self.pagemeta.page.get_absolute_url()
+        lang_code = self.pagemeta.language.code
+        page_url = self.pagemeta.pagetree.get_absolute_url()
         return "/" + lang_code + page_url
 
     def get_site(self):
-        return self.pagemeta.page.site
+        return self.pagemeta.pagetree.site
 
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
         return {
             "lastupdatetime": self.lastupdatetime,
             "user_name": self.lastupdateby,
-            "lang": self.pagemeta.lang,
+            "language": self.pagemeta.language,
             "object_url": self.get_absolute_url(),
             "title": self.get_title()
         }
 
     def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
-        return self.pagemeta.title or self.pagemeta.page.slug
+        return self.pagemeta.title or self.pagemeta.pagetree.slug
 
     def save(self, *args, **kwargs):
-        if self.pagemeta.page.page_type != self.pagemeta.page.PAGE_TYPE:
+        if self.pagemeta.pagetree.page_type != self.pagemeta.pagetree.PAGE_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("PageContent can only exist on a page type tree entry!")
         return super(PageContent, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u"PageContent %r (lang: %s, site: %s)" % (
-            self.pagemeta.page.slug, self.pagemeta.lang.code, self.get_site().domain
+            self.pagemeta.pagetree.slug, self.pagemeta.language.code, self.get_site().domain
         )
 
     class Meta:
         app_label = 'pylucid'
         verbose_name_plural = verbose_name = "PageContent"
         ordering = ("-lastupdatetime",)
-#        ordering = ("page", "lang")
+#        ordering = ("pagetree", "language")
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageContent)

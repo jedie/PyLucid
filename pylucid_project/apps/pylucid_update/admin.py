@@ -53,7 +53,7 @@ pylucid_admin_site.register(Page08, PageAdmin)
 #
 #class PageArchivAdmin(admin.ModelAdmin):
 #    list_display = (
-#        "id", "page", "edit_comment",
+#        "id", "pagetree", "edit_comment",
 #        "shortcut", "name", "title",
 #        "description", "lastupdatetime", "lastupdateby"
 #    )

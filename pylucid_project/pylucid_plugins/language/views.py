@@ -40,7 +40,7 @@ def _can_reset():
 @render_to("language/language_selector.html")
 def lucidTag(request):
     """ insert language selector list into page """
-    current_lang = request.PYLUCID.lang_entry
+    current_lang = request.PYLUCID.language_entry
 
     current_pagetree = request.PYLUCID.pagetree
     absolute_url = current_pagetree.get_absolute_url()
@@ -87,9 +87,9 @@ def http_get_view(request):
             request.page_msg.error("Language code length != 2 !")
         return
 
-    if raw_lang_code == request.PYLUCID.lang_entry.code:
+    if raw_lang_code == request.PYLUCID.language_entry.code:
         # Use the current lang entry and save it
-        lang_entry = request.PYLUCID.lang_entry
+        lang_entry = request.PYLUCID.language_entry
         if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
             request.page_msg.error("Save current lang entry.")
     else:
@@ -104,7 +104,7 @@ def http_get_view(request):
     i18n.activate_language(request, lang_entry, save=True)
 
     current_pagemeta = request.PYLUCID.pagemeta
-    if current_pagemeta.lang == lang_entry:
+    if current_pagemeta.language == lang_entry:
         if settings.PYLUCID.I18N_DEBUG:
             request.page_msg.error("Current page is in right language. No redirect needed.")
         return
