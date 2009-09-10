@@ -119,7 +119,7 @@ def new_content_page(request):
     default_lang_entry = Language.objects.get_default()
     context = {
         "title": "Create a new page",
-        "default_lang_entry": Language.objects.get_default(),
+        "default_lang_entry": default_lang_entry,
         "form_url": request.path,
         "abort_url": "#FIXME",
         "has_errors": request.method == "POST", # At least one form has errors.
