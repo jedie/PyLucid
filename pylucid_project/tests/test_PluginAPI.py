@@ -105,7 +105,7 @@ class PluginPageTest(basetest.BaseUnittest):
                 self.assertResponse(response,
                     must_contain=(
                         unittest_plugin.views.PLUGINPAGE_ROOT_STRING_RESPONSE,
-                        '3-pluginpage title (lang:%(lang)s, site:%(site_name)s)' % {
+                        '3-pluginpage title (lang:%(language)s, site:%(site_name)s)' % {
                             "language": language.code,
                             "site_name": site.name,
                         },
@@ -121,6 +121,14 @@ class PluginPageTest(basetest.BaseUnittest):
         test_no = 0
         for site in TestSites():
             for language in TestLanguages():
+                url = "/%s/%s/args_test/" % (language.code, unittest_plugin.PLUGIN_PAGE_URL)
+                response = self.client.get(url, HTTP_ACCEPT_LANGUAGE=language.code)
+                self.assertStatusCode(response, 200)
+                should_be = "%s [u'url_arg_%s'] [u'%s']" % (
+                    unittest_plugin.views.PLUGINPAGE_URL_ARGS_PREFIX, test_no, site_name
+                )
+                self.failUnlessEqual(response.content, should_be)
+
                 test_no += 1
                 site_name = site.name.replace(" ", "-")
                 url = "/%s/%s/args_test/url_arg_%s/%s/" % (
@@ -138,8 +146,8 @@ class PluginPageTest(basetest.BaseUnittest):
         Test a "url sub view" unittest_plugin.test_HttpResponse().
         The view returns a HttpResponse object.
         """
-        url = "/%s/%s/test_HttpResponse/" % (self.default_lang_code, unittest_plugin.PLUGIN_PAGE_URL)
-        response = self.client.get(url, HTTP_ACCEPT_LANGUAGE=self.default_lang_code)
+        url = "/%s/%s/test_HttpResponse/" % (self.default_lang_entry.code, unittest_plugin.PLUGIN_PAGE_URL)
+        response = self.client.get(url, HTTP_ACCEPT_LANGUAGE=self.default_lang_entry.code)
         self.assertStatusCode(response, 200)
         self.failUnlessEqual(response.content, unittest_plugin.views.PLUGINPAGE_HTTP_RESPONSE)
 
@@ -152,7 +160,7 @@ class PluginPageTest(basetest.BaseUnittest):
                 self.assertResponse(response,
                     must_contain=(
                         unittest_plugin.views.PLUGINPAGE_TEMPLATE_RESPONSE,
-                        '3-pluginpage title (lang:%(lang)s, site:%(site_name)s)' % {
+                        '3-pluginpage title (lang:%(language)s, site:%(site_name)s)' % {
                             "language": language.code,
                             "site_name": site.name,
                         },
@@ -165,8 +173,8 @@ class PluginPageTest(basetest.BaseUnittest):
 
     def test_return_none(self):
         """ Test if a PagePlugin returns None -> This must raise a error. """
-        url = "/%s/%s/test_return_none/" % (self.default_lang_code, unittest_plugin.PLUGIN_PAGE_URL)
-        self.assertRaises(RuntimeError, self.client.get, url, HTTP_ACCEPT_LANGUAGE=self.default_lang_code)
+        url = "/%s/%s/test_return_none/" % (self.default_lang_entry.code, unittest_plugin.PLUGIN_PAGE_URL)
+        self.assertRaises(RuntimeError, self.client.get, url, HTTP_ACCEPT_LANGUAGE=self.default_lang_entry.code)
 
     def test_url_reverse(self):
         """ Test the django url reverse function in a PagePlugin. """
@@ -194,13 +202,11 @@ class PluginPageTest(basetest.BaseUnittest):
                     must_contain=(
                         unittest_plugin.views.PLUGINPAGE_API_TEST_PAGE_MSG,
                         unittest_plugin.views.PLUGINPAGE_API_TEST_CONTENT,
-                        '3-pluginpage title (lang:%(lang)s, site:%(site_name)s)' % {
+                        '3-pluginpage title (lang:%(language)s, site:%(site_name)s)' % {
                             "language": language.code,
                             "site_name": site.name,
                         },
                         "context_middlewares: [u&#39;extrahead&#39;, u&#39;breadcrumb&#39;]",
-                        "default_lang_code: %s" % self.default_lang_code,
-                        "default_lang_entry: &lt;Language: Language %s" % self.default_lang_code,
                         "lang_entry: &lt;Language: Language %s" % language.code,
                         (
                             "page_template: u&#39;&lt;html&gt;&lt;head&gt;&lt;title&gt;"
@@ -211,7 +217,10 @@ class PluginPageTest(basetest.BaseUnittest):
                         (
                             "pagemeta: &lt;PageMeta: PageMeta for page: u&#39;3-pluginpage&#39;"
                             " (lang: %s, site: %s)&gt;"
-                        ) % (language.code, site.domain)
+                        ) % (language.code, site.domain),
+
+                        "default_lang_code: %s" % self.default_lang_entry.code,
+                        "default_lang_entry: &lt;Language: Language %s" % self.default_lang_entry.code,
                     ),
                     must_not_contain=(
                         "Traceback",
@@ -231,7 +240,7 @@ class PluginPageTest(basetest.BaseUnittest):
                     must_contain=(
                         "Here ist the unittest plugin extra head content ;)",
                         "The unittest plugin content...",
-                        '3-pluginpage title (lang:%(lang)s, site:%(site_name)s)' % {
+                        '3-pluginpage title (lang:%(language)s, site:%(site_name)s)' % {
                             "language": language.code,
                             "site_name": site.name,
                         },

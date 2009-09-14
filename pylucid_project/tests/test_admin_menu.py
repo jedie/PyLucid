@@ -9,10 +9,11 @@ from django.conf import settings
 from django.test import TransactionTestCase
 from django.core.urlresolvers import reverse
 
-from django_tools.unittest.unittest_base import BaseTestCase, direct_run
+from django_tools.unittest import unittest_base, BrowserDebug
+from pylucid_project.tests.test_tools import basetest
 
 
-class PyLucidAdminMenu(BaseTestCase, TransactionTestCase):
+class PyLucidAdminMenu(basetest.BaseUnittest):
 
     def setUp(self):
         """ install all existing plugins """
@@ -41,4 +42,4 @@ class PyLucidAdminMenu(BaseTestCase, TransactionTestCase):
 
 if __name__ == "__main__":
     # Run this unitest directly
-    direct_run(__file__)
+    unittest_base.direct_run(__file__) # Run all tests in this file

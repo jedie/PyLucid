@@ -17,29 +17,44 @@
 import test_tools # before django imports!
 
 from django_tools.unittest import unittest_base
+from django.contrib.sites.models import Site
 
 from pylucid_project.tests import unittest_plugin
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.tests.test_tools.pylucid_test_data import TestLanguages
+from pylucid_project.tests.test_tools.pylucid_test_data import TestLanguages, TestSites
 
 
 class PluginBreadcrumbTest(basetest.BaseUnittest):
     def test(self):
-        for lang in TestLanguages():
-            response = self.client.get(
-                "/%s/2-rootpage/2-2-subpage/2-2-1-subpage/" % lang.code,
-                HTTP_ACCEPT_LANGUAGE=lang.code
-            )
-            self.assertResponse(response,
-                must_contain=(
-                    '<p>You are here:',
-                    '<a href="/">Index</a>',
-                    '<a href="/%s/2-rootpage/">2-rootpage title' % lang.code,
-                    '<a href="/%s/2-rootpage/2-2-subpage/">2-2-subpage title' % lang.code,
-                    '<a href="/%s/2-rootpage/2-2-subpage/2-2-1-subpage/">2-2-1-subpage title' % lang.code,
-                ),
-                must_not_contain=("Traceback", unittest_plugin.views.STRING_RESPONSE,),
-            )
+        for site in TestSites():
+            for lang in TestLanguages():
+                response = self.client.get(
+                    "/%s/2-rootpage/2-2-subpage/2-2-1-subpage/" % lang.code,
+                    HTTP_ACCEPT_LANGUAGE=lang.code
+                )
+                self.assertResponse(response,
+                    must_contain=(
+                        '<p>You are here:',
+                        '<a href="/">Index</a>',
+
+                        (
+                            '<a href="/%(language)s/2-rootpage/"'
+                            ' title="2-rootpage title (lang:%(language)s, site:%(site)s)">'
+                            '2-rootpage</a>'
+                        ) % {"language": lang.code, "site": site},
+                        (
+                            '<a href="/%(language)s/2-rootpage/2-2-subpage/"'
+                            ' title="2-2-subpage title (lang:%(language)s, site:%(site)s)">'
+                            '2-2-subpage</a>'
+                        ) % {"language": lang.code, "site": site},
+                        (
+                            '<a href="/%(language)s/2-rootpage/2-2-subpage/2-2-1-subpage/"'
+                            ' title="2-2-1-subpage title (lang:%(language)s, site:%(site)s)">'
+                            '2-2-1-subpage</a>'
+                        ) % {"language": lang.code, "site": site},
+                    ),
+                    must_not_contain=("Traceback", unittest_plugin.views.STRING_RESPONSE,),
+                )
 
     def test_add_link(self):
         """
@@ -52,7 +67,10 @@ class PluginBreadcrumbTest(basetest.BaseUnittest):
             added_url = "/%s/%s" % (lang.code, unittest_plugin.views.ADDED_LINK_URL)
             self.assertResponse(response,
                 must_contain=(
-                    '<a href="%s">%s</a>' % (added_url, unittest_plugin.views.ADDED_LINK_TITLE),
+                    '<a href="%s" title="%s">%s</a>' % (
+                        added_url, unittest_plugin.views.ADDED_LINK_TITLE,
+                        unittest_plugin.views.ADDED_LINK_NAME
+                    ),
                     unittest_plugin.views.ADDED_LINK_RESPONSE_STRING,
                 ),
                 must_not_contain=("Traceback",),

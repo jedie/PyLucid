@@ -24,6 +24,8 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 
+from pylucid.models import Language
+
 #_____________________________________________________________________________
 # http_get_view()
 
@@ -111,13 +113,17 @@ def test_PyLucid_api(request):
 
     context = request.PYLUCID.context
     output = []
-    output.append("context_middlewares: %s" % context["context_middlewares"].keys())
-    output.append("default_lang_code: %s" % request.PYLUCID.default_lang_code)
-    output.append("default_lang_entry: %r" % Language.objects.get_default())
+    context_middlewares = context["context_middlewares"].keys()
+    context_middlewares.sort()
+    output.append("context_middlewares: %s" % context_middlewares)
     output.append("lang_entry: %r" % request.PYLUCID.language_entry)
     output.append("page_template: %r" % request.PYLUCID.page_template)
     output.append("pagetree: %r" % request.PYLUCID.pagetree)
     output.append("pagemeta: %r" % request.PYLUCID.pagemeta)
+
+    default_lang_entry = Language.objects.get_default()
+    output.append("default_lang_code: %s" % default_lang_entry.code)
+    output.append("default_lang_entry: %r" % default_lang_entry)
 
     context["output"] = output
     context["content"] = PLUGINPAGE_API_TEST_CONTENT
@@ -126,6 +132,7 @@ def test_PyLucid_api(request):
 #_____________________________________________________________________________
 # PluginPage views for unittests in test_PluginBreadcrumb
 
+ADDED_LINK_NAME = "added-link"
 ADDED_LINK_TITLE = "Unittest added link"
 ADDED_LINK_URL = "the/added/url/"
 ADDED_LINK_RESPONSE_STRING = "test_PluginBreadcrumb content"
@@ -138,7 +145,7 @@ def test_BreadcrumbPlugin(request):
     lang = request.PYLUCID.language_entry
     breadcrumb = request.PYLUCID.context["context_middlewares"]["breadcrumb"]
     add_url = "/%s/%s" % (lang.code, ADDED_LINK_URL)
-    breadcrumb.add_link(title=ADDED_LINK_TITLE, url=add_url)
+    breadcrumb.add_link(name=ADDED_LINK_NAME, title=ADDED_LINK_TITLE, url=add_url)
 
     return ADDED_LINK_RESPONSE_STRING
 
