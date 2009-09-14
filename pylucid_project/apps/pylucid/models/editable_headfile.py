@@ -56,6 +56,13 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     """
     Storage for editable static text files, e.g.: stylesheet / javascript.
 
+    TODO:
+    * Check if Design sites in Headfile sites:
+        This can't be done in save() method or in signals.post_save, because the related
+        objects would be saved later -> It must be done in ManyRelatedManager.
+        We should check if django ticked #5390 is done: 
+            http://code.djangoproject.com/ticket/5390 # Add signals to ManyRelatedManager
+
     inherited attributes from AutoSiteM2M:
         sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
