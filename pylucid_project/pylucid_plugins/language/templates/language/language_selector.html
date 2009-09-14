@@ -3,13 +3,13 @@
 {% block plugin_content %}
 <p class="info_text">{% trans "Available languages:" %}</p>
 <ul>
-  {% for lang in existing_languages %}
+  {% for language in existing_languages %}
   <li>
-    {% ifequal lang current_lang %}
-        <strong title="Current used language is '{{ lang.description }}'.">{{ lang.description }}</strong>
+    {% ifequal language current_language %}
+        <strong title="Current used language is '{{ language.description }}'.">{{ language.description }}</strong>
     {% else %}
-        <a href="?language={{ lang.code }}" title="switch to {{ lang.description }}">
-            {{ lang.description }}
+        <a href="?language={{ language.code }}" title="switch to {{ language.description }}">
+            {{ language.description }}
         </a>
     {% endifequal %}
   </li>

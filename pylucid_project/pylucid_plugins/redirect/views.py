@@ -16,7 +16,7 @@ def redirect(request):
     lang_entry = request.PYLUCID.language_entry
     
     try:
-        redirect_info = RedirectModel.objects.get(page=pagetree, lang=lang_entry)
+        redirect_info = RedirectModel.objects.get(pagetree=pagetree, language=lang_entry)
     except RedirectModel.DoesNotExist, err:
         raise RedirectModel.DoesNotExist(
             "There exist no redirect entry for page: %r in language: %s! (%s)" % (pagetree, lang_entry, err)

@@ -156,7 +156,7 @@ class SearchResults(object):
             search_strings=self.search_strings,
             score=score,
             headline=headline,
-            lang=lang,
+            language=lang,
             url=url,
             content=content,
         )

@@ -34,7 +34,7 @@ def get_search_results(request, search_languages, search_strings, search_results
             headline=item.headline,
 
             # displayed in the result list
-            lang=item.language,
+            language=item.language,
 
             # Link to the hit
             url=item.get_absolute_url(),

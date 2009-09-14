@@ -111,7 +111,7 @@ def http_get_view(request):
 
     pagetree = request.PYLUCID.pagetree
     try:
-        pagemeta = PageMeta.objects.get(page=pagetree, lang=lang_entry)
+        pagemeta = PageMeta.objects.get(pagetree=pagetree, language=lang_entry)
     except PageMeta.DoesNotExist, err:
         if settings.PYLUCID.I18N_DEBUG:
             request.page_msg.error("PageMeta doesn't exist in lang %r. So no redirect needed." % lang_entry)

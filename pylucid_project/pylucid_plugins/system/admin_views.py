@@ -79,7 +79,7 @@ def base_check(request):
     exist_all = True
     # TODO: Can we but this into a big QuerySet?
     for pagetree in PageTree.on_site.all():
-        exist = PageMeta.objects.filter(page=pagetree, lang=default_lang_entry)
+        exist = PageMeta.objects.filter(pagetree=pagetree, language=default_lang_entry)
         if not exist:
             exist_all = False
             out.write(

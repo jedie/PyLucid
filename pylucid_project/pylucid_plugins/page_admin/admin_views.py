@@ -326,7 +326,7 @@ def _edit_content_page(request, context, pagetree):
 def _edit_plugin_page(request, context, pagetree):
     """ edit a PluginPage entry with PageMeta in all Languages """
 
-    pagemetas = PageMeta.objects.filter(page=pagetree)
+    pagemetas = PageMeta.objects.filter(pagetree=pagetree)
     pluginpage = PluginPage.objects.get(pagemeta=pagemetas[0])
 
     # Create for every language a own PageMeta model form.
@@ -456,7 +456,7 @@ def translate(request, pagemeta_id=None):
         raise
 
     source_pagemeta = PageMeta.objects.get(id=pagemeta_id)
-    pagetree = source_pagemeta.page
+    pagetree = source_pagemeta.pagetree
     source_language = source_pagemeta.language
 
     is_pluginpage = pagetree.page_type == PageTree.PLUGIN_TYPE
@@ -493,7 +493,7 @@ def translate(request, pagemeta_id=None):
     })
 
     try:
-        dest_pagemeta = PageMeta.objects.get(page=pagetree, lang=dest_language)
+        dest_pagemeta = PageMeta.objects.get(pagetree=pagetree, language=dest_language)
     except PageMeta.DoesNotExist:
         dest_pagemeta = None
     else:
