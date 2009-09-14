@@ -60,7 +60,7 @@ class LanguageManager(models.Manager):
 
     def all_accessible(self, user):
         """ returns all pages that the given user can access. """
-        queryset = self.all()
+        queryset = self.model.on_site.all()
         queryset = self.filter_accessible(queryset, user)
         return queryset
 

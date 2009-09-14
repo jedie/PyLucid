@@ -40,14 +40,25 @@ def _can_reset():
 @render_to("language/language_selector.html")
 def lucidTag(request):
     """ insert language selector list into page """
-    current_lang = request.PYLUCID.language_entry
+    existing_languages = Language.objects.all_accessible(request.user)
+    if len(existing_languages) < 2:
+        # Don't insert the language selector, if there only exist one language ;)
+        if request.user.is_superuser:
+            # Display a superuser a information (only one time per session)
+            key = "useless_language_plugin"
+            if key not in request.session:
+                request.page_msg(
+                    "It's useless to insert lucidtag language into this site!"
+                    "For better performance you can remove this tag."
+                )
+                request.session[key] = True
+        return
 
+    current_lang = request.PYLUCID.language_entry
     current_pagetree = request.PYLUCID.pagetree
     absolute_url = current_pagetree.get_absolute_url()
     current_url = absolute_url.strip("/") # For {% url ... %}
 
-    user = request.user
-    existing_languages = Language.objects.all_accessible(user)
     context = {
         "current_lang": current_lang,
         "current_url": current_url,
