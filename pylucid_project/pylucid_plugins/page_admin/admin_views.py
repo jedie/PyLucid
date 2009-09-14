@@ -327,7 +327,7 @@ def _edit_plugin_page(request, context, pagetree):
     """ edit a PluginPage entry with PageMeta in all Languages """
 
     pagemetas = PageMeta.objects.filter(pagetree=pagetree)
-    pluginpage = PluginPage.objects.get(pagemeta=pagemetas[0])
+    pluginpage = PluginPage.objects.get(pagetree=pagetree)
 
     # Create for every language a own PageMeta model form.
     pagemeta_formset = []
