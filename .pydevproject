@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse-pydev version="1.0"?>
 
 <pydev_project>
@@ -8,9 +8,13 @@
 <path>/PyLucid09/PyLucid_env/src/pylucid</path>
 <path>/PyLucid09/PyLucid_env/src/django</path>
 <path>/PyLucid09/PyLucid_env/src/reversion</path>
-<path>/PyLucid09/PyLucid_env/lib/python2.5/site-packages</path>
 <path>/PyLucid09/PyLucid_env/src/pylucid/pylucid_project/apps</path>
 <path>/PyLucid09/PyLucid_env/src/pylucid/pylucid_project/pylucid_plugins</path>
 <path>/PyLucid09/PyLucid_env/src/dbpreferences</path>
+<path>PyLucid09/PyLucid_env/lib/python${py_version}/site-packages</path>
 </pydev_pathproperty>
+<pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION">
+<key>py_version</key>
+<value>2.6</value>
+</pydev_variables_property>
 </pydev_project>
