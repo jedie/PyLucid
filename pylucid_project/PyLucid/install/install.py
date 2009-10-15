@@ -92,7 +92,7 @@ def syncdb(request):
 
 class DB_DumpFakeOptions(object):
     """ Fake optparse options """
-    datadir = 'PyLucid/db_dump_datadir'
+    datadir = settings.INSTALL_DATA_DIR
     verbose = True
     stdout = None
     # Remain the records of the tables, default will delete all the records:

@@ -10,9 +10,9 @@
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+    $LastChangedDate$
+    $Rev$
+    $Author$
 
     :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
@@ -301,7 +301,7 @@ def auto_install_plugins(debug, page_msg, verbosity=True):
 def _auto_install_plugins(debug, path_cfg, page_msg, verbosity):
     package_name = ".".join(path_cfg["path"])
 
-    plugin_path = os.path.join(*path_cfg["path"])
+    plugin_path = os.path.join(settings.MAIN_APP_PATH, path_cfg["path"][1])
     plugin_list = get_plugin_list(plugin_path)
 
     for plugin_name in plugin_list:

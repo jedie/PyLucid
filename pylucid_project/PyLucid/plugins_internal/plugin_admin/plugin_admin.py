@@ -125,7 +125,7 @@ class plugin_admin(PyLucidBasePlugin):
         for path_cfg in settings.PLUGIN_PATH:
             package_name = ".".join(path_cfg["path"])
 
-            plugin_path = os.path.join(*path_cfg["path"])
+            plugin_path = os.path.join(settings.MAIN_APP_PATH, path_cfg["path"][1])
             plugin_list = get_plugin_list(plugin_path)
 
             for plugin_name in plugin_list:
