@@ -371,10 +371,8 @@ PERMALINK_URL_PREFIX = "_goto"
 # The PyLucid install instrucion page:
 INSTALL_HELP_URL = "http://pylucid.org/_goto/107/install-PyLucid/"
 
-
 # How are the DB initial database data stored?
-INSTALL_DATA_DIR = 'PyLucid/db_dump_datadir'
-
+INSTALL_DATA_DIR = os.path.join(MAIN_APP_PATH, 'db_dump_datadir')
 
 # PyLucid cache prefix
 PAGE_CACHE_PREFIX = "PyLucid_page_cache_"
