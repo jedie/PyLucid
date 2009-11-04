@@ -103,9 +103,14 @@ class AutoSiteM2M(models.Model):
             super(AutoSiteM2M, self).save(*args, **kwargs)
 
         if self.sites.count() == 0:
-            site = Site.objects.get_current()
-            if settings.DEBUG:
-                failsafe_message("Automatic add site '%s' to %r" % (site.name, self))
+            try:
+                site = Site.objects.get_current()
+            except Site.DoesNotExist, err:
+                failsafe_message("Can't get current site! Use ID 1 (Error was: %s)" % err)
+                site = 1
+            else:
+                if settings.DEBUG:
+                    failsafe_message("Automatic add site '%s' to %r" % (site.name, self))
             self.sites.add(site)
 
         super(AutoSiteM2M, self).save(*args, **kwargs)
