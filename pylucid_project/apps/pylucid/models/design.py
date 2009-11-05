@@ -55,7 +55,7 @@ class Design(AutoSiteM2M, UpdateInfoBaseModel):
 
     name = models.CharField(unique=True, max_length=150, help_text="Name of this design combination",)
     template = models.CharField(max_length=128, help_text="filename of the used template for this page")
-    headfiles = models.ManyToManyField("EditableHtmlHeadFile", null=True, blank=True,
+    headfiles = models.ManyToManyField("pylucid.EditableHtmlHeadFile", null=True, blank=True,
         help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag"
     )
     colorscheme = models.ForeignKey(ColorScheme, null=True, blank=True)

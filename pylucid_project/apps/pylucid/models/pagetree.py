@@ -267,7 +267,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
 
     page_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
-    design = models.ForeignKey("Design", help_text="Page Template, CSS/JS files")
+    design = models.ForeignKey("pylucid.Design", help_text="Page Template, CSS/JS files")
 
     showlinks = models.BooleanField(default=True,
         help_text="Accessable for all users, but don't put a Link to this page into menu/sitemap etc."

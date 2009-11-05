@@ -124,7 +124,7 @@ class LogEntry(UpdateInfoBaseModel):
     )
 
     # Own meta data:
-    used_language = models.ForeignKey("Language", blank=True, null=True)
+    used_language = models.ForeignKey("pylucid.Language", blank=True, null=True)
     uri = models.CharField(_('URL'), max_length=255,
         help_text="absolute URI form request.build_absolute_uri()"
     )

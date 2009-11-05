@@ -73,7 +73,7 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
 
     objects = PageContentManager()
 
-    pagemeta = models.OneToOneField("PageMeta")
+    pagemeta = models.OneToOneField("pylucid.PageMeta")
 
     content = models.TextField(blank=True, help_text="The CMS page content.")
     markup = models.IntegerField(db_column="markup_id", max_length=1, choices=MARKUP_CHOICES)

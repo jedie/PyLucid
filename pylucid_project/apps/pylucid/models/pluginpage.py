@@ -84,7 +84,7 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
     """
     objects = PluginPageManager()
 
-    pagetree = models.OneToOneField("PageTree")
+    pagetree = models.OneToOneField("pylucid.PageTree")
 
     app_label = RootAppChoiceField(max_length=256,
         help_text=(

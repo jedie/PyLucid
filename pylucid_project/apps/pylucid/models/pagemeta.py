@@ -47,8 +47,8 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
     """
     objects = BaseModelManager()
 
-    pagetree = models.ForeignKey("PageTree")
-    language = models.ForeignKey("Language")
+    pagetree = models.ForeignKey("pylucid.PageTree")
+    language = models.ForeignKey("pylucid.Language")
 
     name = models.CharField(blank=True, max_length=150,
         help_text="Sort page name (for link text in e.g. menu)"
