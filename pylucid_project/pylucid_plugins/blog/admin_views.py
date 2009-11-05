@@ -4,12 +4,15 @@ from django import http
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
+from pylucid_project.utils.site_utils import get_site_preselection
+
 from pylucid.decorators import check_permissions, render_to
 from pylucid.markup.converter import apply_markup
 
 from pylucid_admin.admin_menu import AdminMenu
 
 from blog.forms import BlogEntryForm
+from blog.preference_forms import BlogPrefForm
 
 
 
@@ -35,10 +38,10 @@ def new_blog_entry(request):
     """
     TODO: Use Ajax in preview
     """
-    user_profile = request.user.get_profile()
+#    user_profile = request.user.get_profile()
     # All accessible sites from the current user:
-    user_site_ids = user_profile.sites.values_list("id", "name")
-    m2m_limit = {"sites": user_site_ids} # Limit the site choice field with LimitManyToManyFields
+#    user_site_ids = user_profile.sites.values_list("id", "name")
+#    m2m_limit = {"sites": user_site_ids} # Limit the site choice field with LimitManyToManyFields
 
     context = {
         "title": _("Create a new blog entry"),
@@ -46,7 +49,7 @@ def new_blog_entry(request):
     }
 
     if request.method == "POST":
-        form = BlogEntryForm(m2m_limit, request.POST)
+        form = BlogEntryForm(request.POST)
         if form.is_valid():
             if "preview" in request.POST:
                 context["preview"] = apply_markup(
@@ -58,11 +61,14 @@ def new_blog_entry(request):
                 request.page_msg(_("New blog entry '%s' saved.") % instance.headline)
                 return http.HttpResponseRedirect(instance.get_absolute_url())
     else:
+        # Get preferences
+        pref_form = BlogPrefForm()
+
         initial = {
-            "sites": [Site.objects.get_current().pk], # preselect current site
+            "sites": get_site_preselection(pref_form, request), # preselect sites field
             "language": request.PYLUCID.language_entry.pk, # preselect current language
         }
-        form = BlogEntryForm(m2m_limit, initial=initial)
+        form = BlogEntryForm(initial=initial)
 
     context["form"] = form
     return context

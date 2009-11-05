@@ -19,12 +19,12 @@
 from django import forms
 
 # http://code.google.com/p/django-tools/
-from django_tools.forms_utils import LimitManyToManyFields
+#from django_tools.forms_utils import LimitManyToManyFields
 
 from lexicon.models import LexiconEntry
 
 
-class LexiconEntryForm(LimitManyToManyFields, forms.ModelForm):
+class LexiconEntryForm(forms.ModelForm):
     """
     Form for create/edit a lexicon entry.
     The ManyToMany field "sites" from Model would be limited with LimitManyToManyFields

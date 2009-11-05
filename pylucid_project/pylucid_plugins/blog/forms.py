@@ -19,12 +19,12 @@
 from django import forms
 
 # http://code.google.com/p/django-tools/
-from django_tools.forms_utils import LimitManyToManyFields
+#from django_tools.forms_utils import LimitManyToManyFields
 
 from blog.models import BlogEntry
 
 
-class BlogEntryForm(LimitManyToManyFields, forms.ModelForm):
+class BlogEntryForm(forms.ModelForm):
     """
     Form for create/edit a blog entry.
     """

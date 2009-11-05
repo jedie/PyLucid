@@ -3,6 +3,8 @@
 from django import http
 from django.utils.translation import ugettext_lazy as _
 
+from pylucid_project.utils.site_utils import get_site_preselection
+
 from pylucid.preference_forms import SystemPreferencesForm
 from pylucid.decorators import check_permissions, render_to
 from pylucid.markup.converter import apply_markup
@@ -10,6 +12,7 @@ from pylucid.markup.converter import apply_markup
 from pylucid_admin.admin_menu import AdminMenu
 
 from lexicon.forms import LexiconEntryForm
+from lexicon.preference_forms import LexiconPrefForm
 
 
 
@@ -28,7 +31,6 @@ def install(request):
     return "\n".join(output)
 
 
-
 @check_permissions(superuser_only=False, permissions=("lexicon.add_lexiconentry", "lexicon.add_links"))
 @render_to("lexicon/new_entry.html")
 def new_entry(request):
@@ -38,13 +40,8 @@ def new_entry(request):
         "form_url": request.path,
     }
 
-    user_profile = request.user.get_profile()
-    # All accessible sites from the current user:
-    user_site_ids = user_profile.sites.values_list("id", "name")
-    m2m_limit = {"sites": user_site_ids} # Limit the site choice field with LimitManyToManyFields
-
     if request.method == "POST":
-        form = LexiconEntryForm(m2m_limit, request.POST)
+        form = LexiconEntryForm(request.POST)
         if form.is_valid():
             if "preview" in request.POST:
                 context["preview"] = apply_markup(
@@ -56,11 +53,14 @@ def new_entry(request):
                 request.page_msg(_("Lexicon entry '%s' saved.") % instance.term)
                 return http.HttpResponseRedirect(instance.get_absolute_url())
     else:
+        # Get preferences
+        pref_form = LexiconPrefForm()
+
         initial = {
-            "sites": [i[0] for i in user_site_ids], # preselect all accessable sites
+            "sites": get_site_preselection(pref_form, request), # preselect sites field
             "language": request.PYLUCID.language_entry.pk, # preselect current language
         }
-        form = LexiconEntryForm(m2m_limit, initial=initial)
+        form = LexiconEntryForm(initial=initial)
 
     context["form"] = form
     return context
