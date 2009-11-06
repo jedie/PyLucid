@@ -19,10 +19,18 @@
 from django.contrib import admin
 
 from pylucid_project.apps.pylucid_update.models import Page08, Style08, Template08, \
-                                        BlogComment08, BlogTag, BlogEntry
+                                        JS_LoginData08, BlogComment08, BlogTag, BlogEntry
 from pylucid_admin.admin_site import pylucid_admin_site
 
 #------------------------------------------------------------------------------
+
+class JS_LoginDataAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'sha_checksum', 'salt', 'createtime', 'lastupdatetime'
+    )
+
+pylucid_admin_site.register(JS_LoginData08, JS_LoginDataAdmin)
+
 
 class PageAdmin(admin.ModelAdmin):
     list_display = (
