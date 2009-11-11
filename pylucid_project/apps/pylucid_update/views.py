@@ -13,16 +13,16 @@
     :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
-
-import re
 import posixpath
 
 from django.conf import settings
 from django.db import transaction
 from django.template import RequestContext
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
+from django.core.exceptions import ValidationError
 from django.template.loader import find_template_source
 
 from dbtemplates.models import Template
@@ -40,6 +40,19 @@ from pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
 from pylucid_update.forms import UpdateForm
 
 
+def fix_old_user(out, obj, attrnames, alternative_user):
+    """
+    replace the old models.ForeignKey(User) with the current user, if the old user doesn't exist.
+    """
+    for attrname in attrnames:
+        try:
+            user_id = getattr(obj, attrname).id
+        except User.DoesNotExist, err:
+            out.write("Old %s user doesn't exist. Use current user %r." % (attrname, alternative_user))
+            setattr(obj, attrname, alternative_user)
+
+
+
 @check_permissions(superuser_only=True)
 @render_to("pylucid_update/menu.html")
 def menu(request):
@@ -50,18 +63,27 @@ def menu(request):
     }
     return context
 
+def _make_new_template_name(template_name):
+    return settings.SITE_TEMPLATE_PREFIX + template_name + ".html"
 
-def _do_update(request, language):
+def _make_new_style_name(style_name):
+    return settings.SITE_TEMPLATE_PREFIX + style_name + ".css"
+
+
+def _update08migrate_stj(request, language):
     out = SimpleStringIO()
     site = Site.objects.get_current()
-    out.write("Starting update and move v0.8 data into v0.9 (on site: %s)" % site)
+
+    out.write("migrate v0.8 styles, templates, JS-SHA-Login data (on site: %s)" % site)
 
     out.write("\n______________________________________________________________")
     out.write("Move JS-SHA-Login data into new UserProfile\n")
     for old_entry in JS_LoginData08.objects.all():
-        user = old_entry.user
-        sha_login_checksum = old_entry.sha_checksum
-        sha_login_salt = old_entry.salt
+        try:
+            user = old_entry.user
+        except User.DoesNotExist, err:
+            out.write("Old JS_LoginData08 User doesn't exist. Skip updating UserProfile.")
+            continue
 
         userprofile, created = UserProfile.objects.get_or_create(user=user)
         if created:
@@ -71,16 +93,19 @@ def _do_update(request, language):
 
         if not userprofile.sha_login_checksum:
             # Add old sha login data, only if not exist.
+            sha_login_checksum = old_entry.sha_checksum
             userprofile.sha_login_checksum = sha_login_checksum
+
+            sha_login_salt = old_entry.salt
             userprofile.sha_login_salt = sha_login_salt
+
             userprofile.save()
             out.write("Add old JS-SHA-Login data.")
 
     out.write("\n______________________________________________________________")
     out.write("Move template model\n")
-    templates = {}
     for template in Template08.objects.all():
-        new_template_name = settings.SITE_TEMPLATE_PREFIX + template.name + ".html"
+        new_template_name = _make_new_template_name(template.name)
         new_template, created = Template.objects.get_or_create(
             name=new_template_name,
             defaults={
@@ -90,7 +115,7 @@ def _do_update(request, language):
             }
         )
         new_template.save()
-        templates[template.name] = new_template_name
+        new_template.sites.add(site)
         if created:
             out.write("template '%s' transferted into dbtemplates." % template.name)
         else:
@@ -98,10 +123,10 @@ def _do_update(request, language):
 
     out.write("\n______________________________________________________________")
     out.write("Move style model\n")
-    cssfiles = {}
     for style in Style08.objects.all():
+        new_style_name = _make_new_style_name(style.name)
         new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(
-            filepath=settings.SITE_TEMPLATE_PREFIX + style.name + ".css",
+            filepath=new_style_name,
             defaults={
                 "description": style.description,
                 "content": style.content,
@@ -109,12 +134,24 @@ def _do_update(request, language):
                 "lastupdatetime": style.lastupdatetime,
             }
         )
-        cssfiles[style.name] = new_staticfile
         if created:
             out.write("stylesheet '%s' transferted into EditableStaticFile." % style.name)
         else:
             out.write("EditableStaticFile '%s' exist." % style.name)
 
+    context = {
+        "template_name": "pylucid_update/update08result.html",
+        "title": "migrate v0.8 styles, templates, JS-SHA-Login data",
+        "results": out.getlines(),
+    }
+    return context
+
+
+def _update08migrate_pages(request, language):
+    out = SimpleStringIO()
+    site = Site.objects.get_current()
+
+    out.write("migrate v0.8 pages (on site: %s)" % site)
 
     out.write("\n______________________________________________________________")
     out.write("migrate old page model data")
@@ -126,6 +163,10 @@ def _do_update(request, language):
     parent_attach_data = {}
     for old_page in old_pages:
         out.write("\nmove '%s' page (old ID:%s)" % (old_page.name, old_page.id))
+
+        fix_old_user(
+            out, obj=old_page, attrnames=["createby", "lastupdateby"], alternative_user=request.user
+        )
 
         #---------------------------------------------------------------------
         # create/get Design entry
@@ -139,20 +180,18 @@ def _do_update(request, language):
             else:
                 new_design_name = "%s + %s" % (old_page.template.name, style_name)
 
+            new_template_name = _make_new_template_name(old_page.template.name)
             design, created = Design.objects.get_or_create(
-                name=new_design_name,
-                defaults={
-                    "template": templates[old_page.template.name],
-                }
+                name=new_design_name, defaults={"template": new_template_name}
             )
             if created:
                 out.write("New design created: %s" % new_design_name)
             else:
                 out.write("Use existing Design: %r" % design)
 
-            # Add old page css file
-            css_file = cssfiles[style_name] # EditableHtmlHeadFile instance
-            assert isinstance(css_file, EditableHtmlHeadFile)
+            # Add old page css file            
+            new_style_name = _make_new_style_name(style_name)
+            css_file = EditableHtmlHeadFile.on_site.get(filepath=new_style_name)
             design.headfiles.add(css_file)
 
             colorscheme, created = ColorScheme.objects.get_or_create(name=style_name)
@@ -278,7 +317,7 @@ def _do_update(request, language):
 
     context = {
         "template_name": "pylucid_update/update08result.html",
-        "title": "update data from PyLucid v0.8 to v0.9",
+        "title": "migrate v0.8 pages",
         "results": out.getlines(),
     }
     return context
@@ -316,7 +355,7 @@ def _select_lang(request, context, call_func):
 
 
 @check_permissions(superuser_only=True)
-def update08(request):
+def update08migrate_stj(request):
     """
     Update PyLucid v0.8 model data to v0.9 models
     Before start updating, select the language.
@@ -324,9 +363,23 @@ def update08(request):
     context = {
         "template_name": "pylucid_update/update08.html",
         "title": "Update PyLucid v0.8 model data to v0.9 models",
-        "url": reverse("PyLucidUpdate-update08"),
+        "url": reverse("PyLucidUpdate-update08migrate_stj"),
     }
-    return _select_lang(request, context, call_func=_do_update)
+    return _select_lang(request, context, call_func=_update08migrate_stj)
+
+@check_permissions(superuser_only=True)
+def update08migrate_pages(request):
+    """
+    Update PyLucid v0.8 model data to v0.9 models
+    Before start updating, select the language.
+    """
+    context = {
+        "template_name": "pylucid_update/update08.html",
+        "title": "Update PyLucid v0.8 model data to v0.9 models",
+        "url": reverse("PyLucidUpdate-update08migrate_pages"),
+    }
+    return _select_lang(request, context, call_func=_update08migrate_pages)
+
 
 
 
@@ -343,10 +396,14 @@ def _replace(content, out, old, new):
 @check_permissions(superuser_only=True)
 @render_to("pylucid_update/update08result.html")
 def update08pages(request):
-    title = "Update PageContent"
+    site = Site.objects.get_current()
+    title = "Update %s PageContent" % site.name
     out = SimpleStringIO()
 
-    for pagecontent in PageContent.objects.all():
+    # Update only the PageContent objects from the current site.
+    pages = PageContent.objects.filter(pagemeta__pagetree__site=site)
+    count = 0
+    for pagecontent in pages:
         content = pagecontent.content
         content = _replace(content, out,
             "{% lucidTag page_update_list %}", "{% lucidTag update_journal %}"
@@ -355,14 +412,17 @@ def update08pages(request):
         if content == pagecontent.content:
             # Nothing changed
             continue
+        count += 1
         pagecontent.content = content
         pagecontent.save()
         out.write("PageContent updated: %r" % pagecontent)
 
-    out.write("All PageContent updated.")
+    out.write("\n\n%s PageContent items processed." % len(pages))
+    out.write("%s items updated." % count)
 
     context = {
         "title": title,
+        "site": site,
         "results": out.getlines(),
     }
     return context
@@ -371,10 +431,14 @@ def update08pages(request):
 @check_permissions(superuser_only=True)
 @render_to("pylucid_update/update08result.html")
 def update08templates(request):
-    title = "Update PyLucid v0.8 templates"
+    site = Site.objects.get_current()
+    title = "Update PyLucid v0.8 %s templates" % site.name
     out = SimpleStringIO()
 
-    for template in Template.objects.filter(name__istartswith=settings.SITE_TEMPLATE_PREFIX):
+    templates = Template.on_site.filter(name__istartswith=settings.SITE_TEMPLATE_PREFIX)
+
+    count = 0
+    for template in templates:
         out.write("\n______________________________________________________________")
         out.write("Update Template: '%s'\n" % template.name)
 
@@ -451,13 +515,20 @@ def update08templates(request):
         if "<!-- page_messages -->" not in content:
             out.write(" *** IMPORTANT: You must insert <!-- page_messages --> in this template!")
 
-        template.content = content
-        template.save()
+        if template.content == content:
+            out.write("Nothing changed")
+        else:
+            template.content = content
+            template.save()
+            count += 1
+            out.write("Template updated.")
 
-        out.write("Template updated.")
+    out.write("\n\n%s Template items processed." % len(templates))
+    out.write("%s items updated." % count)
 
     context = {
         "title": title,
+        "site": site,
         "results": out.getlines(),
     }
     return context
@@ -471,7 +542,8 @@ def update08styles(request):
     TODO: We should not add any styles... We should create a new EditableHtmlHeadFile stylesheet
     file and add this to all Design!
     """
-    title = "Update PyLucid v0.8 styles"
+    site = Site.objects.get_current()
+    title = "Update PyLucid v0.8 %s styles" % site.name
     out = SimpleStringIO()
 
     def update_headfile_colorscheme(design, headfile):
@@ -493,7 +565,12 @@ def update08styles(request):
         out.write(repr(new_content))
         out.write(repr(color_dict))
 
-        created, updated, exists = colorscheme.update(color_dict)
+        try:
+            created, updated, exists = colorscheme.update(color_dict)
+        except ValidationError, err:
+            out.write("Error updating colorscheme: %s" % err)
+            return
+
         out.write("created colors: %r" % created)
         out.write("updated colors: %r" % updated)
         out.write("exists colors: %r" % exists)
@@ -515,7 +592,8 @@ def update08styles(request):
             else:
                 update_headfile_colorscheme(design, headfile)
 
-    for design in Design.objects.all():
+    designs = Design.on_site.all()
+    for design in designs:
         out.write("\n______________________________________________________________")
         out.write("\nUpdate color scheme for design: '%s'" % design.name)
 
@@ -564,6 +642,7 @@ def update08styles(request):
 
     context = {
         "title": title,
+        "site": site,
         "results": out.getlines(),
     }
     return context
