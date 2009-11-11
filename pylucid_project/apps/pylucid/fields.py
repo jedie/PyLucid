@@ -40,7 +40,7 @@ def validate_css_color_value(value):
         raise exceptions.ValidationError(_("CSS color value is not a basestring!"))
 
     if len(value) not in (3, 6):
-        raise exceptions.ValidationError(_("Wrong CSS color length (only 3 or 6 characters)"))
+        raise exceptions.ValidationError(_("Wrong CSS color length (only 3 or 6 characters allowed)"))
 
     if not CSS_VALUE_RE.match(value):
         raise exceptions.ValidationError(_("Error: %r is not a CSS hex color value") % value)
