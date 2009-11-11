@@ -29,7 +29,7 @@ def validate_css_color_value(value):
     >>> validate_css_color_value("")
     Traceback (most recent call last):
     ...
-    ValidationError: Wrong CSS color length (only 3 or 6 characters)
+    ValidationError: Wrong CSS color length (only 3 or 6 characters allowed)
     
     >>> validate_css_color_value("Maroon")
     Traceback (most recent call last):
