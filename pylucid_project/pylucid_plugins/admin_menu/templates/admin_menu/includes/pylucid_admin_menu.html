@@ -1,7 +1,6 @@
 <ul class="sf-menu">
 
-    {% if not inline %}
-        {# we are in the django admin panel #}
+    {% if not inline %}{# we are in the django admin panel #}
 	    <li class="current">
 	        <a href="/" title="&lt;&lt; goto '{{ current_site.domain }}'">&lt;&lt; {{ current_site.name }}</a>
             {% if not sites|length_is:"1" %}
@@ -18,7 +17,21 @@
 	    </li>
     {% endif %}
 
-    <li>{% lucidTag auth %}</li>
+    <li>{% lucidTag auth %}
+    {% if inline %}{# we are inside a cms page and not in the django admin panel #}
+        {% if not sites|length_is:"1" %}
+        <ul>
+            {% for site in sites %}
+              <li>
+                {% ifnotequal site current_site %}
+                    <a href="http://{{ site.domain }}/" title="&lt;&lt; switch to site '{{ site.domain }}'">&lt;&lt; {{ site.name }}</a>
+                {% endifnotequal %}
+               </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    {% endif %}
+    </li>
     
     {% if inline %}
     {# is true, if this menu would be included inside the cms page and not in the django admin panel #}
@@ -71,6 +84,7 @@
     {% if user.is_staff %}
     <li>
         <a href="{% url admin:index %}" title="Admin index of '{{ current_site.name }}' site.">{% trans 'Django admin site' %}</a>
+        {% if not inline %}{# we are in the django admin panel #}
         {% if not sites|length_is:"1" %}
             <ul>
             {% for site in sites %}
@@ -81,6 +95,7 @@
                </li>
             {% endfor %}
             </ul>
+        {% endif %}
         {% endif %}
     </li>
     {% endif %}
