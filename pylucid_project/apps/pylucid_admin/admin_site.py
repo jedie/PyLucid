@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 
-from pylucid.models import PageTree
+from pylucid.models import PageTree, UserProfile
 
 
 
@@ -20,8 +20,8 @@ class PyLucidAdminSite(admin.AdminSite):
         """
         redirect to PyLucid's own login view
         """
-        if PageTree.on_site.all().count() == 0:
-            # FIXME: The PyLucid inline login view does only work after install...
+        if PageTree.on_site.all().count() == 0 or UserProfile.on_site.all().count() == 0:
+            # The PyLucid inline login view does only work if e.g. a v0.8 migration starts
             # Work-a-round: Use the normal django login view
             return super(PyLucidAdminSite, self).login(request)
 
