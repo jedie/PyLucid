@@ -57,7 +57,7 @@ class LogEntryManager(models.Manager):
 
         return queryset
 
-    def log_action(self, app_label, action, request=None, message=None, data=None):
+    def log_action(self, app_label, action, request=None, message=None, long_message=None, data=None):
         if request is None:
             request = ThreadLocal.get_current_request()
 
@@ -66,6 +66,7 @@ class LogEntryManager(models.Manager):
             "app_label": app_label,
             "action": action,
             "message": message,
+            "long_message": long_message,
             "data": data,
         }
 
@@ -137,11 +138,13 @@ class LogEntry(UpdateInfoBaseModel):
         help_text="Short action key. (e.g.: 'do search', 'login')"
     )
     message = models.CharField(_('Message'), max_length=255, blank=True, null=True,
-        help_text="Complete log message. (e.g.: 'user FooBar login')"
+        help_text="Short/one line log message. (e.g.: 'user FooBar login')"
+    )
+    long_message = models.TextField(_('long Message'), blank=True, null=True,
+        help_text="Complete log message."
     )
     # From django-dbpreferences
-    data = DictField(blank=True, null=True,
-        help_text="serialized preference form data dictionary")
+    data = DictField(blank=True, null=True, help_text="serialized dictionary data")
 
     def __unicode__(self):
         return u"LogEntry %s %s %s" % (self.createby, self.createtime, self.action)
