@@ -98,6 +98,28 @@ class LogEntry(UpdateInfoBaseModel):
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     on_site = CurrentSiteManager()
 
+    # Log information:
+    app_label = models.CharField(_('App Label'), max_length=255, db_index=True,
+        help_text="The App name witch has created this log entry."
+    )
+    action = models.CharField(_('Action'), max_length=128, db_index=True,
+        help_text="Short action key. (e.g.: 'do search', 'login')"
+    )
+    message = models.CharField(_('Message'), max_length=255, blank=True, null=True,
+        help_text="Short/one line log message. (e.g.: 'user FooBar login')"
+    )
+    long_message = models.TextField(_('long Message'), blank=True, null=True,
+        help_text="Complete log message."
+    )
+    # From django-dbpreferences
+    data = DictField(blank=True, null=True, help_text="serialized dictionary data")
+
+    # Own meta data:
+    uri = models.CharField(_('URL'), max_length=255,
+        help_text="absolute URI form request.build_absolute_uri()"
+    )
+    used_language = models.ForeignKey("pylucid.Language", blank=True, null=True)
+
     # Data from request.META
     remote_addr = models.IPAddressField(_('Remote IP Address'), blank=True, null=True, db_index=True,
         help_text="The IP address of the client. From request.META['REMOTE_ADDR']"
@@ -123,28 +145,6 @@ class LogEntry(UpdateInfoBaseModel):
     http_accept_language = models.CharField(_('Accept Language'), max_length=255, blank=True, null=True,
         help_text="from request.META['HTTP_ACCEPT_LANGUAGE']"
     )
-
-    # Own meta data:
-    used_language = models.ForeignKey("pylucid.Language", blank=True, null=True)
-    uri = models.CharField(_('URL'), max_length=255,
-        help_text="absolute URI form request.build_absolute_uri()"
-    )
-
-    # Log information:
-    app_label = models.CharField(_('App Label'), max_length=255, db_index=True,
-        help_text="The App name witch has created this log entry."
-    )
-    action = models.CharField(_('Action'), max_length=128, db_index=True,
-        help_text="Short action key. (e.g.: 'do search', 'login')"
-    )
-    message = models.CharField(_('Message'), max_length=255, blank=True, null=True,
-        help_text="Short/one line log message. (e.g.: 'user FooBar login')"
-    )
-    long_message = models.TextField(_('long Message'), blank=True, null=True,
-        help_text="Complete log message."
-    )
-    # From django-dbpreferences
-    data = DictField(blank=True, null=True, help_text="serialized dictionary data")
 
     def __unicode__(self):
         return u"LogEntry %s %s %s" % (self.createby, self.createtime, self.action)
