@@ -1,13 +1,19 @@
 # coding:utf-8
 
 from django.conf import settings
+from django.db import connection
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 
-from pylucid.models import Language, PageTree, PageMeta
+from pylucid.models import Language, PageTree, PageMeta, LogEntry
 from pylucid.decorators import check_permissions, render_to
 
 from pylucid_admin.admin_menu import AdminMenu
+
+
+MYSQL_ENCODING_VARS = (
+    "character_set_server", "character_set_connection", "character_set_results", "collation_connection",
+)
 
 
 def install(request):
@@ -24,6 +30,47 @@ def install(request):
     )
 
     return "\n".join(output)
+
+#-----------------------------------------------------------------------------
+
+def _database_encoding_test(request, out):
+    """
+    Simple database encoding test:
+        insert a test string into the database and check if 
+        it is the same if we get the same entry back
+    Use the PyLucid log table
+    """
+    out.write("Info: Not all database engines passed all tests!")
+
+    def _test(range_txt, chr_range):
+        out.write("\t%s test:" % range_txt)
+        TEST_STRING = u"".join([unichr(i) for i in chr_range])
+        try:
+            log_entry1 = LogEntry.objects.log_action(
+                "pylucid_plugin.system", "Database encoding test", request,
+                message="%s test" % range_txt, long_message=TEST_STRING
+            )
+        except Warning, err:
+            out.write("\t\tError: get a warning: %s" % err)
+            return
+
+        log_entry_id = log_entry1.id
+        log_entry2 = LogEntry.objects.get(id=log_entry_id)
+        if TEST_STRING == log_entry2.long_message:
+            log_entry2.message = log_entry2.message + " - passed"
+            out.write("\t\ttest passed")
+        else:
+             out.write("\t\ttest *NOT* passed")
+             log_entry2.message = log_entry2.message + " - failed"
+        log_entry2.save()
+
+    _test("ASCII (32-126)", xrange(32, 126))
+    _test("basic-latin (0-126)", xrange(0, 126))
+    _test("latin-1 (128-254)", xrange(128, 254))
+    _test("unicode plane 1-3 (0-12286 in 16 steps)", xrange(0, 12286, 16))
+    _test("all unicode planes (0-65534 in 256 steps)", xrange(0, 65534, 256))
+
+
 
 #-----------------------------------------------------------------------------
 
@@ -62,6 +109,35 @@ def base_check(request):
     else:
         out.write("settings.SECRET_KEY, ok.")
     out.write("- "*40)
+
+
+    if settings.DATABASE_ENGINE == "mysql":
+        try:
+            import MySQLdb
+            out.write("MySQLdb.__version__  : %s" % repr(MySQLdb.__version__))
+            out.write("MySQLdb.version_info : %s" % repr(MySQLdb.version_info))
+        except Exception, err:
+            out.write("MySQLdb info error: %s" % err)
+
+        cursor = connection.cursor()
+        out.write("\nSome MySQL encoding related variables:")
+
+        for var_name in MYSQL_ENCODING_VARS:
+            cursor.execute("SHOW VARIABLES LIKE %s;", (var_name,))
+            raw_result = cursor.fetchall()
+            try:
+                result = raw_result[0][1]
+            except IndexError, err:
+                out.write("%30s: Error: %s (raw result: %r)" % (var_name, err, raw_result))
+            else:
+                out.write("%30s: %s" % (var_name, result))
+        out.write("- "*40)
+
+
+    out.write("\nDatabase unicode test:")
+    _database_encoding_test(request, out)
+    out.write("- "*40)
+
 
     try:
         lang_entry = Language.objects.get(code=settings.LANGUAGE_CODE)
