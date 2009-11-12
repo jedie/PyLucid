@@ -33,8 +33,8 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid.fields import CSS_VALUE_RE
 from pylucid.decorators import check_permissions, render_to
 from pylucid.system.css_color_utils import filter_content, extract_colors
-from pylucid.models import PageTree, PageMeta, PageContent, ColorScheme, Design, EditableHtmlHeadFile, \
-                                                                                            UserProfile
+from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, Design, \
+                                                                    EditableHtmlHeadFile, UserProfile
 
 from pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
 from pylucid_update.forms import UpdateForm
@@ -384,10 +384,8 @@ def update08migrate_pages(request):
 
 
 def _replace(content, out, old, new):
-    out.write("replace %r with %r" % (old, new))
-    if not old in content:
-        out.write("Source string not found, ok.")
-    else:
+    if old in content:
+        out.write("replace %r with %r" % (old, new))
         content = content.replace(old, new)
     return content
 
@@ -403,8 +401,29 @@ def update08pages(request):
     # Update only the PageContent objects from the current site.
     pages = PageContent.objects.filter(pagemeta__pagetree__site=site)
     count = 0
+    delete_ids = []
     for pagecontent in pages:
         content = pagecontent.content
+
+        if content.strip() == "{% lucidTag blog %}":
+            # Convert blog page, but only if there is no additional content
+            out.write("Convert page %s into a real blog plugin page." % pagecontent.get_absolute_url())
+            pagecontent.pagemeta.pagetree.page_type = PageTree.PLUGIN_TYPE
+            pagecontent.pagemeta.pagetree.save()
+
+            new_pluginpage = PluginPage(app_label="pylucid_project.pylucid_plugins.blog")
+            new_pluginpage.pagetree = pagecontent.pagemeta.pagetree
+            new_pluginpage.save()
+
+            delete_ids.append(pagecontent.id)
+            continue
+        if "{% lucidTag blog %}" in content:
+            # There exist additional content in this page -> don't delete it 
+            msg = (
+                "You must manually convert page %s into a real blog plugin page!"
+            ) % pagecontent.get_absolute_url()
+            out.write(msg)
+
         content = _replace(content, out,
             "{% lucidTag page_update_list %}", "{% lucidTag update_journal %}"
         )
@@ -416,6 +435,10 @@ def update08pages(request):
         pagecontent.content = content
         pagecontent.save()
         out.write("PageContent updated: %r" % pagecontent)
+
+    if delete_ids:
+        out.write("Delete %s obsolete PageContent items: %r" % (len(delete_ids), delete_ids))
+        PageContent.objects.filter(id__in=delete_ids).delete()
 
     out.write("\n\n%s PageContent items processed." % len(pages))
     out.write("%s items updated." % count)
