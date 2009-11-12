@@ -143,6 +143,7 @@ def _update08migrate_stj(request, language):
     context = {
         "template_name": "pylucid_update/update08result.html",
         "title": title,
+        "site": site,
         "results": output,
     }
     return context
@@ -320,6 +321,7 @@ def _update08migrate_pages(request, language):
     context = {
         "template_name": "pylucid_update/update08result.html",
         "title": title,
+        "site": site,
         "results": output,
     }
     return context
@@ -352,7 +354,6 @@ def _select_lang(request, context, call_func):
         "site": Site.objects.get_current(),
         "form": form,
     })
-
     return context
 
 
@@ -699,6 +700,8 @@ def update08plugins(request):
 
 
 def _update08plugins(request, language):
+    site = Site.objects.get_current()
+    title = "Update PyLucid v0.8 plugin data"
     out = SimpleStringIO()
 
     method_kwargs = {
@@ -723,9 +726,13 @@ def _update08plugins(request, language):
         else:
             out.write(" --- %s END ---" % plugin_name)
 
+    output = out.getlines()
+    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+
     context = {
         "template_name": "pylucid_update/update08result.html",
-        "title": "Update PyLucid v0.8 plugin data",
-        "results": out.getlines(),
+        "title": title,
+        "site": site,
+        "results": output,
     }
     return context
