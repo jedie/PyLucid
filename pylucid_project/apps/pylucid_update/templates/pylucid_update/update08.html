@@ -3,6 +3,7 @@
 
 {% block content %}
 <!-- view_content block -->
+<p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
 <fieldset><legend>update</legend>
 <p>TODO: Insert info text here ;)</p>
 <p>Update on site: <strong title="{{ site.domain }}">{{ site.name }}</strong></p>
@@ -21,5 +22,6 @@ Please select:
 <input type="submit" name="save" value="save" />
 </form>
 </fieldset>
+<p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
 <!-- view_content block end -->
 {% endblock %}
