@@ -127,7 +127,13 @@ class PageTreeManager(BaseModelManager):
     def get_pagemeta(self, request, pagetree, show_lang_errors=True):
         """
         retuns the PageMeta instance witch associated to the given >pagetree< instance.
-        Used first the current client favored language. If not exist use the system default language.
+        
+        dissolving language:
+            return client favored language
+        if not exist:
+            return system default language
+        if not exist:
+            return used first item 
             
         If show_lang_errors==True:
             create a page_msg if PageMeta doesn't exist in client favored language.
@@ -142,21 +148,19 @@ class PageTreeManager(BaseModelManager):
         lang_entry = request.PYLUCID.language_entry
 
         queryset = PageMeta.objects.filter(pagetree=pagetree)
+
+        # Try to get the current used language
         try:
-            # Try to get the current used language
             return queryset.get(language=lang_entry)
         except PageMeta.DoesNotExist:
-            # Get the PageContent entry in the system default language
-            try:
-                instance = queryset.get(language=default_lang_entry)
-            except PageMeta.DoesNotExist, err:
-                msg = (
-                    "PageMeta doesn't exist for %r in client favored language %r"
-                    " and not in system default language %r!"
-                    " Original Error was: %s"
-                ) % (pagetree, lang_entry, default_lang_entry, err)
-                raise PageMeta.DoesNotExist(msg)
+            pass
 
+        # Try to get PageMeta in system default language
+        try:
+            instance = queryset.get(language=default_lang_entry)
+        except PageMeta.DoesNotExist, err:
+            pass
+        else:
             if show_lang_errors:
                 request.page_msg.error(
                     "PageMeta '%s' doesn't exist in client favored language '%s', use '%s' entry." % (
@@ -165,6 +169,21 @@ class PageTreeManager(BaseModelManager):
                 )
             return instance
 
+        # Use the first PageMeta
+        try:
+            instance = queryset[0]
+        except PageMeta.DoesNotExist, err:
+            raise PageMeta.DoesNotExist(
+                "PageMeta '%s' doesn't exist! (Error was: %s)" % (pagetree.slug, err)
+            )
+
+        request.page_msg.error(
+            "PageMeta '%s' doesn't exist in client favored language '%s'"
+            " and not in system default language '%s'. Use '%s' entry." % (
+                pagetree.slug, lang_entry.code, default_lang_entry, instance.language.code
+            )
+        )
+        return instance
 
     def get_page_from_url(self, request, url_path):
         """
