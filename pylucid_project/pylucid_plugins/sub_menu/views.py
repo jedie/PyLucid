@@ -34,7 +34,7 @@ def lucidTag(request):
     pagetree = request.PYLUCID.pagetree
     current_lang = request.PYLUCID.language_entry
 
-    sub_pages = PageMeta.objects.all().filter(page__parent=pagetree, language=current_lang)
+    sub_pages = PageMeta.objects.all().filter(pagetree__parent=pagetree, language=current_lang)
 
     return {"sub_pages": sub_pages}
 
