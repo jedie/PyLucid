@@ -34,7 +34,7 @@ from pylucid.fields import CSS_VALUE_RE
 from pylucid.decorators import check_permissions, render_to
 from pylucid.system.css_color_utils import filter_content, extract_colors
 from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, Design, \
-                                                                    EditableHtmlHeadFile, UserProfile
+                                                                EditableHtmlHeadFile, UserProfile, LogEntry
 
 from pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
 from pylucid_update.forms import UpdateForm
@@ -73,10 +73,8 @@ def _make_new_style_name(style_name):
 def _update08migrate_stj(request, language):
     out = SimpleStringIO()
     site = Site.objects.get_current()
+    title = "migrate v0.8 styles, templates, JS-SHA-Login data (on site: %s)" % site
 
-    out.write("migrate v0.8 styles, templates, JS-SHA-Login data (on site: %s)" % site)
-
-    out.write("\n______________________________________________________________")
     out.write("Move JS-SHA-Login data into new UserProfile\n")
     for old_entry in JS_LoginData08.objects.all():
         try:
@@ -139,21 +137,22 @@ def _update08migrate_stj(request, language):
         else:
             out.write("EditableStaticFile '%s' exist." % style.name)
 
+    output = out.getlines()
+    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+
     context = {
         "template_name": "pylucid_update/update08result.html",
-        "title": "migrate v0.8 styles, templates, JS-SHA-Login data",
-        "results": out.getlines(),
+        "title": title,
+        "results": output,
     }
     return context
 
 
 def _update08migrate_pages(request, language):
-    out = SimpleStringIO()
     site = Site.objects.get_current()
+    title = "migrate v0.8 pages (on site: %s)" % site
+    out = SimpleStringIO()
 
-    out.write("migrate v0.8 pages (on site: %s)" % site)
-
-    out.write("\n______________________________________________________________")
     out.write("migrate old page model data")
 
     old_pages = Page08.objects.order_by('parent', 'id').all()
@@ -315,10 +314,13 @@ def _update08migrate_pages(request, language):
         else:
             out.write("PageContent entry '%s' - '%s' exist." % (language, tree_entry.slug))
 
+    output = out.getlines()
+    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+
     context = {
         "template_name": "pylucid_update/update08result.html",
-        "title": "migrate v0.8 pages",
-        "results": out.getlines(),
+        "title": title,
+        "results": output,
     }
     return context
 
@@ -443,10 +445,13 @@ def update08pages(request):
     out.write("\n\n%s PageContent items processed." % len(pages))
     out.write("%s items updated." % count)
 
+    output = out.getlines()
+    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+
     context = {
         "title": title,
         "site": site,
-        "results": out.getlines(),
+        "results": output,
     }
     return context
 
@@ -549,10 +554,13 @@ def update08templates(request):
     out.write("\n\n%s Template items processed." % len(templates))
     out.write("%s items updated." % count)
 
+    output = out.getlines()
+    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+
     context = {
         "title": title,
         "site": site,
-        "results": out.getlines(),
+        "results": output,
     }
     return context
 
@@ -663,10 +671,13 @@ def update08styles(request):
 #            style.save()
 #            out.write("additional styles inserted.")        
 
+    output = out.getlines()
+    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+
     context = {
         "title": title,
         "site": site,
-        "results": out.getlines(),
+        "results": output,
     }
     return context
 
