@@ -75,9 +75,10 @@ def call_plugin(request, prefix_url, rest_url):
     """ Call a plugin and return the response. """
     lang_entry = request.PYLUCID.language_entry
     pluginpage = request.PYLUCID.pluginpage
+    pagemeta = request.PYLUCID.pagemeta
 
     # build the url prefix
-    url_prefix = "^%s/%s" % (lang_entry.code, prefix_url)
+    url_prefix = "^%s/%s" % (pagemeta.language.code, prefix_url)
 
     # Get pylucid_project.system.pylucid_plugins instance
     plugin_instance = pluginpage.get_plugin()
