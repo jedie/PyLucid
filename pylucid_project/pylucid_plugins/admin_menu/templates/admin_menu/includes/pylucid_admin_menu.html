@@ -65,6 +65,36 @@
     	            {% endif %}
                     </ul>
                 </li>
+                
+                {% if perms.pylucid.change_design %}
+                <li>
+                    <a title="edit current style/template in django admin panel">edit current look</a>
+                    <ul>
+                    {% if perms.pylucid.change_design %}
+                        <li><a href="{% url admin:pylucid_design_change PYLUCID.pagetree.design.id %}" title="edit current design '{{ PYLUCID.pagetree.design.name }}'">
+                            design
+                        </a></li>
+                    {% endif %}
+                    {% if perms.pylucid.change_design %}
+                        <li><a href="{% url admin:pylucid_colorscheme_change PYLUCID.pagetree.design.colorscheme.id %}" title="edit current colorscheme '{{ PYLUCID.pagetree.design.colorscheme.name }}'">
+                            colorscheme
+                        </a></li>
+                    {% endif %}
+                    {% if perms.pylucid.change_editablehtmlheadfile %}
+                        {% for headfile in PYLUCID.pagetree.design.headfiles.all %}
+                        <li><a href="{% url admin:pylucid_editablehtmlheadfile_change headfile.id %}" title="edit headfile '{{ headfile.filepath }}'">
+                            {{ headfile.filepath }}
+                        </a></li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if perms.dbtemplates.change_template and template %}
+                        <li><a href="{% url admin:dbtemplates_template_change template.id %}" title="edit page template '{{ PYLUCID.pagetree.design.template }}'">
+                            page template
+                        </a></li>
+                    {% endif %}
+                    </ul>
+                </li>
+                {% endif %}
 
                 {% if add_translate %}
     	            {% if perms.pylucid.add_pagecontent and perms.pylucid.add_pagemeta and perms.pylucid.add_pluginpage %}

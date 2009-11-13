@@ -8,6 +8,8 @@ from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
+from dbtemplates.models import Template
+
 from pylucid_project import PYLUCID_VERSION_STRING
 from pylucid_project.utils import slug
 
@@ -31,7 +33,6 @@ def _add_plugin_info(request, context):
     context["css_plugin_class"] = plugin_name
 
     return context
-
 
 
 def pylucid(request):
@@ -64,6 +65,13 @@ def pylucid(request):
     if pagetree:
         template_name = pagetree.design.template
         context["template_name"] = template_name
+
+        # Add the dbtemplates entry.
+        # Used in pylucid_admin_menu.html for generating the "edit page template" link
+        try:
+            context["template"] = Template.on_site.get(name=template_name)
+        except Template.DoesNotExist:
+            context["template"] = None
 
     pagemeta = getattr(request.PYLUCID, "pagemeta", None)
     if pagemeta:
