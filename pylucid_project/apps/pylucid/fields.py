@@ -13,8 +13,7 @@ from django.core import exceptions
 from django.utils.translation import ugettext as _
 
 
-
-CSS_VALUE_RE = re.compile(r'[a-fA-F0-9]{3,6}$') # For validation of a CSS value
+CSS_VALUE_RE = re.compile(r'[a-f0-9]{6}$', re.IGNORECASE) # For validation of a CSS value
 
 
 def validate_css_color_value(value):
@@ -23,13 +22,11 @@ def validate_css_color_value(value):
     
     >>> validate_css_color_value("00aaff")
     >>> validate_css_color_value("00AAFF")
-    >>> validate_css_color_value("0af")
-    >>> validate_css_color_value("0AF")
     
-    >>> validate_css_color_value("")
+    >>> validate_css_color_value("0aF")
     Traceback (most recent call last):
     ...
-    ValidationError: Wrong CSS color length (only 3 or 6 characters allowed)
+    ValidationError: Error: '0aF' has wrong length (only 6 characters allowed)
     
     >>> validate_css_color_value("Maroon")
     Traceback (most recent call last):
@@ -39,8 +36,10 @@ def validate_css_color_value(value):
     if not isinstance(value, basestring):
         raise exceptions.ValidationError(_("CSS color value is not a basestring!"))
 
-    if len(value) not in (3, 6):
-        raise exceptions.ValidationError(_("Wrong CSS color length (only 3 or 6 characters allowed)"))
+    if len(value) != 6:
+        raise exceptions.ValidationError(
+            _("Error: %r has wrong length (only 6 characters allowed)") % value
+        )
 
     if not CSS_VALUE_RE.match(value):
         raise exceptions.ValidationError(_("Error: %r is not a CSS hex color value") % value)
@@ -52,6 +51,10 @@ def validate_css_color_value(value):
 class ColorValueInputWidget(forms.TextInput):
     """
     Add background-ColorValue into input tag
+    
+    >>> ColorValueInputWidget().render("foo", "1234af")
+    u'<input style="background-ColorValue:#1234af;" type="text" name="foo" value="1234af" />'
+    
     TODO: Change text ColorValue, if background is to dark ;)
     TODO2: Use jQuery to change the <td> background ColorValue ;)
     """
@@ -74,7 +77,16 @@ class ColorValueFormField(forms.CharField):
 
 
 class ColorValueField(models.CharField):
-    """ CSS ColorValue hex value field. """
+    """
+    CSS ColorValue hex value field.
+    >>> ColorValueField().to_python("11AAFF")
+    '11AAFF'
+    
+    >>> ColorValueField().to_python("0aF")
+    Traceback (most recent call last):
+    ...
+    ValidationError: Error: '0aF' has wrong length (only 6 characters allowed)
+    """
     #__metaclass__ = models.SubfieldBase
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 6

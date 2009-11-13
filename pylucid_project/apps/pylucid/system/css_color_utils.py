@@ -2,7 +2,9 @@
 
 import re
 
-CSS_RE = re.compile(r'#([a-fA-F0-9]{3,6})')
+CSS_RE = re.compile(r'#([a-f0-9]{6})', re.IGNORECASE)
+CSS_CONVERT_RE = re.compile(r'# *([a-f0-9])([a-f0-9])([a-f0-9]) *;', re.IGNORECASE)
+
 
 def filter_content(content):
     """
@@ -18,37 +20,47 @@ def filter_content(content):
 
 def extract_colors(content, existing_color_dict={}):
     """
+    # TODO: Preprocess: Change all 3 length values to 6 length values for merging it.
+    
     >>> extract_colors(".foo { color: #000000; }")
     ('.foo { color: {{ color_0 }}; }', {'color_0': '000000'})
     
-    # it's case insensitivity:
+    it's case insensitivity:
     >>> extract_colors(".foo{color:#C9C573;} .bar{color:#c9c573;}")
     ('.foo{color:{{ color_0 }};} .bar{color:{{ color_0 }};}', {'color_0': 'c9c573'})
+    
+    Convert/merge 3 length values:
+    >>> extract_colors(".foo{color:#11AAff;} .bar{color:#1af;}")
+    ('.foo{color:{{ color_0 }};} .bar{color:{{ color_0 }};}', {'color_0': '11aaff'})
     
     You can give a existing color map:
     >>> existing_colors = {"black":"000000"}
     >>> extract_colors(".foo { color: #000000; }", existing_colors)
     ('.foo { color: {{ black }}; }', {'black': '000000'})
     """
-    colors = set(CSS_RE.findall(content))
+    # Convert all 3 length values to 6 length
+    new_content = CSS_CONVERT_RE.sub("#\g<1>\g<1>\g<2>\g<2>\g<3>\g<3>;", content)
+
+    colors = set(CSS_RE.findall(new_content))
+
     color_dict = existing_color_dict
-    temp = dict([(v,k) for k,v in existing_color_dict.iteritems()])
+    exist_color = dict([(v, k) for k, v in existing_color_dict.iteritems()])
     for no, color in enumerate(colors):
         color_lower = color.lower()
-        
-        if color_lower in temp:
+
+        if color_lower in exist_color:
             # color exist in other case
-            key = temp[color_lower]
+            key = exist_color[color_lower]
         else:
             # new color
             key = "color_%s" % no
             color_dict[key] = color_lower
-            temp[color_lower] = key
-                
-        content = content.replace("#%s" % color, "{{ %s }}" % key)
-    
-    return content, color_dict 
-    
+            exist_color[color_lower] = key
+
+        new_content = new_content.replace("#%s" % color, "{{ %s }}" % key)
+
+    return new_content, color_dict
+
 
 if __name__ == "__main__":
     import doctest

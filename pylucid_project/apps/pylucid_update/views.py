@@ -13,6 +13,7 @@
     :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+from pprint import pformat
 import posixpath
 
 from django.conf import settings
@@ -595,7 +596,7 @@ def update08styles(request):
         content = headfile.content
         new_content, color_dict = extract_colors(content)
         out.write(repr(new_content))
-        out.write(repr(color_dict))
+        out.write(pformat(color_dict))
 
         try:
             created, updated, exists = colorscheme.update(color_dict)
@@ -603,9 +604,9 @@ def update08styles(request):
             out.write("Error updating colorscheme: %s" % err)
             return
 
-        out.write("created colors: %r" % created)
-        out.write("updated colors: %r" % updated)
-        out.write("exists colors: %r" % exists)
+        out.write("created %s colors: %r" % (len(created), created))
+        out.write("updated %s colors: %r" % (len(updated), updated))
+        out.write("exists %s colors: %r" % (len(exists), exists))
 
         colorscheme.save()
 
