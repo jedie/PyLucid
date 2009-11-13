@@ -194,6 +194,22 @@ class TreeGenerator(object):
         # append the attribute name into self.related_objects list
         self.related_objects.append(attrname)
 
+
+    def add_missing_related_objects(self, queryset, attrname):
+        """ Adding related object items, if not all attached. """
+        # Generate a id list of all menu entries witch has no related object
+        ids = [
+            id for id, node in self.nodes.items()
+            if node.visible and id != None and not hasattr(node, attrname)
+        ]
+        if not ids: # All menu items has related objects entries
+            return None
+
+        # Add all missing related object from given queryset
+        self.add_related(queryset, ids, field="pagetree", attrname="pagemeta")
+        return ids
+
+
     def add_pagemeta(self, request):
         """ add all PageMeta objects into tree """
         # import here -> import-loop
@@ -207,19 +223,19 @@ class TreeGenerator(object):
         #print "Get pagemeta for: %r" % ids
         queryset = PageMeta.objects.filter(language=current_lang)
 
-        # Add all pagemeta in current client lang
+        # Add all pagemeta in current client language
         self.add_related(queryset, ids, field="pagetree", attrname="pagemeta")
 
-        # Generate a id list of all missing pagemeta
-        ids = [
-            id for id, node in self.nodes.items()
-            if node.visible and id != None and not hasattr(node, "pagemeta")
-        ]
-        #print "Add missing pagemeta for: %r" % ids
-
+        # Add all missing PageMeta in system default language
         queryset = PageMeta.objects.filter(language=default_lang)
-        # Add all pagemeta in current client lang
-        self.add_related(queryset, ids, field="pagetree", attrname="pagemeta")
+        ids = self.add_missing_related_objects(queryset, attrname="pagemeta")
+        #print "Missing PageMeta added: %r" % ids
+
+        # Add at least all missing PageMeta, no matter what language
+        if ids is not None: # Skip, if all PageMeta exist previously
+            queryset = PageMeta.objects.all()
+            self.add_missing_related_objects(queryset, attrname="pagemeta")
+
 
     def slice_menu(self, min, max, parent=None):
         """
