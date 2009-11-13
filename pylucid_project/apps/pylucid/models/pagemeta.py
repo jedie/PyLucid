@@ -105,7 +105,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
     get_site.allow_tags = False
 
     def get_other_languages(self):
-        return PageMeta.objects.all().filter(page=self.pagetree).exclude(language=self.language)
+        return PageMeta.objects.all().filter(pagetree=self.pagetree).exclude(language=self.language)
 
     def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
