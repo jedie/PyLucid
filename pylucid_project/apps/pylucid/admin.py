@@ -94,7 +94,7 @@ class PageContentAdmin(BaseAdmin, VersionAdmin):
     list_display_links = ("id", "get_title")
     list_filter = ("markup", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
-    search_fields = ("content", "get_title", "absolute_url")
+    search_fields = ("content",) # it would be great if we can add "get_title"
 
 pylucid_admin_site.register(models.PageContent, PageContentAdmin)
 
