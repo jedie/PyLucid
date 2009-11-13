@@ -16,6 +16,7 @@
 
 import os
 import errno
+import codecs
 import mimetypes
 
 from django.db import models
@@ -124,7 +125,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         def _save_cache_file(auto_create_dir=True):
             rendered_content = self.get_rendered(colorscheme)
             try:
-                f = file(cachepath, "w")
+                f = codecs.open(cachepath, "w", "utf8")
                 f.write(rendered_content)
                 f.close()
             except IOError, err:
