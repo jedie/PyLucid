@@ -505,6 +505,8 @@ def update08templates(request):
             '    {% block content %}{{ page_content }}{% endblock content %}\n'
             '</div>'
         )
+        content = _replace(content, out, "{{ PAGE.get_permalink }}", "{{ page_permalink }}")
+        content = _replace(content, out, "{{ page_get_permalink }}", "{{ page_permalink }}") # dev version only
         content = _replace(content, out,
             "{% if PAGE.title %}{{ PAGE.title|escape }}{% else %}{{ PAGE.name|escape }}{% endif %}",
             "{{ page_title }}"

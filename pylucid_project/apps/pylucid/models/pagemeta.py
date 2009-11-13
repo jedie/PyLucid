@@ -15,9 +15,11 @@
 """
 
 from django.db import models
-from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
+from django.utils.safestring import mark_safe
+from django.template.defaultfilters import slugify
+from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tagging/
 from tagging.fields import TagField
@@ -25,6 +27,7 @@ from tagging.fields import TagField
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
 
+from pylucid.preference_forms import SystemPreferencesForm
 from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
 from pylucid_project.pylucid_plugins import update_journal
@@ -90,6 +93,33 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         url = "/" + lang_code + page_url
 
         self._url_cache[self.pk] = url
+        return url
+
+    def get_permalink(self):
+        """
+        return a permalink. Use page slug/name/title or nothing as additional text.
+        """
+        sys_pref_form = SystemPreferencesForm()
+        sys_pref = sys_pref_form.get_preferences()
+        use_additions = sys_pref.get("permalink_additions", SystemPreferencesForm.PERMALINK_USE_TITLE)
+
+        do_slugify = False
+        if use_additions == SystemPreferencesForm.PERMALINK_USE_TITLE:
+            # Append the PageMeta title (language dependent)
+            addition_txt = self.get_title()
+            do_slugify = True
+        elif use_additions == SystemPreferencesForm.PERMALINK_USE_NAME:
+            addition_txt = self.get_name()
+            do_slugify = True
+        elif use_additions == SystemPreferencesForm.PERMALINK_USE_SLUG:
+            addition_txt = self.pagetree.slug
+        else:
+            addition_txt = ""
+
+        if do_slugify:
+            addition_txt = slugify(addition_txt)
+
+        url = reverse('PyLucid-permalink', kwargs={'page_id': self.pagetree.id, 'url_rest': addition_txt})
         return url
 
     def save(self, *args, **kwargs):

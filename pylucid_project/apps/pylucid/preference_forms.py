@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from dbpreferences.forms import DBPreferencesBaseForm
 
-from pylucid.models import PageTree, Design, Language
+from pylucid.models import Design
 
 #if Language.objects.count() == 0:
 #    # FIXME: Insert first language
@@ -34,6 +34,23 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         help_text=_("How long should a IP address banned in minutes. (Changes need app restart)"),
         initial=15, min_value=1, max_value=60 * 24 * 7
     )
+
+    PERMALINK_USE_NONE = "nothing"
+    PERMALINK_USE_SLUG = "slug"
+    PERMALINK_USE_NAME = "name"
+    PERMALINK_USE_TITLE = "title"
+    PERMALINK_USE_CHOICES = (
+        (PERMALINK_USE_NONE, _("Append no additional text")),
+        (PERMALINK_USE_SLUG, _("Append the PageTree slug (language independent)")),
+        (PERMALINK_USE_NAME, _("Append the PageMeta name (language dependent)")),
+        (PERMALINK_USE_TITLE, _("Append the PageMeta title (language dependent)")),
+    )
+    permalink_additions = forms.ChoiceField(
+        choices=PERMALINK_USE_CHOICES,
+        required=True, initial=PERMALINK_USE_TITLE,
+        help_text=_("Should we append a additional text to every permalink?")
+    )
+
 
     class Meta:
         app_label = 'pylucid'

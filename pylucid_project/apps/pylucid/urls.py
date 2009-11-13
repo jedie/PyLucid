@@ -27,6 +27,10 @@ from pylucid_project.apps.pylucid import views
 urlpatterns = patterns('',
     url(r'^$', views.root_page, name='PyLucid-root_page'),
 
+    url(r'^%s/(?P<page_id>\d+)?/(?P<url_rest>.*?)$' % settings.PYLUCID.PERMALINK_URL_PREFIX, views.permalink,
+        name='PyLucid-permalink'
+    ),
+
     url(r'^%s/(?P<filepath>[\w/\.]{4,})?$' % settings.PYLUCID.HEAD_FILES_URL_PREFIX, views.send_head_file,
         name='PyLucid-send_head_file'
     ),

@@ -14,6 +14,8 @@ HEADFILE_INLINE_TEMPLATES = "pylucid/headfile_%s_inline.html"
 HEADFILE_LINK_TEMPLATES = "pylucid/headfile_%s_link.html"
 HEAD_FILES_URL_PREFIX = "headfile"
 
+PERMALINK_URL_PREFIX = "permalink"
+
 # File cache directory used for EditableHtmlHeadFile
 # filesystem path is: MEDIA_ROOT + PYLUCID_MEDIA_DIR + CACHE_DIR
 # URL if not cacheable in filesystem: /HEAD_FILES_URL_PREFIX/filepath

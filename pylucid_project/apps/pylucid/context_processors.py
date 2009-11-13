@@ -81,6 +81,7 @@ def pylucid(request):
             "page_description": pagemeta.description,
             "page_robots": pagemeta.robots,
             "page_language": pagemeta.language.code,
+            "page_permalink": pagemeta.get_permalink()
         })
 
     if getattr(request, "plugin_name", None) != None:

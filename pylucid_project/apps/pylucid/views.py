@@ -295,7 +295,7 @@ def _get_pagetree(request, url_path):
 
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
-    # activate i18n
+    # activate language via auto detection
     i18n.activate_auto_language(request)
 
     pagetree, prefix_url, rest_url = _get_pagetree(request, url_path)
@@ -312,9 +312,25 @@ def page_without_lang(request, url_path):
     return _i18n_redirect(request, url_path)
 
 
+def permalink(request, page_id, url_rest=""):
+    """ resolve a permalink and redirect to the real url. """
+    # activate language via auto detection
+    i18n.activate_auto_language(request)
 
+    try:
+        pagetree = PageTree.on_site.get(id=page_id)
+    except PageTree.DoesNotExist, err:
+        # TODO: Try to search with the additional url data (url_rest)
+        msg = "<h1>Page not found</h1>"
+        if settings.debug:
+            msg += "<h2>%s</h2>" % err
+        raise http.Http404(msg)
 
+    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
 
+    url = pagemeta.get_absolute_url()
+
+    return http.HttpResponseRedirect(url)
 
 
 
