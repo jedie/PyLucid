@@ -60,7 +60,7 @@ pylucid_admin_site.register(models.Language, LanguageAdmin)
 
 
 class LogEntryAdmin(BaseAdmin):
-    list_display = ("createtime", "createby", "app_label", "action", "message")
+    list_display = ("createtime", "createby", "site", "app_label", "action", "message")
     list_filter = (
         "app_label", "action", "createby"
     )
