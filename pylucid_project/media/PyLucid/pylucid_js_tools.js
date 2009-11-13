@@ -182,9 +182,9 @@ MAX_ROWS = 25;
 MAX_LENGTH = 100;
 RESIZE_FACTOR = 1.3;
 $(document).ready(function(){
-	//
-	// textarea resize buttons
-	//
+	/*************************************************************************
+	 * textarea resize buttons
+	 */
 	$(".resize_textarea" ).click(function () {
 		button_id = $(this).attr('id');
 //		log("Clicked on: " + button_id);
@@ -217,28 +217,39 @@ $(document).ready(function(){
 	});
 	
 	/*************************************************************************
-	change all links with:
-		class="openinwindow"
-		
-	Open the url in a new JavaScript window, using OpenInWindow()
-	usage, e.g.:
-		<a href="/foobar/" class="openinwindow">foobar</a>
-	*************************************************************************/
-    $('a.openinwindow').each(function(){
-    	var url = $(this).attr("href");
-    	log("add open in window for link:"+url)
-    	
+	 * replace the existing links with a "open in new window" link
+	 * usage:
+	 * 		<a href="/foo" class="openinwindow">foo</a>
+	 */
+	$('a.openinwindow').each(function(){
+    	var url = $(this).attr("href");   	
     	var org_title = $(this).attr("title");
     	
     	$(this).attr({
     		onclick: "return OpenInWindow(this);",
     		title: org_title + " (Opens in a new window)"
-	    })//.append(' [^]');
+	    });
+    	//$(this).append(" [^]")
     });
+	
+	/*************************************************************************
+	 * Add a "open in new window" link after the existing normal link.
+	 * usage:
+	 * 		<a href="/foo" class="add_openinwindow">foo</a>
+	 */
+	$('a.add_openinwindow').each(function(){
+
+		var url = $(this).attr("href");
+		var org_title = $(this).attr("title");
+		
+		var new_link = ' <a href="'+url+'" onclick="return OpenInWindow(this);" title="'+org_title+' (Opens in a new window)">[^]</a>'
+		
+		$(this).after(new_link);
+	})
     
-    //
-	// Resize all textareas
-	//
+	/*************************************************************************
+	 * Resize all textareas
+	 */
 	$("textarea").each(function() {
 		rows = this.value.split("\n").length;
 		if (rows > MAX_ROWS) {rows = MAX_ROWS;}
@@ -247,9 +258,9 @@ $(document).ready(function(){
 	    this.rows = rows;
 	});
 	
-	//
-	// resize input fields
-	//
+	/*************************************************************************
+	 * resize input fields
+	 */
 	$(".pylucid_form input").each(function() {
 		maxlength = $(this).attr("maxlength");
 		if (maxlength<=0) {
@@ -259,9 +270,9 @@ $(document).ready(function(){
 		this.size=maxlength;
 	});
 
-	//
-	// hide/unhide form fieldset stuff.
-	//
+	/*************************************************************************
+	 * hide/unhide form fieldset stuff.
+	 */
 	$(".pylucid_form .form_hide").nextAll().hide();
 	$(".pylucid_form .form_collapse").each(function() {
 		$(this).css("cursor","n-resize");
