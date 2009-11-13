@@ -79,8 +79,9 @@ class LogEntryManager(models.Manager):
                 value = "%s..." % value[:252]
             kwargs[key.lower()] = value
 
-        e = self.model(**kwargs)
-        e.save()
+        new_entry = self.model(**kwargs)
+        new_entry.save()
+        return new_entry
 
 
 class LogEntry(UpdateInfoBaseModel):
