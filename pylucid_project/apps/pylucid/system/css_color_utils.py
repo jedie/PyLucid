@@ -2,8 +2,8 @@
 
 import re
 
-CSS_RE = re.compile(r'#([a-f0-9]{6})', re.IGNORECASE)
-CSS_CONVERT_RE = re.compile(r'# *([a-f0-9])([a-f0-9])([a-f0-9]) *;', re.IGNORECASE)
+CSS_RE = re.compile(r'#([a-f0-9]{6}) *;', re.IGNORECASE)
+CSS_CONVERT_RE = re.compile(r'#([a-f0-9])([a-f0-9])([a-f0-9]) *;', re.IGNORECASE)
 
 
 def filter_content(content):
@@ -18,7 +18,7 @@ def filter_content(content):
             result.append(line)
     return "\n".join(result)
 
-def extract_colors(content, existing_color_dict={}):
+def extract_colors(content, existing_color_dict=None):
     """
     # TODO: Preprocess: Change all 3 length values to 6 length values for merging it.
     
@@ -34,17 +34,25 @@ def extract_colors(content, existing_color_dict={}):
     ('.foo{color:{{ color_0 }};} .bar{color:{{ color_0 }};}', {'color_0': '11aaff'})
     
     You can give a existing color map:
-    >>> existing_colors = {"black":"000000"}
-    >>> extract_colors(".foo { color: #000000; }", existing_colors)
+    >>> extract_colors(".foo { color: #000000; }", existing_color_dict={"black":"000000"})
     ('.foo { color: {{ black }}; }', {'black': '000000'})
+    
+    Skip non color values:
+    >>> extract_colors("to short #12345; to long #1234567; /* no # 123; color #aa11ff-value */")
+    ('to short #12345; to long #1234567; /* no # 123; color #aa11ff-value */', {})
     """
     # Convert all 3 length values to 6 length
     new_content = CSS_CONVERT_RE.sub("#\g<1>\g<1>\g<2>\g<2>\g<3>\g<3>;", content)
 
     colors = set(CSS_RE.findall(new_content))
 
-    color_dict = existing_color_dict
-    exist_color = dict([(v, k) for k, v in existing_color_dict.iteritems()])
+    if existing_color_dict:
+        color_dict = existing_color_dict
+        exist_color = dict([(v, k) for k, v in existing_color_dict.iteritems()])
+    else:
+        color_dict = {}
+        exist_color = {}
+
     for no, color in enumerate(colors):
         color_lower = color.lower()
 
