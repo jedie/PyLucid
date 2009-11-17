@@ -17,8 +17,8 @@ from pylucid.models import Design
 
 class SystemPreferencesForm(DBPreferencesBaseForm):
     """ test preferences form """
-    pylucid_admin_design = forms.ChoiceField(
-        choices=Design.objects.values_list('id', 'name'),
+    pylucid_admin_design = forms.ModelChoiceField(
+        queryset=Design.objects.all(), empty_label=None,
         required=False, initial=None,
         help_text=_("ID of the PyLucid Admin Design.")
     )
@@ -50,7 +50,6 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         required=True, initial=PERMALINK_USE_TITLE,
         help_text=_("Should we append a additional text to every permalink?")
     )
-
 
     class Meta:
         app_label = 'pylucid'
