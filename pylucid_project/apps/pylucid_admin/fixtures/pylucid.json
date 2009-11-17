@@ -1240,7 +1240,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2009-11-03 03:40:32", 
-            "filepath": "site_template/elementary.css", 
+            "filepath": "initial_site_style/elementary.css", 
             "sites": [
                 1
             ], 
@@ -1259,7 +1259,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2009-11-03 03:40:29", 
-            "filepath": "site_template/main.css", 
+            "filepath": "initial_site_style/main.css", 
             "sites": [
                 1
             ], 
@@ -1278,7 +1278,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2009-11-03 03:40:36", 
-            "filepath": "site_template/old_main.css", 
+            "filepath": "initial_site_style/old_main.css", 
             "sites": [
                 1
             ], 
@@ -1297,7 +1297,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2009-11-03 03:40:41", 
-            "filepath": "site_template/small_dark.css", 
+            "filepath": "initial_site_style/small_dark.css", 
             "sites": [
                 1
             ], 
@@ -1316,7 +1316,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2009-11-03 03:40:46", 
-            "filepath": "site_template/small_white.css", 
+            "filepath": "initial_site_style/small_white.css", 
             "sites": [
                 1
             ], 
@@ -1358,7 +1358,7 @@
             "headfiles": [
                 1
             ], 
-            "template": "site_template/basic.html", 
+            "template": "initial_site_template/basic.html", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:09"
         }
@@ -1377,7 +1377,7 @@
             "headfiles": [
                 4
             ], 
-            "template": "site_template/elementary.html", 
+            "template": "initial_site_template/elementary.html", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:18"
         }
@@ -1396,7 +1396,7 @@
             "headfiles": [
                 2
             ], 
-            "template": "site_template/old_basic.html", 
+            "template": "initial_site_template/old_basic.html", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:17"
         }
@@ -1415,7 +1415,7 @@
             "headfiles": [
                 3
             ], 
-            "template": "site_template/small_dark.html", 
+            "template": "initial_site_template/small_dark.html", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:16"
         }
@@ -1434,7 +1434,7 @@
             "headfiles": [
                 5
             ], 
-            "template": "site_template/small_white.html", 
+            "template": "initial_site_template/small_white.html", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:20"
         }
@@ -2315,7 +2315,7 @@
                 1
             ], 
             "last_changed": "2009-11-03 03:51:49", 
-            "name": "site_template/basic.html", 
+            "name": "initial_site_template/basic.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
     }, 
@@ -2328,7 +2328,7 @@
                 1
             ], 
             "last_changed": "2009-11-03 03:37:35", 
-            "name": "site_template/elementary.html", 
+            "name": "initial_site_template/elementary.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
     }, 
@@ -2341,7 +2341,7 @@
                 1
             ], 
             "last_changed": "2009-11-03 03:37:35", 
-            "name": "site_template/old_basic.html", 
+            "name": "initial_site_template/old_basic.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
     }, 
@@ -2354,7 +2354,7 @@
                 1
             ], 
             "last_changed": "2009-11-03 03:37:35", 
-            "name": "site_template/small_dark.html", 
+            "name": "initial_site_template/small_dark.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
     }, 
@@ -2367,7 +2367,7 @@
                 1
             ], 
             "last_changed": "2009-11-03 03:37:35", 
-            "name": "site_template/small_white.html", 
+            "name": "initial_site_template/small_white.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
     }
