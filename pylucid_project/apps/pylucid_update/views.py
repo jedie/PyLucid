@@ -25,6 +25,7 @@ from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
 from django.core.exceptions import ValidationError
 from django.template.loader import find_template_source
+from django.contrib.redirects.models import Redirect
 
 from dbtemplates.models import Template
 
@@ -187,13 +188,17 @@ def _update08migrate_pages(request, language):
             )
             if created:
                 out.write("New design created: %s" % new_design_name)
+
+                # Add old page css file            
+                new_style_name = _make_new_style_name(style_name)
+                try:
+                    css_file = EditableHtmlHeadFile.on_site.get(filepath=new_style_name)
+                except EditableHtmlHeadFile.DoesNotExist:
+                    out.write("Error getting headfile %r. (Can't add it to design %r)" % (new_style_name, design))
+                else:
+                    design.headfiles.add(css_file)
             else:
                 out.write("Use existing Design: %r" % design)
-
-            # Add old page css file            
-            new_style_name = _make_new_style_name(style_name)
-            css_file = EditableHtmlHeadFile.on_site.get(filepath=new_style_name)
-            design.headfiles.add(css_file)
 
             colorscheme, created = ColorScheme.objects.get_or_create(name=style_name)
             if created:
@@ -297,6 +302,18 @@ def _update08migrate_pages(request, language):
             out.write("PageMeta entry '%s' - '%s' exist." % (language, tree_entry.slug))
 
         #---------------------------------------------------------------------
+        # Create a redirect for the old permalink
+
+        old_path = "/%s/%i/%s/" % (settings.PYLUCID.OLD_PERMALINK_PREFIX, old_page.id, old_page.shortcut)
+        new_path = pagemeta_entry.get_permalink()
+
+        created = Redirect.objects.get_or_create(site=site, old_path=old_path, new_path=new_path)[1]
+        if created:
+            out.write("Add permalink redirect (%s->%s)" % (old_path, new_path))
+        else:
+            out.write("Permalink redirect for this page exist.")
+
+        #---------------------------------------------------------------------
         # create/get PageContent entry
 
         content_entry, created = PageContent.objects.get_or_create(
@@ -378,9 +395,10 @@ def update08migrate_pages(request):
     Before start updating, select the language.
     """
     context = {
-        "template_name": "pylucid_update/update08.html",
+        "template_name": "pylucid_update/update08pages.html",
         "title": "Update PyLucid v0.8 model data to v0.9 models",
         "url": reverse("PyLucidUpdate-update08migrate_pages"),
+        "old_permalink_prefix": settings.PYLUCID.OLD_PERMALINK_PREFIX,
     }
     return _select_lang(request, context, call_func=_update08migrate_pages)
 
