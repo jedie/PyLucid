@@ -84,36 +84,9 @@ class BaseModelManager(models.Manager):
 
 
 class AutoSiteM2M(models.Model):
-    """
-    Add sites and on_site to model, and add at least the current site in save method.
-    
-    TODO: The auto ass site method must should be moved!
-        This can't be done in save() method or in signals.post_save, because the related
-        objects would be saved later -> It must be done in ManyRelatedManager.
-        We should check if django ticked #5390 is done: 
-            http://code.djangoproject.com/ticket/5390 # Add signals to ManyRelatedManager
-    """
-    sites = models.ManyToManyField(Site)
+    """ Base model with sites M2M and CurrentSiteManager. """
+    sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     on_site = CurrentSiteManager('sites')
-
-    def save(self, *args, **kwargs):
-        """ Automatic current site, if not exist. """
-        if self.pk == None:
-            # instance needs to have a primary key value before a many-to-many relationship can be used.
-            super(AutoSiteM2M, self).save(*args, **kwargs)
-
-        if self.sites.count() == 0:
-            try:
-                site = Site.objects.get_current()
-            except Site.DoesNotExist, err:
-                failsafe_message("Can't get current site! Use ID 1 (Error was: %s)" % err)
-                site = 1
-            else:
-                if settings.DEBUG:
-                    failsafe_message("Automatic add site '%s' to %r" % (site.name, self))
-            self.sites.add(site)
-
-        super(AutoSiteM2M, self).save(*args, **kwargs)
 
     def site_info(self):
         """ for admin.ModelAdmin list_display """
