@@ -80,13 +80,28 @@ class BaseModelManager(models.Manager):
 
 
 
-
-
-
 class AutoSiteM2M(models.Model):
     """ Base model with sites M2M and CurrentSiteManager. """
     sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     on_site = CurrentSiteManager('sites')
+
+    def save(self, *args, **kwargs):
+        """
+        Automatic current site, if not exist.
+        
+        I don't know why default=[settings.SITE_ID] is not enough, see also:
+            http://www.python-forum.de/topic-21022.html (de)
+        """
+        if self.pk == None:
+            # instance needs to have a primary key value before a many-to-many relationship can be used. 
+            super(AutoSiteM2M, self).save(*args, **kwargs)
+
+        if self.sites.count() == 0:
+            if settings.DEBUG:
+                failsafe_message("Automatic add site id '%s' to %r" % (settings.SITE_ID, self))
+            self.sites.add(settings.SITE_ID)
+
+        super(AutoSiteM2M, self).save(*args, **kwargs)
 
     def site_info(self):
         """ for admin.ModelAdmin list_display """
