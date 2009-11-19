@@ -6,6 +6,8 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
+from django.core.exceptions import ObjectDoesNotExist
+
 
 from pylucid.shortcuts import render_pylucid_response
 
@@ -87,7 +89,17 @@ def _sha_login(request, context, user, next_url):
     Login via JS-SHA-Login.
     Display the JS-SHA-Login form and login if password is ok.
     """
-    user_profile = user.get_profile()
+    try:
+        user_profile = user.get_profile()
+    except ObjectDoesNotExist, err:
+        # User profile doesn't exist. e.g. Update from v0.8.x ?
+        # FIXME: How to handle this better?
+        if settings.DEBUG:
+            msg = _("Can't get user profile. Use normal login and reset password! (%s)") % err
+        else:
+            msg = _("User unknown.")
+        request.page_msg.error(msg)
+        return
 
     if "sha_a2" in request.POST and "sha_b" in request.POST:
         SHA_login_form = SHA_LoginForm(request.POST)
