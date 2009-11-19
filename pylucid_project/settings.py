@@ -85,6 +85,8 @@ MIDDLEWARE_CLASSES = (
     # Insert a statistic line into the generated page:
     'pylucid_project.middlewares.pagestats.PageStatsMiddleware',
 
+    'django.middleware.cache.UpdateCacheMiddleware',
+
     # From http://code.google.com/p/django-tools/
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
 
@@ -103,6 +105,7 @@ MIDDLEWARE_CLASSES = (
 #    'django_tools.middlewares.SlowerDevServer.SlowerDevServerMiddleware',
 
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 SLOWER_DEV_SERVER_SLEEP = 0.3 # time.sleep() value (in sec.)
 
@@ -276,6 +279,11 @@ INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
 # use Django cache in dbtemplates.
 # see: http://api.rst2a.com/1.0/rst2/html?uri=http%3A//bitbucket.org/jezdez/django-dbtemplates/raw/tip/docs/overview.txt#caching
 DBTEMPLATES_CACHE_BACKEND = "dbtemplates.cache.DjangoCacheBackend"
+
+# setup cache.
+# http://docs.djangoproject.com/en/dev/topics/cache/
+#CACHE_BACKEND = 'locmem://'
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 
 try:

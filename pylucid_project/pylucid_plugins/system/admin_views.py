@@ -1,7 +1,12 @@
 # coding:utf-8
 
+import os
+from tempfile import gettempdir
+
 from django.conf import settings
 from django.db import connection
+from django.core.cache import cache
+from django.utils.translation import ugettext as _
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 
@@ -30,6 +35,37 @@ def install(request):
     )
 
     return "\n".join(output)
+
+#-----------------------------------------------------------------------------
+
+def _cache_backend_test(request, out):
+    out.write(_("\tsettings.CACHE_BACKEND is '%s'") % settings.CACHE_BACKEND)
+
+    if settings.CACHE_BACKEND.startswith("dummy") or settings.CACHE_BACKEND.startswith("locmem"):
+        out.write(_("\tPlease setup CACHE_BACKEND in you local_settings.py!"))
+        out.write(_("\tmore info: http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache"))
+        tempdir = gettempdir()
+        out.write(_("\te.g.: CACHE_BACKEND='file://%s'") % os.path.join(tempdir, "PyLucid_cache"))
+        return
+
+    cache_key = "cache test"
+    content = "A cache test content..."
+    cache_timeout = 50
+    cache.set(cache_key, content, cache_timeout)
+    cached_content = cache.get(cache_key)
+    if cached_content == None:
+        out.write(_("\t* Get None back. Cache didn't work!"))
+        return
+    elif cached_content == content:
+        out.write(_("\t* Cache works fine ;)"))
+    else:
+        # Should never appears
+        out.write(_("\t* Error! Cache content not the same!"))
+
+    cache.delete(cache_key)
+    cached_content = cache.get(cache_key)
+    if cached_content != None:
+        out.write(_("\t* Error: entry not deleted!"))
 
 #-----------------------------------------------------------------------------
 
@@ -138,6 +174,9 @@ def base_check(request):
     _database_encoding_test(request, out)
     out.write("- "*40)
 
+    out.write("\nTest cache backend:")
+    _cache_backend_test(request, out)
+    out.write("- "*40)
 
     try:
         lang_entry = Language.objects.get(code=settings.LANGUAGE_CODE)

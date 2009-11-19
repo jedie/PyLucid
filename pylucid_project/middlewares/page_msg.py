@@ -292,6 +292,8 @@ class PageMessagesMiddleware(object):
             # There exists no page messages
             message_string = ""
         else:
+            request._cache_update_cache = False # Don't cache pages with page_msg
+
             # Get the messages and delete it from the session
             msg_list = page_msg.get_and_delete_messages()
             context = {
