@@ -221,7 +221,11 @@ class PageMessages(object):
             return txt
         else:
             # return the printable representation of an object
-            return repr(txt)
+            try:
+                # e.g.: django ugettext_lazy string?
+                return smart_str(unicode(txt), encoding=self._charset)
+            except:
+                return repr(txt)
 
 
     #________________________________________________________________
