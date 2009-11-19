@@ -36,6 +36,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_protect
 from django.contrib.comments.views.comments import post_comment
 
 from pylucid.decorators import render_to
@@ -113,6 +114,7 @@ def tag_view(request, tag):
     return context
 
 
+@csrf_protect
 @render_to("blog/detail_view.html")
 def detail_view(request, id, title):
     entry = BlogEntry.objects.get(pk=id)

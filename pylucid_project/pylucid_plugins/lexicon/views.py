@@ -36,6 +36,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_protect
 from django.contrib.comments.views.comments import post_comment
 
 from pylucid.decorators import render_to
@@ -68,7 +69,7 @@ def summary(request):
     return context
 
 
-
+@csrf_protect
 @render_to("lexicon/detail_view.html")
 def detail_view(request, term=None):
     if term is None:
