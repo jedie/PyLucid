@@ -57,7 +57,7 @@ class PluginPageManager(BaseModelManager):
 
         # Get the first PluginPage entry for this plugin
         queryset = PluginPage.objects.all()
-        queryset = queryset.filter(pagemeta__pagetree__site=Site.objects.get_current())
+        queryset = queryset.filter(pagetree__site=Site.objects.get_current())
         queryset = queryset.filter(app_label=app_label)
         try:
             plugin_page = queryset[0]

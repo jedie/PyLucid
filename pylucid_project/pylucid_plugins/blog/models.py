@@ -96,8 +96,7 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
             # Use the first PluginPage instance
             try:
                 return PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
-            except:
-                failsafe_message("No blog PagePlugin found! Please create one.")
+            except urlresolvers.NoReverseMatch:
                 return "#No-Blog-PagePlugin-exists"
 
     def get_html(self):
