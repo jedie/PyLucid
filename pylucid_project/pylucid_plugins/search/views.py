@@ -226,25 +226,10 @@ def _search(request, cleaned_data):
     min_pause = preferences["min_pause"]
     ban_limit = preferences["ban_limit"]
 
-    timedelta = datetime.timedelta(seconds=min_pause)
-    queryset = LogEntry.objects.last_remote_addr_actions(request, timedelta)
-    queryset = queryset.filter(app_label="search")
-    last_actions = queryset.count()
-
-    if last_actions >= ban_limit:
-        msg = "Add ban entry, because %s searches started in the last %ssec." % (last_actions, min_pause)
-        LogEntry.objects.log_action(app_label="search", action="ban ip", message=msg)
-        BanEntry.objects.add(request) # raise 404!
-
-    if last_actions > 0:
-        msg = "Too mutch searches from you!"
-        info = "(%s in the last %ssec.)" % (last_actions, min_pause)
-        if request.user.is_staff:
-            msg += " %s" % info
-        request.page_msg.error(msg)
-        LogEntry.objects.log_action(
-            app_label="search", action="search aborted", message="DoS min_pause %s" % info,
-        )
+    try:
+        LogEntry.objects.request_limit(request, min_pause, ban_limit, app_label="search")
+    except LogEntry.RequestTooFast:
+        # min_pause is not observed, page_msg has been created -> don't search
         return
 
     search_lang_codes = cleaned_data["language"]

@@ -26,10 +26,13 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.utils.translation import ugettext as _
 from django.contrib.auth.backends import ModelBackend
 
 from pylucid_project.utils import crypt
+
 from pylucid.shortcuts import failsafe_message
+from pylucid.models import LogEntry
 
 
 #LOCAL_DEBUG = True
@@ -56,7 +59,9 @@ def can_access_site(user):
     try:
         user_profile = user.get_profile()
     except Exception, err:
-        failsafe_message("Error getting user profile: %s" % err)
+        msg = _("Error getting user profile: %s") % err
+        LogEntry.objects.log_action(app_label="pylucid", action="auth_backends", message=msg)
+        failsafe_message(msg)
         return
 
     current_site = Site.objects.get_current()
@@ -66,7 +71,15 @@ def can_access_site(user):
             failsafe_message("User can access these site.")
         return True
     else:
-        failsafe_message("You can't access these site!")
+        msg = _("You can't access these site!")
+        LogEntry.objects.log_action(
+            app_label="pylucid", action="auth_backends", message=msg,
+            data={
+                "user_username": user.username,
+                "site:": current_site.name,
+            }
+        )
+        failsafe_message(msg)
         return
 
 
@@ -82,10 +95,14 @@ class SiteAuthBackend(ModelBackend):
                     failsafe_message("Wrong password!")
                 return
         except User.DoesNotExist, err:
+            msg = _("User %s doesn't exist: %s") % (username, err)
+            LogEntry.objects.log_action(
+                app_label="pylucid", action="auth_backends", message=msg,
+            )
             if LOCAL_DEBUG:
                 raise
             if settings.DEBUG:
-                failsafe_message("User %s doesn't exist: %s" % (username, err))
+                failsafe_message()
             return
 
         if LOCAL_DEBUG:
@@ -110,6 +127,10 @@ class SiteSHALoginAuthBackend(ModelBackend):
             check = crypt.check_js_sha_checksum(challenge, sha_a2, sha_b, sha_checksum)
         except crypt.SaltHashError, err:
             # Wrong password
+            LogEntry.objects.log_action(
+                app_label="pylucid", action="auth_backends",
+                message="User %r check_js_sha_checksum error: %s" % (user, err),
+            )
             if LOCAL_DEBUG:
                 raise
             if settings.DEBUG:
@@ -118,6 +139,10 @@ class SiteSHALoginAuthBackend(ModelBackend):
 
         if check != True:
             # Wrong password
+            LogEntry.objects.log_action(
+                app_label="pylucid", action="auth_backends",
+                message="User %r check_js_sha_checksum failed." % user,
+            )
             return
 
         # Limit the access to UserProfile <-> site relationship

@@ -3,6 +3,7 @@
 from django.contrib import auth
 from django.conf import settings
 from django.template import RequestContext
+from django.contrib.sites.models import Site
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
@@ -10,10 +11,12 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 from pylucid.shortcuts import render_pylucid_response
+from pylucid.models import LogEntry, BanEntry, UserProfile
 
 from pylucid_project.utils import crypt
 
-from auth.forms import UsernameForm, PasswordForm, SHA_LoginForm
+from pylucid_plugins.auth.forms import UsernameForm, PasswordForm, SHA_LoginForm
+from pylucid_plugins.auth.preference_forms import AuthPreferencesForm
 
 
 # DEBUG is usefull for debugging password reset. It send no email, it puts the
@@ -91,20 +94,36 @@ def _sha_login(request, context, user, next_url):
     """
     try:
         user_profile = user.get_profile()
-    except ObjectDoesNotExist, err:
-        # User profile doesn't exist. e.g. Update from v0.8.x ?
-        # FIXME: How to handle this better?
-        if settings.DEBUG:
-            msg = _("Can't get user profile. Use normal login and reset password! (%s)") % err
+    except UserProfile.DoesNotExist, err:
+        try:
+            UserProfile.objects.get(user=user)#.count()
+        except UserProfile.DoesNotExist, err:
+            # User profile doesn't generally not exist for this user. e.g. Update from v0.8.x ?
+            msg = _("There exist no UserProfile for user %r: %s") % (user, err)
         else:
-            msg = _("User unknown.")
-        request.page_msg.error(msg)
+            # A UserProfile exist -> User can't access *this* site.
+            msg = _("User %r can't access this site: %r") % (user, Site.objects.get_current())
+
+        LogEntry.objects.log_action(
+            app_label="pylucid_plugin.auth", action="login", message=msg
+        )
+
+        if settings.DEBUG:
+            request.page_msg.error(msg)
+        else:
+            request.page_msg.error(_("User unknown."))
+
         return
 
     if "sha_a2" in request.POST and "sha_b" in request.POST:
         SHA_login_form = SHA_LoginForm(request.POST)
         if not SHA_login_form.is_valid():
-            request.page_msg.error(_("Form data is not valid. Please correct."))
+            msg = _("Form data is not valid. Please correct.")
+            request.page_msg.error(msg)
+            LogEntry.objects.log_action(
+                app_label="pylucid_plugin.auth", action="login",
+                message="%s (%r)" % (msg, SHA_login_form.errors)
+            )
             if DEBUG: request.page_msg(SHA_login_form.errors)
         else:
             sha_a2 = SHA_login_form.cleaned_data["sha_a2"]
@@ -119,6 +138,10 @@ def _sha_login(request, context, user, next_url):
                 if DEBUG: request.page_msg("challenge:", challenge)
             except KeyError, e:
                 msg = _("Session Error.")
+                LogEntry.objects.log_action(
+                    app_label="pylucid_plugin.auth", action="login", message=msg,
+                    data={"user_username": user.username}
+                )
                 if DEBUG: msg = "%s (%s)" % (msg, e)
                 request.page_msg.error(msg)
                 return
@@ -128,14 +151,20 @@ def _sha_login(request, context, user, next_url):
 
             # authenticate with:
             # pylucid.system.auth_backends.SiteSHALoginAuthBackend
-            user = auth.authenticate(
+            user2 = auth.authenticate(
                 user=user, challenge=challenge,
                 sha_a2=sha_a2, sha_b=sha_b,
                 sha_checksum=sha_checksum
             )
-            if user:
-                return _login(request, user, next_url)
-            request.page_msg.error(_("Wrong password."))
+            if user2:
+                return _login(request, user2, next_url)
+
+            msg = _("Wrong password.")
+            LogEntry.objects.log_action(
+                app_label="pylucid_plugin.auth", action="login", message=msg,
+                data={"user_username": user.username}
+            )
+            request.page_msg.error(msg)
     else:
         SHA_login_form = UsernameForm()
 
@@ -167,6 +196,17 @@ def _login_view(request, form_url, next_url):
             "Warning: DEBUG is ON! Should realy only use for debugging!"
         )
 
+    pref_form = AuthPreferencesForm()
+    preferences = pref_form.get_preferences()
+    min_pause = preferences["min_pause"]
+    ban_limit = preferences["ban_limit"]
+
+    try:
+        LogEntry.objects.request_limit(request, min_pause, ban_limit, app_label="pylucid_plugin.auth")
+    except LogEntry.RequestTooFast:
+        # min_pause is not observed, page_msg has been created -> display the normal cms page.
+        return
+
     context = request.PYLUCID.context
     context["form_url"] = form_url
 
@@ -175,7 +215,12 @@ def _login_view(request, form_url, next_url):
         if username_form.is_valid():
             user = username_form.user # User instance added in UsernameForm.is_valid()
             if not user.is_active:
-                request.page_msg.error("Error: Your account is disabled!")
+                msg = _("Error: Your account is disabled!")
+                LogEntry.objects.log_action(
+                    app_label="pylucid_plugin.auth", action="login", message=msg,
+                    data={"user_username": user.username}
+                )
+                request.page_msg.error(msg)
                 return
 
             context["username"] = user.username
@@ -211,8 +256,10 @@ def http_get_view(request):
         next_url = request.path
         return _logout_view(request, next_url)
 
+    msg = _("Wrong get view parameter!")
+    LogEntry.objects.log_action(app_label="pylucid_plugin.auth", action="login", message=msg)
     if settings.DEBUG:
-        request.page_msg(_("Wrong get view parameter!"))
+        request.page_msg.error(msg)
 
 
 def authenticate(request):

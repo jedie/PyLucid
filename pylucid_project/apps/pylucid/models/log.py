@@ -35,6 +35,8 @@ META_KEYS = (
 )
 
 class LogEntryManager(models.Manager):
+
+
     def get_same_remote_addr(self, request):
         """
         return a QuerySet with all entries from the current remote Address.
@@ -44,18 +46,44 @@ class LogEntryManager(models.Manager):
         queryset = queryset.filter(remote_addr=current_remote_addr)
         return queryset
 
-    def last_remote_addr_actions(self, request, timedelta):
+    def last_remote_addr_actions(self, request, seconds):
         """
-        creates a queryset with all items from the same REMOTE_ADDR in the timedelta point of time.
+        creates a queryset with all items from the same REMOTE_ADDR in the last seconds.
         """
-        assert isinstance(timedelta, datetime.timedelta)
-
         queryset = self.get_same_remote_addr(request)
 
-        point_in_time = datetime.datetime.utcnow() - timedelta
+        timedelta = datetime.timedelta(seconds=seconds)
+        point_in_time = datetime.datetime.now() - timedelta
         queryset = queryset.filter(createtime__gte=point_in_time)
 
         return queryset
+
+    def request_limit(self, request, min_pause, ban_limit, app_label):
+        """
+        Monitor request min_pause and ban_limit.
+        """
+        # Count the last requests for this app_label
+        queryset = self.last_remote_addr_actions(request, min_pause)
+        queryset = queryset.filter(app_label=app_label)
+        last_actions = queryset.count()
+
+        if last_actions >= ban_limit:
+            msg = _("Add ban entry, because %s request for %s in the last %ssec.") % (
+                last_actions, app_label, min_pause
+            )
+            self.log_action(app_label=app_label, action="ban ip", message=msg)
+            from pylucid.models import BanEntry
+            BanEntry.objects.add(request) # raise 404 after adding the client IP!
+
+        if last_actions > 0:
+            msg = _("Request too fast!")
+            if settings.DEBUG:
+                msg += _(" Please wait min. %ssec.") % min_pause
+            request.page_msg.error(msg)
+            LogEntry.objects.log_action(
+                app_label=app_label, action="request aborted", message="(%s in the last %ssec.)" % (last_actions, min_pause),
+            )
+            raise self.model.RequestTooFast()
 
     def log_action(self, app_label, action, request=None, message=None, long_message=None, data=None):
         if request is None:
@@ -94,6 +122,9 @@ class LogEntry(UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    class RequestTooFast(Exception):
+        pass
+
     objects = LogEntryManager()
 
     site = models.ForeignKey(Site, default=Site.objects.get_current)
