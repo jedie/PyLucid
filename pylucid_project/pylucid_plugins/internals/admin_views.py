@@ -249,8 +249,3 @@ def model_graph(request):
     }
     return context
 
-
-@check_permissions(superuser_only=True)
-@render_to("internals/model_graph.html")
-def mysql_info(request):
-    pass

@@ -25,9 +25,3 @@ urlpatterns = patterns('',
     url(r'^form_generator/$', admin_views.form_generator, name='Internal-form_generator'),
     url(r'^form_generator/(?P<model_no>\d+?)/$', admin_views.form_generator, name='Internal-form_generator'),
 )
-
-if settings.DATABASE_ENGINE == "mysql":
-    urlpatterns += patterns('',
-        url(r'^mysql_info/$', admin_views.mysql_info, name='Internal-mysql_info'),
-    )
-
