@@ -41,10 +41,10 @@ class BanEntryManager(models.Manager):
         Creates a log message after delete a BanEntry.
         This method called from pylucid_project.middlewares.ip_ban.IPBanMiddleware
         """
-        point_in_time = datetime.datetime.utcnow() - timedelta
+        point_in_time = datetime.datetime.now() - timedelta
         queryset = self.all().filter(createtime__lte=point_in_time)
         for entry in queryset:
-            how_old_txt = timesince(entry.createtime, now=datetime.datetime.utcnow())
+            how_old_txt = timesince(entry.createtime, now=datetime.datetime.now())
             LogEntry.objects.log_action(
                 app_label="pylucid", action="release ip ban",
                 request=request,
@@ -60,7 +60,7 @@ class BanEntryManager(models.Manager):
         """
         remote_addr = request.META["REMOTE_ADDR"]
         self.model(ip_address=remote_addr).save()
-        raise Http404
+        raise Http404("Add IP to ban list.")
 
 
 class BanEntry(models.Model):
