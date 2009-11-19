@@ -101,6 +101,8 @@ MIDDLEWARE_CLASSES = (
     # slow down the django developer server
     # From http://code.google.com/p/django-tools/
 #    'django_tools.middlewares.SlowerDevServer.SlowerDevServerMiddleware',
+
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
 )
 SLOWER_DEV_SERVER_SLEEP = 0.3 # time.sleep() value (in sec.)
 
@@ -168,6 +170,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.comments',
+    'django.contrib.redirects',
 
     # PyLucid own apps:
     'pylucid_project.apps.pylucid',
@@ -259,8 +262,11 @@ SLUG_BLACKLIST = (
     ADMIN_URL_PREFIX, PYLUCID_ADMIN_URL_PREFIX, PYLUCID.HEAD_FILES_URL_PREFIX,
 )
 
-# Prefix in filename, used for page templates and page styles
-SITE_TEMPLATE_PREFIX = 'site_template/'
+# Prefix in filename, used for page templates
+SITE_TEMPLATE_PREFIX = 'site_template'
+
+# Prefix in filename, used for page stylesheet
+SITE_STYLE_PREFIX = 'site_stylesheet'
 
 
 # The PyLucid install instrucion page:
