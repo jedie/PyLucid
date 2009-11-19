@@ -12,16 +12,16 @@ def get_search_results(request, search_languages, search_strings, search_results
     queryset = PageContent.objects
 
     # search only all pages from this site
-    queryset = queryset.filter(pagemeta__page__site=Site.objects.get_current())
+    queryset = queryset.filter(pagemeta__pagetree__site=Site.objects.get_current())
 
     # Filter PageTree view permissions:
     if request.user.is_anonymous(): # Anonymous user are in no user group
-        queryset = queryset.filter(pagemeta__page__permitViewGroup=None)
+        queryset = queryset.filter(pagemeta__pagetree__permitViewGroup=None)
     elif not request.user.is_superuser: # Superuser can see everything ;)
-        queryset = queryset.filter(pagemeta__page__permitViewGroup__in=request.user.groups)
+        queryset = queryset.filter(pagemeta__pagetree__permitViewGroup__in=request.user.groups)
 
     # Only pages in the selected search language
-    queryset = queryset.filter(pagemeta__lang__in=search_languages)
+    queryset = queryset.filter(pagemeta__language__in=search_languages)
 
     for term in search_strings:
         queryset = queryset.filter(content__icontains=term)

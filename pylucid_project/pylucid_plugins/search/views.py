@@ -79,12 +79,12 @@ def _filter_search_terms(request, search_string):
 
 class SearchHit(object):
     """ one hit entry in the result page """
-    def __init__(self, model_instance, search_strings, score, headline, lang, url, content):
+    def __init__(self, model_instance, search_strings, score, headline, language, url, content):
         self.model_instance = model_instance
         self.search_strings = search_strings
         self.score = score
         self.headline = headline
-        self.language = lang
+        self.language = language
         self.url = url
         self.content = content
 
@@ -137,12 +137,12 @@ class SearchResults(object):
             score += txt.count(term) * multiplier
         return score
 
-    def add(self, model_instance, headline, lang, url, content, meta_content):
+    def add(self, model_instance, headline, language, url, content, meta_content):
         """
         Add a search hit.
         
         headline - title for the hit in the result list
-        lang - language of the hit item, displayed in the result list
+        language - language of the hit item, displayed in the result list
         url - absolute url for building a link to the hit item
         content - the main content -> result lines would be cut out from hits in this content
         meta_content - hits in meta content has a higher score, but the content would not displayed 
@@ -156,7 +156,7 @@ class SearchResults(object):
             search_strings=self.search_strings,
             score=score,
             headline=headline,
-            language=lang,
+            language=language,
             url=url,
             content=content,
         )
