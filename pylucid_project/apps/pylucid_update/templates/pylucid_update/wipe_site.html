@@ -1,0 +1,36 @@
+{% extends "pylucid_update/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<!-- view_content block -->
+<p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
+<fieldset><legend>wipe site</legend>
+{% if form %}
+    <p>
+        <span style="color:#ff0000;">
+        Delete all page data on the site <strong title="{{ site.domain }}">{{ site.name }}</strong>.
+        </span>
+    </p>
+    <form method="post" action="{{ url }}">
+    <ul id="input_fields">
+        {% for field in form %}
+            <li title="{{ field.help_text }}" class="{{ field.html_name }}{% if field.errors %} error_field{% endif %}">
+            {% if field.errors %}{{ field.errors }}{% endif %}
+            <label for="{{ field.auto_id }}">{{ field.label }}:</label>
+            {{ field }}
+            <span class="field_help_text">{{ field.help_text }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    <input type="submit" name="ok" value="ok" /> <small>(Can take a long time, after clicking!)</small>
+    </form>
+{% else %}
+    <p>
+        All page data delete on the site <strong title="{{ site.domain }}">{{ site.name }}</strong>.<br/>
+        You can start migrating now.
+    </p>
+{% endif %}
+</fieldset>
+<p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
+<!-- view_content block end -->
+{% endblock %}

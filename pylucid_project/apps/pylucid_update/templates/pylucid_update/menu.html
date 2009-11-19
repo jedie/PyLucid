@@ -3,20 +3,23 @@
 
 {% block content %}
 <!-- view_content block -->
-{% if not sites|length_is:"1" %}
-    <p><strong>Note:</strong>
+<p>
+    <strong>Note:</strong>
     Before you migrate the old v0.8 table data you should check
-    if <strong title="{{ site.domain }}">{{ site.name }}</strong> is the right site!
-    </p>
-{% endif %}
-Please select:
+    if <strong><a href="http://{{ site.domain }}/" title="&lt;&lt; goto '{{ site.domain }}'">{{ site.name }}</a></strong> is the right site!
+</p>
+Migration steps:
 <ol>
     <li><a href="{% url PyLucidUpdate-update08migrate_stj %}">migrate v0.8 styles, templates, JS-SHA-Login data</a></li>
     <li><a href="{% url PyLucidUpdate-update08migrate_pages %}">migrate v0.8 pages</a></li>
     <li><a href="{% url PyLucidUpdate-update08templates %}">update templates</a></li>
     <li><a href="{% url PyLucidUpdate-update08pages %}">update PageContent</a></li>
-    <li><a href="{% url PyLucidUpdate-update08styles %}">update stylesheets</a></li>
-    <li><a href="{% url PyLucidUpdate-update08plugins %}">update plugin data</a></li>
+    <li><a href="{% url PyLucidUpdate-update08styles %}">update stylesheets</a> (You should remove Pygments styles before start.)</li>
+    <li><a href="{% url PyLucidUpdate-update08plugins %}">update plugin data</a> (Create PluginPage before start.)</li>
 </ol>
+Tools:
+<ul>
+    <li><a href="{% url PyLucidUpdate-wipe_site %}">wipe site data</a> (Delete all PageTree, PageMeta, PageContent, PluginPages, Preferences for the current site.)</li>   
+</ul>
 <!-- view_content block end -->
 {% endblock %}

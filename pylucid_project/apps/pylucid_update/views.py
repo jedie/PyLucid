@@ -20,14 +20,18 @@ from django.conf import settings
 from django.db import transaction
 from django.template import RequestContext
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.shortcuts import render_to_response
+from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 from django.template.loader import find_template_source
 from django.contrib.redirects.models import Redirect
 
 from dbtemplates.models import Template
+
+from dbpreferences.models import Preference
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
@@ -36,10 +40,10 @@ from pylucid.fields import CSS_VALUE_RE
 from pylucid.decorators import check_permissions, render_to
 from pylucid.system.css_color_utils import filter_content, extract_colors
 from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, Design, \
-                                                                EditableHtmlHeadFile, UserProfile, LogEntry
+                                                EditableHtmlHeadFile, UserProfile, LogEntry, Language
 
 from pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
-from pylucid_update.forms import UpdateForm
+from pylucid_update.forms import UpdateForm, WipeSiteConfirm
 
 
 def fix_old_user(out, obj, attrnames, alternative_user):
@@ -56,6 +60,42 @@ def fix_old_user(out, obj, attrnames, alternative_user):
 
 
 @check_permissions(superuser_only=True)
+@render_to("pylucid_update/wipe_site.html")
+def wipe_site(request):
+    """ Delete all PageTree, PageMeta, PagePlugin for the current site. """
+    current_site = Site.objects.get_current()
+    title = _("Wipe all page data on '%s'." % current_site.name)
+    context = {"title": title, "site": current_site}
+    out = SimpleStringIO()
+
+    if request.method == 'POST':
+        form = WipeSiteConfirm(request.POST)
+        if form.is_valid():
+
+            sid = transaction.savepoint()
+            try:
+                Preference.objects.all().filter(site=current_site).delete()
+                PageTree.on_site.all().delete()
+            except Exception, err:
+                transaction.savepoint_rollback(sid)
+                import traceback
+                LogEntry.objects.log_action("pylucid_update", title, request, "Error: %s" % err,
+                    long_message=traceback.format_exc())
+                raise
+            else:
+                transaction.savepoint_commit(sid)
+                LogEntry.objects.log_action("pylucid_update", title, request, "successful")
+                request.page_msg("Wipe site data successful")
+
+            return HttpResponseRedirect(reverse("PyLucidUpdate-menu"))
+    else:
+        form = WipeSiteConfirm()
+
+    context["form"] = form
+    return context
+
+
+@check_permissions(superuser_only=True)
 @render_to("pylucid_update/menu.html")
 def menu(request):
     """ Display a menu with all update view links """
@@ -65,14 +105,17 @@ def menu(request):
     }
     return context
 
-def _make_new_template_name(template_name):
-    return settings.SITE_TEMPLATE_PREFIX + template_name + ".html"
 
-def _make_new_style_name(style_name):
-    return settings.SITE_TEMPLATE_PREFIX + style_name + ".css"
+def _make_new_template_name(template_name, site):
+    return posixpath.join(settings.SITE_TEMPLATE_PREFIX, site.domain, template_name + ".html")
+
+def _make_new_style_name(style_name, site):
+     return posixpath.join(settings.SITE_STYLE_PREFIX, site.domain, style_name + ".css")
 
 
-def _update08migrate_stj(request, language):
+@check_permissions(superuser_only=True)
+@render_to("pylucid_update/update08result.html")
+def update08migrate_stj(request):
     out = SimpleStringIO()
     site = Site.objects.get_current()
     title = "migrate v0.8 styles, templates, JS-SHA-Login data (on site: %s)" % site
@@ -105,7 +148,7 @@ def _update08migrate_stj(request, language):
     out.write("\n______________________________________________________________")
     out.write("Move template model\n")
     for template in Template08.objects.all():
-        new_template_name = _make_new_template_name(template.name)
+        new_template_name = _make_new_template_name(template.name, site)
         new_template, created = Template.objects.get_or_create(
             name=new_template_name,
             defaults={
@@ -117,14 +160,14 @@ def _update08migrate_stj(request, language):
         new_template.save()
         new_template.sites.add(site)
         if created:
-            out.write("template '%s' transferted into dbtemplates." % template.name)
+            out.write("template %r transferted to dbtemplate: %r" % (template.name, new_template_name))
         else:
-            out.write("dbtemplate '%s' exist." % template.name)
+            out.write("dbtemplate '%s' exist." % new_template_name)
 
     out.write("\n______________________________________________________________")
     out.write("Move style model\n")
     for style in Style08.objects.all():
-        new_style_name = _make_new_style_name(style.name)
+        new_style_name = _make_new_style_name(style.name, site)
         new_staticfile, created = EditableHtmlHeadFile.objects.get_or_create(
             filepath=new_style_name,
             defaults={
@@ -135,15 +178,14 @@ def _update08migrate_stj(request, language):
             }
         )
         if created:
-            out.write("stylesheet '%s' transferted into EditableStaticFile." % style.name)
+            out.write("stylesheet %r transferted into EditableStaticFile: %r" % (style.name, new_style_name))
         else:
-            out.write("EditableStaticFile '%s' exist." % style.name)
+            out.write("EditableStaticFile %r exist." % new_style_name)
 
     output = out.getlines()
     LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
 
     context = {
-        "template_name": "pylucid_update/update08result.html",
         "title": title,
         "site": site,
         "results": output,
@@ -152,6 +194,12 @@ def _update08migrate_stj(request, language):
 
 
 def _update08migrate_pages(request, language):
+    """
+    Mirgate page data from a old v0.8 installation into the new v0.9 tables.
+    
+    Originally, this migration can be callable multiple times. But we migrate the old tree not
+    in hierarchical order. Thus, migration can only be called unique.
+    """
     site = Site.objects.get_current()
     title = "migrate v0.8 pages (on site: %s)" % site
     out = SimpleStringIO()
@@ -173,34 +221,35 @@ def _update08migrate_pages(request, language):
         #---------------------------------------------------------------------
         # create/get Design entry
 
-        design_key = "%s %s" % (old_page.template.name, old_page.style.name)
-        if design_key not in designs:
-            style_name = old_page.style.name
-            # The template/style combination was not created, yet.
-            if old_page.template.name == style_name:
-                new_design_name = old_page.template.name
-            else:
-                new_design_name = "%s + %s" % (old_page.template.name, style_name)
+        if old_page.template.name == old_page.style.name:
+            design_key = "%s (v0.8 migration)" % (old_page.template.name)
+        else:
+            design_key = "%s + %s (v0.8 migration)" % (old_page.template.name, old_page.style.name)
 
-            new_template_name = _make_new_template_name(old_page.template.name)
+        if design_key in designs:
+            design = designs[design_key]
+            out.write("Design: %r created in the past." % design)
+        else:
+            # The template/style combination was not created, yet.
+            new_template_name = _make_new_template_name(old_page.template.name, site)
             design, created = Design.objects.get_or_create(
-                name=new_design_name, defaults={"template": new_template_name}
+                name=design_key, defaults={"template": new_template_name}
             )
             if created:
-                out.write("New design created: %s" % new_design_name)
-
-                # Add old page css file            
-                new_style_name = _make_new_style_name(style_name)
-                try:
-                    css_file = EditableHtmlHeadFile.on_site.get(filepath=new_style_name)
-                except EditableHtmlHeadFile.DoesNotExist:
-                    out.write("Error getting headfile %r. (Can't add it to design %r)" % (new_style_name, design))
-                else:
-                    design.headfiles.add(css_file)
+                out.write("New design %s created." % design_key)
             else:
                 out.write("Use existing Design: %r" % design)
 
-            colorscheme, created = ColorScheme.objects.get_or_create(name=style_name)
+            # Add old page css file            
+            new_style_name = _make_new_style_name(old_page.style.name, site)
+            try:
+                css_file = EditableHtmlHeadFile.on_site.get(filepath=new_style_name)
+            except EditableHtmlHeadFile.DoesNotExist:
+                out.write("Error getting headfile %r. (Can't add it to design %r)" % (new_style_name, design))
+            else:
+                design.headfiles.add(css_file)
+
+            colorscheme, created = ColorScheme.objects.get_or_create(name=old_page.style.name)
             if created:
                 out.write("Use new color scheme: %s" % colorscheme.name)
                 out.write("Colors can be extracted later.")
@@ -210,12 +259,14 @@ def _update08migrate_pages(request, language):
             design.colorscheme = colorscheme
             design.save()
             designs[design_key] = design
-        else:
-            design = designs[design_key]
-            out.write("Use existing Design: %r" % design)
+
 
         #---------------------------------------------------------------------
-        # create/get PageTree entry
+
+
+
+        #---------------------------------------------------------------------
+        # create PageTree entry
 
         page_parent_exist = True # Exist the parent page tree or was he not created, yet?
         if old_page.parent == None:
@@ -232,28 +283,20 @@ def _update08migrate_pages(request, language):
                 ) % old_parent_id
                 out.write(msg)
 
-        tree_entry, created = PageTree.objects.get_or_create(
+        tree_entry = PageTree(
             site=site,
             slug=old_page.shortcut,
             parent=parent,
-            defaults={
-                "position": old_page.position,
-
-                "page_type": PageTree.PAGE_TYPE, # FIXME: Find plugin entry in page content
-
-                "design": design,
-
-                "createtime": old_page.createtime,
-                "lastupdatetime": old_page.lastupdatetime,
-                "createby": old_page.createby,
-                "lastupdateby": old_page.lastupdateby,
-            }
+            position=old_page.position,
+            page_type=PageTree.PAGE_TYPE, # FIXME: Find plugin entry in page content
+            design=design,
+            createtime=old_page.createtime,
+            lastupdatetime=old_page.lastupdatetime,
+            createby=old_page.createby,
+            lastupdateby=old_page.lastupdateby,
         )
-        if created:
-            tree_entry.save()
-            out.write("PageTree entry '%s' created." % tree_entry.slug)
-        else:
-            out.write("PageTree entry '%s' exist." % tree_entry.slug)
+        tree_entry.save()
+        out.write("PageTree entry '%s' created." % tree_entry.slug)
 
         page_dict[old_page.id] = tree_entry
 
@@ -277,29 +320,29 @@ def _update08migrate_pages(request, language):
                 parent_attach_data[old_parent_id].append(tree_entry)
 
         #---------------------------------------------------------------------
-        # create/get PageMeta entry
+        # create PageMeta entry
 
-        pagemeta_entry, created = PageMeta.objects.get_or_create(
+        pagemeta_entry = PageMeta(
             pagetree=tree_entry,
             language=language,
-            defaults={
-                "name": old_page.name,
-                "title": old_page.title,
-                "keywords": old_page.keywords,
-                "description": old_page.description,
+            name=old_page.name,
+            title=old_page.title,
+            keywords=old_page.keywords,
+            description=old_page.description,
 
-                "tags": old_page.keywords,
+            # django-tagging can't handle case insensitive tags :(
+            # So we get a duplicate entry IntegrityError an e.g.: "CGI, cgi"
+            # work-a-round here: .lower() all tags :(
+            # see: http://code.google.com/p/django-tagging/issues/detail?id=46
+            tags=old_page.keywords.lower(),
 
-                "createtime": old_page.createtime,
-                "lastupdatetime": old_page.lastupdatetime,
-                "createby": old_page.createby,
-                "lastupdateby": old_page.lastupdateby,
-            }
+            createtime=old_page.createtime,
+            lastupdatetime=old_page.lastupdatetime,
+            createby=old_page.createby,
+            lastupdateby=old_page.lastupdateby,
         )
-        if created:
-            out.write("PageMeta entry '%s' - '%s' created." % (language, tree_entry.slug))
-        else:
-            out.write("PageMeta entry '%s' - '%s' exist." % (language, tree_entry.slug))
+        pagemeta_entry.save()
+        out.write("PageMeta entry '%s' - '%s' created." % (language, tree_entry.slug))
 
         #---------------------------------------------------------------------
         # Create a redirect for the old permalink
@@ -307,34 +350,45 @@ def _update08migrate_pages(request, language):
         old_path = "/%s/%i/%s/" % (settings.PYLUCID.OLD_PERMALINK_PREFIX, old_page.id, old_page.shortcut)
         new_path = pagemeta_entry.get_permalink()
 
-        created = Redirect.objects.get_or_create(site=site, old_path=old_path, new_path=new_path)[1]
+        created = Redirect.objects.get_or_create(
+            site=site, old_path=old_path,
+            defaults={"new_path":new_path}
+        )[1]
         if created:
-            out.write("Add permalink redirect (%s->%s)" % (old_path, new_path))
+            out.write("Add permalink redirect. (%s->%s)" % (old_path, new_path))
         else:
-            out.write("Permalink redirect for this page exist.")
+            out.write("Permalink redirect for this page exist. (%s->%s)" % (old_path, new_path))
 
         #---------------------------------------------------------------------
-        # create/get PageContent entry
+        # create PageContent or PluginPage entry
 
-        content_entry, created = PageContent.objects.get_or_create(
-            pagemeta=pagemeta_entry,
-            defaults={
-                "content": old_page.content,
-                "markup": old_page.markup,
+        if old_page.content.strip() == "{% lucidTag blog %}":
+            # Create a blog plugin page, but only if there is no additional content
+            tree_entry.page_type = PageTree.PLUGIN_TYPE
+            tree_entry.save()
 
-                "createtime": old_page.createtime,
-                "lastupdatetime": old_page.lastupdatetime,
-                "createby": old_page.createby,
-                "lastupdateby": old_page.lastupdateby,
-            }
-        )
-        if created:
-            out.write("PageContent entry '%s' - '%s' created." % (language, tree_entry.slug))
+            new_pluginpage = PluginPage(app_label="pylucid_project.pylucid_plugins.blog")
+            new_pluginpage.pagetree = tree_entry
+            new_pluginpage.save()
+            out.write("PluginPage entry 'blog' created for: %r" % tree_entry)
         else:
-            out.write("PageContent entry '%s' - '%s' exist." % (language, tree_entry.slug))
+            # create PageContent entry    
+            content_entry = PageContent(
+                pagemeta=pagemeta_entry,
+                content=old_page.content,
+                markup=old_page.markup,
+                createtime=old_page.createtime,
+                lastupdatetime=old_page.lastupdatetime,
+                createby=old_page.createby,
+                lastupdateby=old_page.lastupdateby,
+            )
+            content_entry.save()
+            out.write("PageContent entry '%s' - '%s' created." % (language, tree_entry.slug))
 
     output = out.getlines()
-    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+    LogEntry.objects.log_action(
+        "pylucid_update", title, request, "successful", long_message="\n".join(output)
+    )
 
     context = {
         "template_name": "pylucid_update/update08result.html",
@@ -350,6 +404,10 @@ def _select_lang(request, context, call_func):
     """
     Select language before start updating.
     """
+    if Language.on_site.count() == 0:
+        request.page_msg.error(_("Error: On this site exist no language!"))
+        return HttpResponseRedirect(reverse("PyLucidUpdate-menu"))
+
     assert "template_name" in context
 
     if request.method == 'POST':
@@ -359,12 +417,16 @@ def _select_lang(request, context, call_func):
             sid = transaction.savepoint()
             try:
                 response = call_func(request, language)
-            except:# IntegrityError, e:
+            except Exception, err:
                 transaction.savepoint_rollback(sid)
+                import traceback
+                LogEntry.objects.log_action("pylucid_update", context["title"], request, "Error: %s" % err,
+                    long_message=traceback.format_exc())
                 raise
             else:
                 transaction.savepoint_commit(sid)
-                return response
+                LogEntry.objects.log_action("pylucid_update", context["title"], request, "successful")
+            return response
     else:
         form = UpdateForm()
 
@@ -375,18 +437,6 @@ def _select_lang(request, context, call_func):
     return context
 
 
-@check_permissions(superuser_only=True)
-def update08migrate_stj(request):
-    """
-    Update PyLucid v0.8 model data to v0.9 models
-    Before start updating, select the language.
-    """
-    context = {
-        "template_name": "pylucid_update/update08.html",
-        "title": "Update PyLucid v0.8 model data to v0.9 models",
-        "url": reverse("PyLucidUpdate-update08migrate_stj"),
-    }
-    return _select_lang(request, context, call_func=_update08migrate_stj)
 
 @check_permissions(superuser_only=True)
 def update08migrate_pages(request):
@@ -394,6 +444,11 @@ def update08migrate_pages(request):
     Update PyLucid v0.8 model data to v0.9 models
     Before start updating, select the language.
     """
+    if PageTree.on_site.count() != 0:
+        request.page_msg(_("Can't start migrating: There exist pages on this side!"))
+        request.page_msg(_("Create a new site or wipe all page data."))
+        return HttpResponseRedirect(reverse("PyLucidUpdate-menu"))
+
     context = {
         "template_name": "pylucid_update/update08pages.html",
         "title": "Update PyLucid v0.8 model data to v0.9 models",
@@ -466,7 +521,9 @@ def update08pages(request):
     out.write("%s items updated." % count)
 
     output = out.getlines()
-    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+    LogEntry.objects.log_action(
+        "pylucid_update", title, request, "successful", long_message="\n".join(output)
+    )
 
     context = {
         "title": title,
@@ -577,7 +634,9 @@ def update08templates(request):
     out.write("%s items updated." % count)
 
     output = out.getlines()
-    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+    LogEntry.objects.log_action(
+        "pylucid_update", title, request, "successful", long_message="\n".join(output)
+    )
 
     context = {
         "title": title,
@@ -694,7 +753,9 @@ def update08styles(request):
 #            out.write("additional styles inserted.")        
 
     output = out.getlines()
-    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+    LogEntry.objects.log_action(
+        "pylucid_update", title, request, "successful", long_message="\n".join(output)
+    )
 
     context = {
         "title": title,
@@ -748,7 +809,9 @@ def _update08plugins(request, language):
             out.write(" --- %s END ---" % plugin_name)
 
     output = out.getlines()
-    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+    LogEntry.objects.log_action(
+        "pylucid_update", title, request, "successful", long_message="\n".join(output)
+    )
 
     context = {
         "template_name": "pylucid_update/update08result.html",

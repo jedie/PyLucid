@@ -11,6 +11,7 @@ from pylucid.decorators import superuser_only
 
 urlpatterns = patterns('',
     url(r'^$', views.menu, name='PyLucidUpdate-menu'),
+    url(r'^wipe_site/$', views.wipe_site, name='PyLucidUpdate-wipe_site'),
     url(r'^update08migrate_stj/$', views.update08migrate_stj, name='PyLucidUpdate-update08migrate_stj'),
     url(r'^update08migrate_pages/$', views.update08migrate_pages, name='PyLucidUpdate-update08migrate_pages'),
     url(r'^update08pages/$', views.update08pages, name='PyLucidUpdate-update08pages'),
