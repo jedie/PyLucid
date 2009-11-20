@@ -19,10 +19,11 @@ import errno
 import codecs
 import mimetypes
 
-from django.db import models
 from django.conf import settings
 from django.db.models import signals
-from django.core.urlresolvers import reverse
+from django.db import models, IntegrityError
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib.sites.models import Site
 
 # http://code.google.com/p/django-tools/
@@ -191,12 +192,20 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             mimetypes.guess_type(self.filepath)[0] or u"application/octet-stream"
 
     def save(self, *args, **kwargs):
+        """
+        TODO: update if model-validation branch merged into django
+        """
+        try:
+            # "validate" the filepath with the url re. 
+            reverse('PyLucid-send_head_file', kwargs={"filepath": self.filepath})
+        except NoReverseMatch, err:
+            raise ValidationError("filepath %r contains invalid characters!" % self.filepath)
+
         if self.id == None: # new item should be created.
             # manually check a unique togeher, because django can't do this with a M2M field.
             # Obsolete if unique_together work with ManyToMany: http://code.djangoproject.com/ticket/702
             exist = EditableHtmlHeadFile.on_site.filter(filepath=self.filepath).count()
             if exist != 0:
-                from django.db import IntegrityError
                 # We can use attributes from this model instance, because it needs to have a primary key
                 # value before a many-to-many relationship can be used.
                 site = Site.objects.get_current()
