@@ -27,7 +27,7 @@ from tagging.fields import TagField
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
 
-from pylucid.preference_forms import SystemPreferencesForm
+
 from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
 from pylucid_project.pylucid_plugins import update_journal
@@ -99,6 +99,8 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         """
         return a permalink. Use page slug/name/title or nothing as additional text.
         """
+        from pylucid.preference_forms import SystemPreferencesForm # FIXME: against import loops.
+
         sys_pref_form = SystemPreferencesForm()
         sys_pref = sys_pref_form.get_preferences()
         use_additions = sys_pref.get("permalink_additions", SystemPreferencesForm.PERMALINK_USE_TITLE)
