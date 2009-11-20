@@ -150,7 +150,7 @@ class Page08(models.Model):
     def get_absolute_url(self):
         """ absolute url *without* language code (without domain/host part) """
         if self.pk in self._url_cache:
-            print "Page08 url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
+            #print "Page08 url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
             return self._url_cache[self.pk]
 
         if self.parent:
