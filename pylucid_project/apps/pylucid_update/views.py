@@ -28,6 +28,7 @@ from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 from django.template.loader import find_template_source
 from django.contrib.redirects.models import Redirect
+from django.template.defaultfilters import slugify
 
 from dbtemplates.models import Template
 
@@ -107,10 +108,10 @@ def menu(request):
 
 
 def _make_new_template_name(template_name, site):
-    return posixpath.join(settings.SITE_TEMPLATE_PREFIX, site.domain, template_name + ".html")
+    return posixpath.join(settings.SITE_TEMPLATE_PREFIX, slugify(site.name), template_name + ".html")
 
 def _make_new_style_name(style_name, site):
-     return posixpath.join(settings.SITE_STYLE_PREFIX, site.domain, style_name + ".css")
+     return posixpath.join(settings.SITE_STYLE_PREFIX, slugify(site.name), style_name + ".css")
 
 
 @check_permissions(superuser_only=True)
