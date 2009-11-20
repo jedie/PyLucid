@@ -30,7 +30,7 @@ else:
         # and the SVN revision number.
         svn_revision = " (%s)" % svn_revision
 
-__version__ = (0, 9, 0, 'alpha', svn_revision)
+__version__ = (0, 9, 0, 'beta', svn_revision)
 
 # PyLucid Version String
 # Important for setuptools:
