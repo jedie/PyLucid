@@ -290,7 +290,10 @@ def _get_pagetree(request, url_path):
     try:
         return PageTree.objects.get_page_from_url(request, url_path)
     except PageTree.DoesNotExist, err:
-        raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % err)
+        msg = "Page not found"
+        if settings.DEBUG:
+            msg += " url path: %r (%s)" % (url_path, err)
+        raise http.Http404(msg)
 
 
 def resolve_url(request, url_lang_code, url_path):
@@ -321,9 +324,9 @@ def permalink(request, page_id, url_rest=""):
         pagetree = PageTree.on_site.get(id=page_id)
     except PageTree.DoesNotExist, err:
         # TODO: Try to search with the additional url data (url_rest)
-        msg = "<h1>Page not found</h1>"
-        if settings.debug:
-            msg += "<h2>%s</h2>" % err
+        msg = "Page not found"
+        if settings.DEBUG:
+            msg += " PageTree ID: %r (%s)" % (page_id, err)
         raise http.Http404(msg)
 
     pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
