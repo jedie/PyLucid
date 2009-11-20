@@ -3,23 +3,34 @@
 
 {% block content %}
 <!-- view_content block -->
+<h2>Note:</h2>
+<ul>
+    <p>Before you migrate the old v0.8 table data you should check this:</p>
+    <li>
+        The old data would be migrate to the site <strong><a href="http://{{ site.domain }}/" title="&lt;&lt; goto '{{ site.domain }}'">{{ site.name }}</a></strong> is the right site?
+    </li>
+    <li>
+        Are you used the old permalink prefix '<strong>{{ old_permalink_prefix }}</strong>' ?<br />
+        If this is not correct, please edit/create a local_settings.py and add OLD_PERMALINK_PREFIX.<br />
+    </li>
+    <p>More info: <a href="#TODO:Insert url here">pylucid.org</a></p>
+</ul>
+
 <p>
-    <strong>Note:</strong>
-    Before you migrate the old v0.8 table data you should check
-    if <strong><a href="http://{{ site.domain }}/" title="&lt;&lt; goto '{{ site.domain }}'">{{ site.name }}</a></strong> is the right site!
-</p>
 Migration steps:
 <ol>
     <li><a href="{% url PyLucidUpdate-update08migrate_stj %}">migrate v0.8 styles, templates, JS-SHA-Login data</a></li>
     <li><a href="{% url PyLucidUpdate-update08migrate_pages %}">migrate v0.8 pages</a></li>
+    <li><a href="{% url PyLucidUpdate-update08pages %}">update PageContent</a> (replace old permalinks, update blog page)</li>
     <li><a href="{% url PyLucidUpdate-update08templates %}">update templates</a></li>
-    <li><a href="{% url PyLucidUpdate-update08pages %}">update PageContent</a></li>
     <li><a href="{% url PyLucidUpdate-update08styles %}">update stylesheets</a> (You should remove Pygments styles before start.)</li>
     <li><a href="{% url PyLucidUpdate-update08plugins %}">update plugin data</a> (Create PluginPage before start.)</li>
+    <li><a href="{% url PyLucidUpdate-update08pagesRedirect %}">create old permalink redirects</a></li>
 </ol>
 Tools:
 <ul>
-    <li><a href="{% url PyLucidUpdate-wipe_site %}">wipe site data</a> (Delete all PageTree, PageMeta, PageContent, PluginPages, Preferences for the current site.)</li>   
+    <li><a href="{% url PyLucidUpdate-wipe_site %}">wipe site data</a> (Delete all PageTree, PageMeta, PageContent, PluginPages and Preferences for the current site.)</li>   
+    <li><a href="{% url PyLucidUpdate-replace08URLs %}">replace v0.8 urls in PageContent</a> (Experimental! Replace old absolute page URLs with new permalink.)</li>   
 </ul>
 <!-- view_content block end -->
 {% endblock %}

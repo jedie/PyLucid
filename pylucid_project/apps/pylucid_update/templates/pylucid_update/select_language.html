@@ -5,14 +5,6 @@
 <!-- view_content block -->
 <p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
 <fieldset><legend>update</legend>
-<p>
-    Migrate <strong title="{{ site.domain }}">{{ site.name }}</strong> pages.
-</p>
-<p>
-    Before you start, please check if the old permalink prefix is: '<strong>{{ old_permalink_prefix }}</strong>'.<br/>
-    If this is not correct, please edit/create a local_settings.py and add OLD_PERMALINK_PREFIX.<br/>
-    More info: <a href="#TODO:Insert url here">pylucid.org</a>
-</p>
 Please select the used content language:
 <form method="post" action="{{ url }}">
 <ul id="input_fields">

@@ -1,0 +1,26 @@
+{% extends "pylucid_update/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<!-- view_content block -->
+<p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
+<fieldset><legend>result</legend>
+<ul>
+    {% for data in replace_data %}
+    <li>
+        replace '{{ data.old_absolute_url }}'
+        with <a href="{{ data.permalink }}">{{ data.permalink }}</a>
+        in page <a href="{{ data.page_absolute_url }}">{{ data.page_absolute_url }}</a>
+    </li>
+    {% endfor %}
+</ul>
+<ul>
+    <li>{{ items_count }} PageContent items processed.</li>
+    <li>{{ update_count }} items updated.</li>
+    <li>Skip too short urls: {{ too_short_urls }}</li>
+</ul>
+</pre>
+</fieldset>
+<p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
+<!-- view_content block end -->
+{% endblock %}

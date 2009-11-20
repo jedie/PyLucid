@@ -13,8 +13,10 @@
     :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
-from pprint import pformat
+
+import re
 import posixpath
+from pprint import pformat
 
 from django.conf import settings
 from django.db import transaction
@@ -45,6 +47,24 @@ from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorSch
 
 from pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
 from pylucid_update.forms import UpdateForm, WipeSiteConfirm
+
+
+def _get_output(request, out, title):
+    """ prepare output, merge page_msg and create a LogEntry. """
+    output = out.getlines()
+
+    msg_list = request.page_msg.get_and_delete_messages()
+    if msg_list:
+        output.append("\nPage Messages:\n")
+        for msg in msg_list:
+            output += msg["lines"]
+        request.page_msg.info("Page messages merge into the output.")
+
+    LogEntry.objects.log_action(
+        "pylucid_update", title, request, "successful", long_message="\n".join(output)
+    )
+
+    return output
 
 
 def fix_old_user(out, obj, attrnames, alternative_user):
@@ -101,8 +121,9 @@ def wipe_site(request):
 def menu(request):
     """ Display a menu with all update view links """
     context = {
-        "title": "menu",
-        "site": Site.objects.get_current()
+        "title": "PyLucid v0.8 migation - menu",
+        "site": Site.objects.get_current(),
+        "old_permalink_prefix": settings.PYLUCID.OLD_PERMALINK_PREFIX,
     }
     return context
 
@@ -183,8 +204,7 @@ def update08migrate_stj(request):
         else:
             out.write("EditableStaticFile %r exist." % new_style_name)
 
-    output = out.getlines()
-    LogEntry.objects.log_action("pylucid_update", title, request, long_message="\n".join(output))
+    output = _get_output(request, out, title) # merge page_msg and log the complete output
 
     context = {
         "title": title,
@@ -212,6 +232,7 @@ def _update08migrate_pages(request, language):
     designs = {}
     page_dict = {}
     parent_attach_data = {}
+    new_page_id_data = {}
     for old_page in old_pages:
         out.write("\nmove '%s' page (old ID:%s)" % (old_page.name, old_page.id))
 
@@ -261,11 +282,6 @@ def _update08migrate_pages(request, language):
             design.save()
             designs[design_key] = design
 
-
-        #---------------------------------------------------------------------
-
-
-
         #---------------------------------------------------------------------
         # create PageTree entry
 
@@ -298,6 +314,9 @@ def _update08migrate_pages(request, language):
         )
         tree_entry.save()
         out.write("PageTree entry '%s' created." % tree_entry.slug)
+
+        # Collect the information old page ID <-> new PageTree ID
+        new_page_id_data[old_page.id] = tree_entry.id
 
         page_dict[old_page.id] = tree_entry
 
@@ -346,21 +365,6 @@ def _update08migrate_pages(request, language):
         out.write("PageMeta entry '%s' - '%s' created." % (language, tree_entry.slug))
 
         #---------------------------------------------------------------------
-        # Create a redirect for the old permalink
-
-        old_path = "/%s/%i/%s/" % (settings.PYLUCID.OLD_PERMALINK_PREFIX, old_page.id, old_page.shortcut)
-        new_path = pagemeta_entry.get_permalink()
-
-        created = Redirect.objects.get_or_create(
-            site=site, old_path=old_path,
-            defaults={"new_path":new_path}
-        )[1]
-        if created:
-            out.write("Add permalink redirect. (%s->%s)" % (old_path, new_path))
-        else:
-            out.write("Permalink redirect for this page exist. (%s->%s)" % (old_path, new_path))
-
-        #---------------------------------------------------------------------
         # create PageContent or PluginPage entry
 
         if old_page.content.strip() == "{% lucidTag blog %}":
@@ -386,10 +390,13 @@ def _update08migrate_pages(request, language):
             content_entry.save()
             out.write("PageContent entry '%s' - '%s' created." % (language, tree_entry.slug))
 
-    output = out.getlines()
+
+    # Save the information old page ID <-> new PageTree ID, for later use in other views.
     LogEntry.objects.log_action(
-        "pylucid_update", title, request, "successful", long_message="\n".join(output)
+        "pylucid_update", "v0.8 migation (site id: %s)" % site.id,
+        request, "page id data", data=new_page_id_data,
     )
+    output = _get_output(request, out, title) # merge page_msg and log the complete output
 
     context = {
         "template_name": "pylucid_update/update08result.html",
@@ -400,7 +407,7 @@ def _update08migrate_pages(request, language):
     return context
 
 
-@render_to() # set template_name in context
+@render_to("pylucid_update/select_language.html")
 def _select_lang(request, context, call_func):
     """
     Select language before start updating.
@@ -408,8 +415,6 @@ def _select_lang(request, context, call_func):
     if Language.on_site.count() == 0:
         request.page_msg.error(_("Error: On this site exist no language!"))
         return HttpResponseRedirect(reverse("PyLucidUpdate-menu"))
-
-    assert "template_name" in context
 
     if request.method == 'POST':
         form = UpdateForm(request.POST)
@@ -451,14 +456,22 @@ def update08migrate_pages(request):
         return HttpResponseRedirect(reverse("PyLucidUpdate-menu"))
 
     context = {
-        "template_name": "pylucid_update/update08pages.html",
         "title": "Update PyLucid v0.8 model data to v0.9 models",
         "url": reverse("PyLucidUpdate-update08migrate_pages"),
-        "old_permalink_prefix": settings.PYLUCID.OLD_PERMALINK_PREFIX,
     }
     return _select_lang(request, context, call_func=_update08migrate_pages)
 
 
+
+def _get_page_id_data(site):
+    """
+    returns the dict with the information old page ID <-> new PageTree ID
+    """
+    return LogEntry.objects.filter(
+        app_label="pylucid_update",
+        action="v0.8 migation (site id: %s)" % site.id,
+        message="page id data"
+    ).order_by('-createtime')[0].data
 
 
 def _replace(content, out, old, new):
@@ -468,6 +481,21 @@ def _replace(content, out, old, new):
     return content
 
 
+OLD_PREMALINK_RE = re.compile("/%s/(\d+)/" % settings.PYLUCID.OLD_PERMALINK_PREFIX)
+def _update_permalink(content, old_to_new_id):
+    """ update old permalinks in page content """
+    def update_permalink(m):
+        old_id = int(m.group(1))
+        if old_id in old_to_new_id:
+            new_pagetree_id = old_to_new_id[old_id]
+            return "/%s/%i/" % (
+                settings.PYLUCID.PERMALINK_URL_PREFIX, new_pagetree_id
+            )
+        return m.group(0)
+
+    new_content = OLD_PREMALINK_RE.sub(update_permalink, content)
+    return new_content
+
 
 @check_permissions(superuser_only=True)
 @render_to("pylucid_update/update08result.html")
@@ -476,6 +504,9 @@ def update08pages(request):
     title = "Update %s PageContent" % site.name
     out = SimpleStringIO()
 
+    # get the dict with the information old page ID <-> new PageTree ID
+    new_page_id_data = _get_page_id_data(site)
+
     # Update only the PageContent objects from the current site.
     pages = PageContent.objects.filter(pagemeta__pagetree__site=site)
     count = 0
@@ -483,22 +514,14 @@ def update08pages(request):
     for pagecontent in pages:
         content = pagecontent.content
 
-        if content.strip() == "{% lucidTag blog %}":
-            # Convert blog page, but only if there is no additional content
-            out.write("Convert page %s into a real blog plugin page." % pagecontent.get_absolute_url())
-            pagecontent.pagemeta.pagetree.page_type = PageTree.PLUGIN_TYPE
-            pagecontent.pagemeta.pagetree.save()
+        content = _update_permalink(content, new_page_id_data)
+        if content != pagecontent.content:
+            out.write("Permalink in page %r updated." % pagecontent.get_absolute_url())
 
-            new_pluginpage = PluginPage(app_label="pylucid_project.pylucid_plugins.blog")
-            new_pluginpage.pagetree = pagecontent.pagemeta.pagetree
-            new_pluginpage.save()
-
-            delete_ids.append(pagecontent.id)
-            continue
         if "{% lucidTag blog %}" in content:
             # There exist additional content in this page -> don't delete it 
             msg = (
-                "You must manually convert page %s into a real blog plugin page!"
+                "*** You must manually convert page %s into a real blog plugin page!"
             ) % pagecontent.get_absolute_url()
             out.write(msg)
 
@@ -512,19 +535,151 @@ def update08pages(request):
         count += 1
         pagecontent.content = content
         pagecontent.save()
-        out.write("PageContent updated: %r" % pagecontent)
+        out.write("PageContent updated: %r\n" % pagecontent)
 
     if delete_ids:
         out.write("Delete %s obsolete PageContent items: %r" % (len(delete_ids), delete_ids))
         PageContent.objects.filter(id__in=delete_ids).delete()
 
-    out.write("\n\n%s PageContent items processed." % len(pages))
+    out.write("\n%s PageContent items processed." % len(pages))
     out.write("%s items updated." % count)
 
-    output = out.getlines()
-    LogEntry.objects.log_action(
-        "pylucid_update", title, request, "successful", long_message="\n".join(output)
-    )
+    output = _get_output(request, out, title) # merge page_msg and log the complete output
+
+    context = {
+        "title": title,
+        "site": site,
+        "results": output,
+    }
+    return context
+
+
+
+def _replace08URLs(request, language):
+    """ replace old absolute page URLs with new permalink. """
+    site = Site.objects.get_current()
+    title = "Add %s permalink Redirect entries." % site.name
+    out = SimpleStringIO()
+
+    # get the dict with the information old page ID <-> new PageTree ID
+    new_page_id_data = _get_page_id_data(site)
+
+    old_pages = Page08.objects.only("id", "shortcut")
+    old_absolute_urls = []
+    url_to_new_id = {} # old absolute url <-> new PageTree ID
+    too_short_urls = []
+    for old_page in old_pages:
+        old_absolute_url = old_page.get_absolute_url()
+        if old_page.parent == None:
+            too_short_urls.append(old_absolute_url)
+        else:
+            url_to_new_id[old_absolute_url] = new_page_id_data[old_page.id]
+            old_absolute_urls.append(old_absolute_url)
+
+    out.write("Skip too short urls: %r" % too_short_urls)
+
+    # sort from longest to shortest
+    old_absolute_urls.sort(cmp=lambda x, y: cmp(len(x), len(y)), reverse=True)
+
+    # Update only the PageContent objects from the current site.
+    pages = PageContent.objects.filter(pagemeta__pagetree__site=site)
+    count = 0
+    permalink_cache = {}
+    replace_data = []
+    for pagecontent in pages:
+        content = pagecontent.content
+
+        for old_absolute_url in old_absolute_urls:
+            if old_absolute_url in content:
+                if old_absolute_url in permalink_cache:
+                    permalink = permalink_cache[old_absolute_url]
+                else:
+                    page_tree_id = url_to_new_id[old_absolute_url]
+                    page_tree = PageTree.objects.get(id=page_tree_id)
+                    page_meta = PageMeta.objects.get(pagetree=page_tree, language=language)
+                    permalink = page_meta.get_permalink()
+                    permalink_cache[old_absolute_url] = permalink
+
+                page_absolute_url = pagecontent.get_absolute_url()
+
+                content = content.replace(old_absolute_url, permalink)
+
+                replace_data.append({
+                    "old_absolute_url": old_absolute_url,
+                    "permalink": permalink,
+                    "page_absolute_url": page_absolute_url,
+                })
+                out.write("replace %r with %r in page %r" % (
+                    old_absolute_url, permalink, page_absolute_url
+                ))
+
+        if content == pagecontent.content:
+            # Nothing changed
+            continue
+        count += 1
+        pagecontent.content = content
+        pagecontent.save()
+        out.write("PageContent updated: %r\n" % pagecontent)
+
+    out.write("\n%s PageContent items processed." % len(pages))
+    out.write("%s items updated." % count)
+
+    output = _get_output(request, out, title) # merge page_msg and log the complete output
+
+    context = {
+        "template_name": "pylucid_update/replace08URLs.html",
+        "title": title,
+        "site": site,
+        "too_short_urls": too_short_urls,
+        "replace_data": replace_data,
+        "items_count": len(pages),
+        "update_count": count,
+    }
+    return context
+
+
+@check_permissions(superuser_only=True)
+def replace08URLs(request):
+    """
+    Update PyLucid v0.8 model data to v0.9 models
+    Before start updating, select the language.
+    """
+    context = {
+        "title": "Update old absolute urls in PageContent",
+        "url": reverse("PyLucidUpdate-replace08URLs"),
+    }
+    return _select_lang(request, context, call_func=_replace08URLs)
+
+
+
+
+
+
+@check_permissions(superuser_only=True)
+@render_to("pylucid_update/update08result.html")
+def update08pagesRedirect(request):
+    site = Site.objects.get_current()
+    title = "Add %s permalink Redirect entries." % site.name
+    out = SimpleStringIO()
+
+    new_page_id_data = _get_page_id_data(site)
+
+    for (old_page_id, tree_entry_id) in new_page_id_data.iteritems():
+        old_page = Page08.objects.only("id", "shortcut").get(id=old_page_id)
+
+        old_path = "/%s/%i/%s/" % (settings.PYLUCID.OLD_PERMALINK_PREFIX, old_page.id, old_page.shortcut)
+        new_path = "/%s/%i/%s/" % (settings.PYLUCID.PERMALINK_URL_PREFIX, tree_entry_id, old_page.shortcut)
+
+        created = Redirect.objects.get_or_create(
+            site=site, old_path=old_path,
+            defaults={"new_path":new_path}
+        )[1]
+        if created:
+            out.write("Add permalink redirect. ( %s -> %s )" % (old_path, new_path))
+        else:
+            out.write("Permalink redirect for this page exist. ( %s -> %s )" % (old_path, new_path))
+
+    output = _get_output(request, out, title) # merge page_msg and log the complete output
 
     context = {
         "title": title,
