@@ -146,16 +146,21 @@ class Page08(models.Model):
         db_table = 'PyLucid_page'
         app_label = 'PyLucid_Update'
 
+    _url_cache = {}
     def get_absolute_url(self):
-        """
-        Get the absolute url (without the domain/host part)
-        """
-        parent_shortcut = ""
+        """ absolute url *without* language code (without domain/host part) """
+        if self.pk in self._url_cache:
+            print "Page08 url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
+            return self._url_cache[self.pk]
+
         if self.parent:
             parent_shortcut = self.parent.get_absolute_url()
-            return parent_shortcut + self.shortcut + "/"
+            url = parent_shortcut + self.shortcut + "/"
         else:
-            return "/" + self.shortcut + "/"
+            url = "/" + self.shortcut + "/"
+
+        self._url_cache[self.pk] = url
+        return url
 
     def __unicode__(self):
         return u"old page model %r" % self.shortcut
