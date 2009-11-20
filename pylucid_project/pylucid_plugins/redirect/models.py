@@ -4,6 +4,7 @@ from django import http
 from django.db import models
 
 from pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid.models import PageTree
 
 
 class RedirectModel(UpdateInfoBaseModel):
@@ -20,6 +21,9 @@ class RedirectModel(UpdateInfoBaseModel):
     }
     TYPE_CHOICES = [(key, data["title"]) for key, data in TYPE_DICT.iteritems()]
     #--------------------------------------------------------------------------
+    
+    pagetree = models.ForeignKey(PageTree)
+    
     destination_url = models.CharField(max_length=256, help_text="The destination url for the redirect")
     response_type = models.CharField(max_length=3, choices=TYPE_CHOICES, help_text="Response type")
 
