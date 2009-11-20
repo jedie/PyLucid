@@ -36,7 +36,7 @@ def redirect(request):
     response_class = response_data["class"]
     response = response_class(destination_url)
     
-    if settings.DEBUG or request.user.is_superuser():
+    if settings.DEBUG or request.user.is_staff:
         request.page_msg.info(
             "You redirected from %s to %s (%s)" % (request.path, destination_url, response_data["title"])
         )
