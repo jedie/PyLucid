@@ -5,7 +5,7 @@ from django.conf.urls.defaults import patterns, url
 from redirect import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.redirect, name='PluginRedirect-redirect'),
+    url(r'^(?P<rest_url>.*?)$', views.redirect, name='PluginRedirect-redirect'),
 )
 
 

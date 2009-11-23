@@ -2,6 +2,7 @@
 
 from django import http
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from pylucid.models.base_models import UpdateInfoBaseModel
 from pylucid.models import PageTree
@@ -21,11 +22,21 @@ class RedirectModel(UpdateInfoBaseModel):
     }
     TYPE_CHOICES = [(key, data["title"]) for key, data in TYPE_DICT.iteritems()]
     #--------------------------------------------------------------------------
-    
+
     pagetree = models.ForeignKey(PageTree)
-    
-    destination_url = models.CharField(max_length=256, help_text="The destination url for the redirect")
-    response_type = models.CharField(max_length=3, choices=TYPE_CHOICES, help_text="Response type")
+
+    destination_url = models.CharField(max_length=256,
+        help_text=_("The destination url for the redirect")
+    )
+    response_type = models.CharField(max_length=3, choices=TYPE_CHOICES,
+        help_text=_("Response type")
+    )
+    full_url = models.BooleanField(
+        help_text=_("redirect the full url or raise 404 if url has additional parts.")
+    )
+    append_query_string = models.BooleanField(
+        help_text=_("Append a GET query string, if exist?")
+    )
 
     def get_response_data(self):
         return self.TYPE_DICT[self.response_type]
