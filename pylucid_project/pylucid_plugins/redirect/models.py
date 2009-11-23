@@ -37,9 +37,15 @@ class RedirectModel(UpdateInfoBaseModel):
     append_query_string = models.BooleanField(
         help_text=_("Append a GET query string, if exist?")
     )
+    debug = models.BooleanField(
+        help_text=_("Don't redirect, just display some info. (Only for staff members!)")
+    )
 
     def get_response_data(self):
         return self.TYPE_DICT[self.response_type]
+
+    def get_absolute_url(self):
+        return self.pagetree.get_absolute_url()
 
     def __unicode__(self):
         return u"%s to %s" % (self.get_response_data()["title"], self.destination_url)

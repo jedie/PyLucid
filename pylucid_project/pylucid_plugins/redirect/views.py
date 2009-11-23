@@ -18,7 +18,7 @@ def setup_view(request):
     pass
 
 
-def redirect(request, rest_url=None):
+def redirect(request, rest_url=""):
     pagetree = request.PYLUCID.pagetree
     #lang_entry = request.PYLUCID.language_entry
 
@@ -58,10 +58,12 @@ def redirect(request, rest_url=None):
     response = response_class(destination_url)
 
     if settings.DEBUG or request.user.is_staff:
-        msg = "You redirected from %s to %s (%s)" % (
+        msg = "You redirected from %r to %r (%s)" % (
             request.path, destination_url, response_data["title"]
         )
-        request.page_msg.info(msg)
-        #return msg
+        if redirect_info.debug:
+            return "Debug: %s" % msg
+        else:
+            request.page_msg.info(msg)
 
     return response
