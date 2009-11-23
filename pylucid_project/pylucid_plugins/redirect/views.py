@@ -67,3 +67,6 @@ def redirect(request, rest_url=""):
             request.page_msg.info(msg)
 
     return response
+
+def redirect_index(request):
+    return redirect(request)
