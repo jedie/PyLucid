@@ -282,6 +282,13 @@ def _i18n_redirect(request, url_path):
     lang_code = request.LANGUAGE_CODE
     url = reverse('PyLucid-resolve_url', kwargs={'url_lang_code': lang_code, 'url_path': url_path})
 
+    if request.GET:
+        # Add GET query string
+        # We don't use request.GET.urlencode() here, because it can change the key positions
+        full_path = request.get_full_path()
+        get_string = full_path.split("?", 1)[1]
+        url += "?" + get_string
+
     # redirect to url with lang_code
     return http.HttpResponseRedirect(url)
 
