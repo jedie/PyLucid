@@ -18,9 +18,11 @@ from xml.sax.saxutils import escape
 
 from django.db import models
 from django.conf import settings
-from django.contrib.sites.models import Site
-from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.auth.models import Group
+from django.contrib.sites.models import Site
+from django.template.defaultfilters import slugify
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.sites.managers import CurrentSiteManager
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
@@ -193,13 +195,19 @@ class PageTreeManager(BaseModelManager):
         if not request.user.is_superuser:
             user_groups = request.user.groups.all()
 
-        path = url_path.split("/")
+        path = url_path.strip("/").split("/")
         page = None
         for no, page_slug in enumerate(path):
+            if slugify(page_slug) != page_slug.lower():
+                msg = _("Wrong url!")
+                if settings.DEBUG or request.user.is_staff:
+                    msg += _(" url part %r is not a page slug!") % escape(page_slug)
+                raise PageTree.DoesNotExist(msg)
+
             try:
                 page = PageTree.on_site.get(parent=page, slug=page_slug)
             except PageTree.DoesNotExist:
-                raise PageTree.DoesNotExist("Wrong url part: %s" % escape(page_slug))
+                raise PageTree.DoesNotExist("Wrong url part: %r" % escape(page_slug))
 
             page_view_group = page.permitViewGroup
 

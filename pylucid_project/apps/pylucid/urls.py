@@ -39,7 +39,7 @@ urlpatterns = patterns('',
         views.lang_root_page, name='PyLucid-lang_root_page'
     ),
 
-    url(r'^(?P<url_lang_code>[a-zA-Z]{2}([-_][a-zA-Z]{2})*?)/(?P<url_path>[\w/-]+?)/$',
+    url(r'^(?P<url_lang_code>[a-zA-Z]{2}([-_][a-zA-Z]{2})*?)/(?P<url_path>.+?)$',
         views.resolve_url, name='PyLucid-resolve_url'
     ),
 
