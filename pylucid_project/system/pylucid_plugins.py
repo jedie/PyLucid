@@ -104,8 +104,8 @@ class PyLucidPlugin(object):
 
     def get_prefix_urlpatterns(self, url_prefix, urls_filename):
         """ include the plugin urlpatterns with the url prefix """
-        if not url_prefix.endswith("/"):
-            url_prefix += "/"
+#        if not url_prefix.endswith("/"):
+#            url_prefix += "/"
 
         cache_key = self.pkg_string + url_prefix
         if cache_key in _PLUGIN_URL_CACHE:
@@ -125,13 +125,9 @@ class PyLucidPlugin(object):
 
 
     def get_plugin_url_resolver(self, url_prefix, urls_filename="urls"):
-
         prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
-
         plugin_url_resolver = urlresolvers.RegexURLResolver(r'^/', prefix_urlpatterns)
-
         #for key, value in plugin_url_resolver.reverse_dict.items(): print key, value
-
         return plugin_url_resolver
 
     def get_merged_url_resolver(self, url_prefix, urls_filename="urls"):

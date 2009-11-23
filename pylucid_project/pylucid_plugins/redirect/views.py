@@ -33,6 +33,8 @@ def redirect(request, rest_url=None):
 
     destination_url = redirect_info.destination_url
 
+    #print "rest_url: %r" % rest_url
+    rest_url = rest_url.lstrip("/")
     if rest_url: # Handel the additional url part
         if not redirect_info.full_url:
             # raise 404, because we should not match on the full url.
@@ -51,12 +53,15 @@ def redirect(request, rest_url=None):
 
     response_data = redirect_info.get_response_data()
 
+    # get HttpResponsePermanentRedirect or HttpResponseRedirect class
     response_class = response_data["class"]
     response = response_class(destination_url)
 
     if settings.DEBUG or request.user.is_staff:
-        request.page_msg.info(
-            "You redirected from %s to %s (%s)" % (request.path, destination_url, response_data["title"])
+        msg = "You redirected from %s to %s (%s)" % (
+            request.path, destination_url, response_data["title"]
         )
+        request.page_msg.info(msg)
+        #return msg
 
     return response
