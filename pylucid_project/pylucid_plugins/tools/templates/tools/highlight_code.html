@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+
+{% if pygments_css %}
+{% block extrahead %}{{ block.super }}
+<!-- tools.highlight_code extrahead block start -->
+<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
+<!-- tools.highlight_code extrahead block end -->
+{% endblock %}
+{% endif %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
+    {% if highlighted %}
+    {{ highlighted }}
+    <h3>HTML code for copy&paste:</h3>
+    {{ html_code }}
+    {% else %}
+    <p>
+    You can use this if you would like to hightlight sourcecode in you page.<br/>
+    If you use creole markup, you can put code into <strong>&lt;&lt;code=.ext&gt;&gt;&lt;&lt;/code&gt;&gt;</strong> to hightlight it.
+    But this doesn't work, if you will display code witch contains django tags.
+    Than you can use this tool here and put it into <strong>&lt;&lt;html&gt;&gt;&lt;&lt;/html&gt;&gt;</strong>
+    </p>
+    {% endif %}
+    <fieldset>
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        <div class="helper_buttons">
+            <input type="submit" name="submit" value="{% trans 'submit' %}" />           
+            <button type="button" class="button resize_textarea" id="bigger_id_content" title="{% trans 'makes the textarea bigger' %}">
+                +
+            </button>
+            <button type="button" class="button resize_textarea" id="smaller_id_content" title="{% trans 'makes the textarea smaller' %}">
+                -
+            </button>
+        </div>
+    </fieldset>
+</form>
+{% endblock %}
