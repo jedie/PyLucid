@@ -1,3 +1,6 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
 <fieldset>
 <legend><a href="{{ url }}">{{ feed.feed.title }}</a></legend>
 {% if user.is_staff %}
@@ -19,3 +22,4 @@
 {% endfor %}
 </ul>
 </fieldset>
+{% endblock %}
