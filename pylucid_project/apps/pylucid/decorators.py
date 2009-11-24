@@ -36,7 +36,7 @@ def check_permissions(superuser_only, permissions=()):
     --------------------------------------------------------------------------
     from pylucid.decorators import check_permissions
     
-    @check_permissions(superuser_only=False, [u'appname.add_modelname', u'appname.change_modelname'])
+    @check_permissions(superuser_only=False, permissions=(u'appname.add_modelname', u'appname.change_modelname'))
     def my_view(request):
         ...
     --------------------------------------------------------------------------
