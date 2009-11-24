@@ -35,12 +35,12 @@ if __name__ == "__main__":
     print
 
     t = Tester()
-    t.check(["python","--version"], "Python not installed?!?!")
-    t.check(["svn","--version", "--quiet"],
+    t.check(["python", "-V"], "Python not installed?!?!")
+    t.check(["svn", "--version", "--quiet"],
         "Please install subversion! (e.g.: sudo aptitude install subversion)"
     )
 
-    if t.ok==True:
+    if t.ok == True:
         # All test ok
         sys.exit(0)
     else:
