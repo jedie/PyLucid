@@ -2,33 +2,38 @@
 {% load comments %}
 
 {% block content %}
-
+<div class="{{ CSS_PLUGIN_CLASS_NAME }} blog">
 {% include "blog/includes/tagcloud.html" %}
 
-<small class="headline_info">
-    {% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.
-</small>
+<fieldset class="entry">
+    <legend class="headline">
+         <a href="{{ entry.get_absolute_url }}">{{ entry.headline }}<br />
+         <small class="headline_info">{% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.</small>
+         </a>
+    </legend>
 
-{% if not entry.is_public %}
-    <p class="admin_info_line">not public</p>
-{% endif %}
-
-<div class="admin_links">
-{% if entry.edit_url %}
-    <a href="{{ entry.edit_url }}" title="edit this blog entry">edit</a>
-{% endif %}
-{% if entry.delete_url %}
-    <a href="{{ entry.delete_url }}" title="delete this blog entry" onClick="return confirm('{% trans 'Do you really want to delete the entry?' %}');">{% trans 'delete' %}</a>
-{% endif %}
+    {% if not entry.is_public %}
+        <p class="admin_info_line">not public</p>
+    {% endif %}
+    
+    <div class="admin_links">
+    {% if entry.edit_url %}
+        <a href="{{ entry.edit_url }}" title="edit this blog entry">edit</a>
+    {% endif %}
+    {% if entry.delete_url %}
+        <a href="{{ entry.delete_url }}" title="delete this blog entry" onClick="return confirm('{% trans 'Do you really want to delete the entry?' %}');">{% trans 'delete' %}</a>
+    {% endif %}
+    </div>
+    
+    <div class="content">{{ entry.get_html }}</div>
+    
+    <small><p class="date_info">
+        {% if entry.lastupdateby %}(Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.){% endif %}
+    </p></small>
+    
+    {% include "blog/includes/taglist.html" %}
+    
+    {% include "pylucid_comments/includes/comments_list.html" %}
+</fieldset>
 </div>
-
-<div class="content">{{ entry.get_html }}</div>
-
-<small><p class="date_info">
-    {% if entry.lastupdateby %}(Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.){% endif %}
-</p></small>
-
-{% include "blog/includes/taglist.html" %}
-
-{% include "pylucid_comments/includes/comments_list.html" %}
 {% endblock content %}

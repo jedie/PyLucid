@@ -91,6 +91,7 @@ def summary(request):
     context = {
         "entries": queryset,
         "tag_cloud": _get_tag_cloud(request),
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
     return context
 
@@ -110,6 +111,7 @@ def tag_view(request, tag):
     context = {
         "entries": queryset,
         "tag_cloud": _get_tag_cloud(request),
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
     return context
 
@@ -131,6 +133,7 @@ def detail_view(request, id, title):
         "page_title": entry.headline, # Change the global title with blog headline
         "entry": entry,
         "tag_cloud": _get_tag_cloud(request),
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
     return context
 

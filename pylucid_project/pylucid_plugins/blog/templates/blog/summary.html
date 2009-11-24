@@ -2,7 +2,7 @@
 {% load comments %}
 
 {% block content %}
-
+<div class="{{ CSS_PLUGIN_CLASS_NAME }} blog">
 {% include "blog/includes/tagcloud.html" %}
 
 {% if not entries %}no blog entry exists{% endif %}
@@ -39,5 +39,5 @@
 
 </fieldset>
 {% endfor %}
-
+</div>
 {% endblock content %}
