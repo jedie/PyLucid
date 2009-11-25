@@ -84,13 +84,16 @@ def _build_form_initial(request):
         info_msg += " (PageTree: %r)" % parent_pagetree
     request.page_msg.info(info_msg)
 
-    for attr_name in ("parent", "design", "showlinks", "permitViewGroup", "permitEditGroup"):
+    for attr_name in ("design", "showlinks", "permitViewGroup", "permitEditGroup"):
         model_attr = getattr(parent_pagetree, attr_name)
         if hasattr(model_attr, "pk"):
             # XXX: Why must we discover the ID here? A django Bug?
             initial_data[attr_name] = model_attr.pk
         else:
             initial_data[attr_name] = model_attr
+
+    # Create a sub page under the current PageTree
+    initial_data["parent"] = parent_pagetree.pk
 
     return initial_data
 
