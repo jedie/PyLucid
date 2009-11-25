@@ -104,16 +104,16 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
 
         return (superuser_only, access_permissions)
 
-    def save(self, *args, **kwargs):
-        """
-        After change, deletes panel_extra from cache.
-        cache filled in pylucid_plugins.admin_menu.views.panel_extras()
-        """
-        for user_id in User.objects.values_list('id', flat=True):
-            cache_key = "panel_extras_%s" % user_id
-            cache.delete(cache_key)
-
-        return super(PyLucidAdminPage, self).save(*args, **kwargs)
+#    def save(self, *args, **kwargs):
+#        """
+#        After change, deletes panel_extra from cache.
+#        cache filled in pylucid_plugins.admin_menu.views.panel_extras()
+#        """
+#        for user_id in User.objects.values_list('id', flat=True):
+#            cache_key = "panel_extras_%s" % user_id
+#            cache.delete(cache_key)
+#
+#        return super(PyLucidAdminPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u"PyLucidAdminPage %r (%r)" % (self.name, self.get_absolute_url())

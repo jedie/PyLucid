@@ -41,14 +41,8 @@ def panel_extras(request):
     
     Usage in template with:
         {% lucidTag admin_menu.panel_extras %}
-        
-    Note: The cache would be "cleared" in PyLucidAdminPage.save()
     """
     user = request.user
-    cache_key = "panel_extras_%s" % user.pk
-    response = cache.get(cache_key)
-    if response:
-        return response
 
     tree = PyLucidAdminPage.objects.get_tree_for_user(user)
     #tree.debug()
@@ -58,6 +52,5 @@ def panel_extras(request):
     response = render_to_response(
         "admin_menu/admin_menu_items.html", context, context_instance=RequestContext(request)
     )
-    cache.set(cache_key, response)
     return response
 
