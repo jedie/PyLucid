@@ -123,7 +123,8 @@ def install_plugins(request):
     """ Simple call all plugin install view, if exist. """
     output = []
 
-#    PyLucidAdminPage.objects.all().delete()
+    # Delete all items
+    PyLucidAdminPage.objects.all().delete()
 
     output.append("*** Install Plugins:")
 
