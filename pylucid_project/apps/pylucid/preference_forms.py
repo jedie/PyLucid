@@ -59,5 +59,20 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         help_text=_("Should we append a additional text to every permalink?")
     )
 
+    # Used in pylucid_project.middlewares.pylucid_objects.py
+    LOG404_NOTHING = "nothing"
+    LOG404_NOREDIRECT = "no_redirect"
+    LOG404_EVERYTHING = "everything"
+    LOG404_CHOICES = (
+        (LOG404_NOTHING, _("Don't log 'Page not found' errors.")),
+        (LOG404_NOREDIRECT, _("Log only 'Page not found' if no redirect for the url exists.")),
+        (LOG404_EVERYTHING, _("Log every 'Page not found' error, although if redirect exists.")),
+    )
+    log404_verbosity = forms.ChoiceField(
+        choices=LOG404_CHOICES,
+        required=True, initial=LOG404_NOREDIRECT,
+        help_text=_("Setup logging verbosity if 404 - 'Page not found' appears")
+    )
+
     class Meta:
         app_label = 'pylucid'
