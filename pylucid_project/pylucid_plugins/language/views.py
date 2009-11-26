@@ -54,13 +54,13 @@ def lucidTag(request):
                 request.session[key] = True
         return
 
-    current_lang = request.PYLUCID.language_entry
+    current_language = request.PYLUCID.language_entry
     current_pagetree = request.PYLUCID.pagetree
     absolute_url = current_pagetree.get_absolute_url()
     current_url = absolute_url.strip("/") # For {% url ... %}
 
     context = {
-        "current_lang": current_lang,
+        "current_language": current_language,
         "current_url": current_url,
         "existing_languages": existing_languages,
         "add_reset_link": _can_reset(),
