@@ -178,6 +178,9 @@ class LogEntry(UpdateInfoBaseModel):
         help_text="from request.META['HTTP_ACCEPT_LANGUAGE']"
     )
 
+    def get_absolute_url(self):
+        return self.uri
+
     def __unicode__(self):
         return u"LogEntry %s %s %s" % (self.createby, self.createtime, self.action)
 

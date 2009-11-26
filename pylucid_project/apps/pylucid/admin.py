@@ -60,10 +60,11 @@ pylucid_admin_site.register(models.Language, LanguageAdmin)
 
 
 class LogEntryAdmin(BaseAdmin):
-    list_display = ("createtime", "createby", "site", "app_label", "action", "message")
+    list_display = ("createtime", "createby", "view_on_site_link", "app_label", "action", "message")
     list_filter = (
-        "app_label", "action", "createby"
+        "site", "app_label", "action", "createby"
     )
+    search_fields = ("app_label", "action", "message", "long_message", "data")
 pylucid_admin_site.register(models.LogEntry, LogEntryAdmin)
 
 
@@ -83,8 +84,8 @@ class PageMetaAdmin(BaseAdmin, VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
 
-
 pylucid_admin_site.register(models.PageMeta, PageMetaAdmin)
+
 
 class PageContentInline(admin.StackedInline):
     model = models.PageContent
