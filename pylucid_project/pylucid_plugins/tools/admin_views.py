@@ -1,16 +1,18 @@
 # coding:utf-8
 
+from datetime import datetime, timedelta
+
 from django.conf import settings
 from django.utils.translation import ugettext as _
 
-from pylucid.models import EditableHtmlHeadFile
+from pylucid.models import EditableHtmlHeadFile, LogEntry
 from pylucid.decorators import check_permissions, render_to
 
 from pylucid_admin.admin_menu import AdminMenu
 
 from pylucid.markup.hightlighter import make_html
 
-from pylucid_project.pylucid_plugins.tools.forms import HighlightCodeForm
+from pylucid_project.pylucid_plugins.tools.forms import HighlightCodeForm, CleanupLogForm
 
 MYSQL_ENCODING_VARS = (
     "character_set_server", "character_set_connection", "character_set_results", "collation_connection",
@@ -28,6 +30,11 @@ def install(request):
         parent=menu_section_entry,
         name="highlight code", title="highlight sourcecode with pygments",
         url_name="Tools-highlight_code"
+    )
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry,
+        name="cleanup log table", title="Cleanup the log table",
+        url_name="Tools-cleanup_log"
     )
 
     return "\n".join(output)
@@ -65,5 +72,54 @@ def highlight_code(request):
     else:
         form = HighlightCodeForm()
 
+    context["form"] = form
+    return context
+
+
+
+@check_permissions(superuser_only=True)
+@render_to("tools/cleanup_log.html")
+def cleanup_log(request):
+    """ Delete old log entries """
+    context = {
+        "title": _("Delete old log entries"),
+        "form_url": request.path,
+    }
+    if request.method == "POST":
+        form = CleanupLogForm(request.POST)
+        if form.is_valid():
+            number = form.cleaned_data["number"]
+            delete_type = form.cleaned_data["delete_type"]
+            limit_site = form.cleaned_data["limit_site"]
+
+            if limit_site:
+                queryset = LogEntry.on_site.all()
+            else:
+                queryset = LogEntry.objects.all()
+
+            queryset = queryset.order_by('-createtime')
+
+            if delete_type == CleanupLogForm.LAST_NUMBERS:
+                ids = tuple(queryset[number:].values_list('id', flat=True))
+                queryset = queryset.filter(id__in=ids)
+            else:
+                if delete_type == CleanupLogForm.LAST_DAYS:
+                    delta = timedelta(days=number)
+                elif delete_type == CleanupLogForm.LAST_HOURS:
+                    delta = timedelta(hours=number)
+                else:
+                    raise AssertionError("Wrong delete_type") # should never happen
+
+                now = datetime.now()
+                datetime_filter = now - delta
+                queryset = queryset.exclude(createtime__gte=datetime_filter)
+
+            request.page_msg("Delete %s entries." % queryset.count())
+            queryset.delete()
+    else:
+        form = CleanupLogForm()
+
+    context["count_on_site"] = LogEntry.on_site.count()
+    context["count_total"] = LogEntry.objects.count()
     context["form"] = form
     return context

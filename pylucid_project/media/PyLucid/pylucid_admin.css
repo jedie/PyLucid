@@ -85,3 +85,13 @@
     border-width: 1px;
     color: #000;
 }
+
+table.info {
+    margin: 0.4em;
+}
+table.info td {
+    padding: 0.5em;
+}
+table.info caption {
+    font-weight:bold
+}

@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
+    <fieldset>
+        <table class="info">
+            <caption>log entry count</caption>        
+            <tr><td>on site:</td><td>{{ count_on_site }} log entries</td></tr>
+            <tr><td>total:</td><td>{{ count_total }} log entries</td></tr>
+        </table>
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        <div class="helper_buttons">
+            <input type="submit" name="submit" value="{% trans 'submit' %}" />           
+        </div>
+    </fieldset>
+</form>
+{% endblock %}
