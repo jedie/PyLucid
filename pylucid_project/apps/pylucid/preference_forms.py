@@ -17,8 +17,16 @@ from pylucid.models import Design
 
 class SystemPreferencesForm(DBPreferencesBaseForm):
     """ test preferences form """
-    pylucid_admin_design = forms.ModelChoiceField(
-        queryset=Design.objects.all(), empty_label=None,
+    # ModelChoiceField is not supported in DBpreferences, yet.
+    # see: http://code.google.com/p/django-dbpreferences/issues/detail?id=4
+#    pylucid_admin_design = forms.ModelChoiceField(
+#        queryset=Design.objects.all(), empty_label=None,
+#        required=False, initial=None,
+#        help_text=_("ID of the PyLucid Admin Design.")
+#    )
+
+    pylucid_admin_design = forms.ChoiceField(
+        choices=Design.on_site.all().values_list("id", "name"),
         required=False, initial=None,
         help_text=_("ID of the PyLucid Admin Design.")
     )
