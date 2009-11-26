@@ -1,0 +1,56 @@
+{% extends "pylucid_admin/base_site.html" %}
+{% load i18n %}
+
+{% block extrahead %}{{ block.super }}
+<!-- system.timezone extrahead block start -->
+<script type="text/javascript">
+<!--
+$(document).ready(function(){
+    var now = new Date();   
+    $("#js_now").html(now.toLocaleString());
+
+    var offset = now.getTimezoneOffset() / 60;
+    $("#js_offset").html(offset);
+});
+//-->
+</script>
+<!-- system.timezone extrahead block end -->
+{% endblock %}
+
+{% block content %}
+<!-- view_content block -->
+<fieldset><legend>timezone information</legend>
+<ul>
+    <h2>server information</h2>
+    
+    <dt><a href="http://docs.djangoproject.com/en/dev/ref/settings/#time-zone">settings.TIME_ZONE</a></dt>
+    <dd>{{ settings_TIME_ZONE }}</dd>
+    <dt>TZ from os.environ</dt>
+    <dd>{{ environ_TZ }}</dd>
+    
+    <dt>datetime now</dt>
+    <dd>{{ datetime_now|date:_("DATETIME_FORMAT") }}</dd>
+    <dt>datetime UTC now</dt>
+    <dd>{{ datetime_utcnow|date:_("DATETIME_FORMAT") }}</dd>
+    <dt>datetime to UTC <small>(calculated with PyLucid template filter 'to_utc')</small></dt>
+    <dd>{{ datetime_now|to_utc|date:_("DATETIME_FORMAT") }}</dd>
+    <dt>UTC offset</dt>
+    <dd>{{ utc_offset }}</dd>
+</ul>
+<ul>
+    <h2>Client information via JavaScript</h2>
+    <dt>Current time from JavaScript</dt>
+    <dd id="js_now"></dd>
+    
+    <dt>JavaScript timezone offset</dt>
+    <dd id="js_offset"></dd>
+</ul>
+</fieldset>
+<h2>info</h2>
+<p>Handling timezone information in django has some problems, see:</p>
+<ul>
+    <li><a href="http://code.djangoproject.com/ticket/10587">django bugtracker ticket #10587</a></li>
+    <li><a href="http://groups.google.com/group/django-developers/browse_thread/thread/4ca560ef33c88bf3">django-developers discussion</a></li>
+</ul>
+<!-- view_content block end -->
+{% endblock %}

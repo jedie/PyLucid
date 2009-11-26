@@ -1,14 +1,18 @@
 # coding:utf-8
 
 import os
+from datetime import datetime
 from tempfile import gettempdir
 
+from datetime import datetime, timedelta
+from django.utils.tzinfo import FixedOffset
 from django.conf import settings
 from django.db import connection
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
+from pylucid_project.utils.timezone import utc_offset
 
 from pylucid.models import Language, PageTree, PageMeta, LogEntry
 from pylucid.decorators import check_permissions, render_to
@@ -32,6 +36,11 @@ def install(request):
         parent=menu_section_entry,
         name="base check", title="A basic system setup check.",
         url_name="System-base_check"
+    )
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry,
+        name="timezone info", title="INformation about timezone settings.",
+        url_name="System-timezone"
     )
 
     return "\n".join(output)
@@ -146,7 +155,6 @@ def base_check(request):
         out.write("settings.SECRET_KEY, ok.")
     out.write("- "*40)
 
-
     if settings.DATABASE_ENGINE == "mysql":
         try:
             import MySQLdb
@@ -211,3 +219,23 @@ def base_check(request):
         "results": out.getlines(),
     }
     return context
+
+
+
+
+@check_permissions(superuser_only=True)
+@render_to("system/timezone.html")
+def timezone(request):
+    """
+    Display some informations about timezone
+    """
+    temp_log_entry = LogEntry.objects.log_action("pylucid_plugin.system", "timezone test", request)
+    context = {
+        "datetime_now": datetime.now(),
+        "datetime_utcnow": datetime.utcnow(),
+        "settings_TIME_ZONE": settings.TIME_ZONE,
+        "environ_TZ": os.environ.get("TZ", "----"),
+        "utc_offset": utc_offset(),
+    }
+    return context
+

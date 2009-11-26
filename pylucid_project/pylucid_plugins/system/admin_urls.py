@@ -18,5 +18,6 @@ from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('system.admin_views',
     url(r'^base_check/$', "base_check", name='System-base_check'),
+    url(r'^timezone/$', "timezone", name='System-timezone'),
 )
 
