@@ -42,6 +42,10 @@ class PageTreeForm(forms.ModelForm):
         slug = cleaned_data["slug"]
         parent = cleaned_data["parent"]
 
+        if parent is not None and self.instance.pk == parent.pk:
+            # Check if parent is the same entry
+            self._errors["parent"] = ErrorList([_("child-parent loop error!")])
+
         if parent and parent.page_type == parent.PLUGIN_TYPE:
             # A plugin page can't have any sub pages!
             parent_url = parent.get_absolute_url()
