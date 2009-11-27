@@ -70,27 +70,27 @@ class PageTreeManager(BaseModelManager):
             models.Q(permitViewGroup__isnull=True) | models.Q(permitViewGroup__in=user_groups)
         )
 
-    def all_accessible(self, user=None):
+    def all_accessible(self, user=None, filter_showlinks=False):
         """ returns all pages that the given user can access. """
         if user == None:
             user = ThreadLocal.get_current_user()
 
-        queryset = self.model.on_site
+        queryset = self.model.on_site.order_by("position")
         queryset = self.filter_accessible(queryset, user)
-        return queryset
-
-    def get_tree(self, user=None, filter_showlinks=False, exclude_plugin_pages=False):
-        """ return a TreeGenerator instance with all accessable page tree instance """
-        queryset = self.all_accessible(user)
 
         if filter_showlinks:
             # Filter PageTree.showlinks
             queryset = queryset.filter(showlinks=True)
 
+        return queryset
+
+    def get_tree(self, user=None, filter_showlinks=False, exclude_plugin_pages=False):
+        """ return a TreeGenerator instance with all accessable page tree instance """
+        queryset = self.all_accessible(user, filter_showlinks)
+
         if exclude_plugin_pages:
             queryset = queryset.exclude(page_type=PageTree.PLUGIN_TYPE)
 
-        queryset = queryset.order_by("position")
         items = queryset.values("id", "parent", "slug")
         tree = TreeGenerator(items, skip_no_parent=True)
         return tree
@@ -109,7 +109,7 @@ class PageTreeManager(BaseModelManager):
 
         if filter_parent:
             # All "root" pages
-            queryset = queryset.filter(parent=None).order_by("position")
+            queryset = queryset.filter(parent=None)
         else:
             # fallback if no "root" page is accessable
             queryset = queryset.order_by("parent", "position")
