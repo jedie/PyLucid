@@ -346,6 +346,13 @@ class BaseTreeModel(models.Model):
     position = models.SmallIntegerField(default=0,
         help_text="ordering weight for sorting the pages in the menu.")
 
+    def save(self, *args, **kwargs):
+        if self.parent is not None and self.parent.pk == self.pk:
+            # Error -> parent-loop found.
+            raise AssertionError("New parent is invalid. (parent-child-loop)")
+
+        return super(BaseTreeModel, self).save(*args, **kwargs)
+
     class Meta:
         abstract = True
         # FIXME: It would be great if we can order by get_absolute_url()
