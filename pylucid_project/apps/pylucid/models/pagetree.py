@@ -84,20 +84,22 @@ class PageTreeManager(BaseModelManager):
 
         return queryset
 
-    def get_tree(self, user=None, filter_showlinks=False, exclude_plugin_pages=False):
+    def get_tree(self, user=None, filter_showlinks=False, exclude_plugin_pages=False, exclude_extras=None):
         """ return a TreeGenerator instance with all accessable page tree instance """
         queryset = self.all_accessible(user, filter_showlinks)
 
         if exclude_plugin_pages:
             queryset = queryset.exclude(page_type=PageTree.PLUGIN_TYPE)
+        if exclude_extras:
+            queryset = queryset.exclude(**exclude_extras)
 
         items = queryset.values("id", "parent", "slug")
         tree = TreeGenerator(items, skip_no_parent=True)
         return tree
 
-    def get_choices(self, user=None):
+    def get_choices(self, user=None, exclude_extras=None):
         """ returns a choices list for e.g. a forms select widget. """
-        tree = PageTree.objects.get_tree(user, exclude_plugin_pages=True)
+        tree = PageTree.objects.get_tree(user, exclude_plugin_pages=True, exclude_extras=exclude_extras)
         choices = [("", "---------")] + [
             (node.id, node.get_absolute_url()) for node in tree.iter_flat_list()
         ]

@@ -79,7 +79,15 @@ class PageTreeForm(forms.ModelForm):
         designs = Design.on_site.values_list("id", "name")
         self.fields['design'].choices = [("", "---------")] + list(designs)
 
-        self.fields["parent"].widget = forms.widgets.Select(choices=PageTree.objects.get_choices())
+        if self.instance:
+            # Filter the own entry from parent choices list -> prevent parent-child loops
+            exclude_extras = {"pk": self.instance.pk}
+        else:
+            exclude_extras = None
+
+        self.fields["parent"].widget = forms.widgets.Select(
+            choices=PageTree.objects.get_choices(exclude_extras=exclude_extras)
+        )
 
     class Meta:
         model = PageTree
