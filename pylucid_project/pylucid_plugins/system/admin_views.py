@@ -229,10 +229,15 @@ def timezone(request):
     """
     Display some informations about timezone
     """
+    # get a timestamp from Django ORM datetime with 'auto_now_add'
     temp_log_entry = LogEntry.objects.log_action("pylucid_plugin.system", "timezone test", request)
+    auto_now_add = temp_log_entry.createtime
+    temp_log_entry.delete()
+
     context = {
         "datetime_now": datetime.now(),
         "datetime_utcnow": datetime.utcnow(),
+        "auto_now_add": auto_now_add,
         "settings_TIME_ZONE": settings.TIME_ZONE,
         "environ_TZ": os.environ.get("TZ", "----"),
         "utc_offset": utc_offset(),

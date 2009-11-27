@@ -23,7 +23,7 @@ $(document).ready(function(){
 <ul>
     <h2>server information</h2>
     
-    <dt><a href="http://docs.djangoproject.com/en/dev/ref/settings/#time-zone">settings.TIME_ZONE</a></dt>
+    <dt>settings.TIME_ZONE</dt>
     <dd>{{ settings_TIME_ZONE }}</dd>
     <dt>TZ from os.environ</dt>
     <dd>{{ environ_TZ }}</dd>
@@ -36,6 +36,8 @@ $(document).ready(function(){
     <dd>{{ datetime_now|to_utc|date:_("DATETIME_FORMAT") }}</dd>
     <dt>UTC offset</dt>
     <dd>{{ utc_offset }}</dd>
+    <dt>Django ORM datetime with 'auto_now_add'</dt>
+    <dd>{{ auto_now_add|date:_("DATETIME_FORMAT") }}</dd>
 </ul>
 <ul>
     <h2>Client information via JavaScript</h2>
@@ -47,9 +49,10 @@ $(document).ready(function(){
 </ul>
 </fieldset>
 <h2>info</h2>
-<p>Handling timezone information in django has some problems, see:</p>
+<p>Handling timezone information in django has some problems. Here some related links:</p>
 <ul>
-    <li><a href="http://code.djangoproject.com/ticket/10587">django bugtracker ticket #10587</a></li>
+    <li><a href="http://docs.djangoproject.com/en/dev/ref/settings/#time-zone">Documentation 'settings.TIME_ZONE'</a></li>
+    <li><a href="http://code.djangoproject.com/ticket/10587">Django bugtracker ticket #10587</a></li>
     <li><a href="http://groups.google.com/group/django-developers/browse_thread/thread/4ca560ef33c88bf3">django-developers discussion</a></li>
 </ul>
 <!-- view_content block end -->
