@@ -37,8 +37,6 @@ from pylucid_project.utils.escape import escape
 
 from rss.preference_forms import PreferencesForm
 
-
-
 @render_to()#, debug=True)
 def lucidTag(request, url, debug=None, **kwargs):
     """
@@ -48,6 +46,11 @@ def lucidTag(request, url, debug=None, **kwargs):
     
     Used feedparser by Mark Pilgrim: http://feedparser.org
     http://feedparser.googlecode.com/svn/trunk/LICENSE
+    
+    example:
+        {% lucidTag rss url="http url" %}
+        {% lucidTag rss url="http url" template_name="rss/MyOwnTemplate.html" %}
+        {% lucidTag rss url="http url" socket_timeout=3 %}
     """
     if feedparser_available == False:
         if request.user.is_staff:
@@ -72,11 +75,18 @@ def lucidTag(request, url, debug=None, **kwargs):
         start_time = time.time()
         try:
             feed = feedparser.parse(url)
+            if "bozo_exception" in feed:
+                if isinstance(feed["bozo_exception"], feedparser.ThingsNobodyCaresAboutButMe):
+                    if request.user.is_staff:
+                        request.page_msg("RSS feed info:", feed["bozo_exception"])
+                else:
+                    raise AssertionError("Feed error: %s" % feed["bozo_exception"])
         except Exception, e:
             if request.user.is_staff:
                 return "[feedparser.parse(%r) error: %s]" % (url, e)
             else:
                 return "[Can't get RSS feed.]"
+
         duration = time.time() - start_time
 
         socket.setdefaulttimeout(old_timeout)
