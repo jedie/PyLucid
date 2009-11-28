@@ -16,14 +16,7 @@
         <p class="admin_info_line">not public</p>
     {% endif %}
     
-    <div class="admin_links">
-    {% if entry.edit_url %}
-        <a href="{{ entry.edit_url }}" title="edit this blog entry">edit</a>
-    {% endif %}
-    {% if entry.delete_url %}
-        <a href="{{ entry.delete_url }}" title="delete this blog entry" onClick="return confirm('{% trans 'Do you really want to delete the entry?' %}');">{% trans 'delete' %}</a>
-    {% endif %}
-    </div>
+    {% include "blog/includes/admin_links.html" %}
     
     <div class="content">{{ entry.get_html }}</div>
     
