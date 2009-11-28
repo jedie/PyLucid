@@ -41,9 +41,14 @@ class RootAppChoiceField(models.CharField):
 class PluginPageManager(BaseModelManager):
     _APP_CHOICES = None
     def get_app_choices(self):
+        """
+        Generate a choice list with all views witch can handle a empty root url.
+        But PyLucid can only handle own plugins, see: ticket:333
+        """
         if self._APP_CHOICES == None:
             root_apps = installed_apps_utils.get_filtered_apps(resolve_url="/")
-            self._APP_CHOICES = [("", "---------")] + [(app, app) for app in root_apps]
+            apps = [app for app in root_apps if "pylucid_plugins" in app]
+            self._APP_CHOICES = [("", "---------")] + [(app, app) for app in apps]
         return self._APP_CHOICES
 
     def reverse(self, plugin_name, viewname, args=(), kwargs={}):
