@@ -3,7 +3,7 @@
 
 {% block title %}PyLucid - {{ title }}{% endblock %}
 
-{% block extrahead %}
+{% block extrahead %}{{ block.super }}
 <!-- app_extrahead block start -->
 {# stylesheets for all PyLucid views #}
 <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_admin.css] !');"/>

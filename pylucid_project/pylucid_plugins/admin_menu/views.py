@@ -1,5 +1,24 @@
 # coding: utf-8
 
+"""
+    PyLucid admin menu
+    ~~~~~~~~~~~~~~~~~~
+    
+    The PyLucid admin menu, build with superfish
+    
+    superfish homepage:
+        http://users.tpg.com.au/j_birch/plugins/superfish/
+    
+    Last commit info:
+    ~~~~~~~~~
+    $LastChangedDate:$
+    $Rev:$
+    $Author: JensDiemer $
+    
+    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+"""
+
 from django.conf import settings
 from django.core import urlresolvers
 from django.template import RequestContext
@@ -13,10 +32,12 @@ from pylucid.decorators import render_to
 
 from pylucid_admin.models import PyLucidAdminPage
 
+
 @render_to("admin_menu/admin_top_menu.html")#, debug=True)
 def lucidTag(request):
     """
     Render the pylucid admin menu, if the user is authenticated.
+    example: {% lucidTag admin_menu %}
     """
     if not request.user.is_authenticated():
         # Don't insert the admin top menu

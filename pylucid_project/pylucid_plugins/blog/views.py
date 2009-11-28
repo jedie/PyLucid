@@ -137,9 +137,3 @@ def detail_view(request, id, title):
     }
     return context
 
-
-def lucidTag(request):
-    """
-    TODO: Update the page automaticly???
-    """
-    return u"[Update Info: You must delete this PageTree entry and create a new blog plugin page here!]"

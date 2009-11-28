@@ -1,4 +1,20 @@
-# coding:utf-8
+# coding: utf-8
+
+"""
+    PyLucid JS-SHA-Login
+    ~~~~~~~~~~~~~~~~~~~~
+    
+    A secure JavaScript SHA-1 Login and a plaintext fallback login.
+    
+    Last commit info:
+    ~~~~~~~~~
+    $LastChangedDate:$
+    $Rev:$
+    $Author: JensDiemer $
+    
+    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+"""
 
 from django.contrib import auth
 from django.conf import settings
@@ -30,11 +46,15 @@ if DEBUG:
     warnings.warn("Debug mode in auth plugin is on!", UserWarning)
 
 
-
+# For the tag list from page_admin plugin:
+LUCIDTAG_EXAMPLE = """{% lucidTag admin_menu %}"""
 
 
 def lucidTag(request):
-    """ Create login/logout link """
+    """
+    Create login/logout link
+    example: {% lucidTag auth %}
+    """
     if request.user.is_authenticated():
         # admin_logout reverse is still broken in django, see:
         # http://code.djangoproject.com/ticket/11080

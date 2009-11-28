@@ -177,6 +177,27 @@ function get_pylucid_ajax_view(url) {
 }
 
 
+function replace_openinwindow_links() {
+	/*************************************************************************
+	 * replace the existing links with a "open in new window" link
+	 * usage:
+	 * 		<a href="/foo" class="openinwindow">foo</a>
+	 */
+	$('a.openinwindow').each(function(){
+		var url = $(this).attr("href");   	
+		var org_title = $(this).attr("title");
+		
+		$(this).attr({
+			onclick: "return OpenInWindow(this);",
+			title: org_title + " (Opens in a new window)"
+	    });
+		//$(this).append(" [^]")
+	});
+}
+
+
+
+
 MIN_ROWS = 5;
 MAX_ROWS = 25;
 MAX_LENGTH = 100;
@@ -217,20 +238,9 @@ $(document).ready(function(){
 	});
 	
 	/*************************************************************************
-	 * replace the existing links with a "open in new window" link
-	 * usage:
-	 * 		<a href="/foo" class="openinwindow">foo</a>
-	 */
-	$('a.openinwindow').each(function(){
-    	var url = $(this).attr("href");   	
-    	var org_title = $(this).attr("title");
-    	
-    	$(this).attr({
-    		onclick: "return OpenInWindow(this);",
-    		title: org_title + " (Opens in a new window)"
-	    });
-    	//$(this).append(" [^]")
-    });
+	 * replace the existing links with a "open in new window" link           */
+	replace_openinwindow_links();
+	
 	
 	/*************************************************************************
 	 * Add a "open in new window" link after the existing normal link.

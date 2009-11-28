@@ -23,4 +23,5 @@ urlpatterns = patterns('page_admin.admin_views',
     url(r'^new_plugin_page/$', "new_plugin_page", name='PageAdmin-new_plugin_page'),
     url(r'^edit_page/(?P<pagetree_id>\d+?)/$', "edit_page", name='PageAdmin-edit_page'),
     url(r'^translate/(?P<pagemeta_id>\d+?)/$', "translate", name='PageAdmin-translate'),
+    url(r'^tag_list/$', "tag_list", name='PageAdmin-tag_list'),
 )

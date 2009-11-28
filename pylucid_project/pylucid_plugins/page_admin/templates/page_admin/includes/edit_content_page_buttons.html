@@ -10,7 +10,7 @@
     <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
         <button type="button" class="button">{% trans 'page list' %}</button>
     </a>
-    <a href="{{ taglist_url }}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
+    <a href="{% url PageAdmin-tag_list %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
         <button type="button" class="button">{% trans 'tag list' %}</button>
     </a>
     <button type="button" class="button resize_textarea" id="bigger_id_content" title="{% trans 'makes the textarea bigger' %}">

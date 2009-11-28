@@ -16,6 +16,11 @@
 
 import sys
 import warnings
+try:
+    from functools import wraps
+except ImportError:
+    from django.utils.functional import wraps  # Python 2.3, 2.4 fallback.
+
 
 from django.conf import settings
 from django.template import RequestContext
@@ -45,6 +50,7 @@ def check_permissions(superuser_only, permissions=()):
     assert isinstance(permissions, (list, tuple))
 
     def _inner(view_function):
+        @wraps(view_function)
         def _check_permissions(request, *args, **kwargs):
             user = request.user
 
@@ -93,6 +99,7 @@ def superuser_only(view_function):
     )
     --------------------------------------------------------------------------    
     """
+    @wraps(view_function)
     def _inner(request, *args, **kwargs):
         if not request.user.is_superuser:
             raise PermissionDenied
@@ -121,6 +128,7 @@ def render_to(template_name=None, debug=False):
     TODO: merge render_to() and render_pylucid_response()
     """
     def renderer(function):
+        @wraps(function)
         def wrapper(request, *args, **kwargs):
             context = function(request, *args, **kwargs)
 
