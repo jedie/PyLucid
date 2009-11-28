@@ -15,6 +15,7 @@
 <div id="page_content">
     <h1>{{ entry.term }}</h1>
     {# {% include "blog/includes/tagcloud.html" %} #}
+    {% include "lexicon/includes/admin_links.html" %}
     <dl>   
         <dt>{% trans "Short definition" %}:</dt>
         <dd>{{ entry.short_definition }}</dd>

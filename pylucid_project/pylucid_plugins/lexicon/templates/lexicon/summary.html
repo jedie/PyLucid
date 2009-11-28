@@ -8,7 +8,10 @@
 {% if not entries %}no lexicon entry exists{% endif %}
 <dl>
 {% for entry in entries %}
-    <dt><a href="{{ entry.get_absolute_url }}">{{ entry.term }}</a></dt>
+    <dt>
+        <a href="{{ entry.get_absolute_url }}">{{ entry.term }}</a>
+        {% include "lexicon/includes/admin_links.html" %}
+    </dt>
     <dt>{{ entry.short_definition }}</dt>
 {% endfor %}
 </dl>
