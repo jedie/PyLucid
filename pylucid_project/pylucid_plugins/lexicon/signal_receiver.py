@@ -27,7 +27,7 @@ from lexicon.sub_html import SubHtml
 
 
 WORD_TAG = u"<!-- word -->"
-SKIP_TAGS = ("a",)
+SKIP_TAGS = ("a", "textarea") # TODO: Should we put this into lexicon preferences?
 
 
 class LexiconData(dict):
