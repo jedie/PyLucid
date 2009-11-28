@@ -176,7 +176,12 @@ def lucidTag(parser, token):
 
     if content:
         raw_kwargs = content[0]
-        method_kwargs = str2dict(raw_kwargs)
+        try:
+            method_kwargs = str2dict(raw_kwargs)
+        except Exception, err:
+            if settings.DEBUG:
+                raise
+            return lucidTagNodeError(plugin_name, method_name, msg="Wrong tag parameter")
     else:
         method_kwargs = {}
 
