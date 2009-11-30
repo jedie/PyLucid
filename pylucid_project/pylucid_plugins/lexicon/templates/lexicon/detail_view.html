@@ -12,7 +12,7 @@
     <dd>{{ entry.short_definition }}</dd>
     
     <dt>{% trans "Content" %}:</dt>
-    <dd>{{ entry.content }}</dd>
+    <dd>{{ entry.get_html }}</dd>
 </dl>
 
 {% include "pylucid_comments/includes/comments_list.html" %}
