@@ -49,28 +49,26 @@ if settings.DEBUG:
         list_filter = ("app_label",)
     pylucid_admin_site.register(ContentType, ContentTypeAdmin)
 
+    #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+    class PyLucidAdminPageAdmin(VersionAdmin):
+        list_display = (
+            "id", "name", "title", "url_name",
+            "get_pagetree", "get_pagemeta", "get_page",
+            "superuser_only", "access_permissions"
+        )
+        list_display_links = ("name",)
+        list_filter = ("createby", "lastupdateby",)
+        date_hierarchy = 'lastupdatetime'
+        search_fields = ("name", "title", "url_name")
 
+        def superuser_only(self, obj):
+            superuser_only, access_permissions = obj.get_permissions()
+            return superuser_only
+        superuser_only.boolean = True
 
-class PyLucidAdminPageAdmin(VersionAdmin):
-    list_display = (
-        "id", "name", "title", "url_name",
-        "get_pagetree", "get_pagemeta", "get_page",
-        "superuser_only", "access_permissions"
-    )
-    list_display_links = ("name",)
-    list_filter = ("createby", "lastupdateby",)
-    date_hierarchy = 'lastupdatetime'
-    search_fields = ("name", "title", "url_name")
+        def access_permissions(self, obj):
+            superuser_only, access_permissions = obj.get_permissions()
+            return " | ".join(access_permissions)
 
-    def superuser_only(self, obj):
-        superuser_only, access_permissions = obj.get_permissions()
-        return superuser_only
-    superuser_only.boolean = True
-
-    def access_permissions(self, obj):
-        superuser_only, access_permissions = obj.get_permissions()
-        return " | ".join(access_permissions)
-
-pylucid_admin_site.register(models.PyLucidAdminPage, PyLucidAdminPageAdmin)
+    pylucid_admin_site.register(models.PyLucidAdminPage, PyLucidAdminPageAdmin)
