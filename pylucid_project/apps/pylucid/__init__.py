@@ -46,7 +46,7 @@ requirements = (
     "django-dbtemplates >= 0.5.8",
 
     # http://code.google.com/p/django-tagging/
-    "tagging >= 0.3-pre",
+    "django_tagging >= 0.4-pre",
 )
 
 check_require(requirements)
