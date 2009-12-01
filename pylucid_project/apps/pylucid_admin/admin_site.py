@@ -21,14 +21,14 @@ class PyLucidAdminSite(admin.AdminSite):
 
     def login(self, request):
         """
-        redirect to PyLucid's own login view
+        Redirect to PyLucid's own login view.
+        In debug mode:
+            -user can suppress the redirect by adding any GET parameter. (e.g: domain.tld/admin/?foobar)
+            -Don't redirect if PyLucid own login view can't work.
         """
-        if request.GET or PageTree.on_site.all().count() == 0 or UserProfile.on_site.all().count() == 0:
-            # Use the normal django login view
-            # This must be happend if PyLucid can't work.
-            # The User can also "deactivate" the redirect to PyLucid login view by adding any GET parameter
-            # e.g: domain.tld/admin/?foobar
-            return super(PyLucidAdminSite, self).login(request)
+        if settings.DEBUG: # Check fallback only in debug mode
+            if request.GET or PageTree.on_site.all().count() == 0 or UserProfile.on_site.all().count() == 0:
+                return super(PyLucidAdminSite, self).login(request)
 
         url = settings.PYLUCID.AUTH_NEXT_URL % {"path": "/", "next_url": request.get_full_path()}
         return HttpResponseRedirect(url)
