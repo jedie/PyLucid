@@ -102,11 +102,11 @@ def _database_encoding_test(request, out):
         log_entry_id = log_entry1.id
         log_entry2 = LogEntry.objects.get(id=log_entry_id)
         if TEST_STRING == log_entry2.long_message:
-            log_entry2.message = log_entry2.message + " - passed"
+            log_entry2.message += " - passed"
             out.write("\t\ttest passed")
         else:
-             out.write("\t\ttest *NOT* passed")
-             log_entry2.message = log_entry2.message + " - failed"
+            out.write("\t\ttest *NOT* passed")
+            log_entry2.message += " - failed"
         log_entry2.save()
 
     _test("ASCII (32-126)", xrange(32, 126))
