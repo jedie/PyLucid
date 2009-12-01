@@ -32,6 +32,8 @@ if __name__ == "__main__":
     # run unittest directly
     import os
     os.environ["DJANGO_SETTINGS_MODULE"] = "pylucid.tests.testutils.test_settings"
+    virtualenv_file = "../../../../../../../PyLucid_env/bin/activate_this.py"
+    execfile(virtualenv_file, dict(__file__=virtualenv_file))
 
 from django.conf import settings
 
@@ -46,13 +48,13 @@ class TestWithReverse(unittest.TestCase):
     """
     def test_root_page(self):
         self.failUnlessEqual(reverse('PyLucid-root_page'), "/")
-        
+
     def test_page_without_lang(self):
         self.failUnlessEqual(
             reverse('PyLucid-page_without_lang', kwargs={'url_path': 'slug'}),
             "/slug/"
         )
-        
+
     def test_lang_root_page(self):
         self.failUnlessEqual(
             reverse('PyLucid-lang_root_page', kwargs={'url_lang_code': 'en'}),
@@ -62,24 +64,33 @@ class TestWithReverse(unittest.TestCase):
             reverse('PyLucid-lang_root_page', kwargs={'url_lang_code': 'en-us'}),
             "/en-us/"
         )
-        
+
     def test_resolve_url(self):
         self.failUnlessEqual(
             reverse('PyLucid-resolve_url', kwargs={'url_lang_code': 'de', 'url_path': 'slug'}),
-            "/de/slug/"
+            "/de/slug"
         )
         self.failUnlessEqual(
             reverse('PyLucid-resolve_url', kwargs={'url_lang_code': 'de-at', 'url_path': 'slug'}),
-            "/de-at/slug/"
+            "/de-at/slug"
         )
         self.failUnlessEqual(
             reverse('PyLucid-resolve_url', kwargs={'url_lang_code': 'de_at', 'url_path': 'slug'}),
-            "/de_at/slug/"
+            "/de_at/slug"
         )
 
-        
-        
-        
+    def test_send_head_file(self):
+        self.failUnlessEqual(
+            reverse('PyLucid-send_head_file', kwargs={'filepath': 'style/foo.css'}),
+            "/headfile/style/foo.css"
+        )
+        self.failUnlessEqual(
+            reverse('PyLucid-send_head_file', kwargs={'filepath': 'style/foo-bar/test.css'}),
+            "/headfile/style/foo-bar/test.css"
+        )
+
+
+
 class TestWithRegexURLResolver(unittest.TestCase):
     """
     resolver test
@@ -93,7 +104,7 @@ class TestWithRegexURLResolver(unittest.TestCase):
 
     def _resolve(self, path):
         urlconf = settings.ROOT_URLCONF
-        resolver=RegexURLResolver(r'^/', urlconf)
+        resolver = RegexURLResolver(r'^/', urlconf)
         view_function, func_args, func_kwargs = resolver.resolve(path)
 
         module_name = view_function.__module__
@@ -117,27 +128,31 @@ class TestWithRegexURLResolver(unittest.TestCase):
     def test_root_page(self):
         self.func_name = "root_page"
         self.path_test("/")
-        
+
     def test_page_without_lang(self):
         self.func_name = "page_without_lang"
         self.path_test("/slug/", kwargs={'url_path': 'slug'})
         self.path_test("/slug1/slug2/", kwargs={'url_path': 'slug1/slug2'})
-        
+
     def test_lang_root_page(self):
         self.func_name = "lang_root_page"
         self.path_test("/en/", kwargs={'url_lang_code': 'en'})
         self.path_test("/en-US/", kwargs={'url_lang_code': 'en-US'})
-        
+
     def test_resolve_url(self):
         self.func_name = "resolve_url"
-        self.path_test("/de/slug/", kwargs={'url_lang_code': 'de', 'url_path': 'slug'})
-        self.path_test("/de-at/slug/", kwargs={'url_lang_code': 'de-at', 'url_path': 'slug'})
-        self.path_test("/de_at/slug/", kwargs={'url_lang_code': 'de_at', 'url_path': 'slug'})
-        self.path_test("/de-AT/slug/", kwargs={'url_lang_code': 'de-AT', 'url_path': 'slug'})
+        self.path_test("/de/slug/", kwargs={'url_lang_code': 'de', 'url_path': 'slug/'})
+        self.path_test("/de-at/slug/", kwargs={'url_lang_code': 'de-at', 'url_path': 'slug/'})
+        self.path_test("/de_at/slug/", kwargs={'url_lang_code': 'de_at', 'url_path': 'slug/'})
+        self.path_test("/de-AT/slug/", kwargs={'url_lang_code': 'de-AT', 'url_path': 'slug/'})
 
+    def test_send_head_file(self):
+        self.func_name = "send_head_file"
+        self.path_test("/headfile/style/foo.css", kwargs={'filepath': 'style/foo.css'})
+        self.path_test("/headfile/style/foo-bar/test.css", kwargs={'filepath': 'style/foo-bar/test.css'})
 
 
 if __name__ == "__main__":
     # Run this unittest directly
     from django.core import management
-    management.call_command('test', "pylucid.TestWithRegexURLResolver","pylucid.TestWithReverse")
+    management.call_command('test', "pylucid.TestWithRegexURLResolver", "pylucid.TestWithReverse")

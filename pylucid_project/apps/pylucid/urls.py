@@ -31,7 +31,7 @@ urlpatterns = patterns('',
         name='PyLucid-permalink'
     ),
 
-    url(r'^%s/(?P<filepath>[\w/\.]{4,})?$' % settings.PYLUCID.HEAD_FILES_URL_PREFIX, views.send_head_file,
+    url(r'^%s/(?P<filepath>[\w/\.-]{4,})$' % settings.PYLUCID.HEAD_FILES_URL_PREFIX, views.send_head_file,
         name='PyLucid-send_head_file'
     ),
 
