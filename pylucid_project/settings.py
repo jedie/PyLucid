@@ -289,10 +289,12 @@ DBTEMPLATES_CACHE_BACKEND = "dbtemplates.cache.DjangoCacheBackend"
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 # Django can't handling time zone very good.
-# The Django default is 'America/Chicago' but this is not the best choice.
-# We set it to "Europe/London" witch is UTC-0 (same as Greenwich Mean Time, GMT-0)
+# The Django default TIME_ZONE is 'America/Chicago' (Central Standard Time Zone, (CST), UTC-6)
+# but this is not the best choice.
+# We set it to "UTC" (same as Greenwich Mean Time, GMT-0, without daylight-saving time)
 # All datetime (e.g. model createtime) would be stored in UTC.
-TIME_ZONE = "Europe/London"
+# See also: http://groups.google.com/group/django-developers/browse_thread/thread/4ca560ef33c88bf3
+TIME_ZONE = "UTC"
 
 try:
     from local_settings import *
