@@ -16,10 +16,11 @@
 
 from django.conf.urls.defaults import patterns, url
 
-from pylucid_project.pylucid_plugins.tools.admin_views import highlight_code, cleanup_log
+from pylucid_project.pylucid_plugins.tools import admin_views
 
 urlpatterns = patterns('',
-    url(r'^highlight_code/$', highlight_code, name='Tools-highlight_code'),
-    url(r'^cleanup_log/$', cleanup_log, name='Tools-cleanup_log'),
+    url(r'^highlight_code/$', admin_views.highlight_code, name='Tools-highlight_code'),
+    url(r'^cleanup_log/$', admin_views.cleanup_log, name='Tools-cleanup_log'),
+    url(r'^cleanup_session/$', admin_views.cleanup_session, name='Tools-cleanup_session'),
 )
 

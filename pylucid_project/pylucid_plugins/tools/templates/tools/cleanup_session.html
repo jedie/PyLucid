@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<p>All expired sessions entries was deleted from the database.</p>
+<table class="info">
+    <caption>session entries information</caption>        
+    <tr><td>count before cleanup:</td><td>{{ count_before }}</td></tr>
+    <tr><td>count after cleanup:</td><td>{{ count_after }}</td></tr>
+    <tr><td>deleted entries:</td><td>{{ count_deleted }}</td></tr>
+</table>
+<p>
+Note: You can also <a href="http://docs.djangoproject.com/en/dev/ref/django-admin/#djadmin-cleanup">run cleanup from commandline</a>
+</p>
+{% endblock %}

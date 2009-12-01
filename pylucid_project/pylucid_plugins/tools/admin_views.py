@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from django import http
 from django.conf import settings
 from django.utils.translation import ugettext as _
+from django.contrib.sessions.models import Session
 
 from pylucid.models import EditableHtmlHeadFile, LogEntry
 from pylucid.decorators import check_permissions, render_to
@@ -36,6 +37,11 @@ def install(request):
         parent=menu_section_entry,
         name="cleanup log table", title="Cleanup the log table",
         url_name="Tools-cleanup_log"
+    )
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry,
+        name="cleanup session table", title="Cleanup the session table",
+        url_name="Tools-cleanup_session"
     )
 
     return "\n".join(output)
@@ -126,4 +132,22 @@ def cleanup_log(request):
         form = CleanupLogForm()
 
     context["form"] = form
+    return context
+
+
+@check_permissions(superuser_only=True)
+@render_to("tools/cleanup_session.html")
+def cleanup_session(request):
+    """ Delete old session entries """
+
+    count_before = Session.objects.count()
+    Session.objects.filter(expire_date__lt=datetime.now()).delete()
+    count_after = Session.objects.count()
+
+    context = {
+        "title": _("Delete old session entries"),
+        "count_before": count_before,
+        "count_after": count_after,
+        "count_deleted": count_before - count_after,
+    }
     return context
