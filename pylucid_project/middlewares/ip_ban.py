@@ -1,10 +1,12 @@
 # coding: utf-8
 
+import sys
 import time
 import datetime
 
 from django import http
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 
 from pylucid.preference_forms import SystemPreferencesForm
@@ -17,7 +19,17 @@ forbidden_response = http.HttpResponseForbidden(
 
 
 sys_pref_form = SystemPreferencesForm()
-sys_pref = sys_pref_form.get_preferences()
+
+try:
+    sys_pref = sys_pref_form.get_preferences()
+except Site.DoesNotExist, err:
+    # The current SITE_ID doesn't exist in the database.
+    # This is the first point inner PyLucid for getting the site information from database.
+    # Add the SITE_ID into the traceback message, but raise the original exception.
+    etype, evalue, etb = sys.exc_info()
+    evalue = etype("%s (settings.SITE_ID: %r)" % (err, settings.SITE_ID))
+    raise etype, evalue, etb
+
 ban_release_time = sys_pref.get("ban_release_time", 15)
 ban_release_timedelta = datetime.timedelta(minutes=ban_release_time)
 
