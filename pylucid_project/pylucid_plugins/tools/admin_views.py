@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 
+from django import http
 from django.conf import settings
 from django.utils.translation import ugettext as _
 
@@ -84,6 +85,10 @@ def cleanup_log(request):
     context = {
         "title": _("Delete old log entries"),
         "form_url": request.path,
+        "count_on_site": LogEntry.on_site.count(),
+        "count_total": LogEntry.objects.count(),
+        "oldest_on_site_entry": LogEntry.on_site.all().only("createtime").order_by('createtime')[0],
+        "oldest_total_entry": LogEntry.objects.all().only("createtime").order_by('createtime')[0],
     }
     if request.method == "POST":
         form = CleanupLogForm(request.POST)
@@ -116,10 +121,9 @@ def cleanup_log(request):
 
             request.page_msg("Delete %s entries." % queryset.count())
             queryset.delete()
+            return http.HttpResponseRedirect(request.path)
     else:
         form = CleanupLogForm()
 
-    context["count_on_site"] = LogEntry.on_site.count()
-    context["count_total"] = LogEntry.objects.count()
     context["form"] = form
     return context

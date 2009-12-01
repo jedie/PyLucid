@@ -4,9 +4,11 @@
 <form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
     <fieldset>
         <table class="info">
-            <caption>log entry count</caption>        
-            <tr><td>on site:</td><td>{{ count_on_site }} log entries</td></tr>
-            <tr><td>total:</td><td>{{ count_total }} log entries</td></tr>
+            <caption>log entries information</caption>        
+            <tr><td>count on site:</td><td>{{ count_on_site }} log entries</td></tr>
+            <tr><td>count total:</td><td>{{ count_total }} log entries</td></tr>
+            <tr><td>oldest on site:</td><td>{{ oldest_on_site_entry.createtime|timesince }}</td></tr>
+            <tr><td>oldest total:</td><td>{{ oldest_total_entry.createtime|timesince }}</td></tr>
         </table>
         {% include "admin/pylucid/includes/pylucid_formset.html" %}
         <div class="helper_buttons">
