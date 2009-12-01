@@ -110,8 +110,8 @@ def _database_encoding_test(request, out):
         log_entry2.save()
 
     _test("ASCII (32-126)", xrange(32, 126))
-    _test("basic-latin (0-126)", xrange(0, 126))
     _test("latin-1 (128-254)", xrange(128, 254))
+    _test("ASCII control characters (0-31)", xrange(0, 31))
     _test("unicode plane 1-3 (0-12286 in 16 steps)", xrange(0, 12286, 16))
     _test("all unicode planes (0-65534 in 256 steps)", xrange(0, 65534, 256))
 
