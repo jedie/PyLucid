@@ -82,6 +82,7 @@ class BaseModelManager(models.Manager):
 
 class AutoSiteM2M(models.Model):
     """ Base model with sites M2M and CurrentSiteManager. """
+    objects = models.Manager()
     sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     on_site = CurrentSiteManager('sites')
 
