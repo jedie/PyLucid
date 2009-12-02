@@ -65,7 +65,7 @@ def can_access_site(user):
         return
 
     current_site = Site.objects.get_current()
-    sites = user_profile.site.all()
+    sites = user_profile.sites.all()
     if current_site in sites:
         if LOCAL_DEBUG:
             failsafe_message("User can access these site.")
