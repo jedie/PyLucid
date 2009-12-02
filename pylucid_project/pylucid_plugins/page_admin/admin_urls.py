@@ -17,11 +17,13 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.conf.urls.defaults import patterns, url
 
+from pylucid_project.pylucid_plugins.page_admin import admin_views
 
-urlpatterns = patterns('page_admin.admin_views',
-    url(r'^new_content_page/$', "new_content_page", name='PageAdmin-new_content_page'),
-    url(r'^new_plugin_page/$', "new_plugin_page", name='PageAdmin-new_plugin_page'),
-    url(r'^edit_page/(?P<pagetree_id>\d+?)/$', "edit_page", name='PageAdmin-edit_page'),
-    url(r'^translate/(?P<pagemeta_id>\d+?)/$', "translate", name='PageAdmin-translate'),
-    url(r'^tag_list/$', "tag_list", name='PageAdmin-tag_list'),
+urlpatterns = patterns('',
+    url(r'^new_content_page/$', admin_views.new_content_page, name='PageAdmin-new_content_page'),
+    url(r'^new_plugin_page/$', admin_views.new_plugin_page, name='PageAdmin-new_plugin_page'),
+    url(r'^edit_page/(?P<pagetree_id>\d+?)/$', admin_views.edit_page, name='PageAdmin-edit_page'),
+    url(r'^page_order/(?P<pagetree_id>\d+?)/$', admin_views.page_order, name='PageAdmin-page_order'),
+    url(r'^translate/(?P<pagemeta_id>\d+?)/$', admin_views.translate, name='PageAdmin-translate'),
+    url(r'^tag_list/$', admin_views.tag_list, name='PageAdmin-tag_list'),
 )

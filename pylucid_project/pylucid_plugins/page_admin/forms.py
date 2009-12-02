@@ -3,8 +3,7 @@
 from django import forms
 from django.template import mark_safe
 from django.forms.util import ErrorList
-from django.forms.models import BaseModelFormSet, modelformset_factory
-from django.contrib.auth.models import User, Group
+from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext as _
 
 from django_tools.middlewares import ThreadLocal
@@ -119,6 +118,24 @@ class PluginPageForm(forms.ModelForm):
     class Meta:
         model = PluginPage
         exclude = ("pagetree")
+
+
+class PageOderForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        """ Change form field data in a DRY way """
+        super(PageOderForm, self).__init__(*args, **kwargs)
+        choices = [(i, i) for i in range(-10, 10)]
+        for field_name, field in self.fields.iteritems():
+            field.widget = forms.widgets.Select(choices=choices)
+#            print field, field_name
+
+    class Meta:
+        model = PageTree
+
+PageOrderFormSet = modelformset_factory(
+    model=PageTree, form=PageOderForm, extra=0, fields=('position',)
+)
+
 
 
 class LanguageSelectForm(forms.Form):

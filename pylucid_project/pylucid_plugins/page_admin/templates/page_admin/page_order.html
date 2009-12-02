@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<p>Edit page order for: <a href="{{ pagetree.get_absolute_url }}" title="&lt;&lt; go back to the page">{{ pagetree.get_absolute_url }}</a></p>
+
+<p>Change the page level:</br> 
+{% if previous_level %}
+<a href="{% url PageAdmin-page_order previous_level.id %}" title="Go to *previous* page level: '{{ previous_level.get_absolute_url }}'">{{ previous_level.slug }}</a>
+&#xAB;
+{% endif %}
+
+<strong title="current page level">{{ pagetree.slug }}</strong>
+
+{% if next_level %}
+&#xBB;
+<a href="{% url PageAdmin-page_order next_level.id %}" title="Go to *next* page level: '{{ next_level.get_absolute_url }}'">{{ next_level.slug }}</a>
+{% endif %}
+</p>
+
+<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+    {% include "admin/pylucid/includes/buttons_save_abort.html" %}
+    
+    {{ formset.management_form }}
+    
+    {% for form in formset.forms %}
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+    {% endfor %}
+    
+    {% include "admin/pylucid/includes/buttons_save_abort.html" %}    
+</form>
+{% endblock %}
