@@ -1,21 +1,27 @@
 # coding:utf-8
 
 from django.db import models
-from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.managers import CurrentSiteManager
 
-from pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel
 from pylucid.models import Language
 
 
-class UpdateJournal(models.Model):
-    """ List of all last update data, used for creating the last update table. """
+class UpdateJournal(BaseModel):
+    """
+    List of all last update data, used for creating the last update table.
+    
+    inherited attributes from UpdateInfoBaseModel:
+        get_absolute_uri()
+    """
     lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.",)
     user_name = models.CharField(_("user's name"), max_length=50, blank=True)
+
+    objects = models.Manager()
 
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     on_site = CurrentSiteManager()
@@ -32,6 +38,17 @@ class UpdateJournal(models.Model):
         help_text="A long page title (for e.g. page title or link title text)"
     )
     staff_only = models.BooleanField(help_text="Viewable only by staff users?")
+
+    def get_site(self):
+        return self.site
+
+    def get_absolute_url(self):
+        return self.object_url
+
+    def __unicode__(self):
+        return u"Update Journal entry %r (id: %i, site: %s)" % (
+            self.object_url, self.id, self.site.domain
+        )
 
     class Meta:
         verbose_name = 'Update Journal entry'
