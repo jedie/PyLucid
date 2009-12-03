@@ -38,10 +38,19 @@
 import os
 
 
+#####################################################################################################
+# CHANGE THIS PATH:
+#
+# The absolute filesystem path to ...PyLucid_env/bin/activate_this.py
+#
+os.environ["VIRTUALENV_FILE"] = "/path/to/PyLucid_env/bin/activate_this.py"
+#
+#####################################################################################################
 
-# Set the DJANGO_SETTINGS_MODULE environment variable.
-#~ os.environ['PYTHON_EGG_CACHE'] = os.path.expanduser("~/python_egg_cache")
-#os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
+
+# This must normaly not changes, because you should use a local_settings.py file
+os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+
 
 def traceback_end():
     """
@@ -53,7 +62,7 @@ def traceback_end():
     print "Python v%s" % sys.version
     print "-" * 80
     try:
-        import sys, traceback
+        import traceback
         print traceback.format_exc()
     except Exception, e:
         print "Error: %s" % e
@@ -66,17 +75,25 @@ except KeyError, err:
     print "Content-type: text/plain; charset=utf-8\r\n\r\n"
     print "PyLucid - Low-Level-Error!"
     print
-    print "environment variable VIRTUALENV_FILE not set:", err
-    print "(VIRTUALENV_FILE is the path to './PyLucid_env/bin/activate_this.py')"
+    print "environment variable VIRTUALENV_FILE not set!"
+    print "(VIRTUALENV_FILE is the path to '.../PyLucid_env/bin/activate_this.py')"
     print
     traceback_end()
 
-execfile(virtualenv_file, dict(__file__=virtualenv_file))
-#print "virtualenv activate, OK"
+
+try:
+    execfile(virtualenv_file, dict(__file__=virtualenv_file))
+except Exception, err:
+    print "Content-type: text/plain; charset=utf-8\r\n\r\n"
+    print "PyLucid - Low-Level-Error!"
+    print
+    print "VIRTUALENV_FILE value is wrong: %r" % virtualenv_file
+    print
+    print "Please edit the file %r and change the path!" % __file__
+    print
+    traceback_end()
 
 
-
-#print os.environ['DJANGO_SETTINGS_MODULE']
 try:
     from django.conf import settings
 except:

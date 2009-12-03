@@ -15,8 +15,7 @@
             #!/usr/bin/python2.5
             #!C:\python\python.exe
 
-    You must set VIRTUALENV_FILE and DJANGO_SETTINGS_MODULE in e.g. .htacces
-    If you can't use SetEnv in .htaccess you can set this two variables below!
+    You must change the variable VIRTUALENV_FILE here!
 
 
     Last commit info:
@@ -35,9 +34,19 @@
 
 import os
 
-# If you can't use SetEnv in .htaccess, set the needed variables here:
-#os.environ["VIRTUALENV_FILE"] = "/path/to/PyLucid_env/bin/activate_this.py"
-#os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+
+#####################################################################################################
+# CHANGE THIS PATH:
+#
+# The absolute filesystem path to ...PyLucid_env/bin/activate_this.py
+#
+os.environ["VIRTUALENV_FILE"] = "/path/to/PyLucid_env/bin/activate_this.py"
+#
+#####################################################################################################
+
+
+# This must normaly not changes, because you should use a local_settings.py file
+os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 
 def traceback_end():
@@ -48,7 +57,7 @@ def traceback_end():
     print "Python v%s" % sys.version
     print "-" * 80
     try:
-        import sys, traceback
+        import traceback
         print traceback.format_exc()
     except Exception, e:
         print "Error: %s" % e
@@ -61,13 +70,23 @@ except KeyError, err:
     print "Content-type: text/plain; charset=utf-8\r\n\r\n"
     print "PyLucid - Low-Level-Error!"
     print
-    print "environment variable VIRTUALENV_FILE not set:", err
-    print "(VIRTUALENV_FILE is the path to './PyLucid_env/bin/activate_this.py')"
+    print "environment variable VIRTUALENV_FILE not set!"
+    print "(VIRTUALENV_FILE is the path to '.../PyLucid_env/bin/activate_this.py')"
     print
     traceback_end()
 
-execfile(virtualenv_file, dict(__file__=virtualenv_file))
-#print "virtualenv activate, OK"
+
+try:
+    execfile(virtualenv_file, dict(__file__=virtualenv_file))
+except Exception, err:
+    print "Content-type: text/plain; charset=utf-8\r\n\r\n"
+    print "PyLucid - Low-Level-Error!"
+    print
+    print "VIRTUALENV_FILE value is wrong: %r" % virtualenv_file
+    print
+    print "Please edit the file %r and change the path!" % __file__
+    print
+    traceback_end()
 
 
 try:

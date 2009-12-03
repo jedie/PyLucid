@@ -12,35 +12,25 @@
 #    The best way: uncomment one after another and check a request/response
 #     after every step.
 #
-
-# environment variables
-# If you can set SetEnv here, you can try to put it into a other context, see: 
-#     http://httpd.apache.org/docs/2.2/mod/directive-dict.html#Context
-#
-# If you can't set the path in a other context, you can edit the existing .cgi files.
 # see also:
-#    http://httpd.apache.org/docs/2.2/mod/mod_env.html#setenv|SetEnv
 #    http://httpd.apache.org/docs/2.2/mod/core.html#allowoverride
 #
-# Please update this path for your needs:
-SetEnv VIRTUALENV_FILE ./PyLucid_env/bin/activate_this.py
-#
-# You must normaly not change this:
-SetEnv DJANGO_SETTINGS_MODULE pylucid_project.settings
 
 # Enable execution of CGI scripts using mod_cgi
 # http://httpd.apache.org/docs/2.0/mod/core.html#options
-Options +ExecCGI
+#Options +ExecCGI
 
-# Old (?) fastCGI Apache module:
+# Old mod_fastcgi Apache module:
 #AddHandler fastcgi-script .fcgi
 
-# New (?) fastCGI Apache module:
+# New mod_fcgid Apache module:
 #AddHandler fcgid-script .fcgi
 
 # http://httpd.apache.org/docs/2.0/mod/mod_mime.html#addhandler
-AddHandler cgi-script .cgi
+#AddHandler cgi-script .cgi
 
+
+# http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html
 RewriteEngine On
 
 # All requests would be "redirected" to PyLucid.
@@ -48,12 +38,13 @@ RewriteEngine On
 # Default: Leave out the media files and all cgi-bin request.
 # You can add more directories if needed.
 RewriteRule ^media - [L]
-RewriteRule ^django_media - [L]
 
-# Forbid the directly access to the dispatcher file (send 403 HTTP response)
-# FIXME: Is it save to default activate both rules?
+
+# Forbid the directly access to some files (send 403 HTTP response)
 RewriteRule ^index.cgi$ - [F,L]
-#RewriteRule ^index.fcgi$ - [F,L]
+RewriteRule ^index.fcgi$ - [F,L]
+RewriteRule ^manage.py$ - [F,L]
+RewriteRule ^local_settings.py$ - [F,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 
@@ -63,11 +54,12 @@ RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
 # for fastCGI Version:
 #RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
 
-# Nobody should have access to your settings.py!
+
+# Nobody should have access to some files!
 # If you use a SQLite Database and the DB file is in you DocRoot, you should
 # also deny the access for everybody.
 # http://httpd.apache.org/docs/2.2/mod/core.html#files
-<Files settings.py>
+<Files manage.py>
     Deny from all
 </Files>
 <Files local_settings.py>
