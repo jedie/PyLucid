@@ -62,6 +62,11 @@ def clean_complete_pagecache(sender, **kwargs):
     model_instance = kwargs["instance"]
 
     request = ThreadLocal.get_current_request()
+    if request is None:
+        if settings.DEBUG:
+            failsafe_message("Info: Skip page cache cleanup.")
+        return
+
     verbose = settings.DEBUG or request.user.is_superuser
 
     cache_cleaned = getattr(request, "_cache_cleaned", False)
@@ -101,6 +106,7 @@ def clean_complete_pagecache(sender, **kwargs):
         cache.delete(cache_key)
 
     # store the information "Cache has been deleted" for later signals
+    #if request is not None:
     request._cache_cleaned = True
 
     if verbose:
