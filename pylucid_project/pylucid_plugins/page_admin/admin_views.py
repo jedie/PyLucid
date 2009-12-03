@@ -8,18 +8,21 @@ from django.db import transaction
 from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language, PluginPage
+from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
+
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+
 from pylucid_project.utils.escape import escape
 
-from pylucid.models import PageTree, PageMeta, PageContent, Language, PluginPage
-from pylucid.markup.django_tags import DjangoTagAssembler
-from pylucid.decorators import check_permissions, render_to
-from pylucid.markup.converter import apply_markup
-
-from pylucid_admin.admin_menu import AdminMenu
-
-from page_admin.forms import PageTreeForm, PageMetaForm, PageContentForm, PluginPageForm, \
-                                     LanguageSelectForm, PageOrderFormSet
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.page_admin.forms import PageTreeForm, PageMetaForm, \
+                                                             PageContentForm, PluginPageForm, \
+                                                             LanguageSelectForm, PageOrderFormSet, \
+                                                             MassesEditorSelectForm
 
 
 EDIT_PLUGIN_TEMPLATE = "page_admin/edit_plugin_page.html"
@@ -43,6 +46,12 @@ def install(request):
         parent=menu_section_entry, url_name="PageAdmin-new_plugin_page",
         name="new plugin page", title="Create a new plugin page.",
         get_pagetree=True
+    )
+
+    menu_section_entry = admin_menu.get_or_create_section("tools")
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry, url_name="PageAdmin-bulk_editor",
+        name="bulk editor", title="Edit one attribute for all model items at once.",
     )
 
     return "\n".join(output)
@@ -728,4 +737,83 @@ def tag_list(request):
         "title": "lucidTag list",
         "lucid_tags": lucid_tags
     }
+    return context
+
+
+@render_to("page_admin/bulk_editor.html")
+@check_permissions(superuser_only=True)
+def bulk_editor(request):
+    """ Edit one attribute for all model items at once. """
+    title = "Bulk Editor"
+    context = {
+        "form_url": request.path,
+        "abort_url": request.path,
+    }
+    if request.method == 'POST': # Stage 1: MassesEditorSelectForm was send
+        #request.page_msg(request.POST)
+        form = MassesEditorSelectForm(request.POST)
+        if form.is_valid():
+            #request.page_msg(form.cleaned_data)
+            model_attr = form.cleaned_data["model_attr"]
+            model, filter_lang, attr = model_attr
+            language = form.cleaned_data["language"]
+
+            queryset = model.on_site.all()
+            queryset = queryset.only(attr)
+            if filter_lang:
+                queryset = queryset.filter(language=language)
+
+            ModelFormset = modelformset_factory(
+                model=model, #form=MassesEditorSelectForm,
+                extra=0, fields=(attr,)
+            )
+
+            if "form-TOTAL_FORMS" in request.POST: # Stage 2: The ModelFormset POST data exist
+                formset = ModelFormset(request.POST, queryset=queryset)
+                if formset.is_valid():
+                    saved_items = formset.save()
+                    if not saved_items:
+                        request.page_msg(_("No items changed."))
+                    else:
+                        try:
+                            id_list = ", ".join([str(int(item.pk)) for item in saved_items])
+                        except ValueError: # No number as primary key?
+                            id_list = ", ".join([repr(item.pk) for item in saved_items])
+
+                        request.page_msg(_("%s items saved (IDs: %s)") % (len(saved_items), id_list))
+                        if settings.DEBUG:
+                            request.page_msg("Debug saved items:")
+                            for instance in saved_items:
+                                request.page_msg(instance.get_absolute_url(), instance)
+
+                    return http.HttpResponseRedirect(request.path)
+            else:
+                formset = ModelFormset(queryset=queryset)
+
+            context["formset"] = formset
+            context["model_name"] = model.__name__
+            context["attr"] = attr
+            context["filter_lang"] = filter_lang
+            context["language"] = language
+            title += " - %s.%s (%s)" % (model.__name__, attr, language)
+
+            # Change all field label to the absolute url
+            for formset_form in formset.forms:
+                instance = formset_form.instance
+                absolute_url = instance.get_absolute_url()
+                for field_name, field in formset_form.fields.iteritems():
+                    field.label = absolute_url
+
+            # Sort by absolute_url, used the label value from the first field 
+            formset.forms.sort(
+                cmp=lambda x, y: cmp(x.fields.values()[0].label.lower(), y.fields.values()[0].label.lower())
+            )
+
+            # Hide the MassesEditorSelectForm fields. They should not changed, yet.
+            form.hide_all_fields()
+    else:
+        form = MassesEditorSelectForm()
+
+    context["form"] = form
+    context["title"] = title
     return context

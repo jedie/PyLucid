@@ -15,6 +15,7 @@
 """
 
 from django.db import models
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
@@ -36,6 +37,21 @@ TAG_INPUT_HELP_URL = \
 
 
 
+from django.db import models
+
+
+class CurrentSiteManager(models.Manager):
+    """
+    Use this to limit objects to those associated with the current site.
+    Based on django.contrib.sites.managers.CurrentSiteManager()
+    """
+    def get_query_set(self):
+        queryset = super(CurrentSiteManager, self).get_query_set()
+        return queryset.filter(pagetree__site__id__exact=settings.SITE_ID)
+
+
+
+
 class PageMeta(BaseModel, UpdateInfoBaseModel):
     """
     Meta data for PageContent or PluginPage
@@ -47,6 +63,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
     objects = BaseModelManager()
+    on_site = CurrentSiteManager()
 
     pagetree = models.ForeignKey("pylucid.PageTree")
     language = models.ForeignKey("pylucid.Language")

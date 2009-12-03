@@ -26,4 +26,5 @@ urlpatterns = patterns('',
     url(r'^page_order/(?P<pagetree_id>\d+?)/$', admin_views.page_order, name='PageAdmin-page_order'),
     url(r'^translate/(?P<pagemeta_id>\d+?)/$', admin_views.translate, name='PageAdmin-translate'),
     url(r'^tag_list/$', admin_views.tag_list, name='PageAdmin-tag_list'),
+    url(r'^bulk_editor/$', admin_views.bulk_editor, name='PageAdmin-bulk_editor'),
 )

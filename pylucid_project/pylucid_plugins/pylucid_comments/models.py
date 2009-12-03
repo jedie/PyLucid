@@ -5,6 +5,7 @@ from django.db.models import signals
 from django.contrib.comments.models import Comment
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.comments.signals import comment_was_posted
+from django.contrib.sites.managers import CurrentSiteManager
 
 from pylucid_project.pylucid_plugins import update_journal
 
@@ -14,10 +15,7 @@ class PyLucidComment(Comment):
         help_text="Send me a mail if someone replay on my comment. (Needs a email address ;)"
     )
 
-#    def save(self, *args, **kwargs):
-#        if self.submit_date is None:
-#            self.submit_date = datetime.datetime.now()
-#        super(Comment, self).save(*args, **kwargs)
+    on_site = CurrentSiteManager()
 
     def get_absolute_url(self):
         return self.content_object.get_absolute_url()

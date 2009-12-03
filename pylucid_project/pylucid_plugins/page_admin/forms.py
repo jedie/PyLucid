@@ -9,8 +9,13 @@ from django.utils.translation import ugettext as _
 from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.utils.escape import escape
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
+from pylucid_project.pylucid_plugins.update_journal.models import UpdateJournal
+from pylucid_project.pylucid_plugins.pylucid_comments.models import PyLucidComment
 
-from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design, Language
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, \
+                                                                            Design, Language
 
 
 class PageContentTextarea(forms.Textarea):
@@ -127,7 +132,6 @@ class PageOderForm(forms.ModelForm):
         choices = [(i, i) for i in range(-10, 10)]
         for field_name, field in self.fields.iteritems():
             field.widget = forms.widgets.Select(choices=choices)
-#            print field, field_name
 
     class Meta:
         model = PageTree
@@ -145,3 +149,43 @@ class LanguageSelectForm(forms.Form):
         """ Change form field data in a DRY way """
         super(LanguageSelectForm, self).__init__(*args, **kwargs)
         self.fields['language'].choices = [(lang.code, lang.description) for lang in languages]
+
+
+class MassesEditorSelectForm(forms.Form):
+    """
+    TODO: implement a API for generating _DATA. So that other plugins can easy add some items.
+    """
+    _DATA = (
+        (PageTree, False, "slug", "design", "showlinks", "permitViewGroup", "permitEditGroup"),
+        (PageMeta, True, "tags", "keywords", "robots", "permitViewGroup"),
+        (BlogEntry, True, "tags", "is_public"),
+        (LexiconEntry, True, "tags", "alias", "short_definition", "is_public"),
+        (UpdateJournal, True, "staff_only"),
+        (PyLucidComment, False, "notify", "is_public", "is_removed"),
+    )
+    CHOICES = [] # Used by the model_attr field
+    _CHOICES_DICT = {} # Used in self.clean_model_attr()
+    id = 0
+    for model_data in _DATA:
+        for attr in model_data[2:]:
+            id += 1
+            CHOICES.append((id, "%s.%s" % (model_data[0].__name__, attr)))
+            _CHOICES_DICT[id] = (model_data[0], model_data[1], attr)
+
+    model_attr = forms.ChoiceField(choices=CHOICES,
+        label="model attribute", help_text=_("The model and attribute for bulk edit.")
+    )
+    language = forms.ModelChoiceField(queryset=Language.on_site.all(), empty_label=None,
+        help_text=_("Filter queryset in this language (if possible)")
+    )
+
+    def hide_all_fields(self):
+        """ hide all fields (assign HiddenInput widget """
+        for field_name, field in self.fields.iteritems():
+            field.widget = forms.widgets.HiddenInput()
+
+    def clean_model_attr(self):
+        """ Don't return only the internal ID -> return (model, filter_lang, attr) """
+        id = int(self.cleaned_data['model_attr'])
+        return self._CHOICES_DICT[id]
+

@@ -1,0 +1,69 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}{{ block.super }}
+<!-- page_admin.masses_editor extrahead block start -->
+<style type="text/css">
+.pylucid_form .formset label {
+    width: auto;
+}
+.pylucid_form .formset input {
+    max-width:100%;
+    width: 100%;
+}
+</style>
+<!-- page_admin.masses_editor extrahead block end -->
+{% endblock extrahead %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" id="masses_editor_select_form" class="pylucid_form">
+{% include "admin/pylucid/includes/pylucid_formset.html" %}
+{% if formset %}
+
+    <p>
+    You change from model '<strong>{{ model_name }}</strong>' the attribute '<strong>{{ attr }}</strong>'.
+    {% if filter_lang %}
+        <br />
+        The queryset is filtered by language: '<strong>{{ language }}</strong>'.
+    {% endif %}
+    </p>
+
+    {% include "admin/pylucid/includes/buttons_save_abort.html" %}
+    
+    {% if formset.errors %}
+    <ul class="errorlist" id="{{ field.html_name }}_errors" title="Errors for field '{{ field.html_name }}'">
+    {% for error in formset.errors %}
+        <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    {{ formset.management_form }}
+    
+    <table class="formset">
+    {% for form in formset.forms %}
+        {% for field in form %}
+            {% if field.is_hidden %}
+               <!-- hidden field START -->
+               {{ field }}
+               <!-- hidden field END -->
+            {% else %}
+                <tr title="{{ field.help_text|striptags }}" class="field {{ field.html_name }}{% if field.errors %} error{% endif %}">
+                    {% if field.errors %}
+                    <ul class="errorlist" id="{{ field.html_name }}_errors" title="Errors for field '{{ field.html_name }}'">
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                    {% endif %}
+                
+                    <td class="nowrap"><label for="{{ field.auto_id }}">{{ field.label }}</label></td>
+                    <td>{{ field }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </table>
+{% endif %}
+{% include "admin/pylucid/includes/buttons_save_abort.html" %}
+</form>
+{% endblock %}
