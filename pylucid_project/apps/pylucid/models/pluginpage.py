@@ -24,7 +24,6 @@ from django_tools.utils import installed_apps_utils
 from django_tools import model_utils
 
 from pylucid.shortcuts import failsafe_message
-from pylucid_project.pylucid_plugins import update_journal
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 

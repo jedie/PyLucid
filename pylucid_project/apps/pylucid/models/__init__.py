@@ -14,14 +14,30 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from pylucid.models.colorscheme import ColorScheme, Color
-from pylucid.models.design import Design
-from pylucid.models.editable_headfile import EditableHtmlHeadFile
-from pylucid.models.ip_ban_list import BanEntry
-from pylucid.models.language import Language
-from pylucid.models.log import LogEntry
-from pylucid.models.pagecontent import PageContent
-from pylucid.models.pagemeta import PageMeta
-from pylucid.models.pagetree import PageTree
-from pylucid.models.pluginpage import PluginPage
-from pylucid.models.userprofile import UserProfile
+from django.db.models import signals
+
+from colorscheme import ColorScheme, Color
+from design import Design
+from editable_headfile import EditableHtmlHeadFile
+from ip_ban_list import BanEntry
+from language import Language
+from log import LogEntry
+from pagecontent import PageContent
+from pagemeta import PageMeta
+from pagetree import PageTree
+from pluginpage import PluginPage
+from userprofile import UserProfile
+
+from pylucid_project.pylucid_plugins import update_journal
+from pylucid_project.apps.pylucid.cache import clean_complete_pagecache
+
+
+# Add a entry into update journal
+signals.post_save.connect(receiver=update_journal.save_receiver, sender=PageContent)
+
+# For cleaning the page cache:
+signals.post_save.connect(receiver=clean_complete_pagecache, sender=PageTree)
+signals.post_save.connect(receiver=clean_complete_pagecache, sender=PageMeta)
+signals.post_save.connect(receiver=clean_complete_pagecache, sender=PageContent)
+signals.post_save.connect(receiver=clean_complete_pagecache, sender=PluginPage)
+signals.post_save.connect(receiver=clean_complete_pagecache, sender=EditableHtmlHeadFile)

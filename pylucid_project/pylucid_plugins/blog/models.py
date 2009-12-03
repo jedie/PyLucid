@@ -28,10 +28,11 @@ from tagging.fields import TagField
 
 from pylucid_project.pylucid_plugins import update_journal
 
-from pylucid.shortcuts import failsafe_message
-from pylucid.models import PageContent, Language, PluginPage
-from pylucid.markup.converter import apply_markup
-from pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.cache import clean_complete_pagecache
 
 
 TAG_INPUT_HELP_URL = \
@@ -112,7 +113,13 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         ordering = ('-createtime', '-lastupdatetime')
 
 
+# Add a entry into update journal
 signals.post_save.connect(receiver=update_journal.save_receiver, sender=BlogEntry)
+
+
+# For cleaning the page cache:
+signals.post_save.connect(receiver=clean_complete_pagecache, sender=BlogEntry)
+
 
 # Bug in django tagging?
 # http://code.google.com/p/django-tagging/issues/detail?id=151#c2

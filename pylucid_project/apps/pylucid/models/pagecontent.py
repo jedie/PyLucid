@@ -3,7 +3,7 @@
 """
     PyLucid models
     ~~~~~~~~~~~~~~
-
+    
     Last commit info:
     ~~~~~~~~~~~~~~~~~
     $LastChangedDate: $
@@ -15,14 +15,13 @@
 """
 
 from django.db import models
-from django.db.models import signals
 
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
 
 from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
-from pylucid_project.pylucid_plugins import update_journal
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -43,6 +42,8 @@ class PageContentManager(BaseModelManager):
 class PageContent(BaseModel, UpdateInfoBaseModel):
     """
     A normal CMS Page with text content.
+    
+    signals connection is in pylucid_project.apps.pylucid.models.__init__
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -121,4 +122,4 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageContent)
 
-signals.post_save.connect(receiver=update_journal.save_receiver, sender=PageContent)
+

@@ -31,8 +31,6 @@ from django_tools import model_utils
 from pylucid.tree_model import BaseTreeModel, TreeGenerator
 from pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel
 
-from pylucid_project.pylucid_plugins import update_journal
-
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"

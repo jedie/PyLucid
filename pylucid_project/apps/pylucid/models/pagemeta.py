@@ -27,10 +27,8 @@ from tagging.fields import TagField
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
 
-
 from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
-from pylucid_project.pylucid_plugins import update_journal
 
 
 TAG_INPUT_HELP_URL = \
