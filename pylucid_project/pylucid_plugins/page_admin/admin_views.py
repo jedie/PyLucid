@@ -759,32 +759,44 @@ def bulk_editor(request):
             language = form.cleaned_data["language"]
 
             queryset = model.on_site.all()
-            queryset = queryset.only(attr)
+
+            # We can't use .only() here. Otherwise a tagging TagField() would not updated correctly
+            # See also: http://www.python-forum.de/post-154432.html#154432 (de)
+            #queryset = queryset.only(attr)
+
             if filter_lang:
                 queryset = queryset.filter(language=language)
 
-            ModelFormset = modelformset_factory(
-                model=model, #form=MassesEditorSelectForm,
-                extra=0, fields=(attr,)
-            )
+            ModelFormset = modelformset_factory(model=model, extra=0, fields=(attr,))
 
             if "form-TOTAL_FORMS" in request.POST: # Stage 2: The ModelFormset POST data exist
                 formset = ModelFormset(request.POST, queryset=queryset)
                 if formset.is_valid():
-                    saved_items = formset.save()
-                    if not saved_items:
+                    sid = transaction.savepoint()
+                    try:
+                        instances = formset.save(commit=False)
+                        formset.save_m2m()
+                        formset.save()
+                    except:
+                        transaction.savepoint_rollback(sid)
+                        raise
+                    else:
+                        transaction.savepoint_commit(sid)
+
+                    if not instances:
                         request.page_msg(_("No items changed."))
                     else:
                         try:
-                            id_list = ", ".join([str(int(item.pk)) for item in saved_items])
+                            id_list = ", ".join([str(int(item.pk)) for item in instances])
                         except ValueError: # No number as primary key?
-                            id_list = ", ".join([repr(item.pk) for item in saved_items])
+                            id_list = ", ".join([repr(item.pk) for item in instances])
 
-                        request.page_msg(_("%s items saved (IDs: %s)") % (len(saved_items), id_list))
+                        request.page_msg(_("%s items saved (IDs: %s)") % (len(instances), id_list))
                         if settings.DEBUG:
                             request.page_msg("Debug saved items:")
-                            for instance in saved_items:
+                            for instance in instances:
                                 request.page_msg(instance.get_absolute_url(), instance)
+                                #request.page_msg("saved value: %r" % getattr(instance, attr))
 
                     return http.HttpResponseRedirect(request.path)
             else:
