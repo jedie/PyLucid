@@ -1,7 +1,5 @@
 .pylucid_form * {
     /* reset django values */
-    margin: 0;
-    padding: 0;
     font-size: 1em;
 }
 .pylucid_form {
@@ -13,9 +11,6 @@
 }
 .pylucid_form h2:hover {
     background-color: #eee;
-}
-.pylucid_form li {
-    list-style: none
 }
 .pylucid_form fieldset {
     margin: 1em;
