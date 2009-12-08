@@ -89,6 +89,10 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
 
+    def get_filename(self):
+        """ returns only the filename """
+        return os.path.split(self.filepath)[1]
+
     def get_color_filepath(self, colorscheme=None):
         """ Colorscheme + filepath """
         if colorscheme:
