@@ -1,0 +1,61 @@
+{% extends "admin/base_site.html" %}
+
+{% if pygments_css %}
+{% block extrahead %}{{ block.super }}
+<!-- convert_markup extrahead block start -->
+<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
+<!-- convert_markup extrahead block end -->
+{% endblock %}
+{% endif %}
+
+{% block content %}
+<p>
+    The original markup is: <strong>{{ current_markup }}</strong>
+</p>
+
+<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+
+{% if new_markup %}
+    <div class="helper_buttons">
+        <input type="submit" name="save" value="{% trans 'save' %}" />
+        <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+    </div>
+    {% if orig_html %}
+        <fieldset id="orig_html"><legend>{% trans 'original html (generated with the original markup)' %}</legend>{{ orig_html }}</fieldset>
+    {% endif %}
+    <fieldset id="converted html"><legend>{% trans 'converted html (generated with the converted markup)' %}</legend>        
+        {{ converted_html }}
+    </fieldset>
+    {% if pygmentize_diff or diff_is_the_same %}
+        <fieldset id="pygmentize_diff"><legend>{% trans 'html diff (without whitespace)' %}</legend>
+            {% if diff_is_the_same %}
+                {% trans '(Generated html code is the same. No differences found.)' %}
+            {% else %}
+                {{ pygmentize_diff|safe }}
+            {% endif %}
+        </fieldset>
+    {% endif %}
+    <fieldset id="new_markup"><legend>{% trans 'new markup' %}</legend>        
+        <pre>{{ new_markup }}</pre>
+    </fieldset>
+{% endif %}
+
+{% include "admin/pylucid/includes/pylucid_formset.html" %}
+<div class="helper_buttons">
+    <input type="submit" name="save" value="{% trans 'save' %}" />
+    <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+    {% if help_link %}
+        <a href="{{ help_link }}" class="openinwindow" title="{% trans 'markup help page' %}">
+            <button type="button">{% trans 'markup help' %}</button>
+        </a>
+    {% endif %}
+    <input type="submit" id="preview" name="preview" value="{% trans 'preview' %}" />
+    <button type="button" class="button resize_textarea" id="bigger_id_content" title="{% trans 'makes the textarea bigger' %}">
+        +
+    </button>
+    <button type="button" class="button resize_textarea" id="smaller_id_content" title="{% trans 'makes the textarea smaller' %}">
+        -
+    </button>
+</div>
+</form>
+{% endblock %}

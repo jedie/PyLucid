@@ -92,8 +92,8 @@ def _edit_page_preview(request):
 
     pagemeta, pagecontent = _get_pageobjects(request)
 
-    pagecontent.content = edit_page_form.cleaned_data["content"]
-    html_content = apply_markup(pagecontent, request.page_msg)
+    raw_content = edit_page_form.cleaned_data["content"]
+    html_content = apply_markup(raw_content, pagecontent.markup, request.page_msg, escape_django_tags=True)
 
     return HttpResponse(html_content)
 

@@ -110,6 +110,26 @@ class PageContentForm(forms.ModelForm):
         exclude = ("pagemeta",)
 
 
+class ConvertMarkupForm(forms.ModelForm):
+    # Use only supported markups for converting choice field
+    MARKUP_CHOICES = [entry for entry in PageContent.MARKUP_CHOICES
+        if entry[0] in (
+            PageContent.MARKUP_CREOLE, PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR
+        )
+    ]
+    dest_markup = forms.IntegerField(
+        widget=forms.Select(choices=MARKUP_CHOICES),
+        help_text=_("convert the current page content to this new markup"),
+    )
+    verbose = forms.BooleanField(required=False,
+        help_text=_("Display original html and a html diff."),
+    )
+    class Meta:
+        model = PageContent
+        fields = ('content',)
+
+
+
 class PluginPageForm(forms.ModelForm):
 #    app_label = forms.TypedChoiceField(
 #        choices=PluginPage.objects.get_app_choices(), label=_('App label'),

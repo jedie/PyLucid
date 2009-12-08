@@ -98,6 +98,10 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
             "title": self.get_title()
         }
 
+    def get_name(self):
+        """ Page name is optional, return PageTree slug if page name not exist """
+        return self.pagemeta.name or self.pagemeta.pagetree.slug
+
     def get_title(self):
         """ The page title is optional, if not exist, used the slug from the page tree """
         return self.pagemeta.title or self.pagemeta.pagetree.slug

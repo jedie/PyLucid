@@ -1,32 +1,11 @@
 # coding: utf-8
 
-import inspect
-
-from django import http
 from django.conf import settings
-from django.db import transaction
-from django.forms.models import modelformset_factory
-from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language, PluginPage
-from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
-from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.models import PageTree
 
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
-from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-from pylucid_project.utils.escape import escape
-
-from pylucid_project.pylucid_plugins.blog.models import BlogEntry
-from pylucid_project.pylucid_plugins.page_admin.forms import PageTreeForm, PageMetaForm, \
-                                                             PageContentForm, PluginPageForm, \
-                                                             LanguageSelectForm, PageOrderFormSet, \
-                                                             MassesEditorSelectForm
-
-
-EDIT_PLUGIN_TEMPLATE = "page_admin/edit_plugin_page.html"
-EDIT_CONTENT_TEMPLATE = "page_admin/edit_content_page.html"
 
 
 def install(request):

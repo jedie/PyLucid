@@ -144,6 +144,24 @@ def apply_creole(content):
     return HtmlEmitter(document, macros=PyLucid_creole_macros, verbose=0).emit()
 
 
+def convert(raw_content, markup_no, page_msg):
+    if markup_no == PageContent.MARKUP_TINYTEXTILE: # PyLucid's TinyTextile
+        html_content = apply_tinytextile(raw_content, page_msg)
+    elif markup_no == PageContent.MARKUP_TEXTILE: # Textile (original)
+        html_content = apply_textile(raw_content, page_msg)
+    elif markup_no == PageContent.MARKUP_MARKDOWN:
+        html_content = apply_markdown(raw_content, page_msg)
+    elif markup_no == PageContent.MARKUP_REST:
+        html_content = apply_restructuretext(raw_content, page_msg)
+    elif markup_no == PageContent.MARKUP_CREOLE:
+        html_content = apply_creole(raw_content)
+    elif markup_no in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR):
+        html_content = raw_content
+    else:
+        raise AssertionError("markup no %r unknown!" % markup_no)
+
+    return html_content
+
 
 def apply_markup(raw_content, markup_no, page_msg, escape_django_tags=False):
     """ render markup content to html. """
@@ -153,20 +171,7 @@ def apply_markup(raw_content, markup_no, page_msg, escape_django_tags=False):
         assembler = DjangoTagAssembler()
         raw_content2, cut_data = assembler.cut_out(raw_content)
 
-    if markup_no == PageContent.MARKUP_TINYTEXTILE: # PyLucid's TinyTextile
-        html_content = apply_tinytextile(raw_content2, page_msg)
-
-    elif markup_no == PageContent.MARKUP_TEXTILE: # Textile (original)
-        html_content = apply_textile(raw_content2, page_msg)
-
-    elif markup_no == PageContent.MARKUP_MARKDOWN:
-        html_content = apply_markdown(raw_content2, page_msg)
-
-    elif markup_no == PageContent.MARKUP_REST:
-        html_content = apply_restructuretext(raw_content2, page_msg)
-
-    elif markup_no == PageContent.MARKUP_CREOLE:
-        html_content = apply_creole(raw_content2)
+    html_content = convert(raw_content, markup_no, page_msg)
 
     if assemble_tags:
         # reassembly cut out django tags into text
@@ -185,6 +190,44 @@ def apply_markup(raw_content, markup_no, page_msg, escape_django_tags=False):
         html_content2 = escape_django_template_tags(html_content2)
 
     return mark_safe(html_content2) # turn Django auto-escaping off
+
+
+def convert_markup(raw_content, source_markup_no, dest_markup_no, page_msg):
+    """
+    Convert one markup in a other.
+    """
+    html_source = source_markup_no in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
+    html_dest = dest_markup_no in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
+
+    if source_markup_no == dest_markup_no or (html_source and html_dest):
+        # Nothing to do ;)
+        return raw_content
+
+    if not html_dest and dest_markup_no != PageContent.MARKUP_CREOLE:
+        raise NotImplementedError("Converting into %r not supported." % dest_markup_no)
+
+    if html_source: # Source markup is HTML
+        html_content = raw_content
+    else:
+        # cut out every Django tags from content
+        assembler = DjangoTagAssembler()
+        raw_content2, cut_data = assembler.cut_out(raw_content)
+
+        # convert to html
+        html_content = convert(raw_content2, source_markup_no, page_msg)
+
+    if html_dest: # Destination markup is HTML
+        new_content = html_content
+    else:
+        # Skip: if dest_markup_no == PageContent.MARKUP_CREOLE: - only creole supported here
+        from creole import html2creole
+        new_content = html2creole(html_content)
+
+    if not html_source: # Source markup is not HTML
+        # reassembly cut out django tags into text
+        new_content = assembler.reassembly(new_content, cut_data)
+
+    return new_content
 
 
 

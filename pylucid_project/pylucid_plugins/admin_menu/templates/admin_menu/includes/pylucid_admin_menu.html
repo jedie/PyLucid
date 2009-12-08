@@ -105,6 +105,10 @@
 	            {% if perms.pylucid.change_pagetree %}
 	               <li><a href="{% url PageAdmin-page_order PYLUCID.pagetree.id %}">change page order</a></li>
 	            {% endif %}
+                
+	            {% if perms.pylucid.change_pagecontent %}
+	               <li><a href="{% url PageAdmin-convert_markup PYLUCID.pagecontent.id %}">convert markup</a></li>
+	            {% endif %}
 
 	            {% if perms.pylucid.delete_pageplugin and perms.pylucid.delete_pagecontent and perms.pylucid.delete_pagemeta and perms.pylucid.delete_pagetree %}
 	               <li><a href="{% url admin:pylucid_pagetree_delete PYLUCID.pagemeta.id %}">delete page</a></li>
