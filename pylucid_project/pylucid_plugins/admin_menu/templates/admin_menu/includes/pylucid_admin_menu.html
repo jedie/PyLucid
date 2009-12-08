@@ -106,7 +106,7 @@
 	               <li><a href="{% url PageAdmin-page_order PYLUCID.pagetree.id %}">change page order</a></li>
 	            {% endif %}
                 
-	            {% if perms.pylucid.change_pagecontent %}
+	            {% if perms.pylucid.change_pagecontent and PYLUCID.pagecontent.id %}
 	               <li><a href="{% url PageAdmin-convert_markup PYLUCID.pagecontent.id %}">convert markup</a></li>
 	            {% endif %}
 
