@@ -1,0 +1,15 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+{% extrahead %}
+<!-- sf_main_menu.html extrahead START -->
+<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.css');" />
+<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.js');" ></script>
+<!-- sf_main_menu.html extrahead END -->
+{% endextrahead %}
+{% spaceless %}
+<ul class="sf-menu sf-main_menu">
+    {% include "sf_main_menu/sf_main_menu_items.html" %}
+</ul>
+{% endspaceless %}
+{% endblock %}
