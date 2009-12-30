@@ -127,12 +127,19 @@ def menu(request):
     }
     return context
 
+def _cleanup_filename(filename):
+    filename = filename.replace(" ", "_")
+    return filename
 
 def _make_new_template_name(template_name, site):
-    return posixpath.join(settings.SITE_TEMPLATE_PREFIX, slugify(site.name), template_name + ".html")
+    return _cleanup_filename(
+        posixpath.join(settings.SITE_TEMPLATE_PREFIX, slugify(site.name), template_name + ".html")
+    )
 
 def _make_new_style_name(style_name, site):
-    return posixpath.join(settings.SITE_STYLE_PREFIX, slugify(site.name), style_name + ".css")
+    return _cleanup_filename(
+        posixpath.join(settings.SITE_STYLE_PREFIX, slugify(site.name), style_name + ".css")
+    )
 
 
 @check_permissions(superuser_only=True)
