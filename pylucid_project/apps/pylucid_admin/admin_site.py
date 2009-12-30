@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 
-from pylucid.models import PageTree, UserProfile
+from pylucid_project.apps.pylucid.models import PageTree, UserProfile
 
 
 
@@ -25,10 +25,12 @@ class PyLucidAdminSite(admin.AdminSite):
         In debug mode:
             -user can suppress the redirect by adding any GET parameter. (e.g: domain.tld/admin/?foobar)
             -Don't redirect if PyLucid own login view can't work.
+            
+        TODO: prevent redirect loops
         """
-        if settings.DEBUG: # Check fallback only in debug mode
-            if request.GET or PageTree.on_site.all().count() == 0 or UserProfile.on_site.all().count() == 0:
-                return super(PyLucidAdminSite, self).login(request)
+        if PageTree.on_site.all().count() == 0 or UserProfile.on_site.all().count() == 0 or \
+                                                                        (request.GET and settings.DEBUG):
+            return super(PyLucidAdminSite, self).login(request)
 
         url = settings.PYLUCID.AUTH_NEXT_URL % {"path": "/", "next_url": request.get_full_path()}
         return HttpResponseRedirect(url)
