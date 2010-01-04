@@ -27,7 +27,7 @@ class SubHtml(object):
     
     >>> class LexiconData(dict):
     ...     def __call__(self, word_lower, word):
-    ...         return "*%s*" % word.upper()
+    ...         return " *%s*\\n\\n" % word.upper()
     >>> lexicon_data = LexiconData({"foo": None, "bar": None})
     >>> s = SubHtml(lexicon_data, skip_tags=["a"])
     >>> s.process('<html><p><a href="Foo=Bar"><strong>Foo</strong> Bar</a>Foo Bar</p></html>')
@@ -56,7 +56,7 @@ class SubHtml(object):
         if word:
             word_lower = word.lower()
             if word_lower in self.lexicon_data:
-                return self.lexicon_data(word_lower, word)
+                return self.lexicon_data(word_lower, word).strip()
 
         return m.group()
 

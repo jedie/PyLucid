@@ -20,14 +20,15 @@ __version__ = "$Rev:$"
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 
+# http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
 
 from lexicon.models import LexiconEntry
 from lexicon.sub_html import SubHtml
+from lexicon.preference_forms import LexiconPrefForm
 
 
 WORD_TAG = u"<!-- word -->"
-SKIP_TAGS = ("a", "textarea") # TODO: Should we put this into lexicon preferences?
 
 
 class LexiconData(dict):
@@ -81,7 +82,10 @@ def pre_render_global_template_handler(**kwargs):
         for word in words_lower:
             lexicon_data[word] = {"term": term, "short_definition": short_definition}
 
-    s = SubHtml(lexicon_data, skip_tags=SKIP_TAGS)
+    pref_form = LexiconPrefForm()
+    skip_tags = pref_form.get_skip_tags()
+
+    s = SubHtml(lexicon_data, skip_tags)
     page_content = s.process(page_content)
     request.PYLUCID.context["page_content"] = mark_safe(page_content)
 
