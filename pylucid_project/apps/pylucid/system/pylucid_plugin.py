@@ -174,7 +174,15 @@ def context_middleware_response(request, response):
         except KeyError, err:
             return "[Error: context middleware %r doesn't exist!]" % plugin_name
 
+        # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
+        request.plugin_name = plugin_name
+        request.method_name = "ContextMiddleware"
+
         response = middleware_class_instance.render()
+
+        request.plugin_name = None
+        request.method_name = None
+
         if response == None:
             return ""
         elif isinstance(response, unicode):
