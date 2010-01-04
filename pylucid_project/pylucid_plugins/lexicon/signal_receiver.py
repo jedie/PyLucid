@@ -25,7 +25,6 @@ from tagging.utils import parse_tag_input
 
 from lexicon.models import LexiconEntry
 from lexicon.sub_html import SubHtml
-from lexicon.preference_forms import LexiconPrefForm
 
 
 WORD_TAG = u"<!-- word -->"
@@ -82,6 +81,7 @@ def pre_render_global_template_handler(**kwargs):
         for word in words_lower:
             lexicon_data[word] = {"term": term, "short_definition": short_definition}
 
+    from lexicon.preference_forms import LexiconPrefForm # import here, against import loops
     pref_form = LexiconPrefForm()
     skip_tags = pref_form.get_skip_tags()
 
