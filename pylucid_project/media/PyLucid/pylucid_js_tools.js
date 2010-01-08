@@ -3,6 +3,7 @@
 // helper function for console logging
 // set debug to true to enable debug logging
 function log() {
+	try {debug} catch (e) {debug=false};
     if (debug && window.console && window.console.log)
     	window.console.log(Array.prototype.join.call(arguments,''));
 };
