@@ -12,7 +12,7 @@
         <a href="{{ entry.get_absolute_url }}">{{ entry.term }}</a>
         {% include "lexicon/includes/admin_links.html" %}
     </dt>
-    <dt>{{ entry.short_definition }}</dt>
+    <dd>{{ entry.short_definition }}</dd>
 {% endfor %}
 </dl>
 {% endblock content %}
