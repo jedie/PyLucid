@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PyLucid v0.9beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-19 12:55+0000\n"
-"PO-Revision-Date: 2010-01-19 16:10+0100\n"
+"POT-Creation-Date: 2010-01-19 16:51+0000\n"
+"PO-Revision-Date: 2010-01-19 17:51+0100\n"
 "Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
 "Language-Team: -\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "X-Poedit-Language: de\n"
 "X-Poedit-Country: Deutschland\n"
 "X-Poedit-SourceCharset: UFT-8\n"
-"X-Poedit-Basepath: pylucid_project/locale\n"
+"X-Poedit-Basepath: ../../../\n"
 
 #: apps/pylucid/base_admin.py:21
 #: apps/pylucid/templates/admin/pylucid/includes/view_on_site_link.html:1
@@ -467,31 +467,151 @@ msgstr "lucidTag OpenStreetMap Fehler: Es existiert kein Karten Eintrag mit name
 msgid "Existing maps are: %r"
 msgstr "Existierende Karten: %r"
 
-#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:41
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:45
+msgid "edit page content inline"
+msgstr "Inhalt der Seite 'inline' bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:47
 msgid "edit page"
 msgstr "Seite bearbeiten"
 
-#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:102
-msgid "translate"
-msgstr "Übersetzen"
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:53
+msgid "edit all page attributes in a seperated view"
+msgstr "Alle Seiten Attribute im eigenen View bearbeiten"
 
-#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:127
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:54
+msgid "edit all"
+msgstr "alles bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:59
+msgid "low level editing page parts in django admin panel (not recommented!)"
+msgstr "Low-Level-Bearbeitung von Seitenteile im Django Admin Panel (nicht empfohlen!)"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:60
+msgid "django admin"
+msgstr "Django Admin Seite"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:67
+msgid "edit only 'plugin page' entry in with django admin panel"
+msgstr "nur 'plugin page' Eintrag in Django Admin bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:68
+msgid "edit plugin page"
+msgstr "Plugin Seite bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:77
+msgid "edit only 'PageContent' part in django admin panel"
+msgstr "Nur 'PageContent' Eintrag in Django Admin bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:78
+msgid "edit page content"
+msgstr "Seiten Inhalt bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:87
+msgid "edit only 'PageTree' part in django admin panel"
+msgstr "Nur 'PageTree' Eintrag in Django Admin bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:88
+msgid "edit page tree"
+msgstr "Seitenbaum bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:95
+msgid "edit only 'PageMeta' part in django admin panel"
+msgstr "Nur 'PageTree' Eintrag in Django Admin bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:96
+msgid "edit page meta"
+msgstr "Meta Angaben bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:105
+msgid "edit current style/template in django admin panel"
+msgstr "Aktuelle Style/Tremplate in Django Admin Seite bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:106
+msgid "edit current look"
+msgstr "Aussehen bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:112
+msgid "edit current design:"
+msgstr "Bearbeite aktuelles Design:"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:113
+msgid "design"
+msgstr "Design"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:120
+msgid "edit current colorscheme:"
+msgstr "Bearbeite aktuelles Farbschema:"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:121
+msgid "colorscheme"
+msgstr "Farbschema"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:129
+msgid "edit headfile:"
+msgstr "Bearbeite Kopfdatei:"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:138
+msgid "edit page template:"
+msgstr "Bearbeite aktuelles Seiten Template:"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:139
+msgid "page template"
+msgstr "Seiten Template"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:152
+msgid "translate page into a other language"
+msgstr "Übersetzte Aktuelle Seite in andere Sprache"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:153
+msgid "translate content"
+msgstr "Seiteninhalt Übersetzen"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:162
+msgid "Convert page content markup"
+msgstr "Konvertierte Seiteninhalt in anderes Markup"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:163
+msgid "convert markup"
+msgstr "Markup konvertieren"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:172
+msgid "change the link oder of the current menu level"
+msgstr "Links Reihenfolge des aktuellen Menü Levels ändern"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:173
+msgid "change page order"
+msgstr "Reihenfolge bearbeiten"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:181
+msgid "delete current page"
+msgstr "Aktuelle Seite Löschen"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:182
+msgid "delete page"
+msgstr "Seite Löschen"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:195
+msgid "Go into Django Admin site index"
+msgstr "Gehe zum Django Admin Seiten Index"
+
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:196
 msgid "Django admin site"
 msgstr "Django Admin Seite"
 
-#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:145
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:219
 msgid "PyLucid admin menu"
 msgstr "PyLucid Admin Menü"
 
-#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:152
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:227
 msgid "install PyLucid"
 msgstr "PyLucid installieren"
 
-#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:155
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:230
 msgid "install plugins"
 msgstr "Plugins installieren"
 
-#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:158
+#: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:233
 msgid "update section"
 msgstr "Update Sektion"
 
@@ -731,7 +851,7 @@ msgstr " Kind-Eltern Scheifen Fehler!"
 #: pylucid_plugins/page_admin/forms.py:57
 #, python-format
 msgid "Can't use the <strong>plugin</strong> page '%s' as parent page! Please choose a <strong>content</strong> page."
-msgstr ""
+msgstr "Die <strong>Plugin</ strong> Seite '%s' kann nicht als übergeordnete Seite gewählt werden! Bitte nur eine <strong>Inhalte</ strong> Seite wählen."
 
 #: pylucid_plugins/page_admin/forms.py:122
 msgid "convert the current page content to this new markup"
@@ -762,16 +882,16 @@ msgstr "Kein Eintrag geändert."
 msgid "%(count)s items saved (IDs: %(ids)s)"
 msgstr "%(count)s Einträge gespeichert (IDs: %(ids)s)"
 
-#: pylucid_plugins/page_admin/admin_views/convert_markup.py:33
+#: pylucid_plugins/page_admin/admin_views/convert_markup.py:31
 msgid "Wrong PageContent ID."
 msgstr "Falsche PageContent ID."
 
-#: pylucid_plugins/page_admin/admin_views/convert_markup.py:50
+#: pylucid_plugins/page_admin/admin_views/convert_markup.py:48
 #, python-format
 msgid "Convert '%s' markup"
 msgstr "Markup '%s' konvertieren"
 
-#: pylucid_plugins/page_admin/admin_views/convert_markup.py:87
+#: pylucid_plugins/page_admin/admin_views/convert_markup.py:85
 #: pylucid_plugins/page_admin/admin_views/edit_page.py:56
 #, python-format
 msgid "Content page %r updated."
@@ -975,7 +1095,7 @@ msgstr ""
 
 #: pylucid_plugins/search/preference_forms.py:11
 msgid "Min length of a search term"
-msgstr ""
+msgstr "Min. Länge eines Suchbegriffs"
 
 #: pylucid_plugins/search/preference_forms.py:15
 msgid "Max length of a search term"
@@ -983,23 +1103,23 @@ msgstr "Maximale Suchbegriff länge"
 
 #: pylucid_plugins/search/preference_forms.py:19
 msgid "Number of the paged for the result page"
-msgstr ""
+msgstr "Anzahl der Seiten für die Ergebnis-Seite"
 
 #: pylucid_plugins/search/preference_forms.py:23
 msgid "The length of the text-hit-cutouts"
-msgstr ""
+msgstr "Länge des Treffer Text Ausschnitt"
 
 #: pylucid_plugins/search/preference_forms.py:27
 msgid "Max. cutout lines for every search term"
-msgstr ""
+msgstr "Max. Anzahl der Treffer Zeilen für jeden Suchbegriff"
 
 #: pylucid_plugins/search/preference_forms.py:32
 msgid "Numbers of limit overstepping after IP would be banned."
-msgstr ""
+msgstr "Anzahl der Limit Überschreibungen, nach der die IP Adresse verboten wird."
 
 #: pylucid_plugins/search/preference_forms.py:36
 msgid "Minimum pause in seconds between two search from the same user. (Used 'REMOTE_ADDR')"
-msgstr ""
+msgstr "Minimale Pause in Sekunden zwischen zwei Suchen vom selben Nutzer. (nutzt 'REMOTE_ADDR')"
 
 #: pylucid_plugins/system/admin_views.py:51
 #, python-format
@@ -1109,4 +1229,24 @@ msgstr "Alle zugreifbaren Seiten"
 #: utils/site_utils.py:50
 msgid "Witch site(s) sould be preselected if you create a new entry?"
 msgstr "Welche Seite(n) soll vorgewählt werden, wenn ein neue Eintrag erstellt wird?"
+
+#~ msgid "edit current design '%(PYLUCID.pagetree.design.name)s'"
+#~ msgstr "Aktuelles Design '%(PYLUCID.pagetree.design.name)s'"
+#~ msgid ""
+#~ "edit current colorscheme '%(PYLUCID.pagetree.design.colorscheme.name)s'"
+#~ msgstr "Aktuelles Farbschema '%(PYLUCID.pagetree.design.colorscheme.name)s'"
+#~ msgid "edit headfile '%(headfile.filepath)s'"
+#~ msgstr "Kopfdatei '%(headfile.filepath)s'"
+#~ msgid "edit page template '%(PYLUCID.pagetree.design.template)s'"
+#~ msgstr "Seiten Template '%(PYLUCID.pagetree.design.template)s' bearbeiten"
+#~ msgid "delete '%(current_site.name)s' page"
+#~ msgstr "Seite '%(current_site.name)s' löschen"
+#~ msgid "edit in django admin panel"
+#~ msgstr "In Django Admin Seite bearbeiten"
+#~ msgid "edit page design parts"
+#~ msgstr "Seiten 'Design' Teile bearbeiten"
+#~ msgid "edit "
+#~ msgstr "Bearbeiten"
+#~ msgid "edit only "
+#~ msgstr "nur bearbeiten"
 
