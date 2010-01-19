@@ -120,6 +120,7 @@ pylucid_admin_site.register(models.PluginPage, PluginPageAdmin)
 
 class ColorInline(admin.TabularInline):
     model = models.Color
+    extra = 0
 
 class ColorSchemeAdmin(VersionAdmin):
     list_display = ("id", "name", "preview", "site_info", "lastupdatetime", "lastupdateby")
