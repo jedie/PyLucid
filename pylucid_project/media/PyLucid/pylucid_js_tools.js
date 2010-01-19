@@ -5,19 +5,19 @@
 function log() {
 	try {debug} catch (e) {debug=false};
     if (debug && window.console && window.console.log)
-    	window.console.log(Array.prototype.join.call(arguments,''));
-};
+        window.console.log(Array.prototype.join.call(arguments,''));
+}
 
 
 function OpenInWindow(link) {
-	/*************************************************************************
+    /*************************************************************************
 	Open link in a new JavaScript window.
 	Usage e.g.:
 		<a href="/foobar/" onclick="return OpenInWindow(this);">foobar</a>
 	Better usage:
 		<a href="/foobar/" class="openinwindow">foobar</a>
 	*************************************************************************/
-	var url = $(link).attr("href");
+    var url = $(link).attr("href");
     win = window.open(url, "", "width=900, height=760, dependent=yes, resizable=yes, scrollbars=yes");
     win.focus();
     return false;
@@ -25,49 +25,51 @@ function OpenInWindow(link) {
 
 
 function replace_complete_page(html) {
-	// replace the complete page
-	document.open() // no append available since it is closed
-	document.write(html);
-	document.close(); 
+    // replace the complete page
+    document.open() // no append available since it is closed
+    document.write(html);
+    document.close();
 }
 
 function replace_page_content(data, textStatus) {
-	/*************************************************************************
+    /*************************************************************************
 	ajax success "handler".
 	replace the "#page_content" with the new html response data
 	*************************************************************************/
-	log("ajax post response success.");
-	log("status:" + textStatus);
-	if (data.indexOf("</body>") != -1) {
-		// FIXME: We should find a way to handle a 
-		// redirect directly. But we always get the
-		// html data of the redirected page.
+    log("ajax post response success.");
+    log("status:" + textStatus);
+    if (data.indexOf("</body>") != -1) {
+        // FIXME: We should find a way to handle a
+        // redirect directly. But we always get the
+        // html data of the redirected page.
 		
-		log("redirect work-a-round: replace the complete page");
-		log("</body> index:" + data.indexOf("</body>"));
-		replace_complete_page(data)
-	} else {
-		$("#page_content").html(data);
-		$("#page_content").animate({opacity: 1}, 500 );
-	}
-	load_normal_link = false;
+        log("redirect work-a-round: replace the complete page");
+        log("</body> index:" + data.indexOf("</body>"));
+        replace_complete_page(data)
+    } else {
+        $("#page_content").html(data);
+        $("#page_content").animate({
+            opacity: 1
+        }, 500 );
+    }
+    load_normal_link = false;
 }
 
 
 function ajax_error_handler(XMLHttpRequest, textStatus, errorThrown) {
-	/*************************************************************************
+    /*************************************************************************
 	ajax error "handler".
 	replace the complete page with the error text (django html traceback page)
 	*************************************************************************/
-	log("ajax get response error!");
-	log(XMLHttpRequest);
-	var response_text = XMLHttpRequest.responseText;
-	log("response_text: '" + response_text + "'");
-	if (!response_text) {
-		response_text = "<h1>Ajax response error without any response text.</h1>";
-	}
-	replace_complete_page(response_text);
-	load_normal_link = true;
+    log("ajax get response error!");
+    log(XMLHttpRequest);
+    var response_text = XMLHttpRequest.responseText;
+    log("response_text: '" + response_text + "'");
+    if (!response_text) {
+        response_text = "<h1>Ajax response error without any response text.</h1>";
+    }
+    replace_complete_page(response_text);
+    load_normal_link = true;
 }
 
 
@@ -89,7 +91,9 @@ function pylucid_ajax_form_view(form_id) {
     $(form_id).bind('submit', function() {
         
         $("#page_content").html('<h2>send...</h2>');
-        $("#page_content").animate({opacity: 0.3}, 500 );
+        $("#page_content").animate({
+            opacity: 0.3
+        }, 500 );
 
         var form = $(this);
         var form_data = form.serialize();
@@ -101,7 +105,7 @@ function pylucid_ajax_form_view(form_id) {
         load_normal_link = true;
         
         XMLHttpRequest = $.ajax({
-        	async: false,
+            async: false,
             type: "POST",
             url: url,
             data: form_data,
@@ -109,21 +113,21 @@ function pylucid_ajax_form_view(form_id) {
             
             success: replace_page_content,
             complete: function(XMLHttpRequest, textStatus){
-            	// Handle redirects
-            	log("complete:" + XMLHttpRequest);
-            	log("text:" + textStatus);
-            	log("complete:" + XMLHttpRequest.status);
-            	log("complete:" + XMLHttpRequest.getResponseHeader('Location'));
+                // Handle redirects
+                log("complete:" + XMLHttpRequest);
+                log("text:" + textStatus);
+                log("complete:" + XMLHttpRequest.status);
+                log("complete:" + XMLHttpRequest.getResponseHeader('Location'));
             	
                 if(XMLHttpRequest.status.toString()[0]=='3'){
-                	top.location.href = XMLHttpRequest.getResponseHeader('Location');
+                    top.location.href = XMLHttpRequest.getResponseHeader('Location');
                 }
             },
             error: ajax_error_handler
         });
         log("ajax done:" + XMLHttpRequest);
-    	log("ajax done:" + XMLHttpRequest.status);
-    	log("ajax done:" + XMLHttpRequest.getResponseHeader('Location'));
+        log("ajax done:" + XMLHttpRequest.status);
+        log("ajax done:" + XMLHttpRequest.getResponseHeader('Location'));
         return load_normal_link; // <-- important: Don't send the form in normal way.
     }); 
 }
@@ -151,7 +155,9 @@ function get_pylucid_ajax_view(url) {
     ----------------------------------------------------------------------
     *************************************************************************/
     $("#page_content").html('<h2>loading...</h2>');
-    $("#page_content").animate({opacity: 0.3}, 500 );
+    $("#page_content").animate({
+        opacity: 0.3
+    }, 500 );
 
     var url = encodeURI(url);
     log("get:" + url);
@@ -159,7 +165,7 @@ function get_pylucid_ajax_view(url) {
     load_normal_link = true;
     
     $.ajax({
-    	async: false,
+        async: false,
         type: "GET",
         url: url,
         dataType: "html",
@@ -168,32 +174,32 @@ function get_pylucid_ajax_view(url) {
         error: ajax_error_handler
     });
     if (debug) {
-    	// never fall back in debug mode.
+        // never fall back in debug mode.
         log("return: " + load_normal_link);
-    	return false;
+        return false;
     } else {
-    	// fall back to normal view, if ajax request failed.
-    	return load_normal_link; // The browser follow the link, if true
+        // fall back to normal view, if ajax request failed.
+        return load_normal_link; // The browser follow the link, if true
     }    
 }
 
 
 function replace_openinwindow_links() {
-	/*************************************************************************
+    /*************************************************************************
 	 * replace the existing links with a "open in new window" link
 	 * usage:
 	 * 		<a href="/foo" class="openinwindow">foo</a>
 	 */
-	$('a.openinwindow').each(function(){
-		var url = $(this).attr("href");   	
-		var org_title = $(this).attr("title");
+    $('a.openinwindow').each(function(){
+        var url = $(this).attr("href");
+        var org_title = $(this).attr("title");
 		
-		$(this).attr({
-			onclick: "return OpenInWindow(this);",
-			title: org_title + " (Opens in a new window)"
-	    });
-		//$(this).append(" [^]")
-	});
+        $(this).attr({
+            onclick: "return OpenInWindow(this);",
+            title: org_title + " (Opens in a new window)"
+        });
+    //$(this).append(" [^]")
+    });
 }
 
 
@@ -204,97 +210,105 @@ MAX_ROWS = 25;
 MAX_LENGTH = 100;
 RESIZE_FACTOR = 1.3;
 $(document).ready(function(){
-	/*************************************************************************
+    /*************************************************************************
 	 * textarea resize buttons
 	 */
-	$(".resize_textarea" ).click(function () {
-		button_id = $(this).attr('id');
-//		log("Clicked on: " + button_id);
-		var pos = button_id.indexOf("_");
-		var action = button_id.slice(0, pos);
-		var textarea_id = button_id.slice(pos+1, button_id.length);
-//		log("action:" + action);
-//		log("textarea id:" + textarea_id);
-		var textarea = $("#"+textarea_id);
-		var old_rows = textarea.attr("rows");
+    $(".resize_textarea" ).click(function () {
+        button_id = $(this).attr('id');
+        //		log("Clicked on: " + button_id);
+        var pos = button_id.indexOf("_");
+        var action = button_id.slice(0, pos);
+        var textarea_id = button_id.slice(pos+1, button_id.length);
+        //		log("action:" + action);
+        //		log("textarea id:" + textarea_id);
+        var textarea = $("#"+textarea_id);
+        var old_rows = textarea.attr("rows");
 		
-		var new_rows = false;
-		if (action=="smaller") {
-			if (old_rows<3) {
-				log("no more smaller ;)")
-				return;
-			}
-			new_rows = Math.floor(old_rows / RESIZE_FACTOR);
-		}
-		if (action=="bigger") {
-			new_rows = Math.ceil(old_rows * RESIZE_FACTOR);
-		}
+        var new_rows = false;
+        if (action=="smaller") {
+            if (old_rows<3) {
+                log("no more smaller ;)")
+                return;
+            }
+            new_rows = Math.floor(old_rows / RESIZE_FACTOR);
+        }
+        if (action=="bigger") {
+            new_rows = Math.ceil(old_rows * RESIZE_FACTOR);
+        }
 		
-		if (new_rows == false) {
-			log("Error: Wrong textarea resize action:" + action);
-			return;
-		}
-//		log("old rows:" + old_rows + " - new rows:" + new_rows);
-		textarea.animate({rows: new_rows}, 100 );
-	});
+        if (new_rows == false) {
+            log("Error: Wrong textarea resize action:" + action);
+            return;
+        }
+        //		log("old rows:" + old_rows + " - new rows:" + new_rows);
+        textarea.animate({
+            rows: new_rows
+        }, 100 );
+    });
 	
-	/*************************************************************************
+    /*************************************************************************
 	 * replace the existing links with a "open in new window" link           */
-	replace_openinwindow_links();
+    replace_openinwindow_links();
 	
 	
-	/*************************************************************************
+    /*************************************************************************
 	 * Add a "open in new window" link after the existing normal link.
 	 * usage:
 	 * 		<a href="/foo" class="add_openinwindow">foo</a>
 	 */
-	$('a.add_openinwindow').each(function(){
+    $('a.add_openinwindow').each(function(){
 
-		var url = $(this).attr("href");
-		var org_title = $(this).attr("title");
+        var url = $(this).attr("href");
+        var org_title = $(this).attr("title");
 		
-		var new_link = ' <a href="'+url+'" onclick="return OpenInWindow(this);" title="'+org_title+' (Opens in a new window)">[^]</a>'
+        var new_link = ' <a href="'+url+'" onclick="return OpenInWindow(this);" title="'+org_title+' (Opens in a new window)">[^]</a>'
 		
-		$(this).after(new_link);
-	})
+        $(this).after(new_link);
+    })
     
-	/*************************************************************************
+    /*************************************************************************
 	 * Resize all textareas
 	 */
-	$("textarea").each(function() {
-		rows = this.value.split("\n").length;
-		if (rows > MAX_ROWS) {rows = MAX_ROWS;}
-	    if (rows < MIN_ROWS) {rows = MIN_ROWS;}
-	    log("set textarea row to:" + rows)
-	    this.rows = rows;
-	});
+    $("textarea").each(function() {
+        rows = this.value.split("\n").length;
+        if (rows > MAX_ROWS) {
+            rows = MAX_ROWS;
+        }
+        if (rows < MIN_ROWS) {
+            rows = MIN_ROWS;
+        }
+        log("set textarea row to:" + rows)
+        this.rows = rows;
+    });
 	
-	/*************************************************************************
+    /*************************************************************************
 	 * resize input fields
 	 */
-	$(".pylucid_form input").each(function() {
-		maxlength = $(this).attr("maxlength");
-		if (maxlength<=0) {
-			return;
-		}
-		if (maxlength > MAX_LENGTH) {maxlength = MAX_LENGTH;}
-		this.size=maxlength;
-	});
+    $(".pylucid_form input").each(function() {
+        maxlength = $(this).attr("maxlength");
+        if (maxlength<=0) {
+            return;
+        }
+        if (maxlength > MAX_LENGTH) {
+            maxlength = MAX_LENGTH;
+        }
+        this.size=maxlength;
+    });
 
-	/*************************************************************************
+    /*************************************************************************
 	 * hide/unhide form fieldset stuff.
 	 */
-	$(".pylucid_form .form_hide").nextAll().hide();
-	$(".pylucid_form .form_collapse").each(function() {
-		$(this).css("cursor","n-resize");
-	});
-	$(".pylucid_form .form_collapse").click(function () {
-		if ($(this).css("cursor") == "n-resize") {
-			$(this).css("cursor","s-resize");
-		} else {
-			$(this).css("cursor","n-resize");
-		}
-		$(this).nextAll().slideToggle("fast");
-	});
+    $(".pylucid_form .form_hide").nextAll().hide();
+    $(".pylucid_form .form_collapse").each(function() {
+        $(this).css("cursor","n-resize");
+    });
+    $(".pylucid_form .form_collapse").click(function () {
+        if ($(this).css("cursor") == "n-resize") {
+            $(this).css("cursor","s-resize");
+        } else {
+            $(this).css("cursor","n-resize");
+        }
+        $(this).nextAll().slideToggle("fast");
+    });
 	
 });
