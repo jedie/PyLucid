@@ -1,10 +1,10 @@
 {% if perms.lexicon.change_lexiconentry or perms.lexicon.delete_lexiconentry %}
     <div class="admin_links">
         {% if perms.lexicon.change_lexiconentry %}
-            <a href="{% url admin:lexicon_lexiconentry_change entry.id %}" title="edit this lexicon entry">{% trans 'edit' %}</a>
+            <a href="{% url admin:lexicon_lexiconentry_change entry.id %}" title="edit '{{ entry.term }}' lexicon entry">{% trans 'edit' %}</a>
         {% endif %}
         {% if perms.lexicon.delete_lexiconentry %}
-            <a href="{% url admin:lexicon_lexiconentry_delete entry.id %}" title="delete this lexicon entry">{% trans 'delete' %}</a>
+            <a href="{% url admin:lexicon_lexiconentry_delete entry.id %}" title="delete '{{ entry.term }}' lexicon entry">{% trans 'delete' %}</a>
         {% endif %}
     </div>
 {% endif %}

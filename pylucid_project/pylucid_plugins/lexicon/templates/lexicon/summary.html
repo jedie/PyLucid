@@ -2,7 +2,7 @@
 {% load comments %}
 
 {% block content %}
-
+<div class="{{ CSS_PLUGIN_CLASS_NAME }} lexicon">
 {# {% include "blog/includes/tagcloud.html" %} #}
 
 {% if not entries %}no lexicon entry exists{% endif %}
@@ -15,4 +15,5 @@
     <dd>{{ entry.short_definition }}</dd>
 {% endfor %}
 </dl>
+</div>
 {% endblock content %}
