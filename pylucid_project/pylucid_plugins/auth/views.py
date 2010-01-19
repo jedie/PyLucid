@@ -119,10 +119,11 @@ def _sha_login(request, context, user, next_url):
             UserProfile.objects.get(user=user)#.count()
         except UserProfile.DoesNotExist, err:
             # User profile doesn't generally not exist for this user. e.g. Update from v0.8.x ?
-            msg = _("There exist no UserProfile for user %r: %s") % (user, err)
+            msg = _("There exist no UserProfile for user %(user)r: %(err)s") % {"user":user, "err":err}
         else:
             # A UserProfile exist -> User can't access *this* site.
-            msg = _("User %r can't access this site: %r") % (user, Site.objects.get_current())
+            site = Site.objects.get_current()
+            msg = _("User %(user)r can't access this site: %(site)r") % {"user":user, "site": site}
 
         LogEntry.objects.log_action(
             app_label="pylucid_plugin.auth", action="login", message=msg

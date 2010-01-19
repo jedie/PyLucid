@@ -95,7 +95,7 @@ class SiteAuthBackend(ModelBackend):
                     failsafe_message("Wrong password!")
                 return
         except User.DoesNotExist, err:
-            msg = _("User %s doesn't exist: %s") % (username, err)
+            msg = _("User %(username)s doesn't exist: %(err)s") % {"username": username, "err":err}
             LogEntry.objects.log_action(
                 app_label="pylucid", action="auth_backends", message=msg,
             )

@@ -68,10 +68,16 @@ class LogEntryManager(models.Manager):
         last_actions = queryset.count()
 
         if last_actions >= ban_limit:
-            msg = _("Add ban entry, because %s request for %s in the last %ssec.") % (
-                last_actions, app_label, min_pause
-            )
+            msg = _(
+                "Add ban entry, because %(last_actions)s request for %(app_label)s"
+                " in the last %(min_pause)ssec."
+            ) % {
+                "last_actions": last_actions,
+                "app_label": app_label,
+                "min_pause": min_pause,
+            }
             self.log_action(app_label=app_label, action="ban ip", message=msg)
+
             from pylucid.models import BanEntry
             BanEntry.objects.add(request) # raise 404 after adding the client IP!
 

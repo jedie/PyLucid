@@ -1,4 +1,4 @@
-# coding:utf - 8
+# coding:utf-8
 
 """
     translate a PageContent.
@@ -48,9 +48,10 @@ def _select_language(request, context, source_pagemeta):
                     "language": default_lang_entry.code, # FIXME: Seems not to work
                 })
         context.update({
-            "title": _("Translate page '%s' (%s) - Select destination language") % (
-                source_pagemeta.name, source_pagemeta.language.description
-            ),
+            "title": _("Translate page '%(name)s' (%(desc_lang)s) - Select destination language") % {
+                "name": source_pagemeta.name,
+                "desc_lang": source_pagemeta.language.description
+            },
             "template_name": "page_admin/select_translate_language.html",
             "form": form,
         })
@@ -100,9 +101,11 @@ def translate_page(request, pagemeta_id=None):
 
 
     context.update({
-        "title": _("Translate page '%s' (%s) into %s.") % (
-            source_pagemeta.name, source_pagemeta.language.description, dest_language.description
-        ),
+        "title": _("Translate page '%(name)s' (%(source_lang)s) into %(dest_lang)s.") % {
+            "name": source_pagemeta.name,
+            "source_lang": source_pagemeta.language.description,
+            "dest_lang": dest_language.description,
+        },
         "template_name": "page_admin/translate_page.html",
     })
 

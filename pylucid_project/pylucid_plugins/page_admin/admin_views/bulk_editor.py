@@ -1,4 +1,4 @@
-# coding:utf - 8
+# coding: utf-8
 
 from django import http
 from django.conf import settings
@@ -60,7 +60,9 @@ def bulk_editor(request):
                         except ValueError: # No number as primary key?
                             id_list = ", ".join([repr(item.pk) for item in instances])
 
-                        request.page_msg(_("%s items saved (IDs: %s)") % (len(instances), id_list))
+                        request.page_msg(_("%(count)s items saved (IDs: %(ids)s)") % {
+                            "count": len(instances), "ids": id_list
+                        })
                         if settings.DEBUG:
                             request.page_msg("Debug saved items:")
                             for instance in instances:

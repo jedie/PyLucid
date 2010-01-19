@@ -1,4 +1,4 @@
-# coding:utf - 8
+# coding:utf-8
 
 """
     PyLucid tag list
@@ -55,7 +55,9 @@ def tag_list(request):
                 for example in examples:
                     if not example.startswith("{%% lucidTag %s " % plugin_name):
                         request.page_msg(
-                            _("Info: lucidTag %s has wrong tag example: %r") % (plugin_name, example)
+                            _("Info: lucidTag %(plugin_name)s has wrong tag example: %(example)r") % {
+                                "plugin_name": plugin_name, "example": example
+                            }
                         )
 
                 lucidtag_doc = lucidtag_doc.split("example:", 1)[0].strip()
