@@ -110,10 +110,15 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         self._url_cache[self.pk] = url
         return url
 
+    _permalink_cache = {}
     def get_permalink(self):
         """
         return a permalink. Use page slug/name/title or nothing as additional text.
         """
+        if self.pk in self._permalink_cache:
+            #print "PageMeta permalink_cache len: %s, pk: %s" % (len(self._permalink_cache), self.pk)
+            return self._permalink_cache[self.pk]
+
         from pylucid.preference_forms import SystemPreferencesForm # FIXME: against import loops.
 
         sys_pref_form = SystemPreferencesForm()
@@ -137,11 +142,13 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
             addition_txt = slugify(addition_txt)
 
         url = reverse('PyLucid-permalink', kwargs={'page_id': self.pagetree.id, 'url_rest': addition_txt})
+        self._permalink_cache[self.pk] = url
         return url
 
     def save(self, *args, **kwargs):
         """ reset PageMeta and PageTree url cache """
         self._url_cache.clear()
+        self._permalink_cache.clear()
         self.pagetree._url_cache.clear()
         return super(PageMeta, self).save(*args, **kwargs)
 
