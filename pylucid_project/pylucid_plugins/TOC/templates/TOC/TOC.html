@@ -1,0 +1,9 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+<ol><h3 class="toc_headline">{% trans 'table of contents' %}</h3>
+{% for entry in toc_list %}
+  <li><a href="#{{ entry.anchor }}" title="{% trans 'go down to this section' %}">&darr;&nbsp;{{ entry.link_text }}</a></li>
+{% endfor %}
+</ol>
+{% endblock %}

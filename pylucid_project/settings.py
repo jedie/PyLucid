@@ -109,6 +109,9 @@ MIDDLEWARE_CLASSES = (
 
     'django.middleware.transaction.TransactionMiddleware',
     'reversion.middleware.RevisionMiddleware',
+
+    # Insert a html link anchor to all headlines:
+    'pylucid_project.middlewares.headline_anchor.HeadlineAnchorMiddleware',
 )
 SLOWER_DEV_SERVER_SLEEP = 0.3 # time.sleep() value (in sec.)
 

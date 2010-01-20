@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template import loader, RequestContext, Context, Template
 from django.utils.translation import ugettext as _
+
 from django_tools.template import render
 
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
@@ -160,15 +161,12 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
 
     if page_plugin_response == None and get_view_response == None:
         # No Plugin has changed the PageContent -> apply markup on PageContent
-        raw_html_content = apply_markup(
+        context["page_content"] = apply_markup(
             pagecontent_instance.content, pagecontent_instance.markup, request.page_msg
         )
-    else:
-        raw_html_content = context["page_content"]
 
     # Render django tags in PageContent with the global context
-    pagecontent_html = render.render_string_template(raw_html_content, context)
-    context["page_content"] = pagecontent_html
+    context["page_content"] = render.render_string_template(context["page_content"], context)
 
     pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
