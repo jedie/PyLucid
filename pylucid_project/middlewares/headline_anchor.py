@@ -37,6 +37,7 @@ class HeadlineAnchorMiddleware(object):
 
         try:
             pagemeta = request.PYLUCID.pagemeta
+            context = request.PYLUCID.context
         except AttributeError:
             # No cms page request -> do nothing
             #print "*** No request.PYLUCID.pagemeta!", response._headers["content-type"]
@@ -46,7 +47,7 @@ class HeadlineAnchorMiddleware(object):
         # encode it to byte string, but we need unicode.
         content = force_unicode(response.content, encoding=response._charset)
 
-        if "anchor_cache" in request.PYLUCID.context:
+        if "anchor_cache" in context:
             # lucidTag TOC was called in this request. The plugin has collect all
             # headlines and has build all links. We must only replace it, because
             # a lucidTag plugin can't do this!
