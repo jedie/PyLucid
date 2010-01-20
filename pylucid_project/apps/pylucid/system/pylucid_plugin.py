@@ -148,6 +148,8 @@ def context_middleware_request(request):
 
     page_template = request.PYLUCID.page_template # page template content
     plugin_names = TAG_RE.findall(page_template)
+#    request.page_msg("Found ContextMiddlewares in content via RE: %r" % plugin_names)
+
     for plugin_name in plugin_names:
         # Get the middleware class from the plugin
         try:
@@ -160,6 +162,7 @@ def context_middleware_request(request):
         instance = middleware_class(request, context)
         # Add it to the context
         context["context_middlewares"][plugin_name] = instance
+#        request.page_msg("Init ContextMiddleware %r" % plugin_name)
 
 def context_middleware_response(request, response):
     """
@@ -172,25 +175,27 @@ def context_middleware_response(request, response):
         try:
             middleware_class_instance = context_middlewares[plugin_name]
         except KeyError, err:
-            return "[Error: context middleware %r doesn't exist!]" % plugin_name
+            return "[Error: context middleware %r doesn't exist! Existing middlewares are: %r]" % (
+                plugin_name, context_middlewares.keys()
+            )
 
         # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
         request.plugin_name = plugin_name
         request.method_name = "ContextMiddleware"
 
-        response = middleware_class_instance.render()
+        middleware_response = middleware_class_instance.render()
 
         request.plugin_name = None
         request.method_name = None
 
-        if response == None:
+        if middleware_response == None:
             return ""
-        elif isinstance(response, unicode):
-            return smart_str(response, encoding=settings.DEFAULT_CHARSET)
-        elif isinstance(response, str):
-            return response
-        elif isinstance(response, http.HttpResponse):
-            return response.content
+        elif isinstance(middleware_response, unicode):
+            return smart_str(middleware_response, encoding=settings.DEFAULT_CHARSET)
+        elif isinstance(middleware_response, str):
+            return middleware_response
+        elif isinstance(middleware_response, http.HttpResponse):
+            return middleware_response.content
         else:
             raise RuntimeError(
                 "plugin context middleware render() must return"
