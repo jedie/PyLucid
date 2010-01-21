@@ -79,7 +79,11 @@ def lucidTag(request, min=3):
     try:
         raw_html_content = context["page_content"]
     except KeyError, err:
-        request.page_msg("Error inserting TOC: Can't get content: %s" % err)
+        # FIXME: The plugin can't get the page content here.
+        # This allays appears, if the current page is a PluginPage and the plugin generate the 
+        # complete page by extents the global template.
+        if settings.DEBUG or request.user.is_superuser:
+            request.page_msg("Error inserting TOC: Can't get content: %s" % err)
         return
 
     t = TOC(permalink)
