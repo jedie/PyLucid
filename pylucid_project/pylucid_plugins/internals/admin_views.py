@@ -173,7 +173,7 @@ def form_generator(request, model_no=None):
 
     if model_no:
         model = models_dict[int(model_no)]
-        sourcecode = _textform_for_model(model, request, debug=True)
+        sourcecode = _textform_for_model(model, request)#, debug=True)
 
         output = hightlighter.make_html(sourcecode, source_type="py")
     else:
