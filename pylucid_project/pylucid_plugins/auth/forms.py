@@ -4,6 +4,7 @@
 from django import forms
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext as _
 
 from pylucid_project.utils import crypt
 
@@ -35,7 +36,7 @@ class SHA_LoginForm(forms.Form):
         min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN
     )
     sha_b = forms.CharField(
-        min_length=crypt.HASH_LEN/2, max_length=crypt.HASH_LEN/2
+        min_length=crypt.HASH_LEN / 2, max_length=crypt.HASH_LEN / 2
     )
 
     #__________________________________________________________________________
@@ -52,7 +53,7 @@ class SHA_LoginForm(forms.Form):
         sha_value = get_newforms_data("sha_b", self.cleaned_data)
 
         # Fill with null, to match the full SHA1 hexdigest length.
-        fill_len = crypt.HASH_LEN - (crypt.HASH_LEN/2)
+        fill_len = crypt.HASH_LEN - (crypt.HASH_LEN / 2)
         temp_value = ("0" * fill_len) + sha_value
 
         if crypt.validate_sha_value(temp_value) == True:
@@ -68,19 +69,19 @@ class NewPasswordForm(forms.Form):
 
     # Should normaly never be send back!
     raw_password = forms.CharField(
-        help_text="(required)", required=False, widget = forms.PasswordInput()
+        help_text="(required)", required=False, widget=forms.PasswordInput()
     )
 
     sha_1 = forms.CharField(
         label="SHA1 for django",
         help_text="(automatic generated with JavaScript.)",
-        widget = forms.TextInput(attrs={"readonly":"readonly", "size":"40"}),
+        widget=forms.TextInput(attrs={"readonly":"readonly", "size":"40"}),
         min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN
     )
     sha_2 = forms.CharField(
         label="SHA1 for PyLucid",
         help_text="(automatic generated with JavaScript.)",
-        widget = forms.TextInput(attrs={"readonly":"readonly", "size":"40"}),
+        widget=forms.TextInput(attrs={"readonly":"readonly", "size":"40"}),
         min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN
     )
 
@@ -97,85 +98,109 @@ class NewPasswordForm(forms.Form):
 #______________________________________________________________________________
 # FORMS
 
-class BaseModelForm(forms.ModelForm):
-    """
-    A model form witch don't validate unique fields.
+#class BaseModelForm(forms.ModelForm):
+#    """
+#    A model form witch don't validate unique fields.
+#
+#    This ModelForm is only for generating the forms and not for create/update
+#    any database data. So a field unique Test would like generate Errors like:
+#        User with this Username already exists.
+#
+#    see also:
+#    http://www.jensdiemer.de/_command/118/blog/detail/30/ (de)
+#    http://www.python-forum.de/topic-16000.html (de)
+#    """
+#    def __init__(self, *args, **kwargs):
+#        """ Change field meta in a DRY way """
+#        super(BaseModelForm, self).__init__(*args, **kwargs)
+#
+#        self.model.full_validate = self._skip
+#
+#    def _skip(self, *args, **kwargs):
+#        pass
+#
+#    def validate_unique(self):
+#        pass
 
-    This ModelForm is only for generating the forms and not for create/update
-    any database data. So a field unique Test would like generate Errors like:
-        User with this Username already exists.
-
-    see also:
-    http://www.jensdiemer.de/_command/118/blog/detail/30/ (de)
-    http://www.python-forum.de/topic-16000.html (de)
-    """
-    def validate_unique(self):
-        pass
-
-
-class UsernameForm(BaseModelForm):
+class UsernameForm(forms.Form):
     """
     form for input the username, used in auth.login()
-    """   
+    
+    FIXME: This is not DRY.
+    """
+    username = forms.CharField(max_length=_('30'), label=_('Username'),
+        help_text=_('Required. 30 characters or fewer. Alphanumeric characters only (letters, digits and underscores).')
+    )
+
     def is_valid(self):
         """ do a secont validation: try to get the user from database and
-        check if he is active """        
+        check if he is active """
         is_valid = super(UsernameForm, self).is_valid()
         if not is_valid:
             return False
-        
+
         username = self.cleaned_data["username"]
         try:
-            self.user = User.objects.get(username = username)
+            self.user = User.objects.get(username=username)
         except User.DoesNotExist, e:
             self._errors["username"] = ("User doesn't exist!",)
             return False
-    
+
         return True
-        
-    class Meta:
-        model = User
-        fields=("username",)
+
+#    class Meta:
+#        model = User
+#        fields = ("username",)
 
 
-class PasswordForm(BaseModelForm):
+class PasswordForm(forms.Form):
     """
     form for input the username, used in auth._sha_login()
+    
+    FIXME: This is not DRY.
     """
-    def __init__(self, *args, **kwargs):
-        """ Change field meta in a DRY way """
-        super(PasswordForm, self).__init__(*args, **kwargs)
+    password = forms.CharField(max_length=_('128'), label=_('Password'), widget=forms.PasswordInput()
+    )
 
-        self.fields['password'].widget = forms.PasswordInput()
-        self.fields['password'].help_text = ""
+#    def __init__(self, *args, **kwargs):
+#        """ Change field meta in a DRY way """
+#        super(PasswordForm, self).__init__(*args, **kwargs)
+#
+#        self.fields['password'].widget = forms.PasswordInput()
+#        self.fields['password'].help_text = ""
 
     def is_valid(self, username):
         is_valid = super(PasswordForm, self).is_valid()
         if not is_valid:
             return False
-        
+
         password = self.cleaned_data["password"]
         self.user = auth.authenticate(username=username, password=password)
         if not self.user:
             self._errors["password"] = ("Wrong password!",)
             return False
-        
+
         return True
 
-    class Meta:
-        model = User
-        fields=("password",)
+#    class Meta:
+#        model = User
+#        fields = ("password",)
 
 
-class ResetForm(BaseModelForm):
+class ResetForm(forms.Form):
     """
     from for input username and email, used in auth.pass_reset()
     """
-    def __init__(self, *args, **kwargs):
-        super(ResetForm, self).__init__(*args, **kwargs)
-        # User.email is normaly a not required field, here it's required!
-        self.fields['email'].required = True
-        
-    class Meta:
-        model = User
-        fields=("username","email")
+    username = forms.CharField(max_length=_('30'), label=_('Username'),
+        help_text=_('Required. 30 characters or fewer. Alphanumeric characters only (letters, digits and underscores).')
+    )
+    email = forms.EmailField(max_length=_('75'), label=_('E-mail address'))
+
+#    def __init__(self, *args, **kwargs):
+#        super(ResetForm, self).__init__(*args, **kwargs)
+#        # User.email is normaly a not required field, here it's required!
+#        self.fields['email'].required = True
+
+#    class Meta:
+#        model = User
+#        fields = ("username", "email")
