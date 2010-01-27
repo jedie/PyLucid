@@ -46,7 +46,10 @@ class PyLucidMiddleware(object):
                 )
                 return
 
+        # cut exception message text to LogEntry.message max_length, to get no "Data truncated..." warning
+        message = str(exception)[:255]
+
         LogEntry.objects.log_action(
-            app_label="pylucid", action="PyLucidMiddleware.process_exception()", message=str(exception),
+            app_label="pylucid", action="PyLucidMiddleware.process_exception()", message=message,
             long_message=traceback.format_exc()
         )
