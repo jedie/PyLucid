@@ -120,10 +120,12 @@ def show_internals(request):
 
 #-----------------------------------------------------------------------------
 
-def textform_for_model(model):
+def _textform_for_model(model, request, debug=False):
     """
     based on http://www.djangosnippets.org/snippets/458/
     """
+    defaults = {"required": True, "initial": None, "min_length": None}
+
     opts = model._meta
     field_list = []
     for f in opts.fields + opts.many_to_many:
@@ -132,20 +134,23 @@ def textform_for_model(model):
         formfield = f.formfield()
         if formfield:
             kw = []
-            for a in  ('queryset', 'maxlength', 'label', 'initial', 'help_text', 'required'):
+            if debug:
+                request.page_msg(dir(formfield))
+            for a in ('queryset', 'max_length', 'min_length', 'label', 'initial', 'help_text', 'required'):
                 if hasattr(formfield, a):
                     attr = getattr(formfield, a)
+
+                    if a in defaults and attr == defaults[a]:
+                        # Don't add default key/value combinations into form
+                        continue
+
                     if a in ("label", "help_text"): # "translate" lazy text
                         attr = unicode(attr)
 
-                    if attr in [True, False, None]:
-                        if a == 'required' and attr == True: # Don't add default
-                            continue
-                        if a == 'initial' and attr == None: # Don't add default
-                            continue
-                        kw.append("%s=%s" % (a, attr))
-                    elif a == 'queryset':
+                    if a == 'queryset':
                         kw.append("%s=%s" % (a, "%s.objects.all()" % attr.model.__name__))
+                    elif attr in [True, False, None]:
+                        kw.append("%s=%s" % (a, attr))
                     elif attr:
                         kw.append("%s=_('%s')" % (a, attr))
 
@@ -168,7 +173,7 @@ def form_generator(request, model_no=None):
 
     if model_no:
         model = models_dict[int(model_no)]
-        sourcecode = textform_for_model(model)
+        sourcecode = _textform_for_model(model, request, debug=True)
 
         output = hightlighter.make_html(sourcecode, source_type="py")
     else:
