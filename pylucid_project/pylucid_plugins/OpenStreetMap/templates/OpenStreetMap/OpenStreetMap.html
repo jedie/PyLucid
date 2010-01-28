@@ -9,10 +9,15 @@
 <!-- OpenStreetMap.html extrahead END -->
 {% endextrahead %}
 <div id="map_container">
-    <div id="map" class="{{ map.name }}" style="width: {{ map.width }}px; height: {{ map.height }}px;">
+    <div id="map_{{ map.name }}" class="{{ map.name }}" style="width: {{ map.width }}px; height: {{ map.height }}px;">
     <noscript><h2>JavaScript is needed!</h2></noscript>
     </div>
+    {% if perms.OpenStreetMap.change_mapentry %}
+    <div class="admin_links">
+        <a href="{% url admin:OpenStreetMap_mapentry_change map.id %}" title="{% trans 'edit in django admin site' %}" class="add_openinwindow">{% trans 'edit this map entry' %}</a>
+    </div>
+    {% endif %}
     <a href="http://www.openstreetmap.org/?lat={{ map.lat }}&lon={{ map.lon }}&zoom={{ map.zoom }}" id="osm" class="add_openinwindow">www.openstreetmap.org</a>
-    <script type="text/javascript">drawmap("{{ lang_code }}", "{{ map.get_html }}", {{ map.lon }}, {{ map.lat }}, {{ map.zoom }}, {{ map.marker_lon }}, {{ map.marker_lat }}, {{ map.marker_width }}, {{ map.marker_height }});</script>
+    <script type="text/javascript">drawmap("map_{{ map.name }}", "{{ lang_code }}", "{{ map.get_html }}", {{ map.lon }}, {{ map.lat }}, {{ map.zoom }}, {{ map.marker_lon }}, {{ map.marker_lat }}, {{ map.marker_width }}, {{ map.marker_height }});</script>
 </div>
 {% endblock %}

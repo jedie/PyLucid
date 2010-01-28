@@ -14,16 +14,23 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
+from django.utils.translation import ugettext_lazy as _
+
 from reversion.admin import VersionAdmin
 
-from pylucid.base_admin import BaseAdmin
-from pylucid_admin.admin_site import pylucid_admin_site
+from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
-from OpenStreetMap.models import MapEntry
+from pylucid_project.pylucid_plugins.OpenStreetMap.models import MapEntry
 
 
-class MapEntryAdmin(BaseAdmin, VersionAdmin):
-    list_display = ("name", "lon", "lat", "marker_text")
+class MapEntryAdmin(VersionAdmin):
+    def lucidTag_example(self, obj):
+        return '{%% lucidTag OpenStreetMap name="%s" %%}' % obj.name
+
+    lucidTag_example.short_description = _("lucidTag example")
+    lucidTag_example.allow_tags = False
+
+    list_display = ("name", "lucidTag_example", "lon", "lat", "marker_text")
     list_display_links = ("name",)
     list_filter = ("createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'

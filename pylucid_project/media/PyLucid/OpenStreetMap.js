@@ -3,8 +3,9 @@ var layer_mapnik;
 var layer_tah;
 var layer_markers;
 
-function drawmap(lang_code, popuptext, lon, lat, zoom, marker_lon, marker_lat, marker_width, marker_height) {
+function drawmap(map_id, lang_code, popuptext, lon, lat, zoom, marker_lon, marker_lat, marker_width, marker_height) {
 	log("draw OpenStreetMap:");
+	log("map_id:" + map_id);
 	log("lang_code:" + lang_code);
 	log("popuptext:" + popuptext);
 	log("lon:" + lon + " lat:" + lat, " zoom:" + zoom);
@@ -13,7 +14,7 @@ function drawmap(lang_code, popuptext, lon, lat, zoom, marker_lon, marker_lat, m
 	
     OpenLayers.Lang.setCode(lang_code);
 	
-    map = new OpenLayers.Map('map', {
+    map = new OpenLayers.Map(map_id, {
         projection: new OpenLayers.Projection("EPSG:900913"),
         displayProjection: new OpenLayers.Projection("EPSG:4326"),
         controls: [
@@ -80,18 +81,3 @@ function addMarker(layer, lon, lat, popupContentHTML, marker_width, marker_heigh
     map.addPopup(feature.createPopup(feature.closeBox));
 }
 
-//~ function getCycleTileURL(bounds) {
-   //~ var res = this.map.getResolution();
-   //~ var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
-   //~ var y = Math.round((this.maxExtent.top - bounds.top) / (res * this.tileSize.h));
-   //~ var z = this.map.getZoom();
-   //~ var limit = Math.pow(2, z);
-
-   //~ if (y < 0 || y >= limit) {
-     //~ return null;
-   //~ } else {
-     //~ x = ((x % limit) + limit) % limit;
-
-     //~ return this.url + z + "/" + x + "/" + y + "." + this.type;
-   //~ }
-//~ }
