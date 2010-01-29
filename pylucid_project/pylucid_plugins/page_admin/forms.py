@@ -177,7 +177,7 @@ class MassesEditorSelectForm(forms.Form):
     """
     _DATA = (
         (PageTree, False, "slug", "design", "showlinks", "permitViewGroup", "permitEditGroup"),
-        (PageMeta, True, "tags", "keywords", "robots", "permitViewGroup"),
+        (PageMeta, True, "name", "title", "tags", "keywords", "robots", "permitViewGroup"),
         (BlogEntry, True, "tags", "is_public"),
         (LexiconEntry, True, "tags", "alias", "short_definition", "is_public"),
         (UpdateJournal, True, "staff_only"),
