@@ -24,4 +24,14 @@
     </tr>
     {% endfor %}
 </table>
+
+<h1>context keys</h1>
+<p>
+    (Note: Not all of these tags are useable into page template or page content)
+</p>
+<ul>
+{% for key in context_keys %}
+    <li>&#x7B;&#x7B; {{ key }} &#x7D;&#x7D;</li>
+{% endfor %}
+</ul>
 {% endblock content %}

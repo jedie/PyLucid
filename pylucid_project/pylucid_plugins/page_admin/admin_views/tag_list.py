@@ -9,14 +9,15 @@
 
 import inspect
 
-from django.utils.translation import ugettext_lazy as _
+from django.template import RequestContext
+from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
 
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta
 from pylucid_project.utils.escape import escape
 
 
@@ -80,8 +81,34 @@ def tag_list(request):
     # Sort by plugin name case-insensitive
     lucid_tags.sort(cmp=lambda x, y: cmp(x["plugin_name"].lower(), y["plugin_name"].lower()))
 
+
+    # Add PageTree and PageMeta instance to request.PYLUCID for get
+    # context keys witch are related to these objects.
+    # see pylucid_project.apps.pylucid.context_processors
+    old_pylucid_obj = request.PYLUCID
+
+    pagetree = PageTree.objects.get_root_page(request.user)
+    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
+    request.PYLUCID.pagetree = pagetree
+    request.PYLUCID.pagemeta = pagemeta
+
+    request_context = RequestContext(request)
+
+    request.PYLUCID = old_pylucid_obj
+
+    # Collect all existing tags from all context dicts
+    request_context_dicts = request_context.dicts
+    context_keys = set()
+    for d in request_context_dicts:
+        print set(d.keys())
+        context_keys.update(set(d.keys()))
+
+    context_keys = list(context_keys)
+    context_keys.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
+
     context = {
         "title": "lucidTag list",
+        "context_keys": context_keys,
         "lucid_tags": lucid_tags
     }
     return context
