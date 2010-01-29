@@ -31,7 +31,7 @@ def do_extrahead(parser, token):
 class ExtraheadNode(template.Node):
     def __init__(self, nodelist):
         self.nodelist = nodelist
-        
+
     def render(self, context):
         """ put head data into pylucid_plugin.head_files.context_middleware """
         output = self.nodelist.render(context)
@@ -39,7 +39,14 @@ class ExtraheadNode(template.Node):
             request = context["request"]
         except KeyError:
             raise RuntimeError("Plugin must use RequestContext() or request.PYLUCID.context !")
-         
+
         extrahead = request.PYLUCID.extrahead
-        extrahead.append(output)
+        # FIXME: We check double extrahead entries, but only the whole block. This doesn't work good.
+        #        We should check the real link path of every JS/CSS file here.
+        # See also: http://trac.pylucid.net/ticket/338
+        if output not in extrahead:
+            extrahead.append(output)
+#            request.page_msg("Insert extrahead:", output)
+#        else:
+#            request.page_msg("Skip extrahead:", output)
         return u""
