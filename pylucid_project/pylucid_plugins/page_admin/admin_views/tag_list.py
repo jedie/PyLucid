@@ -100,7 +100,6 @@ def tag_list(request):
     request_context_dicts = request_context.dicts
     context_keys = set()
     for d in request_context_dicts:
-        print set(d.keys())
         context_keys.update(set(d.keys()))
 
     context_keys = list(context_keys)

@@ -1,0 +1,18 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{# For adding tag list link to DBtemplate object tools link #}
+ 
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+        <li>
+            <a href="{% url PageAdmin-tag_list %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
+            {% trans 'tag list' %}
+            </a>
+        </li>
+        <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+  </ul>
+{% endif %}{% endif %}    
+{% endblock %}
+
