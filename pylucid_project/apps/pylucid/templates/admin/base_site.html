@@ -1,13 +1,20 @@
 {% extends "admin/base.html" %}
 {% load i18n %}
 
+
 {% block title %}PyLucid - {{ title }}{% endblock %}
 
-{% block extrahead %}{{ block.super }}
-<!-- app_extrahead block start -->
-{# stylesheets for all PyLucid views #}
+
+{% block extrastyle %}{{ block.super }}
+{% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block START -->{% endif %}
+<!--
+    We should use extrahead instead of extrastyle if http://code.djangoproject.com/ticket/12726 fixed.
+    We doesn't need to add your own jquery, because django include it since http://code.djangoproject.com/changeset/12297
+-->
+<script type="text/javascript" src="{{ Django_media_prefix }}js/jquery.min.js" onerror="JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');" ></script>
+
+{# stylesheets for all Django admin views #}
 <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_admin.css] !');"/>
-<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.js] !');" ></script>
 <script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js"></script>
 {% if debug %}
     <script type="text/javascript">var debug=true;log("debug is on");</script>
@@ -16,12 +23,14 @@
 {% endif %}
 
 {% include "admin_menu/includes/superfish_extrahead.html" %}
-<!-- app_extrahead block end -->
+{% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block END -->{% endif %}
 {% endblock %}
+
 
 {% block branding %}<h1>PyLucid</h1>
 <!-- page_messages -->
 {% endblock %}
+
 
 {% block pretitle %}
 <!-- app pretitle block start -->
@@ -30,6 +39,7 @@
 {% endif %}
 <!-- app pretitle block end -->
 {% endblock %}
+
 
 {% block footer %}
 <!-- app footer block start -->

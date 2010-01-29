@@ -1,4 +1,4 @@
-<!-- admin_menu/includes/superfish_extrahead.html START -->
+{% if debug %}<!-- pylucid plugin ./admin_menu/includes/superfish_extrahead.html START -->{% endif %}
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.css');" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.js');" ></script>
 
@@ -17,4 +17,4 @@
 }
 -->
 </style>
-<!-- admin_menu/includes/superfish_extrahead.html END -->
+{% if debug %}<!-- pylucid plugin ./admin_menu/includes/superfish_extrahead.html END -->{% endif %}

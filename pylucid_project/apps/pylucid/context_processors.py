@@ -55,6 +55,7 @@ def pylucid(request):
         "sites": all_sites,
 
         "PyLucid_media_url": settings.MEDIA_URL + settings.PYLUCID.PYLUCID_MEDIA_DIR + "/",
+        "Django_media_prefix": settings.ADMIN_MEDIA_PREFIX,
 
         "debug": settings.DEBUG,
     }

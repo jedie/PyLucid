@@ -209,7 +209,7 @@ MIN_ROWS = 5;
 MAX_ROWS = 25;
 MAX_LENGTH = 100;
 RESIZE_FACTOR = 1.3;
-$(document).ready(function(){
+jQuery(document).ready(function($) {
     /*************************************************************************
 	 * textarea resize buttons
 	 */
