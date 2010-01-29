@@ -5,8 +5,11 @@
     The order of APP_MODEL_DATA is very important!
     The serialized data must be sorted by topology. 
     Otherwise the dump can't insert back into the database.
+    
+    TODO: add FIXTURE_FILENAME and FIXTURE_PATH to BaseCommand.option_list
 """
 import os
+import codecs
 import pprint
 from optparse import make_option
 
@@ -47,7 +50,7 @@ APP_MODEL_DATA = [
      #['pylucid_comments', ('PyLucidComment',)]
 ]
 
-FIXTURE_FILENAME = "initial_data.json"
+FIXTURE_FILENAME = "pylucid.json"
 
 FIXTURE_PATH = os.path.join(settings.PYLUCID_PROJECT_ROOT, "apps", "pylucid_admin", "fixtures")
 
@@ -129,7 +132,7 @@ class Command(BaseCommand):
 
         print "Serialize data and save it into %r..." % FIXTURE_FILENAME
         try:
-            with open(file_path, "w") as out:
+            with codecs.open(file_path, "w", encoding="utf-8") as out:
                 json_serializer.serialize(objects, indent=options['indent'], stream=out,
                     ensure_ascii=False # http://docs.djangoproject.com/en/dev/topics/serialization/#notes-for-specific-serialization-formats
                 )
