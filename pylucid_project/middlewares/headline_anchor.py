@@ -35,6 +35,10 @@ class HeadlineAnchorMiddleware(object):
             # No HTML Page -> do nothing
             return response
 
+        if response.status_code != 200:
+            # do nothing on e.g. permission deny or not found or redirects etc.
+            return response
+
         try:
             pagemeta = request.PYLUCID.pagemeta
             context = request.PYLUCID.context
