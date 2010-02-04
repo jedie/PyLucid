@@ -38,10 +38,12 @@ from django.shortcuts import render_to_response
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.comments.views.comments import post_comment
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.decorators import render_to
 
-from blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
@@ -86,10 +88,35 @@ def summary(request):
     """
     Display summary list with all blog entries.
     """
+    # Get all blog entries, that the current user can see
     queryset = BlogEntry.on_site
     queryset = _filter_blog_entries(request, queryset)
+
+    # Get number of entries allowed by the users see on a page. 
+    pref_form = BlogPrefForm()
+    preferences = pref_form.get_preferences()
+    if request.user.is_anonymous():
+        max_count = preferences.get("max_anonym_count", 10)
+    else:
+        max_count = preferences.get("max_user_count", 30)
+
+    # Show max_count entries per page
+    paginator = Paginator(queryset, max_count)
+
+    # Make sure page request is an int. If not, deliver first page.
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+
+    # If page request (9999) is out of range, deliver last page of results.
+    try:
+        entries = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        entries = paginator.page(paginator.num_pages)
+
     context = {
-        "entries": queryset,
+        "entries": entries,
         "tag_cloud": _get_tag_cloud(request),
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
