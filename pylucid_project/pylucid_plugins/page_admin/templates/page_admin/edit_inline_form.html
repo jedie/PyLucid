@@ -75,7 +75,10 @@ jQuery(document).ready(function($) {
     $("#submit_preview").hide();
     
     $("#abort_button").click(function() {
-        $("#edit_page_form").before('<h2 class="ajax_msg">{% trans "abort" %}...</h2>');
+        {% comment %}
+        // How can we here give a feedback and remove it on a window.onbeforeunload abort ?
+        // $("#edit_page_form").before('<h2 class="ajax_msg">{% trans "abort" %}...</h2>');
+        {% endcomment %}
         self.location.href='{{ abort_url }}';
     });
     
