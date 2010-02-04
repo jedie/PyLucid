@@ -19,17 +19,47 @@
 </style>
 
 <script type="text/javascript">
-$(document).ready(function(){
+var textarea_changed = false;
+
+jQuery(document).ready(function($) {
+    log("edit_inline_form.html ready.");
+     
     $("#ajax_preview").show(); // unhide ajax preview button
    
+    $("#edit_page_form").change(function() {
+        log("edit page form change");
+        textarea_changed = true;
+    });
+    $("#edit_page_form").keypress(function() {
+        log("edit page form keypress");
+        textarea_changed = true;
+    });
+    $("#edit_page_form").bind('submit', function() {
+        log("submit: set textarea_changed = false");
+        textarea_changed = false;
+        // $("#preview_fieldset").slideUp("slow");
+        $("#edit_page_form").before('<h2 class="ajax_msg">{% trans "submit" %}...</h2>');
+    });
+    
+    // $(window).bind('beforeunload', function() {
+    // ^ this doesn't work!
+    window.onbeforeunload = function() {
+        log("beforeunload evend called. textarea_changed:" + textarea_changed);
+        if (textarea_changed == true) {
+            return "{% trans "Textarea has been changed! Changes are not saved if you leave." %}"; 
+        }
+    }
+   
     // from media/PyLucid/pylucid_js_tools.js
-    pylucid_ajax_form_view('#edit_page_form');
+    // pylucid_ajax_form_view('#edit_page_form');
     replace_openinwindow_links();
     
     var preview_div = $("#edit_page_preview");
     
     $("#ajax_preview").click(function() {
-        $("#edit_page_preview").html("<h2>loading...</h2>");
+        log("ajax preview clicked");
+        {# It's important here to add a class in h2 tag to make it invisible for the headline ancor! #}
+        $("#edit_page_preview").html('<h2 class="ajax_msg">{% trans "loading" %}...</h2>');
         $("#preview_fieldset").slideDown();
     
         var content = $("#id_content")[0].value;
@@ -42,7 +72,14 @@ $(document).ready(function(){
             preview_div.html(form_html);
         });
     });
-    $("#submit_preview").hide();    
+    $("#submit_preview").hide();
+    
+    $("#abort_button").click(function() {
+        $("#edit_page_form").before('<h2 class="ajax_msg">{% trans "abort" %}...</h2>');
+        self.location.href='{{ abort_url }}';
+    });
+    
+    activate_resize_textarea_buttons();
 });
 </script>
 {% endextrahead %}
@@ -63,7 +100,7 @@ $(document).ready(function(){
      <button type="button" id="ajax_preview" title="{% trans 'markup preview' %}">
          {% trans 'markup preview' %}
      </button>
-     <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+     <input type="button" id="abort_button" name="abort" value="{% trans 'abort' %}" />
      <a href="{{ pagelinklist_url }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
          <button type="button" class="button">{% trans 'page list' %}</button>
      </a>

@@ -1,5 +1,4 @@
 
-
 // helper function for console logging
 // set debug to true to enable debug logging
 function log() {
@@ -7,6 +6,7 @@ function log() {
     if (debug && window.console && window.console.log)
         window.console.log(Array.prototype.join.call(arguments,''));
 }
+log("pylucid_js_tools.js loaded.");
 
 
 function OpenInWindow(link) {
@@ -47,6 +47,7 @@ function replace_page_content(data, textStatus) {
         log("</body> index:" + data.indexOf("</body>"));
         replace_complete_page(data)
     } else {
+        // log("put in #page_content:" + data);
         $("#page_content").html(data);
         $("#page_content").animate({
             opacity: 1
@@ -73,6 +74,7 @@ function ajax_error_handler(XMLHttpRequest, textStatus, errorThrown) {
 }
 
 
+
 function pylucid_ajax_form_view(form_id) {
     /*************************************************************************
     PyLucid ajax form view.
@@ -89,13 +91,14 @@ function pylucid_ajax_form_view(form_id) {
     ----------------------------------------------------------------------
     *************************************************************************/
     $(form_id).bind('submit', function() {
+        var form = $(this);
+        log("pylucid_ajax_form_view submit form:" + form);
         
         $("#page_content").html('<h2>send...</h2>');
         $("#page_content").animate({
             opacity: 0.3
         }, 500 );
-
-        var form = $(this);
+    
         var form_data = form.serialize();
         log("form data:" + form_data);
         
@@ -118,7 +121,7 @@ function pylucid_ajax_form_view(form_id) {
                 log("text:" + textStatus);
                 log("complete:" + XMLHttpRequest.status);
                 log("complete:" + XMLHttpRequest.getResponseHeader('Location'));
-            	
+                
                 if(XMLHttpRequest.status.toString()[0]=='3'){
                     top.location.href = XMLHttpRequest.getResponseHeader('Location');
                 }
@@ -129,7 +132,7 @@ function pylucid_ajax_form_view(form_id) {
         log("ajax done:" + XMLHttpRequest.status);
         log("ajax done:" + XMLHttpRequest.getResponseHeader('Location'));
         return load_normal_link; // <-- important: Don't send the form in normal way.
-    }); 
+    });
 }
 
 
@@ -205,25 +208,27 @@ function replace_openinwindow_links() {
 
 
 
-MIN_ROWS = 5;
-MAX_ROWS = 25;
-MAX_LENGTH = 100;
-RESIZE_FACTOR = 1.3;
-jQuery(document).ready(function($) {
+var MIN_ROWS = 5;
+var MAX_ROWS = 25;
+var MAX_LENGTH = 100;
+var RESIZE_FACTOR = 1.3;
+
+function activate_resize_textarea_buttons() {
     /*************************************************************************
-	 * textarea resize buttons
-	 */
+     * textarea resize buttons
+     */
+    log("activate_resize_textarea_buttons()");
     $(".resize_textarea" ).click(function () {
         button_id = $(this).attr('id');
-        //		log("Clicked on: " + button_id);
+        //      log("Clicked on: " + button_id);
         var pos = button_id.indexOf("_");
         var action = button_id.slice(0, pos);
         var textarea_id = button_id.slice(pos+1, button_id.length);
-        //		log("action:" + action);
-        //		log("textarea id:" + textarea_id);
+        //      log("action:" + action);
+        //      log("textarea id:" + textarea_id);
         var textarea = $("#"+textarea_id);
         var old_rows = textarea.attr("rows");
-		
+        
         var new_rows = false;
         if (action=="smaller") {
             if (old_rows<3) {
@@ -235,16 +240,20 @@ jQuery(document).ready(function($) {
         if (action=="bigger") {
             new_rows = Math.ceil(old_rows * RESIZE_FACTOR);
         }
-		
+        
         if (new_rows == false) {
             log("Error: Wrong textarea resize action:" + action);
             return;
         }
-        //		log("old rows:" + old_rows + " - new rows:" + new_rows);
+        //      log("old rows:" + old_rows + " - new rows:" + new_rows);
         textarea.animate({
             rows: new_rows
         }, 100 );
     });
+}
+
+jQuery(document).ready(function($) {
+    activate_resize_textarea_buttons();
 	
     /*************************************************************************
 	 * replace the existing links with a "open in new window" link           */
