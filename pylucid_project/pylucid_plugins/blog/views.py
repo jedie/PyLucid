@@ -29,66 +29,14 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.comments.views.comments import post_comment
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from pylucid_project.apps.pylucid.decorators import render_to
 
 from pylucid_project.pylucid_plugins.blog.models import BlogEntry
-from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
 
-
-def _get_filters(request):
-    """
-    Construct queryset filter.
-    Used for blog entry filtering and for Tag.objects.cloud_for_model()
-    """
-    current_lang = request.PYLUCID.language_entry
-    filters = {"language":current_lang}
-
-    if not request.user.has_perm("blog.change_blogentry"):
-        filters["is_public"] = True
-
-    return filters
-
-
-def _filter_blog_entries(request, queryset):
-    filters = _get_filters(request)
-    queryset = queryset.filter(**filters)
-    return queryset
-
-
-def _paginat_queryset(request, queryset):
-    # Get number of entries allowed by the users see on a page. 
-    pref_form = BlogPrefForm()
-    preferences = pref_form.get_preferences()
-    if request.user.is_anonymous():
-        max_count = preferences.get("max_anonym_count", 10)
-    else:
-        max_count = preferences.get("max_user_count", 30)
-
-    # Show max_count entries per page
-    paginator = Paginator(queryset, max_count)
-
-    # Make sure page request is an int. If not, deliver first page.
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
-
-    # If page request (9999) is out of range, deliver last page of results.
-    try:
-        return paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        return paginator.page(paginator.num_pages)
-
-
-def _get_tag_cloud(request):
-    filters = _get_filters(request)
-    tag_cloud = Tag.objects.cloud_for_model(BlogEntry, steps=2, filters=filters)
-    return tag_cloud
 
 
 def _add_breadcrumb(request, title, url):
@@ -105,14 +53,16 @@ def summary(request):
     Display summary list with all blog entries.
     """
     # Get all blog entries, that the current user can see
-    queryset = BlogEntry.on_site
-    queryset = _filter_blog_entries(request, queryset)
+    queryset = BlogEntry.objects.all_accessible(request)
 
-    entries = _paginat_queryset(request, queryset)
+    # Limit the queryset with django Paginator
+    paginator = BlogEntry.objects.paginate(request, queryset)
+
+    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
     context = {
-        "entries": entries,
-        "tag_cloud": _get_tag_cloud(request),
+        "entries": paginator,
+        "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
     return context
@@ -124,17 +74,23 @@ def tag_view(request, tag):
     Display summary list with blog entries filtered by the giben tag.
     """
     tags = tag.strip("/").split("/")
-    queryset = TaggedItem.objects.get_by_model(BlogEntry, tags)
-    queryset = _filter_blog_entries(request, queryset)
 
-    entries = _paginat_queryset(request, queryset)
+    # Get all blog entries, that the current user can see
+    queryset = BlogEntry.objects.all_accessible(request)
+
+    queryset = TaggedItem.objects.get_by_model(queryset, tags)
+
+    # Limit the queryset with django Paginator
+    paginator = BlogEntry.objects.paginate(request, queryset)
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, title=_("All '%s' tagged items" % ",".join(tags)), url=request.path)
 
+    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
+
     context = {
-        "entries": entries,
-        "tag_cloud": _get_tag_cloud(request),
+        "entries": paginator,
+        "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
     return context
@@ -143,7 +99,20 @@ def tag_view(request, tag):
 @csrf_protect
 @render_to("blog/detail_view.html")
 def detail_view(request, id, title):
-    entry = BlogEntry.objects.get(pk=id)
+    """
+    Display one blog entry with a comment form.
+    """
+    # Get all blog entries, that the current user can see
+    queryset = BlogEntry.objects.all_accessible(request)
+
+    try:
+        entry = queryset.get(pk=id)
+    except BlogEntry.DoesNotExist:
+        msg = "Blog entry doesn't exist."
+        if settings.DEBUG or request.user.is_staff:
+            msg += " (ID %r wrong.)" % id
+        request.page_msg.error(msg)
+        return summary(request)
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, title=entry.headline, url=entry.get_absolute_url())
@@ -153,10 +122,12 @@ def detail_view(request, id, title):
         # post.
         return post_comment(request, next=entry.get_absolute_url())
 
+    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
+
     context = {
         "page_title": entry.headline, # Change the global title with blog headline
         "entry": entry,
-        "tag_cloud": _get_tag_cloud(request),
+        "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
     return context

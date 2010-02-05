@@ -17,16 +17,16 @@
 """
 
 from django.db import models
+from django.conf import settings
 from django.core import urlresolvers
 from django.db.models import signals
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 # http://code.google.com/p/django-tagging/
 from tagging.fields import TagField
-
-from pylucid_project.pylucid_plugins import update_journal
 
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
@@ -34,9 +34,70 @@ from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.cache import clean_complete_pagecache
 
+from pylucid_project.pylucid_plugins import update_journal
+
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
+
+# from django-tagging
+from tagging.models import Tag
+
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+
+
+class BlogEntryManager(models.Manager):
+    def all_accessible(self, request):
+        """ returns a queryset of all blog entries that the current user can access. """
+        filters = self.get_filters(request)
+        return self.model.objects.filter(**filters)
+
+    def get_filters(self, request):
+        """
+        Construct queryset filter kwargs, to limit the BlogEntry queryset for the current user
+        """
+        current_lang = request.PYLUCID.language_entry
+
+        filters = {
+            "sites__id__exact": settings.SITE_ID,
+            "language": current_lang,
+        }
+
+        if not request.user.has_perm("blog.change_blogentry"):
+            filters["is_public"] = True
+
+        return filters
+
+    def get_tag_cloud(self, request):
+        filters = self.get_filters(request)
+        tag_cloud = Tag.objects.cloud_for_model(self.model, steps=2, filters=filters)
+        return tag_cloud
+
+    def paginate(self, request, queryset):
+        """ Limit the queryset with django Paginator and returns the Paginator instance """
+        # Get number of entries allowed by the users see on a page. 
+        pref_form = BlogPrefForm()
+        preferences = pref_form.get_preferences()
+        if request.user.is_anonymous():
+            max_count = preferences.get("max_anonym_count", 10)
+        else:
+            max_count = preferences.get("max_user_count", 30)
+
+        # Show max_count entries per page
+        paginator = Paginator(queryset, max_count)
+
+        # Make sure page request is an int. If not, deliver first page.
+        try:
+            page = int(request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
+
+        # If page request (9999) is out of range, deliver last page of results.
+        try:
+            return paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            return paginator.page(paginator.num_pages)
+
 
 
 class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
@@ -54,6 +115,8 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    objects = BlogEntryManager()
+
     headline = models.CharField(_('Headline'),
         help_text=_("The blog entry headline"), max_length=255
     )
