@@ -299,6 +299,10 @@ CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 # See also: http://groups.google.com/group/django-developers/browse_thread/thread/4ca560ef33c88bf3
 TIME_ZONE = "UTC"
 
+# Default system language.
+# (Default from django is en-us, but this doesn't exist in PyLucid installed data)
+LANGUAGE_CODE = "en"
+
 try:
     from local_settings import *
 except ImportError:
