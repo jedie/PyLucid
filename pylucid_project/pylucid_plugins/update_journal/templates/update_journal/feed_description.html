@@ -1,0 +1,18 @@
+<dl>
+    {% if perms.update_journal.change_updatejournal or perms.update_journal.delete_updatejournal %}
+    <dt>admin actions:</dt>
+    <dd>
+        {% if perms.update_journal.change_updatejournal %}
+            <a href="{% url admin:update_journal_updatejournal_change obj.id %}" title="edit '{{ obj.title|escape }}'">edit</a>
+        {% endif %}
+        {% if perms.update_journal.delete_updatejournal %}
+            <a href="{% url admin:update_journal_updatejournal_delete obj.id %}" title="Delete '{{ obj.title|escape }}' from the list">delete</a>
+        {% endif %}
+    </dd>
+    {% endif %}
+
+  <dt>user:</dt><dd>{{ obj.user_name }}</dd>
+  <dt>time:</dt><dd>{{ obj.lastupdatetime|date:_("DATETIME_FORMAT") }}</dd>
+  <dt>content type:</dt><dd>{{ obj.content_type }}</dd>
+  <dt>content language:</dt><dd>{{ obj.language.description }}</dd>
+</dl>
