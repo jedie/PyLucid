@@ -19,7 +19,7 @@ SKIP_TAGS_CACHE = None
 class LexiconPrefForm(SitePreselectPreference, DBPreferencesBaseForm):
     skip_tags = forms.CharField(
         required=False,
-        initial="a input h1 h2 h3 h4 h5 h6 textarea fieldset",
+        initial="a input h1 h2 h3 h4 h5 h6 textarea fieldset script",
         help_text=mark_safe(
             _('Don\'t replace a word if it exist in the given html tags.'
             ' (tagging field <a href="%s" class="openinwindow"'
