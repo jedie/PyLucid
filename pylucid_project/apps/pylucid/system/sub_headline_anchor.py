@@ -16,11 +16,10 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-import string, re
+import re
 
-from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
-
+from django.utils.safestring import mark_safe
 
 from pylucid_project.utils.slug import makeUniqueSlug
 
@@ -46,6 +45,7 @@ class HeadlineAnchor(object):
         add a unique anchor to a html headline.
         """
         txt = matchobj.group(2)
+        txt = mark_safe(txt)
 
         # Strip all non-ASCII and make the anchor unique
         anchor = makeUniqueSlug(txt, self.anchor_list)
