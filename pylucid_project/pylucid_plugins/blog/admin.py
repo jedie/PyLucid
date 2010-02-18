@@ -39,5 +39,6 @@ class BlogEntryAdmin(BaseAdmin, VersionAdmin):
     list_filter = ("is_public", "sites", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     search_fields = ("headline", "content")
+    ordering = ('-lastupdatetime',)
 
 pylucid_admin_site.register(BlogEntry, BlogEntryAdmin)
