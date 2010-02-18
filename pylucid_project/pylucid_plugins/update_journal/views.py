@@ -24,12 +24,13 @@ from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.utils.translation import ugettext_lazy as _
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
+from django.core.urlresolvers import NoReverseMatch
 
 from pylucid_project.apps.pylucid.models import Language
 from pylucid_project.apps.pylucid.decorators import render_to
 
 from pylucid_project.pylucid_plugins.update_journal.models import UpdateJournal
-
+from pylucid_project.apps.pylucid.models import PluginPage
 
 def _get_queryset(request, count):
     """ TODO: Move to UpdateJournal.objects ? """
@@ -40,7 +41,7 @@ def _get_queryset(request, count):
 
     if not request.user.is_staff:
         queryset = queryset.filter(staff_only=False)
- 
+
     return queryset[:count]
 
 
@@ -49,24 +50,36 @@ def lucidTag(request, count=10):
     try:
         count = int(count)
     except Exception, e:
-        if request.user.is_stuff():
+        if request.user.is_staff:
             request.page_msg.error("page_update_list error: count must be a integer (%s)" % e)
         count = 10
 
     queryset = _get_queryset(request, count)
 
-    return {"update_list": queryset}
+    try:
+        select_feed_url = PluginPage.objects.reverse("update_journal", "UpdateJournal-select_feed")
+    except NoReverseMatch, err:
+        select_feed_url = None
+        if settings.DEBUG is not None and request.user.is_staff:
+            # PluginPage.objects.reverse creates a page_msg only in DEBUG mode.
+            request.page_msg.error(err)
+
+    context = {
+        "update_list": queryset,
+        "select_feed_url": select_feed_url
+    }
+    return context
 
 
 class RssFeed(Feed):
     feed_type = Rss201rev2Feed
     filename = "feed.rss"
-    
+
     title = "Update Journal"
     link = "/"
     description = "Updates and changes"
     description_template = "update_journal/feed_description.html"
-    
+
     def __init__(self, request):
         self.count = 10 # FIXME: use GET parameter?
         self.request = request
@@ -76,7 +89,7 @@ class RssFeed(Feed):
 
     def item_title(self, item):
         return item.title
-    
+
     def item_link(self, item):
         return item.object_url
 
@@ -101,7 +114,7 @@ def select_feed(request):
     """
     context = {"feeds": FEEDS}
     return context
-    
+
 
 def feed(request, filename):
     """
@@ -111,9 +124,8 @@ def feed(request, filename):
     for feed_class in FEEDS:
         if filename == feed_class.filename:
             break
-    
+
     #print "feed class:", feed_class
     feed = feed_class(request)
     response = feed(request)
     return response
-    

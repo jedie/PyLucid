@@ -36,6 +36,11 @@
   </tr>
   {% endfor %}
 </table>
+{% if select_feed_url %}
+<a href="{{ select_feed_url }}" class="select_feeds" title="{% trans "select update journal feed format" %}">
+	{% trans "get update journal as RSS/Atom feed." %}
+</a>
+{% endif %}
 {% else %}
     <p>No updates recorded in update journal.</p>
 {% endif %}
