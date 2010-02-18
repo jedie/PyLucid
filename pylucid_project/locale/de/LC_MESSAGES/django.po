@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PyLucid v0.9beta\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-19 16:51+0000\n"
-"PO-Revision-Date: 2010-01-19 17:51+0100\n"
+"POT-Creation-Date: 2010-02-18 16:46+0000\n"
+"PO-Revision-Date: 2010-02-18 18:15+0100\n"
 "Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
 "Language-Team: -\n"
 "MIME-Version: 1.0\n"
@@ -21,6 +21,7 @@ msgstr ""
 
 #: apps/pylucid/base_admin.py:21
 #: apps/pylucid/templates/admin/pylucid/includes/view_on_site_link.html:1
+#: apps/pylucid_admin/templates/admin/pylucid/pagecontent/change_form.html:15
 msgid "View on site"
 msgstr "Auf der Website anzeigen"
 
@@ -31,16 +32,16 @@ msgstr ""
 #: apps/pylucid/fields.py:41
 #, python-format
 msgid "Error: %r has wrong length (only 6 characters allowed)"
-msgstr ""
+msgstr "Fehler: %r hat eine falsche Länge! (muß 6 Zeichen lang sein.)"
 
 #: apps/pylucid/fields.py:45
 #, python-format
 msgid "Error: %r is not a CSS hex color value"
-msgstr ""
+msgstr "Fehler: %r ist kein CSS Hexadezimal Farbwert"
 
 #: apps/pylucid/preference_forms.py:31
 msgid "ID of the PyLucid Admin Design."
-msgstr ""
+msgstr "ID des PyLucid Admin Designs."
 
 #: apps/pylucid/preference_forms.py:42
 msgid "How long should a IP address banned in minutes. (Changes need app restart)"
@@ -72,19 +73,19 @@ msgstr "Keine 'Seite nicht gefunden' Fehler loggen."
 
 #: apps/pylucid/preference_forms.py:68
 msgid "Log only 'Page not found' if no redirect for the url exists."
-msgstr ""
+msgstr "Log Eintrag bei 'Seite nicht gefunden' nur wenn keine Umleitung für die URL existiert."
 
 #: apps/pylucid/preference_forms.py:69
 msgid "Log every 'Page not found' error, although if redirect exists."
-msgstr ""
+msgstr "Log Eintrag bei 'Seite nicht gefunden', auch wenn eine Umleitung für die URL existiert."
 
 #: apps/pylucid/preference_forms.py:74
 msgid "Setup logging verbosity if 404 - 'Page not found' appears"
-msgstr ""
+msgstr "Einstellen der Logging Ausführlichkeit, wenn 404 - \"Seite nicht gefunden\" erscheint"
 
-#: apps/pylucid/views.py:248
+#: apps/pylucid/views.py:246
 msgid "There exist no pages items! Have you install PyLucid? At least you must create one page!"
-msgstr ""
+msgstr "Es gibt keine Seite! Haben Sie PyLucid installieren? Sie müssen zumindest eine Seite zu erstellen!"
 
 #: apps/pylucid/markup/hightlighter.py:82
 msgid "unknown type"
@@ -95,7 +96,7 @@ msgid "absolute url"
 msgstr "absolute URL"
 
 #: apps/pylucid/models/base_models.py:46
-#: apps/pylucid/models/pagemeta.py:151
+#: apps/pylucid/models/pagemeta.py:158
 msgid "on site"
 msgstr "Auf Website"
 
@@ -123,7 +124,7 @@ msgstr "IP-Verbot Einträge"
 #: apps/pylucid/models/log.py:72
 #, python-format
 msgid "Add ban entry, because %(last_actions)s request for %(app_label)s in the last %(min_pause)ssec."
-msgstr ""
+msgstr "Sperr Eintrag hinzugefügt, weil %(last_actions)s Anfragen für %(app_label)s in den letzten %(min_pause)sSek."
 
 #: apps/pylucid/models/log.py:85
 msgid "Request too fast!"
@@ -136,7 +137,7 @@ msgstr "Bitte min. %sSek warten."
 
 #: apps/pylucid/models/log.py:140
 msgid "App Label"
-msgstr ""
+msgstr "Applikations Namen"
 
 #: apps/pylucid/models/log.py:143
 msgid "Action"
@@ -191,11 +192,11 @@ msgid "log entries"
 msgstr "Logeinträge"
 
 #: apps/pylucid/models/pagemeta.py:80
-#: pylucid_plugins/blog/models.py:68
+#: pylucid_plugins/blog/models.py:131
 #: pylucid_plugins/lexicon/models.py:70
 #, python-format
 msgid "tags for this entry. <a href=\"%s\" class=\"openinwindow\" title=\"Information about tag splitting.\">tag format help</a>"
-msgstr ""
+msgstr "Tags für diesen Eintrag. <a href=\"%s\" class=\"openinwindow\" title=\"Informationen über die Aufspaltung der Tags.\">Tag Formatierungs-Hilfe</a>"
 
 #: apps/pylucid/models/pagetree.py:202
 msgid "Wrong url!"
@@ -250,7 +251,7 @@ msgstr "Ein Fehler ist aufgetreten. Dieser Fehler wurde an die Serververwalter p
 msgid "You see not the debug error page, because debugging is off or your IP is not in settings.INTERNAL_IPS"
 msgstr "Die Debug-Fehler-Seite wird nicht angezeigt, weil entweder das Debuggen deaktiviert ist, oder deine IP Adresse nicht in settings.INTERNAL_IPS eingetragen ist."
 
-#: apps/pylucid/templates/admin/base_site.html:37
+#: apps/pylucid/templates/admin/base_site.html:47
 msgid "page stats:"
 msgstr "Seitenstatistik"
 
@@ -258,7 +259,7 @@ msgstr "Seitenstatistik"
 #: apps/pylucid/templates/admin/pylucid/includes/form_default_buttons.html:2
 #: pylucid_plugins/page_admin/templates/page_admin/convert_markup.html:20
 #: pylucid_plugins/page_admin/templates/page_admin/convert_markup.html:45
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:61
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:101
 #: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:2
 msgid "save"
 msgstr "Speichern"
@@ -267,15 +268,16 @@ msgstr "Speichern"
 #: apps/pylucid/templates/admin/pylucid/includes/form_default_buttons.html:4
 #: pylucid_plugins/page_admin/templates/page_admin/convert_markup.html:21
 #: pylucid_plugins/page_admin/templates/page_admin/convert_markup.html:46
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:66
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:80
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:106
 #: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:3
 msgid "abort"
 msgstr "Abbrechen"
 
 #: apps/pylucid/templates/admin/pylucid/includes/form_default_buttons.html:3
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:62
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:63
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:64
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:102
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:103
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:104
 #: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:9
 msgid "markup preview"
 msgstr "Markup Vorschau"
@@ -294,7 +296,7 @@ msgstr "Markup Hilfe"
 
 #: apps/pylucid/templates/admin/pylucid/includes/form_default_buttons.html:12
 #: pylucid_plugins/page_admin/templates/page_admin/convert_markup.html:53
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:73
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:113
 #: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:16
 #: pylucid_plugins/tools/templates/tools/highlight_code.html:29
 msgid "makes the textarea bigger"
@@ -302,7 +304,7 @@ msgstr "Texteingabefeld vergrößern"
 
 #: apps/pylucid/templates/admin/pylucid/includes/form_default_buttons.html:15
 #: pylucid_plugins/page_admin/templates/page_admin/convert_markup.html:56
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:76
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:116
 #: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:19
 #: pylucid_plugins/tools/templates/tools/highlight_code.html:32
 msgid "makes the textarea smaller"
@@ -321,6 +323,14 @@ msgstr "Formular Fehler:"
 msgid "Markup preview"
 msgstr "Markup Vorschau"
 
+#: apps/pylucid/templates/pylucid/headline_anchor.html:2
+msgid "go top"
+msgstr "nach oben"
+
+#: apps/pylucid/templates/pylucid/headline_anchor.html:3
+msgid "Permalink to this section"
+msgstr "Permalink zu diesem Abschnitt"
+
 #: apps/pylucid_admin/models.py:150
 msgid "PyLucid admin page"
 msgstr "PyLucid Seiten Admin"
@@ -328,6 +338,25 @@ msgstr "PyLucid Seiten Admin"
 #: apps/pylucid_admin/models.py:151
 msgid "PyLucid admin pages"
 msgstr "PyLucid Admin Seiten"
+
+#: apps/pylucid_admin/templates/admin/dbtemplates/change_form.html:10
+#: apps/pylucid_admin/templates/admin/pylucid/pagecontent/change_form.html:10
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:110
+#: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:13
+msgid "List of all available PyLucid template tags"
+msgstr "Liste aller verfügbaren PyLucid Template-Tags"
+
+#: apps/pylucid_admin/templates/admin/dbtemplates/change_form.html:11
+#: apps/pylucid_admin/templates/admin/pylucid/pagecontent/change_form.html:11
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:111
+#: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:14
+msgid "tag list"
+msgstr "Tag Liste"
+
+#: apps/pylucid_admin/templates/admin/dbtemplates/change_form.html:14
+#: apps/pylucid_admin/templates/admin/pylucid/pagecontent/change_form.html:14
+msgid "History"
+msgstr ""
 
 #: apps/pylucid_update/forms.py:11
 msgid "Select the language of your existing page data."
@@ -342,9 +371,8 @@ msgid "ip address"
 msgstr "IP-Adresse"
 
 #: apps/pylucid_update/models.py:254
-#, fuzzy
 msgid "person's name"
-msgstr "Autorname"
+msgstr "Name"
 
 #: apps/pylucid_update/models.py:255
 msgid "Your full name (will be published) (required)"
@@ -375,17 +403,17 @@ msgid "is public"
 msgstr "ist öffentlich"
 
 #: apps/pylucid_update/models.py:404
-#: pylucid_plugins/blog/models.py:57
+#: pylucid_plugins/blog/models.py:120
 msgid "Headline"
 msgstr "Überschrift"
 
 #: apps/pylucid_update/models.py:405
-#: pylucid_plugins/blog/models.py:58
+#: pylucid_plugins/blog/models.py:121
 msgid "The blog entry headline"
 msgstr "Überschrift des Blog Eintrags"
 
 #: apps/pylucid_update/models.py:407
-#: pylucid_plugins/blog/models.py:60
+#: pylucid_plugins/blog/models.py:123
 #: pylucid_plugins/lexicon/models.py:77
 #: pylucid_plugins/lexicon/templates/lexicon/detail_popup.html:23
 #: pylucid_plugins/lexicon/templates/lexicon/detail_view.html:14
@@ -407,7 +435,11 @@ msgstr "Kann nicht migrieren: Es existiert keine Inhalte auf dieser Seite!"
 
 #: apps/pylucid_update/views.py:462
 msgid "Create a new site or wipe all page data."
-msgstr ""
+msgstr "Erstellen Sie eine neue Website oder wischen Sie alle Daten Seite."
+
+#: pylucid_plugins/OpenStreetMap/admin.py:30
+msgid "lucidTag example"
+msgstr "lucidTag Beispiel"
 
 #: pylucid_plugins/OpenStreetMap/models.py:32
 msgid "Short name for lucidTag"
@@ -466,6 +498,27 @@ msgstr "lucidTag OpenStreetMap Fehler: Es existiert kein Karten Eintrag mit name
 #, python-format
 msgid "Existing maps are: %r"
 msgstr "Existierende Karten: %r"
+
+#: pylucid_plugins/OpenStreetMap/templates/OpenStreetMap/OpenStreetMap.html:17
+msgid "edit in django admin site"
+msgstr "In Django Admin Seite bearbeiten"
+
+#: pylucid_plugins/OpenStreetMap/templates/OpenStreetMap/OpenStreetMap.html:17
+msgid "edit this map entry"
+msgstr "diese Karte ändern"
+
+#: pylucid_plugins/TOC/views.py:69
+#, python-format
+msgid "'min' parameter in lucidTag TOC must be a integer! Error: %s"
+msgstr "\"min\"-Parameter in lucidTag TOC muss eine Zahl sein! Fehler: %s"
+
+#: pylucid_plugins/TOC/templates/TOC/TOC.html:4
+msgid "table of contents"
+msgstr "Inhaltsverzeichnis"
+
+#: pylucid_plugins/TOC/templates/TOC/TOC.html:6
+msgid "go down to this section"
+msgstr "zu diesem Abschnitt gehen"
 
 #: pylucid_plugins/admin_menu/templates/admin_menu/includes/pylucid_admin_menu.html:45
 msgid "edit page content inline"
@@ -615,6 +668,38 @@ msgstr "Plugins installieren"
 msgid "update section"
 msgstr "Update Sektion"
 
+#: pylucid_plugins/auth/forms.py:131
+#: pylucid_plugins/auth/forms.py:194
+msgid "30"
+msgstr ""
+
+#: pylucid_plugins/auth/forms.py:131
+#: pylucid_plugins/auth/forms.py:194
+msgid "Username"
+msgstr "Benutzername"
+
+#: pylucid_plugins/auth/forms.py:132
+#: pylucid_plugins/auth/forms.py:195
+msgid "Required. 30 characters or fewer. Alphanumeric characters only (letters, digits and underscores)."
+msgstr ""
+
+#: pylucid_plugins/auth/forms.py:162
+msgid "128"
+msgstr ""
+
+#: pylucid_plugins/auth/forms.py:162
+#: pylucid_plugins/auth/templates/auth/input_password.html:50
+msgid "Password"
+msgstr "Passwort"
+
+#: pylucid_plugins/auth/forms.py:197
+msgid "75"
+msgstr ""
+
+#: pylucid_plugins/auth/forms.py:197
+msgid "E-mail address"
+msgstr "E-Mail-Adresse"
+
 #: pylucid_plugins/auth/preference_forms.py:11
 msgid "Numbers login log messages after IP would be banned."
 msgstr "Zahlen der Login-Log-Meldungen nach der die IP Adresse verboten werden würde."
@@ -667,10 +752,6 @@ msgstr "Falsche 'get view' Parameter!"
 msgid "Error"
 msgstr "Fehler"
 
-#: pylucid_plugins/auth/templates/auth/input_password.html:50
-msgid "Password"
-msgstr "Passwort"
-
 #: pylucid_plugins/auth/templates/auth/input_password.html:56
 #: pylucid_plugins/auth/templates/auth/input_username.html:28
 #: pylucid_plugins/auth/templates/auth/login_link.html:4
@@ -701,6 +782,7 @@ msgstr "You are in. Letzter Login war:"
 #: pylucid_plugins/system/templates/system/timezone.html:34
 #: pylucid_plugins/system/templates/system/timezone.html:36
 #: pylucid_plugins/system/templates/system/timezone.html:42
+#: pylucid_plugins/update_journal/templates/update_journal/feed_description.html:15
 #: pylucid_plugins/update_journal/templates/update_journal/update_journal_table.html:20
 msgid "DATETIME_FORMAT"
 msgstr ""
@@ -711,9 +793,9 @@ msgstr "Abmelden"
 
 #: pylucid_plugins/auth/templates/auth/new_password_form.html:8
 #: pylucid_plugins/auth/templates/auth/pass_reset_form.html:20
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:41
 #: pylucid_plugins/tools/templates/tools/cleanup_log.html:15
 #: pylucid_plugins/tools/templates/tools/highlight_code.html:28
-#: pylucid_plugins/update_journal/templates/update_journal/cleanup.html:13
 msgid "submit"
 msgstr "Absenden"
 
@@ -730,7 +812,15 @@ msgstr "Neuen Blog Eintrag erstellen"
 msgid "New blog entry '%s' saved."
 msgstr "Neuer Blog Eintrag '%s' gespeichert."
 
-#: pylucid_plugins/blog/views.py:109
+#: pylucid_plugins/blog/preference_forms.py:15
+msgid "The maximal numbers of blog entries, displayed together for anonymous users"
+msgstr "Die maximale Zahl der gleichzeitig sichtbaren Blog-Einträge für anonyme Benutzer."
+
+#: pylucid_plugins/blog/preference_forms.py:22
+msgid "The maximal numbers of blog entries, displayed together for logged in PyLucid users."
+msgstr "Die maximale Zahl der gleichzeitig sichtbaren Blog-Einträge für eingeloggte PyLucid Benutzer."
+
+#: pylucid_plugins/blog/views.py:87
 #: pylucid_plugins/tag_navi/views.py:39
 #, python-format
 msgid "All '%s' tagged items"
@@ -742,14 +832,31 @@ msgstr "Alle Einträge mit '%s' getaggt"
 msgid "Before %(time)s published by"
 msgstr "Vor %(time)s veröffentlicht, durch"
 
+#: pylucid_plugins/blog/templates/blog/summary.html:39
+msgid "&lt; goto previous page"
+msgstr "&lt; zur vorherigen Seite gehen"
+
+#: pylucid_plugins/blog/templates/blog/summary.html:39
+msgid "previous"
+msgstr "vorherig"
+
+#: pylucid_plugins/blog/templates/blog/summary.html:53
+msgid "goto next page &gt;"
+msgstr "zur nächsten Seite gehen &gt;"
+
+#: pylucid_plugins/blog/templates/blog/summary.html:53
+msgid "next"
+msgstr "weiter"
+
 #: pylucid_plugins/blog/templates/blog/includes/admin_links.html:3
 #: pylucid_plugins/lexicon/templates/lexicon/includes/admin_links.html:4
+#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/includes/comments_list.html:29
 msgid "edit"
 msgstr "Bearbeiten"
 
 #: pylucid_plugins/blog/templates/blog/includes/admin_links.html:6
 #: pylucid_plugins/lexicon/templates/lexicon/includes/admin_links.html:7
-#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/includes/comments_list.html:33
+#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/includes/comments_list.html:32
 msgid "delete"
 msgstr "Löschen"
 
@@ -928,12 +1035,12 @@ msgstr "Neue Plugin Seite erstellen"
 msgid "New plugin page %r created."
 msgstr "Neue Plugin Seite %r erstellt."
 
-#: pylucid_plugins/page_admin/admin_views/tag_list.py:46
+#: pylucid_plugins/page_admin/admin_views/tag_list.py:47
 #, python-format
 msgid "Info: lucidTag %s used a decorator without functools.wraps!"
 msgstr ""
 
-#: pylucid_plugins/page_admin/admin_views/tag_list.py:58
+#: pylucid_plugins/page_admin/admin_views/tag_list.py:59
 #, python-format
 msgid "Info: lucidTag %(plugin_name)s has wrong tag example: %(example)r"
 msgstr ""
@@ -941,12 +1048,12 @@ msgstr ""
 #: pylucid_plugins/page_admin/admin_views/translate_page.py:51
 #, python-format
 msgid "Translate page '%(name)s' (%(desc_lang)s) - Select destination language"
-msgstr ""
+msgstr "Seite '%(name)s' (%(desc_lang)s) übersetzten - Bitte Ziel-Sprache auswählen."
 
 #: pylucid_plugins/page_admin/admin_views/translate_page.py:104
 #, python-format
 msgid "Translate page '%(name)s' (%(source_lang)s) into %(dest_lang)s."
-msgstr ""
+msgstr "Seite '%(name)s' (%(source_lang)s) übersetzten nach %(dest_lang)s."
 
 #: pylucid_plugins/page_admin/templates/page_admin/convert_markup.html:24
 msgid "original html (generated with the original markup)"
@@ -983,34 +1090,32 @@ msgstr "Sprache:"
 msgid "Language"
 msgstr "Sprache"
 
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:51
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:49
+msgid "Textarea has been changed! Changes are not saved if you leave."
+msgstr "Texteingabefeld hat sich geändert! Änderungen sind noch nicht gespeichert."
+
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:62
+msgid "loading"
+msgstr "laden"
+
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:91
 #: pylucid_plugins/pylucid_comments/templates/pylucid_comments/preview.html:30
 msgid "Preview"
 msgstr "Vorschau"
 
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:57
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:97
 msgid "Edit the CMS page"
 msgstr "CMS Seite bearbeiten"
 
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:67
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:107
 #: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:10
 msgid "List of all pages for creating links"
-msgstr ""
+msgstr "Liste aller Seiten. (Für Link Erstellung)"
 
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:68
+#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:108
 #: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:11
 msgid "page list"
 msgstr "Seiten Liste"
-
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:70
-#: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:13
-msgid "List of all available PyLucid template tags"
-msgstr "Liste aller verfügbaren PyLucid Template-Tags"
-
-#: pylucid_plugins/page_admin/templates/page_admin/edit_inline_form.html:71
-#: pylucid_plugins/page_admin/templates/page_admin/includes/edit_content_page_buttons.html:14
-msgid "tag list"
-msgstr "Tag Liste"
 
 #: pylucid_plugins/pylucid_comments/models.py:37
 msgid "PyLucid comment"
@@ -1019,13 +1124,6 @@ msgstr "PyLucid Kommentar"
 #: pylucid_plugins/pylucid_comments/models.py:38
 msgid "PyLucid pylucid_comments"
 msgstr ""
-
-#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/preview.html:8
-#, fuzzy
-msgid "Please correct the error below"
-msgid_plural "Please correct the errors below"
-msgstr[0] "Bitte den unten aufgeführten Fehler korrigieren."
-msgstr[1] ""
 
 #: pylucid_plugins/pylucid_comments/templates/pylucid_comments/preview.html:10
 msgid "Preview your comment"
@@ -1052,9 +1150,13 @@ msgstr "Abschicken"
 msgid "Before %(time)s"
 msgstr "Vor %(time)s"
 
-#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/includes/comments_list.html:33
-msgid "Do you really want to delete the entry?"
-msgstr "Soll der Eintrag wirklich gelöscht werden?"
+#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/includes/comments_list.html:29
+msgid "edit this comment entry"
+msgstr "Diesen Kommentar bearbeiten"
+
+#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/includes/comments_list.html:32
+msgid "delete this comment entry"
+msgstr "Diesen Kommentar löschen."
 
 #: pylucid_plugins/redirect/models.py:29
 msgid "The destination url for the redirect"
@@ -1087,11 +1189,11 @@ msgstr "Standard Template Dateiname."
 
 #: pylucid_plugins/rss/preference_forms.py:17
 msgid "Default socket timeout in seconds for getting the RSS feed."
-msgstr ""
+msgstr "Standard Socket-Timeout in Sekunden für das Erhalten des RSS-Feeds."
 
 #: pylucid_plugins/rss/preference_forms.py:23
 msgid "Default number of seconds to cache a feed."
-msgstr ""
+msgstr "Standard Feed Cache Zeit in Sekunden."
 
 #: pylucid_plugins/search/preference_forms.py:11
 msgid "Min length of a search term"
@@ -1168,38 +1270,28 @@ msgid "Delete old session entries"
 msgstr "Alte Session-Einträge löschen"
 
 #: pylucid_plugins/tools/forms.py:20
-#: pylucid_plugins/update_journal/forms.py:13
 msgid "keep the last X entries"
 msgstr "Letzten X Einträge behalten"
 
 #: pylucid_plugins/tools/forms.py:21
-#: pylucid_plugins/update_journal/forms.py:14
 msgid "keep entries from the last X days"
 msgstr "behalte Einträge der letzten X Tag(e)"
 
 #: pylucid_plugins/tools/forms.py:22
-#: pylucid_plugins/update_journal/forms.py:15
 msgid "keep entries from the last X hours"
 msgstr "behalte Einträge der letzten X Stunde(n)"
 
 #: pylucid_plugins/tools/forms.py:24
-#: pylucid_plugins/update_journal/forms.py:17
 msgid "Number of entries to be retained."
 msgstr "Anzahl der Einträge die beibehalten werden."
 
 #: pylucid_plugins/tools/forms.py:26
-#: pylucid_plugins/update_journal/forms.py:19
 msgid "Witch 'retained' type is the given number?"
 msgstr "Welche \"behalte letzten X\" Typ ist die Zahl?"
 
 #: pylucid_plugins/tools/forms.py:29
-#: pylucid_plugins/update_journal/forms.py:22
 msgid "Limit the query to the current site?"
 msgstr "Auf aktuelle Seite beschränken?"
-
-#: pylucid_plugins/update_journal/admin_views.py:44
-msgid "Remove dead links and delete old entries from update journal"
-msgstr "Entferne tote Links und lösche alte Einträge vom UpdateJournal"
 
 #: pylucid_plugins/update_journal/models.py:22
 msgid "user's name"
@@ -1213,6 +1305,26 @@ msgstr ""
 #: pylucid_plugins/update_journal/models.py:33
 msgid "object url"
 msgstr "Objekt URL"
+
+#: pylucid_plugins/update_journal/templates/update_journal/select_feed.html:5
+msgid "Please select syndication feed format:"
+msgstr "Bitte wählen Sie Syndication-Feed-Format:"
+
+#: pylucid_plugins/update_journal/templates/update_journal/select_feed.html:12
+msgid "http://en.wikipedia.org/wiki/RSS"
+msgstr "http://de.wikipedia.org/wiki/RSS"
+
+#: pylucid_plugins/update_journal/templates/update_journal/select_feed.html:15
+msgid "http://en.wikipedia.org/wiki/Atom_(standard)"
+msgstr "http://de.wikipedia.org/wiki/Atom_(Format)"
+
+#: pylucid_plugins/update_journal/templates/update_journal/update_journal_table.html:40
+msgid "select update journal feed format"
+msgstr "Wählen Sie das Update-Journal-Feed-Format"
+
+#: pylucid_plugins/update_journal/templates/update_journal/update_journal_table.html:41
+msgid "get update journal as RSS/Atom feed."
+msgstr "Letzte Seiten Ändrungen als RSS / Atom-Feeds."
 
 #: utils/site_utils.py:43
 msgid "No site"
@@ -1230,6 +1342,10 @@ msgstr "Alle zugreifbaren Seiten"
 msgid "Witch site(s) sould be preselected if you create a new entry?"
 msgstr "Welche Seite(n) soll vorgewählt werden, wenn ein neue Eintrag erstellt wird?"
 
+#~ msgid "Do you really want to delete the entry?"
+#~ msgstr "Soll der Eintrag wirklich gelöscht werden?"
+#~ msgid "Remove dead links and delete old entries from update journal"
+#~ msgstr "Entferne tote Links und lösche alte Einträge vom UpdateJournal"
 #~ msgid "edit current design '%(PYLUCID.pagetree.design.name)s'"
 #~ msgstr "Aktuelles Design '%(PYLUCID.pagetree.design.name)s'"
 #~ msgid ""
@@ -1241,8 +1357,6 @@ msgstr "Welche Seite(n) soll vorgewählt werden, wenn ein neue Eintrag erstellt 
 #~ msgstr "Seiten Template '%(PYLUCID.pagetree.design.template)s' bearbeiten"
 #~ msgid "delete '%(current_site.name)s' page"
 #~ msgstr "Seite '%(current_site.name)s' löschen"
-#~ msgid "edit in django admin panel"
-#~ msgstr "In Django Admin Seite bearbeiten"
 #~ msgid "edit page design parts"
 #~ msgstr "Seiten 'Design' Teile bearbeiten"
 #~ msgid "edit "
