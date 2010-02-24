@@ -1,6 +1,15 @@
 <fieldset class="tag_cloud"><legend>{% trans 'tag cloud' %}</legend>
 {% for tag in tag_cloud %}
     {% if not forloop.first %}|{% endif %}
-    <a href="{% url Blog-tag_view tag=tag.name %}" style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</a>
+    
+    {% if tag.name in used_tags %}
+        <strong style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</strong>
+    {% else %}
+        <a href="{% url Blog-tag_view tags=tag.name %}" style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</a>
+    {% endif %}
+    
+    {% if add_tag_filter_link %}
+        {% include "blog/includes/add_tag_filter.html" %}
+    {% endif %}
 {% endfor %}
 </fieldset>

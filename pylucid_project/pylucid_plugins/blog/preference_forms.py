@@ -23,5 +23,14 @@ class BlogPrefForm(SitePreselectPreference, DBPreferencesBaseForm):
             " for logged in PyLucid users."
         ),
     )
+    
+    initial_feed_count = forms.IntegerField(
+        initial=5, min_value=1,
+        help_text=_("Default numbers of blog articles in RSS/Atom feed."),
+    )
+    max_feed_count = forms.IntegerField(
+        initial=30, min_value=1,
+        help_text=_("The maximal numbers of blog articles in RSS/Atom feed."),
+    )
     class Meta:
         app_label = 'blog'

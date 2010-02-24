@@ -20,9 +20,11 @@
     
     <div class="content">{{ entry.get_html }}</div>
     
+    {% if entry.lastupdateby %}
     <small><p class="date_info">
-        {% if entry.lastupdateby %}(Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.){% endif %}
+        (Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.)
     </p></small>
+    {% endif %}
     
     {% include "blog/includes/taglist.html" %}
     

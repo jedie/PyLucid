@@ -26,13 +26,17 @@ __version__ = "$Rev$"
 
 
 from django.conf import settings
+from django.contrib.syndication.views import Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.comments.views.comments import post_comment
+from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 
 from pylucid_project.apps.pylucid.decorators import render_to
+from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
 from pylucid_project.pylucid_plugins.blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
@@ -47,13 +51,90 @@ def _add_breadcrumb(request, title, url):
     breadcrumb_context_middlewares.add_link(title, title, url)
 
 
+def _get_queryset(request, tags=None):
+    # Get all blog entries, that the current user can see
+    queryset = BlogEntry.objects.all_accessible(request)
+
+    if tags is not None:
+        # filter by tags 
+        queryset = TaggedItem.objects.get_by_model(queryset, tags)
+
+    return queryset
+
+
+def _split_tags(raw_tags):
+    "simple split tags from url"
+    tags = raw_tags.strip("/").split("/")
+    return tags
+
+
+class RssFeed(Feed):
+    feed_type = Rss201rev2Feed
+    filename = "feed.rss"
+    title = _("Blog - RSS feed")
+    link = "/"
+    description_template = "blog/feed_description.html"
+
+    def __init__(self, request, tags=None):
+        self.request = request
+
+        if tags is not None:
+            tags = _split_tags(tags)
+        self.tags = tags
+
+        # Get max number of feed entries from request.GET["count"]
+        # Validate/Limit it with information from DBPreferences 
+        self.count, error = safe_pref_get_integer(
+            request, "count", BlogPrefForm,
+            default_key="initial_feed_count", default_fallback=5,
+            min_key="initial_feed_count", min_fallback=5,
+            max_key="max_feed_count", max_fallback=30
+        )
+
+    def description(self):
+        if self.tags is None:
+            return _("Last %s blog articles") % self.count
+        else:
+            return _(
+                 "Last %(count)s blog articles tagged with: %(tags)s"
+            ) % {"count":self.count, "tags": ",".join(self.tags)}
+
+    def items(self):
+        queryset = _get_queryset(self.request, self.tags)
+        return queryset[:self.count]
+
+    def item_title(self, item):
+        return item.headline
+
+    def item_author_name(self, item):
+        return item.createby
+
+    def item_link(self, item):
+        return item.get_absolute_url()
+
+
+class AtomFeed(RssFeed):
+    """
+    http://docs.djangoproject.com/en/dev/ref/contrib/syndication/#publishing-atom-and-rss-feeds-in-tandem
+    """
+    feed_type = Atom1Feed
+    filename = "feed.atom"
+    title = _("Blog - Atom feed")
+    subtitle = RssFeed.description
+
+
+# The last class is the fallback class, if filename doesn't match
+FEEDS = [AtomFeed, RssFeed]
+
+
+
 @render_to("blog/summary.html")
 def summary(request):
     """
     Display summary list with all blog entries.
     """
     # Get all blog entries, that the current user can see
-    queryset = BlogEntry.objects.all_accessible(request)
+    queryset = _get_queryset(request)
 
     # Limit the queryset with django Paginator
     paginator = BlogEntry.objects.paginate(request, queryset)
@@ -64,34 +145,37 @@ def summary(request):
         "entries": paginator,
         "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        "feeds": FEEDS,
     }
     return context
 
 
 @render_to("blog/summary.html")
-def tag_view(request, tag):
+def tag_view(request, tags):
     """
-    Display summary list with blog entries filtered by the giben tag.
+    Display summary list with blog entries filtered by the given tags.
     """
-    tags = tag.strip("/").split("/")
+    tags = _split_tags(tags)
 
     # Get all blog entries, that the current user can see
-    queryset = BlogEntry.objects.all_accessible(request)
-
-    queryset = TaggedItem.objects.get_by_model(queryset, tags)
+    queryset = _get_queryset(request, tags)
 
     # Limit the queryset with django Paginator
     paginator = BlogEntry.objects.paginate(request, queryset)
 
     # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, title=_("All '%s' tagged items" % ",".join(tags)), url=request.path)
+    _add_breadcrumb(request, title=_("All items tagged with: %s" % ", ".join(tags)), url=request.path)
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
     context = {
         "entries": paginator,
         "tag_cloud": tag_cloud,
+        "add_tag_filter_link": True, # Add + tag filter link
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        "used_tags": tags,
+        "tags": "/".join(tags),
+        "feeds": FEEDS,
     }
     return context
 
@@ -103,7 +187,7 @@ def detail_view(request, id, title):
     Display one blog entry with a comment form.
     """
     # Get all blog entries, that the current user can see
-    queryset = BlogEntry.objects.all_accessible(request)
+    queryset = _get_queryset(request)
 
     try:
         entry = queryset.get(pk=id)
@@ -131,4 +215,27 @@ def detail_view(request, id, title):
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
     return context
+
+#------------------------------------------------------------------------------
+
+
+@render_to("blog/select_feed.html")
+def select_feed(request):
+    """ Display a list with existing feed filenames. """
+    context = {"feeds": FEEDS}
+    return context
+
+
+def feed(request, filename, tags=None):
+    """
+    return RSS/Atom feed for all blog entries and filtered by tags. 
+    Feed format is selected by filename.
+    """
+    for feed_class in FEEDS:
+        if filename == feed_class.filename:
+            break
+
+    feed = feed_class(request, tags)
+    response = feed(request)
+    return response
 

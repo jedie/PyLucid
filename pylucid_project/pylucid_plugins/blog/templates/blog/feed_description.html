@@ -1,0 +1,6 @@
+<small>(Blog entry created {{ obj.createtime|date:_("DATETIME_FORMAT") }} by: {{ obj.createby }}.
+{% if obj.lastupdatetime != obj.createtime %}
+  (Last update {{ obj.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ obj.lastupdateby }})
+{% endif %}
+</small>
+{{ obj.get_html }}
