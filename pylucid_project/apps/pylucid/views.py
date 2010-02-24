@@ -109,7 +109,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # call a pylucid plugin "html get view", if exist
     get_view_replace_content = False
     get_view_response = PYLUCID_PLUGINS.call_get_views(request)
-    if get_view_response != None: # Use plugin response
+    if get_view_response is not None: # Use plugin response
         if isinstance(get_view_response, http.HttpResponse):
             # Plugin would be build the complete html page
             response = _apply_context_middleware(request, get_view_response)
