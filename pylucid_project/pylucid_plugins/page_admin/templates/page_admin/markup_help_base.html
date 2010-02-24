@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}{{ block.super }}
+<!-- page_admin markup_help_base extrahead block start -->
+<style type="text/css">
+.float_left {
+    float: left;
+    padding: 3em;
+}
+</style>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    // TODO: make window smaller?
+	$("form#select_markup_form select").change(function() {
+	  $("form#select_markup_form").submit();
+	});
+    
+});
+</script>
+<!-- page_admin markup_help_base extrahead block end -->
+{% endblock extrahead %}
+
+{% block content %}
+<form action="{{ form_url }}" method="get" id="select_markup_form" class="pylucid_form">
+	{% for field in form %}
+        {{ field.errors }}
+        {{ field.help_text }}: {{ field }}
+	{% endfor %}
+	<input type="submit" name="change" value="{% trans 'change' %}" />
+</form>
+<hr />
+{% endblock content %}

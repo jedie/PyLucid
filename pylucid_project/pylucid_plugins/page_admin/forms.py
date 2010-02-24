@@ -109,24 +109,61 @@ class PageContentForm(forms.ModelForm):
         model = PageContent
         exclude = ("pagemeta",)
 
+def _markup_choices(*id_filter):
+    choices = [entry for entry in PageContent.MARKUP_CHOICES if entry[0] in id_filter]
+    return choices
+
 
 class ConvertMarkupForm(forms.ModelForm):
     # Use only supported markups for converting choice field
-    MARKUP_CHOICES = [entry for entry in PageContent.MARKUP_CHOICES
-        if entry[0] in (
-            PageContent.MARKUP_CREOLE, PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR
-        )
-    ]
-    dest_markup = forms.IntegerField(
-        widget=forms.Select(choices=MARKUP_CHOICES),
+    MARKUP_CHOICES = _markup_choices(
+        PageContent.MARKUP_CREOLE, PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR
+    )
+    dest_markup = forms.ChoiceField(
+        choices=MARKUP_CHOICES,
         help_text=_("convert the current page content to this new markup"),
     )
     verbose = forms.BooleanField(required=False,
         help_text=_("Display original html and a html diff."),
     )
+    def clean_markup(self):
+        return int(self.cleaned_data['markup'])
     class Meta:
         model = PageContent
         fields = ('content',)
+
+
+class SelectMarkupForm(forms.Form):
+    """ for page list admin view """
+    markup = forms.ChoiceField(
+        choices=PageContent.MARKUP_CHOICES,
+        help_text=_("switch to other markup format"),
+    )
+
+
+class SelectMarkupHelpForm(forms.Form):
+    """
+    For markup help admin view
+    There ist no help page for html code
+    """
+    MARKUP_CHOICES = _markup_choices(
+            PageContent.MARKUP_CREOLE,
+            PageContent.MARKUP_TINYTEXTILE,
+            PageContent.MARKUP_TEXTILE,
+            PageContent.MARKUP_MARKDOWN,
+            PageContent.MARKUP_REST,
+    )
+    markup = forms.ChoiceField(
+        choices=MARKUP_CHOICES,
+        help_text=_("switch to other markup help"),
+    )
+    def clean_markup(self):
+        return int(self.cleaned_data['markup'])
+
+
+#    class Meta:
+#        model = PageContent
+#        fields = ('markup',)
 
 
 

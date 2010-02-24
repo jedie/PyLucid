@@ -63,14 +63,15 @@ def _edit_content_page(request, context, pagetree):
         "title": _("Edit a content page"),
         "template_name": "page_admin/edit_content_page.html",
         "abort_url": pagecontent.get_absolute_url(),
+        "pagecontent": pagecontent,
+
+        "markup_id_str": str(pagecontent.markup),
 
         "all_forms": all_forms, # For display the form error list from all existing forms.
 
         "pagetree_form": pagetree_form,
         "pagemeta_form":pagemeta_form,
         "pagecontent_form": pagecontent_form,
-
-        "pagelinklist_url": "#TODO",
     })
     return context
 

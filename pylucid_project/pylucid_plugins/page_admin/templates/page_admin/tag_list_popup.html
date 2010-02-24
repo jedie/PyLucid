@@ -1,5 +1,37 @@
 {% extends "admin/base_site.html" %}
 
+{% block extrahead %}
+<style type="text/css">
+.example_link {
+    padding: 0px;
+    margin: 0px;
+    min-width: 400px;
+    width: 100%;
+    border: 0px!important;
+}
+tr {
+    background-color: #ffffff;
+}
+tr:hover {
+    background-color: #e0e0e0;
+}
+
+</style>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+	$('.example_tag').each(function() {
+		// 'resize' every input field
+     	var len = $(this).val().length;
+     	$(this).attr("size", len);
+     	$(this).attr("maxlength", len);
+	});
+	$('.example_tag').hover(function() {
+		$(this).select();
+	});
+});
+</script>
+{% endblock extrahead %}
+
 {% block content %}
 <table class="info">
     <caption>list of all existing lucidTags</caption>
@@ -13,11 +45,11 @@
     <td>{{ lucid_tag.plugin_name }}</td>
     <td title="for copy&amp;paste into your cms page" class="nowrap">
         {% if lucid_tag.fallback_example %}
-            <i title="The plugin has no example in source code!">{{ lucid_tag.fallback_example }}</i>
+            <input type="text" class="example_tag" title="automatic generated example" value='{{ lucid_tag.fallback_example }}'></input><br />
         {% else %}
-            {% if lucid_tag.examples %}
-                {{ lucid_tag.examples|join:"<br />" }}
-            {% endif %}
+            {% for example in lucid_tag.examples %}
+            	<input type="text" class="example_tag" value='{{ example }}'></input><br />
+            {% endfor %}
         {% endif %}
     </td>
     <td>{% if lucid_tag.doc %}<pre>{{ lucid_tag.doc }}</pre>{% else %}<i>(no DocString)</i>{% endif %}</td>

@@ -1,0 +1,281 @@
+{% extends "page_admin/markup_help_base.html" %}
+
+{% block content %}{{ block.super }}
+<fieldset style="border:1px solid #f00;"><legend>Note</legend>
+<p>Don't use tinyTextile anymore. It's obsolete and no longer maintained!</p>
+<p>We prefere to use the markup converter and use the creole markup.</p>
+</fieldset>
+
+<h1>headlines</h1>
+<p>headlines are introduced with 'h1.':</p>
+<h4>examples:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>h2. this is a h2 headline
+
+h3. this is a h3 headline</code></pre>
+</fieldset>
+<h4>result:</h4>
+<h2>this is a h2 headline</h2>
+<h3>this is a h3 headline</h3>
+<p>(Important: one blank line under the headline!)</p>
+<h1>Text formatting</h1>
+<h4>examples:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>I am a --small-- word with &amp;lt;small&amp;gt; tag.
+This is a *fat* word with &amp;lt;strong&amp;gt; tag.</code></pre>
+</fieldset>
+<h4>result:</h4>
+<p>I am a <small>small</small> word with &lt;small&gt; tag.<br />
+This is a <strong>fat</strong> word with &lt;strong&gt; tag.</p>
+<h1>Links</h1>
+<p>To create html links use this pattern:</p>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>[URL Link Text]</code></pre>
+</fieldset>
+<h4>examples:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>a [http://domain.dtl http link] to domain.dtl
+a internal link [/root/index.html root page].
+This is a link, too: [#bottom link text]</code></pre>
+</fieldset>
+<h4>results:</h4>
+<p>a <a href="http://domain.dtl">http link</a> to domain.dtl<br />
+a internal link <a href="/root/index.html">root page</a>.<br />
+This is a link, too: <a href="#bottom">link text</a></p>
+<h2>old link syntax</h2>
+<p>The old pattern works too, but we prefere the new syntax!</p>
+<h4>examples:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>a "http link":http://domain.dtl to domain.dtl
+This is a link, too: "link text":#bottom</code></pre>
+</fieldset>
+<h4>results:</h4>
+<p>a <a href="http://domain.dtl">http link</a> to domain.dtl<br />
+This is a link, too: <a href="#bottom">link text</a></p>
+<h2>shortcut</h2>
+<h4>examples:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>A link with a shortcut: [[PageName]] goes to the cms page.</code></pre>
+</fieldset>
+<h4>results:</h4>
+<p>A link with a shortcut: <a href="/PageName/">PageName</a> goes to the cms page.</p>
+<h2>urls</h2>
+<p>All inserted urls would be converted to links</p>
+<h4>examples:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>http://domain.dtl
+ftp://domain.dtl
+mailto:name@domain.dtl</code></pre>
+</fieldset>
+<h4>result:</h4>
+<p><a href="http://domain.dtl">http://domain.dtl</a><br />
+<a href="ftp://domain.dtl">ftp://domain.dtl</a><br />
+<a href="mailto:name@domain.dtl">name@domain.dtl</a></p>
+<h1>List</h1>
+<p>You can make &lt;ul&gt; liste with "*" and &lt;ol&gt; list with "#".<br />
+Note: You can't mixed this list types ;)</p>
+<h4>examples:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>normal list:
+
+
+* Lorem ipsum dolor sit amet
+** consectetuer adipiscing elit
+**** sed diam nonummy nibh
+**** euismod tincidunt ut laoreet
+** dolore magna aliquam erat volutpat.
+
+
+
+numbered list:
+
+
+# Lorem ipsum dolor sit amet
+## consectetuer adipiscing elit
+#### sed diam nonummy nibh
+#### euismod tincidunt ut laoreet
+## dolore magna aliquam erat volutpat.</code></pre>
+</fieldset>
+<h4>result:</h4>
+<p>normal list:</p>
+<ul>
+   <li>Lorem ipsum dolor sit amet</li>
+   <ul>
+      <li>consectetuer adipiscing elit</li>
+      <ul>
+      <ul>
+            <li>sed diam nonummy nibh</li>
+            <li>euismod tincidunt ut laoreet</li>
+            </ul>
+            </ul>
+      <li>dolore magna aliquam erat volutpat.</li>
+</ul>
+</ul>
+<p>numbered list:</p>
+<ol>
+   <li>Lorem ipsum dolor sit amet</li>
+   <ol>
+      <li>consectetuer adipiscing elit</li>
+      <ol>
+      <ol>
+            <li>sed diam nonummy nibh</li>
+            <li>euismod tincidunt ut laoreet</li>
+            </ol>
+            </ol>
+      <li>dolore magna aliquam erat volutpat.</li>
+</ol>
+</ol>
+<h1>Images</h1>
+<p>You can create a html image tag with a exclamation mark ("!") character.<br />
+Surround a url to the picture with a "!".</p>
+<h4>examples:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>!http://images.sourceforge.net/images/project-support.jpg!
+!/favicon.ico!
+!/pics/no link for spaces in filenames.jpg!</code></pre>
+</fieldset>
+<h4>result:</h4>
+<p><img src="http://images.sourceforge.net/images/project-support.jpg"><br />
+<img src="/favicon.ico"><br />
+!/pics/no link for spaces in filenames.jpg!</p>
+<h1>Embed Python SourceCode</h1>
+<p>Put sourcecode between &lt;python&gt; tag. Note: The start and end tag must be located alone in a line!</p>
+<h4>example:</h4>
+<fieldset class="pygments_code">
+&lt;python&gt;<br />
+<br />
+#!/usr/bin/python<br />
+# -*- coding: UTF-8 -*-<br />
+<br />
+"""Ein kleines Skript"""<br />
+print "Hello Word: I love Python!"<br />
+&lt;/python&gt;<br />
+</fieldset>
+<h4>result:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code">Python</legend><table class="pygmentstable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5</pre></div></td><td class="code"><div class="pygments"><pre><span class="c">#!/usr/bin/python</span>
+<span class="c"># -*- coding: UTF-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Ein kleines Skript&quot;&quot;&quot;</span>
+<span class="k">print</span> <span class="s">&quot;Hello Word: I love Python!&quot;</span>
+</pre></div>
+</td></tr></table></fieldset>
+<h1>Embed source code generally</h1>
+<p>With the &lt;code=ext&gt; Tag you can highlight everything, which offers Pygments.<br />
+'ext' is the file extension.</p>
+<!-- We must use a ugly hack for the examples :( -->
+<h4>example 1:</h4>
+<fieldset class="pygments_code">
+&lt;code=php&gt;<br />
+&lt;?php<br />
+$conn_id = ftp_connect($ftp_server);<br />
+?&gt;<br />
+&lt;/code&gt;<br />
+</fieldset>
+<h4>result 1:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code">PHP</legend><table class="pygmentstable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="pygments"><pre><span class="cp">&lt;?php</span>
+<span class="nv">$conn_id</span> <span class="o">=</span> <span class="nb">ftp_connect</span><span class="p">(</span><span class="nv">$ftp_server</span><span class="p">);</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+</td></tr></table></fieldset>
+<h4>example 2:</h4>
+<fieldset class="pygments_code">
+&lt;code=css&gt;<br />
+body {<br />
+  color: black;<br />
+}<br />
+&lt;/code&gt;<br />
+</fieldset>
+<h4>result 2:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code">CSS</legend><table class="pygmentstable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="pygments"><pre><span class="nt">body</span> <span class="p">{</span>
+  <span class="k">color</span><span class="o">:</span> <span class="nb">black</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></fieldset>
+<h1>Escaping</h1>
+<p>The escape character are two equals sign ("=="). Text inner two "="-characters would be escaped.</p>
+<h4>example:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>==
+Table: &lt;table width="90%" border="0" align="center"&gt;
+Link: &lt;a href="URL"&gt;txt&lt;/a&gt;
+Input: &lt;input type="submit" value="preview" /&gt;
+==</code></pre>
+</fieldset>
+<h4>result:</h4>
+Table: &lt;table width="90%" border="0" align="center"&gt;<br />
+Link: &lt;a href="URL"&gt;txt&lt;/a&gt;<br />
+Input: &lt;input type="submit" value="preview" /&gt;<br />
+<p>It goes also within a flow text:<br />
+Here ist no Link: ==&lt;a href="URL"&gt;txt&lt;/a&gt;== nice?</p>
+<h1>pre-Formarted-Text</h1>
+<p>You can use the &lt;pre&gt; tag. tinyTextile ingnore the Markup in the area.</p>
+<h4>example:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>&lt;pre&gt;
+h2. Not a textile headline
+&lt;h3&gt;hand made h3 headline with html tags&lt;/h3&gt;
+
+
+* This is not a...
+* ...textile list
+&lt;/pre&gt;</code></pre>
+</fieldset>
+<h4>result:</h4>
+<pre>
+h2. Not a textile headline
+<h3>hand made h3 headline with html tags</h3>
+* This is not a...
+* ...textile list
+</pre>
+<h1>tables</h1>
+<p>tinyTextile only supports very basic table syntax, with no alignment. It's only for simple table like phone lists etc.<br />
+There is a notion for headings and forced line breaks.</p>
+<h4>example:</h4>
+<fieldset class="pygments_code">
+<legend class="pygments_code"><small title="no lexer for alias 'txt' found">unknown type</small></legend>
+<pre><code>|=Heading Col 1 |=Heading Col 2         |
+|Cell 1.1       |2 lines\\in Cell 1.2   |
+|Cell 2.1       |Cell 2.2               |</code></pre>
+</fieldset>
+<h4>result:</h4>
+<span class="example_table">
+<table>
+<tr>
+	<th>Heading Col 1</th>
+	<th>Heading Col 2</th>
+</tr>
+<tr>
+	<td>Cell 1.1</td>
+	<td>2 lines<br />in Cell 1.2</td>
+</tr>
+<tr>
+	<td>Cell 2.1</td>
+	<td>Cell 2.2</td>
+</tr>
+</table>
+</span>
+<h1>HTML-Code</h1>
+<p>You can insert any HTML code directy in you page. tinyTextile ingnore it.</p>
+{% endblock content %}

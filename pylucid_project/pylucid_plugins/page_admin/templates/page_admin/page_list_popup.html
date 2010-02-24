@@ -1,0 +1,105 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}{{ block.super }}
+<!-- page_admin page_list_popup extrahead block start -->
+<style type="text/css">
+.level_0 {padding-left: 0em;}
+.level_1 {padding-left: 2em;}
+.level_2 {padding-left: 4em;}
+.level_3 {padding-left: 6em;}
+.level_4 {padding-left: 8em;}
+.level_5 {padding-left: 10em;}
+.level_6 {padding-left: 12em;}
+.level_7 {padding-left: 14em;}
+.level_8 {padding-left: 16em;}
+.level_9 {padding-left: 18em;}
+.level_10 {padding-left: 20em;}
+.level_11 {padding-left: 22em;}
+.level_12 {padding-left: 24em;}
+.level_13 {padding-left: 26em;}
+.level_14 {padding-left: 28em;}
+.level_15 {padding-left: 30em;}
+.example_link {
+    min-width: 400px;
+	width: 100%;
+}
+tr {
+    background-color: #ffffff;
+}
+tr:hover {
+    background-color: #e0e0e0;
+}
+</style>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+	$("form#select_markup_form select").change(function() {
+	  $("form#select_markup_form").submit();
+	});
+	
+	 $('.example_link').each(function() {
+	 	// 'resize' every input field
+     	var len = $(this).val().length;
+     	$(this).attr("size", len);
+     	$(this).attr("maxlength", len);
+     });
+	
+	$('tr').hover(function() {
+		$(this).find(".example_link").select();
+	});
+});
+</script>
+
+<!--
+
+ page_admin page_list_popup extrahead block end -->
+{% endblock extrahead %}
+
+{% block content %}
+<form action="{{ form_url }}" method="get" id="select_markup_form" class="pylucid_form">
+	{% for field in form %}
+        {{ field.errors }}
+        {{ field.help_text }}: {{ field }}
+	{% endfor %}
+	<input type="submit" name="change" value="{% trans 'change' %}" />
+</form>
+<table class="info">
+    <caption>list of all accessable pages</caption>
+    <tr>
+        <th>page</th>
+        <th>copy&amp;paste permalink code</th>
+        <th>page title</th>
+    </tr>
+    {% for node in tree.iter_flat_list %}
+    <tr>
+        <td>
+        	<a class="openinwindow level_{{ node.level }}" href="{{ node.pagemeta.get_permalink }}" title="{{ node.pagemeta.get_title }}">
+        		{{ node.pagemeta.get_name }}
+        	</a>
+        </td>
+        <td title="for copy&amp;paste into your cms page" class="nowrap">
+            <input type="text" class="example_link" value='{% spaceless %}
+                {% if markup_id_str in "01" %} {# html #}
+                    &lt;a href="{{ node.pagemeta.get_permalink }}"&gt;{{ node.pagemeta.get_title }}&lt;/a&gt;
+                {% endif %}
+                {% if markup_id_str == "2" %} {# tinyTextile #}
+                	[{{ node.pagemeta.get_permalink }} {{ node.pagemeta.get_title }}]
+                {% endif %}
+                {% if markup_id_str == "3" %} {# textile #}
+                	"{{ node.pagemeta.get_title }}":{{ node.pagemeta.get_permalink }}
+                {% endif %}
+                {% if markup_id_str == "4" %} {# markdown #}
+                	[{{ node.pagemeta.get_name }}]({{ node.pagemeta.get_permalink }} "{{ node.pagemeta.get_title }}")
+                {% endif %}
+                {% if markup_id_str == "5" %} {# ReSt #}
+                	`{{ node.pagemeta.get_title }} &lt;{{ node.pagemeta.get_permalink }}&gt;`_
+                {% endif %}
+                {% if markup_id_str == "6" %} {# creole #}
+                    [[{{ node.pagemeta.get_permalink }}|{{ node.pagemeta.get_title }}]]
+                {% endif %}
+                {% endspaceless %}'></input>
+        </td>
+        <td>{{ node.pagemeta.get_title }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock content %}
