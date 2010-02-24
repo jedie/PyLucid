@@ -1,0 +1,47 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+{% for entry in package_info_list %}
+<i>{{ entry.project_name }}: {{ entry.is_relevant }}</i>
+{% if entry.is_relevant or all_packages %}
+	<h3>
+		{% if entry.is_relevant %}
+			{{ entry.project_name }}
+		{% else %}
+			<i>{{ entry.project_name }}</i>
+		{% endif %}
+	</h3>
+	{% if entry.summary %}
+	<blockquote>{{ entry.summary }}</blockquote>
+	{% endif %}
+	<dl>
+		{% if display_version %}
+	    <dt>version:</dt><dd>{{ entry.version }}</dd>
+	    {% endif %}
+	
+	    {% if display_location or user.is_superuser %}
+	    <dt>filesystem location:</dt>
+	    <dd>{{ entry.location }}</dd>
+	    {% endif %}
+	
+	    {% if entry.author %}
+	    <dt>author:</dt><dd>{{ entry.author }}</dd>
+	    {%  endif %}
+	
+	    {% if entry.home_page %}
+	    <dt>homepage:</dt>
+	    <dd><a href="{{ entry.home_page }}">{{ entry.home_page }}</a></dd>
+	    {%  endif %}
+	
+	    {% if entry.license and entry.license != "UNKNOWN" %}
+	    <dt>license:</dt>
+	    <dd>
+	        {% if entry.license_url %}<a href="{{ entry.license_url }}">{% endif %}
+	            {{ entry.license }}
+	        {% if entry.license_url %}</a>{% endif %}
+	    </dd>
+	    {% endif %}
+	</dl>
+{% endif %}
+{% endfor %}
+{% endblock plugin_content %}
