@@ -122,6 +122,7 @@ class PackageInfo(dict):
         """
         for attr_name in PKG_DIST_ATTRS:
             dist_value = getattr(self.pkg_dist, attr_name)
+            dist_value = unicode(dist_value, encoding="utf-8", errors="replace")
             existing_value = dict.get(self, attr_name, None)
             if not existing_value:
                 dict.__setitem__(self, attr_name, dist_value)
@@ -149,6 +150,8 @@ class PackageInfo(dict):
         for line in metadata_lines:
             if ":" not in line:
                 continue
+
+            line = unicode(line, encoding="utf-8", errors="replace")
             key, pkg_info_value = line.split(":", 1)
 
             if key not in PKG_INFO_KEYS:
@@ -205,17 +208,17 @@ package_info = EnvironmetInfo(STATIC_PKG_INFO)
 def lucidTag(request, all_packages=False, display_version=False, display_location=False, debug=False):
     """
     List all used Python modules with there version number.
-    
+
     all_packages: True, False (default)
         Display all existing packages in the current environment?
         Normally, only the relevant packets are displayed.
-    
+
     display_version: True, False (default)
         Add the version string to every packages?
-    
+
     display_location: True, False (default)
-        Display the absolute filesystem location of the package. 
-        
+        Display the absolute filesystem location of the package.
+
     debug: True, False (default)
         -List all existing package template keys: Needfull if you overwrite the template.
 
