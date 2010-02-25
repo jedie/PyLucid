@@ -51,13 +51,15 @@ class PyLucidPlugin(object):
 
         try:
             mod = import_module(mod_pkg)
-        except ImportError, err:
+        except Exception, err:
+            msg = u"Error importing Plugin '%s.%s'" % (self.name, mod_pkg)
+
             if str(err) == "No module named %s" % mod_name:
-                raise self.ObjectNotFound("Can't import %r: %s" % (mod_pkg, err))
+                raise self.ObjectNotFound("%s: %s" % (msg, err))
 
             # insert more information into the traceback
             etype, evalue, etb = sys.exc_info()
-            evalue = etype('Plugin %r error while importing %r: %s' % (self.name, mod_pkg, evalue))
+            evalue = etype('%s: %s' % (msg, evalue))
             raise etype, evalue, etb
 
         try:
