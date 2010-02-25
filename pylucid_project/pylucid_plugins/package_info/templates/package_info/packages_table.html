@@ -2,8 +2,7 @@
 
 {% block plugin_content %}
 {% for entry in package_info_list %}
-<i>{{ entry.project_name }}: {{ entry.is_relevant }}</i>
-{% if entry.is_relevant or all_packages %}
+	{% if entry.is_relevant or all_packages %}
 	<h3>
 		{% if entry.is_relevant %}
 			{{ entry.project_name }}
@@ -42,6 +41,6 @@
 	    </dd>
 	    {% endif %}
 	</dl>
-{% endif %}
+	{% endif %}
 {% endfor %}
 {% endblock plugin_content %}
