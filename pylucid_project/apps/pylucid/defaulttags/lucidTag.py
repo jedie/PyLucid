@@ -22,6 +22,7 @@
 import re
 import sys
 import shlex
+import traceback
 
 if __name__ == "__main__":
     # For doctest only
@@ -31,6 +32,7 @@ if __name__ == "__main__":
 from django import template
 from django.conf import settings
 from django.http import HttpResponse
+from django.template import mark_safe
 
 #from pylucid.system import pylucid_plugin
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
@@ -114,7 +116,7 @@ class lucidTagNode(template.Node):
             self.plugin_name, self.method_name, self.method_kwargs)
 
     def render(self, context):
-
+        """ Call the plugin view an return his reponse """
         try:
             request = context["request"]
         except KeyError:
@@ -131,15 +133,26 @@ class lucidTagNode(template.Node):
 
         try:
             response = plugin_instance.call_plugin_view(request, "views", method_name, method_kwargs)
-        except:
+        except Exception, err:
             pkg = "%s.views.%s" % (plugin_name, method_name)
+            # Base error message for all users:
+            msg = u"Error call PyLucid plugin view %s" % pkg
+
             if settings.DEBUG:
-                # insert more information into the traceback
+                # insert more information into the traceback and re-raise the original error
                 etype, evalue, etb = sys.exc_info()
-                evalue = etype('Error call plugin view %s (%r): %s' % (pkg, self.raw_content, evalue))
+                evalue = etype('%s (%r): %s' % (msg, self.raw_content, evalue))
                 raise etype, evalue, etb
-            else:
-                return u"[Error call PyLucid plugin view %s]" % pkg
+
+            if request.user.is_staff:
+                # add more info for staff members
+                msg += u" (%s)" % err
+
+            if request.user.is_superuser:
+                # put the full traceback into page_msg, but only for superusers
+                request.page_msg(mark_safe("%s:<pre>%s</pre>" % (msg, traceback.format_exc())))
+
+            return u"[%s]" % msg
 
         # FIXME: Witch error should we raised here?
         if response == None:
