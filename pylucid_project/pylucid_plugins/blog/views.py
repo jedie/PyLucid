@@ -192,11 +192,26 @@ def detail_view(request, id, title):
     try:
         entry = queryset.get(pk=id)
     except BlogEntry.DoesNotExist:
-        msg = "Blog entry doesn't exist."
-        if settings.DEBUG or request.user.is_staff:
-            msg += " (ID %r wrong.)" % id
-        request.page_msg.error(msg)
-        return summary(request)
+        # It's possible that the user comes from a external link.
+        try:
+            # Don't filter the language
+            entry = BlogEntry.on_site.filter(is_public=True).get(pk=id)
+        except BlogEntry.DoesNotExist:
+            msg = "Blog entry doesn't exist."
+            if settings.DEBUG or request.user.is_staff:
+                msg += " (ID %r wrong.)" % id
+            request.page_msg.error(msg)
+            return summary(request)
+        else:
+            # The Blog article exist in a other language than the client prefered language
+            request.page_msg.info(_(
+                "Info: This article is written in %(article_lang)s."
+                " However you prefer %(client_lang)s."
+                ) % {
+                    "article_lang": entry.language.description,
+                    "client_lang": request.PYLUCID.language_entry.description,
+                }
+            )
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, title=entry.headline, url=entry.get_absolute_url())
