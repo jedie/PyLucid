@@ -10,10 +10,10 @@ from django_tools.template import render
 
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
-from pylucid.markup.converter import apply_markup
-from pylucid.signals import pre_render_global_template
-from pylucid.system import pylucid_plugin, i18n, pylucid_objects
-from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, \
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.signals import pre_render_global_template
+from pylucid_project.apps.pylucid.system import pylucid_plugin, i18n, pylucid_objects
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, \
                                                                     EditableHtmlHeadFile, Language
 
 
@@ -337,6 +337,11 @@ def permalink(request, page_id, url_rest=""):
     pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
 
     url = pagemeta.get_absolute_url()
+
+    if pagetree.page_type == pagetree.PLUGIN_TYPE and url_rest and "/" in url_rest:
+        # pass a permalink additional to the plugin, e.g.: blog entry detail view
+        additional_url = url_rest.split("/", 1)[1]
+        url += additional_url
 
     return http.HttpResponseRedirect(url)
 

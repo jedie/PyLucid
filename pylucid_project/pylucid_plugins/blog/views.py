@@ -141,6 +141,8 @@ def summary(request):
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
+#    request.context["page_permalink"] = "YYYY"
+
     context = {
         "entries": paginator,
         "tag_cloud": tag_cloud,
@@ -223,11 +225,16 @@ def detail_view(request, id, title):
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
+    # Change permalink from the blog root page to this entry detail view
+    permalink = entry.get_permalink(request)
+    request.PYLUCID.context["page_permalink"] = permalink # for e.g. the HeadlineAnchor
+
     context = {
         "page_title": entry.headline, # Change the global title with blog headline
         "entry": entry,
         "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        "page_permalink": permalink, # Change the permalink in the global page template
     }
     return context
 

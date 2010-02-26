@@ -8,30 +8,9 @@
 {% if not entries %}no blog entry exists{% endif %}
 {% for entry in entries.object_list %}
 <fieldset class="entry">
-    <legend class="headline">
-         <a href="{{ entry.get_absolute_url }}">{{ entry.headline }}<br />
-         <small class="headline_info">{% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.</small>
-         </a>
-    </legend>
-    {% if not entry.is_public %}
-        <p class="admin_info_line">not public</p>
-    {% endif %}
-
-    {% include "blog/includes/admin_links.html" %}
-
-    <div class="content">{{ entry.get_html }}</div>
-
-    {% if entry.lastupdateby %}
-    <small><p class="date_info">
-        (Last update: {{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }} by {{ entry.lastupdateby }}.)
-    </p></small>
-    {% endif %}
-
-   {% include "blog/includes/taglist.html" %}
-
-   {% get_comment_count for entry as comment_count %}            
-   <a href="{{ entry.get_absolute_url }}" class="comment_link" title="Display all comments | Leave a comment">{{ comment_count }} comment{{ comment_count|pluralize:"s" }}...</a>
-
+	{% include "blog/includes/blog_entry.html" %}
+	{% get_comment_count for entry as comment_count %}            
+	<a href="{{ entry.get_absolute_url }}" class="comment_link" title="Display all comments | Leave a comment">{{ comment_count }} comment{{ comment_count|pluralize:"s" }}...</a>
 </fieldset>
 {% endfor %}
 </div>

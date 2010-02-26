@@ -26,10 +26,11 @@ from tagging.fields import TagField
 
 from pylucid_project.pylucid_plugins import update_journal
 
-from pylucid.shortcuts import failsafe_message
-from pylucid.markup.converter import apply_markup
-from pylucid.models import PageContent, Language
-from pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.models import PageContent, Language
+from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
+from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
 #from PyLucid.models import Page
 
@@ -110,6 +111,12 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
                 return PluginPage.objects.reverse("lexicon", viewname, kwargs=reverse_kwargs)
             except urlresolvers.NoReverseMatch:
                 return "?lexicon=%s" % self.term
+
+    def get_permalink(self, request):
+        """ permalink to this entry detail view """
+        absolute_url = self.get_absolute_url() # Absolute url to this entry
+        permalink = plugin_permalink(request, absolute_url)
+        return permalink
 
     def get_html(self):
         """

@@ -29,10 +29,11 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from tagging.fields import TagField
 
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
-from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.cache import clean_complete_pagecache
+from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
+from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
+from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 
 from pylucid_project.pylucid_plugins import update_journal
 
@@ -162,6 +163,12 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
                 return PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
             except urlresolvers.NoReverseMatch:
                 return "#No-Blog-PagePlugin-exists"
+
+    def get_permalink(self, request):
+        """ permalink to this entry detail view """
+        absolute_url = self.get_absolute_url() # Absolute url to this entry
+        permalink = plugin_permalink(request, absolute_url)
+        return permalink
 
     def get_html(self):
         """

@@ -116,7 +116,8 @@ class HeadlineAnchorMiddleware(object):
         content = force_unicode(response.content, encoding=response._charset)
 
         # Get the permalink to the current page
-        permalink = pagemeta.get_permalink()
+        permalink = request.PYLUCID.context["page_permalink"]
+#        permalink = pagemeta.get_permalink()
 
         # insert the Headline links
         headline_anchor = HeadlineAnchor(permalink)

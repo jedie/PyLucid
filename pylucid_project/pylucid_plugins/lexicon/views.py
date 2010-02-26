@@ -87,7 +87,14 @@ def detail_view(request, term=None):
 
     _add_breadcrumb(request, title="%s: %s" % (entry.term, entry.short_definition), url=request.path)
 
-    context = {"entry": entry}
+    # Change permalink from the blog root page to this entry detail view
+    permalink = entry.get_permalink(request)
+    request.PYLUCID.context["page_permalink"] = permalink # for e.g. the HeadlineAnchor
+
+    context = {
+        "entry": entry,
+        "page_permalink": permalink, # Change the permalink in the global page template
+    }
     return context
 
 
