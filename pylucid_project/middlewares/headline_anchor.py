@@ -8,6 +8,8 @@
     Every anchor is a permalink to the page. So you can easy copy&paste the
     links for several use.
     
+    If the TOC plugin used -> insert a table of contents
+    
     more info: http://pylucid.org/_goto/147/Headline-anchor/    
 
     Last commit info:
@@ -20,9 +22,71 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.utils.encoding import force_unicode
 
-from pylucid_project.apps.pylucid.system.sub_headline_anchor import HeadlineAnchor
+import re
+
+from django.template.loader import render_to_string
+from django.utils.encoding import force_unicode
+from django.utils.safestring import mark_safe
+from django.conf import settings
+
+from pylucid_project.utils.slug import makeUniqueSlug
+
+
+class HeadlineAnchor(object):
+    HEADLINE_RE = re.compile(r"<h(\d)>(.+?)</h(\d)>(?iusm)")
+
+    def __init__(self, permalink):
+        self.permalink = permalink
+        self.toc_list = [] # Storage for self.build_toc()
+        self._anchor_list = [] # For makeUniqueSlug
+
+    def insert_links(self, content):
+        assert isinstance(content, unicode), "content must be unicode!"
+
+        # add the anchor with re.sub
+        new_content = self.HEADLINE_RE.sub(self.add_anchor, content)
+        return new_content
+
+    def add_anchor(self, matchobj):
+        """
+        add a unique anchor to a html headline.
+        """
+        link_text = matchobj.group(2)
+        link_text = mark_safe(link_text)
+
+        # Strip all non-ASCII and make the anchor unique
+        anchor = makeUniqueSlug(link_text, self._anchor_list)
+
+        # Remember the current anchor.
+        # So makeUnique can add a number on double anchors.
+        self._anchor_list.append(anchor)
+
+        anchor_link = self.permalink + "#" + anchor
+
+        context = {
+            "no": matchobj.group(1),
+            "link_text": link_text,
+            "anchor": anchor,
+            "anchor_link": anchor_link,
+        }
+
+        self.toc_list.append(context) # Save for self.build_toc()
+
+        result = render_to_string("pylucid/headline_anchor.html", context)
+        return result
+
+    def build_toc(self, toc_min_count):
+        """
+        Build the HTML code of the TOC
+        """
+        if len(self.toc_list) < toc_min_count:
+            return u""
+
+        context = {"toc_list": self.toc_list}
+
+        result = render_to_string("TOC/TOC.html", context)
+        return result
 
 
 class HeadlineAnchorMiddleware(object):
@@ -51,23 +115,18 @@ class HeadlineAnchorMiddleware(object):
         # encode it to byte string, but we need unicode.
         content = force_unicode(response.content, encoding=response._charset)
 
-        if "anchor_cache" in context:
-            # lucidTag TOC was called in this request. The plugin has collect all
-            # headlines and has build all links. We must only replace it, because
-            # a lucidTag plugin can't do this!
-            anchor_cache = request.PYLUCID.context["anchor_cache"]
-            for orig_headline, anchor_headline in anchor_cache:
-                content = content.replace(orig_headline, anchor_headline)
-        else:
-            # Use pylucid_project.utils.html.HeadlineAnchor for inserting
-            # anchors for all existing headlines
+        # Get the permalink to the current page
+        permalink = pagemeta.get_permalink()
 
-            # Get the permalink to the current page
-            permalink = pagemeta.get_permalink()
+        # insert the Headline links
+        headline_anchor = HeadlineAnchor(permalink)
+        content = headline_anchor.insert_links(content)
 
-            h = HeadlineAnchor(permalink)
-            content = h.insert_links(content)
+        if settings.PYLUCID.TOC_PLACEHOLDER in content:
+            # lucidTag TOC is in the content -> insert a table of contents
+            toc_min_count = request.PYLUCID.context["toc_min_count"]
+            toc_html = headline_anchor.build_toc(toc_min_count)
+            content = content.replace(settings.PYLUCID.TOC_PLACEHOLDER, toc_html)
 
         response.content = content
-
         return response

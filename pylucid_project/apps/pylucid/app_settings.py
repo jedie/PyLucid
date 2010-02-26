@@ -54,3 +54,7 @@ UPDATE08_PLUGIN_VIEWNAME = "update08"
 # You can setup how long a IP address banned in:
 # Dbpreferences / pylucid / SystemPreferencesForm / ban_release_time - 
 CLEANUP_IP_BAN = 60
+
+# internal placeholder: The PyLucid TOC Plugin insert it and the HeadlineAnchorMiddleware
+# replaced it with the Table of contents html code.
+TOC_PLACEHOLDER = u"<!-- lucidTag TOC -->"
