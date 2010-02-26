@@ -14,21 +14,30 @@
     $Rev: $
     $Author: $
 
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.conf import settings
+from django.utils.safestring import mark_safe
 
-from pylucid.shortcuts import failsafe_message
-from pylucid.system import extrahead
+from pylucid_project.utils.escape import escape
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.system import extrahead
 
+
+# max value length in debug __setattr__
+MAX_VALUE_LENGTH = 150
 
 
 class PyLucidRequestObjects(object):
     """ PyLucid request objects """
+    _check_setattr = False
     def __init__(self, request):
-        from pylucid.models import Language # FIXME: import here, against import loop.
+        self.request = request
+
+        # FIXME: import here, against import loop:
+        from pylucid_project.apps.pylucid.models import Language
 
         # Client prefered language instance, use default, if not exist
         self.language_entry = Language.objects.get_current(request)
@@ -49,3 +58,34 @@ class PyLucidRequestObjects(object):
         #
         #self.page_template - The global page template as a string
         #self.context - The global context
+
+        self._check_setattr = settings.DEBUG
+
+    def _setattr_debug(self, name, value):
+        """
+        debug __setattr__ to see if new attributes would be defined or existing changed.
+        
+        HowTo: http://www.pylucid.org/permalink/133/pylucid-objects#DEBUG
+        """
+        if self._check_setattr:
+            if hasattr(self, name):
+                action = "changed"
+            else:
+                action = "set"
+
+            value_preview = repr(value)
+            if len(value_preview) > MAX_VALUE_LENGTH - 3:
+                value_preview = value_preview[:MAX_VALUE_LENGTH] + "..."
+            value_preview = escape(value_preview)
+            msg = "request.PYLUCID.<strong>%s</strong> %s to: <i>%s</i> (type: %s)" % (
+                name, action, value_preview, escape(repr(type(value)))
+            )
+            self.request.page_msg(mark_safe(msg))
+
+        super(PyLucidRequestObjects, self).__setattr__(name, value)
+
+
+if settings.PYLUCID_OBJECTS_DEBUG:
+    assert settings.DEBUG == True, "PyLucidRequestObjects works only if settings.DEBUG is on!"
+    PyLucidRequestObjects.__setattr__ = PyLucidRequestObjects._setattr_debug
+

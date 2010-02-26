@@ -62,6 +62,11 @@ DEBUG = False
 # Should allways be False. It's only for developing! 
 SQL_DEBUG = False
 
+# See if request.PYLUCID attributes attached or changes (Works only if DEBUG==True)
+# See also: http://www.pylucid.org/permalink/133/pylucid-objects#DEBUG
+# Should allways be False. It's only for developing! 
+PYLUCID_OBJECTS_DEBUG = False
+
 #______________________________________________________________________________
 # DATABASE SETUP
 
