@@ -39,6 +39,15 @@
 .pylucid_form #preview_fieldset .dest_float {
     border: 1px solid #ddd;
 }
+.auto_translated {
+    /* mark fields witch are automatic translated */
+    background-color: #efefef;
+	font-style: italic;
+}
+.auto_translated:focus {
+    background-color: #fff;
+    font-style: normal;
+}
 </style>
 <script type="text/javascript">
 <!--
@@ -46,6 +55,12 @@ $(document).ready(function(){
     log("sync textarea rows");
     var rows = $("#id_source-content").attr("rows");
     $("#id_dest-content").attr("rows", rows);
+	
+	$(".auto_translated").change(function() {
+        // 'reset' a changed 'automatic translate' field back to the normal style
+		$(this).css("background-color", "#ffffff");
+		$(this).css("font-style", "normal");
+    });
 });
 //-->
 </script>

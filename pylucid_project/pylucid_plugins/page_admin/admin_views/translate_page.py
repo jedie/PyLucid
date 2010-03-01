@@ -9,10 +9,10 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
+from pylucid_project.utils.translate import translate
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-
 
 from pylucid_project.pylucid_plugins.page_admin.forms import PageMetaForm, PageContentForm, \
                                                                     LanguageSelectForm
@@ -204,6 +204,50 @@ def translate_page(request, pagemeta_id=None):
             dest_pagecontent_form = PageContentForm(
                 prefix=dest_language.code, instance=dest_pagecontent
             )
+
+
+        if "prefill" in request.GET:
+            filled_fields = []
+            if "content" not in dest_pagecontent_form.initial:
+                source_content = source_pagecontent_form.initial["content"]
+                try:
+                    translated_content = translate(
+                        source_content, src=source_language.code, to=dest_language.code
+                    )
+                except ValueError, err:
+                    request.page_msg("Can't translate content with google: %s" % err)
+                else:
+                    dest_pagecontent_form.initial["content"] = translated_content
+                    filled_fields.append("content")
+                    dest_pagecontent_form.fields['content'].widget.attrs['class'] = 'auto_translated'
+
+            for key, source_value in source_pagemeta_form.initial.iteritems():
+                if not source_value \
+                    or not isinstance(source_value, basestring)\
+                    or key == "robots" \
+                    or dest_pagemeta_form.initial.get(key, None):
+                    # Skip empty, non string, robots field and if dest. value exist
+                    continue
+
+                try:
+                    dest_value = translate(
+                        source_value, src=source_language.code, to=dest_language.code
+                    )
+                except ValueError, err:
+                    request.page_msg(
+                        "Can't translate %(key)s with google: %(err)s" % {"key":key, "err":err}
+                    )
+                else:
+                    dest_pagemeta_form.initial[key] = dest_value
+                    filled_fields.append(key)
+                    dest_pagemeta_form.fields[key].widget.attrs['class'] = 'auto_translated'
+
+            if filled_fields:
+                request.page_msg("These fields are translated via google: %s" % ", ".join(filled_fields))
+            else:
+                request.page_msg("No fields translated via google.")
+
+
 
     source_pagecontent_form.language = source_language
     dest_pagecontent_form.language = dest_language
