@@ -104,20 +104,17 @@ class HeadlineAnchorMiddleware(object):
             return response
 
         try:
-            pagemeta = request.PYLUCID.pagemeta
-            context = request.PYLUCID.context
-        except AttributeError:
+            # Get the permalink to the current page
+            permalink = request.PYLUCID.context["page_permalink"]
+        except AttributeError, KeyError:
+            # We are not on a cms page -> e.g.: in the admin pandel
             # No cms page request -> do nothing
             #print "*** No request.PYLUCID.pagemeta!", response._headers["content-type"]
-            return response
+            permalink = request.path
 
         # response is a HttpResponse object. Get the content via response.content will
         # encode it to byte string, but we need unicode.
         content = force_unicode(response.content, encoding=response._charset)
-
-        # Get the permalink to the current page
-        permalink = request.PYLUCID.context["page_permalink"]
-#        permalink = pagemeta.get_permalink()
 
         # insert the Headline links
         headline_anchor = HeadlineAnchor(permalink)
@@ -125,7 +122,7 @@ class HeadlineAnchorMiddleware(object):
 
         if settings.PYLUCID.TOC_PLACEHOLDER in content:
             # lucidTag TOC is in the content -> insert a table of contents
-            toc_min_count = request.PYLUCID.context["toc_min_count"]
+            toc_min_count = request.PYLUCID._toc_min_count # Added in lucidTag TOC
             toc_html = headline_anchor.build_toc(toc_min_count)
             content = content.replace(settings.PYLUCID.TOC_PLACEHOLDER, toc_html)
 

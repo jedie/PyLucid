@@ -15,25 +15,25 @@
 	{% endif %}
 	<dl>
 		{% if display_version %}
-	    <dt>version:</dt><dd>{{ entry.version }}</dd>
+	    <dt>{% trans "version" %}:</dt><dd>{{ entry.version }}</dd>
 	    {% endif %}
 	
 	    {% if display_location or user.is_superuser %}
-	    <dt>filesystem location:</dt>
+	    <dt>{% trans "filesystem location" %}:</dt>
 	    <dd>{{ entry.location }}</dd>
 	    {% endif %}
 	
 	    {% if entry.author %}
-	    <dt>author:</dt><dd>{{ entry.author }}</dd>
+	    <dt>{% trans "author" %}:</dt><dd>{{ entry.author }}</dd>
 	    {%  endif %}
 	
 	    {% if entry.home_page %}
-	    <dt>homepage:</dt>
+	    <dt>{% trans "homepage" %}:</dt>
 	    <dd><a href="{{ entry.home_page }}">{{ entry.home_page }}</a></dd>
 	    {%  endif %}
 	
 	    {% if entry.license and entry.license != "UNKNOWN" %}
-	    <dt>license:</dt>
+	    <dt>{% trans "license" %}:</dt>
 	    <dd>
 	        {% if entry.license_url %}<a href="{{ entry.license_url }}">{% endif %}
 	            {{ entry.license }}

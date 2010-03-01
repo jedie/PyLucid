@@ -19,8 +19,9 @@
 
 __version__ = "$Rev:$"
 
+import os
+
 if __name__ == "__main__":
-    import os
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
     virtualenv_file = "../../../../../bin/activate_this.py"
     execfile(virtualenv_file, dict(__file__=virtualenv_file))
@@ -30,12 +31,13 @@ import pkg_resources
 import django
 from django.conf import settings
 from django.template import mark_safe
+from django.utils.version import get_svn_revision
 
 from pylucid_project import PYLUCID_VERSION_STRING
 from pylucid_project.apps.pylucid.decorators import render_to
 
 # print (!) some debug info. Values can be: False, 1, 2
-DEBUG = 1
+DEBUG = False
 
 # Collect only information about these packages:
 PACKAGES = (
@@ -104,6 +106,7 @@ PKG_INFO_KEYS = (
 )
 
 
+
 class PackageInfo(dict):
     " Holds all package information for *one* package "
     def __init__(self, pkg_dist, defaults):
@@ -112,6 +115,7 @@ class PackageInfo(dict):
 
         self._fill_with_dist_attr()
         self._fill_with_pkg_info()
+        self._add_svn_reversion()
 
     def _fill_with_dist_attr(self):
         """
@@ -173,6 +177,16 @@ class PackageInfo(dict):
                 continue
 
             dict.__setitem__(self, dict_key, pkg_info_value)
+
+    def _add_svn_reversion(self):
+        """ Add Subverion reversion number to version string, if exist """
+        location = dict.get(self, "location")
+        svn_revision = get_svn_revision(location)
+        if svn_revision == "SVN-unknown":
+            return
+
+        if svn_revision not in self["version"]:
+            self["version"] += " %s" % svn_revision
 
 
 class EnvironmetInfo(dict):

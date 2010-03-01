@@ -1,8 +1,6 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-{% comment %}
-	{% lucidTag TOC %} <- FIXME: TOC doesn't work in admin panel
-{% endcomment %}
+{% lucidTag TOC %}
 {% lucidTag package_info all_packages=True display_version=True display_location=True %}
 {% endblock %}

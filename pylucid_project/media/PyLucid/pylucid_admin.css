@@ -90,3 +90,52 @@ table.info td {
 table.info caption {
     font-weight:bold
 }
+/* ----------------------------------------------------------------------------
+   Headline Anchor
+------------------------------------------------------------------------------- */
+.top_link {
+  color: #000000;
+}
+.uarr {
+  color: #eeeeee;
+}
+.top_link:hover .uarr {
+  color: #000000;
+}
+.section_anchor {
+  text-shadow: 0px 0px #ffffff;
+  text-decoration:none;
+  color: #eeeeee!important;
+  padding-right: 1em;
+}
+.headline_anchor:hover .section_anchor {
+  color: #999999;
+}
+.section_anchor:hover {
+  color:#000000!important;
+  text-decoration:underline;
+  text-shadow: 2px 2px 2px #999999;
+}
+/* ----------------------------------------------------------------------------
+   TOC Plugin
+------------------------------------------------------------------------------- */
+.PyLucidPlugins.TOC {
+  border: 1px solid #eeeeee;
+  background-color: #fefefe;
+  margin: 3em;
+  padding: 1em 0em 1em 0em;
+}
+.PyLucidPlugins.TOC h3 {
+  margin: 0em;
+  color: #333333;
+}
+.PyLucidPlugins.TOC * {
+  margin: 0em;
+  color: #dddddd;
+}
+.PyLucidPlugins.TOC a {
+  color: #777777;
+}
+.PyLucidPlugins.TOC a:hover {
+  color: #286ea0;
+}

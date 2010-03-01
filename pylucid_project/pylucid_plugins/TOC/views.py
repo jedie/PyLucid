@@ -47,6 +47,6 @@ def lucidTag(request, min=3):
     # Just save the toc_min_count and return the placeholder
     # The real work would be done in:
     # pylucid_project.middlewares.headline_anchor.HeadlineAnchorMiddleware
-    request.PYLUCID.context["toc_min_count"] = min
+    request.PYLUCID._toc_min_count = min
     return settings.PYLUCID.TOC_PLACEHOLDER
 
