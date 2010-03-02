@@ -18,7 +18,6 @@
 <div class="helper_buttons">
     <input type="submit" name="preview" value="{% trans 'preview' %}" title="{% trans 'Display only the sourcecode of the template.' %}" />
     <input type="submit" name="overwrite" value="{% trans 'overwrite' %}" title="{% trans 'Read the template from filesystem and create a new dbtemplate entry.' %}" />
-    <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
 </div>
 </form>
 {% if template %}
