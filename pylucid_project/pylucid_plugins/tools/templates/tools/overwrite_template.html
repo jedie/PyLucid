@@ -1,0 +1,29 @@
+{% extends "pylucid_admin/base_site.html" %}
+
+{% if pygments_css %}
+{% block extrahead %}{{ block.super }}
+<!-- tools.highlight_code extrahead block start -->
+<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
+<!-- tools.highlight_code extrahead block end -->
+{% endblock %}
+{% endif %}
+
+{% block content %}
+<p>
+	{% trans 'Overwrite a template. Read the original template from filesystem and create a dbtemplate entry' %}
+	{% trans 'more info on:' %}<a href="http://www.pylucid.org#FIXME">pylucid.org</a>
+</p>
+<form action="{{ form_url }}" method="post" class="pylucid_form">
+{% include "admin/pylucid/includes/pylucid_formset.html" %}
+<div class="helper_buttons">
+    <input type="submit" name="preview" value="{% trans 'preview' %}" title="{% trans 'Display only the sourcecode of the template.' %}" />
+    <input type="submit" name="overwrite" value="{% trans 'overwrite' %}" title="{% trans 'Read the template from filesystem and create a new dbtemplate entry.' %}" />
+    <input onclick="self.location.href='{{ abort_url }}'" name="abort" value="{% trans 'abort' %}" type="reset" />
+</div>
+</form>
+{% if template %}
+<h2>preview sourcecode of '{{ template.name }}'</h2>
+<small>(Readed from the filesystem.)</small>
+{{ template.get_content_preview }}
+{% endif %}
+{% endblock content %}

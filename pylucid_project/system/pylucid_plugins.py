@@ -30,8 +30,7 @@ class PyLucidPlugin(object):
         self.fs_path = fs_path
         self.pkg_string = ".".join([pkg_prefix, plugin_name])
         self.name = plugin_name
-
-        self._template_path = os.path.join(fs_path, "templates")
+        self._template_path = os.path.join(fs_path, plugin_name, "templates")
 
     def get_template_path(self):
         """ return template filesystem path, if templates exist else: return None """

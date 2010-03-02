@@ -30,7 +30,8 @@ import sys
 
 try:
     #from django_tools.utils import info_print;info_print.redirect_stdout()
-
+    import django
+    import dbpreferences
     import pylucid_project
     from pylucid_project.system import pylucid_plugins
 except Exception, e:
@@ -39,6 +40,7 @@ except Exception, e:
     raise
 
 PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+#print "PYLUCID_PROJECT_ROOT:", PYLUCID_PROJECT_ROOT
 #PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
 
 #______________________________________________________________________________
@@ -133,13 +135,12 @@ TEMPLATE_DIRS = (
     os.path.join(PYLUCID_BASE_PATH, "apps/pylucid_admin/templates/"),
     os.path.join(PYLUCID_BASE_PATH, "apps/pylucid_update/templates/"),
 
-    os.path.join(PYLUCID_BASE_PATH, "apps/dbpreferences/templates/"),
-
-    os.path.join(PYLUCID_BASE_PATH, "django/contrib/admin/templates"),
+    os.path.join(os.path.abspath(os.path.dirname(dbpreferences.__file__)), "templates/"),
+    os.path.join(os.path.abspath(os.path.dirname(django.__file__)), "contrib/admin/templates"),
 )
 # Add all templates subdirs from all existing PyLucid plugins
 TEMPLATE_DIRS += pylucid_plugins.PYLUCID_PLUGINS.template_dirs
-#print "settings.TEMPLATE_DIRS:", TEMPLATE_DIRS
+#print "settings.TEMPLATE_DIRS:\n", "\n".join(TEMPLATE_DIRS)
 
 TEMPLATE_LOADERS = (
     'dbtemplates.loader.load_template_source',

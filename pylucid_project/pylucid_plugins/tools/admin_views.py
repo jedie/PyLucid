@@ -1,20 +1,33 @@
 # coding:utf-8
 
+import os
+import posixpath
 from datetime import datetime, timedelta
+
+
+if __name__ == "__main__":
+    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    virtualenv_file = "../../../../../bin/activate_this.py"
+    execfile(virtualenv_file, dict(__file__=virtualenv_file))
 
 from django import http
 from django.conf import settings
 from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _
 from django.contrib.sessions.models import Session
+from django.core.urlresolvers import reverse
+from django.contrib.sites.models import Site
 
-from pylucid.models import EditableHtmlHeadFile, LogEntry
-from pylucid.decorators import check_permissions, render_to
+from dbtemplates.models import Template
 
-from pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.apps.pylucid.models import LogEntry
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.markup.hightlighter import make_html, get_pygments_css
 
-from pylucid.markup.hightlighter import make_html
+from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
-from pylucid_project.pylucid_plugins.tools.forms import HighlightCodeForm, CleanupLogForm
+from pylucid_project.pylucid_plugins.tools.forms import HighlightCodeForm, CleanupLogForm, SelectTemplateForm
+
 
 MYSQL_ENCODING_VARS = (
     "character_set_server", "character_set_connection", "character_set_results", "collation_connection",
@@ -43,7 +56,11 @@ def install(request):
         name="cleanup session table", title="Cleanup the session table",
         url_name="Tools-cleanup_session"
     )
-
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry, name="overwrite template",
+        title="Overwrite a filesystem template with a new database headfile entry",
+        url_name="Tools-overwrite_template"
+    )
     return "\n".join(output)
 
 #-----------------------------------------------------------------------------
@@ -57,13 +74,9 @@ def highlight_code(request):
         "form_url": request.path,
     }
 
-    try:
-        pygments_css = EditableHtmlHeadFile.on_site.get(filepath="pygments.css")
-    except EditableHtmlHeadFile.DoesNotExist:
-        request.page_msg("Error: No headfile with filepath 'pygments.css' found.")
-    else:
-        absolute_url = pygments_css.get_absolute_url(colorscheme=None)
-        context["pygments_css"] = absolute_url
+    # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
+    pygments_css_path = get_pygments_css(request)
+    context["pygments_css"] = pygments_css_path
 
     if request.method == "POST":
         form = HighlightCodeForm(request.POST)
@@ -151,3 +164,122 @@ def cleanup_session(request):
         "count_deleted": count_before - count_after,
     }
     return context
+
+
+#-----------------------------------------------------------------------------------------------------------
+# overwrite template
+
+
+class TemplateFile(object):
+    def __init__(self, request, fs_path):
+        self.request = request
+        self.fs_path = fs_path
+
+        self.name = fs_path.rsplit("templates", 1)[1].lstrip("/")
+
+    def _get_fs_content(self):
+        try:
+            f = file(self.fs_path, "r")
+            content = f.read()
+            f.close()
+        except Exception, err:
+            request.page_msg.error("Can't read file: %s" % err)
+        else:
+            return content
+
+    def get_or_create_dbtemplate(self):
+        """
+        create a dbtemplate entry with the content form filesystem.
+        return the dbtemplate instance if success, otherwise: create a page_msg and return None
+        """
+        content = self._get_fs_content()
+        if not content:
+            # Content can't readed.
+            return
+
+        template, created = Template.objects.get_or_create(name=self.name,
+            defaults={"content": content}
+        )
+        if created:
+            template.save()
+            current_site = Site.objects.get_current()
+            template.sites.add(current_site)
+            template.save()
+        return template, created
+
+    def get_content_preview(self):
+        content = self._get_fs_content()
+        if not content:
+            # Can't read the template content, page_msg was created.
+            return
+
+        ext = os.path.splitext(self.fs_path)[1]
+        html = make_html(content, ext)
+        return html
+
+
+
+@check_permissions(
+    superuser_only=False,
+    permissions=(u'dbtemplates.add_template', u'dbtemplates.change_template')
+)
+@render_to("tools/overwrite_template.html")
+def overwrite_template(request):
+    """
+    Overwrite a template:
+    1. The user can choose between all existing template in filesystem.
+    2. Read the content from filesystem and create a new dbtemplate entry.
+    3. redirect to edit the nre dbtemplate entry
+    """
+    context = {
+        "title": _("overwrite template"),
+    }
+
+    if request.method != "POST":
+        form = SelectTemplateForm()
+    else:
+        form = SelectTemplateForm(request.POST)
+        if form.is_valid():
+            fs_path = form.cleaned_data["template"]
+            template = TemplateFile(request, fs_path)
+
+            if "preview" in request.POST:
+                # Display only the template content
+                preview_html = template.get_content_preview()
+                if preview_html:
+                    context["template"] = template
+
+                    # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
+                    pygments_css_path = get_pygments_css(request)
+                    context["pygments_css"] = pygments_css_path
+            else:
+                # A new dbtemplate should be created
+                instance, created = template.get_or_create_dbtemplate()
+                if instance:
+                    if created:
+                        # New dbtemplate instance created -> edit it
+                        # if instance == None: e.g.: error reading file -> page_msg was created
+                        msg = _("New dbtemplate entry %s created.") % instance
+                        LogEntry.objects.log_action(
+                            app_label="pylucid_plugin.extrahead",
+                            action="overwrite template %s" % template.name,
+                            request=request,
+                            message=msg
+                        )
+                    else:
+                        msg = _("dbtemplate entry %s already exists!") % instance
+
+                    msg += _(" You can edit it now.")
+
+                    request.page_msg(msg)
+
+                    # redirect to edit the new dbtemplate entry
+                    url = reverse("admin:dbtemplates_template_change", args=(instance.id,))
+                    return http.HttpResponseRedirect(url)
+
+    context["form"] = form
+    return context
+
+
+if __name__ == "__main__":
+    templates = [TemplateDir(dir) for dir in settings.TEMPLATE_DIRS]

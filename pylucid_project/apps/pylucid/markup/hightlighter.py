@@ -24,6 +24,7 @@ from django.utils.translation import ugettext as _
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.escape import escape, escape_django_tags
+from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile
 
 try:
     import pygments
@@ -106,3 +107,15 @@ def pygmentize(sourcecode, source_type):
     return html, lexer_name
 
 
+def get_pygments_css(request):
+    """
+    Returns the EditableHtmlHeadFile path to pygments.css
+    A page_msg would be created, if css not exists.
+    """
+    try:
+        pygments_css = EditableHtmlHeadFile.on_site.get(filepath="pygments.css")
+    except EditableHtmlHeadFile.DoesNotExist:
+        request.page_msg("Error: No headfile with filepath 'pygments.css' found.")
+    else:
+        absolute_url = pygments_css.get_absolute_url(colorscheme=None)
+        return absolute_url
