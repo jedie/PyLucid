@@ -85,20 +85,11 @@
 {% block content %}
 <!-- view_content block -->
 
-<ul id="top"><h2>content</h2>
-    <li><a href="#cache">Cache status</a></li>
-    <li><a href="#urlpatterns">urlpatterns</a></li>
-    <li><a href="#permissions">permissions</a></li>
-    <li><a href="#settings">settings</a></li>
-    <li><a href="#database_info">database info</a></li>
-    <li><a href="#request_meta">request.META</a></li>
-    <li><a href="#sys_path">python sys.path</a></li>
-</ul>
+{% lucidTag TOC %}
 
 <hr/>
 
-<h2 id="cache">Cache status</h2>
-<a href="#container">&#x2912; up to top</a>
+<h2>Cache status</h2>
 <table>
     <tr><th>item</th><th>length</th></tr>
 {% for item in cache_status %}
@@ -106,8 +97,7 @@
 {% endfor %}
 </table>
 
-<h2 id="urlpatterns">urlpatterns</h2>
-<a href="#container">&#x2912; up to top</a>
+<h2>urlpatterns</h2>
 <table>
     <tr><th>url name</th><th>url pattern</th></tr>
 {% for urlname, pattern in urlpatterns %}
@@ -115,8 +105,7 @@
 {% endfor %}
 </table>
 
-<h2 id="permissions">permissions</h2>
-<a href="#container">&#x2912; up to top</a>
+<h2>permissions</h2>
 <table>
     <tr>
     <th>app_label.codename</th>
@@ -130,20 +119,17 @@
 {% endfor %}
 </table>
 
-<h2 id="settings">settings</h2>
-<a href="#container">&#x2912; up to top</a>
+<h2>settings</h2>
 {{ settings }}
 
-<fieldset id="database_info"><legend>database info</legend>
+<fieldset><legend>database info</legend>
 <ul><h4>database backend information:</h4>
-<a href="#container">&#x2912; up to top</a>
     <li>name: {{ db_backend_name }}</li>
     <li>module: {{ db_backend_module }}</li>
     <li>version: {{ db_backend_version }}</li>
 </ul>
 
-<ul><h4>app/model info:</h4>
-<a href="#container">&#x2912; up to top</a>
+<ul><h4>app/model info</h4>
     {% for app_info in apps_info %}
     <li><strong>{{ app_info.app_name }}</strong>
     <ul>
@@ -155,22 +141,18 @@
     {% endfor %}
 </ul>
 
-<ul><h4>database table names:</h4>
-<a href="#container">&#x2912; up to top</a>
+<ul><h4>database table names</h4>
     {% for table_name in db_table_names %}<li>{{ table_name }}</li>{% endfor %}
 </ul>
-<ul><h4>django table names:</h4>
-<a href="#container">&#x2912; up to top</a>
+<ul><h4>django table names</h4>
     {% for table_name in django_tables %}<li>{{ table_name }}</li>{% endfor %}
 </ul>
 </fieldset>
 
-<h2 id="request_meta">request.META</h2>
-<a href="#container">&#x2912; up to top</a>
+<h2>request.META</h2>
 {{ request_meta }}
 
-<h2 id="sys_path">python sys.path</h2>
-<a href="#container">&#x2912; up to top</a>
+<h2>python sys.path</h2>
 <ul>
     {% for path in sys_path %}
     <li>{{ path }}
