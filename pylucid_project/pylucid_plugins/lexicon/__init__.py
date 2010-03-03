@@ -12,11 +12,11 @@
     $Rev: 2264 $
     $Author: JensDiemer $
 
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v2 or above, see LICENSE for more details
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-from pylucid.signals import pre_render_global_template
+from pylucid_project.apps.pylucid.signals import pre_render_global_template
 
 from lexicon.signal_receiver import pre_render_global_template_handler
 

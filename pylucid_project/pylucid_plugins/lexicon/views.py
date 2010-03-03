@@ -1,15 +1,8 @@
 # coding: utf-8
 
 """
-    PyLucid blog plugin
-    ~~~~~~~~~~~~~~~~~~~
-
-    A simple blog system.
-
-    http://feedvalidator.org/
-    
-    TODO:
-        * Detail view, use BlogEntry.get_absolute_url()
+    PyLucid lexicon plugin
+    ~~~~~~~~~~~~~~~~~~~~~~
     
 
     Last commit info:
@@ -18,30 +11,19 @@
     $Rev: 2263 $
     $Author: JensDiemer $
 
-    :copyleft: 2008-2009 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v2 or above, see LICENSE for more details
+    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 __version__ = "$Rev: 2263 $ Alpha"
 
-# from python core
-import os, datetime, posixpath
 
-# from django
-from django import http
-from django.conf import settings
-from django.core.mail import send_mail
-from django.template import RequestContext
-from django.core.urlresolvers import reverse
-from django.contrib.sites.models import Site
-from django.shortcuts import render_to_response
-from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.comments.views.comments import post_comment
 
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.decorators import render_to
 
-from lexicon.models import LexiconEntry, Links
+from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
 
 
 def _get_filtered_queryset(request):

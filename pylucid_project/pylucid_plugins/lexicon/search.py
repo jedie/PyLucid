@@ -1,7 +1,7 @@
 # coding:utf-8
 
 """
-    search all PageContent pages
+    search in lexicon entries
 """
 
 from django.contrib.sites.models import Site
@@ -10,7 +10,7 @@ from django.db.models import Q
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
 
-from lexicon.models import LexiconEntry
+from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
 
 
 def get_search_results(request, search_languages, search_strings, search_results):
