@@ -38,13 +38,15 @@ class LexiconData(dict):
         self._cache = {}
         super(LexiconData, self).__init__(*args, **kwargs)
 
-    def __call__(self, word_lower, word):
+    def __call__(self, matchobject):
         """ called from lexicon.sub_html.SubHtml """
-        term = self[word_lower]["term"]
+        word = matchobject.group(0)
+        data = self[word.lower()]
+        term = data["term"]
         if term not in self._cache:
             context = {
                 "term": term,
-                "short_definition": self[word_lower]["short_definition"],
+                "short_definition": data["short_definition"],
             }
             definition_link = render_to_string("lexicon/definition_link.html", context)
             self._cache[term] = definition_link
@@ -81,12 +83,17 @@ def pre_render_global_template_handler(**kwargs):
         for word in words_lower:
             lexicon_data[word] = {"term": term, "short_definition": short_definition}
 
+    if not lexicon_data:
+        # No lexicon entries -> nothing to do
+        return
+
     from lexicon.preference_forms import LexiconPrefForm # import here, against import loops
     pref_form = LexiconPrefForm()
     skip_tags = pref_form.get_skip_tags()
 
     s = SubHtml(lexicon_data, skip_tags)
-    page_content = s.process(page_content)
+    s.feed(page_content)
+    page_content = s.html
     request.PYLUCID.context["page_content"] = mark_safe(page_content)
 
 
