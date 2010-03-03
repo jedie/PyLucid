@@ -3,7 +3,7 @@
 from django import http
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.template import loader, RequestContext, Context, Template
+from django.template import loader, RequestContext
 from django.utils.translation import ugettext as _
 
 from django_tools.template import render
@@ -12,7 +12,7 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.signals import pre_render_global_template
-from pylucid_project.apps.pylucid.system import pylucid_plugin, i18n, pylucid_objects
+from pylucid_project.apps.pylucid.system import pylucid_plugin, i18n
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, \
                                                                     EditableHtmlHeadFile, Language
 
@@ -295,8 +295,8 @@ def _get_pagetree(request, url_path):
     try:
         return PageTree.objects.get_page_from_url(request, url_path)
     except PageTree.DoesNotExist, err:
-        msg = "Page not found"
-        if settings.DEBUG:
+        msg = _("Page not found")
+        if settings.DEBUG or request.user.is_staff:
             msg += " url path: %r (%s)" % (url_path, err)
         raise http.Http404(msg)
 

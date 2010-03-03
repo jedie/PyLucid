@@ -14,6 +14,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import sys
 from xml.sax.saxutils import escape
 
 from django.db import models
@@ -28,8 +29,8 @@ from django.contrib.sites.managers import CurrentSiteManager
 from django_tools.middlewares import ThreadLocal
 from django_tools import model_utils
 
-from pylucid.tree_model import BaseTreeModel, TreeGenerator
-from pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
+from pylucid_project.apps.pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel
 
 
 TAG_INPUT_HELP_URL = \
@@ -212,15 +213,14 @@ class PageTreeManager(BaseModelManager):
         page = None
         for no, page_slug in enumerate(path):
             if slugify(page_slug) != page_slug.lower():
-                msg = _("Wrong url!")
-                if settings.DEBUG or request.user.is_staff:
-                    msg += _(" url part %r is not a page slug!") % escape(page_slug)
-                raise PageTree.DoesNotExist(msg)
+                raise PageTree.DoesNotExist("url part %r is not slugify" % page_slug)
 
             try:
                 page = PageTree.on_site.get(parent=page, slug=page_slug)
             except PageTree.DoesNotExist:
-                raise PageTree.DoesNotExist("Wrong url part: %r" % escape(page_slug))
+                etype, evalue, etb = sys.exc_info()
+                evalue = etype("Wrong url %r: %s" % (page_slug, evalue))
+                raise etype, evalue, etb
 
             page_view_group = page.permitViewGroup
 
