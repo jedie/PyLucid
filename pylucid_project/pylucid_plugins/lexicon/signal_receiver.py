@@ -17,6 +17,9 @@
 
 __version__ = "$Rev:$"
 
+import sys
+import traceback
+
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 
@@ -92,7 +95,28 @@ def pre_render_global_template_handler(**kwargs):
     skip_tags = pref_form.get_skip_tags()
 
     s = SubHtml(lexicon_data, skip_tags)
-    s.feed(page_content)
+
+    try:
+        s.feed(page_content)
+    except HTMLParseError, err:
+        # Base error message for all users:
+        msg = u"Wrong HTML code"
+        if settings.DEBUG:
+            # insert more information into the traceback and re-raise the original error
+            etype, evalue, etb = sys.exc_info()
+            evalue = etype('%s (More info: %s)' % (msg, evalue))
+            raise etype, evalue, etb
+
+        if request.user.is_staff:
+            # add more info for staff members
+            msg += u" (%s)" % err
+
+        if request.user.is_superuser:
+            # put the full traceback into page_msg, but only for superusers
+            request.page_msg(mark_safe("%s:<pre>%s</pre>" % (msg, traceback.format_exc())))
+
+        return
+
     page_content = s.html
     request.PYLUCID.context["page_content"] = mark_safe(page_content)
 
