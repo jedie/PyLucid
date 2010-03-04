@@ -131,7 +131,7 @@ def base_check(request):
         )
         out.write("\tSee: http://docs.djangoproject.com/en/dev/ref/settings/#debug")
     else:
-        out.write("settings.settings.DEBUG, ok")
+        out.write("settings.DEBUG, ok")
     out.write("- "*40)
 
 
