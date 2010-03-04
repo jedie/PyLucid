@@ -19,7 +19,9 @@ __version__ = "$Rev:$"
 
 import sys
 import traceback
+import HTMLParser
 
+from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 
@@ -98,7 +100,7 @@ def pre_render_global_template_handler(**kwargs):
 
     try:
         s.feed(page_content)
-    except HTMLParseError, err:
+    except HTMLParser.HTMLParseError, err:
         # Base error message for all users:
         msg = u"Wrong HTML code"
         if settings.DEBUG:
