@@ -117,8 +117,14 @@ class PageStatsMiddleware(object):
             # No HTML Page -> do nothing
             return response
 
+        try:
+            start_time = self.start_time
+        except AttributeError:
+            # FIXME: process_request() was not called?!?
+            return response
+
         context = {
-            'total_time' : human_duration(time.time() - self.start_time),
+            'total_time' : human_duration(time.time() - start_time),
             'overall_time' : human_duration(time.time() - start_overall),
         }
 
