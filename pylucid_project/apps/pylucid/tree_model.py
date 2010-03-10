@@ -17,16 +17,17 @@
     $Rev: 1792 $
     $Author: JensDiemer $
 
-    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 if __name__ == "__main__":
     # run unittest for this module
     import sys
-    import test_tools # before django imports!
+    from pylucid_project.tests import test_tools # before django imports!
     from django.core import management
     management.call_command('test', "test_TreeModel.TreeModelTest")
+#    management.call_command('test', "pylucid_project.pylucid_plugins.main_menu")
     sys.exit()
 
 from django.db import models
@@ -43,7 +44,26 @@ class MenuNode(object):
         self.active = False  # the complete path back to root
         self.current = False # current node in main menu?
         self.visible = True  # Seen in main menu?
-        self.level = None
+
+        self.level = None # The level count, starts with 0
+        self.first = False # Is the first node in the current level
+        self.last = False # Is the last node in the current level
+
+    def css_class(self):
+        """
+        returns a css class string, for: ... class="{{ node.css_class }}"
+        So it's not needed to add a few {% if %} template statements. 
+        """
+        class_names = "level_%s" % self.level
+        if self.active:
+            class_names += " active"
+        if self.current:
+            class_names += " current"
+        if self.first:
+            class_names += " first"
+        if self.last:
+            class_names += " last"
+        return class_names
 
     def add(self, node):
         """
@@ -117,8 +137,8 @@ class TreeGenerator(object):
 
             parent.add(self.nodes[node_data["id"]])
 
-        # add level number to all nodes
-        self.setup_level()
+        # add level number to all nodes and mark first/last nodes
+        self.setup_nodes()
 
     def get_first_nodes(self, nodes=None):
         """ return a list of all 'top' nodes (all root subnodes) """
@@ -136,14 +156,18 @@ class TreeGenerator(object):
                 if nodes2:
                     return nodes2
 
-    def setup_level(self, nodes=None, level=0):
-        """ add level number to all nodes """
+    def setup_nodes(self, nodes=None, level=0):
+        """ add level number to all nodes and mark first/last nodes """
         if nodes == None:
             nodes = self.root.subnodes
+
+        nodes[0].first = True
+        nodes[-1].last = True
+
         for node in nodes:
             node.level = level
             if node.subnodes:
-                self.setup_level(node.subnodes, level + 1)
+                self.setup_nodes(node.subnodes, level + 1)
 
     def debug(self, nodes=None):
         def debug1(nodes):
