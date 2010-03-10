@@ -24,7 +24,7 @@ class TreeModelTest(basetest.BaseUnittest):
     def _flat_tree_generator(self, tree):
         for node in tree.iter_flat_list():
             indent = "*" * (node.level + 1)
-            yield "%-3s %s" % (indent, node.db_instance.get_absolute_url())
+            yield "%-3s %s" % (indent, node.get_absolute_url())
 
     def _print_flat_tree(self, tree):
         flat_tree = self._flat_tree_generator(tree)
