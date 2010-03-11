@@ -44,6 +44,7 @@ function replace_page_content(data, textStatus) {
         // html data of the redirected page.
 		
         log("redirect work-a-round: replace the complete page");
+		log(data);
         log("</body> index:" + data.indexOf("</body>"));
         replace_complete_page(data)
     } else {
@@ -68,6 +69,10 @@ function ajax_error_handler(XMLHttpRequest, textStatus, errorThrown) {
     log("response_text: '" + response_text + "'");
     if (!response_text) {
         response_text = "<h1>Ajax response error without any response text.</h1>";
+		response_text += "<p>textStatus:" + textStatus + "</p>"
+		response_text += "<p>errorThrown:" + errorThrown + "</p>"
+		replace_page_content(response_text, textStatus);
+		return
     }
     replace_complete_page(response_text);
     load_normal_link = true;

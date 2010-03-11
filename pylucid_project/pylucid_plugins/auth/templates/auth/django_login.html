@@ -1,0 +1,27 @@
+{% extends "admin/login.html" %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+try {
+    jQuery(document);
+} catch (e) {
+    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
+}
+var js_sha_link='<p>{% trans "or use:" %}</p>';
+js_sha_link+='<p>&#x22D9;';
+js_sha_link+=' <a href="/?auth=login&next_url={{ app_path }}">';
+js_sha_link+='{% trans "JS-SHA-Login" %}';
+js_sha_link+='</a>';
+js_sha_link+=' &#x22D8;</p>';
+
+
+jQuery(document).ready(function($) {
+	log("add JS-SHA-Login link.");
+	$(".submit-row").append(js_sha_link);
+	$("form").submit(function () {
+		return confirm("{% trans 'Do really want to send your password in plain text?' %}");
+	});
+	$("form").find(":submit").attr('value','Plaintext login');
+});
+</script>
+{% endblock %}

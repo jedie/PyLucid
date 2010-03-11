@@ -9,11 +9,11 @@ from dbpreferences.forms import DBPreferencesBaseForm
 class AuthPreferencesForm(DBPreferencesBaseForm):
     ban_limit = forms.IntegerField(
         help_text=_("Numbers login log messages after IP would be banned."),
-        initial=5, min_value=1, max_value=20
+        initial=6, min_value=1, max_value=20
     )
     min_pause = forms.IntegerField(
         help_text=_("Minimum pause in seconds between two login log messages from the same user. (Used 'REMOTE_ADDR')"),
-        initial=30, min_value=1, max_value=600
+        initial=15, min_value=1, max_value=600
     )
 
     class Meta:

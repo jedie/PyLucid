@@ -134,6 +134,13 @@ def get_new_salt(can_debug=True):
     seed = get_new_seed(can_debug)
     return seed[:SALT_LEN]
 
+def get_pseudo_salt(*args):
+    """
+    generate a pseudo salt (used, if user is wrong)
+    """
+    temp = "".join([repr(arg) for arg in args])
+    return sha_constructor(temp).hexdigest()[:SALT_LEN]
+
 
 def make_hash(txt, salt):
     """
@@ -147,6 +154,7 @@ def make_hash(txt, salt):
     """
     hash = sha_constructor(salt + smart_str(txt)).hexdigest()
     return hash
+
 
 def get_salt_and_hash(txt):
     """

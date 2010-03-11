@@ -58,7 +58,7 @@ class LogEntryManager(models.Manager):
 
         return queryset
 
-    def request_limit(self, request, min_pause, ban_limit, app_label):
+    def request_limit(self, request, min_pause, ban_limit, app_label, no_page_msg=False):
         """
         Monitor request min_pause and ban_limit.
         """
@@ -83,13 +83,17 @@ class LogEntryManager(models.Manager):
 
         if last_actions > 0:
             msg = _("Request too fast!")
-            if settings.DEBUG:
-                msg += _(" Please wait min. %ssec.") % min_pause
-            request.page_msg.error(msg)
-            LogEntry.objects.log_action(
-                app_label=app_label, action="request aborted", message="(%s in the last %ssec.)" % (last_actions, min_pause),
+            debug_msg = " (%s in the last %ssec. IP is blocked by %s overruns.)" % (
+                last_actions, min_pause, ban_limit
             )
-            raise self.model.RequestTooFast()
+            if settings.DEBUG:
+                msg += debug_msg
+            if no_page_msg == False:
+                request.page_msg.error(msg)
+            LogEntry.objects.log_action(
+                app_label=app_label, action="request aborted", message=debug_msg,
+            )
+            raise self.model.RequestTooFast(msg)
 
     def log_action(self, app_label, action, request=None, message=None, long_message=None, data=None):
         if request is None:
