@@ -110,6 +110,8 @@ def show_internals(request):
 
         "request_meta": hightlighter.make_html(pformat(request.META), source_type="py"),
 
+        "request_session": hightlighter.make_html(pformat(dict(request.session)), source_type="py"),
+
         "sys_path": sys.path,
     }
     return context
