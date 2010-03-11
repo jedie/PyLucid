@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from dbpreferences.forms import DBPreferencesBaseForm
 
-from pylucid.models import Design
+from pylucid_project.apps.pylucid.models import Design
 
 #if Language.objects.count() == 0:
 #    # FIXME: Insert first language
@@ -17,27 +17,14 @@ from pylucid.models import Design
 
 class SystemPreferencesForm(DBPreferencesBaseForm):
     """ test preferences form """
-    # ModelChoiceField is not supported in DBpreferences, yet.
-    # see: http://code.google.com/p/django-dbpreferences/issues/detail?id=4
-#    pylucid_admin_design = forms.ModelChoiceField(
-#        queryset=Design.objects.all(), empty_label=None,
-#        required=False, initial=None,
-#        help_text=_("ID of the PyLucid Admin Design.")
-#    )
 
+    # We can't use ModelChoiceField here, is not supported in DBpreferences, yet.
+    # see: http://code.google.com/p/django-dbpreferences/issues/detail?id=4
     pylucid_admin_design = forms.ChoiceField(
-        choices=Design.on_site.all().values_list("id", "name"),
+        # choices= Set in __init__, so the Queryset would not execute at startup
         required=False, initial=None,
-        help_text=_("ID of the PyLucid Admin Design.")
+        help_text=_("ID of the PyLucid Admin Design. (Not used yet!)")
     )
-    # We use settings.LANGUAGE_CODE as default language:
-    # http://docs.djangoproject.com/en/dev/ref/settings/#language-code
-    # Because django does many things for us.
-#    lang_code = forms.ChoiceField(
-#        choices=Language.objects.values_list('code', 'description'),
-#        initial=Language.objects.all()[0].code,
-#        help_text=_("The default system language")
-#    )
     ban_release_time = forms.IntegerField(
         help_text=_("How long should a IP address banned in minutes. (Changes need app restart)"),
         initial=15, min_value=1, max_value=60 * 24 * 7
@@ -73,6 +60,10 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         required=True, initial=LOG404_NOREDIRECT,
         help_text=_("Setup logging verbosity if 404 - 'Page not found' appears")
     )
+
+    def __init__(self, *args, **kwargs):
+        super(SystemPreferencesForm, self).__init__(*args, **kwargs)
+        self.fields['pylucid_admin_design'].choices = Design.on_site.all().values_list("id", "name")
 
     class Meta:
         app_label = 'pylucid'
