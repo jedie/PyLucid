@@ -15,7 +15,7 @@ function is_only_ascii(data) {
 function sha_hexdigest(txt) {
     // build the SHA hexdigest from the given string. Return false is anything is wrong.
     try {
-        log("sha_hexdigest(" + txt + "):");
+        log("sha_hexdigest('" + txt + "'):");
         SHA_hexdigest = hex_sha1(txt); // from: sha.js
         len = SHA_hexdigest.length;
         if (len != HASH_LEN) {

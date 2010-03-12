@@ -16,9 +16,9 @@
 <script type="text/javascript">
 var SALT_LEN={{ salt_len }};
 var HASH_LEN={{ hash_len }};
-var salt="";
-var challenge="{{ challenge }}";
-	
+var challenge="{{ challenge }}"; // changed via ajax, after wrong login
+var salt=""; // get via ajax
+
 try {
     jQuery(document);
 } catch (e) {
@@ -30,27 +30,27 @@ jQuery(document).ready(function($) {
         alert("Wrong challenge from server length:" + challenge.length + "!=" + SALT_LEN);
         return false;
     }
-	if (!hex_sha1) {
-	   alert("sha.js not loaded.\n(hex_sha1 not defined)");
-	   return false;
-	}
-	if (!sha_hexdigest) {
-	   alert("Wrong shared_sha_tools.js loaded! Please update your media files\n(sha_hexdigest not defined)");
-	   return false;
-	}
-	
+    if (!hex_sha1) {
+        alert("sha.js not loaded.\n(hex_sha1 not defined)");
+        return false;
+    }
+    if (!sha_hexdigest) {
+        alert("Wrong shared_sha_tools.js loaded! Please update your media files\n(sha_hexdigest not defined)");
+        return false;
+    }
+
     // unhide form
     $("#login_form").css("display", "block").slideDown();
-	
+	$("#load_info").slideUp();
+
     $("#id_username").focus();
-	
-	// TODO: Add a client side random value???
-	// Math.random();
-	// http://docs.jquery.com/Tutorials:Mouse_Position
-	
+
 	// remove old page_msg, if exist
-	$("#page_msg").slideUp();
-	
+	log("is_ajax: '{{ is_ajax }}'");
+	if ("{{ is_ajax }}" == "True") {
+		$("#page_msg").slideUp();
+	}
+
 	$("#id_username").change(function() {
 		// if the username change, we must get a new salt from server.
 		$("#id_password").focus();
@@ -59,27 +59,27 @@ jQuery(document).ready(function($) {
 	    salt="";
 		return false;
 	});
-	
+
     $("#id_password").change(function() {
         $("#js_page_msg").slideUp(); // hide old messages
     });
-	
+
 	$("#login_form").submit(function() {
 		log("check login form.");
-	    try {			
+	    try {
 			var username = $("#id_username").val();
 			log("username:" + username);
-	
+
 	        if (username.length<2) {
 	            log("username to short, current len:" + username.length);
 				page_msg_error("{% trans 'Username is too short.' %}");
 	            $("#id_username").focus();
 	            return false;
 	        }
-	
+
 	        var password = $("#id_password").val();
 	        log("password:" + password);
-			
+
 	        if (password.length<8) {
 				log("password to short, current len:" + password.length);
 				page_msg_error("{% trans 'Password is too short. It must be at least eight characters long.' %}");
@@ -90,14 +90,16 @@ jQuery(document).ready(function($) {
                 page_msg_error("{% trans 'Only ASCII letters in password allowed!' %}");
 			    return false;
 			}
-			
+
 			if (salt=="") {
 				page_msg_info("{% trans 'Get the hash salt value from server...' %}");
+                var post_data = {"username": username};
+                log("get user salt from server, send POST:" + $.param(post_data));
 				response = $.ajax({
 					async: false,
 					type: "POST",
 					url: "{{ get_salt_url }}",
-					data: {"username": username},
+					data: post_data,
 					dataType: "text",
 					success: function(data, textStatus, XMLHttpRequest){
 		                log("get salt value via ajax: " + textStatus);
@@ -113,38 +115,48 @@ jQuery(document).ready(function($) {
 				alert("Internal error: Wrong salt length:" + salt.length + "!=" + SALT_LEN);
 		        return false;
 		    }
-			
+
+            log("shapass = sha_hexdigest(salt + password):");
 		    shapass = sha_hexdigest(salt + password);
-		    log("shapass - sha_hexdigest(salt + password):" + shapass);
 			if (shapass == false) { return false; }
 		    if (shapass.length!=HASH_LEN) {
 		        alert("Internal error: hex_sha salt error! shapass length:" + shapass.length);
 		        return false;
 		    }
-		
+
 		    // split SHA-Passwort
 		    sha_a = shapass.substr(0, HASH_LEN/2); // sha_a never send to the server
 		    sha_b = shapass.substr(HASH_LEN/2, HASH_LEN/2);
 		    log("substr: sha_a:|"+sha_a+"| sha_b:|"+sha_b+"|");
-		
-		    // build SHA-1 from challenge and sha_a
-		    sha_a2 = sha_hexdigest(challenge + sha_a)
-		    log("sha_a2 - sha_hexdigest(challenge '"+challenge+"' + sha_a): " + sha_a2);
+
+//            // Generate 'cnonce' a client side random value
+//            var cnonce = "";
+//            cnonce += new Date().getTime();
+//            cnonce += Math.random();
+//            cnonce += $(window).height();
+//            cnonce += $(window).width();
+//            log("generated cnonce:");
+//            cnonce = sha_hexdigest(cnonce);
+
+            log("sha_a2 = sha_hexdigest(challenge + sha_a):");
+		    sha_a2 = sha_hexdigest(challenge + sha_a);
 			if (sha_a2 == false) { return false; }
-		
+
 		    // display SHA values
 			$("#sha_values_block").css("display", "block").slideDown();
-            $("#id_password").val(""); // 'delete' plaintext password			
+            $("#id_password").val(""); // 'delete' plaintext password
 			$("#password_block").slideUp();
 		    $("#id_sha_a2").val(sha_a2);
             $("#id_sha_b").val(sha_b);
-			
+
+			var post_data = {"username": username, "sha_a2": sha_a2, "sha_b": sha_b}
+			log("auth user, send POST:" + $.param(post_data));
 			page_msg_info("{% trans 'Send SHA-1 values to the server...' %}");
             response = $.ajax({
                 async: false,
                 type: "POST",
                 url: "{{ sha_auth_url }}",
-                data: {"username": username, "sha_a2": sha_a2, "sha_b": sha_b},
+                data: post_data,
                 dataType: "text",
                 success: function(data, textStatus, XMLHttpRequest){
                     log("post request via ajax: " + textStatus);
@@ -169,20 +181,20 @@ jQuery(document).ready(function($) {
 				log("Wrong server reponse! No ';' found!");
 				return false
 			}
-			
+
 			// we get a new challenge and a error message from server
 			challenge = msg.substr(0, msg.indexOf(";"));
 			msg = msg.substr(msg.indexOf(";")+1);
-			
+
 			log("new challenge:" + challenge);
 			page_msg_error(msg);
-			
+
             $("#password_block").css("display", "block").slideDown();
             $("#sha_values_block").slideUp("slow");
             $("#id_sha_a2").val("");
             $("#id_sha_b").val("");
 			$("#id_password").focus();
-			
+
 		    return false;
         } catch (e) {
             log("Error:" + e);
@@ -190,6 +202,21 @@ jQuery(document).ready(function($) {
 			return false;
         }
 	});
+	
+    log("test sha.js");
+    var digits="0123456789";
+    var ascii_lowercase = "abcdefghijklmnopqrstuvwxyz".toLowerCase();
+    var ascii_uppercase = ascii_lowercase.toUpperCase();
+    var test_string = " " + digits + ascii_lowercase + ascii_uppercase;
+    var test_sha = sha_hexdigest(test_string);
+	var should_be = "5b415e2e5421a30b798c9b46638fcd7b58ff4d53".toLowerCase()
+    if (test_sha != should_be) {
+		var msg = "sha.js test failed!\n'" + test_sha + "' != '" + should_be + "'";
+		log(msg);
+        alert("Internal Error:\n" + msg);
+        return false;
+    }
+	log("sha.js is ok");
 });
 </script>
 
@@ -204,6 +231,8 @@ jQuery(document).ready(function($) {
     <p>Without JavaScript, you can only use the unsecure plaintext login!</p>
     </fieldset>
 </noscript>
+
+<p id="load_info">loading...</p>
 
 <form method="post" action="" name="login" id="login_form">
   <p id="js_page_msg"></p>
@@ -222,8 +251,11 @@ jQuery(document).ready(function($) {
   </p>
   <input id="submit_button" type="submit" value="{% trans 'Log in' %}" />
 </form>
+{% comment %}
+TODO: Reimplement the passwort reset
 {% if pass_reset_link %}
   <a href="{{ pass_reset_link }}">{% trans 'Request a password reset.' %}</a>
 {% endif %}
+{% endcomment %}
 </fieldset>
 {% endblock %}

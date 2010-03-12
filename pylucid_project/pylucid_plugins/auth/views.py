@@ -19,37 +19,36 @@
 from django.contrib import auth
 from django.conf import settings
 from django.template import RequestContext
-from django.contrib.sites.models import Site
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.utils.translation import ugettext as _
 from django.template.loader import render_to_string
-from django.core.exceptions import ObjectDoesNotExist
-
 
 from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response
-from pylucid_project.apps.pylucid.models import LogEntry, BanEntry, UserProfile
-
+from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.utils import crypt
 
-from pylucid_project.pylucid_plugins.auth.forms import WrongUserError, UsernameForm, ShaLoginForm
-from pylucid_plugins.auth.preference_forms import AuthPreferencesForm
+# auth own stuff
+from forms import WrongUserError, UsernameForm, ShaLoginForm
+from preference_forms import AuthPreferencesForm
 
 
-# DEBUG is usefull for debugging password reset. It send no email, it puts the
-# email text direclty into the CMS page.
+# DEBUG is usefull for debugging. It send always the same challenge "12345" 
 #DEBUG = True
 DEBUG = False
-# IMPORTANT:
-# Should realy only use for debugging!!!
+# IMPORTANT: Should really only use for debugging!!!
 if DEBUG:
     import warnings
-    warnings.warn("Debug mode in auth plugin is on!", UserWarning)
+    warnings.warn("Debug mode in auth plugin is on! print statements would be used!")
 
 
 def _get_challenge(request):
     """ create a new challenge, add it to session and return it"""
-    # Create a new random salt value for the password challenge:
-    challenge = crypt.get_new_salt()
+    if DEBUG:
+        challenge = "12345"
+        print("use DEBUG challenge: %r" % challenge)
+    else:
+        # Create a new random salt value for the password challenge:
+        challenge = crypt.get_new_salt()
 
     # For later comparing with form data
     request.session["challenge"] = challenge
@@ -167,6 +166,13 @@ def _sha_auth(request):
     sha_a2 = form.cleaned_data["sha_a2"]
     sha_b = form.cleaned_data["sha_b"]
 
+    if DEBUG:
+        print(
+            "authenticate %r with: challenge: %r, sha_checksum: %r, sha_a2: %r, sha_b: %r" % (
+                user1, challenge, sha_checksum, sha_a2, sha_b
+            )
+        )
+
     # authenticate with:
     # pylucid.system.auth_backends.SiteSHALoginAuthBackend
     user2 = auth.authenticate(
@@ -201,21 +207,33 @@ def _get_salt(request):
         try:
             user_profile = form.get_user_profile()
         except WrongUserError, err:
+            msg = "can't get userprofile: %s" % err
+            if DEBUG:
+                print(msg)
             if settings.DEBUG:
-                request.page_msg.error(err)
+                request.page_msg.error(msg)
 
     if user_profile is None: # Wrong user?
         username = request.POST["username"]
+        msg = "Username %r is wrong: %r" % (username, form.errors)
+        if DEBUG:
+            print(msg)
         if settings.DEBUG:
-            request.page_msg.error("Wrong user %r !" % username)
+            request.page_msg.error(msg)
         salt = crypt.get_pseudo_salt(username)
     else:
         salt = user_profile.sha_login_salt
+
+    if DEBUG:
+        print("send salt %r to client." % salt)
 
     return HttpResponse(salt, content_type="text/plain")
 
 
 def _login_view(request, next_url):
+    if DEBUG:
+        print("auth debug mode is on!")
+
     if request.method != 'GET':
         debug_msg = "request method %r wrong, only GET allowed" % request.method
         return _bad_request(debug_msg) # Return HttpResponseBadRequest
@@ -231,6 +249,7 @@ def _login_view(request, next_url):
     challenge = _get_challenge(request)
 
     context = {
+        "is_ajax": request.is_ajax(),
         "challenge": challenge,
         "salt_len": crypt.SALT_LEN,
         "hash_len": crypt.HASH_LEN,
@@ -257,10 +276,6 @@ def http_get_view(request):
     Login+Logout view via GET parameters
     """
     action = request.GET["auth"]
-
-
-
-
 
     if action == "login":
 #        next_url = request.GET.get("next_url", None)
