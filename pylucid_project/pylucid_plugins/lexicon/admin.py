@@ -33,6 +33,7 @@ class LexiconEntryAdmin(BaseAdmin, VersionAdmin):
     list_display_links = ("term", "tags",)
     list_filter = ("is_public", "language", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
+    ordering = ('-lastupdatetime',)
     search_fields = ("term", "tags", "content")
 
 pylucid_admin_site.register(LexiconEntry, LexiconEntryAdmin)
