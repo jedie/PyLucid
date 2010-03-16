@@ -67,6 +67,7 @@ def _bad_request(debug_msg):
         msg = debug_msg
     else:
         msg = ""
+
     return HttpResponseBadRequest(msg)
 
 
@@ -119,7 +120,7 @@ def _wrong_login(request, debug_msg, user=None):
         )
     except LogEntry.RequestTooFast, err:
         # min_pause is not observed
-        error_msg = err
+        error_msg = unicode(err) # ugettext_lazy
 
     # Log this error (Important: must be logged after LogEntry.objects.request_limit() stuff!
     if user is not None:
@@ -173,13 +174,18 @@ def _sha_auth(request):
             )
         )
 
-    # authenticate with:
-    # pylucid.system.auth_backends.SiteSHALoginAuthBackend
-    user2 = auth.authenticate(
-        user=user1, challenge=challenge,
-        sha_a2=sha_a2, sha_b=sha_b,
-        sha_checksum=sha_checksum
-    )
+    try:
+        # authenticate with:
+        # pylucid.system.auth_backends.SiteSHALoginAuthBackend
+        user2 = auth.authenticate(
+            user=user1, challenge=challenge,
+            sha_a2=sha_a2, sha_b=sha_b,
+            sha_checksum=sha_checksum
+        )
+    except Exception, err: # e.g. low level error from crypt
+        debug_msg = "auth.authenticate() failed: %s" % err
+        return _wrong_login(request, debug_msg, user1)
+
     if user2 is None:
         debug_msg = "auth.authenticate() failed. (must be a wrong password)"
         return _wrong_login(request, debug_msg, user1)
@@ -223,6 +229,15 @@ def _get_salt(request):
         salt = crypt.get_pseudo_salt(username)
     else:
         salt = user_profile.sha_login_salt
+        if len(salt) != crypt.SALT_LEN:
+            # Old profile, e.g. after PyLucid v0.8 update?
+            username = request.POST["username"]
+            msg = "Salt for user %r has wrong length: %r" % (username, salt)
+            if DEBUG:
+                print(msg)
+            if settings.DEBUG:
+                request.page_msg.error(msg)
+            salt = crypt.get_pseudo_salt(username)
 
     if DEBUG:
         print("send salt %r to client." % salt)
