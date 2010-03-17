@@ -20,49 +20,43 @@ import sys
 
 from setuptools import setup, find_packages
 
-sys.path.insert(0, os.path.join(os.getcwd(), "pylucid_project"))
 from pylucid_project import PYLUCID_VERSION_STRING
 
 
+PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
 def get_authors():
-    authors = []
-    f = file("AUTHORS", "r")
-    for line in f:
-        if line.startswith('*'):
-            authors.append(line[1:].strip())
+    f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
+    authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
     f.close()
     return authors
 
+
 def get_long_description():
-    f = file("README", "r")
-    long_description = f.read()
+    f = file(os.path.join(PACKAGE_ROOT, "README"), "r")
+    long_description = f.read().strip()
     f.close()
-    long_description.strip()
     return long_description
 
 
 setup(
     name='PyLucid',
     version=PYLUCID_VERSION_STRING,
-    description='PyLucid is an open-source content management system (CMS) using django.',
-    long_description = get_long_description(),
-    author = get_authors(),
-    maintainer = "Jens Diemer",
+    description='PyLucid is an open-source web content management system (CMS) using django.',
+    long_description=get_long_description(),
+    author=get_authors(),
+    maintainer="Jens Diemer",
     url='http://www.pylucid.org',
     packages=find_packages(),
     include_package_data=True, # include package data under svn source control
     zip_safe=False,
-#    entry_points={
-#        'console_scripts': [
-#            'pylucid-admin = pylucid.core.management:execute_from_command_line',
-#        ],
-#    },
-    classifiers = [
+    classifiers=[
 #        'Development Status :: 1 - Planning',
 #        'Development Status :: 2 - Pre-Alpha',
 #        'Development Status :: 3 - Alpha',
         "Development Status :: 4 - Beta",
-#        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
 #        "Intended Audience :: Education",
