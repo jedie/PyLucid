@@ -1,21 +1,28 @@
-
-======
- info
-======
-
-This is the PyLucid v0.9 branch witch is in planing/pre-alpha state.
-
-Users should use the latest v0.8.x version, download:
-
- * http://sourceforge.net/projects/pylucid/
-
-
 =============
  description
 =============
 
-PyLucid is a Open Source content management system (CMS) written in Python
-using Django.
+PyLucid is a Open Source web content management system written in Python using the Django Framework.
+
+Some PyLucid Features are:
+
+    * fully customizable output
+    * expandable with plugins
+    * some built in plugins: weblog, OpenStreetMap, lexicon, RSS, tag navigation, Table of contens
+    * internationalization and localization support (new in v0.9)
+    * Revision controled content (new in v0.9)
+    * Open Source (GPL v3 or later)
+    * support many database engines (PostgreSQL, MySQL, Oracle and SQLite)
+    * WSGI conform: CGI, fastCGI, mod_Python and others
+    * and many more features...
+
+good startpoints are:
+
+`Test PyLucid v0.9 with a built-in http server
+<http://www.pylucid.org/permalink/276/guide-for-testing-v09-usefull-for-developers>`_
+
+`Setup PyLucid v0.9 for apache
+<http://www.pylucid.org/permalink/273/install-instruction-for-apache-mod_rewrite-fastcgi>`_
 
 
 =======
@@ -26,7 +33,7 @@ using Django.
   http://www.pylucid.org
 
 :Forum:
- http://www.pylucid.org/phpBB2/
+ http://forum.pylucid.org/
 
 :IRC:
  #pylucid on freenode.net
