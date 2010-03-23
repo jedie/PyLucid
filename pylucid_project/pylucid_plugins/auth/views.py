@@ -245,13 +245,15 @@ def _get_salt(request):
     return HttpResponse(salt, content_type="text/plain")
 
 
-def _login_view(request, next_url):
+def _login_view(request):
     if DEBUG:
         print("auth debug mode is on!")
 
     if request.method != 'GET':
         debug_msg = "request method %r wrong, only GET allowed" % request.method
         return _bad_request(debug_msg) # Return HttpResponseBadRequest
+
+    next_url = request.GET.get("next_url", request.path)
 
     if "://" in next_url: # FIXME: How to validate this better?
         # Don't redirect to other pages.
@@ -279,10 +281,11 @@ def _login_view(request, next_url):
     return render_pylucid_response(request, 'auth/sha_form.html', context, context_instance=RequestContext(request))
 
 
-def _logout_view(request, next_url):
+def _logout_view(request):
     """ Logout the current user. """
     auth.logout(request)
     request.page_msg.successful(_("You are logged out!"))
+    next_url = request.path
     return HttpResponseRedirect(next_url)
 
 
@@ -293,39 +296,15 @@ def http_get_view(request):
     action = request.GET["auth"]
 
     if action == "login":
-#        next_url = request.GET.get("next_url", None)
-#        if next_url:
-#            form_url = settings.PYLUCID.AUTH_NEXT_URL % {"path": request.path, "next_url": next_url}
-#        else:
-#            next_url = request.path
-#            form_url = "%s?%s" % (request.path, settings.PYLUCID.AUTH_GET_VIEW)
-
-        next_url = request.GET.get("next_url", request.path)
-        return _login_view(request, next_url)
+        return _login_view(request)
     elif action == "get_salt":
         return _get_salt(request)
     elif action == "sha_auth":
         return _sha_auth(request)
     elif action == "logout":
-        next_url = request.path
-        return _logout_view(request, next_url)
+        return _logout_view(request)
     else:
         debug_msg = "Wrong get view parameter!"
         return _bad_request(debug_msg) # Return HttpResponseBadRequest
 
 
-#def authenticate(request):
-#    """
-#    Login+Logout view via PluginPage
-#    """
-#    if request.user.is_authenticated():
-#        return _logout_view(request)
-#    else:
-#        next_url = request.GET.get("next_url", None)
-#        form_url = request.path
-#        if next_url == None:
-#            next_url = "/"
-#        else:
-#            form_url += "?next_url=" + next_url
-#
-#        return _login_view(request, form_url, next_url)
