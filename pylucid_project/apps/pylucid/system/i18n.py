@@ -10,7 +10,7 @@
     $Rev: $
     $Author: JensDiemer $
 
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
@@ -27,8 +27,7 @@ from django.conf import settings
 from django.utils import translation
 from django.http import HttpResponseRedirect
 
-from pylucid.models import Language
-
+from pylucid_project.apps.pylucid.models import Language
 
 
 def reset_language_settings(request):
@@ -79,7 +78,7 @@ def activate_auto_language(request):
         request.page_msg("request.LANGUAGE_CODE: %r (set in django.middleware.local)" % lang_code)
 
     try:
-        lang_entry = Language.objects.get(code=lang_code)
+        lang_entry = Language.on_site.get(code=lang_code)
     except Language.DoesNotExist:
         if settings.PYLUCID.I18N_DEBUG:
             request.page_msg.error(
@@ -127,8 +126,6 @@ def activate_language(request, lang_entry, save=False):
 
     # activate django i18n:
     translation.activate(lang_entry.code)
-
-
 
 
 if __name__ == "__main__":
