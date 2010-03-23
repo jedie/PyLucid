@@ -30,6 +30,28 @@ from django.http import HttpResponseRedirect
 from pylucid_project.apps.pylucid.models import Language
 
 
+def change_url(request, new_lang_code, save_get_parameter=True):
+    """
+    change the language code in the current url
+    
+    if save_get_parameter==True:
+        keep GET parameter in url
+    else:
+        remove GET parameter
+    """
+    if save_get_parameter:
+        old_path = request.get_full_path()
+    else:
+        old_path = request.path
+
+#    print "old_path: %r" % old_path
+    path = old_path.lstrip("/").split("/", 1)[1]
+#    print "path: %r" % path
+    new_path = "/%s/%s" % (new_lang_code, path)
+#    print "new_path: %r" % new_path
+    return new_path
+
+
 def reset_language_settings(request):
     """
     Reset the favored language information.

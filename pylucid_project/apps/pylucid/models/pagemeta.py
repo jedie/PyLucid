@@ -28,7 +28,7 @@ from tagging.fields import TagField
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
 
-from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
 
 
@@ -50,6 +50,33 @@ class CurrentSiteManager(models.Manager):
         return queryset.filter(pagetree__site__id__exact=settings.SITE_ID)
 
 
+class PageMetaManager(BaseModelManager):
+    """
+    inherited from BaseModelManager:
+        easy_create()
+    """
+    def verbose_get_or_create(self, request, pagetree, lang_entry, show_lang_errors=True):
+        """
+        returns PageMeta, create it if not exist.
+        
+        If show_lang_errors==True:
+            create a page_msg if PageMeta doesn't exist in client favored language.
+        """
+        if settings.DEBUG:
+            assert pagetree.page_type == pagetree.PLUGIN_TYPE, "should only used for PluginPages!"
+
+        pagemeta, created = self.model.on_site.get_or_create(pagetree=pagetree, language=lang_entry)
+        if created:
+            msg = "auto create %s" % pagemeta
+
+            from pylucid_project.apps.pylucid.models import LogEntry # against import loops.
+            LogEntry.objects.log_action(
+                app_label="pylucid", action="auto create PageMeta", request=request, message=msg
+            )
+            if show_lang_errors or settings.DEBUG or request.user.is_superuser:
+                request.page_msg.info(msg)
+
+        return pagemeta
 
 
 class PageMeta(BaseModel, UpdateInfoBaseModel):
@@ -62,7 +89,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    objects = BaseModelManager()
+    objects = PageMetaManager()
     on_site = CurrentSiteManager()
 
     pagetree = models.ForeignKey("pylucid.PageTree")

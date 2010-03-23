@@ -128,7 +128,8 @@ def http_get_view(request):
             request.page_msg.error("PageMeta doesn't exist in lang %r. So no redirect needed." % lang_entry)
         return
 
-    url = pagemeta.get_absolute_url()
+    # change only the lang code in the url:
+    new_url = i18n.change_url(request, new_lang_code=pagemeta.language.code, save_get_parameter=False)
 
     # redirect, so the new selected language would be used
-    return HttpResponseRedirect(url)
+    return HttpResponseRedirect(new_url)

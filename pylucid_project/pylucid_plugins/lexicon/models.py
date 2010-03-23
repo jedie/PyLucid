@@ -46,12 +46,14 @@ class Links(UpdateInfoBaseModel):
 
 
 class LexiconEntryManager(models.Manager):
-    def get_filtered_queryset(self, request):
-        current_lang = request.PYLUCID.language_entry
-        queryset = self.model.on_site.filter(is_public=True).filter(language=current_lang)
+    def get_filtered_queryset(self, request, filter_language=True):
+        queryset = self.model.on_site.filter(is_public=True)
+        if filter_language:
+            current_lang = request.PYLUCID.language_entry
+            queryset = queryset.filter(language=current_lang)
         return queryset
 
-    def get_entry(self, request, term):
+    def get_entry(self, request, term, filter_language=True):
         """
         try to return the proper LexiconEntry instance.
         create page_msg error messages and return None it term not found.
@@ -64,7 +66,7 @@ class LexiconEntryManager(models.Manager):
             request.page_msg.error(error_msg)
             return
 
-        queryset = self.get_filtered_queryset(request)
+        queryset = self.get_filtered_queryset(request, filter_language=filter_language)
 
         try:
             entry = queryset.get(term=term)

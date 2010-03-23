@@ -27,7 +27,7 @@ else:
     path = os.path.split(os.path.abspath(__file__))[0]
     svn_revision = get_svn_revision(path)
 
-__version__ = (0, 9, 0, 'beta', svn_revision)
+__version__ = (0, 9, 0, 'RC1', svn_revision)
 
 # PyLucid Version String
 # Important for setuptools:

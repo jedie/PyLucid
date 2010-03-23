@@ -18,8 +18,8 @@
     $Rev$
     $Author$
 
-    :copyleft: 2008-2009 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v2 or above, see LICENSE for more details
+    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 __version__ = "$Rev$"
@@ -51,9 +51,9 @@ def _add_breadcrumb(request, title, url):
     breadcrumb_context_middlewares.add_link(title, title, url)
 
 
-def _get_queryset(request, tags=None):
+def _get_queryset(request, tags=None, filter_language=False):
     # Get all blog entries, that the current user can see
-    queryset = BlogEntry.objects.all_accessible(request)
+    queryset = BlogEntry.objects.all_accessible(request, filter_language=filter_language)
 
     if tags is not None:
         # filter by tags 
@@ -100,7 +100,7 @@ class RssFeed(Feed):
             ) % {"count":self.count, "tags": ",".join(self.tags)}
 
     def items(self):
-        queryset = _get_queryset(self.request, self.tags)
+        queryset = _get_queryset(self.request, self.tags, filter_language=True)
         return queryset[:self.count]
 
     def item_title(self, item):
@@ -134,7 +134,7 @@ def summary(request):
     Display summary list with all blog entries.
     """
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request)
+    queryset = _get_queryset(request, filter_language=True)
 
     # Limit the queryset with django Paginator
     paginator = BlogEntry.objects.paginate(request, queryset)
@@ -160,7 +160,7 @@ def tag_view(request, tags):
     tags = _split_tags(tags)
 
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request, tags)
+    queryset = _get_queryset(request, tags, filter_language=True)
 
     # Limit the queryset with django Paginator
     paginator = BlogEntry.objects.paginate(request, queryset)
@@ -189,31 +189,28 @@ def detail_view(request, id, title):
     Display one blog entry with a comment form.
     """
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request)
+    queryset = _get_queryset(request, filter_language=False)
 
     try:
         entry = queryset.get(pk=id)
     except BlogEntry.DoesNotExist:
         # It's possible that the user comes from a external link.
-        try:
-            # Don't filter the language
-            entry = BlogEntry.on_site.filter(is_public=True).get(pk=id)
-        except BlogEntry.DoesNotExist:
-            msg = "Blog entry doesn't exist."
-            if settings.DEBUG or request.user.is_staff:
-                msg += " (ID %r wrong.)" % id
-            request.page_msg.error(msg)
-            return summary(request)
-        else:
-            # The Blog article exist in a other language than the client prefered language
-            request.page_msg.info(_(
-                "Info: This article is written in %(article_lang)s."
-                " However you prefer %(client_lang)s."
-                ) % {
-                    "article_lang": entry.language.description,
-                    "client_lang": request.PYLUCID.language_entry.description,
-                }
-            )
+        msg = "Blog entry doesn't exist."
+        if settings.DEBUG or request.user.is_staff:
+            msg += " (ID %r wrong.)" % id
+        request.page_msg.error(msg)
+        return summary(request)
+
+    if entry.language != request.PYLUCID.language_entry:
+        # The Blog article exist in a other language than the client preferred language
+        request.page_msg.info(_(
+            "Info: This article is written in %(article_lang)s."
+            " However you prefer %(client_lang)s."
+            ) % {
+                "article_lang": entry.language.description,
+                "client_lang": request.PYLUCID.language_entry.description,
+            }
+        )
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, title=entry.headline, url=entry.get_absolute_url())

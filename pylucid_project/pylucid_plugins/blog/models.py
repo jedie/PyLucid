@@ -48,21 +48,20 @@ TAG_INPUT_HELP_URL = \
 
 
 class BlogEntryManager(models.Manager):
-    def all_accessible(self, request):
+    def all_accessible(self, request, filter_language=False):
         """ returns a queryset of all blog entries that the current user can access. """
-        filters = self.get_filters(request)
+        filters = self.get_filters(request, filter_language=filter_language)
         return self.model.objects.filter(**filters)
 
-    def get_filters(self, request):
+    def get_filters(self, request, filter_language=True):
         """
         Construct queryset filter kwargs, to limit the BlogEntry queryset for the current user
         """
-        current_lang = request.PYLUCID.language_entry
+        filters = {"sites__id__exact": settings.SITE_ID}
 
-        filters = {
-            "sites__id__exact": settings.SITE_ID,
-            "language": current_lang,
-        }
+        if filter_language:
+            current_lang = request.PYLUCID.language_entry
+            filters["language"] = current_lang
 
         if not request.user.has_perm("blog.change_blogentry"):
             filters["is_public"] = True
@@ -70,7 +69,7 @@ class BlogEntryManager(models.Manager):
         return filters
 
     def get_tag_cloud(self, request):
-        filters = self.get_filters(request)
+        filters = self.get_filters(request, filter_language=True)
         tag_cloud = Tag.objects.cloud_for_model(self.model, steps=2, filters=filters)
         return tag_cloud
 

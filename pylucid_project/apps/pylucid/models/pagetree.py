@@ -141,21 +141,16 @@ class PageTreeManager(BaseModelManager):
         If show_lang_errors==True:
             create a page_msg if PageMeta doesn't exist in client favored language.
         """
-        from pylucid.models import PageMeta, Language, LogEntry # against import loops.
+        from pylucid_project.apps.pylucid.models import PageMeta, Language  # against import loops.
 
         # client favored Language instance:
         lang_entry = request.PYLUCID.language_entry
 
         if pagetree.page_type == pagetree.PLUGIN_TYPE:
             # Automatic create a not existing PageMeta on PluginPages
-            pagemeta, created = PageMeta.on_site.get_or_create(pagetree=pagetree, language=lang_entry)
-            if created:
-                msg = "auto create %s" % pagemeta
-                LogEntry.objects.log_action(
-                    app_label="pylucid", action="auto create PageMeta", request=request, message=msg
-                )
-                if show_lang_errors or settings.DEBUG or request.user.is_superuser:
-                    request.page_msg.info(msg)
+            pagemeta = PageMeta.objects.verbose_get_or_create(
+                request, pagetree, lang_entry, show_lang_errors=show_lang_errors
+            )
             return pagemeta
 
         # default Language instance set in system preferences:
@@ -365,3 +360,17 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageTree)
+
+
+
+#print Wbo.objects.all()
+#
+#q = Wbo.objects.values('id')
+#print q.query.as_sql()
+
+
+#a = PageTree.objects.all().filter()
+#print a
+#print dir(a.query)
+#print type(a.query)
+#print a.query.as_sql()

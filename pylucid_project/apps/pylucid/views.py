@@ -85,13 +85,16 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     if url_lang_code and url_lang_code != pagemeta.language.code:
         # The language code in the url is wrong. e.g.: The client followed a external url with was wrong.
         # Note: The main_manu doesn't show links to not existing PageMeta entries!
-        # redirect the client to the right url, otherwise e.g. plugin urls doesn's work!
-        url = pagemeta.get_absolute_url()
+
+        # change only the lang code in the url:
+        new_url = i18n.change_url(request, new_lang_code=pagemeta.language.code)
+
         if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
             request.page_msg.error(
-                "Language code in url %r is wrong! Redirect to %r." % (url_lang_code, url)
+                "Language code in url %r is wrong! Redirect to %r." % (url_lang_code, new_url)
             )
-        return http.HttpResponseRedirect(url)
+        # redirect the client to the right url
+        return http.HttpResponseRedirect(new_url)
 
     # Create initial context object
     request.PYLUCID.context = context = RequestContext(request)

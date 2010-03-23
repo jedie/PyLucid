@@ -18,6 +18,7 @@
 __version__ = "$Rev: 2263 $ Alpha"
 
 
+from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.comments.views.comments import post_comment
 
@@ -51,7 +52,7 @@ def summary(request):
 @render_to("lexicon/detail_view.html")
 def detail_view(request, term=None):
 
-    entry = LexiconEntry.objects.get_entry(request, term)
+    entry = LexiconEntry.objects.get_entry(request, term, filter_language=False)
     if entry is None:
         # term not exist. page_msg was created.
         return summary(request)
@@ -60,6 +61,17 @@ def detail_view(request, term=None):
         # Use django.contrib.comments.views.comments.post_comment to handle a comment
         # post.
         return post_comment(request, next=entry.get_absolute_url())
+
+    if entry.language != request.PYLUCID.language_entry:
+        # The Blog article exist in a other language than the client preferred language
+        request.page_msg.info(_(
+            "Info: This lexicon entry is written in %(article_lang)s."
+            " However you prefer %(client_lang)s."
+            ) % {
+                "article_lang": entry.language.description,
+                "client_lang": request.PYLUCID.language_entry.description,
+            }
+        )
 
     _add_breadcrumb(request, title="%s: %s" % (entry.term, entry.short_definition), url=request.path)
 
