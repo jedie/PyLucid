@@ -51,6 +51,29 @@ if settings.DEBUG:
 
     #-----------------------------------------------------------------------------
 
+    from reversion.models import Revision, Version
+
+    class RevisionAdmin(admin.ModelAdmin):
+        list_display = ("id", "date_created", "user", "comment")
+        list_display_links = ("date_created",)
+        date_hierarchy = 'date_created'
+        ordering = ('-date_created',)
+        list_filter = ("user", "comment")
+        search_fields = ("user", "comment")
+
+    admin.site.register(Revision, RevisionAdmin)
+
+
+    class VersionAdmin(admin.ModelAdmin):
+        list_display = ("object_repr", "revision", "object_id", "content_type", "format",)
+        list_display_links = ("object_repr", "object_id")
+        list_filter = ("content_type", "format")
+        search_fields = ("object_repr", "serialized_data")
+
+    admin.site.register(Version, VersionAdmin)
+
+    #-----------------------------------------------------------------------------
+
     class PyLucidAdminPageAdmin(VersionAdmin):
         list_display = (
             "id", "name", "title", "url_name",
