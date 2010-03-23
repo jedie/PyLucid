@@ -12,14 +12,14 @@
     $Rev$
     $Author$
 
-    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from reversion.admin import VersionAdmin
 
-from pylucid.base_admin import BaseAdmin
-from pylucid_admin.admin_site import pylucid_admin_site
+from pylucid_project.apps.pylucid.base_admin import BaseAdmin
+from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
 from lexicon.models import LexiconEntry
 
@@ -31,7 +31,7 @@ class LexiconEntryAdmin(BaseAdmin, VersionAdmin):
         "lastupdatetime", "lastupdateby"
     )
     list_display_links = ("term", "tags",)
-    list_filter = ("is_public", "language", "createby", "lastupdateby",)
+    list_filter = ("is_public", "language", "sites", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     ordering = ('-lastupdatetime',)
     search_fields = ("term", "tags", "content")

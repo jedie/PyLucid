@@ -10,11 +10,12 @@
     $Rev: 2264 $
     $Author: JensDiemer $
 
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v2 or above, see LICENSE for more details
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 from django.db import models
+from django.conf import settings
 from django.core import urlresolvers
 from django.db.models import signals
 from django.utils.safestring import mark_safe
@@ -43,6 +44,38 @@ class Links(UpdateInfoBaseModel):
     title = models.CharField(_('Title'), help_text=_("Url title"), max_length=255)
     entrie = models.ForeignKey("LexiconEntry")
 
+
+class LexiconEntryManager(models.Manager):
+    def get_filtered_queryset(self, request):
+        current_lang = request.PYLUCID.language_entry
+        queryset = self.model.on_site.filter(is_public=True).filter(language=current_lang)
+        return queryset
+
+    def get_entry(self, request, term):
+        """
+        try to return the proper LexiconEntry instance.
+        create page_msg error messages and return None it term not found.
+        """
+        error_msg = _("Unknown lexicon term.")
+
+        if term in ("", None): # e.g.: term not in url or GET parameter 'empty'
+            if request.user.is_staff:
+                error_msg += " (No term given.)"
+            request.page_msg.error(error_msg)
+            return
+
+        queryset = self.get_filtered_queryset(request)
+
+        try:
+            entry = queryset.get(term=term)
+        except self.model.DoesNotExist, err:
+            if settings.DEBUG or request.user.is_staff:
+                error_msg += " (term: %r, original error: %s)" % (term, err)
+            request.page_msg.error(error_msg)
+        else:
+            return entry
+
+
 class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
     """
     A lexicon entry.
@@ -58,6 +91,8 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    objects = LexiconEntryManager()
+
     term = models.CharField(_('Term'), help_text=_("Term in primitive form"), max_length=255)
     language = models.ForeignKey(Language)
     alias = TagField(# from django-tagging
@@ -110,7 +145,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
             try:
                 return PluginPage.objects.reverse("lexicon", viewname, kwargs=reverse_kwargs)
             except urlresolvers.NoReverseMatch:
-                return "?lexicon=%s" % self.term
+                return "/?lexicon=%s" % self.term
 
     def get_permalink(self, request):
         """ permalink to this entry detail view """

@@ -26,10 +26,6 @@ from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
 
 
-def _get_filtered_queryset(request):
-    current_lang = request.PYLUCID.language_entry
-    queryset = LexiconEntry.on_site.filter(is_public=True).filter(language=current_lang)
-    return queryset
 
 
 def _add_breadcrumb(request, title, url):
@@ -44,7 +40,7 @@ def _add_breadcrumb(request, title, url):
 def summary(request):
     _add_breadcrumb(request, title="Lexicon summary", url=request.path)
 
-    entries = _get_filtered_queryset(request)
+    entries = LexiconEntry.objects.get_filtered_queryset(request)
     context = {
         "entries": entries
     }
@@ -54,13 +50,11 @@ def summary(request):
 @csrf_protect
 @render_to("lexicon/detail_view.html")
 def detail_view(request, term=None):
-    if term is None:
-        if request.user.is_staff:
-            request.page_msg.error("Error: No term given.")
-        return
 
-    queryset = _get_filtered_queryset(request)
-    entry = queryset.get(term=term)
+    entry = LexiconEntry.objects.get_entry(request, term)
+    if entry is None:
+        # term not exist. page_msg was created.
+        return summary(request)
 
     if request.POST:
         # Use django.contrib.comments.views.comments.post_comment to handle a comment
@@ -84,8 +78,10 @@ def detail_view(request, term=None):
 def http_get_view(request):
     term = request.GET["lexicon"]
 
-    queryset = _get_filtered_queryset(request)
-    entry = queryset.get(term=term)
+    entry = LexiconEntry.objects.get_entry(request, term)
+    if entry is None:
+        # term not exist. page_msg was created.
+        return summary(request)
 
     if request.POST:
         # Use django.contrib.comments.views.comments.post_comment to handle a comment
