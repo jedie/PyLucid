@@ -43,12 +43,11 @@ from tagging.models import Tag, TaggedItem
 
 
 
-def _add_breadcrumb(request, title, url):
+def _add_breadcrumb(request, *args, **kwargs):
     """ shortcut for add breadcrumb link """
     context = request.PYLUCID.context
     breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
-    # Blog entries have only a headline, use it for name and title
-    breadcrumb_context_middlewares.add_link(title, title, url)
+    breadcrumb_context_middlewares.add_link(*args, **kwargs)
 
 
 def _get_queryset(request, tags=None, filter_language=False):
@@ -141,7 +140,8 @@ def summary(request):
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
-#    request.context["page_permalink"] = "YYYY"
+    current_lang = request.PYLUCID.language_entry.description
+    _add_breadcrumb(request, _("All blog articles in %s.") % current_lang)
 
     context = {
         "entries": paginator,
@@ -166,7 +166,9 @@ def tag_view(request, tags):
     paginator = BlogEntry.objects.paginate(request, queryset)
 
     # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, title=_("All items tagged with: %s" % ", ".join(tags)), url=request.path)
+    text = _("All items tagged with: %s") % ", ".join(tags)
+    current_lang = request.PYLUCID.language_entry.description
+    _add_breadcrumb(request, text, text + _(" and are written in %s.") % current_lang)
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
@@ -213,7 +215,7 @@ def detail_view(request, id, title):
         )
 
     # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, title=entry.headline, url=entry.get_absolute_url())
+    _add_breadcrumb(request, entry.headline, _("Blog article '%s'") % entry.headline)
 
     if request.POST:
         # Use django.contrib.comments.views.comments.post_comment to handle a comment

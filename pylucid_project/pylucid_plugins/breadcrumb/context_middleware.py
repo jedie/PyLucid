@@ -38,8 +38,12 @@ class ContextMiddleware(object):
         # Get all pages back to the root page as a list
         self.linklist = PageTree.objects.get_backlist(request)
 
-    def add_link(self, name, title, url):
-        """ Can be called from plugins, to insert own virtual sub pages """
+    def add_link(self, name, title="", url=None):
+        """
+        Can be called from plugins, to insert own virtual sub pages.
+        if url==None: use full current request path
+        """
+        url = url or self.request.get_full_path()
         self.linklist.append({"name": name, "title": title, "url": url})
 
     def render(self):

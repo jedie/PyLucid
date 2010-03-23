@@ -6,7 +6,7 @@
   <a href="{{ preferences.index_url }}">{{ preferences.index|escape }}</a>{{ preferences.separator }}
 {% endif %}
   {% for link in linklist %}
-    <a href="{{ link.url }}" title="{{ link.title|escape }}">{{ link.name|escape }}</a>
+    <a href="{{ link.url }}"{% if link.title %} title="{{ link.title|escape }}"{% endif %}>{{ link.name|escape }}</a>
     {% if not forloop.last %}{{ preferences.separator }}{% endif %}
   {% endfor %}
 </p>
