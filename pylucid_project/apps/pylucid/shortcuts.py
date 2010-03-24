@@ -20,11 +20,7 @@
 import warnings
 
 from django import http
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
-
 
 from django_tools.middlewares import ThreadLocal
 
@@ -85,9 +81,13 @@ def failsafe_message(msg):
 
     # Try to use django user message systen.
     user = ThreadLocal.get_current_user()
-    if user and isinstance(user, User):
-        user.message_set.create(message=msg)
-        return
+    if user:
+        # import User here, otherwise failsafe_message() is
+        # not usable before environment is full initialized.
+        from django.contrib.auth.models import User
+        if isinstance(user, User):
+            user.message_set.create(message=msg)
+            return
 
     # use normal warnings
     warnings.warn(msg)
