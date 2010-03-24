@@ -27,7 +27,7 @@ from django.contrib.sites.managers import CurrentSiteManager
 from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.utils import form_utils
-from pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.pylucid_plugins import update_journal
 
 
@@ -55,6 +55,16 @@ class BaseModel(models.Model):
             protocol = "http://"
         site = self.get_site()
         domain = site.domain
+
+        if "://" in domain:
+            domain2 = domain.split("://", 1)[-1]
+            msg = (
+                "Wrong site domain %r: protocol should not inserted there!"
+                " (Please change it to: %r)"
+            ) % (domain, domain2)
+            request.page_msg(msg)
+            domain = domain2
+
         absolute_url = self.get_absolute_url()
         return protocol + domain + absolute_url
     get_absolute_uri.short_description = _('absolute uri')
