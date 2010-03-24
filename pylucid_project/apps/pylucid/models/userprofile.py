@@ -25,8 +25,8 @@ from django.contrib.auth.models import User
 
 from pylucid_project.utils import crypt
 
-from pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
-from pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 
 from pylucid_project.pylucid_plugins import update_journal
 

@@ -17,9 +17,9 @@
 from django.db import models
 from django.conf import settings
 
-from pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
-from pylucid.shortcuts import failsafe_message
-from pylucid.fields import ColorValueField
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.fields import ColorValueField
 
 from pylucid_project.pylucid_plugins import update_journal
 

@@ -19,7 +19,7 @@ from django.db import models
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
 
-from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
 
 

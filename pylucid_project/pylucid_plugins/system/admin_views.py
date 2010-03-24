@@ -14,10 +14,10 @@ from django.utils.translation import ugettext as _
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.timezone import utc_offset
 
-from pylucid.models import Language, PageTree, PageMeta, LogEntry
-from pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.models import Language, PageTree, PageMeta, LogEntry
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
-from pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
 
 MYSQL_ENCODING_VARS = (

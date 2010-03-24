@@ -30,8 +30,8 @@ from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
 from django.conf.urls.defaults import patterns, url
 
-from pylucid.models import PluginPage, PageTree
-from pylucid.system import pylucid_objects
+from pylucid_project.apps.pylucid.models import PluginPage, PageTree
+from pylucid_project.apps.pylucid.system import pylucid_objects
 
 
 from dbpreferences.forms import DBPreferencesBaseForm

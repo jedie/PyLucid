@@ -9,8 +9,8 @@ from django.contrib.auth.models import User, Group, Permission
 
 from django_tools.middlewares import ThreadLocal
 
-from pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
-from pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
 
 
 class PyLucidAdminManager(TreeManager):
@@ -98,7 +98,7 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         url = urlresolvers.reverse(self.url_name)
         view_func, func_args, func_kwargs = urlresolvers.resolve(url)
 
-        # get the rights from pylucid.decorators.check_permissions
+        # get the rights from pylucid_project.apps.pylucid.decorators.check_permissions
         access_permissions = view_func.permissions
         superuser_only = view_func.superuser_only
 

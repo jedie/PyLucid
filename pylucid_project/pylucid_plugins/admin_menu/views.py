@@ -27,10 +27,10 @@ from django.shortcuts import render_to_response
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 
-from pylucid.models import PageTree, PluginPage, Language
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.models import PageTree, PluginPage, Language
+from pylucid_project.apps.pylucid.decorators import render_to
 
-from pylucid_admin.models import PyLucidAdminPage
+from pylucid_project.apps.pylucid_admin.models import PyLucidAdminPage
 
 
 @render_to("admin_menu/admin_top_menu.html")#, debug=True)

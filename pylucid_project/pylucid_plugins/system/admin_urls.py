@@ -16,8 +16,11 @@
 
 from django.conf.urls.defaults import patterns, url
 
-urlpatterns = patterns('system.admin_views',
-    url(r'^base_check/$', "base_check", name='System-base_check'),
-    url(r'^timezone/$', "timezone", name='System-timezone'),
+# XXX: why doesn't this work: from system.admin_views import base_check, timezone
+from admin_views import base_check, timezone
+
+urlpatterns = patterns('',
+    url(r'^base_check/$', base_check, name='System-base_check'),
+    url(r'^timezone/$', timezone, name='System-timezone'),
 )
 

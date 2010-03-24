@@ -9,8 +9,8 @@ from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 
 # old models
-from pylucid_update.models import BlogTag, BlogComment08
-from pylucid_update.models import BlogEntry as BlogEntry08
+from pylucid_project.apps.pylucid_update.models import BlogTag, BlogComment08
+from pylucid_project.apps.pylucid_update.models import BlogEntry as BlogEntry08
 
 # new model
 from blog.models import BlogEntry

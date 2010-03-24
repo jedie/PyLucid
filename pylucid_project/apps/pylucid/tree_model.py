@@ -237,7 +237,7 @@ class TreeGenerator(object):
     def add_pagemeta(self, request):
         """ add all PageMeta objects into tree """
         # import here -> import-loop
-        from pylucid.models import PageMeta, Language
+        from pylucid_project.apps.pylucid.models import PageMeta, Language
 
         current_lang = request.PYLUCID.language_entry
         default_lang = Language.objects.get_default()

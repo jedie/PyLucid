@@ -7,7 +7,7 @@
 # use all existing macros
 from creole.default_macros import *
 
-from pylucid.markup.hightlighter import make_html
+from pylucid_project.apps.pylucid.markup.hightlighter import make_html
 
 def code(args, text):
     """

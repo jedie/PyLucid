@@ -8,7 +8,7 @@
         
     e.g. usage in plugins:
     --------------------------------------------------------------------------
-    from pylucid.models import LogEntry, BanEntry
+    from pylucid_project.apps.pylucid.models import LogEntry, BanEntry
     
     LogEntry.objects.log_action(app_label="plugin_name", action="ban ip", message="Add to ban because...")
     BanEntry.objects.add(request) # raised Http404!

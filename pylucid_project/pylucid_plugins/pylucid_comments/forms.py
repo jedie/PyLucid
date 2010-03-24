@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.comments.forms import CommentForm
 from django.utils.translation import ugettext as _
 
-from pylucid.models import Language
+from pylucid_project.apps.pylucid.models import Language
 
 from pylucid_comments.models import PyLucidComment
 from django_tools.middlewares import ThreadLocal

@@ -19,8 +19,8 @@
 __version__ = "$Rev$"
 
 
-from pylucid.models import PageTree, PageMeta, Language
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, Language
+from pylucid_project.apps.pylucid.decorators import render_to
 
 
 @render_to("sub_menu/sub_menu.html")

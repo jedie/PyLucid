@@ -17,7 +17,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.conf.urls.defaults import patterns, url
 
-from pylucid_project.pylucid_plugins.package_info import admin_views
+from package_info import admin_views
 
 urlpatterns = patterns('',
     url(r'^used_packages/$', admin_views.used_packages, name='package_info-used_packages'),

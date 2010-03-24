@@ -143,7 +143,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
             return urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
         except urlresolvers.NoReverseMatch:
             # Use the first PluginPage instance
-            from pylucid.models import PluginPage # import here, against import loops
+            from pylucid_project.apps.pylucid.models import PluginPage # import here, against import loops
             try:
                 return PluginPage.objects.reverse("lexicon", viewname, kwargs=reverse_kwargs)
             except urlresolvers.NoReverseMatch:

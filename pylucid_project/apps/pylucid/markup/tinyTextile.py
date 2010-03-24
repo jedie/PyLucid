@@ -402,7 +402,7 @@ class TinyTextileParser:
         code = "".join(code_lines)
         code = code.strip()
 
-        from pylucid.markup.hightlighter import make_html
+        from pylucid_project.apps.pylucid.markup.hightlighter import make_html
         html = make_html(code, source_type)
         self.out.write(html)
 

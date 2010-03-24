@@ -8,9 +8,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from reversion.admin import VersionAdmin
 
-from pylucid_admin import models
+from pylucid_project.apps.pylucid_admin import models
 
-from pylucid_admin.admin_site import pylucid_admin_site
+from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
 #-----------------------------------------------------------------------------
 # some django admin stuff is broken if TEMPLATE_STRING_IF_INVALID != ""

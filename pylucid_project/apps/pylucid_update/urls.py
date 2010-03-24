@@ -7,7 +7,7 @@
 from django.conf.urls.defaults import patterns, url
 
 from pylucid_project.apps.pylucid_update import views
-from pylucid.decorators import superuser_only
+from pylucid_project.apps.pylucid.decorators import superuser_only
 
 urlpatterns = patterns('',
     url(r'^$', views.menu, name='PyLucidUpdate-menu'),

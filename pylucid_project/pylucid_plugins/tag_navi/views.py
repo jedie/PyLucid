@@ -23,8 +23,8 @@ from django.utils.translation import ugettext as _
 # http://code.google.com/p/django-tagging/
 from tagging.models import Tag, TaggedItem
 
-from pylucid.models import PageMeta
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.models import PageMeta
+from pylucid_project.apps.pylucid.decorators import render_to
 
 
 

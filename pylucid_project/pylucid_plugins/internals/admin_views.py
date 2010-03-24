@@ -22,10 +22,10 @@ from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes import generic
 
-from pylucid.markup import hightlighter
-from pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.markup import hightlighter
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
-from pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
 def install(request):
     """ insert PyLucid admin views into PageTree """

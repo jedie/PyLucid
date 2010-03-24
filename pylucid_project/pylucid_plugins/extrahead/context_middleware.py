@@ -45,7 +45,7 @@ class ContextMiddleware(object):
         headfiles = design.headfiles.all()
         
         for headfile in headfiles:
-            # Get a instance from pylucid.system.headfile.HeadfileLink():
+            # Get a instance from pylucid_project.apps.pylucid.system.headfile.HeadfileLink():
             headfilelink = headfile.get_headfilelink(colorscheme)
             head_tag = headfilelink.get_head_tag()
             self.extrahead.append(head_tag)

@@ -6,7 +6,7 @@
 
 from django.contrib.sites.models import Site
 
-from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design, Language
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design, Language
 
 def get_search_results(request, search_languages, search_strings, search_results):
     queryset = PageContent.objects

@@ -12,14 +12,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 
-from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design
-from pylucid.preference_forms import SystemPreferencesForm
-from pylucid.system import pylucid_plugin, pylucid_objects
-from pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
+from pylucid_project.apps.pylucid.system import pylucid_plugin, pylucid_objects
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
-from pylucid_admin.models import PyLucidAdminPage
+from pylucid_project.apps.pylucid_admin.models import PyLucidAdminPage
 
 
 @login_required

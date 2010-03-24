@@ -35,8 +35,8 @@ from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
-from pylucid_project.pylucid_plugins.blog.models import BlogEntry
-from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
+from blog.models import BlogEntry
+from blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem

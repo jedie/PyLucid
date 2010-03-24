@@ -22,8 +22,8 @@ from django.conf import settings
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
-from pylucid.models import PageTree, PageMeta, PageContent
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent
+from pylucid_project.apps.pylucid.decorators import render_to
 
 
 @render_to("main_menu/main_menu.html")

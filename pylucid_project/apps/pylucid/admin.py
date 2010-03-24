@@ -26,9 +26,9 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from pylucid import models
-from pylucid.base_admin import BaseAdmin
+from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 
-from pylucid_admin.admin_site import pylucid_admin_site
+from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
 
 class PageTreeAdmin(BaseAdmin, VersionAdmin):

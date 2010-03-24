@@ -146,7 +146,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
             #print "PageMeta permalink_cache len: %s, pk: %s" % (len(self._permalink_cache), self.pk)
             return self._permalink_cache[self.pk]
 
-        from pylucid.preference_forms import SystemPreferencesForm # FIXME: against import loops.
+        from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm # FIXME: against import loops.
 
         sys_pref_form = SystemPreferencesForm()
         sys_pref = sys_pref_form.get_preferences()

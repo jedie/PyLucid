@@ -27,12 +27,12 @@ from django.contrib.contenttypes.models import ContentType
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
 
-from pylucid.models import Language, LogEntry, BanEntry
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.models import Language, LogEntry, BanEntry
+from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.python_tools import cutout
 
-from pylucid_plugins.search.preference_forms import SearchPreferencesForm
+from search.preference_forms import SearchPreferencesForm
 
 
 def get_preferences():

@@ -39,8 +39,8 @@ except Exception, e:
     print traceback.format_exc()
     raise
 
-PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__))
-#print "PYLUCID_PROJECT_ROOT:", PYLUCID_PROJECT_ROOT
+PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+#print "PYLUCID_BASE_PATH:", PYLUCID_BASE_PATH
 #PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
 
 #______________________________________________________________________________
@@ -48,8 +48,8 @@ PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__)
 
 _path_list = (
 #    PYLUCID_PLUGINS_ROOT,
-    PYLUCID_PROJECT_ROOT,
-    os.path.join(PYLUCID_PROJECT_ROOT, "apps")
+    PYLUCID_BASE_PATH,
+    os.path.join(PYLUCID_BASE_PATH, "apps")
 )
 for path in _path_list:
     if path not in sys.path:
@@ -120,15 +120,16 @@ MIDDLEWARE_CLASSES = (
     # Insert a html link anchor to all headlines:
     'pylucid_project.middlewares.headline_anchor.HeadlineAnchorMiddleware',
 )
-SLOWER_DEV_SERVER_SLEEP = 0.3 # time.sleep() value (in sec.)
 
-PYLUCID_BASE_PATH = os.path.join(os.path.dirname(__file__))
-
-_PYLUCID_PLUGIN_PACKAGES = (
-    (os.path.join(PYLUCID_BASE_PATH, "pylucid_plugins"), "pylucid_project.pylucid_plugins"),
-    #(os.path.join(PYLUCID_BASE_PATH, "external_plugins"), "pylucid_project.external_pylucid_plugins"),
+# initialized all pylucid plugins
+pylucid_plugins.setup_plugins(
+    plugin_package_list=(
+        (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins"),
+        (PYLUCID_BASE_PATH, "pylucid_project", "external_plugins"),
+    ),
+#    verbose=True
+    verbose=False
 )
-pylucid_plugins.setup_plugins(_PYLUCID_PLUGIN_PACKAGES)
 
 TEMPLATE_DIRS = (
     os.path.join(PYLUCID_BASE_PATH, "apps/pylucid/templates/"),
@@ -199,7 +200,7 @@ INSTALLED_APPS = (
     'tagging',
 )
 # Add all existing PyLucid plugins
-INSTALLED_APPS += pylucid_plugins.PYLUCID_PLUGINS.pkg_list
+INSTALLED_APPS += pylucid_plugins.PYLUCID_PLUGINS.installed_plugins
 #print "settings.INSTALLED_APPS:", INSTALLED_APPS
 
 COMMENTS_APP = "pylucid_project.pylucid_plugins.pylucid_comments"

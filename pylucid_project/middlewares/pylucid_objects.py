@@ -6,9 +6,9 @@ from django.http import Http404
 from django.conf import settings
 from django.contrib.redirects.models import Redirect
 
-from pylucid.models import LogEntry
-from pylucid.system import pylucid_objects
-from pylucid.preference_forms import SystemPreferencesForm
+from pylucid_project.apps.pylucid.models import LogEntry
+from pylucid_project.apps.pylucid.system import pylucid_objects
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 
 
 

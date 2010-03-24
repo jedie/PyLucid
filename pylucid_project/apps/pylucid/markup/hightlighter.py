@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.escape import escape, escape_django_tags
-from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile
+
 
 try:
     import pygments
@@ -112,6 +112,8 @@ def get_pygments_css(request):
     Returns the EditableHtmlHeadFile path to pygments.css
     A page_msg would be created, if css not exists.
     """
+    # import here, because it needs a database and other parts
+    from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile
     try:
         pygments_css = EditableHtmlHeadFile.on_site.get(filepath="pygments.css")
     except EditableHtmlHeadFile.DoesNotExist:

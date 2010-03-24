@@ -9,10 +9,10 @@ from django.utils.translation import ugettext as _
 from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.utils.escape import escape
-from pylucid_project.pylucid_plugins.blog.models import BlogEntry
-from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
-from pylucid_project.pylucid_plugins.update_journal.models import UpdateJournal
-from pylucid_project.pylucid_plugins.pylucid_comments.models import PyLucidComment
+from blog.models import BlogEntry
+from lexicon.models import LexiconEntry
+from update_journal.models import UpdateJournal
+from pylucid_comments.models import PyLucidComment
 
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, \
                                                                             Design, Language

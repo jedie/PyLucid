@@ -13,7 +13,7 @@ from pylucid_project.apps.pylucid.models import PageContent, EditableHtmlHeadFil
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup import converter
 
-from pylucid_project.pylucid_plugins.page_admin.forms import ConvertMarkupForm
+from page_admin.forms import ConvertMarkupForm
 from pylucid_project.utils.diff import get_pygmentize_diff
 
 

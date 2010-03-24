@@ -20,7 +20,7 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta
 from pylucid_project.utils.escape import escape
 
-from pylucid_project.pylucid_plugins.page_admin.forms import SelectMarkupForm
+from page_admin.forms import SelectMarkupForm
 
 
 

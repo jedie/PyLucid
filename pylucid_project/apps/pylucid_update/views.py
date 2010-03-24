@@ -39,14 +39,14 @@ from dbpreferences.models import Preference
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
-from pylucid.fields import CSS_VALUE_RE
-from pylucid.decorators import check_permissions, render_to
-from pylucid.system.css_color_utils import filter_content, extract_colors
-from pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, Design, \
+from pylucid_project.apps.pylucid.fields import CSS_VALUE_RE
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.system.css_color_utils import filter_content, extract_colors
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, Design, \
                                                 EditableHtmlHeadFile, UserProfile, LogEntry, Language
 
-from pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
-from pylucid_update.forms import UpdateForm, WipeSiteConfirm
+from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
+from pylucid_project.apps.pylucid_update.forms import UpdateForm, WipeSiteConfirm
 
 
 def _get_output(request, out, title):

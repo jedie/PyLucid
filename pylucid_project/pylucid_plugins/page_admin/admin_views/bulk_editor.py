@@ -7,7 +7,7 @@ from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.pylucid_plugins.page_admin.forms import MassesEditorSelectForm
+from page_admin.forms import MassesEditorSelectForm
 
 @render_to("page_admin/bulk_editor.html")
 @check_permissions(superuser_only=True)

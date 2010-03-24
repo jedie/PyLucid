@@ -29,9 +29,9 @@ from django.utils.encoding import smart_str, force_unicode
 
 from pylucid_project.utils.escape import escape_django_tags as escape_django_template_tags
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
-from pylucid.markup.django_tags import DjangoTagAssembler
+from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
 
-from pylucid.models import PageContent
+from pylucid_project.apps.pylucid.models import PageContent
 
 #______________________________________________________________________________
 # MARKUP
@@ -60,7 +60,7 @@ def fallback_markup(content):
 
 def apply_tinytextile(content, page_msg):
     """ tinyTextile markup """
-    from pylucid.markup.tinyTextile import TinyTextileParser
+    from pylucid_project.apps.pylucid.markup.tinyTextile import TinyTextileParser
     out_obj = SimpleStringIO()
     markup_parser = TinyTextileParser(out_obj, page_msg)
     markup_parser.parse(smart_str(content))
@@ -132,7 +132,7 @@ def apply_creole(content):
     We used verbose=1 for inser error information (e.g. not existing macro)
     into the generated page
     """
-    from pylucid.markup import PyLucid_creole_macros
+    from pylucid_project.apps.pylucid.markup import PyLucid_creole_macros
 
     from creole import Parser
     from creole.creole2html import HtmlEmitter

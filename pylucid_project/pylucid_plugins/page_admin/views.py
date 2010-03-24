@@ -19,10 +19,10 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse, HttpResponseRedirect
 
-from pylucid.shortcuts import render_pylucid_response
-from pylucid.markup.converter import apply_markup
-from pylucid.decorators import check_permissions
-from pylucid.models import PageTree, PageContent
+from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.decorators import check_permissions
+from pylucid_project.apps.pylucid.models import PageTree, PageContent
 
 from page_admin.forms import EditPageForm
 

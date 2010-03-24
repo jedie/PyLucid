@@ -17,8 +17,8 @@
 __version__ = "$Rev: 2330 $"
 
 
-from pylucid.models import PageTree, PageMeta, PageContent, Language
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
+from pylucid_project.apps.pylucid.decorators import render_to
 
 
 @render_to("sf_main_menu/sf_main_menu.html")

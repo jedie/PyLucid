@@ -33,8 +33,8 @@ from django.template.loader import render_to_string
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
 
-from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
-from pylucid_project.pylucid_plugins.lexicon.sub_html import SubHtml
+from lexicon.models import LexiconEntry
+from lexicon.sub_html import SubHtml
 
 
 WORD_TAG = u"<!-- word -->"

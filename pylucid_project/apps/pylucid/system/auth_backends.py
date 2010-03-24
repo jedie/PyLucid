@@ -31,8 +31,8 @@ from django.contrib.auth.backends import ModelBackend
 
 from pylucid_project.utils import crypt
 
-from pylucid.shortcuts import failsafe_message
-from pylucid.models import LogEntry
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.models import LogEntry
 
 
 #LOCAL_DEBUG = True

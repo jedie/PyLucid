@@ -10,7 +10,7 @@ from django.db.models import Q
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
 
-from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
+from lexicon.models import LexiconEntry
 
 
 def get_search_results(request, search_languages, search_strings, search_results):

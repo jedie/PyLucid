@@ -17,7 +17,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.conf.urls.defaults import patterns, url
 
-from pylucid.decorators import superuser_only
+from pylucid_project.apps.pylucid.decorators import superuser_only
 from blog import admin_views
 
 urlpatterns = patterns('',

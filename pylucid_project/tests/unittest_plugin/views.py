@@ -24,7 +24,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 
-from pylucid.models import Language
+from pylucid_project.apps.pylucid.models import Language
 
 #_____________________________________________________________________________
 # http_get_view()
@@ -69,9 +69,9 @@ def http_get_view(request):
 #_____________________________________________________________________________
 # PluginPage views for unittests in test_pluginAPI
 
-PLUGINPAGE_ROOT_STRING_RESPONSE = "String response from unittest_plugin.view_root()"
-PLUGINPAGE_HTTP_RESPONSE = "HttpResponse response from unittest_plugin.test_HttpResponse()"
-PLUGINPAGE_TEMPLATE_RESPONSE = "Template response from unittest_plugin.test_plugin_template()"
+PLUGINPAGE_ROOT_STRING_RESPONSE = "String response from pylucid_plugins.unittest_plugin.view_root()"
+PLUGINPAGE_HTTP_RESPONSE = "HttpResponse response from pylucid_plugins.unittest_plugin.test_HttpResponse()"
+PLUGINPAGE_TEMPLATE_RESPONSE = "Template response from pylucid_plugins.unittest_plugin.test_plugin_template()"
 PLUGINPAGE_URL_ARGS_PREFIX = "Unittest url args:"
 PLUGINPAGE_URL_REVERSE_PREFIX = "Unitest url reverse:"
 PLUGINPAGE_API_TEST_CONTENT = "Test content for unittest_plugin.test_PyLucid_api()"

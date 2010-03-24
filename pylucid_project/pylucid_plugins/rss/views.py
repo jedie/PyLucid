@@ -31,8 +31,8 @@ else:
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 
-from pylucid.markup import hightlighter
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.markup import hightlighter
+from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.escape import escape
 
 from rss.preference_forms import PreferencesForm

@@ -20,7 +20,7 @@ from django.conf.urls.defaults import patterns, url, include
 
 from django.contrib import admin
 
-from pylucid_admin.admin_site import pylucid_admin_site
+from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
 
 # TODO: Use own error views?

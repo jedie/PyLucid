@@ -34,7 +34,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.template import mark_safe
 
-#from pylucid.system import pylucid_plugin
+#from pylucid_project.apps.pylucid.system import pylucid_plugin
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 

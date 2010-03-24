@@ -6,10 +6,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.utils.site_utils import get_site_preselection
 
-from pylucid.decorators import check_permissions, render_to
-from pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
 
-from pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
 from blog.forms import BlogEntryForm
 from blog.preference_forms import BlogPrefForm

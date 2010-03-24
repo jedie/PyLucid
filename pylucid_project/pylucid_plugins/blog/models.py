@@ -37,7 +37,7 @@ from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateI
 
 from pylucid_project.pylucid_plugins import update_journal
 
-from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
+from blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag

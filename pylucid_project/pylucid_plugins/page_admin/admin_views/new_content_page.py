@@ -14,8 +14,8 @@ from pylucid_project.apps.pylucid.models import PageTree, Language
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 
-from pylucid_project.pylucid_plugins.page_admin.admin_views import _get_pagetree, _build_form_initial
-from pylucid_project.pylucid_plugins.page_admin.forms import PageTreeForm, PageMetaForm, \
+from page_admin.admin_views import _get_pagetree, _build_form_initial
+from page_admin.forms import PageTreeForm, PageMetaForm, \
                                                              PageContentForm
 
 

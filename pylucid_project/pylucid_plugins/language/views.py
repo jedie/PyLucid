@@ -23,9 +23,9 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 
-from pylucid.system import i18n
-from pylucid.models import PageMeta, Language
-from pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.system import i18n
+from pylucid_project.apps.pylucid.models import PageMeta, Language
+from pylucid_project.apps.pylucid.decorators import render_to
 
 from language.preference_forms import LanguagePrefForm
 

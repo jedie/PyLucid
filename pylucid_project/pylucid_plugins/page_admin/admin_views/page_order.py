@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
-from pylucid_project.pylucid_plugins.page_admin.forms import PageOrderFormSet
+from page_admin.forms import PageOrderFormSet
 
 
 

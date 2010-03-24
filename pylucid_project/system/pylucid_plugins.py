@@ -10,40 +10,57 @@ from django.core import urlresolvers
 from django.utils.importlib import import_module
 from django.conf.urls.defaults import patterns, url, include
 
+
 PYLUCID_PLUGINS = None
 
 _PLUGIN_OBJ_CACHE = {} # cache for PyLucidPlugin.get_plugin_object()
 _PLUGIN_URL_CACHE = {} # cache for PyLucidPlugin.get_prefix_urlpatterns()
 
 
-
+def has_init_file(path):
+    """ return True/False if path contains a __init__.py file """
+    init_filepath = os.path.join(path, "__init__.py")
+    return os.path.isfile(init_filepath)
 
 
 class PyLucidPlugin(object):
     """ represents one PyLucid plugins """
 
     class ObjectNotFound(Exception):
-        """ Can't import a plugin modul or a modul Attribute doesn't exist. """
+        """ Can't import a plugin module or a module Attribute doesn't exist. """
         pass
 
-    def __init__(self, fs_path, pkg_prefix, plugin_name):
-        self.fs_path = fs_path
-        self.pkg_string = ".".join([pkg_prefix, plugin_name])
+    def __init__(self, pkg_path, section, pkg_dir, plugin_name):
+        # e.g.: "PYLUCID_BASE_PATH/pylucid_project/pylucid_plugins", "pylucid_project", "pylucid_plugins", "PluginName"
         self.name = plugin_name
-        self._template_path = os.path.join(fs_path, plugin_name, "templates")
 
-    def get_template_path(self):
-        """ return template filesystem path, if templates exist else: return None """
-        if os.path.isdir(self._template_path):
-            return self._template_path
+        self.fs_path = os.path.join(pkg_path, plugin_name)
+        assert os.path.isdir(self.fs_path), "path %r is not a directory or doesn't exist." % self.fs_path
+        assert has_init_file(self.fs_path), "%r contains no __init__.py file!" % self.fs_path
+
+        self.pkg_string = ".".join([pkg_dir, plugin_name])
+        self.installed_apps_string = ".".join([section, self.pkg_string])
+
+        template_dir = os.path.join(self.fs_path, "templates")
+        if os.path.isdir(template_dir):
+            self.template_dir = template_dir
         else:
-            return None
+            self.template_dir = None
+
+    def __unicode__(self):
+        return u"PyLucid plugin %r (%r)" % (self.name, self.installed_apps_string)
+
+    def __repr__(self):
+        return "<%s>" % self.__unicode__()
 
     def get_plugin_object(self, mod_name, obj_name):
-        """ return a object from this plugin """
+        """
+        return a object from this plugin
+        argument e.g.: ("admin_urls", "urlpatterns")
+        """
         mod_pkg = ".".join([self.pkg_string, mod_name])
 
-        cache_key = mod_pkg + obj_name
+        cache_key = mod_pkg + "." + obj_name
         if cache_key in _PLUGIN_OBJ_CACHE:
             #print "use _PLUGIN_OBJ_CACHE[%r]" % cache_key
             return _PLUGIN_OBJ_CACHE[cache_key]
@@ -51,7 +68,7 @@ class PyLucidPlugin(object):
         try:
             mod = import_module(mod_pkg)
         except Exception, err:
-            msg = u"Error importing Plugin '%s.%s'" % (self.name, mod_pkg)
+            msg = u"Error importing %r from plugin %r" % (mod_pkg, self.name)
 
             if str(err) == "No module named %s" % mod_name:
                 raise self.ObjectNotFound("%s: %s" % (msg, err))
@@ -147,11 +164,66 @@ class PyLucidPlugin(object):
 
 class PyLucidPlugins(dict):
     """ Storage for all existing PyLucid plugins """
-    def __init__(self):
+    def __init__(self, plugin_package_list, verbose):
         super(PyLucidPlugins, self).__init__()
+        self.verbose = verbose
 
-        self.template_dirs = None # for expand: settings.TEMPLATE_DIRS
-        self.pkg_list = None # for expand: settings.INSTALLED_APPS
+        for base_path, section, pkg_dir in plugin_package_list:
+            # e.g.: (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins")
+            self.add(base_path, section, pkg_dir)
+
+        # for expand: settings.TEMPLATE_DIRS
+        self.template_dirs = tuple([plugin.template_dir for plugin in self.values() if plugin.template_dir])
+#        print " *** template dirs:\n", "\n".join(self.template_dirs)
+
+        # for expand: settings.INSTALLED_APPS
+        self.installed_plugins = tuple([plugin.installed_apps_string for plugin in self.values()])
+#        print " *** installed plugins:\n", "\n".join(self.installed_plugins)
+
+    def _isdir(self, path):
+        if os.path.isdir(path):
+            return True
+        if self.verbose:
+            warnings.warn("path %r doesn't exist." % path)
+        return False
+
+    def add(self, base_path, section, pkg_dir):
+        """
+        Add all plugins in one filesystem path/packages.
+        e.g.: (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins")
+        """
+        if not self._isdir(base_path):
+            return
+
+        pkg_path = os.path.join(base_path, pkg_dir)
+        if not self._isdir(pkg_path):
+            return
+
+        if not has_init_file(pkg_path):
+            if self.verbose:
+                warnings.warn("plugin path %r doesn't contain a __init__.py file, skip." % pkg_path)
+            return
+
+        if pkg_path not in sys.path: # settings imported more than one time!
+#            print "append to sys.path: %r" % pkg_path
+            sys.path.append(pkg_path)
+
+        for plugin_name in os.listdir(pkg_path):
+            if plugin_name.startswith(".") or plugin_name.startswith("_"): # e.g. svn dir or __init__.py file
+                continue
+
+            if plugin_name in self:
+                warnings.warn("Plugin %r exist more than one time." % plugin_name)
+                continue
+
+            try:
+                plugin_instance = PyLucidPlugin(pkg_path, section, pkg_dir, plugin_name)
+            except AssertionError, err:
+                if self.verbose:
+                    warnings.warn("plugin %r seems to be missconfigurated: %s" % (plugin_instance, err))
+            else:
+                self[plugin_name] = plugin_instance
+#            dict.__setitem__(self, plugin_name, )
 
     def get_admin_urls(self):
         """
@@ -172,36 +244,6 @@ class PyLucidPlugins(dict):
             )
 
         return urls
-
-    def add(self, fs_path, pkg_prefix):
-        """ Add all plugins in one filesystem path/packages """
-        for plugin_name in os.listdir(fs_path):
-            if plugin_name.startswith("."):
-                continue
-            item_path = os.path.join(fs_path, plugin_name)
-            if not os.path.isdir(item_path):
-                continue
-
-            if plugin_name in self:
-                warnings.warn("Plugin %r exist more than one time." % plugin_name)
-
-            dict.__setitem__(self, plugin_name, PyLucidPlugin(fs_path, pkg_prefix, plugin_name))
-
-    def _get_template_dirs(self):
-        """ setup self.template_dirs: append all existing plugin template filesystem path """
-        template_dirs = []
-        for plugin_name, plugin_instance in self.iteritems():
-            template_path = plugin_instance.get_template_path()
-            if template_path:
-                template_dirs.append(template_path)
-        return tuple(template_dirs)
-
-    def init2(self):
-        if len(self) == 0:
-            raise RuntimeError("init2 must be called after all self.add() calls!")
-
-        self.template_dirs = self._get_template_dirs()
-        self.pkg_list = tuple([plugin.pkg_string for plugin in self.values()])
 
     def call_get_views(self, request):
         """ call a pylucid plugin "html get view" and return the response. """
@@ -233,15 +275,17 @@ class PyLucidPlugins(dict):
 
 
 
-def setup_plugins(plugin_package_list):
+def setup_plugins(plugin_package_list, verbose=True):
+    """
+    Add a plugin package
+    if verbose==True: create a warning if something is wrong with a package.
+    Note: settings.DEBUG is not available here at this point, so we can't use it instead of verbose
+    """
     global PYLUCID_PLUGINS
 
     if PYLUCID_PLUGINS == None:
-        PYLUCID_PLUGINS = PyLucidPlugins()
-        for fs_path, pkg_prefix in plugin_package_list:
-            sys.path.insert(0, fs_path)
-            PYLUCID_PLUGINS.add(fs_path, pkg_prefix)
-        PYLUCID_PLUGINS.init2()
+        PYLUCID_PLUGINS = PyLucidPlugins(plugin_package_list, verbose)
+
 
 
 

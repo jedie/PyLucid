@@ -21,8 +21,8 @@ from django.contrib.auth.models import Group
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
 
-from pylucid.shortcuts import failsafe_message
-from pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 
 from pylucid_project.pylucid_plugins import update_journal
 

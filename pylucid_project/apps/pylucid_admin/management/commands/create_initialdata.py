@@ -18,7 +18,7 @@ from django.db.models import get_model
 from django.core.management.base import BaseCommand, CommandError
 from django.core import serializers
 
-from pylucid.tree_model import TreeGenerator
+from pylucid_project.apps.pylucid.tree_model import TreeGenerator
 
 
 

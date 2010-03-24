@@ -20,7 +20,7 @@ from reversion.admin import VersionAdmin
 
 from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
-from pylucid_project.pylucid_plugins.OpenStreetMap.models import MapEntry
+from OpenStreetMap.models import MapEntry
 
 
 class MapEntryAdmin(VersionAdmin):

@@ -5,11 +5,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.utils.site_utils import get_site_preselection
 
-from pylucid.preference_forms import SystemPreferencesForm
-from pylucid.decorators import check_permissions, render_to
-from pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
 
-from pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
 from lexicon.forms import LexiconEntryForm
 from lexicon.preference_forms import LexiconPrefForm

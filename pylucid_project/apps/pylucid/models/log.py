@@ -26,7 +26,7 @@ from django_tools.middlewares import ThreadLocal
 # http://code.google.com/p/django-dbpreferences/
 from dbpreferences.fields import DictField
 
-from pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
 
 
 META_KEYS = (
@@ -78,7 +78,7 @@ class LogEntryManager(models.Manager):
             }
             self.log_action(app_label=app_label, action="ban ip", message=msg)
 
-            from pylucid.models import BanEntry
+            from pylucid_project.apps.pylucid.models import BanEntry
             BanEntry.objects.add(request) # raise 404 after adding the client IP!
 
         if last_actions > 0:

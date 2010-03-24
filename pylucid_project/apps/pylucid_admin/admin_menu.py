@@ -2,7 +2,7 @@
 
 from django.core import urlresolvers
 
-from pylucid_admin.models import PyLucidAdminPage
+from pylucid_project.apps.pylucid_admin.models import PyLucidAdminPage
 
 ADMIN_SECTIONS = {
     "create content": "Create new content."

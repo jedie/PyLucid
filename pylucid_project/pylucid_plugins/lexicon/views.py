@@ -24,7 +24,7 @@ from django.contrib.comments.views.comments import post_comment
 
 from pylucid_project.apps.pylucid.decorators import render_to
 
-from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
+from lexicon.models import LexiconEntry
 
 
 

@@ -3,7 +3,7 @@
 from django import forms
 from django.utils.translation import ugettext as _
 
-from pylucid.system.pylucid_plugin import PyLucidDBPreferencesBaseForm
+from pylucid_project.apps.pylucid.system.pylucid_plugin import PyLucidDBPreferencesBaseForm
 
 class PreferencesForm(PyLucidDBPreferencesBaseForm):
     template_name = forms.CharField(

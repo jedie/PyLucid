@@ -23,9 +23,9 @@ from django.contrib.sites.models import Site
 from django_tools.utils import installed_apps_utils
 from django_tools import model_utils
 
-from pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-from pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
 
 TAG_INPUT_HELP_URL = \
@@ -38,16 +38,33 @@ class RootAppChoiceField(models.CharField):
         PluginPage.objects.get_app_choices()
 
 class PluginPageManager(BaseModelManager):
+    """
+    TODO: In next release witch has a update routine: we should switch:
+        from plugin_instance.installed_apps_string to plugin_instance.pkg_string
+    """
     _APP_CHOICES = None
     def get_app_choices(self):
         """
         Generate a choice list with all views witch can handle a empty root url.
-        But PyLucid can only handle own plugins, see: ticket:333
+        But PyLucid can only handle own plugins, see:
+            http://trac.pylucid.net/ticket/333
         """
         if self._APP_CHOICES == None:
             root_apps = installed_apps_utils.get_filtered_apps(resolve_url="/")
-            apps = [app for app in root_apps if "pylucid_plugins" in app]
-            self._APP_CHOICES = [("", "---------")] + [(app, app) for app in apps]
+
+            self._APP_CHOICES = [("", "---------")]
+            for app in root_apps:
+                plugin_name = app.split(".")[-1]
+                if not plugin_name in PYLUCID_PLUGINS:
+                    continue
+                plugin_instance = PYLUCID_PLUGINS[plugin_name]
+
+                self._APP_CHOICES.append(
+                    (plugin_instance.installed_apps_string, plugin_instance.pkg_string)
+                )
+
+#            apps = [app for app in root_apps if not "pylucid_project.apps" in app]
+#            self._APP_CHOICES = [("", "---------")] + [(app, app) for app in sorted(apps)]
         return self._APP_CHOICES
 
     def reverse(self, plugin_name, viewname, args=(), kwargs={}):
@@ -57,7 +74,7 @@ class PluginPageManager(BaseModelManager):
         """
         # get the app label from
         plugin_instance = PYLUCID_PLUGINS[plugin_name]
-        app_label = plugin_instance.pkg_string
+        app_label = plugin_instance.installed_apps_string
 
         # Get the first PluginPage entry for this plugin
         queryset = PluginPage.objects.all()
@@ -68,6 +85,7 @@ class PluginPageManager(BaseModelManager):
         except (IndexError, KeyError):
             msg = "Can't get a PluginPage for plugin %r, please create one." % plugin_name
             if settings.DEBUG:
+                msg += " (app_label: %r)" % app_label
                 failsafe_message(msg)
             raise urlresolvers.NoReverseMatch(msg)
 
@@ -105,7 +123,7 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
-        from pylucid.models import Language # import here against import loops
+        from pylucid_project.apps.pylucid.models import Language # import here against import loops
 
         pagetree_url = self.pagetree.get_absolute_url()
         lang_entry = Language.objects.get_current()
