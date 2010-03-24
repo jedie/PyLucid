@@ -30,8 +30,8 @@ from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 from pylucid_project.apps.pylucid.models import Language, PluginPage
 
-from pylucid_project.pylucid_plugins.update_journal.models import UpdateJournal
-from pylucid_project.pylucid_plugins.update_journal.preference_forms import UpdateJournalPrefForm
+from update_journal.models import UpdateJournal
+from update_journal.preference_forms import UpdateJournalPrefForm
 
 
 def _get_queryset(request, count):

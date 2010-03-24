@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" id="cleanup_form" class="pylucid_form">
+    <fieldset>
+        <table class="info">
+            <caption>update journal entry count</caption>        
+            <tr><td>on site:</td><td>{{ count_on_site }} update journal entries</td></tr>
+            <tr><td>total:</td><td>{{ count_total }} update journal entries</td></tr>
+        </table>
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        <div class="helper_buttons">
+            <input type="submit" name="submit" value="{% trans 'submit' %}" />           
+            <input type="submit" name="dead_entries" value="{% trans 'remove only dead entries' %}" />           
+        </div>
+    </fieldset>
+</form>
+{% endblock %}
