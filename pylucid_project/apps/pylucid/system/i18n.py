@@ -45,7 +45,11 @@ def change_url(request, new_lang_code, save_get_parameter=True):
         old_path = request.path
 
 #    print "old_path: %r" % old_path
-    path = old_path.lstrip("/").split("/", 1)[1]
+    path = old_path.lstrip("/")
+    if not path:
+        return "/%s/" % new_lang_code
+
+    path = path.split("/", 1)[1]
 #    print "path: %r" % path
     new_path = "/%s/%s" % (new_lang_code, path)
 #    print "new_path: %r" % new_path
