@@ -40,6 +40,7 @@ def get_long_description():
     return long_description
 
 
+
 setup(
     name='PyLucid',
     version=VERSION_STRING,
@@ -48,7 +49,9 @@ setup(
     author=get_authors(),
     maintainer="Jens Diemer",
     url='http://www.pylucid.org',
-    packages=find_packages(),
+    packages=find_packages(
+        exclude=[".project", ".pydevproject", "pylucid_project.external_plugins.*"]
+    ),
     include_package_data=True, # include package data under svn source control
     zip_safe=False,
     classifiers=[
