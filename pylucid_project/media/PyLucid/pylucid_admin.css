@@ -81,6 +81,13 @@
     color: #000;
 }
 
+#page_msg pre {
+  color: #ffffff;
+  border: 1px solid #eeeeee;
+  padding: 5px;
+  margin: 5px;
+}
+
 table.info {
     margin: 0.4em;
 }
