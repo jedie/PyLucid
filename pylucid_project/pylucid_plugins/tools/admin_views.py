@@ -1,7 +1,7 @@
 # coding:utf-8
 
 import os
-import posixpath
+import time
 from datetime import datetime, timedelta
 
 
@@ -10,13 +10,14 @@ if __name__ == "__main__":
     virtualenv_file = "../../../../../bin/activate_this.py"
     execfile(virtualenv_file, dict(__file__=virtualenv_file))
 
+
 from django import http
 from django.conf import settings
-from django.utils.translation import ugettext as _
-from django.utils.translation import ugettext as _
-from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
+from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext as _
+from django.contrib.sessions.models import Session
 
 from dbtemplates.models import Template
 
@@ -26,7 +27,7 @@ from pylucid_project.apps.pylucid.markup.hightlighter import make_html, get_pygm
 
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
-from pylucid_project.pylucid_plugins.tools.forms import HighlightCodeForm, CleanupLogForm, SelectTemplateForm
+from tools.forms import HighlightCodeForm, CleanupLogForm, SelectTemplateForm
 
 
 MYSQL_ENCODING_VARS = (
@@ -112,14 +113,15 @@ def cleanup_log(request):
     if request.method == "POST":
         form = CleanupLogForm(request.POST)
         if form.is_valid():
+            start_time = time.time()
             number = form.cleaned_data["number"]
             delete_type = form.cleaned_data["delete_type"]
             limit_site = form.cleaned_data["limit_site"]
 
             if limit_site:
-                queryset = LogEntry.on_site.all()
+                queryset = LogEntry.on_site
             else:
-                queryset = LogEntry.objects.all()
+                queryset = LogEntry.objects
 
             queryset = queryset.order_by('-createtime')
 
@@ -138,9 +140,11 @@ def cleanup_log(request):
                 datetime_filter = now - delta
                 queryset = queryset.exclude(createtime__gte=datetime_filter)
 
-            request.page_msg("Delete %s entries." % queryset.count())
+            delete_count = queryset.count()
             queryset.delete()
-            return http.HttpResponseRedirect(request.path)
+            duration_time = time.time() - start_time
+            request.page_msg(_("Delete %s entries in %.2fsec") % (delete_count, duration_time))
+            return HttpResponseRedirect(request.path)
     else:
         form = CleanupLogForm()
 

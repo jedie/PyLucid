@@ -16,7 +16,7 @@
 
 from django.conf.urls.defaults import patterns, url
 
-from pylucid_project.pylucid_plugins.tools import admin_views
+from tools import admin_views
 
 urlpatterns = patterns('',
     url(r'^highlight_code/$', admin_views.highlight_code, name='Tools-highlight_code'),
