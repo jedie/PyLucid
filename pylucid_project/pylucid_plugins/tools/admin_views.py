@@ -158,14 +158,19 @@ def cleanup_session(request):
     """ Delete old session entries """
 
     count_before = Session.objects.count()
+    start_time = time.time()
     Session.objects.filter(expire_date__lt=datetime.now()).delete()
+    duration_time = time.time() - start_time
     count_after = Session.objects.count()
+
+    delete_count = count_before - count_after
+    request.page_msg(_("Delete %s entries in %.2fsec") % (delete_count, duration_time))
 
     context = {
         "title": _("Delete old session entries"),
         "count_before": count_before,
         "count_after": count_after,
-        "count_deleted": count_before - count_after,
+        "count_deleted": delete_count,
     }
     return context
 
