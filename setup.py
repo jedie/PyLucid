@@ -20,7 +20,7 @@ import sys
 
 from setuptools import setup, find_packages
 
-from pylucid_project import PYLUCID_VERSION_STRING
+from pylucid_project import VERSION_STRING
 
 
 PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -42,7 +42,7 @@ def get_long_description():
 
 setup(
     name='PyLucid',
-    version=PYLUCID_VERSION_STRING,
+    version=VERSION_STRING,
     description='PyLucid is an open-source web content management system (CMS) using django.',
     long_description=get_long_description(),
     author=get_authors(),
@@ -63,8 +63,6 @@ setup(
 #        "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Programming Language :: Python",
-        "Programming Language :: html",
-        "Programming Language :: css",
         "Programming Language :: JavaScript",
         'Framework :: Django',
         "Topic :: Database :: Front-Ends",

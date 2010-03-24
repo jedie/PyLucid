@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 
 from dbtemplates.models import Template
 
-from pylucid_project import PYLUCID_VERSION_STRING
+from pylucid_project import VERSION_STRING
 from pylucid_project.utils import slug
 
 
@@ -45,7 +45,7 @@ def pylucid(request):
     all_sites = Site.objects.all()
 
     context = {
-        "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % PYLUCID_VERSION_STRING),
+        "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % VERSION_STRING),
         # This value would be changed in index._render_cms_page(), if the
         # plugin manager or any plugin set request.anonymous_view = False
         "robots": "index,follow", # TODO: remove in v0.9, see: ticket:161

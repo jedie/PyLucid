@@ -33,7 +33,7 @@ from django.conf import settings
 from django.template import mark_safe
 from django.utils.version import get_svn_revision
 
-from pylucid_project import PYLUCID_VERSION_STRING
+from pylucid_project import VERSION_STRING
 from pylucid_project.apps.pylucid.decorators import render_to
 
 # print (!) some debug info. Values can be: False, 1, 2
@@ -75,7 +75,7 @@ STATIC_PKG_INFO["django-reversion"] = {
 STATIC_PKG_INFO["pylucid"] = {
     "license": "GNU GPL v3 or above",
     "license_url": "http://www.pylucid.org/permalink/37/License/",
-    "version": PYLUCID_VERSION_STRING,
+    "version": VERSION_STRING,
 }
 STATIC_PKG_INFO["pip"] = {
     "license_url": "http://bitbucket.org/ianb/pip/src/tip/docs/license.txt",

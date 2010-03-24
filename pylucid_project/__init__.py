@@ -19,23 +19,22 @@
 
 import os
 
+__version__ = (0, 9, 0, 'RC2')
+
 try:
     from django.utils.version import get_svn_revision
 except ImportError:
-    svn_revision = ""
+    pass
 else:
     path = os.path.split(os.path.abspath(__file__))[0]
     svn_revision = get_svn_revision(path)
+    if svn_revision != u'SVN-unknown':
+        svn_revision = svn_revision.replace("-", "").lower()
+        __version__ += (svn_revision,)
 
-__version__ = (0, 9, 0, 'RC1', svn_revision)
 
-# PyLucid Version String
-# Important for setuptools:
-# - Only use . as a separator
-# - No spaces: "0.8.0 RC2" -> "0.8.0RC2"
-# http://peak.telecommunity.com/DevCenter/setuptools#specifying-your-project-s-version
-PYLUCID_VERSION_STRING = "%s.%s.%s%s.%s" % __version__
+VERSION_STRING = '.'.join(str(part) for part in __version__)
 
 
 if __name__ == "__main__":
-    print PYLUCID_VERSION_STRING
+    print VERSION_STRING
