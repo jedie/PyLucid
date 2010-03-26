@@ -4,7 +4,7 @@
         "model": "sites.site", 
         "fields": {
             "domain": "example.com", 
-            "name": "example.com"
+            "name": "example site"
         }
     }, 
     {
@@ -1242,7 +1242,7 @@
                 1
             ], 
             "content": "body{\r\n  font-size:0.9em;\r\n  background: snow;\r\n  margin: 15px 10% 15px 10%;\r\n}\r\n\r\n#headline {\r\n  background: moccasin;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n}\r\n\r\n.main_menu {\r\n  background: navajowhite;\r\n  float: left;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n.main_menu ul {\r\n  padding: 0;\r\n}\r\n.main_menu ul ul {\r\n  /* indent submenu */\r\n  padding-left: 1.5em;\r\n  font-size:0.9em; /* smaller font for subitems */\r\n}\r\n.main_menu li {\r\n  list-style:none;\r\n}\r\na {\r\n  color: slategray;\r\n  text-decoration: none;\r\n}\r\na:hover, a .current {\r\n  background-color: orange;\r\n  text-decoration: underline;\r\n}\r\n#main_content {\r\n  background: lightyellow;\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\n#footer {\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  font-size: 0.9em;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ color_8 }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
-            "render": 1, 
+            "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
             "description": "The 'elementary' design. Ideal as a basis for your own design."
@@ -1255,13 +1255,13 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-01-29 08:10:51", 
+            "lastupdatetime": "2010-03-26 14:55:16", 
             "filepath": "initial_site_style/main.css", 
             "sites": [
                 1
             ], 
-            "content": "* { color: #000000 }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: #fffff9;\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n/*\r\n headline definition if you use a picture:\r\n----------------------------------------------\r\n#headline {\r\n  background: #c9c573;\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n----------------------------------------------\r\n*/\r\n\r\n/*\r\n headline definition with text only:\r\n*/\r\n#headline {\r\n  background: #c9c573;\r\n  font-size: 30px;\r\n  margin: 0px;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline a {\r\n  text-decoration:none;\r\n  color: white;\r\n}\r\n/*\r\n----------------------------------------------\r\n*/\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: #000000;\r\n}\r\n.uarr {\r\n  color: #eeeeee;\r\n}\r\n.top_link:hover .uarr {\r\n  color: #000000;\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px #ffffff;\r\n  text-decoration:none;\r\n  color: #eeeedd;\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: #999999;\r\n}\r\n.section_anchor:hover {\r\n  color:#000000!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px #999999;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\n.toc_headline {\r\n  margin-bottom: 0.5em;\r\n  font-size: 0.9em;\r\n  color: #333333;\r\n}\r\n\r\n#bbaacck_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: #ffffdb;\r\n  border: 1px solid #b1b08b;\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid #444444;\r\n  padding: 1px;\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: #ffffe5;\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: #c9c573;\r\n  color: white;\r\n}\r\n\r\npre {\r\n  border:1px solid grey;\r\n  background-color: white;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: #ffffff;\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
-            "render": 1, 
+            "content": "* { color: #000000 }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: #fffff9;\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n/*\r\n headline definition if you use a picture:\r\n----------------------------------------------\r\n#headline {\r\n  background: #c9c573;\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n/*\r\n headline definition with text only:\r\n*/\r\n#headline {\r\n  background: #c9c573;\r\n  font-size: 30px;\r\n  margin: 0px;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline a {\r\n  text-decoration:none;\r\n  color: white;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: #000000;\r\n}\r\n.uarr {\r\n  color: #eeeeee;\r\n}\r\n.top_link:hover .uarr {\r\n  color: #000000;\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px #ffffff;\r\n  text-decoration:none;\r\n  color: #eeeedd;\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: #999999;\r\n}\r\n.section_anchor:hover {\r\n  color:#000000!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px #999999;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\n.toc_headline {\r\n  margin-bottom: 0.5em;\r\n  font-size: 0.9em;\r\n  color: #333333;\r\n}\r\n\r\n#bbaacck_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: #ffffdb;\r\n  border: 1px solid #b1b08b;\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid #444444;\r\n  padding: 1px;\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: #ffffe5;\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: #c9c573;\r\n  color: white;\r\n}\r\n\r\npre {\r\n  border:1px solid grey;\r\n  background-color: white;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: #ffffff;\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n\r\n.main_menu *, .main_menu a.current {\r\n  color: #666666;\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size:0.9em;\r\n}\r\n.main_menu a.active {\r\n  color: #333333;\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: #000000;\r\n  background-color: #555555;\r\n}\r\n.main_menu a:before {\r\n  color: #c9c573;\r\n  letter-spacing: 0px;\r\n  font-weight: normal;\r\n  background: #ffffe5;\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n", 
+            "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:07", 
             "description": "default Stylesheet"
@@ -1280,7 +1280,7 @@
                 1
             ], 
             "content": "* { color: #000000 }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: #fffff9;\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n#headline {\r\n  background: #c9c573;\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n\r\n#back_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: #ffffdb;\r\n  border: 1px solid #b1b08b;\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n.main_menu a {\r\n  text-decoration:none;\r\n}\r\n.main_menu ul {\r\n  list-style:none;\r\n  padding-left:1.5em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid #444444;\r\n  padding: 1px;\r\n}\r\n\r\n#adsense {\r\n  text-align: center;\r\n  /*width: 468px;\r\n  height: 60px;*/\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: #ffffe5;\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: #c9c573;\r\n  color: white;\r\n}\r\n\r\npre {\r\n  background-color:white;\r\n  border:1px solid grey;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n\r\n\r\n/* ----------------------------------------------------------------------------\r\n   internal\r\n------------------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n    background: #ffffff;\r\n    padding: 0;\r\n    margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
-            "render": 1, 
+            "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:07", 
             "description": "the old default ghastly design... ;) You should never use this ugly thing!"
@@ -1299,7 +1299,7 @@
                 1
             ], 
             "content": "/* Kopfgrafik */\r\nhead {\r\n  width: 639px;\r\n}\r\n/* Allgemein */\r\n* {\r\n  color: {{ color_17 }};\r\n  font-family:sans-serif;\r\n  font-size:0.95em;\r\n}\r\n\r\na {\r\n  text-decoration:none;\r\n}\r\na img, img {\r\n  border: 0;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n\r\nbody {\r\n  background-color: {{ color_4 }};\r\n  text-align:center;\r\n}\r\n\r\n#content {\r\n  width: 639px;\r\n  margin:auto;\r\n  text-align:left;\r\n}\r\n\r\n\r\n/* Headlines */\r\n#head {\r\n  font-size: 2em;\r\n  margin: 0.5em;\r\n  padding-left: 1.5em;\r\n  color: {{ color_13 }};\r\n}\r\nh1, h2 {\r\n  text-transform:uppercase;\r\n  font-size:0.95em;\r\n  color: white;\r\n}\r\nh2 {\r\n  border-bottom: 1px solid {{ color_17 }};\r\n}\r\n\r\n\r\n/* linien */\r\nhr {\r\n  clear: both;\r\n  border-width:1px;\r\n  height:1px;\r\n  padding: 0px;\r\n  margin: 2px 0px 2px 0px;\r\n}\r\nhr.big {\r\n  border-width: 3px;\r\n  height:3px;\r\n  border-style: solid\r\n}\r\nhr.small {\r\n  border-style:dotted;\r\n}\r\n\r\n#nav_footer {\r\n  font-size:0.9em;\r\n}\r\n\r\n\r\n\r\n\r\n/* Hauptmenu */\r\n.main_menu, #footer {\r\n  text-align:center;\r\n  width: 639px;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu ul {\r\n  list-style:none;\r\n}\r\n.main_menu li {\r\n  display:inline;\r\n  padding: 5px;\r\n}\r\n.main_menu a .current, .main_menu a:hover, #footer a {\r\n  color: white;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}", 
-            "render": 1, 
+            "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
             "description": "The 'small dark' design."
@@ -1318,7 +1318,7 @@
                 1
             ], 
             "content": "/* andreas01 - an open source xhtml/css website layout \r\n * by Andreas Viklund  - http://andreasviklund.com -\r\n * Free to use for any purpose as long as the proper \r\n * credits are given to the original author.\r\n *  \r\n * Version: 2.0 (Jun 25, 2006)\r\n * Screen layout: \r\n */\r\n\r\n/***** Body and main container *****/\r\nbody {\r\nmargin:0 auto;\r\npadding:0;\r\nfont:76% Verdana,Tahoma,Arial,sans-serif;\r\nbackground:#dddddd;\r\ncolor:#303030;\r\n}\r\n\r\n#wrap {\r\nbackground:#ffffff;\r\ncolor:#303030;\r\nmargin:0 auto;\r\nwidth:760px;\r\n}\r\n\r\n/***** Various tags *****/\r\na {\r\ntext-decoration:none;\r\nfont-weight:bold;\r\ncolor:#286ea0;\r\nbackground-color:inherit;\r\n}\r\n\r\na:hover {\r\ntext-decoration:underline;\r\ncolor:#286ea0;\r\nbackground-color:inherit;\r\n}\r\n\r\na img {\r\nborder:0;\r\n}\r\n\r\n/***** Header *****/\r\n#header {\r\nbackground-color:#eaeaea;\r\nmargin:10px 0 0;\r\npadding:0;\r\nheight:45px;\r\n}\r\n\r\n#header h1 {\r\ncolor:#505050;\r\nbackground-color:inherit;\r\nwidth:250px;\r\nmargin:0 0 10px;\r\nfont-size:2.2em;\r\nfloat:left;\r\n}\r\n\r\n#header h1 a{\r\ncolor:#505050;\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#header p {\r\nwidth:500px;\r\nfloat:right;\r\ntext-align:center;\r\ncolor:#505050;\r\nmargin:8px 0 0;\r\nfont-size:1.1em;\r\nfont-weight:bold;\r\nline-height:1.3em;\r\nbackground-color:inherit;\r\n}\r\n\r\n#frontphoto {\r\nmargin:0 0 10px;\r\nborder:0;\r\n}\r\n\r\n/***** Main menu *****/\r\n.main_menu ul {\r\nwidth:140px;\r\nmargin:0 0 18px;\r\npadding:0;\r\nlist-style:none;\r\n}\r\n\r\n.main_menu li {\r\nwidth:140px;\r\npadding:0;\r\nline-height:1.4em;\r\ndisplay:inline;\r\n}\r\n\r\n.main_menu li a {\r\nbackground-color:#f4f4f4;\r\ncolor:#505050;\r\nfont-weight:bold;\r\nwidth:130px;\r\nfloat:left;\r\nmargin-bottom:5px;\r\npadding:5px 1px 5px 5px;\r\nborder-left:4px solid #cccccc;\r\ntext-decoration:none;\r\n}\r\n\r\n.main_menu li a:hover {\r\nbackground-color:#eaeaea;\r\nborder-left:4px solid #286ea0;\r\ncolor:#505050;\r\n}\r\n.main_menu li a .current {\r\nbackground-color:#dddddd;\r\n}\r\n\r\n\r\n.main_menu ul {\r\nmargin:0 0 0 15px;\r\npadding:0 0 5px 0;\r\nfont-size:0.9em;\r\nwidth:125px;\r\n}\r\n\r\n.main_menu ul a {\r\npadding:3px 1px 3px 5px;\r\nwidth:115px;\r\n}\r\n\r\n.main_menu ul ul {\r\nwidth:113px;\r\n}\r\n\r\n.main_menu ul ul a {\r\nwidth:100px;\r\n}\r\n\r\n/***** Left sidebar *****/\r\n#leftside {\r\nclear:left;\r\nfloat:left;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside h2, #leftside h3 {\r\ncolor:#505050;\r\nbackground-color:inherit;\r\nfont-size:1.3em;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside div.announce {\r\nclear:left;\r\nmargin:10px 0 15px;\r\npadding:7px 5px;\r\nwidth:126px;\r\nfont-size:0.9em;\r\nbackground-color:#f4f4f4;\r\ncolor:#505050;\r\nborder-left:4px solid #cccccc;\r\nline-height:1.5em;\r\n}\r\n\r\n#leftside div.announce p {\r\nmargin:10px 0 0;\r\npadding:0;\r\n}\r\n\r\n/***** Right sidebar *****/\r\n\r\n#rightside {\r\nfloat:right;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\nline-height:1.4em;\r\n}\r\n\r\n#extras p,#extras ul {\r\nfont-size:0.9em;\r\nmargin:0 0 16px;\r\npadding:0;\r\n}\r\n\r\n#extras li {\r\nlist-style:none;\r\nline-height:1.2em;\r\nmargin:0 0 6px 0;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul {\r\nmargin:6px 0 0 10px;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul li {\r\nmargin: 0 0 4px 0;\r\n}\r\n\r\n#extras ul ul li a {\r\nfont-size:1.1em;\r\nfont-weight:normal;\r\n}\r\n\r\n#extras h2, #extras h3 {\r\ncolor:#505050;\r\nbackground-color:inherit;\r\nfont-size:1.2em;\r\nmargin:0 0 10px;\r\npadding:0;\r\n}\r\n\r\n/***** Main content *****/\r\n#content {\r\nmargin:0 200px 5px 200px;\r\nborder-left:1px solid #e0e0e0;\r\nborder-right:1px solid #e0e0e0;\r\npadding:0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#contentwide {\r\nmargin:0 0 5px 200px;\r\nborder-left:1px solid #f0f0f0;\r\npadding:0 0 0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#content h2,#contentwide h2 {\r\nfont-size:1.6em;\r\nmargin:0 0 10px;\r\n}\r\n\r\n#content h3,#contentwide h3 {\r\nfont-size:1.4em;\r\nmargin:0 0 8px;\r\n}\r\n\r\n#content img.normal, #contentwide img.normal {\r\npadding:1px;\r\ndisplay:inline;\r\nbackground:#cccccc;\r\ncolor:#303030;\r\nborder:4px solid #f0f0f0;\r\n}\r\n\r\n#content ul, #contentwide ul, #content ol, #contentwide ol {\r\nmargin:0 0 16px 20px;\r\npadding:0;\r\n}\r\n\r\n#content li, #contentwide li {\r\nmargin:0;\r\npadding:0 0 0 5px;\r\n}\r\n\r\n#content ul ul, #contentwide ul ul, #content ol ol, #contentwide ol ol{\r\nmargin:0 0 0 16px;\r\npadding:0;\r\n}\r\n\r\n/***** Footer *****/\r\n#footer {\r\nclear:both;\r\nmargin:0 auto;\r\npadding:10px 0 20px;\r\nborder-top:4px solid #f0f0f0;\r\nwidth:760px;\r\ntext-align:center;\r\ncolor:#808080;\r\nbackground:#ffffff;\r\nfont-size:0.9em;\r\n}\r\n\r\n#footer a {\r\ncolor:#808080;\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#footer a:hover {\r\ntext-decoration:underline;\r\n}\r\n\r\n/***** Various classes *****/\r\n.left {\r\nmargin:3px 10px 2px 0;\r\nfloat:left;\r\n}\r\n\r\n.right {\r\nmargin:2px 0 2px 10px;\r\nfloat:right;\r\n}\r\n\r\n.textright {\r\ntext-align:right;\r\n}\r\n\r\n.center {\r\ntext-align:center;\r\n}\r\n\r\n.small {\r\nfont-size:0.8em;\r\n}\r\n\r\n.bold {\r\nfont-weight:bold;\r\n}\r\n\r\n.hide {\r\ndisplay:none;\r\n}", 
-            "render": 1, 
+            "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
             "description": "The 'small white' design."
@@ -1337,7 +1337,7 @@
                 1
             ], 
             "content": ".pygments  { background: #ffffff; }\r\n.pygments .c { color: #808080 } /* Comment */\r\n.pygments .err { color: #F00000; background-color: #F0A0A0 } /* Error */\r\n.pygments .k { color: #008000; font-weight: bold } /* Keyword */\r\n.pygments .o { color: #303030 } /* Operator */\r\n.pygments .cm { color: #808080 } /* Comment.Multiline */\r\n.pygments .cp { color: #507090 } /* Comment.Preproc */\r\n.pygments .c1 { color: #808080 } /* Comment.Single */\r\n.pygments .cs { color: #cc0000; font-weight: bold } /* Comment.Special */\r\n.pygments .gd { color: #A00000 } /* Generic.Deleted */\r\n.pygments .ge { font-style: italic } /* Generic.Emph */\r\n.pygments .gr { color: #FF0000 } /* Generic.Error */\r\n.pygments .gh { color: #000080; font-weight: bold } /* Generic.Heading */\r\n.pygments .gi { color: #00A000 } /* Generic.Inserted */\r\n.pygments .go { color: #808080 } /* Generic.Output */\r\n.pygments .gp { color: #c65d09; font-weight: bold } /* Generic.Prompt */\r\n.pygments .gs { font-weight: bold } /* Generic.Strong */\r\n.pygments .gu { color: #800080; font-weight: bold } /* Generic.Subheading */\r\n.pygments .gt { color: #0040D0 } /* Generic.Traceback */\r\n.pygments .kc { color: #008000; font-weight: bold } /* Keyword.Constant */\r\n.pygments .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */\r\n.pygments .kp { color: #003080; font-weight: bold } /* Keyword.Pseudo */\r\n.pygments .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */\r\n.pygments .kt { color: #303090; font-weight: bold } /* Keyword.Type */\r\n.pygments .m { color: #6000E0; font-weight: bold } /* Literal.Number */\r\n.pygments .s { background-color: #fff0f0 } /* Literal.String */\r\n.pygments .na { color: #0000C0 } /* Name.Attribute */\r\n.pygments .nb { color: #007020 } /* Name.Builtin */\r\n.pygments .nc { color: #B00060; font-weight: bold } /* Name.Class */\r\n.pygments .no { color: #003060; font-weight: bold } /* Name.Constant */\r\n.pygments .nd { color: #505050; font-weight: bold } /* Name.Decorator */\r\n.pygments .ni { color: #800000; font-weight: bold } /* Name.Entity */\r\n.pygments .ne { color: #F00000; font-weight: bold } /* Name.Exception */\r\n.pygments .nf { color: #0060B0; font-weight: bold } /* Name.Function */\r\n.pygments .nl { color: #907000; font-weight: bold } /* Name.Label */\r\n.pygments .nn { color: #0e84b5; font-weight: bold } /* Name.Namespace */\r\n.pygments .nt { color: #007000 } /* Name.Tag */\r\n.pygments .nv { color: #906030 } /* Name.Variable */\r\n.pygments .ow { color: #000000; font-weight: bold } /* Operator.Word */\r\n.pygments .w { color: #bbbbbb } /* Text.Whitespace */\r\n.pygments .mf { color: #6000E0; font-weight: bold } /* Literal.Number.Float */\r\n.pygments .mh { color: #005080; font-weight: bold } /* Literal.Number.Hex */\r\n.pygments .mi { color: #0000D0; font-weight: bold } /* Literal.Number.Integer */\r\n.pygments .mo { color: #4000E0; font-weight: bold } /* Literal.Number.Oct */\r\n.pygments .sb { background-color: #fff0f0 } /* Literal.String.Backtick */\r\n.pygments .sc { color: #0040D0 } /* Literal.String.Char */\r\n.pygments .sd { color: #D04020 } /* Literal.String.Doc */\r\n.pygments .s2 { background-color: #fff0f0 } /* Literal.String.Double */\r\n.pygments .se { color: #606060; font-weight: bold; background-color: #fff0f0 } /* Literal.String.Escape */\r\n.pygments .sh { background-color: #fff0f0 } /* Literal.String.Heredoc */\r\n.pygments .si { background-color: #e0e0e0 } /* Literal.String.Interpol */\r\n.pygments .sx { color: #D02000; background-color: #fff0f0 } /* Literal.String.Other */\r\n.pygments .sr { color: #000000; background-color: #fff0ff } /* Literal.String.Regex */\r\n.pygments .s1 { background-color: #fff0f0 } /* Literal.String.Single */\r\n.pygments .ss { color: #A06000 } /* Literal.String.Symbol */\r\n.pygments .bp { color: #007020 } /* Name.Builtin.Pseudo */\r\n.pygments .vc { color: #306090 } /* Name.Variable.Class */\r\n.pygments .vg { color: #d07000; font-weight: bold } /* Name.Variable.Global */\r\n.pygments .vi { color: #3030B0 } /* Name.Variable.Instance */\r\n.pygments .il { color: #0000D0; font-weight: bold } /* Literal.Number.Integer.Long */", 
-            "render": 0, 
+            "render": false, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:41:06", 
             "description": "Pygments colors"
@@ -1466,16 +1466,54 @@
         "fields": {
             "createby": 1, 
             "parent": null, 
-            "lastupdatetime": "2010-01-29 08:49:36", 
-            "showlinks": 1, 
+            "lastupdatetime": "2010-03-26 15:48:39", 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "welcome", 
             "design": 1, 
             "page_type": "C", 
-            "position": -10, 
+            "position": -7, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:09", 
+            "permitEditGroup": null
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "pylucid.pagetree", 
+        "fields": {
+            "createby": 1, 
+            "parent": 1, 
+            "lastupdatetime": "2010-03-26 15:21:15", 
+            "showlinks": false, 
+            "permitViewGroup": null, 
+            "site": 1, 
+            "slug": "feeds", 
+            "design": 1, 
+            "page_type": "P", 
+            "position": 5, 
+            "lastupdateby": 1, 
+            "createtime": "2010-03-26 14:37:18", 
+            "permitEditGroup": null
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "pylucid.pagetree", 
+        "fields": {
+            "createby": 1, 
+            "parent": null, 
+            "lastupdatetime": "2010-03-26 15:48:39", 
+            "showlinks": true, 
+            "permitViewGroup": null, 
+            "site": 1, 
+            "slug": "blog", 
+            "design": 1, 
+            "page_type": "P", 
+            "position": -4, 
+            "lastupdateby": 1, 
+            "createtime": "2010-01-29 07:58:50", 
             "permitEditGroup": null
         }
     }, 
@@ -1485,16 +1523,54 @@
         "fields": {
             "createby": 1, 
             "parent": null, 
-            "lastupdatetime": "2010-01-29 08:19:18", 
-            "showlinks": 1, 
+            "lastupdatetime": "2010-03-26 15:48:39", 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "example-pages", 
             "design": 1, 
             "page_type": "C", 
-            "position": -5, 
+            "position": 0, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:10", 
+            "permitEditGroup": null
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "pylucid.pagetree", 
+        "fields": {
+            "createby": 1, 
+            "parent": 2, 
+            "lastupdatetime": "2009-11-03 03:37:13", 
+            "showlinks": true, 
+            "permitViewGroup": null, 
+            "site": 1, 
+            "slug": "RSS", 
+            "design": 1, 
+            "page_type": "C", 
+            "position": 0, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:13", 
+            "permitEditGroup": null
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "pylucid.pagetree", 
+        "fields": {
+            "createby": 1, 
+            "parent": 2, 
+            "lastupdatetime": "2010-01-29 08:06:24", 
+            "showlinks": true, 
+            "permitViewGroup": null, 
+            "site": 1, 
+            "slug": "SourceCode", 
+            "design": 1, 
+            "page_type": "C", 
+            "position": 0, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:14", 
             "permitEditGroup": null
         }
     }, 
@@ -1505,7 +1581,7 @@
             "createby": 1, 
             "parent": 2, 
             "lastupdatetime": "2010-01-29 08:20:01", 
-            "showlinks": 1, 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "markups", 
@@ -1524,7 +1600,7 @@
             "createby": 1, 
             "parent": 8, 
             "lastupdatetime": "2009-11-03 03:37:24", 
-            "showlinks": 1, 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "creole", 
@@ -1543,7 +1619,7 @@
             "createby": 1, 
             "parent": 8, 
             "lastupdatetime": "2009-11-03 03:37:21", 
-            "showlinks": 1, 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "tinyTextile", 
@@ -1562,7 +1638,7 @@
             "createby": 1, 
             "parent": 8, 
             "lastupdatetime": "2010-01-29 08:20:01", 
-            "showlinks": 1, 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "textile-original", 
@@ -1575,32 +1651,13 @@
         }
     }, 
     {
-        "pk": 16, 
-        "model": "pylucid.pagetree", 
-        "fields": {
-            "createby": 1, 
-            "parent": 8, 
-            "lastupdatetime": "2010-01-29 08:20:01", 
-            "showlinks": 1, 
-            "permitViewGroup": null, 
-            "site": 1, 
-            "slug": "ReSt", 
-            "design": 1, 
-            "page_type": "C", 
-            "position": 0, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:23", 
-            "permitEditGroup": null
-        }
-    }, 
-    {
         "pk": 15, 
         "model": "pylucid.pagetree", 
         "fields": {
             "createby": 1, 
             "parent": 8, 
             "lastupdatetime": "2010-01-29 08:20:01", 
-            "showlinks": 1, 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "markdown", 
@@ -1613,59 +1670,21 @@
         }
     }, 
     {
-        "pk": 7, 
+        "pk": 16, 
         "model": "pylucid.pagetree", 
         "fields": {
             "createby": 1, 
-            "parent": 2, 
-            "lastupdatetime": "2010-01-29 08:06:24", 
-            "showlinks": 1, 
+            "parent": 8, 
+            "lastupdatetime": "2010-01-29 08:20:01", 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
-            "slug": "SourceCode", 
+            "slug": "ReSt", 
             "design": 1, 
             "page_type": "C", 
             "position": 0, 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:14", 
-            "permitEditGroup": null
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "pylucid.pagetree", 
-        "fields": {
-            "createby": 1, 
-            "parent": 2, 
-            "lastupdatetime": "2009-11-03 03:37:13", 
-            "showlinks": 1, 
-            "permitViewGroup": null, 
-            "site": 1, 
-            "slug": "RSS", 
-            "design": 1, 
-            "page_type": "C", 
-            "position": 0, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:13", 
-            "permitEditGroup": null
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "pylucid.pagetree", 
-        "fields": {
-            "createby": 1, 
-            "parent": 2, 
-            "lastupdatetime": "2009-11-03 03:37:13", 
-            "showlinks": 1, 
-            "permitViewGroup": null, 
-            "site": 1, 
-            "slug": "SiteMap", 
-            "design": 1, 
-            "page_type": "C", 
-            "position": 5, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:13", 
+            "createtime": "2009-11-03 03:37:23", 
             "permitEditGroup": null
         }
     }, 
@@ -1675,14 +1694,14 @@
         "fields": {
             "createby": 1, 
             "parent": null, 
-            "lastupdatetime": "2010-01-29 08:20:01", 
-            "showlinks": 1, 
+            "lastupdatetime": "2010-03-26 15:48:39", 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "designs", 
             "design": 1, 
             "page_type": "C", 
-            "position": -3, 
+            "position": 0, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:11", 
             "permitEditGroup": null
@@ -1695,7 +1714,7 @@
             "createby": 1, 
             "parent": 3, 
             "lastupdatetime": "2009-11-03 03:37:21", 
-            "showlinks": 1, 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "small-white", 
@@ -1708,32 +1727,13 @@
         }
     }, 
     {
-        "pk": 11, 
-        "model": "pylucid.pagetree", 
-        "fields": {
-            "createby": 1, 
-            "parent": 3, 
-            "lastupdatetime": "2009-11-03 03:37:19", 
-            "showlinks": 1, 
-            "permitViewGroup": null, 
-            "site": 1, 
-            "slug": "elementary", 
-            "design": 4, 
-            "page_type": "C", 
-            "position": 0, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:19", 
-            "permitEditGroup": null
-        }
-    }, 
-    {
         "pk": 9, 
         "model": "pylucid.pagetree", 
         "fields": {
             "createby": 1, 
             "parent": 3, 
             "lastupdatetime": "2009-11-03 03:37:16", 
-            "showlinks": 1, 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "small-dark", 
@@ -1746,13 +1746,32 @@
         }
     }, 
     {
+        "pk": 11, 
+        "model": "pylucid.pagetree", 
+        "fields": {
+            "createby": 1, 
+            "parent": 3, 
+            "lastupdatetime": "2009-11-03 03:37:19", 
+            "showlinks": true, 
+            "permitViewGroup": null, 
+            "site": 1, 
+            "slug": "elementary", 
+            "design": 4, 
+            "page_type": "C", 
+            "position": 0, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:19", 
+            "permitEditGroup": null
+        }
+    }, 
+    {
         "pk": 10, 
         "model": "pylucid.pagetree", 
         "fields": {
             "createby": 1, 
             "parent": 3, 
             "lastupdatetime": "2009-11-03 03:37:18", 
-            "showlinks": 1, 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "old-default", 
@@ -1765,41 +1784,117 @@
         }
     }, 
     {
-        "pk": 18, 
-        "model": "pylucid.pagetree", 
-        "fields": {
-            "createby": 1, 
-            "parent": null, 
-            "lastupdatetime": "2010-01-29 07:58:50", 
-            "showlinks": 1, 
-            "permitViewGroup": null, 
-            "site": 1, 
-            "slug": "blog", 
-            "design": 1, 
-            "page_type": "P", 
-            "position": 0, 
-            "lastupdateby": 1, 
-            "createtime": "2010-01-29 07:58:50", 
-            "permitEditGroup": null
-        }
-    }, 
-    {
         "pk": 19, 
         "model": "pylucid.pagetree", 
         "fields": {
             "createby": 1, 
             "parent": null, 
-            "lastupdatetime": "2010-01-29 07:59:24", 
-            "showlinks": 1, 
+            "lastupdatetime": "2010-03-26 15:48:39", 
+            "showlinks": true, 
             "permitViewGroup": null, 
             "site": 1, 
             "slug": "lexicon", 
             "design": 1, 
             "page_type": "P", 
-            "position": 0, 
+            "position": 4, 
             "lastupdateby": 1, 
             "createtime": "2010-01-29 07:59:24", 
             "permitEditGroup": null
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "pylucid.pagetree", 
+        "fields": {
+            "createby": 1, 
+            "parent": null, 
+            "lastupdatetime": "2010-03-26 15:48:39", 
+            "showlinks": true, 
+            "permitViewGroup": null, 
+            "site": 1, 
+            "slug": "SiteMap", 
+            "design": 1, 
+            "page_type": "C", 
+            "position": 7, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:13", 
+            "permitEditGroup": null
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-03-26 15:47:54", 
+            "language": 1, 
+            "title": "A user sitemap.", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 5, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:13", 
+            "name": "sitemap"
+        }
+    }, 
+    {
+        "pk": 23, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-03-26 15:21:15", 
+            "language": 1, 
+            "title": "", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 20, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2010-03-26 14:37:18", 
+            "name": "RSS/Atom feeds"
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-03-26 15:21:15", 
+            "language": 2, 
+            "title": "", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 20, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2010-03-26 14:37:18", 
+            "name": "RSS/Atom feeds"
+        }
+    }, 
+    {
+        "pk": 25, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-03-26 15:13:49", 
+            "language": 2, 
+            "title": "", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 18, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2010-03-26 15:13:49", 
+            "name": ""
         }
     }, 
     {
@@ -1807,7 +1902,7 @@
         "model": "pylucid.pagemeta", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:49:37", 
+            "lastupdatetime": "2010-03-26 15:08:53", 
             "language": 1, 
             "title": "Welcome to your PyLucid CMS =;-)", 
             "description": "", 
@@ -1826,7 +1921,7 @@
         "model": "pylucid.pagemeta", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:46:03", 
+            "lastupdatetime": "2010-03-26 15:08:53", 
             "language": 2, 
             "title": "Willkommen auf deiner PyLucid CMS Seite =;-)", 
             "description": "", 
@@ -1838,6 +1933,196 @@
             "lastupdateby": 1, 
             "createtime": "2010-01-29 08:27:45", 
             "name": "Willkommen"
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": null, 
+            "lastupdatetime": "2010-03-26 11:13:19", 
+            "language": 2, 
+            "title": "", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 19, 
+            "keywords": "", 
+            "lastupdateby": null, 
+            "createtime": "2010-03-26 11:13:19", 
+            "name": ""
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "Some example pages.", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 2, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:10", 
+            "name": "example pages"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "Some other designs pages.", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 3, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:11", 
+            "name": "design examples"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "RSS feed test.", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 6, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:14", 
+            "name": "RSS"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "Markup 'test' pages.", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 8, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:15", 
+            "name": "markups"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "Example design 'small dark'.", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 9, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:17", 
+            "name": "small dark"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "The old default ghastly design... ;)", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 10, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:18", 
+            "name": "old default"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "The 'Elementary' Design", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 11, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:19", 
+            "name": "elementary"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "A small white design.", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 12, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:21", 
+            "name": "small white"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:25:35", 
+            "language": 1, 
+            "title": "The original 'textile' markup.", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 14, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:22", 
+            "name": "textile (original)"
         }
     }, 
     {
@@ -1879,158 +2164,6 @@
         }
     }, 
     {
-        "pk": 14, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "The original 'textile' markup.", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 14, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:22", 
-            "name": "textile (original)"
-        }
-    }, 
-    {
-        "pk": 12, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "A small white design.", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 12, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:21", 
-            "name": "small white"
-        }
-    }, 
-    {
-        "pk": 11, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "The 'Elementary' Design", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 11, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:19", 
-            "name": "elementary"
-        }
-    }, 
-    {
-        "pk": 10, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "The old default ghastly design... ;)", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 10, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:18", 
-            "name": "old default"
-        }
-    }, 
-    {
-        "pk": 9, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "Example design 'small dark'.", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 9, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:17", 
-            "name": "small dark"
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "Markup 'test' pages.", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 8, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:15", 
-            "name": "markups"
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "RSS feed test.", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 6, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:14", 
-            "name": "RSS"
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "A user sitemap.", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 5, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:13", 
-            "name": "sitemap"
-        }
-    }, 
-    {
         "pk": 18, 
         "model": "pylucid.pagemeta", 
         "fields": {
@@ -2047,44 +2180,6 @@
             "lastupdateby": 1, 
             "createtime": "2010-01-29 07:58:50", 
             "name": "blog"
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "Some other designs pages.", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 3, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:11", 
-            "name": "design examples"
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:25:35", 
-            "language": 1, 
-            "title": "Some example pages.", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 2, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:10", 
-            "name": "example pages"
         }
     }, 
     {
@@ -2107,25 +2202,6 @@
         }
     }, 
     {
-        "pk": 15, 
-        "model": "pylucid.pagemeta", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:22:53", 
-            "language": 1, 
-            "title": "", 
-            "description": "", 
-            "tags": "", 
-            "permitViewGroup": null, 
-            "robots": "index,follow", 
-            "pagetree": 15, 
-            "keywords": "", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:23", 
-            "name": "markdown"
-        }
-    }, 
-    {
         "pk": 7, 
         "model": "pylucid.pagemeta", 
         "fields": {
@@ -2142,6 +2218,25 @@
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:14", 
             "name": "sourcecode"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-01-29 08:22:53", 
+            "language": 1, 
+            "title": "", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 15, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:23", 
+            "name": "markdown"
         }
     }, 
     {
@@ -2164,13 +2259,26 @@
         }
     }, 
     {
+        "pk": 5, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-03-26 15:47:54", 
+            "markup": 0, 
+            "content": "{% lucidTag SiteMap %}", 
+            "pagemeta": 5, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:13"
+        }
+    }, 
+    {
         "pk": 1, 
         "model": "pylucid.pagecontent", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:49:37", 
+            "lastupdatetime": "2010-03-26 15:08:53", 
             "markup": 6, 
-            "content": "Welcome to your fesh PyLucid CMS installation ;)\r\n\r\n{% if user.is_superuser %}\r\nYou should first change the \"site domain\" to your domain name.\r\nYou can use this link: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nIf you didn't installed the PyLucid plugins, please do it here //PyLucid admin menu / PyLucid / **install plugins**//\r\n\r\nThen it would be good if you would carefully study the output of the self test, here: //PyLucid admin menu / system / **base check**//\r\n{% endif %}\r\n\r\nPlease [[http://www.pylucid.org/permalink/29/kontakt-contact|contact us]], if you have any question.\r\n\r\nIf you find errors, write a ticket (if it does not exist) in our [[http://trac.pylucid.net/|Trac bug tracker]] (login with guest/guest).\r\n\r\n=== list of last updates\r\n\r\n{% lucidTag update_journal %}", 
+            "content": "Welcome to your fesh PyLucid CMS installation ;)\r\n\r\n{% if user.is_superuser %}\r\nYou should first change the \"site domain\" to your domain name.\r\nYou can use this link: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nIf you didn't installed the PyLucid plugins, please do it here:\r\n * //PyLucid admin menu / PyLucid / **install plugins**//\r\n\r\nThen it would be good if you would carefully study the output of the self test, here:\r\n * //PyLucid admin menu / system / **base check**//\r\n\r\n{% endif %}\r\n\r\nPlease [[http://www.pylucid.org/permalink/29/kontakt-contact|contact us]], if you have any question.\r\n\r\nIf you find errors, write a ticket (if it does not exist) in our [[http://trac.pylucid.net/|Trac bug tracker]] (login with guest/guest).\r\n\r\n=== list of last updates\r\n\r\n{% lucidTag update_journal %}", 
             "pagemeta": 1, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:10"
@@ -2181,9 +2289,9 @@
         "model": "pylucid.pagecontent", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:46:03", 
+            "lastupdatetime": "2010-03-26 15:08:53", 
             "markup": 6, 
-            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\n{% if user.is_superuser %}\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: //PyLucid Admin Menü / system / **base check**//\r\n{% endif %}\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://trac.pylucid.net/|Trac Bug Tracker]] (einloggen mit guest/guest).\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}", 
+            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\n{% if user.is_superuser %}\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\n{% endif %}\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://trac.pylucid.net/|Trac Bug Tracker]] (einloggen mit guest/guest).\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}", 
             "pagemeta": 20, 
             "lastupdateby": 1, 
             "createtime": "2010-01-29 08:27:45"
@@ -2372,16 +2480,16 @@
         }
     }, 
     {
-        "pk": 5, 
-        "model": "pylucid.pagecontent", 
+        "pk": 3, 
+        "model": "pylucid.pluginpage", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2009-11-03 03:37:13", 
-            "markup": 0, 
-            "content": "{% lucidTag SiteMap %}", 
-            "pagemeta": 5, 
+            "lastupdatetime": "2010-03-26 15:21:15", 
+            "pagetree": 20, 
+            "app_label": "pylucid_project.pylucid_plugins.update_journal", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:13"
+            "createtime": "2010-03-26 14:37:18", 
+            "urls_filename": "urls.py"
         }
     }, 
     {
@@ -2414,11 +2522,11 @@
         "pk": 1, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body>\r\n<div id=\"headline\">\r\n  <a href=\"/\">PyLucid CMS</a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% lucidTag TOC min=3 %}\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
+            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"headline\">\r\n  <a href=\"/\">PyLucid CMS</a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% lucidTag TOC min=3 %}\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-01-29 08:07:21", 
+            "last_changed": "2010-03-26 11:46:37", 
             "name": "initial_site_template/basic.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2427,11 +2535,11 @@
         "pk": 4, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\n<!-- ContextMiddleware extrahead -->\n\r\n</head>\r\n<body>\r\n<div id=\"headline\"><h2>PyLucid CMS</h2></div>\r\n\r\n{% lucidTag main_menu %}\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\n<p>{% lucidTag language %}</p>\n</p>\r\n  <div id=\"page_content\">\n    {% block content %}{{ page_content }}{% endblock content %}\n</div>\r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
+            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"headline\"><h2>PyLucid CMS</h2></div>\r\n\r\n{% lucidTag main_menu %}\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
             "sites": [
                 1
             ], 
-            "last_changed": "2009-11-03 03:37:35", 
+            "last_changed": "2010-03-26 11:46:50", 
             "name": "initial_site_template/elementary.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2440,11 +2548,11 @@
         "pk": 2, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"/favicon_pylucid.ico\">\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body>\r\n<div id=\"headline\">\r\n  <a href=\"/\">\r\n  <img id=\"pylucid_logo\" src=\"http://static.htfx.info/pylucid_logo.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n  <a href=\"http://pylucid.net/trac/\" alt=\"goto PyLucid trac &gt;&gt;\" title=\"goto PyLucid trac &gt;&gt;\">\r\n    <img src=\"http://static.htfx.info/trac_logo_mini.png\" border=\"0\" alt=\"trac Logo\" />\r\n  </a>\r\n  <br />\r\n  <a href=\"http://www.ohloh.net/projects/5642?p=PyLucid\" alt=\"goto PyLucid Ohloh profile &gt;&gt;\" title=\"goto PyLucid Ohloh profile &gt;&gt;\">\r\n    <img src=\"http://www.ohloh.net/projects/5642/badge.gif\" border=\"0\" alt=\"Ohloh metrics\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title|escape }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
+            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"headline\">\r\n  <a href=\"/\">\r\n  <img id=\"pylucid_logo\" src=\"http://static.htfx.info/pylucid_logo.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n  <a href=\"http://pylucid.net/trac/\" alt=\"goto PyLucid trac &gt;&gt;\" title=\"goto PyLucid trac &gt;&gt;\">\r\n    <img src=\"http://static.htfx.info/trac_logo_mini.png\" border=\"0\" alt=\"trac Logo\" />\r\n  </a>\r\n  <br />\r\n  <a href=\"http://www.ohloh.net/projects/5642?p=PyLucid\" alt=\"goto PyLucid Ohloh profile &gt;&gt;\" title=\"goto PyLucid Ohloh profile &gt;&gt;\">\r\n    <img src=\"http://www.ohloh.net/projects/5642/badge.gif\" border=\"0\" alt=\"Ohloh metrics\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title|escape }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-01-29 08:17:26", 
+            "last_changed": "2010-03-26 11:46:59", 
             "name": "initial_site_template/old_basic.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2453,11 +2561,11 @@
         "pk": 3, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\n<!-- ContextMiddleware extrahead -->\n\r\n</head>\r\n<body>\r\n<div id=\"content\">\r\n  <p id=\"head\">PyLucid CMS</p>\r\n  <hr class=\"big\" />\r\n  {% lucidTag main_menu %}\r\n  <hr class=\"small\" />\r\n\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\n<p>{% lucidTag language %}</p>\n</p>\r\n  <div id=\"page_content\">\n    {% block content %}{{ page_content }}{% endblock content %}\n</div>\r\n  \r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n\r\n  <hr class=\"small\" />\r\n  <hr class=\"big\" />\r\n  <p id=\"nav_footer\">\r\n    powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n  </p>\r\n</div>\r\n</body>\r\n</html>", 
+            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"content\">\r\n  <p id=\"head\">PyLucid CMS</p>\r\n  <hr class=\"big\" />\r\n  {% lucidTag main_menu %}\r\n  <hr class=\"small\" />\r\n\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  \r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n\r\n  <hr class=\"small\" />\r\n  <hr class=\"big\" />\r\n  <p id=\"nav_footer\">\r\n    powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n  </p>\r\n</div>\r\n</body>\r\n</html>", 
             "sites": [
                 1
             ], 
-            "last_changed": "2009-11-03 03:37:35", 
+            "last_changed": "2010-03-26 11:47:04", 
             "name": "initial_site_template/small_dark.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2466,13 +2574,55 @@
         "pk": 5, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\n<!-- ContextMiddleware extrahead -->\n\r\n</head>\r\n<body>\r\n<div id=\"wrap\">\r\n  <div id=\"header\">\r\n    <a href=\"/\">\r\n      <img id=\"pylucid_logo\" src=\"/_static/pylucid_logo_2_364x76.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n    </a>\r\n  </div>\r\n\r\n  <div id=\"leftside\">\r\n    <h2 class=\"hide\">Menu:</h2>\r\n    {% lucidTag main_menu %}\r\n    {% lucidTag search %}\r\n  </div>\r\n\r\n  <div id=\"contentwide\">\r\n    <div id=\"admin\">{% lucidTag admin_menu %}</div>\r\n    <!-- page_messages -->\r\n    <h2>{{ page_title }}</h2>\r\n    <p><!-- ContextMiddleware breadcrumb -->\n<p>{% lucidTag language %}</p>\n</p>\r\n    <div id=\"page_content\">\n    {% block content %}{{ page_content }}{% endblock content %}\n</div>\r\n    <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n  </div>\r\n\r\n  <div id=\"footer\">\r\n    <p>\r\n      powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n    </p>\r\n  </div>\r\n</div>\r\n</body>\r\n</html>\r\n", 
+            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"/media/PyLucid/jquery.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/jquery.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"/media/PyLucid/pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [/media/PyLucid/pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"wrap\">\r\n  <div id=\"header\">\r\n    <a href=\"/\">\r\n      <img id=\"pylucid_logo\" src=\"/_static/pylucid_logo_2_364x76.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n    </a>\r\n  </div>\r\n\r\n  <div id=\"leftside\">\r\n    <h2 class=\"hide\">Menu:</h2>\r\n    {% lucidTag main_menu %}\r\n    {% lucidTag search %}\r\n  </div>\r\n\r\n  <div id=\"contentwide\">\r\n    <div id=\"admin\">{% lucidTag admin_menu %}</div>\r\n    <!-- page_messages -->\r\n    <h2>{{ page_title }}</h2>\r\n    <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n    <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n    <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n  </div>\r\n\r\n  <div id=\"footer\">\r\n    <p>\r\n      powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n    </p>\r\n  </div>\r\n</div>\r\n</body>\r\n</html>\r\n", 
             "sites": [
                 1
             ], 
-            "last_changed": "2009-11-03 03:37:35", 
+            "last_changed": "2010-03-26 11:47:08", 
             "name": "initial_site_template/small_white.html", 
             "creation_date": "2008-05-23 11:11:06"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "lexicon.lexiconentry", 
+        "fields": {
+            "term": "PyLucid CMS", 
+            "createby": 1, 
+            "lastupdatetime": "2010-03-26 15:11:31", 
+            "language": 2, 
+            "tags": "PyLucid", 
+            "markup": 6, 
+            "sites": [
+                1
+            ], 
+            "short_definition": "PyLucid ist ein flexibles, Open Source Webseiten Content Management System.", 
+            "content": "PyLucid ist ein flexibles, Open Source Webseiten Content Management System. Es ist in Python geschrieben und nutzt das Django Framework.\r\n\r\nDiese Seiten werden mit PyLucid CMS generiert ;)\r\n\r\nMehr Informationen sind nun auf: http://www.pylucid.org\r\n\r\n<<html>>\r\n<script type=\"text/javascript\" src=\"http://www.ohloh.net/p/5642/widgets/project_basic_stats.js\"></script>\r\n<</html>>", 
+            "alias": "PyLucid", 
+            "is_public": true, 
+            "lastupdateby": 1, 
+            "createtime": "2010-03-26 15:11:31"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "lexicon.lexiconentry", 
+        "fields": {
+            "term": "PyLucid CMS", 
+            "createby": 1, 
+            "lastupdatetime": "2010-03-26 15:13:10", 
+            "language": 1, 
+            "tags": "PyLucid", 
+            "markup": 6, 
+            "sites": [
+                1
+            ], 
+            "short_definition": "PyLucid is the CMS thats built this page.", 
+            "content": "PyLucid is a Open Source web content management system written in Python using the Django Framework.\r\n\r\nThis pages are created by PyLucid ;)\r\n\r\nMore information: http://www.pylucid.org\r\n\r\n<<html>>\r\n<script type=\"text/javascript\" src=\"http://www.ohloh.net/p/5642/widgets/project_basic_stats.js\"></script>\r\n<</html>>", 
+            "alias": "PyLucid", 
+            "is_public": true, 
+            "lastupdateby": 1, 
+            "createtime": "2010-03-26 15:12:22"
         }
     }
 ]
