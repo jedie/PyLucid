@@ -6,8 +6,10 @@ more info: http://www.pylucid.org/permalink/319/about-permalink-for-plugin-devel
 
 import posixpath
 
+from django.conf import settings
 
-DEBUG = True
+
+#DEBUG = True
 DEBUG = False
 
 
@@ -23,7 +25,10 @@ def plugin_permalink(request, absolute_url):
 
     if not absolute_url.startswith(current_url):
         # Should normally never happen...
-        request.page_msg.error("entry url %r doesn't start with current url %r!")
+        if DEBUG or settings.DEBUG or request.user.is_staff:
+            request.page_msg.error(
+                "entry url %r doesn't start with current url %r!" % (absolute_url, current_url)
+            )
         return page_permalink # fallback
 
     additional_url = absolute_url[len(current_url):]
