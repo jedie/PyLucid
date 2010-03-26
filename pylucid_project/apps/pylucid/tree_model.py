@@ -123,22 +123,23 @@ class TreeGenerator(object):
         self.root = MenuNode(id=None)
         self.nodes[None] = self.root
 
-        # built the node tree
-        for node_data in items:
-            parent_id = node_data["parent"]
-            try:
-                parent = self.nodes[parent_id]
-            except KeyError:
-                if skip_no_parent == True:
-                    # Skip item if parent does not exist.
-                    continue
-                else:
-                    raise
+        if items:
+            # built the node tree
+            for node_data in items:
+                parent_id = node_data["parent"]
+                try:
+                    parent = self.nodes[parent_id]
+                except KeyError:
+                    if skip_no_parent == True:
+                        # Skip item if parent does not exist.
+                        continue
+                    else:
+                        raise
 
-            parent.add(self.nodes[node_data["id"]])
+                parent.add(self.nodes[node_data["id"]])
 
-        # add level number to all nodes and mark first/last nodes
-        self.setup_nodes()
+            # add level number to all nodes and mark first/last nodes
+            self.setup_nodes()
 
     def get_first_nodes(self, nodes=None):
         """ return a list of all 'top' nodes (all root subnodes) """
@@ -239,8 +240,8 @@ class TreeGenerator(object):
         # import here -> import-loop
         from pylucid_project.apps.pylucid.models import PageMeta, Language
 
-        current_lang = request.PYLUCID.language_entry
-        default_lang = Language.objects.get_default()
+        current_lang = request.PYLUCID.current_language
+        default_lang = Language.objects.get_or_create_default(request)
 
         # Generate a id list of all visible nodes 
         ids = [id for id, node in self.nodes.items() if node.visible and id != None]
