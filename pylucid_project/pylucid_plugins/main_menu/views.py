@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-    PyLucid sub_menu plugin
+    PyLucid main_menu plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Generates a link list of all sub pages.
+    Generates a tree menu.
 
     Last commit info:
     ~~~~~~~~~
@@ -12,26 +12,40 @@
     $Rev: 1934 $
     $Author: JensDiemer $
 
-    :copyleft: 2005-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2005-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 __version__ = "$Rev: 1934 $"
 
 from django.conf import settings
-from django.template import RequestContext
-from django.shortcuts import render_to_response
 
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent
+from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.apps.pylucid.decorators import render_to
+
+
+def _debug(request, tree):
+    request.page_msg("tree nodes: %r" % tree.nodes)
+    request.page_msg("All PageTree:", PageTree.objects.all())
+    request.page_msg("Current user:", request.user)
+    request.page_msg("all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
 
 
 @render_to("main_menu/main_menu.html")
 def lucidTag(request, min=1, max=0):
     """
-    TODO: use min, max options!
+    You can split the menu with the optional min and max arguments:
+    * min - The starting level (first level is 1)
+    * max - The end level (without end, use 0)
+    
+    more info:
+    http://www.pylucid.org/permalink/132/the-main-menu-plugin
+    
+    example:
+        {% lucidTag main_menu %}
+        {% lucidTag main_menu min=1 max=1 %}
+        {% lucidTag main_menu min=2 max=0 %}
     """
-    current_lang = request.PYLUCID.language_entry
     current_pagetree = request.PYLUCID.pagetree
     user = request.user
 
@@ -41,32 +55,30 @@ def lucidTag(request, min=1, max=0):
     # activate the current pagetree node (for main menu template)
     def get_first_showlink(pagetree):
         """ returns the first pagetree witch has showlinks==True, go recursive up to next parent """
-        if pagetree.showlinks == False and pagetree.parent != None:
-            return get_first_showlink(pagetree.parent)
-        return pagetree
+        if pagetree.showlinks == False:
+            if pagetree.parent == None:
+                # not parent page available -> activate root node
+                return None
+            else:
+                # go recursive up to next parent
+                return get_first_showlink(pagetree.parent)
+        return pagetree.id
 
-    first_showlink = get_first_showlink(current_pagetree)
+    first_showlink_id = get_first_showlink(current_pagetree)
     try:
-        tree.set_current_node(first_showlink.id)
+        tree.set_current_node(first_showlink_id)
     except KeyError, err:
         tree.set_current_node(None) # Root node
         if settings.DEBUG:
             request.page_msg.error("Can't activate menu item %r KeyError: %s" % (current_pagetree, err))
-            request.page_msg("tree nodes: %r" % tree.nodes)
-            request.page_msg("All PageTree:", PageTree.objects.all())
-            request.page_msg("Current user:", request.user)
-            request.page_msg("all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
+            _debug(request, tree)
 
     tree.slice_menu(min, max)
 
     # add all PageMeta objects into tree
     tree.add_pagemeta(request)
 
-#    # add all PageMeta objects into tree
-#    queryset = PageMeta.objects.filter(language=current_lang)
-#
-#    tree.add_related(queryset, field="pagetree", attrname="pagemeta")
-#    #tree.debug()
+#    _debug(request, tree)
 
     return {"nodes": tree.get_first_nodes()}
 
