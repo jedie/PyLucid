@@ -31,9 +31,9 @@ def _get_page_content(request):
     pagemeta = request.PYLUCID.pagemeta # current PageMeta instance
 
     # client favored Language instance:
-    lang_entry = request.PYLUCID.language_entry
+    lang_entry = request.PYLUCID.current_language
     # default Language instance set in system preferences:
-    default_lang_entry = Language.objects.get_default()
+    default_lang_entry = Language.objects.get_or_create_default(request)
 
     try:
         pagecontent = PageContent.objects.get(pagemeta=pagemeta)
@@ -63,6 +63,8 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     """ render a cms page """
     request.PYLUCID.pagetree = pagetree
 
+    is_plugin_page = pagetree.page_type == PageTree.PLUGIN_TYPE
+
     # Get the pagemeta instance for the current pagetree and language
     try:
         pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=True)
@@ -70,10 +72,11 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         # Note: This should normaly never happen. Because all PageMeta must exist at least in system
         # default language. Also: The main_manu doesn't show links to not existing PageMeta entries!
         if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
+            raise
             msg = (
                 "PageMeta for %r doesn't exist in system default language: %r! Please create it!"
                 " (Original error was: %r)"
-            ) % (pagetree, Language.objects.get_default(), err)
+            ) % (pagetree, Language.objects.get_or_create_default(request), err)
             request.page_msg.error(msg)
         else:
             msg = ""
@@ -82,7 +85,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     request.PYLUCID.pagemeta = pagemeta
 
     # Check the language code in the url, if exist
-    if url_lang_code and url_lang_code != pagemeta.language.code:
+    if url_lang_code and (not is_plugin_page) and (url_lang_code.lower() != pagemeta.language.code.lower()):
         # The language code in the url is wrong. e.g.: The client followed a external url with was wrong.
         # Note: The main_manu doesn't show links to not existing PageMeta entries!
 
@@ -94,7 +97,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
                 "Language code in url %r is wrong! Redirect to %r." % (url_lang_code, new_url)
             )
         # redirect the client to the right url
-        return http.HttpResponseRedirect(new_url)
+        return http.HttpResponsePermanentRedirect(new_url)
 
     # Create initial context object
     request.PYLUCID.context = context = RequestContext(request)
@@ -127,14 +130,14 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
 
     # call page plugin, if current page is a plugin page
     page_plugin_response = None
-    if get_view_replace_content == False and pagetree.page_type == PageTree.PLUGIN_TYPE:
+    if get_view_replace_content == False and is_plugin_page:
         # The current PageTree entry is a plugin page
 
         # Add to global pylucid objects. Use e.g. in admin_menu plugin
         pluginpage = PluginPage.objects.get(pagetree=pagetree)
         request.PYLUCID.pluginpage = pluginpage
 
-        page_plugin_response = pylucid_plugin.call_plugin(request, prefix_url, rest_url)
+        page_plugin_response = pylucid_plugin.call_plugin(request, url_lang_code, prefix_url, rest_url)
 
         if isinstance(page_plugin_response, http.HttpResponse):
             # Plugin would be build the complete html page

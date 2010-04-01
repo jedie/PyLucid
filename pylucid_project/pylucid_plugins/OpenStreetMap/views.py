@@ -53,6 +53,6 @@ def lucidTag(request, name=None):
     
     context = {
         "map":map_entry,
-        "lang_code": request.PYLUCID.language_entry.code, 
+        "lang_code": request.PYLUCID.current_language.code, 
     }
     return context

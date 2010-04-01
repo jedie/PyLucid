@@ -22,9 +22,8 @@ import test_tools # before django imports!
 
 from django.conf import settings
 
-from django_tools.unittest import unittest_base, BrowserDebug
+from django_tools.unittest_utils import unittest_base, BrowserDebug
 
-from pylucid_project.tests.test_tools.pylucid_test_data import TestSites, TestLanguages
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests import unittest_plugin
 

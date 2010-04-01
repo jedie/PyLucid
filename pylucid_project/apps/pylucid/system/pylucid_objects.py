@@ -39,8 +39,9 @@ class PyLucidRequestObjects(object):
         # FIXME: import here, against import loop:
         from pylucid_project.apps.pylucid.models import Language
 
-        # Client prefered language instance, use default, if not exist
-        self.language_entry = Language.objects.get_current(request)
+        self.languages = Language.objects.get_languages(request)
+        self.current_language = self.languages[0]
+        self.default_language = Language.objects.get_or_create_default(request)
 
         # Storing extra html head code from plugins, used in:
         # pylucid.defaulttags.extraheadBlock - redirect {% extrahead %} block tag content

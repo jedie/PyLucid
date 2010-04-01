@@ -31,7 +31,8 @@ from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import PageContent, Language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
-from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel, \
+    BaseModelManager
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
 #from PyLucid.models import Page
 
@@ -39,17 +40,23 @@ from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateI
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
-class Links(UpdateInfoBaseModel):
-    url = models.URLField(verify_exists=True, max_length=255)
-    title = models.CharField(_('Title'), help_text=_("Url title"), max_length=255)
-    entrie = models.ForeignKey("LexiconEntry")
+
+#class Links(UpdateInfoBaseModel):
+#    url = models.URLField(verify_exists=True, max_length=255)
+#    title = models.CharField(_('Title'), help_text=_("Url title"), max_length=255)
+#    entrie = models.ForeignKey("LexiconEntry")
 
 
-class LexiconEntryManager(models.Manager):
+class LexiconEntryManager(BaseModelManager):
+    """
+    inherited from BaseModelManager:
+        - easy_create()
+        - get_lang_item()
+    """
     def get_filtered_queryset(self, request, filter_language=True):
         queryset = self.model.on_site.filter(is_public=True)
         if filter_language:
-            current_lang = request.PYLUCID.language_entry
+            current_lang = request.PYLUCID.current_language
             queryset = queryset.filter(language=current_lang)
         return queryset
 

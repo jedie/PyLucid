@@ -14,9 +14,10 @@ import pprint
 from optparse import make_option
 
 from django.conf import settings
-from django.db.models import get_model
-from django.core.management.base import BaseCommand, CommandError
 from django.core import serializers
+from django.db.models import get_model
+from django.db.models.loading import get_apps, get_models
+from django.core.management.base import BaseCommand, CommandError
 
 from pylucid_project.apps.pylucid.tree_model import TreeGenerator
 
@@ -44,7 +45,7 @@ APP_MODEL_DATA = [
      #['reversion', ('Revision', 'Version')],
      #['tagging', ('Tag', 'TaggedItem')],
      #['redirect', ('RedirectModel',)],
-     #['lexicon', ('Links', 'LexiconEntry')],
+     ['lexicon', ('LexiconEntry',)],
      #['blog', ('BlogEntry',)],
      #['update_journal', ('UpdateJournal', 'PageUpdateListObjects')],
      #['pylucid_comments', ('PyLucidComment',)]
@@ -52,7 +53,7 @@ APP_MODEL_DATA = [
 
 FIXTURE_FILENAME = "pylucid.json"
 
-FIXTURE_PATH = os.path.join(settings.PYLUCID_PROJECT_ROOT, "apps", "pylucid_admin", "fixtures")
+FIXTURE_PATH = os.path.join(settings.PYLUCID_BASE_PATH, "apps", "pylucid_admin", "fixtures")
 
 
 
@@ -75,22 +76,22 @@ def get_pagetree_objects(model):
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
-        make_option('--list_all_models', action='store_true',
+        make_option('--list_models', action='store_true',
             help='List all installed models.'),
-        make_option('--list_apps2', action='store_true',
-            help='List all apps for creating the fixture files.'),
+        make_option('--test', action='store_true',
+            help='Test existing PyLucid initial data fixtures.'),
 
-       make_option('--indent', default=4, dest='indent', type='int',
-           help='Specifies the indent level to use when pretty-printing output'),
-       make_option('-e', '--exclude', default=[], dest='exclude', action='append',
-           help='Exclude appname or appname.Model (you can use multiple --exclude)'),
+        make_option('--indent', default=4, dest='indent', type='int',
+            help='Specifies the indent level to use when pretty-printing output'),
+        make_option('-e', '--exclude', default=[], dest='exclude', action='append',
+            help='Exclude appname or appname.Model (you can use multiple --exclude)'),
     )
 
     help = 'Output the contents of the database as a fixture of the given format.'
     args = '[appname ...]'
 
     def handle(self, *app_labels, **options):
-        if options["list_all_models"]:
+        if options["list_models"]:
             print "List all installed models:"
             data = []
             for app in get_apps():
@@ -101,9 +102,18 @@ class Command(BaseCommand):
             pprint.pprint(data)
             return
 
-        if options["list_apps2"]:
-            print "List all apps for creating the fixture files:"
-            print APPS
+        file_path = os.path.join(FIXTURE_PATH, FIXTURE_FILENAME)
+
+        if options["test"]:
+            if not os.path.isfile(file_path):
+                print "fixture file not exist: %r" % file_path
+                return
+
+            from django.utils import simplejson
+            f = codecs.open(file_path, "r", encoding="utf-8")
+            data = simplejson.load(f)
+            f.close()
+            print "loaded %s entries from %s" % (len(data), file_path)
             return
 
         json_serializer = serializers.get_serializer("json")()
@@ -128,7 +138,6 @@ class Command(BaseCommand):
         if not os.path.isdir(FIXTURE_PATH):
             print "Create dir %r" % FIXTURE_PATH
             os.makedirs(FIXTURE_PATH)
-        file_path = os.path.join(FIXTURE_PATH, FIXTURE_FILENAME)
 
         print "Serialize data and save it into %r..." % FIXTURE_FILENAME
         try:

@@ -31,6 +31,7 @@ from tagging.fields import TagField
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.cache import clean_complete_pagecache
+from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
@@ -60,7 +61,7 @@ class BlogEntryManager(models.Manager):
         filters = {"sites__id__exact": settings.SITE_ID}
 
         if filter_language:
-            current_lang = request.PYLUCID.language_entry
+            current_lang = request.PYLUCID.current_language
             filters["language"] = current_lang
 
         if not request.user.has_perm("blog.change_blogentry"):
@@ -155,13 +156,21 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         reverse_kwargs = {"id": self.pk, "title":url_title}
         try:
             # This only worked inner lucidTag
-            return urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
+            url = urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
         except urlresolvers.NoReverseMatch:
             # Use the first PluginPage instance
             try:
-                return PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
+                url = PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
             except urlresolvers.NoReverseMatch:
                 return "#No-Blog-PagePlugin-exists"
+
+        if not url.startswith("/%s/" % self.language.code):
+            # Replace the language code
+            # We get the url with the language code from the current session
+            # But the entry is written in a other language.
+            url = change_url_language(url, self.language.code)
+
+        return url
 
     def get_permalink(self, request):
         """ permalink to this entry detail view """

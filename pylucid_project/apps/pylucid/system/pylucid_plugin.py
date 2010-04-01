@@ -71,14 +71,15 @@ def _raise_resolve_error(plugin_url_resolver, rest_url):
     raise urlresolvers.Resolver404, {'tried': tried, 'path': rest_url + "XXX"}
 
 
-def call_plugin(request, prefix_url, rest_url):
+def call_plugin(request, url_lang_code, prefix_url, rest_url):
     """ Call a plugin and return the response. """
-    lang_entry = request.PYLUCID.language_entry
+    lang_entry = request.PYLUCID.current_language
     pluginpage = request.PYLUCID.pluginpage
     pagemeta = request.PYLUCID.pagemeta
 
     # build the url prefix
-    url_prefix = "^%s/%s" % (pagemeta.language.code, prefix_url)
+    # Don't use pagemeta.language.code here, use the real url_lang_code, because of case insensitivity
+    url_prefix = "^%s/%s" % (url_lang_code, prefix_url)
 
     # Get pylucid_project.system.pylucid_plugins instance
     plugin_instance = pluginpage.get_plugin()

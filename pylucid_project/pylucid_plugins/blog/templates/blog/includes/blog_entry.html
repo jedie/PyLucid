@@ -1,4 +1,4 @@
-<h2><a href="{{ entry.get_absolute_url }}" class="blog_headline">{{ entry.headline }}</a></h2>
+<h2><a href="{{ entry.get_absolute_url }}" class="blog_headline" hreflang="{{ entry.language.code }}">{{ entry.headline }}</a></h2>
 <small class="headline_info">{% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.</small>
 
 {% if not entry.is_public %}
@@ -7,7 +7,7 @@
 
 {% include "blog/includes/admin_links.html" %}
 
-<div class="content">{{ entry.get_html }}</div>
+<div class="content" lang="{{ entry.language.code }}">{{ entry.get_html }}</div>
 
 {% if entry.lastupdatetime != entry.createtime %}
 <small><p class="date_info">

@@ -30,7 +30,7 @@ from pylucid_project.apps.pylucid.decorators import render_to
 def lucidTag(request):
     """ Create the sitemap tree """
     user = request.user
-    current_lang = request.PYLUCID.language_entry
+    current_lang = request.PYLUCID.current_language
 
     # Get a pylucid.tree_model.TreeGenerator instance with all accessible PageTree for the current user
     tree = PageTree.objects.get_tree(user, filter_showlinks=True)

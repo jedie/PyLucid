@@ -27,8 +27,8 @@ from pylucid_project.apps.pylucid.decorators import render_to
 def lucidTag(request):
     """ build the sub menu with all existing sub pages"""
     pagetree = request.PYLUCID.pagetree # current models.PageContent instance
-    current_lang = request.PYLUCID.language_entry # Client prefered language
-    default_lang = Language.objects.get_default() # System default language
+    current_lang = request.PYLUCID.current_language # Client prefered language
+    default_lang = Language.objects.get_or_create_default(request) # System default language
 
     # Build a PageTree ID list of all accessible subpages
     queryset = PageTree.objects.all_accessible(request.user, filter_showlinks=True)

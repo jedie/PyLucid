@@ -198,7 +198,7 @@ def base_check(request):
     out.write("- "*40)
 
     out.write("Check if all PageTree has at lease a PageMeta instance in the default system language:")
-    default_lang_entry = Language.objects.get_default()
+    default_lang_entry = Language.objects.get_or_create_default(request)
     exist_all = True
     # TODO: Can we but this into a big QuerySet?
     for pagetree in PageTree.on_site.all():

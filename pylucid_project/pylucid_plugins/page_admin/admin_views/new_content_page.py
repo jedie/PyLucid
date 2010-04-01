@@ -40,7 +40,7 @@ def new_content_page(request):
         the metaclasses of all its bases
     see also: http://code.djangoproject.com/ticket/7837
     """
-    default_lang_entry = Language.objects.get_default()
+    default_lang_entry = Language.objects.get_or_create_default(request)
     context = {
         "title": _("Create a new page"),
         "default_lang_entry": default_lang_entry,

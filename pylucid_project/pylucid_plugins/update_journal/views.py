@@ -38,8 +38,8 @@ def _get_queryset(request, count):
     """ TODO: Move to UpdateJournal.objects ? """
     queryset = UpdateJournal.on_site.all()
 
-    accessible_lang = Language.objects.all_accessible(request.user)
-    queryset = queryset.filter(language__in=accessible_lang)
+    languages = request.PYLUCID.languages
+    queryset = queryset.filter(language__in=languages)
 
     if not request.user.is_staff:
         queryset = queryset.filter(staff_only=False)
@@ -62,7 +62,7 @@ def lucidTag(request, count=10):
         select_feed_url = PluginPage.objects.reverse("update_journal", "UpdateJournal-select_feed")
     except NoReverseMatch, err:
         select_feed_url = None
-        if settings.DEBUG is not None and request.user.is_staff:
+        if not settings.DEBUG and request.user.is_staff:
             # PluginPage.objects.reverse creates a page_msg only in DEBUG mode.
             request.page_msg.error(err)
 

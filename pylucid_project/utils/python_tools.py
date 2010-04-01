@@ -17,7 +17,9 @@
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
-import shlex, re
+import re
+import os
+import shlex
 from xml.sax.saxutils import escape as sax_escape
 
 from django.utils.safestring import mark_safe
@@ -168,6 +170,11 @@ def cutout(content, terms, max_lines=5, cutout_len=10):
     return result
 
 
+
+def has_init_file(path):
+    """ return True/False if path contains a __init__.py file """
+    init_filepath = os.path.join(path, "__init__.py")
+    return os.path.isfile(init_filepath)
 
 
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 def save_receiver(sender, **kwargs):
     """ signal post save handler -> create a new UpdateData entry """

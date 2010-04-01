@@ -20,7 +20,7 @@ def setup_view(request):
 
 def redirect(request, rest_url=""):
     pagetree = request.PYLUCID.pagetree
-    #lang_entry = request.PYLUCID.language_entry
+    #lang_entry = request.PYLUCID.current_language
 
     try:
         redirect_info = RedirectModel.objects.get(pagetree=pagetree)#, language=lang_entry)

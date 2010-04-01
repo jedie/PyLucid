@@ -9,11 +9,11 @@ from django.conf import settings
 from django.contrib.auth.models import Group, AnonymousUser
 from django.contrib.sites.models import Site
 
-from django_tools.unittest import unittest_base
+from django_tools.unittest_utils import unittest_base
 
 from pylucid_project.tests.test_tools.pylucid_test_data import TestSites
 from pylucid_project.tests.test_tools import basetest
-from pylucid.models import PageTree, PageMeta
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta
 
 #settings.PYLUCID.I18N_DEBUG = True
 

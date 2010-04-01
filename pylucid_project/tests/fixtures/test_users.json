@@ -1,0 +1,56 @@
+[
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "superuser",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2010-01-02 03:04:05",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sha1$75b78$9bdf591085112527c82403ed1673ce52aca95ef6",
+            "email": "superuser@example.org",
+            "date_joined": "2010-03-26 10:07:02"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "auth.user",
+        "fields": {
+            "username": "normal test user",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2010-02-03 04:05:06",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sha1$16ce3$7d54b89cb37ffd991386674f13138b7246cc5d29",
+            "email": "normal_test_user@example.org",
+            "date_joined": "2010-03-26 10:07:02"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "auth.user",
+        "fields": {
+            "username": "staff test user",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": true,
+            "last_login": "2010-03-04 05:06:07",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sha1$403e4$40145bd701dc24988cb21493bb6353ad23a245b3",
+            "email": "staff_test_user@example.org",
+            "date_joined": "2010-03-26 10:07:02"
+        }
+    }
+]

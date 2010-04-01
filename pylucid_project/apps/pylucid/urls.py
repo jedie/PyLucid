@@ -4,11 +4,9 @@
     PyLucid app url patterns
     ~~~~~~~~~~~~~~~~~~~~~~~~
 
-    examples for the <url_lang_code> part:
-        'de'
-        'de-at'
-        'de_at'
-    Every lang part must have a length of 2 characters.
+    ?P<url_lang_code> is in Accept-Language header format, from RFC 2616, section 14.4 and 3.9.
+    See also:
+        django.utils.translation.trans_real.accept_language_re
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -35,11 +33,11 @@ urlpatterns = patterns('',
         name='PyLucid-send_head_file'
     ),
 
-    url(r'^(?P<url_lang_code>[a-zA-Z]{2}([-_][a-zA-Z]{2})*?)/$',
+    url(r'^(?P<url_lang_code>[A-Za-z]{1,8}(?:-[A-Za-z]{1,8})*)/$',
         views.lang_root_page, name='PyLucid-lang_root_page'
     ),
 
-    url(r'^(?P<url_lang_code>[a-zA-Z]{2}([-_][a-zA-Z]{2})*?)/(?P<url_path>.+?)$',
+    url(r'^(?P<url_lang_code>[A-Za-z]{1,8}(?:-[A-Za-z]{1,8})*)/(?P<url_path>.+?)$',
         views.resolve_url, name='PyLucid-resolve_url'
     ),
 

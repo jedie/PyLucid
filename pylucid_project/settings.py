@@ -33,7 +33,7 @@ try:
     import django
     import dbpreferences
     import pylucid_project
-    from pylucid_project.system import pylucid_plugins
+    from pylucid_project.system.plugin_setup_info import PyLucidPluginSetupInfo
 except Exception, e:
     import traceback
     print traceback.format_exc()
@@ -76,7 +76,7 @@ PYLUCID_OBJECTS_DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test.db3'
+        'NAME': 'test.db3',
     }
 }
 
@@ -122,7 +122,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 # initialized all pylucid plugins
-pylucid_plugins.setup_plugins(
+PYLUCID_PLUGIN_SETUP_INFO = PyLucidPluginSetupInfo(
     plugin_package_list=(
         (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins"),
         (PYLUCID_BASE_PATH, "pylucid_project", "external_plugins"),
@@ -140,7 +140,7 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.abspath(os.path.dirname(django.__file__)), "contrib/admin/templates"),
 )
 # Add all templates subdirs from all existing PyLucid plugins
-TEMPLATE_DIRS += pylucid_plugins.PYLUCID_PLUGINS.template_dirs
+TEMPLATE_DIRS += PYLUCID_PLUGIN_SETUP_INFO.template_dirs
 #print "settings.TEMPLATE_DIRS:\n", "\n".join(TEMPLATE_DIRS)
 
 TEMPLATE_LOADERS = (
@@ -200,14 +200,14 @@ INSTALLED_APPS = (
     'tagging',
 )
 # Add all existing PyLucid plugins
-INSTALLED_APPS += pylucid_plugins.PYLUCID_PLUGINS.installed_plugins
+INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
 #print "settings.INSTALLED_APPS:", INSTALLED_APPS
 
 COMMENTS_APP = "pylucid_project.pylucid_plugins.pylucid_comments"
 
 #http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
 #Default: 'django.test.simple.run_tests'
-TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.run_tests'
+TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.PyLucidTestRunner'
 
 #_____________________________________________________________________________
 # PyLucid own settings

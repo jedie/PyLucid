@@ -16,6 +16,7 @@
 
 import datetime
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -86,6 +87,26 @@ class BaseModelManager(models.Manager):
         model_instance = self.model(**model_kwargs)
         model_instance.save()
         return model_instance
+
+    def get_by_prefered_language(self, request, queryset):
+        """
+        return a item from queryset in this way:
+         - try to get in current language
+         - if not exist: try to get in system default language
+         - if not exist: use the first found item
+        """
+        item = None
+        tried_languages = []
+        languages = request.PYLUCID.languages # languages are in client prefered order
+        for language in languages:
+            try:
+                item = queryset.get(language=language)
+            except ObjectDoesNotExist:
+                tried_languages.append(language)
+            else:
+                break
+
+        return item, tried_languages
 
 
 

@@ -143,7 +143,9 @@ def cleanup_log(request):
             delete_count = queryset.count()
             queryset.delete()
             duration_time = time.time() - start_time
-            request.page_msg(_("Delete %s entries in %.2fsec") % (delete_count, duration_time))
+            request.page_msg(_("Delete %(count)s entries in %.2(duration)fsec") % {
+                "count": delete_count, "duration":duration_time
+            })
             return HttpResponseRedirect(request.path)
     else:
         form = CleanupLogForm()
@@ -164,7 +166,9 @@ def cleanup_session(request):
     count_after = Session.objects.count()
 
     delete_count = count_before - count_after
-    request.page_msg(_("Delete %s entries in %.2fsec") % (delete_count, duration_time))
+    request.page_msg(_("Delete %(count)s entries in %.2(duration)fsec") % {
+        "count": delete_count, "duration":duration_time
+    })
 
     context = {
         "title": _("Delete old session entries"),

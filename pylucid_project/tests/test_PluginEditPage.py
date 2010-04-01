@@ -13,13 +13,11 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
-from django_tools.unittest import unittest_base, BrowserDebug
+from django_tools.unittest_utils import unittest_base, BrowserDebug
 
-from pylucid.models import EditableHtmlHeadFile, PageMeta, PageContent
-from pylucid.preference_forms import SystemPreferencesForm
+from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile, PageMeta, PageContent
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 
-from pylucid_project.tests.test_tools.pylucid_test_data import TestSites, TEST_LANGUAGES
-from pylucid_project.tests.test_tools import pylucid_test_data
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests import unittest_plugin
 

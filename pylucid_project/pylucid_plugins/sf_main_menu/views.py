@@ -25,7 +25,7 @@ from pylucid_project.apps.pylucid.decorators import render_to
 def lucidTag(request, min=1, max=0):
     """ Create the superfish main menu """
     user = request.user
-    current_lang = request.PYLUCID.language_entry
+    current_lang = request.PYLUCID.current_language
     current_pagetree = request.PYLUCID.pagetree
 
     # Get a pylucid.tree_model.TreeGenerator instance with all accessible PageTree for the current user

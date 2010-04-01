@@ -43,8 +43,8 @@ from django.test import TestCase
 #"""}
 
 
-
-from django_tools.unittest import unittest_base, BrowserDebug
+from django.test.client import Client
+from django_tools.unittest_utils import unittest_base, BrowserDebug
 
 from pylucid_project.tests.test_tools import basetest
 
@@ -54,6 +54,9 @@ LOGIN_URL = "?auth=login"
 
 class LoginTest(basetest.BaseUnittest):
     fixtures = ['pylucid.json']
+
+    def setUp(self):
+        self.client = Client() # start a new session
 
     def test_login_link(self):
         """ Simple check if login link exist. """
@@ -105,11 +108,6 @@ class LoginTest(basetest.BaseUnittest):
 
 
 if __name__ == "__main__":
-    # Run this unittest directly
+    # Run all unittest directly
     from django.core import management
-    management.call_command("syncdb", interactive=False, verbosity=0)
-
-    from pylucid_project.tests.test_tools.test_user import create_testusers
-    create_testusers(verbosity=2)
-
-    management.call_command('test', 'pylucid_project.pylucid_plugins.auth.tests', verbosity=2)
+    management.call_command('test', __file__, verbosity=1)

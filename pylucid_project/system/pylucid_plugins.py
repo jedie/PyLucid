@@ -7,20 +7,18 @@ import warnings
 
 from django.conf import settings
 from django.core import urlresolvers
+from django.utils.functional import LazyObject, SimpleLazyObject
 from django.utils.importlib import import_module
 from django.conf.urls.defaults import patterns, url, include
 
+from pylucid_project.utils.python_tools import has_init_file
 
-PYLUCID_PLUGINS = None
+
+
+#PYLUCID_PLUGINS = None
 
 _PLUGIN_OBJ_CACHE = {} # cache for PyLucidPlugin.get_plugin_object()
 _PLUGIN_URL_CACHE = {} # cache for PyLucidPlugin.get_prefix_urlpatterns()
-
-
-def has_init_file(path):
-    """ return True/False if path contains a __init__.py file """
-    init_filepath = os.path.join(path, "__init__.py")
-    return os.path.isfile(init_filepath)
 
 
 class PyLucidPlugin(object):
@@ -122,8 +120,7 @@ class PyLucidPlugin(object):
 
     def get_prefix_urlpatterns(self, url_prefix, urls_filename):
         """ include the plugin urlpatterns with the url prefix """
-#        if not url_prefix.endswith("/"):
-#            url_prefix += "/"
+        url_prefix = url_prefix.rstrip("/")
 
         cache_key = self.pkg_string + url_prefix
         if cache_key in _PLUGIN_URL_CACHE:
@@ -144,6 +141,7 @@ class PyLucidPlugin(object):
 
     def get_plugin_url_resolver(self, url_prefix, urls_filename="urls"):
         prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
+#        print prefix_urlpatterns
         plugin_url_resolver = urlresolvers.RegexURLResolver(r'^/', prefix_urlpatterns)
         #for key, value in plugin_url_resolver.reverse_dict.items(): print key, value
         return plugin_url_resolver
@@ -163,73 +161,40 @@ class PyLucidPlugin(object):
 
 
 class PyLucidPlugins(dict):
-    """ Storage for all existing PyLucid plugins """
-    def __init__(self, plugin_package_list, verbose):
+    """
+    Storage for all existing PyLucid plugins
+    FIXME: How can we make this lazy?
+    or how can we initializied after settings?
+    """
+
+    def __init__(self):
         super(PyLucidPlugins, self).__init__()
-        self.verbose = verbose
+        self.__initialized = False
 
-        for base_path, section, pkg_dir in plugin_package_list:
-            # e.g.: (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins")
-            self.add(base_path, section, pkg_dir)
+    def __getattr__(self, name):
+        if not self.__initialized:
+            self._setup()
+        return getattr(self, name)
 
-        # for expand: settings.TEMPLATE_DIRS
-        self.template_dirs = tuple([plugin.template_dir for plugin in self.values() if plugin.template_dir])
-#        print " *** template dirs:\n", "\n".join(self.template_dirs)
+    def __getitem__(self, key):
+        if not self.__initialized:
+            self._setup()
+        return dict.__getitem__(self, key)
 
-        # for expand: settings.INSTALLED_APPS
-        self.installed_plugins = tuple([plugin.installed_apps_string for plugin in self.values()])
-#        print " *** installed plugins:\n", "\n".join(self.installed_plugins)
-
-    def _isdir(self, path):
-        if os.path.isdir(path):
-            return True
-        if self.verbose:
-            warnings.warn("path %r doesn't exist." % path)
-        return False
-
-    def add(self, base_path, section, pkg_dir):
-        """
-        Add all plugins in one filesystem path/packages.
-        e.g.: (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins")
-        """
-        if not self._isdir(base_path):
-            return
-
-        pkg_path = os.path.join(base_path, pkg_dir)
-        if not self._isdir(pkg_path):
-            return
-
-        if not has_init_file(pkg_path):
-            if self.verbose:
-                warnings.warn("plugin path %r doesn't contain a __init__.py file, skip." % pkg_path)
-            return
-
-        if pkg_path not in sys.path: # settings imported more than one time!
-#            print "append to sys.path: %r" % pkg_path
-            sys.path.append(pkg_path)
-
-        for plugin_name in os.listdir(pkg_path):
-            if plugin_name.startswith(".") or plugin_name.startswith("_"): # e.g. svn dir or __init__.py file
-                continue
-
-            if plugin_name in self:
-                warnings.warn("Plugin %r exist more than one time." % plugin_name)
-                continue
-
-            try:
-                plugin_instance = PyLucidPlugin(pkg_path, section, pkg_dir, plugin_name)
-            except AssertionError, err:
-                if self.verbose:
-                    warnings.warn("plugin %r seems to be missconfigurated: %s" % (plugin_instance, err))
-            else:
-                self[plugin_name] = plugin_instance
-#            dict.__setitem__(self, plugin_name, )
+    def _setup(self):
+#        print " *** init PyLucidPlugins():", settings.PYLUCID_PLUGIN_SETUP_INFO.keys()
+        for plugin_name, data in settings.PYLUCID_PLUGIN_SETUP_INFO.iteritems():
+            pkg_path, section, pkg_dir = data
+            self[plugin_name] = PyLucidPlugin(pkg_path, section, pkg_dir, plugin_name)
+        self.__initialized = True
 
     def get_admin_urls(self):
         """
         return all existing plugin.admin_urls prefixed with the plugin name.
         Used in apps/pylucid_admin/urls.py
         """
+        if not self.__initialized:
+            self._setup()
         urls = []
         for plugin_name, plugin_instance in self.iteritems():
             try:
@@ -247,6 +212,8 @@ class PyLucidPlugins(dict):
 
     def call_get_views(self, request):
         """ call a pylucid plugin "html get view" and return the response. """
+        if not self.__initialized:
+            self._setup()
         method_name = settings.PYLUCID.HTTP_GET_VIEW_NAME
         for plugin_name in request.GET.keys():
             if plugin_name not in self:
@@ -275,16 +242,9 @@ class PyLucidPlugins(dict):
 
 
 
-def setup_plugins(plugin_package_list, verbose=True):
-    """
-    Add a plugin package
-    if verbose==True: create a warning if something is wrong with a package.
-    Note: settings.DEBUG is not available here at this point, so we can't use it instead of verbose
-    """
-    global PYLUCID_PLUGINS
+PYLUCID_PLUGINS = PyLucidPlugins()
 
-    if PYLUCID_PLUGINS == None:
-        PYLUCID_PLUGINS = PyLucidPlugins(plugin_package_list, verbose)
+
 
 
 

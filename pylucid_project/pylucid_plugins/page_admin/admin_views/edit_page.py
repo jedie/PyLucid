@@ -20,7 +20,7 @@ from page_admin.forms import PageTreeForm, PageMetaForm, \
 @check_permissions(superuser_only=False, permissions=("pylucid.change_pagecontent",))
 def _edit_content_page(request, context, pagetree):
     """ edit a PageContent """
-    default_lang_entry = Language.objects.get_default()
+    default_lang_entry = Language.objects.get_or_create_default(request)
     pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=True)
     pagecontent = PageContent.objects.get(pagemeta=pagemeta)
 

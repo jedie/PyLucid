@@ -43,7 +43,7 @@ def _select_language(request, context, source_pagemeta):
                         return lang
                 raise RuntimeError() # should never happen
         else:
-            default_lang_entry = Language.objects.get_default()
+            default_lang_entry = Language.objects.get_or_create_default(request)
             form = LanguageSelectForm(other_languages, initial={
                     "language": default_lang_entry.code, # FIXME: Seems not to work
                 })

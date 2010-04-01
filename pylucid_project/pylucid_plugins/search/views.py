@@ -259,7 +259,7 @@ def http_get_view(request):
         # If the client has uses the lucidTag form, there exist no language information
         # -> use the default language 
         form_data._mutable = True
-        form_data["language"] = request.PYLUCID.language_entry.code
+        form_data["language"] = request.PYLUCID.current_language.code
         form_data._mutable = False
 
     form = AdvancedSearchForm(form_data)

@@ -58,7 +58,7 @@ def new_entry(request):
 
         initial = {
             "sites": get_site_preselection(pref_form, request), # preselect sites field
-            "language": request.PYLUCID.language_entry.pk, # preselect current language
+            "language": request.PYLUCID.current_language.pk, # preselect current language
         }
         form = LexiconEntryForm(initial=initial)
 

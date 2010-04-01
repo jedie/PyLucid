@@ -25,6 +25,7 @@
 __version__ = "$Rev$"
 
 
+from django import http
 from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.utils.translation import ugettext as _
@@ -32,6 +33,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib.comments.views.comments import post_comment
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 
+from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
@@ -140,7 +142,7 @@ def summary(request):
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
-    current_lang = request.PYLUCID.language_entry.description
+    current_lang = request.PYLUCID.current_language.description
     _add_breadcrumb(request, _("All blog articles in %s.") % current_lang)
 
     context = {
@@ -167,7 +169,7 @@ def tag_view(request, tags):
 
     # Add link to the breadcrumbs ;)
     text = _("All items tagged with: %s") % ", ".join(tags)
-    current_lang = request.PYLUCID.language_entry.description
+    current_lang = request.PYLUCID.current_language.description
     _add_breadcrumb(request, text, text + _(" and are written in %s.") % current_lang)
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
@@ -203,16 +205,12 @@ def detail_view(request, id, title):
         request.page_msg.error(msg)
         return summary(request)
 
-    if entry.language != request.PYLUCID.language_entry:
-        # The Blog article exist in a other language than the client preferred language
-        request.page_msg.info(_(
-            "Info: This article is written in %(article_lang)s."
-            " However you prefer %(client_lang)s."
-            ) % {
-                "article_lang": entry.language.description,
-                "client_lang": request.PYLUCID.language_entry.description,
-            }
-        )
+    new_url = i18n.assert_language(request, entry.language)
+    if new_url:
+        # the current language is not the same as entry language -> redirect to right url
+        # e.g. someone followed a external link to this article, but his preferred language
+        # is a other language as this article. Activate the article language and "reload"
+        return http.HttpResponsePermanentRedirect(new_url)
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, entry.headline, _("Blog article '%s'") % entry.headline)

@@ -1,20 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
     PyLucid unittest
     ~~~~~~~~~~~~~~~~
-
-    Try to test the ./PyLucid/urls.py re patterns.
-
-    Limits
-    ~~~~~~
-    Some tests depents on these settings:
-        settings.ENABLE_INSTALL_SECTION
-        settings.SERVE_STATIC_FILES
-    To run all tests, we must switch these variables and reinit django.
-    You can run these test script standalone and switch the variable here, see
-    settings import down.
 
     Last commit info:
     ~~~~~~~~~~~~~~~~~
@@ -22,18 +11,15 @@
     $Rev: 1975 $
     $Author: JensDiemer $
 
-    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v3, see LICENSE.txt for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE.txt for more details.
 """
 
 import os, unittest
 
 if __name__ == "__main__":
-    # run unittest directly
-    import os
-    os.environ["DJANGO_SETTINGS_MODULE"] = "pylucid.tests.testutils.test_settings"
-    virtualenv_file = "../../../../../../../PyLucid_env/bin/activate_this.py"
-    execfile(virtualenv_file, dict(__file__=virtualenv_file))
+    # run all unittest directly
+    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
 
@@ -57,11 +43,11 @@ class TestApplyMarkup(unittest.TestCase):
         )
         self.failUnlessEqual(content, "<h1>Hello World</h1>")
 
-    def test_html(self):
+    def test_creole(self):
         from pylucid_project.apps.pylucid.markup.converter import apply_markup
         from pylucid_project.apps.pylucid.models import PageContent
         raw_content = (
-            "test\n"
+            u"test\n"
             "<<code=.html>>\n"
             "<h1>Hello World</h1>"
             "{% lucidTag foo %}\n"
@@ -70,10 +56,22 @@ class TestApplyMarkup(unittest.TestCase):
         content = apply_markup(raw_content, markup_no=PageContent.MARKUP_CREOLE,
             page_msg=FakePageMsg(), escape_django_tags=False
         )
-        self.failUnlessEqual(content, "<h1>Hello World</h1>")
+        self.failUnlessEqual(content,
+            u'<p>test</p>\n<fieldset class="pygments_code">\n'
+            '<legend class="pygments_code">HTML</legend>'
+            '<table class="pygmentstable"><tr>'
+            '<td class="linenos"><div class="linenodiv"><pre>1</pre></div></td>'
+            '<td class="code"><div class="pygments">'
+            '<pre>'
+            '<span class="nt">&lt;h1&gt;</span>Hello World<span class="nt">&lt;/h1&gt;</span>'
+            '&#x7B;% lucidTag foo %&#x7D;\n'
+            '</pre>'
+            '</div>\n</td></tr></table></fieldset>\n\n'
+
+        )
 
 
 if __name__ == "__main__":
     # Run this unittest directly
     from django.core import management
-    management.call_command('test', "pylucid.TestApplyMarkup")
+    management.call_command('test', __file__, verbosity=1)

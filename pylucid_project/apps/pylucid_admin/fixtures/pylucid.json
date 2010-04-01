@@ -12,7 +12,7 @@
         "model": "pylucid.language", 
         "fields": {
             "code": "de", 
-            "description": "deutsch", 
+            "description": "Deutsch", 
             "lastupdatetime": "2010-01-29 08:26:03", 
             "permitViewGroup": null, 
             "sites": [
@@ -28,7 +28,7 @@
         "model": "pylucid.language", 
         "fields": {
             "code": "en", 
-            "description": "english", 
+            "description": "English", 
             "lastupdatetime": "2010-01-29 08:50:03", 
             "permitViewGroup": null, 
             "sites": [
@@ -1885,7 +1885,7 @@
             "createby": 1, 
             "lastupdatetime": "2010-03-26 15:13:49", 
             "language": 2, 
-            "title": "", 
+            "title": "Dein eigener Weblog.", 
             "description": "", 
             "tags": "", 
             "permitViewGroup": null, 
