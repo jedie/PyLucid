@@ -14,14 +14,12 @@ def code(args, text):
     Highlight sourcecode using
     Macro tag <<code ext=.EXT>>...<</code>>
     """
-    if "=" in args:
-        source_type = args.split("=")[-1].strip("\" '")
-        if not source_type.startswith("."):
-            source_type = ".%s" % source_type
-    else:
+    try:
+        source_type = args.rsplit("=", 1)[-1]
+    except (ValueError, IndexError):
         source_type = ""
 
-    return make_html(
-        sourcecode = text,
-        source_type=source_type,
+    source_html = make_html(
+        sourcecode=text, source_type=source_type, django_escape=True
     )
+    return source_html

@@ -27,6 +27,7 @@ from django.templatetags.i18n import do_translate, do_block_translate
 
 from pylucid_project.apps.pylucid.defaulttags import lucidTag
 from pylucid_project.apps.pylucid.defaulttags import extraheadBlock
+from pylucid_project.apps.pylucid.defaulttags import sourcecode
 from pylucid_project.apps.pylucid.defaulttags import localtime
 #from PyLucid.template_addons.lucidTag import lucidTag
 #from PyLucid.template_addons.blocktag_pygments import sourcecode
@@ -37,6 +38,7 @@ register = Library()
 
 register.tag(lucidTag.lucidTag)
 register.tag("extrahead", extraheadBlock.do_extrahead)
+register.tag("sourcecode", sourcecode.do_sourcecode)
 
 register.filter("to_utc", localtime.to_utc)
 

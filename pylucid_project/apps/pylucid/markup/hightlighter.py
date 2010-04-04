@@ -46,9 +46,11 @@ HTML = (
 # http://dev.pocoo.org/projects/pygments/ticket/371
 CSSCLASS = "pygments"
 
-def make_html(sourcecode, source_type):
+def make_html(sourcecode, source_type, django_escape=False):
     code_html, lexer_name = pygmentize(sourcecode, source_type)
     code = HTML % {"lexer_name": lexer_name, "code_html": code_html}
+    if django_escape:
+        code = escape_django_tags(code)
     return mark_safe(code)
 
 def no_hightlight(code):
@@ -72,7 +74,7 @@ def pygmentize(sourcecode, source_type):
         html = no_hightlight(sourcecode)
         return html, lexer_name
 
-    ext = source_type.lower().lstrip(".").strip("'\"")
+    ext = source_type.lower().strip("'\" ").lstrip(".")
 
     try:
         if ext == "":

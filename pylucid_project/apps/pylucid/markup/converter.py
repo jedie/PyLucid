@@ -170,8 +170,10 @@ def apply_markup(raw_content, markup_no, page_msg, escape_django_tags=False):
         # cut out every Django tags from content
         assembler = DjangoTagAssembler()
         raw_content2, cut_data = assembler.cut_out(raw_content)
+    else:
+        raw_content2 = raw_content
 
-    html_content = convert(raw_content, markup_no, page_msg)
+    html_content = convert(raw_content2, markup_no, page_msg)
 
     if assemble_tags:
         # reassembly cut out django tags into text

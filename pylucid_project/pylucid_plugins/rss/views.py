@@ -38,11 +38,14 @@ from pylucid_project.utils.escape import escape
 from rss.preference_forms import PreferencesForm
 
 @render_to()#, debug=True)
-def lucidTag(request, url, debug=None, **kwargs):
+def lucidTag(request, url, debug=False, **kwargs):
     """
     Include external RSS Feeds directly into a CMS page.
     
     optional keyword arguments are every db preferences form attribute.
+    
+    To create a custom template, used the debug mode: Add debug=True in tag.
+    Debug mode only works for stuff users.
     
     Used feedparser by Mark Pilgrim: http://feedparser.org
     http://feedparser.googlecode.com/svn/trunk/LICENSE
@@ -51,6 +54,7 @@ def lucidTag(request, url, debug=None, **kwargs):
         {% lucidTag rss url="http url" %}
         {% lucidTag rss url="http url" template_name="rss/MyOwnTemplate.html" %}
         {% lucidTag rss url="http url" socket_timeout=3 %}
+        {% lucidTag rss url="http url" debug=True %}
     """
     if feedparser_available == False:
         if request.user.is_staff:
@@ -100,7 +104,9 @@ def lucidTag(request, url, debug=None, **kwargs):
     if debug and request.user.is_staff:
         request.page_msg.info("RSS debug is on, see page content.")
         feed_code = pformat(feed_dict["feed"])
-        feed_html = hightlighter.make_html(feed_code, source_type="py")
+        feed_html = hightlighter.make_html(
+            feed_code, source_type="py", django_escape=True
+        )
         return "<h1>RSS debug</h1><h2>Feed %r</h2>\n%s" % (url, feed_html)
 
     context = {

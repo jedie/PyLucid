@@ -190,7 +190,7 @@ class TinyTextileParser:
         "Vorab Verarbeitung des Textes"
 
         # Zeilenenden vereinheitlichen
-        txt = txt.replace("\r\n", "\n").replace("\r","\n")
+        txt = txt.replace("\r\n", "\n").replace("\r", "\n")
 
         # Leerzeilen vorn und hinten abschneiden
         txt = txt.strip()
@@ -322,7 +322,7 @@ class TinyTextileParser:
     #_________________________________________________________________________
 
     def pre_area(self, block):
-        self.out.write(block+"\n")
+        self.out.write(block + "\n")
 
     #_________________________________________________________________________
 
@@ -403,7 +403,7 @@ class TinyTextileParser:
         code = code.strip()
 
         from pylucid_project.apps.pylucid.markup.hightlighter import make_html
-        html = make_html(code, source_type)
+        html = make_html(code, source_type, django_escape=True)
         self.out.write(html)
 
     #_________________________________________________________________________
@@ -411,7 +411,7 @@ class TinyTextileParser:
     def blockelements(self, block):
         "Anwenden der Block-rules. Formatieren des Absatzes"
 
-        if block[0] in ("*","#"):
+        if block[0] in ("*", "#"):
             # Aktueller Block ist eine Liste
             self.build_list(block)
             return
@@ -422,7 +422,7 @@ class TinyTextileParser:
             return
 
         for rule in self.block_rules:
-            txt,count = rule[0].subn(rule[1], block)
+            txt, count = rule[0].subn(rule[1], block)
 
             if count != 0:
                 # Ein Blockelement wurde gefunden
@@ -437,7 +437,7 @@ class TinyTextileParser:
         "Erzeugt eine Liste aus einem Absatz"
 
         def spacer(deep):
-            return " "* (deep * 3)
+            return " " * (deep * 3)
 
         def write(number, tag, spacer):
             for i in range(number):
@@ -448,11 +448,11 @@ class TinyTextileParser:
             currentlen = len(item[0])
             if item[0][0] == "*":
                 # normale Aufzählungsliste
-                pre_tag  = "<ul>\n"
+                pre_tag = "<ul>\n"
                 post_tag = "</ul>\n"
             else:
                 # Nummerierte Liste
-                pre_tag  = "<ol>\n"
+                pre_tag = "<ol>\n"
                 post_tag = "</ol>\n"
 
             if currentlen > deep:

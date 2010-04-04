@@ -97,7 +97,9 @@ def show_internals(request):
         "permissions": Permission.objects.all(),
 
         "urlpatterns": urlpatterns,
-        "settings": hightlighter.make_html(pformat(get_safe_settings()), source_type="py"),
+        "settings": hightlighter.make_html(
+            pformat(get_safe_settings()), source_type="py", django_escape=True
+        ),
 
         "db_backend_name": backend.Database.__name__,
         "db_backend_module": backend.Database.__file__,
@@ -108,9 +110,13 @@ def show_internals(request):
         "db_table_names": sorted(connection.introspection.table_names()),
         "django_tables": sorted(connection.introspection.django_table_names()),
 
-        "request_meta": hightlighter.make_html(pformat(request.META), source_type="py"),
+        "request_meta": hightlighter.make_html(
+            pformat(request.META), source_type="py", django_escape=True
+        ),
 
-        "request_session": hightlighter.make_html(pformat(dict(request.session)), source_type="py"),
+        "request_session": hightlighter.make_html(
+            pformat(dict(request.session)), source_type="py", django_escape=True
+        ),
 
         "sys_path": sys.path,
     }

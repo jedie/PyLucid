@@ -85,10 +85,10 @@ def highlight_code(request):
             sourcecode = form.cleaned_data["sourcecode"]
             source_type = form.cleaned_data["source_type"]
 
-            highlighted = make_html(sourcecode, source_type)
+            highlighted = make_html(sourcecode, source_type, django_escape=True)
             context["highlighted"] = highlighted
 
-            html_code = make_html(highlighted, "html")
+            html_code = make_html(highlighted, "html", django_escape=True)
             context["html_code"] = html_code
     else:
         form = HighlightCodeForm()
@@ -227,7 +227,7 @@ class TemplateFile(object):
             return
 
         ext = os.path.splitext(self.fs_path)[1]
-        html = make_html(content, ext)
+        html = make_html(content, ext, django_escape=True)
         return html
 
 
