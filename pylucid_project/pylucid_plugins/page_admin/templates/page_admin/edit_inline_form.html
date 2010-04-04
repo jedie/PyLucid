@@ -23,6 +23,9 @@ var textarea_changed = false;
 
 jQuery(document).ready(function($) {
     log("edit_inline_form.html ready.");
+	
+	// remove old page_msg, if exist
+	$("#page_msg").slideUp();
 
     $("#ajax_preview").show(); // unhide ajax preview button
 
