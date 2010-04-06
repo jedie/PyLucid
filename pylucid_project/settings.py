@@ -201,7 +201,7 @@ INSTALLED_APPS = (
 )
 # Add all existing PyLucid plugins
 INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
-#print "settings.INSTALLED_APPS:", INSTALLED_APPS
+#print "settings.INSTALLED_APPS:", "\n".join(INSTALLED_APPS)
 
 COMMENTS_APP = "pylucid_project.pylucid_plugins.pylucid_comments"
 

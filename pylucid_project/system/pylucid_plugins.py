@@ -13,7 +13,8 @@ from django.conf.urls.defaults import patterns, url, include
 
 from pylucid_project.utils.python_tools import has_init_file
 
-
+#DEBUG = True
+DEBUG = False
 
 #PYLUCID_PLUGINS = None
 
@@ -120,7 +121,7 @@ class PyLucidPlugin(object):
 
     def get_prefix_urlpatterns(self, url_prefix, urls_filename):
         """ include the plugin urlpatterns with the url prefix """
-        url_prefix = url_prefix.rstrip("/")
+        url_prefix = url_prefix.rstrip("/") + "/"
 
         cache_key = self.pkg_string + url_prefix
         if cache_key in _PLUGIN_URL_CACHE:
@@ -133,6 +134,10 @@ class PyLucidPlugin(object):
             (url_prefix, include(raw_plugin_urlpatterns)),
         )
 
+        if DEBUG:
+            print "url prefix: %r" % url_prefix
+            print "raw_plugin_urlpatterns: %r" % raw_plugin_urlpatterns
+
         #print "put in _PLUGIN_URL_CACHE[%r]" % cache_key
         _PLUGIN_URL_CACHE[cache_key] = plugin_urlpatterns
 
@@ -141,9 +146,16 @@ class PyLucidPlugin(object):
 
     def get_plugin_url_resolver(self, url_prefix, urls_filename="urls"):
         prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
-#        print prefix_urlpatterns
+
+        if DEBUG:
+            print "prefix_urlpatterns: %r" % prefix_urlpatterns
+
         plugin_url_resolver = urlresolvers.RegexURLResolver(r'^/', prefix_urlpatterns)
-        #for key, value in plugin_url_resolver.reverse_dict.items(): print key, value
+
+        if DEBUG:
+            for key, value in plugin_url_resolver.reverse_dict.items():
+                print key, value
+
         return plugin_url_resolver
 
     def get_merged_url_resolver(self, url_prefix, urls_filename="urls"):
@@ -154,6 +166,7 @@ class PyLucidPlugin(object):
         merged_urlpatterns = ROOT_URLCONF_PATTERNS + prefix_urlpatterns
 
         # Make a own url resolver
+#        merged_url_resolver = urlresolvers.RegexURLResolver(r'^/', merged_urlpatterns)
         merged_url_resolver = urlresolvers.RegexURLResolver(r'^/', merged_urlpatterns)
         return merged_url_resolver
 
