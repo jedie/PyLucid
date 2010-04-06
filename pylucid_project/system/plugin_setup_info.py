@@ -77,7 +77,17 @@ class PyLucidPluginSetupInfo(dict):
                 warnings.warn("Plugin %r exist more than one time." % plugin_name)
                 continue
 
-            self.installed_plugins.append(".".join([section, pkg_dir, plugin_name]))
+            plugin_pkg = ".".join([section, pkg_dir, plugin_name])
+
+            if not has_init_file(os.path.join(pkg_path, plugin_name)):
+                if self.verbose:
+                    warnings.warn("plugin '%s' doesn't contain a __init__.py file, skip." % plugin_pkg)
+                continue
+
+            if self.verbose:
+                print "add plugin %r" % plugin_pkg
+
+            self.installed_plugins.append(plugin_pkg)
 
             abs_template_path = os.path.join(pkg_path, plugin_name, "templates")
             if os.path.isdir(abs_template_path):
