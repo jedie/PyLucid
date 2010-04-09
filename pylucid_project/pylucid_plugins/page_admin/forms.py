@@ -35,48 +35,6 @@ class EditPageForm(forms.Form):
 
 
 class PageTreeForm(forms.ModelForm):
-    def clean(self):
-        """ Validate if page with same slug and parent exist. """
-        cleaned_data = self.cleaned_data
-
-        if "slug" not in cleaned_data or "parent" not in cleaned_data:
-            # Only do something if both fields are valid so far.
-            return cleaned_data
-
-        slug = cleaned_data["slug"]
-        parent = cleaned_data["parent"]
-
-        if parent is not None and self.instance.pk == parent.pk:
-            # Check if parent is the same entry
-            self._errors["parent"] = ErrorList([_("child-parent loop error!")])
-
-        if parent and parent.page_type == parent.PLUGIN_TYPE:
-            # A plugin page can't have any sub pages!
-            parent_url = parent.get_absolute_url()
-            msg = _(
-                "Can't use the <strong>plugin</strong> page '%s' as parent page!"
-                " Please choose a <strong>content</strong> page."
-            ) % parent_url
-            self._errors["parent"] = ErrorList([mark_safe(msg)])
-
-        queryset = PageTree.on_site.all().filter(slug=slug, parent=parent)
-
-        # Exclude the current object from the query if we are editing an
-        # instance (as opposed to creating a new one)
-        if self.instance.pk is not None:
-            queryset = queryset.exclude(pk=self.instance.pk)
-
-        exists = queryset.count()
-        if exists:
-            if parent == None: # parent is the tree root
-                parent_url = "/"
-            else:
-                parent_url = parent.get_absolute_url()
-            msg = "Page '%s<strong>%s</strong>/' exists already." % (parent_url, slug)
-            self._errors["slug"] = ErrorList([mark_safe(msg)])
-
-        return cleaned_data
-
     def __init__(self, *args, **kwargs):
         """ Change form field data in a DRY way """
         super(PageTreeForm, self).__init__(*args, **kwargs)

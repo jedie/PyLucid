@@ -21,6 +21,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
+from django.utils.safestring import mark_safe
+from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.managers import CurrentSiteManager
@@ -292,6 +294,54 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         help_text="Usergroup how can edit this page.",
         null=True, blank=True,
     )
+
+    def clean_fields(self, exclude):
+        """
+        check:
+            - if slug exist in the same sub tree
+            - if parent is the same entry
+            - if parent is PageContent
+        """
+        message_dict = {}
+
+        if "slug" not in exclude: # Check if slug exist in the same sub tree
+            queryset = PageTree.on_site.all().filter(slug=self.slug, parent=self.parent)
+
+            # Exclude the current object from the query if we are editing an
+            # instance (as opposed to creating a new one)
+            if self.pk is not None:
+                queryset = queryset.exclude(pk=self.pk)
+
+            exists = queryset.count()
+            if exists:
+                if self.parent == None: # parent is the tree root
+                    parent_url = "/"
+                else:
+                    parent_url = self.parent.get_absolute_url()
+                msg = "Page '%s<strong>%s</strong>/' exists already." % (parent_url, self.slug)
+                message_dict["slug"] = (mark_safe(msg),)
+
+        if "parent" not in exclude and self.parent is not None:
+            parent_error = []
+            # Check if parent is the same entry
+            if self.pk == self.parent.pk:
+                parent_error.append(_("child-parent loop error!"))
+
+            # Check if parent is PageContent
+            if self.parent.page_type != self.PAGE_TYPE:
+                # A plugin page can't have any sub pages!
+                parent_url = self.parent.get_absolute_url()
+                msg = _(
+                    "Can't use the <strong>plugin</strong> page '%s' as parent page!"
+                    " Please choose a <strong>content</strong> page."
+                ) % parent_url
+                parent_error.append(mark_safe(msg))
+
+            if parent_error:
+                message_dict["parent"] = parent_error
+
+        if message_dict:
+            raise ValidationError(message_dict)
 
     _url_cache = {}
     def get_absolute_url(self):
