@@ -25,7 +25,7 @@ class PyLucidAdminManager(TreeManager):
         returns only the menu items, for which the user has the rights.
         TODO: Filter menu sections, too. (If there is no sub items, remove the section)
         """
-        all_items = self.all().order_by("position")
+        all_items = self.all().order_by("position", "name")
         filtered_items = []
         for item in all_items:
             superuser_only, access_permissions = item.get_permissions()
@@ -176,4 +176,4 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
     class Meta:
         verbose_name = _('PyLucid admin page')
         verbose_name_plural = _('PyLucid admin pages')
-        ordering = ("url_name",)
+        ordering = ("name", "url_name",)
