@@ -53,6 +53,20 @@ class PageAdminTestCase(basetest.BaseLanguageTestCase):
         - self.other_language - alternative Language mode instance (default: de instance)
         - assertContentLanguage() - Check if response is in right language
     """
+    def get_page_content_post_data(self, **kwargs):
+        data = {
+            'save': 'save',
+            'content': 'The **creole** //content//.',
+            'design': 1,
+            'en-robots': 'index,follow',
+            'markup': PageContent.MARKUP_CREOLE,
+            'position': 0,
+            'showlinks': 'on',
+            'slug': 'page_slug'
+        }
+        data.update(kwargs)
+        return data
+
     def login_with_permissions(self, permissions):
         """ login as normal user with PageAdmin add permissions """
         user = self.login("normal")
@@ -121,16 +135,9 @@ class PageAdminTest(PageAdminTestCase):
 
     def test_create_entry(self):
         self.login_with_permissions(ADD_CONTENT_PERMISSIONS)
-        response = self.client.post(CREATE_CONTENT_PAGE_URL, data={
-            'save': 'save',
-            'content': 'The **creole** //content//.',
-            'design': 1,
-            'en-robots': 'index,follow',
-            'markup': PageContent.MARKUP_CREOLE,
-            'position': 0,
-            'showlinks': 'on',
-            'slug': 'page_slug'
-        })
+        response = self.client.post(CREATE_CONTENT_PAGE_URL,
+            data=self.get_page_content_post_data()
+        )
         new_page_url = "http://testserver/en/page_slug/"
         self.assertRedirect(response, url=new_page_url, status_code=302)
 
@@ -147,16 +154,9 @@ class PageAdminTest(PageAdminTestCase):
 
     def test_markup_preview(self):
         self.login_with_permissions(ADD_CONTENT_PERMISSIONS)
-        response = self.client.post(CREATE_CONTENT_PAGE_URL, data={
-                'preview': 'markup preview',
-                'content': 'The **creole** //content//.',
-                'design': 1,
-                'en-robots': 'index,follow',
-                'markup': PageContent.MARKUP_CREOLE,
-                'position': 0,
-                'showlinks': 'on',
-                'slug': 'page_slug'
-        })
+        response = self.client.post(CREATE_CONTENT_PAGE_URL,
+            data=self.get_page_content_post_data(preview="markup preview")
+            )
         self.assertResponse(response,
             must_contain=(
                 '<p>The <strong>creole</strong> <i>content</i>.</p>',
@@ -169,6 +169,84 @@ class PageAdminTest(PageAdminTestCase):
             must_not_contain=("Traceback", "Form errors", "field is required")
         )
 
+    def test_no_self_parent_choose(self):
+        """
+        Check if parent select doesn't conain the own entry.
+        So the user can't select it and make a child <-> parent loop.
+        """
+        self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
+        url = EDIT_ALL_URL % 1 # edit the page with ID==1
+        response = self.client.get(url)
+        self.assertResponse(response,
+            must_contain=(
+                '<select name="parent" id="id_parent">',
+                '<option value="" selected="selected">---------</option>',
+                '<option value="3">/designs/</option>',
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required"
+                '<option value="1">/welcome/</option>'
+            )
+        )
+
+    def test_child_parent_loop_error(self):
+        """
+        do a child <-> parent loop: parent ID == current PageTree ID
+        """
+        self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
+        url = EDIT_ALL_URL % 1 # edit the page with ID==1
+        response = self.client.post(url,
+            data=self.get_page_content_post_data(parent=1)
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "Form errors",
+                """<ul class="errorlist" id="parent_errors" title="Errors for field 'parent'">""",
+                '<li>child-parent loop error!</li>',
+            ),
+            must_not_contain=("Traceback", "field is required")
+        )
+
+    def test_slug_exists_error(self):
+        """
+        use a slug that exist in the same sub tree.
+        """
+        # get two 'root' pages.
+        first_test_page, second_test_page = PageTree.on_site.all().filter(parent=None)[:2]
+
+        self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
+        url = EDIT_ALL_URL % first_test_page.id # edit the first test page
+        response = self.client.post(url,
+            data=self.get_page_content_post_data(slug=second_test_page.slug)
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "Form errors",
+                """<ul class="errorlist" id="slug_errors" title="Errors for field 'slug'">""",
+                "<li>Page '/<strong>%s</strong>/' exists already.</li>" % second_test_page.slug,
+            ),
+            must_not_contain=("Traceback", "field is required")
+        )
+
+    def test_plugin_page_parent_error(self):
+        """
+        A PageContent can't have a PluginPage as parent page.
+        """
+        # get any PluginPage
+        a_plugin_page_id = PageTree.on_site.all().filter(page_type=PageTree.PLUGIN_TYPE)[0].id
+
+        self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
+        url = EDIT_ALL_URL % 1 # edit the page with ID==1
+        response = self.client.post(url,
+            data=self.get_page_content_post_data(parent=a_plugin_page_id)
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "Form errors",
+                """<ul class="errorlist" id="parent_errors" title="Errors for field 'parent'">""",
+                "<li>Can't use the <strong>plugin</strong> page '/blog/' as parent page! Please choose a <strong>content</strong> page.</li>",
+            ),
+            must_not_contain=("Traceback", "field is required")
+        )
 
 class PageAdminInlineEditTest(PageAdminTestCase):
     """
@@ -220,7 +298,7 @@ class PageAdminInlineEditTest(PageAdminTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminInlineEditTest",
+#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminTest",
 ##        verbosity=0,
 #        verbosity=1,
 #        failfast=True
