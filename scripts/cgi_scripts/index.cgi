@@ -43,17 +43,17 @@ import sys
 
 
 #####################################################################################################
-# CHANGE THIS PATH:
+# PLEASE CHANGE THIS PATH:
 #
-# The absolute filesystem path to ...PyLucid_env/bin/activate_this.py
+os.environ["VIRTUALENV_FILE"] = "please/insert/path/to/PyLucid_env/bin/activate_this.py"
 #
-os.environ["VIRTUALENV_FILE"] = "/path/to/PyLucid_env/bin/activate_this.py"
+# It's the absolute filesystem path to ...PyLucid_env/bin/activate_this.py
 #
 #####################################################################################################
 
 
 
-# This must normaly not changes, because you should use a local_settings.py file
+# This must normally not changes, because you should use a local_settings.py file
 os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 
@@ -75,7 +75,7 @@ def traceback_end():
 
 try:
     virtualenv_file = os.environ["VIRTUALENV_FILE"]
-except KeyError, err:
+except KeyError:
     print "Content-type: text/plain; charset=utf-8\r\n\r\n"
     print "PyLucid - Low-Level-Error!"
     print
@@ -87,7 +87,7 @@ except KeyError, err:
 
 try:
     execfile(virtualenv_file, dict(__file__=virtualenv_file))
-except Exception, err:
+except Exception:
     print "Content-type: text/plain; charset=utf-8\r\n\r\n"
     print "PyLucid - Low-Level-Error!"
     print
@@ -130,7 +130,7 @@ if settings.DEBUG:
     """
     Redirect all write to stdout+stderr in DEBUG mode.
     """
-    import sys, cgi, inspect
+    import cgi, inspect
 
     class BaseOut(object):
         """
@@ -187,14 +187,13 @@ if settings.DEBUG:
                 self.out.write(
                     "stdout/stderr write from: <strong>%s</strong>:\n" % fileinfo
                 )
-                raise
 
         def isatty(self):
             return False
         def flush(self):
             pass
 
-    HEADERS = ("content-type:", "status: 301")#, "status: 200")
+    HEADERS = ("content-type:", "status: 301", "status: 200")
     class HeaderChecker(BaseOut):
         """
         Very slow! But in some case very helpfully ;)
@@ -255,13 +254,11 @@ if settings.DEBUG:
 
 # Run PyLucid for one request:
 try:
-
     from django.core.handlers.wsgi import WSGIHandler
-
     CGIHandler().run(WSGIHandler())
-except Exception, e:
+except Exception, err:
     print "Content-type: text/plain; charset=utf-8\r\n\r\n"
-    print "Low-Level-Error:", e
+    print "Low-Level-Error: %s" % err
     print
     print "-" * 80
     print
