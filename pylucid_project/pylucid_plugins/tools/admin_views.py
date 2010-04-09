@@ -166,7 +166,7 @@ def cleanup_session(request):
     count_after = Session.objects.count()
 
     delete_count = count_before - count_after
-    request.page_msg(_("Delete %(count)s entries in %.2(duration)fsec") % {
+    request.page_msg(_("Delete %(count)s entries in %(duration).2fsec") % {
         "count": delete_count, "duration":duration_time
     })
 
