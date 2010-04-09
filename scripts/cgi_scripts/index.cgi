@@ -38,6 +38,7 @@
 
 
 import os
+import sys
 
 
 
@@ -62,7 +63,6 @@ def traceback_end():
     """
     print
     print "-" * 80
-    import sys
     print "Python v%s" % sys.version
     print "-" * 80
     try:
@@ -105,6 +105,23 @@ except:
     print "PyLucid - Low-Level-Error!"
     print
     print "Can't import 'settings'!"
+    print
+    traceback_end()
+
+
+try:
+    from wsgiref.handlers import CGIHandler
+except Exception, err:
+    print "Content-type: text/plain; charset=utf-8\r\n\r\n"
+    print "PyLucid - Low-Level-Error!"
+    print
+    print "Can't import CGIHandler from wsgiref: %s" % err
+    print "(Note: wsgiref is new in Python 2.5!)"
+    if sys.version_info[:2] < (2, 5):
+        print "This Python version is too old!"
+        print "If you have a new installed, please update shebang in %s" % __file__
+        print
+        print "Note: the virtualenv must be created with the same version!"
     print
     traceback_end()
 
@@ -235,18 +252,10 @@ if settings.DEBUG:
 #_____________________________________________________________________________
 
 
-# Add a custom Python path, you'll want to add the parent folder of
-# your project directory. (Optional.)
-#BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-#sys.path.insert(0, BASE_PATH)
-
-# Switch to the directory of your project. (Optional.)
-# os.chdir("/home/user/django/PyLucid/")
-
 
 # Run PyLucid for one request:
 try:
-    from wsgiref.handlers import CGIHandler
+
     from django.core.handlers.wsgi import WSGIHandler
 
     CGIHandler().run(WSGIHandler())
