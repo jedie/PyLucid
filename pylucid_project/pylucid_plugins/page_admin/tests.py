@@ -27,10 +27,18 @@ from pylucid_project.apps.pylucid.models import PageContent, PageTree
 
 
 CREATE_CONTENT_PAGE_URL = "/pylucid_admin/plugins/page_admin/new_content_page/"
-ADD_CONTENT_PERMISSIONS = ("pylucid.add_pagecontent", "pylucid.add_pagemeta", "pylucid.add_pagetree")
 CREATE_PLUGIN_PAGE_URL = "/pylucid_admin/plugins/page_admin/new_plugin_page/"
 EDIT_ALL_URL = "/pylucid_admin/plugins/page_admin/edit_page/%i/"
 
+INLINE_EDIT_PAGE_URL = "/?page_admin=inline_edit"
+INLINE_PREVIEW_URL = "/?page_admin=preview"
+
+ADD_CONTENT_PERMISSIONS = (
+    "pylucid.add_pagecontent", "pylucid.add_pagemeta", "pylucid.add_pagetree"
+)
+CHANGE_CONTENT_PERMISSIONS = (
+    "pylucid.change_pagecontent", "pylucid.change_pagemeta", "pylucid.change_pagetree"
+)
 
 class PageAdminTestCase(basetest.BaseLanguageTestCase):
     """
@@ -162,12 +170,59 @@ class PageAdminTest(PageAdminTestCase):
         )
 
 
+class PageAdminInlineEditTest(PageAdminTestCase):
+    """
+    Test with a user witch are logged in and has ADD_PERMISSION
+    """
+    def setUp(self):
+        self.client = Client() # start a new session
+
+    def test_ajax_form(self):
+        """ Test AJAX request of the edit page form """
+        self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
+
+        response = self.client.get(INLINE_EDIT_PAGE_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(response,
+            must_contain=(
+                "Edit the CMS page '<strong>Welcome to your PyLucid CMS =;-)</strong>'",
+                '&#x7B;% lucidTag update_journal %&#x7D;</textarea>', # PageContent
+                # CSS:
+                '#ajax_preview {',
+                # JavaScript:
+                '$("#ajax_preview").show();',
+                # Some form strings:
+                'input type="submit" name="save" value="save"',
+                'form action="/?page_admin=inline_edit"',
+                'textarea id="id_content"',
+            ),
+            must_not_contain=(
+                '<title>', "<body", "<head>", # <- not a complete page
+                "Traceback", 'Permission denied',
+            ),
+        )
+
+    def test_ajax_preview(self):
+        """ Test ajax edit page preview """
+        self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
+
+        response = self.client.post(INLINE_PREVIEW_URL,
+            {"content": "A **creole** //preview//!", "preview": True},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.failUnlessEqual(response.status_code, 200)
+        self.failUnlessEqual(
+            response.content,
+            '<p>A <strong>creole</strong> <i>preview</i>!</p>\n'
+        )
+
+
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.PageAdmin.tests.PageAdminArticleTest",
-#        verbosity=0,
-##        verbosity=1,
+#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminInlineEditTest",
+##        verbosity=0,
+#        verbosity=1,
 #        failfast=True
 #    )
     management.call_command('test', __file__,
