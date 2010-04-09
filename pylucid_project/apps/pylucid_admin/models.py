@@ -3,6 +3,7 @@
 from django.db import models
 from django.core.cache import cache
 from django.core import urlresolvers
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group, Permission
@@ -85,6 +86,26 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         verbose_name="get PageContent/PluginPage",
         help_text="Add current PageContent or current PluginPage ID via GET Parameter to the url, if available"
     )
+
+    def clean_fields(self, exclude):
+        # check if parent is the same entry: child <-> parent loop:
+        super(PyLucidAdminPage, self).clean_fields(exclude)
+
+        # check if url_name is unique. We can't set unique==True,
+        # because menu section has always url_name=None
+        if "url_name" not in exclude and self.url_name is not None:
+            queryset = PyLucidAdminPage.objects.filter(url_name=self.url_name)
+
+            # Exclude the current object from the query if we are editing an
+            # instance (as opposed to creating a new one)
+            if self.pk is not None:
+                queryset = queryset.exclude(pk=self.pk)
+
+            exists = queryset.count()
+            if exists:
+                msg = "url name %r exist!" % self.url_name
+                message_dict = {"url_name": (msg,)}
+                raise ValidationError(message_dict)
 
     def get_url(self):
         """

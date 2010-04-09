@@ -21,18 +21,10 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-if __name__ == "__main__":
-    # run unittest for this module
-    import sys
-    from pylucid_project.tests import test_tools # before django imports!
-    from django.core import management
-    management.call_command('test', "test_TreeModel.TreeModelTest")
-#    management.call_command('test', "pylucid_project.pylucid_plugins.main_menu")
-    sys.exit()
 
 from django.db import models
-
-
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 
 class MenuNode(object):
@@ -371,12 +363,13 @@ class BaseTreeModel(models.Model):
     position = models.SmallIntegerField(default=0,
         help_text="ordering weight for sorting the pages in the menu.")
 
-    def save(self, *args, **kwargs):
-        if self.parent is not None and self.parent.pk == self.pk:
-            # Error -> parent-loop found.
-            raise AssertionError("New parent is invalid. (parent-child-loop)")
-
-        return super(BaseTreeModel, self).save(*args, **kwargs)
+    def clean_fields(self, exclude):
+        """
+        check if parent is the same entry: child <-> parent loop
+        """
+        if "parent" not in exclude and self.parent is not None and self.pk == self.parent.pk:
+            message_dict = {"parent": (_("child-parent loop error!"),)}
+            raise ValidationError(message_dict)
 
     class Meta:
         abstract = True

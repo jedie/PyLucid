@@ -31,7 +31,7 @@ def install(request):
     return "\n".join(output)
 
 
-@check_permissions(superuser_only=False, permissions=("lexicon.add_lexiconentry", "lexicon.add_links"))
+@check_permissions(superuser_only=False, permissions=("lexicon.add_lexiconentry",))# "lexicon.add_links"))
 @render_to("lexicon/new_entry.html")
 def new_entry(request):
     """ create a new lexicon entry """

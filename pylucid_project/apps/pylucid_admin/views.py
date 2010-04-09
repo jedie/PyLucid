@@ -120,7 +120,11 @@ def install_pylucid(request):
 @check_permissions(superuser_only=True)
 @render_to("pylucid_admin/install.html")
 def install_plugins(request):
-    """ Simple call all plugin install view, if exist. """
+    """
+    Simple call all plugin install view, if exist.
+    
+    TODO: create a "install plugins" managment command and call it here! (This is useful for unittests)
+    """
     output = []
 
     # Delete all items
