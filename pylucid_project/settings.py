@@ -69,17 +69,6 @@ SQL_DEBUG = False
 # Should allways be False. It's only for developing! 
 PYLUCID_OBJECTS_DEBUG = False
 
-#______________________________________________________________________________
-# DATABASE SETUP
-
-# Database connection info.
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test.db3',
-    }
-}
-
 
 SITE_ID = 1 # Can be changed in local_settings
 
