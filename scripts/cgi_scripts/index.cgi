@@ -31,11 +31,14 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+
 #print "Content-type: text/html; charset=utf-8\r\n\r\nHARDCORE DEBUG:\n"
 #print "Content-type: text/plain; charset=utf-8\r\n\r\nHARDCORE DEBUG:\n"
 #import cgitb;cgitb.enable()
 
+
 import os
+
 
 
 #####################################################################################################
@@ -46,6 +49,7 @@ import os
 os.environ["VIRTUALENV_FILE"] = "/path/to/PyLucid_env/bin/activate_this.py"
 #
 #####################################################################################################
+
 
 
 # This must normaly not changes, because you should use a local_settings.py file
@@ -239,20 +243,13 @@ if settings.DEBUG:
 # Switch to the directory of your project. (Optional.)
 # os.chdir("/home/user/django/PyLucid/")
 
-try:
-    #~ from django.core.servers.cgi import runcgi
-    # Normaly the cgi_server.py should be saved in dajngo/core/servers
-    # But we used svn:externals to include the django source ;)
-    from utils.cgi_server import runcgi
-except Exception, e:
-    print "Content-type: text/plain; charset=utf-8\r\n\r\n"
-    print "<h1>Error:</h1><h2>Can't import the CGI Server:</h2>"
-    print "<h3>%s</h3>" % e
-    traceback_end()
 
 # Run PyLucid for one request:
 try:
-    runcgi()
+    from wsgiref.handlers import CGIHandler
+    from django.core.handlers.wsgi import WSGIHandler
+
+    CGIHandler().run(WSGIHandler())
 except Exception, e:
     print "Content-type: text/plain; charset=utf-8\r\n\r\n"
     print "Low-Level-Error:", e
@@ -264,5 +261,4 @@ except Exception, e:
     print "If not, follow the instruction here:"
     print settings.INSTALL_HELP_URL
     print
-
     traceback_end()

@@ -193,9 +193,28 @@ def run_django_fcgi():
         evalue = etype("Can't import django stuff: %s" % err)
         raise etype, evalue, etb
 
+    # usable parameter see also django/core/servers/fastcgi.py
     runfastcgi(
-        method="threaded", daemonize="false",
-        debug=settings.DEBUG # Enable flup debug
+        protocol="fcgi", # fcgi, scgi, ajp, ... (django default: fcgi)
+        host=None, # hostname to listen on (django default: None)
+        port=None, # port to listen on (django default: None)
+        socket=None, # UNIX socket to listen on (django default: None)
+
+        method="threaded", # prefork or threaded (django default: "prefork")
+        daemonize="false", # whether to detach from terminal (django default: None)
+        umask=None, # umask to use when daemonizing e.g.: "022" (django default: None)
+        pidfile=None, # write the spawned process-id to this file (django default: None)
+        workdir="/", # change to this directory when daemonizing.  (django default: "/")
+
+        minspare=2, # min number of spare processes / threads (django default:  2)
+        maxspare=5, # max number of spare processes / threads (django default:  5)
+        maxchildren=50, # hard limit number of processes / threads (django default: 50)
+        maxrequests=100, # number of requests before killed/forked (django default: 0 = no limit)
+        # maxrequests -> work only in prefork mode
+
+        debug=settings.DEBUG, # Enable flup debug traceback page
+        outlog=None, # write stdout to this file (django default: None)
+        errlog=None, # write stderr to this file (django default: None)
     )
 
 
@@ -203,9 +222,7 @@ try:
     run_django_fcgi()
 except:
     # Catch the traceback and run a minimal fcgi debug application
-
-    low_level_log(traceback.format_exc()) # Write full traceback into LOGFILE
-
+    low_level_log(traceback.format_exc()) # Write full traceback into LOGFILEdrag
     try:
         # http://trac.saddi.com/flup/browser/flup/server/fcgi.py
         from flup.server.fcgi import WSGIServer
