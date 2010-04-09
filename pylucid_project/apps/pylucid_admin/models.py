@@ -11,6 +11,7 @@ from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 
 
 class PyLucidAdminManager(TreeManager):
@@ -85,17 +86,40 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         help_text="Add current PageContent or current PluginPage ID via GET Parameter to the url, if available"
     )
 
+    def get_url(self):
+        """
+        reverse the url name.
+        
+        Create error message if NoReverseMatch and return None.
+        e.g.: Plugin deleted in filesystem, but still exist in database.
+        
+        FIXME: Can we get it faster and not with resolve the url?
+        """
+        try:
+            url = urlresolvers.reverse(self.url_name)
+        except urlresolvers.NoReverseMatch, err:
+            msg = (
+                "Can't resolve url %r for plugin %r: %s"
+                " - (To fix this: run 'install plugins' again.)"
+            ) % (self.url_name, self.name, err)
+            failsafe_message(msg)
+        else:
+            return url
+
     def get_permissions(self):
         """
         returns the access permissions for this menu entry.
         TODO: Should be cache this?
         """
         if not self.url_name: # a menu section
+            # TODO: Check if at least one sub entry is accessible.
             return (False, ())
 
+        url = self.get_url()
+        if url is None: # can't resolve url, message was created.
+            return (True, ()) # view can only superusers use
+
         # Get the view function for this url_name
-        # FIXME: Can we get it faster and not with resolve the url?
-        url = urlresolvers.reverse(self.url_name)
         view_func, func_args, func_kwargs = urlresolvers.resolve(url)
 
         # get the rights from pylucid_project.apps.pylucid.decorators.check_permissions
@@ -126,7 +150,10 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         if not self.url_name:
             return "" # menu section
 
-        url = urlresolvers.reverse(viewname=self.url_name)
+        url = self.get_url()
+        if url is None: # can't resolve url, message was created.
+            return "#resolve-error" # XXX: return something else?
+
         request = ThreadLocal.get_current_request()
         get_data = {}
         if self.get_pagetree and hasattr(request.PYLUCID, "pagetree"):
