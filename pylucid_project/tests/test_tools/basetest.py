@@ -90,6 +90,12 @@ class BaseUnittest(BaseTestCase, TestCase):
 
         return user
 
+    def login_with_permissions(self, usertype, permissions):
+        """ login user and add given permissions """
+        user = self.login(usertype)
+        self.add_user_permissions(user, permissions=permissions)
+        return user
+
 
 class BaseLanguageTestCase(BaseUnittest):
     """

@@ -88,10 +88,9 @@ class BlogPluginTestCase(basetest.BaseLanguageTestCase):
     def assertEntryDE(self, response):
         self.assertBlogPage(response, must_contain=self.ENTRY_MUST_CONTAIN_DE)
 
-    def login_with_permissions(self):
-        """ login as normal user with blog add permissions """
-        user = self.login("normal")
-        self.add_user_permissions(user, permissions=(ADD_PERMISSION,))
+    def login_with_blog_add_permissions(self):
+        """ login as normal user and add 'blog add permissions' """
+        return self.login_with_permissions(usertype="normal", permissions=(ADD_PERMISSION,))
 
 
 class BlogPluginAnonymousTest(BlogPluginTestCase):
@@ -144,7 +143,7 @@ class BlogPluginTest(BlogPluginTestCase):
         """
         get the create page, with normal user witch has the add permission
         """
-        self.login_with_permissions()
+        self.login_with_blog_add_permissions()
         response = self.client.get(CREATE_URL)
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
@@ -158,7 +157,7 @@ class BlogPluginTest(BlogPluginTestCase):
         )
 
     def test_create_entry(self):
-        self.login_with_permissions()
+        self.login_with_blog_add_permissions()
         response = self.client.post(CREATE_URL, data={
             "headline": "The blog headline",
             "content": "The **blog article content** in //creole// markup!",
