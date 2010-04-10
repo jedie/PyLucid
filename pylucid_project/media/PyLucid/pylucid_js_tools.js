@@ -49,6 +49,14 @@ function replace_page_content(data, textStatus) {
         replace_complete_page(data)
     } else {
         // log("put in #page_content:" + data);
+		if ($("#page_content").length == 0) {
+			msg = 'ajax view error:\n\n';
+			msg += 'There is no CSS id="page_content" in your page template!\n\n';
+			msg += 'more info at: http://www.pylucid.org/permalink/320/auth-plugin';
+			log(msg);
+		    alert(msg);
+			return false;
+		}
         $("#page_content").html(data);
         $("#page_content").animate({
             opacity: 1
