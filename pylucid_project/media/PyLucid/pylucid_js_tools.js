@@ -55,7 +55,8 @@ function replace_page_content(data, textStatus) {
 			msg += 'more info at: http://www.pylucid.org/permalink/320/auth-plugin';
 			log(msg);
 		    alert(msg);
-			return false;
+			$("body").html(data);
+			return;
 		}
         $("#page_content").html(data);
         $("#page_content").animate({
