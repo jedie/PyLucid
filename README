@@ -2,6 +2,12 @@
 PyLucid is a Open Source content management system (CMS) written in Python
 using Django.
 
+
+**Note:**
+    This is the old v0.8 trunk. We recommend to use the new v0.9 branch!
+    more info on http://www.pylucid.org/
+
+
 A web based install is implemented, so no shell account is needed! You only
 need a standard webserver with Python (at least v2.4) CGI and one of the
 supported database engines (MySQL, SQLite3, Postgre, Oracle and MS-SQL) to run
