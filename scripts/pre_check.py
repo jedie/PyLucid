@@ -37,7 +37,10 @@ if __name__ == "__main__":
     t = Tester()
     t.check(["python", "-V"], "Python not installed?!?!")
     t.check(["svn", "--version", "--quiet"],
-        "Please install subversion! (e.g.: sudo aptitude install subversion)"
+        "Please install subversion! e.g.: sudo aptitude install subversion"
+    )
+    t.check(["git", "--version"],
+        "Please install git! e.g.: sudo aptitude install git-core"
     )
 
     if t.ok == True:

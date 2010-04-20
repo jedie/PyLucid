@@ -1,19 +1,94 @@
---requirement libs.txt
+#-----------------------------------------------------------------------------
+# Python packages
+#-----------------------------------------------------------------------------
 
-# http://www.pylucid.org
---editable svn+http://svn.pylucid.net/pylucid/branches/0.9/#egg=pylucid
+# http://pypi.python.org/pypi/FeedParser/
+feedparser
 
-# http://code.google.com/p/django-dbpreferences
---editable svn+http://django-dbpreferences.googlecode.com/svn/trunk/#egg=dbpreferences
+# http://pygments.org/
+Pygments
 
-# http://code.google.com/p/django-tools/
---editable svn+http://django-tools.googlecode.com/svn/trunk/#egg=django-tools
+
+
+#-----------------------------------------------------------------------------
+# Django - http://www.djangoproject.com/
+#-----------------------------------------------------------------------------
+# http://pypi.python.org/pypi/Django :
+#Django
+# SVN Version from django:
+--editable svn+http://code.djangoproject.com/svn/django/trunk/#egg=django
+
+
+
+#-----------------------------------------------------------------------------
+# external Django apps
+#-----------------------------------------------------------------------------
 
 # http://code.google.com/p/django-reversion/
---editable svn+http://django-reversion.googlecode.com/svn/trunk/src/#egg=reversion
+#--editable svn+http://django-reversion.googlecode.com/svn/trunk/src/#egg=reversion
+django-reversion
 
 # http://code.google.com/p/django-dbtemplates/
 django-dbtemplates
 
 # http://code.google.com/p/django-tagging/
---editable svn+http://django-tagging.googlecode.com/svn/trunk#egg=tagging
+#--editable svn+http://django-tagging.googlecode.com/svn/trunk#egg=tagging
+django-tagging
+
+
+
+#-----------------------------------------------------------------------------
+# own external projects
+#-----------------------------------------------------------------------------
+
+#_____________________________________________________________________________
+# python-creole - http://code.google.com/p/python-creole/
+
+# *** git writeable:
+--editable git+git@github.com:jedie/python-creole.git#egg=python-creole
+# *** git read-only:
+#--editable git+git://github.com/jedie/python-creole.git#egg=python-creole
+# *** github SVN gateway:
+#--editable svn+http://svn.github.com:jedie/python-creole.git#egg=python-creole
+
+
+#_____________________________________________________________________________
+# django-dbpreferences - http://code.google.com/p/django-dbpreferences
+
+# old SVN server:
+#--editable svn+http://django-dbpreferences.googlecode.com/svn/trunk/#egg=dbpreferences
+# *** git writeable:
+--editable git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences
+# *** git read-only:
+#--editable git+git://github.com/jedie/django-dbpreferences.git#egg=dbpreferences
+# *** github SVN gateway:
+#--editable svn+http://svn.github.com:jedie/django-dbpreferences.git#egg=dbpreferences
+
+
+#_____________________________________________________________________________
+# django-tools - http://code.google.com/p/django-tools/
+
+# old SVN server:
+#--editable svn+http://django-tools.googlecode.com/svn/trunk/#egg=django-tools
+# *** git writeable:
+--editable git+git@github.com:jedie/django-tools.git#egg=django-tools
+# *** git read-only:
+#--editable git+git://github.com/jedie/django-tools.git#egg=django-tools
+# *** github SVN gateway:
+#--editable svn+http://svn.github.com:jedie/django-tools.git#egg=django-tools
+
+
+
+#-----------------------------------------------------------------------------
+# PyLucid - http://www.pylucid.org
+#-----------------------------------------------------------------------------
+# old SVN server:
+#--editable svn+http://svn.pylucid.net/pylucid/branches/0.9/#egg=pylucid
+# *** git writeable:
+--editable git+git@github.com:jedie/PyLucid.git#egg=pylucid
+# *** git read-only:
+#--editable git+git://github.com/jedie/PyLucid.git#egg=pylucid
+# *** github SVN gateway:
+#--editable svn+http://svn.github.com/jedie/PyLucid.git#egg=pylucid
+
+
