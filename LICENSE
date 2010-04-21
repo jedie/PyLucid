@@ -1,9 +1,10 @@
 All rights reserved.
 
 
-PyLucid is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License version 3 or later as published by
-the Free Software Foundation.
+PyLucid and PyLucid-boot is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License
+version 3 or later as published by the Free Software Foundation.
+
 
 complete GNU General Public License version 3:
     http://www.gnu.org/licenses/gpl-3.0.txt
@@ -13,12 +14,8 @@ German translation:
 
 
 see also:
-    http://pylucid.org/_goto/25/License/
-    http://pylucid.org/_goto/139/package-info/
+    http://www.pylucid.org/permalink/37/pylucid-software-lizenz-gnu-gpl-v3-oder-neuer
+    http://www.pylucid.org/permalink/41/abhangigkeiten-und-urheberrechte
 
 
-copyleft 2005-2009 by the PyLucid team, see AUTHORS for more details.
-
-SVN info:
-$LastChangedDate: 2008-06-05 16:33:09 +0200 (Do, 05 Jun 2008) $
-$Rev: 1635 $
+copyleft 2005-2010 by the PyLucid team, see AUTHORS for more details.
