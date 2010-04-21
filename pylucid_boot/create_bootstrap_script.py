@@ -5,6 +5,7 @@
     the BOOTSTRAP_SOURCE file.
 """
 
+import os
 import sys
 
 try:
@@ -19,9 +20,9 @@ except ImportError, err:
     print
     sys.exit()
 
-
-BOOTSTRAP_SCRIPT = "pylucid-boot.py"
-BOOTSTRAP_SOURCE = "source-pylucid-boot.py"
+ROOT = os.path.dirname(os.path.abspath(__file__))
+BOOTSTRAP_SCRIPT = os.path.join(ROOT, "pylucid-boot.py")
+BOOTSTRAP_SOURCE = os.path.join(ROOT, "source-pylucid-boot.py")
 
 
 def create_bootstrap_script():
