@@ -9,12 +9,17 @@ h2. usage
 
 to create a PyLucid virtual environment you need only one file, e.g:
 
-.pre ~$ wget http://github.com/jedie/PyLucid-boot/raw/master/pylucid_boot/pylucid-boot.py
+pre. ~$ wget http://github.com/jedie/PyLucid-boot/raw/master/pylucid_boot/pylucid-boot.py
 ~$ python pylucid-boot.py PyLucid_env
+
+You get this menu:
+* (1) Python packages from PyPi (no SVN or git needed)
+* (2) source via SVN only (checkout git repository via github svn gateway)
+* (3) source via git and clone with readonly
+* (4) source via git and clone writeable (Needs github pubkey auth!)
 
 
 h2. links
-
 
 * PyLucid Homepage: "pylucid.org":http://www.pylucid.org/
 * github project pages:
