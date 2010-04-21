@@ -12,7 +12,7 @@ VERSION_STRING = '.'.join(str(part) for part in __version__)
 
 try:
     process = subprocess.Popen(
-       ["git", "log", "--format='%h'", "-1", "master"],
+       ["git", "log", "--format='%h'", "-1", "HEAD"],
        stdout = subprocess.PIPE
     )
 except Exception, err:
