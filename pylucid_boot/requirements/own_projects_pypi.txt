@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------
+# own projects
+#
+# python-creole - http://code.google.com/p/python-creole/
+# django-dbpreferences - http://code.google.com/p/django-dbpreferences
+# django-tools - http://code.google.com/p/django-tools/
+# PyLucid - http://www.pylucid.org
+#-----------------------------------------------------------------------------
+
+# *** use python packages from PyPi
+python-creole
+django-dbpreferences
+django-tools
+PyLucid
+
+
+#----------------------------------------------------------------------------
+# install external projects:
+--requirement external_projects.txt
