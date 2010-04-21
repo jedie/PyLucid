@@ -5,13 +5,13 @@
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.4</pydev_property>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Default</pydev_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/PyLucid09/PyLucid_env/src/pylucid</path>
-<path>/PyLucid09/PyLucid_env/src/django</path>
-<path>/PyLucid09/PyLucid_env/src/reversion</path>
-<path>/PyLucid09/PyLucid_env/src/pylucid/pylucid_project/apps</path>
-<path>/PyLucid09/PyLucid_env/src/pylucid/pylucid_project/pylucid_plugins</path>
-<path>/PyLucid09/PyLucid_env/src/dbpreferences</path>
-<path>PyLucid09/PyLucid_env/lib/python${py_version}/site-packages</path>
+<path>/PyLucid/PyLucid_env/src/pylucid</path>
+<path>/PyLucid/PyLucid_env/src/django</path>
+<path>/PyLucid/PyLucid_env/src/reversion</path>
+<path>/PyLucid/PyLucid_env/src/pylucid/pylucid_project/apps</path>
+<path>/PyLucid/PyLucid_env/src/pylucid/pylucid_project/pylucid_plugins</path>
+<path>/PyLucid/PyLucid_env/src/dbpreferences</path>
+<path>/PyLucid/PyLucid_env/lib/python${py_version}/site-packages</path>
 </pydev_pathproperty>
 <pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION">
 <key>py_version</key>

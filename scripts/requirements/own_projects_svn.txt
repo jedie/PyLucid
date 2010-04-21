@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------
+# own projects
+#
+# python-creole - http://code.google.com/p/python-creole/
+# django-dbpreferences - http://code.google.com/p/django-dbpreferences
+# django-tools - http://code.google.com/p/django-tools/
+# PyLucid - http://www.pylucid.org
+#-----------------------------------------------------------------------------
+
+# *** github SVN gateway:
+--editable svn+http://svn.github.com:jedie/python-creole.git#egg=python-creole
+--editable svn+http://svn.github.com:jedie/django-dbpreferences.git#egg=dbpreferences
+--editable svn+http://svn.github.com:jedie/django-tools.git#egg=django-tools
+--editable svn+http://svn.github.com/jedie/PyLucid.git#egg=pylucid
+
+
+#----------------------------------------------------------------------------
+# install external projects:
+--requirement external_projects.txt
