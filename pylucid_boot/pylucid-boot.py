@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 ## WARNING: This file is generated
-## using: '/usr/lib/pymodules/python2.6/virtualenv.pyc'
+## using: '/usr/local/lib/python2.6/dist-packages/virtualenv-1.4.5-py2.6.egg/virtualenv.pyc'
 ## Generate with '/home/jens/workspace/PyLucid-boot/pylucid_boot/create_bootstrap_script.py'
 #!/usr/bin/env python
 """Create a "virtual" Python installation
@@ -471,15 +471,8 @@ def main():
         '--distribute',
         dest='use_distribute',
         action='store_true',
-        help='Ignored.  Distribute is used by default.  See --setuptools '
-        'to use Setuptools instead of Distribute.')
-
-    parser.add_option(
-        '--setuptools',
-        dest='use_setuptools',
-        action='store_true',
-        help='Use Setuptools instead of Distribute. Set environ variable '
-        'VIRTUALENV_USE_SETUPTOOLS to make it the default.  ')
+        help='Use Distribute instead of Setuptools. Set environ variable'
+        'VIRTUALENV_USE_DISTRIBUTE to make it the default ')
 
     if 'extend_parser' in globals():
         extend_parser(parser)
@@ -537,8 +530,7 @@ def main():
 
     create_environment(home_dir, site_packages=not options.no_site_packages, clear=options.clear,
                        unzip_setuptools=options.unzip_setuptools,
-                       use_distribute=True,
-                       use_setuptools=options.use_setuptools)
+                       use_distribute=options.use_distribute)
     if 'after_install' in globals():
         after_install(options, home_dir)
 
@@ -607,8 +599,7 @@ def call_subprocess(cmd, show_stdout=True,
 
 
 def create_environment(home_dir, site_packages=True, clear=False,
-                       unzip_setuptools=False, use_distribute=True,
-                       use_setuptools=False):
+                       unzip_setuptools=False, use_distribute=False):
     """
     Creates a new environment in ``home_dir``.
 
@@ -626,10 +617,10 @@ def create_environment(home_dir, site_packages=True, clear=False,
 
     install_distutils(lib_dir, home_dir)
 
-    if use_setuptools or os.environ.get('VIRTUALENV_USE_SETUPTOOLS'):
-        install_setuptools(py_executable, unzip=unzip_setuptools)
-    else:
+    if use_distribute or os.environ.get('VIRTUALENV_USE_DISTRIBUTE'):
         install_distribute(py_executable, unzip=unzip_setuptools)
+    else:
+        install_setuptools(py_executable, unzip=unzip_setuptools)
 
     install_pip(py_executable)
 
@@ -1143,7 +1134,7 @@ def create_bootstrap_script(extra_text, python_version=''):
 """
     PyLucid virtual environment bootstrap
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     This file would be merged into pylucid-boot.py with the
     script create_bootstrap_script.py
 """
@@ -1151,13 +1142,13 @@ def create_bootstrap_script(extra_text, python_version=''):
 
 LIBS = [
     # Python packages
-    "feedparser", # http://pypi.python.org/pypi/FeedParser/    
-    "Pygments", # http://pygments.org/ 
+    "feedparser", # http://pypi.python.org/pypi/FeedParser/
+    "Pygments", # http://pygments.org/
 
     # external Django apps
-    "django-reversion", # http://code.google.com/p/django-reversion/ 
-    "django-dbtemplates", # http://code.google.com/p/django-dbtemplates/ 
-    "django-tagging", # http://code.google.com/p/django-tagging/ 
+    "django-reversion", # http://code.google.com/p/django-reversion/
+    "django-dbtemplates", # http://code.google.com/p/django-dbtemplates/
+    "django-tagging", # http://code.google.com/p/django-tagging/
 ]
 
 MENU_TXT = """
@@ -1238,9 +1229,9 @@ def extend_parser(parser):
     """
     extend optparse options.
     """
-    parser.add_option("-t", "--type", type = "int",
-        dest = "pip_type", default = None,
-        help = "pip install type (%r)" % ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
+    parser.add_option("-t", "--type", type="int",
+        dest="pip_type", default=None,
+        help="pip install type (%r)" % ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
     )
 
 
@@ -1264,27 +1255,29 @@ def after_install(options, home_dir):
     called after virtualenv was created and setuptools installed.
     Now we installed PyLucid and used libs/packages.
     """
+    bin_dir = os.path.abspath(os.path.join(home_dir, "bin"))
+
     defaults = {
-        "cwd": os.path.join(home_dir, "bin"),
+        "cwd": bin_dir,
         "env": {
             "VIRTUAL_ENV": home_dir,
-            "PATH": os.environ["PATH"],
+            "PATH": bin_dir + ":" + os.environ["PATH"],
         }
     }
-    easy_install = os.path.join(home_dir, "bin", "easy_install")
-    pip = os.path.join(home_dir, "bin", "pip")
+    easy_install = os.path.join(bin_dir, "easy_install")
+    pip = os.path.join(bin_dir, "pip")
 
     print "-" * 79
     print "install pip"
-    subprocess.call([easy_install, '--always-copy', 'pip'], **defaults)
+    if os.path.isfile(easy_install):
+        print "Skip, pip exist."
+    else:
+        cmd = [easy_install, '--always-copy', 'pip']
+        print " ".join(cmd)
+        subprocess.call(cmd, **defaults)
 
-    PIP_LOG = os.path.join(home_dir, "PyLucid_pip.log")
 
-    print "-" * 79
-    print "install PyLucid libs"
-    cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + LIBS
-    print " ".join(cmd)
-    subprocess.call(cmd, **defaults)
+    PIP_LOG = os.path.abspath(os.path.join(home_dir, "PyLucid_pip.log"))
 
     pip_type = options.pip_type
     pip_names = PIP_INSTALL_DATA[pip_type]
@@ -1292,6 +1285,12 @@ def after_install(options, home_dir):
     print "-" * 79
     print "install PyLucid projects"
     cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + pip_names
+    print " ".join(cmd)
+    subprocess.call(cmd, **defaults)
+
+    print "-" * 79
+    print "install PyLucid libs"
+    cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + LIBS
     print " ".join(cmd)
     subprocess.call(cmd, **defaults)
 

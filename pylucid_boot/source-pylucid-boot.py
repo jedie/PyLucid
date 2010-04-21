@@ -4,7 +4,7 @@
 """
     PyLucid virtual environment bootstrap
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     This file would be merged into pylucid-boot.py with the
     script create_bootstrap_script.py
 """
@@ -12,13 +12,13 @@
 
 LIBS = [
     # Python packages
-    "feedparser", # http://pypi.python.org/pypi/FeedParser/    
-    "Pygments", # http://pygments.org/ 
+    "feedparser", # http://pypi.python.org/pypi/FeedParser/
+    "Pygments", # http://pygments.org/
 
     # external Django apps
-    "django-reversion", # http://code.google.com/p/django-reversion/ 
-    "django-dbtemplates", # http://code.google.com/p/django-dbtemplates/ 
-    "django-tagging", # http://code.google.com/p/django-tagging/ 
+    "django-reversion", # http://code.google.com/p/django-reversion/
+    "django-dbtemplates", # http://code.google.com/p/django-dbtemplates/
+    "django-tagging", # http://code.google.com/p/django-tagging/
 ]
 
 MENU_TXT = """
@@ -99,9 +99,9 @@ def extend_parser(parser):
     """
     extend optparse options.
     """
-    parser.add_option("-t", "--type", type = "int",
-        dest = "pip_type", default = None,
-        help = "pip install type (%r)" % ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
+    parser.add_option("-t", "--type", type="int",
+        dest="pip_type", default=None,
+        help="pip install type (%r)" % ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
     )
 
 
@@ -125,27 +125,29 @@ def after_install(options, home_dir):
     called after virtualenv was created and setuptools installed.
     Now we installed PyLucid and used libs/packages.
     """
+    bin_dir = os.path.abspath(os.path.join(home_dir, "bin"))
+
     defaults = {
-        "cwd": os.path.join(home_dir, "bin"),
+        "cwd": bin_dir,
         "env": {
             "VIRTUAL_ENV": home_dir,
-            "PATH": os.environ["PATH"],
+            "PATH": bin_dir + ":" + os.environ["PATH"],
         }
     }
-    easy_install = os.path.join(home_dir, "bin", "easy_install")
-    pip = os.path.join(home_dir, "bin", "pip")
+    easy_install = os.path.join(bin_dir, "easy_install")
+    pip = os.path.join(bin_dir, "pip")
 
     print "-" * 79
     print "install pip"
-    subprocess.call([easy_install, '--always-copy', 'pip'], **defaults)
+    if os.path.isfile(easy_install):
+        print "Skip, pip exist."
+    else:
+        cmd = [easy_install, '--always-copy', 'pip']
+        print " ".join(cmd)
+        subprocess.call(cmd, **defaults)
 
-    PIP_LOG = os.path.join(home_dir, "PyLucid_pip.log")
 
-    print "-" * 79
-    print "install PyLucid libs"
-    cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + LIBS
-    print " ".join(cmd)
-    subprocess.call(cmd, **defaults)
+    PIP_LOG = os.path.abspath(os.path.join(home_dir, "PyLucid_pip.log"))
 
     pip_type = options.pip_type
     pip_names = PIP_INSTALL_DATA[pip_type]
@@ -153,6 +155,12 @@ def after_install(options, home_dir):
     print "-" * 79
     print "install PyLucid projects"
     cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + pip_names
+    print " ".join(cmd)
+    subprocess.call(cmd, **defaults)
+
+    print "-" * 79
+    print "install PyLucid libs"
+    cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + LIBS
     print " ".join(cmd)
     subprocess.call(cmd, **defaults)
 
