@@ -5,6 +5,14 @@ h1. description
 This boot files are needed for easy create a pylucid virtual environment.
 
 
+h2. usage
+
+to create a PyLucid virtual environment you need only one file, e.g:
+
+.pre ~$ wget http://github.com/jedie/PyLucid-boot/raw/master/pylucid_boot/pylucid-boot.py
+~$ python pylucid-boot.py PyLucid_env
+
+
 h2. links
 
 
