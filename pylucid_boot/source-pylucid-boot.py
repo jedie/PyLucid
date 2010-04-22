@@ -28,7 +28,7 @@ Please select how the pylucid own projects should be checkout:
 (1) Python packages from PyPi (no SVN or git needed)
 (2) source via SVN only (checkout git repository via github svn gateway)
 (3) source via git and clone with readonly
-(4) source via git and clone writeable (Needs github pubkey auth!)
+(4) clone with git push access (Only for PyLucid collaborators)
 (5) abort
 """
 
@@ -39,32 +39,34 @@ PIP_INSTALL_DATA = {
         "Django"
     ],
     2: [# use SVN
+        # SVN Version from django:
+        "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
+        # own sub projects
         "-e", "http://svn.github.com/jedie/python-creole.git#egg=python-creole",
         "-e", "http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences",
         "-e", "http://svn.github.com/jedie/django-tools.git#egg=django-tools",
         "-e", "http://svn.github.com/jedie/PyLucid.git#egg=pylucid",
-        # SVN Version from django:
-        "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
     ],
     3: [# git readonly clone
+        # SVN Version from django:
+        "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
+        # own sub projects
         "-e", "git+git://github.com/jedie/python-creole.git#egg=python-creole",
         "-e", "git+git://github.com/jedie/django-dbpreferences.git#egg=dbpreferences",
         "-e", "git+git://github.com/jedie/django-tools.git#egg=django-tools",
         "-e", "git+git://github.com/jedie/PyLucid.git#egg=pylucid",
+    ],
+    4: [ # clone with git push access
         # SVN Version from django:
         "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
-    ],
-    4: [ # git writeable clone
         # own sub projects
         "-e", "git+git@github.com:jedie/python-creole.git#egg=python-creole",
         "-e", "git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences",
         "-e", "git+git@github.com:jedie/django-tools.git#egg=django-tools",
         "-e", "git+git@github.com:jedie/PyLucid.git#egg=pylucid",
-        # SVN Version from django:
-        "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
     ]
 }
-
+KEYS_STRING = ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
 
 
 def get_requirement_choice():
@@ -75,7 +77,7 @@ def get_requirement_choice():
         print MENU_TXT
 
         try:
-            input = raw_input("Please select: [1,2,3] (default: 1) ")
+            input = raw_input("Please select: [%s] (default: 1) " % KEYS_STRING)
         except KeyboardInterrupt:
             sys.exit(-1)
 
@@ -101,7 +103,7 @@ def extend_parser(parser):
     """
     parser.add_option("-t", "--type", type="int",
         dest="pip_type", default=None,
-        help="pip install type (%r)" % ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
+        help="pip install type (%r)" % KEYS_STRING
     )
 
 
@@ -139,8 +141,8 @@ def after_install(options, home_dir):
 
     print "-" * 79
     print "install pip"
-    if os.path.isfile(easy_install):
-        print "Skip, pip exist."
+    if os.path.isfile(pip):
+        print "Skip, pip exist at: %s" % pip
     else:
         cmd = [easy_install, '--always-copy', 'pip']
         print " ".join(cmd)
