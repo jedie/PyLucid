@@ -16,7 +16,7 @@ You get this menu:
 * (1) Python packages from PyPi (no SVN or git needed)
 * (2) source via SVN only (checkout git repository via github svn gateway)
 * (3) source via git and clone with readonly
-* (4) source via git and clone writeable (Needs github pubkey auth!)
+* (4) clone with git push access (Only for PyLucid collaborators)
 
 
 h2. links
