@@ -6,4 +6,8 @@
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">PyLucid_env/bin/python</pydev_property>
 
 
+<pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
+<path>/pylucid</path>
+<path>/pylucid/pylucid_project/pylucid_plugins</path>
+</pydev_pathproperty>
 </pydev_project>
