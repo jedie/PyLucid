@@ -16,10 +16,11 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from django.contrib import admin
+
 from reversion.admin import VersionAdmin
 
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
-from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
 from lexicon.models import LexiconEntry
 
@@ -36,4 +37,4 @@ class LexiconEntryAdmin(BaseAdmin, VersionAdmin):
     ordering = ('-lastupdatetime',)
     search_fields = ("term", "tags", "content")
 
-pylucid_admin_site.register(LexiconEntry, LexiconEntryAdmin)
+admin.site.register(LexiconEntry, LexiconEntryAdmin)

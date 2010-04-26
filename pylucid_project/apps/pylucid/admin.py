@@ -28,8 +28,6 @@ from reversion.admin import VersionAdmin
 from pylucid import models
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 
-from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
-
 
 class PageTreeAdmin(BaseAdmin, VersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}
@@ -43,20 +41,20 @@ class PageTreeAdmin(BaseAdmin, VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("slug",)
 
-pylucid_admin_site.register(models.PageTree, PageTreeAdmin)
+admin.site.register(models.PageTree, PageTreeAdmin)
 
 
 class BanEntryAdmin(admin.ModelAdmin):
     list_display = list_display_links = ("ip_address", "createtime",)
     search_fields = ("ip_address",)
-pylucid_admin_site.register(models.BanEntry, BanEntryAdmin)
+admin.site.register(models.BanEntry, BanEntryAdmin)
 
 
 class LanguageAdmin(VersionAdmin):
     list_display = ("code", "description", "site_info", "permitViewGroup")
     list_display_links = ("code", "description")
     list_filter = ("permitViewGroup",)
-pylucid_admin_site.register(models.Language, LanguageAdmin)
+admin.site.register(models.Language, LanguageAdmin)
 
 
 class LogEntryAdmin(BaseAdmin):
@@ -65,7 +63,7 @@ class LogEntryAdmin(BaseAdmin):
         "site", "app_label", "action", "createby"
     )
     search_fields = ("app_label", "action", "message", "long_message", "data")
-pylucid_admin_site.register(models.LogEntry, LogEntryAdmin)
+admin.site.register(models.LogEntry, LogEntryAdmin)
 
 
 #class OnSitePageMeta(models.PageMeta):
@@ -84,7 +82,7 @@ class PageMetaAdmin(BaseAdmin, VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
 
-pylucid_admin_site.register(models.PageMeta, PageMetaAdmin)
+admin.site.register(models.PageMeta, PageMetaAdmin)
 
 
 class PageContentInline(admin.StackedInline):
@@ -97,7 +95,7 @@ class PageContentAdmin(BaseAdmin, VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("content",) # it would be great if we can add "get_title"
 
-pylucid_admin_site.register(models.PageContent, PageContentAdmin)
+admin.site.register(models.PageContent, PageContentAdmin)
 
 
 class PluginPageAdmin(BaseAdmin, VersionAdmin):
@@ -110,13 +108,13 @@ class PluginPageAdmin(BaseAdmin, VersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("app_label",)
 
-pylucid_admin_site.register(models.PluginPage, PluginPageAdmin)
+admin.site.register(models.PluginPage, PluginPageAdmin)
 
 #-----------------------------------------------------------------------------
 
 #class ColorAdmin(VersionAdmin):
 #    list_display = ("id", "name","value")
-#pylucid_admin_site.register(models.Color, ColorAdmin)
+#admin.site.register(models.Color, ColorAdmin)
 
 class ColorInline(admin.TabularInline):
     model = models.Color
@@ -140,7 +138,7 @@ class ColorSchemeAdmin(VersionAdmin):
     preview.short_description = 'color preview'
     preview.allow_tags = True
 
-pylucid_admin_site.register(models.ColorScheme, ColorSchemeAdmin)
+admin.site.register(models.ColorScheme, ColorSchemeAdmin)
 
 
 class DesignAdmin(VersionAdmin):
@@ -149,7 +147,7 @@ class DesignAdmin(VersionAdmin):
     list_filter = ("sites", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")
 
-pylucid_admin_site.register(models.Design, DesignAdmin)
+admin.site.register(models.Design, DesignAdmin)
 
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
@@ -157,7 +155,7 @@ class EditableHtmlHeadFileAdmin(VersionAdmin):
     list_display_links = ("filepath", "description")
     list_filter = ("sites", "render")
 
-pylucid_admin_site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
+admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
 #-----------------------------------------------------------------------------
 
@@ -166,4 +164,4 @@ class UserProfileAdmin(VersionAdmin):
     list_display_links = ("user",)
     list_filter = ("sites",)
 
-pylucid_admin_site.register(models.UserProfile, UserProfileAdmin)
+admin.site.register(models.UserProfile, UserProfileAdmin)

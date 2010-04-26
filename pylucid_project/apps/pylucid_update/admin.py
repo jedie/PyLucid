@@ -22,7 +22,6 @@ from django.contrib import admin
 
 from pylucid_project.apps.pylucid_update.models import Page08, Style08, Template08, \
                                         JS_LoginData08, BlogComment08, BlogTag, BlogEntry
-from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
 #------------------------------------------------------------------------------
 
@@ -33,7 +32,7 @@ if settings.DEBUG: # Add v0.8 tables only in DEBUG mode.
             'user', 'sha_checksum', 'salt', 'createtime', 'lastupdatetime'
         )
 
-    pylucid_admin_site.register(JS_LoginData08, JS_LoginDataAdmin)
+    admin.site.register(JS_LoginData08, JS_LoginDataAdmin)
 
 
     class PageAdmin(admin.ModelAdmin):
@@ -49,7 +48,7 @@ if settings.DEBUG: # Add v0.8 tables only in DEBUG mode.
         date_hierarchy = 'lastupdatetime'
         search_fields = ["content", "name", "title", "description", "keywords"]
 
-    pylucid_admin_site.register(Page08, PageAdmin)
+    admin.site.register(Page08, PageAdmin)
 
 
     #class PluginAdmin(admin.ModelAdmin):
@@ -60,7 +59,7 @@ if settings.DEBUG: # Add v0.8 tables only in DEBUG mode.
     #    ordering = ('package_name', 'plugin_name')
     #    list_filter = ("author","package_name", "can_deinstall")
     #
-    #pylucid_admin_site.register(Plugin, PluginAdmin)
+    #admin.site.register(Plugin, PluginAdmin)
     #
     #
     #class PageArchivAdmin(admin.ModelAdmin):
@@ -70,7 +69,7 @@ if settings.DEBUG: # Add v0.8 tables only in DEBUG mode.
     #        "description", "lastupdatetime", "lastupdateby"
     #    )
     #
-    #pylucid_admin_site.register(PageArchiv, PageArchivAdmin)
+    #admin.site.register(PageArchiv, PageArchivAdmin)
 
     #------------------------------------------------------------------------------
 
@@ -82,7 +81,7 @@ if settings.DEBUG: # Add v0.8 tables only in DEBUG mode.
     #    ordering = ("plugin", "id")
     #    list_filter = ("plugin",)
     #
-    #pylucid_admin_site.register(Preference, PreferenceAdmin)
+    #admin.site.register(Preference, PreferenceAdmin)
 
     #------------------------------------------------------------------------------
 
@@ -93,7 +92,7 @@ if settings.DEBUG: # Add v0.8 tables only in DEBUG mode.
         list_display_links = ("name",)
         save_as = True
 
-    pylucid_admin_site.register(Style08, StyleAdmin)
+    admin.site.register(Style08, StyleAdmin)
 
 
     class TemplateAdmin(admin.ModelAdmin):
@@ -101,7 +100,7 @@ if settings.DEBUG: # Add v0.8 tables only in DEBUG mode.
         list_display_links = ("name",)
         save_as = True
 
-    pylucid_admin_site.register(Template08, TemplateAdmin)
+    admin.site.register(Template08, TemplateAdmin)
 
 
     #______________________________________________________________________________
@@ -109,12 +108,12 @@ if settings.DEBUG: # Add v0.8 tables only in DEBUG mode.
 
     class BlogComment08Admin(admin.ModelAdmin):
         pass
-    pylucid_admin_site.register(BlogComment08, BlogComment08Admin)
+    admin.site.register(BlogComment08, BlogComment08Admin)
 
     class BlogTagAdmin(admin.ModelAdmin):
         pass
-    pylucid_admin_site.register(BlogTag, BlogTagAdmin)
+    admin.site.register(BlogTag, BlogTagAdmin)
 
     class BlogEntryAdmin(admin.ModelAdmin):
         pass
-    pylucid_admin_site.register(BlogEntry, BlogEntryAdmin)
+    admin.site.register(BlogEntry, BlogEntryAdmin)

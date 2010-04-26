@@ -20,8 +20,6 @@ from django.conf.urls.defaults import patterns, url, include
 
 from django.contrib import admin
 
-from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
-
 
 # TODO: Use own error views?
 handler500 = "django.views.defaults.server_error"
@@ -45,7 +43,7 @@ urlpatterns = patterns('',
 
     #_____________________________________
     # DJANGO ADMIN PANEL
-    url(r'^%s/' % settings.ADMIN_URL_PREFIX, include(pylucid_admin_site.urls)),
+    url(r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
 )
 
 # serve static files

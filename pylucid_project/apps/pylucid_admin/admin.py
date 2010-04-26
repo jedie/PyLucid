@@ -10,7 +10,6 @@ from reversion.admin import VersionAdmin
 
 from pylucid_project.apps.pylucid_admin import models
 
-from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 
 #-----------------------------------------------------------------------------
 # some django admin stuff is broken if TEMPLATE_STRING_IF_INVALID != ""
@@ -41,13 +40,13 @@ if settings.DEBUG:
         list_display = ("id", "name", "content_type", "codename")
         list_display_links = ("name", "codename")
         list_filter = ("content_type",)
-    pylucid_admin_site.register(Permission, PermissionAdmin)
+    admin.site.register(Permission, PermissionAdmin)
 
     class ContentTypeAdmin(admin.ModelAdmin):
         """ django ContentType """
         list_display = list_display_links = ("id", "app_label", "name", "model")
         list_filter = ("app_label",)
-    pylucid_admin_site.register(ContentType, ContentTypeAdmin)
+    admin.site.register(ContentType, ContentTypeAdmin)
 
     #-----------------------------------------------------------------------------
 
@@ -94,4 +93,4 @@ if settings.DEBUG:
             superuser_only, access_permissions = obj.get_permissions()
             return " | ".join(access_permissions)
 
-    pylucid_admin_site.register(models.PyLucidAdminPage, PyLucidAdminPageAdmin)
+    admin.site.register(models.PyLucidAdminPage, PyLucidAdminPageAdmin)

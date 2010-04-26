@@ -23,7 +23,6 @@ from django.contrib.auth.admin import UserAdmin
 
 from reversion.admin import VersionAdmin
 
-from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 
 from blog.models import BlogEntry
@@ -41,4 +40,4 @@ class BlogEntryAdmin(BaseAdmin, VersionAdmin):
     search_fields = ("headline", "content")
     ordering = ('-lastupdatetime',)
 
-pylucid_admin_site.register(BlogEntry, BlogEntryAdmin)
+admin.site.register(BlogEntry, BlogEntryAdmin)

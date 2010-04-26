@@ -21,8 +21,6 @@ from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.admin import UserAdmin
 
-from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
-
 from update_journal.models import UpdateJournal, PageUpdateListObjects
 
 
@@ -33,11 +31,11 @@ class UpdateJournalAdmin(admin.ModelAdmin):
 #    date_hierarchy = 'lastupdatetime'
 #    search_fields = ("headline", "content")
 
-pylucid_admin_site.register(UpdateJournal, UpdateJournalAdmin)
+admin.site.register(UpdateJournal, UpdateJournalAdmin)
 
 #class PageUpdateListObjectsAdmin(admin.ModelAdmin):
 #    list_display = ("id", "content_type", "staff_only")
 #    list_display_links = ("content_type",)
 #    list_filter = ("content_type", "staff_only")
 #
-#pylucid_admin_site.register(PageUpdateListObjects, PageUpdateListObjectsAdmin)
+#admin.site.register(PageUpdateListObjects, PageUpdateListObjectsAdmin)

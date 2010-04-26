@@ -2,7 +2,6 @@
 
 from django.contrib import admin
 
-from pylucid_project.apps.pylucid_admin.admin_site import pylucid_admin_site
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 
 from pylucid_comments.models import PyLucidComment
@@ -25,4 +24,4 @@ class PyLucidCommentAdmin(BaseAdmin):
     ordering = ('-submit_date',)
     search_fields = ('comment', 'user__username', 'user_name', 'user_email', 'user_url', 'ip_address')
 
-pylucid_admin_site.register(PyLucidComment, PyLucidCommentAdmin)
+admin.site.register(PyLucidComment, PyLucidCommentAdmin)
