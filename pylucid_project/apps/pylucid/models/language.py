@@ -90,7 +90,7 @@ class LanguageManager(models.Manager):
     default_lang_entry = None
     def get_or_create_default(self, request):
         """
-        return Languange instance with code from settings.LANGUAGE_CODE
+        return Language instance with code from settings.LANGUAGE_CODE
         Create if not exist.
         """
         if self.default_lang_entry is None:
