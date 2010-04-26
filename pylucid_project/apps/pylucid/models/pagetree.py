@@ -374,19 +374,8 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
 #        ordering = ("site", "id", "position")
         ordering = ("-lastupdatetime",)
 
+
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageTree)
 
 
-
-#print Wbo.objects.all()
-#
-#q = Wbo.objects.values('id')
-#print q.query.as_sql()
-
-
-#a = PageTree.objects.all().filter()
-#print a
-#print dir(a.query)
-#print type(a.query)
-#print a.query.as_sql()
