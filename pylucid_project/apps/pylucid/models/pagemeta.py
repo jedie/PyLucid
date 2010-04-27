@@ -16,6 +16,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
@@ -31,13 +32,9 @@ from django_tools import model_utils
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
 
-
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
-
-
-from django.db import models
 
 
 class CurrentSiteManager(models.Manager):
@@ -177,6 +174,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         self._url_cache.clear()
         self._permalink_cache.clear()
         self.pagetree._url_cache.clear()
+        cache.clear() # FIXME: This cleaned the complete cache for every site!
         return super(PageMeta, self).save(*args, **kwargs)
 
     def get_site(self):

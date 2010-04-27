@@ -15,6 +15,7 @@
 """
 
 from django.db import models
+from django.core.cache import cache
 
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
@@ -22,11 +23,8 @@ from django_tools import model_utils
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
 
-
-
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
-
 
 
 class PageContentManager(BaseModelManager):
@@ -121,6 +119,7 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
         if self.pagemeta.pagetree.page_type != self.pagemeta.pagetree.PAGE_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("PageContent can only exist on a page type tree entry!")
+        cache.clear() # FIXME: This cleaned the complete cache for every site!
         return super(PageContent, self).save(*args, **kwargs)
 
     def __unicode__(self):

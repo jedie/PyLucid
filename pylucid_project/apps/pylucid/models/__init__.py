@@ -29,15 +29,8 @@ from pluginpage import PluginPage
 from userprofile import UserProfile
 
 from pylucid_project.pylucid_plugins import update_journal
-from pylucid_project.apps.pylucid.cache import clean_complete_pagecache
 
 
 # Add a entry into update journal
 signals.post_save.connect(receiver=update_journal.save_receiver, sender=PageContent)
 
-# For cleaning the page cache:
-signals.post_save.connect(receiver=clean_complete_pagecache, sender=PageTree)
-signals.post_save.connect(receiver=clean_complete_pagecache, sender=PageMeta)
-signals.post_save.connect(receiver=clean_complete_pagecache, sender=PageContent)
-signals.post_save.connect(receiver=clean_complete_pagecache, sender=PluginPage)
-signals.post_save.connect(receiver=clean_complete_pagecache, sender=EditableHtmlHeadFile)

@@ -16,6 +16,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.core import urlresolvers
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
@@ -28,7 +29,6 @@ from django_tools import model_utils
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
-from pylucid_project.apps.pylucid.cache import delete_from_cache
 
 
 TAG_INPUT_HELP_URL = \
@@ -165,6 +165,8 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
         if not self.pagetree.page_type == self.pagetree.PLUGIN_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("Plugin can only exist on a plugin type tree entry!")
+
+        cache.clear() # FIXME: This cleaned the complete cache for every site!
         return super(PluginPage, self).save(*args, **kwargs)
 
     def __unicode__(self):

@@ -16,6 +16,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.core import urlresolvers
 from django.db.models import signals
 from django.utils.safestring import mark_safe
@@ -128,6 +129,17 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"
     )
+
+    def save(self, *args, **kwargs):
+        """
+        Clean the complete cache.
+        
+        FIXME: clean only the blog summary and detail page:
+            http://www.python-forum.de/topic-22739.html (de)
+        """
+        super(LexiconEntry, self).save(*args, **kwargs)
+
+        cache.clear() # FIXME: This cleaned the complete cache for every site!
 
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """

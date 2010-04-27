@@ -19,6 +19,7 @@ from xml.sax.saxutils import escape
 
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
@@ -354,6 +355,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
 
         self._url_cache.clear()
         PageMeta._url_cache.clear()
+        cache.clear() # FIXME: This cleaned the complete cache for every site!
         return super(PageTree, self).save(*args, **kwargs)
 
     def get_site(self):

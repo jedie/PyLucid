@@ -18,6 +18,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.core.cache import cache
 from django.core import urlresolvers
 from django.db.models import signals
 from django.utils.safestring import mark_safe
@@ -29,13 +30,8 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from tagging.fields import TagField
 from tagging.models import Tag
 
-# http://code.google.com/p/django-tools/
-from django_tools.middlewares import ThreadLocal
-
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-from pylucid_project.apps.pylucid.cache import clean_complete_pagecache, \
-    delete_from_cache
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
@@ -44,6 +40,7 @@ from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateI
 from pylucid_project.pylucid_plugins import update_journal
 
 from blog.preference_forms import BlogPrefForm
+
 
 
 
@@ -142,25 +139,14 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
 
     def save(self, *args, **kwargs):
         """
-        Clean blog summary page from cache.
+        Clean the complete cache.
         
-        FIXME: The blog detail page used comments and Comments used CSRF.
-        So we can't get the cache key, because client session id and csrf token
-        are in the cache key.
-        see also:
+        FIXME: clean only the blog summary and detail page:
             http://www.python-forum.de/topic-22739.html (de)
         """
         super(BlogEntry, self).save(*args, **kwargs)
 
-        request = ThreadLocal.get_current_request()
-        language_code = self.language.code
-
-        # clear blog summary page from page cache
-        plugin_pages = PluginPage.objects.filter(
-            app_label="pylucid_project.pylucid_plugins.blog"
-        )
-        for plugin_page in plugin_pages:
-            plugin_page.clear_page_cache(request, language_code)
+        cache.clear() # FIXME: This cleaned the complete cache for every site!
 
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
