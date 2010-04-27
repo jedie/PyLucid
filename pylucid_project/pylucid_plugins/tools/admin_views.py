@@ -143,7 +143,7 @@ def cleanup_log(request):
             delete_count = queryset.count()
             queryset.delete()
             duration_time = time.time() - start_time
-            request.page_msg(_("Delete %(count)s entries in %.2(duration)fsec") % {
+            request.page_msg(_("Delete %(count)s entries in %(duration).2fsec") % {
                 "count": delete_count, "duration":duration_time
             })
             return HttpResponseRedirect(request.path)
@@ -246,6 +246,7 @@ def overwrite_template(request):
     """
     context = {
         "title": _("overwrite template"),
+        "form_url": request.path,
     }
 
     if request.method != "POST":
