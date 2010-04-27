@@ -18,14 +18,17 @@ from django.db import models
 from django.conf import settings
 from django.core import urlresolvers
 from django.contrib.sites.models import Site
+from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.utils import installed_apps_utils
+from django_tools.middlewares import ThreadLocal
 from django_tools import model_utils
 
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
+from pylucid_project.apps.pylucid.cache import delete_from_cache
 
 
 TAG_INPUT_HELP_URL = \
@@ -118,6 +121,20 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
         help_text="Filename of the urls.py"
     )
 
+    def clear_page_cache(self, request, language_code=None):
+        """
+        delete all page cache entries for this plugin page.
+        """
+        if language_code == None:
+            language_code = request.LANGUAGE_CODE
+
+        pagetree_url = self.pagetree.get_absolute_url()
+        absolute_url = "/" + language_code + pagetree_url
+
+        was_in_cache = delete_from_cache(absolute_url, language_code)
+        if was_in_cache and (settings.DEBUG or request.user.is_superuser):
+            request.page_msg.successful(_("%r was removed from page cache.") % absolute_url)
+
     def get_site(self):
         return self.pagetree.site
 
@@ -126,8 +143,8 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
         from pylucid_project.apps.pylucid.models import Language # import here against import loops
 
         pagetree_url = self.pagetree.get_absolute_url()
-        lang_entry = Language.objects.get_current()
-        url = "/" + lang_entry.code + pagetree_url
+        language_entry = Language.objects.get_current()
+        url = "/" + language_entry.code + pagetree_url
         return url
 
     def get_title(self):

@@ -29,7 +29,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.utils.cache import _generate_cache_header_key
+from django.utils.cache import _generate_cache_key
 
 from django.conf import settings
 from django.core.cache import cache
@@ -41,11 +41,37 @@ from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 
 
 
+
 class FakeRequest(object):
     """ Used to get the cache key from django.utils.cache._generate_cache_header_key """
-    def __init__(self, path):
+    def __init__(self, path, language_code):
         self.path = path
+        self.LANGUAGE_CODE = language_code
 
+
+def delete_from_cache(absolute_url, language_code):
+    """
+    Delete the given absolute url from the page cache.
+    Return True if url was in cache.
+    """
+    # Use the same key prefix as in django.middleware.cache.FetchFromCacheMiddleware
+    key_prefix = settings.CACHE_MIDDLEWARE_KEY_PREFIX
+
+    # Use the same routine as in django.middleware.cache.FetchFromCacheMiddleware
+    fake_request = FakeRequest(absolute_url, language_code)
+
+    cache_key = _generate_cache_key(
+        request=fake_request, headerlist=[], key_prefix=key_prefix
+    )
+
+    was_in_cache = cache.get(cache_key, None) is not None
+    if was_in_cache:
+        cache.delete(cache_key)
+        print " *** clean %s %r from page cache" % (absolute_url, cache_key)
+        return True
+    else:
+        print " *** %s %r not in page cache" % (absolute_url, cache_key)
+        return False
 
 
 def clean_complete_pagecache(sender, **kwargs):
@@ -67,6 +93,7 @@ def clean_complete_pagecache(sender, **kwargs):
             failsafe_message("Info: Skip page cache cleanup.")
         return
 
+
     verbose = settings.DEBUG or request.user.is_superuser
 
     cache_cleaned = getattr(request, "_cache_cleaned", False)
@@ -85,25 +112,16 @@ def clean_complete_pagecache(sender, **kwargs):
     # Cleanup only the current site
     queryset = queryset.filter(pagetree__site=current_site)
 
-    # Use the same key prefix as in django.middleware.cache.FetchFromCacheMiddleware
-    key_prefix = settings.CACHE_MIDDLEWARE_KEY_PREFIX
-
     total_count = 0
     cleaned = 0
     for pagemeta in queryset:
+        total_count += 1
         absolute_url = pagemeta.get_absolute_url()
+        language_code = pagemeta.language.code
 
-        # Use the same routine as in django.middleware.cache.FetchFromCacheMiddleware
-        fake_request = FakeRequest(path=absolute_url)
-        cache_key = _generate_cache_header_key(key_prefix, fake_request)
-
-        if verbose: # Count some information only in verbose mode
-            total_count += 1
-            is_in_cache = cache.get(cache_key, None) is not None
-            if is_in_cache:
-                cleaned += 1
-
-        cache.delete(cache_key)
+        was_in_cache = delete_from_cache(absolute_url, language_code)
+        if was_in_cache:
+            cleaned += 1
 
     # store the information "Cache has been deleted" for later signals
     #if request is not None:

@@ -27,10 +27,15 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 # http://code.google.com/p/django-tagging/
 from tagging.fields import TagField
+from tagging.models import Tag
+
+# http://code.google.com/p/django-tools/
+from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-from pylucid_project.apps.pylucid.cache import clean_complete_pagecache
+from pylucid_project.apps.pylucid.cache import clean_complete_pagecache, \
+    delete_from_cache
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
@@ -40,8 +45,6 @@ from pylucid_project.pylucid_plugins import update_journal
 
 from blog.preference_forms import BlogPrefForm
 
-# from django-tagging
-from tagging.models import Tag
 
 
 TAG_INPUT_HELP_URL = \
@@ -137,6 +140,28 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         default=True, help_text="Is post public viewable?"
     )
 
+    def save(self, *args, **kwargs):
+        """
+        Clean blog summary page from cache.
+        
+        FIXME: The blog detail page used comments and Comments used CSRF.
+        So we can't get the cache key, because client session id and csrf token
+        are in the cache key.
+        see also:
+            http://www.python-forum.de/topic-22739.html (de)
+        """
+        super(BlogEntry, self).save(*args, **kwargs)
+
+        request = ThreadLocal.get_current_request()
+        language_code = self.language.code
+
+        # clear blog summary page from page cache
+        plugin_pages = PluginPage.objects.filter(
+            app_label="pylucid_project.pylucid_plugins.blog"
+        )
+        for plugin_page in plugin_pages:
+            plugin_page.clear_page_cache(request, language_code)
+
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
         if not self.is_public: # Don't list non public articles
@@ -194,9 +219,6 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
 # Add a entry into update journal
 signals.post_save.connect(receiver=update_journal.save_receiver, sender=BlogEntry)
 
-
-# For cleaning the page cache:
-signals.post_save.connect(receiver=clean_complete_pagecache, sender=BlogEntry)
 
 
 # Bug in django tagging?
