@@ -1,0 +1,4 @@
+*.pyc
+*.log
+/PyLucid.egg-info
+/dist
