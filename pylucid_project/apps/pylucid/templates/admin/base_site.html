@@ -29,6 +29,9 @@
 {% else %}{# PyLucid_media_url doesn't exist in e.g. 500 error #}
     <!-- Error: Can't include PyLucid CSS files{% if debug %}, because PyLucid_media_url is not defined!{% endif %} -->
 {% endif %}
+{% if pygments_css %}
+<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
+{% endif %}
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block END -->{% endif %}
 {% endspaceless %}{% endblock extrastyle %}
 

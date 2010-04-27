@@ -29,6 +29,7 @@ from pylucid_project.apps.pylucid.defaulttags import lucidTag
 from pylucid_project.apps.pylucid.defaulttags import extraheadBlock
 from pylucid_project.apps.pylucid.defaulttags import sourcecode
 from pylucid_project.apps.pylucid.defaulttags import localtime
+from django_tools.template.filters import human_duration
 #from PyLucid.template_addons.lucidTag import lucidTag
 #from PyLucid.template_addons.blocktag_pygments import sourcecode
 #from PyLucid.template_addons.filters import chmod_symbol, get_oct, \
@@ -46,7 +47,7 @@ register.filter("to_utc", localtime.to_utc)
 #register.tag(sourcecode)
 #register.filter(chmod_symbol)
 #register.filter(get_oct)
-#register.filter(human_duration)
+register.filter(human_duration)
 
 # register only used tags:
 #register.tag('get_available_languages', do_get_available_languages)

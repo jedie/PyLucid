@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" id="find_and_replace_form" class="pylucid_form">
+    {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
+    {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
+    <fieldset>
+        <div class="helper_buttons">
+		    <input type="submit" name="save" value="{% trans 'find and replace' %}" />		
+        </div>
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+    </fieldset>
+</form>
+{% endblock %}

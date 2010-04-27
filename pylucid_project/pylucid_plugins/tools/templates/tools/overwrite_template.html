@@ -1,13 +1,5 @@
 {% extends "pylucid_admin/base_site.html" %}
 
-{% if pygments_css %}
-{% block extrahead %}{{ block.super }}
-<!-- tools.highlight_code extrahead block start -->
-<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
-<!-- tools.highlight_code extrahead block end -->
-{% endblock %}
-{% endif %}
-
 {% block content %}
 <p>
 	{% trans 'Overwrite a template. Read the original template from filesystem and create a dbtemplate entry' %}
