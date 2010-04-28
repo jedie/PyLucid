@@ -1,0 +1,67 @@
+#
+# PyLucid .htaccess file
+# per default: using the CGI Version (index.cgi)
+#
+# You can easy change the rewrite rule to use fastCGI, see below.
+#
+# Note:
+#    You should be carefull uncomment settings.
+#    It can be that not all rules are permitted!
+#    If you activate a "not allowed" rule, the server can send a
+#    "500 internal server error" for every request!
+#    The best way: uncomment one after another and check a request/response
+#     after every step.
+#
+# see also:
+#    http://httpd.apache.org/docs/2.2/mod/core.html#allowoverride
+#
+
+# Enable execution of CGI scripts using mod_cgi
+# http://httpd.apache.org/docs/2.0/mod/core.html#options
+#Options +ExecCGI
+
+# Old mod_fastcgi Apache module:
+#AddHandler fastcgi-script .fcgi
+
+# New mod_fcgid Apache module:
+#AddHandler fcgid-script .fcgi
+
+# http://httpd.apache.org/docs/2.0/mod/mod_mime.html#addhandler
+#AddHandler cgi-script .cgi
+
+
+# http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html
+RewriteEngine On
+
+# All requests would be "redirected" to PyLucid.
+# Here we can exclude some directories.
+# Default: Leave out all request to /media/ 
+# You can add more directories if needed.
+RewriteRule ^media - [L]
+
+
+# Forbid the directly access to some files (send 403 HTTP response)
+RewriteRule ^index.cgi$ - [F,L]
+RewriteRule ^index.fcgi$ - [F,L]
+RewriteRule ^manage.py$ - [F,L]
+RewriteRule ^local_settings.py$ - [F,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# for CGI Version:
+#RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
+
+# for fastCGI Version:
+RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
+
+
+# Nobody should have access to some files!
+# If you use a SQLite Database and the DB file is in you DocRoot, you should
+# also deny the access for everybody.
+# http://httpd.apache.org/docs/2.2/mod/core.html#files
+<Files manage.py>
+    Deny from all
+</Files>
+<Files local_settings.py>
+    Deny from all
+</Files>
