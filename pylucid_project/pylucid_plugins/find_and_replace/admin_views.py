@@ -136,7 +136,6 @@ def find_and_replace(request):
         initial = {
             "language": request.PYLUCID.current_language.code, # preselect current language
         }
-        print initial
         form = FindReplaceForm(initial=initial)
 
     context["form"] = form
