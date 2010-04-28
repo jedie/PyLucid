@@ -15,19 +15,14 @@
         #!/usr/bin/python2.5
         #!C:\python\python.exe
 
+    Important:
+        Used wsgiref, witch is new in Python 2.5!
+
     If settings.DEBUG is ON:
       - all write to stdout+stderr are checked. It's slow!
       - Its guaranteed that a HTML Header would be send first.
 
-    It used the cgi_server.py shipped with PyLucid.
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
