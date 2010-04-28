@@ -31,8 +31,6 @@
 
 import difflib
 
-from pylucid_project.apps.pylucid.markup.hightlighter import pygmentize
-
 
 def diff_lines(content1, content2):
     """
@@ -80,19 +78,6 @@ def diff_lines(content1, content2):
     return "\n".join(results)
 
 
-def get_pygmentize_diff(content1, content2):
-    """
-    returns the HTML-Diff hightlighted with Pygments
-    Note: the complete content will be returned and not only the "diff-lines".
-    """
-    diff = make_diff(content1, content2, mode="Differ")
-    diff = "\n".join(diff)
-
-    # hightlight with Pygments
-    diff, _ = pygmentize(diff, source_type="diff")
-
-    return diff
-
 
 def make_diff(content1, content2, mode="Differ"):
     """
@@ -111,5 +96,9 @@ def make_diff(content1, content2, mode="Differ"):
         diff = difflib.Differ().compare(content1, content2)
     elif mode == "HtmlDiff":
         diff = difflib.HtmlDiff(tabsize=4).make_table(content1, content2)
+    elif mode == "unified":
+        diff = difflib.unified_diff(content1, content2)
+    else:
+        raise AssertionError("diff mode %r unknown." % mode)
 
     return diff

@@ -9,12 +9,12 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.translation import ugettext as _
 
-from pylucid_project.apps.pylucid.models import PageContent, EditableHtmlHeadFile
+from pylucid_project.apps.pylucid.models import PageContent
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup import converter
 
 from page_admin.forms import ConvertMarkupForm
-from pylucid_project.utils.diff import get_pygmentize_diff
+from pylucid_project.apps.pylucid.markup import hightlighter
 
 
 
@@ -46,6 +46,7 @@ def convert_markup(request, pagecontent_id=None):
     absolute_url = pagecontent.get_absolute_url()
     context = {
         "title": _("Convert '%s' markup") % pagecontent.get_name(),
+        "form_url": request.path,
         "abort_url": absolute_url,
         "current_markup": pagecontent.MARKUP_DICT[pagecontent.markup],
         "pagecontent": pagecontent,
@@ -114,14 +115,11 @@ def convert_markup(request, pagecontent_id=None):
                     if orig_html2 == converted_html2:
                         context["diff_is_the_same"] = True
                     else:
-                        context["pygmentize_diff"] = get_pygmentize_diff(orig_html2, converted_html2)
-                        try:
-                            pygments_css = EditableHtmlHeadFile.on_site.get(filepath="pygments.css")
-                        except EditableHtmlHeadFile.DoesNotExist:
-                            request.page_msg("Error: No headfile with filepath 'pygments.css' found.")
-                        else:
-                            absolute_url = pygments_css.get_absolute_url(colorscheme=None)
-                            context["pygments_css"] = absolute_url
+                        context["pygmentize_diff"] = hightlighter.get_pygmentize_diff(orig_html2, converted_html2)
+
+                        # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
+                        pygments_css_path = hightlighter.get_pygments_css(request)
+                        context["pygments_css"] = pygments_css_path
 
     context.update({
         "form": form,

@@ -21,6 +21,7 @@ if __name__ == "__main__":
 
 from django.conf import settings
 from django.test.client import Client
+from django.core.urlresolvers import reverse
 
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.models import PageContent, PageTree
@@ -295,16 +296,90 @@ class PageAdminInlineEditTest(PageAdminTestCase):
         )
 
 
+class ConvertMarkupTest(basetest.BaseLanguageTestCase):
+
+    def _pre_setup(self, *args, **kwargs):
+        """ create some language related attributes """
+        super(ConvertMarkupTest, self)._pre_setup(*args, **kwargs)
+
+        self.pagecontent = PageContent.objects.all().filter(markup=PageContent.MARKUP_TINYTEXTILE)[0]
+        self.pagetree = PageTree.on_site.get(pagemeta=self.pagecontent.pagemeta)
+        self.url = reverse("PageAdmin-convert_markup", kwargs={"pagecontent_id":self.pagecontent.id})
+
+        self.login("superuser")
+
+    def test_get_convert_form(self):
+        response = self.client.get(self.url)
+        self.assertResponse(response,
+            must_contain=(
+                "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
+                'The original markup is: <strong>tinytextile</strong>',
+                'h1. headlines',
+            ),
+            must_not_contain=(
+                "Traceback", 'Permission denied',
+            ),
+        )
+
+    def test_convert_verbose_preview(self):
+        response = self.client.post(self.url, data={
+            'content': '* 1.\n** 1.1.',
+            'dest_markup': PageContent.MARKUP_CREOLE,
+            'preview': 'Vorschau',
+            'verbose': 'on'
+        })
+        self.assertResponse(response,
+            must_contain=(
+                "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
+                '<link rel="stylesheet" type="text/css" href="/headfile/pygments.css"',
+                'The original markup is: <strong>tinytextile</strong>',
+                '<legend class="pygments_code">Diff</legend>',
+                '<span class="gd">- &lt;li&gt;1.&lt;/li&gt;</span>',
+                '<span class="gi">+ &lt;li&gt;1.</span>',
+                '<legend>new markup</legend>',
+                '<pre>* 1.', '** 1.1.</pre>',
+                'name="content">* 1.\n** 1.1.</textarea>'
+            ),
+            must_not_contain=(
+                "Traceback", 'Permission denied',
+            ),
+        )
+
+    def test_convert(self):
+        response = self.client.post(self.url, data={
+            'content': '* 1.\n** 1.1.',
+            'dest_markup': PageContent.MARKUP_CREOLE,
+        })
+        new_url = "http://testserver%s" % self.pagecontent.get_absolute_url()
+        self.assertRedirect(response,
+            url=new_url,
+            status_code=302
+        )
+        response = self.client.get(new_url)
+        self.assertResponse(response,
+            must_contain=(
+                '<li>1.',
+                '<li>1.1.</li>',
+            ),
+            must_not_contain=(
+                "Traceback", 'Permission denied',
+            ),
+        )
+
+
+
+
+
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminTest",
-##        verbosity=0,
-#        verbosity=1,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
-        verbosity=1,
+    management.call_command('test', "pylucid_plugins.page_admin.tests.ConvertMarkupTest",
 #        verbosity=0,
-#        failfast=True
+        verbosity=1,
+        failfast=True
     )
+#    management.call_command('test', __file__,
+#        verbosity=1,
+##        verbosity=0,
+##        failfast=True
+#    )

@@ -70,7 +70,9 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
                 '<input type="text" name="replace_string"',
                 'Simulate only, no entry changed.',
                 '<legend class="pygments_code">Diff</legend>',
-                '| ?', ' ^^^',
+                '<span class="gd">-',
+                '<span class="gi">+',
+                '?  ', ' ^^^ ',
             ),
             must_not_contain=("Traceback",)
         )
@@ -92,8 +94,8 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
                 '<input type="text" name="find_string"',
                 '<input type="text" name="replace_string"',
                 '<legend class="pygments_code">Diff</legend>',
-                '| - Welcome to your fesh PyLucid CMS installation',
-                '| + XXX replaced XXX',
+                '<span class="gd">- Welcome to your fesh PyLucid CMS installation ;)</span>',
+                '<span class="gi">+ XXX replaced XXX ;)</span>',
             ),
             must_not_contain=("Traceback", 'Simulate only, no entry changed.',)
         )

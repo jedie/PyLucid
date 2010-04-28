@@ -24,6 +24,7 @@ from django.utils.translation import ugettext as _
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.escape import escape, escape_django_tags
+from pylucid_project.utils.diff import make_diff
 
 
 try:
@@ -107,6 +108,20 @@ def pygmentize(sourcecode, source_type):
         html = html.decode("utf-8")
 
     return html, lexer_name
+
+
+def get_pygmentize_diff(content1, content2):
+    """
+    returns the HTML-Diff hightlighted with Pygments
+    Note: the complete content will be returned and not only the "diff-lines".
+    """
+    diff = make_diff(content1, content2, mode="Differ")
+    diff = "\n".join(diff)
+
+    # hightlight with Pygments
+    diff_html = make_html(diff, source_type="diff", django_escape=True)
+
+    return diff_html
 
 
 def get_pygments_css(request):

@@ -4,20 +4,16 @@ import time
 
 from django import http
 from django.contrib.sites.models import Site
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.utils.site_utils import get_site_preselection
 
 from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.markup.hightlighter import get_pygments_css, \
-    make_html
+from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.apps.pylucid.models.language import Language
-from pylucid_project.utils.diff import diff_lines
-from pylucid_project.utils.escape import escape
 
 from find_and_replace.forms import FindReplaceForm, CONTENT_TYPES_DICT, CONTENT_TYPES
 
@@ -89,8 +85,7 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
             entry.save()
             changed_entrys.append(entry)
 
-        diff = diff_lines(old_content, new_content)
-        diff_html = make_html(diff, source_type="diff", django_escape=True)
+        diff_html = hightlighter.get_pygmentize_diff(old_content, new_content)
 
         results.append({
             "entry": entry,
@@ -130,7 +125,7 @@ def find_and_replace(request):
             context["duration"] = time.time() - start_time
 
             # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-            pygments_css_path = get_pygments_css(request)
+            pygments_css_path = hightlighter.get_pygments_css(request)
             context["pygments_css"] = pygments_css_path
     else:
         initial = {
