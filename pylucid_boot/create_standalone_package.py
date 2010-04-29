@@ -119,7 +119,19 @@ def create_standalone_package(pylucid_env_dir, dest_dir):
     print "\nuse %r as source" % pylucid_env_dir
     print "create standalone package in %r\n" % dest_dir
 
-#    raw_input("continue? (Abort with Strg-C)")
+    if os.path.isdir(dest_dir):
+        print "Error: destination dir %r exist!" % dest_dir
+        if raw_input("Delete the entire directory tree? [y/n]").lower() not in ("y", "j"):
+            print "Abort!"
+            sys.exit(1)
+
+        print "delete tree...",
+        shutil.rmtree(dest_dir)
+        print "OK"
+        if os.path.isdir(dest_dir):
+            raw_input("Path exist?!?!? continue? (Abort with Strg-C)")
+    else:
+        raw_input("continue? (Abort with Strg-C)")
 
     lib_dir = os.path.join(pylucid_env_dir, "lib")
     lib_sub_dirs = os.listdir(lib_dir)
@@ -171,12 +183,19 @@ def create_standalone_package(pylucid_env_dir, dest_dir):
             files_copied = copytree2(path, package_dest, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE))
         except OSError, why:
             print "copytree2 error: %s" % why
+        else:
+            print "OK"
 
     for module_name, path in files_to_copy:
         print "_" * 79
         print "copy %s" % module_name
         print "%s -> %s" % (path, dest_dir)
-        shutil.copy2(path, dest_dir)
+        try:
+            shutil.copy2(path, dest_dir)
+        except OSError, why:
+            print "copy error: %s" % why
+        else:
+            print "OK"
 
     print "_" * 79
     print "copy standalone script files"
@@ -186,6 +205,23 @@ def create_standalone_package(pylucid_env_dir, dest_dir):
         copytree2(src, dest_dir, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE))
     except OSError, why:
         print "copytree2 error: %s" % why
+    else:
+        print "OK"
+
+    print
+
+    # the require check doesn't work in standalone version
+    # we simply deactivate it
+    print "remove pkg_resources.require() check"
+    pylucid_app = os.path.join(dest_dir, "pylucid_project", "apps", "pylucid")
+    pylucid_app_init = os.path.join(pylucid_app, "__init__.py")
+    pylucid_app_init_bak = os.path.join(pylucid_app, "__init__.bak")
+    if os.path.isfile(pylucid_app_init_bak):
+        print "Warning: %r already exists." % pylucid_app_init_bak
+    else:
+        os.rename(pylucid_app_init, pylucid_app_init_bak)
+        open(pylucid_app_init, 'w').close() # create a empty __init__.py
+        print "OK"
 
 
 def main():
