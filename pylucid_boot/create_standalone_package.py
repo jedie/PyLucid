@@ -102,10 +102,9 @@ def copytree2(src, dst, ignore):
 
 
 
-
-
 def create_standalone_package(pylucid_env_dir, dest_dir):
-    dest_dir = os.path.join(os.path.abspath(dest_dir), "PyLucid_standalone_package")
+    dest_dir = os.path.abspath(dest_dir)
+    dest_package_dir = os.path.join(dest_dir, "PyLucid_standalone")
     pylucid_env_dir = os.path.abspath(pylucid_env_dir)
     if not os.path.isdir(pylucid_env_dir):
         print "Wrong PYLUCID_ENV_DIR: %r doesn't exist." % pylucid_env_dir
@@ -117,18 +116,30 @@ def create_standalone_package(pylucid_env_dir, dest_dir):
         sys.exit(3)
 
     print "\nuse %r as source" % pylucid_env_dir
-    print "create standalone package in %r\n" % dest_dir
+    print "create standalone package in %r\n" % dest_package_dir
 
-    if os.path.isdir(dest_dir):
-        print "Error: destination dir %r exist!" % dest_dir
+    #~/PyLucid_env/src/pylucid$ ./setup.py --version
+    pylucid_dir = os.path.join(pylucid_env_dir, "src", "pylucid")
+
+    process = subprocess.Popen(
+       [os.path.join(pylucid_env_dir, "bin", "python"), "setup.py", "--version"],
+       cwd=pylucid_dir, stdout=subprocess.PIPE
+    )
+    pylucid_version = process.stdout.readline().strip()
+    print "found: PyLucid v%s" % pylucid_version
+
+    print
+
+    if os.path.isdir(dest_package_dir):
+        print "Error: destination dir %r exist!" % dest_package_dir
         if raw_input("Delete the entire directory tree? [y/n]").lower() not in ("y", "j"):
             print "Abort!"
             sys.exit(1)
 
         print "delete tree...",
-        shutil.rmtree(dest_dir)
+        shutil.rmtree(dest_package_dir)
         print "OK"
-        if os.path.isdir(dest_dir):
+        if os.path.isdir(dest_package_dir):
             raw_input("Path exist?!?!? continue? (Abort with Strg-C)")
     else:
         raw_input("continue? (Abort with Strg-C)")
@@ -145,7 +156,6 @@ def create_standalone_package(pylucid_env_dir, dest_dir):
         sys.exist(3)
 
     site_packages_dir = os.path.join(lib_dir, python_lib_dir, "site-packages")
-    pylucid_dir = os.path.join(pylucid_env_dir, "src", "pylucid")
 
     dirs_to_copy = [
         ("PyLucid", os.path.join(pylucid_dir, "pylucid_project")),
@@ -174,10 +184,13 @@ def create_standalone_package(pylucid_env_dir, dest_dir):
             print "Error: file %r not found!" % file_info[1]
             sys.exist(3)
 
+    #--------------------------------------------------------------------------
+    print
+
     for package_name, path in dirs_to_copy:
         print "_" * 79
         print "copy %s" % package_name
-        package_dest = os.path.join(dest_dir, os.path.split(path)[1])
+        package_dest = os.path.join(dest_package_dir, os.path.split(path)[1])
         print "%s -> %s" % (path, package_dest)
         try:
             files_copied = copytree2(path, package_dest, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE))
@@ -186,42 +199,134 @@ def create_standalone_package(pylucid_env_dir, dest_dir):
         else:
             print "OK"
 
+    #--------------------------------------------------------------------------
+    print
+
     for module_name, path in files_to_copy:
         print "_" * 79
         print "copy %s" % module_name
-        print "%s -> %s" % (path, dest_dir)
+        print "%s -> %s" % (path, dest_package_dir)
         try:
-            shutil.copy2(path, dest_dir)
+            shutil.copy2(path, dest_package_dir)
         except OSError, why:
             print "copy error: %s" % why
         else:
             print "OK"
 
+    #--------------------------------------------------------------------------
+    print
+
     print "_" * 79
     print "copy standalone script files"
     src = os.path.join(pylucid_dir, "scripts", "standalone")
-    print "%s -> %s" % (src, dest_dir)
+    print "%s -> %s" % (src, dest_package_dir)
     try:
-        copytree2(src, dest_dir, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE))
+        copytree2(src, dest_package_dir, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE))
     except OSError, why:
         print "copytree2 error: %s" % why
     else:
         print "OK"
 
+    #--------------------------------------------------------------------------
     print
 
-    # the require check doesn't work in standalone version
-    # we simply deactivate it
-    print "remove pkg_resources.require() check"
-    pylucid_app = os.path.join(dest_dir, "pylucid_project", "apps", "pylucid")
+    # overwrite pylucid_project/apps/pylucid/__init__.py
+    # and remove pkg_resources.require() check.
+    # Because it can't work in standalone version
+    pylucid_app = os.path.join(dest_package_dir, "pylucid_project", "apps", "pylucid")
     pylucid_app_init = os.path.join(pylucid_app, "__init__.py")
-    pylucid_app_init_bak = os.path.join(pylucid_app, "__init__.bak")
-    if os.path.isfile(pylucid_app_init_bak):
-        print "Warning: %r already exists." % pylucid_app_init_bak
-    else:
-        os.rename(pylucid_app_init, pylucid_app_init_bak)
-        open(pylucid_app_init, 'w').close() # create a empty __init__.py
-        print "OK"
+    print "Remove pkg_resources.require() check, by overwrite:"
+    print pylucid_app_init
+
+    f = open(pylucid_app_init, 'w')
+    f.write("""# overwritten by %s
+# original file can be found here:
+# http://github.com/jedie/PyLucid/blob/master/pylucid_project/apps/pylucid/__init__.py
+""" % __file__)
+    f.close()
+    print "OK"
+
+    #--------------------------------------------------------------------------
+    print
+
+    # Overwrite pylucid version file pylucid_project/__init__.py
+    # and 'hardcode' complete version string
+    version_file = os.path.join(dest_package_dir, "pylucid_project", "__init__.py")
+    print "'hardcode' PyLucid version string, by overwrite:"
+    print version_file
+
+    version_string2 = []
+    for part in pylucid_version.split("."):
+        if part.isdigit():
+            part = int(part)
+        version_string2.append(part)
+    version_string2 = repr(tuple(version_string2))
+
+    f = open(version_file, "w")
+    f.write('''# coding: utf-8
+"""
+    PyLucid version string
+    ~~~~~~~~~~~~~~~~~~~~~~
+    this file was generated with: %s
+    original file can be found here:
+    http://github.com/jedie/PyLucid/blob/master/pylucid_project/__init__.py
+"""
+__version__ = %s
+VERSION_STRING = "%s"
+''' % (
+        __file__,
+        version_string2,
+        pylucid_version,
+    ))
+    f.close()
+    print "OK"
+
+    #--------------------------------------------------------------------------
+    print
+
+    print "_" * 79
+    archive_file = os.path.join(dest_dir, "PyLucid_standalone_%s.7z" % pylucid_version.replace(".", "-"))
+    print "Create archive file '%s' ?" % archive_file
+    print
+    raw_input("(Press any key or abort with Strg-C)")
+
+    # FIXME: Can't create a windows exe file with -sfx7z.sfx
+    # because 7z.sfx doesn't exist in linux version of 7zip :(
+
+    if os.path.isfile(archive_file):
+        # Delete old archive, otherwise 7zip add new files
+        os.remove(archive_file)
+
+    seven_zip = "/usr/bin/7zr"
+    try:
+        process = subprocess.Popen(
+           [seven_zip, "a", "-t7z", "-mx9", archive_file, dest_package_dir],
+           stdout=subprocess.PIPE
+        )
+    except OSError, err:
+        import errno
+        if err.errno == errno.ENOENT: # No 2: No such file or directory
+            print "Error: '%s' not found: %s" % (seven_zip, err)
+            print "Please install it."
+            print "e.g.: sudo aptitude install p7zip"
+            sys.exit(2)
+        raise
+
+    while True:
+        line = process.stdout.readline()
+        if not line:
+            break
+        line = line.strip()
+        if line.startswith("Compressing"):
+            line = line[-79:]
+            line += " " * (79 - len(line))
+            sys.stdout.write('\r' + line)
+        else:
+            print line
+
+    print "OK"
+
+
 
 
 def main():
