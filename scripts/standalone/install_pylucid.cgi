@@ -20,36 +20,129 @@
 """
 
 print "Content-Type: text/html; charset=utf-8\n"
-print "<h1>Install PyLucid</h1>"
 
-# Debugging für CGI-Skripte 'einschalten'
+# turn on traceback manager for CGI scripts
 import cgitb; cgitb.enable()
 
-import cgi, sys, os
+import os
+import cgi
+import sys
+import time
+import atexit
+import codecs
 from pprint import pprint
+from wsgiref.handlers import CGIHandler
 
+
+# Save the start time of the current running python instance
+start_overall = time.time()
+
+
+# use utf-8 for all outputs
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+
+# "redirect" stderr output
 sys.stderr = sys.stdout
 
-#os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
+
+# This must normally not changes, because you should use a local_settings.py file
+os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+
+from pylucid_project import VERSION_STRING
+print(u"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>%(title)s</title>
+<meta http-equiv="expires" content="0" />
+<meta name="robots" content="noindex,nofollow" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">/* <![CDATA[ */
+html, body {
+    padding: 1em 3em 1em 3em;
+    background-color: #FFFFEE;
+}
+body {
+    font-family: tahoma, arial, sans-serif;
+    color: #000000;
+    font-size: 0.9em;
+    background-color: #FFFFDB;
+    margin: 1em 3em 1em 3em;
+    border: 3px solid #C9C573;
+}
+h1, h2, h3, h4, h5, h6, h7 {
+    border-bottom: 1px solid #C9C573;
+}
+form, pre {
+    padding: 1em;
+}
+pre {
+    background-color: #FFFFFF;
+    overflow: auto;
+}
+form, ul, dl {
+    background-color: #FFFFEE;
+}
+/* ]]> */</style>
+</head><body>
+<h1>%(title)s</h1>
+<a name="top"></a>
+""" % {"title":u"CGI install - PyLucid v%s" % VERSION_STRING})
+
+
+def pagestats():
+    """ at exit handler """
+    # http://code.google.com/p/django-tools/
+    from django_tools.template.filters import human_duration
+    print "<hr/>"
+    print os.environ.get("SERVER_SIGNATURE", "---"),
+    print '<p style="text-align:right">render time: %s</p>' % (
+        human_duration(time.time() - start_overall)
+    )
+    print("</body></html>")
+atexit.register(pagestats)
+
 
 from django.conf import settings
+from django.core import management
+from django.db import connection, backend
+from django.contrib.auth.models import User
+from django.forms import ModelForm
+from django.contrib.sites.models import Site
+from django.core.handlers.wsgi import WSGIRequest
+from django.middleware.locale import LocaleMiddleware
+from django.utils.translation import ugettext as _
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ImproperlyConfigured
 
 
-def syncdb():
-    from django.core import management
+ERROR_INFO = "%s - INFO: Have you create a 'local_settings.py' file???"
+
+
+def syncdb(request):
     print "<pre>"
-    management.call_command('syncdb', verbosity=1, interactive=False)
+    try:
+        management.call_command('syncdb', verbosity=1, interactive=False)
+    except ImproperlyConfigured, err:
+        etype, evalue, etb = sys.exc_info()
+        evalue = etype(ERROR_INFO % evalue)
+        raise etype, evalue, etb
+    else:
+        print "</pre>"
+        print "<p><strong>syncdb done.</strong></p>"
+        print "<hr/>"
+
+        print "<ul><h4>list of settings.INSTALLED_APPS:</h4>"
+        for app_name in settings.INSTALLED_APPS:
+            print "<li>%s</li>" % app_name
+        print "</ul>"
+
+def loaddata(request):
+    print "<pre>"
+    management.call_command('loaddata', "pylucid.json", verbosity=1, interactive=False)
     print "</pre>"
-    print "<p><strong>syncdb done.</strong></p>"
-    print "<hr/>"
 
-    print "<ul><h4>list of settings.INSTALLED_APPS:</h4>"
-    for app_name in settings.INSTALLED_APPS:
-        print "<li>%s</li>" % app_name
-    print "</ul>"
-
-
-def info():
+def info(request):
     print "<p>Python %s</p>" % sys.version.replace("\n", " ")
     print "<p>os.uname(): %s</p>" % " - ".join(os.uname())
 
@@ -63,8 +156,18 @@ def info():
     cgi.print_environ()
     cgi.print_environ_usage()
 
+def diffsettings(request):
+    print "<pre>"
+    management.call_command('diffsettings', verbosity=1, interactive=False)
+    print "</pre>"
 
-def mysqldb_info():
+def inspectdb(request):
+    print "<pre>"
+    management.call_command('inspectdb', verbosity=1, interactive=False)
+    print "</pre>"
+
+
+def mysqldb_info(request):
     # http://paste.pocoo.org/show/301/
 
     import MySQLdb
@@ -72,7 +175,6 @@ def mysqldb_info():
     print "MySQLdb Version:", MySQLdb.__version__
     print "MySQLdb version_info:", MySQLdb.version_info
 
-    from django.db import connection, backend
     print "django db backend name: %s" % backend.Database.__name__
     print "django db backend module: %s" % backend.Database.__file__
 
@@ -81,9 +183,10 @@ def mysqldb_info():
     cursor.execute("SHOW VARIABLES LIKE %s;", ("character_set_server",))
     server_encoding = cursor.fetchone()[1]
     print "\tMySQL variable 'character_set_server':", server_encoding
+    print
 
     if server_encoding != "utf8":
-        print "Try to changen the encoding to utf8"
+        print "Try to change the encoding to utf8"
         sql = "ALTER DATABASE %s CHARACTER SET utf8 COLLATE utf8_unicode_ci;" % settings.DATABASE_NAME
         print sql
         cursor.execute(sql)
@@ -98,40 +201,40 @@ def mysqldb_info():
     print "</pre>"
 
 
-def setupSites():
+def setupSites(request):
     """ Check if settings.SITE_ID exist, if not: create it """
-    from django.forms import ModelForm
-    from django.contrib.sites.models import Site
-
     class SiteForm(ModelForm):
         class Meta:
             model = Site
 
     sid = settings.SITE_ID
-    print "<p>settings.SITE_ID == %r</p>" % sid
+    print "<pre>settings.SITE_ID == %r</pre>" % sid
 
-    #Site.objects.all().delete()
+#    Site.objects.all().delete() # Test
 
-    fs = cgi.FieldStorage()
-    if fs.list:
-        # Form send via POST
-        site_name = fs.getvalue("name")
-        site_domain = fs.getvalue("domain")
-        post_data = {"name": site_name, "domain": site_domain}
-        form = SiteForm(post_data)
+    if request.method == 'POST':
+        form = SiteForm(request.POST)
         if form.is_valid():
-            print "<p>Save site entry.</p>"
-            Site(id=sid, name=site_name, domain=site_domain).save()
+            print "<p>Save new site entry with ID=%s.</p>" % sid
+            new_site = form.save(commit=False)
+            new_site.id = sid
+            new_site.save()
+
+    print "%s existing sites:" % Site.objects.count()
+    print "<ul>"
+    for site in Site.objects.all():
+        print "<li>ID: %s - name: %s</li>" % (site.id, site.name)
+    print "</ul>"
 
     try:
         current_site = Site.objects.get_current()
     except Site.DoesNotExist, err:
-        print "<p>Site with ID: %s does not exist.<br />" % sid
+        print "<p>Site with ID: %s does not exist." % sid
         print "<small>(%s)</small></p>" % err
-        print "Existing sites entries: %r" % cgi.escape(repr(Site.objects.all()))
+
         print "<p>Please create this site entry:</p>"
     else:
-        print "<p>Site with ID: %s exist: '%s', OK.</p>" % (sid, current_site.name)
+        print "<p>Site with ID: %s exist, OK.</p>" % current_site.id
         return
 
     form = SiteForm(initial={
@@ -145,79 +248,118 @@ def setupSites():
         '<input type="submit" name="save"/>'
         '</form>'
     ) % {
-        "form": form,
+        "form": form.as_p(),
     }
 
 
-def create_superuser():
-    from django.contrib.auth.models import User
 
-    username = "admin"
-    password = "12345678"
-    email = "test@test.org"
 
-    defaults = {'password':password, 'email':email}
-    user, created = User.objects.get_or_create(
-        username=username, defaults=defaults
-    )
-    user.email = email
-    user.set_password(password)
-    user.is_staff = True
-    user.is_superuser = True
-    user.save()
-    print "<p>Superuser <strong>%s</strong> with password <strong>%s</strong> created." % (
-        username, password
-    )
+def create_superuser(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            print "<h1>User '%s' created.</h1>" % user.username
+            return
+    else:
+        form = UserCreationForm()
 
+    html = (
+        u'<form action="?create_superuser" method="post">'
+        '%(form)s'
+        '<small><p>Info: Password would be send as plaintext :(</p></small>'
+        '<input type="submit" name="save"/>'
+        '</form>'
+    ) % {
+        "form": form.as_p(),
+    }
+    print html
 
 
 def print_menu(actions):
-    print "<h2>menu</h2>"
-    print "<ul>"
-    for key, data in actions.items():
-        print '<li><a href="?%(key)s">%(key)s - %(title)s</a></li>' % {
-            "key": key, "title": data["title"]
+    print u"<h2>menu</h2>"
+    print u"<ul>"
+    for data in actions:
+        print u'<li><a href="?%(slug)s"><strong>%(slug)s</strong> - %(title)s</a></li>' % {
+            "slug": data["slug"], "title": data["title"]
         }
-    print "</ul>"
+    print u"</ul>"
 
 
-actions = {
-    "syncdb": {
+actions = [
+    {
+        "slug": "syncdb",
         "func":syncdb,
         "title": "Creates the database tables for all apps in INSTALLED_APPS",
     },
-    "info": {
-        "func":info,
-        "title": "Display some system informations",
-    },
-    "mysqldb_info": {
-        "func":mysqldb_info,
-        "title": "MySQLdb informations",
-    },
-    "setupSites": {
-        "func": setupSites,
-        "title": "setup django sites framework",
-    },
-    "create_superuser": {
+    {
+        "slug": "create_superuser",
         "func": create_superuser,
         "title": "Create a superuser",
     },
-}
+    {
+        "slug": "loaddata",
+        "func":loaddata,
+        "title": "insert the initial data",
+    },
+    {
+        "slug": "setupSites",
+        "func": setupSites,
+        "title": "setup django sites framework",
+    },
+    {
+        "slug": "info",
+        "func":info,
+        "title": "Display some system informations",
+    },
+    {
+        "slug": "diffsettings",
+        "func":diffsettings,
+        "title": "Displays differences between the current settings file and Django's default settings.",
+    },
+    {
+        "slug": "inspectdb",
+        "func":inspectdb,
+        "title": "Introspects the database tables",
+    },
+    {
+        "slug": "mysqldb_info",
+        "func":mysqldb_info,
+        "title": "MySQLdb informations",
+    },
+]
 
-print_menu(actions)
 
-query_string = os.environ["QUERY_STRING"]
-if query_string in actions:
-    print "<hr/><h2>%s</h2>" % query_string
-    data = actions[query_string]
-    print "<h4>%s</h4>" % data["title"]
-    func = data["func"]
-    func()
+def _get_request():
+    cgi_handler = CGIHandler()
+    cgi_handler.setup_environ()
 
-print "<hr/>"
-print os.environ.get("SERVER_SIGNATURE", "---")
+    request = WSGIRequest(cgi_handler.environ)
+    LocaleMiddleware().process_request(request) # init gettext translation
+    return request
 
-#~ print "-"*79
 
+def main():
+    request = _get_request()
+
+    print_menu(actions)
+
+    action_dict = dict([(data["slug"], data) for data in actions])
+
+    query_string = os.environ["QUERY_STRING"]
+    if query_string in action_dict:
+        print "<hr/><h2>%s</h2>" % query_string
+        data = action_dict[query_string]
+        print "<h4>%s</h4>" % data["title"]
+        func = data["func"]
+        func(request)
+
+
+
+    #~ print "-"*79
+
+
+if __name__ == "__main__":
+    main()
 
 
