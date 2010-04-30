@@ -285,30 +285,40 @@ VERSION_STRING = "%s"
     print
 
     print "_" * 79
-    archive_file = os.path.join(dest_dir, "PyLucid_standalone_%s.7z" % pylucid_version.replace(".", "-"))
-    print "Create archive file '%s' ?" % archive_file
+    print "Create 7zip and zip archive files in '%s' ?" % dest_dir
     print
     raw_input("(Press any key or abort with Strg-C)")
 
-    # FIXME: Can't create a windows exe file with -sfx7z.sfx
-    # because 7z.sfx doesn't exist in linux version of 7zip :(
+    archive_file_prefix = os.path.join(dest_dir, "PyLucid_standalone_%s" % pylucid_version.replace(".", "-"))
 
+    create_archive(archive_file_prefix + ".7z", dest_package_dir, switches=["-t7z"])
+    create_archive(archive_file_prefix + ".zip", dest_package_dir, switches=["-tzip"])
+
+
+def create_archive(archive_file, dest_package_dir, switches):
+    """
+    create standalone package archive with 7zip
+    needed package is: p7zip-full
+    
+    FIXME: Can't create a windows exe file with -sfx7z.sfx
+    because 7z.sfx doesn't exist in linux version of 7zip :(
+    """
+    assert isinstance(switches, list)
     if os.path.isfile(archive_file):
         # Delete old archive, otherwise 7zip add new files
         os.remove(archive_file)
 
-    seven_zip = "/usr/bin/7zr"
+    seven_zip = "/usr/bin/7z"
+    cmd = [seven_zip, "a", "-mx9"] + switches + [archive_file, dest_package_dir]
+    print "run:\n%s" % " ".join(cmd)
     try:
-        process = subprocess.Popen(
-           [seven_zip, "a", "-t7z", "-mx9", archive_file, dest_package_dir],
-           stdout=subprocess.PIPE
-        )
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     except OSError, err:
         import errno
         if err.errno == errno.ENOENT: # No 2: No such file or directory
             print "Error: '%s' not found: %s" % (seven_zip, err)
             print "Please install it."
-            print "e.g.: sudo aptitude install p7zip"
+            print "e.g.: sudo aptitude install p7zip-full"
             sys.exit(2)
         raise
 
