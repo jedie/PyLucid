@@ -304,6 +304,17 @@ VERSION_STRING = "%s"
     print
 
     print "_" * 79
+    import wsgiref
+    print "copy wsgiref"
+    wsgiref_src = os.path.abspath(os.path.dirname(wsgiref.__file__))
+    wsgiref_dst = os.path.join(dest_package_dir, "wsgiref")
+    print "%s -> %s" % (wsgiref_src, wsgiref_dst)
+    copytree2(wsgiref_src, wsgiref_dst, ignore=shutil.ignore_patterns("*.pyc", "*.pyo"))
+
+    #--------------------------------------------------------------------------
+    print
+
+    print "_" * 79
     print "Create 7zip and zip archive files in '%s' ?" % dest_dir
     print
     raw_input("(Press any key or abort with Strg-C)")
