@@ -1,7 +1,6 @@
-#Wed Apr 28 11:58:56 CEST 2010
+#Fri Apr 30 21:38:35 CEST 2010
 eclipse.preferences.version=1
 encoding//pylucid_boot/__init__.py=utf-8
 encoding//pylucid_boot/create_bootstrap_script.py=utf-8
 encoding//pylucid_boot/create_standalone_package.py=utf-8
-encoding//pylucid_boot/pre_check.py=utf-8
 encoding/setup.py=utf-8
