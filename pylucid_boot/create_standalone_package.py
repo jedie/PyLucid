@@ -285,6 +285,25 @@ VERSION_STRING = "%s"
     print
 
     print "_" * 79
+    print "move PyLucid/Django static media files together"
+    dest_media = os.path.join(dest_package_dir, "media")
+
+    pylucid_src_media = os.path.join(dest_package_dir, "pylucid_project", "media")
+    pylucid_dst_media = os.path.join(dest_media)
+    print "move files from %s to %s" % (pylucid_src_media, pylucid_dst_media)
+    shutil.move(pylucid_src_media, pylucid_dst_media)
+    print "OK"
+
+    django_src_media = os.path.join(dest_package_dir, "django", "contrib", "admin", "media")
+    django_dst_media = os.path.join(dest_media, "django")
+    print "move files from %s to %s" % (django_src_media, django_dst_media)
+    shutil.move(django_src_media, django_dst_media)
+    print "OK"
+
+    #--------------------------------------------------------------------------
+    print
+
+    print "_" * 79
     print "Create 7zip and zip archive files in '%s' ?" % dest_dir
     print
     raw_input("(Press any key or abort with Strg-C)")
