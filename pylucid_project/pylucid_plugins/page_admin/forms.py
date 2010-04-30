@@ -171,7 +171,7 @@ class MassesEditorSelectForm(forms.Form):
     TODO: implement a API for generating _DATA. So that other plugins can easy add some items.
     """
     _DATA = (
-        (PageTree, False, "slug", "design", "showlinks", "permitViewGroup", "permitEditGroup"),
+        (PageTree, False, "slug", "parent", "design", "showlinks", "permitViewGroup", "permitEditGroup"),
         (PageMeta, True, "name", "title", "tags", "keywords", "robots", "permitViewGroup"),
         (BlogEntry, True, "tags", "is_public"),
         (LexiconEntry, True, "tags", "alias", "short_definition", "is_public"),
