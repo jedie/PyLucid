@@ -255,10 +255,21 @@ def setupSites(request):
 
 
 def create_superuser(request):
+    superuser_exist = User.objects.all().filter(is_superuser=True).count()
+    if superuser_exist:
+        print "<h2>Error: one superuser exist!</h2>"
+        print "<p>You can only create one superuser here.<br/>"
+        print "Login with as the exsiting user and create new users in"
+        print "the django admin panel.</p>"
+        return
+
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_staff = True
+            user.is_superuser = True
+            user.save()
             print "<h1>User '%s' created.</h1>" % user.username
             return
     else:
