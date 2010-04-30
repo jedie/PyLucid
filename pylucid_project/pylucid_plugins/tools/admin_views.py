@@ -58,9 +58,9 @@ def install(request):
         url_name="Tools-cleanup_session"
     )
     admin_menu.add_menu_entry(
-        parent=menu_section_entry, name="overwrite template",
+        parent=menu_section_entry, name="override template",
         title="Overwrite a filesystem template with a new database headfile entry",
-        url_name="Tools-overwrite_template"
+        url_name="Tools-override_template"
     )
     return "\n".join(output)
 
@@ -180,7 +180,7 @@ def cleanup_session(request):
 
 
 #-----------------------------------------------------------------------------------------------------------
-# overwrite template
+# override template
 
 
 class TemplateFile(object):
@@ -236,8 +236,8 @@ class TemplateFile(object):
     superuser_only=False,
     permissions=(u'dbtemplates.add_template', u'dbtemplates.change_template')
 )
-@render_to("tools/overwrite_template.html")
-def overwrite_template(request):
+@render_to("tools/override_template.html")
+def override_template(request):
     """
     Overwrite a template:
     1. The user can choose between all existing template in filesystem.
@@ -245,7 +245,7 @@ def overwrite_template(request):
     3. redirect to edit the nre dbtemplate entry
     """
     context = {
-        "title": _("overwrite template"),
+        "title": _("override template"),
         "form_url": request.path,
     }
 
@@ -276,7 +276,7 @@ def overwrite_template(request):
                         msg = _("New dbtemplate entry %s created.") % instance
                         LogEntry.objects.log_action(
                             app_label="pylucid_plugin.extrahead",
-                            action="overwrite template %s" % template.name,
+                            action="override template %s" % template.name,
                             request=request,
                             message=msg
                         )

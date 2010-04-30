@@ -2,14 +2,14 @@
 
 {% block content %}
 <p>
-	{% trans 'Overwrite a template. Read the original template from filesystem and create a dbtemplate entry' %}
+	{% trans 'Override a template. Read the original template from filesystem and create a dbtemplate entry' %}
 	{% trans 'more info on:' %}<a href="http://www.pylucid.org#FIXME">pylucid.org</a>
 </p>
 <form action="{{ form_url }}" method="post" class="pylucid_form">
 {% include "admin/pylucid/includes/pylucid_formset.html" %}
 <div class="helper_buttons">
     <input type="submit" name="preview" value="{% trans 'preview' %}" title="{% trans 'Display only the sourcecode of the template.' %}" />
-    <input type="submit" name="overwrite" value="{% trans 'overwrite' %}" title="{% trans 'Read the template from filesystem and create a new dbtemplate entry.' %}" />
+    <input type="submit" name="override" value="{% trans 'override' %}" title="{% trans 'Read the template from filesystem and create a new dbtemplate entry.' %}" />
 </div>
 </form>
 {% if template %}

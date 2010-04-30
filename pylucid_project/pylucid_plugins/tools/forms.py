@@ -40,7 +40,7 @@ class CleanupLogForm(forms.Form):
 
 
 #-----------------------------------------------------------------------------------------------------------
-# overwrite template
+# override template
 
 
 class Template(object):
