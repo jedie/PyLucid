@@ -36,7 +36,7 @@ try:
     from pylucid_project.system.plugin_setup_info import PyLucidPluginSetupInfo
 except Exception, e:
     import traceback
-    print traceback.format_exc()
+    sys.stderr.write(traceback.format_exc())
     raise
 
 PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
@@ -207,7 +207,7 @@ try:
     from pylucid_project.apps.pylucid_admin import app_settings as ADMIN
 except Exception, e:
     import traceback
-    print traceback.format_exc()
+    sys.stderr.write(traceback.format_exc())
     raise
 
 
@@ -299,8 +299,10 @@ TIME_ZONE = "UTC"
 # (Default from django is en-us, but this doesn't exist in PyLucid installed data)
 LANGUAGE_CODE = "en"
 
+
 try:
     from local_settings import *
 except ImportError:
-    pass
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured("You must create a local_settings.py file in '%s' !" % PYLUCID_BASE_PATH)
 
