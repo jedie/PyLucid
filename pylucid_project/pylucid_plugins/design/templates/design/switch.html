@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+{% if design_switch %}
+<p>
+	The current page design is switched to: <strong>{{ design_switch }}</strong>.<br/>
+	You will see all cms pages in this design.
+</p>
+{% else %}
+<p>
+	No 'design switch' active.<br/>
+	You will see all cms pages in the design associated by the PageTree.
+</p>
+{% endif %}
+
+<form action="{{ form_url }}" method="post" id="find_and_replace_form" class="pylucid_form">
+    {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
+    {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
+    <fieldset>
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        <div class="helper_buttons">
+            <input type="submit" name="save" value="{% trans 'switch design' %}" />      
+        </div>
+    </fieldset>
+</form>
+{% endblock %}
