@@ -40,13 +40,22 @@ def install(request):
     output = []
 
     admin_menu = AdminMenu(request, output)
-    menu_section_entry = admin_menu.get_or_create_section("tools")
 
+    menu_section_entry = admin_menu.get_or_create_section("tools")
     admin_menu.add_menu_entry(
         parent=menu_section_entry,
         name="highlight code", title="highlight sourcecode with pygments",
         url_name="Tools-highlight_code"
     )
+
+    menu_section_entry = admin_menu.get_or_create_section("edit look")
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry, name="override template",
+        title="Overwrite a filesystem template with a new database headfile entry",
+        url_name="Tools-override_template"
+    )
+
+    menu_section_entry = admin_menu.get_or_create_section("cleanup")
     admin_menu.add_menu_entry(
         parent=menu_section_entry,
         name="cleanup log table", title="Cleanup the log table",
@@ -57,11 +66,7 @@ def install(request):
         name="cleanup session table", title="Cleanup the session table",
         url_name="Tools-cleanup_session"
     )
-    admin_menu.add_menu_entry(
-        parent=menu_section_entry, name="override template",
-        title="Overwrite a filesystem template with a new database headfile entry",
-        url_name="Tools-override_template"
-    )
+
     return "\n".join(output)
 
 #-----------------------------------------------------------------------------

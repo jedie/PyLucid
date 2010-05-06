@@ -20,7 +20,7 @@ def install(request):
     output = []
 
     admin_menu = AdminMenu(request, output)
-    menu_section_entry = admin_menu.get_or_create_section("tools")
+    menu_section_entry = admin_menu.get_or_create_section("cleanup")
 
     admin_menu.add_menu_entry(
         parent=menu_section_entry,

@@ -26,7 +26,7 @@ def install(request):
         get_pagetree=True
     )
 
-    menu_section_entry = admin_menu.get_or_create_section("tools")
+    menu_section_entry = admin_menu.get_or_create_section("change content")
     admin_menu.add_menu_entry(
         parent=menu_section_entry, url_name="PageAdmin-bulk_editor",
         name="bulk editor", title="Edit one attribute for all model items at once.",
