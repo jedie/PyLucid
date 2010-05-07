@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+{% if env_path %}
+<p>Base env path: <strong>{{ env_path }}</strong>.</p>
+{% for package_name, output in src_package_info.items %}
+    <h2>{{ package_name }}</h2>
+	<pre>{{ output }}</pre>
+	<a href="{% url Update-update package_name %}">update {{ package_name }}</a>
+{% endfor %}
+{% endif %}
+{% endblock %}
