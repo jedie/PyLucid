@@ -1,4 +1,4 @@
-
+# coding:utf-8
 """
     Create serialized fixture data file for PyLucid initial data.
     
