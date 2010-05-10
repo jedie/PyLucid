@@ -21,6 +21,7 @@ from internals import admin_views
 
 urlpatterns = patterns('',
     url(r'^show_internals/$', admin_views.show_internals, name='Internal-show_internals'),
+    url(r'^system_info/$', admin_views.system_info, name='Internal-system_info'),
     url(r'^model_graph/$', admin_views.model_graph, name='Internal-model_graph'),
     url(r'^form_generator/$', admin_views.form_generator, name='Internal-form_generator'),
     url(r'^form_generator/(?P<model_no>\d+?)/$', admin_views.form_generator, name='Internal-form_generator'),

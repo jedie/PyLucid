@@ -26,6 +26,8 @@ from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
+import pwd
+import resource
 
 def install(request):
     """ insert PyLucid admin views into PageTree """
@@ -43,6 +45,11 @@ def install(request):
         parent=menu_section_entry,
         name="show internals", title="Display some internal information.",
         url_name="Internal-show_internals"
+    )
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry,
+        name="system info", title="Display some system information.",
+        url_name="Internal-system_info"
     )
     admin_menu.add_menu_entry(
         parent=menu_section_entry,
@@ -122,9 +129,103 @@ def show_internals(request):
     }
     return context
 
-    return render_to_response('internals/show_internals.html', context,
-        context_instance=RequestContext(request)
-    )
+#-----------------------------------------------------------------------------
+
+@check_permissions(superuser_only=True)
+@render_to("internals/system_info.html")
+def system_info(request):
+    context = {
+        "title": "System info",
+    }
+    try:
+        context["loadavg"] = os.getloadavg()
+    except OSError, err:
+        context["loadavg_err"] = "[Error: %s]" % err
+
+
+    context["sys"] = [
+        (
+            "sys.exec_prefix", sys.exec_prefix,
+            "site-specific directory prefix where the platform-dependent Python files are installed"
+        ),
+        (
+            "sys.prefix", sys.prefix,
+            "site-specific directory prefix where the platform independent Python files are installed"
+        ),
+        (
+            "sys.executable", sys.executable,
+            "name of the executable binary for the Python interpreter"
+        ),
+        (
+            "sys.flags", sys.flags,
+            "status of command line flags"
+        ),
+        (
+            "sys.getdefaultencoding()", sys.getdefaultencoding(),
+            "current default string encoding used by the Unicode implementation"
+        ),
+        (
+            "sys.getfilesystemencoding()", sys.getfilesystemencoding(),
+            "encoding used to convert Unicode filenames into system file names"
+        ),
+    ]
+
+    context["os"] = [
+        (
+            "os.ctermid()", os.ctermid(),
+            "filename corresponding to the controlling terminal of the process"
+        ),
+        (
+            "os.times()", os.times(),
+            "accumulated (processor or other) times, in seconds"
+        ),
+        (
+            "os.getegid()", os.getegid(),
+            "effective group id of the current process"
+        ),
+        (
+            "os.geteuid()", os.geteuid(),
+            "current process’s effective user id"
+        ),
+        (
+            "os.getgid()", os.getgid(),
+            "real group id of the current process"
+        ),
+        (
+            "os.uname()", os.uname(),
+            "sysname, nodename, release, version, machine"
+        ),
+        (
+            "os.getlogin()", os.getlogin(),
+            "name of the user logged in on the controlling terminal of the process"
+        ),
+    ]
+    context["resource"] = [
+        (
+            "resource.getpagesize()", resource.getpagesize(),
+            "number of bytes in a system page"
+        ),
+        (
+            "resource.getrusage(resource.RUSAGE_SELF)", resource.getrusage(resource.RUSAGE_SELF),
+            "resource information pertaining only to the process itself"
+        ),
+        (
+            "resource.getrusage(resource.RUSAGE_CHILDREN)", resource.getrusage(resource.RUSAGE_CHILDREN),
+            "resource information for child processes of the calling process."
+        ),
+    ]
+
+    context["pwd"] = [
+        (
+            "pwd.getpwall()", hightlighter.make_html(
+                pformat(pwd.getpwall()), source_type="py", django_escape=True
+            ),
+            "list of all available password database entries, in arbitrary order"
+        ),
+    ]
+
+    return context
+
 
 #-----------------------------------------------------------------------------
 
