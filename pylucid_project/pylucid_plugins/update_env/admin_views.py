@@ -13,6 +13,7 @@ import sys
 import subprocess
 
 from django import http
+from django.conf import settings
 from django.core import management
 from django.utils.translation import ugettext as _
 
@@ -40,14 +41,25 @@ def install(request):
 def _get_env_path(request):
     env_path = request.META.get("VIRTUAL_ENV")
     if env_path is None:
-        request.page_msg.error("Environment Variable 'VIRTUAL_ENV' not set.")
-    elif not os.path.isdir(env_path):
+        base_path = settings.PYLUCID_BASE_PATH
+        request.page_msg.info(
+            "Environment Variable 'VIRTUAL_ENV' not set."
+            " Try to use %r" % base_path
+        )
+        try: # FIXME: do this better ;)
+            env_path, rest = base_path.split(os.sep + "src" + os.sep)
+        except ValueError:
+            request.page_msg.error("Can't split %r" % base_path)
+            return
+
+    if not os.path.isdir(env_path):
         request.page_msg.error(
             "Error: Env.path %r doesn't exist."
             " (used from Environment Variable 'VIRTUAL_ENV')" % env_path
         )
-    else:
-        return env_path
+        return
+
+    return env_path
 
 
 @check_permissions(superuser_only=True)
