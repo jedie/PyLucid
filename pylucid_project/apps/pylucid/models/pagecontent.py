@@ -99,13 +99,18 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
 
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
-        return {
+        if self.pagemeta.permitViewGroup != None or self.pagemeta.pagetree.permitViewGroup != None:
+            # This entry should not be inserted in the update journal
+            return None
+
+        data = {
             "lastupdatetime": self.lastupdatetime,
             "user_name": self.lastupdateby,
             "language": self.pagemeta.language,
             "object_url": self.get_absolute_url(),
             "title": self.get_title()
         }
+        return data
 
     def get_name(self):
         """ Page name is optional, return PageTree slug if page name not exist """
