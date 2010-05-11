@@ -25,6 +25,7 @@ from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.managers import CurrentSiteManager
 
@@ -203,17 +204,16 @@ class PageTreeManager(BaseModelManager):
             if request.user.is_anonymous():
                 # Anonymous user are in no user group
                 if page_view_group != None:
-                    # XXX: raise permission deny?
                     msg = "Permission deny"
                     if settings.DEBUG:
                         msg += " (url part: %s)" % escape(page_slug)
-                    raise PageTree.DoesNotExist(msg)
+                    raise PermissionDenied(msg)
             elif not request.user.is_superuser: # Superuser can see everything ;)
                 if (page_view_group != None) and (page_view_group not in user_groups):
                     msg = "Permission deny"
                     if settings.DEBUG:
                         msg += " (not in view group %r, url part: %r)" % (page_view_group, escape(page_slug))
-                    raise PageTree.DoesNotExist(msg)
+                    raise PermissionDenied(msg)
 
             if page.page_type == PageTree.PLUGIN_TYPE:
                 # It's a plugin
