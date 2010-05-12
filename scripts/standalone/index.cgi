@@ -151,7 +151,7 @@ if settings.DEBUG:
         def flush(self):
             pass
 
-    HEADERS = ("content-type:", "status: 301", "status: 302", "status: 200")
+    HEADERS = ("content-type:", "status: 301", "status: 302", "status: 200", "status: 500")
     class HeaderChecker(BaseOut):
         """
         Very slow! But in some case very helpfully ;)
