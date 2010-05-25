@@ -14,13 +14,11 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import datetime
-
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.managers import CurrentSiteManager
 
@@ -29,7 +27,7 @@ from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.utils import form_utils
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
-from pylucid_project.pylucid_plugins import update_journal
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -122,11 +120,15 @@ class AutoSiteM2M(models.Model):
         Automatic current site, if not exist.
         
         I don't know why default=[settings.SITE_ID] is not enough, see also:
-            http://www.python-forum.de/topic-21022.html (de)
+            http://www.python-forum.de/viewtopic.php?t=21022 (de)
         """
         if self.pk == None:
             # instance needs to have a primary key value before a many-to-many relationship can be used. 
             super(AutoSiteM2M, self).save(*args, **kwargs)
+            if "force_insert" in kwargs:
+                # we can't pass force insert to the real save method, because we
+                # have save it yet.
+                del kwargs["force_insert"]
 
         if self.sites.count() == 0:
             if settings.DEBUG:
@@ -144,6 +146,7 @@ class AutoSiteM2M(models.Model):
 
     class Meta:
         abstract = True
+
 
 
 class UpdateInfoBaseModel(models.Model):
