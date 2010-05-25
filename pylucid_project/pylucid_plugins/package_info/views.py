@@ -33,7 +33,7 @@ from django.conf import settings
 from django.template import mark_safe
 from django.utils.version import get_svn_revision
 
-from pylucid_project import VERSION_STRING
+from pylucid_project import VERSION_STRING, get_git_hash
 from pylucid_project.apps.pylucid.decorators import render_to
 
 # print (!) some debug info. Values can be: False, 1, 2
@@ -115,7 +115,7 @@ class PackageInfo(dict):
 
         self._fill_with_dist_attr()
         self._fill_with_pkg_info()
-        self._add_svn_reversion()
+        self._add_vcs_reversion()
 
     def _fill_with_dist_attr(self):
         """
@@ -178,15 +178,24 @@ class PackageInfo(dict):
 
             dict.__setitem__(self, dict_key, pkg_info_value)
 
-    def _add_svn_reversion(self):
-        """ Add Subverion reversion number to version string, if exist """
-        location = dict.get(self, "location")
-        svn_revision = get_svn_revision(location)
-        if svn_revision == "SVN-unknown":
+    def _add_vcs_reversion(self):
+        """ Add subversion/git reversion number to version string, if exist """
+
+        if "SVN" in self["version"] or "git" in self["version"]:
             return
 
-        if svn_revision not in self["version"]:
-            self["version"] += " %s" % svn_revision
+        location = dict.get(self, "location")
+
+        svn_dir = os.path.join(location, ".svn")
+        if os.path.isdir(svn_dir):
+            svn_revision = get_svn_revision(location)
+            if svn_revision != "SVN-unknown":
+                self["version"] += " %s" % svn_revision
+            return
+
+        git_dir = os.path.join(location, ".git")
+        if os.path.isdir(git_dir):
+            self["version"] += get_git_hash(location)
 
 
 class EnvironmetInfo(dict):
