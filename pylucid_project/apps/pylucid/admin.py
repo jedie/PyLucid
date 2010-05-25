@@ -21,6 +21,7 @@
 """
 
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,6 +29,7 @@ from reversion.admin import VersionAdmin
 
 from pylucid import models
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
+
 
 
 class PageTreeAdmin(BaseAdmin, VersionAdmin):
@@ -139,9 +141,20 @@ class ColorSchemeAdminForm(forms.ModelForm):
 
         return sites
 
-#class ColorAdmin(VersionAdmin):
-#    list_display = ("id", "name","value")
-#admin.site.register(models.Color, ColorAdmin)
+
+if settings.DEBUG:
+    class ColorAdmin(VersionAdmin):
+        def preview(self, obj):
+            return '<span style="background-color:#%s;" title="%s">&nbsp;&nbsp;&nbsp;</span>' % (
+                obj.value, obj.name
+            )
+        preview.short_description = 'color preview'
+        preview.allow_tags = True
+
+        list_display = ("id", "name", "value", "preview")
+        list_filter = ("colorscheme",)
+
+    admin.site.register(models.Color, ColorAdmin)
 
 class ColorInline(admin.TabularInline):
     model = models.Color
