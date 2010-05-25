@@ -241,6 +241,19 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
     class Meta:
         model = models.EditableHtmlHeadFile
 
+    def __init__(self, *args, **kwargs):
+        super(EditableHtmlHeadFileAdminForm, self).__init__(*args, **kwargs)
+        # Make mimetype optinal, so the user can leave to empty and auto_mimetype
+        # would be used in self.clean_mimetype()
+        self.fields["mimetype"].required = False
+
+    def clean_mimetype(self):
+        """ Use auto_mimetype if mimetype is empty """
+        mimetype = self.cleaned_data["mimetype"]
+        if not mimetype:
+            mimetype = self.instance.auto_mimetype()
+        return mimetype
+
     def clean_sites(self):
         """
         Check if headfile sites contain the site from all design entries.

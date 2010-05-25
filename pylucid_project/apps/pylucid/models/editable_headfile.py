@@ -58,13 +58,6 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     """
     Storage for editable static text files, e.g.: stylesheet / javascript.
 
-    TODO:
-    * Check if Design sites in Headfile sites:
-        This can't be done in save() method or in signals.post_save, because the related
-        objects would be saved later -> It must be done in ManyRelatedManager.
-        We should check if django ticked #5390 is done: 
-            http://code.djangoproject.com/ticket/5390 # Add signals to ManyRelatedManager
-
     inherited attributes from AutoSiteM2M:
         sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
@@ -78,13 +71,15 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     objects = EditableHtmlHeadFileManager()
 
     filepath = models.CharField(max_length=255)
-    mimetype = models.CharField(max_length=64)
+    mimetype = models.CharField(max_length=64,
+        help_text=_("MIME type for this file. (Leave empty for guess by filename)")
+    )
     html_attributes = models.CharField(max_length=256, null=False, blank=True,
         # TODO: Use this!
-        help_text='Additional html tag attributes (CSS example: media="screen")'
+        help_text=_('Additional html tag attributes (CSS example: media="screen")')
     )
     render = models.BooleanField(default=False,
-        help_text="Are there CSS ColorScheme entries in the content?"
+        help_text=_("Are there CSS ColorScheme entries in the content?")
     )
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
@@ -185,6 +180,18 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         url = self.get_absolute_url(colorscheme)
         return headfile.HeadfileLink(url)
 
+    def clean_fields(self, exclude):
+        message_dict = {}
+
+        if "mimetype" not in exclude:
+            all_mimetypes = set(mimetypes.types_map.values())
+            if self.mimetype not in all_mimetypes:
+                failsafe_message(
+                    "Warning: Mimetype %(mimetype)r for headfile %(headfile)r unknown!" % {
+                        "mimetype": self.mimetype, "headfile": self.filepath
+                    }
+                )
+
     def auto_mimetype(self):
         """ returns the mimetype for the current filename """
         fileext = os.path.splitext(self.filepath)[1].lower()
@@ -206,7 +213,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             raise ValidationError("filepath %r contains invalid characters!" % self.filepath)
 
         if self.id == None: # new item should be created.
-            # manually check a unique togeher, because django can't do this with a M2M field.
+            # manually check a unique together, because django can't do this with a M2M field.
             # Obsolete if unique_together work with ManyToMany: http://code.djangoproject.com/ticket/702
             exist = EditableHtmlHeadFile.on_site.filter(filepath=self.filepath).count()
             if exist != 0:
@@ -216,10 +223,6 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                 raise IntegrityError(
                     "EditableHtmlHeadFile with same filepath exist on site %r" % site
                 )
-
-        if not self.mimetype:
-            # autodetect mimetype
-            self.mimetype = self.auto_mimetype()
 
         # Try to cache the head file into filesystem (Only worked, if python process has write rights)
         self.save_all_color_cachefiles()
