@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<p>
+	A copy of all Design componets (like Template, Headfiles, ColorScheme)<br/>
+	would be created with the new name you given here.<br/>
+	Use the design switch function, to see the cloned design in action.
+</p>
+<p>
+	more info: <a href="/permalink/69/customise-the-look-of-your-pylucid-installation">customise the look of your PyLucid installation</a>
+</p>
+
+<form action="{{ form_url }}" method="post" id="clone_design_form" class="pylucid_form">
+    {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
+    {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
+    <fieldset>
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        <div class="helper_buttons">
+            <input type="submit" name="save" value="{% trans 'clone design' %}" />      
+        </div>
+    </fieldset>
+</form>
+{% endblock %}
