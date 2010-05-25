@@ -111,7 +111,33 @@ class PluginPageAdmin(BaseAdmin, VersionAdmin):
 
 admin.site.register(models.PluginPage, PluginPageAdmin)
 
-#-----------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+
+
+class ColorSchemeAdminForm(forms.ModelForm):
+    class Meta:
+        model = models.ColorScheme
+
+    def clean_sites(self):
+        """
+        Check if headfile sites contain the site from all design entries.
+        """
+        sites = self.cleaned_data["sites"]
+        designs = models.Design.objects.all().filter(headfiles=self.instance)
+        for design in designs:
+            for design_site in design.sites.all():
+                if design_site in sites:
+                    continue
+                raise forms.ValidationError(_(
+                    "ColorScheme must exist on site %(site)r!"
+                    " Because it's used by design %(design)r." % {
+                        "site": design_site,
+                        "design": design
+                    }
+                ))
+
+        return sites
 
 #class ColorAdmin(VersionAdmin):
 #    list_display = ("id", "name","value")
@@ -121,7 +147,9 @@ class ColorInline(admin.TabularInline):
     model = models.Color
     extra = 0
 
+
 class ColorSchemeAdmin(VersionAdmin):
+    form = ColorSchemeAdminForm
     list_display = ("id", "name", "preview", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     search_fields = ("name",)
@@ -167,6 +195,23 @@ class DesignAdminForm(forms.ModelForm):
                         "headfile": headfile, "site": design_site
                     }
                 ))
+
+        colorscheme = cleaned_data["colorscheme"]
+        for design_site in sites:
+            if design_site in colorscheme.sites.all():
+                continue
+            msg = _(
+                "Colorscheme %(colorscheme)r doesn't exist on site %(site)r!" % {
+                    "colorscheme": colorscheme, "site": design_site
+                }
+            )
+            self._errors["colorscheme"] = self.error_class([msg])
+
+            # These fields are no longer valid. Remove them from the
+            # cleaned data.
+            del cleaned_data["colorscheme"]
+
+
 
         return cleaned_data
 
