@@ -37,13 +37,7 @@ class DesignManager(models.Manager):
 
 class Design(AutoSiteM2M, UpdateInfoBaseModel):
     """
-    Page design: template + CSS/JS files
-
-    TODO: Check if all headfiles are available in Design site.
-        This can't be done in save() method or in signals.post_save, because the related
-        objects would be saved later -> It must be done in ManyRelatedManager.
-        We should check if django ticked #5390 is done: 
-            http://code.djangoproject.com/ticket/5390 # Add signals to ManyRelatedManager    
+    Page design: template + CSS/JS files 
 
     inherited attributes from AutoSiteM2M:
         sites   -> ManyToManyField to Site
