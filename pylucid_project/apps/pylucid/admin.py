@@ -184,7 +184,12 @@ class DesignAdminForm(forms.ModelForm):
         """
         cleaned_data = self.cleaned_data
 
+        if "sites" not in cleaned_data: # e.g. no sites selected
+            return cleaned_data
         sites = cleaned_data["sites"]
+
+        if "headfiles" not in cleaned_data: # e.g. no headfile selected
+            return cleaned_data
         headfiles = cleaned_data["headfiles"]
 
         for headfile in headfiles:
@@ -286,6 +291,9 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
         cleaned_data = self.cleaned_data
 
         filepath = cleaned_data["filepath"]
+
+        if "sites" not in cleaned_data: # e.g. no sites selected
+            return cleaned_data
         sites = cleaned_data["sites"]
 
         headfiles = models.EditableHtmlHeadFile.objects.filter(filepath=filepath)
