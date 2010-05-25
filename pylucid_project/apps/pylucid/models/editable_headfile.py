@@ -20,7 +20,6 @@ import codecs
 import mimetypes
 
 from django.conf import settings
-from django.db.models import signals
 from django.contrib.sites.models import Site
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
@@ -252,18 +251,4 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         ordering = ("filepath",)
 
 
-#______________________________________________________________________________
 
-def cache_headfiles(sender, **kwargs):
-    """
-    One colorscheme was changes: resave all cache headfiles with new color values.
-    """
-    colorscheme = kwargs["instance"]
-
-    designs = Design.objects.all().filter(colorscheme=colorscheme)
-    for design in designs:
-        headfiles = design.headfiles.all()
-        for headfile in headfiles:
-            headfile.save_cache_file(colorscheme)
-
-signals.post_save.connect(cache_headfiles, sender=ColorScheme)

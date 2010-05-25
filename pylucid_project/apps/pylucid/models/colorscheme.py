@@ -16,6 +16,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.db.models import signals
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
@@ -131,3 +132,20 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
         app_label = 'pylucid'
         unique_together = (("colorscheme", "name"),)
         ordering = ("colorscheme", "name")
+
+#______________________________________________________________________________
+
+def cache_headfiles(sender, **kwargs):
+    """
+    One colorscheme was changes: resave all cache headfiles with new color values.
+    """
+    colorscheme = kwargs["instance"]
+
+    from design import Design
+    designs = Design.objects.all().filter(colorscheme=colorscheme)
+    for design in designs:
+        headfiles = design.headfiles.all()
+        for headfile in headfiles:
+            headfile.save_cache_file(colorscheme)
+
+signals.post_save.connect(cache_headfiles, sender=ColorScheme)
