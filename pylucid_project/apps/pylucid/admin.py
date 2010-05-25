@@ -20,8 +20,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.utils.translation import ugettext_lazy as _
+from django import forms
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 
 from reversion.admin import VersionAdmin
 
@@ -141,7 +142,35 @@ class ColorSchemeAdmin(VersionAdmin):
 admin.site.register(models.ColorScheme, ColorSchemeAdmin)
 
 
+class DesignAdminForm(forms.ModelForm):
+    class Meta:
+        model = models.Design
+
+    def clean(self):
+        """
+        check if all headfiles exist on the same site than the design exist.
+        """
+        cleaned_data = self.cleaned_data
+
+        sites = cleaned_data["sites"]
+        headfiles = cleaned_data["headfiles"]
+
+        for headfile in headfiles:
+            for design_site in sites:
+                if design_site in headfile.sites.all():
+                    continue
+                raise forms.ValidationError(_(
+                    "Headfile %(headfile)r doesn't exist on site %(site)r!" % {
+                        "headfile": headfile, "site": design_site
+                    }
+                ))
+
+        return cleaned_data
+
+
+
 class DesignAdmin(VersionAdmin):
+    form = DesignAdminForm
     list_display = ("id", "name", "template", "colorscheme", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     list_filter = ("sites", "template", "colorscheme", "createby", "lastupdateby")
