@@ -179,7 +179,8 @@ class DesignAdminForm(forms.ModelForm):
 
     def clean(self):
         """
-        check if all headfiles exist on the same site than the design exist.
+        check if all headfiles and colorscheme exist on the same site
+        than the design exist.
         """
         cleaned_data = self.cleaned_data
 
@@ -190,16 +191,25 @@ class DesignAdminForm(forms.ModelForm):
             for design_site in sites:
                 if design_site in headfile.sites.all():
                     continue
-                raise forms.ValidationError(_(
+                msg = _(
                     "Headfile %(headfile)r doesn't exist on site %(site)r!" % {
                         "headfile": headfile, "site": design_site
                     }
-                ))
+                )
+                if "headfiles" in self._errors:
+                    self._errors["headfiles"].append(msg)
+                else:
+                    self._errors["headfiles"] = self.error_class([msg])
+
+        if "headfiles" in self._errors:
+            # Remove non-valid field from the cleaned data
+            del cleaned_data["headfiles"]
 
         colorscheme = cleaned_data["colorscheme"]
         for design_site in sites:
             if design_site in colorscheme.sites.all():
                 continue
+
             msg = _(
                 "Colorscheme %(colorscheme)r doesn't exist on site %(site)r!" % {
                     "colorscheme": colorscheme, "site": design_site
@@ -207,10 +217,8 @@ class DesignAdminForm(forms.ModelForm):
             )
             self._errors["colorscheme"] = self.error_class([msg])
 
-            # These fields are no longer valid. Remove them from the
-            # cleaned data.
+            # Remove non-valid field from the cleaned data
             del cleaned_data["colorscheme"]
-
 
 
         return cleaned_data
