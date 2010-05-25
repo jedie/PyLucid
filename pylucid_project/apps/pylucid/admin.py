@@ -220,7 +220,6 @@ class DesignAdminForm(forms.ModelForm):
             # Remove non-valid field from the cleaned data
             del cleaned_data["colorscheme"]
 
-
         return cleaned_data
 
 
@@ -274,6 +273,42 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
 
         return sites
 
+    def clean(self):
+        """
+        manually check a unique together, because django can't do this with a M2M field.
+        Obsolete if unique_together work with ManyToMany: http://code.djangoproject.com/ticket/702
+        
+        Note:
+        1. This can't be checked in model validation, because M2M fields
+            are only accessible/updated after save()!
+        2. In model pre_save signal is a unique together check, too.
+        """
+        cleaned_data = self.cleaned_data
+
+        filepath = cleaned_data["filepath"]
+        sites = cleaned_data["sites"]
+
+        headfiles = models.EditableHtmlHeadFile.objects.filter(filepath=filepath)
+        if self.instance.id is not None:
+            headfiles = headfiles.exclude(id=self.instance.id)
+
+        for headfile in headfiles:
+            for site in headfile.sites.all():
+                if site not in sites:
+                    continue
+
+                if "filepath" not in self._errors:
+                    self._errors["filepath"] = self.error_class([])
+
+                self._errors["filepath"].append(_(
+                    "EditableHtmlHeadFile with same filepath exist on site %r" % site
+                ))
+
+        if "filepath" in self._errors:
+            # Remove non-valid field from the cleaned data
+            del cleaned_data["filepath"]
+
+        return cleaned_data
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
     form = EditableHtmlHeadFileAdminForm

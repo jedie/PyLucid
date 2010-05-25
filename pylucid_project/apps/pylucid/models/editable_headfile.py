@@ -20,6 +20,7 @@ import codecs
 import mimetypes
 
 from django.conf import settings
+from django.db.models import signals
 from django.contrib.sites.models import Site
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
@@ -208,7 +209,6 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         if message_dict:
             raise ValidationError(message_dict)
 
-
     def auto_mimetype(self):
         """ returns the mimetype for the current filename """
         fileext = os.path.splitext(self.filepath)[1].lower()
@@ -221,20 +221,8 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
 
     def save(self, *args, **kwargs):
         """
-        TODO: update if model-validation branch merged into django
+        cache the head file into filesystem
         """
-        if self.id == None: # new item should be created.
-            # manually check a unique together, because django can't do this with a M2M field.
-            # Obsolete if unique_together work with ManyToMany: http://code.djangoproject.com/ticket/702
-            exist = EditableHtmlHeadFile.on_site.filter(filepath=self.filepath).count()
-            if exist != 0:
-                # We can use attributes from this model instance, because it needs to have a primary key
-                # value before a many-to-many relationship can be used.
-                site = Site.objects.get_current()
-                raise IntegrityError(
-                    "EditableHtmlHeadFile with same filepath exist on site %r" % site
-                )
-
         # Try to cache the head file into filesystem (Only worked, if python process has write rights)
         self.save_all_color_cachefiles()
 
@@ -251,4 +239,31 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         ordering = ("filepath",)
 
 
+def unique_check_callback(sender, **kwargs):
+    """
+    manually check a unique together, because django can't do this with 
+    Meta.unique_together and a M2M field. It's also unpossible to do this 
+    in model validation.
+    
+    Obsolete if unique_together work with ManyToMany: http://code.djangoproject.com/ticket/702
+    
+    Note: this was done in model admin class, too.
+    """
+    headfile = kwargs["instance"]
 
+    headfiles = EditableHtmlHeadFile.objects.filter(filepath=headfile.filepath)
+    headfiles = headfiles.exclude(id=headfile.id)
+
+    for headfile in headfiles:
+        for site in headfile.sites.all():
+            if site not in headfile.sites.all():
+                continue
+
+            raise IntegrityError(
+                _("EditableHtmlHeadFile with filepath %(filepath)r exist on site %(site)r") % {
+                    "filepath": headfile.filepath,
+                    "site": site,
+                }
+            )
+
+signals.post_save.connect(unique_check_callback, sender=EditableHtmlHeadFile)
