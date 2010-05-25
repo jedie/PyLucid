@@ -15,6 +15,10 @@
 """
 
 from django.db import models
+from django.template.loader import find_template
+from django.template import TemplateDoesNotExist
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid_project.pylucid_plugins import update_journal
@@ -53,18 +57,24 @@ class Design(AutoSiteM2M, UpdateInfoBaseModel):
     """
     objects = DesignManager()
 
-    name = models.CharField(unique=True, max_length=150, help_text="Name of this design combination",)
+    name = models.CharField(unique=True, max_length=150, help_text=_("Name of this design combination"),)
     template = models.CharField(max_length=128, help_text="filename of the used template for this page")
     headfiles = models.ManyToManyField("pylucid.EditableHtmlHeadFile", null=True, blank=True,
-        help_text="Static files (stylesheet/javascript) for this page, included in html head via link tag"
+        help_text=_("Static files (stylesheet/javascript) for this page, included in html head via link tag")
     )
     colorscheme = models.ForeignKey(ColorScheme, null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        assert isinstance(self.template, basestring), \
-            "Template must be name as a String, not a template instance!"
+    def clean_fields(self, exclude):
+        message_dict = {}
 
-        return super(Design, self).save(*args, **kwargs)
+        if "template" not in exclude:
+            try:
+                find_template(self.template)
+            except TemplateDoesNotExist, err:
+                message_dict["template"] = [_("Template doesn't exist.")]
+
+        if message_dict:
+            raise ValidationError(message_dict)
 
     def __unicode__(self):
         sites = self.sites.values_list('name', flat=True)
