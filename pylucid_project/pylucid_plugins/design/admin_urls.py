@@ -14,5 +14,6 @@ from design import admin_views
 
 urlpatterns = patterns('',
     url(r'^switch/$', admin_views.switch, name='Design-switch'),
+    url(r'^clone/$', admin_views.clone, name='Design-clone'),
 )
 

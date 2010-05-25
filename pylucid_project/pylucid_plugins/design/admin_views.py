@@ -8,16 +8,23 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import posixpath
 
 from django import http
+from django.template.loader import find_template
 from django.utils.translation import ugettext as _
 
+from dbtemplates.models import Template as DBTemplateModel
+
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.apps.pylucid.models import Design, Color
 
-from design.forms import SelectDesign
-from pylucid_project.apps.pylucid.models import Design
+from design.forms import SwitchDesignForm, CloneDesignForm
+
+
+
+
 
 
 def install(request):
@@ -29,6 +36,11 @@ def install(request):
     admin_menu.add_menu_entry(
         parent=menu_section_entry, url_name="Design-switch",
         name="switch design", title="Switch the page design, temporary.",
+    )
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry, url_name="Design-clone",
+        name="clone design",
+        title="Clone a existing page design with all associated components.",
     )
 
     return "\n".join(output)
@@ -62,7 +74,7 @@ def switch(request):
         design_id = 0
 
     if request.method == "POST":
-        form = SelectDesign(request.POST)
+        form = SwitchDesignForm(request.POST)
         if form.is_valid():
             design_id = int(form.cleaned_data["design"])
             if design_id == 0:
@@ -77,8 +89,124 @@ def switch(request):
                 request.session["design_switch_pk"] = design_id
             return http.HttpResponseRedirect(request.path)
     else:
-        form = SelectDesign(initial={"design": design_id})
+        form = SwitchDesignForm(initial={"design": design_id})
 
     context["form"] = form
     return context
 
+
+#------------------------------------------------------------------------------
+# clone design
+
+
+def _clone_template(design, new_template_name, sites):
+    """
+    create a new DB-Template entry with the content from
+    the design template
+    """
+    template_path = design.template
+    source, origin = find_template(template_path)
+    new_template = DBTemplateModel(name=new_template_name, content=source)
+    new_template.save(force_insert=True)
+    new_template.sites = sites
+    new_template.save(force_update=True)
+    return new_template
+
+
+def _clone_headfiles(design, new_name, sites):
+    """ Clone all headfiles from the given source design. """
+    new_headfiles = []
+    old_headfiles = design.headfiles.all()
+    for headfile in old_headfiles:
+        old_filepath = headfile.filepath
+        basename = posixpath.basename(old_filepath)
+        new_filepath = posixpath.join(new_name, basename)
+
+        headfile.pk = None # make the object "new" ;)
+        headfile.filepath = new_filepath
+        headfile.description += "\n(cloned from '%s')" % old_filepath
+        headfile.save(force_insert=True)
+        headfile.sites = sites
+        headfile.save(force_update=True)
+
+        new_headfiles.append(headfile)
+
+    return new_headfiles
+
+
+def _clone_colorscheme(design, new_name, sites):
+    """
+    Clone the colorscheme and all colors.
+    """
+    colorscheme = design.colorscheme
+
+    colors = Color.objects.filter(colorscheme=colorscheme)
+
+    colorscheme.pk = None # make the object "new" ;)
+    colorscheme.name = new_name
+    colorscheme.save(force_insert=True)
+    colorscheme.sites = sites
+    colorscheme.save(force_update=True)
+
+    for color in colors:
+        color.pk = None # make the object "new" ;)
+        color.colorscheme = colorscheme
+        color.save(force_insert=True)
+        color.sites = sites
+        color.save(force_update=True)
+
+    return colorscheme
+
+
+@check_permissions(superuser_only=False, permissions=(
+    "pylucid.add_design",
+    "pylucid.add_editablehtmlheadfile",
+    "pylucid.add_color",
+    "pylucid.add_colorscheme",
+    "dbtemplates.add_template",
+    )
+)
+@render_to("design/clone.html")
+def clone(request):
+    context = {
+        "title": _("Clone a existing page design with all associated components."),
+        "form_url": request.path,
+    }
+
+    if request.method == "POST":
+        form = CloneDesignForm(request.POST)
+        if form.is_valid():
+            request.page_msg(form.cleaned_data)
+
+            new_name = form.cleaned_data["new_name"]
+            sites = form.cleaned_data["sites"]
+
+            design_id = int(form.cleaned_data["design"])
+            design = Design.objects.get(id=design_id)
+
+            new_template_name = form.get_new_template_name()
+            new_template = _clone_template(design, new_template_name, sites)
+
+            new_headfiles = _clone_headfiles(design, new_name, sites)
+
+            new_colorscheme = _clone_colorscheme(design, new_name, sites)
+
+            design.pk = None # make the object "new" ;)
+            design.name = new_name
+            design.template = new_template.name
+            design.colorscheme = new_colorscheme
+            design.save(force_insert=True)
+            design.sites = sites
+            design.headfiles = new_headfiles
+            design.save(force_update=True)
+
+            request.page_msg.successful(_("New design '%s' created.") % new_name)
+            return http.HttpResponseRedirect(request.path)
+    else:
+        form = CloneDesignForm()
+
+    context["form"] = form
+    return context
+
+#    context["form"] = form
+    return context
