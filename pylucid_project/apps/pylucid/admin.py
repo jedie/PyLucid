@@ -142,6 +142,9 @@ class ColorSchemeAdmin(VersionAdmin):
 admin.site.register(models.ColorScheme, ColorSchemeAdmin)
 
 
+#------------------------------------------------------------------------------
+
+
 class DesignAdminForm(forms.ModelForm):
     class Meta:
         model = models.Design
@@ -168,7 +171,6 @@ class DesignAdminForm(forms.ModelForm):
         return cleaned_data
 
 
-
 class DesignAdmin(VersionAdmin):
     form = DesignAdminForm
     list_display = ("id", "name", "template", "colorscheme", "site_info", "lastupdatetime", "lastupdateby")
@@ -179,14 +181,45 @@ class DesignAdmin(VersionAdmin):
 admin.site.register(models.Design, DesignAdmin)
 
 
+#------------------------------------------------------------------------------
+
+
+class EditableHtmlHeadFileAdminForm(forms.ModelForm):
+    class Meta:
+        model = models.EditableHtmlHeadFile
+
+    def clean_sites(self):
+        """
+        Check if headfile sites contain the site from all design entries.
+        """
+        sites = self.cleaned_data["sites"]
+        designs = models.Design.objects.all().filter(headfiles=self.instance)
+        for design in designs:
+            for design_site in design.sites.all():
+                if design_site in sites:
+                    continue
+                raise forms.ValidationError(_(
+                    "Headfile must exist on site %(site)r!"
+                    " Because it's used by design %(design)r." % {
+                        "site": design_site,
+                        "design": design
+                    }
+                ))
+
+        return sites
+
+
 class EditableHtmlHeadFileAdmin(VersionAdmin):
+    form = EditableHtmlHeadFileAdminForm
     list_display = ("id", "filepath", "site_info", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
     list_filter = ("sites", "render")
 
 admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
+
 #-----------------------------------------------------------------------------
+
 
 class UserProfileAdmin(VersionAdmin):
     list_display = ("id", "user", "site_info", "lastupdatetime", "lastupdateby")
