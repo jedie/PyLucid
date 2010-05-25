@@ -21,10 +21,11 @@ import mimetypes
 
 from django.conf import settings
 from django.db.models import signals
+from django.contrib.sites.models import Site
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.contrib.sites.models import Site
+from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.template import render
@@ -192,6 +193,23 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                     }
                 )
 
+        if "filepath" not in exclude:
+            try:
+                # "validate" the filepath with the url re. 
+                reverse('PyLucid-send_head_file', kwargs={"filepath": self.filepath})
+            except NoReverseMatch, err:
+                message_dict["filepath"] = [_(
+                    "filepath %(filepath)r contains invalid characters!"
+                    " (Original error: %(err)s)" % {
+                        "filepath": self.filepath,
+                        "err": err,
+                    }
+                )]
+
+        if message_dict:
+            raise ValidationError(message_dict)
+
+
     def auto_mimetype(self):
         """ returns the mimetype for the current filename """
         fileext = os.path.splitext(self.filepath)[1].lower()
@@ -206,12 +224,6 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         """
         TODO: update if model-validation branch merged into django
         """
-        try:
-            # "validate" the filepath with the url re. 
-            reverse('PyLucid-send_head_file', kwargs={"filepath": self.filepath})
-        except NoReverseMatch, err:
-            raise ValidationError("filepath %r contains invalid characters!" % self.filepath)
-
         if self.id == None: # new item should be created.
             # manually check a unique together, because django can't do this with a M2M field.
             # Obsolete if unique_together work with ManyToMany: http://code.djangoproject.com/ticket/702
