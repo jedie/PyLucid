@@ -265,7 +265,6 @@ jQuery(document).ready(function($) {
 	try {
         $("textarea:not(.processed)").TextAreaResizer();	
     } catch (e) {
-		// IE 8 Bug?
 	    log("can't init TextAreaResizer:" + e);
     }
 	
