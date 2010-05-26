@@ -41,10 +41,15 @@ class CloneDesignForm(SelectDesignBaseForm):
     new_name = forms.CharField(
         help_text=_("Name of the cloned design. (used for all design components, too)")
     )
-    sites = forms.ModelMultipleChoiceField(queryset=Site.objects.all(),
-        initial=[Site.objects.get_current().id],
+    sites = forms.MultipleChoiceField(
+        # choices= Set in __init__, so the Queryset would not execute at startup
         help_text=_("Site set to all design components")
     )
+
+    def __init__(self, *args, **kwargs):
+        super(CloneDesignForm, self).__init__(*args, **kwargs)
+        self.fields["sites"].choices = Site.objects.all().values_list("id", "name")
+        self.fields["sites"].initial = [Site.objects.get_current().id]
 
     def get_new_template_name(self):
         new_name = self.cleaned_data["new_name"]
