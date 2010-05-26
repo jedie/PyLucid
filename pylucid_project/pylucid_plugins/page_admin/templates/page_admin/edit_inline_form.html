@@ -97,6 +97,13 @@ jQuery(document).ready(function($) {
         {% endcomment %}
         self.location.href='{{ abort_url }}';
     });
+	
+    // jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
+    try {
+        $("textarea:not(.processed)").TextAreaResizer();    
+    } catch (e) {
+        log("can't init TextAreaResizer:" + e);
+    }
 });
 </script>
 {% endextrahead %}
