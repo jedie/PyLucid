@@ -304,5 +304,5 @@ try:
     from local_settings import *
 except ImportError:
     from django.core.exceptions import ImproperlyConfigured
-    raise ImproperlyConfigured("You must create a local_settings.py file in '%s' !" % PYLUCID_BASE_PATH)
+    raise ImproperlyConfigured("You must create a local_settings.py file in '%s' !" % os.getcwd())
 
