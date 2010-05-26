@@ -7,19 +7,10 @@
     List all available lucidTag
 """
 
-import inspect
-
-from django import http
-from django.template import RequestContext
-from django.utils.translation import ugettext as _
-
-from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
-
-from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-from pylucid_project.apps.pylucid.models import PageTree, PageContent
-from pylucid_project.utils.escape import escape
+from pylucid_project.apps.pylucid.markup.hightlighter import get_pygments_css
+from pylucid_project.apps.pylucid.models import PageContent
 
 from page_admin.forms import SelectMarkupHelpForm
 
@@ -50,11 +41,15 @@ def markup_help(request):
 
     template_name = "page_admin/markup_help_%s.html" % short_markup_name
 
+    # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
+    pygments_css_path = get_pygments_css(request)
+
     context = {
         "template_name": template_name,
         "form_url": request.path,
         "form": form,
         "title": "%s markup help" % short_markup_name,
+        "pygments_css": pygments_css_path,
     }
     return context
 
