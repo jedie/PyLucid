@@ -41,36 +41,35 @@ class LoginTest(basetest.BaseUnittest):
         response = self.client.get("/admin/", HTTP_ACCEPT_LANGUAGE="en")
         self.assertAdminLoginPage(response)
 
-#    def test_login_get_form(self):
-#        """ Simple check if login link exist. """
-#        response = self.client.get(LOGIN_URL)
-#        self.assertResponse(response,
-#            must_contain=(
-#                '<title>1-rootpage title', # PageContent
-#                # Form stuff:
-#                "JS-SHA-LogIn", "username", "sha_login", "next_url"
-#            ),
-#            must_not_contain=(
-#                "Traceback", 'Permission denied'
-#                '1-rootpage content', # PageContent
-#            ),
-#        )
-#
-#    def test_login_ajax_form(self):
-#        """ Check if we get the login form via AJAX """
-#        response = self.client.get(LOGIN_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-#        self.failUnlessEqual(response.status_code, 200)
-#        self.assertResponse(response,
-#            must_contain=(
-#                # Form stuff:
-#                "JS-SHA-LogIn", "username", "sha_login", "next_url"
-#            ),
-#            must_not_contain=(
-#                '<title>1-rootpage title', "<body", "<head>", # <- not a complete page
-#                "Traceback", 'Permission denied'
-#                '1-rootpage content', # PageContent
-#            ),
-#        )
+    def test_login_get_form(self):
+        """ Simple check if login link exist. """
+        response = self.client.get(LOGIN_URL)
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid CMS',
+                "JS-SHA-LogIn", "username", "var challenge=",
+                '<input id="submit_button" type="submit" value="Log in" />',
+            ),
+            must_not_contain=(
+                "Traceback", 'Permission denied'
+            ),
+        )
+
+    def test_login_ajax_form(self):
+        """ Check if we get the login form via AJAX """
+        response = self.client.get(LOGIN_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(response,
+            must_contain=(
+                '<div class="PyLucidPlugins auth" id="auth_http_get_view">',
+                "JS-SHA-LogIn", "username", "var challenge=",
+                '<input id="submit_button" type="submit" value="Log in" />',
+            ),
+            must_not_contain=(
+                '<title>PyLucid CMS', "<body", "<head>", # <- not a complete page
+                "Traceback", 'Permission denied'
+            ),
+        )
 
 
 
