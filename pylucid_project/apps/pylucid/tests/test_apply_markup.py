@@ -15,7 +15,10 @@
     :license: GNU GPL v3 or above, see LICENSE.txt for more details.
 """
 
-import os, unittest
+import os
+import sys
+import unittest
+
 
 if __name__ == "__main__":
     # run all unittest directly
@@ -35,6 +38,19 @@ class TestApplyMarkup(unittest.TestCase):
     ~~~~~~~~~~~~
     Test the url re patterns via django.core.urlresolvers.reverse
     """
+    def __init__(self, *args, **kwargs):
+        # use from creole tests the MarkupDiffFailure handler
+        import creole
+        creole_base_path = os.path.split(creole.__path__[0])[0]
+        sys.path.insert(0, os.path.join(creole_base_path, "tests", "utils"))
+        from utils import MarkupDiffFailure
+
+        # Use the own error class from above
+        self.failureException = MarkupDiffFailure
+
+        super(TestApplyMarkup, self).__init__(*args, **kwargs)
+
+
     def test_html(self):
         from pylucid_project.apps.pylucid.markup.converter import apply_markup
         from pylucid_project.apps.pylucid.models import PageContent
@@ -50,7 +66,6 @@ class TestApplyMarkup(unittest.TestCase):
             u"test\n"
             "<<code=.html>>\n"
             "<h1>Hello World</h1>"
-            "{% lucidTag foo %}\n"
             "<</code>>"
         )
         content = apply_markup(raw_content, markup_no=PageContent.MARKUP_CREOLE,
@@ -63,10 +78,9 @@ class TestApplyMarkup(unittest.TestCase):
             '<td class="linenos"><div class="linenodiv"><pre>1</pre></div></td>'
             '<td class="code"><div class="pygments">'
             '<pre>'
-            '<span class="nt">&lt;h1&gt;</span>Hello World<span class="nt">&lt;/h1&gt;</span>'
-            '&#x7B;% lucidTag foo %&#x7D;\n'
-            '</pre>'
-            '</div>\n</td></tr></table></fieldset>\n\n'
+            '<span class="nt">&lt;h1&gt;</span>Hello World<span class="nt">&lt;/h1&gt;</span>\n'
+            '</pre></div>\n'
+            '</td></tr></table></fieldset>\n\n'
 
         )
 

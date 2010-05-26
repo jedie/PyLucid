@@ -16,33 +16,13 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
+import os
+
 if __name__ == "__main__":
-    # run unittest directly
-    import os
-#    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
-    os.environ["DJANGO_SETTINGS_MODULE"] = "pylucid_project.pylucid_plugins.auth.test_settings"
-    virtualenv_file = "../../../../../../PyLucid_env/bin/activate_this.py"
-    execfile(virtualenv_file, dict(__file__=virtualenv_file))
+    # run all unittest directly
+    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.test import TestCase
-
-#class AuthTest(TestCase):
-#    fixtures = ['pylucid.json']
-#
-#    def test_basic_addition(self):
-#        """
-#        Tests that 1 + 1 always equals 2.
-#        """
-#        self.failUnlessEqual(1 + 1, 2)
-#
-#__test__ = {"doctest": """
-#Another way to test that 1 + 1 is equal to 2.
-#
-#>>> 1 + 1 == 2
-#False
-#"""}
-
-
 from django.test.client import Client
 from django_tools.unittest_utils import unittest_base, BrowserDebug
 
@@ -53,26 +33,13 @@ LOGIN_URL = "?auth=login"
 
 
 class LoginTest(basetest.BaseUnittest):
-    fixtures = ['pylucid.json']
-
     def setUp(self):
         self.client = Client() # start a new session
 
     def test_login_link(self):
         """ Simple check if login link exist. """
         response = self.client.get("/admin/", HTTP_ACCEPT_LANGUAGE="en")
-        self.assertResponse(response,
-            must_contain=(
-                # PageContent:
-                '1-rootpage content',
-                '<title>1-rootpage title',
-                # Login in link:
-                '<span class="PyLucidPlugins auth" id="auth_lucidTag">',
-                '<a href="?auth=login"',
-                'id="login_link',
-            ),
-            must_not_contain=('Error', "traceback", 'Permission denied'),
-        )
+        self.assertAdminLoginPage(response)
 
 #    def test_login_get_form(self):
 #        """ Simple check if login link exist. """
@@ -108,6 +75,6 @@ class LoginTest(basetest.BaseUnittest):
 
 
 if __name__ == "__main__":
-    # Run all unittest directly
+    # Run this unittest directly
     from django.core import management
     management.call_command('test', __file__, verbosity=1)

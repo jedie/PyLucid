@@ -69,6 +69,27 @@ class BaseUnittest(BaseTestCase, TestCase):
             must_not_contain=("Traceback",)
         )
 
+    def assertAdminLoginPage(self, response):
+        """
+        Check if the response is the django login page
+        with PyLucid modifications
+        """
+        self.failUnlessEqual(response.status_code, 200)
+        url = response.request["PATH_INFO"]
+        self.assertResponse(response,
+            must_contain=(
+                # django
+                '<form action="%s" method="post" id="login-form">' % url,
+                '<input type="text" name="username"',
+                '<input type="password" name="password"',
+                '<input type="submit" value="Log in" />',
+                # from pylucid:
+                'JS-SHA-Login',
+                "Do really want to send your password in plain text?",
+            ),
+            must_not_contain=("Traceback",)
+        )
+
     def login(self, usertype):
         """
         Login test user and add him to the current site.

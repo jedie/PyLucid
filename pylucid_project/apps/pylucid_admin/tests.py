@@ -30,19 +30,6 @@ class PyLucidAdminTestCase(basetest.BaseUnittest):
     def setUp(self):
         self.client = Client() # start a new session
 
-    def assertAdminLoginPage(self, response):
-        self.failUnlessEqual(response.status_code, 200)
-        self.assertResponse(response,
-            must_contain=(
-                # django
-                'form action="/admin/" method="post"',
-                # from pylucid:
-                '$("form").submit',
-                '$("form").find(":submit")'
-            ),
-            must_not_contain=("Traceback",)
-        )
-
 
 class PyLucidAdminTest(PyLucidAdminTestCase):
 
@@ -144,8 +131,9 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
                 '<meta name="robots" content="NONE,NOARCHIVE" />',
             ),
             must_not_contain=(
-                "Permission denied",
-                'input id="id_password"',
+                '<input type="text" name="username"',
+                '<input type="password" name="password"',
+                '<input type="submit" value="Log in" />',
             )
         )
         self.failUnlessEqual(response.status_code, 200)
@@ -211,13 +199,13 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test', "apps.pylucid_admin.tests.PyLucidPluginsTest",
-#        verbosity=0,
-        verbosity=1,
-        failfast=True
-    )
-#    management.call_command('test', __file__,
-#        verbosity=1,
+#    management.call_command('test', "apps.pylucid_admin.tests.PyLucidPluginsTest",
 ##        verbosity=0,
-##        failfast=True
+#        verbosity=1,
+#        failfast=True
 #    )
+    management.call_command('test', __file__,
+        verbosity=1,
+#        verbosity=0,
+#        failfast=True
+    )
