@@ -224,51 +224,9 @@ function replace_openinwindow_links() {
 
 var MIN_ROWS = 5;
 var MAX_ROWS = 25;
-var MAX_LENGTH = 100;
-var RESIZE_FACTOR = 1.3;
 
-function activate_resize_textarea_buttons() {
-    /*************************************************************************
-     * textarea resize buttons
-     */
-    log("activate_resize_textarea_buttons()");
-    $(".resize_textarea" ).click(function () {
-        button_id = $(this).attr('id');
-        //      log("Clicked on: " + button_id);
-        var pos = button_id.indexOf("_");
-        var action = button_id.slice(0, pos);
-        var textarea_id = button_id.slice(pos+1, button_id.length);
-        //      log("action:" + action);
-        //      log("textarea id:" + textarea_id);
-        var textarea = $("#"+textarea_id);
-        var old_rows = textarea.attr("rows");
-        
-        var new_rows = false;
-        if (action=="smaller") {
-            if (old_rows<3) {
-                log("no more smaller ;)")
-                return;
-            }
-            new_rows = Math.floor(old_rows / RESIZE_FACTOR);
-        }
-        if (action=="bigger") {
-            new_rows = Math.ceil(old_rows * RESIZE_FACTOR);
-        }
-        
-        if (new_rows == false) {
-            log("Error: Wrong textarea resize action:" + action);
-            return;
-        }
-        //      log("old rows:" + old_rows + " - new rows:" + new_rows);
-        textarea.animate({
-            rows: new_rows
-        }, 100 );
-    });
-}
 
 jQuery(document).ready(function($) {
-    activate_resize_textarea_buttons();
-	
     /*************************************************************************
 	 * replace the existing links with a "open in new window" link           */
     replace_openinwindow_links();
@@ -303,6 +261,13 @@ jQuery(document).ready(function($) {
         log("set textarea row to:" + rows)
         this.rows = rows;
     });
+	// jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
+	try {
+        $("textarea:not(.processed)").TextAreaResizer();	
+    } catch (e) {
+		// IE 8 Bug?
+	    log("can't init TextAreaResizer:" + e);
+    }
 	
     /*************************************************************************
 	 * resize input fields

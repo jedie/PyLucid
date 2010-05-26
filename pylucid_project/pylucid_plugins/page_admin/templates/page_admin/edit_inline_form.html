@@ -15,9 +15,22 @@
 #ajax_preview { /* hide Ajax preview button and unhide it with JS */
     display: none;
 }
+div.grippie { /* for jquery.textarearesizer.js */
+    background-color: #dddddd;
+    cursor:s-resize;
+    height:9px;
+	width:100%;
+    overflow:hidden;
+}
+textarea {
+    display:block;
+    margin-bottom:0pt;
+	min-height: 300px;
+    height: 20%;
+}
 -->
 </style>
-
+<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.textarearesizer.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.textarearesizer.js] !');"></script>
 <script type="text/javascript">
 var textarea_changed = false;
 
@@ -84,8 +97,6 @@ jQuery(document).ready(function($) {
         {% endcomment %}
         self.location.href='{{ abort_url }}';
     });
-
-    activate_resize_textarea_buttons();
 });
 </script>
 {% endextrahead %}
@@ -119,13 +130,6 @@ jQuery(document).ready(function($) {
          <button type="button" class="button">{% trans 'markup help' %}</button>
      </a>
      {% endif %}
-
-     <button type="button" class="button resize_textarea" id="bigger_id_content" title="{% trans 'makes the textarea bigger' %}">
-         +
-     </button>
-     <button type="button" class="button resize_textarea" id="smaller_id_content" title="{% trans 'makes the textarea smaller' %}">
-         -
-     </button>
  </div>
 {% with edit_page_form as form %}
     {% include "admin/pylucid/includes/pylucid_formset.html" %}

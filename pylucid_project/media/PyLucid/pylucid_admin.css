@@ -146,3 +146,23 @@ table.info caption {
 .PyLucidPlugins.TOC a:hover {
   color: #286ea0;
 }
+/* ----------------------------------------------------------------------------
+   jquery.textarearesizer.js
+   http://plugins.jquery.com/project/TextAreaResizer
+------------------------------------------------------------------------------- */
+div.grippie {
+    background-color: #eeeeee;
+    cursor:s-resize;
+    height:9px;
+    width:100%;
+    overflow:hidden;
+}
+div.grippie:hover {
+    background-color: #cccccc;
+}
+textarea {
+    display:block;
+    margin-bottom:0pt;
+    min-height: 8em;
+	width: 85% !important;
+}
