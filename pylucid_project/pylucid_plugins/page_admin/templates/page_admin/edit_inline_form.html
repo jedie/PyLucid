@@ -132,7 +132,7 @@ jQuery(document).ready(function($) {
          <button type="button" class="button">{% trans 'tag list' %}</button>
      </a>
 
-     {% if markup_id_str in "26" %}
+     {% if markup_id_str not in "01" %}{# Display button not if current markup ist HTML/HTML+Editor #}
      <a href="{% url PageAdmin-markup_help %}?markup={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'Markup help' %}">
          <button type="button" class="button">{% trans 'markup help' %}</button>
      </a>
