@@ -1,5 +1,17 @@
 {% extends "admin/base_site.html" %}
 
+
+{% block extrastyle %}{{ block.super }}
+<!-- find_and_replace.html extrahead START -->
+<style>
+#id_find_string, #id_replace_string {
+    width:80%;
+    max-width:80%;
+}
+</style>
+<!-- find_and_replace.html extrahead END -->
+{% endblock extrastyle %}
+
 {% block content %}
 <form action="{{ form_url }}" method="post" id="find_and_replace_form" class="pylucid_form">
     {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
