@@ -202,13 +202,21 @@ def send_head_file(request, filepath):
     Sending a headfile
     only a fall-back method if the file can't be stored into the media path
     """
+    colorscheme = None
     if "ColorScheme" in request.GET:
-        colorscheme_pk = request.GET["ColorScheme"]
+        raw_colorscheme_id = request.GET["ColorScheme"]
         try:
-            colorscheme = ColorScheme.objects.get(pk=colorscheme_pk)
+            colorscheme_id = int(raw_colorscheme_id)
+        except ValueError:
+            if settings.DEBUG:
+                raise
+            return http.HttpResponseBadRequest()
+
+        try:
+            colorscheme = ColorScheme.objects.get(pk=colorscheme_id)
         except ColorScheme.DoesNotExist:
             if settings.DEBUG:
-                msg = "ColorScheme %r not found!" % colorscheme_pk
+                msg = "ColorScheme %r not found!" % colorscheme_id
             else:
                 msg = ""
             raise http.Http404(msg)
@@ -222,7 +230,7 @@ def send_head_file(request, filepath):
             msg = ""
         raise http.Http404(msg)
 
-    if headfile.render:
+    if headfile.render and colorscheme is not None:
         content = headfile.get_rendered(colorscheme)
     else:
         content = headfile.content
