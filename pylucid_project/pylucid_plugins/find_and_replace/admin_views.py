@@ -47,6 +47,8 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
         queryset = model.objects.all()
         queryset = queryset.filter(pagemeta__pagetree__site=Site.objects.get_current())
         queryset = queryset.filter(pagemeta__language__in=search_languages)
+    if model_name in (u"EditableHtmlHeadFile", u"DBTemplate"):
+        queryset = model.on_site.all()
     else:
         queryset = model.on_site.all()
         queryset = queryset.filter(language__in=search_languages)

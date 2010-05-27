@@ -3,7 +3,10 @@
 from django import forms
 from django.utils.translation import ugettext as _
 
-from pylucid_project.apps.pylucid.models import Language, PageContent
+from dbtemplates.models import Template as DBTemplate
+
+from pylucid_project.apps.pylucid.models import Language, PageContent, EditableHtmlHeadFile
+
 from blog.models import BlogEntry
 from lexicon.models import LexiconEntry
 
@@ -15,6 +18,8 @@ CONTENT_TYPES = (
     (u"PageContent", PageContent),
     (u"BlogEntry", BlogEntry),
     (u"LexiconEntry", LexiconEntry),
+    (u"EditableHtmlHeadFile", EditableHtmlHeadFile),
+    (u"DBTemplate", DBTemplate),
 )
 CONTENT_TYPES_CHOICES = [(no, data[0]) for no, data in enumerate(CONTENT_TYPES)]
 CONTENT_TYPES_DICT = dict([(no, data[1]) for no, data in enumerate(CONTENT_TYPES)])
