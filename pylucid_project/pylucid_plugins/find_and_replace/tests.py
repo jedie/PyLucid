@@ -60,6 +60,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
             'content_type': 0, # PageContent
             'languages': ['de', 'en'],
             'save': 'find and replace',
+            'sites': ['1'],
             'simulate': 'on'
         })
         self.assertResponse(response,
@@ -85,6 +86,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
             'replace_string': 'XXX replaced XXX',
             'content_type': 0, # PageContent
             'languages': ['de', 'en'],
+            'sites': ['1'],
             'save': 'find and replace',
         })
         self.assertResponse(response,
