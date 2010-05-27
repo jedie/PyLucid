@@ -51,3 +51,4 @@ class FindReplaceForm(forms.Form):
         self.fields["replace_string"].max_length = preferences["max_term_len"]
 
         self.fields["languages"].choices = Language.objects.get_choices()
+        self.fields["languages"].initial = [Language.objects.get_current().code]
