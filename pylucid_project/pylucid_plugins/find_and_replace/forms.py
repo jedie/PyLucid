@@ -1,6 +1,7 @@
 # coding:utf-8
 
 from django import forms
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 
 from dbtemplates.models import Template as DBTemplate
@@ -29,12 +30,18 @@ class FindReplaceForm(forms.Form):
     find_string = forms.CharField()
     replace_string = forms.CharField()
 
-    languages = forms.MultipleChoiceField()
-
     content_type = forms.ChoiceField(
         choices=CONTENT_TYPES_CHOICES,
         help_text=_("Please select the content type for the operation.")
     )
+    languages = forms.MultipleChoiceField(
+        help_text=_("Limit the language. (Would not be used for any content type.)")
+    )
+    sites = forms.MultipleChoiceField(
+        # choices= Set in __init__, so the Queryset would not execute at startup
+        help_text=_("Limit to these sites")
+    )
+
     simulate = forms.BooleanField(
         initial=True, required=False,
         help_text=_("Don't replace anything.")
@@ -52,3 +59,6 @@ class FindReplaceForm(forms.Form):
 
         self.fields["languages"].choices = Language.objects.get_choices()
         self.fields["languages"].initial = [Language.objects.get_current().code]
+
+        self.fields["sites"].choices = Site.objects.all().values_list("id", "name")
+        self.fields["sites"].initial = [Site.objects.get_current().id]

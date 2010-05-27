@@ -36,28 +36,37 @@ def install(request):
     return "\n".join(output)
 
 
-def _do_find_and_replace(request, context, find_string, replace_string, content_type, simulate, languages):
+def _do_find_and_replace(request, context, find_string, replace_string, content_type, simulate, languages, sites):
     content_type_no = int(content_type)
     model_name = CONTENT_TYPES[content_type_no][0]
     model = CONTENT_TYPES_DICT[content_type_no]
 
     search_languages = Language.objects.filter(code__in=languages)
 
-    if model_name == u"PageContent":
-        queryset = model.objects.all()
-        queryset = queryset.filter(pagemeta__pagetree__site=Site.objects.get_current())
-        queryset = queryset.filter(pagemeta__language__in=search_languages)
-    elif model_name in (u"EditableHtmlHeadFile", u"DBTemplate"):
-        queryset = model.on_site.all()
-    else:
-        queryset = model.on_site.all()
-        queryset = queryset.filter(language__in=search_languages)
-
+    queryset = model.objects.all()
     request.page_msg.info(
-        _("%(count)s %(model_name)s entries exist on this site.") % {
+        _("%(count)s %(model_name)s entries total exist.") % {
             "count": queryset.count(),
             "model_name": model_name,
     })
+
+    if model_name == u"PageContent":
+        queryset = queryset.filter(pagemeta__language__in=search_languages)
+        queryset = queryset.filter(pagemeta__pagetree__site__in=sites)
+    else:
+        queryset = queryset.filter(sites__in=sites)
+
+    if model_name not in (u"PageContent", u"EditableHtmlHeadFile", u"DBTemplate"):
+        queryset = queryset.filter(language__in=search_languages)
+
+    filtered_count = queryset.count()
+    request.page_msg.info(
+        _("%(count)s %(model_name)s filtered entries found.") % {
+            "count": filtered_count,
+            "model_name": model_name,
+    })
+    if filtered_count == 0:
+        return
 
     queryset = queryset.filter(content__contains=find_string)
     request.page_msg.info(
@@ -97,7 +106,7 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
 
     if total_changes > 0:
         request.page_msg.info(
-            _("%(changes)s in %(count)s %(model_name)s entries.") % {
+            _("%(changes)s changes in %(count)s %(model_name)s entries.") % {
                 "changes": total_changes,
                 "count": changed_entry_count,
                 "model_name": model_name,
@@ -130,10 +139,7 @@ def find_and_replace(request):
             pygments_css_path = hightlighter.get_pygments_css(request)
             context["pygments_css"] = pygments_css_path
     else:
-        initial = {
-            "language": request.PYLUCID.current_language.code, # preselect current language
-        }
-        form = FindReplaceForm(initial=initial)
+        form = FindReplaceForm()
 
     context["form"] = form
     return context
