@@ -16,9 +16,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-from pylucid_project.apps.pylucid.signals import pre_render_global_template
+#from pylucid_project.apps.pylucid.signals import pre_render_global_template
 
-from design.signal_receiver import pre_render_global_template_handler
+#from design.signal_receiver import pre_render_global_template_handler
 
 
-pre_render_global_template.connect(pre_render_global_template_handler)
+#pre_render_global_template.connect(pre_render_global_template_handler)

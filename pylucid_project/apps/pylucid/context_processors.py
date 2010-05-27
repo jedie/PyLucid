@@ -4,6 +4,11 @@
 setup some "static" variables
 """
 
+try:
+    from functools import wraps
+except ImportError:
+    from django.utils.functional import wraps  # Python 2.3, 2.4 fallback.
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
@@ -15,32 +20,45 @@ from pylucid_project import VERSION_STRING
 from pylucid_project.utils import slug
 
 
-def _add_plugin_info(request, context):
+def add_plugin_info(view_function):
     """ Add css anchor into context. Used information from lucidTagNode. """
+    @wraps(view_function)
+    def _inner(request):
+        context = view_function(request)
 
-    plugin_name = request.plugin_name
-    method_name = request.method_name
+        if getattr(request, "plugin_name", None) != None:
+            # Add css anchor info
+            plugin_name = request.plugin_name
+            method_name = request.method_name
 
-    if not hasattr(request, "css_id_list"):
-        request.css_id_list = []
+            if not hasattr(request, "css_id_list"):
+                request.css_id_list = []
 
-    css_plugin_id = plugin_name + u"_" + method_name
-    existing_slugs = request.css_id_list
-    css_plugin_id = slug.makeUniqueSlug(css_plugin_id, existing_slugs)
+            css_plugin_id = plugin_name + u"_" + method_name
+            existing_slugs = request.css_id_list
+            css_plugin_id = slug.makeUniqueSlug(css_plugin_id, existing_slugs)
 
-    request.css_id_list.append(css_plugin_id)
+            request.css_id_list.append(css_plugin_id)
 
-    context["css_plugin_id"] = css_plugin_id
-    context["css_plugin_class"] = plugin_name
+            context["css_plugin_id"] = css_plugin_id
+            context["css_plugin_class"] = plugin_name
 
-    return context
+        return context
+    return _inner
 
 
+@add_plugin_info
 def pylucid(request):
     """
     A django TEMPLATE_CONTEXT_PROCESSORS
     http://www.djangoproject.com/documentation/templates_python/#writing-your-own-context-processors
     """
+    if hasattr(request.PYLUCID, "context"):
+        # reuse a exsiting context, so we save a few database requests
+        # XXX: Is it's normal, das these context processor would be called more than one time?
+        return request.PYLUCID.context
+
+
     current_site = Site.objects.get_current()
     all_sites = Site.objects.all()
 
@@ -65,6 +83,14 @@ def pylucid(request):
 
     pagetree = getattr(request.PYLUCID, "pagetree", None)
     if pagetree:
+        if "design_switch_pk" in request.session:
+            # The user has switch the design with pylucid_plugins.design
+            from pylucid_project.apps.pylucid.models import Design # import here, agains import loops
+
+            design_id = request.session["design_switch_pk"]
+            pagetree.design = Design.on_site.get(id=design_id)
+#            request.page_msg("switch to design: %r" % pagetree.design)
+
         template_name = pagetree.design.template
         context["template_name"] = template_name
 
@@ -86,9 +112,5 @@ def pylucid(request):
             "page_permalink": pagemeta.get_permalink(),
             "page_absolute_url": pagemeta.get_absolute_url(),
         })
-
-    if getattr(request, "plugin_name", None) != None:
-        # Add css anchor info
-        context = _add_plugin_info(request, context)
 
     return context
