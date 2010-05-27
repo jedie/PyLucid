@@ -30,9 +30,6 @@ def pre_render_global_template_handler(**kwargs):
     from pylucid_project.apps.pylucid.models import Design # import here, agains import loops
 
     pagetree = request.PYLUCID.pagetree
-    print "old design:", pagetree.design
 
     design_id = request.session["design_switch_pk"]
     pagetree.design = Design.on_site.get(id=design_id)
-
-    print "use design:", pagetree.design
