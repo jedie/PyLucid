@@ -15,5 +15,6 @@ from design import admin_views
 urlpatterns = patterns('',
     url(r'^switch/$', admin_views.switch, name='Design-switch'),
     url(r'^clone/$', admin_views.clone, name='Design-clone'),
+    url(r'^rename_colors/(?P<colorscheme_id>\d+)?/$', admin_views.rename_colors, name='Design-rename_colors'),
 )
 

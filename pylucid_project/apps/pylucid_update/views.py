@@ -41,7 +41,7 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid_project.apps.pylucid.fields import CSS_VALUE_RE
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.system.css_color_utils import filter_content, extract_colors
+from pylucid_project.utils.css_color_utils import filter_content, extract_colors
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, Design, \
                                                 EditableHtmlHeadFile, UserProfile, LogEntry, Language
 

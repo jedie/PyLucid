@@ -11,19 +11,18 @@
 import posixpath
 
 from django import http
+from django.core.urlresolvers import reverse
 from django.template.loader import find_template
 from django.utils.translation import ugettext as _
 
 from dbtemplates.models import Template as DBTemplateModel
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.models import Design, Color, ColorScheme
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
-from pylucid_project.apps.pylucid.models import Design, Color
+from pylucid_project.utils.css_color_utils import unique_color_name
 
 from design.forms import SwitchDesignForm, CloneDesignForm
-
-
-
 
 
 
@@ -208,5 +207,35 @@ def clone(request):
     context["form"] = form
     return context
 
-#    context["form"] = form
-    return context
+
+@check_permissions(superuser_only=False, permissions=(
+    "pylucid.change_editablehtmlheadfile",
+    "pylucid.change_color",
+    )
+)
+def rename_colors(request, colorscheme_id):
+    """
+    TODO: display the changed colors in a form, so that the user
+    can choose witch colors should really be renamed.
+    """
+    colorschmeme = ColorScheme.on_site.get(id=colorscheme_id)
+    colors = Color.on_site.filter(colorscheme=colorschmeme)
+
+    changed_colors = 0
+    existing_colors = []
+    for color in colors:
+        hex_string = color.value
+        old_color_name = color.name
+        new_color_name = unique_color_name(existing_colors, hex_string)
+        existing_colors.append(new_color_name) # needed to make names unique
+        if new_color_name == old_color_name:
+            # nothing to do
+            continue
+        color.name = new_color_name
+        color.save()
+        changed_colors += 1
+
+    request.page_msg("%s colors exist. %s changed" % (len(existing_colors), changed_colors))
+
+    url = reverse("admin:pylucid_colorscheme_change", args=(colorscheme_id,))
+    return http.HttpResponseRedirect(url)

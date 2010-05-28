@@ -21,7 +21,6 @@ import mimetypes
 
 from django.conf import settings
 from django.db.models import signals
-from django.contrib.sites.models import Site
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -32,14 +31,12 @@ from django_tools.template import render
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from pylucid_project.utils.css_color_utils import extract_colors
 from pylucid_project.apps.pylucid.system import headfile
-
-from pylucid_project.pylucid_plugins import update_journal
 
 # other PyLucid models
 from colorscheme import ColorScheme, Color
 from design import Design
-from pylucid_project.apps.pylucid.system.css_color_utils import extract_colors
 
 
 TAG_INPUT_HELP_URL = \
@@ -234,8 +231,14 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         return super(EditableHtmlHeadFile, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        sites = self.sites.values_list('name', flat=True)
-        return u"'%s' (on sites: %r)" % (self.filepath, sites)
+        try:
+            sites = self.sites.values_list('name', flat=True)
+        except ValueError:
+            # e.g. new instance not saved, yet: 
+            # instance needs to have a primary key value before a many-to-many relationship can be used.
+            return u"'%s'" % self.filepath
+        else:
+            return u"'%s' (on sites: %r)" % (self.filepath, sites)
 
     class Meta:
         app_label = 'pylucid'
@@ -275,14 +278,19 @@ signals.post_save.connect(unique_check_callback, sender=EditableHtmlHeadFile)
 
 
 def update_colorscheme_callback(sender, **kwargs):
+    """
+    merge colors from headfiles with the colorscheme.
+    """
     headfile_instance = kwargs["instance"]
     if not headfile_instance.render:
         # No CSS ColorScheme entries in the content -> do nothing
         return
 
-    print "Update colorscheme for %r" % headfile_instance
-
     content = headfile_instance.content
+
+    colorscheme_count = 0
+    total_colors_created = 0
+    total_colors_updated = 0
 
     designs = Design.objects.all()
     for design in designs:
@@ -290,38 +298,36 @@ def update_colorscheme_callback(sender, **kwargs):
         for headfile in headfiles:
             if headfile == headfile_instance:
                 colorscheme = design.colorscheme
-                print "Update colorscheme: %r" % colorscheme
-
-                from pprint import pformat
                 existing_color_dict = colorscheme.get_color_dict()
-
-                print "_" * 79
-                print "*** old content:"
-                print content
                 content, color_dict = extract_colors(content, existing_color_dict)
-                print "_" * 79
-                print "*** new content:"
-                print content
-                print "-" * 79
-                print "*** extract_colors() - color dict:"
-                print pformat(color_dict)
 
                 try:
                     created, updated, exists = colorscheme.update(color_dict)
                 except ValidationError, err:
-                    print("Error updating colorscheme: %s" % err)
+                    failsafe_message("Error updating colorscheme: %s" % err)
                     return
 
                 created_count = len(created)
                 updated_count = len(updated)
 
-                print("created %s colors: %r" % (created_count, created))
-                print("updated %s colors: %r" % (updated_count, updated))
-                print("exists %s colors: %r" % (len(exists), exists))
-
                 if created_count > 0 or updated_count > 0:
                     colorscheme.save()
 
+                colorscheme_count += 1
+                total_colors_created += created_count
+                total_colors_updated += updated_count
+
     headfile_instance.content = content
+
+    failsafe_message(_(
+        "%(colorscheme_count)s colorscheme updated."
+        " %(created)s colors created."
+        " %(updated)s colors updated."
+        ) % {
+            "colorscheme_count": colorscheme_count,
+            "created": total_colors_created,
+            "updated": total_colors_updated,
+        }
+    )
 
 signals.pre_save.connect(update_colorscheme_callback, sender=EditableHtmlHeadFile)
