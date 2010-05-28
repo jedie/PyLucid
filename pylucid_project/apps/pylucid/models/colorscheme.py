@@ -39,6 +39,11 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
     """
     name = models.CharField(max_length=255, help_text="The name of this color scheme.")
 
+    def get_color_dict(self):
+        querset = Color.on_site.filter(colorscheme=self)
+        color_list = querset.values_list('name', 'value')
+        return dict(color_list)
+
     def update(self, colors):
         assert isinstance(colors, dict)
         new = []
@@ -67,11 +72,11 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
         app_label = 'pylucid'
 
 
-class ColorManager(models.Manager):
-    def get_color_dict(self, colorscheme):
-        colors = self.all().filter(colorscheme=colorscheme)
-        color_list = colors.values_list('name', 'value')
-        return dict([(name, "#%s" % value) for name, value in color_list])
+#class ColorManager(models.Manager):
+#    def get_color_dict(self, colorscheme):
+#        colors = self.all().filter(colorscheme=colorscheme)
+#        color_list = colors.values_list('name', 'value')
+#        return dict([(name, "#%s" % value) for name, value in color_list])
 
 class Color(AutoSiteM2M, UpdateInfoBaseModel):
     """
@@ -79,7 +84,7 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
         sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
     """
-    objects = ColorManager()
+#    objects = ColorManager()
 
     colorscheme = models.ForeignKey(ColorScheme)
     name = models.CharField(max_length=128,

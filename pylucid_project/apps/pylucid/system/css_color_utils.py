@@ -18,6 +18,7 @@ def filter_content(content):
             result.append(line)
     return "\n".join(result)
 
+
 def extract_colors(content, existing_color_dict=None):
     """
     # TODO: Preprocess: Change all 3 length values to 6 length values for merging it.
@@ -37,6 +38,10 @@ def extract_colors(content, existing_color_dict=None):
     >>> extract_colors(".foo { color: #000000; }", existing_color_dict={"black":"000000"})
     ('.foo { color: {{ black }}; }', {'black': '000000'})
     
+    Existing color names would not overwritten
+    >>> extract_colors(".foo { color: #112233; }", existing_color_dict={"color_0":"000000"})
+    ('.foo { color: {{ color_1 }}; }', {'color_1': '112233', 'color_0': '000000'})
+    
     Skip non color values:
     >>> extract_colors("to short #12345; to long #1234567; /* no # 123; color #aa11ff-value */")
     ('to short #12345; to long #1234567; /* no # 123; color #aa11ff-value */', {})
@@ -53,15 +58,20 @@ def extract_colors(content, existing_color_dict=None):
         color_dict = {}
         exist_color = {}
 
-    for no, color in enumerate(colors):
+    no = 0
+    for color in colors:
         color_lower = color.lower()
 
         if color_lower in exist_color:
             # color exist in other case
             key = exist_color[color_lower]
-        else:
-            # new color
-            key = "color_%s" % no
+        else:# new color
+            while True: # get a new color name, witch not exist yet.
+                key = "color_%s" % no
+                if key not in color_dict:
+                    break
+                no += 1
+
             color_dict[key] = color_lower
             exist_color[color_lower] = key
 

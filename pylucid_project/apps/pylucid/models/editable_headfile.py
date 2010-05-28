@@ -39,6 +39,7 @@ from pylucid_project.pylucid_plugins import update_journal
 # other PyLucid models
 from colorscheme import ColorScheme, Color
 from design import Design
+from pylucid_project.apps.pylucid.system.css_color_utils import extract_colors
 
 
 TAG_INPUT_HELP_URL = \
@@ -113,7 +114,11 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         return os.path.join(settings.MEDIA_ROOT, self.get_path(colorscheme))
 
     def get_rendered(self, colorscheme):
-        color_dict = Color.objects.get_color_dict(colorscheme)
+        color_dict = colorscheme.get_color_dict()
+
+        for name, value in color_dict.iteritems():
+            color_dict[name] = "#%s" % value
+
         return render.render_string_template(self.content, color_dict)
 
     def save_cache_file(self, colorscheme):
@@ -267,3 +272,56 @@ def unique_check_callback(sender, **kwargs):
             )
 
 signals.post_save.connect(unique_check_callback, sender=EditableHtmlHeadFile)
+
+
+def update_colorscheme_callback(sender, **kwargs):
+    headfile_instance = kwargs["instance"]
+    if not headfile_instance.render:
+        # No CSS ColorScheme entries in the content -> do nothing
+        return
+
+    print "Update colorscheme for %r" % headfile_instance
+
+    content = headfile_instance.content
+
+    designs = Design.objects.all()
+    for design in designs:
+        headfiles = design.headfiles.all()
+        for headfile in headfiles:
+            if headfile == headfile_instance:
+                colorscheme = design.colorscheme
+                print "Update colorscheme: %r" % colorscheme
+
+                from pprint import pformat
+                existing_color_dict = colorscheme.get_color_dict()
+
+                print "_" * 79
+                print "*** old content:"
+                print content
+                content, color_dict = extract_colors(content, existing_color_dict)
+                print "_" * 79
+                print "*** new content:"
+                print content
+                print "-" * 79
+                print "*** extract_colors() - color dict:"
+                print pformat(color_dict)
+
+                try:
+                    created, updated, exists = colorscheme.update(color_dict)
+                except ValidationError, err:
+                    print("Error updating colorscheme: %s" % err)
+                    return
+
+                created_count = len(created)
+                updated_count = len(updated)
+
+                print("created %s colors: %r" % (created_count, created))
+                print("updated %s colors: %r" % (updated_count, updated))
+                print("exists %s colors: %r" % (len(exists), exists))
+
+                if created_count > 0 or updated_count > 0:
+                    colorscheme.save()
+
+    headfile_instance.content = content
+
+signals.pre_save.connect(update_colorscheme_callback, sender=EditableHtmlHeadFile)

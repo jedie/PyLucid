@@ -45,7 +45,7 @@
         "fields": {
             "createby": 1, 
             "name": "main", 
-            "lastupdatetime": "2009-11-03 03:40:29", 
+            "lastupdatetime": "2010-05-28 09:11:52", 
             "sites": [
                 1
             ], 
@@ -59,7 +59,7 @@
         "fields": {
             "createby": 1, 
             "name": "small_dark", 
-            "lastupdatetime": "2009-11-03 03:40:41", 
+            "lastupdatetime": "2010-05-28 09:09:34", 
             "sites": [
                 1
             ], 
@@ -73,7 +73,7 @@
         "fields": {
             "createby": 1, 
             "name": "old_main", 
-            "lastupdatetime": "2009-11-03 03:40:36", 
+            "lastupdatetime": "2010-05-28 09:11:21", 
             "sites": [
                 1
             ], 
@@ -87,7 +87,7 @@
         "fields": {
             "createby": 1, 
             "name": "elementary", 
-            "lastupdatetime": "2009-11-03 03:40:31", 
+            "lastupdatetime": "2010-05-28 09:14:40", 
             "sites": [
                 1
             ], 
@@ -101,7 +101,7 @@
         "fields": {
             "createby": 1, 
             "name": "small_white", 
-            "lastupdatetime": "2009-11-03 03:40:46", 
+            "lastupdatetime": "2010-05-28 09:12:09", 
             "sites": [
                 1
             ], 
@@ -139,6 +139,86 @@
             "value": "ffffe5", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:28"
+        }
+    }, 
+    {
+        "pk": 80, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_10", 
+            "lastupdatetime": "2010-05-28 09:11:52", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "eeeedd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
+        }
+    }, 
+    {
+        "pk": 79, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_11", 
+            "lastupdatetime": "2010-05-28 09:11:52", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "999999", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
+        }
+    }, 
+    {
+        "pk": 78, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_12", 
+            "lastupdatetime": "2010-05-28 09:11:52", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "555555", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
+        }
+    }, 
+    {
+        "pk": 77, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_13", 
+            "lastupdatetime": "2010-05-28 09:11:52", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "333333", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
+        }
+    }, 
+    {
+        "pk": 76, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_14", 
+            "lastupdatetime": "2010-05-28 09:11:52", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "666666", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
         }
     }, 
     {
@@ -251,6 +331,22 @@
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:26"
+        }
+    }, 
+    {
+        "pk": 81, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_9", 
+            "lastupdatetime": "2010-05-28 09:11:52", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "eeeeee", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
         }
     }, 
     {
@@ -526,6 +622,22 @@
         }
     }, 
     {
+        "pk": 71, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_9", 
+            "lastupdatetime": "2010-05-28 09:09:34", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "666666", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:09:34"
+        }
+    }, 
+    {
         "pk": 35, 
         "model": "pylucid.color", 
         "fields": {
@@ -638,6 +750,38 @@
         }
     }, 
     {
+        "pk": 72, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_15", 
+            "lastupdatetime": "2010-05-28 09:11:21", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "c9c573", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:21"
+        }
+    }, 
+    {
+        "pk": 74, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_16", 
+            "lastupdatetime": "2010-05-28 09:11:21", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffdb", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:21"
+        }
+    }, 
+    {
         "pk": 26, 
         "model": "pylucid.color", 
         "fields": {
@@ -699,6 +843,22 @@
             "value": "fffff9", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:35"
+        }
+    }, 
+    {
+        "pk": 73, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_20", 
+            "lastupdatetime": "2010-05-28 09:11:21", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "444444", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:21"
         }
     }, 
     {
@@ -798,6 +958,22 @@
         }
     }, 
     {
+        "pk": 75, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_9", 
+            "lastupdatetime": "2010-05-28 09:11:21", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffe5", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:21"
+        }
+    }, 
+    {
         "pk": 18, 
         "model": "pylucid.color", 
         "fields": {
@@ -827,6 +1003,70 @@
             "value": "ffffe5", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:31"
+        }
+    }, 
+    {
+        "pk": 85, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_10", 
+            "lastupdatetime": "2010-05-28 09:13:40", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffe4b5", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:13:40"
+        }
+    }, 
+    {
+        "pk": 88, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_11", 
+            "lastupdatetime": "2010-05-28 09:14:40", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffdead", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:14:40"
+        }
+    }, 
+    {
+        "pk": 87, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_12", 
+            "lastupdatetime": "2010-05-28 09:14:40", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffe0", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:14:40"
+        }
+    }, 
+    {
+        "pk": 86, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_13", 
+            "lastupdatetime": "2010-05-28 09:14:40", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffa500", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:14:40"
         }
     }, 
     {
@@ -942,6 +1182,22 @@
         }
     }, 
     {
+        "pk": 84, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_9", 
+            "lastupdatetime": "2010-05-28 09:13:28", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "fffafa", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:13:28"
+        }
+    }, 
+    {
         "pk": 70, 
         "model": "pylucid.color", 
         "fields": {
@@ -1051,6 +1307,38 @@
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:42"
+        }
+    }, 
+    {
+        "pk": 82, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_15", 
+            "lastupdatetime": "2010-05-28 09:12:09", 
+            "colorscheme": 5, 
+            "sites": [
+                1
+            ], 
+            "value": "e0e0e0", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:12:09"
+        }
+    }, 
+    {
+        "pk": 83, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "color_16", 
+            "lastupdatetime": "2010-05-28 09:12:09", 
+            "colorscheme": 5, 
+            "sites": [
+                1
+            ], 
+            "value": "303030", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:12:09"
         }
     }, 
     {
@@ -1236,12 +1524,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2009-11-03 03:40:32", 
+            "lastupdatetime": "2010-05-28 09:14:40", 
             "filepath": "initial_site_style/elementary.css", 
             "sites": [
                 1
             ], 
-            "content": "body{\r\n  font-size:0.9em;\r\n  background: snow;\r\n  margin: 15px 10% 15px 10%;\r\n}\r\n\r\n#headline {\r\n  background: moccasin;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n}\r\n\r\n.main_menu {\r\n  background: navajowhite;\r\n  float: left;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n.main_menu ul {\r\n  padding: 0;\r\n}\r\n.main_menu ul ul {\r\n  /* indent submenu */\r\n  padding-left: 1.5em;\r\n  font-size:0.9em; /* smaller font for subitems */\r\n}\r\n.main_menu li {\r\n  list-style:none;\r\n}\r\na {\r\n  color: slategray;\r\n  text-decoration: none;\r\n}\r\na:hover, a .current {\r\n  background-color: orange;\r\n  text-decoration: underline;\r\n}\r\n#main_content {\r\n  background: lightyellow;\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\n#footer {\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  font-size: 0.9em;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ color_8 }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
+            "content": "body{\r\n  font-size:0.9em;\r\n  background: {{ color_9 }};\r\n  margin: 15px 10% 15px 10%;\r\n}\r\n\r\n#headline {\r\n  background: {{ color_10 }};\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n}\r\n\r\n.main_menu {\r\n  background: \t{{ color_11 }};\r\n  float: left;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n.main_menu ul {\r\n  padding: 0;\r\n}\r\n.main_menu ul ul {\r\n  /* indent submenu */\r\n  padding-left: 1.5em;\r\n  font-size:0.9em; /* smaller font for subitems */\r\n}\r\n.main_menu li {\r\n  list-style:none;\r\n}\r\na {\r\n  color: slategray;\r\n  text-decoration: none;\r\n}\r\na:hover, a .current {\r\n  background-color: \t{{ color_13 }};\r\n  text-decoration: underline;\r\n}\r\n#main_content {\r\n  background:\t{{ color_12 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\n#footer {\r\n  border: 1px solid {{ color_3 }};\r\n  padding: 5px;\r\n  font-size: 0.9em;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ color_8 }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
@@ -1255,12 +1543,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-03-26 14:55:16", 
+            "lastupdatetime": "2010-05-28 09:11:52", 
             "filepath": "initial_site_style/main.css", 
             "sites": [
                 1
             ], 
-            "content": "* { color: #000000 }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: #fffff9;\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n/*\r\n headline definition if you use a picture:\r\n----------------------------------------------\r\n#headline {\r\n  background: #c9c573;\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n/*\r\n headline definition with text only:\r\n*/\r\n#headline {\r\n  background: #c9c573;\r\n  font-size: 30px;\r\n  margin: 0px;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline a {\r\n  text-decoration:none;\r\n  color: white;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: #000000;\r\n}\r\n.uarr {\r\n  color: #eeeeee;\r\n}\r\n.top_link:hover .uarr {\r\n  color: #000000;\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px #ffffff;\r\n  text-decoration:none;\r\n  color: #eeeedd;\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: #999999;\r\n}\r\n.section_anchor:hover {\r\n  color:#000000!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px #999999;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\n.toc_headline {\r\n  margin-bottom: 0.5em;\r\n  font-size: 0.9em;\r\n  color: #333333;\r\n}\r\n\r\n#bbaacck_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: #ffffdb;\r\n  border: 1px solid #b1b08b;\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid #444444;\r\n  padding: 1px;\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: #ffffe5;\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: #c9c573;\r\n  color: white;\r\n}\r\n\r\npre {\r\n  border:1px solid grey;\r\n  background-color: white;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: #ffffff;\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n\r\n.main_menu *, .main_menu a.current {\r\n  color: #666666;\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size:0.9em;\r\n}\r\n.main_menu a.active {\r\n  color: #333333;\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: #000000;\r\n  background-color: #555555;\r\n}\r\n.main_menu a:before {\r\n  color: #c9c573;\r\n  letter-spacing: 0px;\r\n  font-weight: normal;\r\n  background: #ffffe5;\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n", 
+            "content": "* { color: {{ color_3 }}; }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: {{ color_2 }};\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n/*\r\n headline definition if you use a picture:\r\n----------------------------------------------\r\n#headline {\r\n  background: {{ color_4 }};\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n/*\r\n headline definition with text only:\r\n*/\r\n#headline {\r\n  background: {{ color_4 }};\r\n  font-size: 30px;\r\n  margin: 0px;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline a {\r\n  text-decoration:none;\r\n  color: white;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: {{ color_3 }};\r\n}\r\n.uarr {\r\n  color: {{ color_9 }};\r\n}\r\n.top_link:hover .uarr {\r\n  color: {{ color_3 }};\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px {{ color_8 }};\r\n  text-decoration:none;\r\n  color: {{ color_10 }};\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: {{ color_11 }};\r\n}\r\n.section_anchor:hover {\r\n  color:{{ color_3 }}!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px {{ color_11 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\n.toc_headline {\r\n  margin-bottom: 0.5em;\r\n  font-size: 0.9em;\r\n  color: {{ color_13 }};\r\n}\r\n\r\n#bbaacck_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: {{ color_6 }};\r\n  border: 1px solid {{ color_0 }};\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid {{ color_5 }};\r\n  padding: 1px;\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: {{ color_1 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: {{ color_4 }};\r\n  color: white;\r\n}\r\n\r\npre {\r\n  border:1px solid grey;\r\n  background-color: white;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ color_8 }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n\r\n.main_menu *, .main_menu a.current {\r\n  color: {{ color_14 }};\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size:0.9em;\r\n}\r\n.main_menu a.active {\r\n  color: {{ color_13 }};\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: {{ color_3 }};\r\n  background-color: {{ color_12 }};\r\n}\r\n.main_menu a:before {\r\n  color: {{ color_4 }};\r\n  letter-spacing: 0px;\r\n  font-weight: normal;\r\n  background: {{ color_1 }};\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:07", 
@@ -1274,12 +1562,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-01-29 08:16:32", 
+            "lastupdatetime": "2010-05-28 09:11:30", 
             "filepath": "initial_site_style/old_main.css", 
             "sites": [
                 1
             ], 
-            "content": "* { color: #000000 }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: #fffff9;\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n#headline {\r\n  background: #c9c573;\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n\r\n#back_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: #ffffdb;\r\n  border: 1px solid #b1b08b;\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n.main_menu a {\r\n  text-decoration:none;\r\n}\r\n.main_menu ul {\r\n  list-style:none;\r\n  padding-left:1.5em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid #444444;\r\n  padding: 1px;\r\n}\r\n\r\n#adsense {\r\n  text-align: center;\r\n  /*width: 468px;\r\n  height: 60px;*/\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: #ffffe5;\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: #c9c573;\r\n  color: white;\r\n}\r\n\r\npre {\r\n  background-color:white;\r\n  border:1px solid grey;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n\r\n\r\n/* ----------------------------------------------------------------------------\r\n   internal\r\n------------------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n    background: #ffffff;\r\n    padding: 0;\r\n    margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
+            "content": "* { color: {{ color_3 }}; }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: {{ color_2 }};\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n#headline {\r\n  background: {{ color_15 }};\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n\r\n#back_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: {{ color_16 }};\r\n  border: 1px solid {{ color_0 }};\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n.main_menu a {\r\n  text-decoration:none;\r\n}\r\n.main_menu ul {\r\n  list-style:none;\r\n  padding-left:1.5em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid {{ color_20 }};\r\n  padding: 1px;\r\n}\r\n\r\n#adsense {\r\n  text-align: center;\r\n  /*width: 468px;\r\n  height: 60px;*/\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: {{ color_9 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: {{ color_15 }};\r\n  color: white;\r\n}\r\n\r\npre {\r\n  background-color:white;\r\n  border:1px solid grey;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n\r\n\r\n/* ----------------------------------------------------------------------------\r\n   internal\r\n------------------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n    background: {{ color_14 }};\r\n    padding: 0;\r\n    margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:07", 
@@ -1293,12 +1581,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-01-29 08:13:24", 
+            "lastupdatetime": "2010-05-28 09:10:16", 
             "filepath": "initial_site_style/small_dark.css", 
             "sites": [
                 1
             ], 
-            "content": "/* Kopfgrafik */\r\nhead {\r\n  width: 639px;\r\n}\r\n/* Allgemein */\r\n* {\r\n  color: {{ color_17 }};\r\n  font-family:sans-serif;\r\n  font-size:0.95em;\r\n}\r\n\r\na {\r\n  text-decoration:none;\r\n}\r\na img, img {\r\n  border: 0;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n\r\nbody {\r\n  background-color: {{ color_4 }};\r\n  text-align:center;\r\n}\r\n\r\n#content {\r\n  width: 639px;\r\n  margin:auto;\r\n  text-align:left;\r\n}\r\n\r\n\r\n/* Headlines */\r\n#head {\r\n  font-size: 2em;\r\n  margin: 0.5em;\r\n  padding-left: 1.5em;\r\n  color: {{ color_13 }};\r\n}\r\nh1, h2 {\r\n  text-transform:uppercase;\r\n  font-size:0.95em;\r\n  color: white;\r\n}\r\nh2 {\r\n  border-bottom: 1px solid {{ color_17 }};\r\n}\r\n\r\n\r\n/* linien */\r\nhr {\r\n  clear: both;\r\n  border-width:1px;\r\n  height:1px;\r\n  padding: 0px;\r\n  margin: 2px 0px 2px 0px;\r\n}\r\nhr.big {\r\n  border-width: 3px;\r\n  height:3px;\r\n  border-style: solid\r\n}\r\nhr.small {\r\n  border-style:dotted;\r\n}\r\n\r\n#nav_footer {\r\n  font-size:0.9em;\r\n}\r\n\r\n\r\n\r\n\r\n/* Hauptmenu */\r\n.main_menu, #footer {\r\n  text-align:center;\r\n  width: 639px;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu ul {\r\n  list-style:none;\r\n}\r\n.main_menu li {\r\n  display:inline;\r\n  padding: 5px;\r\n}\r\n.main_menu a .current, .main_menu a:hover, #footer a {\r\n  color: white;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}", 
+            "content": "head {\r\n  width: 639px;\r\n}\r\n* {\r\n  color: {{ color_17 }};\r\n  font-family:sans-serif;\r\n  font-size:0.95em;\r\n}\r\n\r\na {\r\n  text-decoration:none;\r\n}\r\na img, img {\r\n  border: 0;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n\r\nbody {\r\n  background-color: {{ color_4 }};\r\n  text-align:center;\r\n}\r\n\r\n#content {\r\n  width: 639px;\r\n  margin:auto;\r\n  text-align:left;\r\n}\r\n\r\n#head {\r\n  font-size: 2em;\r\n  margin: 0.5em;\r\n  padding-left: 1.5em;\r\n  color: {{ color_13 }};\r\n}\r\nh1, h2 {\r\n  text-transform:uppercase;\r\n  font-size:0.95em;\r\n  color: {{ color_14 }};\r\n}\r\nh2 {\r\n  border-bottom: 1px solid {{ color_17 }};\r\n}\r\n\r\nhr {\r\n  clear: both;\r\n  border-width:1px;\r\n  height:1px;\r\n  padding: 0px;\r\n  margin: 2px 0px 2px 0px;\r\n}\r\nhr.big {\r\n  border-width: 3px;\r\n  height:3px;\r\n  border-style: solid\r\n}\r\nhr.small {\r\n  border-style:dotted;\r\n}\r\n\r\n#footer {\r\n  font-size:0.9em;\r\n  text-align:center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ---------------------------------------------------------------------- */\r\n#sf_main_menu_lucidTag .sf-menu * {\r\n    background-color: {{ color_4 }};\r\n    color: {{ color_17 }};\r\n}\r\n#sf_main_menu_lucidTag .current, #sf_main_menu_lucidTag .active, #sf_main_menu_lucidTag a:hover {\r\n    background-color: {{ color_9 }};\r\n    color: {{ color_14 }};\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
@@ -1312,12 +1600,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-01-29 08:15:35", 
+            "lastupdatetime": "2010-05-28 09:12:09", 
             "filepath": "initial_site_style/small_white.css", 
             "sites": [
                 1
             ], 
-            "content": "/* andreas01 - an open source xhtml/css website layout \r\n * by Andreas Viklund  - http://andreasviklund.com -\r\n * Free to use for any purpose as long as the proper \r\n * credits are given to the original author.\r\n *  \r\n * Version: 2.0 (Jun 25, 2006)\r\n * Screen layout: \r\n */\r\n\r\n/***** Body and main container *****/\r\nbody {\r\nmargin:0 auto;\r\npadding:0;\r\nfont:76% Verdana,Tahoma,Arial,sans-serif;\r\nbackground:#dddddd;\r\ncolor:#303030;\r\n}\r\n\r\n#wrap {\r\nbackground:#ffffff;\r\ncolor:#303030;\r\nmargin:0 auto;\r\nwidth:760px;\r\n}\r\n\r\n/***** Various tags *****/\r\na {\r\ntext-decoration:none;\r\nfont-weight:bold;\r\ncolor:#286ea0;\r\nbackground-color:inherit;\r\n}\r\n\r\na:hover {\r\ntext-decoration:underline;\r\ncolor:#286ea0;\r\nbackground-color:inherit;\r\n}\r\n\r\na img {\r\nborder:0;\r\n}\r\n\r\n/***** Header *****/\r\n#header {\r\nbackground-color:#eaeaea;\r\nmargin:10px 0 0;\r\npadding:0;\r\nheight:45px;\r\n}\r\n\r\n#header h1 {\r\ncolor:#505050;\r\nbackground-color:inherit;\r\nwidth:250px;\r\nmargin:0 0 10px;\r\nfont-size:2.2em;\r\nfloat:left;\r\n}\r\n\r\n#header h1 a{\r\ncolor:#505050;\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#header p {\r\nwidth:500px;\r\nfloat:right;\r\ntext-align:center;\r\ncolor:#505050;\r\nmargin:8px 0 0;\r\nfont-size:1.1em;\r\nfont-weight:bold;\r\nline-height:1.3em;\r\nbackground-color:inherit;\r\n}\r\n\r\n#frontphoto {\r\nmargin:0 0 10px;\r\nborder:0;\r\n}\r\n\r\n/***** Main menu *****/\r\n.main_menu ul {\r\nwidth:140px;\r\nmargin:0 0 18px;\r\npadding:0;\r\nlist-style:none;\r\n}\r\n\r\n.main_menu li {\r\nwidth:140px;\r\npadding:0;\r\nline-height:1.4em;\r\ndisplay:inline;\r\n}\r\n\r\n.main_menu li a {\r\nbackground-color:#f4f4f4;\r\ncolor:#505050;\r\nfont-weight:bold;\r\nwidth:130px;\r\nfloat:left;\r\nmargin-bottom:5px;\r\npadding:5px 1px 5px 5px;\r\nborder-left:4px solid #cccccc;\r\ntext-decoration:none;\r\n}\r\n\r\n.main_menu li a:hover {\r\nbackground-color:#eaeaea;\r\nborder-left:4px solid #286ea0;\r\ncolor:#505050;\r\n}\r\n.main_menu li a .current {\r\nbackground-color:#dddddd;\r\n}\r\n\r\n\r\n.main_menu ul {\r\nmargin:0 0 0 15px;\r\npadding:0 0 5px 0;\r\nfont-size:0.9em;\r\nwidth:125px;\r\n}\r\n\r\n.main_menu ul a {\r\npadding:3px 1px 3px 5px;\r\nwidth:115px;\r\n}\r\n\r\n.main_menu ul ul {\r\nwidth:113px;\r\n}\r\n\r\n.main_menu ul ul a {\r\nwidth:100px;\r\n}\r\n\r\n/***** Left sidebar *****/\r\n#leftside {\r\nclear:left;\r\nfloat:left;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside h2, #leftside h3 {\r\ncolor:#505050;\r\nbackground-color:inherit;\r\nfont-size:1.3em;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside div.announce {\r\nclear:left;\r\nmargin:10px 0 15px;\r\npadding:7px 5px;\r\nwidth:126px;\r\nfont-size:0.9em;\r\nbackground-color:#f4f4f4;\r\ncolor:#505050;\r\nborder-left:4px solid #cccccc;\r\nline-height:1.5em;\r\n}\r\n\r\n#leftside div.announce p {\r\nmargin:10px 0 0;\r\npadding:0;\r\n}\r\n\r\n/***** Right sidebar *****/\r\n\r\n#rightside {\r\nfloat:right;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\nline-height:1.4em;\r\n}\r\n\r\n#extras p,#extras ul {\r\nfont-size:0.9em;\r\nmargin:0 0 16px;\r\npadding:0;\r\n}\r\n\r\n#extras li {\r\nlist-style:none;\r\nline-height:1.2em;\r\nmargin:0 0 6px 0;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul {\r\nmargin:6px 0 0 10px;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul li {\r\nmargin: 0 0 4px 0;\r\n}\r\n\r\n#extras ul ul li a {\r\nfont-size:1.1em;\r\nfont-weight:normal;\r\n}\r\n\r\n#extras h2, #extras h3 {\r\ncolor:#505050;\r\nbackground-color:inherit;\r\nfont-size:1.2em;\r\nmargin:0 0 10px;\r\npadding:0;\r\n}\r\n\r\n/***** Main content *****/\r\n#content {\r\nmargin:0 200px 5px 200px;\r\nborder-left:1px solid #e0e0e0;\r\nborder-right:1px solid #e0e0e0;\r\npadding:0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#contentwide {\r\nmargin:0 0 5px 200px;\r\nborder-left:1px solid #f0f0f0;\r\npadding:0 0 0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#content h2,#contentwide h2 {\r\nfont-size:1.6em;\r\nmargin:0 0 10px;\r\n}\r\n\r\n#content h3,#contentwide h3 {\r\nfont-size:1.4em;\r\nmargin:0 0 8px;\r\n}\r\n\r\n#content img.normal, #contentwide img.normal {\r\npadding:1px;\r\ndisplay:inline;\r\nbackground:#cccccc;\r\ncolor:#303030;\r\nborder:4px solid #f0f0f0;\r\n}\r\n\r\n#content ul, #contentwide ul, #content ol, #contentwide ol {\r\nmargin:0 0 16px 20px;\r\npadding:0;\r\n}\r\n\r\n#content li, #contentwide li {\r\nmargin:0;\r\npadding:0 0 0 5px;\r\n}\r\n\r\n#content ul ul, #contentwide ul ul, #content ol ol, #contentwide ol ol{\r\nmargin:0 0 0 16px;\r\npadding:0;\r\n}\r\n\r\n/***** Footer *****/\r\n#footer {\r\nclear:both;\r\nmargin:0 auto;\r\npadding:10px 0 20px;\r\nborder-top:4px solid #f0f0f0;\r\nwidth:760px;\r\ntext-align:center;\r\ncolor:#808080;\r\nbackground:#ffffff;\r\nfont-size:0.9em;\r\n}\r\n\r\n#footer a {\r\ncolor:#808080;\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#footer a:hover {\r\ntext-decoration:underline;\r\n}\r\n\r\n/***** Various classes *****/\r\n.left {\r\nmargin:3px 10px 2px 0;\r\nfloat:left;\r\n}\r\n\r\n.right {\r\nmargin:2px 0 2px 10px;\r\nfloat:right;\r\n}\r\n\r\n.textright {\r\ntext-align:right;\r\n}\r\n\r\n.center {\r\ntext-align:center;\r\n}\r\n\r\n.small {\r\nfont-size:0.8em;\r\n}\r\n\r\n.bold {\r\nfont-weight:bold;\r\n}\r\n\r\n.hide {\r\ndisplay:none;\r\n}", 
+            "content": "/* andreas01 - an open source xhtml/css website layout \r\n * by Andreas Viklund  - http://andreasviklund.com -\r\n * Free to use for any purpose as long as the proper \r\n * credits are given to the original author.\r\n *  \r\n * Version: 2.0 (Jun 25, 2006)\r\n * Screen layout: \r\n */\r\n\r\n/***** Body and main container *****/\r\nbody {\r\nmargin:0 auto;\r\npadding:0;\r\nfont:76% Verdana,Tahoma,Arial,sans-serif;\r\nbackground:{{ color_17 }};\r\ncolor:{{ color_16 }};\r\n}\r\n\r\n#wrap {\r\nbackground:{{ color_14 }};\r\ncolor:{{ color_16 }};\r\nmargin:0 auto;\r\nwidth:760px;\r\n}\r\n\r\n/***** Various tags *****/\r\na {\r\ntext-decoration:none;\r\nfont-weight:bold;\r\ncolor:{{ color_0 }};\r\nbackground-color:inherit;\r\n}\r\n\r\na:hover {\r\ntext-decoration:underline;\r\ncolor:{{ color_0 }};\r\nbackground-color:inherit;\r\n}\r\n\r\na img {\r\nborder:0;\r\n}\r\n\r\n/***** Header *****/\r\n#header {\r\nbackground-color:{{ color_2 }};\r\nmargin:10px 0 0;\r\npadding:0;\r\nheight:45px;\r\n}\r\n\r\n#header h1 {\r\ncolor:{{ color_1 }};\r\nbackground-color:inherit;\r\nwidth:250px;\r\nmargin:0 0 10px;\r\nfont-size:2.2em;\r\nfloat:left;\r\n}\r\n\r\n#header h1 a{\r\ncolor:{{ color_1 }};\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#header p {\r\nwidth:500px;\r\nfloat:right;\r\ntext-align:center;\r\ncolor:{{ color_1 }};\r\nmargin:8px 0 0;\r\nfont-size:1.1em;\r\nfont-weight:bold;\r\nline-height:1.3em;\r\nbackground-color:inherit;\r\n}\r\n\r\n#frontphoto {\r\nmargin:0 0 10px;\r\nborder:0;\r\n}\r\n\r\n/***** Main menu *****/\r\n.main_menu ul {\r\nwidth:140px;\r\nmargin:0 0 18px;\r\npadding:0;\r\nlist-style:none;\r\n}\r\n\r\n.main_menu li {\r\nwidth:140px;\r\npadding:0;\r\nline-height:1.4em;\r\ndisplay:inline;\r\n}\r\n\r\n.main_menu li a {\r\nbackground-color:{{ color_4 }};\r\ncolor:{{ color_1 }};\r\nfont-weight:bold;\r\nwidth:130px;\r\nfloat:left;\r\nmargin-bottom:5px;\r\npadding:5px 1px 5px 5px;\r\nborder-left:4px solid {{ color_7 }};\r\ntext-decoration:none;\r\n}\r\n\r\n.main_menu li a:hover {\r\nbackground-color:{{ color_2 }};\r\nborder-left:4px solid {{ color_0 }};\r\ncolor:{{ color_1 }};\r\n}\r\n.main_menu li a .current {\r\nbackground-color:{{ color_17 }};\r\n}\r\n\r\n\r\n.main_menu ul {\r\nmargin:0 0 0 15px;\r\npadding:0 0 5px 0;\r\nfont-size:0.9em;\r\nwidth:125px;\r\n}\r\n\r\n.main_menu ul a {\r\npadding:3px 1px 3px 5px;\r\nwidth:115px;\r\n}\r\n\r\n.main_menu ul ul {\r\nwidth:113px;\r\n}\r\n\r\n.main_menu ul ul a {\r\nwidth:100px;\r\n}\r\n\r\n/***** Left sidebar *****/\r\n#leftside {\r\nclear:left;\r\nfloat:left;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside h2, #leftside h3 {\r\ncolor:{{ color_1 }};\r\nbackground-color:inherit;\r\nfont-size:1.3em;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside div.announce {\r\nclear:left;\r\nmargin:10px 0 15px;\r\npadding:7px 5px;\r\nwidth:126px;\r\nfont-size:0.9em;\r\nbackground-color:{{ color_4 }};\r\ncolor:{{ color_1 }};\r\nborder-left:4px solid {{ color_7 }};\r\nline-height:1.5em;\r\n}\r\n\r\n#leftside div.announce p {\r\nmargin:10px 0 0;\r\npadding:0;\r\n}\r\n\r\n/***** Right sidebar *****/\r\n\r\n#rightside {\r\nfloat:right;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\nline-height:1.4em;\r\n}\r\n\r\n#extras p,#extras ul {\r\nfont-size:0.9em;\r\nmargin:0 0 16px;\r\npadding:0;\r\n}\r\n\r\n#extras li {\r\nlist-style:none;\r\nline-height:1.2em;\r\nmargin:0 0 6px 0;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul {\r\nmargin:6px 0 0 10px;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul li {\r\nmargin: 0 0 4px 0;\r\n}\r\n\r\n#extras ul ul li a {\r\nfont-size:1.1em;\r\nfont-weight:normal;\r\n}\r\n\r\n#extras h2, #extras h3 {\r\ncolor:{{ color_1 }};\r\nbackground-color:inherit;\r\nfont-size:1.2em;\r\nmargin:0 0 10px;\r\npadding:0;\r\n}\r\n\r\n/***** Main content *****/\r\n#content {\r\nmargin:0 200px 5px 200px;\r\nborder-left:1px solid {{ color_15 }};\r\nborder-right:1px solid {{ color_15 }};\r\npadding:0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#contentwide {\r\nmargin:0 0 5px 200px;\r\nborder-left:1px solid {{ color_6 }};\r\npadding:0 0 0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#content h2,#contentwide h2 {\r\nfont-size:1.6em;\r\nmargin:0 0 10px;\r\n}\r\n\r\n#content h3,#contentwide h3 {\r\nfont-size:1.4em;\r\nmargin:0 0 8px;\r\n}\r\n\r\n#content img.normal, #contentwide img.normal {\r\npadding:1px;\r\ndisplay:inline;\r\nbackground:{{ color_7 }};\r\ncolor:{{ color_16 }};\r\nborder:4px solid {{ color_6 }};\r\n}\r\n\r\n#content ul, #contentwide ul, #content ol, #contentwide ol {\r\nmargin:0 0 16px 20px;\r\npadding:0;\r\n}\r\n\r\n#content li, #contentwide li {\r\nmargin:0;\r\npadding:0 0 0 5px;\r\n}\r\n\r\n#content ul ul, #contentwide ul ul, #content ol ol, #contentwide ol ol{\r\nmargin:0 0 0 16px;\r\npadding:0;\r\n}\r\n\r\n/***** Footer *****/\r\n#footer {\r\nclear:both;\r\nmargin:0 auto;\r\npadding:10px 0 20px;\r\nborder-top:4px solid {{ color_6 }};\r\nwidth:760px;\r\ntext-align:center;\r\ncolor:{{ color_9 }};\r\nbackground:{{ color_14 }};\r\nfont-size:0.9em;\r\n}\r\n\r\n#footer a {\r\ncolor:{{ color_9 }};\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#footer a:hover {\r\ntext-decoration:underline;\r\n}\r\n\r\n/***** Various classes *****/\r\n.left {\r\nmargin:3px 10px 2px 0;\r\nfloat:left;\r\n}\r\n\r\n.right {\r\nmargin:2px 0 2px 10px;\r\nfloat:right;\r\n}\r\n\r\n.textright {\r\ntext-align:right;\r\n}\r\n\r\n.center {\r\ntext-align:center;\r\n}\r\n\r\n.small {\r\nfont-size:0.8em;\r\n}\r\n\r\n.bold {\r\nfont-weight:bold;\r\n}\r\n\r\n.hide {\r\ndisplay:none;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
@@ -1344,26 +1632,6 @@
         }
     }, 
     {
-        "pk": 1, 
-        "model": "pylucid.design", 
-        "fields": {
-            "createby": 1, 
-            "name": "basic + main", 
-            "lastupdatetime": "2010-01-29 08:00:42", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
-            "headfiles": [
-                1, 
-                6
-            ], 
-            "template": "initial_site_template/basic.html", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:09"
-        }
-    }, 
-    {
         "pk": 4, 
         "model": "pylucid.design", 
         "fields": {
@@ -1381,6 +1649,26 @@
             "template": "initial_site_template/elementary.html", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:18"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "pylucid.design", 
+        "fields": {
+            "createby": 1, 
+            "name": "main", 
+            "lastupdatetime": "2010-05-28 08:32:07", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "headfiles": [
+                1, 
+                6
+            ], 
+            "template": "initial_site_template/main.html", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:09"
         }
     }, 
     {
@@ -1841,12 +2129,12 @@
         }
     }, 
     {
-        "pk": 23, 
+        "pk": 22, 
         "model": "pylucid.pagemeta", 
         "fields": {
             "createby": 1, 
             "lastupdatetime": "2010-03-26 15:21:15", 
-            "language": 1, 
+            "language": 2, 
             "title": "", 
             "description": "", 
             "tags": "", 
@@ -1860,12 +2148,12 @@
         }
     }, 
     {
-        "pk": 22, 
+        "pk": 23, 
         "model": "pylucid.pagemeta", 
         "fields": {
             "createby": 1, 
             "lastupdatetime": "2010-03-26 15:21:15", 
-            "language": 2, 
+            "language": 1, 
             "title": "", 
             "description": "", 
             "tags": "", 
@@ -2259,26 +2547,13 @@
         }
     }, 
     {
-        "pk": 5, 
-        "model": "pylucid.pagecontent", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-03-26 15:47:54", 
-            "markup": 0, 
-            "content": "{% lucidTag SiteMap %}", 
-            "pagemeta": 5, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:13"
-        }
-    }, 
-    {
         "pk": 1, 
         "model": "pylucid.pagecontent", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-03-26 15:08:53", 
+            "lastupdatetime": "2010-05-28 08:22:38", 
             "markup": 6, 
-            "content": "Welcome to your fesh PyLucid CMS installation ;)\r\n\r\n{% if user.is_superuser %}\r\nYou should first change the \"site domain\" to your domain name.\r\nYou can use this link: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nIf you didn't installed the PyLucid plugins, please do it here:\r\n * //PyLucid admin menu / PyLucid / **install plugins**//\r\n\r\nThen it would be good if you would carefully study the output of the self test, here:\r\n * //PyLucid admin menu / system / **base check**//\r\n\r\n{% endif %}\r\n\r\nPlease [[http://www.pylucid.org/permalink/29/kontakt-contact|contact us]], if you have any question.\r\n\r\nIf you find errors, write a ticket (if it does not exist) in our [[http://trac.pylucid.net/|Trac bug tracker]] (login with guest/guest).\r\n\r\n=== list of last updates\r\n\r\n{% lucidTag update_journal %}", 
+            "content": "Welcome to your fesh PyLucid CMS installation ;)\r\n\r\nYou should first change the \"site domain\" to your domain name.\r\nYou can use this link: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nIf you didn't installed the PyLucid plugins, please do it here:\r\n * //PyLucid admin menu / PyLucid / **install plugins**//\r\n\r\nThen it would be good if you would carefully study the output of the self test, here:\r\n * //PyLucid admin menu / system / **base check**//\r\n\r\nPlease [[http://www.pylucid.org/permalink/29/kontakt-contact|contact us]], if you have any question.\r\n\r\nIf you find errors, write a ticket (if it does not exist) in our [[http://trac.pylucid.net/|Trac bug tracker]] (login with guest/guest).\r\n\r\n=== list of last updates\r\n\r\n{% lucidTag update_journal %}", 
             "pagemeta": 1, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:10"
@@ -2289,12 +2564,25 @@
         "model": "pylucid.pagecontent", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-03-26 15:08:53", 
+            "lastupdatetime": "2010-05-28 08:22:13", 
             "markup": 6, 
-            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\n{% if user.is_superuser %}\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\n{% endif %}\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://trac.pylucid.net/|Trac Bug Tracker]] (einloggen mit guest/guest).\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}", 
+            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://trac.pylucid.net/|Trac Bug Tracker]] (einloggen mit guest/guest).\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}", 
             "pagemeta": 20, 
             "lastupdateby": 1, 
             "createtime": "2010-01-29 08:27:45"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-03-26 15:47:54", 
+            "markup": 0, 
+            "content": "{% lucidTag SiteMap %}", 
+            "pagemeta": 5, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:13"
         }
     }, 
     {
@@ -2519,28 +2807,67 @@
         }
     }, 
     {
-        "pk": 1, 
+        "pk": 8, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"headline\">\r\n  <a href=\"/\">PyLucid CMS</a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% lucidTag TOC min=3 %}\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
+            "content": "<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-03-26 11:46:37", 
-            "name": "initial_site_template/basic.html", 
-            "creation_date": "2008-05-23 11:11:06"
+            "last_changed": "2010-05-28 08:52:39", 
+            "name": "initial_includes/footer.html", 
+            "creation_date": "2010-05-28 08:52:14"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "dbtemplates.template", 
+        "fields": {
+            "content": "<p id=\"permalink\"><a href=\"{{ page_permalink }}\" title=\"permalink to this page\">permalink</a></p>", 
+            "sites": [
+                1
+            ], 
+            "last_changed": "2010-05-28 08:50:47", 
+            "name": "initial_includes/permalink.html", 
+            "creation_date": "2010-05-28 08:50:25"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "dbtemplates.template", 
+        "fields": {
+            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"{{ page_language }}\" xml:lang=\"{{ page_language }}\">\r\n<head>\r\n<title>{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}</title>\r\n<link rel=\"canonical\" href=\"{{ page_permalink }}\" />\r\n<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n<meta name=\"robots\" content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\" content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\" content=\"{{ page_description }}\" />\r\n<meta name=\"DC.Date\" content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\" content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\" content=\"{{ page_language }}\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\" content=\"no\" />\r\n<script type=\"text/javascript\" src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" ></script>\r\n<script type=\"text/javascript\" src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\"></script>\r\n{% block extrahead %}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n</head><body lang=\"{{ page_language }}\"><a name=\"top\"></a>\r\n<div id=\"container\">\r\n{% block body_content %}{% endblock %}\r\n</div></body></html>", 
+            "sites": [
+                1
+            ], 
+            "last_changed": "2010-05-28 08:40:36", 
+            "name": "initial_site_style/base_cms_site.html", 
+            "creation_date": "2010-05-28 08:34:02"
         }
     }, 
     {
         "pk": 4, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"headline\"><h2>PyLucid CMS</h2></div>\r\n\r\n{% lucidTag main_menu %}\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid.org - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\"><h2>PyLucid CMS</h2></div>\r\n\r\n{% lucidTag main_menu %}\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n  <p>{% lucidTag language %}</p>\r\n  </p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-03-26 11:46:50", 
+            "last_changed": "2010-05-28 08:55:27", 
             "name": "initial_site_template/elementary.html", 
+            "creation_date": "2008-05-23 11:11:06"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "dbtemplates.template", 
+        "fields": {
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid.org - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\">\r\n  <a href=\"/\">PyLucid CMS</a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% lucidTag TOC min=3 %}\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
+            "sites": [
+                1
+            ], 
+            "last_changed": "2010-05-28 08:52:49", 
+            "name": "initial_site_template/main.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
     }, 
@@ -2548,11 +2875,11 @@
         "pk": 2, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"headline\">\r\n  <a href=\"/\">\r\n  <img id=\"pylucid_logo\" src=\"http://static.htfx.info/pylucid_logo.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n  <a href=\"http://pylucid.net/trac/\" alt=\"goto PyLucid trac &gt;&gt;\" title=\"goto PyLucid trac &gt;&gt;\">\r\n    <img src=\"http://static.htfx.info/trac_logo_mini.png\" border=\"0\" alt=\"trac Logo\" />\r\n  </a>\r\n  <br />\r\n  <a href=\"http://www.ohloh.net/projects/5642?p=PyLucid\" alt=\"goto PyLucid Ohloh profile &gt;&gt;\" title=\"goto PyLucid Ohloh profile &gt;&gt;\">\r\n    <img src=\"http://www.ohloh.net/projects/5642/badge.gif\" border=\"0\" alt=\"Ohloh metrics\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title|escape }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n</div>\r\n\r\n<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>\r\n\r\n</div>\r\n</body>\r\n</html>", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid.org - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\">\r\n  <a href=\"/\">\r\n  <img id=\"pylucid_logo\" src=\"http://static.htfx.info/pylucid_logo.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n  <a href=\"http://pylucid.net/trac/\" alt=\"goto PyLucid trac &gt;&gt;\" title=\"goto PyLucid trac &gt;&gt;\">\r\n    <img src=\"http://static.htfx.info/trac_logo_mini.png\" border=\"0\" alt=\"trac Logo\" />\r\n  </a>\r\n  <br />\r\n  <a href=\"http://www.ohloh.net/projects/5642?p=PyLucid\" alt=\"goto PyLucid Ohloh profile &gt;&gt;\" title=\"goto PyLucid Ohloh profile &gt;&gt;\">\r\n    <img src=\"http://www.ohloh.net/projects/5642/badge.gif\" border=\"0\" alt=\"Ohloh metrics\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title|escape }}</h2>\r\n  <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-03-26 11:46:59", 
+            "last_changed": "2010-05-28 08:55:53", 
             "name": "initial_site_template/old_basic.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2561,11 +2888,11 @@
         "pk": 3, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"content\">\r\n  <p id=\"head\">PyLucid CMS</p>\r\n  <hr class=\"big\" />\r\n  {% lucidTag main_menu %}\r\n  <hr class=\"small\" />\r\n\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  \r\n  <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n\r\n  <hr class=\"small\" />\r\n  <hr class=\"big\" />\r\n  <p id=\"nav_footer\">\r\n    powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n  </p>\r\n</div>\r\n</body>\r\n</html>", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid.org - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"content\">\r\n  <p id=\"head\">PyLucid CMS</p>\r\n  <hr class=\"big\" />\r\n  {% lucidTag sf_main_menu %}\r\n  <hr class=\"small\" />\r\n\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    <!-- page_messages -->\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n  <p>{% lucidTag language %}</p>\r\n  </p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n  <hr class=\"small\" />\r\n  <hr class=\"big\" />\r\n  {% include \"initial_includes/footer.html\" %}\r\n</div>\r\n{% endblock body_content %}", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-03-26 11:47:04", 
+            "last_changed": "2010-05-28 08:54:24", 
             "name": "initial_site_template/small_dark.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2574,11 +2901,11 @@
         "pk": 5, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"{{ page_language}}\" lang=\"{{ page_language}}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<meta name=\"robots\"                    content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\"                  content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\"               content=\"{{ page_description }}\" />\r\n<meta name=\"Author\"                    content=\"PyLucidCMS\" />\r\n<meta name=\"DC.Date\"                   content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\"           content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\"               content=\"{{ page_language}}\" />\r\n<meta http-equiv=\"Content-Type\"        content=\"text/html; charset=utf-8\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\"        content=\"no\" />\r\n<link rel=\"canonical\" href=\"{{ page_get_permalink }}\" />\r\n<link rel=\"alternate\" type=\"application/rss+xml\" title=\"pages updates\" href=\"{% lucidTag RSSfeedGenerator count=\"10\" %}\" />\r\n<script src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" type=\"text/javascript\" /></script>\r\n<script src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\" type=\"text/javascript\" /></script>\r\n<!-- ContextMiddleware extrahead -->\r\n\r\n</head>\r\n<body lang=\"{{ page_language}}\">\r\n<div id=\"wrap\">\r\n  <div id=\"header\">\r\n    <a href=\"/\">\r\n      <img id=\"pylucid_logo\" src=\"/_static/pylucid_logo_2_364x76.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n    </a>\r\n  </div>\r\n\r\n  <div id=\"leftside\">\r\n    <h2 class=\"hide\">Menu:</h2>\r\n    {% lucidTag main_menu %}\r\n    {% lucidTag search %}\r\n  </div>\r\n\r\n  <div id=\"contentwide\">\r\n    <div id=\"admin\">{% lucidTag admin_menu %}</div>\r\n    <!-- page_messages -->\r\n    <h2>{{ page_title }}</h2>\r\n    <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n    <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n    <p id=\"permalink\"><a href=\"{{ page_get_permalink }}\" title=\"permalink to this page\">permalink</a></p>\r\n  </div>\r\n\r\n  <div id=\"footer\">\r\n    <p>\r\n      powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n    </p>\r\n  </div>\r\n</div>\r\n</body>\r\n</html>\r\n", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid.org - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"wrap\">\r\n  <div id=\"header\">\r\n    <img id=\"pylucid_logo\" src=\"/media/put_your_logo_here.jpg\" alt=\"Change Template and put your logo here\" title=\"Change Template and put your logo here\" />\r\n  </div>\r\n\r\n  <div id=\"leftside\">\r\n    <h2 class=\"hide\">Menu:</h2>\r\n    {% lucidTag main_menu %}\r\n    {% lucidTag search %}\r\n  </div>\r\n\r\n  <div id=\"contentwide\">\r\n    <div id=\"admin\">{% lucidTag admin_menu %}</div>\r\n    <!-- page_messages -->\r\n    <h2>{{ page_title }}</h2>\r\n    <p><!-- ContextMiddleware breadcrumb -->\r\n    <p>{% lucidTag language %}</p>\r\n    </p>\r\n    <div id=\"page_content\">\r\n        {% block content %}{{ page_content }}{% endblock content %}\r\n    </div>\r\n    {% include \"initial_includes/permalink.html\" %}\r\n  </div>\r\n\r\n{% include \"initial_includes/footer.html\" %}\r\n</div>\r\n{% endblock body_content %}\r\n", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-03-26 11:47:08", 
+            "last_changed": "2010-05-28 08:59:57", 
             "name": "initial_site_template/small_white.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
