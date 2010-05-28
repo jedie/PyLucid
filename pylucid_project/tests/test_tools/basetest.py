@@ -145,7 +145,7 @@ class BaseLanguageTestCase(BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 '<body lang="%s">' % lang.code,
-                '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="%(code)s" lang="%(code)s">' % {
+                '<html xmlns="http://www.w3.org/1999/xhtml" lang="%(code)s" xml:lang="%(code)s">' % {
                     "code": lang.code
                 },
             )
