@@ -17,15 +17,37 @@
 """
 
 from django.contrib import admin
+from django import forms
 
+from pylucid_project.apps.pylucid.models import PluginPage
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 
 from redirect.models import RedirectModel
 
 
-#------------------------------------------------------------------------------
+class RedirectAdminForm(forms.ModelForm):
+    """
+    Filter pagetree selection.
+    Add only pagetree items witch are a redirect plugin page.
+    """
+    class Meta:
+        model = RedirectModel
+
+    def __init__(self, *args, **kwargs):
+        super(RedirectAdminForm, self).__init__(*args, **kwargs)
+
+        plugin_pages = PluginPage.objects.filter(app_label="pylucid_project.pylucid_plugins.redirect")
+
+        choices = [
+            (page.pagetree.id, page.pagetree.get_absolute_url())
+            for page in plugin_pages
+        ]
+        self.fields["pagetree"].choices = choices
+
 
 class RedirectModelAdmin(BaseAdmin):
+    form = RedirectAdminForm
+
     list_display = (
         "view_on_site_link", "destination_url", "response_type", "full_url", "append_query_string",
         "lastupdatetime", "lastupdateby"
