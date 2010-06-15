@@ -68,5 +68,3 @@ def redirect(request, rest_url=""):
 
     return response
 
-def redirect_index(request):
-    return redirect(request)
