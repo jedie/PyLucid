@@ -73,7 +73,11 @@ jQuery(document).ready(function($) {
 <fieldset class="picture"><legend>{% trans "Pictures" %}</legend>
 <ul>
 {% for picture in picture_info %}
-    <li><a href="{{ picture.href }}" rel="{{ dir.verbose_name }}" title="{{ picture.verbose_name }}"><img src="{{ picture.thumb_href }}" alt="{{ picture.verbose_name }}"></a></li>
+    <li>
+    	<a href="{{ picture.href }}" rel="{{ dir.verbose_name }}" title="{{ picture.verbose_name }}">
+    		<img src="{{ picture.thumb_href }}" alt="{{ picture.verbose_name }}"{% if picture.thumb_width %} width="{{ picture.thumb_width }}" height="{{ picture.thumb_height }}"{% endif %}>
+	    </a>
+	</li>
 {% empty %}
     <li><i>{% trans "No pictures found." %}</i></li>
 {% endfor %}
