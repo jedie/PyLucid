@@ -4,20 +4,14 @@
     PyLucid superfish main menu
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: 2009-09-10 14:56:24 +0200 (Do, 10. Sep 2009) $
-    $Rev: 2330 $
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v2 or above, see LICENSE for more details
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__ = "$Rev: 2330 $"
 
+from django.conf import settings
 
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
+from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.apps.pylucid.decorators import render_to
 
 
@@ -25,7 +19,6 @@ from pylucid_project.apps.pylucid.decorators import render_to
 def lucidTag(request, min=1, max=0):
     """ Create the superfish main menu """
     user = request.user
-    current_lang = request.PYLUCID.current_language
     current_pagetree = request.PYLUCID.pagetree
 
     # Get a pylucid.tree_model.TreeGenerator instance with all accessible PageTree for the current user
