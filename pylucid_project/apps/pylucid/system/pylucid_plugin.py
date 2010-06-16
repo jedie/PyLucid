@@ -112,8 +112,15 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
     old_get_resolver = urlresolvers.get_resolver
     urlresolvers.get_resolver = PluginGetResolver(merged_url_resolver)
 
+    # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
+    request.plugin_name = view_func.__module__.split(".", 1)[0] # FIXME: Find a better way!
+    request.method_name = view_func.__name__
+
     # Call the view
     response = view_func(request, *view_args, **view_kwargs)
+
+    request.plugin_name = None
+    request.method_name = None
 
     # restore the patched function
     urlresolvers.get_resolver = old_get_resolver
