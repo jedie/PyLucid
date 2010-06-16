@@ -1,5 +1,5 @@
 *.pyc
 *.log
-.tmp_*
+*~
 /PyLucid.egg-info
 /dist
