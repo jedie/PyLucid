@@ -63,21 +63,14 @@ def _split_suffix(filename, suffix_list):
 
 
 class Gallery(object):
-    def __init__(self, request, rest_url):
+    def __init__(self, request, config, rest_url):
         self.request = request
         self.pagetree = self.request.PYLUCID.pagetree
+        self.config = config
+
         self.gallery_base_url = self.request.PYLUCID.pagemeta.get_absolute_url()
 
         self.rel_path, self.rel_url = self.check_rest_url(rest_url)
-
-        try:
-            self.config = GalleryModel.objects.get(pagetree=self.pagetree)
-        except GalleryModel.DoesNotExist, err:
-            # TODO: Don't redirect to admin panel -> Display a own create view!
-            request.page_msg(
-                 _("Gallery entry for page: %s doesn't exist, please create it.") % self.pagetree.get_absolute_url()
-            )
-            return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))
 
         self.rel_base_path = self.config.path
         self.abs_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, self.rel_base_path, self.rel_path))
@@ -226,15 +219,30 @@ class Gallery(object):
 
 
 def gallery(request, rest_url=""):
-    g = Gallery(request, rest_url)
+    pagetree = request.PYLUCID.pagetree
+    try:
+        config = GalleryModel.objects.get(pagetree=pagetree)
+    except GalleryModel.DoesNotExist, err:
+        # TODO: Don't redirect to admin panel -> Display a own create view!
+        request.page_msg(
+             _("Gallery entry for page: %s doesn't exist, please create it.") % pagetree.get_absolute_url()
+        )
+        return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))
+
+    g = Gallery(request, config, rest_url)
 
     if not request.is_ajax():
         # FIXME: In Ajax request, only the page_content would be replaced, not the
         # breadcrumb links :(
         context = request.PYLUCID.context
-        breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
-        for breadcrumb_info in g.breadcrumbs[1:]:
-            breadcrumb_context_middlewares.add_link(**breadcrumb_info)
+        try:
+            breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+        except KeyError:
+            # e.g.: no breadcrumbs in template
+            pass
+        else:
+            for breadcrumb_info in g.breadcrumbs[1:]:
+                breadcrumb_context_middlewares.add_link(**breadcrumb_info)
 
     return g.render()
 
