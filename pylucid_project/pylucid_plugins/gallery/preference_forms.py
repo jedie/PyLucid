@@ -6,7 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 from pylucid_project.utils.site_utils import SitePreselectPreference
 
 from dbpreferences.forms import DBPreferencesBaseForm
-from django_tools.fields import SignSeparatedField
 
 
 class GalleryPrefForm(SitePreselectPreference, DBPreferencesBaseForm):
