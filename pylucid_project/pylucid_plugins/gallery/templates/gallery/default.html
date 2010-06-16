@@ -1,0 +1,88 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+
+{% block plugin_content %}
+{# We can't use extrahead block here, because it's used in ajax view, too. #}
+<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.colorbox-min.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.colorbox-min.js] !');"></script>
+<style>
+/*
+    ColorBox Core Style
+    The following rules are the styles that are consistant between themes.
+    Avoid changing this area to maintain compatability with future versions of ColorBox.
+*/
+#colorbox, #cboxOverlay, #cboxWrapper{position:absolute; top:0; left:0; z-index:9999; overflow:hidden;}
+#cboxOverlay{position:fixed; width:100%; height:100%;}
+#cboxMiddleLeft, #cboxBottomLeft{clear:left;}
+#cboxContent{position:relative;}
+#cboxLoadedContent{overflow:auto;}
+#cboxLoadedContent iframe{display:block; width:100%; height:100%; border:0;}
+#cboxTitle{margin:0;}
+#cboxLoadingOverlay, #cboxLoadingGraphic{position:absolute; top:0; left:0; width:100%;}
+#cboxPrevious, #cboxNext, #cboxClose, #cboxSlideshow{cursor:pointer;}
+
+/* ColorBox base user style */
+#cboxOverlay{background:#000;}
+#cboxContent{background:#fff;}
+#cboxLoadedContent{margin-bottom:20px;}
+#cboxTitle{position:absolute; bottom:0px; left:0; text-align:center; width:100%; color:#999;}
+#cboxCurrent{position:absolute; bottom:0px; left:100px; color:#999;}
+#cboxSlideshow{position:absolute; bottom:0px; right:42px; color:#444;}
+#cboxPrevious{position:absolute; bottom:0px; left:0; color:#444;}
+#cboxNext{position:absolute; bottom:0px; left:63px; color:#444;}
+#cboxClose{position:absolute; bottom:0; right:0; display:block; color:#444;}
+		
+/* basic gallery style */
+.gallery .picture li {list-style:none; display: inline; line-height: 3em;}
+</style>
+<script type="text/javascript">
+try {
+    jQuery(document);
+} catch (e) {
+    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
+}
+
+jQuery(document).ready(function($) {
+	$('fieldset.picture a').colorbox({
+		/*
+        onOpen:function(){ log('onOpen: colorbox is about to open'); },
+        onLoad:function(){ log('onLoad: colorbox has started to load the targeted content'); },
+        onComplete:function(){ log('onComplete: colorbox has displayed the loaded content'); },
+        onCleanup:function(){ log('onCleanup: colorbox has begun the close process'); },
+        onClosed:function(){ log('onClosed: colorbox has completely closed'); },
+        */
+	    current: '{% trans "image {current} of {total}" %}',
+		previous:'&#x25C0; {% trans "previous" %}',
+		next:'{% trans "next" %} &#x25B6;',
+		close:'&#x2716; {% trans "close or Esc key" %}'
+    });
+	$("fieldset.directory a").click(function(){
+	   return get_pylucid_ajax_view(this.href);
+	});
+    log("gallery initialized.");
+});
+</script>
+
+<fieldset class="directory"><legend>{% trans "Directory" %}</legend>
+<ul>
+{% for dir in dir_info %}
+    <li><a href="{{ dir.href }}">/{{ dir.verbose_name }}/</a> <small>({{ dir.pic_count}} pictures)</small></li>
+{% endfor %}
+</ul>
+</fieldset>
+
+<fieldset class="picture"><legend>{% trans "Pictures" %}</legend>
+<ul>
+{% for picture in picture_info %}
+    <li><a href="{{ picture.href }}" rel="{{ dir.verbose_name }}" title="{{ picture.verbose_name }}"><img src="{{ picture.thumb_href }}" alt="{{ picture.verbose_name }}"></a></li>
+{% empty %}
+    <li><i>{% trans "No pictures found." %}</i></li>
+{% endfor %}
+</ul>
+</fieldset>
+
+<fieldset class="breadcrumbs"><legend>{% trans "Path" %}</legend>
+<p>
+{% for breadcrumb in breadcrumbs %}/<a href="{{ breadcrumb.url }}" title="{{ breadcrumb.title }}">{{ breadcrumb.name }}</a>{% if forloop.last %}/{% endif %}{% endfor %}
+</p>
+</fieldset>
+{% endblock %}
