@@ -206,6 +206,7 @@ class Gallery(object):
 
     def render(self):
         context = {
+            "a_rel_info": self.breadcrumbs[-1]["name"],
             "rel_path": self.rel_path,
             "dir_info": self.dir_info,
             "picture_info": self.picture_info,

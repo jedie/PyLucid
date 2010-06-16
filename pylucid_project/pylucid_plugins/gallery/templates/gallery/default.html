@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
 <ul>
 {% for picture in picture_info %}
     <li>
-    	<a href="{{ picture.href }}" rel="{{ rel_path }}" title="{{ picture.verbose_name }}">
+    	<a href="{{ picture.href }}" rel="{{ a_rel_info }}" title="{{ picture.verbose_name }}">
     		<img src="{{ picture.thumb_href }}" alt="{{ picture.verbose_name }}"{% if picture.thumb_width %} width="{{ picture.thumb_width }}" height="{{ picture.thumb_height }}"{% endif %}>
 	    </a>
 	</li>
