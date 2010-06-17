@@ -261,15 +261,8 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditableHtmlHeadFileAdminForm, self).__init__(*args, **kwargs)
         # Make mimetype optinal, so the user can leave to empty and auto_mimetype
-        # would be used in self.clean_mimetype()
+        # would be used in model.clean_fields()
         self.fields["mimetype"].required = False
-
-    def clean_mimetype(self):
-        """ Use auto_mimetype if mimetype is empty """
-        mimetype = self.cleaned_data["mimetype"]
-        if not mimetype:
-            mimetype = self.instance.auto_mimetype()
-        return mimetype
 
     def clean_sites(self):
         """
@@ -303,10 +296,10 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
         """
         cleaned_data = self.cleaned_data
 
-        filepath = cleaned_data["filepath"]
-
-        if "sites" not in cleaned_data: # e.g. no sites selected
+        if "sites" not in cleaned_data or "filepath" not in cleaned_data:
             return cleaned_data
+
+        filepath = cleaned_data["filepath"]
         sites = cleaned_data["sites"]
 
         headfiles = models.EditableHtmlHeadFile.objects.filter(filepath=filepath)

@@ -186,6 +186,10 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     def clean_fields(self, exclude):
         message_dict = {}
 
+        if not self.mimetype and self.filepath:
+            # Set mimetype by guess type from filepath
+            self.mimetype = self.auto_mimetype()
+
         if "mimetype" not in exclude:
             all_mimetypes = set(mimetypes.types_map.values())
             if self.mimetype not in all_mimetypes:
@@ -219,7 +223,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         elif fileext == ".js":
             return u"text/javascript"
         else:
-            mimetypes.guess_type(self.filepath)[0] or u"application/octet-stream"
+            return mimetypes.guess_type(self.filepath)[0] or u"application/octet-stream"
 
     def save(self, *args, **kwargs):
         """
