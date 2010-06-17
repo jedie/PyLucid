@@ -53,12 +53,12 @@ class GalleryAdminForm(forms.ModelForm):
 class GalleryModelAdmin(BaseAdmin):
     form = GalleryAdminForm
     list_display = (
-        "view_on_site_link", "path",
+        "view_on_site_link", "path", "template",
         "lastupdatetime", "lastupdateby"
     )
-#    list_display_links = ("destination_url", "response_type")
-#    list_filter = ("response_type", "full_url", "append_query_string", "createby", "lastupdateby",)
+    list_display_links = ("path",)
+    list_filter = ("template", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
-#    search_fields = ("destination_url",)
+    #search_fields = ("path", "template",)
 
 admin.site.register(GalleryModel, GalleryModelAdmin)
