@@ -128,11 +128,8 @@ class Gallery(object):
         pref_form = GalleryPrefForm()
         preferences = pref_form.get_preferences()
         unauthorized_signs = preferences["unauthorized_signs"]
-#        assert isinstance(unauthorized_signs, (list, tuple))
-
-        for sign in unauthorized_signs.split():
-            sign = sign.strip()
-#            print "%r" % sign, sign
+        assert isinstance(unauthorized_signs, (list, tuple))
+        for sign in unauthorized_signs:
             if sign and sign in rest_url:
                 msg1 = "unauthorized sign"
                 msg = "'%s' in '%s'" % (sign, rest_url)

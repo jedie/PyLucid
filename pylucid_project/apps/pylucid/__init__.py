@@ -31,7 +31,7 @@ def check_require(requirements):
 
 requirements = (
     # http://code.google.com/p/django-dbpreferences
-    "django-dbpreferences >= 0.3.1beta",
+    "django-dbpreferences >= 0.3.3",
 
     # http://code.google.com/p/django-tools/
     "django-tools >= 0.9.0",
