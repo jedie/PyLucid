@@ -128,14 +128,21 @@ class Gallery(object):
         pref_form = GalleryPrefForm()
         preferences = pref_form.get_preferences()
         unauthorized_signs = preferences["unauthorized_signs"]
+#        assert isinstance(unauthorized_signs, (list, tuple))
 
-        for sign in unauthorized_signs:
+        for sign in unauthorized_signs.split():
+            sign = sign.strip()
+#            print "%r" % sign, sign
             if sign and sign in rest_url:
+                msg1 = "unauthorized sign"
+                msg = "'%s' in '%s'" % (sign, rest_url)
                 LogEntry.objects.log_action(
-                    app_label="pylucid_plugin.gallery", action="unauthorized sign",
-                    message="%r in %r" % (sign, rest_url),
+                    app_label="pylucid_plugin.gallery", action=msg1, message=msg
                 )
-                raise Http404("bad path")
+                msg404 = "bad path"
+                if settings.DEBUG or self.request.user.is_staff:
+                    msg404 += " - %s: %s" % (msg1, msg)
+                raise Http404(msg404)
 
         rel_path = os.path.normpath(rest_url)
         rel_url = posixpath.normpath(rel_path)
