@@ -22,7 +22,7 @@ from django.utils.translation.trans_real import parse_accept_lang_header
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
-from django_tools.fields import LanguageCodeField
+from django_tools.fields.language_code import LanguageCodeModelField
 
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
@@ -292,7 +292,7 @@ class Language(AutoSiteM2M, UpdateInfoBaseModel):
     """
     objects = LanguageManager()
 
-    code = LanguageCodeField(unique=True, max_length=10)
+    code = LanguageCodeModelField(unique=True, max_length=10)
     description = models.CharField(max_length=150, blank=True,
         help_text="Description of the Language (filled automaticly)"
     )

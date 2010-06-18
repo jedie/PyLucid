@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>PyLucid09</name>
+	<name>pylucid</name>
 	<comment></comment>
 	<projects>
+		<project>django</project>
+		<project>django-tools</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

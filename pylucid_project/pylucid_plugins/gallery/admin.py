@@ -22,8 +22,6 @@ from django import forms
 from pylucid_project.apps.pylucid.models import PageTree, PluginPage
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 
-from django_tools.widgets import SelectMediaPath
-
 from gallery.models import GalleryModel
 
 
@@ -45,9 +43,6 @@ class GalleryAdminForm(forms.ModelForm):
             for page in plugin_pages
         ]
         self.fields["pagetree"].choices = choices
-
-        # Select a sub directory in settings.MEDIA_ROOT
-        self.fields["path"].widget = SelectMediaPath()
 
 
 class GalleryModelAdmin(BaseAdmin):

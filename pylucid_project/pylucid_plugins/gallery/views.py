@@ -74,15 +74,20 @@ class Gallery(object):
 
         self.rel_base_path = self.config.path
         self.abs_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, self.rel_base_path, self.rel_path))
-        if not os.path.isdir(self.abs_path) or not self.abs_path.startswith(settings.MEDIA_ROOT):
-            raise Http404("wrong path")
+
+        is_dir = os.path.isdir(self.abs_path)
+        is_in_root = self.abs_path.startswith(settings.MEDIA_ROOT)
+        if not is_dir or not is_in_root:
+            msg = _("Wrong path.")
+            if settings.DEBUG or request.user.is_staff:
+                msg += " - path %r" % self.abs_path
+                if not is_dir:
+                    msg += " is not a directory."
+                if not is_in_root:
+                    msg += " is not in media root."
+            raise Http404(msg)
 
         self.abs_base_url = posixpath.normpath(posixpath.join(settings.MEDIA_URL, self.rel_base_path, self.rel_path))
-
-        self.filename_whitelist = self.config.get_filename_whitelist()
-        self.diritem_blacklist = self.config.get_diritem_blacklist()
-        self.thumb_suffix_marker = self.config.get_thumb_suffix_marker()
-        self.filename_suffix_filter = self.config.get_filename_suffix_filter()
 
         dirs, pictures, thumbs = self.read_dir(self.abs_path)
 
@@ -122,10 +127,9 @@ class Gallery(object):
 
         pref_form = GalleryPrefForm()
         preferences = pref_form.get_preferences()
-        raw_unauthorized_signs = preferences["unauthorized_signs"]
+        unauthorized_signs = preferences["unauthorized_signs"]
 
-        for sign in raw_unauthorized_signs.split():
-            sign = sign.strip()
+        for sign in unauthorized_signs:
             if sign and sign in rest_url:
                 LogEntry.objects.log_action(
                     app_label="pylucid_plugin.gallery", action="unauthorized sign",
@@ -142,7 +146,7 @@ class Gallery(object):
         thumbs = {}
         dirs = []
         for item in os.listdir(path):
-            if _fnmatch_list(item, self.diritem_blacklist):
+            if _fnmatch_list(item, self.config.diritem_blacklist):
                 # Skip file/direcotry
                 continue
 
@@ -150,11 +154,11 @@ class Gallery(object):
             if os.path.isdir(abs_item_path):
                 dirs.append(item)
             elif os.path.isfile(abs_item_path):
-                if not _fnmatch_list(item, self.filename_whitelist):
+                if not _fnmatch_list(item, self.config.filename_whitelist):
                     # Skip files witch are not in whitelist
                     continue
 
-                cut_filename = _split_suffix(item, self.thumb_suffix_marker)
+                cut_filename = _split_suffix(item, self.config.thumb_suffix_marker)
                 if cut_filename:
                     thumbs[cut_filename] = item
                 else:
@@ -185,7 +189,7 @@ class Gallery(object):
     def build_picture_info(self, pictures, thumbs):
         picture_info = []
         for picture in pictures:
-            cut_filename = _split_suffix(picture, self.filename_suffix_filter)
+            cut_filename = _split_suffix(picture, self.config.filename_suffix_filter)
             if not cut_filename:
                 cut_filename = os.path.splitext(picture)[0]
 
