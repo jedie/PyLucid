@@ -23,6 +23,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
 from reversion.admin import VersionAdmin
@@ -342,3 +343,17 @@ class UserProfileAdmin(VersionAdmin):
     list_filter = ("sites",)
 
 admin.site.register(models.UserProfile, UserProfileAdmin)
+
+
+
+#-----------------------------------------------------------------------------
+# Add ID to site admin by "reregister"
+# FIXME: Is there a simpler way to do this?
+
+class SiteAdmin(admin.ModelAdmin):
+    list_display = ("id", 'domain', 'name')
+    search_fields = ("id", 'domain', 'name')
+    list_display_links = ("id", "domain")
+
+admin.site.unregister(Site)
+admin.site.register(Site, SiteAdmin)
