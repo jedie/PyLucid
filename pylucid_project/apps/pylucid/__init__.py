@@ -13,7 +13,20 @@
 
 import warnings
 
-import pkg_resources
+try:
+    import pkg_resources
+except ImportError, e:
+    import sys
+    etype, evalue, etb = sys.exc_info()
+    evalue = etype(
+        (
+            "%s - Have you installed setuptools?"
+            " See: http://pypi.python.org/pypi/setuptools"
+            " - Or is the virtualenv not activated?"
+        ) % evalue
+    )
+    raise etype, evalue, etb
+
 
 def check_require(requirements):
     """
