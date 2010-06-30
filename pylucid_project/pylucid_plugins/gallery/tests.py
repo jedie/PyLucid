@@ -72,6 +72,7 @@ class GalleryPluginTest(basetest.BaseUnittest):
             status_code=302
         )
 
+        base_path = "PyLucid"
         response = self.client.post(self.gallerymodel_add_url,
             data={
                 'default_thumb_height': '100',
@@ -79,7 +80,7 @@ class GalleryPluginTest(basetest.BaseUnittest):
                 'filename_suffix_filter': '_WEB,_web',
                 'filename_whitelist': '*.jpg,*.jpeg,*.png',
                 'pagetree': pagetree_id,
-                'path': 'PyLucid',
+                'path': base_path,
                 'template': 'gallery/default.html',
                 'thumb_suffix_marker': '_thumb,_tmb'
             }
@@ -98,6 +99,27 @@ class GalleryPluginTest(basetest.BaseUnittest):
                 'Pictures',
                 'Path',
                 '''/<a href="/en/gallery_test/" title="goto 'index'">index</a>/''',
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required")
+        )
+
+        # go into a sub directory
+        sub_dir = "markup_help"
+        response = self.client.get(page_url + sub_dir + "/")
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid CMS - gallery_test</title>',
+                'jquery.colorbox-min.js',
+                '<img src="%s/markup_help/creole_cheat_sheet.png" alt="creole cheat sheet" width="100" height="100">' % (
+                    settings.MEDIA_URL + base_path
+                ),
+                'Directory',
+                'Pictures',
+                'Path',
+                '''<a href="/en/gallery_test/" title="goto 'index'">index</a>''',
+                '''<a href="/en/gallery_test/%(dir)s/" title="goto '%(dir)s/'">markup_help</a>''' % {
+                    "dir": sub_dir
+                }
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
         )
