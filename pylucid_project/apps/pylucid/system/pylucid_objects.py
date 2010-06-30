@@ -40,8 +40,22 @@ class PyLucidRequestObjects(object):
         from pylucid_project.apps.pylucid.models import Language
 
         self.languages = Language.objects.get_languages(request)
-        self.current_language = self.languages[0]
         self.default_language = Language.objects.get_or_create_default(request)
+        try:
+            self.current_language = self.languages[0]
+        except IndexError, err:
+            request.page_msg(
+                (
+                    "There exist no language on this site!"
+                    " Used default one."
+                    " Go into 'django admin/PyLucid/Languages' and"
+                    " add at least one language to this site!"
+                    " (Original error was: %s)"
+                ) % err
+            )
+            self.languages = [self.default_language]
+            self.current_language = self.default_language
+
 
         # Storing extra html head code from plugins, used in:
         # pylucid.defaulttags.extraheadBlock - redirect {% extrahead %} block tag content

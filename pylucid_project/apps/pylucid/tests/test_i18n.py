@@ -21,6 +21,7 @@ if __name__ == "__main__":
 
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.contrib.sites.models import Site
 
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.models import Language
@@ -86,6 +87,30 @@ class TestI18n(basetest.BaseLanguageTestCase):
         response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=lang_code)
         self.failUnlessEqual(response.status_code, 200)
         self.assertContentLanguage(response, self.default_language)
+
+    def test_no_language_on_site(self):
+        """
+        replace the site on all languages, with a not existing one.
+        So we must fallback to the default language. 
+        """
+        test_site = Site(domain="not_exist.tld")
+        test_site.save()
+
+        # replace sites on all languages
+        for language in Language.objects.all():
+#            print language, language.sites.all()
+            language.sites.clear()
+            language.sites.add(test_site)
+#            print language, language.sites.all()
+
+        response = self.client.get("/")
+        self.assertResponse(response,
+            must_contain=(
+                'There exist no language on this site! Used default one.',
+                'Welcome to your PyLucid CMS =;-)',
+            ),
+            must_not_contain=("Traceback",)
+        )
 
 
 
@@ -182,8 +207,8 @@ class TestI18nMoreLanguages(basetest.BaseMoreLanguagesTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid.tests.test_i18n.TestI18n.test_fallback_language", verbosity=0)
-    management.call_command('test', __file__,
-        verbosity=1
-#        verbosity=0
-    )
+    management.call_command('test', "pylucid.tests.test_i18n.TestI18n.test_no_language_on_site", verbosity=0)
+#    management.call_command('test', __file__,
+#        verbosity=1
+##        verbosity=0
+#    )
