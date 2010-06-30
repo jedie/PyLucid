@@ -18,6 +18,7 @@ import sys
 from xml.sax.saxutils import escape
 
 from django.db import models
+from django.http import Http404
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth.models import Group
@@ -158,8 +159,10 @@ class PageTreeManager(BaseModelManager):
         pagemeta, tried_languages = self.get_by_prefered_language(request, queryset)
 
         if pagemeta is None:
-            # This page doesn't exist in any languages???
-            raise
+            msg = ""
+            if settings.DEBUG:
+                msg += "This page %r doesn't exist in any languages???" % pagetree
+            raise Http404(msg)
 
         if tried_languages and show_lang_errors:
             request.page_msg.error(
