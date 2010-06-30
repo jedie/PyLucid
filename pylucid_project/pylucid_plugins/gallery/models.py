@@ -9,7 +9,7 @@ from django_tools.fields.media_path import MediaPathModelField
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.models import PageTree
-
+from pylucid_project.apps.pylucid.models import Language # import here against import loops
 
 class GalleryModel(UpdateInfoBaseModel):
     """   
@@ -19,7 +19,7 @@ class GalleryModel(UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    pagetree = models.ForeignKey(PageTree)
+    pagetree = models.ForeignKey(PageTree, unique=True)
 
     path = MediaPathModelField(max_length=256,
         help_text=_("Base path after MEDIA_ROOT")
@@ -56,4 +56,10 @@ class GalleryModel(UpdateInfoBaseModel):
     )
 
     def get_absolute_url(self):
-        return self.pagetree.get_absolute_url()
+        pagetree_url = self.pagetree.get_absolute_url()
+        language_entry = Language.objects.get_current()
+        url = "/" + language_entry.code + pagetree_url
+        return url
+
+    def __unicode__(self):
+        return "GalleryModel for %s" % self.pagetree.get_absolute_url()

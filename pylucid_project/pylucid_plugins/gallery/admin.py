@@ -16,11 +16,12 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django import forms
 
 from pylucid_project.apps.pylucid.models import PageTree, PluginPage
-from pylucid_project.apps.pylucid.base_admin import BaseAdmin
+from pylucid_project.apps.pylucid.base_admin import BaseAdmin, RedirectToPageAdmin
 
 from gallery.models import GalleryModel
 
@@ -38,6 +39,7 @@ class GalleryAdminForm(forms.ModelForm):
         super(GalleryAdminForm, self).__init__(*args, **kwargs)
 
         plugin_pages = PluginPage.objects.filter(app_label="pylucid_project.pylucid_plugins.gallery")
+        # TODO: Filter pagetree's witch has already a Gallery PluginPage
         choices = [
             (page.pagetree.id, page.pagetree.get_absolute_url())
             for page in plugin_pages
@@ -45,7 +47,7 @@ class GalleryAdminForm(forms.ModelForm):
         self.fields["pagetree"].choices = choices
 
 
-class GalleryModelAdmin(BaseAdmin):
+class GalleryModelAdmin(RedirectToPageAdmin, BaseAdmin):
     form = GalleryAdminForm
     list_display = (
         "view_on_site_link", "path", "template",
