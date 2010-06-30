@@ -3,13 +3,28 @@
 
 {% block extrastyle %}{{ block.super }}
 <!-- pylucid admin menu extrahead block start -->
-<link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish-vertical.css" />
+<style>
+.admin_section {
+    padding: 0px 10px 0px 10px;
+    margin: 10px;
+    float:left;
+    width: 20%;
+    min-width: 200px;
+    min-height: 130px;
+    border:1px solid #ddd;
+    background-color: #fafafa;
+}
+.admin_section h2 {
+    text-align:center;
+}
+.admin_section ul {
+    padding: 0px 0px 0px 20px;
+}
+</style>
 <!-- pylucid admin menu extrahead block end -->
 {% endblock %}
 
 {% block content %}
 <p>Please select a sub menu point.</p>
-<ul>
-	{% lucidTag admin_menu.panel_extras %}
-</ul>
+{% lucidTag admin_menu.panel_extras template="admin_menu/menu.html" %}
 {% endblock %}

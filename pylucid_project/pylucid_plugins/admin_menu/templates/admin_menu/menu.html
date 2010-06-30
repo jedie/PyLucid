@@ -1,0 +1,12 @@
+{% for node in nodes %}
+<div class="admin_section">
+    <h2 class="no_anchor">{{ node.data.name }}</h2>
+    {% with "admin_menu/admin_menu_items.html" as filename %}
+    {% with node.subnodes as nodes %}
+       {% if nodes %}<ul>
+       {% include filename %}
+       </ul>{% endif %}
+    {% endwith %}
+    {% endwith %}
+</div>
+{% endfor %}

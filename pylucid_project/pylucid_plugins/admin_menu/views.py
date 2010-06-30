@@ -55,7 +55,7 @@ def lucidTag(request):
     return context
 
 
-def panel_extras(request):
+def panel_extras(request, template="admin_menu/admin_menu_items.html"):
     """
     returns all PyLucid admin menu items with can the current user use.
     Used in the inline admin menu and for the pylucid admin menu in the django admin panel.
@@ -71,7 +71,7 @@ def panel_extras(request):
 
     context = {"nodes":nodes}
     response = render_to_response(
-        "admin_menu/admin_menu_items.html", context, context_instance=RequestContext(request)
+        template, context, context_instance=RequestContext(request)
     )
     return response
 
