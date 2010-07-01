@@ -1,30 +1,22 @@
 # coding:utf-8
 
-import os
-import sys
+from pprint import pformat
 import inspect
-import pwd
-import resource
+import os
 import posixpath
 import subprocess
-from pprint import pformat
+import sys
 
-from django import http
-from django import forms
-from django.db import models
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes import generic
 from django.core import urlresolvers
 from django.db import connection, backend
-from django.template import RequestContext
-from django.contrib.sites.models import Site
-from django.utils.safestring import mark_safe
-from django.shortcuts import render_to_response
-from django.views.debug import get_safe_settings
-from django.utils.importlib import import_module
+from django.db import models
 from django.db.models import get_apps, get_models
-from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes import generic
+from django.views.debug import get_safe_settings
 
 from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
@@ -146,7 +138,7 @@ def _textform_for_model(model, request, debug=False):
         if formfield:
             kw = []
             if debug:
-                request.page_msg(dir(formfield))
+                messages.info(request, dir(formfield))
             for a in ('queryset', 'max_length', 'min_length', 'label', 'initial', 'help_text', 'required'):
                 if hasattr(formfield, a):
                     attr = getattr(formfield, a)
@@ -213,9 +205,7 @@ def model_graph(request):
             " (Original Error was: %s "
             "- Please note, you need graphviz-dev or graphviz-devel, too.)"
         ) % err
-        request.page_msg.error(msg)
-        request.page_msg()
-        request.page_msg()
+        messages.error(request, msg)
         return {"error": msg}
 
     A = P.AGraph() # init empty graph

@@ -28,6 +28,7 @@
 import os
 import sys
 
+
 try:
     #from django_tools.utils import info_print;info_print.redirect_stdout()
     import django
@@ -90,10 +91,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 
     'dbpreferences.middleware.DBPreferencesMiddleware',
 
-    'pylucid_project.middlewares.page_msg.PageMessagesMiddleware',
     'pylucid_project.middlewares.pylucid_objects.PyLucidMiddleware',
 
     # slow down the django developer server
@@ -109,6 +110,14 @@ MIDDLEWARE_CLASSES = (
     # Insert a html link anchor to all headlines:
     'pylucid_project.middlewares.headline_anchor.HeadlineAnchorMiddleware',
 )
+
+
+# Add stack information to every messages, but only if..
+#     ...settings.DEBUG == True
+# or
+#     ...settings.MESSAGE_DEBUG == True
+MESSAGE_STORAGE = "django_tools.utils.messages.StackInfoStorage"
+
 
 # initialized all pylucid plugins
 PYLUCID_PLUGIN_SETUP_INFO = PyLucidPluginSetupInfo(
@@ -146,6 +155,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.request",
+    "django.contrib.messages.context_processors.messages",
     "pylucid_project.apps.pylucid.context_processors.pylucid",
 )
 

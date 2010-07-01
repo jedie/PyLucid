@@ -11,6 +11,7 @@
 import posixpath
 
 from django import http
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.template.loader import find_template
 from django.utils.translation import ugettext as _
@@ -23,7 +24,6 @@ from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.css_color_utils import unique_color_name
 
 from design.forms import SwitchDesignForm, CloneDesignForm
-
 
 
 def install(request):
@@ -63,7 +63,7 @@ def switch(request):
         try:
             context["design_switch"] = Design.on_site.get(id=design_id)
         except Design.DoesNotExist, err:
-            request.page_msg.error(_(
+            messages.error(request, _(
                     "Error: Design with ID %(id)r doesn't exist: %(err)s"
                 ) % {"id":design_id, "err": err}
                 )
@@ -80,11 +80,11 @@ def switch(request):
                 # reset to automatic selection by pagetree association
                 if "design_switch_pk" in request.session:
                     del request.session["design_switch_pk"]
-                request.page_msg(
+                messages.info(request,
                     _("delete 'design switch', turn to automatic mode.")
                 )
             else:
-                request.page_msg(_("Save design ID %r") % design_id)
+                messages.info(request, _("Save design ID %r") % design_id)
                 request.session["design_switch_pk"] = design_id
             return http.HttpResponseRedirect(request.path)
     else:
@@ -175,7 +175,7 @@ def clone(request):
     if request.method == "POST":
         form = CloneDesignForm(request.POST)
         if form.is_valid():
-            request.page_msg(form.cleaned_data)
+            messages.info(request, form.cleaned_data)
 
             new_name = form.cleaned_data["new_name"]
             sites = form.cleaned_data["sites"]
@@ -199,7 +199,7 @@ def clone(request):
             design.headfiles = new_headfiles
             design.save(force_update=True)
 
-            request.page_msg.successful(_("New design '%s' created.") % new_name)
+            messages.success(request, _("New design '%s' created.") % new_name)
             return http.HttpResponseRedirect(request.path)
     else:
         form = CloneDesignForm()
@@ -235,7 +235,7 @@ def rename_colors(request, colorscheme_id):
         color.save()
         changed_colors += 1
 
-    request.page_msg("%s colors exist. %s changed" % (len(existing_colors), changed_colors))
+    messages.info(request, "%s colors exist. %s changed" % (len(existing_colors), changed_colors))
 
     url = reverse("admin:pylucid_colorscheme_change", args=(colorscheme_id,))
     return http.HttpResponseRedirect(url)

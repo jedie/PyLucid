@@ -2,19 +2,15 @@
 
 from django import http
 from django.conf import settings
+from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext as _
 
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language, PluginPage
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language, PluginPage
 
-from page_admin.forms import PageTreeForm, PageMetaForm, \
-                                                             PageContentForm, PluginPageForm
-
-
-
-
+from page_admin.forms import PageTreeForm, PageMetaForm, PageContentForm, PluginPageForm
 
 
 @check_permissions(superuser_only=False, permissions=("pylucid.change_pagecontent",))
@@ -53,7 +49,7 @@ def _edit_content_page(request, context, pagetree):
                     raise
                 else:
                     transaction.savepoint_commit(sid)
-                    request.page_msg(_("Content page %r updated.") % pagecontent)
+                    messages.info(request, _("Content page %r updated.") % pagecontent)
                     return http.HttpResponseRedirect(pagecontent.get_absolute_url())
 
     # A list of all existing forms -> for form errorlist
@@ -114,7 +110,7 @@ def _edit_plugin_page(request, context, pagetree):
                 raise
             else:
                 transaction.savepoint_commit(sid)
-                request.page_msg(_("Plugin page %r updated.") % pluginpage)
+                messages.info(request, _("Plugin page %r updated.") % pluginpage)
                 return http.HttpResponseRedirect(pluginpage.get_absolute_url())
     else:
         pagetree_form = PageTreeForm(instance=pagetree)

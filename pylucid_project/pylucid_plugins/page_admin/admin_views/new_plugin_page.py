@@ -2,18 +2,16 @@
 
 from django import http
 from django.conf import settings
-from django.db import transaction
+from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.models import PageTree, Language
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
 from page_admin.admin_views import _get_pagetree, _build_form_initial
-from page_admin.forms import PageTreeForm, PageMetaForm, \
-                                                             PluginPageForm
-
-
+from page_admin.forms import PageTreeForm, PageMetaForm, PluginPageForm
 
 
 @check_permissions(superuser_only=False,
@@ -75,7 +73,7 @@ def new_plugin_page(request):
                 raise
             else:
                 transaction.savepoint_commit(sid)
-                request.page_msg(_("New plugin page %r created.") % new_pluginpage)
+                messages.info(request, _("New plugin page %r created.") % new_pluginpage)
                 return http.HttpResponseRedirect(new_pluginpage.get_absolute_url())
     else:
         parent_pagetree = _get_pagetree(request)

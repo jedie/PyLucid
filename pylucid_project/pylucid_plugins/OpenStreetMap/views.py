@@ -4,19 +4,12 @@
     PyLucid OpenStreetMap plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
     :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__ = "$Rev:$"
-
 from django.conf import settings
+from django.contrib import messages
 from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.decorators import render_to
@@ -36,23 +29,23 @@ def lucidTag(request, name=None):
     """
     if name is None:
         if settings.DEBUG or request.user.is_staff:
-            request.page_msg.error(_("lucidTag OpenStreetMap error: You must add the 'name' parameter!"))
+            messages.error(request, _("lucidTag OpenStreetMap error: You must add the 'name' parameter!"))
         return "[OpenStreetMap Error]"
-    
+
     try:
         map_entry = MapEntry.objects.get(name=name)
     except MapEntry.DoesNotExist:
         if settings.DEBUG or request.user.is_staff:
-            request.page_msg.error(
+            messages.error(request,
                 _("lucidTag OpenStreetMap error:"
                   " There exist no map entry with the name: %r") % name
             )
             existing_names = MapEntry.objects.values_list('name', flat=True)
-            request.page_msg(_("Existing maps are: %r") % existing_names)
+            messages.info(request, _("Existing maps are: %r") % existing_names)
         return "[OpenStreetMap Error]"
-    
+
     context = {
         "map":map_entry,
-        "lang_code": request.PYLUCID.current_language.code, 
+        "lang_code": request.PYLUCID.current_language.code,
     }
     return context

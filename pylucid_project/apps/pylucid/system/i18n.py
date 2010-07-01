@@ -24,8 +24,9 @@ if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
-from django.utils import translation
+from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.utils import translation
 
 from pylucid_project.apps.pylucid.models import Language
 
@@ -92,7 +93,7 @@ def reset_language_settings(request):
     -Delete djangos language cookie
     """
     if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg.successful(
+        messages.success(request,
             "Reset the favored language information. (Delete session and cookie entry.)"
         )
 
@@ -120,13 +121,13 @@ def activate_auto_language(request):
     lang_code = request.LANGUAGE_CODE
 
     if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg("settings.PYLUCID.I18N_DEBUG:")
+        messages.info(request, "settings.PYLUCID.I18N_DEBUG:")
         key = "HTTP_ACCEPT_LANGUAGE"
-        request.page_msg("%s: %r" % (key, request.META.get(key, '---')))
+        messages.info(request, "%s: %r" % (key, request.META.get(key, '---')))
         key = settings.LANGUAGE_COOKIE_NAME
-        request.page_msg("request.PYLUCID.languages: %r" % request.PYLUCID.languages)
-        request.page_msg("request.session['django_language']: %r" % request.session.get('django_language', "---"))
-        request.page_msg("request.LANGUAGE_CODE: %r (set in django.middleware.local)" % lang_code)
+        messages.info(request, "request.PYLUCID.languages: %r" % request.PYLUCID.languages)
+        messages.info(request, "request.session['django_language']: %r" % request.session.get('django_language', "---"))
+        messages.info(request, "request.LANGUAGE_CODE: %r (set in django.middleware.local)" % lang_code)
 
     current_language = request.PYLUCID.current_language
     activate_language(request, lang_entry=current_language)
@@ -134,7 +135,7 @@ def activate_auto_language(request):
 #    lang_entry = Language.objects.get_from_code(request, lang_code)
 #    if lang_entry is None:
 #        if settings.PYLUCID.I18N_DEBUG:
-#            request.page_msg.error(
+#            messages.error(request, 
 #                'Favored language "%s" does not exist -> use activate_default_language()' % lang_code
 #            )
 #        activate_default_language(request)
@@ -147,7 +148,7 @@ def activate_default_language(request):
     default_language = request.PYLUCID.default_language
 
     if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg.successful('Use default language "%s"' % default_language.code)
+        messages.success(request, 'Use default language "%s"' % default_language.code)
 
     activate_language(request, default_language)
 
@@ -166,7 +167,7 @@ def activate_language(request, lang_entry, save=False):
     if save:
         # Save language in session for next requests
         if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg(
+            messages.info(request,
                 'Save lang code "%s" into request.session[\'django_language\']' % lang_entry.code
             )
         request.session["django_language"] = lang_entry.code
@@ -174,7 +175,7 @@ def activate_language(request, lang_entry, save=False):
     if request.LANGUAGE_CODE == lang_entry.code:
         # this language is active, nothing to do
         if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg(
+            messages.info(request,
                 "Activation language %r not needed: It's the current used language." % lang_entry.code
             )
         return
@@ -183,7 +184,7 @@ def activate_language(request, lang_entry, save=False):
     request.PYLUCID.current_language = lang_entry
 
     if settings.PYLUCID.I18N_DEBUG:
-        request.page_msg.successful('Activate language "%s"' % lang_entry.code)
+        messages.success(request, 'Activate language "%s"' % lang_entry.code)
 
     # activate django i18n:
     translation.activate(lang_entry.code)
@@ -196,7 +197,7 @@ def assert_language(request, language, save_get_parameter=False, check_url_langu
     """
     if language != request.PYLUCID.current_language:
         if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.info("entry language %s is not %s" % (language, request.PYLUCID.current_language))
+            messages.info(request, "entry language %s is not %s" % (language, request.PYLUCID.current_language))
 
         activate_language(request, language, save=True)
 

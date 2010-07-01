@@ -4,17 +4,10 @@
     PyLucid RSS plugin
     ~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-__version__ = "$Rev$"
 
 import time
 import socket
@@ -28,6 +21,7 @@ except ImportError, err:
 else:
     feedparser_available = True
 
+from django.contrib import messages
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 
@@ -58,8 +52,8 @@ def lucidTag(request, url, debug=False, **kwargs):
     """
     if feedparser_available == False:
         if request.user.is_staff:
-            request.page_msg.error("External 'feedparser' module not available: %s" % err)
-            request.page_msg("PyPi url: http://pypi.python.org/pypi/FeedParser/")
+            messages.error(request, "External 'feedparser' module not available: %s" % err)
+            messages.info(request, "PyPi url: http://pypi.python.org/pypi/FeedParser/")
         return "[RSS feed error.]"
 
     # Get preferences from DB and update them with given kwargs.
@@ -82,7 +76,7 @@ def lucidTag(request, url, debug=False, **kwargs):
             if "bozo_exception" in feed:
                 if isinstance(feed["bozo_exception"], feedparser.ThingsNobodyCaresAboutButMe):
                     if request.user.is_staff:
-                        request.page_msg("RSS feed info:", feed["bozo_exception"])
+                        messages.info(request, "RSS feed info:", feed["bozo_exception"])
                 else:
                     raise AssertionError("Feed error: %s" % feed["bozo_exception"])
         except Exception, e:
@@ -102,7 +96,7 @@ def lucidTag(request, url, debug=False, **kwargs):
         cache.set(cache_key, feed_dict, preferences["cache_timeout"])
 
     if debug and request.user.is_staff:
-        request.page_msg.info("RSS debug is on, see page content.")
+        messages.info(request, "RSS debug is on, see page content.")
         feed_code = pformat(feed_dict["feed"])
         feed_html = hightlighter.make_html(
             feed_code, source_type="py", django_escape=True

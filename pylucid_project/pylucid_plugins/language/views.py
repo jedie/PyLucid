@@ -1,16 +1,10 @@
 # coding: utf-8
 
 """
-    PyLucid language tools
-    ~~~~~~~~~~~~~~~~~~~~~~
+    PyLucid language plugin
+    ~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
@@ -18,11 +12,9 @@
 __version__ = "$Rev:$"
 
 from django.conf import settings
-from django.template import RequestContext
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseRedirect
 
 from django_tools.validators import validate_language_code
 
@@ -32,13 +24,16 @@ from pylucid_project.apps.pylucid.decorators import render_to
 
 from language.preference_forms import LanguagePrefForm
 
+
 RESET_KEY = "reset"
+
 
 def _can_reset():
     # Get preferences
     pref_form = LanguagePrefForm()
     pref_data = pref_form.get_preferences()
     return pref_data["add_reset_link"] or settings.DEBUG or settings.PYLUCID.I18N_DEBUG
+
 
 @render_to("language/language_selector.html")
 def lucidTag(request):
@@ -51,7 +46,7 @@ def lucidTag(request):
             # Display a superuser a information (only one time per session)
             key = "useless_language_plugin"
             if key not in request.session:
-                request.page_msg(
+                messages.info(request,
                     "It's useless to insert lucidtag language into this site!"
                     "For better performance you can remove this tag."
                 )
@@ -73,7 +68,6 @@ def lucidTag(request):
     return context
 
 
-
 def http_get_view(request):
     """
     Switch the client favored language and save it for every later requests.
@@ -84,14 +78,14 @@ def http_get_view(request):
     raw_lang_code = request.GET.get("language", False)
     if not raw_lang_code:
         if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.error("No language code!")
+            messages.error(request, "No language code!")
         return
 
     if raw_lang_code == RESET_KEY:
         # We should reset the current saved language data
         if not _can_reset():
             if debug:
-                request.page_msg.error("Error: i18n reset is off!")
+                messages.error(request, "Error: i18n reset is off!")
             return
         return i18n.reset_language_settings(request)
 
@@ -99,21 +93,21 @@ def http_get_view(request):
         validate_language_code(raw_lang_code)
     except ValidationError, err:
         if debug:
-            request.page_msg.error("Wrong language code in url: %s" % err)
+            messages.error(request, "Wrong language code in url: %s" % err)
         return
 
     if raw_lang_code == request.PYLUCID.current_language.code:
         # Use the current lang entry and save it
         lang_entry = request.PYLUCID.current_language
         if debug:
-            request.page_msg.info("Save current lang entry.")
+            messages.info(request, "Save current lang entry.")
     else:
         existing_languages = Language.objects.all_accessible(user)
         try:
             lang_entry = existing_languages.get(code=raw_lang_code)
         except Language.DoesNotExist, err:
             if debug:
-                request.page_msg.error("Wrong lang code in get parameter: %s" % err)
+                messages.error(request, "Wrong lang code in get parameter: %s" % err)
             return
 
     i18n.activate_language(request, lang_entry, save=True)
@@ -121,7 +115,7 @@ def http_get_view(request):
     current_pagemeta = request.PYLUCID.pagemeta
     if current_pagemeta.language == lang_entry:
         if debug:
-            request.page_msg.info("Current page is in right language. No redirect needed.")
+            messages.info(request, "Current page is in right language. No redirect needed.")
         return
 
     pagetree = request.PYLUCID.pagetree
@@ -129,7 +123,7 @@ def http_get_view(request):
         pagemeta = PageMeta.objects.get(pagetree=pagetree, language=lang_entry)
     except PageMeta.DoesNotExist, err:
         if debug:
-            request.page_msg.info("PageMeta doesn't exist in lang %r. So no redirect needed." % lang_entry)
+            messages.info(request, "PageMeta doesn't exist in lang %r. So no redirect needed." % lang_entry)
         return
 
     # change only the lang code in the url:

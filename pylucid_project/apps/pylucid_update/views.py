@@ -4,49 +4,44 @@
     PyLucid update views
     ~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import re
 import posixpath
+import traceback
 from pprint import pformat
 
 from django.conf import settings
-from django.db import transaction
-from django.template import RequestContext
+from django.contrib import messages
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from django.contrib.sites.models import Site
-from django.shortcuts import render_to_response
-from django.utils.translation import ugettext as _
-from django.core.exceptions import ValidationError
-from django.template.loader import find_template_source
 from django.contrib.redirects.models import Redirect
+from django.contrib.sites.models import Site
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 from django.template.defaultfilters import slugify
-
-from dbtemplates.models import Template
+from django.template.loader import find_template_source
+from django.utils.translation import ugettext as _
 
 from dbpreferences.models import Preference
 
-from pylucid_project.utils.SimpleStringIO import SimpleStringIO
-from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+from dbtemplates.models import Template
 
-from pylucid_project.apps.pylucid.fields import CSS_VALUE_RE
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.utils.css_color_utils import filter_content, extract_colors
+from pylucid_project.apps.pylucid.fields import CSS_VALUE_RE
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, Design, \
                                                 EditableHtmlHeadFile, UserProfile, LogEntry, Language
-
-from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
 from pylucid_project.apps.pylucid_update.forms import UpdateForm, WipeSiteConfirm
+from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+from pylucid_project.utils.SimpleStringIO import SimpleStringIO
+from pylucid_project.utils.css_color_utils import filter_content, extract_colors
+from django.utils.safestring import mark_safe
 
 
 def _get_output(request, out, title):
@@ -58,7 +53,12 @@ def _get_output(request, out, title):
         output.append("\nPage Messages:\n")
         for msg in msg_list:
             output += msg["lines"]
-        request.page_msg.info("Page messages merge into the output.")
+        messages.info(request, "Page messages merge into the output.")
+
+#    storage = messages.get_messages(request)
+#    for message in storage:
+#        do_something_with(message)
+
 
     LogEntry.objects.log_action(
         "pylucid_update", title, request, "successful", long_message="\n".join(output)
@@ -99,14 +99,13 @@ def wipe_site(request):
                 PageTree.on_site.all().delete()
             except Exception, err:
                 transaction.savepoint_rollback(sid)
-                import traceback
                 LogEntry.objects.log_action("pylucid_update", title, request, "Error: %s" % err,
                     long_message=traceback.format_exc())
                 raise
             else:
                 transaction.savepoint_commit(sid)
                 LogEntry.objects.log_action("pylucid_update", title, request, "successful")
-                request.page_msg("Wipe site data successful")
+                messages.info(request, "Wipe site data successful")
 
             return HttpResponseRedirect(reverse("PyLucidUpdate-menu"))
     else:
@@ -420,7 +419,7 @@ def _select_lang(request, context, call_func):
     Select language before start updating.
     """
     if Language.on_site.count() == 0:
-        request.page_msg.error(_("Error: On this site exist no language!"))
+        messages.error(request, _("Error: On this site exist no language!"))
         return HttpResponseRedirect(reverse("PyLucidUpdate-menu"))
 
     if request.method == 'POST':
@@ -432,7 +431,6 @@ def _select_lang(request, context, call_func):
                 response = call_func(request, language)
             except Exception, err:
                 transaction.savepoint_rollback(sid)
-                import traceback
                 LogEntry.objects.log_action("pylucid_update", context["title"], request, "Error: %s" % err,
                     long_message=traceback.format_exc())
                 raise
@@ -458,8 +456,8 @@ def update08migrate_pages(request):
     Before start updating, select the language.
     """
     if PageTree.on_site.count() != 0:
-        request.page_msg(_("Can't start migrating: There exist pages on this side!"))
-        request.page_msg(_("Create a new site or wipe all page data."))
+        messages.info(request, _("Can't start migrating: There exist pages on this side!"))
+        messages.info(request, _("Create a new site or wipe all page data."))
         return HttpResponseRedirect(reverse("PyLucidUpdate-menu"))
 
     context = {
@@ -782,8 +780,8 @@ def update08templates(request):
 
         # TODO: add somthing like: <meta http-equiv="Content-Language" content="en" />
 
-        if "<!-- page_messages -->" not in content:
-            out.write(" *** IMPORTANT: You must insert <!-- page_messages --> in this template!")
+        if '{% include "pylucid/includes/page_msg.html" %}' not in content:
+            out.write(' *** IMPORTANT: You must insert {% include "pylucid/includes/page_msg.html" %} in this template!')
 
         if template.content == content:
             out.write("Nothing changed")
@@ -966,8 +964,8 @@ def _update08plugins(request, language):
                 continue
             if settings.DEBUG:
                 raise
-            request.page_msg.error("failed updating %s." % plugin_name)
-            request.page_msg.insert_traceback()
+            messages.error(request, "failed updating %s." % plugin_name)
+            messages.debug(request, mark_safe("<pre>%s</pre>" % traceback.format_exc()))
         else:
             out.write(" --- %s END ---" % plugin_name)
 

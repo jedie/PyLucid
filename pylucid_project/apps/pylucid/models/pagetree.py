@@ -17,18 +17,19 @@
 import sys
 from xml.sax.saxutils import escape
 
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import Group
+from django.contrib.sites.managers import CurrentSiteManager
+from django.contrib.sites.models import Site
+from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.http import Http404
-from django.conf import settings
-from django.core.cache import cache
-from django.contrib.auth.models import Group
-from django.contrib.sites.models import Site
-from django.utils.safestring import mark_safe
-from django.core.exceptions import ValidationError
 from django.template.defaultfilters import slugify
-from django.core.exceptions import PermissionDenied
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.sites.managers import CurrentSiteManager
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
@@ -36,6 +37,7 @@ from django_tools import model_utils
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
 from pylucid_project.apps.pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -165,7 +167,7 @@ class PageTreeManager(BaseModelManager):
             raise Http404(msg)
 
         if tried_languages and show_lang_errors:
-            request.page_msg.error(
+            messages.error(request,
                 _(
                     "PageMeta %(slug)s doesn't exist in client"
                     " favored language %(tried_languages)s,"

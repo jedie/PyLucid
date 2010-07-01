@@ -19,6 +19,7 @@
 """
 
 from django.conf import settings
+from django.contrib import messages
 from django.template import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -134,7 +135,7 @@ def get_pygments_css(request):
     try:
         pygments_css = EditableHtmlHeadFile.on_site.get(filepath="pygments.css")
     except EditableHtmlHeadFile.DoesNotExist:
-        request.page_msg("Error: No headfile with filepath 'pygments.css' found.")
+        messages.error(request, "Error: No headfile with filepath 'pygments.css' found.")
     else:
         absolute_url = pygments_css.get_absolute_url(colorscheme=None)
         return absolute_url

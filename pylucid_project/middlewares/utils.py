@@ -39,7 +39,7 @@ def replace_content(response, old, new):
 
 
 def cut_filename(filename):
-    """ used in page_msg and pagestats """
+    """ used in pagestats """
     if FILEPATH_SPLIT in filename:
         return "...%s" % filename.split(FILEPATH_SPLIT)[1]
     if len(filename) >= MAX_FILEPATH_LEN:

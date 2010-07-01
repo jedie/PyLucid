@@ -16,12 +16,12 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-from django.contrib import auth
 from django.conf import settings
-from django.template import RequestContext
+from django.contrib import auth, messages
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
-from django.utils.translation import ugettext as _
+from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response
 from pylucid_project.apps.pylucid.models import LogEntry
@@ -194,7 +194,7 @@ def _sha_auth(request):
         last_login = user2.last_login
         auth.login(request, user2)
         message = render_to_string('auth/login_info.html', {"last_login":last_login})
-        request.page_msg.successful(message)
+        messages.success(request, message)
         return HttpResponse("OK", content_type="text/plain")
 
 
@@ -217,7 +217,7 @@ def _get_salt(request):
             if DEBUG:
                 print(msg)
             if settings.DEBUG:
-                request.page_msg.error(msg)
+                messages.error(request, msg)
 
     if user_profile is None: # Wrong user?
         username = request.POST["username"]
@@ -225,7 +225,7 @@ def _get_salt(request):
         if DEBUG:
             print(msg)
         if settings.DEBUG:
-            request.page_msg.error(msg)
+            messages.error(request, msg)
         salt = crypt.get_pseudo_salt(username)
     else:
         salt = user_profile.sha_login_salt
@@ -236,7 +236,7 @@ def _get_salt(request):
             if DEBUG:
                 print(msg)
             if settings.DEBUG:
-                request.page_msg.error(msg)
+                messages.error(request, msg)
             salt = crypt.get_pseudo_salt(username)
 
     if DEBUG:
@@ -284,7 +284,7 @@ def _login_view(request):
 def _logout_view(request):
     """ Logout the current user. """
     auth.logout(request)
-    request.page_msg.successful(_("You are logged out!"))
+    messages.success(request, _("You are logged out!"))
     next_url = request.path
     return HttpResponseRedirect(next_url)
 

@@ -19,6 +19,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
+from django.contrib import messages
 from django.conf import settings
 from django.core import urlresolvers
 from django.template import RequestContext
@@ -68,6 +69,10 @@ def panel_extras(request, template="admin_menu/admin_menu_items.html"):
     tree = PyLucidAdminPage.objects.get_tree_for_user(user)
     #tree.debug()
     nodes = tree.get_first_nodes()
+
+    # TODO: Add info if install was not made yet.
+#    print "XX", len(nodes)
+#    messages.debug(request, "nodes len: %s" % len(nodes))
 
     context = {"nodes":nodes}
     response = render_to_response(

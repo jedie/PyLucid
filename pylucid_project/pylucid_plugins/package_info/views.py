@@ -4,20 +4,10 @@
     PyLucid packages information plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
     :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
-
-__version__ = "$Rev:$"
 
 import os
 
@@ -28,10 +18,11 @@ if __name__ == "__main__":
 
 import pkg_resources
 
-import django
 from django.conf import settings
+from django.contrib import messages
 from django.template import mark_safe
 from django.utils.version import get_svn_revision
+import django
 
 from pylucid_project import VERSION_STRING, get_git_hash
 from pylucid_project.apps.pylucid.decorators import render_to
@@ -267,10 +258,10 @@ def lucidTag(request, all_packages=False, display_version=False, display_locatio
     }
 
     if debug and (settings.DEBUG or request.user.is_staff):
-        request.page_msg("Debug existing package template keys:")
+        messages.info(request, "Debug existing package template keys:")
         existing_keys = package_info.existing_keys()
         for key in sorted(existing_keys):
-            request.page_msg(mark_safe(
+            messages.info(request, mark_safe(
                 "<i>entry</i><strong>.%s</strong>" % key
             ))
 

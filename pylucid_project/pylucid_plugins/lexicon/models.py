@@ -4,20 +4,15 @@
     PyLucid lexicon models
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate: 2009-08-11 15:39:06 +0200 (Di, 11 Aug 2009) $
-    $Rev: 2264 $
-    $Author: JensDiemer $
-
     :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-from django.db import models
 from django.conf import settings
-from django.core.cache import cache
+from django.contrib import messages
 from django.core import urlresolvers
+from django.core.cache import cache
+from django.db import models
 from django.db.models import signals
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -26,14 +21,13 @@ from django.utils.translation import ugettext_lazy as _
 #import tagging
 from tagging.fields import TagField
 
-from pylucid_project.pylucid_plugins import update_journal
-
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import PageContent, Language
-from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel, \
     BaseModelManager
+from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
+from pylucid_project.pylucid_plugins import update_journal
 #from PyLucid.tools.content_processors import apply_markup, fallback_markup
 #from PyLucid.models import Page
 
@@ -71,7 +65,7 @@ class LexiconEntryManager(BaseModelManager):
         if term in ("", None): # e.g.: term not in url or GET parameter 'empty'
             if request.user.is_staff:
                 error_msg += " (No term given.)"
-            request.page_msg.error(error_msg)
+            messages.error(request, error_msg)
             return
 
         queryset = self.get_filtered_queryset(request, filter_language=filter_language)
@@ -81,7 +75,7 @@ class LexiconEntryManager(BaseModelManager):
         except self.model.DoesNotExist, err:
             if settings.DEBUG or request.user.is_staff:
                 error_msg += " (term: %r, original error: %s)" % (term, err)
-            request.page_msg.error(error_msg)
+            messages.error(request, error_msg)
         else:
             return entry
 

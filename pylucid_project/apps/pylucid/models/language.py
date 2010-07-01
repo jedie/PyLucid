@@ -14,10 +14,11 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.db import models
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils.translation.trans_real import parse_accept_lang_header
 
 # http://code.google.com/p/django-tools/
@@ -132,7 +133,7 @@ class LanguageManager(models.Manager):
 
         accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
 #        if settings.PYLUCID.I18N_DEBUG:
-#            request.page_msg.info("HTTP_ACCEPT_LANGUAGE: %r" % accept)
+#            messages.info(request, "HTTP_ACCEPT_LANGUAGE: %r" % accept)
 
         if not accept:
             if current_lang_code:
@@ -191,7 +192,7 @@ class LanguageManager(models.Manager):
         """
         if hasattr(request, "PYLUCID") and hasattr(request.PYLUCID, "languages"):
             if settings.PYLUCID.I18N_DEBUG:
-                request.page_msg.info(
+                messages.debug(request,
                     "return request.PYLUCID.languages: %r" % request.PYLUCID.languages
                 )
             return request.PYLUCID.languages
@@ -205,9 +206,9 @@ class LanguageManager(models.Manager):
         accept_lang_codes, unsupported_lang_codes, fallback_lang_codes = self._get_language_codes(request)
 
         if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.info("accept_lang_codes: %r" % accept_lang_codes)
-            request.page_msg.info("unsupported_lang_codes: %r" % unsupported_lang_codes)
-            request.page_msg.info("fallback_lang_codes: %r" % fallback_lang_codes)
+            messages.debug(request, "accept_lang_codes: %r" % accept_lang_codes)
+            messages.debug(request, "unsupported_lang_codes: %r" % unsupported_lang_codes)
+            messages.debug(request, "fallback_lang_codes: %r" % fallback_lang_codes)
 
         # XXX: Test QuerySet order
 #            language_codes.sort()
@@ -228,13 +229,13 @@ class LanguageManager(models.Manager):
             # The Client has not all existing languages in his HTTP_ACCEPT_LANGUAGE
             # Append the rest
             if settings.PYLUCID.I18N_DEBUG:
-                request.page_msg.info(
+                messages.info(request,
                     "client not accepted languages to append: %s" % ", ".join([l.code for l in languages])
                 )
             language_list += languages
 
         if settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.info("language_list: %s" % ", ".join([l.code for l in language_list]))
+            messages.info(request, "language_list: %s" % ", ".join([l.code for l in language_list]))
 
         return language_list
 

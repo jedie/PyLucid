@@ -9,20 +9,15 @@
     This plugin would be symlinked into "./pylucid_project/pylucid_plugins/" before 
     unittests starts. This would be done in pylucid_project.tests.test_tools.test_runner.
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django import http
-from django.template import RequestContext
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from pylucid_project.apps.pylucid.models import Language
 
@@ -109,7 +104,7 @@ def test_PyLucid_api(request):
     Test the PyLucid API
     see also: http://www.pylucid.org/_goto/187/PyLucid-objects/
     """
-    request.page_msg(PLUGINPAGE_API_TEST_PAGE_MSG)
+    messages.info(request, PLUGINPAGE_API_TEST_PAGE_MSG)
 
     context = request.PYLUCID.context
     output = []

@@ -1,25 +1,33 @@
-# coding: utf-8
+# coding:utf-8
+
+"""
+    PyLucid
+    ~~~~~~~
+
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
 
 import os
 
 from django import http
 from django.conf import settings
-from django.template import RequestContext
-from django.core.urlresolvers import reverse
-from django.contrib.sites.models import Site
-from django.shortcuts import render_to_response
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User, Group
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.utils.translation import ugettext_lazy as _
 
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design
 from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.system import pylucid_plugin, pylucid_objects
-from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-
+from pylucid_project.apps.pylucid_admin.models import PyLucidAdminPage
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
-from pylucid_project.apps.pylucid_admin.models import PyLucidAdminPage
 
 
 @login_required
@@ -145,8 +153,7 @@ def install_plugins(request):
                     output.append("Skip plugin %r, because it has no install view (%s)" % (plugin_name, err))
                 continue
 
-            request.page_msg.error("failed call %s.%s" % (plugin_name, view_name))
-            request.page_msg.insert_traceback()
+            messages.error(request, "failed call %s.%s" % (plugin_name, view_name))
             continue
 
         output.append("_" * 79)

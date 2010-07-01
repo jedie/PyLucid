@@ -4,18 +4,11 @@
     PyLucid plugin tools
     ~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
 
-__version__ = "$Rev:$"
 
 import re
 import sys
@@ -23,18 +16,19 @@ import warnings
 
 from django import http
 from django.conf import settings
-from django.template import loader
-from django.http import HttpResponse
+from django.conf.urls.defaults import patterns, url
+from django.contrib import messages
 from django.core import urlresolvers
+from django.http import HttpResponse
+from django.template import loader
 from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
-from django.conf.urls.defaults import patterns, url
+
+from dbpreferences.forms import DBPreferencesBaseForm
 
 from pylucid_project.apps.pylucid.models import PluginPage, PageTree
 from pylucid_project.apps.pylucid.system import pylucid_objects
 
-
-from dbpreferences.forms import DBPreferencesBaseForm
 
 class PyLucidDBPreferencesBaseForm(DBPreferencesBaseForm):
     def get_preferences(self, request, lucidtag_kwargs):
@@ -46,7 +40,7 @@ class PyLucidDBPreferencesBaseForm(DBPreferencesBaseForm):
         if request.user.is_staff:
             for key in lucidtag_kwargs.keys():
                 if key not in preferences:
-                    request.page_msg.info(
+                    messages.info(request,
                         "Keyword argument %r is invalid for lucidTag %r !" % (key, self.Meta.app_label)
                     )
         preferences.update(lucidtag_kwargs)
@@ -156,21 +150,21 @@ def context_middleware_request(request):
 
     page_template = request.PYLUCID.page_template # page template content
     plugin_names = TAG_RE.findall(page_template)
-#    request.page_msg("Found ContextMiddlewares in content via RE: %r" % plugin_names)
+#    messages.info(request, "Found ContextMiddlewares in content via RE: %r" % plugin_names)
 
     for plugin_name in plugin_names:
         # Get the middleware class from the plugin
         try:
             middleware_class = _get_middleware_class(plugin_name)
         except ImportError, err:
-            request.page_msg.error("Can't import context middleware '%s': %s" % (plugin_name, err))
+            messages.error(request, "Can't import context middleware '%s': %s" % (plugin_name, err))
             continue
 
         # make a instance 
         instance = middleware_class(request, context)
         # Add it to the context
         context["context_middlewares"][plugin_name] = instance
-#        request.page_msg("Init ContextMiddleware %r" % plugin_name)
+#        messages.info(request, "Init ContextMiddleware %r" % plugin_name)
 
 def context_middleware_response(request, response):
     """

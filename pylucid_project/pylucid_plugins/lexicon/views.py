@@ -3,27 +3,17 @@
 """
     PyLucid lexicon plugin
     ~~~~~~~~~~~~~~~~~~~~~~
-    
-
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate: 2009-08-11 14:02:53 +0200 (Di, 11 Aug 2009) $
-    $Rev: 2263 $
-    $Author: JensDiemer $
 
     :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-
-__version__ = "$Rev: 2263 $ Alpha"
-
-
 from django import http
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.comments.views.comments import post_comment
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.comments.views.comments import post_comment
 
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.apps.pylucid.system import i18n
@@ -59,7 +49,7 @@ def detail_view(request, term=None):
     if term in ("", None): # e.g.: term not in url or GET parameter 'empty'
         if settings.DEBUG or request.user.is_staff:
             error_msg += " (No term given.)"
-        request.page_msg.error(error_msg)
+        messages.error(request, error_msg)
         return
 
     queryset = LexiconEntry.on_site.filter(is_public=True)
@@ -70,7 +60,7 @@ def detail_view(request, term=None):
     if entry is None:
         if settings.DEBUG or request.user.is_staff or settings.PYLUCID.I18N_DEBUG:
             error_msg += " (term: %r, tried languages: %s)" % (term, ", ".join([l.code for l in tried_languages]))
-        request.page_msg.error(error_msg)
+        messages.error(request, error_msg)
         return summary(request)
 
     if request.POST:
@@ -96,7 +86,7 @@ def detail_view(request, term=None):
 #        }
 #        if settings.DEBUG or request.user.is_staff or settings.PYLUCID.I18N_DEBUG:
 #            msg += "(tried languages: %s)" % ", ".join([l.code for l in tried_languages])
-#        request.page_msg.info(msg)
+#        messages.info(request, msg)
 
 
     _add_breadcrumb(request, title="%s: %s" % (entry.term, entry.short_definition), url=request.path)

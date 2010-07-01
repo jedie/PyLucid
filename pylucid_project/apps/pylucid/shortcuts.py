@@ -7,19 +7,15 @@
     render_pylucid_response() - Similar to django.shortcuts.render_to_response, can be used in
         PyLucid plugin "ajax+normal response" views.
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import warnings
 
 from django import http
+from django.contrib import messages
 from django.template.loader import render_to_string
 
 from django_tools.middlewares import ThreadLocal
@@ -76,7 +72,7 @@ def failsafe_message(msg):
     # Try to create a PyLucid page_msg
     request = ThreadLocal.get_current_request()
     if request and hasattr(request, "page_msg"):
-        request.page_msg(msg)
+        messages.info(request, msg)
         return
 
     # Try to use django user message systen.

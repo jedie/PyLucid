@@ -1,15 +1,14 @@
 # coding:utf-8
 
 from django import http
+from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.utils.site_utils import get_site_preselection
-
-from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.utils.site_utils import get_site_preselection
 
 from lexicon.forms import LexiconEntryForm
 from lexicon.preference_forms import LexiconPrefForm
@@ -50,7 +49,7 @@ def new_entry(request):
                 )
             else:
                 instance = form.save()
-                request.page_msg(_("Lexicon entry '%s' saved.") % instance.term)
+                messages.info(request, _("Lexicon entry '%s' saved.") % instance.term)
                 return http.HttpResponseRedirect(instance.get_absolute_url())
     else:
         # Get preferences

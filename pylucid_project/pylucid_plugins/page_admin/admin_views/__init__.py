@@ -1,11 +1,10 @@
 # coding: utf-8
 
 from django.conf import settings
+from django.contrib import messages
 
 from pylucid_project.apps.pylucid.models import PageTree
-
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
-
 
 
 def install(request):
@@ -51,7 +50,7 @@ def _get_pagetree(request):
     except Exception, err:
         if settings.DEBUG:
             err_msg += " (ID: %r, original error was: %r)" % (raw_pagetree_id, err)
-        request.page_msg.error(err_msg)
+        messages.error(request, err_msg)
         return
 
     try:
@@ -59,7 +58,7 @@ def _get_pagetree(request):
     except PageTree.DoesNotExist, err:
         if settings.DEBUG:
             err_msg += " (ID: %r, original error was: %r)" % (pagetree_id, err)
-        request.page_msg.error(err_msg)
+        messages.error(request, err_msg)
         return
 
     return parent_pagetree
@@ -75,7 +74,7 @@ def _build_form_initial(request, parent_pagetree):
     info_msg = "preselect some values from %r" % parent_pagetree.get_absolute_url()
     if settings.DEBUG:
         info_msg += " (PageTree: %r)" % parent_pagetree
-    request.page_msg.info(info_msg)
+    messages.info(request, info_msg)
 
     for attr_name in ("design", "showlinks", "permitViewGroup", "permitEditGroup"):
         model_attr = getattr(parent_pagetree, attr_name)

@@ -10,28 +10,20 @@
     
     TODO:
         * Detail view, use BlogEntry.get_absolute_url()
-    
-
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
 
     :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__ = "$Rev$"
-
 
 from django import http
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.comments.views.comments import post_comment
 from django.contrib.syndication.views import Feed
+from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.comments.views.comments import post_comment
-from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 
 from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
@@ -202,7 +194,7 @@ def detail_view(request, id, title):
         msg = "Blog entry doesn't exist."
         if settings.DEBUG or request.user.is_staff:
             msg += " (ID %r wrong.)" % id
-        request.page_msg.error(msg)
+        messages.error(request, msg)
         return summary(request)
 
     new_url = i18n.assert_language(request, entry.language)

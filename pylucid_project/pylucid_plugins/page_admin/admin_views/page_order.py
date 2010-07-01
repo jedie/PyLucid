@@ -2,6 +2,7 @@
 
 from django import http
 from django.conf import settings
+from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
@@ -39,7 +40,7 @@ def page_order(request, pagetree_id=None):
                 transaction.savepoint_rollback(sid)
                 raise
             transaction.savepoint_commit(sid)
-            request.page_msg("New position saved.")
+            messages.info(request, "New position saved.")
             return http.HttpResponseRedirect(request.path)
     else:
         formset = PageOrderFormSet(queryset=queryset)

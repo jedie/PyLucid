@@ -1,0 +1,11 @@
+{% if messages %}
+<fieldset id="page_msg"><legend>page message</legend>
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}{% if message.stack_info %} title="click for stack info" onclick="alert('Stack info (limit: {{ message.stack_limit }}, url: [{{ message.full_path }}]):\n\n{{ message.stack_info }}');"{% endif %}>
+	   {{ message }}
+	</li>
+    {% endfor %}
+</ul>
+</fieldset>
+{% endif %}

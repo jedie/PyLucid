@@ -4,20 +4,15 @@
     PyLucid page admin
     ~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.conf import settings
+from django.contrib import messages
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse, HttpResponseRedirect
 
 from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
@@ -36,10 +31,11 @@ def _get_pageobjects(request):
     pagecontent = PageContent.objects.get(pagemeta=pagemeta)
     return pagemeta, pagecontent
 
+
 def _edit_page(request, form_url):
     pagetree = request.PYLUCID.pagetree
     if pagetree.page_type != PageTree.PAGE_TYPE:
-        request.page_msg("Current page is not a content page.")
+        messages.info(request, "Current page is not a content page.")
         return
 
     pagemeta, pagecontent = _get_pageobjects(request)
@@ -51,13 +47,13 @@ def _edit_page(request, form_url):
             if "preview" in request.POST:
                 raw_content = edit_page_form.cleaned_data["content"]
                 preview_html = apply_markup(
-                    raw_content, pagecontent.markup, request.page_msg, escape_django_tags=True
+                    raw_content, pagecontent.markup, request, escape_django_tags=True
                 )
             else:
                 new_content = edit_page_form.cleaned_data["content"]
                 pagecontent.content = new_content
                 pagecontent.save()
-                request.page_msg.successful(_("Page content updated."))
+                messages.success(request, _("Page content updated."))
                 return HttpResponseRedirect(request.path)
     else:
         edit_page_form = EditPageForm(initial={"content":pagecontent.content})
@@ -92,7 +88,7 @@ def _edit_page_preview(request):
     pagemeta, pagecontent = _get_pageobjects(request)
 
     raw_content = edit_page_form.cleaned_data["content"]
-    html_content = apply_markup(raw_content, pagecontent.markup, request.page_msg, escape_django_tags=True)
+    html_content = apply_markup(raw_content, pagecontent.markup, request, escape_django_tags=True)
 
     return HttpResponse(html_content)
 
@@ -111,4 +107,4 @@ def http_get_view(request):
         return _edit_page_preview(request)
 
     if settings.DEBUG:
-        request.page_msg(_("Wrong get view parameter!"))
+        messages.info(request, _("Wrong get view parameter!"))

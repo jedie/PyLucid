@@ -9,16 +9,17 @@
 
 import datetime
 
-from django.db import models
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.admin.util import quote
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.managers import CurrentSiteManager
+from django.contrib.sites.models import Site
+from django.db import models
 from django.utils.encoding import smart_unicode
 from django.utils.safestring import mark_safe
-from django.conf import settings
-from django.contrib.sites.models import Site
-from django.contrib.sites.managers import CurrentSiteManager
+from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
@@ -89,7 +90,7 @@ class LogEntryManager(models.Manager):
             if settings.DEBUG:
                 msg += debug_msg
             if no_page_msg == False:
-                request.page_msg.error(msg)
+                messages.error(request, msg)
             LogEntry.objects.log_action(
                 app_label=app_label, action="request aborted", message=debug_msg,
             )

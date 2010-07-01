@@ -9,15 +9,14 @@
 
 import inspect
 
+from django.contrib import messages
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
-from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-
-
-from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.escape import escape
 
 
@@ -43,7 +42,7 @@ def tag_list(request):
         fallback_example = None
 
         if lucidtag_view.__name__ == "wrapper":
-            request.page_msg(
+            messages.info(request,
                 _("Info: lucidTag %s used a decorator without functools.wraps!") % plugin_name
             )
         else:
@@ -55,7 +54,7 @@ def tag_list(request):
 
                 for example in examples:
                     if not example.startswith("{%% lucidTag %s " % plugin_name):
-                        request.page_msg(
+                        messages.info(request,
                             _("Info: lucidTag %(plugin_name)s has wrong tag example: %(example)r") % {
                                 "plugin_name": plugin_name, "example": example
                             }

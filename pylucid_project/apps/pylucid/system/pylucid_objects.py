@@ -19,11 +19,12 @@
 """
 
 from django.conf import settings
+from django.contrib import messages
 from django.utils.safestring import mark_safe
 
-from pylucid_project.utils.escape import escape
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.system import extrahead
+from pylucid_project.utils.escape import escape
 
 
 # max value length in debug __setattr__
@@ -44,7 +45,7 @@ class PyLucidRequestObjects(object):
         try:
             self.current_language = self.languages[0]
         except IndexError, err:
-            request.page_msg(
+            messages.info(request,
                 (
                     "There exist no language on this site!"
                     " Used default one."
@@ -95,7 +96,7 @@ class PyLucidRequestObjects(object):
             msg = "request.PYLUCID.<strong>%s</strong> %s to: <i>%s</i> (type: %s)" % (
                 name, action, value_preview, escape(repr(type(value)))
             )
-            self.request.page_msg(mark_safe(msg))
+            messages.info(self.request, mark_safe(msg))
 
         super(PyLucidRequestObjects, self).__setattr__(name, value)
 

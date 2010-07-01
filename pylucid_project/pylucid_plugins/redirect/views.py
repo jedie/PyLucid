@@ -2,6 +2,7 @@
 
 from django import http
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
@@ -26,7 +27,7 @@ def redirect(request, rest_url=""):
         redirect_info = RedirectModel.objects.get(pagetree=pagetree)#, language=lang_entry)
     except RedirectModel.DoesNotExist, err:
         # TODO: Don't redirect to admin panel -> Display a own create view!
-        request.page_msg(
+        messages.info(request,
              _("Redirect entry for page: %s doesn't exist, please create.") % pagetree.get_absolute_url()
         )
         return HttpResponseRedirect(reverse("admin:redirect_redirectmodel_add"))
@@ -64,7 +65,7 @@ def redirect(request, rest_url=""):
         if redirect_info.debug:
             return "Debug: %s" % msg
         else:
-            request.page_msg.info(msg)
+            messages.info(request, msg)
 
     return response
 

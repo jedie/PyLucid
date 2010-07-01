@@ -55,10 +55,6 @@ class ShowInternalsTest(BaseUnittest):
 
 
 
-
-
-
-
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management

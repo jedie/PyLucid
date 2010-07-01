@@ -4,8 +4,9 @@ from datetime import datetime, timedelta
 import time
 
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.contrib import messages
 from django.core.urlresolvers import resolve
+from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
@@ -66,7 +67,7 @@ def cleanup(request):
                     good_links_count += 1
 
             duration_time = time.time() - start_time
-            request.page_msg(
+            messages.info(request,
                 "Checked links in %.2fsec.: %s bad links delete and %s good links found." % (
                     duration_time, bad_links_count, good_links_count
                 )
@@ -104,7 +105,7 @@ def cleanup(request):
             delete_count = queryset.count()
             queryset.delete()
             duration_time = time.time() - start_time
-            request.page_msg("Delete %s entries in %.2fsec" % (delete_count, duration_time))
+            messages.info(request, "Delete %s entries in %.2fsec" % (delete_count, duration_time))
             return HttpResponseRedirect(request.path)
     else:
         form = CleanupUpdateJournalForm()

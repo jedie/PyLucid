@@ -74,6 +74,7 @@ class PyLucidPlugin(object):
 
             # insert more information into the traceback
             etype, evalue, etb = sys.exc_info()
+#            msg += " (Syspath: %s)" % (repr(sys.path))
             evalue = etype('%s: %s' % (msg, evalue))
             raise etype, evalue, etb
 

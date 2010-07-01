@@ -7,18 +7,11 @@
     signal receiver, connected in lexicon.__init__.py
     Search in the page_content for all lexicon terms and
     replace them with a link.
-    
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: JensDiemer $
 
     :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__ = "$Rev:$"
 
 import sys
 import traceback
@@ -26,9 +19,10 @@ import HTMLParser
 from xml.sax.saxutils import escape
 
 from django.conf import settings
+from django.contrib import messages
+from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
-from django.template.loader import render_to_string
 
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
@@ -127,7 +121,7 @@ def pre_render_global_template_handler(**kwargs):
 
         if request.user.is_superuser:
             # put the full traceback into page_msg, but only for superusers
-            request.page_msg(mark_safe("%s:<pre>%s</pre>" % (msg, traceback.format_exc())))
+            messages.info(request, mark_safe("%s:<pre>%s</pre>" % (msg, traceback.format_exc())))
     else:
         page_content = s.html # Get the html code with the lexicon links
         # Update the page content:

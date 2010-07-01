@@ -7,6 +7,7 @@ more info: http://www.pylucid.org/permalink/319/about-permalink-for-plugin-devel
 import posixpath
 
 from django.conf import settings
+from django.contrib import messages
 
 
 #DEBUG = True
@@ -26,7 +27,7 @@ def plugin_permalink(request, absolute_url):
     if not absolute_url.startswith(current_url):
         # Should normally never happen...
         if DEBUG or settings.DEBUG or request.user.is_staff:
-            request.page_msg.error(
+            messages.error(request,
                 "entry url %r doesn't start with current url %r!" % (absolute_url, current_url)
             )
         return page_permalink # fallback
@@ -35,10 +36,10 @@ def plugin_permalink(request, absolute_url):
     permalink = posixpath.join(page_permalink, additional_url)
 
     if DEBUG:
-        request.page_msg("absolute_url: %r" % absolute_url)
-        request.page_msg("current_url: %r" % current_url)
-        request.page_msg("page_permalink: %r" % page_permalink)
-        request.page_msg("additional_url: %r" % additional_url)
-        request.page_msg("new permalink: %r" % permalink)
+        messages.debug(request, "absolute_url: %r" % absolute_url)
+        messages.debug(request, "current_url: %r" % current_url)
+        messages.debug(request, "page_permalink: %r" % page_permalink)
+        messages.debug(request, "additional_url: %r" % additional_url)
+        messages.debug(request, "new permalink: %r" % permalink)
 
     return permalink

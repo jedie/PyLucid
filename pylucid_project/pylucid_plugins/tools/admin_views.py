@@ -13,18 +13,18 @@ if __name__ == "__main__":
 
 from django import http
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.contrib import messages
+from django.contrib.sessions.models import Session
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
-from django.contrib.sessions.models import Session
 
 from dbtemplates.models import Template
 
-from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.hightlighter import make_html, get_pygments_css
-
+from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
 from tools.forms import HighlightCodeForm, CleanupLogForm, SelectTemplateForm
@@ -148,7 +148,7 @@ def cleanup_log(request):
             delete_count = queryset.count()
             queryset.delete()
             duration_time = time.time() - start_time
-            request.page_msg(_("Delete %(count)s entries in %(duration).2fsec") % {
+            messages.info(request, _("Delete %(count)s entries in %(duration).2fsec") % {
                 "count": delete_count, "duration":duration_time
             })
             return HttpResponseRedirect(request.path)
@@ -171,7 +171,7 @@ def cleanup_session(request):
     count_after = Session.objects.count()
 
     delete_count = count_before - count_after
-    request.page_msg(_("Delete %(count)s entries in %(duration).2fsec") % {
+    messages.info(request, _("Delete %(count)s entries in %(duration).2fsec") % {
         "count": delete_count, "duration":duration_time
     })
 
@@ -201,7 +201,7 @@ class TemplateFile(object):
             content = f.read()
             f.close()
         except Exception, err:
-            request.page_msg.error("Can't read file: %s" % err)
+            messages.error(request, "Can't read file: %s" % err)
         else:
             return content
 
@@ -290,7 +290,7 @@ def override_template(request):
 
                     msg += _(" You can edit it now.")
 
-                    request.page_msg(msg)
+                    messages.info(request, msg)
 
                     # redirect to edit the new dbtemplate entry
                     url = reverse("admin:dbtemplates_template_change", args=(instance.id,))

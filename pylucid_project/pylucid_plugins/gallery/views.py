@@ -1,9 +1,9 @@
 # coding: utf-8
 
-import os
-import posixpath
 from fnmatch import fnmatch
 from glob import glob
+import os
+import posixpath
 
 if __name__ == "__main__":
     # For doctest only
@@ -13,10 +13,11 @@ if __name__ == "__main__":
     global_settings.SITE_ID = 1
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext as _
-from django.template.context import RequestContext
 from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
+from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response
@@ -233,7 +234,7 @@ def gallery(request, rest_url=""):
         config = GalleryModel.objects.get(pagetree=pagetree)
     except GalleryModel.DoesNotExist, err:
         # TODO: Don't redirect to admin panel -> Display a own create view!
-        request.page_msg(
+        messages.info(request,
              _("Gallery entry for page: %s doesn't exist, please create it.") % pagetree.get_absolute_url()
         )
         return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))

@@ -16,6 +16,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
@@ -61,7 +62,7 @@ class BaseModel(models.Model):
                 "Wrong site domain %r: protocol should not inserted there!"
                 " (Please change it to: %r)"
             ) % (domain, domain2)
-            request.page_msg(msg)
+            messages.error(request, msg)
             domain = domain2
 
         absolute_url = self.get_absolute_url()

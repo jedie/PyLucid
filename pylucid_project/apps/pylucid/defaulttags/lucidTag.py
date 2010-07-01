@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
 from django import template
 from django.conf import settings
+from django.contrib import messages
 from django.http import HttpResponse
 from django.template import mark_safe
 
@@ -150,7 +151,7 @@ class lucidTagNode(template.Node):
 
             if request.user.is_superuser:
                 # put the full traceback into page_msg, but only for superusers
-                request.page_msg(mark_safe("%s:<pre>%s</pre>" % (msg, traceback.format_exc())))
+                messages.info(request, mark_safe("%s:<pre>%s</pre>" % (msg, traceback.format_exc())))
 
             return u"[%s]" % msg
 

@@ -3,22 +3,19 @@
 import time
 
 from django import http
+from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.utils.site_utils import get_site_preselection
-
-from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.apps.pylucid.models.language import Language
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
+from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.utils.site_utils import get_site_preselection
 
 from find_and_replace.forms import FindReplaceForm, CONTENT_TYPES_DICT, CONTENT_TYPES
-
-
-
 
 
 def install(request):
@@ -44,7 +41,7 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
     search_languages = Language.objects.filter(code__in=languages)
 
     queryset = model.objects.all()
-    request.page_msg.info(
+    messages.info(request,
         _("%(count)s %(model_name)s entries total exist.") % {
             "count": queryset.count(),
             "model_name": model_name,
@@ -60,7 +57,7 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
         queryset = queryset.filter(language__in=search_languages)
 
     filtered_count = queryset.count()
-    request.page_msg.info(
+    messages.info(request,
         _("%(count)s %(model_name)s filtered entries found.") % {
             "count": filtered_count,
             "model_name": model_name,
@@ -69,7 +66,7 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
         return
 
     queryset = queryset.filter(content__contains=find_string)
-    request.page_msg.info(
+    messages.info(request,
         _("%(count)s %(model_name)s entries contains 'find string'.") % {
             "count": queryset.count(),
             "model_name": model_name,
@@ -105,14 +102,14 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
         })
 
     if total_changes > 0:
-        request.page_msg.info(
+        messages.info(request,
             _("%(changes)s changes in %(count)s %(model_name)s entries.") % {
                 "changes": total_changes,
                 "count": changed_entry_count,
                 "model_name": model_name,
         })
         if simulate:
-            request.page_msg("Simulate only, no entry changed.")
+            messages.info(request, "Simulate only, no entry changed.")
 
     context["results"] = results
     context["changed_entry_count"] = changed_entry_count

@@ -4,13 +4,7 @@
     PyLucid decorators
     ~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -21,13 +15,13 @@ try:
 except ImportError:
     from django.utils.functional import wraps  # Python 2.3, 2.4 fallback.
 
-
 from django.conf import settings
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 
 def check_permissions(superuser_only, permissions=()):
@@ -55,7 +49,7 @@ def check_permissions(superuser_only, permissions=()):
             user = request.user
 
             if not user.is_authenticated():
-                request.page_msg.error("Permission denied for anonymous user. Please log in.")
+                messages.error(request, "Permission denied for anonymous user. Please log in.")
                 url = settings.PYLUCID.AUTH_NEXT_URL % {"path": "/", "next_url": request.path}
                 return HttpResponseRedirect(url)
 
@@ -138,7 +132,7 @@ def render_to(template_name=None, debug=False):
                         "renter_to info: %s (template: %r)"
                         " has not return a dict, has return: %r (%r)"
                     ) % (function.__name__, template_name, type(context), function.func_code)
-                    request.page_msg(msg)
+                    messages.info(request, msg)
                 return context
 
             template_name2 = context.pop('template_name', template_name)
@@ -149,9 +143,9 @@ def render_to(template_name=None, debug=False):
             response = render_to_response(template_name2, context, context_instance=RequestContext(request))
 
             if debug:
-                request.page_msg("render debug for %r (template: %r):" % (function.__name__, template_name2))
-                request.page_msg("local view context:", context)
-                request.page_msg("response:", response.content)
+                messages.info(request, "render debug for %r (template: %r):" % (function.__name__, template_name2))
+                messages.info(request, "local view context:", context)
+                messages.info(request, "response:", response.content)
 
             return response
         return wrapper

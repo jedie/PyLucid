@@ -10,6 +10,7 @@
 
 
 from django.conf import settings
+from django.contrib import messages
 
 from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.apps.pylucid.decorators import render_to
@@ -38,11 +39,11 @@ def lucidTag(request, min=1, max=0):
     except KeyError, err:
         tree.set_current_node(None, delete_hidden=False) # Root node
         if settings.DEBUG:
-            request.page_msg.error("Can't activate menu item %r KeyError: %s" % (current_pagetree, err))
-            request.page_msg("tree nodes: %r" % tree.nodes)
-            request.page_msg("All PageTree:", PageTree.objects.all())
-            request.page_msg("Current user:", request.user)
-            request.page_msg("all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
+            messages.error(request, "Can't activate menu item %r KeyError: %s" % (current_pagetree, err))
+            messages.info(request, "tree nodes: %r" % tree.nodes)
+            messages.info(request, "All PageTree:", PageTree.objects.all())
+            messages.info(request, "Current user:", request.user)
+            messages.info(request, "all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
 
     # make all nodes visible
     tree.activate_all()

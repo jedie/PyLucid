@@ -14,11 +14,12 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.db import models
 from django.conf import settings
-from django.core.cache import cache
-from django.core import urlresolvers
+from django.contrib import messages
 from django.contrib.sites.models import Site
+from django.core import urlresolvers
+from django.core.cache import cache
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
@@ -122,20 +123,6 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
     urls_filename = models.CharField(max_length=256, default="urls.py",
         help_text="Filename of the urls.py"
     )
-
-    def clear_page_cache(self, request, language_code=None):
-        """
-        delete all page cache entries for this plugin page.
-        """
-        if language_code == None:
-            language_code = request.LANGUAGE_CODE
-
-        pagetree_url = self.pagetree.get_absolute_url()
-        absolute_url = "/" + language_code + pagetree_url
-
-        was_in_cache = delete_from_cache(absolute_url, language_code)
-        if was_in_cache and (settings.DEBUG or request.user.is_superuser):
-            request.page_msg.successful(_("%r was removed from page cache.") % absolute_url)
 
     def get_site(self):
         return self.pagetree.site

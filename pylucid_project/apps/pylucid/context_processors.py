@@ -89,7 +89,7 @@ def pylucid(request):
 
             design_id = request.session["design_switch_pk"]
             pagetree.design = Design.on_site.get(id=design_id)
-#            request.page_msg("switch to design: %r" % pagetree.design)
+#            messages.info(request, "switch to design: %r" % pagetree.design)
 
         template_name = pagetree.design.template
         context["template_name"] = template_name

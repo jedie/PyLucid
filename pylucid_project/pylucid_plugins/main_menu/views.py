@@ -6,29 +6,22 @@
 
     Generates a tree menu.
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate: 2009-04-29 14:36:54 +0200 (Mi, 29. Apr 2009) $
-    $Rev: 1934 $
-    $Author: JensDiemer $
-
     :copyleft: 2005-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__ = "$Rev: 1934 $"
-
 from django.conf import settings
+from django.contrib import messages
 
 from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.apps.pylucid.decorators import render_to
 
 
 def _debug(request, tree):
-    request.page_msg("tree nodes: %r" % tree.nodes)
-    request.page_msg("All PageTree:", PageTree.objects.all())
-    request.page_msg("Current user:", request.user)
-    request.page_msg("all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
+    messages.debug(request, "tree nodes: %r" % tree.nodes)
+    messages.debug(request, "All PageTree:", PageTree.objects.all())
+    messages.debug(request, "Current user:", request.user)
+    messages.debug(request, "all accessible PageTree:", PageTree.objects.all_accessible(request.user).all())
 
 
 @render_to("main_menu/main_menu.html")
@@ -70,7 +63,7 @@ def lucidTag(request, min=1, max=0):
     except KeyError, err:
         tree.set_current_node(None) # Root node
         if settings.DEBUG:
-            request.page_msg.error("Can't activate menu item %r KeyError: %s" % (current_pagetree, err))
+            messages.error(request, "Can't activate menu item %r KeyError: %s" % (current_pagetree, err))
             _debug(request, tree)
 
     tree.slice_menu(min, max)

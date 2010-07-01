@@ -18,14 +18,19 @@
 
 import re
 
+
 if __name__ == "__main__":
     # For doctest only
     import os
     os.environ["DJANGO_SETTINGS_MODULE"] = "PyLucid.settings"
 
+
 from django.conf import settings
+from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.utils.encoding import smart_str, force_unicode
+
+from django_tools.utils.messages import FileLikeMessages
 
 from pylucid_project.utils.escape import escape_django_tags as escape_django_template_tags
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
@@ -163,8 +168,10 @@ def convert(raw_content, markup_no, page_msg):
     return html_content
 
 
-def apply_markup(raw_content, markup_no, page_msg, escape_django_tags=False):
+def apply_markup(raw_content, markup_no, request, escape_django_tags=False):
     """ render markup content to html. """
+    page_msg = FileLikeMessages(request, messages.INFO)
+
     assemble_tags = markup_no not in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
     if assemble_tags:
         # cut out every Django tags from content
@@ -194,10 +201,12 @@ def apply_markup(raw_content, markup_no, page_msg, escape_django_tags=False):
     return mark_safe(html_content2) # turn Django auto-escaping off
 
 
-def convert_markup(raw_content, source_markup_no, dest_markup_no, page_msg):
+def convert_markup(raw_content, source_markup_no, dest_markup_no, request):
     """
     Convert one markup in a other.
     """
+    page_msg = FileLikeMessages(request, messages.INFO)
+
     html_source = source_markup_no in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
     html_dest = dest_markup_no in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
 

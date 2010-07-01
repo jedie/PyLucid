@@ -46,7 +46,7 @@ class ExtraheadNode(template.Node):
         # See also: http://trac.pylucid.net/ticket/338
         if output not in extrahead:
             extrahead.append(output)
-#            request.page_msg("Insert extrahead:", output)
+#            messages.info(request, "Insert extrahead:", output)
 #        else:
-#            request.page_msg("Skip extrahead:", output)
+#            messages.info(request, "Skip extrahead:", output)
         return u""

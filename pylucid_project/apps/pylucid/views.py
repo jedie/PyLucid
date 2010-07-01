@@ -1,20 +1,30 @@
-# coding: utf-8
+# coding:utf-8
+
+"""
+    PyLucid
+    ~~~~~~~
+
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 
 from django import http
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.template import loader, RequestContext
 from django.utils.translation import ugettext as _
 
 from django_tools.template import render
 
-from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, \
+        PageContent, PluginPage, ColorScheme, EditableHtmlHeadFile, Language
 from pylucid_project.apps.pylucid.signals import pre_render_global_template
 from pylucid_project.apps.pylucid.system import pylucid_plugin, i18n
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, \
-                                                                    EditableHtmlHeadFile, Language
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+
 
 
 #_____________________________________________________________________________
@@ -77,7 +87,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
                 "PageMeta for %r doesn't exist in system default language: %r! Please create it!"
                 " (Original error was: %r)"
             ) % (pagetree, Language.objects.get_or_create_default(request), err)
-            request.page_msg.error(msg)
+            messages.error(request, msg)
         else:
             msg = ""
         raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % msg)
@@ -93,7 +103,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         new_url = i18n.change_url(request, new_lang_code=pagemeta.language.code)
 
         if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
-            request.page_msg.error(
+            messages.error(request,
                 "Language code in url %r is wrong! Redirect to %r." % (url_lang_code, new_url)
             )
         # redirect the client to the right url
@@ -168,7 +178,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     if page_plugin_response == None and get_view_response == None:
         # No Plugin has changed the PageContent -> apply markup on PageContent
         context["page_content"] = apply_markup(
-            pagecontent_instance.content, pagecontent_instance.markup, request.page_msg
+            pagecontent_instance.content, pagecontent_instance.markup, request
         )
 
     # Render django tags in PageContent with the global context
@@ -259,7 +269,7 @@ def _render_root_page(request, url_lang_code=None):
     except PageTree.DoesNotExist, err:
         msg = _("There exist no pages items! Have you install PyLucid? At least you must create one page!")
         # TODO: Redirect to install page?
-        request.page_msg.error(msg)
+        messages.error(request, msg)
         return http.HttpResponseRedirect(reverse("admin:index"))
 
     return _render_page(request, pagetree, url_lang_code)

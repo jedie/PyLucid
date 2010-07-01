@@ -2,26 +2,21 @@
 
 """
     PyLucid search plugin
-    ~~~~~~~~~~~~~~~~~~~  
+    ~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate: 2009-07-22 22:49:15 +0200 (Mi, 22 Jul 2009) $
-    $Rev: 2151 $
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
-__version__ = "$Rev: 2151 $"
 
 import re
 import time
 import datetime
+import traceback
 
 from django import forms
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 
 # http://code.google.com/p/django-tagging/
@@ -33,6 +28,7 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.python_tools import cutout
 
 from search.preference_forms import SearchPreferencesForm
+from django.utils.safestring import mark_safe
 
 
 def get_preferences():
@@ -67,7 +63,7 @@ def _filter_search_terms(request, search_string):
     search_strings = []
     for term in raw_search_strings:
         if len(term) < preferences["min_term_len"]:
-            request.page_msg("Ignore '%s' (too small)" % term)
+            messages.info(request, "Ignore '%s' (too small)" % term)
         else:
             search_strings.append(term)
 
@@ -209,8 +205,9 @@ class Search(object):
                 if str(err).endswith("No module named %s" % filename):
                     # Plugin has no search API
                     continue
-                self.request.page_msg.error("Can't collect search results from %s." % plugin_name)
-                self.request.page_msg.insert_traceback()
+                if settings.DEBUG or self.request.user.is_staff:
+                    messages.error(self.request, "Can't collect search results from %s." % plugin_name)
+                    messages.debug(self.request, mark_safe("<pre>%s</pre>" % traceback.format_exc()))
             else:
                 plugin_count += 1
         return plugin_count
@@ -219,7 +216,7 @@ class Search(object):
 def _search(request, cleaned_data):
     search_strings = _filter_search_terms(request, cleaned_data["search"])
     if len(search_strings) == 0:
-        request.page_msg.error("Error: no search term left, can't search.")
+        messages.error(request, "Error: no search term left, can't search.")
         return
 
     preferences = get_preferences()

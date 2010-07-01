@@ -4,20 +4,12 @@
     PyLucid 'table of contents' plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
     :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__ = "$Rev:$"
-
-
 from django.conf import settings
+from django.contrib import messages
 from django.utils.translation import ugettext as _
 
 
@@ -39,7 +31,7 @@ def lucidTag(request, min=3):
         min = int(min)
     except Exception, err:
         if settings.DEBUG or request.user.is_staff:
-            request.page_msg.error(
+            messages.debug(request,
                 _("'min' parameter in lucidTag TOC must be a integer! Error: %s") % err
             )
         min = 3

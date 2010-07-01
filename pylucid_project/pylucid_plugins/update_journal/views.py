@@ -1,30 +1,23 @@
 # -*- coding: utf-8 -*-
 
 """
-    PyLucid page update list plugin
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    PyLucid update journal plugin
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Generate a list of the latest page updates.
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
 
-__version__ = "$Rev$"
-
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.syndication.views import Feed
-from django.utils.translation import ugettext_lazy as _
-from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.core.urlresolvers import NoReverseMatch
+from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
+from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
@@ -53,7 +46,7 @@ def lucidTag(request, count=10):
         count = int(count)
     except Exception, e:
         if request.user.is_staff:
-            request.page_msg.error("page_update_list error: count must be a integer (%s)" % e)
+            messages.error(request, "page_update_list error: count must be a integer (%s)" % e)
         count = 10
 
     queryset = _get_queryset(request, count)
@@ -64,7 +57,7 @@ def lucidTag(request, count=10):
         select_feed_url = None
         if not settings.DEBUG and request.user.is_staff:
             # PluginPage.objects.reverse creates a page_msg only in DEBUG mode.
-            request.page_msg.error(err)
+            messages.error(request, err)
 
     context = {
         "update_list": queryset,

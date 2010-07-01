@@ -6,8 +6,9 @@
 
 from django import http
 from django.conf import settings
-from django.db import transaction
+from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.models import PageTree, Language
@@ -15,10 +16,7 @@ from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 
 from page_admin.admin_views import _get_pagetree, _build_form_initial
-from page_admin.forms import PageTreeForm, PageMetaForm, \
-                                                             PageContentForm
-
-
+from page_admin.forms import PageTreeForm, PageMetaForm, PageContentForm
 
 
 @check_permissions(superuser_only=False,
@@ -58,7 +56,8 @@ def new_content_page(request):
                 context["preview"] = apply_markup(
                     pagecontent_form.cleaned_data["content"],
                     pagecontent_form.cleaned_data["markup"],
-                    request.page_msg, escape_django_tags=True
+                    request=request,
+                    escape_django_tags=True
                 )
                 context["has_errors"] = False
             else:
@@ -85,7 +84,7 @@ def new_content_page(request):
                 else:
                     transaction.savepoint_commit(sid)
                     url = new_pagecontent.get_absolute_url()
-                    request.page_msg(_("New content page %r created.") % url)
+                    messages.info(request, _("New content page %r created.") % url)
                     return http.HttpResponseRedirect(url)
     else:
         parent_pagetree = _get_pagetree(request)

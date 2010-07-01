@@ -2,12 +2,15 @@
 
 from django import http
 from django.conf import settings
+from django.contrib import messages
 from django.db import transaction
 from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
+
 from page_admin.forms import MassesEditorSelectForm
+
 
 @render_to("page_admin/bulk_editor.html")
 @check_permissions(superuser_only=True)
@@ -19,10 +22,10 @@ def bulk_editor(request):
         "abort_url": request.path,
     }
     if request.method == 'POST': # Stage 1: MassesEditorSelectForm was send
-        #request.page_msg(request.POST)
+        #messages.info(request, request.POST)
         form = MassesEditorSelectForm(request.POST)
         if form.is_valid():
-            #request.page_msg(form.cleaned_data)
+            #messages.info(request, form.cleaned_data)
             model_attr = form.cleaned_data["model_attr"]
             model, filter_lang, attr = model_attr
             language = form.cleaned_data["language"]
@@ -53,21 +56,21 @@ def bulk_editor(request):
                         transaction.savepoint_commit(sid)
 
                     if not instances:
-                        request.page_msg(_("No items changed."))
+                        messages.info(request, _("No items changed."))
                     else:
                         try:
                             id_list = ", ".join([str(int(item.pk)) for item in instances])
                         except ValueError: # No number as primary key?
                             id_list = ", ".join([repr(item.pk) for item in instances])
 
-                        request.page_msg(_("%(count)s items saved (IDs: %(ids)s)") % {
+                        messages.info(request, _("%(count)s items saved (IDs: %(ids)s)") % {
                             "count": len(instances), "ids": id_list
                         })
                         if settings.DEBUG:
-                            request.page_msg("Debug saved items:")
+                            messages.info(request, "Debug saved items:")
                             for instance in instances:
-                                request.page_msg(instance.get_absolute_url(), instance)
-                                #request.page_msg("saved value: %r" % getattr(instance, attr))
+                                messages.info(request, instance.get_absolute_url(), instance)
+                                #messages.info(request, "saved value: %r" % getattr(instance, attr))
 
                     return http.HttpResponseRedirect(request.path)
             else:

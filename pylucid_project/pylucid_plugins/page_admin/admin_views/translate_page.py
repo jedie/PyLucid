@@ -6,16 +6,16 @@
 
 from django import http
 from django.conf import settings
+from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.utils.translate import translate
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
+from pylucid_project.utils.translate import translate
 
-from page_admin.forms import PageMetaForm, PageContentForm, \
-                                                                    LanguageSelectForm
+from page_admin.forms import PageMetaForm, PageContentForm, LanguageSelectForm
 
 
 
@@ -27,7 +27,7 @@ def _select_language(request, context, source_pagemeta):
     other_languages = Language.objects.exclude(code=source_pagemeta.language.code)
     if len(other_languages) == 0:
         # should not happend
-        request.page_msg.error("Error: There exist only one Language!")
+        messages.error(request, "Error: There exist only one Language!")
         return http.HttpResponseRedirect(source_pagemeta.get_absolute_url())
     elif len(other_languages) == 1:
         # Only one other language available, so the user must not choose one ;)
@@ -76,7 +76,7 @@ def translate_page(request, pagemeta_id=None):
 
     is_pluginpage = pagetree.page_type == PageTree.PLUGIN_TYPE
     if is_pluginpage:
-        request.page_msg.error("TODO: Translate a plugin page!")
+        messages.error(request, "TODO: Translate a plugin page!")
         return http.HttpResponseRedirect(source_pagemeta.get_absolute_url())
     else:
         source_pagecontent = PageContent.objects.get(pagemeta=source_pagemeta)
@@ -173,9 +173,9 @@ def translate_page(request, pagemeta_id=None):
                 else:
                     transaction.savepoint_commit(sid)
                     if dest_pagemeta is None:
-                        request.page_msg("New content %r crerated." % new_pagecontent)
+                        messages.info(request, "New content %r crerated." % new_pagecontent)
                     else:
-                        request.page_msg("All updated.")
+                        messages.info(request, "All updated.")
                     return http.HttpResponseRedirect(new_pagemeta.get_absolute_url())
     else:
         context["has_errors"] = False
@@ -215,7 +215,7 @@ def translate_page(request, pagemeta_id=None):
                         source_content, src=source_language.code, to=dest_language.code
                     )
                 except ValueError, err:
-                    request.page_msg("Can't translate content with google: %s" % err)
+                    messages.info(request, "Can't translate content with google: %s" % err)
                 else:
                     dest_pagecontent_form.initial["content"] = translated_content
                     filled_fields.append("content")
@@ -234,7 +234,7 @@ def translate_page(request, pagemeta_id=None):
                         source_value, src=source_language.code, to=dest_language.code
                     )
                 except ValueError, err:
-                    request.page_msg(
+                    messages.info(request,
                         "Can't translate %(key)s with google: %(err)s" % {"key":key, "err":err}
                     )
                 else:
@@ -243,9 +243,9 @@ def translate_page(request, pagemeta_id=None):
                     dest_pagemeta_form.fields[key].widget.attrs['class'] = 'auto_translated'
 
             if filled_fields:
-                request.page_msg("These fields are translated via google: %s" % ", ".join(filled_fields))
+                messages.info(request, "These fields are translated via google: %s" % ", ".join(filled_fields))
             else:
-                request.page_msg("No fields translated via google.")
+                messages.info(request, "No fields translated via google.")
 
 
 

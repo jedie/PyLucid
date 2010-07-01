@@ -14,13 +14,14 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.db import models
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import Group
-from django.utils.safestring import mark_safe
+from django.db import models
 from django.template.defaultfilters import slugify
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tagging/
@@ -71,7 +72,7 @@ class PageMetaManager(BaseModelManager):
                 app_label="pylucid", action="auto create PageMeta", request=request, message=msg
             )
             if show_lang_errors or settings.DEBUG or request.user.is_superuser:
-                request.page_msg.info(msg)
+                messages.info(request, msg)
 
         return pagemeta
 

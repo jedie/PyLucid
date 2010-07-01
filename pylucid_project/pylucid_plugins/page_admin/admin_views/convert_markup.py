@@ -4,18 +4,19 @@
     Convert PageContent markup.
 """
 
+
 from django import http
 from django.conf import settings
+from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext as _
 
-from pylucid_project.apps.pylucid.models import PageContent
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup import converter
+from pylucid_project.apps.pylucid.markup import hightlighter
+from pylucid_project.apps.pylucid.models import PageContent
 
 from page_admin.forms import ConvertMarkupForm
-from pylucid_project.apps.pylucid.markup import hightlighter
-
 
 
 @check_permissions(superuser_only=False, permissions=("pylucid.change_pagecontent",))
@@ -27,21 +28,21 @@ def convert_markup(request, pagecontent_id=None):
     if not pagecontent_id:
         raise
 
-    def _error(err):
+    def _error(pagecontent_id, err):
         err_msg = _("Wrong PageContent ID.")
         if settings.DEBUG:
-            err_msg += " (ID: %r, original error was: %r)" % (raw_PageContent_id, err)
-        request.page_msg.error(err_msg)
+            err_msg += " (ID: %r, original error was: %r)" % (pagecontent_id, err)
+        messages.error(request, err_msg)
 
     try:
         pagecontent_id = int(pagecontent_id)
     except Exception, err:
-        return _error(err)
+        return _error(pagecontent_id, err)
 
     try:
         pagecontent = PageContent.objects.get(id=pagecontent_id)
     except PageContent.DoesNotExist, err:
-        return _error(err)
+        return _error(pagecontent_id, err)
 
     absolute_url = pagecontent.get_absolute_url()
     context = {
@@ -56,7 +57,7 @@ def convert_markup(request, pagecontent_id=None):
         form = ConvertMarkupForm(instance=pagecontent)
     else:
         form = ConvertMarkupForm(request.POST, instance=pagecontent)
-        #request.page_msg(request.POST)
+        #messages.info(request, request.POST)
         if form.is_valid():
             cleaned_data = form.cleaned_data
             dest_markup_no = int(cleaned_data["dest_markup"])
@@ -66,10 +67,10 @@ def convert_markup(request, pagecontent_id=None):
                     original_markup,
                     source_markup_no=pagecontent.markup,
                     dest_markup_no=dest_markup_no,
-                    page_msg=request.page_msg
+                    request=request
                 )
             except Exception, err:
-                request.page_msg.error("Convert error: %s" % err)
+                messages.error(request, "Convert error: %s" % err)
             else:
                 if "preview" not in request.POST:
                     # Save converted markup and redirect to the updated page
@@ -83,7 +84,7 @@ def convert_markup(request, pagecontent_id=None):
                         raise
                     else:
                         transaction.savepoint_commit(sid)
-                        request.page_msg(_("Content page %r updated.") % pagecontent)
+                        messages.info(request, _("Content page %r updated.") % pagecontent)
                         return http.HttpResponseRedirect(pagecontent.get_absolute_url())
 
                 # preview markup convert:
@@ -91,8 +92,7 @@ def convert_markup(request, pagecontent_id=None):
                 context["new_markup"] = new_markup
 
                 converted_html = converter.apply_markup(
-                    new_markup, dest_markup_no,
-                    page_msg=request.page_msg, escape_django_tags=True
+                    new_markup, dest_markup_no, request, escape_django_tags=True
                 )
                 context["converted_html"] = converted_html
 
@@ -100,8 +100,7 @@ def convert_markup(request, pagecontent_id=None):
                     context["original_markup"] = original_markup
 
                     orig_html = converter.apply_markup(
-                        original_markup, pagecontent.markup,
-                        page_msg=request.page_msg, escape_django_tags=True
+                        original_markup, pagecontent.markup, request, escape_django_tags=True
                     )
                     context["orig_html"] = orig_html
 
