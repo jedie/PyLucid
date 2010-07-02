@@ -1,12 +1,14 @@
 # coding:utf-8
 
-from django.db import models
-from django.core.cache import cache
-from django.core import urlresolvers
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import User, Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from django.core import urlresolvers
+from django.core.cache import cache
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils.translation import ugettext as _
 
 from django_tools.middlewares import ThreadLocal
 
@@ -144,8 +146,21 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         view_func, func_args, func_kwargs = urlresolvers.resolve(url)
 
         # get the rights from pylucid_project.apps.pylucid.decorators.check_permissions
-        access_permissions = view_func.permissions
-        superuser_only = view_func.superuser_only
+        try:
+            access_permissions = view_func.permissions
+        except AttributeError, err:
+            # If no permissiona available, fallback to superuser only
+            request = ThreadLocal.get_current_request()
+            if settings.DEBUG or request.user.is_staff:
+                messages.error(request, (
+                    "The view %s for url %r has no permissions attribute!"
+                    " Please use pylucid_project.apps.pylucid.decorators.check_permissions!"
+                    ) % (view_func.__name__, self.url_name)
+                )
+            access_permissions = ()
+            superuser_only = True
+        else:
+            superuser_only = view_func.superuser_only
 
         return (superuser_only, access_permissions)
 
