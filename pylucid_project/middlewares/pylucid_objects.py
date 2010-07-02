@@ -2,9 +2,10 @@
 
 import traceback
 
-from django.http import Http404
 from django.conf import settings
 from django.contrib.redirects.models import Redirect
+from django.http import Http404
+from django.utils.encoding import smart_str
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.system import pylucid_objects
@@ -47,7 +48,7 @@ class PyLucidMiddleware(object):
                 return
 
         # cut exception message text to LogEntry.message max_length, to get no "Data truncated..." warning
-        message = str(exception)[:255]
+        message = smart_str(exception, errors='replace')[:255]
 
         LogEntry.objects.log_action(
             app_label="pylucid", action="PyLucidMiddleware.process_exception()", message=message,
