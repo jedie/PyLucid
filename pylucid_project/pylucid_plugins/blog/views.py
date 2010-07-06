@@ -70,6 +70,9 @@ class RssFeed(Feed):
 
     def __init__(self, request, tags=None):
         self.request = request
+        # client favored Language instance:
+        lang_entry = request.PYLUCID.current_language
+        self.language = lang_entry.code
 
         if tags is not None:
             tags = _split_tags(tags)
@@ -246,7 +249,17 @@ def feed(request, filename, tags=None):
         if filename == feed_class.filename:
             break
 
+    # client favoured Language instance:
+    lang_entry = request.PYLUCID.current_language
+
+    # Work-a-round for http://code.djangoproject.com/ticket/13896
+    old_lang_code = settings.LANGUAGE_CODE
+    settings.LANGUAGE_CODE = lang_entry.code
+    
     feed = feed_class(request, tags)
     response = feed(request)
+    
+    settings.LANGUAGE_CODE = old_lang_code
+    
     return response
 

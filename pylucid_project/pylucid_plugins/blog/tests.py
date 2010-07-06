@@ -359,19 +359,49 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         )
         self.assertSecondAticle(response)
 
+    def _test_atom_feed(self, language):
+        language_code = language.code
+        response = self.client.get(
+            "/%s/blog/feed/feed.atom" % language_code,
+            HTTP_ACCEPT_LANGUAGE=language_code,
+        )
+        self.assertAtomFeed(response, language_code)
+
+    def test_atom_feed_default_language(self):
+        self._test_atom_feed(self.default_language)
+
+    def test_atom_feed_other_language(self):
+        self._test_atom_feed(self.other_language)
+
+    def _test_rss_feed(self, language):
+        language_code = language.code
+        response = self.client.get(
+            "/%s/blog/feed/feed.rss" % language_code,
+            HTTP_ACCEPT_LANGUAGE=language_code,
+        )
+        self.assertRssFeed(response, language_code)
+
+    def test_rss_feed_default_language(self):
+        self._test_rss_feed(self.default_language)
+
+    def test_rss_feed_other_language(self):
+        self._test_rss_feed(self.other_language)
+
+
+
 
 
 
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.blog.tests.BlogPluginArticleTest",
+    management.call_command('test', "pylucid_plugins.blog.tests.BlogPluginArticleTest",
 #        verbosity=0,
-##        verbosity=1,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
         verbosity=1,
-#        verbosity=0,
-#        failfast=True
+        failfast=True
     )
+#    management.call_command('test', __file__,
+#        verbosity=1,
+##        verbosity=0,
+##        failfast=True
+#    )

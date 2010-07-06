@@ -131,7 +131,16 @@ def feed(request, filename):
         if filename == feed_class.filename:
             break
 
-    #print "feed class:", feed_class
+    # client favoured Language instance:
+    lang_entry = request.PYLUCID.current_language
+
+    # Work-a-round for http://code.djangoproject.com/ticket/13896
+    old_lang_code = settings.LANGUAGE_CODE
+    settings.LANGUAGE_CODE = lang_entry.code
+    
     feed = feed_class(request)
     response = feed(request)
+    
+    settings.LANGUAGE_CODE = old_lang_code
+    
     return response

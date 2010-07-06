@@ -90,6 +90,37 @@ class BaseUnittest(BaseTestCase, TestCase):
             must_not_contain=("Traceback",)
         )
 
+    def assertAtomFeed(self, response, language_code):
+        self.failUnlessEqual(response["content-type"], "application/atom+xml")
+        self.failUnlessEqual(response["content-language"], language_code)
+        self.assertResponse(response,
+            must_contain=(
+                '<?xml version="1.0" encoding="utf-8"?>',
+                '<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="%s">' % language_code,
+                "</feed>",
+            ),
+            must_not_contain=(
+                "Traceback",
+                "<rss", "<body>", "<html>"
+            )
+        )
+
+    def assertRssFeed(self, response, language_code):
+        self.failUnlessEqual(response["content-type"], "application/rss+xml")
+        self.failUnlessEqual(response["content-language"], language_code)
+        self.assertResponse(response,
+            must_contain=(
+                '<?xml version="1.0" encoding="utf-8"?>',
+                '<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">',
+                '<language>%s</language>' % language_code,
+                "</rss>",
+            ),
+            must_not_contain=(
+                "Traceback",
+                "<feed", "<body>", "<html>"
+            )
+        )
+
     def login(self, usertype):
         """
         Login test user and add him to the current site.
