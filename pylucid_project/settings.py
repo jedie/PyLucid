@@ -287,11 +287,6 @@ SITE_STYLE_PREFIX = 'site_stylesheet'
 # The PyLucid install instrucion page:
 INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
 
-
-# use Django cache in dbtemplates.
-# see: http://api.rst2a.com/1.0/rst2/html?uri=http%3A//bitbucket.org/jezdez/django-dbtemplates/raw/tip/docs/overview.txt#caching
-DBTEMPLATES_CACHE_BACKEND = "dbtemplates.cache.DjangoCacheBackend"
-
 # setup cache.
 # http://docs.djangoproject.com/en/dev/topics/cache/
 #CACHE_BACKEND = 'locmem://'
@@ -308,6 +303,19 @@ TIME_ZONE = "UTC"
 # Default system language.
 # (Default from django is en-us, but this doesn't exist in PyLucid installed data)
 LANGUAGE_CODE = "en"
+
+#_______________________________________________________________________________
+# dbtemplates settings
+# http://packages.python.org/django-dbtemplates/overview.html#settings
+
+# use Django cache in dbtemplates.
+# see: http://api.rst2a.com/1.0/rst2/html?uri=http%3A//bitbucket.org/jezdez/django-dbtemplates/raw/tip/docs/overview.txt#caching
+DBTEMPLATES_CACHE_BACKEND = "dbtemplates.cache.DjangoCacheBackend"
+
+# Use django-reversion ?
+DBTEMPLATES_USE_REVERSION = True
+
+#_______________________________________________________________________________
 
 
 try:
