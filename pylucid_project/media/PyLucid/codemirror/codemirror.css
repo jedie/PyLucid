@@ -1,0 +1,42 @@
+/* ----------------------------------------------------------------------------
+   CodeMirror
+   http://marijn.haverbeke.nl/codemirror/css/
+------------------------------------------------------------------------------- */
+html * {
+  font-family: monospace;
+  font-size: 1em;
+}
+.editbox {
+  width: 90%;
+  margin: 0;
+  padding: 0;
+  color: black;
+}
+pre.code, .editbox {
+  color: #666666;
+}
+.editbox p {
+  margin: 0;
+}
+
+.CodeMirror-line-numbers {
+	width:2.2em;
+	text-align:right;
+	color:#999;
+	margin:.4em .4em .4em 6em;
+	padding:0;
+}
+
+/* colors for xml, css and js */
+span.css-unit,span.js-atom,span.xml-attribute{color:#281}
+span.css-identifier,span.js-variable,span.js-property,span.xml-punctuation,span.xml-text{color:#000}
+span.css-important,span.js-variabledef,span.xml-attname{color:#00F}
+span.css-colorcode,span.js-localvariable{color:#049}
+span.css-comment,span.js-comment,span.xml-comment{color:#A70}
+span.css-string,span.js-string,span.xml-entity{color:#A22}
+span.css-at,span.css-value,span.js-keyword{color:#708}
+span.js-punctuation,span.js-operator{color:#666}
+span.xml-tagname{color:#A0B}
+span.xml-cdata{color:#48A}
+span.xml-processing{color:#999}
+span.xml-error{color:red!important}

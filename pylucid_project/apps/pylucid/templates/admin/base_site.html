@@ -7,9 +7,11 @@
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrahead block START -->{% endif %}
 {% if Django_media_prefix and PyLucid_media_url %}
     {# django include it since http://code.djangoproject.com/changeset/12297 #}
+	<script type="text/javascript">var PyLucid_media_url="{{ PyLucid_media_url }}";</script>
 	<script type="text/javascript" src="{{ Django_media_prefix }}js/jquery.min.js" onerror="JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');" ></script>
     <script type="text/javascript" src="{{ PyLucid_media_url }}jquery.textarearesizer.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.textarearesizer.js] !');"></script>
 	<script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');"></script>
+	<script type="text/javascript" src="{{ PyLucid_media_url }}codemirror/codemirror_min.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}codemirror/codemirror_min.js] !');"></script>
 	{% if debug %}
 	   <script type="text/javascript">var debug=true;log("debug is on");</script>
 	{% else %}

@@ -28,8 +28,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from reversion.admin import VersionAdmin
 
+from dbtemplates.admin import TemplateAdmin, TemplateAdminForm
+
 from pylucid import models
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
+from dbtemplates.models import Template
 
 
 
@@ -258,12 +261,19 @@ admin.site.register(models.Design, DesignAdmin)
 class EditableHtmlHeadFileAdminForm(forms.ModelForm):
     class Meta:
         model = models.EditableHtmlHeadFile
+    class Media:
+        js = (
+            settings.MEDIA_URL + "PyLucid/codemirror_editable_headfile.js",
+        )
 
     def __init__(self, *args, **kwargs):
         super(EditableHtmlHeadFileAdminForm, self).__init__(*args, **kwargs)
         # Make mimetype optinal, so the user can leave to empty and auto_mimetype
         # would be used in model.clean_fields()
         self.fields["mimetype"].required = False
+
+        # Don't apply jquery.textarearesizer.js:
+        self.fields["content"].widget.attrs["class"] += " processed"
 
     def clean_sites(self):
         """
@@ -357,3 +367,22 @@ class SiteAdmin(admin.ModelAdmin):
 
 admin.site.unregister(Site)
 admin.site.register(Site, SiteAdmin)
+
+
+#-----------------------------------------------------------------------------
+# Use own ColorMirror editor in dbtemplates
+
+class DBTemplatesAdminAdminForm(TemplateAdminForm):
+    class Media:
+        js = (settings.MEDIA_URL + "PyLucid/codemirror_dbtemplates.js",)
+
+    def __init__(self, *args, **kwargs):
+        super(DBTemplatesAdminAdminForm, self).__init__(*args, **kwargs)
+        # Don't apply jquery.textarearesizer.js:
+        self.fields["content"].widget.attrs["class"] = " processed"
+
+class DBTemplatesAdmin(TemplateAdmin):
+    form = DBTemplatesAdminAdminForm
+
+admin.site.unregister(Template)
+admin.site.register(Template, DBTemplatesAdmin)

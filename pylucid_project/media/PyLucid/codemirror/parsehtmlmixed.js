@@ -1,0 +1,6 @@
+/* content from:
+ * http://marijn.haverbeke.nl/codemirror/js/parsehtmlmixed.js
+ * closure compiled 2010-07-08 */
+var HTMLMixedParser=Editor.Parser=function(){if(!(CSSParser&&JSParser&&XMLParser))throw Error("CSS, JS, and XML parsers must be loaded for HTML mixed mode to work.");XMLParser.configure({useHTMLKludges:true});return{make:function(g){function k(){var c=i.next();if(c.content=="<")d=true;else if(c.style=="xml-tagname"&&d===true)d=c.content.toLowerCase();else if(c.content==">"){if(d=="script")e.next=m(JSParser,"<\/script");else if(d=="style")e.next=m(CSSParser,"</style");d=false}return c}function m(c,
+f){var j=i.indentation();h=c.make(g,j+indentUnit);return function(){if(g.lookAhead(f,false,false,true)){h=null;e.next=k;return k()}var a=h.next(),b=a.value.lastIndexOf("<"),l=Math.min(a.value.length-b,f.length);if(b!=-1&&a.value.slice(b,b+l).toLowerCase()==f.slice(0,l)&&g.lookAhead(f.slice(l),false,false,true)){g.push(a.value.slice(b));a.value=a.value.slice(0,b)}if(a.indentation){var o=a.indentation;a.indentation=function(n){return n=="</"?j:o(n)}}return a}}var i=XMLParser.make(g),h=null,d=false,
+e={next:k,copy:function(){var c=i.copy(),f=h&&h.copy(),j=e.next,a=d;return function(b){g=b;i=c(b);h=f&&f(b);e.next=j;d=a;return e}}};return e},electricChars:"{}/:"}}();

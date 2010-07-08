@@ -166,3 +166,13 @@ textarea {
     min-height: 8em;
 	width: 85% !important;
 }
+/* ----------------------------------------------------------------------------
+   CodeMirror
+   http://marijn.haverbeke.nl/codemirror/css/
+------------------------------------------------------------------------------- */
+.CodeMirror-wrapping {
+  overflow: auto;
+  height: 100%;
+  width: 90%;
+  border: 1px solid #bbb;
+}
