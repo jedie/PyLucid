@@ -60,7 +60,7 @@ def new_blog_entry(request):
             if "preview" in request.POST:
                 context["preview"] = apply_markup(
                     form.cleaned_data["content"], form.cleaned_data["markup"],
-                    request.page_msg, escape_django_tags=True
+                    request, escape_django_tags=True
                 )
             else:
                 instance = form.save()
