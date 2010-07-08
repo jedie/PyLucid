@@ -150,6 +150,7 @@ class StandalonePackageMaker(object):
         self.copy_packages()
         self.copy_standalone_script_files()
         self.chmod()
+        self.remove_pkg_check()
         self.hardcode_version_string()
         self.merge_static_files()
         self.copy_wsgiref()
@@ -319,6 +320,7 @@ class StandalonePackageMaker(object):
         Because it can't work in standalone version
         """
         print
+        print "_" * 79
         pylucid_app = os.path.join(self.dest_package_dir, "pylucid_project", "apps", "pylucid")
         pylucid_app_init = os.path.join(pylucid_app, "__init__.py")
         print "Remove pkg_resources.require() check, by overwrite:"
@@ -335,6 +337,7 @@ class StandalonePackageMaker(object):
         and 'hardcode' complete version string
         """
         print
+        print "_" * 79
         version_file = os.path.join(self.dest_package_dir, "pylucid_project", "__init__.py")
         print "'hardcode' PyLucid version string, by overwrite:"
         print version_file
