@@ -56,21 +56,21 @@ EXECUTEABLE_FILES = (
 )
 
 PKG_CHECK_CONTENT = """
-    # overwritten by %s
-    # original file can be found here:
-    # http://github.com/jedie/PyLucid/blob/master/pylucid_project/apps/pylucid/__init__.py
+# overwritten by %s
+# original file can be found here:
+# http://github.com/jedie/PyLucid/blob/master/pylucid_project/apps/pylucid/__init__.py
 """
 
 PROJECT_INIT_FILE = '''# coding: utf-8
-    """
-        PyLucid version string
-        ~~~~~~~~~~~~~~~~~~~~~~
-        this file was generated with: %s
-        original file can be found here:
-        http://github.com/jedie/PyLucid/blob/master/pylucid_project/__init__.py
-    """
-    __version__ = %s
-    VERSION_STRING = "%s"
+"""
+    PyLucid version string
+    ~~~~~~~~~~~~~~~~~~~~~~
+    this file was generated with: %s
+    original file can be found here:
+    http://github.com/jedie/PyLucid/blob/master/pylucid_project/__init__.py
+"""
+__version__ = %s
+VERSION_STRING = "%s"
 '''
 
 
