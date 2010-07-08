@@ -49,6 +49,12 @@ COPYTREE_IGNORE = (
     "*.egg-info",
 )
 
+EXECUTEABLE_FILES = (
+    "index.cgi", "index.fcgi",
+    "install_pylucid.cgi",
+    "manage.py",
+)
+
 PKG_CHECK_CONTENT = """
     # overwritten by %s
     # original file can be found here:
@@ -143,6 +149,7 @@ class StandalonePackageMaker(object):
         self.check_if_dest_exist()
         self.copy_packages()
         self.copy_standalone_script_files()
+        self.chmod()
         self.hardcode_version_string()
         self.merge_static_files()
         self.copy_wsgiref()
@@ -295,6 +302,15 @@ class StandalonePackageMaker(object):
             print "copytree2 error: %s" % why
         else:
             print "OK"
+            
+    def chmod(self):
+        print    
+        print "_" * 79
+        print "make files executeable"
+        for filename in EXECUTEABLE_FILES:
+            filepath = os.path.join(self.dest_package_dir, filename)
+            print "chmod 0777 %s" % filepath
+            os.chmod(filepath, 0777)
 
     def remove_pkg_check(self):
         """
