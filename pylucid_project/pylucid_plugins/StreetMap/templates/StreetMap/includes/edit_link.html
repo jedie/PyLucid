@@ -1,0 +1,5 @@
+{% if perms.StreetMap.change_mapentry %}
+<div class="admin_links">
+    <a href="{% url admin:StreetMap_mapentry_change map.id %}" title="{% trans 'edit in django admin site' %}" class="add_openinwindow">{% trans 'edit this map entry' %}</a>
+</div>
+{% endif %}

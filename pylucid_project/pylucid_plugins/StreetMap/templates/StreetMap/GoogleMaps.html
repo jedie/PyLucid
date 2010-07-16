@@ -1,0 +1,43 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+{% extrahead %}
+<!-- GoogleMaps.html extrahead START -->
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key={{ google_maps_api_key }}" type="text/javascript"></script>
+<script type="text/javascript">
+function draw_google_map(map_slug, map_lon, map_lat, map_zoom, marker_html, marker_lon, marker_lat, marker_width, marker_height){
+    if (GBrowserIsCompatible()) {
+        var map = new GMap2(document.getElementById("google_map_"+map_slug));
+        map.setCenter(new GLatLng(map_lat, map_lon), map_zoom);
+        map.setUIToDefault();
+        
+        map.addOverlay(
+          new GMarker(new GLatLng(marker_lat, marker_lon), {
+            icon:new GIcon(G_DEFAULT_ICON),
+            title:marker_html
+          })
+        );
+    } else {
+		log("Browser is not compatible!");
+	}
+}
+</script>
+<!-- GoogleMaps.html extrahead END -->
+{% endextrahead %}
+<div id="google_map_{{map.name}}" class="google_map" style="width: {{ map.width }}; height: {{ map.height }};">
+    <noscript><h3>Error: Javascript is needed.</h3></noscript>
+</div>
+{% include "StreetMap/includes/edit_link.html" %}
+{% include "StreetMap/includes/GoogleMaps_link.html" %}
+<script type="text/javascript">
+    marker_html = "{{ marker_html }}";
+</script>
+<script type="text/javascript">
+    try {marker_html} catch (e) {
+        log("Wrong marker html code!");
+        marker_html="";
+    }
+	draw_google_map("{{ map.name }}", {{ map.lon }}, {{ map.lat }}, {{ map.zoom }}, marker_html, {{ marker_lon }}, {{ marker_lat }}, {{ map.marker_width }}, {{ map.marker_height }});
+	document.body.onunload=GUnload();
+</script>
+{% endblock %}
