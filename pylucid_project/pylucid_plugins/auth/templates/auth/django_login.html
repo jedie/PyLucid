@@ -7,21 +7,47 @@ try {
 } catch (e) {
     alert("Error, jQuery JS not loaded!\n Original error was:" + e);
 }
+var sha_login_prefix="/?auth=login&next_url=";
 var js_sha_link='<p>{% trans "or use:" %}</p>';
 js_sha_link+='<p>&#x22D9;';
-js_sha_link+=' <a href="/?auth=login&next_url={{ app_path }}">';
+js_sha_link+=' <a href="#" id="sha_login">';
 js_sha_link+='{% trans "JS-SHA-Login" %}';
 js_sha_link+='</a>';
 js_sha_link+=' &#x22D8;</p>';
 
+function get_url_parameter() {
+  var $GET = {};
+  document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
+      function decode(s) {
+          return decodeURIComponent(s.split("+").join(" "));
+      }
+      $GET[decode(arguments[1])] = decode(arguments[2]);
+  });
+  return $GET
+}
+
+function get_next() {
+  $GET = get_url_parameter()
+  if ("next" in $GET) {
+    log("Use next from url parameter.")
+    return $GET["next"];
+  } else {
+    log("No next parameter in url found, use pathname.");
+    return document.location.pathname;
+  }
+}
 
 jQuery(document).ready(function($) {
-	log("add JS-SHA-Login link.");
+  log("add JS-SHA-Login link.");
+  
+  $("form").submit(function () {    
+    return confirm("{% trans 'Do really want to send your password in plain text?' %}");
+  });
+  $("form").find(":submit").attr('value','Plaintext login');
+	
 	$(".submit-row").append(js_sha_link);
-	$("form").submit(function () {
-		return confirm("{% trans 'Do really want to send your password in plain text?' %}");
-	});
-	$("form").find(":submit").attr('value','Plaintext login');
+
+	$("#sha_login").attr("href", sha_login_prefix + get_next());
 });
 </script>
 {% endblock %}

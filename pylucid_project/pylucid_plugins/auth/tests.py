@@ -40,6 +40,14 @@ class LoginTest(basetest.BaseUnittest):
         """ Simple check if login link exist. """
         response = self.client.get("/admin/", HTTP_ACCEPT_LANGUAGE="en")
         self.assertAdminLoginPage(response)
+        
+    def test_login_redirect(self):
+        """
+        Check login redirect
+        http://github.com/jedie/PyLucid/issues#issue/6
+        """
+        response = self.client.get("/pylucid_admin/menu/", HTTP_ACCEPT_LANGUAGE="en")
+        self.assertRedirect(response, "http://testserver/admin/?next=/pylucid_admin/menu/")
 
     def test_login_get_form(self):
         """ Simple check if login link exist. """
@@ -76,4 +84,4 @@ class LoginTest(basetest.BaseUnittest):
 if __name__ == "__main__":
     # Run this unittest directly
     from django.core import management
-    management.call_command('test', __file__, verbosity=1)
+    management.call_command('test', __file__, verbosity=2)
