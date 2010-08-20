@@ -138,7 +138,7 @@ def summary(request):
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
     current_lang = request.PYLUCID.current_language.description
-    _add_breadcrumb(request, _("All blog articles in %s.") % current_lang)
+    _add_breadcrumb(request, _("All articles in %s.") % current_lang)
 
     context = {
         "entries": paginator,
@@ -208,7 +208,7 @@ def detail_view(request, id, title):
         return http.HttpResponsePermanentRedirect(new_url)
 
     # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, entry.headline, _("Blog article '%s'") % entry.headline)
+    _add_breadcrumb(request, entry.headline, _("Article '%s'") % entry.headline)
 
     if request.POST:
         # Use django.contrib.comments.views.comments.post_comment to handle a comment
