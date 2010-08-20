@@ -22,17 +22,26 @@
 
 from django import forms
 from django.conf import settings
-from django.contrib import admin
+from django.conf.urls.defaults import patterns, url
+from django.contrib import admin, messages
 from django.contrib.sites.models import Site
+from django.shortcuts import get_object_or_404, render_to_response
+from django.template.context import RequestContext
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from reversion.admin import VersionAdmin
 
 from dbtemplates.admin import TemplateAdmin, TemplateAdminForm
+from dbtemplates.models import Template
 
 from pylucid import models
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
-from dbtemplates.models import Template
+from django.http import HttpResponse
+import os
+from pylucid_project.apps.pylucid.markup import hightlighter
+
+
 
 
 
@@ -381,7 +390,67 @@ class DBTemplatesAdminAdminForm(TemplateAdminForm):
         # Don't apply jquery.textarearesizer.js:
         self.fields["content"].widget.attrs["class"] = " processed"
 
-class DBTemplatesAdmin(TemplateAdmin):
+
+
+class DBTemplatesAdmin(TemplateAdmin):  
+    def _filesystem_template_path(self, template_name):
+        """ return absolute filesystem path to given template name """
+        for dir in settings.TEMPLATE_DIRS:
+            abs_path = os.path.join(dir, template_name)
+            if os.path.isfile(abs_path):
+                return abs_path
+    
+    def _get_filesystem_template(self, template_path):
+        """ return template content from filesystem """
+        f = file(template_path, "r")
+        content = f.read()
+        f.close()
+        return content
+
+    def diff_view(self, request, object_id):
+        """
+        AJAX view to display a diff between current edited content
+        and the template content from filesystem, if found.
+        """
+        if request.is_ajax() != True or request.method != 'POST' or "content" not in request.POST:
+            return HttpResponse("ERROR: Wrong request")
+
+        edit_content = request.POST["content"]
+       
+        try:
+            dbtemplate_obj = Template.objects.only("name").get(id=object_id)
+        except Template.DoesNotExist, err:
+            msg = "Template with ID %r doesn't exist!" % object_id
+            return HttpResponse(msg)
+        
+        templatename = dbtemplate_obj.name
+        
+        template_path = self._filesystem_template_path(templatename)
+        if template_path is None:
+            msg = "Error: Template %r not found on filesystem." % templatename
+            return HttpResponse(msg)
+        
+        try:
+            filesystem_template = self._get_filesystem_template(template_path)
+        except Exception, err:
+            msg = "Error: Can't read %r: %s" % (template_path, err)
+            return HttpResponse(msg)
+             
+        diff_html = hightlighter.get_pygmentize_diff(filesystem_template, edit_content)
+        
+        return HttpResponse(diff_html)
+
+    def get_urls(self):
+        """Returns the additional urls."""
+        urls = super(DBTemplatesAdmin, self).get_urls()
+        admin_site = self.admin_site
+        opts = self.model._meta
+        info = opts.app_label, opts.module_name,
+        new_urls = patterns("",
+            url("^(.+)/diff/$", admin_site.admin_view(self.diff_view), name='%s_%s_diff' % info),
+        )
+        return new_urls + urls
+
     form = DBTemplatesAdminAdminForm
 
 admin.site.unregister(Template)

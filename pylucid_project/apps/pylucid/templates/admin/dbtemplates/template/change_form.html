@@ -1,0 +1,49 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+try {
+    jQuery(document);
+} catch (e) {
+    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
+}
+jQuery(document).ready(function($) {
+  
+  var diff_url = "diff/";
+  var diff_div = $("#diff");
+  
+  $("#template_diff").click(function() {
+    log("template diff link clicked");
+    diff_div.fadeTo('fast', 0.5);
+    diff_div.html(""); // overwrite old content
+    
+    try {
+        var content = editor.getCode(); // Get the code from CodeMirror editor
+    } catch (e) {
+        log("Error can't getCode() from CodeMirror editor\n Original error was:" + e);
+        var content = $("#id_content")[0].value;
+    }
+    $.post(diff_url, { "content": content }, function(form_html) {
+        diff_div.fadeTo('fast', 1.0);
+        diff_div.html(form_html);
+    });
+  });
+});
+</script>
+{% endblock %}
+
+{% block object-tools %}
+    <ul class="object-tools">
+      <li><a href="JavaScript:void(0)" id="template_diff">diff</a></li>
+      <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+<p>Click on diff button, to get a diff of this current edited content compared with the filesystem content (if available)</p>
+<div id="diff"></div>
+{{ block.super }}
+{% endblock %}
+
+

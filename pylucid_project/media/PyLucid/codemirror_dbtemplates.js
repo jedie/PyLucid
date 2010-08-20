@@ -3,7 +3,8 @@
  * But only if mimetype exist and supported.
  */
 jQuery(document).ready(function($) {
-	var editor = CodeMirror.fromTextArea('id_content', {
+  // don't init editor with 'var', because we must access it for the diff function.
+	editor = CodeMirror.fromTextArea('id_content', {
 		path: PyLucid_media_url + "codemirror/",
 		basefiles: ["codemirror_base.js"],
 		parserfile: "parsedjango.js",
