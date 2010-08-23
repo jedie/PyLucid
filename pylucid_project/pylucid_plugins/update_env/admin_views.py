@@ -63,6 +63,99 @@ def _get_env_path(request):
     return env_path
 
 
+class Package(object):
+    SVN = 1
+    GIT = 2
+    STATUS_CMD = {
+        SVN: ["svn", "info"],
+        GIT: ["git", "log", "-1", "HEAD"],
+    }
+    UPDATE_CMD = {
+        SVN: ["svn", "update"],
+        GIT: ["git", "pull", "origin", "master"]
+    }
+    
+    def __init__(self, path):
+        self.path = path
+        self.name = os.path.basename(path)
+        self.output = u"Not collected yet."
+        
+        if os.path.isdir(os.path.join(path, ".svn")):
+            self.type = self.SVN
+        elif os.path.isdir(os.path.join(path, ".git")):
+            self.type = self.GIT
+        else:
+            self.type = None
+    
+    def _cmd(self, cmd_dict):
+        """ subprocess the VCS command and store ouput in self.output """
+        assert self.type is not None
+        cmd = cmd_dict[self.type]
+        
+        process = subprocess.Popen(
+            cmd, cwd=self.path,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        self.output = process.stdout.read()
+        self.output += process.stderr.read()
+    
+    def collect_status(self):
+        """ call STATUS_CMD and save the output in self.output """
+        self._cmd(self.STATUS_CMD)
+        
+    def update(self):
+        """ call UPDATE_CMD and save the output in self.output """
+        self._cmd(self.UPDATE_CMD)
+
+
+class VCS_info(object):
+    def __init__(self, env_path):
+        self.env_path = env_path
+        
+        self.package_info = {}
+        
+        self.read_src()
+        self.read_external_plugins()
+        
+    def _add_path(self, abs_path):
+        package = Package(abs_path)
+        if package.type is not None:
+            self.package_info[package.name] = package
+        
+    def read_src(self):
+        """
+        init packages from PyLucid_env/src/
+        """
+        base_path = os.path.join(self.env_path, "src")
+        for dir in os.listdir(base_path):
+            abs_path = os.path.join(base_path, dir)
+            self._add_path(abs_path)
+    
+    def read_external_plugins(self):
+        """
+        init packages from PyLucid_env/src/pylucid/pylucid_project/external_plugins/
+        """
+        base_path = os.path.join(self.env_path, "src", "pylucid","pylucid_project","external_plugins")
+        for dir in os.listdir(base_path):
+            abs_path = os.path.join(base_path, dir)
+            if not os.path.islink(abs_path):
+                self._add_path(abs_path)
+            else:
+                # dissolving symlinks
+                real_path = os.path.realpath(abs_path)
+                plugin_base_path = os.path.split(real_path)[0] # PyLucid plugins used a subdirectory
+                self._add_path(plugin_base_path)
+    
+    def collect_all_status(self):
+        """
+        Collect 'SVN info' or 'git log' for all packages.
+        """
+        for package in self.package_info.values():
+            package.collect_status()
+
+
+
+
 @check_permissions(superuser_only=True)
 @render_to("update_env/status.html")
 def status(request):
@@ -77,35 +170,12 @@ def status(request):
     if env_path is None:
         return context # virtualenv path unknown, page_mags was created
 
-    src_base_path = os.path.join(env_path, "src")
-
-    src_package_info = {}
-
-    for src in os.listdir(src_base_path):
-        src_path = os.path.join(src_base_path, src)
-
-        if os.path.isdir(os.path.join(src_path, ".svn")):
-            info_cmd = ["svn", "info"]
-        elif os.path.isdir(os.path.join(src_path, ".git")):
-#            info_cmd = ["git", "status"]
-            info_cmd = ["git", "log", "-1", "HEAD"]
-        else:
-            src_package_info[src] = "Error: no .svn or .git dir found!"
-            continue
-
-        process = subprocess.Popen(
-            info_cmd,
-            cwd=src_path,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        output = process.stdout.read()
-        output += process.stderr.read()
-        src_package_info[src] = output
+    vcs_info = VCS_info(env_path)
+    vcs_info.collect_all_status()
 
     context.update({
         "env_path": env_path,
-        "src_package_info": src_package_info,
+        "vcs_info": vcs_info,
     })
     return context
 
@@ -120,32 +190,17 @@ def update(request, src_name):
     env_path = _get_env_path(request)
     if env_path is None:
         return context # virtualenv path unknown, page_mags was created
-
-    src_path = os.path.join(env_path, "src", src_name)
-    if not os.path.isdir(src_path):
-        messages.error(request, "Wrong path: %r" % src_path)
+    
+    vcs_info = VCS_info(env_path)
+    if src_name not in vcs_info.package_info:
+        messages.error(request, "Wrong package!")
         return context
-
-    if os.path.isdir(os.path.join(src_path, ".svn")):
-        cmd = ["svn", "update"]
-    elif os.path.isdir(os.path.join(src_path, ".git")):
-        cmd = ["git", "pull", "origin", "master"]
-    else:
-        messages.error(request, "Wrong path: %r" % src_path)
-        return context
-
-    process = subprocess.Popen(
-        cmd,
-        cwd=src_path,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    output = process.stdout.read()
-    output += process.stderr.read()
+    
+    package = vcs_info.package_info[src_name]
+    package.update()
 
     context.update({
         "env_path": env_path,
-        "package_name": src_name,
-        "output": output,
+        "package": package
     })
     return context

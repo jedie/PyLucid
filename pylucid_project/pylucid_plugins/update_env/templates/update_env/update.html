@@ -3,9 +3,9 @@
 {% block content %}
 
 {% if env_path %}
-<p>Base env path: <strong>{{ env_path }}</strong>.</p>
-<h2>{{ package_name }}</h2>
-<pre>{{ output }}</pre>
+<p>Package path: <strong>{{ package.path }}</strong>.</p>
+<h2>{{ package.name }}</h2>
+<pre>{{ package.output }}</pre>
 <a href="{% url Update-status %}">back to status page</a>
 {% endif %}
 {% endblock %}
