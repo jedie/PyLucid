@@ -161,7 +161,8 @@ class lucidTagNode(template.Node):
         elif isinstance(response, basestring):
             return response
         elif isinstance(response, HttpResponse):
-            assert response.status_code == 200, "Response status code != 200 ???"
+            status_code = response.status_code
+            assert status_code == 200, "Response status code %r != 200 ???" % status_code
             return response.content
 
         raise RuntimeError("pylucid plugins must return None, a basestring or a HttpResponse instance!")
