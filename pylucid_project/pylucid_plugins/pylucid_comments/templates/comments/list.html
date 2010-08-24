@@ -1,10 +1,7 @@
 {% load comments %}
 
-{% get_comment_count for entry as comment_count %}
-<fieldset class="comments"><legend>        
-{{ comment_count }} comment{{ comment_count|pluralize:"s" }}:</legend>
 <ul>
-{% get_comment_list for entry as comment_list %}
+{% get_comment_list for object2comment as comment_list %}
 {% for comment in comment_list %}
 <li>
 <fieldset class="comment {% if comment.user_name %}{{ comment.user_name }}{% else %}anonymous{% endif %}_comment">
@@ -42,13 +39,6 @@
 </fieldset>
 </li>
 {% empty %}
-    there exist no comment
+    {% blocktrans with object2comment.get_name as name %}there exist no comment for '{{ name }}'{% endblocktrans %}
 {% endfor %}
 </ul>
-</fieldset>
-
-<fieldset class="comments"><legend>Leave a comment</legend>
-    {% spaceless %}
-    {% render_comment_form for entry %}
-    {% endspaceless %}
-</fieldset>

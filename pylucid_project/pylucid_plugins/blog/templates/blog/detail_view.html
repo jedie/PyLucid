@@ -1,5 +1,4 @@
 {% extends template_name %}
-{% load comments %}
 
 {% block content %}
 <div class="{{ CSS_PLUGIN_CLASS_NAME }} blog">
@@ -7,7 +6,6 @@
 
 <fieldset class="entry">
     {% include "blog/includes/blog_entry.html" %}
-    {% include "pylucid_comments/includes/comments_list.html" %}
 </fieldset>
 </div>
 {% endblock content %}

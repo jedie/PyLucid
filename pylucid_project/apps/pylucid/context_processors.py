@@ -113,6 +113,7 @@ def pylucid(request):
     pagemeta = getattr(request.PYLUCID, "pagemeta", None)
     if pagemeta:
         context.update({
+            "pagemeta": pagemeta,
             "page_title": pagemeta.get_title(),
             "page_keywords": pagemeta.keywords,
             "page_description": pagemeta.description,

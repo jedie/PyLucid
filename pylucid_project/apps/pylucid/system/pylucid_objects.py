@@ -64,6 +64,7 @@ class PyLucidRequestObjects(object):
         self.extrahead = extrahead.ExtraHead()
 
         # objects witch will be set later:
+        #self.object2comment - Object to comment
         #self.pagetree - The current PageTree model instance
         #self.pagemeta - The current PageMeta model instance
         #

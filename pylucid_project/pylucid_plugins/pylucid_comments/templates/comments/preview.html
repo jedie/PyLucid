@@ -1,0 +1,10 @@
+{# based on content block from django/contrib/comments/templates/comments/preview.html #}
+
+<h1 class="noanchor">{% trans "Preview your comment" %}</h1>
+<blockquote>{{ comment|linebreaks }}</blockquote>
+{% if not form.errors %}
+<p>
+  {% trans "and" %} <input type="submit" name="submit" class="submit-post" value="{% trans "Post your comment" %}" id="submit" /> {% trans "or make changes" %}:
+</p>
+{% endif %}
+{% include "pylucid_comments/comment_form.html" %}

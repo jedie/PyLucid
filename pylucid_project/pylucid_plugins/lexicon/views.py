@@ -11,7 +11,6 @@
 from django import http
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.comments.views.comments import post_comment
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 
@@ -63,11 +62,6 @@ def detail_view(request, term=None):
         messages.error(request, error_msg)
         return summary(request)
 
-    if request.POST:
-        # Use django.contrib.comments.views.comments.post_comment to handle a comment
-        # post.
-        return post_comment(request, next=entry.get_absolute_url())
-
     new_url = i18n.assert_language(request, entry.language, check_url_language=True)
     if new_url:
         # the current language is not the same as entry language -> redirect to right url
@@ -94,6 +88,9 @@ def detail_view(request, term=None):
     # Change permalink from the blog root page to this entry detail view
     permalink = entry.get_permalink(request)
     request.PYLUCID.context["page_permalink"] = permalink # for e.g. the HeadlineAnchor
+
+    # Add comments in this view to the current lexicon entry and not to PageMeta
+    request.PYLUCID.object2comment = entry
 
     context = {
         "entry": entry,

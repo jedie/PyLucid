@@ -93,6 +93,10 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % msg)
 
     request.PYLUCID.pagemeta = pagemeta
+    
+    # object2comment - The Object used to attach a pylucid_comment
+    # should be changed in plugins, e.g.: details views in blog, lexicon plugins
+    request.PYLUCID.object2comment = pagemeta
 
     # Check the language code in the url, if exist
     if url_lang_code and (not is_plugin_page) and (url_lang_code.lower() != pagemeta.language.code.lower()):

@@ -134,6 +134,10 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         super(LexiconEntry, self).save(*args, **kwargs)
 
         cache.clear() # FIXME: This cleaned the complete cache for every site!
+        
+    def get_name(self):
+        """ e.g. for pylucid comment """
+        return self.term
 
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """

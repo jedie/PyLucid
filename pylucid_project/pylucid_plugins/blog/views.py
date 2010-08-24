@@ -19,7 +19,6 @@
 from django import http
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.comments.views.comments import post_comment
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
@@ -210,16 +209,14 @@ def detail_view(request, id, title):
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, entry.headline, _("Article '%s'") % entry.headline)
 
-    if request.POST:
-        # Use django.contrib.comments.views.comments.post_comment to handle a comment
-        # post.
-        return post_comment(request, next=entry.get_absolute_url())
-
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
     # Change permalink from the blog root page to this entry detail view
     permalink = entry.get_permalink(request)
     request.PYLUCID.context["page_permalink"] = permalink # for e.g. the HeadlineAnchor
+
+    # Add comments in this view to the current blog entry and not to PageMeta
+    request.PYLUCID.object2comment = entry
 
     context = {
         "page_title": entry.headline, # Change the global title with blog headline

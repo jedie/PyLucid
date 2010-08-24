@@ -1,5 +1,4 @@
 {% extends template_name %}
-{% load comments %} 
 
 {% block content %}
 {# {% include "blog/includes/tagcloud.html" %} #}
@@ -14,6 +13,4 @@
     <dt>{% trans "Content" %}:</dt>
     <dd>{{ entry.get_html }}</dd>
 </dl>
-
-{% include "pylucid_comments/includes/comments_list.html" %}
 {% endblock content %}

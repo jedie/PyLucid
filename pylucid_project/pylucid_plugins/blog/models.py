@@ -42,8 +42,6 @@ from pylucid_project.pylucid_plugins import update_journal
 from blog.preference_forms import BlogPrefForm
 
 
-
-
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
@@ -147,6 +145,9 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         super(BlogEntry, self).save(*args, **kwargs)
 
         cache.clear() # FIXME: This cleaned the complete cache for every site!
+
+    def get_name(self):
+        return self.headline
 
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
