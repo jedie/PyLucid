@@ -10,11 +10,14 @@ from pylucid_comments.models import PyLucidComment
 from django_tools.middlewares import ThreadLocal
 
 class PyLucidCommentForm(CommentForm):
+    email = forms.EmailField(label=_("Email address"), required=False,
+        help_text=_("not published, only used for notification"),
+    )
     notify = forms.BooleanField(required=False, initial=True,
-        help_text="Send me a mail if someone replay on my comment. (Needs a email address ;)"
+        help_text=_("Send me a mail if someone replay on my comment. (Needs a email address ;)")
     )
     def __init__(self, target_object, data=None, initial=None):
-        """ prefill some user info """
+        """ prefill some user info """       
         if initial is None:
             initial = {}
 
