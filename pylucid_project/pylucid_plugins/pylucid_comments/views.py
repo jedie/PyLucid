@@ -116,7 +116,12 @@ def comment_was_posted_handler(sender, **kwargs):
         absolute_url = content_object.get_absolute_url()
         subject = '[%s] New comment posted on "%s"' % (site_name,absolute_url)
         
-        mail_admins(subject, emailtext, fail_silently=False)
+        try:
+            mail_admins(subject, emailtext, fail_silently=False)
+        except Exception, err:
+            LogEntry.objects.log_action(
+                app_label=APP_LABEL, action="mail error", message="Admin mail, can't send: %s" % err,
+            )
     
 
 comment_will_be_posted.connect(comment_will_be_posted_handler)
