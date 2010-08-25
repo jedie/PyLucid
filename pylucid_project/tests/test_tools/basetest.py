@@ -49,6 +49,11 @@ class BaseUnittest(BaseTestCase, TestCase):
 
         if PageTree.objects.count() == 0:
             raise SystemExit("PyLucid initial data fixtures not loaded!")
+        
+        # Fill PyLucid own UserProfile with SHA password data
+        for usertype, data in self.TEST_USERS.iteritems():
+            user = self._get_user(usertype)
+            user.set_password(data["password"])
 
     def easy_create(self, ModelClass, defaults, **kwargs):
         """
@@ -74,7 +79,6 @@ class BaseUnittest(BaseTestCase, TestCase):
         Check if the response is the django login page
         with PyLucid modifications
         """
-        self.failUnlessEqual(response.status_code, 200)
         url = response.request["PATH_INFO"]
         self.assertResponse(response,
             must_contain=(
@@ -89,6 +93,7 @@ class BaseUnittest(BaseTestCase, TestCase):
             ),
             must_not_contain=("Traceback",)
         )
+        self.failUnlessEqual(response.status_code, 200)
 
     def assertAtomFeed(self, response, language_code):
         self.failUnlessEqual(response["content-type"], "application/atom+xml")
