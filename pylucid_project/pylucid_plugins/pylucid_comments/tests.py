@@ -20,9 +20,10 @@ if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
-from django.test.client import Client
-from django.contrib.comments.models import Comment
 from django.contrib.comments.forms import CommentForm
+from django.contrib.comments.models import Comment
+from django.core import mail
+from django.test.client import Client
 
 from django_tools.unittest_utils.BrowserDebug import debug_response
 
@@ -50,6 +51,9 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
         super(PyLucidCommentsPageMetaTest, self)._pre_setup(*args, **kwargs)
         self.pagemeta = PageMeta.on_site.all()[0]
         self.absolute_url = self.pagemeta.get_absolute_url()
+        
+    def setUp(self):
+        Comment.objects.all().delete()
         
     def _get_form(self):
         url = self.absolute_url + "?pylucid_comments=get_form"
@@ -93,6 +97,15 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
         
         # Check if page should reload (JavaScript do this)
         self.failUnlessEqual(response.content, 'reload')
+        
+        # Check if ADMINS get's a email.
+        self.failUnless(len(mail.outbox) == 1)
+        email_text = mail.outbox[0].message()
+        #print email_text
+        self.failUnless("The comment is public." not in email_text)
+        self.failUnless(data["name"] not in email_text)
+        self.failUnless(data["comment"] not in email_text)
+        self.failUnless("http://testserver%s" % self.absolute_url not in email_text)
         
         # Check if anonymous data saved in a cookie, for later usage
         self.failUnless("comments_data" in response.cookies)
@@ -147,7 +160,45 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
             ),
             must_not_contain=("Traceback", "<body", "</html>")
         )
+    
+    def test_submit_spam(self):
+        settings.DEBUG = True # Display a comment error page
+        self.failUnless(Comment.objects.count() == 0)
+        url = self.absolute_url + "?pylucid_comments=submit"
+        data = self.getValidData(self.pagemeta,
+            comment="Penis enlargement pills: http://en.wikipedia.org/wiki/Penis_enlargement ;)"
+        )
+        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        
+        # Check if page should reload (JavaScript do this)
+        self.failUnlessEqual(response.content, 'reload')
 
+        # Check if ADMINS get's a email.
+        self.failUnless(len(mail.outbox) == 1)
+        email_text = mail.outbox[0].message()
+        #print email_text
+        self.failUnless("The comment is public." not in email_text)
+        self.failUnless(data["name"] not in email_text)
+        self.failUnless(data["comment"] not in email_text)
+        self.failUnless("http://testserver%s" % self.absolute_url not in email_text)
+
+        # Check if comment created
+        self.failUnless(Comment.objects.count() == 1)
+        comment = Comment.objects.all()[0]
+        self.failUnless(comment.is_public == False)
+        
+        # 'Reload' and check page message
+        response = self.client.get(self.absolute_url)
+        self.assertResponse(response,
+            must_contain=(
+                'Your comment waits for moderation.',
+            ),
+            must_not_contain=(
+                "Traceback", "Form errors", "field is required",
+                "Penis", "enlargement", "pills",
+            )
+        )
+        
 
 
 

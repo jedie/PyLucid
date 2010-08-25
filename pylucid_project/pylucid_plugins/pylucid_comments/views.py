@@ -12,20 +12,28 @@
 
 """
 
-from django.db import models
+import datetime
+
 from django.conf import settings
+from django.contrib import comments
 from django.contrib import messages
 from django.contrib.comments.signals import comment_will_be_posted, comment_was_posted
 from django.contrib.comments.views.comments import post_comment
+from django.contrib.sites.models import Site
+from django.core.mail import mail_admins
+from django.db import models
 from django.http import HttpResponse, HttpResponseBadRequest,\
     HttpResponseRedirect
-from django.contrib import comments
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 from django_tools.decorators import render_to
 from django_tools.utils.client_storage import ClientCookieStorage, InvalidCookieData
 
 from pylucid_project.apps.pylucid.models import LogEntry
+
+from pylucid_comments.preference_forms import PyLucidCommentsPrefForm
+
 
 
 COOKIE_KEY = "comments_data" # Used to store anonymous user information
@@ -35,28 +43,74 @@ COOKIE_KEY = "comments_data" # Used to store anonymous user information
 COOKIE_DELIMITER = ";"  
 
 
-#def comment_will_be_posted_handler(sender, **kwargs):
-#    request = kwargs["request"]
-#    comment = kwargs["comment"]
-#    print comment.comment
-#    print "comment_will_be_posted_handler", kwargs.keys()
+def _get_preferences():
+    """ return the comments preferences dict back """
+    pref_form = PyLucidCommentsPrefForm()
+    preferences = pref_form.get_preferences()
+    return preferences
+
+
+def _contains_spam_keyword(comment, preferences):
+    """ contains the comment content a spam keywords defined in preferences? """
+    spam_keywords = preferences["spam_keywords"]
+    content = comment.comment
+    for keyword in spam_keywords:
+        if keyword in content:
+            return True
+    return False
+
+
+def comment_will_be_posted_handler(sender, **kwargs):
+    """ check comment before save """
+    request = kwargs["request"]
+    comment = kwargs["comment"]
     
-    
+    preferences = _get_preferences()
+    if _contains_spam_keyword(comment, preferences):
+        comment.is_public=False
+
     
 def comment_was_posted_handler(sender, **kwargs):
+    """
+    actions after a new comment saved
+    TODO: Clean page cache witch contains the comment!
+    """
 #    print "comment_was_posted_handler", kwargs.keys()
     request = kwargs["request"]
     comment = kwargs["comment"]
-    messages.success(request, _("Your comment has been saved."))
+    content_object = comment.content_object
+    
+    # Gives the user a feedback
+    if comment.is_public:
+        messages.success(request, _("Your comment has been saved."))
+    else:
+        messages.info(request, _("Your comment waits for moderation."))
+    
+    preferences = _get_preferences()
+    admins_notification = preferences["admins_notification"]
+    if admins_notification:
+        email_context = {
+            "comment": comment,
+            "content_object": content_object,
+            "remote_addr": request.META["REMOTE_ADDR"],
+            "now": datetime.datetime.utcnow(),
+            "uri_prefix": request.build_absolute_uri("/").rstrip("/"), # FIXME
+        }
+        emailtext = render_to_string("pylucid_comments/admins_notification_email.txt", email_context)
+                
+        site_name = Site.objects.get_current().name
+        absolute_url = content_object.get_absolute_url()
+        subject = '[%s] New comment posted on "%s"' % (site_name,absolute_url)
+        
+        mail_admins(subject, emailtext, fail_silently=False)
+    
 
-#comment_will_be_posted.connect(comment_will_be_posted_handler)
+comment_will_be_posted.connect(comment_will_be_posted_handler)
 comment_was_posted.connect(comment_was_posted_handler)
 
 
 def _bad_request(debug_msg):
-    """
-    Create a new LogEntry and return a HttpResponseBadRequest
-    """   
+    """ Create a new LogEntry and return a HttpResponseBadRequest """   
     LogEntry.objects.log_action(
         app_label="pylucid_plugin.pylucid_comments", action="error", message=debug_msg,
     )
@@ -155,6 +209,9 @@ def http_get_view(request):
 
 @render_to("pylucid_comments/comments.html")
 def lucidTag(request):
+    if (settings.DEBUG or request.user.is_superuser) and not settings.ADMINS:
+        messages.info(request, "Please fill out settings.ADMINS!") 
+    
     object2comment = request.PYLUCID.object2comment
     form = comments.get_form()(object2comment)
     context = {
