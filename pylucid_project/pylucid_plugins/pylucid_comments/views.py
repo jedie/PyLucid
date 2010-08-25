@@ -35,6 +35,7 @@ from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_comments.preference_forms import PyLucidCommentsPrefForm
 
 
+APP_LABEL="pylucid_plugin.pylucid_comments"
 
 COOKIE_KEY = "comments_data" # Used to store anonymous user information
 
@@ -68,6 +69,16 @@ def comment_will_be_posted_handler(sender, **kwargs):
     preferences = _get_preferences()
     if _contains_spam_keyword(comment, preferences):
         comment.is_public=False
+        
+    # Protection against DOS attacks.
+    min_pause = preferences["min_pause"]
+    ban_limit = preferences["ban_limit"]
+    try:
+        LogEntry.objects.request_limit(request, min_pause, ban_limit, app_label=APP_LABEL, action="post")
+    except LogEntry.RequestTooFast, err:
+        # min_pause is not observed
+        error_msg = unicode(err) # ugettext_lazy
+        messages.error(request, error_msg)
 
     
 def comment_was_posted_handler(sender, **kwargs):
@@ -85,6 +96,9 @@ def comment_was_posted_handler(sender, **kwargs):
         messages.success(request, _("Your comment has been saved."))
     else:
         messages.info(request, _("Your comment waits for moderation."))
+    
+    # Used to filter DOS attacks, see: comment_will_be_posted_handler()
+    LogEntry.objects.log_action(app_label=APP_LABEL, action="post", message="comment created")
     
     preferences = _get_preferences()
     admins_notification = preferences["admins_notification"]
@@ -112,7 +126,7 @@ comment_was_posted.connect(comment_was_posted_handler)
 def _bad_request(debug_msg):
     """ Create a new LogEntry and return a HttpResponseBadRequest """   
     LogEntry.objects.log_action(
-        app_label="pylucid_plugin.pylucid_comments", action="error", message=debug_msg,
+        app_label=APP_LABEL, action="error", message=debug_msg,
     )
     if settings.DEBUG:
         msg = debug_msg
@@ -155,7 +169,7 @@ def _get_form(request):
             except ValueError, err:
                 debug_msg = "Error split user cookie data: %r with %r" % (raw_data, COOKIE_DELIMITER)
                 LogEntry.objects.log_action(
-                    app_label="pylucid_plugin.pylucid_comments", action="error", message=debug_msg,
+                    app_label=APP_LABEL, action="error", message=debug_msg,
                 )
                 if settings.DEBUG:
                     raise
@@ -170,8 +184,8 @@ def _get_form(request):
 def _form_submission(request):
     """ Handle a AJAX comment form submission """
     if request.is_ajax() != True:
-        return _bad_request("Wrong request")
-      
+        return _bad_request("Wrong request")  
+    
     # Use django.contrib.comments.views.comments.post_comment to handle a comment post.
     response = post_comment(request)
     if isinstance(response, HttpResponseRedirect):

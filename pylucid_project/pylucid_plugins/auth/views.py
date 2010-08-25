@@ -116,7 +116,7 @@ def _wrong_login(request, debug_msg, user=None):
     ban_limit = preferences["ban_limit"]
     try:
         LogEntry.objects.request_limit(
-            request, min_pause, ban_limit, app_label="pylucid_plugin.auth", no_page_msg=True
+            request, min_pause, ban_limit, app_label="pylucid_plugin.auth", action="login error", no_page_msg=True
         )
     except LogEntry.RequestTooFast, err:
         # min_pause is not observed
@@ -128,7 +128,7 @@ def _wrong_login(request, debug_msg, user=None):
     else:
         data = None
     LogEntry.objects.log_action(
-        app_label="pylucid_plugin.auth", action="login", message=debug_msg, data=data
+        app_label="pylucid_plugin.auth", action="login error", message=debug_msg, data=data
     )
 
     # create a new challenge and add it to session
@@ -292,7 +292,7 @@ def _logout_view(request):
 def http_get_view(request):
     """
     Login+Logout view via GET parameters
-    """
+    """   
     action = request.GET["auth"]
 
     if action == "login":

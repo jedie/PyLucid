@@ -9,6 +9,10 @@ from dbpreferences.forms import DBPreferencesBaseForm
 
 
 class PyLucidCommentsPrefForm(DBPreferencesBaseForm):
+    ban_limit = forms.IntegerField(
+        help_text=_("Number of pause errors after IP would be banned."),
+        initial=3, min_value=1, max_value=100
+    )
     min_pause = forms.IntegerField(
         help_text=_("Minimum pause in seconds between two comments (Used 'REMOTE_ADDR' + username)"),
         initial=60, min_value=1, max_value=600

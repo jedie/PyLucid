@@ -29,6 +29,7 @@ from django_tools.unittest_utils.BrowserDebug import debug_response
 
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.models import PageMeta
+from pylucid_comments.views import _get_preferences
 
 class PyLucidCommentsTestCase(basetest.BaseUnittest):
     def getValidData(self, obj, **kwargs):
@@ -199,8 +200,53 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
             )
         )
         
+    def test_DOS_attack(self):
+        settings.DEBUG = True # Display a comment error page
+        self.failUnless(Comment.objects.count() == 0)
+        url = self.absolute_url + "?pylucid_comments=submit"
+              
+        preferences = _get_preferences()
+        ban_limit = preferences["ban_limit"]
+        
+        # Hold if all three events would been received. 
+        tested_under_limit = False
+        tested_limit_reached = False
+        tested_banned = False
+        
+        for no in xrange(1, ban_limit+2):          
+            # submit a valid comments form
+            data = self.getValidData(self.pagemeta, comment="Comment no %i" % no)
+            response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            
+            if no>ban_limit:
+                # IP is on the ban list
+                tested_banned = True
+                self.assertStatusCode(response, 403) # get forbidden page
+                comment_count = Comment.objects.count()
+                self.failUnless(comment_count == ban_limit-1)
+            elif no==ban_limit:
+                # The limit has been reached
+                tested_limit_reached = True
+                self.assertResponse(response, must_contain=('Add IP to ban list.',))
+                comment_count = Comment.objects.count()
+                self.failUnless(comment_count == ban_limit-1)
+            else:
+                # under ban limit: comment was saved, page should be reloaded
+                tested_under_limit = True
+                self.assertResponse(response,
+                    must_contain=('reload',),
+                    must_not_contain=(
+                        "Traceback", "Form errors", "field is required",
+                        "<!DOCTYPE", "<body", "</html>",
+                    )
+                )
+                comment_count = Comment.objects.count()
+                self.failUnless(comment_count == no)
 
-
+        # Check if all three events have been received.
+        self.failUnless(tested_limit_reached == True)
+        self.failUnless(tested_under_limit == True)
+        self.failUnless(tested_banned == True)
 
 
 

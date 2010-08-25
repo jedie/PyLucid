@@ -59,13 +59,14 @@ class LogEntryManager(models.Manager):
 
         return queryset
 
-    def request_limit(self, request, min_pause, ban_limit, app_label, no_page_msg=False):
+    def request_limit(self, request, min_pause, ban_limit, app_label, action="error", no_page_msg=False):
         """
         Monitor request min_pause and ban_limit.
         """
         # Count the last requests for this app_label
         queryset = self.last_remote_addr_actions(request, min_pause)
         queryset = queryset.filter(app_label=app_label)
+        queryset = queryset.filter(action=action)
         last_actions = queryset.count()
 
         if last_actions >= ban_limit:
