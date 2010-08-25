@@ -30,7 +30,7 @@ class PyLucidComment(Comment):
             "user_name": self.userinfo["name"],
             "language": self.content_object.language,
             "object_url": self.get_absolute_url(),
-            "title": "New '%s' comment." % self.content_type,
+            "title": "New comment for '%s'" % self.content_object.get_name(),
         }
 
     class Meta:
