@@ -23,8 +23,16 @@ from django.contrib import comments
 from django.utils.translation import ugettext as _
 
 from django_tools.decorators import render_to
+from django_tools.utils.client_storage import ClientCookieStorage, InvalidCookieData
 
 from pylucid_project.apps.pylucid.models import LogEntry
+
+
+COOKIE_KEY = "comments_data" # Used to store anonymous user information
+
+# Important: The sign may not occur in a email address or in a homepage url!
+# But it can occur in the username ;)
+COOKIE_DELIMITER = ";"  
 
 
 #def comment_will_be_posted_handler(sender, **kwargs):
@@ -77,8 +85,30 @@ def _get_form(request):
         target = model._default_manager.using(None).get(pk=object_pk)
     except Exception, err:
         return _bad_request("Wrong object_pk: %s" % err)
+
+    data = {}
+    if not request.user.is_authenticated():    
+        # Get user data from secure cookie, set in the past, see _form_submission()
+        c = ClientCookieStorage(cookie_key=COOKIE_KEY)
+        try:
+            raw_data = c.get_data(request)
+        except InvalidCookieData, err:
+            return _bad_request("Wrong cookie data: %s" % err)
+            
+        if raw_data is not None:
+            try:
+                username, email, url = raw_data.rsplit(COOKIE_DELIMITER,2)
+            except ValueError, err:
+                debug_msg = "Error split user cookie data: %r with %r" % (raw_data, COOKIE_DELIMITER)
+                LogEntry.objects.log_action(
+                    app_label="pylucid_plugin.pylucid_comments", action="error", message=debug_msg,
+                )
+                if settings.DEBUG:
+                    raise
+            else:
+                data = {"name": username, "email": email, "url": url}
     
-    form = comments.get_form()(target)
+    form = comments.get_form()(target, initial=data)
     
     return {"form":form}
 
@@ -91,8 +121,17 @@ def _form_submission(request):
     # Use django.contrib.comments.views.comments.post_comment to handle a comment post.
     response = post_comment(request)
     if isinstance(response, HttpResponseRedirect):
-        # reload the page after comment saved.
-        return HttpResponse('<script type="text/javascript">location.reload();</script>')
+        # reload the page after comment saved via JavaScript
+        response = HttpResponse("reload")
+        
+        if not request.user.is_authenticated(): 
+            # Store user data for anonymous users in a secure cookie, used in _get_form() to pre fill the form
+            comments_data = COOKIE_DELIMITER.join([
+                request.POST["name"], request.POST.get("email", ""), request.POST.get("url", "")
+            ])
+            # Store the user data with a security hash
+            c = ClientCookieStorage(cookie_key=COOKIE_KEY)
+            response = c.save_data(comments_data, response)
        
     return response
 

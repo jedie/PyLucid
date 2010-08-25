@@ -29,6 +29,14 @@ function submit_form() {
             log("Success");
             log("textStatus:" + textStatus);
             //log("data:" + data);
+            
+            if (data=="reload") {
+                // Reload the current page, after the comment was saved
+                log("should reload.");
+                log("Cookie:"+document.cookie);
+                location.reload();
+            }
+            
             log("replace old form");
             $("#comment_form_div").html(data);
             $("#comment_form_div").fadeTo(1);

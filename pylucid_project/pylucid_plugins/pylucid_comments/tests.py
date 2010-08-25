@@ -50,9 +50,8 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
         super(PyLucidCommentsPageMetaTest, self)._pre_setup(*args, **kwargs)
         self.pagemeta = PageMeta.on_site.all()[0]
         self.absolute_url = self.pagemeta.get_absolute_url()
-    
-    def test_get_form(self):
-        """ get the comment form via AJAX """
+        
+    def _get_form(self):
         url = self.absolute_url + "?pylucid_comments=get_form"
         data = self.getValidData(self.pagemeta)
         response = self.client.post(url,
@@ -62,12 +61,16 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
             },
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
+        return response
+    
+    def test_get_form(self):
+        """ get the comment form via AJAX """
+        response = self._get_form()
         self.assertResponse(response,
             must_contain=(
                 '<form action="JavaScript:void(0)" method="post" id="comment_form">',
                 '<input type="hidden" name="content_type" value="pylucid.pagemeta"',
                 '<input type="hidden" name="object_pk" value="%i"' % self.pagemeta.pk,
-                '<label for="id_notify">Notify</label>',
                 '<input checked="checked" type="checkbox" name="notify" id="id_notify" />'
             ),
             must_not_contain=(
@@ -80,10 +83,30 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
         settings.DEBUG = True # Display a comment error page
         self.failUnless(Comment.objects.count() == 0)
         url = self.absolute_url + "?pylucid_comments=submit"
+        
+        # submit a valid comments form
         data = self.getValidData(self.pagemeta)
         response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        
+        # Check if comment created
         self.failUnless(Comment.objects.count() == 1)
-        self.failUnlessEqual(response.content, '<script type="text/javascript">location.reload();</script>')
+        
+        # Check if page should reload (JavaScript do this)
+        self.failUnlessEqual(response.content, 'reload')
+        
+        # Check if anonymous data saved in a cookie, for later usage
+        self.failUnless("comments_data" in response.cookies)
+        comments_data = response.cookies["comments_data"].value
+        self.failUnless(comments_data.startswith("John Doe;john.doe@example.tld;"))
+        
+        # Check if anonymous data stored in cookie would be used:
+        response = self._get_form()
+        self.assertResponse(response,
+            must_contain=(
+                '<input id="id_name" type="text" name="name" value="John Doe" maxlength="50" />',
+                '<input type="text" name="email" value="john.doe@example.tld" id="id_email" />',
+            )
+        )
         
     def test_submit_preview(self):
         settings.DEBUG = True # Display a comment error page
@@ -98,7 +121,7 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
                 '<form action="JavaScript:void(0)" method="post" id="comment_form">',
                 '<input type="hidden" name="content_type" value="pylucid.pagemeta"',
                 '<input type="hidden" name="object_pk" value="%i"' % self.pagemeta.pk,
-                '<label for="id_notify">Notify</label>',
+                'type="checkbox" name="notify" id="id_notify" />',
             ),
             must_not_contain=(
                 "Traceback", "Form errors", "field is required",
@@ -120,7 +143,7 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
                 '<form action="JavaScript:void(0)" method="post" id="comment_form">',
                 '<input type="hidden" name="content_type" value="pylucid.pagemeta"',
                 '<input type="hidden" name="object_pk" value="%i"' % self.pagemeta.pk,
-                '<label for="id_notify">Notify</label>',
+                'type="checkbox" name="notify" id="id_notify" />',
             ),
             must_not_contain=("Traceback", "<body", "</html>")
         )
