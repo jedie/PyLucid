@@ -20,21 +20,31 @@ from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 class PyLucidAdminManager(TreeManager):
     def get_tree_for_user(self, user):
         filtered_items = self.get_for_user(user)
-        tree = TreeGenerator(filtered_items)
+        tree = TreeGenerator(filtered_items)        
+        #tree.debug()
+
+        # Hide categories, if they has sub entry links        
+        for node in tree.iter_flat_list():
+            if not node.data["absolute_url"] and not node.subnodes:
+                node.visible=False
+        
         return tree
 
     def get_for_user(self, user):
         """
         returns only the menu items, for which the user has the rights.
-        TODO: Filter menu sections, too. (If there is no sub items, remove the section)
         """
         all_items = self.all().order_by("position", "name")
         filtered_items = []
         for item in all_items:
-            superuser_only, access_permissions = item.get_permissions()
-            if superuser_only == True and user.is_superuser == False:
+            access_permissions = item.get_permissions()
+            superuser_only, permissions, must_staff = access_permissions
+                      
+            if superuser_only == True and user.is_superuser != True:
                 continue
-            if not user.has_perms(access_permissions):
+            if must_staff == True and user.is_staff != True:
+                continue         
+            if not user.has_perms(permissions):
                 continue
 
             filtered_items.append({
@@ -136,20 +146,20 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         """
         if not self.url_name: # a menu section
             # TODO: Check if at least one sub entry is accessible.
-            return (False, ())
+            return (False, (), False)
 
         url = self.get_url()
         if url is None: # can't resolve url, message was created.
-            return (True, ()) # view can only superusers use
+            return (True, (), True) # view can only superusers use
 
         # Get the view function for this url_name
         view_func, func_args, func_kwargs = urlresolvers.resolve(url)
 
         # get the rights from pylucid_project.apps.pylucid.decorators.check_permissions
         try:
-            access_permissions = view_func.permissions
+            access_permissions = view_func.access_permissions
         except AttributeError, err:
-            # If no permissiona available, fallback to superuser only
+            # If no permissions available, fallback to superuser only
             request = ThreadLocal.get_current_request()
             if settings.DEBUG or request.user.is_staff:
                 messages.error(request, (
@@ -157,12 +167,9 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
                     " Please use pylucid_project.apps.pylucid.decorators.check_permissions!"
                     ) % (view_func.__name__, self.url_name)
                 )
-            access_permissions = ()
-            superuser_only = True
-        else:
-            superuser_only = view_func.superuser_only
+            access_permissions = (True, (), True)
 
-        return (superuser_only, access_permissions)
+        return access_permissions
 
 #    def save(self, *args, **kwargs):
 #        """

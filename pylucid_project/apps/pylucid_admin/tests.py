@@ -16,12 +16,16 @@ if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid_admin.models import PyLucidAdminPage
+
+
+ADMIN_TEST_URL_NAME = "PageAdmin-new_content_page"
 
 
 class PyLucidAdminTestCase(basetest.BaseUnittest):
@@ -112,23 +116,28 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
     def _pre_setup(self, *args, **kwargs):
         """ create some blog articles """
         super(PyLucidPluginsTest, self)._pre_setup(*args, **kwargs)
-
+        
         # TODO: use managment command for this, if exist ;)
-        self.login(usertype="superuser")
+        self.login(usertype="superuser")         
         response = self.client.get("/pylucid_admin/install/plugins/")
         self.failUnless(PyLucidAdminPage.objects.count() > 0, response.content + "\n\nno plugins installed?")
+        self.assertResponse(response,
+            must_contain=("Install Plugins:", "install plugin"),
+            must_not_contain=("Log in", "Traceback")
+        )
 
-    def assertLoginRedirect(self, response, url):
+    def assertLoginRedirect(self, url):
         login_url = 'http://testserver/?auth=login&next_url=%s' % url
+        response = self.client.get(url)
         self.assertRedirect(response, login_url, status_code=302)
 
     def assertIsAdminPage(self, url):
         response = self.client.get(url)
         self.assertResponse(response,
             must_contain=(
-                '<title>PyLucid - ',
-                '<h1 class="admin_headline">PyLucid',
+                '<html', '<head>', '<title>', '<body',
                 '<meta name="robots" content="NONE,NOARCHIVE" />',
+                '<ul class="sf-menu">', 'PyLucid admin menu',
             ),
             must_not_contain=(
                 '<input type="text" name="username"',
@@ -137,60 +146,80 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
             )
         )
         self.failUnlessEqual(response.status_code, 200)
+        
+    def assertPermissionDenied(self, url):
+        response = self.client.get(url)
+        self.assertPyLucidPermissionDenied(response)
 
     def test_access_admin_views(self):
-        """
-        request all existing PyLucid admin views from every plugin.
+        """ Test different user permission access of pylucid admin views. """
+        # Remember all test cases
+        superuser_only_tested = False
+        must_staff_only_tested = False
+        permissions_only_tested = False
         
-        This test check a few things:
-            - test the access security of pylucid admin views
-            - check if admin url permissions are ok
-        """
         all_plugin_views = PyLucidAdminPage.objects.exclude(url_name=None)
         for item in all_plugin_views:
-            sys.stdout.write(".")
-
             url = item.get_absolute_url()
-            superuser_only, access_permissions = item.get_permissions()
-#            print item
-#            print superuser_only
-#            print access_permissions
-
-            # anonymous user should never have access to any pylucid admin view
-            self.client = Client() # start a new session
-            response = self.client.get(url)
-            self.assertLoginRedirect(response, url)
-
-            # try with normal, non-staff user without any permissions
-            self.client = Client() # start a new session
-            self.login(usertype="normal")
-            if not superuser_only and not access_permissions:
-                # admin view needs not explicit permissions
+            superuser_only, permissions, must_staff = item.get_permissions()
+            
+            if superuser_only:
+                # Test admin view for superusers only
+                if superuser_only_tested: # Test only one time
+                    continue
+                superuser_only_tested = True
+                
+                # Anonymous user should have no access:
+                self.client = Client() # start a new session
+                self.assertLoginRedirect(url)
+                
+                self.login(usertype="normal")
+                self.assertPermissionDenied(url)
+                
+                self.login(usertype="staff")
+                self.assertPermissionDenied(url)
+                
+                self.login(usertype="superuser")
                 self.assertIsAdminPage(url)
-                continue
-            else:
-                # it's not accessible by normal user
-                self.assertLoginRedirect(response, url)
+                
+            elif must_staff and not permissions:
+                # User must be staff member, but must not have any permissions
+                if must_staff_only_tested: # Test only one time
+                    continue
+                must_staff_only_tested = True
 
-            # start a new session
-            self.client = Client()
-            self.login_with_permissions(usertype="normal", permissions=access_permissions)
-            if not superuser_only:
-                # user needs permissions and has it
+                self.client = Client() # start a new session
+                self.assertLoginRedirect(url) # Anonymous user
+                
+                self.login(usertype="normal")
+                self.assertPermissionDenied(url)
+                
+                self.login(usertype="staff")
                 self.assertIsAdminPage(url)
-                continue
-
-            # only accessible for superusers -> try as staff user with permissions
-            # start a new session
-            self.client = Client()
-            self.login_with_permissions(usertype="staff", permissions=access_permissions)
-            self.assertLoginRedirect(response, url)
-
-            # Access superuser only view as a superuser
-            # start a new session
-            self.client = Client()
-            self.login(usertype="superuser")
-            self.assertIsAdminPage(url)
+                
+            elif permissions and not must_staff:
+                # Normal users with the right permissions can use this view
+                if permissions_only_tested: # Test only one time
+                    continue
+                permissions_only_tested = True
+                
+                self.client = Client() # start a new session
+                self.assertLoginRedirect(url) # Anonymous user
+                
+                # Normal user, without any permissions
+                self.login(usertype="normal")
+                self.assertPermissionDenied(url)
+                
+                # Normal user with the right permissions
+                self.login_with_permissions(usertype="staff", permissions=permissions)
+                self.assertIsAdminPage(url)
+                
+            sys.stdout.write(".")
+                
+        # Check if every case was tested
+        self.failUnless(superuser_only_tested == True)
+        self.failUnless(must_staff_only_tested == True)
+        self.failUnless(permissions_only_tested == True)
 
 
 
@@ -199,13 +228,13 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "apps.pylucid_admin.tests.PyLucidPluginsTest",
-##        verbosity=0,
-#        verbosity=1,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
-        verbosity=1,
+    management.call_command('test', "apps.pylucid_admin.tests.PyLucidPluginsTest.test_access_admin_views",
 #        verbosity=0,
-#        failfast=True
+        verbosity=1,
+        failfast=True
     )
+#    management.call_command('test', __file__,
+#        verbosity=1,
+##        verbosity=0,
+##        failfast=True
+#    )

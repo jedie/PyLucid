@@ -1,4 +1,5 @@
 {% for node in nodes %}
+{% if node.visible %}
 <li>
     <a href="{{ node.data.absolute_url }}" title="{{ node.data.title }}">{{ node.data.name }}</a>
     {% with "admin_menu/admin_menu_items.html" as filename %}
@@ -9,4 +10,5 @@
     {% endwith %}
     {% endwith %}
 </li>
+{% endif %}
 {% endfor %}

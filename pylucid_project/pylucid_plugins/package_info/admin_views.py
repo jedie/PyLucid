@@ -22,7 +22,7 @@ def install(request):
 
 
 
-@check_permissions(superuser_only=False, permissions=())#"blog.add_blogentry",))
+@check_permissions(superuser_only=False, must_staff=True)
 @render_to("package_info/admin_package_info.html")
 def used_packages(request):
     return {"title": _("package information")}

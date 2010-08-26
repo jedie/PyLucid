@@ -17,19 +17,21 @@ except ImportError:
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
+
+from pylucid_project.apps.pylucid.models import LogEntry
 
 
-def check_permissions(superuser_only, permissions=()):
+def check_permissions(superuser_only, permissions=(), must_staff=None):
     """
     Protect a view and limit it to users witch are log in and has the permissions.
     If the user is not log in -> Redirect him to a log in view with a next_url back to the requested page.
     
-    TODO: Add a log entry, if user has not all permissions.
+    must_staff is optional: User must be staff user, if no permissions given
     
     Usage:
     --------------------------------------------------------------------------
@@ -38,10 +40,22 @@ def check_permissions(superuser_only, permissions=()):
     @check_permissions(superuser_only=False, permissions=(u'appname.add_modelname', u'appname.change_modelname'))
     def my_view(request):
         ...
+        
+    @check_permissions(superuser_only=False, must_staff=True)
+    def view_only_for staff_members(request):
+        ...
     --------------------------------------------------------------------------
     """
     assert isinstance(superuser_only, bool)
     assert isinstance(permissions, (list, tuple))
+
+    if must_staff is None:
+        if permissions:
+            must_staff = False
+        else:
+            must_staff = True
+    
+    assert isinstance(must_staff, bool)
 
     def _inner(view_function):
         @wraps(view_function)
@@ -49,23 +63,33 @@ def check_permissions(superuser_only, permissions=()):
             user = request.user
 
             if not user.is_authenticated():
-                messages.error(request, "Permission denied for anonymous user. Please log in.")
+                msg = _("Permission denied for anonymous user. Please log in.")
+                LogEntry.objects.log_action(app_label="PyLucid", action="auth error", message=msg)
+                messages.error(request, msg)
                 url = settings.PYLUCID.AUTH_NEXT_URL % {"path": "/", "next_url": request.path}
                 return HttpResponseRedirect(url)
+            
+            def permission_denied(msg):
+                LogEntry.objects.log_action(app_label="PyLucid", action="auth error", message=msg)
+                raise PermissionDenied()
+            
+            if superuser_only and user.is_superuser != True:
+                return permission_denied("Your are not a superuser!")
+            
+            if must_staff and user.is_staff != True:
+                return permission_denied("Your are not a staff member!")
 
             if not user.has_perms(permissions):
                 msg = "User %r has not all permissions: %r (existing permissions: %r)" % (
                     user, permissions, user.get_all_permissions()
                 )
-                if settings.DEBUG: # Usefull??
-                    warnings.warn(msg)
-                raise PermissionDenied(msg)
+                return permission_denied(msg)
+
             return view_function(request, *args, **kwargs)
 
         # Add superuser_only and permissions attributes, so they are accessible
         # Used to build the admin menu
-        _check_permissions.superuser_only = superuser_only
-        _check_permissions.permissions = permissions
+        _check_permissions.access_permissions = (superuser_only, permissions, must_staff)
 
         return _check_permissions
     return _inner
