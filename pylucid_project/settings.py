@@ -318,7 +318,14 @@ DBTEMPLATES_USE_REVERSION = True
 
 try:
     from local_settings import *
-except ImportError:
-    from django.core.exceptions import ImproperlyConfigured
-    raise ImproperlyConfigured("You must create a local_settings.py file in '%s' !" % os.getcwd())
+except ImportError, err:
+    if str(err) == "No module named local_settings":
+        from django.core.exceptions import ImproperlyConfigured
+        raise ImproperlyConfigured(
+            "You must create a local_settings.py file in '%s' ! (Original error was: %s)" % (
+                os.getcwd(), err
+            )
+        )
+    raise
+
 
