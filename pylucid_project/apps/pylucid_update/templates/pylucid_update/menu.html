@@ -24,7 +24,13 @@ Migration steps:
     <li><a href="{% url PyLucidUpdate-update08pages %}">update PageContent</a> (replace old permalinks, update blog page)</li>
     <li><a href="{% url PyLucidUpdate-update08templates %}">update templates</a></li>
     <li><a href="{% url PyLucidUpdate-update08styles %}">update stylesheets</a> (You should remove Pygments styles before start.)</li>
-    <li><a href="{% url PyLucidUpdate-update08plugins %}">update plugin data</a> (Create PluginPage before start.)</li>
+    <li><a href="{% url PyLucidUpdate-update08plugins %}">update plugin data</a><br />
+      Before update plugin data, do this first:     
+      <ul>
+        <li><a href="/pylucid_admin/install/plugins/" class="openinwindow">install PyLucid plugins</a></li>
+        <li><a href="/pylucid_admin/plugins/page_admin/new_plugin_page/" class="openinwindow">Create PluginPage for blog</a></li>
+      </ul>
+    </li>
     <li><a href="{% url PyLucidUpdate-update08pagesRedirect %}">create old permalink redirects</a></li>
 </ol>
 Tools:

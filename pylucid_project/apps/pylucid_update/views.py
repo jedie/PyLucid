@@ -45,25 +45,27 @@ from django.utils.safestring import mark_safe
 
 
 def _get_output(request, out, title):
-    """ prepare output, merge page_msg and create a LogEntry. """
+    """ prepare output, merge  and create a LogEntry. """
+
+    storage = messages.get_messages(request)
+    if storage:
+        out.write("Page messages:")
+    else:
+        out.write("No page messages, ok.")
+        
+    for message in storage:
+        out.write(str(message))
+
     output = out.getlines()
-
-    msg_list = request.page_msg.get_and_delete_messages()
-    if msg_list:
-        output.append("\nPage Messages:\n")
-        for msg in msg_list:
-            output += msg["lines"]
-        messages.info(request, "Page messages merge into the output.")
-
-#    storage = messages.get_messages(request)
-#    for message in storage:
-#        do_something_with(message)
-
+    
+    if storage:    
+        messages.info(request, "Page messages merge into the output and a LogEntry created.")
+    else:
+        messages.info(request, "A LogEntry created.")
 
     LogEntry.objects.log_action(
         "pylucid_update", title, request, "successful", long_message="\n".join(output)
     )
-
     return output
 
 
@@ -210,7 +212,7 @@ def update08migrate_stj(request):
         else:
             out.write("EditableStaticFile %r exist." % new_style_name)
 
-    output = _get_output(request, out, title) # merge page_msg and log the complete output
+    output = _get_output(request, out, title) # merge  and log the complete output
 
     context = {
         "title": title,
@@ -400,8 +402,7 @@ def _update08migrate_pages(request, language):
     # Save the information old page ID <-> new PageTree ID, for later use in other views.
     LogEntry.objects.log_action(
         "pylucid_update", "v0.8 migation (site id: %s)" % site.id,
-        request, "page id data", data=new_page_id_data,
-    )
+        request, "page id data", data=new_page_id_da)
     output = _get_output(request, out, title) # merge page_msg and log the complete output
 
     context = {
@@ -769,6 +770,10 @@ def update08templates(request):
         content = _replace(content, out, "{{ PAGE.", "{{ page_")
 
         content = _replace(content, out, "{% lucidTag RSS ", "{% lucidTag rss ")
+        
+        # http://www.pylucid.org/permalink/81/backwards-incompatible-changes#26-05-2010-own-jquery-js-file-removed
+        content = _replace(content, out, "/media/PyLucid/jquery.js", "{{ Django_media_prefix }}js/jquery.min.js")
+        content = _replace(content, out, "/media/PyLucid/pylucid_js_tools.js", "{{ PyLucid_media_url }}pylucid_js_tools.js")
 
         if "{% lucidTag language %}" not in content:
             # Add language plugin after breadcrumb, if not exist
