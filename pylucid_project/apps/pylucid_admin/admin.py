@@ -75,9 +75,9 @@ if settings.DEBUG:
 
     class PyLucidAdminPageAdmin(VersionAdmin):
         list_display = (
-            "id", "name", "title", "url_name",
+            "id", "name", "get_absolute_url",
+            "superuser_only", "must_staff", "permissions",
             "get_pagetree", "get_pagemeta", "get_page",
-            "superuser_only", "access_permissions"
         )
         list_display_links = ("name",)
         list_filter = ("createby", "lastupdateby",)
@@ -85,12 +85,21 @@ if settings.DEBUG:
         search_fields = ("name", "title", "url_name")
 
         def superuser_only(self, obj):
-            superuser_only, access_permissions = obj.get_permissions()
+            access_permissions = obj.get_permissions()
+            superuser_only, permissions, must_staff = access_permissions
             return superuser_only
         superuser_only.boolean = True
+        
+        def must_staff(self, obj):
+            access_permissions = obj.get_permissions()
+            superuser_only, permissions, must_staff = access_permissions
+            return must_staff
+        must_staff.boolean = True
 
-        def access_permissions(self, obj):
-            superuser_only, access_permissions = obj.get_permissions()
-            return " | ".join(access_permissions)
+        def permissions(self, obj):
+            access_permissions = obj.get_permissions()
+            superuser_only, permissions, must_staff = access_permissions
+            return "<br />".join(permissions)
+        permissions.allow_tags = True
 
     admin.site.register(models.PyLucidAdminPage, PyLucidAdminPageAdmin)
