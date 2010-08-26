@@ -11,6 +11,7 @@
 
 import time
 import socket
+import traceback
 from pprint import pformat
 
 try:
@@ -78,9 +79,10 @@ def lucidTag(request, url, debug=False, **kwargs):
                     if request.user.is_staff:
                         messages.info(request, "RSS feed info:", feed["bozo_exception"])
                 else:
-                    raise AssertionError("Feed error: %s" % feed["bozo_exception"])
+                    raise AssertionError("Feed error: %r" % feed["bozo_exception"])
         except Exception, e:
             if request.user.is_staff:
+                messages.debug(request, mark_safe("Feed error:<pre>%s</pre>" % traceback.format_exc()))
                 return "[feedparser.parse(%r) error: %s]" % (url, e)
             else:
                 return "[Can't get RSS feed.]"
