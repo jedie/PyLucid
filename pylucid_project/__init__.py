@@ -22,7 +22,7 @@ import warnings
 import subprocess
 
 
-__version__ = (0, 9, 0, 'RC5')
+__version__ = (0, 9, 0, 'RC6')
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
