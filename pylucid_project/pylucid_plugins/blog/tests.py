@@ -222,7 +222,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
                 ' hreflang="en">Second entry in english</a>',
 
                 '<a href="/en/blog/2/second-entry-in-english/"'
-                ' title="Blog article &#39;Second entry in english&#39;">Second entry in english</a>',
+                ' title="Article &#39;Second entry in english&#39;">Second entry in english</a>',
 
                 # english tag cloud:
                 'tag cloud', '<a href="/en/blog/tags/english-tag/" style="font-size:2em;">english-tag</a>',
