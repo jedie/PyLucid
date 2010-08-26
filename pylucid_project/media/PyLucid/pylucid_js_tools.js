@@ -11,13 +11,15 @@ log("pylucid_js_tools.js loaded.");
 
 function OpenInWindow(link) {
     /*************************************************************************
-	Open link in a new JavaScript window.
-	Usage e.g.:
-		<a href="/foobar/" onclick="return OpenInWindow(this);">foobar</a>
-	Better usage:
-		<a href="/foobar/" class="openinwindow">foobar</a>
-	*************************************************************************/
+    Open link in a new JavaScript window.
+    Usage e.g.:
+        <a href="/foobar/" onclick="return OpenInWindow(this);">foobar</a>
+    Better usage:
+        <a href="/foobar/" class="openinwindow">foobar</a>
+	  *************************************************************************/
+    log("OpenInWindow()");
     var url = $(link).attr("href");
+    log("url:" + url);
     win = window.open(url, "", "width=900, height=760, dependent=yes, resizable=yes, scrollbars=yes");
     win.focus();
     return false;
@@ -203,19 +205,20 @@ function get_pylucid_ajax_view(url) {
 
 function replace_openinwindow_links() {
     /*************************************************************************
-	 * replace the existing links with a "open in new window" link
-	 * usage:
-	 * 		<a href="/foo" class="openinwindow">foo</a>
-	 */
+    * replace the existing links with a "open in new window" link
+    * usage:
+    * 		<a href="/foo" class="openinwindow">foo</a>
+    */
     $('a.openinwindow').each(function(){
         var url = $(this).attr("href");
+        log("replace openinwindow for:" + url);
         var org_title = $(this).attr("title");
-		
-        $(this).attr({
-            onclick: "return OpenInWindow(this);",
-            title: org_title + " (Opens in a new window)"
+        
+        $(this).attr('target', '_blank'); // fall-back
+        
+        $(this).click(function() {
+           return OpenInWindow(this);
         });
-    //$(this).append(" [^]")
     });
 }
 
@@ -227,7 +230,8 @@ var MAX_ROWS = 25;
 
 
 jQuery(document).ready(function($) {
-    /*************************************************************************
+   log("run pylucid_js_tools.js init...");
+   /*************************************************************************
 	 * replace the existing links with a "open in new window" link           */
     replace_openinwindow_links();
 	
