@@ -1,8 +1,8 @@
 {% extends "admin/base_site.html" %}
 
-{% block extrahead %}
+{% block extrahead %}{{ block.super }}
 <style type="text/css">
-.example_link {
+.example_tag {
     padding: 0px;
     margin: 0px;
     min-width: 400px;
@@ -18,11 +18,16 @@ tr:hover {
 
 </style>
 <script type="text/javascript">
+try {
+    jQuery(document);
+} catch (e) {
+    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
+}
 jQuery(document).ready(function($) {
 	$('.example_tag').each(function() {
 		// 'resize' every input field
      	var len = $(this).val().length;
-     	$(this).attr("size", len);
+     	$(this).attr("size", len+2);
      	$(this).attr("maxlength", len);
 	});
 	$('.example_tag').hover(function() {
