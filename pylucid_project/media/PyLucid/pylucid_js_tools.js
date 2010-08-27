@@ -304,11 +304,9 @@ function get_pylucid_comments_form() {
 
 
 
-
-
-
 var MIN_ROWS = 5;
 var MAX_ROWS = 25;
+var MAX_LENGTH = 255;
 
 
 jQuery(document).ready(function($) {
