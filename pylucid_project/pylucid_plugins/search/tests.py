@@ -37,7 +37,10 @@ class SearchTest(BaseUnittest):
                 "hits: ",
                 '<strong>PyLucid</strong>',
             ),
-            must_not_contain=("Traceback", "Form errors", "field is required")
+            must_not_contain=(
+                "Traceback", "Form errors", "field is required",
+                "comments",
+            )
         )
 
     def test_short_terms(self):

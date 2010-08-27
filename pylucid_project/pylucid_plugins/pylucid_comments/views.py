@@ -24,6 +24,8 @@ from django.core.mail import mail_admins
 from django.db import models
 from django.http import HttpResponse, HttpResponseBadRequest,\
     HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
@@ -33,6 +35,7 @@ from django_tools.utils.client_storage import ClientCookieStorage, InvalidCookie
 from pylucid_project.apps.pylucid.models import LogEntry
 
 from pylucid_comments.preference_forms import PyLucidCommentsPrefForm
+
 
 
 APP_LABEL="pylucid_plugin.pylucid_comments"
@@ -226,16 +229,23 @@ def http_get_view(request):
         return _bad_request(debug_msg) # Return HttpResponseBadRequest
 
 
-@render_to("pylucid_comments/comments.html")
 def lucidTag(request):
     if (settings.DEBUG or request.user.is_superuser) and not settings.ADMINS:
         messages.info(request, "Please fill out settings.ADMINS!") 
     
     object2comment = request.PYLUCID.object2comment
+    
+    if object2comment == False:
+        # Don't display pylucid comments on this page
+        # e.g. search get view display search results
+        return ""
+    
     form = comments.get_form()(object2comment)
     context = {
         "form":form,
         "object2comment": object2comment,
     }
-    return context
+    return render_to_response("pylucid_comments/comments.html",
+        context, context_instance=RequestContext(request)
+    )
     

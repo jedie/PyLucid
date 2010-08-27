@@ -56,21 +56,20 @@ class LexiconPluginTestCase(basetest.BaseLanguageTestCase):
         '<dd>PyLucid CMS</dd>',
         '<dt>Short definition:</dt>',
         '<p>This pages are created by PyLucid ;)</p>',
-        '<legend>Leave a comment</legend>', # comments
+        'Leave a comment</a>', # comments
     )
     ENTRY_MUST_CONTAIN_DE = (
         '<a href="/de/lexicon/detail/PyLucid CMS/" title="PyLucid CMS', # breadcrumbs
         '<dd>PyLucid CMS</dd>',
         '<dt>Kurzdefinition:</dt>',
         '<p>Diese Seiten werden mit PyLucid CMS generiert ;)</p>',
-        '<legend>Leave a comment</legend>', # comments
+        'Leave a comment</a>', # comments
     )
     ENTRY_MUST_CONTAIN_ES = (
         '<a href="/es/lexicon/detail/Spanish/" title="Spanish: Spanish is a language ;)"', # breadcrumbs
         '<dd>Spanish</dd>',
-        '<dt>contenido:</dt>',
         '<p>Spanish or Castilian (español or castellano) is a Romance language...</p>',
-        'Comentario', # comments
+        'Leave a comment</a>', # comments
     )
 
     def assertLexiconPage(self, response, must_contain):
@@ -143,6 +142,23 @@ class LexiconPluginTest1(LexiconPluginTestCase):
         self.assertRedirect(
             response, url="http://testserver" + ENTRY_URL % self.default_language.code, status_code=302
         )
+        
+    def test_get_view(self):
+        response = self.client.get("/?lexicon=PyLucid CMS")
+        self.assertResponse(response,
+            must_contain=(
+                'PyLucid CMS',
+                '<dt>Short definition:</dt>',
+                '<p>This pages are created by PyLucid ;)</p>',
+                
+            ),
+            must_not_contain=(
+                "Traceback","Error",
+                'Leave a comment</a>', # no comments on get views
+                "comment"
+            )
+        )
+
 
 
 class LexiconPluginTest2(LexiconPluginTestCase, basetest.BaseMoreLanguagesTestCase):
@@ -191,4 +207,8 @@ if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
 #    management.call_command('test', "pylucid_plugins.lexicon.tests.LexiconPluginTest", verbosity=0)
-    management.call_command('test', __file__, verbosity=1)
+    management.call_command('test', __file__,
+        verbosity=1,
+#        verbosity=0,
+        failfast=True
+    )

@@ -231,10 +231,14 @@ class PyLucidPlugins(dict):
         method_name = settings.PYLUCID.HTTP_GET_VIEW_NAME
         for plugin_name in request.GET.keys():
             if plugin_name not in self:
-                # get parameter is not a plugin or unknwon plugin
+                # get parameter is not a plugin or unknown plugin
                 continue
 
             plugin_instance = self[plugin_name]
+
+            # Don't display pylucid comments"
+            request.PYLUCID.object2comment = False
+                       
             try:
                 response = plugin_instance.call_plugin_view(
                     request, mod_name="views", func_name=method_name, method_kwargs={}
