@@ -43,7 +43,7 @@ def get_commit_timestamp(path=None):
     try:
         process = subprocess.Popen(
             # %ct: committer date, UNIX timestamp  
-            ["/usr/bin/git", "log", "--format=%ct", "-1", "HEAD"],
+            ["/usr/bin/git", "log", "--pretty=format:%ct", "-1", "HEAD"],
             shell=False, cwd=path,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         )
