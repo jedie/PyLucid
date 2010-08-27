@@ -2551,9 +2551,9 @@
         "model": "pylucid.pagecontent", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-05-28 08:22:38", 
+            "lastupdatetime": "2010-08-27 06:56:55", 
             "markup": 6, 
-            "content": "Welcome to your fesh PyLucid CMS installation ;)\r\n\r\nYou should first change the \"site domain\" to your domain name.\r\nYou can use this link: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nIf you didn't installed the PyLucid plugins, please do it here:\r\n * //PyLucid admin menu / PyLucid / **install plugins**//\r\n\r\nThen it would be good if you would carefully study the output of the self test, here:\r\n * //PyLucid admin menu / system / **base check**//\r\n\r\nPlease [[http://www.pylucid.org/permalink/29/kontakt-contact|contact us]], if you have any question.\r\n\r\nIf you find errors, write a ticket (if it does not exist) in our [[http://trac.pylucid.net/|Trac bug tracker]] (login with guest/guest).\r\n\r\n=== list of last updates\r\n\r\n{% lucidTag update_journal %}", 
+            "content": "Welcome to your fesh PyLucid CMS installation ;)\r\n\r\nYou should first change the \"site domain\" to your domain name.\r\nYou can use this link: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nIf you didn't installed the PyLucid plugins, please do it here:\r\n * //PyLucid admin menu / PyLucid / **install plugins**//\r\n\r\nThen it would be good if you would carefully study the output of the self test, here:\r\n * //PyLucid admin menu / system / **base check**//\r\n\r\nPlease [[http://www.pylucid.org/permalink/29/kontakt-contact|contact us]], if you have any question.\r\n\r\nIf you find errors, write a ticket (if it does not exist) in our [[http://github.com/jedie/PyLucid/issues|GitHub bug tracker]].\r\n\r\n=== list of last updates\r\n\r\n{% lucidTag update_journal %}", 
             "pagemeta": 1, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:10"
@@ -2564,9 +2564,9 @@
         "model": "pylucid.pagecontent", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-05-28 08:22:13", 
+            "lastupdatetime": "2010-08-27 06:56:11", 
             "markup": 6, 
-            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://trac.pylucid.net/|Trac Bug Tracker]] (einloggen mit guest/guest).\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}", 
+            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://github.com/jedie/PyLucid/issues|GitHub Bug Tracker]].\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}", 
             "pagemeta": 20, 
             "lastupdateby": 1, 
             "createtime": "2010-01-29 08:27:45"
@@ -2840,7 +2840,7 @@
             "sites": [
                 1
             ], 
-            "last_changed": "2010-05-28 08:40:36", 
+            "last_changed": "2010-08-27 06:53:57", 
             "name": "initial_site_style/base_cms_site.html", 
             "creation_date": "2010-05-28 08:34:02"
         }
@@ -2849,11 +2849,11 @@
         "pk": 4, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\"><h2>PyLucid CMS</h2></div>\r\n\r\n{% lucidTag main_menu %}\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n  <p>{% lucidTag language %}</p>\r\n  </p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\"><h2>PyLucid CMS</h2></div>\r\n\r\n{% lucidTag main_menu %}\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n  <p>{% lucidTag language %}</p>\r\n  </p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n    {% lucidTag pylucid_comments %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-05-28 08:55:27", 
+            "last_changed": "2010-08-27 06:54:36", 
             "name": "initial_site_template/elementary.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2862,11 +2862,11 @@
         "pk": 1, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\">\r\n  <a href=\"/\">PyLucid CMS</a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% lucidTag TOC min=3 %}\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n</div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\">\r\n  <a href=\"/\">PyLucid CMS</a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% lucidTag TOC min=3 %}\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n    {% lucidTag pylucid_comments %}\r\n</div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-05-28 08:52:49", 
+            "last_changed": "2010-08-27 06:54:30", 
             "name": "initial_site_template/main.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2875,11 +2875,11 @@
         "pk": 2, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\">\r\n  <a href=\"/\">\r\n  <img id=\"pylucid_logo\" src=\"http://static.htfx.info/pylucid_logo.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n  <a href=\"http://pylucid.net/trac/\" alt=\"goto PyLucid trac &gt;&gt;\" title=\"goto PyLucid trac &gt;&gt;\">\r\n    <img src=\"http://static.htfx.info/trac_logo_mini.png\" border=\"0\" alt=\"trac Logo\" />\r\n  </a>\r\n  <br />\r\n  <a href=\"http://www.ohloh.net/projects/5642?p=PyLucid\" alt=\"goto PyLucid Ohloh profile &gt;&gt;\" title=\"goto PyLucid Ohloh profile &gt;&gt;\">\r\n    <img src=\"http://www.ohloh.net/projects/5642/badge.gif\" border=\"0\" alt=\"Ohloh metrics\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title|escape }}</h2>\r\n  {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\">\r\n  <a href=\"/\">\r\n  <img id=\"pylucid_logo\" src=\"http://static.htfx.info/pylucid_logo.jpg\" alt=\"PyLucid CMS\" title=\"PyLucid CMS\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n  <a href=\"http://pylucid.net/trac/\" alt=\"goto PyLucid trac &gt;&gt;\" title=\"goto PyLucid trac &gt;&gt;\">\r\n    <img src=\"http://static.htfx.info/trac_logo_mini.png\" border=\"0\" alt=\"trac Logo\" />\r\n  </a>\r\n  <br />\r\n  <a href=\"http://www.ohloh.net/projects/5642?p=PyLucid\" alt=\"goto PyLucid Ohloh profile &gt;&gt;\" title=\"goto PyLucid Ohloh profile &gt;&gt;\">\r\n    <img src=\"http://www.ohloh.net/projects/5642/badge.gif\" border=\"0\" alt=\"Ohloh metrics\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title|escape }}</h2>\r\n  {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n    {% lucidTag pylucid_comments %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-05-28 08:55:53", 
+            "last_changed": "2010-08-27 06:54:41", 
             "name": "initial_site_template/old_basic.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2888,11 +2888,11 @@
         "pk": 3, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"content\">\r\n  <p id=\"head\">PyLucid CMS</p>\r\n  <hr class=\"big\" />\r\n  {% lucidTag sf_main_menu %}\r\n  <hr class=\"small\" />\r\n\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n  <p>{% lucidTag language %}</p>\r\n  </p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n  <hr class=\"small\" />\r\n  <hr class=\"big\" />\r\n  {% include \"initial_includes/footer.html\" %}\r\n</div>\r\n{% endblock body_content %}", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"content\">\r\n  <p id=\"head\">PyLucid CMS</p>\r\n  <hr class=\"big\" />\r\n  {% lucidTag sf_main_menu %}\r\n  <hr class=\"small\" />\r\n\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n  <p>{% lucidTag language %}</p>\r\n  </p>\r\n  <div id=\"page_content\">\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n    {% lucidTag pylucid_comments %}\r\n  </div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n  <hr class=\"small\" />\r\n  <hr class=\"big\" />\r\n  {% include \"initial_includes/footer.html\" %}\r\n</div>\r\n{% endblock body_content %}", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-05-28 08:54:24", 
+            "last_changed": "2010-08-27 06:54:47", 
             "name": "initial_site_template/small_dark.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
@@ -2901,11 +2901,11 @@
         "pk": 5, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"wrap\">\r\n  <div id=\"header\">\r\n    <img id=\"pylucid_logo\" src=\"/media/put_your_logo_here.jpg\" alt=\"Change Template and put your logo here\" title=\"Change Template and put your logo here\" />\r\n  </div>\r\n\r\n  <div id=\"leftside\">\r\n    <h2 class=\"hide\">Menu:</h2>\r\n    {% lucidTag main_menu %}\r\n    {% lucidTag search %}\r\n  </div>\r\n\r\n  <div id=\"contentwide\">\r\n    <div id=\"admin\">{% lucidTag admin_menu %}</div>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n    <h2>{{ page_title }}</h2>\r\n    <p><!-- ContextMiddleware breadcrumb -->\r\n    <p>{% lucidTag language %}</p>\r\n    </p>\r\n    <div id=\"page_content\">\r\n        {% block content %}{{ page_content }}{% endblock content %}\r\n    </div>\r\n    {% include \"initial_includes/permalink.html\" %}\r\n  </div>\r\n\r\n{% include \"initial_includes/footer.html\" %}\r\n</div>\r\n{% endblock body_content %}\r\n", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"wrap\">\r\n  <div id=\"header\">\r\n    <img id=\"pylucid_logo\" src=\"/media/put_your_logo_here.jpg\" alt=\"Change Template and put your logo here\" title=\"Change Template and put your logo here\" />\r\n  </div>\r\n\r\n  <div id=\"leftside\">\r\n    <h2 class=\"hide\">Menu:</h2>\r\n    {% lucidTag main_menu %}\r\n    {% lucidTag search %}\r\n  </div>\r\n\r\n  <div id=\"contentwide\">\r\n    <div id=\"admin\">{% lucidTag admin_menu %}</div>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n    <h2>{{ page_title }}</h2>\r\n    <p><!-- ContextMiddleware breadcrumb -->\r\n    <p>{% lucidTag language %}</p>\r\n    </p>\r\n    <div id=\"page_content\">\r\n       {% block content %}{{ page_content }}{% endblock content %}\r\n       {% lucidTag pylucid_comments %}\r\n    </div>\r\n    {% include \"initial_includes/permalink.html\" %}\r\n  </div>\r\n\r\n{% include \"initial_includes/footer.html\" %}\r\n</div>\r\n{% endblock body_content %}\r\n", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-05-28 08:59:57", 
+            "last_changed": "2010-08-27 06:54:56", 
             "name": "initial_site_template/small_white.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
