@@ -19,18 +19,30 @@
 .level_13 {padding-left: 26em;}
 .level_14 {padding-left: 28em;}
 .level_15 {padding-left: 30em;}
-.example_link {
-    min-width: 400px;
-	width: 100%;
+#page_list_table * {
+    margin: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border: 0px;
+    white-space:nowrap;
 }
-tr {
+#page_list_table  .example_link {
+    min-width: 400px;
+    width: 100%;
+}
+#page_list_table tr {
     background-color: #ffffff;
 }
-tr:hover {
+#page_list_table tr:hover {
     background-color: #e0e0e0;
 }
 </style>
 <script type="text/javascript">
+try {
+    jQuery(document);
+} catch (e) {
+    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
+}
 jQuery(document).ready(function($) {
 	$("form#select_markup_form select").change(function() {
 	  $("form#select_markup_form").submit();
@@ -62,7 +74,7 @@ jQuery(document).ready(function($) {
 	{% endfor %}
 	<input type="submit" name="change" value="{% trans 'change' %}" />
 </form>
-<table class="info">
+<table id="page_list_table">
     <caption>list of all accessable pages</caption>
     <tr>
         <th>page</th>
@@ -76,7 +88,7 @@ jQuery(document).ready(function($) {
         		{{ node.pagemeta.get_name }}
         	</a>
         </td>
-        <td title="for copy&amp;paste into your cms page" class="nowrap">
+        <td title="for copy&amp;paste into your cms page">
             <input type="text" class="example_link" value='{% spaceless %}
                 {% if markup_id_str in "01" %} {# html #}
                     &lt;a href="{{ node.pagemeta.get_permalink }}"&gt;{{ node.pagemeta.get_title }}&lt;/a&gt;
