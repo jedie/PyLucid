@@ -35,7 +35,7 @@ def _edit_content_page(request, context, pagetree):
                 context["preview"] = apply_markup(
                     pagecontent_form.cleaned_data["content"],
                     pagecontent_form.cleaned_data["markup"],
-                    request.page_msg, escape_django_tags=True
+                    request, escape_django_tags=True
                 )
                 context["has_errors"] = False
             else: # All forms are valid and it's not a preview -> Save all.
@@ -59,6 +59,7 @@ def _edit_content_page(request, context, pagetree):
         "title": _("Edit a content page"),
         "template_name": "page_admin/edit_content_page.html",
         "abort_url": pagecontent.get_absolute_url(),
+        "default_lang_entry": default_lang_entry,
         "pagecontent": pagecontent,
 
         "markup_id_str": str(pagecontent.markup),
