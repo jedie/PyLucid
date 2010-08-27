@@ -49,25 +49,25 @@ class BlogPluginTestCase(basetest.BaseLanguageTestCase):
     """
     SUMMARY_MUST_CONTAIN_EN = (
         '<a href="/en/blog/" title="Your personal weblog.">blog</a>',
-        '<a href="/en/blog/">All blog articles in English.</a>',
+        '<a href="/en/blog/">All articles in English.</a>',
     )
     SUMMARY_MUST_CONTAIN_DE = (
         '<a href="/de/blog/" title="Dein eigener Weblog.">blog</a>',
-        '<a href="/de/blog/">Alle Blog Artikel in Deutsch.</a>',
+        '<a href="/de/blog/">Alle Artikel in Deutsch.</a>',
     )
     ENTRY_MUST_CONTAIN_EN = (
         '<a href="/en/blog/detail/PyLucid CMS/" title="PyLucid CMS', # breadcrumbs
         '<dd>PyLucid CMS</dd>',
         '<dt>Short definition:</dt>',
         '<p>This pages are created by PyLucid ;)</p>',
-        '<legend>Leave a comment</legend>', # comments
+        'Leave a comment</a>', # from pylucid comments
     )
     ENTRY_MUST_CONTAIN_DE = (
         '<a href="/de/blog/detail/PyLucid CMS/" title="PyLucid CMS', # breadcrumbs
         '<dd>PyLucid CMS</dd>',
         '<dt>Kurzdefinition:</dt>',
         '<p>Diese Seiten werden mit PyLucid CMS generiert ;)</p>',
-        '<legend>Leave a comment</legend>', # comments
+        'Leave a comment</a>', # from pylucid comments
     )
 
     def assertBlogPage(self, response, must_contain):
@@ -231,12 +231,11 @@ class BlogPluginArticleTest(BlogPluginTestCase):
 
                 "entry in english", "first_tag", "english-tag",
 
-                # from comments contrib:
-                'Leave a comment', '<textarea id="id_comment"', 'csrfmiddlewaretoken',
+                'Leave a comment</a>', # from pylucid comments
             ),
             must_not_contain=("Traceback",
                 # Not the summary page:
-                "All blog articles", "Alle Blog Artikel",
+                "All articles", "Alle Artikel",
 
                 # not the german tag cloud:
                 'Tag Cloud', '<a href="/en/blog/tags/deutsch-tag/" style="font-size:2em;">deutsch-tag</a>',
@@ -257,7 +256,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         self.assertContentLanguage(response, self.default_language)
         self.assertResponse(response,
             must_contain=(
-                'All blog articles in English.',
+                'All articles in English.',
                 '<a href="/en/blog/1/first-entry-in-english/"',
                 'First entry in english',
                 '<a href="/en/blog/2/second-entry-in-english/"',
@@ -275,8 +274,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
             must_not_contain=("Traceback",
                 "Eintrag in deutsch",
                 "erster_tag", "deutsch-tag"
-                # from comments contrib:
-                'Leave a comment', '<textarea id="id_comment"', 'csrfmiddlewaretoken',
+                'Leave a comment</a>', # from pylucid comments
             )
         )
 
@@ -290,7 +288,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         self.assertContentLanguage(response, self.other_language)
         self.assertResponse(response,
             must_contain=(
-                'Alle Blog Artikel in Deutsch.',
+                'Alle Artikel in Deutsch.',
                 '<a href="/de/blog/3/erster-eintrag-in-deutsch/"',
                 'Erster Eintrag in deutsch',
                 '<a href="/de/blog/4/zweiter-eintrag-in-deutsch/"',
@@ -308,8 +306,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
             must_not_contain=("Traceback",
                 "entry in english",
                 "first_tag", "english-tag"
-                # from comments contrib:
-                'Leave a comment', '<textarea id="id_comment"', 'csrfmiddlewaretoken',
+                'Leave a comment</a>', # from pylucid comments
             )
         )
 
@@ -319,7 +316,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
             must_contain=(
-                '<td>blog entry</td>',
+                '(blog entry)',
                 '<a href="/de/blog/4/zweiter-eintrag-in-deutsch/">Zweiter Eintrag in deutsch</a>',
                 '<a href="/de/blog/3/erster-eintrag-in-deutsch/">Erster Eintrag in deutsch</a>',
                 '<a href="/en/blog/2/second-entry-in-english/">Second entry in english</a>',
@@ -395,13 +392,13 @@ class BlogPluginArticleTest(BlogPluginTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test', "pylucid_plugins.blog.tests.BlogPluginArticleTest",
-#        verbosity=0,
-        verbosity=1,
-        failfast=True
-    )
-#    management.call_command('test', __file__,
-#        verbosity=1,
+#    management.call_command('test', "pylucid_plugins.blog.tests.BlogPluginArticleTest",
 ##        verbosity=0,
-##        failfast=True
+#        verbosity=1,
+#        failfast=True
 #    )
+    management.call_command('test', __file__,
+        verbosity=1,
+#        verbosity=0,
+#        failfast=True
+    )
