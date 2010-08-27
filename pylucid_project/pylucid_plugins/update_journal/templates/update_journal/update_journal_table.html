@@ -13,12 +13,11 @@
   </tr>
   {% for item in update_list %}
   <tr class="{% cycle 'row1' 'row2' %}">
-    <td>{{ item.lastupdatetime|date:_("DATETIME_FORMAT") }}</td>
-    <td><a href="{{ item.object_url }}">{{ item.title|escape }}</a><br /><small>({{ item.content_type }})</small></td>
-    <td>{{ item.user_name }}</td>
-    
+    <td class="update_time">{{ item.lastupdatetime|date:_("DATETIME_FORMAT") }}</td>
+    <td class="update_title"><a href="{{ item.object_url }}">{{ item.title|escape }}</a><br /><small>({{ item.content_type }})</small></td>
+    <td class="update_user">{{ item.user_name }}</td>
     {% if perms.update_journal.change_updatejournal or perms.update_journal.delete_updatejournal %}
-    <td>
+    <td class="update_actions">
         {% if perms.update_journal.change_updatejournal %}
             <a href="{% url admin:update_journal_updatejournal_change item.id %}" title="edit '{{ item.title|escape }}'">edit</a>
         {% endif %}
