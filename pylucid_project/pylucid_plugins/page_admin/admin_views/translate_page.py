@@ -143,12 +143,12 @@ def translate_page(request, pagemeta_id=None):
                 context["source_preview"] = apply_markup(
                     source_pagecontent_form.cleaned_data["content"],
                     source_pagecontent_form.cleaned_data["markup"],
-                    request.page_msg, escape_django_tags=True
+                    request, escape_django_tags=True
                 )
                 context["dest_preview"] = apply_markup(
                     dest_pagecontent_form.cleaned_data["content"],
                     dest_pagecontent_form.cleaned_data["markup"],
-                    request.page_msg, escape_django_tags=True
+                    request, escape_django_tags=True
                 )
                 context["has_errors"] = False
             else: # All forms are valid and it's not a preview -> Save all.
@@ -247,8 +247,6 @@ def translate_page(request, pagemeta_id=None):
             else:
                 messages.info(request, "No fields translated via google.")
 
-
-
     source_pagecontent_form.language = source_language
     dest_pagecontent_form.language = dest_language
 
@@ -260,6 +258,8 @@ def translate_page(request, pagemeta_id=None):
         pagemeta_fields.append(dest_field)
 
     context.update({
+        "form_url": request.path,
+        "abort_url": source_pagemeta.get_absolute_url(),
         "all_forms": [
             source_pagemeta_form, source_pagecontent_form,
             dest_pagemeta_form, dest_pagecontent_form

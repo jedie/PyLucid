@@ -93,10 +93,7 @@ $(document).ready(function(){
     </fieldset>
 {% endif %}
 
-<fieldset>
-    <legend>
-        PluginContent - {% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong>
-    </legend>
+<fieldset><legend>PluginContent</legend>
     
     {% include "page_admin/includes/edit_content_page_buttons.html" %}
     
@@ -120,7 +117,7 @@ $(document).ready(function(){
     {% endwith %}
 </fieldset>
 
-<fieldset><legend>{% trans 'Language' %}: <strong>{{ default_lang_entry.description }}</strong></legend>
+<fieldset>
     <h2 class="form_collapse">PageMeta</h2>
     
     {% for field in pagemeta_fields %}
