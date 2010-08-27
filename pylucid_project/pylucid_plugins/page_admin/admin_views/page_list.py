@@ -49,6 +49,7 @@ def page_list(request):
     context = {
         "title": "page list",
         "form": form,
+        "form_url": request.path,
         "markup_id_str": markup_id_str,
         "tree": tree,
     }
