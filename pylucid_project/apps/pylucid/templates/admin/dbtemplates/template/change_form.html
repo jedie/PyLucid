@@ -35,7 +35,9 @@ jQuery(document).ready(function($) {
 
 {% block object-tools %}
     <ul class="object-tools">
-      <li><a href="JavaScript:void(0)" id="template_diff">diff</a></li>
+      <li><a href="JavaScript:void(0)" id="template_diff">diff</a></li>      
+      <li><a href="{% url PageAdmin-page_list %}?markup={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">{% trans 'page list' %}</a></li>
+      <li><a href="{% url PageAdmin-tag_list %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">{% trans 'tag list' %}</a></li>
       <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
     </ul>
 {% endblock %}
