@@ -223,6 +223,88 @@ function replace_openinwindow_links() {
 }
 
 
+/*****************************************************************************
+* PyLucid comments stuff
+*/
+var pylucid_comments_preview = false;
+function submit_comments_form() {
+    log("submit: comment form");
+    
+    $("#comments_commit_status").slideDown();
+    $("#comment_form_div").fadeTo(0.5);
+    
+    var form_data = $("#comment_form").serialize();
+    if (pylucid_comments_preview == true) {
+      form_data += "&preview=On";
+    }
+    log("form data:" + form_data);
+    
+    $.ajax({
+        type: "POST",
+        url: "?pylucid_comments=submit",
+        data: form_data,
+        dataType: "html",
+        success: function(data, textStatus) {
+            log("Success");
+            log("textStatus:" + textStatus);
+            //log("data:" + data);
+            if (data=="reload") {
+                // Reload the current page, after the comment was saved
+                log("should reload.");
+                log("Cookie:"+document.cookie);
+                location.reload();
+            }
+            log("replace old form");
+            insert_comments_form(data);
+            $("#comment_form_div").fadeTo(1);
+        },
+        error: ajax_error_handler // from pylucid_js_tools.js
+    });
+}
+function insert_comments_form(html) {
+    log("insert_comments_form()");
+    $("#comment_form_div").html(html);
+    $("#comments_commit_status").slideUp();
+    
+    pylucid_comments_preview = false;
+    $("#comment_form").bind('submit', submit_comments_form);
+    $("input[name=preview]").click(function() {
+        log("preview clicked.");
+        pylucid_comments_preview = true;
+    });
+}
+function get_pylucid_comments_form() {
+    log("get_pylucid_comments_form()");
+    
+    $("#leave_comment_link").slideUp();
+    $("#comments_commit_status").slideDown();
+    
+    var post_data = "content_type=";
+    post_data += $("input#id_content_type").val();
+    post_data += "&object_pk="
+    post_data += $("input#id_object_pk").val();
+    log("post_data:"+post_data);
+
+    $.ajax({
+        type: "POST",
+        url: "?pylucid_comments=get_form",
+        data: post_data,
+        dataType: "html",
+        success: function(data, textStatus) {
+            log("Success");
+            log("textStatus:" + textStatus);
+            insert_comments_form(data);
+            $("#comment_form_div").slideDown();
+        },
+        error: ajax_error_handler
+    });
+
+}
+/****************************************************************************/
+
+
+
+
 
 
 var MIN_ROWS = 5;

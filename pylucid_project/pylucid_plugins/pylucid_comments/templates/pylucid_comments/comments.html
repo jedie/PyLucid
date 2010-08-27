@@ -2,110 +2,6 @@
 {% load comments %}
 
 {% block plugin_content %}
-{% extrahead %}
-<script type="text/javascript">
-var preview=false;
-function submit_status() {
-    $("#leave_comment_link").html('<h2 class="ajax_msg">{% trans "submit" %}...</h2>');
-    $("#leave_comment_link").slideDown();
-}
-function submit_form() {
-    log("submit: comment form");
-    submit_status();
-    $("#comment_form_div").fadeTo(0.5);
-    
-    var form_data = $("#comment_form").serialize();
-    if (preview == true) {
-      form_data += "&preview=On"
-    }
-    log("form data:" + form_data);
-    
-    $.ajax({
-        type: "POST",
-        url: "?pylucid_comments=submit",
-        data: form_data,
-        dataType: "html",
-        success: function(data, textStatus) {
-            log("Success");
-            log("textStatus:" + textStatus);
-            //log("data:" + data);
-            
-            if (data=="reload") {
-                // Reload the current page, after the comment was saved
-                log("should reload.");
-                log("Cookie:"+document.cookie);
-                location.reload();
-            }
-            
-            log("replace old form");
-            $("#comment_form_div").html(data);
-            $("#comment_form_div").fadeTo(1);
-            bind_form_actions();
-        },
-        complete: function(XMLHttpRequest, textStatus){
-            $("#leave_comment_link").slideUp();
-                   
-            // Handle redirects
-            log("complete:" + XMLHttpRequest);
-            log("textStatus:" + textStatus);
-            log("complete:" + XMLHttpRequest.status);
-            log("complete:" + XMLHttpRequest.getResponseHeader('Location'));
-            
-            if(XMLHttpRequest.status.toString()[0]=='3'){
-                top.location.href = XMLHttpRequest.getResponseHeader('Location');
-            }
-        },
-        error: ajax_error_handler // from pylucid_js_tools.js
-    });
-}
-function bind_form_actions() {
-    log("bind form actions");
-    preview = false;
-    $("#comment_form").bind('submit', submit_form);
-    $("input[name=preview]").click(function() {
-        log("preview clicked.");
-        preview = true;
-    });
-}
-try {
-    jQuery(document);
-} catch (e) {
-    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
-}
-jQuery(document).ready(function($) {
-  $("#comment_form_div").slideUp();
-  
-  content_type = $("#id_content_type").val();
-  object_pk = $("#id_object_pk").val();
-  object_data = "content_type="+content_type+"&object_pk="+object_pk
-  log("object_data:"+object_data);
-  
-  $("#leave_comment_link").click(function() {
-    log("leave comment link clicked");
-    submit_status();
-    
-    $.ajax({
-        type: "POST",
-        url: "?pylucid_comments=get_form",
-        data: object_data,
-        dataType: "html",
-        success: function(data, textStatus) {
-            log("Success");
-            log("textStatus:" + textStatus);           
-            $("#comment_form_div").html(data);
-            $("#comment_form_div").slideDown();
-            $("#leave_comment_link").slideUp();
-            bind_form_actions();
-        },
-        error: ajax_error_handler // from pylucid_js_tools.js
-    });
-    
-    
-  });
-});
-</script>
-{% endextrahead %}
-
 {% get_comment_count for object2comment as comment_count %}
 <fieldset class="comments">
 <legend>
@@ -114,7 +10,8 @@ jQuery(document).ready(function($) {
   {% endblocktrans %}
 </legend>
   {% render_comment_list for object2comment %}
-  <a href="JavaScript:void(0)" id="leave_comment_link">{% trans "Leave a comment" %}</a>
+  <h2 id="comments_commit_status" style="display:none;">{% trans "loading..." %}</h2>
+  <a href="JavaScript:get_pylucid_comments_form();" id="leave_comment_link">{% trans "Leave a comment" %}</a>
   <div id="comment_form_div" style="display:none;">{{ form.content_type }}{{ form.object_pk }}</div>
 </fieldset>
 {% endblock plugin_content %}
