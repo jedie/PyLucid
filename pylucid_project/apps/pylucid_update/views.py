@@ -534,6 +534,9 @@ def update08pages(request):
         content = _replace(content, out,
             "{% lucidTag page_update_list %}", "{% lucidTag update_journal %}"
         )
+        content = _replace(content, out,
+            "{% lucidTag page_update_list count=", "{% lucidTag update_journal count="
+        )
         content = _replace(content, out, "{% lucidTag RSS ", "{% lucidTag rss ")
         if content == pagecontent.content:
             # Nothing changed
@@ -784,9 +787,12 @@ def update08templates(request):
             )
 
         # TODO: add somthing like: <meta http-equiv="Content-Language" content="en" />
+        
+        new_page_msg = '{% include "pylucid/includes/page_msg.html" %}'
+        content = _replace(content, out, "<!-- page_messages -->", new_page_msg)
 
-        if '{% include "pylucid/includes/page_msg.html" %}' not in content:
-            out.write(' *** IMPORTANT: You must insert {% include "pylucid/includes/page_msg.html" %} in this template!')
+        if new_page_msg not in content:
+            out.write(' *** IMPORTANT: You must insert %s in this template!' % new_page_msg)
 
         if template.content == content:
             out.write("Nothing changed")
