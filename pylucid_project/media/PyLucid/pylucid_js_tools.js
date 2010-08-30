@@ -221,6 +221,22 @@ function replace_openinwindow_links() {
         });
     });
 }
+function add_openinwindow_links() {
+    /*************************************************************************
+     * Add a "open in new window" link after the existing normal link.
+     * usage:
+     *      <a href="/foo" class="add_openinwindow">foo</a>
+     */
+    $('a.add_openinwindow').each(function(){
+
+        var url = $(this).attr("href");
+        var org_title = $(this).attr("title");
+        
+        var new_link = ' <a href="'+url+'" onclick="return OpenInWindow(this);" target="_blank" title="'+org_title+' (Opens in a new window)">[^]</a>'
+        
+        $(this).after(new_link);
+    })
+}
 
 
 /*****************************************************************************
@@ -310,30 +326,17 @@ var MAX_LENGTH = 255;
 
 
 jQuery(document).ready(function($) {
-   log("run pylucid_js_tools.js init...");
-   /*************************************************************************
-	 * replace the existing links with a "open in new window" link           */
+    log("run pylucid_js_tools.js init...");
+    /************************************************************************
+	 * replace the existing links with a "open in new window" link          */
     replace_openinwindow_links();
 	
-	
-    /*************************************************************************
-	 * Add a "open in new window" link after the existing normal link.
-	 * usage:
-	 * 		<a href="/foo" class="add_openinwindow">foo</a>
-	 */
-    $('a.add_openinwindow').each(function(){
-
-        var url = $(this).attr("href");
-        var org_title = $(this).attr("title");
-		
-        var new_link = ' <a href="'+url+'" onclick="return OpenInWindow(this);" title="'+org_title+' (Opens in a new window)">[^]</a>'
-		
-        $(this).after(new_link);
-    })
+    /************************************************************************
+	 * Add a "open in new window" link after the existing normal link.      */
+    add_openinwindow_links()
     
-    /*************************************************************************
-	 * Resize all textareas
-	 */
+    /************************************************************************
+	 * Resize all textareas                                                 */
     $("textarea").each(function() {
         rows = this.value.split("\n").length;
         if (rows > MAX_ROWS) {
@@ -352,9 +355,8 @@ jQuery(document).ready(function($) {
 	    log("can't init TextAreaResizer:" + e);
     }
 	
-    /*************************************************************************
-	 * resize input fields
-	 */
+    /************************************************************************
+	 * resize input fields                                                  */
     $(".pylucid_form input").each(function() {
         maxlength = $(this).attr("maxlength");
         if (maxlength<=0) {
@@ -366,9 +368,8 @@ jQuery(document).ready(function($) {
         this.size=maxlength;
     });
 
-    /*************************************************************************
-	 * hide/unhide form fieldset stuff.
-	 */
+    /************************************************************************
+	 * hide/unhide form fieldset stuff.                                     */
     $(".pylucid_form .form_hide").nextAll().hide();
     $(".pylucid_form .form_collapse").each(function() {
         $(this).css("cursor","n-resize");
