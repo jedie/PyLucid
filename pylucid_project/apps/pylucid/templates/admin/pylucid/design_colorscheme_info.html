@@ -1,0 +1,8 @@
+{% include "admin/pylucid/includes/colorscheme_preview.html" %}
+{% for headfile in design.headfiles.all %}
+    <br />
+    <span title="{{ headfile.filepath }} - {% if headfile.render %}render color placeholders">&#x2714;{% else %}don 't render color placeholders">&#x2718;{% endif %} </span>
+    <a href="{% url admin:pylucid_editablehtmlheadfile_change headfile.pk %}" class="add_openinwindow" title="{% trans "edit headfile" %}">
+        {{ headfile.filepath }}
+    </a>
+{% endfor %}

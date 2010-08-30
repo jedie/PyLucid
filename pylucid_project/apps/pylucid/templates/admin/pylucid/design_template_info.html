@@ -1,0 +1,5 @@
+{% if dbtemplate_entry %}
+  <a href="{% url admin:dbtemplates_template_change dbtemplate_entry.pk %}" class="add_openinwindow" title="{% trans "edit db template entry" %}">{{ design.template }}</a><br />
+{% else %}
+  {{ design.template }}
+{% endif %}

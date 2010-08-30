@@ -175,23 +175,29 @@ class ColorInline(admin.TabularInline):
 
 
 class ColorSchemeAdmin(VersionAdmin):
+    def preview(self, obj):
+        colors = models.Color.objects.all().filter(colorscheme=obj)
+        context = {
+            "colorscheme": obj,
+            "colors": colors
+        }
+        return render_to_string("admin/pylucid/includes/colorscheme_preview.html", context)
+    preview.short_description = 'color scheme preview'
+    preview.allow_tags = True
+    
+    def design_usage_info(self, obj):
+        designs = models.Design.objects.all().filter(colorscheme=obj)
+        context = {"designs": designs}
+        return render_to_string("admin/pylucid/includes/design_usage_info.html", context)
+    design_usage_info.short_description = 'used in designs'
+    design_usage_info.allow_tags = True
+    
     form = ColorSchemeAdminForm
-    list_display = ("id", "name", "preview", "site_info", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "name", "preview", "design_usage_info", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     search_fields = ("name",)
     list_filter = ("sites",)
     inlines = [ColorInline, ]
-
-    def preview(self, obj):
-        colors = models.Color.objects.all().filter(colorscheme=obj)
-        result = ""
-        for color in colors:
-            result += '<span style="background-color:#%s;" title="%s">&nbsp;&nbsp;&nbsp;</span>' % (
-                color.value, color.name
-            )
-        return result
-    preview.short_description = 'color preview'
-    preview.allow_tags = True
 
 admin.site.register(models.ColorScheme, ColorSchemeAdmin)
 
@@ -255,8 +261,36 @@ class DesignAdminForm(forms.ModelForm):
 
 
 class DesignAdmin(VersionAdmin):
+    def template_usage(self, obj):
+        template_path = obj.template
+        try:
+            dbtemplate_entry = Template.objects.get(name=template_path)
+        except Template.DoesNotExist:
+            dbtemplate_entry = None
+        
+        context = {
+            "design": obj,
+            "dbtemplate_entry":dbtemplate_entry,
+        }
+        return render_to_string("admin/pylucid/design_template_info.html", context)
+    
+    template_usage.short_description = 'Template'
+    template_usage.allow_tags = True
+        
+    def color_info(self, obj):
+        colors = models.Color.objects.all().filter(colorscheme=obj.colorscheme)
+        context = {
+            "design": obj,
+            "colorscheme": obj.colorscheme,
+            "colors": colors,
+        }
+        return render_to_string("admin/pylucid/design_colorscheme_info.html", context)
+    
+    color_info.short_description = 'color scheme information'
+    color_info.allow_tags = True
+    
     form = DesignAdminForm
-    list_display = ("id", "name", "template", "colorscheme", "site_info", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "name", "template_usage", "color_info", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     list_filter = ("sites", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")
@@ -450,8 +484,20 @@ class DBTemplatesAdmin(TemplateAdmin):
             url("^(.+)/diff/$", admin_site.admin_view(self.diff_view), name='%s_%s_diff' % info),
         )
         return new_urls + urls
+    
+    def usage_info(self, obj):
+        designs = models.Design.objects.all().filter(template=obj.name)
+        
+        context = {
+            "designs": designs,
+        }
+        return render_to_string("admin/pylucid/dbtemplate_usage_info.html", context)
+    
+    usage_info.short_description = 'used in PyLucid design'
+    usage_info.allow_tags = True
 
     form = DBTemplatesAdminAdminForm
+    list_display = ('name', "usage_info", 'creation_date', 'last_changed', 'site_list')
 
 admin.site.unregister(Template)
 admin.site.register(Template, DBTemplatesAdmin)
