@@ -110,44 +110,12 @@
         }
     }, 
     {
-        "pk": 9, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_0", 
-            "lastupdatetime": "2009-11-03 03:40:28", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
-            "value": "b1b08b", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:28"
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_1", 
-            "lastupdatetime": "2009-11-03 03:40:28", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
-            "value": "ffffe5", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:28"
-        }
-    }, 
-    {
         "pk": 80, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_10", 
-            "lastupdatetime": "2010-05-28 09:11:52", 
+            "name": "beige_d10", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "colorscheme": 1, 
             "sites": [
                 1
@@ -158,92 +126,12 @@
         }
     }, 
     {
-        "pk": 79, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_11", 
-            "lastupdatetime": "2010-05-28 09:11:52", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
-            "value": "999999", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
-        }
-    }, 
-    {
-        "pk": 78, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_12", 
-            "lastupdatetime": "2010-05-28 09:11:52", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
-            "value": "555555", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
-        }
-    }, 
-    {
-        "pk": 77, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_13", 
-            "lastupdatetime": "2010-05-28 09:11:52", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
-            "value": "333333", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
-        }
-    }, 
-    {
-        "pk": 76, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_14", 
-            "lastupdatetime": "2010-05-28 09:11:52", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
-            "value": "666666", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_2", 
-            "lastupdatetime": "2009-11-03 03:40:28", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
-            "value": "fffff9", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:28"
-        }
-    }, 
-    {
         "pk": 6, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_3", 
-            "lastupdatetime": "2009-11-03 03:40:27", 
+            "name": "black", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "colorscheme": 1, 
             "sites": [
                 1
@@ -254,12 +142,44 @@
         }
     }, 
     {
+        "pk": 79, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkgrey_d28", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "999999", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkgrey_d32", 
+            "lastupdatetime": "2010-08-31 14:12:28", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "b1b08b", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:28"
+        }
+    }, 
+    {
         "pk": 5, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_4", 
-            "lastupdatetime": "2009-11-03 03:40:27", 
+            "name": "darkkhaki_d20", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "colorscheme": 1, 
             "sites": [
                 1
@@ -274,8 +194,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_5", 
-            "lastupdatetime": "2009-11-03 03:40:27", 
+            "name": "darkslategrey_d26", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "colorscheme": 1, 
             "sites": [
                 1
@@ -286,12 +206,76 @@
         }
     }, 
     {
+        "pk": 77, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d40", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "333333", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
+        }
+    }, 
+    {
+        "pk": 78, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "dimgrey_d35", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "555555", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
+        }
+    }, 
+    {
+        "pk": 76, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "dimgrey_d5", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "666666", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:52"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightyellow", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffe5", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:28"
+        }
+    }, 
+    {
         "pk": 3, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_6", 
-            "lastupdatetime": "2009-11-03 03:40:27", 
+            "name": "lightyellow_2", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "colorscheme": 1, 
             "sites": [
                 1
@@ -306,8 +290,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_7", 
-            "lastupdatetime": "2009-11-03 03:40:26", 
+            "name": "silver_d26", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "colorscheme": 1, 
             "sites": [
                 1
@@ -318,12 +302,28 @@
         }
     }, 
     {
+        "pk": 7, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "snow_d5", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
+            "colorscheme": 1, 
+            "sites": [
+                1
+            ], 
+            "value": "fffff9", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:28"
+        }
+    }, 
+    {
         "pk": 1, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_8", 
-            "lastupdatetime": "2009-11-03 03:40:26", 
+            "name": "white", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "colorscheme": 1, 
             "sites": [
                 1
@@ -338,8 +338,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_9", 
-            "lastupdatetime": "2010-05-28 09:11:52", 
+            "name": "whitesmoke_d12", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "colorscheme": 1, 
             "sites": [
                 1
@@ -350,140 +350,12 @@
         }
     }, 
     {
-        "pk": 52, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_0", 
-            "lastupdatetime": "2009-11-03 03:40:41", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "8f8f8f", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:41"
-        }
-    }, 
-    {
-        "pk": 51, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_1", 
-            "lastupdatetime": "2009-11-03 03:40:41", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "aaaaaa", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:41"
-        }
-    }, 
-    {
-        "pk": 42, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_10", 
-            "lastupdatetime": "2009-11-03 03:40:38", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "000000", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:38"
-        }
-    }, 
-    {
-        "pk": 41, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_11", 
-            "lastupdatetime": "2009-11-03 03:40:38", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "fafafd", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:38"
-        }
-    }, 
-    {
-        "pk": 40, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_12", 
-            "lastupdatetime": "2009-11-03 03:40:38", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "ff0000", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:38"
-        }
-    }, 
-    {
-        "pk": 39, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_13", 
-            "lastupdatetime": "2009-11-03 03:40:37", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "eaecff", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:37"
-        }
-    }, 
-    {
-        "pk": 38, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_14", 
-            "lastupdatetime": "2009-11-03 03:40:37", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "ffffff", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:37"
-        }
-    }, 
-    {
-        "pk": 43, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_17", 
-            "lastupdatetime": "2009-11-03 03:40:38", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "dddddd", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:38"
-        }
-    }, 
-    {
         "pk": 36, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_18", 
-            "lastupdatetime": "2009-11-03 03:40:37", 
+            "name": "aliceblue_d8", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
             "colorscheme": 2, 
             "sites": [
                 1
@@ -494,35 +366,51 @@
         }
     }, 
     {
-        "pk": 37, 
+        "pk": 42, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_19", 
-            "lastupdatetime": "2009-11-03 03:40:37", 
+            "name": "black", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
             "colorscheme": 2, 
             "sites": [
                 1
             ], 
-            "value": "f5f5f5", 
+            "value": "000000", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:37"
+            "createtime": "2009-11-03 03:40:38"
         }
     }, 
     {
-        "pk": 50, 
+        "pk": 51, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_2", 
-            "lastupdatetime": "2009-11-03 03:40:40", 
+            "name": "darkgrey", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
             "colorscheme": 2, 
             "sites": [
                 1
             ], 
-            "value": "fffff9", 
+            "value": "aaaaaa", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:40"
+            "createtime": "2009-11-03 03:40:41"
+        }
+    }, 
+    {
+        "pk": 46, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkred_d31", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "aa0000", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:39"
         }
     }, 
     {
@@ -530,8 +418,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_3", 
-            "lastupdatetime": "2009-11-03 03:40:40", 
+            "name": "darkslategrey_d57", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
             "colorscheme": 2, 
             "sites": [
                 1
@@ -546,8 +434,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_4", 
-            "lastupdatetime": "2009-11-03 03:40:40", 
+            "name": "dimgrey_d35", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
             "colorscheme": 2, 
             "sites": [
                 1
@@ -558,76 +446,12 @@
         }
     }, 
     {
-        "pk": 47, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_5", 
-            "lastupdatetime": "2009-11-03 03:40:40", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "fffff5", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:40"
-        }
-    }, 
-    {
-        "pk": 46, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_6", 
-            "lastupdatetime": "2009-11-03 03:40:39", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "aa0000", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:39"
-        }
-    }, 
-    {
-        "pk": 45, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_7", 
-            "lastupdatetime": "2009-11-03 03:40:39", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "bbaacc", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:39"
-        }
-    }, 
-    {
-        "pk": 44, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_8", 
-            "lastupdatetime": "2009-11-03 03:40:39", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
-            "value": "ffffff", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:39"
-        }
-    }, 
-    {
         "pk": 71, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_9", 
-            "lastupdatetime": "2010-05-28 09:09:34", 
+            "name": "dimgrey_d5", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
             "colorscheme": 2, 
             "sites": [
                 1
@@ -638,163 +462,179 @@
         }
     }, 
     {
-        "pk": 35, 
+        "pk": 43, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_0", 
-            "lastupdatetime": "2009-11-03 03:40:36", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "b1b08b", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:36"
-        }
-    }, 
-    {
-        "pk": 34, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_1", 
-            "lastupdatetime": "2009-11-03 03:40:36", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "aaaaaa", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:36"
-        }
-    }, 
-    {
-        "pk": 25, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_10", 
-            "lastupdatetime": "2009-11-03 03:40:33", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "000000", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:33"
-        }
-    }, 
-    {
-        "pk": 24, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_11", 
-            "lastupdatetime": "2009-11-03 03:40:33", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "fafafd", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:33"
-        }
-    }, 
-    {
-        "pk": 23, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_12", 
-            "lastupdatetime": "2009-11-03 03:40:33", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "ff0000", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:33"
-        }
-    }, 
-    {
-        "pk": 22, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_13", 
-            "lastupdatetime": "2009-11-03 03:40:33", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "eaecff", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:33"
-        }
-    }, 
-    {
-        "pk": 21, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_14", 
-            "lastupdatetime": "2009-11-03 03:40:32", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "ffffff", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:32"
-        }
-    }, 
-    {
-        "pk": 72, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_15", 
-            "lastupdatetime": "2010-05-28 09:11:21", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "c9c573", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:21"
-        }
-    }, 
-    {
-        "pk": 74, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_16", 
-            "lastupdatetime": "2010-05-28 09:11:21", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "ffffdb", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:21"
-        }
-    }, 
-    {
-        "pk": 26, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_17", 
-            "lastupdatetime": "2009-11-03 03:40:34", 
-            "colorscheme": 3, 
+            "name": "gainsboro", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
             "sites": [
                 1
             ], 
             "value": "dddddd", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:34"
+            "createtime": "2009-11-03 03:40:38"
+        }
+    }, 
+    {
+        "pk": 41, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "ghostwhite", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "fafafd", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:38"
+        }
+    }, 
+    {
+        "pk": 52, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d26", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "8f8f8f", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:41"
+        }
+    }, 
+    {
+        "pk": 47, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "ivory", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "fffff5", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:40"
+        }
+    }, 
+    {
+        "pk": 39, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lavender_d9", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "eaecff", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:37"
+        }
+    }, 
+    {
+        "pk": 40, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "red", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "ff0000", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:38"
+        }
+    }, 
+    {
+        "pk": 45, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "silver_d26", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "bbaacc", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:39"
+        }
+    }, 
+    {
+        "pk": 50, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "snow_d5", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "fffff9", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:40"
+        }
+    }, 
+    {
+        "pk": 38, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "white", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffff", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:37"
+        }
+    }, 
+    {
+        "pk": 44, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "white_2", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffff", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:39"
+        }
+    }, 
+    {
+        "pk": 37, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "whitesmoke", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
+            "colorscheme": 2, 
+            "sites": [
+                1
+            ], 
+            "value": "f5f5f5", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:37"
         }
     }, 
     {
@@ -802,8 +642,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_18", 
-            "lastupdatetime": "2009-11-03 03:40:32", 
+            "name": "aliceblue_d8", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
             "colorscheme": 3, 
             "sites": [
                 1
@@ -814,51 +654,19 @@
         }
     }, 
     {
-        "pk": 20, 
+        "pk": 25, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_19", 
-            "lastupdatetime": "2009-11-03 03:40:32", 
+            "name": "black", 
+            "lastupdatetime": "2010-08-31 14:12:22", 
             "colorscheme": 3, 
             "sites": [
                 1
             ], 
-            "value": "f5f5f5", 
+            "value": "000000", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:32"
-        }
-    }, 
-    {
-        "pk": 33, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_2", 
-            "lastupdatetime": "2009-11-03 03:40:35", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "fffff9", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:35"
-        }
-    }, 
-    {
-        "pk": 73, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_20", 
-            "lastupdatetime": "2010-05-28 09:11:21", 
-            "colorscheme": 3, 
-            "sites": [
-                1
-            ], 
-            "value": "444444", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:21"
+            "createtime": "2009-11-03 03:40:33"
         }
     }, 
     {
@@ -866,8 +674,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_3", 
-            "lastupdatetime": "2009-11-03 03:40:35", 
+            "name": "black_2", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
             "colorscheme": 3, 
             "sites": [
                 1
@@ -878,35 +686,51 @@
         }
     }, 
     {
-        "pk": 31, 
+        "pk": 34, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_4", 
-            "lastupdatetime": "2009-11-03 03:40:35", 
+            "name": "darkgrey", 
+            "lastupdatetime": "2010-08-31 14:12:22", 
             "colorscheme": 3, 
             "sites": [
                 1
             ], 
-            "value": "555555", 
+            "value": "aaaaaa", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:35"
+            "createtime": "2009-11-03 03:40:36"
         }
     }, 
     {
-        "pk": 30, 
+        "pk": 35, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_5", 
-            "lastupdatetime": "2009-11-03 03:40:35", 
+            "name": "darkgrey_d32", 
+            "lastupdatetime": "2010-08-31 14:12:22", 
             "colorscheme": 3, 
             "sites": [
                 1
             ], 
-            "value": "fffff5", 
+            "value": "b1b08b", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:35"
+            "createtime": "2009-11-03 03:40:36"
+        }
+    }, 
+    {
+        "pk": 72, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkkhaki_d20", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "c9c573", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:21"
         }
     }, 
     {
@@ -914,8 +738,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_6", 
-            "lastupdatetime": "2009-11-03 03:40:34", 
+            "name": "darkred_d31", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
             "colorscheme": 3, 
             "sites": [
                 1
@@ -926,35 +750,115 @@
         }
     }, 
     {
-        "pk": 28, 
+        "pk": 73, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_7", 
-            "lastupdatetime": "2009-11-03 03:40:34", 
+            "name": "darkslategrey_d26", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
             "colorscheme": 3, 
             "sites": [
                 1
             ], 
-            "value": "bbaacc", 
+            "value": "444444", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:21"
+        }
+    }, 
+    {
+        "pk": 31, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "dimgrey_d35", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "555555", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:35"
+        }
+    }, 
+    {
+        "pk": 26, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gainsboro", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "dddddd", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:34"
         }
     }, 
     {
-        "pk": 27, 
+        "pk": 24, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_8", 
-            "lastupdatetime": "2009-11-03 03:40:34", 
+            "name": "ghostwhite", 
+            "lastupdatetime": "2010-08-31 14:12:22", 
             "colorscheme": 3, 
             "sites": [
                 1
             ], 
-            "value": "ffffff", 
+            "value": "fafafd", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:34"
+            "createtime": "2009-11-03 03:40:33"
+        }
+    }, 
+    {
+        "pk": 30, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "ivory", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "fffff5", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:35"
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lavender_d9", 
+            "lastupdatetime": "2010-08-31 14:12:22", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "eaecff", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:33"
+        }
+    }, 
+    {
+        "pk": 74, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightyellow", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffdb", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:11:21"
         }
     }, 
     {
@@ -962,8 +866,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_9", 
-            "lastupdatetime": "2010-05-28 09:11:21", 
+            "name": "lightyellow_2", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
             "colorscheme": 3, 
             "sites": [
                 1
@@ -974,115 +878,99 @@
         }
     }, 
     {
-        "pk": 18, 
+        "pk": 23, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_0", 
-            "lastupdatetime": "2009-11-03 03:40:31", 
-            "colorscheme": 4, 
+            "name": "red", 
+            "lastupdatetime": "2010-08-31 14:12:22", 
+            "colorscheme": 3, 
             "sites": [
                 1
             ], 
-            "value": "b1b08b", 
+            "value": "ff0000", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:31"
+            "createtime": "2009-11-03 03:40:33"
         }
     }, 
     {
-        "pk": 17, 
+        "pk": 28, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_1", 
-            "lastupdatetime": "2009-11-03 03:40:31", 
-            "colorscheme": 4, 
+            "name": "silver_d26", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
             "sites": [
                 1
             ], 
-            "value": "ffffe5", 
+            "value": "bbaacc", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:31"
+            "createtime": "2009-11-03 03:40:34"
         }
     }, 
     {
-        "pk": 85, 
+        "pk": 33, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_10", 
-            "lastupdatetime": "2010-05-28 09:13:40", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
-            "value": "ffe4b5", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:13:40"
-        }
-    }, 
-    {
-        "pk": 88, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_11", 
-            "lastupdatetime": "2010-05-28 09:14:40", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
-            "value": "ffdead", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:14:40"
-        }
-    }, 
-    {
-        "pk": 87, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_12", 
-            "lastupdatetime": "2010-05-28 09:14:40", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
-            "value": "ffffe0", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:14:40"
-        }
-    }, 
-    {
-        "pk": 86, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_13", 
-            "lastupdatetime": "2010-05-28 09:14:40", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
-            "value": "ffa500", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:14:40"
-        }
-    }, 
-    {
-        "pk": 16, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_2", 
-            "lastupdatetime": "2009-11-03 03:40:31", 
-            "colorscheme": 4, 
+            "name": "snow_d5", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
             "sites": [
                 1
             ], 
             "value": "fffff9", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:31"
+            "createtime": "2009-11-03 03:40:35"
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "white", 
+            "lastupdatetime": "2010-08-31 14:12:22", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffff", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:32"
+        }
+    }, 
+    {
+        "pk": 27, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "white_2", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffff", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:34"
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "whitesmoke", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
+            "colorscheme": 3, 
+            "sites": [
+                1
+            ], 
+            "value": "f5f5f5", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:32"
         }
     }, 
     {
@@ -1090,8 +978,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_3", 
-            "lastupdatetime": "2009-11-03 03:40:30", 
+            "name": "black", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
             "colorscheme": 4, 
             "sites": [
                 1
@@ -1102,12 +990,28 @@
         }
     }, 
     {
+        "pk": 18, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkgrey_d32", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "b1b08b", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:31"
+        }
+    }, 
+    {
         "pk": 14, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_4", 
-            "lastupdatetime": "2009-11-03 03:40:30", 
+            "name": "darkkhaki_d20", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
             "colorscheme": 4, 
             "sites": [
                 1
@@ -1122,8 +1026,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_5", 
-            "lastupdatetime": "2009-11-03 03:40:30", 
+            "name": "darkslategrey_d26", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
             "colorscheme": 4, 
             "sites": [
                 1
@@ -1134,12 +1038,44 @@
         }
     }, 
     {
+        "pk": 17, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightyellow", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffe5", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:31"
+        }
+    }, 
+    {
+        "pk": 87, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightyellow_2", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffe0", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:14:40"
+        }
+    }, 
+    {
         "pk": 12, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_6", 
-            "lastupdatetime": "2009-11-03 03:40:30", 
+            "name": "lightyellow_3", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
             "colorscheme": 4, 
             "sites": [
                 1
@@ -1150,12 +1086,60 @@
         }
     }, 
     {
+        "pk": 85, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "moccasin", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffe4b5", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:13:40"
+        }
+    }, 
+    {
+        "pk": 88, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "navajowhite", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffdead", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:14:40"
+        }
+    }, 
+    {
+        "pk": 86, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "orange", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffa500", 
+            "lastupdateby": 1, 
+            "createtime": "2010-05-28 09:14:40"
+        }
+    }, 
+    {
         "pk": 11, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_7", 
-            "lastupdatetime": "2009-11-03 03:40:29", 
+            "name": "silver_d26", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
             "colorscheme": 4, 
             "sites": [
                 1
@@ -1166,28 +1150,12 @@
         }
     }, 
     {
-        "pk": 10, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_8", 
-            "lastupdatetime": "2009-11-03 03:40:29", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
-            "value": "ffffff", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:29"
-        }
-    }, 
-    {
         "pk": 84, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_9", 
-            "lastupdatetime": "2010-05-28 09:13:28", 
+            "name": "snow", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
             "colorscheme": 4, 
             "sites": [
                 1
@@ -1198,35 +1166,51 @@
         }
     }, 
     {
-        "pk": 70, 
+        "pk": 16, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_0", 
-            "lastupdatetime": "2009-11-03 03:40:46", 
-            "colorscheme": 5, 
+            "name": "snow_d5", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
+            "colorscheme": 4, 
             "sites": [
                 1
             ], 
-            "value": "286ea0", 
+            "value": "fffff9", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:46"
+            "createtime": "2009-11-03 03:40:31"
         }
     }, 
     {
-        "pk": 69, 
+        "pk": 10, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_1", 
-            "lastupdatetime": "2009-11-03 03:40:46", 
+            "name": "white", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
+            "colorscheme": 4, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffff", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:29"
+        }
+    }, 
+    {
+        "pk": 53, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "aliceblue_d8", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "colorscheme": 5, 
             "sites": [
                 1
             ], 
-            "value": "505050", 
+            "value": "edf1ff", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:46"
+            "createtime": "2009-11-03 03:40:41"
         }
     }, 
     {
@@ -1234,8 +1218,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_10", 
-            "lastupdatetime": "2009-11-03 03:40:43", 
+            "name": "black", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
             "colorscheme": 5, 
             "sites": [
                 1
@@ -1246,83 +1230,51 @@
         }
     }, 
     {
-        "pk": 58, 
+        "pk": 67, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_11", 
-            "lastupdatetime": "2009-11-03 03:40:43", 
+            "name": "black_2", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "colorscheme": 5, 
             "sites": [
                 1
             ], 
-            "value": "fafafd", 
+            "value": "000000", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:43"
+            "createtime": "2009-11-03 03:40:45"
         }
     }, 
     {
-        "pk": 57, 
+        "pk": 65, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_12", 
-            "lastupdatetime": "2009-11-03 03:40:43", 
+            "name": "darkslategrey_d26", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "colorscheme": 5, 
             "sites": [
                 1
             ], 
-            "value": "ff0000", 
+            "value": "444444", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:43"
+            "createtime": "2009-11-03 03:40:45"
         }
     }, 
     {
-        "pk": 56, 
+        "pk": 69, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_13", 
-            "lastupdatetime": "2009-11-03 03:40:42", 
+            "name": "darkslategrey_d33", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
             "colorscheme": 5, 
             "sites": [
                 1
             ], 
-            "value": "eaecff", 
+            "value": "505050", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:42"
-        }
-    }, 
-    {
-        "pk": 55, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_14", 
-            "lastupdatetime": "2009-11-03 03:40:42", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
-            "value": "ffffff", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:42"
-        }
-    }, 
-    {
-        "pk": 82, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_15", 
-            "lastupdatetime": "2010-05-28 09:12:09", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
-            "value": "e0e0e0", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:12:09"
+            "createtime": "2009-11-03 03:40:46"
         }
     }, 
     {
@@ -1330,8 +1282,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_16", 
-            "lastupdatetime": "2010-05-28 09:12:09", 
+            "name": "darkslategrey_d44", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
             "colorscheme": 5, 
             "sites": [
                 1
@@ -1346,8 +1298,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_17", 
-            "lastupdatetime": "2009-11-03 03:40:43", 
+            "name": "gainsboro", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "colorscheme": 5, 
             "sites": [
                 1
@@ -1358,35 +1310,51 @@
         }
     }, 
     {
-        "pk": 53, 
+        "pk": 82, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_18", 
-            "lastupdatetime": "2009-11-03 03:40:41", 
+            "name": "gainsboro_d7", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
             "colorscheme": 5, 
             "sites": [
                 1
             ], 
-            "value": "edf1ff", 
+            "value": "e0e0e0", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:41"
+            "createtime": "2010-05-28 09:12:09"
         }
     }, 
     {
-        "pk": 54, 
+        "pk": 58, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_19", 
-            "lastupdatetime": "2009-11-03 03:40:42", 
+            "name": "ghostwhite", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
             "colorscheme": 5, 
             "sites": [
                 1
             ], 
-            "value": "f5f5f5", 
+            "value": "fafafd", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:42"
+            "createtime": "2009-11-03 03:40:43"
+        }
+    }, 
+    {
+        "pk": 61, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
+            "colorscheme": 5, 
+            "sites": [
+                1
+            ], 
+            "value": "808080", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:44"
         }
     }, 
     {
@@ -1394,8 +1362,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_2", 
-            "lastupdatetime": "2009-11-03 03:40:45", 
+            "name": "lavender_d17", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "colorscheme": 5, 
             "sites": [
                 1
@@ -1406,67 +1374,19 @@
         }
     }, 
     {
-        "pk": 67, 
+        "pk": 56, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_3", 
-            "lastupdatetime": "2009-11-03 03:40:45", 
+            "name": "lavender_d9", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
             "colorscheme": 5, 
             "sites": [
                 1
             ], 
-            "value": "000000", 
+            "value": "eaecff", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:45"
-        }
-    }, 
-    {
-        "pk": 66, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_4", 
-            "lastupdatetime": "2009-11-03 03:40:45", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
-            "value": "f4f4f4", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:45"
-        }
-    }, 
-    {
-        "pk": 65, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_5", 
-            "lastupdatetime": "2009-11-03 03:40:45", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
-            "value": "444444", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:45"
-        }
-    }, 
-    {
-        "pk": 64, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "color_6", 
-            "lastupdatetime": "2009-11-03 03:40:44", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
-            "value": "f0f0f0", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:44"
+            "createtime": "2009-11-03 03:40:42"
         }
     }, 
     {
@@ -1474,8 +1394,8 @@
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_7", 
-            "lastupdatetime": "2009-11-03 03:40:44", 
+            "name": "lightgray_d12", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "colorscheme": 5, 
             "sites": [
                 1
@@ -1486,12 +1406,60 @@
         }
     }, 
     {
+        "pk": 57, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "red", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
+            "colorscheme": 5, 
+            "sites": [
+                1
+            ], 
+            "value": "ff0000", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:43"
+        }
+    }, 
+    {
+        "pk": 70, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "steelblue_d41", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
+            "colorscheme": 5, 
+            "sites": [
+                1
+            ], 
+            "value": "286ea0", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:46"
+        }
+    }, 
+    {
+        "pk": 55, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "white", 
+            "lastupdatetime": "2010-08-31 14:11:36", 
+            "colorscheme": 5, 
+            "sites": [
+                1
+            ], 
+            "value": "ffffff", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:42"
+        }
+    }, 
+    {
         "pk": 62, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_8", 
-            "lastupdatetime": "2009-11-03 03:40:44", 
+            "name": "white_2", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "colorscheme": 5, 
             "sites": [
                 1
@@ -1502,17 +1470,49 @@
         }
     }, 
     {
-        "pk": 61, 
+        "pk": 54, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "color_9", 
-            "lastupdatetime": "2009-11-03 03:40:44", 
+            "name": "whitesmoke", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "colorscheme": 5, 
             "sites": [
                 1
             ], 
-            "value": "808080", 
+            "value": "f5f5f5", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:42"
+        }
+    }, 
+    {
+        "pk": 66, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "whitesmoke_2", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
+            "colorscheme": 5, 
+            "sites": [
+                1
+            ], 
+            "value": "f4f4f4", 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:40:45"
+        }
+    }, 
+    {
+        "pk": 64, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "whitesmoke_d9", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
+            "colorscheme": 5, 
+            "sites": [
+                1
+            ], 
+            "value": "f0f0f0", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:44"
         }
@@ -1524,12 +1524,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-05-28 09:14:40", 
+            "lastupdatetime": "2010-08-31 14:12:35", 
             "filepath": "initial_site_style/elementary.css", 
             "sites": [
                 1
             ], 
-            "content": "body{\r\n  font-size:0.9em;\r\n  background: {{ color_9 }};\r\n  margin: 15px 10% 15px 10%;\r\n}\r\n\r\n#headline {\r\n  background: {{ color_10 }};\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n}\r\n\r\n.main_menu {\r\n  background: \t{{ color_11 }};\r\n  float: left;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n.main_menu ul {\r\n  padding: 0;\r\n}\r\n.main_menu ul ul {\r\n  /* indent submenu */\r\n  padding-left: 1.5em;\r\n  font-size:0.9em; /* smaller font for subitems */\r\n}\r\n.main_menu li {\r\n  list-style:none;\r\n}\r\na {\r\n  color: slategray;\r\n  text-decoration: none;\r\n}\r\na:hover, a .current {\r\n  background-color: \t{{ color_13 }};\r\n  text-decoration: underline;\r\n}\r\n#main_content {\r\n  background:\t{{ color_12 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\n#footer {\r\n  border: 1px solid {{ color_3 }};\r\n  padding: 5px;\r\n  font-size: 0.9em;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ color_8 }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
+            "content": "body{\r\n  font-size:0.9em;\r\n  background: {{ snow }};\r\n  margin: 15px 10% 15px 10%;\r\n}\r\n\r\n#headline {\r\n  background: {{ moccasin }};\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n}\r\n\r\n.main_menu {\r\n  background: \t{{ navajowhite }};\r\n  float: left;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n.main_menu ul {\r\n  padding: 0;\r\n}\r\n.main_menu ul ul {\r\n  /* indent submenu */\r\n  padding-left: 1.5em;\r\n  font-size:0.9em; /* smaller font for subitems */\r\n}\r\n.main_menu li {\r\n  list-style:none;\r\n}\r\na {\r\n  color: slategray;\r\n  text-decoration: none;\r\n}\r\na:hover, a .current {\r\n  background-color: \t{{ orange }};\r\n  text-decoration: underline;\r\n}\r\n#main_content {\r\n  background:\t{{ lightyellow_2 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\n#footer {\r\n  border: 1px solid {{ black }};\r\n  padding: 5px;\r\n  font-size: 0.9em;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ white }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
@@ -1543,12 +1543,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-05-28 09:11:52", 
+            "lastupdatetime": "2010-08-31 14:12:29", 
             "filepath": "initial_site_style/main.css", 
             "sites": [
                 1
             ], 
-            "content": "* { color: {{ color_3 }}; }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: {{ color_2 }};\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n/*\r\n headline definition if you use a picture:\r\n----------------------------------------------\r\n#headline {\r\n  background: {{ color_4 }};\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n/*\r\n headline definition with text only:\r\n*/\r\n#headline {\r\n  background: {{ color_4 }};\r\n  font-size: 30px;\r\n  margin: 0px;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline a {\r\n  text-decoration:none;\r\n  color: white;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: {{ color_3 }};\r\n}\r\n.uarr {\r\n  color: {{ color_9 }};\r\n}\r\n.top_link:hover .uarr {\r\n  color: {{ color_3 }};\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px {{ color_8 }};\r\n  text-decoration:none;\r\n  color: {{ color_10 }};\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: {{ color_11 }};\r\n}\r\n.section_anchor:hover {\r\n  color:{{ color_3 }}!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px {{ color_11 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\n.toc_headline {\r\n  margin-bottom: 0.5em;\r\n  font-size: 0.9em;\r\n  color: {{ color_13 }};\r\n}\r\n\r\n#bbaacck_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: {{ color_6 }};\r\n  border: 1px solid {{ color_0 }};\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid {{ color_5 }};\r\n  padding: 1px;\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: {{ color_1 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: {{ color_4 }};\r\n  color: white;\r\n}\r\n\r\npre {\r\n  border:1px solid grey;\r\n  background-color: white;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ color_8 }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n\r\n.main_menu *, .main_menu a.current {\r\n  color: {{ color_14 }};\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size:0.9em;\r\n}\r\n.main_menu a.active {\r\n  color: {{ color_13 }};\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: {{ color_3 }};\r\n  background-color: {{ color_12 }};\r\n}\r\n.main_menu a:before {\r\n  color: {{ color_4 }};\r\n  letter-spacing: 0px;\r\n  font-weight: normal;\r\n  background: {{ color_1 }};\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n", 
+            "content": "* { color: {{ black }}; }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: {{ snow_d5 }};\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n/*\r\n headline definition if you use a picture:\r\n----------------------------------------------\r\n#headline {\r\n  background: {{ darkkhaki_d20 }};\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n/*\r\n headline definition with text only:\r\n*/\r\n#headline {\r\n  background: {{ darkkhaki_d20 }};\r\n  font-size: 30px;\r\n  margin: 0px;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline a {\r\n  text-decoration:none;\r\n  color: white;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: {{ black }};\r\n}\r\n.uarr {\r\n  color: {{ whitesmoke_d12 }};\r\n}\r\n.top_link:hover .uarr {\r\n  color: {{ black }};\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px {{ white }};\r\n  text-decoration:none;\r\n  color: {{ beige_d10 }};\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: {{ darkgrey_d28 }};\r\n}\r\n.section_anchor:hover {\r\n  color:{{ black }}!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px {{ darkgrey_d28 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\n.toc_headline {\r\n  margin-bottom: 0.5em;\r\n  font-size: 0.9em;\r\n  color: {{ darkslategrey_d40 }};\r\n}\r\n\r\n#bbaacck_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: {{ lightyellow_2 }};\r\n  border: 1px solid {{ darkgrey_d32 }};\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid {{ darkslategrey_d26 }};\r\n  padding: 1px;\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: {{ lightyellow }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: {{ darkkhaki_d20 }};\r\n  color: white;\r\n}\r\n\r\npre {\r\n  border:1px solid grey;\r\n  background-color: white;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ white }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n\r\n.main_menu *, .main_menu a.current {\r\n  color: {{ dimgrey_d5 }};\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size:0.9em;\r\n}\r\n.main_menu a.active {\r\n  color: {{ darkslategrey_d40 }};\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: {{ black }};\r\n  background-color: {{ dimgrey_d35 }};\r\n}\r\n.main_menu a:before {\r\n  color: {{ darkkhaki_d20 }};\r\n  letter-spacing: 0px;\r\n  font-weight: normal;\r\n  background: {{ lightyellow }};\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:07", 
@@ -1562,12 +1562,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-05-28 09:11:30", 
+            "lastupdatetime": "2010-08-31 14:12:23", 
             "filepath": "initial_site_style/old_main.css", 
             "sites": [
                 1
             ], 
-            "content": "* { color: {{ color_3 }}; }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: {{ color_2 }};\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n#headline {\r\n  background: {{ color_15 }};\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n\r\n#back_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: {{ color_16 }};\r\n  border: 1px solid {{ color_0 }};\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n.main_menu a {\r\n  text-decoration:none;\r\n}\r\n.main_menu ul {\r\n  list-style:none;\r\n  padding-left:1.5em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid {{ color_20 }};\r\n  padding: 1px;\r\n}\r\n\r\n#adsense {\r\n  text-align: center;\r\n  /*width: 468px;\r\n  height: 60px;*/\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: {{ color_9 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: {{ color_15 }};\r\n  color: white;\r\n}\r\n\r\npre {\r\n  background-color:white;\r\n  border:1px solid grey;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n\r\n\r\n/* ----------------------------------------------------------------------------\r\n   internal\r\n------------------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n    background: {{ color_14 }};\r\n    padding: 0;\r\n    margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
+            "content": "* { color: {{ black_2 }}; }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: {{ snow_d5 }};\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n#headline {\r\n  background: {{ darkkhaki_d20 }};\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n\r\n#back_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: {{ lightyellow }};\r\n  border: 1px solid {{ darkgrey_d32 }};\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n.main_menu a {\r\n  text-decoration:none;\r\n}\r\n.main_menu ul {\r\n  list-style:none;\r\n  padding-left:1.5em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid {{ darkslategrey_d26 }};\r\n  padding: 1px;\r\n}\r\n\r\n#adsense {\r\n  text-align: center;\r\n  /*width: 468px;\r\n  height: 60px;*/\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: {{ lightyellow_2 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: {{ darkkhaki_d20 }};\r\n  color: white;\r\n}\r\n\r\npre {\r\n  background-color:white;\r\n  border:1px solid grey;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n\r\n\r\n/* ----------------------------------------------------------------------------\r\n   internal\r\n------------------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n    background: {{ white }};\r\n    padding: 0;\r\n    margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:07", 
@@ -1581,12 +1581,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-05-28 09:10:16", 
+            "lastupdatetime": "2010-08-31 14:12:16", 
             "filepath": "initial_site_style/small_dark.css", 
             "sites": [
                 1
             ], 
-            "content": "head {\r\n  width: 639px;\r\n}\r\n* {\r\n  color: {{ color_17 }};\r\n  font-family:sans-serif;\r\n  font-size:0.95em;\r\n}\r\n\r\na {\r\n  text-decoration:none;\r\n}\r\na img, img {\r\n  border: 0;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n\r\nbody {\r\n  background-color: {{ color_4 }};\r\n  text-align:center;\r\n}\r\n\r\n#content {\r\n  width: 639px;\r\n  margin:auto;\r\n  text-align:left;\r\n}\r\n\r\n#head {\r\n  font-size: 2em;\r\n  margin: 0.5em;\r\n  padding-left: 1.5em;\r\n  color: {{ color_13 }};\r\n}\r\nh1, h2 {\r\n  text-transform:uppercase;\r\n  font-size:0.95em;\r\n  color: {{ color_14 }};\r\n}\r\nh2 {\r\n  border-bottom: 1px solid {{ color_17 }};\r\n}\r\n\r\nhr {\r\n  clear: both;\r\n  border-width:1px;\r\n  height:1px;\r\n  padding: 0px;\r\n  margin: 2px 0px 2px 0px;\r\n}\r\nhr.big {\r\n  border-width: 3px;\r\n  height:3px;\r\n  border-style: solid\r\n}\r\nhr.small {\r\n  border-style:dotted;\r\n}\r\n\r\n#footer {\r\n  font-size:0.9em;\r\n  text-align:center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ---------------------------------------------------------------------- */\r\n#sf_main_menu_lucidTag .sf-menu * {\r\n    background-color: {{ color_4 }};\r\n    color: {{ color_17 }};\r\n}\r\n#sf_main_menu_lucidTag .current, #sf_main_menu_lucidTag .active, #sf_main_menu_lucidTag a:hover {\r\n    background-color: {{ color_9 }};\r\n    color: {{ color_14 }};\r\n}", 
+            "content": "head {\r\n  width: 639px;\r\n}\r\n* {\r\n  color: {{ gainsboro }};\r\n  font-family:sans-serif;\r\n  font-size:0.95em;\r\n}\r\n\r\na {\r\n  text-decoration:none;\r\n}\r\na img, img {\r\n  border: 0;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n\r\nbody {\r\n  background-color: {{ dimgrey_d35 }};\r\n  text-align:center;\r\n}\r\n\r\n#content {\r\n  width: 639px;\r\n  margin:auto;\r\n  text-align:left;\r\n}\r\n\r\n#head {\r\n  font-size: 2em;\r\n  margin: 0.5em;\r\n  padding-left: 1.5em;\r\n  color: {{ lavender_d9 }};\r\n}\r\nh1, h2 {\r\n  text-transform:uppercase;\r\n  font-size:0.95em;\r\n  color: {{ white }};\r\n}\r\nh2 {\r\n  border-bottom: 1px solid {{ gainsboro }};\r\n}\r\n\r\nhr {\r\n  clear: both;\r\n  border-width:1px;\r\n  height:1px;\r\n  padding: 0px;\r\n  margin: 2px 0px 2px 0px;\r\n}\r\nhr.big {\r\n  border-width: 3px;\r\n  height:3px;\r\n  border-style: solid\r\n}\r\nhr.small {\r\n  border-style:dotted;\r\n}\r\n\r\n#footer {\r\n  font-size:0.9em;\r\n  text-align:center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ---------------------------------------------------------------------- */\r\n#sf_main_menu_lucidTag .sf-menu * {\r\n    background-color: {{ dimgrey_d35 }};\r\n    color: {{ gainsboro }};\r\n}\r\n#sf_main_menu_lucidTag .current, #sf_main_menu_lucidTag .active, #sf_main_menu_lucidTag a:hover {\r\n    background-color: {{ dimgrey_d5 }};\r\n    color: {{ white }};\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
@@ -1600,12 +1600,12 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-05-28 09:12:09", 
+            "lastupdatetime": "2010-08-31 14:11:37", 
             "filepath": "initial_site_style/small_white.css", 
             "sites": [
                 1
             ], 
-            "content": "/* andreas01 - an open source xhtml/css website layout \r\n * by Andreas Viklund  - http://andreasviklund.com -\r\n * Free to use for any purpose as long as the proper \r\n * credits are given to the original author.\r\n *  \r\n * Version: 2.0 (Jun 25, 2006)\r\n * Screen layout: \r\n */\r\n\r\n/***** Body and main container *****/\r\nbody {\r\nmargin:0 auto;\r\npadding:0;\r\nfont:76% Verdana,Tahoma,Arial,sans-serif;\r\nbackground:{{ color_17 }};\r\ncolor:{{ color_16 }};\r\n}\r\n\r\n#wrap {\r\nbackground:{{ color_14 }};\r\ncolor:{{ color_16 }};\r\nmargin:0 auto;\r\nwidth:760px;\r\n}\r\n\r\n/***** Various tags *****/\r\na {\r\ntext-decoration:none;\r\nfont-weight:bold;\r\ncolor:{{ color_0 }};\r\nbackground-color:inherit;\r\n}\r\n\r\na:hover {\r\ntext-decoration:underline;\r\ncolor:{{ color_0 }};\r\nbackground-color:inherit;\r\n}\r\n\r\na img {\r\nborder:0;\r\n}\r\n\r\n/***** Header *****/\r\n#header {\r\nbackground-color:{{ color_2 }};\r\nmargin:10px 0 0;\r\npadding:0;\r\nheight:45px;\r\n}\r\n\r\n#header h1 {\r\ncolor:{{ color_1 }};\r\nbackground-color:inherit;\r\nwidth:250px;\r\nmargin:0 0 10px;\r\nfont-size:2.2em;\r\nfloat:left;\r\n}\r\n\r\n#header h1 a{\r\ncolor:{{ color_1 }};\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#header p {\r\nwidth:500px;\r\nfloat:right;\r\ntext-align:center;\r\ncolor:{{ color_1 }};\r\nmargin:8px 0 0;\r\nfont-size:1.1em;\r\nfont-weight:bold;\r\nline-height:1.3em;\r\nbackground-color:inherit;\r\n}\r\n\r\n#frontphoto {\r\nmargin:0 0 10px;\r\nborder:0;\r\n}\r\n\r\n/***** Main menu *****/\r\n.main_menu ul {\r\nwidth:140px;\r\nmargin:0 0 18px;\r\npadding:0;\r\nlist-style:none;\r\n}\r\n\r\n.main_menu li {\r\nwidth:140px;\r\npadding:0;\r\nline-height:1.4em;\r\ndisplay:inline;\r\n}\r\n\r\n.main_menu li a {\r\nbackground-color:{{ color_4 }};\r\ncolor:{{ color_1 }};\r\nfont-weight:bold;\r\nwidth:130px;\r\nfloat:left;\r\nmargin-bottom:5px;\r\npadding:5px 1px 5px 5px;\r\nborder-left:4px solid {{ color_7 }};\r\ntext-decoration:none;\r\n}\r\n\r\n.main_menu li a:hover {\r\nbackground-color:{{ color_2 }};\r\nborder-left:4px solid {{ color_0 }};\r\ncolor:{{ color_1 }};\r\n}\r\n.main_menu li a .current {\r\nbackground-color:{{ color_17 }};\r\n}\r\n\r\n\r\n.main_menu ul {\r\nmargin:0 0 0 15px;\r\npadding:0 0 5px 0;\r\nfont-size:0.9em;\r\nwidth:125px;\r\n}\r\n\r\n.main_menu ul a {\r\npadding:3px 1px 3px 5px;\r\nwidth:115px;\r\n}\r\n\r\n.main_menu ul ul {\r\nwidth:113px;\r\n}\r\n\r\n.main_menu ul ul a {\r\nwidth:100px;\r\n}\r\n\r\n/***** Left sidebar *****/\r\n#leftside {\r\nclear:left;\r\nfloat:left;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside h2, #leftside h3 {\r\ncolor:{{ color_1 }};\r\nbackground-color:inherit;\r\nfont-size:1.3em;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside div.announce {\r\nclear:left;\r\nmargin:10px 0 15px;\r\npadding:7px 5px;\r\nwidth:126px;\r\nfont-size:0.9em;\r\nbackground-color:{{ color_4 }};\r\ncolor:{{ color_1 }};\r\nborder-left:4px solid {{ color_7 }};\r\nline-height:1.5em;\r\n}\r\n\r\n#leftside div.announce p {\r\nmargin:10px 0 0;\r\npadding:0;\r\n}\r\n\r\n/***** Right sidebar *****/\r\n\r\n#rightside {\r\nfloat:right;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\nline-height:1.4em;\r\n}\r\n\r\n#extras p,#extras ul {\r\nfont-size:0.9em;\r\nmargin:0 0 16px;\r\npadding:0;\r\n}\r\n\r\n#extras li {\r\nlist-style:none;\r\nline-height:1.2em;\r\nmargin:0 0 6px 0;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul {\r\nmargin:6px 0 0 10px;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul li {\r\nmargin: 0 0 4px 0;\r\n}\r\n\r\n#extras ul ul li a {\r\nfont-size:1.1em;\r\nfont-weight:normal;\r\n}\r\n\r\n#extras h2, #extras h3 {\r\ncolor:{{ color_1 }};\r\nbackground-color:inherit;\r\nfont-size:1.2em;\r\nmargin:0 0 10px;\r\npadding:0;\r\n}\r\n\r\n/***** Main content *****/\r\n#content {\r\nmargin:0 200px 5px 200px;\r\nborder-left:1px solid {{ color_15 }};\r\nborder-right:1px solid {{ color_15 }};\r\npadding:0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#contentwide {\r\nmargin:0 0 5px 200px;\r\nborder-left:1px solid {{ color_6 }};\r\npadding:0 0 0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#content h2,#contentwide h2 {\r\nfont-size:1.6em;\r\nmargin:0 0 10px;\r\n}\r\n\r\n#content h3,#contentwide h3 {\r\nfont-size:1.4em;\r\nmargin:0 0 8px;\r\n}\r\n\r\n#content img.normal, #contentwide img.normal {\r\npadding:1px;\r\ndisplay:inline;\r\nbackground:{{ color_7 }};\r\ncolor:{{ color_16 }};\r\nborder:4px solid {{ color_6 }};\r\n}\r\n\r\n#content ul, #contentwide ul, #content ol, #contentwide ol {\r\nmargin:0 0 16px 20px;\r\npadding:0;\r\n}\r\n\r\n#content li, #contentwide li {\r\nmargin:0;\r\npadding:0 0 0 5px;\r\n}\r\n\r\n#content ul ul, #contentwide ul ul, #content ol ol, #contentwide ol ol{\r\nmargin:0 0 0 16px;\r\npadding:0;\r\n}\r\n\r\n/***** Footer *****/\r\n#footer {\r\nclear:both;\r\nmargin:0 auto;\r\npadding:10px 0 20px;\r\nborder-top:4px solid {{ color_6 }};\r\nwidth:760px;\r\ntext-align:center;\r\ncolor:{{ color_9 }};\r\nbackground:{{ color_14 }};\r\nfont-size:0.9em;\r\n}\r\n\r\n#footer a {\r\ncolor:{{ color_9 }};\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#footer a:hover {\r\ntext-decoration:underline;\r\n}\r\n\r\n/***** Various classes *****/\r\n.left {\r\nmargin:3px 10px 2px 0;\r\nfloat:left;\r\n}\r\n\r\n.right {\r\nmargin:2px 0 2px 10px;\r\nfloat:right;\r\n}\r\n\r\n.textright {\r\ntext-align:right;\r\n}\r\n\r\n.center {\r\ntext-align:center;\r\n}\r\n\r\n.small {\r\nfont-size:0.8em;\r\n}\r\n\r\n.bold {\r\nfont-weight:bold;\r\n}\r\n\r\n.hide {\r\ndisplay:none;\r\n}", 
+            "content": "/* andreas01 - an open source xhtml/css website layout \r\n * by Andreas Viklund  - http://andreasviklund.com -\r\n * Free to use for any purpose as long as the proper \r\n * credits are given to the original author.\r\n *  \r\n * Version: 2.0 (Jun 25, 2006)\r\n * Screen layout: \r\n */\r\n\r\n/***** Body and main container *****/\r\nbody {\r\nmargin:0 auto;\r\npadding:0;\r\nfont:76% Verdana,Tahoma,Arial,sans-serif;\r\nbackground:{{ gainsboro }};\r\ncolor:{{ darkslategrey_d44 }};\r\n}\r\n\r\n#wrap {\r\nbackground:{{ white }};\r\ncolor:{{ darkslategrey_d44 }};\r\nmargin:0 auto;\r\nwidth:760px;\r\n}\r\n\r\n/***** Various tags *****/\r\na {\r\ntext-decoration:none;\r\nfont-weight:bold;\r\ncolor:{{ steelblue_d41 }};\r\nbackground-color:inherit;\r\n}\r\n\r\na:hover {\r\ntext-decoration:underline;\r\ncolor:{{ steelblue_d41 }};\r\nbackground-color:inherit;\r\n}\r\n\r\na img {\r\nborder:0;\r\n}\r\n\r\n/***** Header *****/\r\n#header {\r\nbackground-color:{{ lavender_d17 }};\r\nmargin:10px 0 0;\r\npadding:0;\r\nheight:45px;\r\n}\r\n\r\n#header h1 {\r\ncolor:{{ darkslategrey_d33 }};\r\nbackground-color:inherit;\r\nwidth:250px;\r\nmargin:0 0 10px;\r\nfont-size:2.2em;\r\nfloat:left;\r\n}\r\n\r\n#header h1 a{\r\ncolor:{{ darkslategrey_d33 }};\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#header p {\r\nwidth:500px;\r\nfloat:right;\r\ntext-align:center;\r\ncolor:{{ darkslategrey_d33 }};\r\nmargin:8px 0 0;\r\nfont-size:1.1em;\r\nfont-weight:bold;\r\nline-height:1.3em;\r\nbackground-color:inherit;\r\n}\r\n\r\n#frontphoto {\r\nmargin:0 0 10px;\r\nborder:0;\r\n}\r\n\r\n/***** Main menu *****/\r\n.main_menu ul {\r\nwidth:140px;\r\nmargin:0 0 18px;\r\npadding:0;\r\nlist-style:none;\r\n}\r\n\r\n.main_menu li {\r\nwidth:140px;\r\npadding:0;\r\nline-height:1.4em;\r\ndisplay:inline;\r\n}\r\n\r\n.main_menu li a {\r\nbackground-color:{{ whitesmoke_2 }};\r\ncolor:{{ darkslategrey_d33 }};\r\nfont-weight:bold;\r\nwidth:130px;\r\nfloat:left;\r\nmargin-bottom:5px;\r\npadding:5px 1px 5px 5px;\r\nborder-left:4px solid {{ lightgray_d12 }};\r\ntext-decoration:none;\r\n}\r\n\r\n.main_menu li a:hover {\r\nbackground-color:{{ lavender_d17 }};\r\nborder-left:4px solid {{ steelblue_d41 }};\r\ncolor:{{ darkslategrey_d33 }};\r\n}\r\n.main_menu li a .current {\r\nbackground-color:{{ gainsboro }};\r\n}\r\n\r\n\r\n.main_menu ul {\r\nmargin:0 0 0 15px;\r\npadding:0 0 5px 0;\r\nfont-size:0.9em;\r\nwidth:125px;\r\n}\r\n\r\n.main_menu ul a {\r\npadding:3px 1px 3px 5px;\r\nwidth:115px;\r\n}\r\n\r\n.main_menu ul ul {\r\nwidth:113px;\r\n}\r\n\r\n.main_menu ul ul a {\r\nwidth:100px;\r\n}\r\n\r\n/***** Left sidebar *****/\r\n#leftside {\r\nclear:left;\r\nfloat:left;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside h2, #leftside h3 {\r\ncolor:{{ darkslategrey_d33 }};\r\nbackground-color:inherit;\r\nfont-size:1.3em;\r\nmargin:0 0 5px;\r\npadding:0;\r\n}\r\n\r\n#leftside div.announce {\r\nclear:left;\r\nmargin:10px 0 15px;\r\npadding:7px 5px;\r\nwidth:126px;\r\nfont-size:0.9em;\r\nbackground-color:{{ whitesmoke_2 }};\r\ncolor:{{ darkslategrey_d33 }};\r\nborder-left:4px solid {{ lightgray_d12 }};\r\nline-height:1.5em;\r\n}\r\n\r\n#leftside div.announce p {\r\nmargin:10px 0 0;\r\npadding:0;\r\n}\r\n\r\n/***** Right sidebar *****/\r\n\r\n#rightside {\r\nfloat:right;\r\nwidth:140px;\r\nmargin:0 0 5px;\r\npadding:0;\r\nline-height:1.4em;\r\n}\r\n\r\n#extras p,#extras ul {\r\nfont-size:0.9em;\r\nmargin:0 0 16px;\r\npadding:0;\r\n}\r\n\r\n#extras li {\r\nlist-style:none;\r\nline-height:1.2em;\r\nmargin:0 0 6px 0;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul {\r\nmargin:6px 0 0 10px;\r\npadding:0;\r\n}\r\n\r\n#extras ul ul li {\r\nmargin: 0 0 4px 0;\r\n}\r\n\r\n#extras ul ul li a {\r\nfont-size:1.1em;\r\nfont-weight:normal;\r\n}\r\n\r\n#extras h2, #extras h3 {\r\ncolor:{{ darkslategrey_d33 }};\r\nbackground-color:inherit;\r\nfont-size:1.2em;\r\nmargin:0 0 10px;\r\npadding:0;\r\n}\r\n\r\n/***** Main content *****/\r\n#content {\r\nmargin:0 200px 5px 200px;\r\nborder-left:1px solid {{ gainsboro_d7 }};\r\nborder-right:1px solid {{ gainsboro_d7 }};\r\npadding:0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#contentwide {\r\nmargin:0 0 5px 200px;\r\nborder-left:1px solid {{ whitesmoke_d9 }};\r\npadding:0 0 0 10px;\r\nline-height:1.6em;\r\n}\r\n\r\n#content h2,#contentwide h2 {\r\nfont-size:1.6em;\r\nmargin:0 0 10px;\r\n}\r\n\r\n#content h3,#contentwide h3 {\r\nfont-size:1.4em;\r\nmargin:0 0 8px;\r\n}\r\n\r\n#content img.normal, #contentwide img.normal {\r\npadding:1px;\r\ndisplay:inline;\r\nbackground:{{ lightgray_d12 }};\r\ncolor:{{ darkslategrey_d44 }};\r\nborder:4px solid {{ whitesmoke_d9 }};\r\n}\r\n\r\n#content ul, #contentwide ul, #content ol, #contentwide ol {\r\nmargin:0 0 16px 20px;\r\npadding:0;\r\n}\r\n\r\n#content li, #contentwide li {\r\nmargin:0;\r\npadding:0 0 0 5px;\r\n}\r\n\r\n#content ul ul, #contentwide ul ul, #content ol ol, #contentwide ol ol{\r\nmargin:0 0 0 16px;\r\npadding:0;\r\n}\r\n\r\n/***** Footer *****/\r\n#footer {\r\nclear:both;\r\nmargin:0 auto;\r\npadding:10px 0 20px;\r\nborder-top:4px solid {{ whitesmoke_d9 }};\r\nwidth:760px;\r\ntext-align:center;\r\ncolor:{{ gray }};\r\nbackground:{{ white }};\r\nfont-size:0.9em;\r\n}\r\n\r\n#footer a {\r\ncolor:{{ gray }};\r\nbackground-color:inherit;\r\ntext-decoration:none;\r\n}\r\n\r\n#footer a:hover {\r\ntext-decoration:underline;\r\n}\r\n\r\n/***** Various classes *****/\r\n.left {\r\nmargin:3px 10px 2px 0;\r\nfloat:left;\r\n}\r\n\r\n.right {\r\nmargin:2px 0 2px 10px;\r\nfloat:right;\r\n}\r\n\r\n.textright {\r\ntext-align:right;\r\n}\r\n\r\n.center {\r\ntext-align:center;\r\n}\r\n\r\n.small {\r\nfont-size:0.8em;\r\n}\r\n\r\n.bold {\r\nfont-weight:bold;\r\n}\r\n\r\n.hide {\r\ndisplay:none;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:08", 
