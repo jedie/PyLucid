@@ -5,6 +5,11 @@
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
         <li>
+            <a href="clone/" title="{% trans 'Clone this colorscheme and all this assiossiated colors.' %}">
+            {% trans 'clone' %}
+            </a>
+        </li>
+        <li>
             <a href="{% url Design-rename_colors object_id %}" title="{% trans 'Rename all colors based on the color value' %}">
             {% trans 'auto rename color names' %}
             </a>

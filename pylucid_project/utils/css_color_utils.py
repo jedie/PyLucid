@@ -17,7 +17,7 @@ import re
 import math
 
 
-CSS_RE = re.compile(r'#([a-f0-9]{6}) *;', re.IGNORECASE)
+CSS_RE = re.compile(r'#([a-f0-9]{6})[\s;]', re.IGNORECASE)
 CSS_CONVERT_RE = re.compile(r'#([a-f0-9])([a-f0-9])([a-f0-9]) *;', re.IGNORECASE)
 
 
@@ -245,6 +245,38 @@ def hex2color_name(hex_string):
 #------------------------------------------------------------------------------
 
 
+CSS_RE2 = re.compile(r'#([a-f0-9]{3,6}) *;', re.IGNORECASE)
+
+def unify_spelling(existing_names, content):
+    """
+    replace all existing css color value with a unique color name.
+    return the new content and a color dict with new css-name <-> css-values
+    
+    >>> unify_spelling(("red",), "color1: #f00; color2: #Ff0000;")
+    ('color1: {{ red_2 }}; color2: {{ red_2 }};', {'red_2': 'ff0000'})
+    """
+    value2name = {}
+    def callback(matchobj):
+        css_value = matchobj.group(1)
+        if len(css_value) == 3:
+            # convert 3 length css color values to 6 length
+            css_value = css_value[0] + css_value[0] + css_value[1] + css_value[1] + css_value[2] + css_value[2]
+        css_value = css_value.lower()
+        if css_value in value2name:
+            color_name = value2name[css_value]
+        else:
+            color_name = unique_color_name(existing_names, css_value)
+            value2name[css_value] = color_name
+
+        return "{{ %s }};" % color_name
+
+    new_content = CSS_RE2.sub(callback, content)
+    color_dict = dict([(v, k) for k, v in value2name.iteritems()])
+    return new_content, color_dict
+
+
+
+
 def filter_content(content):
     """
     Skip all lines, start with .pygments - Used in update routine.
@@ -288,10 +320,46 @@ def unique_color_name(existing_colors, hex_string):
     return color_name
 
 
-def extract_colors(content, existing_color_dict=None):
+def convert_3to6_colors(content):
     """
-    # TODO: Preprocess: Change all 3 length values to 6 length values for merging it.
+    Convert all 3 length css color values to 6 length
     
+    >>> convert_3to6_colors("#f00; #aabbcc;")
+    '#ff0000; #aabbcc;'
+    """
+    new_content = CSS_CONVERT_RE.sub("#\g<1>\g<1>\g<2>\g<2>\g<3>\g<3>;", content)
+    return new_content
+
+
+def findall_color_values(content, case_sensitive=True):
+    """
+    return all css color values
+    
+    >>> findall_color_values("#ff0000;")
+    set(['ff0000'])
+    
+    >>> sorted(findall_color_values("#aabbcc; #112233;"))
+    ['112233', 'aabbcc']
+    
+    # If case_sensitive==False: merge different large- and lowercase:
+    >>> sorted(findall_color_values("#C9C573; #c9c573;"))
+    ['C9C573', 'c9c573']
+    >>> findall_color_values("#C9C573; #c9c573;", case_sensitive=False)
+    set(['c9c573'])
+    
+    # Note: Didn't find 3 length color values! Use convert_3to6_colors()
+    >>> findall_color_values("#abc;")
+    set([])
+    """
+    colors = set(CSS_RE.findall(content))
+    if not case_sensitive:
+        colors = set([c.lower() for c in colors])
+    return colors
+
+
+
+def extract_colors(content, existing_color_dict=None):
+    """   
     >>> extract_colors(".foo { color: #000000; }")
     ('.foo { color: {{ black }}; }', {'black': '000000'})
     
@@ -319,10 +387,9 @@ def extract_colors(content, existing_color_dict=None):
     >>> extract_colors("to short #12345; to long #1234567; /* no # 123; color #aa11ff-value */")
     ('to short #12345; to long #1234567; /* no # 123; color #aa11ff-value */', {})
     """
-    # Convert all 3 length values to 6 length
-    new_content = CSS_CONVERT_RE.sub("#\g<1>\g<1>\g<2>\g<2>\g<3>\g<3>;", content)
+    new_content = convert_3to6_colors(content)
 
-    colors = set(CSS_RE.findall(new_content))
+    colors = findall_color_values(new_content)
 
     if existing_color_dict:
         color_dict = existing_color_dict
@@ -346,6 +413,40 @@ def extract_colors(content, existing_color_dict=None):
         new_content = new_content.replace("#%s" % color, "{{ %s }}" % color_name)
 
     return new_content, color_dict
+
+
+def replace_css_name(old_name, new_name, content):
+    """
+    >>> replace_css_name("old", "new", "color: {{ old }};")
+    'color: {{ new }};'
+    >>> replace_css_name("foo", "bar", "color: {{   foo   }};")
+    'color: {{ bar }};'
+    >>> replace_css_name("a", "b", "color: {{a}};")
+    'color: {{ b }};'
+    """
+    return re.sub("\{\{\s*(" + old_name + ")\s*\}\}", "{{ %s }}" % new_name, content)
+
+
+def get_new_css_names(existing_colors, content):
+    """
+    >>> get_new_css_names((), "{{ new }}")
+    ['new']
+    >>> get_new_css_names(("old",), "foo {{ old }} bar {{ new }}!")
+    ['new']
+    >>> get_new_css_names(("old",), "foo {{  old  }} bar {{  new  }}!")
+    ['new']
+    >>> get_new_css_names(("old",), "foo {{old}} bar {{new}}!")
+    ['new']
+    >>> get_new_css_names((), "foo {{ #ffddee }} bar {{new}}!")
+    ['new']
+    """
+    # FIXME: Rexp should not match on colors!
+    raw_colors = re.findall("\{\{\s*(.*?)\}\}", content)
+    colors = set([color.strip() for color in raw_colors])
+    new_colors = [color for color in colors if not color.startswith("#") and not color in existing_colors]
+    return new_colors
+
+
 
 
 if __name__ == "__main__":

@@ -1,0 +1,11 @@
+{% for headfile in headfiles %}
+    <p style="white-space:nowrap;">
+    <span title="{{ headfile.filepath }} - {% if headfile.render %}render color placeholders">&#x2714;{% else %}don 't render color placeholders">&#x2718;{% endif %} </span>
+    <a href="{{ headfile.absolute_url }}" title="request this headfile{% if headfile.render %} rendered with the colorscheme{% endif%}" class="add_openinwindow">
+        {{ headfile.filepath }}
+    </a>
+    <a href="{% url admin:pylucid_editablehtmlheadfile_change headfile.pk %}" class="add_openinwindow" title="{% trans "edit headfile" %}">
+        {% trans "edit " %}
+    </a>
+    </p>
+{% endfor %}

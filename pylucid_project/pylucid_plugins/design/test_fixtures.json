@@ -1,0 +1,290 @@
+[
+    {
+        "pk": 1,
+        "model": "sites.site",
+        "fields": {
+            "domain": "example.com",
+            "name": "example site"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pylucid.language",
+        "fields": {
+            "code": "en",
+            "description": "English",
+            "lastupdatetime": "2010-01-29 08:50:03",
+            "permitViewGroup": null,
+            "sites": [
+                1
+            ],
+            "createby": null,
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:35:41"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pylucid.colorscheme",
+        "fields": {
+            "createby": 1,
+            "name": "yellow",
+            "lastupdatetime": "2010-09-01 11:28:13",
+            "sites": [
+                1
+            ],
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:37:09"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "pylucid.colorscheme",
+        "fields": {
+            "createby": 1,
+            "name": "blue",
+            "lastupdatetime": "2010-09-01 11:27:38",
+            "sites": [
+                1
+            ],
+            "lastupdateby": 1,
+            "createtime": "2010-08-31 14:16:32"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pylucid.color",
+        "fields": {
+            "createby": 1,
+            "name": "background",
+            "lastupdatetime": "2010-09-01 11:27:38",
+            "colorscheme": 1,
+            "sites": [
+                1
+            ],
+            "value": "222200",
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:40:27"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "pylucid.color",
+        "fields": {
+            "createby": 1,
+            "name": "foreground",
+            "lastupdatetime": "2010-09-01 11:28:13",
+            "colorscheme": 1,
+            "sites": [
+                1
+            ],
+            "value": "aaaa00",
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:40:27"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "pylucid.color",
+        "fields": {
+            "createby": 1,
+            "name": "background",
+            "lastupdatetime": "2010-09-01 11:27:38",
+            "colorscheme": 2,
+            "sites": [
+                1
+            ],
+            "value": "000040",
+            "lastupdateby": 1,
+            "createtime": "2010-08-31 14:16:32"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "pylucid.color",
+        "fields": {
+            "createby": 1,
+            "name": "foreground",
+            "lastupdatetime": "2010-09-01 11:27:38",
+            "colorscheme": 2,
+            "sites": [
+                1
+            ],
+            "value": "0000ff",
+            "lastupdateby": 1,
+            "createtime": "2010-08-31 14:16:32"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pylucid.editablehtmlheadfile",
+        "fields": {
+            "mimetype": "text/css",
+            "createby": 1,
+            "html_attributes": "",
+            "lastupdatetime": "2010-09-01 11:27:38",
+            "filepath": "test_styles.css",
+            "sites": [
+                1
+            ],
+            "content": "* { color: {{ foreground }}; }\r\nbody { background: {{ background }}; }",
+            "render": true,
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:37:07",
+            "description": ""
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pylucid.design",
+        "fields": {
+            "createby": 1,
+            "name": "yellow",
+            "lastupdatetime": "2010-09-01 11:24:46",
+            "colorscheme": 1,
+            "sites": [
+                1
+            ],
+            "headfiles": [
+                1
+            ],
+            "template": "test_template.html",
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:37:09"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "pylucid.design",
+        "fields": {
+            "createby": 1,
+            "name": "blue",
+            "lastupdatetime": "2010-09-01 11:24:51",
+            "colorscheme": 2,
+            "sites": [
+                1
+            ],
+            "headfiles": [
+                1
+            ],
+            "template": "test_template.html",
+            "lastupdateby": 1,
+            "createtime": "2010-08-31 14:17:28"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pylucid.pagetree",
+        "fields": {
+            "createby": 1,
+            "parent": null,
+            "lastupdatetime": "2010-09-01 11:18:34",
+            "showlinks": true,
+            "permitViewGroup": null,
+            "site": 1,
+            "slug": "yellow",
+            "design": 1,
+            "page_type": "C",
+            "position": 0,
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:37:09",
+            "permitEditGroup": null
+        }
+    },
+    {
+        "pk": 2,
+        "model": "pylucid.pagetree",
+        "fields": {
+            "createby": 1,
+            "parent": null,
+            "lastupdatetime": "2010-09-01 11:19:09",
+            "showlinks": true,
+            "permitViewGroup": null,
+            "site": 1,
+            "slug": "blue",
+            "design": 2,
+            "page_type": "C",
+            "position": 0,
+            "lastupdateby": 1,
+            "createtime": "2010-09-01 11:19:09",
+            "permitEditGroup": null
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pylucid.pagemeta",
+        "fields": {
+            "createby": 1,
+            "lastupdatetime": "2010-09-01 11:19:09",
+            "language": 1,
+            "title": "",
+            "description": "",
+            "tags": "",
+            "permitViewGroup": null,
+            "robots": "index,follow",
+            "pagetree": 1,
+            "keywords": "",
+            "lastupdateby": 1,
+            "createtime": "2010-09-01 11:19:09",
+            "name": ""
+        }
+    },
+    {
+        "pk": 2,
+        "model": "pylucid.pagemeta",
+        "fields": {
+            "createby": 1,
+            "lastupdatetime": "2010-09-01 11:18:34",
+            "language": 1,
+            "title": "",
+            "description": "",
+            "tags": "",
+            "permitViewGroup": null,
+            "robots": "index,follow",
+            "pagetree": 2,
+            "keywords": "",
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:37:10",
+            "name": ""
+        }
+    },
+    {
+        "pk": 1,
+        "model": "pylucid.pagecontent",
+        "fields": {
+            "createby": 1,
+            "lastupdatetime": "2010-09-01 11:19:23",
+            "markup": 6,
+            "content": "yellow design test page content",
+            "pagemeta": 1,
+            "lastupdateby": 1,
+            "createtime": "2009-11-03 03:37:10"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "pylucid.pagecontent",
+        "fields": {
+            "createby": 1,
+            "lastupdatetime": "2010-09-01 11:19:09",
+            "markup": 6,
+            "content": "blue design test page content",
+            "pagemeta": 2,
+            "lastupdateby": 1,
+            "createtime": "2010-09-01 11:19:09"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "dbtemplates.template",
+        "fields": {
+            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"{{ page_language }}\" xml:lang=\"{{ page_language }}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<script type=\"text/javascript\" src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" ></script>\r\n<script type=\"text/javascript\" src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\"></script>\r\n{% block extrahead %}{% endblock %}\r\n<!-- ContextMiddleware extrahead -->\r\n</head><body>\r\n<div id=\"container\">\r\n   <div id=\"the_menu\">\r\n     {% lucidTag main_menu %}\r\n   </div>\r\n   <div id=\"main_content\">\r\n      {% include \"pylucid/includes/page_msg.html\" %}\r\n      {% lucidTag admin_menu %}\r\n      <p><!-- ContextMiddleware breadcrumb --></p>\r\n      <div id=\"page_content\">\r\n         {% block content %}{{ page_content }}{% endblock content %}\r\n      </div>\r\n      <p id=\"footer\">\r\n         powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n      </p>\r\n   </div>\r\n</div>\r\n</body></html>\r\n",
+            "sites": [
+                1
+            ],
+            "last_changed": "2010-09-01 11:24:24",
+            "name": "test_template.html",
+            "creation_date": "2008-05-23 11:11:06"
+        }
+    }
+]

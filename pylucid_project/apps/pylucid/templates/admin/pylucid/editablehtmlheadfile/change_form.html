@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block content %}
+<!-- editablehtmlheadfile/change_form extrahead - START -->
+<ul>
+    <li>
+        Please don't rename colornames in CSS files here!
+        (Rename them by editing the <a href="{% url admin:pylucid_colorscheme_changelist %}" class="add_openinwindow">colorscheme</a>.)
+    </li>
+</ul>
+<!-- editablehtmlheadfile/change_form extrahead - END -->
+{{ block.super }}{% endblock %}

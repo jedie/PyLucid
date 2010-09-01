@@ -1,7 +1,10 @@
 {% if colorscheme %}
+    {% if add_colorscheme_name %}
+        {{ colorscheme.name }}:
+    {% endif %}
     <a href="{% url admin:pylucid_colorscheme_change colorscheme.pk %}" class="add_openinwindow" title="{% trans "edit colorscheme" %}">
 {% endif %}
-{% for color in colors %}<span style="background-color:#{{ color.value }};" title="{{ color.name }}">&nbsp;&nbsp;&nbsp;</span>{% endfor %}
+{% for color in colors %}<span style="background-color:#{{ color.value }};">&nbsp;&nbsp;&nbsp;</span>{% endfor %}
 {% if colorscheme %}
     </a>
 {% endif %}

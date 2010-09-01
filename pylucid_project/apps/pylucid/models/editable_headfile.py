@@ -31,7 +31,8 @@ from django_tools.template import render
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
-from pylucid_project.utils.css_color_utils import extract_colors
+from pylucid_project.utils.css_color_utils import unify_spelling, \
+    get_new_css_names, replace_css_name, findall_color_values
 from pylucid_project.apps.pylucid.system import headfile
 
 # other PyLucid models
@@ -45,6 +46,13 @@ TAG_INPUT_HELP_URL = \
 
 
 class EditableHtmlHeadFileManager(models.Manager):
+    def iter_headfiles_by_colorscheme(self, colorscheme):
+        designs = Design.objects.all().filter(colorscheme=colorscheme)
+        for design in designs:
+            headfiles = design.headfiles.all()
+            for headfile in headfiles:
+                yield headfile
+
     def get_HeadfileLink(self, filename):
         """
         returns a pylucid.system.headfile.Headfile instance
@@ -89,11 +97,11 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
 
     def get_color_filepath(self, colorscheme=None):
         """ Colorscheme + filepath """
-        if colorscheme:
+        if self.render and colorscheme:
             assert isinstance(colorscheme, ColorScheme)
             return os.path.join("ColorScheme_%s" % colorscheme.pk, self.filepath)
         else:
-            # The Design used no colorscheme
+            # The Design or this file used no colorscheme
             return self.filepath
 
     def get_path(self, colorscheme):
@@ -116,7 +124,8 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         for name, value in color_dict.iteritems():
             color_dict[name] = "#%s" % value
 
-        return render.render_string_template(self.content, color_dict)
+        rendered_content = render.render_string_template(self.content, color_dict)
+        return rendered_content
 
     def save_cache_file(self, colorscheme):
         """
@@ -126,7 +135,10 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         cachepath = self.get_cachepath(colorscheme)
 
         def _save_cache_file(auto_create_dir=True):
-            rendered_content = self.get_rendered(colorscheme)
+            if colorscheme:
+                rendered_content = self.get_rendered(colorscheme)
+            else:
+                rendered_content = self.content
             try:
                 f = codecs.open(cachepath, "w", "utf8")
                 f.write(rendered_content)
@@ -149,39 +161,89 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             failsafe_message("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
         else:
             if settings.DEBUG:
-                failsafe_message("EditableHtmlHeadFile cached successful into: %r" % cachepath)
+                msg = "EditableHtmlHeadFile cached successful into: %r" % cachepath
+                failsafe_message(msg)
 
-    def save_all_color_cachefiles(self):
-        """
-        this headfile was changed: resave all cache files in every existing colors
-        TODO: Update Queyset lookup
-        """
-        designs = Design.objects.all()
+#    def save_all_color_cachefiles(self):
+#        """
+#        this headfile was changed: resave this headfile in every existing colors
+#        TODO: Update Queryset lookup
+#        """
+#        print "Headfile save_all_color_cachefiles()"
+#        for colorscheme in self.iter_colorschemes():
+#            self.save_cache_file(colorscheme)
+
+    def iter_colorschemes(self):
+        """ TODO: Optimizes this """
+        visited_colorschemes = []
+        designs = Design.objects.all().filter()
         for design in designs:
-            headfiles = design.headfiles.all()
+            colorscheme = design.colorscheme
+            if colorscheme in visited_colorschemes:
+                continue
+            headfiles = design.headfiles.all().filter(render=True)
             for headfile in headfiles:
                 if headfile == self:
-                    colorscheme = design.colorscheme
-                    self.save_cache_file(colorscheme)
+                    visited_colorschemes.append(colorscheme)
+                    yield colorscheme
+
+    def get_send_head_file(self, colorscheme):
+        """
+        return link to request this headfile with pylucid.views.send_head_file
+        """
+        url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
+        if colorscheme:
+            # Design used a colorscheme
+            url += "?ColorScheme=%s" % colorscheme.pk
+        return url
 
     def get_absolute_url(self, colorscheme):
+        if not self.render:
+            colorscheme = None
+
         cachepath = self.get_cachepath(colorscheme)
-        if os.path.isfile(cachepath):
-            # The file exist in media path -> Let the webserver send this file ;)
-            return os.path.join(settings.MEDIA_URL, self.get_path(colorscheme))
-        else:
-            # not cached into filesystem -> use pylucid.views.send_head_file for it
-            url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
-            if colorscheme:
-                return url + "?ColorScheme=%s" % colorscheme.pk
-            else:
-                # Design used no colorscheme
-                return url
+
+        def get_cached_url():
+            if os.path.isfile(cachepath):
+                # The file exist in media path -> Let the webserver send this file ;)
+                return os.path.join(settings.MEDIA_URL, self.get_path(colorscheme))
+
+        cached_url = get_cached_url()
+        if cached_url: # Cache file was created in the past
+            return cached_url
+
+        # Create cache file
+        self.save_cache_file(colorscheme)
+
+        cached_url = get_cached_url()
+        if cached_url: # Use created cache file
+            return cached_url
+
+        # Can't create cache file -> use pylucid.views.send_head_file for it
+        return self.get_send_head_file(colorscheme)
 
     def get_headfilelink(self, colorscheme):
         """ Get the link url to this head file. """
         url = self.get_absolute_url(colorscheme)
         return headfile.HeadfileLink(url)
+
+    def delete_cachefile(self, colorscheme):
+        cachepath = self.get_cachepath(colorscheme)
+        if not os.path.isfile(cachepath):
+            if settings.DEBUG:
+                failsafe_message("No need to delete cache file %s, it doesn't exist, yet." % cachepath)
+            return
+
+        try:
+            os.remove(cachepath)
+        except Exception, err:
+            failsafe_message("Can't delete '%(path)s': %(err)s" % {
+                "path": cachepath,
+                "err": err
+            })
+        else:
+            failsafe_message("Cache file %s deleted." % cachepath)
+
 
     def clean_fields(self, exclude):
         message_dict = {}
@@ -212,6 +274,20 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                     }
                 )]
 
+        if "content" not in exclude and self.render:
+            for colorscheme in self.iter_colorschemes():
+                existing_colors = colorscheme.get_color_names()
+                css_names = get_new_css_names(existing_colors, self.content)
+                if css_names:
+                    if "content" not in message_dict:
+                        message_dict["content"] = []
+                    message_dict["content"].append(
+                        _("Theses CSS color names %(css_names)s are unknown in %(colorscheme)s") % {
+                            "colorscheme": colorscheme,
+                            "css_names": ", ".join(["'%s'" % css_name for css_name in css_names])
+                        }
+                    )
+
         if message_dict:
             raise ValidationError(message_dict)
 
@@ -225,14 +301,70 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         else:
             return mimetypes.guess_type(self.filepath)[0] or u"application/octet-stream"
 
-    def save(self, *args, **kwargs):
+    def rename_color(self, new_name, old_name):
         """
-        cache the head file into filesystem
+        Rename a color in headfile content.
+        called e.g. from Color model
         """
-        # Try to cache the head file into filesystem (Only worked, if python process has write rights)
-        self.save_all_color_cachefiles()
+        # Replace color name in headfile content
+        old_content = self.content
+        new_content = replace_css_name(old_name, new_name, old_content)
+        if old_content == new_content:
+            if settings.DEBUG:
+                failsafe_message(
+                    'Color "{{ %s }}" not exist in headfile "%s"' % (old_name, self.filepath)
+                )
+            return False
+        else:
+            self.content = new_content
+            self.save()
+            if settings.DEBUG:
+                failsafe_message(
+                    "change color name from '%s' to '%s' in %r" % (old_name, new_name, self.filepath)
+                )
+            return True
 
-        return super(EditableHtmlHeadFile, self).save(*args, **kwargs)
+    def update_colorscheme(self):
+        """
+        merge colors from headfiles with the colorscheme.
+        """
+        if not self.render:
+            # No CSS ColorScheme entries in the content -> do nothing
+            return
+
+        existing_color_names = Color.on_site.all().values_list("name", flat=True)
+
+        old_content = self.content
+        new_content, color_dict = unify_spelling(existing_color_names, old_content)
+
+        if new_content == old_content:
+            failsafe_message("No colors to update, ok.")
+            return
+
+        updated_colorschemes = []
+
+        for colorscheme in self.iter_colorschemes():
+            updated_colorschemes.append(colorscheme)
+            for color_name, color_value in color_dict.iteritems():
+                c = Color.objects.create(
+                    colorscheme=colorscheme,
+                    name=color_name,
+                    value=color_value
+                )
+
+        failsafe_message("create colors: %(color_dict)r in colorscheme: %(schemes)s" % {
+            "color_dict": color_dict,
+            "schemes": ", ".join(['"%s"' % s.name for s in updated_colorschemes])
+        })
+
+        self.content = new_content
+
+
+    def save(self, *args, **kwargs):
+        self.update_colorscheme()
+        super(EditableHtmlHeadFile, self).save(*args, **kwargs)
+        for colorscheme in self.iter_colorschemes():
+            self.delete_cachefile(colorscheme)
 
     def __unicode__(self):
         try:
@@ -281,57 +413,4 @@ def unique_check_callback(sender, **kwargs):
 signals.post_save.connect(unique_check_callback, sender=EditableHtmlHeadFile)
 
 
-def update_colorscheme_callback(sender, **kwargs):
-    """
-    merge colors from headfiles with the colorscheme.
-    """
-    headfile_instance = kwargs["instance"]
-    if not headfile_instance.render:
-        # No CSS ColorScheme entries in the content -> do nothing
-        return
 
-    content = headfile_instance.content
-
-    colorscheme_count = 0
-    total_colors_created = 0
-    total_colors_updated = 0
-
-    designs = Design.objects.all()
-    for design in designs:
-        headfiles = design.headfiles.all()
-        for headfile in headfiles:
-            if headfile == headfile_instance:
-                colorscheme = design.colorscheme
-                existing_color_dict = colorscheme.get_color_dict()
-                content, color_dict = extract_colors(content, existing_color_dict)
-
-                try:
-                    created, updated, exists = colorscheme.update(color_dict)
-                except ValidationError, err:
-                    failsafe_message("Error updating colorscheme: %s" % err)
-                    return
-
-                created_count = len(created)
-                updated_count = len(updated)
-
-                if created_count > 0 or updated_count > 0:
-                    colorscheme.save()
-
-                colorscheme_count += 1
-                total_colors_created += created_count
-                total_colors_updated += updated_count
-
-    headfile_instance.content = content
-
-    failsafe_message(_(
-        "%(colorscheme_count)s colorscheme updated."
-        " %(created)s colors created."
-        " %(updated)s colors updated."
-        ) % {
-            "colorscheme_count": colorscheme_count,
-            "created": total_colors_created,
-            "updated": total_colors_updated,
-        }
-    )
-
-signals.pre_save.connect(update_colorscheme_callback, sender=EditableHtmlHeadFile)

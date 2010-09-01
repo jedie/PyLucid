@@ -2,29 +2,28 @@
 
 """
     PyLucid.admin
-    ~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~
 
     Register all PyLucid model in django admin interface.
 
     TODO:
         * if http://code.djangoproject.com/ticket/3400 is implement:
-            Add site to list_filter for e.g. PageMeta, PageContent etc.      
+            Add site to list_filter for e.g. PageMeta, PageContent etc.
+        * split this file
     
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
+import os
 
 from django import forms
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin, messages
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
@@ -35,13 +34,9 @@ from reversion.admin import VersionAdmin
 from dbtemplates.admin import TemplateAdmin, TemplateAdminForm
 from dbtemplates.models import Template
 
-from pylucid import models
+from pylucid_project.apps.pylucid import models
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
-from django.http import HttpResponse
-import os
 from pylucid_project.apps.pylucid.markup import hightlighter
-
-
 
 
 
@@ -130,6 +125,31 @@ admin.site.register(models.PluginPage, PluginPageAdmin)
 #------------------------------------------------------------------------------
 
 
+if settings.DEBUG:
+    class ColorAdmin(VersionAdmin):
+        def preview(self, obj):
+            return '<span style="background-color:#%s;" title="%s">&nbsp;&nbsp;&nbsp;</span>' % (
+                obj.value, obj.name
+            )
+        preview.short_description = 'color preview'
+        preview.allow_tags = True
+
+        # disable delete all admin actions
+        # User should not use delete colors, because model.delete() would
+        # not called, read "warning" box on:
+        # http://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/
+        actions = None
+
+        list_display = ("id", "name", "value", "preview", "colorscheme")
+        list_filter = ("colorscheme",)
+
+    admin.site.register(models.Color, ColorAdmin)
+
+class ColorInline(admin.TabularInline):
+    model = models.Color
+    extra = 0
+
+
 class ColorSchemeAdminForm(forms.ModelForm):
     class Meta:
         model = models.ColorScheme
@@ -155,26 +175,52 @@ class ColorSchemeAdminForm(forms.ModelForm):
         return sites
 
 
-if settings.DEBUG:
-    class ColorAdmin(VersionAdmin):
-        def preview(self, obj):
-            return '<span style="background-color:#%s;" title="%s">&nbsp;&nbsp;&nbsp;</span>' % (
-                obj.value, obj.name
-            )
-        preview.short_description = 'color preview'
-        preview.allow_tags = True
-
-        list_display = ("id", "name", "value", "preview")
-        list_filter = ("colorscheme",)
-
-    admin.site.register(models.Color, ColorAdmin)
-
-class ColorInline(admin.TabularInline):
-    model = models.Color
-    extra = 0
-
-
 class ColorSchemeAdmin(VersionAdmin):
+
+    def clone(self, request, object_id):
+        """ Clone a color scheme """
+        colorscheme = models.ColorScheme.objects.get(id=object_id)
+        sites = colorscheme.sites.all()
+        old_name = colorscheme.name
+        new_name = old_name + "_cloned"
+    
+        colors = models.Color.objects.filter(colorscheme=colorscheme)
+    
+        colorscheme.pk = None # make the object "new" ;)
+        colorscheme.name = new_name
+        colorscheme.save(force_insert=True)
+        colorscheme.sites = sites
+        colorscheme.save(force_update=True)
+    
+        for color in colors:
+            color.pk = None # make the object "new" ;)
+            color.colorscheme = colorscheme
+            color.save(force_insert=True)
+            color.sites = sites
+            color.save(force_update=True)
+    
+        messages.success(request, 
+            _("Colorscheme %(old_name)s cloned to %(new_name)s") % {
+                "old_name": old_name, "new_name": new_name
+            }
+        )
+        url = reverse("admin:pylucid_colorscheme_changelist")
+        return HttpResponseRedirect(url)
+    
+    def get_urls(self):
+        urls = super(ColorSchemeAdmin, self).get_urls()
+        my_urls = patterns('',
+            (r'^(.+?)/clone/$', self.admin_site.admin_view(self.clone))
+        )
+        return my_urls + urls
+
+#    def save_model(self, request, obj, form, change):
+#        """ resave rendered headfiles """
+#        print "ColorSchemeAdmin.save_model"
+#        colorscheme = obj
+#        colorscheme.save()
+
+
     def preview(self, obj):
         colors = models.Color.objects.all().filter(colorscheme=obj)
         context = {
@@ -276,21 +322,39 @@ class DesignAdmin(VersionAdmin):
     
     template_usage.short_description = 'Template'
     template_usage.allow_tags = True
-        
-    def color_info(self, obj):
-        colors = models.Color.objects.all().filter(colorscheme=obj.colorscheme)
-        context = {
-            "design": obj,
-            "colorscheme": obj.colorscheme,
-            "colors": colors,
-        }
-        return render_to_string("admin/pylucid/design_colorscheme_info.html", context)
     
+    def color_info(self, obj):
+        colorscheme = obj.colorscheme
+        colors = models.Color.objects.all().filter(colorscheme=colorscheme)
+        context = {
+            "add_colorscheme_name": True,
+            "colorscheme": colorscheme,
+            "colors": colors
+        }
+        return render_to_string("admin/pylucid/includes/colorscheme_preview.html", context)
     color_info.short_description = 'color scheme information'
     color_info.allow_tags = True
     
+    def headfiles_info(self, obj):
+        colorscheme = obj.colorscheme
+        colors = models.Color.objects.all().filter(colorscheme=colorscheme)
+        headfiles = obj.headfiles.all()
+        for headfile in headfiles:
+            headfile.absolute_url = headfile.get_absolute_url(colorscheme)
+            
+        context = {
+            "design": obj,
+            "headfiles": headfiles,
+            "colorscheme": obj.colorscheme,
+            "colors": colors,
+        }
+        return render_to_string("admin/pylucid/design_headfiles_info.html", context)
+    
+    headfiles_info.short_description = 'used headfiles'
+    headfiles_info.allow_tags = True
+    
     form = DesignAdminForm
-    list_display = ("id", "name", "template_usage", "color_info", "site_info", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "name", "template_usage", "color_info", "headfiles_info", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     list_filter = ("sites", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")

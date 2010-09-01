@@ -91,7 +91,7 @@ class Command(BaseCommand):
     args = '[appname ...]'
 
     def handle(self, *app_labels, **options):
-        if options["list_models"]:
+        if options.get("list_models", False):
             print "List all installed models:"
             data = []
             for app in get_apps():
@@ -104,7 +104,7 @@ class Command(BaseCommand):
 
         file_path = os.path.join(FIXTURE_PATH, FIXTURE_FILENAME)
 
-        if options["test"]:
+        if options.get("test", False):
             if not os.path.isfile(file_path):
                 print "fixture file not exist: %r" % file_path
                 return
