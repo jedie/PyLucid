@@ -32,7 +32,7 @@ from django_tools.template import render
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.utils.css_color_utils import unify_spelling, \
-    get_new_css_names, replace_css_name, findall_color_values
+                                        get_new_css_names, replace_css_name
 from pylucid_project.apps.pylucid.system import headfile
 
 # other PyLucid models
@@ -113,8 +113,8 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
 
     def get_cachepath(self, colorscheme):
         """
-        filesystem path with filename.
-        TODO: Install section sould create the directories!
+        Filesystem path with filename.
+        TODO: Install section should create the directories!
         """
         return os.path.join(settings.MEDIA_ROOT, self.get_path(colorscheme))
 
@@ -163,15 +163,6 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             if settings.DEBUG:
                 msg = "EditableHtmlHeadFile cached successful into: %r" % cachepath
                 failsafe_message(msg)
-
-#    def save_all_color_cachefiles(self):
-#        """
-#        this headfile was changed: resave this headfile in every existing colors
-#        TODO: Update Queryset lookup
-#        """
-#        print "Headfile save_all_color_cachefiles()"
-#        for colorscheme in self.iter_colorschemes():
-#            self.save_cache_file(colorscheme)
 
     def iter_colorschemes(self):
         """ TODO: Optimizes this """

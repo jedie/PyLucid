@@ -21,7 +21,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
-from pylucid_project.pylucid_plugins import update_journal
 
 # other PyLucid models
 from colorscheme import ColorScheme

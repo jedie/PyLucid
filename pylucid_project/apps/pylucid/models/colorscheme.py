@@ -14,23 +14,36 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.conf import settings
+import re
+
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import signals
 from django.db.utils import IntegrityError
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.fields import ColorValueField
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
-from pylucid_project.pylucid_plugins import update_journal
-from pylucid_project.utils.css_color_utils import replace_css_name, \
-    unique_color_name
+from django.utils.safestring import mark_safe
 
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+
+
+def slugify_colorname(value):
+    """
+    Normalizes string, converts, removes non-alpha characters,
+    and converts spaces to "_".
+    
+    Based on code from: django.template.defaultfilters.slugify
+    """
+    import unicodedata
+    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+    value = unicode(re.sub('[^\w\s-]', '', value))
+    return re.sub('[-\s]+', '_', value)
+
 
 
 
@@ -52,27 +65,6 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
         color_list = querset.values_list('name', flat=True)
         return color_list
 
-#    def update(self, colors):
-#        print "ColorScheme.update()"
-#        assert isinstance(colors, dict)
-#        new = []
-#        updated = []
-#        exists = []
-#        for name, value in colors.iteritems():
-#            color, created = Color.objects.get_or_create(
-#                colorscheme=self, name=name,
-#                defaults={"colorscheme":self, "name":name, "value":value}
-#            )
-#            if created:
-#                new.append(color)
-#            elif color.value != value:
-#                color.value = value
-#                updated.append(color)
-#                color.save()
-#            else:
-#                exists.append(color)
-#        return new, updated, exists
-
     def save(self, *args, **kwargs):
         super(ColorScheme, self).save(*args, **kwargs)
         from pylucid_project.apps.pylucid.models import Design # import here, against import loops
@@ -90,20 +82,6 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
         app_label = 'pylucid'
 
 
-#class ColorManager(models.Manager):
-#    def get_unique_color_dict(self, colors):
-#        color_dict = {}
-#        existing_colors = self.model.on_site.all().values_list("name", flat=True)
-#        for hex_string in colors:
-#            color_name = unique_color_name(existing_colors, hex_string)
-#            color_dict[color_name] = hex_string
-#        return color_dict
-#    def delete(self):
-#        raise
-#    def get_color_dict(self, colorscheme):
-#        colors = self.all().filter(colorscheme=colorscheme)
-#        color_list = colors.values_list('name', 'value')
-#        return dict([(name, "#%s" % value) for name, value in color_list])
 
 class Color(AutoSiteM2M, UpdateInfoBaseModel):
     """
@@ -111,13 +89,23 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
         sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
     """
-#    objects = ColorManager()
-
     colorscheme = models.ForeignKey(ColorScheme)
     name = models.CharField(max_length=128,
         help_text="Name if this color (e.g. main_color, head_background)"
     )
     value = ColorValueField(help_text="CSS hex color value.")
+
+    def clean_fields(self, exclude):
+        message_dict = {}
+
+        if "name" not in exclude:
+            self.name = self.name.strip()
+            test_name = slugify_colorname(self.name)
+            if self.name != test_name:
+                message_dict["name"] = [mark_safe(_("Name is not a slug! Use e.g.: <strong>%s</strong>") % test_name)]
+
+        if message_dict:
+            raise ValidationError(message_dict)
 
     def delete(self, *args, **kwargs):
         """ Check if this color is in use somewhere """
@@ -138,9 +126,13 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
         return super(Color, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile # import here, against import loops
+        if kwargs.pop("skip_renaming", False):
+            # Other color was renamed in the past, we are here inner
+            # renaming process, don't check renaming here, becuase we must
+            # skip a closed renaming loop ;)
+            super(Color, self).save(*args, **kwargs)
+            return
 
-        self.name = self.name.replace(" ", "_")
         new_name = old_name = self.name
         try:
             old_name = Color.objects.get(id=self.id).name
@@ -150,48 +142,53 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
 
         if new_name != old_name:
             # Color name has been changed.
-            # We must do:
-            #  * rename color names in every headfile witch used this scheme
-            #  * rename color names in every colorscheme witch used a headfile
             from pylucid_project.apps.pylucid.models import Design
-            changed_headfiles = set()
+
+            changed_headfiles = []
+            processed_headfiles = []
             changed_colorschemes = [self.colorscheme]
 
+            # process every headfile witch has the same colorscheme 
             designs = Design.objects.all().filter(colorscheme=self.colorscheme)
             for design in designs:
                 headfiles = design.headfiles.all().filter(render=True)
                 for headfile in headfiles:
+                    if headfile in processed_headfiles:
+                        continue
+                    processed_headfiles.append(headfile)
                     changed = headfile.rename_color(new_name, old_name)
                     if changed:
-                        changed_headfiles.add(headfile)
+                        changed_headfiles.append(headfile)
 
-            designs = Design.objects.all().filter(headfiles__in=changed_headfiles)
+            # process every colorscheme from the processed headfiles
+            designs = Design.objects.all().exclude(colorscheme=self.colorscheme)
             for design in designs:
                 colorscheme = design.colorscheme
-                changed_headfiles.update(design.headfiles.all().filter(render=True))
-                if colorscheme not in changed_colorschemes:
-                    color = Color.objects.get(colorscheme=colorscheme, name=old_name)
-                    color.name = new_name
-                    color.save()
-                    if settings.DEBUG:
-                        failsafe_message(
-                            "change color name from '%s' to '%s' in %r" % (old_name, new_name, colorscheme)
-                        )
-                    changed_colorschemes.append(colorscheme)
+                if colorscheme in changed_colorschemes:
+                    continue
+                headfiles = design.headfiles.all().filter(render=True)
+                for headfile in headfiles:
+                    if headfile in processed_headfiles:
 
-            # Delete outdated cache files
-            for headfile in changed_headfiles:
-                for colorscheme in changed_colorschemes:
-                    headfile.delete_cachefile(colorscheme)
+                        color = Color.objects.get(colorscheme=colorscheme, name=old_name)
+                        color.name = new_name
+                        color.save(skip_renaming=True)
+
+                        changed_colorschemes.append(colorscheme)
+                        break
 
             failsafe_message(
-                _("headfiles %(headfiles)s and colorschemes %(colorschemes)s updated.") % {
-                    "headfiles": ", ".join(['"%s"' % headfile.filepath for headfile in changed_headfiles]),
-                    "colorschemes": ", ".join(['"%s"' % colorscheme.name for colorscheme in changed_colorschemes]),
+                _(
+                    'Color "%(old_name)s" renamed to "%(new_name)s":'
+                    'Headfiles %(headfiles)s and colorschemes %(schemes)s updated.'
+                ) % {
+                    "old_name": old_name, "new_name": new_name,
+                    "headfiles": ", ".join(['"%s"' % h.filepath for h in changed_headfiles]),
+                    "schemes": ", ".join(['"%s"' % s.name for s in changed_colorschemes]),
+
                 }
             )
 
-        failsafe_message("Color %s saved" % self)
         super(Color, self).save(*args, **kwargs)
 
 
@@ -203,27 +200,4 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
         unique_together = (("colorscheme", "name"),)
         ordering = ("colorscheme", "name")
 
-#______________________________________________________________________________
 
-#def cache_headfiles(sender, **kwargs):
-#    """
-#    One colorscheme was changes: resave all cache headfiles with new color values.
-#    """
-#    print "signals.post_save.connect(cache_headfiles"
-#    return
-##                raise
-#    failsafe_message("*"*79)
-#    import inspect
-#    for line in inspect.stack():
-#        failsafe_message(line[1:])
-#    colorscheme = kwargs["instance"]
-#
-#    from design import Design
-#    designs = Design.objects.all().filter(colorscheme=colorscheme)
-#    for design in designs:
-#        headfiles = design.headfiles.all().filter(render=True)
-#        for headfile in headfiles:
-#            headfile.save_cache_file(colorscheme)
-#            
-#
-#signals.post_save.connect(cache_headfiles, sender=ColorScheme)
