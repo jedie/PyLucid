@@ -7,12 +7,6 @@
     written with the help of the powerful
     Webframework Django.
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
     :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
@@ -23,7 +17,7 @@ import warnings
 import subprocess
 
 
-__version__ = (0, 9, 0, 'RC7')
+__version__ = (0, 9, 0, 'RC8')
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
@@ -59,15 +53,15 @@ def get_commit_timestamp(path=None):
             " - git stderr: %r"
             % (returncode, process.stdout.readline(), process.stderr.readline())
         )
-        
+
     output = process.stdout.readline().strip()
     try:
         timestamp = int(output)
     except Exception, err:
         return _error("git log output is not a number, output was: %r" % output)
-    
+
     try:
-        return time.strftime(".%Y%m%d.%H%M", time.gmtime(timestamp))
+        return time.strftime(".%m%d", time.gmtime(timestamp))
     except Exception, err:
         return _error("can't convert %r to time string: %s" % (timestamp, err))
 
