@@ -24,7 +24,7 @@ from django.template import mark_safe
 from django.utils.version import get_svn_revision
 import django
 
-from pylucid_project import VERSION_STRING, get_git_hash
+from pylucid_project import VERSION_STRING, get_commit_timestamp
 from pylucid_project.apps.pylucid.decorators import render_to
 
 # print (!) some debug info. Values can be: False, 1, 2
@@ -186,7 +186,7 @@ class PackageInfo(dict):
 
         git_dir = os.path.join(location, ".git")
         if os.path.isdir(git_dir):
-            self["version"] += get_git_hash(location)
+            self["version"] += " %s" % get_commit_timestamp(location)
 
 
 class EnvironmetInfo(dict):
