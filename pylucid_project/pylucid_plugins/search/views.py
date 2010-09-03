@@ -18,6 +18,7 @@ from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.utils.safestring import mark_safe
 
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
@@ -27,8 +28,7 @@ from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.python_tools import cutout
 
-from search.preference_forms import SearchPreferencesForm
-from django.utils.safestring import mark_safe
+from pylucid_project.pylucid_plugins.search.preference_forms import SearchPreferencesForm
 
 
 def get_preferences():
