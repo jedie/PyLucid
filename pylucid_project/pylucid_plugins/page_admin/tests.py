@@ -131,7 +131,7 @@ class PageAdminTest(PageAdminTestCase):
                 'input type="submit" name="save" value="save"',
                 'textarea id="id_content"',
             ),
-            must_not_contain=("Traceback", "Form errors", "field is required")
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
 
     def test_create_entry(self):
@@ -150,7 +150,7 @@ class PageAdminTest(PageAdminTestCase):
                 'New content page u&#39;/en/page_slug/&#39; created.',
                 '<p>The <strong>creole</strong> <i>content</i>.</p>',
             ),
-            must_not_contain=("Traceback", "Form errors", "field is required")
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
 
     def test_markup_preview(self):
@@ -167,7 +167,7 @@ class PageAdminTest(PageAdminTestCase):
                 'input type="submit" name="save" value="save"',
                 'textarea id="id_content"',
             ),
-            must_not_contain=("Traceback", "Form errors", "field is required")
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
 
     def test_no_self_parent_choose(self):
@@ -184,7 +184,7 @@ class PageAdminTest(PageAdminTestCase):
                 '<option value="" selected="selected">---------</option>',
                 '<option value="3">/designs/</option>',
             ),
-            must_not_contain=("Traceback", "Form errors", "field is required"
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required"
                 '<option value="1">/welcome/</option>'
             )
         )
@@ -204,7 +204,7 @@ class PageAdminTest(PageAdminTestCase):
                 """<ul class="errorlist" id="parent_errors" title="Errors for field 'parent'">""",
                 '<li>child-parent loop error!</li>',
             ),
-            must_not_contain=("Traceback", "field is required")
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "field is required")
         )
 
     def test_slug_exists_error(self):
@@ -225,7 +225,7 @@ class PageAdminTest(PageAdminTestCase):
                 """<ul class="errorlist" id="slug_errors" title="Errors for field 'slug'">""",
                 "<li>Page '/<strong>%s</strong>/' exists already.</li>" % second_test_page.slug,
             ),
-            must_not_contain=("Traceback", "field is required")
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "field is required")
         )
 
     def test_plugin_page_parent_error(self):
@@ -246,7 +246,7 @@ class PageAdminTest(PageAdminTestCase):
                 """<ul class="errorlist" id="parent_errors" title="Errors for field 'parent'">""",
                 "<li>Can't use the <strong>plugin</strong> page '/blog/' as parent page! Please choose a <strong>content</strong> page.</li>",
             ),
-            must_not_contain=("Traceback", "field is required")
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "field is required")
         )
 
 class PageAdminInlineEditTest(PageAdminTestCase):
@@ -276,6 +276,7 @@ class PageAdminInlineEditTest(PageAdminTestCase):
                 'textarea id="id_content"',
             ),
             must_not_contain=(
+                "XXX INVALID TEMPLATE STRING",
                 '<title>', "<body", "<head>", # <- not a complete page
                 "Traceback", 'Permission denied',
             ),
@@ -317,7 +318,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
                 'h1. headlines',
             ),
             must_not_contain=(
-                "Traceback", 'Permission denied',
+                "XXX INVALID TEMPLATE STRING", "Traceback", 'Permission denied',
             ),
         )
 
@@ -331,7 +332,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         self.assertResponse(response,
             must_contain=(
                 "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
-                '<link rel="stylesheet" type="text/css" href="/headfile/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
                 'The original markup is: <strong>tinytextile</strong>',
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">- &lt;li&gt;1.&lt;/li&gt;</span>',
@@ -341,7 +342,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
                 'name="content">* 1.\n** 1.1.</textarea>'
             ),
             must_not_contain=(
-                "Traceback", 'Permission denied',
+                "XXX INVALID TEMPLATE STRING", "Traceback", 'Permission denied',
             ),
         )
 
@@ -362,7 +363,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
                 '<li>1.1.</li>',
             ),
             must_not_contain=(
-                "Traceback", 'Permission denied',
+                "XXX INVALID TEMPLATE STRING", "Traceback", 'Permission denied',
             ),
         )
 
@@ -373,13 +374,13 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test', "pylucid_plugins.page_admin.tests.ConvertMarkupTest",
-#        verbosity=0,
+#    management.call_command('test', "pylucid_plugins.page_admin.tests.ConvertMarkupTest",
+##        verbosity=0,
+#        verbosity=1,
+#        failfast=True
+#    )
+    management.call_command('test', __file__,
         verbosity=1,
+#        verbosity=0,
         failfast=True
     )
-#    management.call_command('test', __file__,
-#        verbosity=1,
-##        verbosity=0,
-##        failfast=True
-#    )

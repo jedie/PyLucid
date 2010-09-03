@@ -48,7 +48,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
                 '<input type="text" name="find_string"',
                 '<input type="text" name="replace_string"',
             ),
-            must_not_contain=("Traceback",)
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
 
     def test_pagecontent_replace_simulate(self):
@@ -75,7 +75,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
                 '<span class="gi">+',
                 '?  ', ' ^^^ ',
             ),
-            must_not_contain=("Traceback",)
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
 
     def test_pagecontent_replace(self):
@@ -104,7 +104,10 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         response = self.client.get("/")
         self.assertResponse(response,
             must_contain=('XXX replaced XXX',),
-            must_not_contain=("Traceback", 'Welcome to your fesh PyLucid CMS installation',)
+            must_not_contain=(
+                "Traceback", 'Welcome to your fesh PyLucid CMS installation',
+                "XXX INVALID TEMPLATE STRING"
+            )
         )
 
 
