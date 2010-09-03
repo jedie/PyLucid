@@ -65,7 +65,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         })
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/headfile/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
                 '<input type="text" name="find_string"',
                 '<input type="text" name="replace_string"',
@@ -91,7 +91,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         })
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/headfile/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
                 '<input type="text" name="find_string"',
                 '<input type="text" name="replace_string"',
@@ -115,5 +115,5 @@ if __name__ == "__main__":
     management.call_command('test', __file__,
         verbosity=1,
 #        verbosity=0,
-        failfast=True
+#        failfast=True
     )
