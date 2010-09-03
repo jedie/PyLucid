@@ -2,14 +2,8 @@
 
 {% block content %}
 <p>
-	A copy of all Design componets (like Template, Headfiles, ColorScheme)<br/>
-	would be created with the new name you given here.<br/>
-	Use the design switch function, to see the cloned design in action.
+    A copy of all Design componets (like Template, Headfiles, ColorScheme) would be created with the new name you given here.<br/>
 </p>
-<p>
-	more info: <a href="/permalink/69/customise-the-look-of-your-pylucid-installation">customise the look of your PyLucid installation</a>
-</p>
-
 <form action="{{ form_url }}" method="post" id="clone_design_form" class="pylucid_form">
     {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
     {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
@@ -20,4 +14,10 @@
         </div>
     </fieldset>
 </form>
+<h2>links</h2>
+<ul>
+    <li>Use the <strong><a href="{% url Design-switch %}">design switch function</a></strong>, to see the cloned design in action.</li>
+    <li>For a better overview, go to <strong><a href="{% url admin:pylucid_design_changelist %}">design change list</a></strong>.</li>
+    <li>more info: <a href="/permalink/69/customise-the-look-of-your-pylucid-installation">customise the look of your PyLucid installation</a></li>
+</ul>
 {% endblock %}
