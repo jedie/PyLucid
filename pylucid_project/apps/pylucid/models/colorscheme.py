@@ -54,6 +54,21 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
     """
     name = models.CharField(max_length=255, help_text="The name of this color scheme.")
 
+
+    def score_match(self, colors):
+        """ Weighted matches of the given color values. """
+        queryset = Color.on_site.filter(colorscheme=self)
+        existing_colors = queryset.values_list('value', flat=True)
+
+        score = 0
+        for color in colors:
+            if color in existing_colors:
+                score += 1
+            else:
+                score -= 1
+
+        return score
+
     def get_color_dict(self):
         queryset = Color.on_site.filter(colorscheme=self)
         color_list = queryset.values_list('name', 'value')

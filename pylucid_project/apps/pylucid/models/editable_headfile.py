@@ -32,7 +32,8 @@ from django_tools.template import render
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.utils.css_color_utils import unify_spelling, \
-                                        get_new_css_names, replace_css_name
+                                        get_new_css_names, replace_css_name, \
+    extract_colors, unique_color_name
 from pylucid_project.apps.pylucid.system import headfile
 
 # other PyLucid models
@@ -164,18 +165,20 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                 msg = "EditableHtmlHeadFile cached successful into: %r" % cachepath
                 failsafe_message(msg)
 
-    def iter_colorschemes(self):
+    def iter_colorschemes(self, skip_colorschemes=None):
         """ TODO: Optimizes this """
-        visited_colorschemes = []
+        if skip_colorschemes is None:
+            skip_colorschemes = []
+
         designs = Design.objects.all().filter()
         for design in designs:
             colorscheme = design.colorscheme
-            if colorscheme in visited_colorschemes:
+            if colorscheme in skip_colorschemes:
                 continue
             headfiles = design.headfiles.all().filter(render=True)
             for headfile in headfiles:
                 if headfile == self:
-                    visited_colorschemes.append(colorscheme)
+                    skip_colorschemes.append(colorscheme)
                     yield colorscheme
 
     def get_send_head_file(self, colorscheme):
@@ -323,33 +326,97 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             # No CSS ColorScheme entries in the content -> do nothing
             return
 
-        existing_color_names = Color.on_site.all().values_list("name", flat=True)
+        # Get all existing color values from content 
+        content, content_colors = unify_spelling(self.content)
 
-        old_content = self.content
-        new_content, color_dict = unify_spelling(existing_color_names, old_content)
-
-        if new_content == old_content:
-            failsafe_message("No colors to update, ok.")
-            return
-
-        updated_colorschemes = []
-
+        # Find the most appropriate entry that has the most match colors.
+        best_score = None
+        best_colorscheme = None
         for colorscheme in self.iter_colorschemes():
-            updated_colorschemes.append(colorscheme)
+            score = colorscheme.score_match(content_colors)
+            if score > best_score:
+                best_colorscheme = colorscheme
+                best_score = score
+
+        if best_colorscheme is None:
+            best_colorscheme_dict = {}
+            values2colors = {}
+            colorschemes_data = {}
+        else:
+            failsafe_message(
+                _('Merge colors with colorscheme "%(name)s" (score: %(score)s)') % {
+                    "name": best_colorscheme.name,
+                    "score": best_score,
+                }
+            )
+
+            best_colorscheme_dict = best_colorscheme.get_color_dict()
+            values2colors = dict([(v, k) for k, v in best_colorscheme_dict.iteritems()])
+            colorschemes_data = {best_colorscheme:best_colorscheme_dict}
+
+        existing_color_names = set(best_colorscheme_dict.keys())
+        if settings.DEBUG:
+            failsafe_message("Use existing colors: %r" % existing_color_names)
+
+        # Check witch colors are not exist in best colorscheme, yet:
+        best_colorscheme_values = best_colorscheme_dict.values()
+        new_color_values = []
+        for color_value in content_colors:
+            if color_value not in best_colorscheme_values:
+                new_color_values.append(color_value)
+
+        # Collect color information from all other colorschemes witch used this headfile:
+        for colorscheme in self.iter_colorschemes(skip_colorschemes=colorschemes_data.keys()):
+            color_dict = colorscheme.get_color_dict()
+            colorschemes_data[colorscheme] = color_dict
             for color_name, color_value in color_dict.iteritems():
-                c = Color.objects.create(
-                    colorscheme=colorscheme,
-                    name=color_name,
-                    value=color_value
+                existing_color_names.add(color_name)
+                if color_value not in values2colors:
+                    values2colors[color_value] = color_name
+
+        # Create all new colors in any other colorscheme witch used this headfile:
+        for new_color_value in new_color_values:
+            if new_color_value in values2colors:
+                # Use color name from a other colorscheme
+                color_name = values2colors[new_color_value]
+            else:
+                # this color value doesn't exist in any colorscheme, give it a unique name
+                color_name = unique_color_name(existing_color_names, new_color_value)
+                values2colors[new_color_value] = color_name
+                existing_color_names.add(color_name)
+
+        # Replace colors in content and create not existing in every colorscheme
+        update_info = {}
+        for color_value, color_name in values2colors.iteritems():
+            # Replace colors with django template placeholders
+            content = content.replace("#%s;" % color_value, "{{ %s }};" % color_name)
+
+            # Create new colors
+            for colorscheme in self.iter_colorschemes():
+                color_dict = colorschemes_data[colorscheme]
+                if color_name in color_dict:
+                    # This color exist in this colorscheme
+                    continue
+
+                color, created = Color.on_site.get_or_create(
+                    colorscheme=colorscheme, name=color_name,
+                    defaults={"value": color_value}
                 )
+                color.save()
+                if created:
+                    if colorscheme not in update_info:
+                        update_info[colorscheme] = []
+                    update_info[colorscheme].append(color)
 
-        failsafe_message("create colors: %(color_dict)r in colorscheme: %(schemes)s" % {
-            "color_dict": color_dict,
-            "schemes": ", ".join(['"%s"' % s.name for s in updated_colorschemes])
-        })
+        # Create page messages
+        for colorscheme, created_colors in update_info.iteritems():
+            msg = _('Colors %(colors)s created in colorscheme "%(scheme)s"') % {
+                "colors": ", ".join(['"%s:%s"' % (c.name, c.value) for c in created_colors]),
+                "scheme": colorscheme.name,
+            }
+            failsafe_message(msg)
 
-        self.content = new_content
-
+        self.content = content
 
     def save(self, *args, **kwargs):
         self.update_colorscheme()

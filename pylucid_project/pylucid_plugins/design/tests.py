@@ -196,6 +196,41 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         response = self.request_style(self.design4)
         self.assertEqual(response.content, self.INVERTED_YELLOW_STYLES)
 
+    def test_past_existing_colors(self):
+        old_content = self.headfile1.content
+        response = self.client.post(self.url_edit_headfile,
+            data={
+                "filepath": self.headfile1.filepath,
+                "_continue": "",
+                "render": 1,
+                'sites': 1,
+                "content": self.YELLOW_STYLES,
+            }
+        )
+        self.assertRedirect(response, status_code=302,
+            url="http://testserver" + self.url_edit_headfile
+        )
+        response = self.client.get(self.url_edit_headfile)
+        self.assertResponse(response,
+            must_contain=(
+                "Merge colors with colorscheme &quot;yellow&quot; (score: 2)",
+                old_content,
+                "was changed successfully. You may edit it again below.",
+            ),
+            must_not_contain=("Traceback", "created in colorscheme")
+        )
+
+        # Check if colors created
+        self.assertEqual(Color.objects.all().filter(colorscheme=self.colorscheme1).count(), 2)
+        self.assertEqual(Color.objects.all().filter(colorscheme=self.colorscheme2).count(), 2)
+
+        # The headfile content should not changed
+        self.headfile1 = EditableHtmlHeadFile.objects.get(pk=self.headfile1.pk)
+        self.assertEqual(self.headfile1.content, old_content)
+
+        # The rendered styles should not changed
+        self.check_styles()
+
     def test_yellow_page(self):
         response = self.client.get("/en/yellow/")
         self.assertResponse(response,
@@ -266,6 +301,30 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
             must_not_contain=("Traceback",)
         )
 
+    def test_merge_colors(self):
+        Color.objects.create(name="existing_red", value="ff0000", colorscheme=self.colorscheme1)
+        Color.objects.create(name="existing_green", value="00ff00", colorscheme=self.colorscheme2)
+        self.headfile1.content += "old: #0000Ff; existing_red: #F00; existing_green: #0f0; new: #f0f;"
+        self.headfile1.save()
+
+        self.assertEqual(self.headfile1.content,
+            "* { color: {{ foreground }}; }\r\nbody { background: {{ background }}; }"
+            "old: {{ foreground }}; existing_red: {{ existing_red }}; existing_green: {{ existing_green }}; new: {{ fuchsia }};"
+        )
+
+        response = self.request_style(self.design1)
+        self.assertEqual(response.content,
+            self.YELLOW_STYLES + "old: #aaaa00; existing_red: #ff0000; existing_green: #00ff00; new: #ff00ff;"
+        )
+        response = self.request_style(self.design2)
+        self.assertEqual(response.content,
+            self.BLUE_STYLES + "old: #0000ff; existing_red: #ff0000; existing_green: #00ff00; new: #ff00ff;"
+        )
+        response = self.request_style(self.design3)
+        self.assertEqual(response.content, self.INVERTED_BLUE_STYLES)
+        response = self.request_style(self.design4)
+        self.assertEqual(response.content, self.INVERTED_YELLOW_STYLES)
+
     def test_create_new_colors(self):
         new_content1 = self.headfile1.content + (
             "\r\n"
@@ -296,8 +355,9 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         response = self.client.get(self.url_edit_headfile)
         self.assertResponse(response,
             must_contain=(
-                "create colors: {&#39;red&#39;: u&#39;ff0000&#39;}"
-                " in colorscheme: &quot;yellow&quot;, &quot;blue&quot;",
+                "Merge colors with colorscheme &quot;yellow&quot; (score: -1)",
+                "Colors &quot;red:ff0000&quot; created in colorscheme &quot;yellow&quot;",
+                "Colors &quot;red:ff0000&quot; created in colorscheme &quot;blue&quot;",
 
                 new_content2,
                 "was changed successfully. You may edit it again below.",

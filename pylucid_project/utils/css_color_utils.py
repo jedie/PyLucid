@@ -247,32 +247,29 @@ def hex2color_name(hex_string):
 
 CSS_RE2 = re.compile(r'#([a-f0-9]{3,6}) *;', re.IGNORECASE)
 
-def unify_spelling(existing_names, content):
+def unify_spelling(content):
     """
-    replace all existing css color value with a unique color name.
-    return the new content and a color dict with new css-name <-> css-values
+    unify the 'spelling' of all existing css color values.
     
-    >>> unify_spelling(("red",), "color1: #f00; color2: #Ff0000;")
-    ('color1: {{ red_2 }}; color2: {{ red_2 }};', {'red_2': 'ff0000'})
+    >>> unify_spelling("color1: #f00; color2: #Ff0000;")
+    ('color1: #ff0000; color2: #ff0000; color3: #aabbcc;', set(['ff0000']))
+    
+    >>> unify_spelling("color: #aAbBcC  ;")
+    ('color: #aabbcc;', set(['aabbcc']))
     """
-    value2name = {}
+    existing_values = set()
     def callback(matchobj):
         css_value = matchobj.group(1)
         if len(css_value) == 3:
             # convert 3 length css color values to 6 length
             css_value = css_value[0] + css_value[0] + css_value[1] + css_value[1] + css_value[2] + css_value[2]
         css_value = css_value.lower()
-        if css_value in value2name:
-            color_name = value2name[css_value]
-        else:
-            color_name = unique_color_name(existing_names, css_value)
-            value2name[css_value] = color_name
 
-        return "{{ %s }};" % color_name
+        existing_values.add(css_value)
+        return "#%s;" % css_value
 
     new_content = CSS_RE2.sub(callback, content)
-    color_dict = dict([(v, k) for k, v in value2name.iteritems()])
-    return new_content, color_dict
+    return new_content, existing_values
 
 
 
@@ -392,7 +389,7 @@ def extract_colors(content, existing_color_dict=None):
     colors = findall_color_values(new_content)
 
     if existing_color_dict:
-        color_dict = existing_color_dict
+        color_dict = existing_color_dict.copy()
         exist_color = dict([(v, k) for k, v in existing_color_dict.iteritems()])
     else:
         color_dict = {}
