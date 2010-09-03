@@ -46,7 +46,6 @@ def slugify_colorname(value):
 
 
 
-
 class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
     """
     inherited attributes from AutoSiteM2M:
@@ -56,13 +55,13 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
     name = models.CharField(max_length=255, help_text="The name of this color scheme.")
 
     def get_color_dict(self):
-        querset = Color.on_site.filter(colorscheme=self)
-        color_list = querset.values_list('name', 'value')
+        queryset = Color.on_site.filter(colorscheme=self)
+        color_list = queryset.values_list('name', 'value')
         return dict(color_list)
 
     def get_color_names(self):
-        querset = Color.on_site.filter(colorscheme=self)
-        color_list = querset.values_list('name', flat=True)
+        queryset = Color.on_site.filter(colorscheme=self)
+        color_list = queryset.values_list('name', flat=True)
         return color_list
 
     def save(self, *args, **kwargs):
