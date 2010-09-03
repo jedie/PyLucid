@@ -1,13 +1,5 @@
 {% extends "admin/base_site.html" %}
 
-{% if pygments_css %}
-{% block extrahead %}{{ block.super }}
-<!-- convert_markup extrahead block start -->
-<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
-<!-- convert_markup extrahead block end -->
-{% endblock %}
-{% endif %}
-
 {% block content %}
 <p>
     The original markup is: <strong>{{ current_markup }}</strong>
