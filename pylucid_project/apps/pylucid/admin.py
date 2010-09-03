@@ -183,30 +183,30 @@ class ColorSchemeAdmin(VersionAdmin):
         sites = colorscheme.sites.all()
         old_name = colorscheme.name
         new_name = old_name + "_cloned"
-    
+
         colors = models.Color.objects.filter(colorscheme=colorscheme)
-    
+
         colorscheme.pk = None # make the object "new" ;)
         colorscheme.name = new_name
         colorscheme.save(force_insert=True)
         colorscheme.sites = sites
         colorscheme.save(force_update=True)
-    
+
         for color in colors:
             color.pk = None # make the object "new" ;)
             color.colorscheme = colorscheme
             color.save(force_insert=True)
             color.sites = sites
             color.save(force_update=True)
-    
-        messages.success(request, 
+
+        messages.success(request,
             _("Colorscheme %(old_name)s cloned to %(new_name)s") % {
                 "old_name": old_name, "new_name": new_name
             }
         )
         url = reverse("admin:pylucid_colorscheme_changelist")
         return HttpResponseRedirect(url)
-    
+
     def get_urls(self):
         urls = super(ColorSchemeAdmin, self).get_urls()
         my_urls = patterns('',
@@ -230,15 +230,16 @@ class ColorSchemeAdmin(VersionAdmin):
         return render_to_string("admin/pylucid/includes/colorscheme_preview.html", context)
     preview.short_description = 'color scheme preview'
     preview.allow_tags = True
-    
+
     def design_usage_info(self, obj):
         designs = models.Design.objects.all().filter(colorscheme=obj)
         context = {"designs": designs}
         return render_to_string("admin/pylucid/includes/design_usage_info.html", context)
     design_usage_info.short_description = 'used in designs'
     design_usage_info.allow_tags = True
-    
+
     form = ColorSchemeAdminForm
+    change_list_template = "admin/pylucid/change_list_with_design_link.html"
     list_display = ("id", "name", "preview", "design_usage_info", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     search_fields = ("name",)
@@ -313,16 +314,16 @@ class DesignAdmin(VersionAdmin):
             dbtemplate_entry = Template.objects.get(name=template_path)
         except Template.DoesNotExist:
             dbtemplate_entry = None
-        
+
         context = {
             "design": obj,
             "dbtemplate_entry":dbtemplate_entry,
         }
         return render_to_string("admin/pylucid/design_template_info.html", context)
-    
+
     template_usage.short_description = 'Template'
     template_usage.allow_tags = True
-    
+
     def color_info(self, obj):
         colorscheme = obj.colorscheme
         colors = models.Color.objects.all().filter(colorscheme=colorscheme)
@@ -334,14 +335,14 @@ class DesignAdmin(VersionAdmin):
         return render_to_string("admin/pylucid/includes/colorscheme_preview.html", context)
     color_info.short_description = 'color scheme information'
     color_info.allow_tags = True
-    
+
     def headfiles_info(self, obj):
         colorscheme = obj.colorscheme
         colors = models.Color.objects.all().filter(colorscheme=colorscheme)
         headfiles = obj.headfiles.all()
         for headfile in headfiles:
             headfile.absolute_url = headfile.get_absolute_url(colorscheme)
-            
+
         context = {
             "design": obj,
             "headfiles": headfiles,
@@ -349,10 +350,10 @@ class DesignAdmin(VersionAdmin):
             "colors": colors,
         }
         return render_to_string("admin/pylucid/design_headfiles_info.html", context)
-    
+
     headfiles_info.short_description = 'used headfiles'
     headfiles_info.allow_tags = True
-    
+
     form = DesignAdminForm
     list_display = ("id", "name", "template_usage", "color_info", "headfiles_info", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
@@ -444,6 +445,7 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
     form = EditableHtmlHeadFileAdminForm
+    change_list_template = "admin/pylucid/change_list_with_design_link.html"
     list_display = ("id", "filepath", "site_info", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
     list_filter = ("sites", "render")
@@ -490,14 +492,14 @@ class DBTemplatesAdminAdminForm(TemplateAdminForm):
 
 
 
-class DBTemplatesAdmin(TemplateAdmin):  
+class DBTemplatesAdmin(TemplateAdmin):
     def _filesystem_template_path(self, template_name):
         """ return absolute filesystem path to given template name """
         for dir in settings.TEMPLATE_DIRS:
             abs_path = os.path.join(dir, template_name)
             if os.path.isfile(abs_path):
                 return abs_path
-    
+
     def _get_filesystem_template(self, template_path):
         """ return template content from filesystem """
         f = file(template_path, "r")
@@ -514,28 +516,28 @@ class DBTemplatesAdmin(TemplateAdmin):
             return HttpResponse("ERROR: Wrong request")
 
         edit_content = request.POST["content"]
-       
+
         try:
             dbtemplate_obj = Template.objects.only("name").get(id=object_id)
         except Template.DoesNotExist, err:
             msg = "Template with ID %r doesn't exist!" % object_id
             return HttpResponse(msg)
-        
+
         templatename = dbtemplate_obj.name
-        
+
         template_path = self._filesystem_template_path(templatename)
         if template_path is None:
             msg = "Error: Template %r not found on filesystem." % templatename
             return HttpResponse(msg)
-        
+
         try:
             filesystem_template = self._get_filesystem_template(template_path)
         except Exception, err:
             msg = "Error: Can't read %r: %s" % (template_path, err)
             return HttpResponse(msg)
-             
+
         diff_html = hightlighter.get_pygmentize_diff(filesystem_template, edit_content)
-        
+
         return HttpResponse(diff_html)
 
     def get_urls(self):
@@ -548,19 +550,20 @@ class DBTemplatesAdmin(TemplateAdmin):
             url("^(.+)/diff/$", admin_site.admin_view(self.diff_view), name='%s_%s_diff' % info),
         )
         return new_urls + urls
-    
+
     def usage_info(self, obj):
         designs = models.Design.objects.all().filter(template=obj.name)
-        
+
         context = {
             "designs": designs,
         }
         return render_to_string("admin/pylucid/dbtemplate_usage_info.html", context)
-    
+
     usage_info.short_description = 'used in PyLucid design'
     usage_info.allow_tags = True
 
     form = DBTemplatesAdminAdminForm
+    change_list_template = "admin/pylucid/change_list_with_design_link.html"
     list_display = ('name', "usage_info", 'creation_date', 'last_changed', 'site_list')
 
 admin.site.unregister(Template)
