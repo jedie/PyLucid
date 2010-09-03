@@ -102,7 +102,7 @@
             
             {% if perms.pylucid.change_design %}
             <li>
-                <a title="{% trans "edit current style/template in django admin panel" %}">
+                <a title="{% trans "edit current style/template in django admin panel" %}" href="{% url admin:pylucid_design_changelist %}">
                     {% trans "edit current look" %}
                 </a>
                 <ul>
