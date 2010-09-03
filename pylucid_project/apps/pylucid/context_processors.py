@@ -82,13 +82,11 @@ def pylucid(request):
 
     context["PYLUCID"] = request.PYLUCID
 
-    if request.path.lstrip("/").startswith(settings.ADMIN_URL_PREFIX): #FIXME: How could we simpler check if we in admin section?
-        # FIXME: Should we only insert pygments in admin section?
-        #    We can also add a new template tag to get the path and insert it in pylucid/templates/admin/base_site.html
-        
-        # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-        pygments_css_path = get_pygments_css(request)
-        context["pygments_css"] = pygments_css_path
+    # FIXME: Should we only insert pygments in admin section?
+    #    We can also add a new template tag to get the path and insert it in pylucid/templates/admin/base_site.html    
+    # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
+    pygments_css_path = get_pygments_css(request)
+    context["pygments_css"] = pygments_css_path
 
     pagetree = getattr(request.PYLUCID, "pagetree", None)
     if pagetree:
