@@ -55,6 +55,7 @@ def page_order(request, pagetree_id=None):
         "title": "Change the page order.",
         "pagetree": pagetree,
         "abort_url": pagetree.get_absolute_url(),
+        "form_url": request.path,
         "formset": formset,
     }
     if parent is not None:
