@@ -495,6 +495,39 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         # Check sended styles, they must be the same
         self.check_styles()
 
+    def test_remove_unused_colors(self):
+        c = Color.objects.create(name="unused1", value="ffffff", colorscheme=self.colorscheme1)
+
+#        cleanup_url = reverse("admin:pylucid_colorscheme_change", args=(self.colorscheme1.pk,))
+        response = self.client.get(self.url_edit_colorscheme1 + "cleanup/")
+        self.assertRedirect(response, status_code=302,
+            url="http://testserver" + self.url_edit_colorscheme1
+        )
+        response = self.client.get(self.url_edit_colorscheme1)
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid - Change color scheme</title>',
+                'colorpicker.css', 'colorpicker.js',
+                'Change color scheme',
+
+                # page message:                
+                'existing colors: u&#39;&quot;foreground&quot;, &quot;background&quot;&#39;',
+                'remove 1 colors: &quot;unused1&quot;',
+
+                # colorscheme name:
+                '<input name="name" value="yellow"',
+
+                # colors:
+                '<input name="color_set-0-name" value="background"',
+                'name="color_set-0-value" value="222200"',
+                '<input name="color_set-1-name" value="foreground"',
+                'name="color_set-1-value" value="aaaa00"',
+            ),
+            must_not_contain=("Traceback", "This field is required.")
+        )
+
+        self.check_styles()
+
 
 if __name__ == "__main__":
     # Run all unittest directly

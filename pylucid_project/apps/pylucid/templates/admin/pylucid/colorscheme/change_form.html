@@ -5,12 +5,17 @@
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
         <li>
-            <a href="clone/" title="{% trans 'Clone this colorscheme and all this assiossiated colors.' %}">
+            <a href="clone/" title="{% trans 'Clone this colorscheme and all this assiossiated colors.' %}" onclick="javascript:return confirm('{% trans 'Note:\nChanges in the form will be lost!' %}')">
             {% trans 'clone' %}
             </a>
         </li>
         <li>
-            <a href="{% url Design-rename_colors object_id %}" title="{% trans 'Rename all colors based on the color value' %}">
+            <a href="cleanup/" title="{% trans 'Remove all unused colors (check every headfiles)' %}" onclick="javascript:return confirm('{% trans 'Note:\nChanges in the form will be lost!' %}')">
+            {% trans 'remove unused colors' %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url Design-rename_colors object_id %}" title="{% trans 'Rename all colors based on the color value' %}" onclick="javascript:return confirm('{% trans 'Note:\nAll colors would be renamed!\nChanges in the form will be lost!' %}')">
             {% trans 'auto rename color names' %}
             </a>
         </li>

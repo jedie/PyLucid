@@ -207,10 +207,20 @@ class ColorSchemeAdmin(VersionAdmin):
         url = reverse("admin:pylucid_colorscheme_changelist")
         return HttpResponseRedirect(url)
 
+    def cleanup(self, request, object_id):
+        """ remove all unused colors """
+
+        colorscheme = models.ColorScheme.on_site.get(id=object_id)
+        colorscheme.cleanup(request)
+
+        url = reverse("admin:pylucid_colorscheme_change", args=(object_id,))
+        return HttpResponseRedirect(url)
+
     def get_urls(self):
         urls = super(ColorSchemeAdmin, self).get_urls()
         my_urls = patterns('',
-            (r'^(.+?)/clone/$', self.admin_site.admin_view(self.clone))
+            (r'^(.+?)/clone/$', self.admin_site.admin_view(self.clone)),
+            (r'^(.+?)/cleanup/$', self.admin_site.admin_view(self.cleanup)),
         )
         return my_urls + urls
 

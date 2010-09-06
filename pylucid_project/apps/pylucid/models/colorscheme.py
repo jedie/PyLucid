@@ -16,16 +16,17 @@
 
 import re
 
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.utils import IntegrityError
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.fields import ColorValueField
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
 from pylucid_project.apps.pylucid.shortcuts import failsafe_message
-from django.utils.safestring import mark_safe
-
+from pylucid_project.utils.css_color_utils import get_new_css_names
 
 
 TAG_INPUT_HELP_URL = \
@@ -54,6 +55,29 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
     """
     name = models.CharField(max_length=255, help_text="The name of this color scheme.")
 
+    def cleanup(self, request):
+        """ remove all unused colors """
+        from pylucid_project.apps.pylucid.models import Design, Color
+
+        existing_colors = set()
+        designs = Design.objects.all().filter(colorscheme=self)
+        for design in designs:
+            headfiles = design.headfiles.all().filter(render=True)
+            for headfile in headfiles:
+                css_names = get_new_css_names(existing_colors=(), content=headfile.content)
+                existing_colors.update(set(css_names))
+
+        messages.info(request,
+            _("existing colors: %r") % ", ".join(['"%s"' % c for c in existing_colors])
+        )
+
+        queryset = Color.on_site.all().filter(colorscheme=self).exclude(name__in=existing_colors)
+        color_names = queryset.values_list('name', flat=True)
+        messages.info(request, _("remove %(count)i colors: %(names)s") % {
+            "count": len(color_names),
+            "names": ", ".join(['"%s"' % n for n in color_names]),
+        })
+        queryset.delete()
 
     def score_match(self, colors):
         """ Weighted matches of the given color values. """
