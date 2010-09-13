@@ -210,7 +210,7 @@ class ColorSchemeAdmin(VersionAdmin):
     def cleanup(self, request, object_id):
         """ remove all unused colors """
 
-        colorscheme = models.ColorScheme.on_site.get(id=object_id)
+        colorscheme = models.ColorScheme.objects.get(id=object_id)
         colorscheme.cleanup(request)
 
         url = reverse("admin:pylucid_colorscheme_change", args=(object_id,))
