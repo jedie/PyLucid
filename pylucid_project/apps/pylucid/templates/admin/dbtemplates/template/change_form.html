@@ -1,7 +1,9 @@
 {% extends "admin/change_form.html" %}
 {% load i18n %}
 
+
 {% block extrahead %}{{ block.super }}
+<!-- admin/dbtemplates/template/change_form - extrahead - START -->
 <script type="text/javascript">
 try {
     jQuery(document);
@@ -31,21 +33,29 @@ jQuery(document).ready(function($) {
   });
 });
 </script>
+<!-- admin/dbtemplates/template/change_form - extrahead - END -->
 {% endblock %}
 
+
 {% block object-tools %}
+<!-- admin/dbtemplates/template/change_form - object-tools - START -->
     <ul class="object-tools">
       <li><a href="JavaScript:void(0)" id="template_diff">diff</a></li>      
       <li><a href="{% url PageAdmin-page_list %}?markup=0" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">{% trans 'page list' %}</a></li>
       <li><a href="{% url PageAdmin-tag_list %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">{% trans 'tag list' %}</a></li>
       <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
     </ul>
+<!-- admin/dbtemplates/template/change_form - object-tools - END -->
 {% endblock %}
+
 
 {% block content %}
-<p>Click on diff button, to get a diff of this current edited content compared with the filesystem content (if available)</p>
+<!-- admin/dbtemplates/template/change_form - content - START -->
+<ul>
+    <li>Click on diff button, to get a diff of this current edited content compared with the filesystem content (if available)</li>
+    <li>{% include "admin/pylucid/includes/design_link.html" %}</li>
+</ul>
 <div id="diff"></div>
-{{ block.super }}
-{% endblock %}
-
+<!-- admin/dbtemplates/template/change_form - content - END -->
+{{ block.super }}{% endblock %}
 

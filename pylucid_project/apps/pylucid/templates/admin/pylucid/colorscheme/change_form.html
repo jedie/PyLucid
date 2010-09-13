@@ -1,7 +1,9 @@
 {% extends "admin/change_form.html" %}
 {% load i18n %}
 
+
 {% block object-tools %}
+<!-- admin/pylucid/colorscheme/change_form - object-tools - START -->
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
         <li>
@@ -21,11 +23,13 @@
         </li>
         <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
   </ul>
-{% endif %}{% endif %}    
+{% endif %}{% endif %}
+<!-- admin/pylucid/colorscheme/change_form - object-tools - END -->
 {% endblock %}
 
+
 {% block extrahead %}{{ block.super }}
-<!-- colorscheme/change_form extrahead - START -->
+<!-- admin/pylucid/colorscheme/change_form - extrahead - START -->
 <link rel="stylesheet" media="screen" type="text/css" href="{{ PyLucid_media_url }}colorpicker/css/colorpicker.css" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}colorpicker/js/colorpicker.js"></script>
 <script type="text/javascript">
@@ -59,5 +63,14 @@ $(document).ready(function(){
     //.ColorPicker(options);
 });
 </script>
-<!-- colorscheme/change_form extrahead - END -->
+<!-- admin/pylucid/colorscheme/change_form - extrahead - END -->
 {% endblock %}
+
+
+{% block content %}
+<!-- admin/pylucid/colorscheme/change_form - content - START -->
+<ul>
+    <li>{% include "admin/pylucid/includes/design_link.html" %}</li>
+</ul>
+<!-- admin/pylucid/colorscheme/change_form - content - END -->
+{{ block.super }}{% endblock %}

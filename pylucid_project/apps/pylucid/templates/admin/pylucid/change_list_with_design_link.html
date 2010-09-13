@@ -1,9 +1,11 @@
 {% extends "admin/change_list.html" %}
 {% load i18n %}
 
+
 {% block content %}
+<!-- admin/pylucid/change_list_with_design_link - content - START -->
 <ul>
-    <li>For a better overview, go to <strong><a href="{% url admin:pylucid_design_changelist %}">design change list</a></strong>.</li>
+    <li>{% include "admin/pylucid/includes/design_link.html" %}</li>
 </ul>
-{{ block.super }}
-{% endblock %}
+<!-- admin/pylucid/change_list_with_design_link - content - END -->
+{{ block.super }}{% endblock %}
