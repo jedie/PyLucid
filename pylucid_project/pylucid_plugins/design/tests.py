@@ -511,7 +511,7 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
                 'Change color scheme',
 
                 # page message:                
-                'existing colors: u&#39;&quot;foreground&quot;, &quot;background&quot;&#39;',
+                'existing colors: &quot;foreground&quot;, &quot;background&quot;',
                 'remove 1 colors: &quot;unused1&quot;',
 
                 # colorscheme name:
