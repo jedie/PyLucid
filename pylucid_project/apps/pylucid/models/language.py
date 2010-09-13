@@ -42,6 +42,11 @@ ACCESSIBLE_LANG_CACHE = {}
 
 
 class LanguageManager(models.Manager):
+
+    def is_language_code(self, code):
+        """ return True if given language code exist in settings.LANGUAGES """
+        return code.lower() in supported_languages
+
     def filter_accessible(self, queryset, user):
         """ filter all languages with can't accessible for the given user """
 

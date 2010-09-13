@@ -93,7 +93,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % msg)
 
     request.PYLUCID.pagemeta = pagemeta
-    
+
     # object2comment - The Object used to attach a pylucid_comment
     # should be changed in plugins, e.g.: details views in blog, lexicon plugins
     request.PYLUCID.object2comment = pagemeta
@@ -286,9 +286,32 @@ def root_page(request):
 
     return _render_root_page(request)
 
+def _lang_code_is_pagetree(request, url_lang_code):
+    """
+    return True, if language code...
+        ... is not in settings.LANGUAGES
+    and
+        ... is a pagetree slug
+    """
+    if Language.objects.is_language_code(url_lang_code) == True:
+        # It's a valid language code
+        return False
+
+    # Check if url language code is a pagetree slug        
+    exist = PageTree.on_site.filter(slug=url_lang_code).count()
+    if exist > 0:
+        return True
+
+    return False
+
 
 def lang_root_page(request, url_lang_code):
     """ url with lang code but no page slug """
+
+    if _lang_code_is_pagetree(request, url_lang_code):
+        # The url doesn't contain a language code, it's a pagetree slug
+        return _i18n_redirect(request, url_path=url_lang_code)
+
     # activate i18n
     i18n.activate_auto_language(request)
 
@@ -307,6 +330,9 @@ def _i18n_redirect(request, url_path):
 
     lang_code = request.LANGUAGE_CODE
     url = reverse('PyLucid-resolve_url', kwargs={'url_lang_code': lang_code, 'url_path': url_path})
+
+    if not url.endswith("/"):
+        url += "/"
 
     if request.GET:
         # Add GET query string
@@ -331,6 +357,11 @@ def _get_pagetree(request, url_path):
 
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
+    if _lang_code_is_pagetree(request, url_lang_code):
+        # url_lang_code doesn't contain a language code, it's a pagetree slug
+        new_url = "%s/%s" % (url_lang_code, url_path)
+        return _i18n_redirect(request, url_path=new_url)
+
     # activate language via auto detection
     i18n.activate_auto_language(request)
 

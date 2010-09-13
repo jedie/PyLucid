@@ -71,6 +71,27 @@ class TestI18n(basetest.BaseLanguageTestCase):
         response = self.client.get("/en/welcome/", HTTP_ACCEPT_LANGUAGE="de-de,de;q=0.8,en-us;q=0.5,en;q=0.3")
         self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=301)
 
+    def test_no_lang_code(self):
+        """
+        test pylucid.views.resolve_url: url without a language code, should redirect to full url
+        """
+        response = self.client.get("/example-pages/markups/", HTTP_ACCEPT_LANGUAGE="de-de,de;q=0.8,en-us;q=0.5,en;q=0.3")
+        self.assertRedirect(response, url="http://testserver/de/example-pages/markups/", status_code=302)
+
+    def test_page_without_lang(self):
+        """
+        test pylucid.views.page_without_lang: url without a language code, should redirect to full url
+        """
+        response = self.client.get("/welcome/", HTTP_ACCEPT_LANGUAGE="de-de,de;q=0.8,en-us;q=0.5,en;q=0.3")
+        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
+
+    def test_not_existing_language(self):
+        """
+        test pylucid.views.page_without_lang: url without a language code, should redirect to full url
+        """
+        response = self.client.get("/hr/", HTTP_ACCEPT_LANGUAGE="en-us;q=0.5,en;q=0.3")
+        self.assertRedirect(response, url="http://testserver/en/", status_code=301)
+
     def test_permit_group(self):
         """
         Test if language.permitViewGroup works.
@@ -105,10 +126,7 @@ class TestI18n(basetest.BaseLanguageTestCase):
 
         response = self.client.get("/")
         self.assertResponse(response,
-            must_contain=(
-                'There exist no language on this site! Used default one.',
-                'Welcome to your PyLucid CMS =;-)',
-            ),
+            must_contain=("<body", 'Welcome to your PyLucid CMS =;-)'),
             must_not_contain=("Traceback",)
         )
 
@@ -207,8 +225,8 @@ class TestI18nMoreLanguages(basetest.BaseMoreLanguagesTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test', "pylucid.tests.test_i18n.TestI18n.test_no_language_on_site", verbosity=0)
-#    management.call_command('test', __file__,
-#        verbosity=1
-##        verbosity=0
-#    )
+#    management.call_command('test', "pylucid.tests.test_i18n.TestI18n.test_page_without_lang", verbosity=2)
+    management.call_command('test', __file__,
+        verbosity=2,
+        failfast=True
+    )
