@@ -224,13 +224,6 @@ class ColorSchemeAdmin(VersionAdmin):
         )
         return my_urls + urls
 
-#    def save_model(self, request, obj, form, change):
-#        """ resave rendered headfiles """
-#        print "ColorSchemeAdmin.save_model"
-#        colorscheme = obj
-#        colorscheme.save()
-
-
     def preview(self, obj):
         colors = models.Color.objects.all().filter(colorscheme=obj)
         context = {
@@ -318,6 +311,24 @@ class DesignAdminForm(forms.ModelForm):
 
 
 class DesignAdmin(VersionAdmin):
+    def page_count(self, obj):
+        queryset = models.PageTree.objects.all().filter(design=obj)
+        count = queryset.count()
+        if count > 0:
+            first_page = queryset[0]
+        else:
+            first_page = None
+
+        context = {
+            "design": obj,
+            "count":count,
+            "first_page": first_page,
+        }
+        return render_to_string("admin/pylucid/design_page_count.html", context)
+
+    page_count.short_description = 'page count'
+    page_count.allow_tags = True
+
     def template_usage(self, obj):
         template_path = obj.template
         try:
@@ -333,6 +344,7 @@ class DesignAdmin(VersionAdmin):
 
     template_usage.short_description = 'Template'
     template_usage.allow_tags = True
+    template_usage.admin_order_field = "template"
 
     def color_info(self, obj):
         colorscheme = obj.colorscheme
@@ -343,8 +355,10 @@ class DesignAdmin(VersionAdmin):
             "colors": colors
         }
         return render_to_string("admin/pylucid/includes/colorscheme_preview.html", context)
+
     color_info.short_description = 'color scheme information'
     color_info.allow_tags = True
+    color_info.admin_order_field = "colorscheme"
 
     def headfiles_info(self, obj):
         colorscheme = obj.colorscheme
@@ -365,8 +379,9 @@ class DesignAdmin(VersionAdmin):
     headfiles_info.allow_tags = True
 
     form = DesignAdminForm
-    list_display = ("id", "name", "template_usage", "color_info", "headfiles_info", "site_info", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "name", "page_count", "template_usage", "color_info", "headfiles_info", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
+    ordering = ("name",)
     list_filter = ("sites", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")
 

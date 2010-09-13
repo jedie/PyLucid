@@ -1,0 +1,5 @@
+{% if first_page %}
+    <a href="{{ first_page.get_absolute_url }}" class="openinwindow" title="{% trans "Open the first page witch used this design" %}">{{ count }}</a>
+{% else %}
+    {{ count }}
+{% endif %}
