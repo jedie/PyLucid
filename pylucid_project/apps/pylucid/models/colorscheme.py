@@ -68,15 +68,18 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
                 existing_colors.update(set(css_names))
 
         messages.info(request,
-            _("existing colors: %r") % ", ".join(['"%s"' % c for c in existing_colors])
+            _("existing colors: %s") % ", ".join(['"%s"' % c for c in existing_colors])
         )
 
         queryset = Color.on_site.all().filter(colorscheme=self).exclude(name__in=existing_colors)
         color_names = queryset.values_list('name', flat=True)
-        messages.info(request, _("remove %(count)i colors: %(names)s") % {
-            "count": len(color_names),
-            "names": ", ".join(['"%s"' % n for n in color_names]),
-        })
+        if not color_names:
+            messages.info(request, _("No unused colors found, ok."))
+        else:
+            messages.info(request, _("remove %(count)i colors: %(names)s") % {
+                "count": len(color_names),
+                "names": ", ".join(['"%s"' % n for n in color_names]),
+            })
         queryset.delete()
 
     def score_match(self, colors):
