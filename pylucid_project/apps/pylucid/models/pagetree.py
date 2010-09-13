@@ -354,6 +354,12 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         self._url_cache[self.pk] = url
         return url
 
+    def get_absolute_uri(self):
+        """ absolute url with domain/host part (but without language code) """
+        absolute_url = self.get_absolute_url()
+        domain = self.site.domain
+        return "http://" + domain + absolute_url
+
     def save(self, *args, **kwargs):
         """ reset PageMeta and PageTree url cache """
         from pagemeta import PageMeta # against import loops.
