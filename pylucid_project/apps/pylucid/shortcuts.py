@@ -12,13 +12,8 @@
 """
 
 
-import warnings
-
 from django import http
-from django.contrib import messages
 from django.template.loader import render_to_string
-
-from django_tools.middlewares import ThreadLocal
 
 
 def render_pylucid_response(request, template_name, context, **kwargs):
@@ -62,28 +57,4 @@ def render_pylucid_response(request, template_name, context, **kwargs):
 
 
 
-def failsafe_message(msg):
-    """
-    Display a message to the user. Try to use:
-    1. PyLucid page_msg
-    2. django user messages
-    3. Python warnings
-    """
-    # Try to create a PyLucid page_msg
-    request = ThreadLocal.get_current_request()
-    if request and hasattr(request, "page_msg"):
-        messages.info(request, msg)
-        return
 
-    # Try to use django user message systen.
-    user = ThreadLocal.get_current_user()
-    if user:
-        # import User here, otherwise failsafe_message() is
-        # not usable before environment is full initialized.
-        from django.contrib.auth.models import User
-        if isinstance(user, User):
-            user.message_set.create(message=msg)
-            return
-
-    # use normal warnings
-    warnings.warn(msg)

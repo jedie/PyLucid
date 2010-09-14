@@ -8,12 +8,6 @@
     
     see also: http://www.pylucid.org/_goto/187/PyLucid-objects/
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
     :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
@@ -22,7 +16,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from django_tools.utils.messages import failsafe_message
+
 from pylucid_project.apps.pylucid.system import extrahead
 from pylucid_project.utils.escape import escape
 

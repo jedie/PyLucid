@@ -11,27 +11,20 @@
         
     SiteSHALoginAuthBackend:
         for JS-SHA1-Login
-    
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.conf import settings
+from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
-from django.contrib.auth.backends import ModelBackend
+
+from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.utils import crypt
-
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.models import LogEntry
 
 

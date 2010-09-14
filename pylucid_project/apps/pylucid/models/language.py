@@ -4,13 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -22,13 +16,11 @@ from django.db import models
 from django.utils.translation.trans_real import parse_accept_lang_header
 
 # http://code.google.com/p/django-tools/
-from django_tools.middlewares import ThreadLocal
 from django_tools.fields.language_code import LanguageCodeModelField
+from django_tools.middlewares import ThreadLocal
+from django_tools.utils.messages import failsafe_message
 
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
-
-from pylucid_project.pylucid_plugins import update_journal
 
 
 supported_languages = dict(settings.LANGUAGES)

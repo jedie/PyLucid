@@ -23,7 +23,7 @@ from django.conf import settings
 from django.test.client import Client
 
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.apps.pylucid.models import PluginPage, PageContent
+from pylucid_project.apps.pylucid.models import PageContent
 
 from blog.models import BlogEntry
 

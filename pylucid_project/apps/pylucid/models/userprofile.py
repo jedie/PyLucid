@@ -1,21 +1,10 @@
 # coding: utf-8
 
 """
-    pylucid.models.Page
-    ~~~~~~~~~~~~~~~~~~~
+    pylucid.models
+    ~~~~~~~~~~~~~~
 
-    New PyLucid models since v0.9
-
-    TODO:
-        Where to store bools like: showlinks, permitViewPublic ?
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -23,21 +12,14 @@ from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User
 
+from django_tools.utils.messages import failsafe_message
+
 from pylucid_project.utils import crypt
-
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
-
-from pylucid_project.pylucid_plugins import update_journal
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
-
-
-
-
-
 
 
 class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):

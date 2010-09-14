@@ -14,7 +14,7 @@ from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from django_tools.utils.messages import failsafe_message
 
 
 class PyLucidAdminManager(TreeManager):

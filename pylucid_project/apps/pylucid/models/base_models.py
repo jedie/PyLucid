@@ -3,37 +3,29 @@
 """
     PyLucid models
     ~~~~~~~~~~~~~~
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.db import models
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.sites.managers import CurrentSiteManager
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
+from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.utils import form_utils
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
-
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
-
 
 
 class BaseModel(models.Model):

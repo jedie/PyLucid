@@ -30,13 +30,13 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from tagging.fields import TagField
 from tagging.models import Tag
 
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
+from django_tools.utils.messages import failsafe_message
+
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-from pylucid_project.apps.pylucid.system.i18n import change_url_language
-from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
-
+from pylucid_project.apps.pylucid.system.i18n import change_url_language
+from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
 
 from blog.preference_forms import BlogPrefForm

@@ -18,18 +18,16 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tagging/
-#import tagging
 from tagging.fields import TagField
+
+from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import PageContent, Language
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel, \
     BaseModelManager
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
-#from PyLucid.tools.content_processors import apply_markup, fallback_markup
-#from PyLucid.models import Page
 
 
 TAG_INPUT_HELP_URL = \
@@ -134,7 +132,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         super(LexiconEntry, self).save(*args, **kwargs)
 
         cache.clear() # FIXME: This cleaned the complete cache for every site!
-        
+
     def get_name(self):
         """ e.g. for pylucid comment """
         return self.term

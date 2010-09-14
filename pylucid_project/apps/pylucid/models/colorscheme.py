@@ -4,13 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -23,9 +17,10 @@ from django.db.utils import IntegrityError
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from django_tools.utils.messages import failsafe_message
+
 from pylucid_project.apps.pylucid.fields import ColorValueField
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.utils.css_color_utils import get_new_css_names
 
 

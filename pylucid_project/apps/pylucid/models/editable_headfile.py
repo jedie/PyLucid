@@ -4,13 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -20,20 +14,19 @@ import codecs
 import mimetypes
 
 from django.conf import settings
-from django.db.models import signals
-from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
+from django.db import models, IntegrityError
+from django.db.models import signals
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.template import render
+from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
-from pylucid_project.apps.pylucid.shortcuts import failsafe_message
 from pylucid_project.utils.css_color_utils import unify_spelling, \
-                                        get_new_css_names, replace_css_name, \
-    extract_colors, unique_color_name
+                        get_new_css_names, replace_css_name, unique_color_name
 from pylucid_project.apps.pylucid.system import headfile
 
 # other PyLucid models
