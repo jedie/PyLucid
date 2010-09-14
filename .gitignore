@@ -1,5 +1,7 @@
+local_settings.py
 *.pyc
 *.log
 *~
 /PyLucid.egg-info
 /dist
+*.db3
