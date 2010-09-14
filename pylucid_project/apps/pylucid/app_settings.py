@@ -21,7 +21,8 @@ OLD_PERMALINK_PREFIX = "_goto"
 # filesystem path is: MEDIA_ROOT + PYLUCID_MEDIA_DIR + CACHE_DIR
 # URL if not cacheable in filesystem: /HEAD_FILES_URL_PREFIX/filepath
 # URL if written into filesystem path: MEDIA_URL + PYLUCID_MEDIA_DIR + CACHE_DIR + filepath
-CACHE_DIR = "headfile_cache" # store path: 
+# Set to "" if the python process has no write access
+CACHE_DIR = "headfile_cache"
 
 # i18n stuff:
 I18N_DEBUG = False # Display many info around detecting current language

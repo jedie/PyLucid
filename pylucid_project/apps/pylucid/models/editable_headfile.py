@@ -151,7 +151,9 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                     if not os.path.isdir(path):
                         # Try to create cache path and save file
                         os.makedirs(path)
-                        failsafe_message("Cache path %s created" % path)
+                        msg = "Cache path %s created" % path
+#                        print msg
+                        failsafe_message(msg)
                         _save_cache_file(auto_create_dir=False)
                         return
                 raise
@@ -159,10 +161,14 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         try:
             _save_cache_file()
         except (IOError, OSError), err:
-            failsafe_message("Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err))
+            msg = "Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err)
+            msg += ''' You should set settings.PYLUCID.CACHE_DIR="", if cachen can't be used!'''
+#            print msg
+            failsafe_message(msg)
         else:
             if settings.DEBUG:
                 msg = "EditableHtmlHeadFile cached successful into: %r" % cachepath
+#                print msg
                 failsafe_message(msg)
 
     def iter_colorschemes(self, skip_colorschemes=None):
@@ -192,26 +198,32 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
         return url
 
     def get_absolute_url(self, colorscheme):
+        """
+        return the absolute url to the headfile.      
+        Try to cache the headfile into filesystem, if settings.PYLUCID.CACHE_DIR is not empty
+        Fallback to send view url, if we can't cache.
+        """
         if not self.render:
             colorscheme = None
 
-        cachepath = self.get_cachepath(colorscheme)
+        if settings.PYLUCID.CACHE_DIR != "":
+            cachepath = self.get_cachepath(colorscheme)
 
-        def get_cached_url():
-            if os.path.isfile(cachepath):
-                # The file exist in media path -> Let the webserver send this file ;)
-                return os.path.join(settings.MEDIA_URL, self.get_path(colorscheme))
+            def get_cached_url():
+                if os.path.isfile(cachepath):
+                    # The file exist in media path -> Let the webserver send this file ;)
+                    return os.path.join(settings.MEDIA_URL, self.get_path(colorscheme))
 
-        cached_url = get_cached_url()
-        if cached_url: # Cache file was created in the past
-            return cached_url
+            cached_url = get_cached_url()
+            if cached_url: # Cache file was created in the past
+                return cached_url
 
-        # Create cache file
-        self.save_cache_file(colorscheme)
+            # Create cache file
+            self.save_cache_file(colorscheme)
 
-        cached_url = get_cached_url()
-        if cached_url: # Use created cache file
-            return cached_url
+            cached_url = get_cached_url()
+            if cached_url: # Use created cache file
+                return cached_url
 
         # Can't create cache file -> use pylucid.views.send_head_file for it
         return self.get_send_head_file(colorscheme)

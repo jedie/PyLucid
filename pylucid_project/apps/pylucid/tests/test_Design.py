@@ -17,24 +17,27 @@ if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
-from pylucid_project.tests.test_tools import basetest
-from pylucid_project.tests.test_tools.scrapping import HTMLscrapper
-from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile, ColorScheme
+from django.conf import settings
 
+from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile, ColorScheme
+from pylucid_project.tests.test_tools import basetest
+from pylucid_project.tests.test_tools.headfile import clean_headfile_cache
+from pylucid_project.tests.test_tools.scrapping import HTMLscrapper
+
+
+CACHE_DIR = settings.PYLUCID.CACHE_DIR
+DEBUG = settings.DEBUG
+CACHE_BACKEND = settings.CACHE_BACKEND
 
 
 class DesignTestCase(basetest.BaseUnittest):
-    STYLES = ['initial_site_style/main.css', 'pygments.css'] # used on the index page
+    def setUp(self):
+        settings.CACHE_BACKEND = "dummy://"
 
-    def _pre_setup(self, *args, **kwargs):
-        super(DesignTestCase, self)._pre_setup(*args, **kwargs)
-
-        self.colorscheme = ColorScheme.objects.get(id=1) # used in index page
-
-        self.headfiles = []
-        for style_path in self.STYLES:
-            headfile = EditableHtmlHeadFile.on_site.get(filepath=style_path)
-            self.headfiles.append(headfile)
+    def tearDown(self):
+        # Recover changed settings
+        settings.PYLUCID.CACHE_DIR = CACHE_DIR
+        settings.CACHE_BACKEND = CACHE_BACKEND
 
     def get_headlinks(self, response):
         data = HTMLscrapper().grab(response.content, tags=("link",), attrs=("href",))
@@ -44,46 +47,40 @@ class DesignTestCase(basetest.BaseUnittest):
         for url in urls:
             response = self.client.get(url)
             self.assertStatusCode(response, 200)
-            self.failUnlessEqual(response["content-type"], "text/css")
+            self.assertEqual(response["content-type"], "text/css")
 
-    def check_headfile(self, headfile, colorscheme):
-        url = headfile.get_absolute_url(colorscheme)
-        self.assertHeadfiles([url])
 
 
 class DesignTest(DesignTestCase):
+    def test_cached_headfiles_styles(self):
+        self.assertTrue(settings.PYLUCID.CACHE_DIR != "")
 
-    def test_index_styles(self):
-        """ grab style links from index page and test if they can be requested """
         response = self.client.get("/")
         urls = self.get_headlinks(response)
-        self.failUnless(len(urls) == 2)
+        self.assertTrue(len(urls) == 2)
         self.assertHeadfiles(urls)
+        for url in urls:
+            self.assertTrue(
+                "/headfile_cache/" in url,
+                "url doesn't contain '/headfile_cache/': %s" % url
+            )
 
-    def test_cache(self):
-        """ Test cached and non cache requests """
-        # Create the cache file, if not exist
-        for headfile in self.headfiles:
-            cachepath = headfile.get_cachepath(self.colorscheme)
-            if os.path.isfile(cachepath):
-                # remove cache file
-                os.remove(cachepath)
-                self.failIf(os.path.isfile(cachepath), "Can't delete %r ?!?!" % cachepath)
+    def test_send_view(self):
+        settings.PYLUCID.CACHE_DIR = ""
 
-            # Check if headfile.get_absolute_url can be requested
-            self.check_headfile(headfile, self.colorscheme)
-
-            headfile.save() # The save method should create the cache file
-
-            # Check if file exist
-            self.failUnless(os.path.isfile(cachepath), "Cache file %r doesn't not exist?!?!" % cachepath)
-
-            # Check if headfile.get_absolute_url can be requested
-            self.check_headfile(headfile, self.colorscheme)
+        response = self.client.get("/en/")
+        urls = self.get_headlinks(response)
+        self.assertTrue(len(urls) == 2)
+        self.assertHeadfiles(urls)
+        for url in urls:
+            self.assertTrue(
+                url.startswith("/headfile/"),
+                "url doesn't starts with '/headfile/': %s" % url
+            )
 
 
 
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test', __file__, verbosity=1)
+    management.call_command('test', __file__, verbosity=2)

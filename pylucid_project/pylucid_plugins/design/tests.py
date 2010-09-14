@@ -31,9 +31,9 @@ from dbtemplates.models import Template as DBTemplateModel
 
 from django_tools.unittest_utils.unittest_base import BaseTestCase
 
-from pylucid_project.apps.pylucid.models import PageMeta, Design, \
-                                EditableHtmlHeadFile, ColorScheme, Color, PageTree
+from pylucid_project.apps.pylucid.models import Design, EditableHtmlHeadFile, ColorScheme, Color
 from pylucid_project.tests.test_tools import basetest
+from pylucid_project.tests.test_tools.headfile import clean_headfile_cache
 
 
 DESIGN_UNITTEST_FIXTURES = os.path.join(settings.PYLUCID_BASE_PATH, "pylucid_plugins", "design", "test_fixtures.json")
@@ -151,32 +151,9 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         self.test_css_url2 = "/media/PyLucid/headfile_cache/ColorScheme_2/test_styles.css"
 
     def setUp(self):
-        self.clean_headfile_cache()
+        clean_headfile_cache()
         self.assertEqual(Color.objects.all().filter(colorscheme=self.colorscheme1).count(), 2)
         self.assertEqual(Color.objects.all().filter(colorscheme=self.colorscheme2).count(), 2)
-
-    def clean_headfile_cache(self):
-        """ delete all cache files in cache directory """
-        def delete_tree(path):
-            if not os.path.isdir(path):
-                return
-
-            for dir_item in os.listdir(path):
-                fullpath = os.path.join(path, dir_item)
-                if os.path.isfile(fullpath):
-                    os.remove(fullpath)
-                elif os.path.isdir(fullpath):
-                    delete_tree(fullpath)
-                    os.rmdir(fullpath)
-
-        pylucid_cache_path = os.path.join(
-            settings.MEDIA_ROOT,
-            settings.PYLUCID.PYLUCID_MEDIA_DIR,
-            settings.PYLUCID.CACHE_DIR
-        )
-#        print "delete tree: %s " % pylucid_cache_path,
-        delete_tree(pylucid_cache_path)
-#        print "OK"
 
     def request_style(self, design):
         headfile = design.headfiles.all()[0]
