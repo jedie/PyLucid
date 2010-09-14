@@ -55,18 +55,22 @@ class DesignTest(DesignTestCase):
     def test_cached_headfiles_styles(self):
         self.assertTrue(settings.PYLUCID.CACHE_DIR != "")
 
+        url_part = "/%s/" % settings.PYLUCID.CACHE_DIR
+
         response = self.client.get("/")
         urls = self.get_headlinks(response)
         self.assertTrue(len(urls) == 2)
         self.assertHeadfiles(urls)
         for url in urls:
             self.assertTrue(
-                "/headfile_cache/" in url,
-                "url doesn't contain '/headfile_cache/': %s" % url
+                url_part in url,
+                "url doesn't contain %r: %r" % (url_part, url)
             )
 
     def test_send_view(self):
         settings.PYLUCID.CACHE_DIR = ""
+
+        prefix = "/%s/" % settings.PYLUCID.HEAD_FILES_URL_PREFIX
 
         response = self.client.get("/en/")
         urls = self.get_headlinks(response)
@@ -74,8 +78,8 @@ class DesignTest(DesignTestCase):
         self.assertHeadfiles(urls)
         for url in urls:
             self.assertTrue(
-                url.startswith("/headfile/"),
-                "url doesn't starts with '/headfile/': %s" % url
+                url.startswith(prefix),
+                "url doesn't starts with %r: %r" % (prefix, url)
             )
 
 
