@@ -1,23 +1,21 @@
 # coding:utf-8
 
-import os
-from datetime import datetime
-from tempfile import gettempdir
-
 from datetime import datetime, timedelta
-from django.utils.tzinfo import FixedOffset
-from django.conf import settings
-from django.db import connection
-from django.core.cache import cache
-from django.utils.translation import ugettext as _
+from tempfile import gettempdir
+import os
 
+from django.conf import settings
+from django.core.cache import cache
+from django.db import connection
+from django.utils.translation import ugettext as _
+from django.utils.tzinfo import FixedOffset
+
+from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
+from pylucid_project.apps.pylucid.models import Language, PageTree, PageMeta, LogEntry, EditableHtmlHeadFile
+from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.timezone import utc_offset
-
-from pylucid_project.apps.pylucid.models import Language, PageTree, PageMeta, LogEntry
-from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-
-from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
+from django.utils.safestring import mark_safe
 
 
 MYSQL_ENCODING_VARS = (
@@ -39,7 +37,7 @@ def install(request):
     )
     admin_menu.add_menu_entry(
         parent=menu_section_entry,
-        name="timezone info", title="INformation about timezone settings.",
+        name="timezone info", title="Information about timezone settings.",
         url_name="System-timezone"
     )
 
@@ -52,29 +50,59 @@ def _cache_backend_test(request, out):
 
     if settings.CACHE_BACKEND.startswith("dummy") or settings.CACHE_BACKEND.startswith("locmem"):
         out.write(_("\tPlease setup CACHE_BACKEND in you local_settings.py!"))
-        out.write(_("\tmore info: http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache"))
         tempdir = gettempdir()
         out.write(_("\te.g.: CACHE_BACKEND='file://%s'") % os.path.join(tempdir, "PyLucid_cache"))
-        return
-
-    cache_key = "cache test"
-    content = "A cache test content..."
-    cache_timeout = 50
-    cache.set(cache_key, content, cache_timeout)
-    cached_content = cache.get(cache_key)
-    if cached_content == None:
-        out.write(_("\t* Get None back. Cache didn't work!"))
-        return
-    elif cached_content == content:
-        out.write(_("\t* Cache works fine ;)"))
     else:
-        # Should never appears
-        out.write(_("\t* Error! Cache content not the same!"))
+        cache_key = "cache test"
+        content = "A cache test content..."
+        cache_timeout = 50
+        cache.set(cache_key, content, cache_timeout)
+        cached_content = cache.get(cache_key)
+        if cached_content == None:
+            out.write(_("\t* Get None back. Cache didn't work!"))
+        elif cached_content == content:
+            out.write(_("\t* Cache works fine ;)"))
+        else:
+            # Should never appears
+            out.write(_("\t* Error! Cache content not the same!"))
 
-    cache.delete(cache_key)
-    cached_content = cache.get(cache_key)
-    if cached_content != None:
-        out.write(_("\t* Error: entry not deleted!"))
+        cache.delete(cache_key)
+        cached_content = cache.get(cache_key)
+        if cached_content != None:
+            out.write(_("\t* Error: entry not deleted!"))
+
+    out.write(_("\nmore info:"))
+    out.write(mark_safe('\t<a href="http://www.pylucid.org/permalink/139/advanced-steps">PyLucid advanced install steps</a>'))
+    out.write(mark_safe(_('\t<a href="http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache">django cache documentation</a>')))
+
+#-----------------------------------------------------------------------------
+
+def _headfile_cache_test(request, out):
+    out.write(_("\tsettings.PYLUCID.CACHE_DIR is %r") % settings.PYLUCID.CACHE_DIR)
+    if settings.PYLUCID.CACHE_DIR == "":
+        out.write(_("\theadfile cache disabled, ok."))
+        return
+
+    view_prefix = "/%s/" % settings.PYLUCID.HEAD_FILES_URL_PREFIX
+    headfiles = EditableHtmlHeadFile.objects.all()
+    all_ok = True
+    for headfile in headfiles:
+        for colorscheme in headfile.iter_colorschemes():
+            url = headfile.get_absolute_url(colorscheme)
+            out.write("\t\turl: %s" % url)
+            if settings.PYLUCID.CACHE_DIR in url:
+                out.write("\tok")
+            elif url.startswith(view_prefix):
+                all_ok = False
+                out.write("\terror, fallback view used.")
+            else:
+                all_ok = False
+                out.write("\turl error?")
+    if not all_ok:
+        out.write(_("\nmore info:"))
+        out.write("\t1." + _("Check why the python process can't cachen the files."))
+        out.write("\t2." + _('Set settings.PYLUCID.CACHE_DIR="" to disable headfile cache.'))
+        out.write(mark_safe('read: <a href="http://www.pylucid.org/permalink/139/advanced-steps">PyLucid advanced install steps</a>'))
 
 #-----------------------------------------------------------------------------
 
@@ -132,28 +160,28 @@ def base_check(request):
         out.write("\tSee: http://docs.djangoproject.com/en/dev/ref/settings/#debug")
     else:
         out.write("settings.DEBUG, ok")
-    out.write("- "*40)
+    out.write("\n" + "- " * 40)
 
 
     if settings.PYLUCID.I18N_DEBUG:
         out.write(
-            "*** Error: pylucid app_settings.I18N_DEBUG is on!"
+            "\n*** Error: pylucid app_settings.I18N_DEBUG is on!"
             " (Should be off in productive environments!)"
         )
     else:
-        out.write("pylucid app_settings.I18N_DEBUG, ok.")
-    out.write("- "*40)
+        out.write("\npylucid app_settings.I18N_DEBUG, ok.")
+    out.write("\n" + "- " * 40)
 
 
     if settings.SECRET_KEY == "":
         out.write(
-            "*** Error: settings.SECRET_KEY not set!"
+            "\n*** Error: settings.SECRET_KEY not set!"
             " (You should add it into local-settings.py!)"
         )
         out.write("\tSee: http://docs.djangoproject.com/en/dev/ref/settings/#secret-key")
     else:
-        out.write("settings.SECRET_KEY, ok.")
-    out.write("- "*40)
+        out.write("\nsettings.SECRET_KEY, ok.")
+    out.write("\n" + "- " * 40)
 
     if settings.DATABASE_ENGINE == "mysql":
         try:
@@ -178,26 +206,30 @@ def base_check(request):
         out.write("- "*40)
 
 
-    out.write("\nDatabase unicode test:")
+    out.write("\nDatabase unicode test:\n")
     _database_encoding_test(request, out)
-    out.write("- "*40)
+    out.write("\n" + "- " * 40)
 
-    out.write("\nTest cache backend:")
+    out.write("\nTest cache backend:\n")
     _cache_backend_test(request, out)
-    out.write("- "*40)
+    out.write("\n" + "- " * 40)
+
+    out.write("\nTest headfile cache:\n")
+    _headfile_cache_test(request, out)
+    out.write("\n" + "- " * 40)
 
     try:
         lang_entry = Language.objects.get(code=settings.LANGUAGE_CODE)
     except Language.DoesNotExist, err:
-        out.write("*** Error: LANGUAGE_CODE %r doesn't exist!" % settings.LANGUAGE_CODE)
+        out.write("\n*** Error: LANGUAGE_CODE %r doesn't exist!" % settings.LANGUAGE_CODE)
         languages = Language.objects.values_list("code", flat=True)
         out.write("\tExisting languages are: %r" % languages)
         out.write("\tset/change LANGUAGE_CODE in local-settings.py or create language %r." % settings.LANGUAGE_CODE)
     else:
-        out.write("settings.LANGUAGE_CODE, ok.")
-    out.write("- "*40)
+        out.write("\nsettings.LANGUAGE_CODE, ok.")
+    out.write("\n" + "- " * 40)
 
-    out.write("Check if all PageTree has at lease a PageMeta instance in the default system language:")
+    out.write("\nCheck if all PageTree has at lease a PageMeta instance in the default system language:")
     default_lang_entry = Language.objects.get_or_create_default(request)
     exist_all = True
     # TODO: Can we but this into a big QuerySet?
@@ -212,7 +244,8 @@ def base_check(request):
             )
     if exist_all:
         out.write("ok.")
-    out.write("- "*40)
+    out.write("\n" + "- " * 40)
+    out.write("END")
 
     context = {
         "title": "Basic system setup check",
