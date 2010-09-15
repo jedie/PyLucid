@@ -123,25 +123,24 @@ admin.site.register(models.PluginPage, PluginPageAdmin)
 #------------------------------------------------------------------------------
 
 
-if settings.DEBUG:
-    class ColorAdmin(VersionAdmin):
-        def preview(self, obj):
-            return '<span style="background-color:#%s;" title="%s">&nbsp;&nbsp;&nbsp;</span>' % (
-                obj.value, obj.name
-            )
-        preview.short_description = 'color preview'
-        preview.allow_tags = True
+class ColorAdmin(VersionAdmin):
+    def preview(self, obj):
+        return '<span style="background-color:#%s;" title="%s">&nbsp;&nbsp;&nbsp;</span>' % (
+            obj.value, obj.name
+        )
+    preview.short_description = 'color preview'
+    preview.allow_tags = True
 
-        # disable delete all admin actions
-        # User should not use delete colors, because model.delete() would
-        # not called, read "warning" box on:
-        # http://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/
-        actions = None
+    # disable delete all admin actions
+    # User should not use delete colors, because model.delete() would
+    # not called, read "warning" box on:
+    # http://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/
+    actions = None
 
-        list_display = ("id", "name", "value", "preview", "colorscheme")
-        list_filter = ("colorscheme",)
+    list_display = ("id", "name", "value", "preview", "colorscheme")
+    list_filter = ("colorscheme",)
 
-    admin.site.register(models.Color, ColorAdmin)
+admin.site.register(models.Color, ColorAdmin)
 
 class ColorInline(admin.TabularInline):
     model = models.Color
