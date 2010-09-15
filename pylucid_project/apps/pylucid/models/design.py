@@ -38,7 +38,7 @@ class Design(SiteM2M, UpdateInfoBaseModel):
     """
     Page design: template + CSS/JS files 
 
-    inherited attributes from AutoSiteM2M:
+    inherited attributes from SiteM2M:
         sites   -> ManyToManyField to Site
         on_site -> sites.managers.CurrentSiteManager instance
 

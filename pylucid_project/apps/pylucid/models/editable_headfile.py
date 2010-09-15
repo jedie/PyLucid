@@ -169,7 +169,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
             colorscheme = design.colorscheme
             if colorscheme in skip_colorschemes:
                 continue
-            headfiles = design.headfiles.all().filter(render=True)
+            headfiles = design.headfiles.filter(pk=self.pk)
             for headfile in headfiles:
                 if headfile == self:
                     skip_colorschemes.append(colorscheme)
@@ -191,8 +191,14 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         Try to cache the headfile into filesystem, if settings.PYLUCID.CACHE_DIR is not empty
         Fallback to send view url, if we can't cache.
         """
-        if not self.render:
-            colorscheme = None
+        if self.render == True and colorscheme is None:
+            raise AssertionError(
+                "Headfile %s should renderes, but no colorscheme pass to get_absolute_url()!" % self
+            )
+        elif self.render == False and colorscheme is not None:
+            raise AssertionError(
+                "Headfile %s should not rendered, but the colorscheme %s was passed to get_absolute_url()!" % (self, colorscheme)
+            )
 
         if settings.PYLUCID.CACHE_DIR != "":
             cachepath = self.get_cachepath(colorscheme)
@@ -218,6 +224,9 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
 
     def get_headfilelink(self, colorscheme):
         """ Get the link url to this head file. """
+        if self.render != True:
+            colorscheme = None
+
         url = self.get_absolute_url(colorscheme)
         return headfile.HeadfileLink(url)
 
@@ -343,24 +352,29 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         # Find the most appropriate entry that has the most match colors.
         best_score = None
         best_colorscheme = None
+        tested_colorschemes = 0
         for colorscheme in self.iter_colorschemes():
+            tested_colorschemes += 1
             score = colorscheme.score_match(content_colors)
             if score > best_score:
                 best_colorscheme = colorscheme
                 best_score = score
 
         if best_colorscheme is None:
+            failsafe_message(
+                _('No existing colorscheme to merge colors found, ok. (tested %s colorschemes)') % tested_colorschemes
+            )
             best_colorscheme_dict = {}
             values2colors = {}
             colorschemes_data = {}
         else:
             failsafe_message(
-                _('Merge colors with colorscheme "%(name)s" (score: %(score)s)') % {
+                _('Merge colors with colorscheme "%(name)s" (score: %(score)s, tested %(count)s colorschemes)') % {
                     "name": best_colorscheme.name,
                     "score": best_score,
+                    "count": tested_colorschemes,
                 }
             )
-
             best_colorscheme_dict = best_colorscheme.get_color_dict()
             values2colors = dict([(v, k) for k, v in best_colorscheme_dict.iteritems()])
             colorschemes_data = {best_colorscheme:best_colorscheme_dict}

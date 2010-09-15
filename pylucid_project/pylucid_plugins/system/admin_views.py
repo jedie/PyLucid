@@ -83,21 +83,28 @@ def _headfile_cache_test(request, out):
         out.write(_("\theadfile cache disabled, ok."))
         return
 
+    def test_url(headfile, colorscheme):
+        url = headfile.get_absolute_url(colorscheme)
+        out.write("\t\turl: %s" % url)
+        if settings.PYLUCID.CACHE_DIR in url:
+            out.write("\tok")
+        elif url.startswith(view_prefix):
+            all_ok = False
+            out.write("\terror, fallback view used.")
+        else:
+            all_ok = False
+            out.write("\turl error?")
+
     view_prefix = "/%s/" % settings.PYLUCID.HEAD_FILES_URL_PREFIX
     headfiles = EditableHtmlHeadFile.objects.all()
     all_ok = True
     for headfile in headfiles:
-        for colorscheme in headfile.iter_colorschemes():
-            url = headfile.get_absolute_url(colorscheme)
-            out.write("\t\turl: %s" % url)
-            if settings.PYLUCID.CACHE_DIR in url:
-                out.write("\tok")
-            elif url.startswith(view_prefix):
-                all_ok = False
-                out.write("\terror, fallback view used.")
-            else:
-                all_ok = False
-                out.write("\turl error?")
+        if headfile.render:
+            for colorscheme in headfile.iter_colorschemes():
+                test_url(headfile, colorscheme)
+        else:
+            test_url(headfile, None)
+
     if not all_ok:
         out.write(_("\nmore info:"))
         out.write("\t1." + _("Check why the python process can't cachen the files."))

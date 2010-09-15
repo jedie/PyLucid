@@ -209,7 +209,7 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         response = self.client.get(self.url_edit_headfile)
         self.assertResponse(response,
             must_contain=(
-                "Merge colors with colorscheme &quot;yellow&quot; (score: 2)",
+                "Merge colors with colorscheme &quot;yellow&quot; (score: 2, tested 2 colorschemes)",
                 old_content,
                 "was changed successfully. You may edit it again below.",
             ),
@@ -351,7 +351,7 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         response = self.client.get(self.url_edit_headfile)
         self.assertResponse(response,
             must_contain=(
-                "Merge colors with colorscheme &quot;yellow&quot; (score: -1)",
+                "Merge colors with colorscheme &quot;yellow&quot; (score: -1, tested 2 colorschemes)",
                 "Colors &quot;red:ff0000&quot; created in colorscheme &quot;yellow&quot;",
                 "Colors &quot;red:ff0000&quot; created in colorscheme &quot;blue&quot;",
 
@@ -545,16 +545,73 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
             )
         )
 
+    def test_new_headfile(self):
+        """
+        Two tests: Create a non-render headfile and assign it to a colorscheme design
+        """
+        url = reverse("admin:pylucid_editablehtmlheadfile_add")
+        response = self.client.post(url,
+            data={
+                '_continue': 'Save and continue editing',
+                 'content': '#00ff00;',
+                 'filepath': 'new_headfile.css',
+            },
+            follow=True,
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "The editable html head file &quot;new_headfile.css&quot; was added successfully. You may edit it again below.",
+                '<input type="checkbox" name="render"',
+                "#00ff00;</textarea>",
+            ),
+            must_not_contain=("Traceback",)
+        )
+
+        headfile = EditableHtmlHeadFile.objects.get(filepath="new_headfile.css")
+        headfile_url = headfile.get_absolute_url()
+        response = self.client.get(headfile_url)
+        self.assertEqual(response.content, "#00ff00;")
+
+        # Add the new headfile to a design with colorscheme and change the color value:
+
+        self.design1.headfiles.add(headfile)
+
+        url = reverse("admin:pylucid_editablehtmlheadfile_change", args=(headfile.id,))
+        response = self.client.post(url,
+            data={
+                '_continue': 'Save and continue editing',
+                 'content': '#00ffff;',
+                 'filepath': 'new_headfile.css',
+                 'render': 'on'
+            },
+            follow=True,
+        )
+        # The color value must be replace with a named color:
+        self.assertResponse(response,
+            must_contain=(
+                "Colors &quot;cyan:00ffff&quot; created in colorscheme &quot;yellow&quot;",
+                "The editable html head file &quot;new_headfile.css&quot; was changed successfully. You may edit it again below.",
+                '<input checked="checked" type="checkbox" name="render"',
+                "{{ cyan }};</textarea>",
+            ),
+            must_not_contain=("Traceback",)
+        )
+        headfile = EditableHtmlHeadFile.objects.get(filepath="new_headfile.css") # renew object
+        headfile_url = headfile.get_absolute_url(self.colorscheme1)
+
+        response = self.client.get(headfile_url)
+        # The cache file should be updated:
+        self.assertEqual(response.content, "#00ffff;")
 
 
 
 if __name__ == "__main__":
     # Run all unittest directly
-#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest.test_clean_cache_for_non_render",
+#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest.test_new_headfile",
 #        verbosity=2,
 #        failfast=True
 #    )
     management.call_command('test', __file__,
 #        verbosity=2,
-        failfast=True
+#        failfast=True
     )
