@@ -18,14 +18,11 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.redirects.models import Redirect
 from django.contrib.sites.models import Site
-from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
 from django.template.defaultfilters import slugify
-from django.template.loader import find_template_source
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from dbpreferences.models import Preference
@@ -33,15 +30,16 @@ from dbpreferences.models import Preference
 from dbtemplates.models import Template
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.fields import CSS_VALUE_RE
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, ColorScheme, Design, \
                                                 EditableHtmlHeadFile, UserProfile, LogEntry, Language
 from pylucid_project.apps.pylucid_update.forms import UpdateForm, WipeSiteConfirm
 from pylucid_project.apps.pylucid_update.models import Page08, Template08, Style08, JS_LoginData08
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
-from pylucid_project.utils.css_color_utils import filter_content, extract_colors
-from django.utils.safestring import mark_safe
+
+
+# suffix for design name
+DESIGN_SUFFIX = "(v0.8 migration)"
 
 
 def _get_output(request, out, title):
@@ -52,13 +50,13 @@ def _get_output(request, out, title):
         out.write("Page messages:")
     else:
         out.write("No page messages, ok.")
-        
+
     for message in storage:
         out.write(str(message))
 
     output = out.getlines()
-    
-    if storage:    
+
+    if storage:
         messages.info(request, "Page messages merge into the output and a LogEntry created.")
     else:
         messages.info(request, "A LogEntry created.")
@@ -252,9 +250,9 @@ def _update08migrate_pages(request, language):
         # create/get Design entry
 
         if old_page.template.name == old_page.style.name:
-            design_key = "%s (v0.8 migration)" % (old_page.template.name)
+            design_key = "%s %s" % (old_page.template.name, DESIGN_SUFFIX)
         else:
-            design_key = "%s + %s (v0.8 migration)" % (old_page.template.name, old_page.style.name)
+            design_key = "%s + %s %s" % (old_page.template.name, old_page.style.name, DESIGN_SUFFIX)
 
         if design_key in designs:
             design = designs[design_key]
@@ -266,6 +264,7 @@ def _update08migrate_pages(request, language):
                 name=design_key, defaults={"template": new_template_name}
             )
             if created:
+                design.sites.add(site)
                 out.write("New design %s created." % design_key)
             else:
                 out.write("Use existing Design: %r" % design)
@@ -398,11 +397,10 @@ def _update08migrate_pages(request, language):
             content_entry.save()
             out.write("PageContent entry '%s' - '%s' created." % (language, tree_entry.slug))
 
-
     # Save the information old page ID <-> new PageTree ID, for later use in other views.
     LogEntry.objects.log_action(
         "pylucid_update", "v0.8 migation (site id: %s)" % site.id,
-        request, "page id data", data=new_page_id_da)
+        request, "page id data", data=new_page_id_data)
     output = _get_output(request, out, title) # merge page_msg and log the complete output
 
     context = {
@@ -773,7 +771,7 @@ def update08templates(request):
         content = _replace(content, out, "{{ PAGE.", "{{ page_")
 
         content = _replace(content, out, "{% lucidTag RSS ", "{% lucidTag rss ")
-        
+
         # http://www.pylucid.org/permalink/81/backwards-incompatible-changes#26-05-2010-own-jquery-js-file-removed
         content = _replace(content, out, "/media/PyLucid/jquery.js", "{{ Django_media_prefix }}js/jquery.min.js")
         content = _replace(content, out, "/media/PyLucid/pylucid_js_tools.js", "{{ PyLucid_media_url }}pylucid_js_tools.js")
@@ -787,7 +785,7 @@ def update08templates(request):
             )
 
         # TODO: add somthing like: <meta http-equiv="Content-Language" content="en" />
-        
+
         new_page_msg = '{% include "pylucid/includes/page_msg.html" %}'
         content = _replace(content, out, "<!-- page_messages -->", new_page_msg)
 
@@ -823,106 +821,26 @@ def update08templates(request):
 @render_to("pylucid_update/update08result.html")
 def update08styles(request):
     """
-    TODO: We should not add any styles... We should create a new EditableHtmlHeadFile stylesheet
-    file and add this to all Design!
+    Fill colorschemes with colors from headfiles.
     """
     site = Site.objects.get_current()
     title = "Update PyLucid v0.8 %s styles" % site.name
     out = SimpleStringIO()
 
-    def update_headfile_colorscheme(design, headfile):
-        out.write("\nExtract colors from: '%s'" % headfile.filepath)
-
-        colorscheme = design.colorscheme
-        if colorscheme == None:
-            # This design has no color scheme, yet -> create one
-            colorscheme = ColorScheme(name=headfile.filepath)
-            colorscheme.save()
-            out.write("Add color scheme %r to %r" % (colorscheme.name, design.name))
-            design.colorscheme = colorscheme
-            design.save()
-
-        out.write("Use color scheme %r" % colorscheme.name)
-
-        content = headfile.content
-        new_content, color_dict = extract_colors(content)
-        out.write(repr(new_content))
-        out.write(pformat(color_dict))
-
-        try:
-            created, updated, exists = colorscheme.update(color_dict)
-        except ValidationError, err:
-            out.write("Error updating colorscheme: %s" % err)
-            return
-
-        out.write("created %s colors: %r" % (len(created), created))
-        out.write("updated %s colors: %r" % (len(updated), updated))
-        out.write("exists %s colors: %r" % (len(exists), exists))
-
-        colorscheme.save()
-
-        headfile.content = new_content
-        headfile.render = True
-        headfile.save()
-
-
-    def update_all_design_colorscheme(design):
-        headfiles = design.headfiles.all()
-        out.write("\nExisting headfiles: %r" % headfiles)
-
-        for headfile in headfiles:
-            if not headfile.filepath.lower().endswith(".css"):
-                out.write("Skip headfile: %r" % headfile)
-            else:
-                update_headfile_colorscheme(design, headfile)
-
-    designs = Design.on_site.all()
+    designs = Design.on_site.filter(name__endswith=DESIGN_SUFFIX)
+    resaved_headfiles = []
     for design in designs:
         out.write("\n______________________________________________________________")
         out.write("\nUpdate color scheme for design: '%s'" % design.name)
 
-        update_all_design_colorscheme(design)
-
-
-#    styles = EditableHtmlHeadFile.objects.filter(filepath__istartswith=settings.SITE_TEMPLATE_PREFIX)
-#    styles = styles.filter(filepath__iendswith=".css")
-#    for style in styles:
-#        out.write("\n______________________________________________________________")
-#        out.write("\nUpdate Style: '%s'" % style.filepath)
-#        
-#        content = style.content
-#        filtered_content = filter_content(content) # Skip all pygments styles
-#        out.write(filtered_content)
-#        
-#        new_content, color_dict = extract_colors(content)
-#        out.write(new_content)
-#        out.write(repr(color_dict))
-
-#    def replace(content, out, old, new):
-#        out.write("replace %r with %r" % (old, new))
-#        if not old in content:
-#            out.write("String not found. Updated already?")
-#        else:
-#            content = content.replace(old, new)
-#        return content
-#    
-#    # Get the file content via django template loader:
-#    additional_styles, origin = find_template_source("pylucid_update/additional_styles.css")
-#        
-#    styles = EditableHtmlHeadFile.objects.filter(filepath__istartswith=settings.SITE_TEMPLATE_PREFIX)
-#    styles = styles.filter(filepath__iendswith=".css")
-#    for style in styles:
-#        out.write("\n______________________________________________________________")
-#        out.write("\nUpdate Style: '%s'" % style.filepath)
-#        
-#        content = style.content
-#        if additional_styles in content:
-#            out.write("additional styles allready inserted.")
-#        else:
-#            content = additional_styles + content
-#            style.content = content
-#            style.save()
-#            out.write("additional styles inserted.")        
+        headfiles = design.headfiles.all()
+        for headfile in headfiles:
+            if headfile in resaved_headfiles:
+                continue
+            resaved_headfiles.append(headfile)
+            headfile.render = True
+            headfile.save()
+            out.write("Headfile %s set to render and resaved" % headfile)
 
     output = out.getlines()
     LogEntry.objects.log_action(
