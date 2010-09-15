@@ -173,6 +173,25 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         response = self.request_style(self.design4)
         self.assertEqual(response.content, self.INVERTED_YELLOW_STYLES)
 
+    def test_clean_cache_for_non_render(self):
+        """
+        headfiles without render a colorscheme, should also cleanup cache file ;)
+        """
+        self.headfile1.render = False
+        self.headfile1.content = "one"
+        self.headfile1.save()
+        url = self.headfile1.get_absolute_url()
+        self.assertTrue("/headfile_cache/" in url)
+        response = self.client.get(url)
+        self.assertEqual(response.content, "one")
+
+        self.headfile1.content = "two"
+        self.headfile1.save()
+        url = self.headfile1.get_absolute_url()
+        self.assertTrue("/headfile_cache/" in url)
+        response = self.client.get(url)
+        self.assertEqual(response.content, "two")
+
     def test_past_existing_colors(self):
         old_content = self.headfile1.content
         response = self.client.post(self.url_edit_headfile,
@@ -531,7 +550,7 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
 
 if __name__ == "__main__":
     # Run all unittest directly
-#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest.test_new_render_headfile",
+#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest.test_clean_cache_for_non_render",
 #        verbosity=2,
 #        failfast=True
 #    )

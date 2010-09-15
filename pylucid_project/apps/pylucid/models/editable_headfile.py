@@ -185,7 +185,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
             url += "?ColorScheme=%s" % colorscheme.pk
         return url
 
-    def get_absolute_url(self, colorscheme):
+    def get_absolute_url(self, colorscheme=None):
         """
         return the absolute url to the headfile.      
         Try to cache the headfile into filesystem, if settings.PYLUCID.CACHE_DIR is not empty
@@ -221,7 +221,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         url = self.get_absolute_url(colorscheme)
         return headfile.HeadfileLink(url)
 
-    def delete_cachefile(self, colorscheme):
+    def delete_cachefile(self, colorscheme=None):
         cachepath = self.get_cachepath(colorscheme)
         if not os.path.isfile(cachepath):
             if settings.DEBUG:
@@ -432,8 +432,11 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
     def save(self, *args, **kwargs):
         self.update_colorscheme()
         super(EditableHtmlHeadFile, self).save(*args, **kwargs)
-        for colorscheme in self.iter_colorschemes():
-            self.delete_cachefile(colorscheme)
+        if self.render:
+            for colorscheme in self.iter_colorschemes():
+                self.delete_cachefile(colorscheme)
+        else:
+            self.delete_cachefile()
 
     def __unicode__(self):
         return self.filepath
