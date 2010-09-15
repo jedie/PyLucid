@@ -297,7 +297,10 @@ class DesignAdmin(VersionAdmin):
         colors = models.Color.objects.all().filter(colorscheme=colorscheme)
         headfiles = obj.headfiles.all()
         for headfile in headfiles:
-            headfile.absolute_url = headfile.get_absolute_url(colorscheme)
+            if headfile.render:
+                headfile.absolute_url = headfile.get_absolute_url(colorscheme)
+            else:
+                headfile.absolute_url = headfile.get_absolute_url()
 
         context = {
             "design": obj,
