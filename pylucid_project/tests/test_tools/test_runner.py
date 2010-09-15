@@ -56,15 +56,20 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
                 return True
         return False
 
+    def print_test_names(self, tests):
+        if hasattr(tests, "_tests"):
+            for test in tests:
+                self.print_test_names(test)
+        else:
+            module_name = tests.__class__.__module__
+            file_name = module_name.split(".")[-1]
+            print "\t%s.%s.%s" % (file_name, tests.__class__.__name__, tests._testMethodName)
+
     def print_verbose_info(self, tests, test_name):
         if self.verbosity:
             print "Add %s tests from %r" % (tests.countTestCases(), test_name)
         if self.verbosity >= 2:
-            for testcase in tests:
-                for test in testcase._tests:
-                    module_name = test.__class__.__module__
-                    file_name = module_name.split(".")[-1]
-                    print "\t%s.%s.%s" % (file_name, test.__class__.__name__, test._testMethodName)
+            self.print_test_names(tests)
 
     def build_suite(self, test_labels, extra_tests=None, **kwargs):
         """
