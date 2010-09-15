@@ -9,6 +9,8 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 
+from django_tools.utils.messages import failsafe_message
+
 from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 
 
@@ -29,8 +31,12 @@ except Site.DoesNotExist, err:
     etype, evalue, etb = sys.exc_info()
     evalue = etype("%s (settings.SITE_ID: %r)" % (err, settings.SITE_ID))
     raise etype, evalue, etb
+except Exception, err:
+    failsafe_message("Error, can't get system preferences: %s" % err)
+    ban_release_time = 15
+else:
+    ban_release_time = sys_pref.get("ban_release_time", 15)
 
-ban_release_time = sys_pref.get("ban_release_time", 15)
 ban_release_timedelta = datetime.timedelta(minutes=ban_release_time)
 
 class IPBanMiddleware(object):
