@@ -20,8 +20,9 @@ from django.utils.translation import ugettext_lazy as _
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.fields import ColorValueField
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
 from pylucid_project.utils.css_color_utils import get_new_css_names
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -42,11 +43,13 @@ def slugify_colorname(value):
 
 
 
-class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
+class ColorScheme(UpdateInfoBaseModel):
     """
-    inherited attributes from AutoSiteM2M:
-        sites   -> ManyToManyField to Site
-        on_site -> sites.managers.CurrentSiteManager instance
+    inherited attributes from UpdateInfoBaseModel:
+        createtime     -> datetime of creation
+        lastupdatetime -> datetime of the last change
+        createby       -> ForeignKey to user who creaded this entry
+        lastupdateby   -> ForeignKey to user who has edited this entry
     """
     name = models.CharField(max_length=255, help_text="The name of this color scheme.")
 
@@ -66,7 +69,7 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
             _("existing colors: %s") % ", ".join(['"%s"' % c for c in existing_colors])
         )
 
-        queryset = Color.on_site.all().filter(colorscheme=self).exclude(name__in=existing_colors)
+        queryset = Color.objects.all().filter(colorscheme=self).exclude(name__in=existing_colors)
         color_names = queryset.values_list('name', flat=True)
         if not color_names:
             messages.info(request, _("No unused colors found, ok."))
@@ -79,7 +82,7 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
 
     def score_match(self, colors):
         """ Weighted matches of the given color values. """
-        queryset = Color.on_site.filter(colorscheme=self)
+        queryset = Color.objects.filter(colorscheme=self)
         existing_colors = queryset.values_list('value', flat=True)
 
         score = 0
@@ -92,12 +95,12 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
         return score
 
     def get_color_dict(self):
-        queryset = Color.on_site.filter(colorscheme=self)
+        queryset = Color.objects.filter(colorscheme=self)
         color_list = queryset.values_list('name', 'value')
         return dict(color_list)
 
     def get_color_names(self):
-        queryset = Color.on_site.filter(colorscheme=self)
+        queryset = Color.objects.filter(colorscheme=self)
         color_list = queryset.values_list('name', flat=True)
         return color_list
 
@@ -111,19 +114,20 @@ class ColorScheme(AutoSiteM2M, UpdateInfoBaseModel):
                 headfile.delete_cachefile(self)
 
     def __unicode__(self):
-        sites = self.sites.values_list('name', flat=True)
-        return u"ColorScheme '%s' (on sites: %r)" % (self.name, sites)
+        return self.name
 
     class Meta:
         app_label = 'pylucid'
 
 
 
-class Color(AutoSiteM2M, UpdateInfoBaseModel):
+class Color(UpdateInfoBaseModel):
     """
-    inherited attributes from AutoSiteM2M:
-        sites   -> ManyToManyField to Site
-        on_site -> sites.managers.CurrentSiteManager instance
+    inherited attributes from UpdateInfoBaseModel:
+        createtime     -> datetime of creation
+        lastupdatetime -> datetime of the last change
+        createby       -> ForeignKey to user who creaded this entry
+        lastupdateby   -> ForeignKey to user who has edited this entry
     """
     colorscheme = models.ForeignKey(ColorScheme)
     name = models.CharField(max_length=128,
@@ -226,7 +230,6 @@ class Color(AutoSiteM2M, UpdateInfoBaseModel):
             )
 
         super(Color, self).save(*args, **kwargs)
-
 
     def __unicode__(self):
         return u"Color '%s' #%s (%s)" % (self.name, self.value, self.colorscheme)

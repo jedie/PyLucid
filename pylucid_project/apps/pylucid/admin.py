@@ -24,8 +24,6 @@ from django.contrib import admin, messages
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
@@ -150,37 +148,11 @@ class ColorInline(admin.TabularInline):
     extra = 0
 
 
-class ColorSchemeAdminForm(forms.ModelForm):
-    class Meta:
-        model = models.ColorScheme
-
-    def clean_sites(self):
-        """
-        Check if headfile sites contain the site from all design entries.
-        """
-        sites = self.cleaned_data["sites"]
-        designs = models.Design.objects.all().filter(headfiles=self.instance)
-        for design in designs:
-            for design_site in design.sites.all():
-                if design_site in sites:
-                    continue
-                raise forms.ValidationError(_(
-                    "ColorScheme must exist on site %(site)r!"
-                    " Because it's used by design %(design)r." % {
-                        "site": design_site,
-                        "design": design
-                    }
-                ))
-
-        return sites
-
-
 class ColorSchemeAdmin(VersionAdmin):
 
     def clone(self, request, object_id):
         """ Clone a color scheme """
         colorscheme = models.ColorScheme.objects.get(id=object_id)
-        sites = colorscheme.sites.all()
         old_name = colorscheme.name
         new_name = old_name + "_cloned"
 
@@ -189,15 +161,11 @@ class ColorSchemeAdmin(VersionAdmin):
         colorscheme.pk = None # make the object "new" ;)
         colorscheme.name = new_name
         colorscheme.save(force_insert=True)
-        colorscheme.sites = sites
-        colorscheme.save(force_update=True)
 
         for color in colors:
             color.pk = None # make the object "new" ;)
             color.colorscheme = colorscheme
             color.save(force_insert=True)
-            color.sites = sites
-            color.save(force_update=True)
 
         messages.success(request,
             _("Colorscheme %(old_name)s cloned to %(new_name)s") % {
@@ -241,12 +209,10 @@ class ColorSchemeAdmin(VersionAdmin):
     design_usage_info.short_description = 'used in designs'
     design_usage_info.allow_tags = True
 
-    form = ColorSchemeAdminForm
     change_list_template = "admin/pylucid/change_list_with_design_link.html"
-    list_display = ("id", "name", "preview", "design_usage_info", "site_info", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "name", "preview", "design_usage_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("name",)
     search_fields = ("name",)
-    list_filter = ("sites",)
     inlines = [ColorInline, ]
 
 admin.site.register(models.ColorScheme, ColorSchemeAdmin)
@@ -260,52 +226,19 @@ class DesignAdminForm(forms.ModelForm):
         model = models.Design
 
     def clean(self):
-        """
-        check if all headfiles and colorscheme exist on the same site
-        than the design exist.
-        """
+        """ Check if all pages exist on the site. """
         cleaned_data = self.cleaned_data
 
-        if "sites" not in cleaned_data: # e.g. no sites selected
-            return cleaned_data
-        sites = cleaned_data["sites"]
-
-        if "headfiles" not in cleaned_data: # e.g. no headfile selected
-            return cleaned_data
-        headfiles = cleaned_data["headfiles"]
-
-        for headfile in headfiles:
-            for design_site in sites:
-                if design_site in headfile.sites.all():
-                    continue
-                msg = _(
-                    "Headfile %(headfile)r doesn't exist on site %(site)r!" % {
-                        "headfile": headfile, "site": design_site
-                    }
-                )
-                if "headfiles" in self._errors:
-                    self._errors["headfiles"].append(msg)
-                else:
-                    self._errors["headfiles"] = self.error_class([msg])
-
-        if "headfiles" in self._errors:
-            # Remove non-valid field from the cleaned data
-            del cleaned_data["headfiles"]
-
-        colorscheme = cleaned_data["colorscheme"]
-        for design_site in sites:
-            if design_site in colorscheme.sites.all():
-                continue
-
-            msg = _(
-                "Colorscheme %(colorscheme)r doesn't exist on site %(site)r!" % {
-                    "colorscheme": colorscheme, "site": design_site
+        if "sites" in cleaned_data:
+            sites = cleaned_data["sites"]
+            queryset = models.PageTree.objects.all().filter(design=self.instance).exclude(site__in=sites)
+            page_count = queryset.count()
+            if page_count > 0:
+                site = queryset[0].site
+                msg = _("Error: At least %(count)s page(s) used this design on site %(site)s!") % {
+                    "count": page_count, "site": site
                 }
-            )
-            self._errors["colorscheme"] = self.error_class([msg])
-
-            # Remove non-valid field from the cleaned data
-            del cleaned_data["colorscheme"]
+                self._errors["sites"] = self.error_class([msg])
 
         return cleaned_data
 
@@ -408,72 +341,13 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
         # Don't apply jquery.textarearesizer.js:
         self.fields["content"].widget.attrs["class"] += " processed"
 
-    def clean_sites(self):
-        """
-        Check if headfile sites contain the site from all design entries.
-        """
-        sites = self.cleaned_data["sites"]
-        designs = models.Design.objects.all().filter(headfiles=self.instance)
-        for design in designs:
-            for design_site in design.sites.all():
-                if design_site in sites:
-                    continue
-                raise forms.ValidationError(_(
-                    "Headfile must exist on site %(site)r!"
-                    " Because it's used by design %(design)r." % {
-                        "site": design_site,
-                        "design": design
-                    }
-                ))
-
-        return sites
-
-    def clean(self):
-        """
-        manually check a unique together, because django can't do this with a M2M field.
-        Obsolete if unique_together work with ManyToMany: http://code.djangoproject.com/ticket/702
-        
-        Note:
-        1. This can't be checked in model validation, because M2M fields
-            are only accessible/updated after save()!
-        2. In model pre_save signal is a unique together check, too.
-        """
-        cleaned_data = self.cleaned_data
-
-        if "sites" not in cleaned_data or "filepath" not in cleaned_data:
-            return cleaned_data
-
-        filepath = cleaned_data["filepath"]
-        sites = cleaned_data["sites"]
-
-        headfiles = models.EditableHtmlHeadFile.objects.filter(filepath=filepath)
-        if self.instance.id is not None:
-            headfiles = headfiles.exclude(id=self.instance.id)
-
-        for headfile in headfiles:
-            for site in headfile.sites.all():
-                if site not in sites:
-                    continue
-
-                if "filepath" not in self._errors:
-                    self._errors["filepath"] = self.error_class([])
-
-                self._errors["filepath"].append(_(
-                    "EditableHtmlHeadFile with same filepath exist on site %r" % site
-                ))
-
-        if "filepath" in self._errors:
-            # Remove non-valid field from the cleaned data
-            del cleaned_data["filepath"]
-
-        return cleaned_data
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
     form = EditableHtmlHeadFileAdminForm
     change_list_template = "admin/pylucid/change_list_with_design_link.html"
-    list_display = ("id", "filepath", "site_info", "render", "description", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "filepath", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
-    list_filter = ("sites", "render")
+    list_filter = ("render",)
 
 admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 

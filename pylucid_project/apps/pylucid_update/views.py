@@ -273,7 +273,7 @@ def _update08migrate_pages(request, language):
             # Add old page css file            
             new_style_name = _make_new_style_name(old_page.style.name, site)
             try:
-                css_file = EditableHtmlHeadFile.on_site.get(filepath=new_style_name)
+                css_file = EditableHtmlHeadFile.objects.get(filepath=new_style_name)
             except EditableHtmlHeadFile.DoesNotExist:
                 out.write("Error getting headfile %r. (Can't add it to design %r)" % (new_style_name, design))
             else:

@@ -14,13 +14,13 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.db import models
-from django.template.loader import find_template
-from django.template import TemplateDoesNotExist
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.template import TemplateDoesNotExist
+from django.template.loader import find_template
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, SiteM2M
 
 # other PyLucid models
 from colorscheme import ColorScheme
@@ -30,11 +30,11 @@ TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
 
-
 class DesignManager(models.Manager):
     pass
 
-class Design(AutoSiteM2M, UpdateInfoBaseModel):
+#
+class Design(SiteM2M, UpdateInfoBaseModel):
     """
     Page design: template + CSS/JS files 
 
@@ -76,3 +76,4 @@ class Design(AutoSiteM2M, UpdateInfoBaseModel):
     class Meta:
         app_label = 'pylucid'
         ordering = ("template",)
+

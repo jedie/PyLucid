@@ -506,15 +506,14 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         self.check_styles()
 
 
+
 if __name__ == "__main__":
     # Run all unittest directly
-#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest",
-##        verbosity=0,
-##        verbosity=1,
+#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest.test_remove_unused_colors",
 #        verbosity=2,
 #        failfast=True
 #    )
     management.call_command('test', __file__,
         verbosity=2,
-#        failfast=True
+        failfast=True
     )

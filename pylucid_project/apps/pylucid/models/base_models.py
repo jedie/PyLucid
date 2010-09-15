@@ -100,14 +100,28 @@ class BaseModelManager(models.Manager):
         return item, tried_languages
 
 
+#------------------------------------------------------------------------------
 
 
-class AutoSiteM2M(models.Model):
+class SiteM2M(models.Model):
     """ Base model with sites M2M and CurrentSiteManager. """
     objects = models.Manager()
     sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     on_site = CurrentSiteManager('sites')
 
+    def site_info(self):
+        """ for admin.ModelAdmin list_display """
+        sites = self.sites.all()
+        return ", ".join([site.name for site in sites])
+    site_info.short_description = _('Exists on site')
+    site_info.allow_tags = False
+
+    class Meta:
+        abstract = True
+
+
+class AutoSiteM2M(SiteM2M):
+    """ Base model with sites M2M and CurrentSiteManager. """
     def save(self, *args, **kwargs):
         """
         Automatic current site, if not exist.
@@ -130,16 +144,10 @@ class AutoSiteM2M(models.Model):
 
         super(AutoSiteM2M, self).save(*args, **kwargs)
 
-    def site_info(self):
-        """ for admin.ModelAdmin list_display """
-        sites = self.sites.all()
-        return ", ".join([site.name for site in sites])
-    site_info.short_description = _('Exists on site')
-    site_info.allow_tags = False
-
     class Meta:
         abstract = True
 
+#------------------------------------------------------------------------------
 
 
 class UpdateInfoBaseModel(models.Model):

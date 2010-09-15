@@ -3,8 +3,16 @@
         "pk": 1,
         "model": "sites.site",
         "fields": {
-            "domain": "example.com",
-            "name": "example site"
+            "domain": "example1.com",
+            "name": "example site 1"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "sites.site",
+        "fields": {
+            "domain": "example2.com",
+            "name": "example site 2"
         }
     },
     {
@@ -16,7 +24,7 @@
             "lastupdatetime": "2010-01-29 08:50:03",
             "permitViewGroup": null,
             "sites": [
-                1
+                1,2
             ],
             "createby": null,
             "lastupdateby": 1,
@@ -30,9 +38,6 @@
             "createby": 1,
             "name": "yellow",
             "lastupdatetime": "2010-09-01 11:28:13",
-            "sites": [
-                1
-            ],
             "lastupdateby": 1,
             "createtime": "2009-11-03 03:37:09"
         }
@@ -44,9 +49,6 @@
             "createby": 1,
             "name": "blue",
             "lastupdatetime": "2010-09-01 11:27:38",
-            "sites": [
-                1
-            ],
             "lastupdateby": 1,
             "createtime": "2010-08-31 14:16:32"
         }
@@ -59,9 +61,6 @@
             "name": "background",
             "lastupdatetime": "2010-09-01 11:27:38",
             "colorscheme": 1,
-            "sites": [
-                1
-            ],
             "value": "222200",
             "lastupdateby": 1,
             "createtime": "2009-11-03 03:40:27"
@@ -75,9 +74,6 @@
             "name": "foreground",
             "lastupdatetime": "2010-09-01 11:28:13",
             "colorscheme": 1,
-            "sites": [
-                1
-            ],
             "value": "aaaa00",
             "lastupdateby": 1,
             "createtime": "2009-11-03 03:40:27"
@@ -91,9 +87,6 @@
             "name": "background",
             "lastupdatetime": "2010-09-01 11:27:38",
             "colorscheme": 2,
-            "sites": [
-                1
-            ],
             "value": "000040",
             "lastupdateby": 1,
             "createtime": "2010-08-31 14:16:32"
@@ -107,9 +100,6 @@
             "name": "foreground",
             "lastupdatetime": "2010-09-01 11:27:38",
             "colorscheme": 2,
-            "sites": [
-                1
-            ],
             "value": "0000ff",
             "lastupdateby": 1,
             "createtime": "2010-08-31 14:16:32"
@@ -124,9 +114,6 @@
             "html_attributes": "",
             "lastupdatetime": "2010-09-01 11:27:38",
             "filepath": "test_styles.css",
-            "sites": [
-                1
-            ],
             "content": "* { color: {{ foreground }}; }\r\nbody { background: {{ background }}; }",
             "render": true,
             "lastupdateby": 1,
@@ -143,9 +130,6 @@
             "html_attributes": "",
             "lastupdatetime": "2010-09-01 11:27:38",
             "filepath": "inverted_test_styles.css",
-            "sites": [
-                1
-            ],
             "content": "body { background: {{ foreground }}; }\r\n* { color: {{ background }}; }",
             "render": true,
             "lastupdateby": 1,

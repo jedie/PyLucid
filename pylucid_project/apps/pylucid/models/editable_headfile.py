@@ -16,15 +16,14 @@ import mimetypes
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.db import models, IntegrityError
-from django.db.models import signals
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.template import render
 from django_tools.utils.messages import failsafe_message
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
 from pylucid_project.utils.css_color_utils import unify_spelling, \
                         get_new_css_names, replace_css_name, unique_color_name
 from pylucid_project.apps.pylucid.system import headfile
@@ -55,13 +54,9 @@ class EditableHtmlHeadFileManager(models.Manager):
         return headfile.HeadfileLink(filename=db_instance.filename)#, content=db_instance.content)
 
 
-class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
+class EditableHtmlHeadFile(UpdateInfoBaseModel):
     """
     Storage for editable static text files, e.g.: stylesheet / javascript.
-
-    inherited attributes from AutoSiteM2M:
-        sites   -> ManyToManyField to Site
-        on_site -> sites.managers.CurrentSiteManager instance
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -71,7 +66,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
     """
     objects = EditableHtmlHeadFileManager()
 
-    filepath = models.CharField(max_length=255)
+    filepath = models.CharField(max_length=255, unique=True)
     mimetype = models.CharField(max_length=64,
         help_text=_("MIME type for this file. (Leave empty for guess by filename)")
     )
@@ -403,7 +398,7 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
                     # This color exist in this colorscheme
                     continue
 
-                color, created = Color.on_site.get_or_create(
+                color, created = Color.objects.get_or_create(
                     colorscheme=colorscheme, name=color_name,
                     defaults={"value": color_value}
                 )
@@ -430,50 +425,12 @@ class EditableHtmlHeadFile(AutoSiteM2M, UpdateInfoBaseModel):
             self.delete_cachefile(colorscheme)
 
     def __unicode__(self):
-        try:
-            sites = self.sites.values_list('name', flat=True)
-        except ValueError:
-            # e.g. new instance not saved, yet: 
-            # instance needs to have a primary key value before a many-to-many relationship can be used.
-            return u"'%s'" % self.filepath
-        else:
-            return u"'%s' (on sites: %r)" % (self.filepath, sites)
+        return self.filepath
 
     class Meta:
         app_label = 'pylucid'
-        #unique_together = ("filepath", "site")
-        # unique_together doesn't work with ManyToMany: http://code.djangoproject.com/ticket/702
         ordering = ("filepath",)
 
-
-def unique_check_callback(sender, **kwargs):
-    """
-    manually check a unique together, because django can't do this with 
-    Meta.unique_together and a M2M field. It's also unpossible to do this 
-    in model validation.
-    
-    Obsolete if unique_together work with ManyToMany: http://code.djangoproject.com/ticket/702
-    
-    Note: this was done in model admin class, too.
-    """
-    headfile = kwargs["instance"]
-
-    headfiles = EditableHtmlHeadFile.objects.filter(filepath=headfile.filepath)
-    headfiles = headfiles.exclude(id=headfile.id)
-
-    for headfile in headfiles:
-        for site in headfile.sites.all():
-            if site not in headfile.sites.all():
-                continue
-
-            raise IntegrityError(
-                _("EditableHtmlHeadFile with filepath %(filepath)r exist on site %(site)r") % {
-                    "filepath": headfile.filepath,
-                    "site": site,
-                }
-            )
-
-signals.post_save.connect(unique_check_callback, sender=EditableHtmlHeadFile)
 
 
 

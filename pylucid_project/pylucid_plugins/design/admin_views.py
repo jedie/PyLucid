@@ -218,8 +218,8 @@ def rename_colors(request, colorscheme_id):
     TODO: display the changed colors in a form, so that the user
     can choose witch colors should really be renamed.
     """
-    colorschmeme = ColorScheme.on_site.get(id=colorscheme_id)
-    colors = Color.on_site.filter(colorscheme=colorschmeme)
+    colorschmeme = ColorScheme.objects.get(id=colorscheme_id)
+    colors = Color.objects.filter(colorscheme=colorschmeme)
 
     changed_colors = 0
     existing_colors = []

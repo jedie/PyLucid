@@ -133,7 +133,7 @@ def get_pygments_css(request):
     # import here, because it needs a database and other parts
     from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile
     try:
-        pygments_css = EditableHtmlHeadFile.on_site.get(filepath="pygments.css")
+        pygments_css = EditableHtmlHeadFile.objects.get(filepath="pygments.css")
     except EditableHtmlHeadFile.DoesNotExist:
         messages.error(request, "Error: No headfile with filepath 'pygments.css' found.")
     else:

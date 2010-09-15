@@ -45,10 +45,7 @@
         "fields": {
             "createby": 1, 
             "name": "main yellow", 
-            "lastupdatetime": "2010-09-14 08:01:15", 
-            "sites": [
-                1
-            ], 
+            "lastupdatetime": "2010-09-14 08:01:15",
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:09"
         }
@@ -59,10 +56,7 @@
         "fields": {
             "createby": 1, 
             "name": "small dark", 
-            "lastupdatetime": "2010-09-14 07:47:46", 
-            "sites": [
-                1
-            ], 
+            "lastupdatetime": "2010-09-14 07:47:46",
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:16"
         }
@@ -73,10 +67,7 @@
         "fields": {
             "createby": 1, 
             "name": "elementary", 
-            "lastupdatetime": "2010-09-13 11:59:37", 
-            "sites": [
-                1
-            ], 
+            "lastupdatetime": "2010-09-13 11:59:37",
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:19"
         }
@@ -87,10 +78,7 @@
         "fields": {
             "createby": 1, 
             "name": "small white", 
-            "lastupdatetime": "2010-09-14 08:07:51", 
-            "sites": [
-                1
-            ], 
+            "lastupdatetime": "2010-09-14 08:07:51",
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:20"
         }
@@ -101,10 +89,7 @@
         "fields": {
             "createby": 1, 
             "name": "main blue", 
-            "lastupdatetime": "2010-09-14 07:29:56", 
-            "sites": [
-                1
-            ], 
+            "lastupdatetime": "2010-09-14 07:29:56",
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
         }
@@ -115,10 +100,7 @@
         "fields": {
             "createby": 1, 
             "name": "main green", 
-            "lastupdatetime": "2010-09-14 07:29:41", 
-            "sites": [
-                1
-            ], 
+            "lastupdatetime": "2010-09-14 07:29:41",
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
         }
@@ -130,10 +112,7 @@
             "createby": 1, 
             "name": "background_body", 
             "lastupdatetime": "2010-09-13 12:00:46", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "fffff9", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:28"
@@ -146,10 +125,7 @@
             "createby": 1, 
             "name": "black", 
             "lastupdatetime": "2010-08-31 14:12:29", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "000000", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:27"
@@ -162,10 +138,7 @@
             "createby": 1, 
             "name": "grey_1", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "333333", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:11:52"
@@ -178,10 +151,7 @@
             "createby": 1, 
             "name": "grey_2", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "444444", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:27"
@@ -194,10 +164,7 @@
             "createby": 1, 
             "name": "grey_3", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "555555", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:11:52"
@@ -210,10 +177,7 @@
             "createby": 1, 
             "name": "grey_4", 
             "lastupdatetime": "2010-09-14 07:59:30", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "666666", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:11:52"
@@ -226,10 +190,7 @@
             "createby": 1, 
             "name": "grey_5", 
             "lastupdatetime": "2010-09-14 07:59:28", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "999999", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:11:52"
@@ -242,10 +203,7 @@
             "createby": 1, 
             "name": "main_color_1", 
             "lastupdatetime": "2010-09-14 08:01:15", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "c9c573", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:27"
@@ -258,10 +216,7 @@
             "createby": 1, 
             "name": "main_color_2", 
             "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "b1b08b", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:28"
@@ -274,10 +229,7 @@
             "createby": 1, 
             "name": "main_color_3", 
             "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "ffffdb", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:27"
@@ -290,10 +242,7 @@
             "createby": 1, 
             "name": "main_color_4", 
             "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "ffffe5", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:28"
@@ -306,10 +255,7 @@
             "createby": 1, 
             "name": "main_color_5", 
             "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "eeeedd", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:11:52"
@@ -322,10 +268,7 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-08-31 14:12:29", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:26"
@@ -338,10 +281,7 @@
             "createby": 1, 
             "name": "whitesmoke", 
             "lastupdatetime": "2010-09-14 08:00:28", 
-            "colorscheme": 1, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 1,
             "value": "eeeeee", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:11:52"
@@ -354,10 +294,7 @@
             "createby": 1, 
             "name": "background_body", 
             "lastupdatetime": "2010-09-14 07:40:37", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 2,
             "value": "555555", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:40"
@@ -370,10 +307,7 @@
             "createby": 1, 
             "name": "headline", 
             "lastupdatetime": "2010-09-14 07:40:37", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 2,
             "value": "eaecff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:37"
@@ -386,10 +320,7 @@
             "createby": 1, 
             "name": "link_hover", 
             "lastupdatetime": "2010-09-14 07:45:01", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 2,
             "value": "2828b8", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:44:35"
@@ -402,10 +333,7 @@
             "createby": 1, 
             "name": "link_normal", 
             "lastupdatetime": "2010-09-14 07:44:50", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 2,
             "value": "22224d", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:41:44"
@@ -418,10 +346,7 @@
             "createby": 1, 
             "name": "main_menu_background", 
             "lastupdatetime": "2010-09-14 07:47:46", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 2,
             "value": "1e2338", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:46:42"
@@ -434,10 +359,7 @@
             "createby": 1, 
             "name": "main_menu_current", 
             "lastupdatetime": "2010-09-14 07:47:28", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 2,
             "value": "2c365c", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:09:34"
@@ -450,10 +372,7 @@
             "createby": 1, 
             "name": "text", 
             "lastupdatetime": "2010-09-14 07:40:37", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 2,
             "value": "dddddd", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:38"
@@ -466,10 +385,7 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-08-31 14:12:16", 
-            "colorscheme": 2, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 2,
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:37"
@@ -482,10 +398,7 @@
             "createby": 1, 
             "name": "background_body", 
             "lastupdatetime": "2010-09-13 11:58:58", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 4,
             "value": "fffafa", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:13:28"
@@ -498,10 +411,7 @@
             "createby": 1, 
             "name": "background_headline", 
             "lastupdatetime": "2010-09-13 11:57:45", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 4,
             "value": "ffe4b5", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:13:40"
@@ -514,10 +424,7 @@
             "createby": 1, 
             "name": "background_main_content", 
             "lastupdatetime": "2010-09-13 11:59:37", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 4,
             "value": "ffffe0", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:14:40"
@@ -530,10 +437,7 @@
             "createby": 1, 
             "name": "background_mainmenu", 
             "lastupdatetime": "2010-09-13 11:57:46", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 4,
             "value": "ffdead", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:14:40"
@@ -546,10 +450,7 @@
             "createby": 1, 
             "name": "black", 
             "lastupdatetime": "2010-08-31 14:12:35", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 4,
             "value": "000000", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:30"
@@ -562,10 +463,7 @@
             "createby": 1, 
             "name": "link_current_background", 
             "lastupdatetime": "2010-09-13 11:58:27", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 4,
             "value": "ffa500", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:14:40"
@@ -578,10 +476,7 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-08-31 14:12:35", 
-            "colorscheme": 4, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 4,
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:29"
@@ -594,10 +489,7 @@
             "createby": 1, 
             "name": "grey_dark_1", 
             "lastupdatetime": "2010-09-14 07:56:37", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "303030", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:12:09"
@@ -610,10 +502,7 @@
             "createby": 1, 
             "name": "grey_dark_2", 
             "lastupdatetime": "2010-09-14 07:56:37", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "505050", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:46"
@@ -626,10 +515,7 @@
             "createby": 1, 
             "name": "grey_dark_3", 
             "lastupdatetime": "2010-09-14 07:56:37", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "808080", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:44"
@@ -642,10 +528,7 @@
             "createby": 1, 
             "name": "grey_dark_4", 
             "lastupdatetime": "2010-09-14 07:57:13", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "cccccc", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:44"
@@ -658,10 +541,7 @@
             "createby": 1, 
             "name": "grey_white_1", 
             "lastupdatetime": "2010-09-14 07:58:10", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "f4f4f4", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:45"
@@ -674,10 +554,7 @@
             "createby": 1, 
             "name": "grey_white_2", 
             "lastupdatetime": "2010-09-14 07:58:11", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "f0f0f0", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:44"
@@ -690,10 +567,7 @@
             "createby": 1, 
             "name": "grey_white_3", 
             "lastupdatetime": "2010-09-14 07:58:11", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "eaeaea", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:45"
@@ -706,10 +580,7 @@
             "createby": 1, 
             "name": "grey_white_4", 
             "lastupdatetime": "2010-09-14 07:58:11", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "e0e0e0", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:12:09"
@@ -722,10 +593,7 @@
             "createby": 1, 
             "name": "grey_white_5", 
             "lastupdatetime": "2010-09-14 07:58:01", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "dddddd", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:43"
@@ -738,10 +606,7 @@
             "createby": 1, 
             "name": "link_current", 
             "lastupdatetime": "2010-09-14 08:07:51", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "215b85", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 08:03:11"
@@ -754,10 +619,7 @@
             "createby": 1, 
             "name": "link_hover", 
             "lastupdatetime": "2010-09-14 07:53:59", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "0d7bd6", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:53:38"
@@ -770,10 +632,7 @@
             "createby": 1, 
             "name": "link_normal", 
             "lastupdatetime": "2010-09-14 07:53:15", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "286ea0", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:46"
@@ -786,10 +645,7 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-08-31 14:11:36", 
-            "colorscheme": 5, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 5,
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:42"
@@ -802,10 +658,7 @@
             "createby": 1, 
             "name": "background_body", 
             "lastupdatetime": "2010-09-13 12:00:46", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "fafeff", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -818,10 +671,7 @@
             "createby": 1, 
             "name": "black", 
             "lastupdatetime": "2010-08-31 14:16:32", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "000000", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -834,10 +684,7 @@
             "createby": 1, 
             "name": "grey_1", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "333333", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -850,10 +697,7 @@
             "createby": 1, 
             "name": "grey_2", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "444444", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -866,10 +710,7 @@
             "createby": 1, 
             "name": "grey_3", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "555555", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -882,10 +723,7 @@
             "createby": 1, 
             "name": "grey_4", 
             "lastupdatetime": "2010-09-14 07:59:30", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "666666", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -898,10 +736,7 @@
             "createby": 1, 
             "name": "grey_5", 
             "lastupdatetime": "2010-09-14 07:59:28", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "999999", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -914,10 +749,7 @@
             "createby": 1, 
             "name": "main_color_1", 
             "lastupdatetime": "2010-09-14 08:01:15", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "73a8c7", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -930,10 +762,7 @@
             "createby": 1, 
             "name": "main_color_2", 
             "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "8b9cb0", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -946,10 +775,7 @@
             "createby": 1, 
             "name": "main_color_3", 
             "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "dbf2ff", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -962,10 +788,7 @@
             "createby": 1, 
             "name": "main_color_4", 
             "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "e5fcff", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -978,10 +801,7 @@
             "createby": 1, 
             "name": "main_color_5", 
             "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "dceced", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -994,10 +814,7 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-08-31 14:16:32", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -1010,10 +827,7 @@
             "createby": 1, 
             "name": "whitesmoke", 
             "lastupdatetime": "2010-09-14 08:00:28", 
-            "colorscheme": 6, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 6,
             "value": "eeeeee", 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:16:32"
@@ -1026,10 +840,7 @@
             "createby": 1, 
             "name": "background_body", 
             "lastupdatetime": "2010-09-14 07:28:53", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "fdfffc", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1042,10 +853,7 @@
             "createby": 1, 
             "name": "black", 
             "lastupdatetime": "2010-09-14 07:28:09", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "000000", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1058,10 +866,7 @@
             "createby": 1, 
             "name": "grey_1", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "333333", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1074,10 +879,7 @@
             "createby": 1, 
             "name": "grey_2", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "444444", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1090,10 +892,7 @@
             "createby": 1, 
             "name": "grey_3", 
             "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "555555", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1106,10 +905,7 @@
             "createby": 1, 
             "name": "grey_4", 
             "lastupdatetime": "2010-09-14 07:59:30", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "666666", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1122,10 +918,7 @@
             "createby": 1, 
             "name": "grey_5", 
             "lastupdatetime": "2010-09-14 07:59:28", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "999999", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1138,10 +931,7 @@
             "createby": 1, 
             "name": "main_color_1", 
             "lastupdatetime": "2010-09-14 08:01:15", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "7dc773", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1154,10 +944,7 @@
             "createby": 1, 
             "name": "main_color_2", 
             "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "8bb08b", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1170,10 +957,7 @@
             "createby": 1, 
             "name": "main_color_3", 
             "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "e2ffdb", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1186,10 +970,7 @@
             "createby": 1, 
             "name": "main_color_4", 
             "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "e6ffe5", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1202,10 +983,7 @@
             "createby": 1, 
             "name": "main_color_5", 
             "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "e3ebda", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1218,10 +996,7 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-09-14 07:28:09", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1234,10 +1009,7 @@
             "createby": 1, 
             "name": "whitesmoke", 
             "lastupdatetime": "2010-09-14 08:00:28", 
-            "colorscheme": 7, 
-            "sites": [
-                1
-            ], 
+            "colorscheme": 7,
             "value": "eeeeee", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09"
@@ -1251,10 +1023,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2010-09-14 07:27:14", 
-            "filepath": "initial_site_style/elementary.css", 
-            "sites": [
-                1
-            ], 
+            "filepath": "initial_site_style/elementary.css",
             "content": "body{\r\n  font-size:0.9em;\r\n  background: {{ background_body }};\r\n  margin: 15px 10% 15px 10%;\r\n}\r\n\r\n#headline {\r\n  background: {{ background_headline }};\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n}\r\n\r\n.main_menu {\r\n  background: {{ background_mainmenu }};\r\n  float: left;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n.main_menu ul {\r\n  padding: 0;\r\n}\r\n.main_menu ul ul {\r\n  /* indent submenu */\r\n  padding-left: 1.5em;\r\n  font-size:0.9em; /* smaller font for subitems */\r\n}\r\n.main_menu li {\r\n  list-style:none;\r\n}\r\na {\r\n  color: slategray;\r\n  text-decoration: none;\r\n}\r\na:hover, a .current {\r\n  background-color: {{ link_current_background }};\r\n  text-decoration: underline;\r\n}\r\n#main_content {\r\n  background: {{ background_main_content }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\n#footer {\r\n  border: 1px solid {{ black }};\r\n  padding: 5px;\r\n  font-size: 0.9em;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ white }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
@@ -1270,10 +1039,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2010-09-14 08:01:17", 
-            "filepath": "initial_site_style/main.css", 
-            "sites": [
-                1
-            ], 
+            "filepath": "initial_site_style/main.css",
             "content": "* { color: {{ black }}; }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: {{ background_body }};\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n/*\r\n headline definition if you use a picture:\r\n----------------------------------------------\r\n#headline {\r\n  background: {{ main_color_1 }};\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n/*\r\n headline definition with text only:\r\n*/\r\n#headline {\r\n  background: {{ main_color_1 }};\r\n  font-size: 30px;\r\n  margin: 0px;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline a {\r\n  text-decoration:none;\r\n  color: white;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: {{ black }};\r\n}\r\n.uarr {\r\n  color: {{ whitesmoke }};\r\n}\r\n.top_link:hover .uarr {\r\n  color: {{ black }};\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px {{ white }};\r\n  text-decoration:none;\r\n  color: {{ main_color_5 }};\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: {{ grey_5 }};\r\n}\r\n.section_anchor:hover {\r\n  color:{{ black }}!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px {{ grey_5 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\n.toc_headline {\r\n  margin-bottom: 0.5em;\r\n  font-size: 0.9em;\r\n  color: {{ grey_1 }};\r\n}\r\n\r\n#bbaacck_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: {{ main_color_3 }};\r\n  border: 1px solid {{ main_color_2 }};\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid {{ grey_2 }};\r\n  padding: 1px;\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: {{ main_color_4 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: {{ main_color_1 }};\r\n  color: white;\r\n}\r\n\r\npre {\r\n  border:1px solid grey;\r\n  background-color: white;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ white }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n\r\n.main_menu *, .main_menu a.current {\r\n  color: {{ grey_4 }};\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size:0.9em;\r\n}\r\n.main_menu a.active {\r\n  color: {{ grey_1 }};\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: {{ black }};\r\n  background-color: {{ grey_3 }};\r\n}\r\n.main_menu a:before {\r\n  color: {{ main_color_1 }};\r\n  letter-spacing: 0px;\r\n  font-weight: normal;\r\n  background: {{ main_color_4 }};\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n", 
             "render": true, 
             "lastupdateby": 1, 
@@ -1289,10 +1055,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2010-09-14 07:47:46", 
-            "filepath": "initial_site_style/small_dark.css", 
-            "sites": [
-                1
-            ], 
+            "filepath": "initial_site_style/small_dark.css",
             "content": "head {\r\n  width: 639px;\r\n}\r\n* {\r\n  color: {{ text }};\r\n  font-family:sans-serif;\r\n  font-size:0.95em;\r\n}\r\n\r\na {\r\n   text-decoration:none;\r\n   color: {{ link_normal }};\r\n}\r\na:hover {\r\n   color: {{ link_hover }}; \r\n}\r\na img, img {\r\n  border: 0;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n\r\nbody {\r\n  background-color: {{ background_body }};\r\n  text-align:center;\r\n}\r\n\r\n#content {\r\n  width: 639px;\r\n  margin:auto;\r\n  text-align:left;\r\n}\r\n\r\n#head {\r\n  font-size: 2em;\r\n  margin: 0.5em;\r\n  padding-left: 1.5em;\r\n  color: {{ headline }};\r\n}\r\nh1, h2 {\r\n  text-transform:uppercase;\r\n  font-size:0.95em;\r\n  color: {{ white }};\r\n}\r\nh2 {\r\n  border-bottom: 1px solid {{ text }};\r\n}\r\n\r\nhr {\r\n  clear: both;\r\n  border-width:1px;\r\n  height:1px;\r\n  padding: 0px;\r\n  margin: 2px 0px 2px 0px;\r\n}\r\nhr.big {\r\n  border-width: 3px;\r\n  height:3px;\r\n  border-style: solid\r\n}\r\nhr.small {\r\n  border-style:dotted;\r\n}\r\n\r\n#footer {\r\n  font-size:0.9em;\r\n  text-align:center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ---------------------------------------------------------------------- */\r\n#sf_main_menu_lucidTag .sf-menu * {\r\n    background-color: {{ main_menu_background }};\r\n    color: {{ text }};\r\n}\r\n#sf_main_menu_lucidTag .current, #sf_main_menu_lucidTag .active, #sf_main_menu_lucidTag a:hover {\r\n    background-color: {{ main_menu_current }};\r\n    color: {{ white }};\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
@@ -1308,10 +1071,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2010-09-14 08:06:53", 
-            "filepath": "initial_site_style/small_white.css", 
-            "sites": [
-                1
-            ], 
+            "filepath": "initial_site_style/small_white.css",
             "content": "/* andreas01 - an open source xhtml/css website layout \r\n * by Andreas Viklund  - http://andreasviklund.com -\r\n * Free to use for any purpose as long as the proper \r\n * credits are given to the original author.\r\n *  \r\n * Version: 2.0 (Jun 25, 2006)\r\n * Screen layout: \r\n */\r\n\r\n/***** Body and main container *****/\r\nbody {\r\n   margin:0 auto;\r\n   padding:0;\r\n   font:76% Verdana,Tahoma,Arial,sans-serif;\r\n   background:{{ grey_white_5 }};\r\n   color:{{ grey_dark_1 }};\r\n}\r\n\r\n#wrap {\r\n   background:{{ white }};\r\n   color:{{ grey_dark_1 }};\r\n   margin:0 auto;\r\n   width:760px;\r\n}\r\n\r\n/***** Various tags *****/\r\na {\r\n   text-decoration:none;\r\n   font-weight:bold;\r\n   color:{{ link_normal }};\r\n   background-color:inherit;\r\n}\r\na:hover {\r\n   text-decoration:underline;\r\n   color: {{ link_hover }};\r\n   background-color:inherit;\r\n}\r\na img {\r\n   border:0;\r\n}\r\n\r\n/***** Header *****/\r\n#header {\r\n   background-color:{{ grey_white_3 }};\r\n   margin:10px 0 0;\r\n   padding:0;\r\n   height:45px;\r\n}\r\n#header h1 {\r\n   color:{{ grey_dark_2 }};\r\n   background-color:inherit;\r\n   width:250px;\r\n   margin:0 0 10px;\r\n   font-size:2.2em;\r\n   float:left;\r\n}\r\n#header h1 a{\r\n   color:{{ grey_dark_2 }};\r\n   background-color:inherit;\r\n   text-decoration:none;\r\n}\r\n#header p {\r\n   width:500px;\r\n   float:right;\r\n   text-align:center;\r\n   color:{{ grey_dark_2 }};\r\n   margin:8px 0 0;\r\n   font-size:1.1em;\r\n   font-weight:bold;\r\n   line-height:1.3em;\r\n   background-color:inherit;\r\n}\r\n\r\n#frontphoto {\r\n   margin:0 0 10px;\r\n   border:0;\r\n}\r\n\r\n/***** Main menu *****/\r\n.main_menu ul {\r\n   width:140px;\r\n   margin:0 0 18px;\r\n   padding:0;\r\n   list-style:none;\r\n}\r\n.main_menu li {\r\n   width:140px;\r\n   padding:0;\r\n   line-height:1.4em;\r\n   display:inline;\r\n}\r\n.main_menu li a {\r\n   background-color:{{ grey_white_1 }};\r\n   color:{{ grey_dark_2 }};\r\n   font-weight:bold;\r\n   width:130px;\r\n   float:left;\r\n   margin-bottom:5px;\r\n   padding:5px 1px 5px 5px;\r\n   border-left:4px solid {{ grey_dark_4 }};\r\n   text-decoration:none;\r\n}\r\n.main_menu li a:hover {\r\n   background-color:{{ grey_white_3 }};\r\n   border-left:4px solid {{ link_normal }};\r\n}\r\n.main_menu li a.active {\r\n   background-color:{{ grey_white_5 }};\r\n}\r\n.main_menu li a.current {\r\n   background-color:{{ grey_white_5 }};\r\n   color:{{ link_current }};\r\n}\r\n.main_menu ul {\r\n   margin:0 0 0 15px;\r\n   padding:0 0 5px 0;\r\n   font-size:0.9em;\r\n   width:125px;\r\n}\r\n.main_menu ul a {\r\n   padding:3px 1px 3px 5px;\r\n   width:115px;\r\n}\r\n.main_menu ul ul {\r\n   width:113px;\r\n}\r\n.main_menu ul ul a {\r\n   width:100px;\r\n}\r\n\r\n/***** Left sidebar *****/\r\n#leftside {\r\n   clear:left;\r\n   float:left;\r\n   width:140px;\r\n   margin:0 0 5px;\r\n   padding:0;\r\n}\r\n#leftside h2, #leftside h3 {\r\n   color:{{ grey_dark_2 }};\r\n   background-color:inherit;\r\n   font-size:1.3em;\r\n   margin:0 0 5px;\r\n   padding:0;\r\n}\r\n#leftside div.announce {\r\n   clear:left;\r\n   margin:10px 0 15px;\r\n   padding:7px 5px;\r\n   width:126px;\r\n   font-size:0.9em;\r\n   background-color:{{ grey_white_1 }};\r\n   color:{{ grey_dark_2 }};\r\n   border-left:4px solid {{ grey_dark_4 }};\r\n   line-height:1.5em;\r\n}\r\n#leftside div.announce p {\r\n   margin:10px 0 0;\r\n   padding:0;\r\n}\r\n\r\n/***** Right sidebar *****/\r\n\r\n#rightside {\r\n   float:right;\r\n   width:140px;\r\n   margin:0 0 5px;\r\n   padding:0;\r\n   line-height:1.4em;\r\n}\r\n\r\n#extras p,#extras ul {\r\n   font-size:0.9em;\r\n   margin:0 0 16px;\r\n   padding:0;\r\n}\r\n#extras li {\r\n   list-style:none;\r\n   line-height:1.2em;\r\n   margin:0 0 6px 0;\r\n   padding:0;\r\n}\r\n#extras ul ul {\r\n   margin:6px 0 0 10px;\r\n   padding:0;\r\n}\r\n#extras ul ul li {\r\n   margin: 0 0 4px 0;\r\n}\r\n#extras ul ul li a {\r\n   font-size:1.1em;\r\n   font-weight:normal;\r\n}\r\n#extras h2, #extras h3 {\r\n   color:{{ grey_dark_2 }};\r\n   background-color:inherit;\r\n   font-size:1.2em;\r\n   margin:0 0 10px;\r\n   padding:0;\r\n}\r\n\r\n/***** Main content *****/\r\n#content {\r\n   margin:0 200px 5px 200px;\r\n   border-left:1px solid {{ grey_white_4 }};\r\n   border-right:1px solid {{ grey_white_4 }};\r\n   padding:0 10px;\r\n   line-height:1.6em;\r\n}\r\n#contentwide {\r\n   margin:0 0 5px 200px;\r\n   border-left:1px solid {{ grey_white_2 }};\r\n   padding:0 0 0 10px;\r\n   line-height:1.6em;\r\n}\r\n#content h2,#contentwide h2 {\r\n   font-size:1.6em;\r\n   margin:0 0 10px;\r\n}\r\n#content h3,#contentwide h3 {\r\n   font-size:1.4em;\r\n   margin:0 0 8px;\r\n}\r\n#content img.normal, #contentwide img.normal {\r\n   padding:1px;\r\n   display:inline;\r\n   background:{{ grey_dark_4 }};\r\n   color:{{ grey_dark_1 }};\r\n   border:4px solid {{ grey_white_2 }};\r\n}\r\n#content ul, #contentwide ul, #content ol, #contentwide ol {\r\n   margin:0 0 16px 20px;\r\n   padding:0;\r\n}\r\n#content li, #contentwide li {\r\n   margin:0;\r\n   padding:0 0 0 5px;\r\n}\r\n#content ul ul, #contentwide ul ul, #content ol ol, #contentwide ol ol{\r\n   margin:0 0 0 16px;\r\n   padding:0;\r\n}\r\n\r\n/***** Footer *****/\r\n#footer {\r\n   clear:both;\r\n   margin:0 auto;\r\n   padding:10px 0 20px;\r\n   border-top:4px solid {{ grey_white_2 }};\r\n   width:760px;\r\n   text-align:center;\r\n   color:{{ grey_dark_3 }};\r\n   background:{{ white }};\r\n   font-size:0.9em;\r\n}\r\n#footer a {\r\n   color:{{ grey_dark_3 }};\r\n   background-color:inherit;\r\n   text-decoration:none;\r\n}\r\n#footer a:hover {\r\n   text-decoration:underline;\r\n}\r\n\r\n/***** Various classes *****/\r\n.left {\r\n   margin:3px 10px 2px 0;\r\n   float:left;\r\n}\r\n.right {\r\n   margin:2px 0 2px 10px;\r\n   float:right;\r\n}\r\n\r\n.textright {\r\n   text-align:right;\r\n}\r\n\r\n.center {\r\n   text-align:center;\r\n}\r\n\r\n.small {\r\n   font-size:0.8em;\r\n}\r\n\r\n.bold {\r\n   font-weight:bold;\r\n}\r\n\r\n.hide {\r\n   display:none;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
@@ -1327,10 +1087,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2009-11-03 03:41:06", 
-            "filepath": "pygments.css", 
-            "sites": [
-                1
-            ], 
+            "filepath": "pygments.css",
             "content": ".pygments  { background: #ffffff; }\r\n.pygments .c { color: #808080 } /* Comment */\r\n.pygments .err { color: #F00000; background-color: #F0A0A0 } /* Error */\r\n.pygments .k { color: #008000; font-weight: bold } /* Keyword */\r\n.pygments .o { color: #303030 } /* Operator */\r\n.pygments .cm { color: #808080 } /* Comment.Multiline */\r\n.pygments .cp { color: #507090 } /* Comment.Preproc */\r\n.pygments .c1 { color: #808080 } /* Comment.Single */\r\n.pygments .cs { color: #cc0000; font-weight: bold } /* Comment.Special */\r\n.pygments .gd { color: #A00000 } /* Generic.Deleted */\r\n.pygments .ge { font-style: italic } /* Generic.Emph */\r\n.pygments .gr { color: #FF0000 } /* Generic.Error */\r\n.pygments .gh { color: #000080; font-weight: bold } /* Generic.Heading */\r\n.pygments .gi { color: #00A000 } /* Generic.Inserted */\r\n.pygments .go { color: #808080 } /* Generic.Output */\r\n.pygments .gp { color: #c65d09; font-weight: bold } /* Generic.Prompt */\r\n.pygments .gs { font-weight: bold } /* Generic.Strong */\r\n.pygments .gu { color: #800080; font-weight: bold } /* Generic.Subheading */\r\n.pygments .gt { color: #0040D0 } /* Generic.Traceback */\r\n.pygments .kc { color: #008000; font-weight: bold } /* Keyword.Constant */\r\n.pygments .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */\r\n.pygments .kp { color: #003080; font-weight: bold } /* Keyword.Pseudo */\r\n.pygments .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */\r\n.pygments .kt { color: #303090; font-weight: bold } /* Keyword.Type */\r\n.pygments .m { color: #6000E0; font-weight: bold } /* Literal.Number */\r\n.pygments .s { background-color: #fff0f0 } /* Literal.String */\r\n.pygments .na { color: #0000C0 } /* Name.Attribute */\r\n.pygments .nb { color: #007020 } /* Name.Builtin */\r\n.pygments .nc { color: #B00060; font-weight: bold } /* Name.Class */\r\n.pygments .no { color: #003060; font-weight: bold } /* Name.Constant */\r\n.pygments .nd { color: #505050; font-weight: bold } /* Name.Decorator */\r\n.pygments .ni { color: #800000; font-weight: bold } /* Name.Entity */\r\n.pygments .ne { color: #F00000; font-weight: bold } /* Name.Exception */\r\n.pygments .nf { color: #0060B0; font-weight: bold } /* Name.Function */\r\n.pygments .nl { color: #907000; font-weight: bold } /* Name.Label */\r\n.pygments .nn { color: #0e84b5; font-weight: bold } /* Name.Namespace */\r\n.pygments .nt { color: #007000 } /* Name.Tag */\r\n.pygments .nv { color: #906030 } /* Name.Variable */\r\n.pygments .ow { color: #000000; font-weight: bold } /* Operator.Word */\r\n.pygments .w { color: #bbbbbb } /* Text.Whitespace */\r\n.pygments .mf { color: #6000E0; font-weight: bold } /* Literal.Number.Float */\r\n.pygments .mh { color: #005080; font-weight: bold } /* Literal.Number.Hex */\r\n.pygments .mi { color: #0000D0; font-weight: bold } /* Literal.Number.Integer */\r\n.pygments .mo { color: #4000E0; font-weight: bold } /* Literal.Number.Oct */\r\n.pygments .sb { background-color: #fff0f0 } /* Literal.String.Backtick */\r\n.pygments .sc { color: #0040D0 } /* Literal.String.Char */\r\n.pygments .sd { color: #D04020 } /* Literal.String.Doc */\r\n.pygments .s2 { background-color: #fff0f0 } /* Literal.String.Double */\r\n.pygments .se { color: #606060; font-weight: bold; background-color: #fff0f0 } /* Literal.String.Escape */\r\n.pygments .sh { background-color: #fff0f0 } /* Literal.String.Heredoc */\r\n.pygments .si { background-color: #e0e0e0 } /* Literal.String.Interpol */\r\n.pygments .sx { color: #D02000; background-color: #fff0f0 } /* Literal.String.Other */\r\n.pygments .sr { color: #000000; background-color: #fff0ff } /* Literal.String.Regex */\r\n.pygments .s1 { background-color: #fff0f0 } /* Literal.String.Single */\r\n.pygments .ss { color: #A06000 } /* Literal.String.Symbol */\r\n.pygments .bp { color: #007020 } /* Name.Builtin.Pseudo */\r\n.pygments .vc { color: #306090 } /* Name.Variable.Class */\r\n.pygments .vg { color: #d07000; font-weight: bold } /* Name.Variable.Global */\r\n.pygments .vi { color: #3030B0 } /* Name.Variable.Instance */\r\n.pygments .il { color: #0000D0; font-weight: bold } /* Literal.Number.Integer.Long */", 
             "render": false, 
             "lastupdateby": 1, 
