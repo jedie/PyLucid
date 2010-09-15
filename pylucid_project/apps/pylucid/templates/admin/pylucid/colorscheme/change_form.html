@@ -49,8 +49,12 @@ $(document).ready(function(){
 			    onChange: function (hsb, hex, rgb) {
                     $(selected).attr("value", hex);		         
 			        $(selected).parent().css('backgroundColor', '#' + hex);
-			    }
-
+			    },
+                onBeforeShow: function () {
+                    color_value = $(selected).attr("value");
+                    log("before show:" + color_value)
+                    $(selected).parent().ColorPickerSetColor(color_value);
+                }
             });
             log("remove style");
             $(selected).removeAttr("style");
@@ -58,9 +62,16 @@ $(document).ready(function(){
                 log("change background color to #"+color_value);
                 $(selected).parent().css('backgroundColor', '#' + color_value);
             }
+            $(selected).keyup(function() {
+                color_value = $(this).attr("value");
+                if (color_value.length==6) {
+                    log("change color to #"+color_value);
+                    $(this).parent().css('backgroundColor', '#' + color_value);
+                    $(this).parent().ColorPickerSetColor(color_value);
+                }
+            });
         }
     });
-    //.ColorPicker(options);
 });
 </script>
 <!-- admin/pylucid/colorscheme/change_form - extrahead - END -->
