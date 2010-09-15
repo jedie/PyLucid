@@ -505,15 +505,37 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
 
         self.check_styles()
 
+    def test_new_render_headfile(self):
+        url = reverse("admin:pylucid_editablehtmlheadfile_add")
+        response = self.client.post(url,
+            data={
+                '_continue': 'Save and continue editing',
+                 'content': '#00ff00;',
+                 'filepath': 'new_without_design.css',
+                 'render': 'on'
+            },
+            follow=True,
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "This headfile can't be rendered, because it's not used in a design witch has a colorscheme!"
+            ),
+            must_not_contain=(
+                "Traceback",
+                "was added successfully"
+            )
+        )
+
+
 
 
 if __name__ == "__main__":
     # Run all unittest directly
-#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest.test_remove_unused_colors",
+#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest.test_new_render_headfile",
 #        verbosity=2,
 #        failfast=True
 #    )
     management.call_command('test', __file__,
-        verbosity=2,
+#        verbosity=2,
         failfast=True
     )

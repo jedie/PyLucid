@@ -268,6 +268,17 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
                     }
                 )]
 
+        if "render" not in exclude and self.render:
+            has_colorscheme = False
+            designs = Design.objects.all().exclude(colorscheme=None)
+            for design in designs:
+                its_me = design.headfiles.filter(pk=self.pk).count()
+                if its_me:
+                    has_colorscheme = True
+                    break
+            if not has_colorscheme:
+                message_dict["render"] = [_("This headfile can't be rendered, because it's not used in a design witch has a colorscheme!")]
+
         if "content" not in exclude and self.render:
             for colorscheme in self.iter_colorschemes():
                 existing_colors = colorscheme.get_color_names()
