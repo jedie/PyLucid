@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="{{ CSS_PLUGIN_CLASS_NAME }} blog">
-{% include "/includes/pagination.html" %}
+{% include "blog/includes/pagination.html" %}
 {% include "blog/includes/tagcloud.html" %}
 
 {% if not entries %}no blog entry exists{% endif %}
@@ -38,5 +38,5 @@
 {% endfor %}
 </lu>
 </fieldset>
-{% include "/includes/pagination.html" %}
+{% include "blog/includes/pagination.html" %}
 {% endblock content %}
