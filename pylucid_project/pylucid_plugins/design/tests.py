@@ -39,6 +39,74 @@ from pylucid_project.tests.test_tools.headfile import clean_headfile_cache
 DESIGN_UNITTEST_FIXTURES = os.path.join(settings.PYLUCID_BASE_PATH, "pylucid_plugins", "design", "test_fixtures.json")
 
 
+class SwitchDesignTest(basetest.BaseUnittest):
+    def _pre_setup(self, *args, **kwargs):
+        super(SwitchDesignTest, self)._pre_setup(*args, **kwargs)
+
+        self.url = reverse("Design-switch")
+        self.login("superuser")
+
+    def test_request_form(self):
+        response = self.client.get(self.url)
+        self.assertResponse(response,
+            must_contain=(
+                "Switch a PyLucid page design",
+                '<option value="0" selected="selected">&lt;automatic&gt;</option>',
+                self.url,
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+    def test_switch(self):
+        # request root page before switch design
+        response = self.client.get("/")
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>'
+                'initial_site_style/main.css" rel="stylesheet"'
+                '<div id="the_menu">'
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+        # switch design
+        response = self.client.post(self.url, data={"design":4}, follow=True)
+        self.assertResponse(response,
+            must_contain=(
+                "Switch a PyLucid page design",
+                'Save design ID 4',
+                'current page design is switched to: <strong>Page design &#39;elementary&#39;',
+                '<option value="4" selected="selected">elementary</option>',
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+        # request root page after design switch
+        response = self.client.get("/")
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>'
+                'initial_site_style/elementary.css" rel="stylesheet"'
+            ),
+            must_not_contain=('<div id="the_menu">', "Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+        # Delete design and test request
+        Design.objects.get(id=4).delete()
+
+        # Should switch back to main design and give a page messages
+        response = self.client.get("/")
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>',
+                'initial_site_style/main.css" rel="stylesheet"',
+                '<div id="the_menu">',
+                'Can&#39;t switch to design with ID 4: Design matching query does not exist.',
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+
 class CloneDesignTest(basetest.BaseUnittest):
     def _pre_setup(self, *args, **kwargs):
         super(CloneDesignTest, self)._pre_setup(*args, **kwargs)
@@ -607,11 +675,11 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
 
 if __name__ == "__main__":
     # Run all unittest directly
-#    management.call_command('test', "pylucid_plugins.design.tests.FixtureDataDesignTest.test_new_headfile",
+    management.call_command('test', "pylucid_plugins.design.tests.SwitchDesignTest",
+        verbosity=2,
+        failfast=True
+    )
+#    management.call_command('test', __file__,
 #        verbosity=2,
 #        failfast=True
 #    )
-    management.call_command('test', __file__,
-#        verbosity=2,
-#        failfast=True
-    )

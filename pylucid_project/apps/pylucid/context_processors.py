@@ -11,6 +11,7 @@ except ImportError:
     from django.utils.functional import wraps  # Python 2.3, 2.4 fallback.
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
@@ -95,8 +96,11 @@ def pylucid(request):
             from pylucid_project.apps.pylucid.models import Design # import here, agains import loops
 
             design_id = request.session["design_switch_pk"]
-            pagetree.design = Design.on_site.get(id=design_id)
-#            messages.info(request, "switch to design: %r" % pagetree.design)
+            try:
+                pagetree.design = Design.on_site.get(id=design_id)
+            except Design.DoesNotExist, err:
+                messages.error(request, "Can't switch to design with ID %i: %s" % (design_id, err))
+                del(request.session["design_switch_pk"])
 
         template_name = pagetree.design.template
         context["template_name"] = template_name
