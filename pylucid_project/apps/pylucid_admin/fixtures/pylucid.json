@@ -44,10 +44,10 @@
         "model": "pylucid.colorscheme", 
         "fields": {
             "createby": 1, 
-            "name": "main yellow", 
-            "lastupdatetime": "2010-09-14 08:01:15",
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:09"
+            "createtime": "2009-11-03 03:37:09", 
+            "lastupdatetime": "2010-09-16 21:32:12", 
+            "name": "main yellow"
         }
     }, 
     {
@@ -55,10 +55,10 @@
         "model": "pylucid.colorscheme", 
         "fields": {
             "createby": 1, 
-            "name": "small dark", 
-            "lastupdatetime": "2010-09-14 07:47:46",
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:16"
+            "createtime": "2009-11-03 03:37:16", 
+            "lastupdatetime": "2010-09-14 07:47:46", 
+            "name": "small dark"
         }
     }, 
     {
@@ -66,10 +66,10 @@
         "model": "pylucid.colorscheme", 
         "fields": {
             "createby": 1, 
-            "name": "elementary", 
-            "lastupdatetime": "2010-09-13 11:59:37",
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:19"
+            "createtime": "2009-11-03 03:37:19", 
+            "lastupdatetime": "2010-09-13 11:59:37", 
+            "name": "elementary"
         }
     }, 
     {
@@ -77,10 +77,10 @@
         "model": "pylucid.colorscheme", 
         "fields": {
             "createby": 1, 
-            "name": "small white", 
-            "lastupdatetime": "2010-09-14 08:07:51",
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:20"
+            "createtime": "2009-11-03 03:37:20", 
+            "lastupdatetime": "2010-09-14 08:07:51", 
+            "name": "small white"
         }
     }, 
     {
@@ -88,10 +88,10 @@
         "model": "pylucid.colorscheme", 
         "fields": {
             "createby": 1, 
-            "name": "main blue", 
-            "lastupdatetime": "2010-09-14 07:29:56",
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-08-31 14:16:32", 
+            "lastupdatetime": "2010-09-16 21:24:13", 
+            "name": "main blue"
         }
     }, 
     {
@@ -99,192 +99,322 @@
         "model": "pylucid.colorscheme", 
         "fields": {
             "createby": 1, 
-            "name": "main green", 
-            "lastupdatetime": "2010-09-14 07:29:41",
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-14 07:28:09", 
+            "lastupdatetime": "2010-09-16 21:25:28", 
+            "name": "main green"
         }
     }, 
     {
-        "pk": 7, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "background_body", 
-            "lastupdatetime": "2010-09-13 12:00:46", 
-            "colorscheme": 1,
-            "value": "fffff9", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:28"
-        }
-    }, 
-    {
-        "pk": 6, 
+        "pk": 182, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "black", 
-            "lastupdatetime": "2010-08-31 14:12:29", 
-            "colorscheme": 1,
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
             "value": "000000", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:27"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
-        "pk": 77, 
+        "pk": 152, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "grey_1", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 1,
-            "value": "333333", 
+            "name": "darkgrey", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 1, 
+            "value": "aaaaaa", 
             "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 4, 
+        "pk": 140, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "grey_2", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 1,
-            "value": "444444", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:27"
-        }
-    }, 
-    {
-        "pk": 78, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_3", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 1,
-            "value": "555555", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
-        }
-    }, 
-    {
-        "pk": 76, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_4", 
-            "lastupdatetime": "2010-09-14 07:59:30", 
-            "colorscheme": 1,
-            "value": "666666", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
-        }
-    }, 
-    {
-        "pk": 79, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_5", 
-            "lastupdatetime": "2010-09-14 07:59:28", 
-            "colorscheme": 1,
+            "name": "darkgrey_d28", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 1, 
             "value": "999999", 
             "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 5, 
+        "pk": 173, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkred_d31", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
+            "value": "aa0000", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 203, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d26", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
+            "value": "444444", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 134, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d40", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 1, 
+            "value": "333333", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 197, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "dimgrey_d35", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
+            "value": "555555", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 176, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gainsboro", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
+            "value": "dddddd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 209, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
+            "value": "808080", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 161, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d14", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 1, 
+            "value": "888888", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 194, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d16", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
+            "value": "777777", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 158, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightgray_d10", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 1, 
+            "value": "cdcdcd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 206, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightgray_d12", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
+            "value": "cccccc", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 212, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_1", 
-            "lastupdatetime": "2010-09-14 08:01:15", 
-            "colorscheme": 1,
-            "value": "c9c573", 
+            "lastupdatetime": "2010-09-16 20:33:44", 
+            "colorscheme": 1, 
+            "value": "f5eea1", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:27"
+            "createtime": "2010-09-16 20:32:20"
         }
     }, 
     {
-        "pk": 9, 
+        "pk": 200, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_2", 
-            "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 1,
-            "value": "b1b08b", 
+            "lastupdatetime": "2010-09-16 21:19:53", 
+            "colorscheme": 1, 
+            "value": "332f00", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:28"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
-        "pk": 3, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "main_color_3", 
-            "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 1,
-            "value": "ffffdb", 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:27"
-        }
-    }, 
-    {
-        "pk": 8, 
+        "pk": 155, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_4", 
-            "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 1,
-            "value": "ffffe5", 
+            "lastupdatetime": "2010-09-16 21:32:12", 
+            "colorscheme": 1, 
+            "value": "F5CD31", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:28"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 80, 
+        "pk": 131, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_5", 
-            "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 1,
-            "value": "eeeedd", 
+            "lastupdatetime": "2010-09-16 21:32:12", 
+            "colorscheme": 1, 
+            "value": "F5CD31", 
             "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 1, 
+        "pk": 137, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_body_background", 
+            "lastupdatetime": "2010-09-16 21:32:12", 
+            "colorscheme": 1, 
+            "value": "FFE88C", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 218, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_content_background", 
+            "lastupdatetime": "2010-09-16 21:32:12", 
+            "colorscheme": 1, 
+            "value": "FFF6D2", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:49:06"
+        }
+    }, 
+    {
+        "pk": 221, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_hover", 
+            "lastupdatetime": "2010-09-16 21:32:12", 
+            "colorscheme": 1, 
+            "value": "F58231", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 21:22:35"
+        }
+    }, 
+    {
+        "pk": 128, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_normal", 
+            "lastupdatetime": "2010-09-16 21:32:12", 
+            "colorscheme": 1, 
+            "value": "2E5EAB", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 215, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_menu_background", 
+            "lastupdatetime": "2010-09-16 21:32:12", 
+            "colorscheme": 1, 
+            "value": "FFBC8C", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:49:05"
+        }
+    }, 
+    {
+        "pk": 191, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "silver_d9", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 1, 
+            "value": "bbbbbb", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 179, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "white", 
-            "lastupdatetime": "2010-08-31 14:12:29", 
-            "colorscheme": 1,
-            "value": "ffffff", 
+            "lastupdatetime": "2010-09-16 20:44:55", 
+            "colorscheme": 1, 
+            "value": "fefefe", 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:40:26"
-        }
-    }, 
-    {
-        "pk": 81, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "whitesmoke", 
-            "lastupdatetime": "2010-09-14 08:00:28", 
-            "colorscheme": 1,
-            "value": "eeeeee", 
-            "lastupdateby": 1, 
-            "createtime": "2010-05-28 09:11:52"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
@@ -294,7 +424,7 @@
             "createby": 1, 
             "name": "background_body", 
             "lastupdatetime": "2010-09-14 07:40:37", 
-            "colorscheme": 2,
+            "colorscheme": 2, 
             "value": "555555", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:40"
@@ -307,7 +437,7 @@
             "createby": 1, 
             "name": "headline", 
             "lastupdatetime": "2010-09-14 07:40:37", 
-            "colorscheme": 2,
+            "colorscheme": 2, 
             "value": "eaecff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:37"
@@ -320,7 +450,7 @@
             "createby": 1, 
             "name": "link_hover", 
             "lastupdatetime": "2010-09-14 07:45:01", 
-            "colorscheme": 2,
+            "colorscheme": 2, 
             "value": "2828b8", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:44:35"
@@ -333,7 +463,7 @@
             "createby": 1, 
             "name": "link_normal", 
             "lastupdatetime": "2010-09-14 07:44:50", 
-            "colorscheme": 2,
+            "colorscheme": 2, 
             "value": "22224d", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:41:44"
@@ -346,7 +476,7 @@
             "createby": 1, 
             "name": "main_menu_background", 
             "lastupdatetime": "2010-09-14 07:47:46", 
-            "colorscheme": 2,
+            "colorscheme": 2, 
             "value": "1e2338", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:46:42"
@@ -359,7 +489,7 @@
             "createby": 1, 
             "name": "main_menu_current", 
             "lastupdatetime": "2010-09-14 07:47:28", 
-            "colorscheme": 2,
+            "colorscheme": 2, 
             "value": "2c365c", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:09:34"
@@ -372,7 +502,7 @@
             "createby": 1, 
             "name": "text", 
             "lastupdatetime": "2010-09-14 07:40:37", 
-            "colorscheme": 2,
+            "colorscheme": 2, 
             "value": "dddddd", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:38"
@@ -385,7 +515,7 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-08-31 14:12:16", 
-            "colorscheme": 2,
+            "colorscheme": 2, 
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:37"
@@ -398,7 +528,7 @@
             "createby": 1, 
             "name": "background_body", 
             "lastupdatetime": "2010-09-13 11:58:58", 
-            "colorscheme": 4,
+            "colorscheme": 4, 
             "value": "fffafa", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:13:28"
@@ -411,7 +541,7 @@
             "createby": 1, 
             "name": "background_headline", 
             "lastupdatetime": "2010-09-13 11:57:45", 
-            "colorscheme": 4,
+            "colorscheme": 4, 
             "value": "ffe4b5", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:13:40"
@@ -424,7 +554,7 @@
             "createby": 1, 
             "name": "background_main_content", 
             "lastupdatetime": "2010-09-13 11:59:37", 
-            "colorscheme": 4,
+            "colorscheme": 4, 
             "value": "ffffe0", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:14:40"
@@ -437,7 +567,7 @@
             "createby": 1, 
             "name": "background_mainmenu", 
             "lastupdatetime": "2010-09-13 11:57:46", 
-            "colorscheme": 4,
+            "colorscheme": 4, 
             "value": "ffdead", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:14:40"
@@ -450,7 +580,7 @@
             "createby": 1, 
             "name": "black", 
             "lastupdatetime": "2010-08-31 14:12:35", 
-            "colorscheme": 4,
+            "colorscheme": 4, 
             "value": "000000", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:30"
@@ -463,7 +593,7 @@
             "createby": 1, 
             "name": "link_current_background", 
             "lastupdatetime": "2010-09-13 11:58:27", 
-            "colorscheme": 4,
+            "colorscheme": 4, 
             "value": "ffa500", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:14:40"
@@ -476,7 +606,7 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-08-31 14:12:35", 
-            "colorscheme": 4,
+            "colorscheme": 4, 
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:29"
@@ -489,7 +619,7 @@
             "createby": 1, 
             "name": "grey_dark_1", 
             "lastupdatetime": "2010-09-14 07:56:37", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "303030", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:12:09"
@@ -502,7 +632,7 @@
             "createby": 1, 
             "name": "grey_dark_2", 
             "lastupdatetime": "2010-09-14 07:56:37", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "505050", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:46"
@@ -515,7 +645,7 @@
             "createby": 1, 
             "name": "grey_dark_3", 
             "lastupdatetime": "2010-09-14 07:56:37", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "808080", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:44"
@@ -528,7 +658,7 @@
             "createby": 1, 
             "name": "grey_dark_4", 
             "lastupdatetime": "2010-09-14 07:57:13", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "cccccc", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:44"
@@ -541,7 +671,7 @@
             "createby": 1, 
             "name": "grey_white_1", 
             "lastupdatetime": "2010-09-14 07:58:10", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "f4f4f4", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:45"
@@ -554,7 +684,7 @@
             "createby": 1, 
             "name": "grey_white_2", 
             "lastupdatetime": "2010-09-14 07:58:11", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "f0f0f0", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:44"
@@ -567,7 +697,7 @@
             "createby": 1, 
             "name": "grey_white_3", 
             "lastupdatetime": "2010-09-14 07:58:11", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "eaeaea", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:45"
@@ -580,7 +710,7 @@
             "createby": 1, 
             "name": "grey_white_4", 
             "lastupdatetime": "2010-09-14 07:58:11", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "e0e0e0", 
             "lastupdateby": 1, 
             "createtime": "2010-05-28 09:12:09"
@@ -593,7 +723,7 @@
             "createby": 1, 
             "name": "grey_white_5", 
             "lastupdatetime": "2010-09-14 07:58:01", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "dddddd", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:43"
@@ -606,7 +736,7 @@
             "createby": 1, 
             "name": "link_current", 
             "lastupdatetime": "2010-09-14 08:07:51", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "215b85", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 08:03:11"
@@ -619,7 +749,7 @@
             "createby": 1, 
             "name": "link_hover", 
             "lastupdatetime": "2010-09-14 07:53:59", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "0d7bd6", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:53:38"
@@ -632,7 +762,7 @@
             "createby": 1, 
             "name": "link_normal", 
             "lastupdatetime": "2010-09-14 07:53:15", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "286ea0", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:46"
@@ -645,374 +775,634 @@
             "createby": 1, 
             "name": "white", 
             "lastupdatetime": "2010-08-31 14:11:36", 
-            "colorscheme": 5,
+            "colorscheme": 5, 
             "value": "ffffff", 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:40:42"
         }
     }, 
     {
-        "pk": 101, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "background_body", 
-            "lastupdatetime": "2010-09-13 12:00:46", 
-            "colorscheme": 6,
-            "value": "fafeff", 
-            "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
-        }
-    }, 
-    {
-        "pk": 90, 
+        "pk": 183, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "black", 
-            "lastupdatetime": "2010-08-31 14:16:32", 
-            "colorscheme": 6,
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
             "value": "000000", 
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
-        "pk": 95, 
+        "pk": 153, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "grey_1", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 6,
-            "value": "333333", 
+            "name": "darkgrey", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 6, 
+            "value": "aaaaaa", 
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 94, 
+        "pk": 141, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "grey_2", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 6,
-            "value": "444444", 
-            "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
-        }
-    }, 
-    {
-        "pk": 96, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_3", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 6,
-            "value": "555555", 
-            "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
-        }
-    }, 
-    {
-        "pk": 97, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_4", 
-            "lastupdatetime": "2010-09-14 07:59:30", 
-            "colorscheme": 6,
-            "value": "666666", 
-            "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
-        }
-    }, 
-    {
-        "pk": 91, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_5", 
-            "lastupdatetime": "2010-09-14 07:59:28", 
-            "colorscheme": 6,
+            "name": "darkgrey_d28", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 6, 
             "value": "999999", 
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 93, 
+        "pk": 174, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkred_d31", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
+            "value": "aa0000", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 204, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d26", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
+            "value": "444444", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 135, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d40", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 6, 
+            "value": "333333", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 198, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "dimgrey_d35", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
+            "value": "555555", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 177, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gainsboro", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
+            "value": "dddddd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 210, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
+            "value": "808080", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 162, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d14", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 6, 
+            "value": "888888", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 195, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d16", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
+            "value": "777777", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 159, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightgray_d10", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 6, 
+            "value": "cdcdcd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 207, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightgray_d12", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
+            "value": "cccccc", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 213, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_1", 
-            "lastupdatetime": "2010-09-14 08:01:15", 
-            "colorscheme": 6,
-            "value": "73a8c7", 
+            "lastupdatetime": "2010-09-16 20:36:42", 
+            "colorscheme": 6, 
+            "value": "00b7ff", 
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-09-16 20:32:20"
         }
     }, 
     {
-        "pk": 92, 
+        "pk": 201, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_2", 
-            "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 6,
-            "value": "8b9cb0", 
+            "lastupdatetime": "2010-09-16 21:19:53", 
+            "colorscheme": 6, 
+            "value": "002533", 
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
-        "pk": 99, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "main_color_3", 
-            "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 6,
-            "value": "dbf2ff", 
-            "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
-        }
-    }, 
-    {
-        "pk": 98, 
+        "pk": 156, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_4", 
-            "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 6,
-            "value": "e5fcff", 
+            "lastupdatetime": "2010-09-16 20:36:42", 
+            "colorscheme": 6, 
+            "value": "0078a8", 
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 89, 
+        "pk": 132, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_5", 
-            "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 6,
-            "value": "dceced", 
+            "lastupdatetime": "2010-09-16 20:36:42", 
+            "colorscheme": 6, 
+            "value": "1d5b73", 
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 102, 
+        "pk": 138, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_body_background", 
+            "lastupdatetime": "2010-09-16 20:38:39", 
+            "colorscheme": 6, 
+            "value": "dce8ed", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 219, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_content_background", 
+            "lastupdatetime": "2010-09-16 20:51:24", 
+            "colorscheme": 6, 
+            "value": "ebf9ff", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:49:06"
+        }
+    }, 
+    {
+        "pk": 222, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_hover", 
+            "lastupdatetime": "2010-09-16 21:24:13", 
+            "colorscheme": 6, 
+            "value": "002938", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 21:22:35"
+        }
+    }, 
+    {
+        "pk": 129, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_normal", 
+            "lastupdatetime": "2010-09-16 21:19:31", 
+            "colorscheme": 6, 
+            "value": "005475", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 216, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_menu_background", 
+            "lastupdatetime": "2010-09-16 20:51:25", 
+            "colorscheme": 6, 
+            "value": "c7d5db", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:49:05"
+        }
+    }, 
+    {
+        "pk": 192, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "silver_d9", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 6, 
+            "value": "bbbbbb", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 180, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "white", 
-            "lastupdatetime": "2010-08-31 14:16:32", 
-            "colorscheme": 6,
-            "value": "ffffff", 
+            "lastupdatetime": "2010-09-16 20:44:55", 
+            "colorscheme": 6, 
+            "value": "fefefe", 
             "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
-        "pk": 103, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "whitesmoke", 
-            "lastupdatetime": "2010-09-14 08:00:28", 
-            "colorscheme": 6,
-            "value": "eeeeee", 
-            "lastupdateby": 1, 
-            "createtime": "2010-08-31 14:16:32"
-        }
-    }, 
-    {
-        "pk": 105, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "background_body", 
-            "lastupdatetime": "2010-09-14 07:28:53", 
-            "colorscheme": 7,
-            "value": "fdfffc", 
-            "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
-        }
-    }, 
-    {
-        "pk": 110, 
+        "pk": 184, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "black", 
-            "lastupdatetime": "2010-09-14 07:28:09", 
-            "colorscheme": 7,
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
             "value": "000000", 
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
-        "pk": 114, 
+        "pk": 154, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "grey_1", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 7,
-            "value": "333333", 
+            "name": "darkgrey", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 7, 
+            "value": "aaaaaa", 
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 113, 
+        "pk": 142, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
-            "name": "grey_2", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 7,
-            "value": "444444", 
-            "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
-        }
-    }, 
-    {
-        "pk": 115, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_3", 
-            "lastupdatetime": "2010-09-14 07:59:29", 
-            "colorscheme": 7,
-            "value": "555555", 
-            "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
-        }
-    }, 
-    {
-        "pk": 116, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_4", 
-            "lastupdatetime": "2010-09-14 07:59:30", 
-            "colorscheme": 7,
-            "value": "666666", 
-            "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
-        }
-    }, 
-    {
-        "pk": 111, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "grey_5", 
-            "lastupdatetime": "2010-09-14 07:59:28", 
-            "colorscheme": 7,
+            "name": "darkgrey_d28", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 7, 
             "value": "999999", 
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 106, 
+        "pk": 175, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkred_d31", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
+            "value": "aa0000", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 205, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d26", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
+            "value": "444444", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 136, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d40", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 7, 
+            "value": "333333", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 199, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "dimgrey_d35", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
+            "value": "555555", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 178, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gainsboro", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
+            "value": "dddddd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 211, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
+            "value": "808080", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 163, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d14", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 7, 
+            "value": "888888", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 196, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d16", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
+            "value": "777777", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 160, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightgray_d10", 
+            "lastupdatetime": "2010-09-16 20:28:14", 
+            "colorscheme": 7, 
+            "value": "cdcdcd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 208, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightgray_d12", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
+            "value": "cccccc", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 214, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_1", 
-            "lastupdatetime": "2010-09-14 08:01:15", 
-            "colorscheme": 7,
-            "value": "7dc773", 
+            "lastupdatetime": "2010-09-16 20:40:33", 
+            "colorscheme": 7, 
+            "value": "06b82f", 
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-16 20:32:20"
         }
     }, 
     {
-        "pk": 112, 
+        "pk": 202, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_2", 
-            "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 7,
-            "value": "8bb08b", 
+            "lastupdatetime": "2010-09-16 21:19:53", 
+            "colorscheme": 7, 
+            "value": "00330c", 
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
-        "pk": 108, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "main_color_3", 
-            "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 7,
-            "value": "e2ffdb", 
-            "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
-        }
-    }, 
-    {
-        "pk": 107, 
+        "pk": 157, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_4", 
-            "lastupdatetime": "2010-09-14 08:01:16", 
-            "colorscheme": 7,
-            "value": "e6ffe5", 
+            "lastupdatetime": "2010-09-16 20:40:33", 
+            "colorscheme": 7, 
+            "value": "0d8228", 
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 109, 
+        "pk": 133, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_5", 
-            "lastupdatetime": "2010-09-14 08:01:17", 
-            "colorscheme": 7,
-            "value": "e3ebda", 
+            "lastupdatetime": "2010-09-16 20:35:58", 
+            "colorscheme": 7, 
+            "value": "1e7332", 
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-16 20:28:14"
         }
     }, 
     {
-        "pk": 118, 
+        "pk": 139, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_body_background", 
+            "lastupdatetime": "2010-09-16 20:40:33", 
+            "colorscheme": 7, 
+            "value": "b5c9b9", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 220, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_content_background", 
+            "lastupdatetime": "2010-09-16 21:09:22", 
+            "colorscheme": 7, 
+            "value": "dbffe3", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:49:06"
+        }
+    }, 
+    {
+        "pk": 223, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_hover", 
+            "lastupdatetime": "2010-09-16 21:23:08", 
+            "colorscheme": 7, 
+            "value": "00ff00", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 21:22:35"
+        }
+    }, 
+    {
+        "pk": 130, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_normal", 
+            "lastupdatetime": "2010-09-16 21:25:28", 
+            "colorscheme": 7, 
+            "value": "35133d", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 217, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_menu_background", 
+            "lastupdatetime": "2010-09-16 21:09:22", 
+            "colorscheme": 7, 
+            "value": "bff5cb", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:49:05"
+        }
+    }, 
+    {
+        "pk": 193, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "silver_d9", 
+            "lastupdatetime": "2010-09-16 20:28:15", 
+            "colorscheme": 7, 
+            "value": "bbbbbb", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-16 20:28:15"
+        }
+    }, 
+    {
+        "pk": 181, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "white", 
-            "lastupdatetime": "2010-09-14 07:28:09", 
-            "colorscheme": 7,
+            "lastupdatetime": "2010-09-16 20:44:55", 
+            "colorscheme": 7, 
             "value": "ffffff", 
             "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
-        }
-    }, 
-    {
-        "pk": 119, 
-        "model": "pylucid.color", 
-        "fields": {
-            "createby": 1, 
-            "name": "whitesmoke", 
-            "lastupdatetime": "2010-09-14 08:00:28", 
-            "colorscheme": 7,
-            "value": "eeeeee", 
-            "lastupdateby": 1, 
-            "createtime": "2010-09-14 07:28:09"
+            "createtime": "2010-09-16 20:28:15"
         }
     }, 
     {
@@ -1023,7 +1413,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2010-09-14 07:27:14", 
-            "filepath": "initial_site_style/elementary.css",
+            "filepath": "initial_site_style/elementary.css", 
             "content": "body{\r\n  font-size:0.9em;\r\n  background: {{ background_body }};\r\n  margin: 15px 10% 15px 10%;\r\n}\r\n\r\n#headline {\r\n  background: {{ background_headline }};\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n}\r\n\r\n.main_menu {\r\n  background: {{ background_mainmenu }};\r\n  float: left;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n.main_menu ul {\r\n  padding: 0;\r\n}\r\n.main_menu ul ul {\r\n  /* indent submenu */\r\n  padding-left: 1.5em;\r\n  font-size:0.9em; /* smaller font for subitems */\r\n}\r\n.main_menu li {\r\n  list-style:none;\r\n}\r\na {\r\n  color: slategray;\r\n  text-decoration: none;\r\n}\r\na:hover, a .current {\r\n  background-color: {{ link_current_background }};\r\n  text-decoration: underline;\r\n}\r\n#main_content {\r\n  background: {{ background_main_content }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\n#footer {\r\n  border: 1px solid {{ black }};\r\n  padding: 5px;\r\n  font-size: 0.9em;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ white }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
@@ -1032,19 +1422,19 @@
         }
     }, 
     {
-        "pk": 1, 
+        "pk": 7, 
         "model": "pylucid.editablehtmlheadfile", 
         "fields": {
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-09-14 08:01:17", 
-            "filepath": "initial_site_style/main.css",
-            "content": "* { color: {{ black }}; }\r\n\r\nbody{\r\n  font-size:0.9em;\r\n  font-family: tahoma, arial, sans-serif;\r\n  background: {{ background_body }};\r\n  margin: 15px 10% 15px 10%;\r\n  min-width:802px;\r\n}\r\n\r\n/*\r\n headline definition if you use a picture:\r\n----------------------------------------------\r\n#headline {\r\n  background: {{ main_color_1 }};\r\n  text-align: center;\r\n  height: 70px;\r\n  margin: 0px;\r\n  padding: 0px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline img {\r\n  border: 0px;\r\n  overflow:hidden;\r\n}\r\n/*\r\n headline definition with text only:\r\n*/\r\n#headline {\r\n  background: {{ main_color_1 }};\r\n  font-size: 30px;\r\n  margin: 0px;\r\n  padding: 10px;\r\n  border: 1px solid black;\r\n  border-bottom: 0px;\r\n}\r\n#headline a {\r\n  text-decoration:none;\r\n  color: white;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: {{ black }};\r\n}\r\n.uarr {\r\n  color: {{ whitesmoke }};\r\n}\r\n.top_link:hover .uarr {\r\n  color: {{ black }};\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px {{ white }};\r\n  text-decoration:none;\r\n  color: {{ main_color_5 }};\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: {{ grey_5 }};\r\n}\r\n.section_anchor:hover {\r\n  color:{{ black }}!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px {{ grey_5 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\n.toc_headline {\r\n  margin-bottom: 0.5em;\r\n  font-size: 0.9em;\r\n  color: {{ grey_1 }};\r\n}\r\n\r\n#bbaacck_links {\r\n  font-size:0.8em;\r\n}\r\n\r\n#the_menu {\r\n  background: {{ main_color_3 }};\r\n  border: 1px solid {{ main_color_2 }};\r\n  float: right;\r\n  padding: 15px;\r\n  margin: 10px;\r\n}\r\n#the_menu img {\r\n  text-align: center;\r\n}\r\n\r\n#main_menu {\r\n  font-size:0.9em;\r\n}\r\n\r\n#searching input, #searching button {\r\n  font-size: 0.85em;\r\n  border: 1px solid {{ grey_2 }};\r\n  padding: 1px;\r\n}\r\n\r\n#main_content {\r\n  min-height:400px;\r\n  background: {{ main_color_4 }};\r\n  padding: 5px;\r\n  border: 1px solid black;\r\n}\r\n\r\na:hover, a .current {\r\n  background-color: {{ main_color_1 }};\r\n  color: white;\r\n}\r\n\r\npre {\r\n  border:1px solid grey;\r\n  background-color: white;\r\n}\r\n\r\n#footer {\r\n  font-size:0.75em;\r\n  border: 1px solid black;\r\n  padding: 5px;\r\n  text-align: center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ----------------------------------------------------------------------\r\n   Pygments syntax highlighter\r\n---------------------------------------------------------------------- */\r\n.pygments_code, .pygments_code table, .pygments_code .code, .pygments_code pre {\r\n  background: {{ white }};\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n.pygments_code pre {\r\n border: 1px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n\r\n.main_menu *, .main_menu a.current {\r\n  color: {{ grey_4 }};\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size:0.9em;\r\n}\r\n.main_menu a.active {\r\n  color: {{ grey_1 }};\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: {{ black }};\r\n  background-color: {{ grey_3 }};\r\n}\r\n.main_menu a:before {\r\n  color: {{ main_color_1 }};\r\n  letter-spacing: 0px;\r\n  font-weight: normal;\r\n  background: {{ main_color_4 }};\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n", 
+            "lastupdatetime": "2010-09-16 21:37:55", 
+            "filepath": "initial_site_style/main.css", 
+            "content": "body {\r\n  background-color:{{ main_color_body_background }};\r\n}\r\n.container {\r\n  background-color:{{ main_color_content_background }};\r\n  padding: 1em;\r\n}\r\na {\r\n  color: {{ main_color_link_normal }};\r\n  text-decoration: none;\r\n}\r\na:hover {\r\n  text-decoration: underline;\r\n  color: {{ main_color_link_hover }};\r\n}\r\n#float_nav {\r\n  float:right;\r\n  background-color:{{ main_color_menu_background }};\r\n  padding: 1em;\r\n  margin: 0 0 1em 1em;\r\n  border: 1px solid {{ main_color_1 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   page messages\r\n------------------------------------------------------------------------------- */\r\n#page_msg {\r\n  margin: 0;\r\n  padding: 0 1em;\r\n}\r\n\r\n#page_msg ul {\r\n  margin: 0;\r\n  padding: 0;\r\n  list-style-type:none;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   main_menu\r\n------------------------------------------------------------------------------- */\r\n.main_menu *, .main_menu a.current {\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size: 1.5em;\r\n  line-height: 1em;\r\n}\r\n.main_menu a.active {\r\n  color: {{ darkslategrey_d40 }};\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: {{ main_color_2 }};\r\n  background-color: {{ white }};\r\n}\r\n.main_menu a:before {\r\n  letter-spacing: 0px;\r\n  font-weight: bold;\r\n  font-size:1.2em;\r\n  background:{{ main_color_menu_background }};\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n/* ----------------------------------------------------------------------------\r\n   search\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.search #search_form input[type=text] {\r\n  width: auto;\r\n}\r\n.search input, .search button {\r\n  font-size: 0.9em;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\nh3.toc_headline {\r\n  margin: 1em 0 0 0;\r\n}\r\n.PyLucidPlugins.TOC {\r\n  border: 1px solid {{ white }};\r\n  background-color: {{ white }};\r\n  margin: 3em;\r\n  padding: 1em 0em 1em 0em;\r\n}\r\n.PyLucidPlugins.TOC h3 {\r\n  margin: 0em;\r\n  color: {{ darkslategrey_d40 }};\r\n}\r\n.PyLucidPlugins.TOC * {\r\n  margin: 0em;\r\n  color: {{ gainsboro }};\r\ntext-decoration:none;\r\n}\r\n.PyLucidPlugins.TOC a {\r\n  color: {{ gray_d16 }};\r\n}\r\n.PyLucidPlugins.TOC a:hover {\r\n  color: {{ darkred_d31 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Pygments source code\r\n------------------------------------------------------------------------------- */\r\nfieldset.pygments_code, fieldset.pygments_code * {\r\n  padding: 0;\r\n  margin: 0;\r\n  vertical-align:top;\r\n}\r\nfieldset.pygments_code, legend.pygments_code {\r\n  background: {{ white }};\r\n  border: 1px solid {{ lightgray_d10 }};\r\n}\r\nfieldset.pygments_code {\r\n  padding: 5px;\r\n}\r\nlegend.pygments_code {\r\n  font-size: 0.8em;\r\n  color: {{ darkslategrey_d26 }};\r\n  padding: 0px 5px 0px 5px;\r\n  margin-left: 10px;\r\n}\r\n.pygments_code .linenos {\r\n  background: {{ white }};\r\n  color: {{ darkgrey_d28 }};\r\n  padding: 0 5px 0 5px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n.pygments_code .code pre {\r\n  width: 730px;\r\n  overflow:auto;\r\n}\r\n/*.pygments_code .code pre:hover {\r\n  width: 100%;\r\n  overflow:show;\r\n}*/\r\n/* ----------------------------------------------------------------------------\r\n   button links (edit/delete, retweer etc.)\r\n------------------------------------------------------------------------------- */\r\n.button_links a, .admin_links a {\r\n  text-decoration:none;\r\n  padding: 2px 5px 2px 5px;\r\n  border-radius: 3px;\r\n  -moz-border-radius: 3px;\r\n  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#dddddd));\r\n  background: -moz-linear-gradient(top, #ffffff, #dddddd);  \r\n  border: 1px solid {{ silver_d9 }};\r\n}\r\n.button_links a:hover, .admin_links a:hover {\r\n  text-decoration:underline;\r\n  text-shadow:1px 2px 2px {{ gray_d14 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Update journal\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.update_journal * {\r\n   white-space:nowrap;\r\n}\r\n.PyLucidPlugins.update_journal small {\r\n   color: {{ darkgrey_d28 }};\r\n}\r\n.PyLucidPlugins.update_journal .update_time {\r\n   color: {{ gray_d16 }};\r\n}\r\n.PyLucidPlugins.update_journal .update_title * {\r\n   white-space:normal;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: {{ black }};\r\n}\r\n.top_link .uarr {\r\n  color: {{ white }};\r\n}\r\na.top_link {\r\n  text-decoration:none;\r\n}\r\n.top_link:hover .uarr {\r\n  color: {{ black }};\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px {{ white }};\r\n  text-decoration:none;\r\n  color: {{ white }};\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: {{ darkgrey_d28 }};\r\n}\r\n.section_anchor:hover {\r\n  color:#000000!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px {{ darkgrey_d28 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   User comments\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.pylucid_comments {\r\n    padding: 3em 0 3em 0;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   permalink\r\n------------------------------------------------------------------------------- */\r\n#permalink * {\r\n  color: {{ gray }};\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n#permalink {\r\n  font-size: 0.8em;\r\n  text-align: center;\r\n}\r\n#permalink a {\r\n  background-color: inherit;\r\n  text-decoration: none;\r\n}\r\n#permalink a:hover {\r\n  text-shadow:1px 1px 1px {{ gray_d14 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   footer\r\n------------------------------------------------------------------------------- */\r\n.footer {\r\n  text-align:center;\r\n  border-top: 1px solid {{ white }};\r\n}\r\n.footer, .footer * {\r\n  color: {{ gainsboro }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   lexicon\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.lexicon dt {\r\n  padding-top: 1.5em;\r\n}\r\n.PyLucidPlugins.lexicon dd {\r\n  padding-top: 0.2em;\r\n}\r\na.PyLucidPlugins.lexicon {\r\n  color:{{ main_color_5 }};\r\n  border-bottom: 1px dotted {{ lightgray_d12 }};\r\n  font-weight: normal;\r\n  text-shadow: 1px 1px 1px {{ white }};\r\n}\r\na.PyLucidPlugins.lexicon:hover {\r\n  color:{{ darkred_d31 }};\r\n  font-weight: normal;\r\n  text-decoration:underline;\r\n  border-bottom: 0px;\r\n  text-shadow: 2px 2px 2px {{ darkgrey }};\r\n}\r\n.PyLucidPlugins.lexicon .admin_links {\r\n  float: right;\r\n}\r\n.PyLucidPlugins.lexicon .admin_links a {\r\n  font-weight: normal;\r\n}\r\n.PyLucidPlugins.lexicon.openinwindow {\r\n  cursor:help;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   tag navigation\r\n------------------------------------------------------------------------------- */\r\n#tag_navi_lucidTag {\r\n  font-size:0.8em;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   internal\r\n------------------------------------------------------------------------------- */\r\ntextarea {\r\n  /* all text areas should use the full width */\r\n  width: 100%;\r\n}\r\n.PyLucidPlugins.SiteMap p.deep_1 {\r\n  border-bottom: 2px solid {{ darkred_d31 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   RSS feeds included in the page\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.rss h1 {\r\n  font-size: 1.1em;\r\n  padding: 1.5em 0em 0em 0em;\r\n}\r\n.PyLucidPlugins.rss * {\r\n  line-height: 1.2em;\r\n}\r\n.PyLucidPlugins.rss ul {\r\n  list-style:none;\r\n  padding: 0px;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   PyLucid blog plugin\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.blog fieldset {\r\n  border: 0px;\r\n  border-top: 2px solid {{ lightgray_d12 }};\r\n  padding: 0em 0em 2.5em 1em;\r\n  margin: 2.5em 0em 0em 0em;\r\n}\r\n.PyLucidPlugins.blog legend {\r\n  padding: 0em 0.3em 0em 0.3em;\r\n}\r\n.PyLucidPlugins.blog .tag_cloud {\r\n  font-size: 0.7em;\r\n}\r\n.PyLucidPlugins.blog .headline {\r\n  font-size: 1.6em;\r\n  line-height: 0.7em;\r\n}\r\n.PyLucidPlugins.blog .headline_info {\r\n  font-size: 0.45em;\r\n  color: {{ dimgrey_d35 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   PyLucid language plugin\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.language * {\r\n  color: {{ gray_d16 }};\r\n  display: inline;\r\n  padding: 0em;\r\n  margin: 0em;\r\n}\r\n.PyLucidPlugins.language {\r\n  border: 1px solid {{ gainsboro }};\r\n  background-color: {{ white }};\r\n  padding: 1px;\r\n  margin: 3px;\r\n}\r\n.PyLucidPlugins.language:hover {\r\n  border-color: {{ main_color_4 }};\r\n}\r\n.PyLucidPlugins.language:hover * {\r\n  color: {{ black }};\r\n}\r\n.PyLucidPlugins.language li a:hover {\r\n  color: {{ main_color_4 }};\r\n}\r\n.PyLucidPlugins.language li {\r\n  border-right: 2px solid {{ darkgrey }};\r\n  padding: 0em 0.2em 0em 0.4em;\r\n}\r\n.PyLucidPlugins.language li:last-child {\r\n  border: 0px;\r\n}\r\n", 
             "render": true, 
             "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:07", 
-            "description": "default Stylesheet"
+            "createtime": "2010-09-16 19:58:13", 
+            "description": "for new blueprint designs"
         }
     }, 
     {
@@ -1055,7 +1445,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2010-09-14 07:47:46", 
-            "filepath": "initial_site_style/small_dark.css",
+            "filepath": "initial_site_style/small_dark.css", 
             "content": "head {\r\n  width: 639px;\r\n}\r\n* {\r\n  color: {{ text }};\r\n  font-family:sans-serif;\r\n  font-size:0.95em;\r\n}\r\n\r\na {\r\n   text-decoration:none;\r\n   color: {{ link_normal }};\r\n}\r\na:hover {\r\n   color: {{ link_hover }}; \r\n}\r\na img, img {\r\n  border: 0;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n\r\nbody {\r\n  background-color: {{ background_body }};\r\n  text-align:center;\r\n}\r\n\r\n#content {\r\n  width: 639px;\r\n  margin:auto;\r\n  text-align:left;\r\n}\r\n\r\n#head {\r\n  font-size: 2em;\r\n  margin: 0.5em;\r\n  padding-left: 1.5em;\r\n  color: {{ headline }};\r\n}\r\nh1, h2 {\r\n  text-transform:uppercase;\r\n  font-size:0.95em;\r\n  color: {{ white }};\r\n}\r\nh2 {\r\n  border-bottom: 1px solid {{ text }};\r\n}\r\n\r\nhr {\r\n  clear: both;\r\n  border-width:1px;\r\n  height:1px;\r\n  padding: 0px;\r\n  margin: 2px 0px 2px 0px;\r\n}\r\nhr.big {\r\n  border-width: 3px;\r\n  height:3px;\r\n  border-style: solid\r\n}\r\nhr.small {\r\n  border-style:dotted;\r\n}\r\n\r\n#footer {\r\n  font-size:0.9em;\r\n  text-align:center;\r\n}\r\n\r\n/* ---------------------------------------------------------------------- */\r\ntextarea {\r\n  width: 100%;\r\n}\r\n.back_links, #permalink {\r\n  font-size: 0.8em;\r\n}\r\n#permalink {\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n/* ---------------------------------------------------------------------- */\r\n#sf_main_menu_lucidTag .sf-menu * {\r\n    background-color: {{ main_menu_background }};\r\n    color: {{ text }};\r\n}\r\n#sf_main_menu_lucidTag .current, #sf_main_menu_lucidTag .active, #sf_main_menu_lucidTag a:hover {\r\n    background-color: {{ main_menu_current }};\r\n    color: {{ white }};\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
@@ -1071,7 +1461,7 @@
             "createby": 1, 
             "html_attributes": "", 
             "lastupdatetime": "2010-09-14 08:06:53", 
-            "filepath": "initial_site_style/small_white.css",
+            "filepath": "initial_site_style/small_white.css", 
             "content": "/* andreas01 - an open source xhtml/css website layout \r\n * by Andreas Viklund  - http://andreasviklund.com -\r\n * Free to use for any purpose as long as the proper \r\n * credits are given to the original author.\r\n *  \r\n * Version: 2.0 (Jun 25, 2006)\r\n * Screen layout: \r\n */\r\n\r\n/***** Body and main container *****/\r\nbody {\r\n   margin:0 auto;\r\n   padding:0;\r\n   font:76% Verdana,Tahoma,Arial,sans-serif;\r\n   background:{{ grey_white_5 }};\r\n   color:{{ grey_dark_1 }};\r\n}\r\n\r\n#wrap {\r\n   background:{{ white }};\r\n   color:{{ grey_dark_1 }};\r\n   margin:0 auto;\r\n   width:760px;\r\n}\r\n\r\n/***** Various tags *****/\r\na {\r\n   text-decoration:none;\r\n   font-weight:bold;\r\n   color:{{ link_normal }};\r\n   background-color:inherit;\r\n}\r\na:hover {\r\n   text-decoration:underline;\r\n   color: {{ link_hover }};\r\n   background-color:inherit;\r\n}\r\na img {\r\n   border:0;\r\n}\r\n\r\n/***** Header *****/\r\n#header {\r\n   background-color:{{ grey_white_3 }};\r\n   margin:10px 0 0;\r\n   padding:0;\r\n   height:45px;\r\n}\r\n#header h1 {\r\n   color:{{ grey_dark_2 }};\r\n   background-color:inherit;\r\n   width:250px;\r\n   margin:0 0 10px;\r\n   font-size:2.2em;\r\n   float:left;\r\n}\r\n#header h1 a{\r\n   color:{{ grey_dark_2 }};\r\n   background-color:inherit;\r\n   text-decoration:none;\r\n}\r\n#header p {\r\n   width:500px;\r\n   float:right;\r\n   text-align:center;\r\n   color:{{ grey_dark_2 }};\r\n   margin:8px 0 0;\r\n   font-size:1.1em;\r\n   font-weight:bold;\r\n   line-height:1.3em;\r\n   background-color:inherit;\r\n}\r\n\r\n#frontphoto {\r\n   margin:0 0 10px;\r\n   border:0;\r\n}\r\n\r\n/***** Main menu *****/\r\n.main_menu ul {\r\n   width:140px;\r\n   margin:0 0 18px;\r\n   padding:0;\r\n   list-style:none;\r\n}\r\n.main_menu li {\r\n   width:140px;\r\n   padding:0;\r\n   line-height:1.4em;\r\n   display:inline;\r\n}\r\n.main_menu li a {\r\n   background-color:{{ grey_white_1 }};\r\n   color:{{ grey_dark_2 }};\r\n   font-weight:bold;\r\n   width:130px;\r\n   float:left;\r\n   margin-bottom:5px;\r\n   padding:5px 1px 5px 5px;\r\n   border-left:4px solid {{ grey_dark_4 }};\r\n   text-decoration:none;\r\n}\r\n.main_menu li a:hover {\r\n   background-color:{{ grey_white_3 }};\r\n   border-left:4px solid {{ link_normal }};\r\n}\r\n.main_menu li a.active {\r\n   background-color:{{ grey_white_5 }};\r\n}\r\n.main_menu li a.current {\r\n   background-color:{{ grey_white_5 }};\r\n   color:{{ link_current }};\r\n}\r\n.main_menu ul {\r\n   margin:0 0 0 15px;\r\n   padding:0 0 5px 0;\r\n   font-size:0.9em;\r\n   width:125px;\r\n}\r\n.main_menu ul a {\r\n   padding:3px 1px 3px 5px;\r\n   width:115px;\r\n}\r\n.main_menu ul ul {\r\n   width:113px;\r\n}\r\n.main_menu ul ul a {\r\n   width:100px;\r\n}\r\n\r\n/***** Left sidebar *****/\r\n#leftside {\r\n   clear:left;\r\n   float:left;\r\n   width:140px;\r\n   margin:0 0 5px;\r\n   padding:0;\r\n}\r\n#leftside h2, #leftside h3 {\r\n   color:{{ grey_dark_2 }};\r\n   background-color:inherit;\r\n   font-size:1.3em;\r\n   margin:0 0 5px;\r\n   padding:0;\r\n}\r\n#leftside div.announce {\r\n   clear:left;\r\n   margin:10px 0 15px;\r\n   padding:7px 5px;\r\n   width:126px;\r\n   font-size:0.9em;\r\n   background-color:{{ grey_white_1 }};\r\n   color:{{ grey_dark_2 }};\r\n   border-left:4px solid {{ grey_dark_4 }};\r\n   line-height:1.5em;\r\n}\r\n#leftside div.announce p {\r\n   margin:10px 0 0;\r\n   padding:0;\r\n}\r\n\r\n/***** Right sidebar *****/\r\n\r\n#rightside {\r\n   float:right;\r\n   width:140px;\r\n   margin:0 0 5px;\r\n   padding:0;\r\n   line-height:1.4em;\r\n}\r\n\r\n#extras p,#extras ul {\r\n   font-size:0.9em;\r\n   margin:0 0 16px;\r\n   padding:0;\r\n}\r\n#extras li {\r\n   list-style:none;\r\n   line-height:1.2em;\r\n   margin:0 0 6px 0;\r\n   padding:0;\r\n}\r\n#extras ul ul {\r\n   margin:6px 0 0 10px;\r\n   padding:0;\r\n}\r\n#extras ul ul li {\r\n   margin: 0 0 4px 0;\r\n}\r\n#extras ul ul li a {\r\n   font-size:1.1em;\r\n   font-weight:normal;\r\n}\r\n#extras h2, #extras h3 {\r\n   color:{{ grey_dark_2 }};\r\n   background-color:inherit;\r\n   font-size:1.2em;\r\n   margin:0 0 10px;\r\n   padding:0;\r\n}\r\n\r\n/***** Main content *****/\r\n#content {\r\n   margin:0 200px 5px 200px;\r\n   border-left:1px solid {{ grey_white_4 }};\r\n   border-right:1px solid {{ grey_white_4 }};\r\n   padding:0 10px;\r\n   line-height:1.6em;\r\n}\r\n#contentwide {\r\n   margin:0 0 5px 200px;\r\n   border-left:1px solid {{ grey_white_2 }};\r\n   padding:0 0 0 10px;\r\n   line-height:1.6em;\r\n}\r\n#content h2,#contentwide h2 {\r\n   font-size:1.6em;\r\n   margin:0 0 10px;\r\n}\r\n#content h3,#contentwide h3 {\r\n   font-size:1.4em;\r\n   margin:0 0 8px;\r\n}\r\n#content img.normal, #contentwide img.normal {\r\n   padding:1px;\r\n   display:inline;\r\n   background:{{ grey_dark_4 }};\r\n   color:{{ grey_dark_1 }};\r\n   border:4px solid {{ grey_white_2 }};\r\n}\r\n#content ul, #contentwide ul, #content ol, #contentwide ol {\r\n   margin:0 0 16px 20px;\r\n   padding:0;\r\n}\r\n#content li, #contentwide li {\r\n   margin:0;\r\n   padding:0 0 0 5px;\r\n}\r\n#content ul ul, #contentwide ul ul, #content ol ol, #contentwide ol ol{\r\n   margin:0 0 0 16px;\r\n   padding:0;\r\n}\r\n\r\n/***** Footer *****/\r\n#footer {\r\n   clear:both;\r\n   margin:0 auto;\r\n   padding:10px 0 20px;\r\n   border-top:4px solid {{ grey_white_2 }};\r\n   width:760px;\r\n   text-align:center;\r\n   color:{{ grey_dark_3 }};\r\n   background:{{ white }};\r\n   font-size:0.9em;\r\n}\r\n#footer a {\r\n   color:{{ grey_dark_3 }};\r\n   background-color:inherit;\r\n   text-decoration:none;\r\n}\r\n#footer a:hover {\r\n   text-decoration:underline;\r\n}\r\n\r\n/***** Various classes *****/\r\n.left {\r\n   margin:3px 10px 2px 0;\r\n   float:left;\r\n}\r\n.right {\r\n   margin:2px 0 2px 10px;\r\n   float:right;\r\n}\r\n\r\n.textright {\r\n   text-align:right;\r\n}\r\n\r\n.center {\r\n   text-align:center;\r\n}\r\n\r\n.small {\r\n   font-size:0.8em;\r\n}\r\n\r\n.bold {\r\n   font-weight:bold;\r\n}\r\n\r\n.hide {\r\n   display:none;\r\n}", 
             "render": true, 
             "lastupdateby": 1, 
@@ -1086,13 +1476,13 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2009-11-03 03:41:06", 
-            "filepath": "pygments.css",
+            "lastupdatetime": "2010-09-16 21:38:04", 
+            "filepath": "pygments.css", 
             "content": ".pygments  { background: #ffffff; }\r\n.pygments .c { color: #808080 } /* Comment */\r\n.pygments .err { color: #F00000; background-color: #F0A0A0 } /* Error */\r\n.pygments .k { color: #008000; font-weight: bold } /* Keyword */\r\n.pygments .o { color: #303030 } /* Operator */\r\n.pygments .cm { color: #808080 } /* Comment.Multiline */\r\n.pygments .cp { color: #507090 } /* Comment.Preproc */\r\n.pygments .c1 { color: #808080 } /* Comment.Single */\r\n.pygments .cs { color: #cc0000; font-weight: bold } /* Comment.Special */\r\n.pygments .gd { color: #A00000 } /* Generic.Deleted */\r\n.pygments .ge { font-style: italic } /* Generic.Emph */\r\n.pygments .gr { color: #FF0000 } /* Generic.Error */\r\n.pygments .gh { color: #000080; font-weight: bold } /* Generic.Heading */\r\n.pygments .gi { color: #00A000 } /* Generic.Inserted */\r\n.pygments .go { color: #808080 } /* Generic.Output */\r\n.pygments .gp { color: #c65d09; font-weight: bold } /* Generic.Prompt */\r\n.pygments .gs { font-weight: bold } /* Generic.Strong */\r\n.pygments .gu { color: #800080; font-weight: bold } /* Generic.Subheading */\r\n.pygments .gt { color: #0040D0 } /* Generic.Traceback */\r\n.pygments .kc { color: #008000; font-weight: bold } /* Keyword.Constant */\r\n.pygments .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */\r\n.pygments .kp { color: #003080; font-weight: bold } /* Keyword.Pseudo */\r\n.pygments .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */\r\n.pygments .kt { color: #303090; font-weight: bold } /* Keyword.Type */\r\n.pygments .m { color: #6000E0; font-weight: bold } /* Literal.Number */\r\n.pygments .s { background-color: #fff0f0 } /* Literal.String */\r\n.pygments .na { color: #0000C0 } /* Name.Attribute */\r\n.pygments .nb { color: #007020 } /* Name.Builtin */\r\n.pygments .nc { color: #B00060; font-weight: bold } /* Name.Class */\r\n.pygments .no { color: #003060; font-weight: bold } /* Name.Constant */\r\n.pygments .nd { color: #505050; font-weight: bold } /* Name.Decorator */\r\n.pygments .ni { color: #800000; font-weight: bold } /* Name.Entity */\r\n.pygments .ne { color: #F00000; font-weight: bold } /* Name.Exception */\r\n.pygments .nf { color: #0060B0; font-weight: bold } /* Name.Function */\r\n.pygments .nl { color: #907000; font-weight: bold } /* Name.Label */\r\n.pygments .nn { color: #0e84b5; font-weight: bold } /* Name.Namespace */\r\n.pygments .nt { color: #007000 } /* Name.Tag */\r\n.pygments .nv { color: #906030 } /* Name.Variable */\r\n.pygments .ow { color: #000000; font-weight: bold } /* Operator.Word */\r\n.pygments .w { color: #bbbbbb } /* Text.Whitespace */\r\n.pygments .mf { color: #6000E0; font-weight: bold } /* Literal.Number.Float */\r\n.pygments .mh { color: #005080; font-weight: bold } /* Literal.Number.Hex */\r\n.pygments .mi { color: #0000D0; font-weight: bold } /* Literal.Number.Integer */\r\n.pygments .mo { color: #4000E0; font-weight: bold } /* Literal.Number.Oct */\r\n.pygments .sb { background-color: #fff0f0 } /* Literal.String.Backtick */\r\n.pygments .sc { color: #0040D0 } /* Literal.String.Char */\r\n.pygments .sd { color: #D04020 } /* Literal.String.Doc */\r\n.pygments .s2 { background-color: #fff0f0 } /* Literal.String.Double */\r\n.pygments .se { color: #606060; font-weight: bold; background-color: #fff0f0 } /* Literal.String.Escape */\r\n.pygments .sh { background-color: #fff0f0 } /* Literal.String.Heredoc */\r\n.pygments .si { background-color: #e0e0e0 } /* Literal.String.Interpol */\r\n.pygments .sx { color: #D02000; background-color: #fff0f0 } /* Literal.String.Other */\r\n.pygments .sr { color: #000000; background-color: #fff0ff } /* Literal.String.Regex */\r\n.pygments .s1 { background-color: #fff0f0 } /* Literal.String.Single */\r\n.pygments .ss { color: #A06000 } /* Literal.String.Symbol */\r\n.pygments .bp { color: #007020 } /* Name.Builtin.Pseudo */\r\n.pygments .vc { color: #306090 } /* Name.Variable.Class */\r\n.pygments .vg { color: #d07000; font-weight: bold } /* Name.Variable.Global */\r\n.pygments .vi { color: #3030B0 } /* Name.Variable.Instance */\r\n.pygments .il { color: #0000D0; font-weight: bold } /* Literal.Number.Integer.Long */", 
             "render": false, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:41:06", 
-            "description": "Pygments colors"
+            "description": "Pygments colors\r\n(should not rendered with a colorscheme, because it has many colors)"
         }
     }, 
     {
@@ -1121,13 +1511,13 @@
         "fields": {
             "createby": 1, 
             "name": "main yellow", 
-            "lastupdatetime": "2010-08-31 14:17:57", 
+            "lastupdatetime": "2010-09-16 20:29:08", 
             "colorscheme": 1, 
             "sites": [
                 1
             ], 
             "headfiles": [
-                1, 
+                7, 
                 6
             ], 
             "template": "initial_site_template/main.html", 
@@ -1141,13 +1531,13 @@
         "fields": {
             "createby": 1, 
             "name": "main blue", 
-            "lastupdatetime": "2010-08-31 14:17:32", 
+            "lastupdatetime": "2010-09-16 20:24:05", 
             "colorscheme": 6, 
             "sites": [
                 1
             ], 
             "headfiles": [
-                1, 
+                7, 
                 6
             ], 
             "template": "initial_site_template/main.html", 
@@ -1161,13 +1551,13 @@
         "fields": {
             "createby": 1, 
             "name": "main green", 
-            "lastupdatetime": "2010-09-14 07:29:35", 
+            "lastupdatetime": "2010-09-16 20:23:54", 
             "colorscheme": 7, 
             "sites": [
                 1
             ], 
             "headfiles": [
-                1, 
+                7, 
                 6
             ], 
             "template": "initial_site_template/main.html", 
@@ -2342,19 +2732,6 @@
         }
     }, 
     {
-        "pk": 8, 
-        "model": "dbtemplates.template", 
-        "fields": {
-            "content": "<p id=\"footer\">\r\n   powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\r\n</p>", 
-            "sites": [
-                1
-            ], 
-            "last_changed": "2010-05-28 08:52:39", 
-            "name": "initial_includes/footer.html", 
-            "creation_date": "2010-05-28 08:52:14"
-        }
-    }, 
-    {
         "pk": 7, 
         "model": "dbtemplates.template", 
         "fields": {
@@ -2371,11 +2748,11 @@
         "pk": 6, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"{{ page_language }}\" xml:lang=\"{{ page_language }}\">\r\n<head>\r\n<title>{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}</title>\r\n<link rel=\"canonical\" href=\"{{ page_permalink }}\" />\r\n<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n<meta name=\"robots\" content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\" content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\" content=\"{{ page_description }}\" />\r\n<meta name=\"DC.Date\" content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\" content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\" content=\"{{ page_language }}\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\" content=\"no\" />\r\n<script type=\"text/javascript\" src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" ></script>\r\n<script type=\"text/javascript\" src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\"></script>\r\n{% block extrahead %}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n</head><body lang=\"{{ page_language }}\"><a name=\"top\"></a>\r\n<div id=\"container\">\r\n{% block body_content %}{% endblock %}\r\n</div></body></html>", 
+            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"{{ page_language }}\" xml:lang=\"{{ page_language }}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<link rel=\"canonical\" href=\"{{ page_permalink }}\" />\r\n<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n<meta name=\"robots\" content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\" content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\" content=\"{{ page_description }}\" />\r\n<meta name=\"DC.Date\" content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\" content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\" content=\"{{ page_language }}\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\" content=\"no\" />\r\n   \r\n<script type=\"text/javascript\" src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" ></script>\r\n<script type=\"text/javascript\" src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\"></script>\r\n   \r\n<link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/screen.css\" type=\"text/css\" media=\"screen, projection\" />\r\n<link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/print.css\" type=\"text/css\" media=\"print\" />\r\n<!--[if lt IE 8]>\r\n  <link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/ie.css\" type=\"text/css\" media=\"screen, projection\" />\r\n<![endif]-->\r\n\r\n{% block extrahead %}{% endblock %}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n</head><body lang=\"{{ page_language }}\"><a name=\"top\"></a>\r\n<div class=\"container\">\r\n   {% block body_content %}{% endblock %}\r\n   <div class=\"span-24 last\" id=\"footer\">\r\n      <p>powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}</p>\r\n   </div>\r\n</div>\r\n</body></html>", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-08-27 06:53:57", 
+            "last_changed": "2010-09-16 19:27:51", 
             "name": "initial_site_style/base_cms_site.html", 
             "creation_date": "2010-05-28 08:34:02"
         }
@@ -2397,11 +2774,11 @@
         "pk": 1, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}\r\n{% block body_content %}\r\n<div id=\"headline\">\r\n  <a href=\"/\">PyLucid CMS</a>\r\n</div>\r\n\r\n<div id=\"the_menu\">\r\n  {% lucidTag main_menu %}\r\n  <div id=\"searching\">\r\n    {% lucidTag search %}\r\n  </div>\r\n  <a href=\"http://sourceforge.net/projects/pylucid/\" id=\"logo\" alt=\"goto our SourceForge project page &gt;&gt;\" title=\"goto our SourceForge project page &gt;&gt;\">\r\n    <img src=\"http://sourceforge.net/sflogo.php?group_id=146328&amp;type=1\" width=\"88\" height=\"31\" border=\"0\" alt=\"SourceForge Logo\" />\r\n  </a>\r\n</div>\r\n\r\n<div id=\"main_content\">\r\n  <h2 id=\"page_title\">{{ page_title }}</h2>\r\n    {% include \"pylucid/includes/page_msg.html\" %}\r\n  {% lucidTag admin_menu %}\r\n  <p><!-- ContextMiddleware breadcrumb -->\r\n<p>{% lucidTag language %}</p>\r\n</p>\r\n  <div id=\"page_content\">\r\n    {% lucidTag TOC min=3 %}\r\n    {% block content %}{{ page_content }}{% endblock content %}\r\n    {% lucidTag pylucid_comments %}\r\n</div>\r\n  {% include \"initial_includes/permalink.html\" %}\r\n</div>\r\n{% include \"initial_includes/footer.html\" %}\r\n{% endblock body_content %}", 
+            "content": "{% extends \"initial_site_style/base_cms_site.html\" %}\r\n{% block title %}PyLucid CMS - {{ page_title }}{% endblock %}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n{% block body_content %}\r\n<div class=\"span-24 last header\">\r\n   <h1 id=\"headline\"><a href=\"/\">PyLucid CMS</a></h1>\r\n</div>\r\n\r\n<div class=\"span-24 last\">   \r\n   {% lucidTag admin_menu %}\r\n</div>\r\n       \r\n<div class=\"span-24 last\" id=\"page_content\">\r\n   <div id=\"float_nav\">\r\n      {% lucidTag language %}\r\n      {% lucidTag main_menu %}\r\n      {% lucidTag search %}\r\n   </div>\r\n   <h2 id=\"page_title\">{{ page_title|escape }}</h2>\r\n   <!-- ContextMiddleware breadcrumb -->\r\n   {% include \"pylucid/includes/page_msg.html\" %}      \r\n   {% lucidTag TOC min=3 %}\r\n   {% block content %}{{ page_content }}{% endblock content %}\r\n   {% lucidTag pylucid_comments %}\r\n</div>\r\n   \r\n<div class=\"span-20\">\r\n    {% lucidTag tag_navi %}\r\n</div>\r\n<div class=\"span-4 last\">\r\n    {% include \"shared_includes/permalink.html\" %}\r\n</div>\r\n{% endblock body_content %}\r\n", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-08-27 06:54:30", 
+            "last_changed": "2010-09-16 21:34:08", 
             "name": "initial_site_template/main.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
