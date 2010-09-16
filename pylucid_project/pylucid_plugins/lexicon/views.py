@@ -108,10 +108,8 @@ def http_get_view(request):
         # term not exist. page_msg was created.
         return summary(request)
 
-    if request.POST:
-        # Use django.contrib.comments.views.comments.post_comment to handle a comment
-        # post.
-        return post_comment(request, next=entry.get_absolute_url())
+    # Add comments in this view to the current lexicon entry and not to PageMeta
+    request.PYLUCID.object2comment = entry
 
     context = {"entry": entry}
     return context

@@ -9,6 +9,25 @@
 <meta name="DC.Date" content="{{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }}" />
 <meta name="DC.Date.created" content="{{ entry.createtime|date:_("DATETIME_FORMAT") }}" />
 <link rel="canonical" href="{{ page_permalink }}" />
+<script type="text/javascript" src="{{ Django_media_prefix }}js/jquery.min.js" onerror="JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');" ></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');"></script>
+<style type="text/css">
+html {
+    background-color: #eee; 
+}
+body{
+  font-size:0.9em;
+  background-color: #fff;
+  margin: 15px 10% 15px 10%;
+  padding: 1em;
+}
+#footer, #footer * {
+  font-size:0.8em;
+  color: #ddd;
+  text-align:center;
+}
+</style>
+{% block extrahead %}{% endblock %}
 <!-- ContextMiddleware extrahead -->
 </head>
 <body>
@@ -23,8 +42,7 @@
         <dt>{% trans "Content" %}:</dt>
         <dd>{{ entry.get_html }}</dd>
     </dl>
-    
-    {% include "pylucid_comments/includes/comments_list.html" %}
+    {% lucidTag pylucid_comments %}
 </div>
 <div id="footer">
     <p>
