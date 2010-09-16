@@ -35,6 +35,10 @@ def lucidTag(request, min=3):
                 _("'min' parameter in lucidTag TOC must be a integer! Error: %s") % err
             )
         min = 3
+#
+#CSS_PLUGIN_CLASS_NAME
+#css_plugin_class
+#css_plugin_id
 
     # Just save the toc_min_count and return the placeholder
     # The real work would be done in:

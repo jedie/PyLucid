@@ -29,6 +29,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.conf import settings
+from django.template import RequestContext
 
 from pylucid_project.utils.slug import makeUniqueSlug
 
@@ -76,7 +77,7 @@ class HeadlineAnchor(object):
         result = render_to_string("pylucid/headline_anchor.html", context)
         return result
 
-    def build_toc(self, toc_min_count):
+    def build_toc(self, request, toc_min_count):
         """
         Build the HTML code of the TOC
         """
@@ -85,7 +86,11 @@ class HeadlineAnchor(object):
 
         context = {"toc_list": self.toc_list}
 
-        result = render_to_string("TOC/TOC.html", context)
+        # For adding css anchor information into context via pylucid context processor
+        request.plugin_name = "TOC"
+        request.method_name = "lucidTag"
+
+        result = render_to_string("TOC/TOC.html", context, context_instance=RequestContext(request))
         return result
 
 
@@ -123,7 +128,7 @@ class HeadlineAnchorMiddleware(object):
         if settings.PYLUCID.TOC_PLACEHOLDER in content:
             # lucidTag TOC is in the content -> insert a table of contents
             toc_min_count = request.PYLUCID._toc_min_count # Added in lucidTag TOC
-            toc_html = headline_anchor.build_toc(toc_min_count)
+            toc_html = headline_anchor.build_toc(request, toc_min_count)
             content = content.replace(settings.PYLUCID.TOC_PLACEHOLDER, toc_html)
 
         response.content = content
