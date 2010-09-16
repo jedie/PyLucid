@@ -5,3 +5,4 @@ local_settings.py
 /PyLucid.egg-info
 /dist
 *.db3
+/pylucid_project/media/PyLucid/headfile_cache
