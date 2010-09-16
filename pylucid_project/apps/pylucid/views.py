@@ -147,6 +147,8 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     if get_view_replace_content == False and is_plugin_page:
         # The current PageTree entry is a plugin page
 
+        request.PYLUCID.updateinfo_object = pagemeta #Changeable by plugin
+
         # Add to global pylucid objects. Use e.g. in admin_menu plugin
         pluginpage = PluginPage.objects.get(pagetree=pagetree)
         request.PYLUCID.pluginpage = pluginpage
@@ -164,20 +166,17 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
             )
         # Plugin replace the page content
         context["page_content"] = page_plugin_response
-        updateinfo_object = pagemeta
     else:
         # No PluginPage
         pagecontent_instance = _get_page_content(request)
+        request.PYLUCID.updateinfo_object = pagecontent_instance
         request.PYLUCID.pagecontent = pagecontent_instance
         if get_view_replace_content == False:
             # Use only PageContent if no get view will replace the content
             context["page_content"] = pagecontent_instance.content
-        updateinfo_object = pagecontent_instance
 
-    # Add UpdateInfoBaseModel meta data from PageContent/PageMeta instance into context
-    # FIXME: Do this erlear: So A plugin page can change the values!
     for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
-        context["page_%s" % itemname] = getattr(updateinfo_object, itemname)
+        context["page_%s" % itemname] = getattr(request.PYLUCID.updateinfo_object, itemname, None)
 
     if page_plugin_response == None and get_view_response == None:
         # No Plugin has changed the PageContent -> apply markup on PageContent

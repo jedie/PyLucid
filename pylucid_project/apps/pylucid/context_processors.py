@@ -57,72 +57,74 @@ def pylucid(request):
     """
     if hasattr(request.PYLUCID, "context"):
         # reuse a exsiting context, so we save a few database requests
-        # XXX: Is it's normal, das these context processor would be called more than one time?
-        return request.PYLUCID.context
+        context = request.PYLUCID.context
+    else:
+        # create a new context
 
+        # FIXME: Should we only insert pygments in admin section?
+        #    We can also add a new template tag to get the path and insert it in pylucid/templates/admin/base_site.html    
+        # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
+        pygments_css_path = get_pygments_css(request)
 
-    current_site = Site.objects.get_current()
-    all_sites = Site.objects.all()
+        context = {
+            "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % VERSION_STRING),
+            # This value would be changed in index._render_cms_page(), if the
+            # plugin manager or any plugin set request.anonymous_view = False
+            "robots": "index,follow", # TODO: remove in v0.9, see: ticket:161
 
-    context = {
-        "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % VERSION_STRING),
-        # This value would be changed in index._render_cms_page(), if the
-        # plugin manager or any plugin set request.anonymous_view = False
-        "robots": "index,follow", # TODO: remove in v0.9, see: ticket:161
+            "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
 
-        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+            "current_site": Site.objects.get_current(),
+            "sites": Site.objects.all(),
 
-        "current_site": current_site,
-        "sites": all_sites,
+            "PyLucid_media_url": settings.MEDIA_URL + settings.PYLUCID.PYLUCID_MEDIA_DIR + "/",
+            "Django_media_prefix": settings.ADMIN_MEDIA_PREFIX,
 
-        "PyLucid_media_url": settings.MEDIA_URL + settings.PYLUCID.PYLUCID_MEDIA_DIR + "/",
-        "Django_media_prefix": settings.ADMIN_MEDIA_PREFIX,
+            "debug": settings.DEBUG,
 
-        "debug": settings.DEBUG,
-    }
+            "PYLUCID": request.PYLUCID,
+            "pygments_css": pygments_css_path,
+        }
 
-    context["PYLUCID"] = request.PYLUCID
+        pagetree = getattr(request.PYLUCID, "pagetree", None)
+        if pagetree:
+            if "design_switch_pk" in request.session:
+                # The user has switch the design with pylucid_plugins.design
+                from pylucid_project.apps.pylucid.models import Design # import here, agains import loops
 
-    # FIXME: Should we only insert pygments in admin section?
-    #    We can also add a new template tag to get the path and insert it in pylucid/templates/admin/base_site.html    
-    # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-    pygments_css_path = get_pygments_css(request)
-    context["pygments_css"] = pygments_css_path
+                design_id = request.session["design_switch_pk"]
+                try:
+                    pagetree.design = Design.on_site.get(id=design_id)
+                except Design.DoesNotExist, err:
+                    messages.error(request, "Can't switch to design with ID %i: %s" % (design_id, err))
+                    del(request.session["design_switch_pk"])
 
-    pagetree = getattr(request.PYLUCID, "pagetree", None)
-    if pagetree:
-        if "design_switch_pk" in request.session:
-            # The user has switch the design with pylucid_plugins.design
-            from pylucid_project.apps.pylucid.models import Design # import here, agains import loops
+            template_name = pagetree.design.template
+            context["template_name"] = template_name
 
-            design_id = request.session["design_switch_pk"]
+            # Add the dbtemplates entry.
+            # Used in pylucid_admin_menu.html for generating the "edit page template" link
             try:
-                pagetree.design = Design.on_site.get(id=design_id)
-            except Design.DoesNotExist, err:
-                messages.error(request, "Can't switch to design with ID %i: %s" % (design_id, err))
-                del(request.session["design_switch_pk"])
+                context["template"] = Template.on_site.get(name=template_name)
+            except Template.DoesNotExist:
+                context["template"] = None
 
-        template_name = pagetree.design.template
-        context["template_name"] = template_name
+        pagemeta = getattr(request.PYLUCID, "pagemeta", None)
+        if pagemeta:
+            context.update({
+                "pagemeta": pagemeta,
+                "page_title": pagemeta.get_title(),
+                "page_keywords": pagemeta.keywords,
+                "page_description": pagemeta.description,
+                "page_robots": pagemeta.robots,
+                "page_language": pagemeta.language.code,
+                "page_permalink": pagemeta.get_permalink(),
+                "page_absolute_url": pagemeta.get_absolute_url(),
+            })
 
-        # Add the dbtemplates entry.
-        # Used in pylucid_admin_menu.html for generating the "edit page template" link
-        try:
-            context["template"] = Template.on_site.get(name=template_name)
-        except Template.DoesNotExist:
-            context["template"] = None
-
-    pagemeta = getattr(request.PYLUCID, "pagemeta", None)
-    if pagemeta:
-        context.update({
-            "pagemeta": pagemeta,
-            "page_title": pagemeta.get_title(),
-            "page_keywords": pagemeta.keywords,
-            "page_description": pagemeta.description,
-            "page_robots": pagemeta.robots,
-            "page_language": pagemeta.language.code,
-            "page_permalink": pagemeta.get_permalink(),
-            "page_absolute_url": pagemeta.get_absolute_url(),
-        })
+    # Update page updateinfo (a plugin can change it)
+    if hasattr(request.PYLUCID, "updateinfo_object"):
+        for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
+            context["page_%s" % itemname] = getattr(request.PYLUCID.updateinfo_object, itemname, None)
 
     return context

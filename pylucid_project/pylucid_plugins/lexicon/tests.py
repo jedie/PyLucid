@@ -75,7 +75,7 @@ class LexiconPluginTestCase(basetest.BaseLanguageTestCase):
     def assertLexiconPage(self, response, must_contain):
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response, must_contain=must_contain,
-            must_not_contain=("Traceback",)
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
 
     def assertSummaryEN(self, response):
@@ -142,21 +142,19 @@ class LexiconPluginTest1(LexiconPluginTestCase):
         self.assertRedirect(
             response, url="http://testserver" + ENTRY_URL % self.default_language.code, status_code=302
         )
-        
+
     def test_get_view(self):
         response = self.client.get("/?lexicon=PyLucid CMS")
         self.assertResponse(response,
             must_contain=(
                 'PyLucid CMS',
+                'lang="en"',
+                '<a href="/en/lexicon/">&lt;&lt; goto lexicon summary page</a>',
                 '<dt>Short definition:</dt>',
                 '<p>This pages are created by PyLucid ;)</p>',
-                
+                'Leave a comment</a>',
             ),
-            must_not_contain=(
-                "Traceback","Error",
-                'Leave a comment</a>', # no comments on get views
-                "comment"
-            )
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
 
 

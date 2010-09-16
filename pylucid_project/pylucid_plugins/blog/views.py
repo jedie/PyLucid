@@ -139,6 +139,14 @@ def summary(request):
     current_lang = request.PYLUCID.current_language.description
     _add_breadcrumb(request, _("All articles in %s.") % current_lang)
 
+    # For adding page update information into context by pylucid context processor
+    try:
+        # Use the newest blog entry fro date info
+        request.PYLUCID.updateinfo_object = queryset.latest("lastupdatetime")
+    except BlogEntry.DoesNotExist:
+        # No blog entries created, yet.
+        pass
+
     context = {
         "entries": paginator,
         "tag_cloud": tag_cloud,
@@ -218,6 +226,9 @@ def detail_view(request, id, title):
     # Add comments in this view to the current blog entry and not to PageMeta
     request.PYLUCID.object2comment = entry
 
+    # For adding page update information into context by pylucid context processor
+    request.PYLUCID.updateinfo_object = entry
+
     context = {
         "page_title": entry.headline, # Change the global title with blog headline
         "entry": entry,
@@ -252,11 +263,11 @@ def feed(request, filename, tags=None):
     # Work-a-round for http://code.djangoproject.com/ticket/13896
     old_lang_code = settings.LANGUAGE_CODE
     settings.LANGUAGE_CODE = lang_entry.code
-    
+
     feed = feed_class(request, tags)
     response = feed(request)
-    
+
     settings.LANGUAGE_CODE = old_lang_code
-    
+
     return response
 

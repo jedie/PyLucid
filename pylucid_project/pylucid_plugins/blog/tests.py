@@ -73,7 +73,7 @@ class BlogPluginTestCase(basetest.BaseLanguageTestCase):
     def assertBlogPage(self, response, must_contain):
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response, must_contain=must_contain,
-            must_not_contain=("Traceback",)
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
 
     def assertSummaryEN(self, response):

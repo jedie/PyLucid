@@ -15,6 +15,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 
 from pylucid_project.apps.pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.models import PluginPage
 from pylucid_project.apps.pylucid.system import i18n
 
 from lexicon.models import LexiconEntry
@@ -32,9 +33,18 @@ def _add_breadcrumb(request, title, url):
 def summary(request):
     _add_breadcrumb(request, title="Lexicon summary", url=request.path)
 
-    entries = LexiconEntry.objects.get_filtered_queryset(request)
+    queryset = LexiconEntry.objects.get_filtered_queryset(request)
+
+    # For adding page update information into context by pylucid context processor
+    try:
+        # Use the newest lexicon entry
+        request.PYLUCID.updateinfo_object = queryset.latest("lastupdatetime")
+    except LexiconEntry.DoesNotExist:
+        # No blog entries created, yet.
+        pass
+
     context = {
-        "entries": entries
+        "entries": queryset
     }
     return context
 
@@ -92,6 +102,9 @@ def detail_view(request, term=None):
     # Add comments in this view to the current lexicon entry and not to PageMeta
     request.PYLUCID.object2comment = entry
 
+    # For adding page update information into context by pylucid context processor
+    request.PYLUCID.updateinfo_object = entry
+
     context = {
         "entry": entry,
         "page_permalink": permalink, # Change the permalink in the global page template
@@ -108,8 +121,21 @@ def http_get_view(request):
         # term not exist. page_msg was created.
         return summary(request)
 
+    try:
+        summary_url = PluginPage.objects.reverse("lexicon", "Lexicon-summary")
+    except Exception, err:
+        if settings.DEBUG:
+            messages.error(request, "Can't get summary url: %s" % err)
+        summary_url = None
+
     # Add comments in this view to the current lexicon entry and not to PageMeta
     request.PYLUCID.object2comment = entry
 
-    context = {"entry": entry}
+    # For adding page update information into context by pylucid context processor
+    request.PYLUCID.updateinfo_object = entry
+
+    context = {
+        "entry": entry,
+        "summary_url": summary_url,
+    }
     return context
