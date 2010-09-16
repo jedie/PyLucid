@@ -3,14 +3,15 @@
 
 {% block content %}
 <div class="{{ CSS_PLUGIN_CLASS_NAME }} blog">
+{% include "/includes/pagination.html" %}
 {% include "blog/includes/tagcloud.html" %}
 
 {% if not entries %}no blog entry exists{% endif %}
 {% for entry in entries.object_list %}
 <fieldset class="entry">
-	{% include "blog/includes/blog_entry.html" %}
-	{% get_comment_count for entry as comment_count %}            
-	<a href="{{ entry.get_absolute_url }}" class="comment_link" title="Display all comments | Leave a comment">{{ comment_count }} comment{{ comment_count|pluralize:"s" }}...</a>
+   {% include "blog/includes/blog_entry.html" %}
+   {% get_comment_count for entry as comment_count %}            
+   <a href="{{ entry.get_absolute_url }}" class="comment_link" title="Display all comments | Leave a comment">{{ comment_count }} comment{{ comment_count|pluralize:"s" }}...</a>
 </fieldset>
 {% endfor %}
 </div>
@@ -37,24 +38,5 @@
 {% endfor %}
 </lu>
 </fieldset>
-
-<div class="pagination">
-    {% if entries.has_previous %}
-        <a href="?page={{ entries.previous_page_number }}" title="{% trans "&lt; goto previous page" %}" class="previous">&#x22D8; {% trans "previous" %}</a>
-    {% endif %}
-    
-    <span class="pagelist">
-    {% for entry in entries.paginator.page_range %}
-        {% if entry == entries.number %}
-            <strong>{{ entry }}</strong>
-        {% else %}
-            <a href="?page={{ entry }}">{{ entry }}</a>
-        {% endif %}
-    {% endfor %}
-    </span>
- 
-    {% if entries.has_next %}
-        <a href="?page={{ entries.next_page_number }}" title="{% trans "goto next page &gt;" %}" class="next">{% trans "next" %} &#x22D9;</a>
-    {% endif %}
-</div>
+{% include "/includes/pagination.html" %}
 {% endblock content %}
