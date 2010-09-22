@@ -20,6 +20,7 @@ if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.models import PageContent
@@ -157,6 +158,52 @@ class LexiconPluginTest1(LexiconPluginTestCase):
             must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
 
+    def test_create_new_entry(self):
+        self.login("superuser")
+        url = reverse("Lexicon-new_entry")
+        response = self.client.post(url, data={
+            'content': '**foo** //bar//',
+            'is_public': 'on',
+            'language': 1,
+            'markup': 6,
+            'short_definition': 'jojo',
+            'sites': 1,
+            'term': 'test'},
+            follow=True,
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "<title>PyLucid CMS - The &#39;lexicon&#39; plugin page.</title>",
+                '<dt>Term:</dt>', '<dd>test</dd>',
+                '<dt>Short definition:</dt>', '<dd>jojo</dd>',
+                '<dt>Content:</dt>', '<p><strong>foo</strong> <i>bar</i></p>',
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+    def test_create_new_entry_preview(self):
+        self.login("superuser")
+        url = reverse("Lexicon-new_entry")
+        response = self.client.post(url, data={
+            'content': '**foo** //bar//',
+            'is_public': 'on',
+            'language': 1,
+            'markup': 6,
+            'preview': 'markup preview',
+            'short_definition': 'jojo',
+            'sites': 1,
+            'term': 'test'},
+            follow=True,
+        )
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid - Create a new lexicon entry</title>',
+                'Markup preview',
+                '<p><strong>foo</strong> <i>bar</i></p>',
+                'name="content">**foo** //bar//</textarea>',
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
 
 
 class LexiconPluginTest2(LexiconPluginTestCase, basetest.BaseMoreLanguagesTestCase):
@@ -206,7 +253,6 @@ if __name__ == "__main__":
     from django.core import management
 #    management.call_command('test', "pylucid_plugins.lexicon.tests.LexiconPluginTest", verbosity=0)
     management.call_command('test', __file__,
-        verbosity=1,
-#        verbosity=0,
+        verbosity=2,
         failfast=True
     )
