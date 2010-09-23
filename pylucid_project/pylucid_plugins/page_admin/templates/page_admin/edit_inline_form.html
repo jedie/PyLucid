@@ -4,41 +4,53 @@
 {% block plugin_content %}
 
 {% extrahead %}
-<style type="text/css">
-<!--
+<style type="text/css"><!--
 {% if not preview_html %}
 {# Hide preview div only, if no preview html content exist. #}
 #preview_fieldset {
-    display: none;
+  display: none;
 }
 {% endif %}
 #ajax_preview { /* hide Ajax preview button and unhide it with JS */
-    display: none;
+  display: none;
 }
 div.grippie { /* for jquery.textarearesizer.js */
-    background-color: #dddddd;
-    cursor:s-resize;
-    height:9px;
+  background-color: #dddddd;
+  cursor:s-resize;
+  height:9px;
 	width:100%;
-    overflow:hidden;
+  overflow:hidden;
 }
 textarea {
-    display:block;
-    margin-bottom:0pt;
-	min-height: 300px;
-    height: 20%;
+  display:block;
+  margin-bottom:0pt;
+  min-height: 300px;
+  height: 20%;
 }
--->
-</style>
+--></style>
 <script type="text/javascript" src="{{ PyLucid_media_url }}jquery.textarearesizer.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.textarearesizer.js] !');"></script>
+{% if markup_id_str == "1" %}{# current markup is HTML+Editor #}
+<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
+<script type="text/javascript" src="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js] !');"></script>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+  log("init wysiwyg");
+  $('#id_content').wysiwyg({
+    controls: {
+      html         : { visible : true }
+    }
+  });
+});
+</script>
+{% endif %}
 <script type="text/javascript">
 var textarea_changed = false;
 
 jQuery(document).ready(function($) {
     log("edit_inline_form.html ready.");
 	
-	// remove old page_msg, if exist
-	$("#page_msg").slideUp();
+	  // remove old page_msg, if exist
+	  $("#page_msg").slideUp();
 
     $("#ajax_preview").show(); // unhide ajax preview button
 
@@ -100,7 +112,11 @@ jQuery(document).ready(function($) {
 	
     // jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
     try {
-        $("textarea:not(.processed)").TextAreaResizer();    
+        {% if markup_id_str == "1" %}{# current markup is HTML+Editor #}
+          $("iframe:not(.processed)").TextAreaResizer();
+        {% else %}
+          $("textarea:not(.processed)").TextAreaResizer();
+        {% endif %}    
     } catch (e) {
         log("can't init TextAreaResizer:" + e);
     }
@@ -132,7 +148,7 @@ jQuery(document).ready(function($) {
          <button type="button" class="button">{% trans 'tag list' %}</button>
      </a>
 
-     {% if markup_id_str not in "01" %}{# Display button not if current markup ist HTML/HTML+Editor #}
+     {% if markup_id_str not in "01" %}{# Display button not if current markup is HTML/HTML+Editor #}
      <a href="{% url PageAdmin-markup_help %}?markup={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'Markup help' %}">
          <button type="button" class="button">{% trans 'markup help' %}</button>
      </a>
