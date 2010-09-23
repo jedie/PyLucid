@@ -16,6 +16,8 @@
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 from django.template import TemplateDoesNotExist
 from django.template.loader import find_template
 from django.utils.translation import ugettext_lazy as _
@@ -77,3 +79,26 @@ class Design(SiteM2M, UpdateInfoBaseModel):
         app_label = 'pylucid'
         ordering = ("template",)
 
+
+@receiver(m2m_changed)
+def design_m2m_changed_callback(sender, **kwargs):
+    """
+    Delete cached headfile, after design m2m saved. 
+    """
+    action = kwargs["action"]
+    pk_set = kwargs["pk_set"]
+
+    if action != "post_add" or not pk_set:
+        return
+
+    # Import here, against import loops
+    from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile
+
+    model = kwargs["model"]
+    if not model == EditableHtmlHeadFile:
+        # Skip e.g. m2m to sites
+        return
+
+    for pk in pk_set:
+        headfile = EditableHtmlHeadFile.objects.get(pk=pk)
+        headfile.delete_all_cachefiles()

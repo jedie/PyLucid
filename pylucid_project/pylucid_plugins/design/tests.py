@@ -33,7 +33,6 @@ from django_tools.unittest_utils.unittest_base import BaseTestCase
 
 from pylucid_project.apps.pylucid.models import Design, EditableHtmlHeadFile, ColorScheme, Color
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.tests.test_tools.headfile import clean_headfile_cache
 
 
 DESIGN_UNITTEST_FIXTURES = os.path.join(settings.PYLUCID_BASE_PATH, "pylucid_plugins", "design", "test_fixtures.json")
@@ -218,7 +217,8 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         self.test_css_url2 = "/media/PyLucid/headfile_cache/ColorScheme_2/test_styles.css"
 
     def setUp(self):
-        clean_headfile_cache()
+        removed_items = EditableHtmlHeadFile.objects.clean_headfile_cache()
+        #print removed_items
         self.assertEqual(Color.objects.all().filter(colorscheme=self.colorscheme1).count(), 2)
         self.assertEqual(Color.objects.all().filter(colorscheme=self.colorscheme2).count(), 2)
 
@@ -674,11 +674,11 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
 
 if __name__ == "__main__":
     # Run all unittest directly
-    management.call_command('test', "pylucid_plugins.design.tests.SwitchDesignTest",
-        verbosity=2,
-        failfast=True
-    )
-#    management.call_command('test', __file__,
+#    management.call_command('test', "pylucid_plugins.design.tests.SwitchDesignTest",
 #        verbosity=2,
 #        failfast=True
 #    )
+    management.call_command('test', __file__,
+        verbosity=2,
+        failfast=True
+    )

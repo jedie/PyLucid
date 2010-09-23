@@ -53,6 +53,32 @@ class EditableHtmlHeadFileManager(models.Manager):
         db_instance = self.get(filename=filename)
         return headfile.HeadfileLink(filename=db_instance.filename)#, content=db_instance.content)
 
+    def clean_headfile_cache(self):
+        """ delete all cache files in cache directory """
+        removed_items = []
+        def delete_tree(path):
+            if not os.path.isdir(path):
+                return
+
+            for dir_item in os.listdir(path):
+                fullpath = os.path.join(path, dir_item)
+                if os.path.isfile(fullpath):
+                    removed_items.append(fullpath)
+                    os.remove(fullpath)
+                elif os.path.isdir(fullpath):
+                    delete_tree(fullpath)
+                    removed_items.append(fullpath)
+                    os.rmdir(fullpath)
+
+        pylucid_cache_path = os.path.join(
+            settings.MEDIA_ROOT,
+            settings.PYLUCID.PYLUCID_MEDIA_DIR,
+            settings.PYLUCID.CACHE_DIR
+        )
+        delete_tree(pylucid_cache_path)
+
+        return removed_items
+
 
 class EditableHtmlHeadFile(UpdateInfoBaseModel):
     """
@@ -247,6 +273,12 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         else:
             failsafe_message("Cache file %s deleted." % cachepath)
 
+    def delete_all_cachefiles(self):
+        if self.render:
+            for colorscheme in self.iter_colorschemes():
+                self.delete_cachefile(colorscheme)
+        else:
+            self.delete_cachefile()
 
     def clean_fields(self, exclude):
         message_dict = {}
@@ -446,11 +478,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
     def save(self, *args, **kwargs):
         self.update_colorscheme()
         super(EditableHtmlHeadFile, self).save(*args, **kwargs)
-        if self.render:
-            for colorscheme in self.iter_colorschemes():
-                self.delete_cachefile(colorscheme)
-        else:
-            self.delete_cachefile()
+        self.delete_all_cachefiles()
 
     def __unicode__(self):
         return self.filepath
