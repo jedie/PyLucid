@@ -1,5 +1,51 @@
 {% extends "admin/base_site.html" %}
 
+{% block extrahead %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
+<script type="text/javascript" src="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js] !');"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.textarearesizer.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.textarearesizer.js] !');"></script>
+<script type="text/javascript">
+var wysiwyg_used = false;
+function process_markup() {
+  markup_id = $('#id_markup').val();
+  log("markup:" + markup_id);
+  if (wysiwyg_used == false && markup_id == "1") {
+    log("init wysiwyg");
+    $('#id_content').wysiwyg({
+      controls: {
+        html         : { visible : true }
+      }
+    });
+    wysiwyg_used = true;
+    
+    // jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
+    try {
+        $("iframe:not(.processed)").TextAreaResizer();    
+    } catch (e) {
+        log("can't init TextAreaResizer:" + e);
+    }
+    
+  }
+  if (wysiwyg_used == true && markup_id != "1") {
+    log("destroy wysiwyg");
+    try {
+        $('#id_content').wysiwyg('destroy');
+    } catch (e) {
+        log("error on destroy:" + e);
+        log("See: http://github.com/akzhan/jwysiwyg/issues#issue/11");
+    }
+    wysiwyg_used = false;
+  }
+}
+jQuery(document).ready(function($) {
+  process_markup();
+  $('#id_markup').change(process_markup);
+  
+
+});
+</script>
+{% endblock extrahead %}
+
 {% block content %}
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
 <p>
@@ -47,8 +93,6 @@
                 {% for error in field.errors %}{{ error|escape }}{% endfor %}
             {% endif %}
         </label>
-
-
         {{ field }}
         <div class="field_help_text">{{ field.help_text }}</div>
     </div>
