@@ -76,16 +76,18 @@ def show_internals(request):
         if isinstance(key, basestring)
     ])
 
-    cache_object_names = ("_url_cache",)
+    cache_object_names = ("_url_cache", "_permalink_cache")
     cache_status = []
-    for model_name, model in inspect.getmembers(models, inspect.isclass):
-        for cache_object_name in cache_object_names:
-            if hasattr(model, cache_object_name):
-                cache_obj = getattr(model, cache_object_name)
-                cache_status.append({
-                    "key":"%s.%s" % (model_name, cache_object_name),
-                    "length": len(cache_obj),
-                })
+    for app in get_apps():
+        for model in get_models(app):
+            for cache_object_name in cache_object_names:
+                if hasattr(model, cache_object_name):
+                    model_name = model._meta.object_name
+                    cache_obj = getattr(model, cache_object_name)
+                    cache_status.append({
+                        "key":"%s.%s" % (model_name, cache_object_name),
+                        "length": len(cache_obj),
+                    })
 
     context = {
         "title": "Show internals",
