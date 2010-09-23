@@ -100,7 +100,6 @@ class SwitchDesignTest(basetest.BaseUnittest):
             must_contain=(
                 '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>',
                 'initial_site_style/main.css" rel="stylesheet"',
-                '<div id="the_menu">',
                 'Can&#39;t switch to design with ID 4: Design matching query does not exist.',
             ),
             must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
