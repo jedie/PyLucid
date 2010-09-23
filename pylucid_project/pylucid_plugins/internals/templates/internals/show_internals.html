@@ -12,7 +12,7 @@
 <table>
     <tr><th>item</th><th>item count</th><th>size</th></tr>
 {% for item in cache_status %}
-    <tr><td>{{ item.key }}</td><td>{{ item.length }}</td><td>{{ item.size|filesizeformat }}</td></tr>
+    <tr><td>{{ item.key }}</td><td>{{ item.length }}</td><td>{% if item.size %}{{ item.size|filesizeformat }}{% else %}-{% endif %}</td></tr>
 {% endfor %}
 </table>
 

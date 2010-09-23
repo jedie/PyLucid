@@ -88,7 +88,7 @@ def show_internals(request):
                     try:
                         cache_obj_size = sys.getsizeof(cache_obj) # New in version 2.6
                     except AttributeError:
-                        cache_obj_size = "-"
+                        cache_obj_size = None
 
                     cache_status.append({
                         "key":"%s.%s" % (model_name, cache_object_name),
