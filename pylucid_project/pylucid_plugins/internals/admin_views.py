@@ -84,9 +84,16 @@ def show_internals(request):
                 if hasattr(model, cache_object_name):
                     model_name = model._meta.object_name
                     cache_obj = getattr(model, cache_object_name)
+
+                    try:
+                        cache_obj_size = sys.getsizeof(cache_obj) # New in version 2.6
+                    except AttributeError:
+                        cache_obj_size = "-"
+
                     cache_status.append({
                         "key":"%s.%s" % (model_name, cache_object_name),
                         "length": len(cache_obj),
+                        "size": cache_obj_size,
                     })
 
     context = {
