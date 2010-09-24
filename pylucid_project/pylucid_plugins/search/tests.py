@@ -38,7 +38,8 @@ class SearchTest(BaseUnittest):
                 '<strong>PyLucid</strong>',
             ),
             must_not_contain=(
-                "Traceback", "Form errors", "field is required",
+                "Traceback", "XXX INVALID TEMPLATE STRING",
+                "Form errors", "field is required",
                 "comments",
             )
         )
@@ -58,7 +59,10 @@ class SearchTest(BaseUnittest):
                 "duration: ", "sec.",
                 "hits: ",
             ),
-            must_not_contain=("Traceback", "Form errors", "field is required")
+            must_not_contain=(
+                "Traceback", "XXX INVALID TEMPLATE STRING",
+                "Form errors", "field is required"
+            )
         )
 
     def test_no_search_term_left(self):
@@ -76,7 +80,8 @@ class SearchTest(BaseUnittest):
                 'Search Form',
             ),
             must_not_contain=(
-                "Traceback", "Form errors", "field is required"
+                "Traceback", "XXX INVALID TEMPLATE STRING",
+                "Form errors", "field is required"
                 'Search results',
                 "Search in ", " plugins",
                 "duration: ", "sec.",
@@ -95,7 +100,6 @@ if __name__ == "__main__":
 #        failfast=True
 #    )
     management.call_command('test', __file__,
-        verbosity=1,
-#        verbosity=0,
+        verbosity=2,
 #        failfast=True
     )

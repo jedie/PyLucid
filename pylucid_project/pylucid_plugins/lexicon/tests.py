@@ -229,6 +229,8 @@ class LexiconPluginTest1(LexiconPluginTestCase):
         pagecontent.content += "\n<p>This is not <a error 0=0> html, isn't it?</p>\n"
         pagecontent.save()
 
+        settings.DEBUG = False # don't raise traceback
+
         response = self.client.get(url)
         self.assertResponse(response,
             must_contain=(
@@ -288,11 +290,11 @@ class LexiconPluginTest2(LexiconPluginTestCase, basetest.BaseMoreLanguagesTestCa
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test',
-        "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_error_handling",
-        verbosity=2
-    )
-#    management.call_command('test', __file__,
-#        verbosity=2,
-#        failfast=True
+#    management.call_command('test',
+#        "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_error_handling",
+#        verbosity=2
 #    )
+    management.call_command('test', __file__,
+        verbosity=2,
+        failfast=True
+    )

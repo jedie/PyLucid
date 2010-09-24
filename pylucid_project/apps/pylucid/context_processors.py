@@ -3,8 +3,8 @@
 """
 setup some "static" variables
 """
-from pylucid_project.apps.pylucid.markup.hightlighter import get_pygments_css
 
+import datetime
 try:
     from functools import wraps
 except ImportError:
@@ -14,12 +14,23 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
 
 from dbtemplates.models import Template
 
 from pylucid_project import VERSION_STRING
+from pylucid_project.apps.pylucid.markup.hightlighter import get_pygments_css
 from pylucid_project.utils import slug
+
+
+class NowUpdateInfo(object):
+    """
+    For adding page update information into context by pylucid context processor
+    Useful in plugins views witch allays generate new content (e.g. search result page) 
+    """
+    def __init__(self, request):
+        self.createby = request.user
+        self.lastupdateby = request.user
+        self.createtime = self.lastupdatetime = datetime.datetime.now()
 
 
 def add_plugin_info(view_function):

@@ -8,10 +8,7 @@
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
-
-import re
 import time
-import datetime
 import traceback
 
 from django import forms
@@ -23,8 +20,9 @@ from django.utils.safestring import mark_safe
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
 
-from pylucid_project.apps.pylucid.models import Language, LogEntry, BanEntry
+from pylucid_project.apps.pylucid.context_processors import NowUpdateInfo
 from pylucid_project.apps.pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.models import Language, LogEntry
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.python_tools import cutout
 
@@ -168,7 +166,6 @@ class SearchResults(object):
             yield hit
 
 
-
 class Search(object):
     def __init__(self, request):
         self.request = request
@@ -265,6 +262,9 @@ def http_get_view(request):
         search_results = _search(request, form.cleaned_data)
     else:
         search_results = None
+
+    # For adding page update information into context by pylucid context processor
+    request.PYLUCID.updateinfo_object = NowUpdateInfo(request)
 
     context = {
         "page_title": "Advanced search", # Change the global title with blog headline
