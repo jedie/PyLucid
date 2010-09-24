@@ -23,7 +23,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.apps.pylucid.models import PageContent
+from pylucid_project.apps.pylucid.models import PageContent, PageTree, PageMeta
 
 from lexicon.models import LexiconEntry
 
@@ -205,6 +205,43 @@ class LexiconPluginTest1(LexiconPluginTestCase):
             must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
 
+    def test_error_handling(self):
+        self.login("staff")
+
+        pagecontent = PageContent.objects.all().filter(markup=PageContent.MARKUP_HTML)[0]
+
+        url = pagecontent.get_absolute_url()
+
+        pagecontent.content = "<p>\nDoes PyLucid rocks?\n</p>"
+        pagecontent.save()
+
+        # Check unmodified page
+        response = self.client.get(url)
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid CMS',
+                '''<a href="?lexicon=PyLucid CMS" title="lexicon entry 'PyLucid CMS' - PyLucid is the CMS thats built this page." class="PyLucidPlugins lexicon openinwindow">PyLucid</a> rocks?''',
+
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+        pagecontent.content += "\n<p>This is not <a error 0=0> html, isn't it?</p>\n"
+        pagecontent.save()
+
+        response = self.client.get(url)
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid CMS',
+                'Wrong HTML code (malformed start tag, at line 4, column 25)',
+                '''<pre>&lt;p&gt;This is not &lt;a error 0=0&gt; html, isn't it?&lt;/p&gt;''',
+                '------------------------^</pre>',
+                'Does PyLucid rocks?',
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+
 
 class LexiconPluginTest2(LexiconPluginTestCase, basetest.BaseMoreLanguagesTestCase):
     """
@@ -251,8 +288,11 @@ class LexiconPluginTest2(LexiconPluginTestCase, basetest.BaseMoreLanguagesTestCa
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.lexicon.tests.LexiconPluginTest", verbosity=0)
-    management.call_command('test', __file__,
-        verbosity=2,
-        failfast=True
+    management.call_command('test',
+        "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_error_handling",
+        verbosity=2
     )
+#    management.call_command('test', __file__,
+#        verbosity=2,
+#        failfast=True
+#    )

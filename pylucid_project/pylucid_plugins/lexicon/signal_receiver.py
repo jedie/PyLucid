@@ -107,21 +107,33 @@ def pre_render_global_template_handler(**kwargs):
         s.feed(page_content)
     except HTMLParser.HTMLParseError, err:
         # HTMLParser can only parse valid HTML code.
-        err = escape(str(err))
+
         msg = _("Wrong HTML code")
+        if request.user.is_staff: # add more info for staff members
+            lines = page_content.splitlines(True)
+            line = lines[err.lineno - 1].rstrip()
+            marker = "-" * err.offset + "^"
+
+            msg += (
+                u" (%(err)s)\n"
+                "<pre>%(line)s\n%(marker)s</pre>"
+            ) % {
+                "err": escape(str(err)),
+                "line": escape(line),
+                "marker": marker,
+            }
+            messages.info(request, mark_safe(msg))
+
         if settings.DEBUG:
             # insert more information into the traceback and re-raise the original error
-            # XXX: http://code.djangoproject.com/ticket/13029 - Exception Value is empty in traceback page.
             etype, evalue, etb = sys.exc_info()
             evalue = etype('%s: %s' % (msg, err))
             raise etype, evalue, etb
 
-        if request.user.is_staff: # add more info for staff members
-            msg += u" (%s)" % err
-
         if request.user.is_superuser:
             # put the full traceback into page_msg, but only for superusers
-            messages.info(request, mark_safe("%s:<pre>%s</pre>" % (msg, traceback.format_exc())))
+            messages.debug(request, mark_safe("<pre>%s</pre>" % traceback.format_exc()))
+
     else:
         page_content = s.html # Get the html code with the lexicon links
         # Update the page content:
