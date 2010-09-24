@@ -2,11 +2,49 @@
 
 {% block content %}{{ block.super }}
 <img alt="creole cheat sheet" class="float_left" src="{{ PyLucid_media_url }}markup_help/creole_cheat_sheet.png">
+<h2>creole macros</h2>
+<h3>html</h3>
+<p>Add html code e.g:</p>
+<fieldset class="pygments_code">
+<legend class="pygments_code">Creole</legend>
+<table class="pygmentstable">
+    <tr>
+        <td class="linenos"><div class="linenodiv"><pre>1</pre></div></td>
+        <td class="code">
+            <div class="pygments">
+                <pre><span class="k">&lt;&lt;html&gt;&gt;</span>&lt;h1 class=&quot;foo&quot;&gt;bar&lt;/h1&gt;<span class="k">&lt;&lt;/html&gt;&gt;</span></pre>
+            </div>
+        </td>
+    </tr>
+</table></fieldset>
+
+<h3>code</h3>
+<p>hightlight sourcecode e.g:</p>
+<fieldset class="pygments_code">
+<legend class="pygments_code">Creole</legend>
+<table class="pygmentstable">
+    <tr>
+        <td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td>
+        <td class="code">
+            <div class="pygments">
+<pre><span class="k">&lt;&lt;code ext=<em>.css</em>&gt;&gt;</span>
+.xs {font-size: x-small}
+.m {font-size: medium}
+<span class="k">&lt;&lt;/code&gt;&gt;</span></pre>
+            </div>
+        </td>
+    </tr>
+</table></fieldset>
+<p><strong>Important:</strong> The code should no contain django template tags! (use <em>&#x7B;%&nbsp;sourcecode&nbsp;%&#x7D;</em> for this!)</p>
+
+{% include "page_admin/includes/markup_help_common.html" %}
 <h2>links</h2>
 <ul>
 	<li><a class="add_openinwindow" href="http://wikicreole.org/wiki/Creole1.0">Creole v1.0 spec</a></li>
 	<li><a class="add_openinwindow" href="http://wiki.wikicreole.org/">wiki.wikicreole.org</a></li>
 </ul>
 
-{% include "page_admin/includes/markup_help_common.html" %}
 {% endblock content %}
