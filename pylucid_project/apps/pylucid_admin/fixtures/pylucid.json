@@ -46,7 +46,7 @@
             "createby": 1, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:09", 
-            "lastupdatetime": "2010-09-16 21:32:12", 
+            "lastupdatetime": "2010-09-24 09:36:19", 
             "name": "main yellow"
         }
     }, 
@@ -101,8 +101,19 @@
             "createby": 1, 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:28:09", 
-            "lastupdatetime": "2010-09-16 21:25:28", 
+            "lastupdatetime": "2010-09-24 09:24:36", 
             "name": "main green"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "pylucid.colorscheme", 
+        "fields": {
+            "createby": 1, 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26", 
+            "lastupdatetime": "2010-09-24 09:29:40", 
+            "name": "main yellow pop"
         }
     }, 
     {
@@ -332,9 +343,9 @@
         "fields": {
             "createby": 1, 
             "name": "main_color_body_background", 
-            "lastupdatetime": "2010-09-16 21:32:12", 
+            "lastupdatetime": "2010-09-24 09:35:44", 
             "colorscheme": 1, 
-            "value": "FFE88C", 
+            "value": "fffefa", 
             "lastupdateby": 1, 
             "createtime": "2010-09-16 20:28:14"
         }
@@ -345,9 +356,9 @@
         "fields": {
             "createby": 1, 
             "name": "main_color_content_background", 
-            "lastupdatetime": "2010-09-16 21:32:12", 
+            "lastupdatetime": "2010-09-24 09:35:44", 
             "colorscheme": 1, 
-            "value": "FFF6D2", 
+            "value": "fff8db", 
             "lastupdateby": 1, 
             "createtime": "2010-09-16 20:49:06"
         }
@@ -358,9 +369,9 @@
         "fields": {
             "createby": 1, 
             "name": "main_color_link_hover", 
-            "lastupdatetime": "2010-09-16 21:32:12", 
+            "lastupdatetime": "2010-09-24 09:36:19", 
             "colorscheme": 1, 
-            "value": "F58231", 
+            "value": "e3762d", 
             "lastupdateby": 1, 
             "createtime": "2010-09-16 21:22:35"
         }
@@ -379,14 +390,27 @@
         }
     }, 
     {
+        "pk": 224, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_normal2", 
+            "lastupdatetime": "2010-09-24 09:22:15", 
+            "colorscheme": 1, 
+            "value": "0e1d33", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:21:10"
+        }
+    }, 
+    {
         "pk": 215, 
         "model": "pylucid.color", 
         "fields": {
             "createby": 1, 
             "name": "main_color_menu_background", 
-            "lastupdatetime": "2010-09-16 21:32:12", 
+            "lastupdatetime": "2010-09-24 09:36:19", 
             "colorscheme": 1, 
-            "value": "FFBC8C", 
+            "value": "ffd1b0", 
             "lastupdateby": 1, 
             "createtime": "2010-09-16 20:49:05"
         }
@@ -1055,6 +1079,19 @@
         }
     }, 
     {
+        "pk": 225, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_normal2", 
+            "lastupdatetime": "2010-09-24 09:21:46", 
+            "colorscheme": 6, 
+            "value": "2e84ab", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:21:10"
+        }
+    }, 
+    {
         "pk": 216, 
         "model": "pylucid.color", 
         "fields": {
@@ -1346,9 +1383,9 @@
         "fields": {
             "createby": 1, 
             "name": "main_color_link_hover", 
-            "lastupdatetime": "2010-09-16 21:23:08", 
+            "lastupdatetime": "2010-09-24 09:24:36", 
             "colorscheme": 7, 
-            "value": "00ff00", 
+            "value": "254725", 
             "lastupdateby": 1, 
             "createtime": "2010-09-16 21:22:35"
         }
@@ -1364,6 +1401,19 @@
             "value": "35133d", 
             "lastupdateby": 1, 
             "createtime": "2010-09-16 20:28:14"
+        }
+    }, 
+    {
+        "pk": 226, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_normal2", 
+            "lastupdatetime": "2010-09-24 09:21:46", 
+            "colorscheme": 7, 
+            "value": "2e84ab", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:21:10"
         }
     }, 
     {
@@ -1406,6 +1456,331 @@
         }
     }, 
     {
+        "pk": 227, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "black", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "000000", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 228, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkgrey", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "aaaaaa", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 229, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkgrey_d28", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "999999", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 230, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkred_d31", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "aa0000", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 231, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d26", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "444444", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 232, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "darkslategrey_d40", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "333333", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 233, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "dimgrey_d35", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "555555", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 234, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gainsboro", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "dddddd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 235, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "808080", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 236, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d14", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "888888", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 237, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "gray_d16", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "777777", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 238, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightgray_d10", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "cdcdcd", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 239, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "lightgray_d12", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "cccccc", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 240, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_1", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "f5eea1", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 241, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_2", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "332f00", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 242, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_4", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "F5CD31", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 243, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_5", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "F5CD31", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 244, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_body_background", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "FFE88C", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 245, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_content_background", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "FFF6D2", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 246, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_hover", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "F58231", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 247, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_normal", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "2E5EAB", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 248, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_link_normal2", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "0e1d33", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 249, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "main_color_menu_background", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "ffa666", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 250, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "silver_d9", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "bbbbbb", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
+        "pk": 251, 
+        "model": "pylucid.color", 
+        "fields": {
+            "createby": 1, 
+            "name": "white", 
+            "lastupdatetime": "2010-09-24 09:29:26", 
+            "colorscheme": 8, 
+            "value": "fefefe", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:29:26"
+        }
+    }, 
+    {
         "pk": 4, 
         "model": "pylucid.editablehtmlheadfile", 
         "fields": {
@@ -1428,9 +1803,9 @@
             "mimetype": "text/css", 
             "createby": 1, 
             "html_attributes": "", 
-            "lastupdatetime": "2010-09-16 21:37:55", 
+            "lastupdatetime": "2010-09-24 09:42:21", 
             "filepath": "initial_site_style/main.css", 
-            "content": "body {\r\n  background-color:{{ main_color_body_background }};\r\n}\r\n.container {\r\n  background-color:{{ main_color_content_background }};\r\n  padding: 1em;\r\n}\r\na {\r\n  color: {{ main_color_link_normal }};\r\n  text-decoration: none;\r\n}\r\na:hover {\r\n  text-decoration: underline;\r\n  color: {{ main_color_link_hover }};\r\n}\r\n#float_nav {\r\n  float:right;\r\n  background-color:{{ main_color_menu_background }};\r\n  padding: 1em;\r\n  margin: 0 0 1em 1em;\r\n  border: 1px solid {{ main_color_1 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   page messages\r\n------------------------------------------------------------------------------- */\r\n#page_msg {\r\n  margin: 0;\r\n  padding: 0 1em;\r\n}\r\n\r\n#page_msg ul {\r\n  margin: 0;\r\n  padding: 0;\r\n  list-style-type:none;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   main_menu\r\n------------------------------------------------------------------------------- */\r\n.main_menu *, .main_menu a.current {\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size: 1.5em;\r\n  line-height: 1em;\r\n}\r\n.main_menu a.active {\r\n  color: {{ darkslategrey_d40 }};\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: {{ main_color_2 }};\r\n  background-color: {{ white }};\r\n}\r\n.main_menu a:before {\r\n  letter-spacing: 0px;\r\n  font-weight: bold;\r\n  font-size:1.2em;\r\n  background:{{ main_color_menu_background }};\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n/* ----------------------------------------------------------------------------\r\n   search\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.search #search_form input[type=text] {\r\n  width: auto;\r\n}\r\n.search input, .search button {\r\n  font-size: 0.9em;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\nh3.toc_headline {\r\n  margin: 1em 0 0 0;\r\n}\r\n.PyLucidPlugins.TOC {\r\n  border: 1px solid {{ white }};\r\n  background-color: {{ white }};\r\n  margin: 3em;\r\n  padding: 1em 0em 1em 0em;\r\n}\r\n.PyLucidPlugins.TOC h3 {\r\n  margin: 0em;\r\n  color: {{ darkslategrey_d40 }};\r\n}\r\n.PyLucidPlugins.TOC * {\r\n  margin: 0em;\r\n  color: {{ gainsboro }};\r\ntext-decoration:none;\r\n}\r\n.PyLucidPlugins.TOC a {\r\n  color: {{ gray_d16 }};\r\n}\r\n.PyLucidPlugins.TOC a:hover {\r\n  color: {{ darkred_d31 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Pygments source code\r\n------------------------------------------------------------------------------- */\r\nfieldset.pygments_code, fieldset.pygments_code * {\r\n  padding: 0;\r\n  margin: 0;\r\n  vertical-align:top;\r\n}\r\nfieldset.pygments_code, legend.pygments_code {\r\n  background: {{ white }};\r\n  border: 1px solid {{ lightgray_d10 }};\r\n}\r\nfieldset.pygments_code {\r\n  padding: 5px;\r\n}\r\nlegend.pygments_code {\r\n  font-size: 0.8em;\r\n  color: {{ darkslategrey_d26 }};\r\n  padding: 0px 5px 0px 5px;\r\n  margin-left: 10px;\r\n}\r\n.pygments_code .linenos {\r\n  background: {{ white }};\r\n  color: {{ darkgrey_d28 }};\r\n  padding: 0 5px 0 5px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n.pygments_code .code pre {\r\n  width: 730px;\r\n  overflow:auto;\r\n}\r\n/*.pygments_code .code pre:hover {\r\n  width: 100%;\r\n  overflow:show;\r\n}*/\r\n/* ----------------------------------------------------------------------------\r\n   button links (edit/delete, retweer etc.)\r\n------------------------------------------------------------------------------- */\r\n.button_links a, .admin_links a {\r\n  text-decoration:none;\r\n  padding: 2px 5px 2px 5px;\r\n  border-radius: 3px;\r\n  -moz-border-radius: 3px;\r\n  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#dddddd));\r\n  background: -moz-linear-gradient(top, #ffffff, #dddddd);  \r\n  border: 1px solid {{ silver_d9 }};\r\n}\r\n.button_links a:hover, .admin_links a:hover {\r\n  text-decoration:underline;\r\n  text-shadow:1px 2px 2px {{ gray_d14 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Update journal\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.update_journal * {\r\n   white-space:nowrap;\r\n}\r\n.PyLucidPlugins.update_journal small {\r\n   color: {{ darkgrey_d28 }};\r\n}\r\n.PyLucidPlugins.update_journal .update_time {\r\n   color: {{ gray_d16 }};\r\n}\r\n.PyLucidPlugins.update_journal .update_title * {\r\n   white-space:normal;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: {{ black }};\r\n}\r\n.top_link .uarr {\r\n  color: {{ white }};\r\n}\r\na.top_link {\r\n  text-decoration:none;\r\n}\r\n.top_link:hover .uarr {\r\n  color: {{ black }};\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px {{ white }};\r\n  text-decoration:none;\r\n  color: {{ white }};\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: {{ darkgrey_d28 }};\r\n}\r\n.section_anchor:hover {\r\n  color:#000000!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px {{ darkgrey_d28 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   User comments\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.pylucid_comments {\r\n    padding: 3em 0 3em 0;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   permalink\r\n------------------------------------------------------------------------------- */\r\n#permalink * {\r\n  color: {{ gray }};\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n#permalink {\r\n  font-size: 0.8em;\r\n  text-align: center;\r\n}\r\n#permalink a {\r\n  background-color: inherit;\r\n  text-decoration: none;\r\n}\r\n#permalink a:hover {\r\n  text-shadow:1px 1px 1px {{ gray_d14 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   footer\r\n------------------------------------------------------------------------------- */\r\n.footer {\r\n  text-align:center;\r\n  border-top: 1px solid {{ white }};\r\n}\r\n.footer, .footer * {\r\n  color: {{ gainsboro }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   lexicon\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.lexicon dt {\r\n  padding-top: 1.5em;\r\n}\r\n.PyLucidPlugins.lexicon dd {\r\n  padding-top: 0.2em;\r\n}\r\na.PyLucidPlugins.lexicon {\r\n  color:{{ main_color_5 }};\r\n  border-bottom: 1px dotted {{ lightgray_d12 }};\r\n  font-weight: normal;\r\n  text-shadow: 1px 1px 1px {{ white }};\r\n}\r\na.PyLucidPlugins.lexicon:hover {\r\n  color:{{ darkred_d31 }};\r\n  font-weight: normal;\r\n  text-decoration:underline;\r\n  border-bottom: 0px;\r\n  text-shadow: 2px 2px 2px {{ darkgrey }};\r\n}\r\n.PyLucidPlugins.lexicon .admin_links {\r\n  float: right;\r\n}\r\n.PyLucidPlugins.lexicon .admin_links a {\r\n  font-weight: normal;\r\n}\r\n.PyLucidPlugins.lexicon.openinwindow {\r\n  cursor:help;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   tag navigation\r\n------------------------------------------------------------------------------- */\r\n#tag_navi_lucidTag {\r\n  font-size:0.8em;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   internal\r\n------------------------------------------------------------------------------- */\r\ntextarea {\r\n  /* all text areas should use the full width */\r\n  width: 100%;\r\n}\r\n.PyLucidPlugins.SiteMap p.deep_1 {\r\n  border-bottom: 2px solid {{ darkred_d31 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   RSS feeds included in the page\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.rss h1 {\r\n  font-size: 1.1em;\r\n  padding: 1.5em 0em 0em 0em;\r\n}\r\n.PyLucidPlugins.rss * {\r\n  line-height: 1.2em;\r\n}\r\n.PyLucidPlugins.rss ul {\r\n  list-style:none;\r\n  padding: 0px;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   PyLucid blog plugin\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.blog fieldset {\r\n  border: 0px;\r\n  border-top: 2px solid {{ lightgray_d12 }};\r\n  padding: 0em 0em 2.5em 1em;\r\n  margin: 2.5em 0em 0em 0em;\r\n}\r\n.PyLucidPlugins.blog legend {\r\n  padding: 0em 0.3em 0em 0.3em;\r\n}\r\n.PyLucidPlugins.blog .tag_cloud {\r\n  font-size: 0.7em;\r\n}\r\n.PyLucidPlugins.blog .headline {\r\n  font-size: 1.6em;\r\n  line-height: 0.7em;\r\n}\r\n.PyLucidPlugins.blog .headline_info {\r\n  font-size: 0.45em;\r\n  color: {{ dimgrey_d35 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   PyLucid language plugin\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.language * {\r\n  color: {{ gray_d16 }};\r\n  display: inline;\r\n  padding: 0em;\r\n  margin: 0em;\r\n}\r\n.PyLucidPlugins.language {\r\n  border: 1px solid {{ gainsboro }};\r\n  background-color: {{ white }};\r\n  padding: 1px;\r\n  margin: 3px;\r\n}\r\n.PyLucidPlugins.language:hover {\r\n  border-color: {{ main_color_4 }};\r\n}\r\n.PyLucidPlugins.language:hover * {\r\n  color: {{ black }};\r\n}\r\n.PyLucidPlugins.language li a:hover {\r\n  color: {{ main_color_4 }};\r\n}\r\n.PyLucidPlugins.language li {\r\n  border-right: 2px solid {{ darkgrey }};\r\n  padding: 0em 0.2em 0em 0.4em;\r\n}\r\n.PyLucidPlugins.language li:last-child {\r\n  border: 0px;\r\n}\r\n", 
+            "content": "body {\r\n  background-color:{{ main_color_body_background }};\r\n}\r\n.container {\r\n  background-color:{{ main_color_content_background }};\r\n  padding: 1em;\r\n  margin: 20px auto;\r\n  border: 4px double {{ main_color_4 }};\r\n}\r\na {\r\n  color: {{ main_color_link_normal }};\r\n  text-decoration: none;\r\n}\r\na:hover {\r\n  text-decoration: underline;\r\n  color: {{ main_color_link_hover }};\r\n}\r\n#float_nav {\r\n  float:right;\r\n  background-color:{{ main_color_menu_background }};\r\n  padding: 1em;\r\n  margin: 0 0 1em 1em;\r\n  border: 1px solid {{ main_color_1 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   page messages\r\n------------------------------------------------------------------------------- */\r\n#page_msg {\r\n  margin: 0;\r\n  padding: 0 1em;\r\n}\r\n\r\n#page_msg ul {\r\n  margin: 0;\r\n  padding: 0;\r\n  list-style-type:none;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   main_menu\r\n------------------------------------------------------------------------------- */\r\n.main_menu *, .main_menu a.current {\r\n  font-size:1em;\r\n  font-family:monospace;\r\n  font-weight: normal;\r\n  text-decoration:none;\r\n  list-style-type:none;\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n.main_menu {\r\n  font-size: 1.5em;\r\n  line-height: 1em;\r\n}\r\n.main_menu a.active {\r\n  color: {{ darkslategrey_d40 }};\r\n  font-weight: bold;\r\n  letter-spacing: 1px;\r\n}\r\n.main_menu a.current {\r\n  color: {{ main_color_2 }};\r\n  background-color: {{ white }};\r\n}\r\n.main_menu a:before {\r\n  letter-spacing: 0px;\r\n  font-weight: bold;\r\n  font-size:1.2em;\r\n  background:{{ main_color_menu_background }};\r\n  content:\"\\0251C  \";\r\n}\r\n.main_menu a.level_1:before { content:\"\\2502 \\0251C  \"; }\r\n.main_menu a.level_2:before { content:\"\\2502 \\2502 \\0251C  \"; }\r\n\r\n.main_menu a.first:before { content:\"\\250c  \"; }\r\n.main_menu a.level_1.first:before { content:\"\\2502 \\250c  \"; }\r\n.main_menu a.level_2.first:before { content:\"\\2502 \\2502 \\250c  \"; }\r\n\r\n.main_menu a.last:before { content:\"\\2514  \"; }\r\n.main_menu a.level_1.last:before { content:\"\\2502 \\2514  \"; }\r\n.main_menu a.level_2.last:before { content:\"\\2502 \\2502 \\2514  \"; }\r\n/* ----------------------------------------------------------------------------\r\n   search\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.search #search_form input[type=text] {\r\n  width: auto;\r\n}\r\n.search input, .search button {\r\n  font-size: 0.9em;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   TOC Plugin\r\n------------------------------------------------------------------------------- */\r\nh3.toc_headline {\r\n  margin: 1em 0 0 0;\r\n}\r\n.PyLucidPlugins.TOC {\r\n  border: 1px solid {{ white }};\r\n  background-color: {{ white }};\r\n  margin: 3em;\r\n  padding: 1em 0em 1em 0em;\r\n}\r\n.PyLucidPlugins.TOC h3 {\r\n  margin: 0em;\r\n  color: {{ darkslategrey_d40 }};\r\n}\r\n.PyLucidPlugins.TOC * {\r\n  margin: 0em;\r\n  color: {{ gainsboro }};\r\ntext-decoration:none;\r\n}\r\n.PyLucidPlugins.TOC a {\r\n  color: {{ gray_d16 }};\r\n}\r\n.PyLucidPlugins.TOC a:hover {\r\n  color: {{ darkred_d31 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Pygments source code\r\n------------------------------------------------------------------------------- */\r\nfieldset.pygments_code, fieldset.pygments_code * {\r\n  padding: 0;\r\n  margin: 0;\r\n  vertical-align:top;\r\n}\r\nfieldset.pygments_code, legend.pygments_code {\r\n  background: {{ white }};\r\n  border: 1px solid {{ lightgray_d10 }};\r\n}\r\nfieldset.pygments_code {\r\n  padding: 5px;\r\n}\r\nlegend.pygments_code {\r\n  font-size: 0.8em;\r\n  color: {{ darkslategrey_d26 }};\r\n  padding: 0px 5px 0px 5px;\r\n  margin-left: 10px;\r\n}\r\n.pygments_code .linenos {\r\n  background: {{ white }};\r\n  color: {{ darkgrey_d28 }};\r\n  padding: 0 5px 0 5px;\r\n}\r\n.pygments_code .code {\r\n  width: 100%;\r\n}\r\n.pygments_code .code pre {\r\n  width: 730px;\r\n  overflow:auto;\r\n}\r\n/*.pygments_code .code pre:hover {\r\n  width: 100%;\r\n  overflow:show;\r\n}*/\r\n/* ----------------------------------------------------------------------------\r\n   button links (edit/delete, retweer etc.)\r\n------------------------------------------------------------------------------- */\r\n.button_links a, .admin_links a {\r\n  text-decoration:none;\r\n  padding: 2px 5px 2px 5px;\r\n  border-radius: 3px;\r\n  -moz-border-radius: 3px;\r\n  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#dddddd));\r\n  background: -moz-linear-gradient(top, #ffffff, #dddddd);  \r\n  border: 1px solid {{ silver_d9 }};\r\n}\r\n.button_links a:hover, .admin_links a:hover {\r\n  text-decoration:underline;\r\n  text-shadow:1px 2px 2px {{ gray_d14 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Update journal\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.update_journal * {\r\n   white-space:nowrap;\r\n}\r\n.PyLucidPlugins.update_journal small {\r\n   color: {{ darkgrey_d28 }};\r\n}\r\n.PyLucidPlugins.update_journal .update_time {\r\n   color: {{ gray_d16 }};\r\n}\r\n.PyLucidPlugins.update_journal .update_title * {\r\n   white-space:normal;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   Headline Anchor\r\n------------------------------------------------------------------------------- */\r\n.top_link {\r\n  color: {{ black }};\r\n}\r\n.top_link .uarr {\r\n  color: {{ white }};\r\n}\r\na.top_link {\r\n  text-decoration:none;\r\n}\r\n.top_link:hover .uarr {\r\n  color: {{ black }};\r\n}\r\n.section_anchor {\r\n  text-shadow: 0px 0px {{ white }};\r\n  text-decoration:none;\r\n  color: {{ white }};\r\n  padding-right: 1em;\r\n}\r\n.headline_anchor:hover .section_anchor {\r\n  color: {{ darkgrey_d28 }};\r\n}\r\n.section_anchor:hover {\r\n  color:#000000!important;\r\n  text-decoration:underline;\r\n  text-shadow: 2px 2px 2px {{ darkgrey_d28 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   User comments\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.pylucid_comments {\r\n    padding: 3em 0 3em 0;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   permalink\r\n------------------------------------------------------------------------------- */\r\n#permalink * {\r\n  color: {{ gray }};\r\n  padding: 0px;\r\n  margin: 0px;\r\n}\r\n#permalink {\r\n  font-size: 0.8em;\r\n  text-align: center;\r\n}\r\n#permalink a {\r\n  background-color: inherit;\r\n  text-decoration: none;\r\n}\r\n#permalink a:hover {\r\n  text-shadow:1px 1px 1px {{ gray_d14 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   footer\r\n------------------------------------------------------------------------------- */\r\n.footer {\r\n  text-align:center;\r\n  border-top: 1px solid {{ white }};\r\n}\r\n.footer, .footer * {\r\n  color: {{ gainsboro }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   lexicon\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.lexicon dt {\r\n  padding-top: 1.5em;\r\n}\r\n.PyLucidPlugins.lexicon dd {\r\n  padding-top: 0.2em;\r\n}\r\na.PyLucidPlugins.lexicon {\r\n  color: {{ main_color_link_normal2 }};\r\n  border-bottom: 1px dotted {{ lightgray_d12 }};\r\n  font-weight: normal;\r\n  text-shadow: 1px 1px 1px {{ white }};\r\n}\r\na.PyLucidPlugins.lexicon:hover {\r\n  color:{{ darkred_d31 }};\r\n  font-weight: normal;\r\n  text-decoration:underline;\r\n  border-bottom: 0px;\r\n  text-shadow: 2px 2px 2px {{ darkgrey }};\r\n}\r\n.PyLucidPlugins.lexicon .admin_links {\r\n  float: right;\r\n}\r\n.PyLucidPlugins.lexicon .admin_links a {\r\n  font-weight: normal;\r\n}\r\n.PyLucidPlugins.lexicon.openinwindow {\r\n  cursor:help;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   tag navigation\r\n------------------------------------------------------------------------------- */\r\n#tag_navi_lucidTag {\r\n  font-size:0.8em;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   internal\r\n------------------------------------------------------------------------------- */\r\ntextarea {\r\n  /* all text areas should use the full width */\r\n  width: 100%;\r\n}\r\n.PyLucidPlugins.SiteMap p.deep_1 {\r\n  border-bottom: 2px solid {{ darkred_d31 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   RSS feeds included in the page\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.rss h1 {\r\n  font-size: 1.1em;\r\n  padding: 1.5em 0em 0em 0em;\r\n}\r\n.PyLucidPlugins.rss * {\r\n  line-height: 1.2em;\r\n}\r\n.PyLucidPlugins.rss ul {\r\n  list-style:none;\r\n  padding: 0px;\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   PyLucid blog plugin\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.blog fieldset {\r\n  border: 0px;\r\n  border-top: 2px solid {{ lightgray_d12 }};\r\n  padding: 0em 0em 2.5em 1em;\r\n  margin: 2.5em 0em 0em 0em;\r\n}\r\n.PyLucidPlugins.blog legend {\r\n  padding: 0em 0.3em 0em 0.3em;\r\n}\r\n.PyLucidPlugins.blog .tag_cloud {\r\n  font-size: 0.7em;\r\n}\r\n.PyLucidPlugins.blog .headline {\r\n  font-size: 1.6em;\r\n  line-height: 0.7em;\r\n}\r\n.PyLucidPlugins.blog .headline_info {\r\n  font-size: 0.45em;\r\n  color: {{ dimgrey_d35 }};\r\n}\r\n/* ----------------------------------------------------------------------------\r\n   PyLucid language plugin\r\n------------------------------------------------------------------------------- */\r\n.PyLucidPlugins.language * {\r\n  color: {{ gray_d16 }};\r\n  display: inline;\r\n  padding: 0em;\r\n  margin: 0em;\r\n}\r\n.PyLucidPlugins.language {\r\n  border: 1px solid {{ gainsboro }};\r\n  background-color: {{ white }};\r\n  padding: 1px;\r\n  margin: 3px;\r\n}\r\n.PyLucidPlugins.language:hover {\r\n  border-color: {{ main_color_4 }};\r\n}\r\n.PyLucidPlugins.language:hover * {\r\n  color: {{ black }};\r\n}\r\n.PyLucidPlugins.language li a:hover {\r\n  color: {{ main_color_4 }};\r\n}\r\n.PyLucidPlugins.language li {\r\n  border-right: 2px solid {{ darkgrey }};\r\n  padding: 0em 0.2em 0em 0.4em;\r\n}\r\n.PyLucidPlugins.language li:last-child {\r\n  border: 0px;\r\n}\r\n", 
             "render": true, 
             "lastupdateby": 1, 
             "createtime": "2010-09-16 19:58:13", 
@@ -1563,6 +1938,26 @@
             "template": "initial_site_template/main.html", 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:29:27"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "pylucid.design", 
+        "fields": {
+            "createby": 1, 
+            "name": "main yellow pop", 
+            "lastupdatetime": "2010-09-24 09:31:57", 
+            "colorscheme": 8, 
+            "sites": [
+                1
+            ], 
+            "headfiles": [
+                7, 
+                6
+            ], 
+            "template": "initial_site_template/main.html", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:31:57"
         }
     }, 
     {
@@ -1908,6 +2303,25 @@
         }
     }, 
     {
+        "pk": 23, 
+        "model": "pylucid.pagetree", 
+        "fields": {
+            "createby": 1, 
+            "parent": 3, 
+            "lastupdatetime": "2010-09-24 09:34:46", 
+            "showlinks": true, 
+            "permitViewGroup": null, 
+            "site": 1, 
+            "slug": "yellow_pop", 
+            "design": 9, 
+            "page_type": "C", 
+            "position": -7, 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:34:31", 
+            "permitEditGroup": null
+        }
+    }, 
+    {
         "pk": 11, 
         "model": "pylucid.pagetree", 
         "fields": {
@@ -2000,6 +2414,25 @@
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:13", 
             "permitEditGroup": null
+        }
+    }, 
+    {
+        "pk": 28, 
+        "model": "pylucid.pagemeta", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-09-24 09:34:31", 
+            "language": 1, 
+            "title": "main template/css with 'yellow pop' color scheme", 
+            "description": "", 
+            "tags": "", 
+            "permitViewGroup": null, 
+            "robots": "index,follow", 
+            "pagetree": 23, 
+            "keywords": "", 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:34:31", 
+            "name": "yellow pop"
         }
     }, 
     {
@@ -2459,13 +2892,39 @@
         }
     }, 
     {
+        "pk": 3, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-09-24 09:44:37", 
+            "markup": 6, 
+            "content": "Here a example pages for the other designs.\r\n\r\nPlease look at the page [[http://www.pylucid.org/permalink/69/customise-the-look-of-your-pylucid-installation|customise PyLucid]]\r\n\r\nSorry, we spend not much time in the initial design :-( Help use to make them better!\r\n\r\n=== sub menu\r\n\r\n{% lucidTag sub_menu %}", 
+            "pagemeta": 3, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:11"
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-09-24 09:34:31", 
+            "markup": 6, 
+            "content": "This is PyLucid default design \"main yellow pop\" witch used the same CSS files than \"main yellow\" and \"main green\" but with a pop color scheme ;)\r\n\r\nYou should test <<html>><a href=\"{% url Design-switch %}\">Switch Design</a><</html>>, too ;)", 
+            "pagemeta": 28, 
+            "lastupdateby": 1, 
+            "createtime": "2010-09-24 09:34:31"
+        }
+    }, 
+    {
         "pk": 20, 
         "model": "pylucid.pagecontent", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-09-14 07:33:02", 
+            "lastupdatetime": "2010-09-24 09:23:21", 
             "markup": 6, 
-            "content": "This is the design \"main green\" witch used the same CSS files than \"main yellow\" and \"main blue\" but with a green color scheme...\r\n\r\nYou should test <<html>><a href=\"{% url Design-switch %}\">Switch Design</a><</html>>, too ;)", 
+            "content": "This is PyLucid default design \"main green\" witch used the same CSS files than \"main yellow\" and \"main blue\" but with a green color scheme...\r\n\r\nYou should test <<html>><a href=\"{% url Design-switch %}\">Switch Design</a><</html>>, too ;)", 
             "pagemeta": 27, 
             "lastupdateby": 1, 
             "createtime": "2010-09-14 07:30:40"
@@ -2476,9 +2935,9 @@
         "model": "pylucid.pagecontent", 
         "fields": {
             "createby": 1, 
-            "lastupdatetime": "2010-09-14 07:31:51", 
+            "lastupdatetime": "2010-09-24 09:23:13", 
             "markup": 6, 
-            "content": "This is the design \"main blue\" witch used the same CSS files than \"main yellow\" and \"main green\" but with a blue color scheme...\r\n\r\nYou should test <<html>><a href=\"{% url Design-switch %}\">Switch Design</a><</html>>, too ;)", 
+            "content": "This is PyLucid default design \"main blue\" witch used the same CSS files than \"main yellow\" and \"main green\" but with a blue color scheme...\r\n\r\nYou should test <<html>><a href=\"{% url Design-switch %}\">Switch Design</a><</html>>, too ;)", 
             "pagemeta": 26, 
             "lastupdateby": 1, 
             "createtime": "2010-08-31 14:21:03"
@@ -2532,19 +2991,6 @@
             "markup": 6, 
             "content": "=== sub menu\r\n\r\n{% lucidTag sub_menu %}", 
             "pagemeta": 2, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:11"
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "pylucid.pagecontent", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:18:20", 
-            "markup": 6, 
-            "content": "Here a example pages for the other designs.\r\n\r\nPlease look at the page [[http://www.pylucid.org/_goto/37/customise-PyLucid/|customise PyLucid]]\r\n\r\n**TODO:** We must update these pages! The CSS are bad.\r\n\r\n=== sub menu\r\n\r\n{% lucidTag sub_menu %}", 
-            "pagemeta": 3, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:11"
         }
