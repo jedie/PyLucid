@@ -120,11 +120,11 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         help_text=_("The blog entry headline"), max_length=255
     )
     content = models.TextField(_('Content'))
-    language = models.ForeignKey(Language)
     markup = models.IntegerField(
         max_length=1, choices=PageContent.MARKUP_CHOICES,
         help_text="the used markup language for this entry",
     )
+    language = models.ForeignKey(Language)
     tags = TagField(# from django-tagging
         help_text=mark_safe(
             _('tags for this entry. <a href="%s" class="openinwindow"'
