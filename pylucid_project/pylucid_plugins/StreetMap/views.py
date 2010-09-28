@@ -42,8 +42,12 @@ def lucidTag(request, name=None):
             )
             existing_names = MapEntry.objects.values_list('name', flat=True)
             messages.info(request, _("Existing maps are: %r") % existing_names)
-        return "[StreetMap Error]"
-    
+        context = {
+            "name": name,
+            "template_name": "StreetMap/create_map.html",
+        }
+        return context
+
     if settings.DEBUG or request.user.is_staff:
         map_entry.check_google_api_key()
 
