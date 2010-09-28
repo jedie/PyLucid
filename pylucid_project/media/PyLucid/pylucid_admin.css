@@ -43,7 +43,7 @@
     width: 100%;
     max-width: 80%;
 }
-.pylucid_form .helper_buttons input, .pylucid_form input[type=checkbox] {
+.pylucid_form .helper_buttons input, input[type=checkbox], input[type="submit"] {
     width: auto;
 }
 
