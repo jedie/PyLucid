@@ -39,15 +39,12 @@
     margin-left: 150px;
     font-size: 0.75em;
 }
-.pylucid_form input type["checkbox"] {
-    color:red;
-    float: left;
-}
-.pylucid_form input {
-    max-width: 40%;
-}
-.pylucid_form textarea {
+.pylucid_form input, .pylucid_form textarea {
     width: 100%;
+    max-width: 80%;
+}
+.pylucid_form .helper_buttons input, .pylucid_form input[type=checkbox] {
+    width: auto;
 }
 
 /* hover highlight all fields */
