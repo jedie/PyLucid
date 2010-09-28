@@ -26,7 +26,7 @@ try:
     set
 except NameError:
     from sets import Set as set
-    
+
 join = os.path.join
 py_version = 'python%s.%s' % (sys.version_info[0], sys.version_info[1])
 is_jython = sys.platform.startswith('java')
@@ -52,7 +52,7 @@ class Logger(object):
 
     DEBUG = logging.DEBUG
     INFO = logging.INFO
-    NOTIFY = (logging.INFO+logging.WARN)/2
+    NOTIFY = (logging.INFO + logging.WARN) / 2
     WARN = WARNING = logging.WARN
     ERROR = logging.ERROR
     FATAL = logging.FATAL
@@ -96,9 +96,9 @@ class Logger(object):
                         rendered = msg % args
                     else:
                         rendered = msg
-                    rendered = ' '*self.indent + rendered
+                    rendered = ' ' * self.indent + rendered
                 if hasattr(consumer, 'write'):
-                    consumer.write(rendered+'\n')
+                    consumer.write(rendered + '\n')
                 else:
                     consumer(rendered)
 
@@ -377,7 +377,7 @@ def main():
         adjust_options(options, args)
 
     verbosity = options.verbose - options.quiet
-    logger = Logger([(Logger.level_for_integer(2-verbosity), sys.stdout)])
+    logger = Logger([(Logger.level_for_integer(2 - verbosity), sys.stdout)])
 
     if options.python and not os.environ.get('VIRTUALENV_INTERPRETER_RUNNING'):
         env = os.environ.copy()
@@ -431,7 +431,7 @@ def call_subprocess(cmd, show_stdout=True,
     cmd_parts = []
     for part in cmd:
         if len(part) > 40:
-            part = part[:30]+"..."+part[-5:]
+            part = part[:30] + "..." + part[-5:]
         if ' ' in part or '\n' in part or '"' in part or "'" in part:
             part = '"%s"' % part.replace('"', '\\"')
         cmd_parts.append(part)
@@ -503,7 +503,7 @@ def create_environment(home_dir, site_packages=True, clear=False,
     home_dir, lib_dir, inc_dir, bin_dir = path_locations(home_dir)
 
     py_executable = install_python(
-        home_dir, lib_dir, inc_dir, bin_dir, 
+        home_dir, lib_dir, inc_dir, bin_dir,
         site_packages=site_packages, clear=clear)
 
     install_distutils(lib_dir, home_dir)
@@ -542,7 +542,7 @@ def install_python(home_dir, lib_dir, inc_dir, bin_dir, site_packages, clear):
     if sys.executable.startswith(bin_dir):
         print 'Please use the *system* python to run this script'
         return
-        
+
     if clear:
         rmtree(lib_dir)
         ## FIXME: why not delete it?
@@ -601,7 +601,7 @@ def install_python(home_dir, lib_dir, inc_dir, bin_dir, site_packages, clear):
             exec_dir = join(sys.exec_prefix, 'lib', py_version)
         for fn in os.listdir(exec_dir):
             copyfile(join(exec_dir, fn), join(lib_dir, fn))
-    
+
     if is_jython:
         # Jython has either jython-dev.jar and javalib/ dir, or just
         # jython.jar
@@ -646,7 +646,7 @@ def install_python(home_dir, lib_dir, inc_dir, bin_dir, site_packages, clear):
             logger.notify('Also creating executable in %s' % secondary_exe)
             shutil.copyfile(sys.executable, secondary_exe)
             make_exe(secondary_exe)
-    
+
     if 'Python.framework' in prefix:
         logger.debug('MacOSX Python framework detected')
 
@@ -741,7 +741,7 @@ def fix_lib64(lib_dir):
     instead of lib/pythonX.Y.  If this is such a platform we'll just create a
     symlink so lib64 points to lib
     """
-    if [p for p in distutils.sysconfig.get_config_vars().values() 
+    if [p for p in distutils.sysconfig.get_config_vars().values()
         if isinstance(p, basestring) and 'lib64' in p]:
         logger.debug('This system uses lib64; symlinking lib64 to lib')
         assert os.path.basename(lib_dir) == 'python%s' % sys.version[:3], (
@@ -811,7 +811,7 @@ def fixup_scripts(home_dir):
                             % (filename, shebang))
             continue
         logger.notify('Making script %s relative' % filename)
-        lines = [new_shebang+'\n', activate+'\n'] + lines[1:]
+        lines = [new_shebang + '\n', activate + '\n'] + lines[1:]
         f = open(filename, 'wb')
         f.writelines(lines)
         f.close()
@@ -903,14 +903,14 @@ def make_relative_path(source, dest, dest_is_directory=True):
     while dest_parts and source_parts and dest_parts[0] == source_parts[0]:
         dest_parts.pop(0)
         source_parts.pop(0)
-    full_parts = ['..']*len(source_parts) + dest_parts
+    full_parts = ['..'] * len(source_parts) + dest_parts
     if not dest_is_directory:
         full_parts.append(dest_filename)
     if not full_parts:
         # Special case for the current directory (otherwise it'd be '')
         return './'
     return os.path.sep.join(full_parts)
-                
+
 
 
 ############################################################
@@ -1013,10 +1013,10 @@ PIP_INSTALL_DATA = {
         # SVN Version from django:
         "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
         # own sub projects
-        "-e", "http://svn.github.com/jedie/python-creole.git#egg=python-creole",
-        "-e", "http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences",
-        "-e", "http://svn.github.com/jedie/django-tools.git#egg=django-tools",
-        "-e", "http://svn.github.com/jedie/PyLucid.git#egg=pylucid",
+        "-e", "svn+http://svn.github.com/jedie/python-creole.git#egg=python-creole",
+        "-e", "svn+http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences",
+        "-e", "svn+http://svn.github.com/jedie/django-tools.git#egg=django-tools",
+        "-e", "svn+http://svn.github.com/jedie/PyLucid.git#egg=pylucid",
     ],
     3: [# git readonly clone
         # SVN Version from django:
