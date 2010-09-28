@@ -22,10 +22,13 @@ SOURCE_URLS = (
     ("jquery.wysiwyg.js", [BASE_URL + "jquery.wysiwyg.js"]),
 )
 
-#wget_urls = 
-#wget --timestamp http://github.com/akzhan/jwysiwyg/raw/master/jwysiwyg/jquery.wysiwyg.css
-#wget --timestamp http://github.com/akzhan/jwysiwyg/raw/master/jwysiwyg/jquery.wysiwyg.gif
-#wget --timestamp http://github.com/akzhan/jwysiwyg/raw/master/jwysiwyg/jquery.wysiwyg.modal.css
+WGET_BASE = ("wget", "--timestamp")
+WGET_URLS = (
+#    BASE_URL + "jquery.wysiwyg.js",
+    BASE_URL + "jquery.wysiwyg.css",
+    BASE_URL + "jquery.wysiwyg.gif",
+    BASE_URL + "jquery.wysiwyg.modal.css",
+)
 
 
 if __name__ == "__main__":
@@ -33,9 +36,13 @@ if __name__ == "__main__":
     for filename, urls in SOURCE_URLS:
         cc.get_and_save(filename, urls)
 
-#    print "update via wget:"
-#    for url in wget_urls:
-#        subprocess.popen2()
+    print "update via wget:"
+    for url in WGET_URLS:
+        cmd = WGET_BASE + (url,)
+        print "_" * 79
+        print "run:", cmd
+        subprocess.Popen(cmd).wait()
+        print "-" * 79
 
 
 
