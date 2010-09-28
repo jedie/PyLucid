@@ -42,10 +42,10 @@ PIP_INSTALL_DATA = {
         # SVN Version from django:
         "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
         # own sub projects
-        "-e", "http://svn.github.com/jedie/python-creole.git#egg=python-creole",
-        "-e", "http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences",
-        "-e", "http://svn.github.com/jedie/django-tools.git#egg=django-tools",
-        "-e", "http://svn.github.com/jedie/PyLucid.git#egg=pylucid",
+        "-e", "svn+http://svn.github.com/jedie/python-creole.git#egg=python-creole",
+        "-e", "svn+http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences",
+        "-e", "svn+http://svn.github.com/jedie/django-tools.git#egg=django-tools",
+        "-e", "svn+http://svn.github.com/jedie/PyLucid.git#egg=pylucid",
     ],
     3: [# git readonly clone
         # SVN Version from django:
