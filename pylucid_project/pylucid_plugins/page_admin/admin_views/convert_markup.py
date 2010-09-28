@@ -12,7 +12,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.markup import converter
+from pylucid_project.apps.pylucid.markup import converter, MARKUP_DICT
 from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.models import PageContent
 
@@ -49,7 +49,7 @@ def convert_markup(request, pagecontent_id=None):
         "title": _("Convert '%s' markup") % pagecontent.get_name(),
         "form_url": request.path,
         "abort_url": absolute_url,
-        "current_markup": pagecontent.MARKUP_DICT[pagecontent.markup],
+        "current_markup": MARKUP_DICT[pagecontent.markup],
         "pagecontent": pagecontent,
     }
 

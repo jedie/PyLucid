@@ -32,11 +32,12 @@ from django.utils.encoding import smart_str, force_unicode
 
 from django_tools.utils.messages import FileLikeMessages
 
-from pylucid_project.utils.escape import escape_django_tags as escape_django_template_tags
-from pylucid_project.utils.SimpleStringIO import SimpleStringIO
+from pylucid_project.apps.pylucid.markup import MARKUP_TINYTEXTILE, \
+    MARKUP_TEXTILE, MARKUP_MARKDOWN, MARKUP_REST, MARKUP_CREOLE, MARKUP_HTML, \
+    MARKUP_HTML_EDITOR, MARKUP_DICT
 from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
-
-from pylucid_project.apps.pylucid.models import PageContent
+from pylucid_project.utils.SimpleStringIO import SimpleStringIO
+from pylucid_project.utils.escape import escape_django_tags as escape_django_template_tags
 
 #______________________________________________________________________________
 # MARKUP
@@ -150,17 +151,17 @@ def apply_creole(content):
 
 
 def convert(raw_content, markup_no, page_msg):
-    if markup_no == PageContent.MARKUP_TINYTEXTILE: # PyLucid's TinyTextile
+    if markup_no == MARKUP_TINYTEXTILE: # PyLucid's TinyTextile
         html_content = apply_tinytextile(raw_content, page_msg)
-    elif markup_no == PageContent.MARKUP_TEXTILE: # Textile (original)
+    elif markup_no == MARKUP_TEXTILE: # Textile (original)
         html_content = apply_textile(raw_content, page_msg)
-    elif markup_no == PageContent.MARKUP_MARKDOWN:
+    elif markup_no == MARKUP_MARKDOWN:
         html_content = apply_markdown(raw_content, page_msg)
-    elif markup_no == PageContent.MARKUP_REST:
+    elif markup_no == MARKUP_REST:
         html_content = apply_restructuretext(raw_content, page_msg)
-    elif markup_no == PageContent.MARKUP_CREOLE:
+    elif markup_no == MARKUP_CREOLE:
         html_content = apply_creole(raw_content)
-    elif markup_no in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR):
+    elif markup_no in (MARKUP_HTML, MARKUP_HTML_EDITOR):
         html_content = raw_content
     else:
         raise AssertionError("markup no %r unknown!" % markup_no)
@@ -172,7 +173,7 @@ def apply_markup(raw_content, markup_no, request, escape_django_tags=False):
     """ render markup content to html. """
     page_msg = FileLikeMessages(request, messages.INFO)
 
-    assemble_tags = markup_no not in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
+    assemble_tags = markup_no not in (MARKUP_HTML, MARKUP_HTML_EDITOR)
     if assemble_tags:
         # cut out every Django tags from content
         assembler = DjangoTagAssembler()
@@ -186,7 +187,7 @@ def apply_markup(raw_content, markup_no, request, escape_django_tags=False):
         # reassembly cut out django tags into text
         if not isinstance(html_content, unicode):
             if settings.DEBUG:
-                markup_name = PageContent.MARKUP_DICT[markup_no]
+                markup_name = MARKUP_DICT[markup_no]
                 page_msg("Info: Markup converter %r doesn't return unicode!" % markup_name)
             html_content = force_unicode(html_content)
 
@@ -207,14 +208,14 @@ def convert_markup(raw_content, source_markup_no, dest_markup_no, request):
     """
     page_msg = FileLikeMessages(request, messages.INFO)
 
-    html_source = source_markup_no in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
-    html_dest = dest_markup_no in (PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR)
+    html_source = source_markup_no in (MARKUP_HTML, MARKUP_HTML_EDITOR)
+    html_dest = dest_markup_no in (MARKUP_HTML, MARKUP_HTML_EDITOR)
 
     if source_markup_no == dest_markup_no or (html_source and html_dest):
         # Nothing to do ;)
         return raw_content
 
-    if not html_dest and dest_markup_no != PageContent.MARKUP_CREOLE:
+    if not html_dest and dest_markup_no != MARKUP_CREOLE:
         raise NotImplementedError("Converting into %r not supported." % dest_markup_no)
 
     if html_source: # Source markup is HTML
@@ -230,7 +231,7 @@ def convert_markup(raw_content, source_markup_no, dest_markup_no, request):
     if html_dest: # Destination markup is HTML
         new_content = html_content
     else:
-        # Skip: if dest_markup_no == PageContent.MARKUP_CREOLE: - only creole supported here
+        # Skip: if dest_markup_no == MARKUP_CREOLE: - only creole supported here
         from creole import html2creole
         new_content = html2creole(html_content)
 

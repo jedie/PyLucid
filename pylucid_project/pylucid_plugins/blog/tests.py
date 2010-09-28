@@ -9,8 +9,8 @@
         - PyLucid initial data contains english and german pages.
         - There exist only "PyLucid CMS" blog entry in english and german
     
-    :copyleft: 2010 by the django-weave team, see AUTHORS for more details.
-    :license: GNU GPL v3 or above, see LICENSE for more details.
+    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 import os
@@ -23,9 +23,9 @@ from django.conf import settings
 from django.test.client import Client
 
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.apps.pylucid.models import PageContent
+from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE
 
-from blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry
 
 
 SUMMARY_URL = "/%s/blog/"
@@ -161,7 +161,7 @@ class BlogPluginTest(BlogPluginTestCase):
         response = self.client.post(CREATE_URL, data={
             "headline": "The blog headline",
             "content": "The **blog article content** in //creole// markup!",
-            "markup": PageContent.MARKUP_CREOLE,
+            "markup": MARKUP_CREOLE,
             "is_public": "on",
             "language": self.default_language.id,
             "sites": settings.SITE_ID,
@@ -180,7 +180,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         super(BlogPluginArticleTest, self)._pre_setup(*args, **kwargs)
 
         defaults = {
-            "markup": PageContent.MARKUP_CREOLE,
+            "markup": MARKUP_CREOLE,
             "is_public": True,
         }
 
@@ -393,12 +393,10 @@ if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
 #    management.call_command('test', "pylucid_plugins.blog.tests.BlogPluginArticleTest",
-##        verbosity=0,
-#        verbosity=1,
+#        verbosity=2,
 #        failfast=True
 #    )
     management.call_command('test', __file__,
-        verbosity=1,
-#        verbosity=0,
+        verbosity=2,
 #        failfast=True
     )

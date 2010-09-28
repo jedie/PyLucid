@@ -6,14 +6,8 @@
 
     Database models for the blog.
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2008-2009 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v2 or above, see LICENSE for more details
+    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 from django.db import models
@@ -38,6 +32,7 @@ from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateI
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
+from pylucid_project.apps.pylucid.fields import MarkupModelField
 
 from blog.preference_forms import BlogPrefForm
 
@@ -120,10 +115,7 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         help_text=_("The blog entry headline"), max_length=255
     )
     content = models.TextField(_('Content'))
-    markup = models.IntegerField(
-        max_length=1, choices=PageContent.MARKUP_CHOICES,
-        help_text="the used markup language for this entry",
-    )
+    markup = MarkupModelField()
     language = models.ForeignKey(Language)
     tags = TagField(# from django-tagging
         help_text=mark_safe(

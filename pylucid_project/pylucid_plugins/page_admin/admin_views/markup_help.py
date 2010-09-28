@@ -10,7 +10,7 @@
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
 from pylucid_project.apps.pylucid.markup.hightlighter import get_pygments_css
-from pylucid_project.apps.pylucid.models import PageContent
+from pylucid_project.apps.pylucid.markup import MARKUP_SHORT_DICT
 
 from page_admin.forms import SelectMarkupHelpForm
 
@@ -35,7 +35,7 @@ def markup_help(request):
         form = SelectMarkupHelpForm(request.GET)
         if form.is_valid():
             markup_id = form.cleaned_data["markup"]
-            short_markup_name = PageContent.MARKUP_SHORT_DICT[markup_id]
+            short_markup_name = MARKUP_SHORT_DICT[markup_id]
     else:
         form = SelectMarkupHelpForm()
 

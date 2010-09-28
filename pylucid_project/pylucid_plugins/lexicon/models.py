@@ -22,8 +22,9 @@ from tagging.fields import TagField
 
 from django_tools.utils.messages import failsafe_message
 
+from pylucid_project.apps.pylucid.fields import MarkupModelField
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-from pylucid_project.apps.pylucid.models import PageContent, Language
+from pylucid_project.apps.pylucid.models import Language
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel, \
     BaseModelManager
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
@@ -113,10 +114,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         help_text=_("A short explain."), max_length=255
     )
     content = models.TextField(_('Content'), help_text=_("Explain the term"))
-    markup = models.IntegerField(
-        max_length=1, choices=PageContent.MARKUP_CHOICES,
-        help_text="the used markup language for this entry",
-    )
+    markup = MarkupModelField()
 
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"

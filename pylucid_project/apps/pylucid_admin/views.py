@@ -106,7 +106,7 @@ def install_pylucid(request):
 #        pagemeta=pylucid_admin_pagemeta,
 #        defaults={
 #            "content":"PyLucid Admin section. Please seletect a menu item.",
-#            "markup": PageContent.MARKUP_CREOLE,
+#            "markup": MARKUP_CREOLE,
 #        }
 #    )
 #    if created:

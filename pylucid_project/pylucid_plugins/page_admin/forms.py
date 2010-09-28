@@ -1,21 +1,20 @@
 # coding:utf-8
 
 from django import forms
-from django.template import mark_safe
-from django.forms.util import ErrorList
 from django.forms.models import modelformset_factory
 from django.utils.translation import ugettext as _
 
-from django_tools.middlewares import ThreadLocal
-
-from pylucid_project.utils.escape import escape
 from blog.models import BlogEntry
 from lexicon.models import LexiconEntry
 from update_journal.models import UpdateJournal
 from pylucid_comments.models import PyLucidComment
 
+from pylucid_project.apps.pylucid.markup import MARKUP_CHOICES, MARKUP_CREOLE, \
+    MARKUP_TINYTEXTILE, MARKUP_TEXTILE, MARKUP_MARKDOWN, MARKUP_REST, \
+    MARKUP_HTML, MARKUP_HTML_EDITOR
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, \
                                                                             Design, Language
+from pylucid_project.utils.escape import escape
 
 
 class PageContentTextarea(forms.Textarea):
@@ -68,17 +67,17 @@ class PageContentForm(forms.ModelForm):
         exclude = ("pagemeta",)
 
 def _markup_choices(*id_filter):
-    choices = [entry for entry in PageContent.MARKUP_CHOICES if entry[0] in id_filter]
+    choices = [entry for entry in MARKUP_CHOICES if entry[0] in id_filter]
     return choices
 
 
 class ConvertMarkupForm(forms.ModelForm):
     # Use only supported markups for converting choice field
-    MARKUP_CHOICES = _markup_choices(
-        PageContent.MARKUP_CREOLE, PageContent.MARKUP_HTML, PageContent.MARKUP_HTML_EDITOR
+    MARKUP_CHOICES2 = _markup_choices(
+        MARKUP_CREOLE, MARKUP_HTML, MARKUP_HTML_EDITOR
     )
     dest_markup = forms.ChoiceField(
-        choices=MARKUP_CHOICES,
+        choices=MARKUP_CHOICES2,
         help_text=_("convert the current page content to this new markup"),
     )
     verbose = forms.BooleanField(required=False,
@@ -94,7 +93,7 @@ class ConvertMarkupForm(forms.ModelForm):
 class SelectMarkupForm(forms.Form):
     """ for page list admin view """
     markup = forms.ChoiceField(
-        choices=PageContent.MARKUP_CHOICES,
+        choices=MARKUP_CHOICES,
         help_text=_("switch to other markup format"),
     )
 
@@ -104,13 +103,13 @@ class SelectMarkupHelpForm(forms.Form):
     For markup help admin view
     There ist no help page for html code
     """
-    MARKUP_CHOICES = _markup_choices(
-            PageContent.MARKUP_CREOLE,
-            PageContent.MARKUP_TINYTEXTILE,
-            PageContent.MARKUP_TEXTILE,
-            PageContent.MARKUP_MARKDOWN,
-            PageContent.MARKUP_REST,
-    )
+#    MARKUP_CHOICES = _markup_choices(
+#            MARKUP_CREOLE,
+#            MARKUP_TINYTEXTILE,
+#            MARKUP_TEXTILE,
+#            MARKUP_MARKDOWN,
+#            MARKUP_REST,
+#    )
     markup = forms.ChoiceField(
         choices=MARKUP_CHOICES,
         help_text=_("switch to other markup help"),

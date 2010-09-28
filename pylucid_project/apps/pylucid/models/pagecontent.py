@@ -21,6 +21,7 @@ from django.core.cache import cache
 from django_tools import model_utils
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
+from pylucid_project.apps.pylucid.fields import MarkupModelField
 
 
 TAG_INPUT_HELP_URL = \
@@ -49,44 +50,15 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    # IDs used in other parts of PyLucid, too
-    MARKUP_CREOLE = 6
-    MARKUP_HTML = 0
-    MARKUP_HTML_EDITOR = 1
-    MARKUP_TINYTEXTILE = 2
-    MARKUP_TEXTILE = 3
-    MARKUP_MARKDOWN = 4
-    MARKUP_REST = 5
-
-    MARKUP_DATA = (
-        # [0] = markup ID (e.g. database integer field)
-        # [1] = lowcase, ASCII-only, no spaces (e.g. for filename)
-        # [2] = verbose name (used e.g. in select input form)
-        (MARKUP_CREOLE, u"creole", u'Creole wiki markup'),
-        (MARKUP_HTML, u"html", u'html'),
-        (MARKUP_HTML_EDITOR, u"htmleditor", u'html + JS-Editor'),
-        (MARKUP_TINYTEXTILE, u"tinytextile", u'tinytextile'),
-        (MARKUP_TEXTILE, u"textile", u'Textile (original)'),
-        (MARKUP_MARKDOWN, u"markdown", u'Markdown'),
-        (MARKUP_REST, u"rest", u'ReStructuredText'),
-    )
-    # For djanfo choice form field:
-    MARKUP_CHOICES = [(data[0], data[2]) for data in MARKUP_DATA]
-
-    # For easy "get name by id":
-    MARKUP_DICT = dict(MARKUP_CHOICES)
-
-    # for mapping the ID with short name
-    MARKUP_SHORT_DICT = dict([(data[0], data[1]) for data in MARKUP_DATA])
-
-    #--------------------------------------------------------------------------
-
     objects = PageContentManager()
 
     pagemeta = models.OneToOneField("pylucid.PageMeta")
 
     content = models.TextField(blank=True, help_text="The CMS page content.")
-    markup = models.IntegerField(db_column="markup_id", max_length=1, choices=MARKUP_CHOICES)
+    markup = MarkupModelField(
+        db_column="markup_id" # TODO: rename in next migration release
+    )
+    #models.IntegerField(db_column="markup_id", max_length=1, choices=MARKUP_CHOICES)
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """

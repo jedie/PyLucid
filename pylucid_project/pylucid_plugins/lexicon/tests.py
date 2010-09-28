@@ -23,9 +23,10 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.apps.pylucid.models import PageContent, PageTree, PageMeta
+from pylucid_project.apps.pylucid.models import PageContent
+from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE, MARKUP_HTML
 
-from lexicon.models import LexiconEntry
+from pylucid_project.pylucid_plugins.lexicon.models import LexiconEntry
 
 
 SUMMARY_URL = "/%s/lexicon/"
@@ -208,7 +209,7 @@ class LexiconPluginTest1(LexiconPluginTestCase):
     def test_error_handling(self):
         self.login("staff")
 
-        pagecontent = PageContent.objects.all().filter(markup=PageContent.MARKUP_HTML)[0]
+        pagecontent = PageContent.objects.all().filter(markup=MARKUP_HTML)[0]
 
         url = pagecontent.get_absolute_url()
 
@@ -258,7 +259,7 @@ class LexiconPluginTest2(LexiconPluginTestCase, basetest.BaseMoreLanguagesTestCa
         super(LexiconPluginTest2, self)._pre_setup(*args, **kwargs)
 
         defaults = {
-            "markup": PageContent.MARKUP_CREOLE,
+            "markup": MARKUP_CREOLE,
             "is_public": True,
         }
 

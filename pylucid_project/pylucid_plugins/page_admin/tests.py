@@ -8,12 +8,11 @@
     Info:
         - PyLucid initial data contains english and german pages.
     
-    :copyleft: 2010 by the django-weave team, see AUTHORS for more details.
+    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import os
-
 
 if __name__ == "__main__":
     # run all unittest directly
@@ -23,8 +22,10 @@ from django.conf import settings
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 
-from pylucid_project.tests.test_tools import basetest
+from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE, \
+    MARKUP_TINYTEXTILE
 from pylucid_project.apps.pylucid.models import PageContent, PageTree
+from pylucid_project.tests.test_tools import basetest
 
 
 CREATE_CONTENT_PAGE_URL = "/pylucid_admin/plugins/page_admin/new_content_page/"
@@ -40,6 +41,7 @@ ADD_CONTENT_PERMISSIONS = (
 CHANGE_CONTENT_PERMISSIONS = (
     "pylucid.change_pagecontent", "pylucid.change_pagemeta", "pylucid.change_pagetree"
 )
+
 
 class PageAdminTestCase(basetest.BaseLanguageTestCase):
     """
@@ -60,7 +62,7 @@ class PageAdminTestCase(basetest.BaseLanguageTestCase):
             'content': 'The **creole** //content//.',
             'design': 1,
             'en-robots': 'index,follow',
-            'markup': PageContent.MARKUP_CREOLE,
+            'markup': MARKUP_CREOLE,
             'position': 0,
             'showlinks': 'on',
             'slug': 'page_slug'
@@ -303,7 +305,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         """ create some language related attributes """
         super(ConvertMarkupTest, self)._pre_setup(*args, **kwargs)
 
-        self.pagecontent = PageContent.objects.all().filter(markup=PageContent.MARKUP_TINYTEXTILE)[0]
+        self.pagecontent = PageContent.objects.all().filter(markup=MARKUP_TINYTEXTILE)[0]
         self.pagetree = PageTree.on_site.get(pagemeta=self.pagecontent.pagemeta)
         self.url = reverse("PageAdmin-convert_markup", kwargs={"pagecontent_id":self.pagecontent.id})
 
@@ -325,7 +327,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
     def test_convert_verbose_preview(self):
         response = self.client.post(self.url, data={
             'content': '* 1.\n** 1.1.',
-            'dest_markup': PageContent.MARKUP_CREOLE,
+            'dest_markup': MARKUP_CREOLE,
             'preview': 'Vorschau',
             'verbose': 'on'
         })
@@ -349,7 +351,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
     def test_convert(self):
         response = self.client.post(self.url, data={
             'content': '* 1.\n** 1.1.',
-            'dest_markup': PageContent.MARKUP_CREOLE,
+            'dest_markup': MARKUP_CREOLE,
         })
         new_url = "http://testserver%s" % self.pagecontent.get_absolute_url()
         self.assertRedirect(response,
@@ -375,12 +377,10 @@ if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
 #    management.call_command('test', "pylucid_plugins.page_admin.tests.ConvertMarkupTest",
-##        verbosity=0,
-#        verbosity=1,
+#        verbosity=2,
 #        failfast=True
 #    )
     management.call_command('test', __file__,
-        verbosity=1,
-#        verbosity=0,
+        verbosity=2,
         failfast=True
     )

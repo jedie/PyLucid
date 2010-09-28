@@ -238,6 +238,61 @@ function add_openinwindow_links() {
     })
 }
 
+/*****************************************************************************
+* content/markup stuff
+*/
+var wysiwyg_used = false;
+function process_markup() {
+  markup_id = $('#id_markup').val();
+  log("markup:" + markup_id);
+  if (wysiwyg_used == false && markup_id == "1") {
+    log("init wysiwyg");
+    try {
+        $('#id_content').wysiwyg({controls: {html: { visible : true }}});
+    } catch (e) {
+        log("Error:" + e);
+        log("Info: The page template must include jquery.wysiwyg.js!")
+    }
+    wysiwyg_used = true;
+    
+    // jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
+    try {
+        $("iframe:not(.processed)").TextAreaResizer();    
+    } catch (e) {
+        log("can't init TextAreaResizer:" + e);
+    }
+    
+  }
+  if (wysiwyg_used == true && markup_id != "1") {
+    log("destroy wysiwyg");
+    try {
+        $('#id_content').wysiwyg('destroy');
+    } catch (e) {
+        log("error on destroy:" + e);
+        log("See: http://github.com/akzhan/jwysiwyg/issues#issue/11");
+    }
+    wysiwyg_used = false;
+  }
+
+  // markup_help_url was set in apps/pylucid/templates/admin/base_site.html
+  $("a.markuphelp").each(function(index) {
+      // update the markup help button, to display the right help page
+      if (markup_id) {
+          $(this).attr("href", markup_help_url+"?markup_id="+markup_id);
+      } else {
+          $(this).attr("href", markup_help_url);
+      }    
+      log("set markup help url " + index + ' to: ' + $(this).attr("href"));
+  });
+  
+
+}
+function setup_markup() {
+    log("setup_markup()");   
+    process_markup();
+    $('#id_markup').change(process_markup);
+}
+
 
 /*****************************************************************************
 * PyLucid comments stuff
@@ -334,6 +389,10 @@ jQuery(document).ready(function($) {
     /************************************************************************
 	 * Add a "open in new window" link after the existing normal link.      */
     add_openinwindow_links()
+    
+    /************************************************************************
+     * setup markup choice field and markup help                            */
+    if ( $('#id_markup').length ) { setup_markup() }
     
     /************************************************************************
 	 * Resize all textareas                                                 */

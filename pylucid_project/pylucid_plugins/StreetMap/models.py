@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
 
-from pylucid_project.apps.pylucid.models import PageContent
+from pylucid_project.apps.pylucid.fields import MarkupModelField
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 
@@ -38,7 +38,7 @@ from StreetMap.preference_forms import PreferencesForm
 class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
     TYPE_OSM = "O"
     TYPE_GOOGLE = "G"
-    TYPE_CHOICES = ( # for self.map_type field
+    TYPE_CHOICES = (# for self.map_type field
         (TYPE_OSM, 'OpenStreetMap'),
         (TYPE_GOOGLE, 'Google Maps'),
     )
@@ -50,19 +50,19 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
         TYPE_OSM: "StreetMap/includes/OpenStreetMap_link.html",
         TYPE_GOOGLE: "StreetMap/includes/GoogleMaps_link.html",
     }
-    
+
     name = models.SlugField(unique=True,
         help_text=_("Short name for lucidTag")
     )
-    
+
     map_type = models.CharField(max_length=1, choices=TYPE_CHOICES, default=TYPE_OSM)
-    template_name = models.CharField(max_length=128,null=True, blank=True,
+    template_name = models.CharField(max_length=128, null=True, blank=True,
         help_text=_(
             "Template path for this map."
             " (Optional, leave empty for default!"
         )
     )
-    
+
     width = models.CharField(max_length=8,
         default="100%",
         help_text=_("Map width size")
@@ -70,8 +70,8 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
     height = models.CharField(max_length=8,
         default="400px",
         help_text=_("Map height size")
-    )    
-    
+    )
+
     lon = models.FloatField(
         help_text=_("map geographic longitude (vertically) coordinate"),
     )
@@ -82,7 +82,7 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
         default=12,
         help_text=_("Map zoom factor"),
     )
-    
+
     marker_lon = models.FloatField(null=True, blank=True,
         help_text=_(
             "Text marker longitude (vertically) coordinate."
@@ -103,18 +103,14 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
         default=125,
         help_text=_("Text marker height size")
     )
-    marker_text=models.TextField(null=True, blank=True,
+    marker_text = models.TextField(null=True, blank=True,
         help_text=_(
             "Marker text."
             " (Optional, leave empty if no popup marker should be displayed.)"
         )
     )
-    markup = models.IntegerField(max_length=1,
-        help_text=_("Markup format used in marker text content."),
-        default=PageContent.MARKUP_CREOLE,
-        choices=PageContent.MARKUP_CHOICES
-    )
-    
+    markup = MarkupModelField()
+
     def check_google_api_key(self):
         if self.map_type == self.TYPE_GOOGLE:
             # Get preferences from DB
@@ -143,7 +139,7 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
                 find_template(self.template_name)
             except TemplateDoesNotExist, err:
                 message_dict["template_name"] = [_("Template doesn't exist.")]
-                
+
         self.check_google_api_key()
 
         if message_dict:
@@ -154,7 +150,7 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
         request = ThreadLocal.get_current_request()
         html = apply_markup(
             raw_content=self.marker_text,
-            markup_no=self.markup, 
+            markup_no=self.markup,
             request=request
         )
         # Needed for JavaScript:

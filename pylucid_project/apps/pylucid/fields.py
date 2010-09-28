@@ -11,7 +11,13 @@ from django import forms
 from django.db import models
 from django.core import exceptions
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
+from django.template.loader import render_to_string
+from django.template.context import RequestContext
 
+from django_tools.middlewares import ThreadLocal
+
+from pylucid_project.apps.pylucid.markup import MARKUP_CHOICES
 
 CSS_VALUE_RE = re.compile(r'[a-f0-9]{6}$', re.IGNORECASE) # For validation of a CSS value
 
@@ -107,6 +113,18 @@ class ColorValueField(models.CharField):
         kwargs['widget'] = ColorValueInputWidget
         return super(ColorValueField, self).formfield(**kwargs)
 
+#______________________________________________________________________________
+# Markup
+
+class MarkupModelField(models.PositiveSmallIntegerField):
+    # TODO: update in next migration release. Original was: models.IntegerField
+    def __init__(self, *args, **kwargs):
+        defaults = {
+            "choices": MARKUP_CHOICES,
+            "help_text": _("the used markup language for this entry"),
+        }
+        defaults.update(kwargs)
+        super(MarkupModelField, self).__init__(*args, **defaults)
 
 
 if __name__ == "__main__":
