@@ -40,7 +40,7 @@ import sys
 #####################################################################################################
 # PLEASE CHANGE THIS PATH:
 #
-os.environ["VIRTUALENV_FILE"] = "please/insert/path/to/PyLucid_env/bin/activate_this.py"
+os.environ["VIRTUALENV_FILE"] = "/please/insert/path/to/PyLucid_env/bin/activate_this.py"
 #
 # It's the absolute filesystem path to ...PyLucid_env/bin/activate_this.py
 #

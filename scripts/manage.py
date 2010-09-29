@@ -20,7 +20,7 @@ import sys
 
 ##############################################################################
 # Change this path:
-ROOT_DIR = "/update/path/to/PyLucid_env/"
+ROOT_DIR = "/please/insert/path/to/PyLucid_env/"
 ##############################################################################
 
 

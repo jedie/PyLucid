@@ -320,12 +320,14 @@ try:
     from local_settings import *
 except ImportError, err:
     if str(err) == "No module named local_settings":
-        from django.core.exceptions import ImproperlyConfigured
-        raise ImproperlyConfigured(
-            "You must create a local_settings.py file in '%s' ! (Original error was: %s)" % (
-                os.getcwd(), err
-            )
-        )
-    raise
+        msg = (
+            "There is no local_settings.py file in '%s' !"
+            " (Original error was: %s)\n"
+        ) % (os.getcwd(), err)
+        sys.stderr.write(msg)
+        #from django.core.exceptions import ImproperlyConfigured
+        #raise ImproperlyConfigured(msg)
+    else:
+        raise
 
 
