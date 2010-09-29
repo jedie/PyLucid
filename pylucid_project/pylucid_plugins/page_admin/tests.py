@@ -259,8 +259,8 @@ class PageAdminTest(PageAdminTestCase):
                 "<title>PyLucid - lucidTag list</title>",
 
                 "<caption>list of all existing lucidTags</caption>",
-                'value="&#x7B;% lucidTag auth %&#x7D;"',
-                'value="&#x7B;% lucidTag language %&#x7D;"',
+                "value='&#x7B;% lucidTag auth %&#x7D;'",
+                "value='&#x7B;% lucidTag language %&#x7D;'",
 
                 "context keys",
                 "<li>&#x7B;&#x7B; current_site &#x7D;&#x7D;</li>",
