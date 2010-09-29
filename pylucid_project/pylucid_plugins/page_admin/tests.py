@@ -290,6 +290,28 @@ class PageAdminTest(PageAdminTestCase):
             must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
 
+    def test_rename_slug(self):
+        pagetree = PageTree.objects.get(slug="example-pages")
+        response = self.client.get("/en/SiteMap/")
+        self.assertResponse(response,
+            must_contain=(
+                "/en/example-pages/",
+            ),
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback")
+        )
+        pagetree.slug = "new-slug"
+        pagetree.save()
+        response = self.client.get("/en/SiteMap/")
+        self.assertResponse(response,
+            must_contain=(
+                "/en/new-slug/",
+            ),
+            must_not_contain=(
+                "XXX INVALID TEMPLATE STRING", "Traceback",
+                "/en/example-pages/"
+            )
+        )
+
 class PageAdminInlineEditTest(PageAdminTestCase):
     """
     Test with a user witch are logged in and has ADD_PERMISSION
@@ -415,11 +437,11 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form",
-#        verbosity=2,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
+    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminTest.test_rename_slug",
         verbosity=2,
         failfast=True
     )
+#    management.call_command('test', __file__,
+#        verbosity=2,
+#        failfast=True
+#    )
