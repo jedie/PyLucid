@@ -2892,6 +2892,71 @@
         }
     }, 
     {
+        "pk": 2, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-09-29 13:56:24", 
+            "markup": 6, 
+            "content": "Here a few plugin example pages:\r\n\r\n{% lucidTag sub_menu %}\r\n\r\nMore Info about PyLucid plugins: [[http://www.pylucid.org/permalink/90/about-the-built-in-plugins|About the built-in plugins.]]", 
+            "pagemeta": 2, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:11"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-09-29 13:54:01", 
+            "markup": 2, 
+            "content": "<fieldset style=\"border: 1px solid rgb(255, 0, 0);\"><legend>Note</legend>\r\n<p>Don't use tinyTextile anymore. It's obsolete and no longer maintained!<br/>\r\nWe prefere to use the markup converter and use the creole markup.</p>\r\n</fieldset>\r\n\r\n<hr />\r\n\r\n\r\nh1. headlines\r\n\r\nheadlines are introduced with 'h1.':\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nh2. this is a h2 headline\r\n\r\nh3. this is a h3 headline\r\n</code>\r\n\r\nh4. result:\r\n\r\nh2. this is a h2 headline\r\n\r\nh3. this is a h3 headline\r\n\r\n(Important: one blank line under the headline!)\r\n\r\n\r\n\r\nh1. Text formatting\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nI am a --small-- word with &lt;small&gt; tag.\r\nThis is a *fat* word with &lt;strong&gt; tag.\r\n</code>\r\n\r\nh4. result:\r\n\r\nI am a --small-- word with ==<small>== tag.\r\nThis is a *fat* word with ==<strong>== tag.\r\n\r\n\r\n\r\nh1. Links\r\n\r\nTo create html links use this pattern:\r\n\r\n<code=.txt>[URL Link Text]</code>\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\na [http://domain.dtl http link] to domain.dtl\r\na internal link [/root/index.html root page].\r\nThis is a link, too: [#bottom link text]\r\n</code>\r\n\r\nh4. results:\r\n\r\na [http://domain.dtl http link] to domain.dtl\r\na internal link [/root/index.html root page].\r\nThis is a link, too: [#bottom link text]\r\n\r\n\r\n\r\nh2. old link syntax\r\n\r\nThe old pattern works too, but we prefere the new syntax!\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\na \"http link\":http://domain.dtl to domain.dtl\r\nThis is a link, too: \"link text\":#bottom\r\n</code>\r\n\r\nh4. results:\r\n\r\na \"http link\":http://domain.dtl to domain.dtl\r\nThis is a link, too: \"link text\":#bottom\r\n\r\n\r\n\r\nh2. shortcut\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nA link with a shortcut: [[PageName]] goes to the cms page.\r\n</code>\r\n\r\nh4. results:\r\n\r\nA link with a shortcut: [[PageName]] goes to the cms page.\r\n\r\n\r\n\r\nh2. urls\r\n\r\nAll inserted urls would be converted to links\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nhttp://domain.dtl\r\nftp://domain.dtl\r\nmailto:name@domain.dtl\r\n</code>\r\n\r\nh4. result:\r\n\r\nhttp://domain.dtl\r\nftp://domain.dtl\r\nmailto:name@domain.dtl\r\n\r\n\r\n\r\n\r\n\r\n\r\nh1. List\r\n\r\nYou can make ==<ul>== liste with \"*\" and ==<ol>== list with \"#\".\r\nNote: You can't mixed this list types ;)\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nnormal list:\r\n* Lorem ipsum dolor sit amet\r\n** consectetuer adipiscing elit\r\n**** sed diam nonummy nibh\r\n**** euismod tincidunt ut laoreet\r\n** dolore magna aliquam erat volutpat.\r\n\r\nnumbered list:\r\n# Lorem ipsum dolor sit amet\r\n## consectetuer adipiscing elit\r\n#### sed diam nonummy nibh\r\n#### euismod tincidunt ut laoreet\r\n## dolore magna aliquam erat volutpat.\r\n</code>\r\n\r\nh4. result:\r\n\r\nnormal list:\r\n* Lorem ipsum dolor sit amet\r\n** consectetuer adipiscing elit\r\n**** sed diam nonummy nibh\r\n**** euismod tincidunt ut laoreet\r\n** dolore magna aliquam erat volutpat.\r\n\r\nnumbered list:\r\n# Lorem ipsum dolor sit amet\r\n## consectetuer adipiscing elit\r\n#### sed diam nonummy nibh\r\n#### euismod tincidunt ut laoreet\r\n## dolore magna aliquam erat volutpat.\r\n\r\n\r\n\r\nh1. Images\r\n\r\nYou can create a html image tag with a exclamation mark (\"!\") character.\r\nSurround a url to the picture with a \"!\".\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\n!http://images.sourceforge.net/images/project-support.jpg!\r\n!/favicon.ico!\r\n!/pics/no link for spaces in filenames.jpg!\r\n</code>\r\n\r\nh4. result:\r\n\r\n!http://images.sourceforge.net/images/project-support.jpg!\r\n!/favicon.ico!\r\n!/pics/no link for spaces in filenames.jpg!\r\n\r\n\r\n\r\nh1. Embed Python SourceCode\r\n\r\nPut sourcecode between ==<python>== tag. Note: The start and end tag must be located alone in a line!\r\n\r\nh4. example:\r\n\r\n<fieldset class=\"pygments_code\">\r\n\r\n==<python>\r\n#!/usr/bin/python\r\n# -*- coding: UTF-8 -*-\r\n\r\n\"\"\"Ein kleines Skript\"\"\"\r\n\r\nprint \"Hello Word: I love Python!\"\r\n</python>==\r\n\r\n</fieldset>\r\n\r\nh4. result:\r\n\r\n<python>\r\n#!/usr/bin/python\r\n# -*- coding: UTF-8 -*-\r\n\r\n\"\"\"Ein kleines Skript\"\"\"\r\n\r\nprint \"Hello Word: I love Python!\"\r\n</python>\r\n\r\n\r\n\r\n\r\nh1. Embed source code generally\r\n\r\nWith the ==<code=ext>== Tag you can highlight everything, which offers Pygments.\r\n'ext' is the file extension.\r\n\r\n<!-- We must use a ugly hack for the examples :( -->\r\n\r\nh4. example 1:\r\n\r\n<fieldset class=\"pygments_code\">\r\n\r\n==<code=php>\r\n<?php\r\n$conn_id = ftp_connect($ftp_server);\r\n?>\r\n</code>==\r\n\r\n</fieldset>\r\n\r\nh4. result 1:\r\n\r\n<code=php>\r\n<?php\r\n$conn_id = ftp_connect($ftp_server);\r\n?>\r\n</code>\r\n\r\nh4. example 2:\r\n\r\n<fieldset class=\"pygments_code\">\r\n\r\n==<code=css>\r\nbody {\r\n  color: black;\r\n}\r\n</code>==\r\n\r\n</fieldset>\r\n\r\nh4. result 2:\r\n\r\n<code=css>\r\nbody {\r\n  color: black;\r\n}\r\n</code>\r\n\r\n\r\n\r\nh1. Escaping\r\n\r\nThe escape character are two equals sign (\"==\"). Text inner two \"=\"-characters would be escaped.\r\n\r\nh4. example:\r\n\r\n<code=.txt>\r\n==\r\nTable: <table width=\"90%\" border=\"0\" align=\"center\">\r\nLink: <a href=\"URL\">txt</a>\r\nInput: <input type=\"submit\" value=\"preview\" />\r\n==\r\n</code>\r\n\r\nh4. result:\r\n\r\n==\r\nTable: <table width=\"90%\" border=\"0\" align=\"center\">\r\nLink: <a href=\"URL\">txt</a>\r\nInput: <input type=\"submit\" value=\"preview\" />\r\n==\r\n\r\nIt goes also within a flow text:\r\nHere ist no Link: ========<a href=\"URL\">txt</a>======== nice?\r\n\r\n\r\n\r\nh1. pre-Formarted-Text\r\n\r\nYou can use the ==<pre>== tag. tinyTextile ingnore the Markup in the area.\r\n\r\nh4. example:\r\n\r\n<code=.txt>\r\n<pre>\r\nh2. Not a textile headline\r\n<h3>hand made h3 headline with html tags</h3>\r\n* This is not a...\r\n* ...textile list\r\n</pre>\r\n</code>\r\n\r\nh4. result:\r\n\r\n<pre>\r\nh2. Not a textile headline\r\n<h3>hand made h3 headline with html tags</h3>\r\n* This is not a...\r\n* ...textile list\r\n</pre>\r\n\r\n\r\n\r\nh1. tables\r\n\r\ntinyTextile only supports very basic table syntax, with no alignment. It's only for simple table like phone lists etc.\r\nThere is a notion for headings and forced line breaks.\r\n\r\nh4. example:\r\n<code=.txt>\r\n|=Heading Col 1 |=Heading Col 2         |\r\n|Cell 1.1       |2 lines\\\\in Cell 1.2   |\r\n|Cell 2.1       |Cell 2.2               |\r\n</code>\r\n\r\nh4. result:\r\n\r\n<span class=\"example_table\">\r\n\r\n|=Heading Col 1 |=Heading Col 2         |\r\n|Cell 1.1       |2 lines\\\\in Cell 1.2   |\r\n|Cell 2.1       |Cell 2.2               |\r\n\r\n</span>\r\n\r\n\r\nh1. HTML-Code\r\n\r\nYou can insert any HTML code directy in you page. tinyTextile ingnore it.", 
+            "pagemeta": 13, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:22"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-09-29 13:53:04", 
+            "markup": 6, 
+            "content": "PyLucid support a few markups:\r\n\r\n{% lucidTag sub_menu %}\r\n\r\nNote:\r\n* If you edit a page, the button \"markup help\" opens a cheat sheet help page for the markups.\r\n* \"Creole\" and \"tinyTextile\" is shipped with PyLucid.\r\n* Python modules for \"textile\", \"reSt\" and \"markdown\" must be installed separated.", 
+            "pagemeta": 8, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:15"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-09-29 13:49:42", 
+            "markup": 6, 
+            "content": "PyLucid used the Python syntax highlighter [[http://pygments.org/|Pygments]]. It supports an ever-growing range of languages, look at: [[http://pygments.org/languages/|language list]].\r\n\r\n== Markup source code\r\n\r\nIn Creole markup you can easy insert sourcecode: Use **{{{<<code ext=\".EXT\">>...<</code>>}}}** and PyLucid used Pygments to highlight it. Where '.EXT' is the typical fileextension/alias of the code, please look at:\r\n\r\n * http://pygments.org/docs/lexers/\r\n\r\n=== examples\r\n\r\n{% sourcecode ext=\".html\" %}\r\n<<code ext=\".css\">>\r\n/* CSS Stylesheet */\r\n.xs {font-family:verdana,arial,helvetica,sans-serif;font-size: x-small}\r\n.m {font-size: medium}\r\n<</code>>\r\n{% endsourcecode %}\r\n\r\nresult:\r\n\r\n<<code ext=\".css\">>\r\n/* CSS Stylesheet */\r\n.xs {font-family:verdana,arial,helvetica,sans-serif;font-size: x-small}\r\n.m {font-size: medium}\r\n<</code>>\r\n\r\nHere a \"error\" example:\r\n\r\n<<code ext=NotExists>>\r\nIf there exist no Lexer for the given format, PyLucid used the Pygments TextLexer. =;-)\r\n<</code>>\r\nThe other way is to use Creole **<<html>>&#x7B;&#x7B;&#x7B;...&#x7D;&#x7D;&#x7D;<</html>>** code block tags.\r\n", 
+            "pagemeta": 7, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:15"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2010-09-29 13:48:30", 
+            "markup": 6, 
+            "content": "With this lucidTag you can easy integrade a RSS news feed into your CMS page:\r\n\r\n{% sourcecode ext=\".html\" %}\r\n{% lucidTag rss url=\"http url\" %}\r\n{% endsourcecode %}\r\n\r\n=== example:\r\n\r\n{% lucidTag rss url=\"http://sourceforge.net/export/rss2_projnews.php?group_id=146328&rss_fulltext=1\" %}", 
+            "pagemeta": 6, 
+            "lastupdateby": 1, 
+            "createtime": "2009-11-03 03:37:14"
+        }
+    }, 
+    {
         "pk": 3, 
         "model": "pylucid.pagecontent", 
         "fields": {
@@ -2983,45 +3048,6 @@
         }
     }, 
     {
-        "pk": 2, 
-        "model": "pylucid.pagecontent", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:19:19", 
-            "markup": 6, 
-            "content": "=== sub menu\r\n\r\n{% lucidTag sub_menu %}", 
-            "pagemeta": 2, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:11"
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "pylucid.pagecontent", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-01-29 08:06:25", 
-            "markup": 6, 
-            "content": "PyLucid used the Python syntax highlighter [[http://pygments.org/|Pygments]]. It supports an ever-growing range of languages, look at: [[http://pygments.org/languages/|language list]].\r\n\r\n== Markup source code\r\n\r\nIn Creole markup you can easy insert sourcecode: Use **{{{<<code ext=\".EXT\">>...<</code>>}}}** and PyLucid used Pygments to highlight it. Where '.EXT' is the typical fileextension/alias of the code, please look at:\r\n\r\n * http://pygments.org/docs/lexers/\r\n\r\n=== examples\r\n\r\n{{{\r\n<<code ext=\".css\">>\r\n/* CSS Stylesheet */\r\n.xs {font-family:verdana,arial,helvetica,sans-serif;font-size: x-small}\r\n.m {font-size: medium}\r\n<</code>>\r\n}}}\r\n\r\nresult:\r\n\r\n<<code ext=\".css\">>\r\n/* CSS Stylesheet */\r\n.xs {font-family:verdana,arial,helvetica,sans-serif;font-size: x-small}\r\n.m {font-size: medium}\r\n<</code>>\r\n\r\nHere a \"error\" example:\r\n\r\n<<code ext=NotExists>>\r\nIf there exist no Lexer for the given format, PyLucid used the Pygments TextLexer. =;-)\r\n<</code>>\r\nThe other way is to use Creole **<<html>>&#x7B;&#x7B;&#x7B;...&#x7D;&#x7D;&#x7D;<</html>>** code block tags.\r\n\r\n== SourceCode Plugin\r\n\r\n**Note:** The SourceCode Plugin is [[http://trac.pylucid.net/ticket/352|not reimplemented yet]].\r\n\r\nWith the SourceCode Plugin you can integrate the source code of a local file into your CMS page.\r\n\r\n=== example:\r\n{{{\r\n{% lucidTag SourceCode url=\"./media/PyLucid/install_views.css\" %}\r\n}}}\r\n\r\n=== some examples:\r\n\r\n==== ./media/PyLucid/install_views.css:\r\n\r\n{% lucidTag SourceCode url=\"./media/PyLucid/install_views.css\" %}\r\n\r\n==== ./media/PyLucid/shared_sha_tools.js:\r\n\r\n{% lucidTag SourceCode url=\"./media/PyLucid/shared_sha_tools.js\" %}\r\n", 
-            "pagemeta": 7, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:15"
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "pylucid.pagecontent", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2009-11-03 03:37:39", 
-            "markup": 6, 
-            "content": "With this lucidTag you can easy integrade a RSS news feed into your CMS page:\r\n\r\n<<code ext=\".html\">>\r\n{% lucidTag rss url=\"http url\" %}\r\n<</code>>\r\n\r\n=== example:\r\n\r\n{% lucidTag rss url=\"http://sourceforge.net/export/rss2_projnews.php?group_id=146328&rss_fulltext=1\" %}", 
-            "pagemeta": 6, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:14"
-        }
-    }, 
-    {
         "pk": 16, 
         "model": "pylucid.pagecontent", 
         "fields": {
@@ -3058,19 +3084,6 @@
             "pagemeta": 15, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:23"
-        }
-    }, 
-    {
-        "pk": 13, 
-        "model": "pylucid.pagecontent", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2009-11-03 03:37:22", 
-            "markup": 2, 
-            "content": "PyLucid info: If you edit a page, the button \"markup help\" opens a cheat sheet help page.\r\n\r\n<hr />\r\n\r\n\r\nh1. headlines\r\n\r\nheadlines are introduced with 'h1.':\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nh2. this is a h2 headline\r\n\r\nh3. this is a h3 headline\r\n</code>\r\n\r\nh4. result:\r\n\r\nh2. this is a h2 headline\r\n\r\nh3. this is a h3 headline\r\n\r\n(Important: one blank line under the headline!)\r\n\r\n\r\n\r\nh1. Text formatting\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nI am a --small-- word with &lt;small&gt; tag.\r\nThis is a *fat* word with &lt;strong&gt; tag.\r\n</code>\r\n\r\nh4. result:\r\n\r\nI am a --small-- word with ==<small>== tag.\r\nThis is a *fat* word with ==<strong>== tag.\r\n\r\n\r\n\r\nh1. Links\r\n\r\nTo create html links use this pattern:\r\n\r\n<code=.txt>[URL Link Text]</code>\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\na [http://domain.dtl http link] to domain.dtl\r\na internal link [/root/index.html root page].\r\nThis is a link, too: [#bottom link text]\r\n</code>\r\n\r\nh4. results:\r\n\r\na [http://domain.dtl http link] to domain.dtl\r\na internal link [/root/index.html root page].\r\nThis is a link, too: [#bottom link text]\r\n\r\n\r\n\r\nh2. old link syntax\r\n\r\nThe old pattern works too, but we prefere the new syntax!\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\na \"http link\":http://domain.dtl to domain.dtl\r\nThis is a link, too: \"link text\":#bottom\r\n</code>\r\n\r\nh4. results:\r\n\r\na \"http link\":http://domain.dtl to domain.dtl\r\nThis is a link, too: \"link text\":#bottom\r\n\r\n\r\n\r\nh2. shortcut\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nA link with a shortcut: [[PageName]] goes to the cms page.\r\n</code>\r\n\r\nh4. results:\r\n\r\nA link with a shortcut: [[PageName]] goes to the cms page.\r\n\r\n\r\n\r\nh2. urls\r\n\r\nAll inserted urls would be converted to links\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nhttp://domain.dtl\r\nftp://domain.dtl\r\nmailto:name@domain.dtl\r\n</code>\r\n\r\nh4. result:\r\n\r\nhttp://domain.dtl\r\nftp://domain.dtl\r\nmailto:name@domain.dtl\r\n\r\n\r\n\r\n\r\n\r\n\r\nh1. List\r\n\r\nYou can make ==<ul>== liste with \"*\" and ==<ol>== list with \"#\".\r\nNote: You can't mixed this list types ;)\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\nnormal list:\r\n* Lorem ipsum dolor sit amet\r\n** consectetuer adipiscing elit\r\n**** sed diam nonummy nibh\r\n**** euismod tincidunt ut laoreet\r\n** dolore magna aliquam erat volutpat.\r\n\r\nnumbered list:\r\n# Lorem ipsum dolor sit amet\r\n## consectetuer adipiscing elit\r\n#### sed diam nonummy nibh\r\n#### euismod tincidunt ut laoreet\r\n## dolore magna aliquam erat volutpat.\r\n</code>\r\n\r\nh4. result:\r\n\r\nnormal list:\r\n* Lorem ipsum dolor sit amet\r\n** consectetuer adipiscing elit\r\n**** sed diam nonummy nibh\r\n**** euismod tincidunt ut laoreet\r\n** dolore magna aliquam erat volutpat.\r\n\r\nnumbered list:\r\n# Lorem ipsum dolor sit amet\r\n## consectetuer adipiscing elit\r\n#### sed diam nonummy nibh\r\n#### euismod tincidunt ut laoreet\r\n## dolore magna aliquam erat volutpat.\r\n\r\n\r\n\r\nh1. Images\r\n\r\nYou can create a html image tag with a exclamation mark (\"!\") character.\r\nSurround a url to the picture with a \"!\".\r\n\r\nh4. examples:\r\n\r\n<code=.txt>\r\n!http://images.sourceforge.net/images/project-support.jpg!\r\n!/favicon.ico!\r\n!/pics/no link for spaces in filenames.jpg!\r\n</code>\r\n\r\nh4. result:\r\n\r\n!http://images.sourceforge.net/images/project-support.jpg!\r\n!/favicon.ico!\r\n!/pics/no link for spaces in filenames.jpg!\r\n\r\n\r\n\r\nh1. Embed Python SourceCode\r\n\r\nPut sourcecode between ==<python>== tag. Note: The start and end tag must be located alone in a line!\r\n\r\nh4. example:\r\n\r\n<fieldset class=\"pygments_code\">\r\n\r\n==<python>\r\n#!/usr/bin/python\r\n# -*- coding: UTF-8 -*-\r\n\r\n\"\"\"Ein kleines Skript\"\"\"\r\n\r\nprint \"Hello Word: I love Python!\"\r\n</python>==\r\n\r\n</fieldset>\r\n\r\nh4. result:\r\n\r\n<python>\r\n#!/usr/bin/python\r\n# -*- coding: UTF-8 -*-\r\n\r\n\"\"\"Ein kleines Skript\"\"\"\r\n\r\nprint \"Hello Word: I love Python!\"\r\n</python>\r\n\r\n\r\n\r\n\r\nh1. Embed source code generally\r\n\r\nWith the ==<code=ext>== Tag you can highlight everything, which offers Pygments.\r\n'ext' is the file extension.\r\n\r\n<!-- We must use a ugly hack for the examples :( -->\r\n\r\nh4. example 1:\r\n\r\n<fieldset class=\"pygments_code\">\r\n\r\n==<code=php>\r\n<?php\r\n$conn_id = ftp_connect($ftp_server);\r\n?>\r\n</code>==\r\n\r\n</fieldset>\r\n\r\nh4. result 1:\r\n\r\n<code=php>\r\n<?php\r\n$conn_id = ftp_connect($ftp_server);\r\n?>\r\n</code>\r\n\r\nh4. example 2:\r\n\r\n<fieldset class=\"pygments_code\">\r\n\r\n==<code=css>\r\nbody {\r\n  color: black;\r\n}\r\n</code>==\r\n\r\n</fieldset>\r\n\r\nh4. result 2:\r\n\r\n<code=css>\r\nbody {\r\n  color: black;\r\n}\r\n</code>\r\n\r\n\r\n\r\nh1. Escaping\r\n\r\nThe escape character are two equals sign (\"==\"). Text inner two \"=\"-characters would be escaped.\r\n\r\nh4. example:\r\n\r\n<code=.txt>\r\n==\r\nTable: <table width=\"90%\" border=\"0\" align=\"center\">\r\nLink: <a href=\"URL\">txt</a>\r\nInput: <input type=\"submit\" value=\"preview\" />\r\n==\r\n</code>\r\n\r\nh4. result:\r\n\r\n==\r\nTable: <table width=\"90%\" border=\"0\" align=\"center\">\r\nLink: <a href=\"URL\">txt</a>\r\nInput: <input type=\"submit\" value=\"preview\" />\r\n==\r\n\r\nIt goes also within a flow text:\r\nHere ist no Link: ========<a href=\"URL\">txt</a>======== nice?\r\n\r\n\r\n\r\nh1. pre-Formarted-Text\r\n\r\nYou can use the ==<pre>== tag. tinyTextile ingnore the Markup in the area.\r\n\r\nh4. example:\r\n\r\n<code=.txt>\r\n<pre>\r\nh2. Not a textile headline\r\n<h3>hand made h3 headline with html tags</h3>\r\n* This is not a...\r\n* ...textile list\r\n</pre>\r\n</code>\r\n\r\nh4. result:\r\n\r\n<pre>\r\nh2. Not a textile headline\r\n<h3>hand made h3 headline with html tags</h3>\r\n* This is not a...\r\n* ...textile list\r\n</pre>\r\n\r\n\r\n\r\nh1. tables\r\n\r\ntinyTextile only supports very basic table syntax, with no alignment. It's only for simple table like phone lists etc.\r\nThere is a notion for headings and forced line breaks.\r\n\r\nh4. example:\r\n<code=.txt>\r\n|=Heading Col 1 |=Heading Col 2         |\r\n|Cell 1.1       |2 lines\\\\in Cell 1.2   |\r\n|Cell 2.1       |Cell 2.2               |\r\n</code>\r\n\r\nh4. result:\r\n\r\n<span class=\"example_table\">\r\n\r\n|=Heading Col 1 |=Heading Col 2         |\r\n|Cell 1.1       |2 lines\\\\in Cell 1.2   |\r\n|Cell 2.1       |Cell 2.2               |\r\n\r\n</span>\r\n\r\n\r\nh1. HTML-Code\r\n\r\nYou can insert any HTML code directy in you page. tinyTextile ingnore it.", 
-            "pagemeta": 13, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:22"
         }
     }, 
     {
@@ -3123,19 +3136,6 @@
             "pagemeta": 9, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:17"
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "pylucid.pagecontent", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2009-11-03 03:37:15", 
-            "markup": 6, 
-            "content": "{% lucidTag sub_menu %}", 
-            "pagemeta": 8, 
-            "lastupdateby": 1, 
-            "createtime": "2009-11-03 03:37:15"
         }
     }, 
     {
