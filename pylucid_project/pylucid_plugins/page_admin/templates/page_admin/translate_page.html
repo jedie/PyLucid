@@ -95,7 +95,7 @@ $(document).ready(function(){
 
 <fieldset><legend>PluginContent</legend>
     
-    {% include "page_admin/includes/edit_content_page_buttons.html" %}
+    {% include "admin/pylucid/includes/form_default_buttons.html" %}
     
     {% with source_pagecontent_form.content as field %}
     <div class="across_fields" title="{{ field.help_text }}">
@@ -147,7 +147,7 @@ $(document).ready(function(){
     {% endfor %}
 </fieldset>
 
-{% include "page_admin/includes/edit_content_page_buttons.html" %}
+{% include "admin/pylucid/includes/form_default_buttons.html" %}
 
 </form>
 {% endblock %}
