@@ -1,11 +1,11 @@
 #
 # PyLucid .htaccess file
-# per default: using the CGI Version (index.cgi)
+# per default: using the CGI Version (index.cgi, not preferred!)
 #
-# You can easy change the rewrite rule to use fastCGI, see below.
+# You can easy change the rewrite rule to use fastCGI (recommended), see below.
 #
 # Note:
-#    You should be carefull uncomment settings.
+#    You should be careful uncomment settings.
 #    It can be that not all rules are permitted!
 #    If you activate a "not allowed" rule, the server can send a
 #    "500 internal server error" for every request!
@@ -48,11 +48,16 @@ RewriteRule ^local_settings.py$ - [F,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 
-# for CGI Version:
+
+#-----------------------------------------------------------------------
+
+# for CGI Version (should be used for tests only):
 RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
 
-# for fastCGI Version:
+# for fastCGI Version (recommended):
 #RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
+
+#-----------------------------------------------------------------------
 
 
 # Nobody should have access to some files!
