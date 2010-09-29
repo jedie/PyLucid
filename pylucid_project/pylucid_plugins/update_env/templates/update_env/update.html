@@ -3,9 +3,20 @@
 {% block content %}
 
 {% if env_path %}
-<p>Package path: <strong>{{ package.path }}</strong>.</p>
-<h2>{{ package.name }}</h2>
+<p>
+    Package path: <strong>{{ package.path }}</strong>.
+</p>
+<p>
+    <a href="{% url Update-status %}">&lt;&lt; {% trans "back to status page" %}</a>
+</p>
+<fieldset><legend>update the package '<strong>{{ package.name }}</strong>':</legend>
 <pre>{{ package.output }}</pre>
-<a href="{% url Update-status %}">back to status page</a>
+</fieldset>
+<p>
+    {% trans "Note: Changes only active, if python process restarted!" %}
+</p>
 {% endif %}
+<p>
+    <a href="{% url Update-status %}">&lt;&lt; {% trans "back to status page" %}</a>
+</p>
 {% endblock %}
