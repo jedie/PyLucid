@@ -50,10 +50,10 @@ jQuery(document).ready(function($) {
     <td>{{ lucid_tag.plugin_name }}</td>
     <td title="for copy&amp;paste into your cms page" class="nowrap">
         {% if lucid_tag.fallback_example %}
-            <input type="text" class="example_tag" title="automatic generated example" value="{{ lucid_tag.fallback_example }}"></input><br />
+            <input type="text" class="example_tag" title="automatic generated example" value='{{ lucid_tag.fallback_example }}'></input><br />
         {% else %}
             {% for example in lucid_tag.examples %}
-            	<input type="text" class="example_tag" value="{{ example }}"></input><br />
+            	<input type="text" class="example_tag" value='{{ example }}'></input><br />
             {% endfor %}
         {% endif %}
     </td>
