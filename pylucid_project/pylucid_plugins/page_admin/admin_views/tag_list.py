@@ -5,21 +5,23 @@
     ~~~~~~~~~~~~~~~~
     
     List all available lucidTag
+    
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import inspect
 
+from django.conf import settings
 from django.contrib import messages
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta
+from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.escape import escape
-
-
 
 
 @render_to("page_admin/tag_list_popup.html")
@@ -35,6 +37,11 @@ def tag_list(request):
                 mod_name="views", obj_name="lucidTag"
             )
         except plugin_instance.ObjectNotFound, err:
+            continue
+        except Exception, err:
+            if settings.DEBUG:
+                raise
+            messages.error(request, "Can't get plugin view: %s" % err)
             continue
 
         lucidtag_doc = None
@@ -59,6 +66,8 @@ def tag_list(request):
                                 "plugin_name": plugin_name, "example": example
                             }
                         )
+
+                examples = [escape(example) for example in examples]
 
                 lucidtag_doc = lucidtag_doc.split("example:", 1)[0].strip()
 

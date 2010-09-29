@@ -28,9 +28,8 @@ from pylucid_project.apps.pylucid.models import PageContent, PageTree
 from pylucid_project.tests.test_tools import basetest
 
 
-CREATE_CONTENT_PAGE_URL = "/pylucid_admin/plugins/page_admin/new_content_page/"
-CREATE_PLUGIN_PAGE_URL = "/pylucid_admin/plugins/page_admin/new_plugin_page/"
-EDIT_ALL_URL = "/pylucid_admin/plugins/page_admin/edit_page/%i/"
+CREATE_CONTENT_PAGE_URL = reverse("PageAdmin-new_content_page")
+CREATE_PLUGIN_PAGE_URL = reverse("PageAdmin-new_plugin_page")
 
 INLINE_EDIT_PAGE_URL = "/?page_admin=inline_edit"
 INLINE_PREVIEW_URL = "/?page_admin=preview"
@@ -93,7 +92,7 @@ class PageAdminAnonymousTest(PageAdminTestCase):
 
     def test_login_before_edit_all(self):
         """ Anonymous user must login, to use the edit all view """
-        url = EDIT_ALL_URL % 1 # edit the page with ID==1
+        url = reverse("PageAdmin-edit_page", kwargs={"pagetree_id":1}) # edit the page with ID==1
         response = self.client.get(url)
         self.assertRedirect(response, status_code=302,
             url="http://testserver/?auth=login&next_url=%s" % url
@@ -178,7 +177,7 @@ class PageAdminTest(PageAdminTestCase):
         So the user can't select it and make a child <-> parent loop.
         """
         self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
-        url = EDIT_ALL_URL % 1 # edit the page with ID==1
+        url = reverse("PageAdmin-edit_page", kwargs={"pagetree_id":1}) # edit the page with ID==1
         response = self.client.get(url)
         self.assertResponse(response,
             must_contain=(
@@ -196,7 +195,7 @@ class PageAdminTest(PageAdminTestCase):
         do a child <-> parent loop: parent ID == current PageTree ID
         """
         self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
-        url = EDIT_ALL_URL % 1 # edit the page with ID==1
+        url = reverse("PageAdmin-edit_page", kwargs={"pagetree_id":1}) # edit the page with ID==1
         response = self.client.post(url,
             data=self.get_page_content_post_data(parent=1)
         )
@@ -217,7 +216,7 @@ class PageAdminTest(PageAdminTestCase):
         first_test_page, second_test_page = PageTree.on_site.all().filter(parent=None)[:2]
 
         self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
-        url = EDIT_ALL_URL % first_test_page.id # edit the first test page
+        url = reverse("PageAdmin-edit_page", kwargs={"pagetree_id":first_test_page.id}) # edit the first test page
         response = self.client.post(url,
             data=self.get_page_content_post_data(slug=second_test_page.slug)
         )
@@ -238,7 +237,7 @@ class PageAdminTest(PageAdminTestCase):
         a_plugin_page_id = PageTree.on_site.all().filter(page_type=PageTree.PLUGIN_TYPE)[0].id
 
         self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
-        url = EDIT_ALL_URL % 1 # edit the page with ID==1
+        url = reverse("PageAdmin-edit_page", kwargs={"pagetree_id":1}) # edit the page with ID==1
         response = self.client.post(url,
             data=self.get_page_content_post_data(parent=a_plugin_page_id)
         )
@@ -249,6 +248,46 @@ class PageAdminTest(PageAdminTestCase):
                 "<li>Can't use the <strong>plugin</strong> page '/blog/' as parent page! Please choose a <strong>content</strong> page.</li>",
             ),
             must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "field is required")
+        )
+
+    def test_tag_list(self):
+        self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
+        url = reverse("PageAdmin-tag_list")
+        response = self.client.get(url)
+        self.assertResponse(response,
+            must_contain=(
+                "<title>PyLucid - lucidTag list</title>",
+
+                "<caption>list of all existing lucidTags</caption>",
+                'value="&#x7B;% lucidTag auth %&#x7D;"',
+                'value="&#x7B;% lucidTag language %&#x7D;"',
+
+                "context keys",
+                "<li>&#x7B;&#x7B; current_site &#x7D;&#x7D;</li>",
+                "<li>&#x7B;&#x7B; page_title &#x7D;&#x7D;</li>",
+                "<li>&#x7B;&#x7B; user &#x7D;&#x7D;</li>",
+            ),
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback")
+        )
+
+    def test_translate_form(self):
+        self.login("superuser")
+        url = reverse("PageAdmin-translate", kwargs={"pagemeta_id":1})
+        response = self.client.get(url)
+        self.assertResponse(response,
+            must_contain=(
+                "<title>PyLucid - Translate page &#39;welcome&#39; (English) into Deutsch.</title>",
+                "Translate page &#39;welcome&#39; (English) into Deutsch.",
+                '<input type="submit" name="save" value="save" />',
+                '''<input onclick="self.location.href='/en/welcome/'" name="abort" value="abort" type="reset" />''',
+                '<a href="/pylucid_admin/plugins/page_admin/markup_help/"',
+                '<a href="/pylucid_admin/plugins/page_admin/page_list/"',
+                '<a href="/pylucid_admin/plugins/page_admin/tag_list/"',
+
+                '<textarea id="id_source-content" rows="10" cols="40" name="source-content">Welcome to your fesh PyLucid CMS installation ;)',
+                '<textarea id="id_de-content" rows="10" cols="40" name="de-content">Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)',
+            ),
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
 
 class PageAdminInlineEditTest(PageAdminTestCase):
@@ -376,7 +415,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.page_admin.tests.ConvertMarkupTest",
+#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form",
 #        verbosity=2,
 #        failfast=True
 #    )
