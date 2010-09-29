@@ -25,7 +25,7 @@ function draw_google_map(map_slug, map_lon, map_lat, map_zoom, marker_html, mark
 <!-- GoogleMaps.html extrahead END -->
 {% endextrahead %}
 <div id="google_map_{{map.name}}" class="google_map" style="width: {{ map.width }}; height: {{ map.height }};">
-    <noscript><h3>Error: Javascript is needed.</h3></noscript>
+    <noscript><h3 class="no_anchor">Error: Javascript is needed.</h3></noscript>
 </div>
 {% include "StreetMap/includes/edit_link.html" %}
 {% include "StreetMap/includes/GoogleMaps_link.html" %}
