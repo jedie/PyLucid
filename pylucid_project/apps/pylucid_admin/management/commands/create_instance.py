@@ -129,6 +129,7 @@ class Command(BaseCommand):
         self._copy_scripts("fcgi_scripts/index.fcgi", "index.fcgi")
         self._copy_scripts("cgi_scripts/index.cgi", "index.cgi")
         self._copy_scripts("local_settings_example.py", "local_settings.py")
+        self._copy_scripts("info_index.html", "index.html")
 
 
         self.stdout.write("\n")
