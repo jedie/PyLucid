@@ -126,7 +126,7 @@ class PageTreeManager(BaseModelManager):
             return queryset[0]
         except IndexError, err:
             if self.model.on_site.count() == 0:
-                raise PageTree.DoesNotExist("There exist no PageTree items! Have you install PyLucid?")
+                raise PageTree.DoesNotExist("There exist no PageTree items!")
             elif filter_parent == True:
                 # If all root pages not accessible for the current user
                 # -> try to get the first accessable page

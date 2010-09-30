@@ -270,8 +270,12 @@ def _render_root_page(request, url_lang_code=None):
     try:
         pagetree = PageTree.objects.get_root_page(user) # Get the first PageTree entry
     except PageTree.DoesNotExist, err:
-        msg = _("There exist no pages items! Have you install PyLucid? At least you must create one page!")
-        # TODO: Redirect to install page?
+        msg = _(
+            "There exist no pages!"
+            " Have you load the initial pylucid.json data file?"
+            " At least there must exists one page!"
+            " (original error was: %s)"
+        ) % err
         messages.error(request, msg)
         return http.HttpResponseRedirect(reverse("admin:index"))
 
