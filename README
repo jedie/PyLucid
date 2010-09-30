@@ -8,9 +8,10 @@ Some PyLucid Features are:
 
     * fully customizable output
     * expandable with plugins
-    * some built in plugins: weblog, OpenStreetMap, lexicon, RSS, tag navigation, Table of contens
-    * internationalization and localization support (new in v0.9)
-    * Revision controled content (new in v0.9)
+    * some built in plugins: weblog, StreetMap, lexicon, RSS, tag navigation, Table of contens, search engine
+    * internationalization and localization support (Multilingual content)
+    * Revision controled content
+    * Multi site support
     * Open Source (GPL v3 or later)
     * support many database engines (PostgreSQL, MySQL, Oracle and SQLite)
     * WSGI conform: CGI, fastCGI, mod_Python and others
@@ -18,11 +19,11 @@ Some PyLucid Features are:
 
 good startpoints are:
 
-`Test PyLucid v0.9 with a built-in http server
-<http://www.pylucid.org/permalink/276/guide-for-testing-v09-usefull-for-developers>`_
+`How to install PyLucid
+<http://www.pylucid.org/permalink/70/how-to-install-pylucid>`_
 
-`Setup PyLucid v0.9 for apache
-<http://www.pylucid.org/permalink/273/install-instruction-for-apache-mod_rewrite-fastcgi>`_
+`Guide for testing v0.9 usefull for developers
+<http://www.pylucid.org/permalink/276/guide-for-testing-v09-usefull-for-developers>`_
 
 
 =======
@@ -38,11 +39,8 @@ good startpoints are:
 :IRC:
  #pylucid on freenode.net
 
-:Bug tracker:
-  http://trac.pylucid.net/
+:Sourcode and bug tracker:
+  http://github.com/jedie/PyLucid
 
 :Sourceforge:
   http://sourceforge.net/projects/pylucid/
-
-
-*(Readme text $Rev$)*
