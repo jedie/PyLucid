@@ -65,7 +65,7 @@ class LexiconPluginTestCase(basetest.BaseLanguageTestCase):
         '<dd>PyLucid CMS</dd>',
         '<dt>Kurzdefinition:</dt>',
         '<p>Diese Seiten werden mit PyLucid CMS generiert ;)</p>',
-        'Leave a comment</a>', # comments
+        'Kommentar hinterlassen</a>', # comments
     )
     ENTRY_MUST_CONTAIN_ES = (
         '<a href="/es/lexicon/detail/Spanish/" title="Spanish: Spanish is a language ;)"', # breadcrumbs
