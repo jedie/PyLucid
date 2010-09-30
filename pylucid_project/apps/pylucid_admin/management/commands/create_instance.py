@@ -87,7 +87,7 @@ class Command(BaseCommand):
         self.verbosity = int(options.get('verbosity', 1))
 
         if len(args) != 1:
-            raise CommandError("missing self.destination argument!")
+            raise CommandError("missing destination path argument!")
 
         self.destination = os.path.abspath(args[0])
         self.destination = os.path.normpath(self.destination)
