@@ -71,7 +71,7 @@ def _cache_backend_test(request, out):
         if cached_content != None:
             out.write(_("\t* Error: entry not deleted!"))
 
-    out.write(_("\nmore info:"))
+    out.write("\n" + _("more info:"))
     out.write(mark_safe('\t<a href="http://www.pylucid.org/permalink/139/advanced-steps">PyLucid advanced install steps</a>'))
     out.write(mark_safe(_('\t<a href="http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache">django cache documentation</a>')))
 
@@ -106,7 +106,7 @@ def _headfile_cache_test(request, out):
             test_url(headfile, None)
 
     if not all_ok:
-        out.write(_("\nmore info:"))
+        out.write("\n" + _("more info:"))
         out.write("\t1." + _("Check why the python process can't cachen the files."))
         out.write("\t2." + _('Set settings.PYLUCID.CACHE_DIR="" to disable headfile cache.'))
         out.write(mark_safe('read: <a href="http://www.pylucid.org/permalink/139/advanced-steps">PyLucid advanced install steps</a>'))
@@ -164,7 +164,8 @@ def base_check(request):
             "*** Error: settings.DEBUG in on!"
             " (Should be off in productive environments!)"
         )
-        out.write("\tSee: http://docs.djangoproject.com/en/dev/ref/settings/#debug")
+        out.write("\n" + _("more info:"))
+        out.write(mark_safe('\t<a href="http://docs.djangoproject.com/en/dev/ref/settings/#debug">django documentation</a>'))
     else:
         out.write("settings.DEBUG, ok")
     out.write("\n" + "- " * 40)
@@ -185,7 +186,8 @@ def base_check(request):
             "\n*** Error: settings.SECRET_KEY not set!"
             " (You should add it into local-settings.py!)"
         )
-        out.write("\tSee: http://docs.djangoproject.com/en/dev/ref/settings/#secret-key")
+        out.write("\n" + _("more info:"))
+        out.write(mark_safe('\t<a href="http://docs.djangoproject.com/en/dev/ref/settings/#secret-key">django documentation</a>'))
     else:
         out.write("\nsettings.SECRET_KEY, ok.")
     out.write("\n" + "- " * 40)
