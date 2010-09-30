@@ -119,9 +119,6 @@ def copytree2(src, dst, ignore, ignore_path=None):
 
     try:
         shutil.copystat(src, dst)
-    except WindowsError:
-        # can't copy file access times on Windows
-        pass
     except OSError, why:
         errors.extend((src, dst, str(why)))
 
@@ -137,15 +134,15 @@ class StandalonePackageMaker(object):
         self.dest_package_dir = os.path.join(self.dest_dir, "PyLucid_standalone")
         self.pylucid_env_dir = os.path.abspath(pylucid_env_dir)
         self.pylucid_dir = os.path.join(self.pylucid_env_dir, "src", "pylucid")
-        
+
         self.precheck()
-        
+
         print "\nuse %r as source" % self.pylucid_env_dir
         print "create standalone package in %r\n" % self.dest_package_dir
-        
+
         self.pylucid_version = self.get_pylucid_version()
         print "found: PyLucid v%s\n" % self.pylucid_version
-        
+
         self.check_if_dest_exist()
         self.copy_packages()
         self.copy_standalone_script_files()
@@ -154,30 +151,30 @@ class StandalonePackageMaker(object):
         self.hardcode_version_string()
         self.merge_static_files()
         self.copy_wsgiref()
-        
-        print   
+
+        print
         print "_" * 79
         print "Create 7zip and zip archive files in '%s' ?" % self.dest_dir
         print
         raw_input("(Press any key or abort with Strg-C)")
-        
+
         archive_file_prefix = os.path.join(self.dest_dir,
             "PyLucid_standalone_%s" % self.pylucid_version.replace(".", "-")
         )
         self.create_archive(archive_file_prefix + ".7z", switches=["-t7z"])
         self.create_archive(archive_file_prefix + ".zip", switches=["-tzip"])
-        
-        
+
+
     def precheck(self):
         if not os.path.isdir(self.pylucid_env_dir):
             print "Wrong PYLUCID_ENV_DIR: %r doesn't exist." % self.pylucid_env_dir
             sys.exit(3)
-    
+
         test_file = os.path.join(self.pylucid_env_dir, "bin", "activate_this.py")
         if not os.path.isfile(test_file):
             print "Wrong PYLUCID_ENV_DIR: %r doesn't exist." % test_file
             sys.exit(3)
-            
+
     def get_pylucid_version(self):
         process = subprocess.Popen(
            [os.path.join(self.pylucid_env_dir, "bin", "python"), "setup.py", "--version"],
@@ -185,14 +182,14 @@ class StandalonePackageMaker(object):
         )
         pylucid_version = process.stdout.readline().strip()
         return pylucid_version
-    
+
     def check_if_dest_exist(self):
         if os.path.isdir(self.dest_package_dir):
             print "Error: destination dir %r exist!" % self.dest_package_dir
             if raw_input("Delete the entire directory tree? [y/n]").lower() not in ("y", "j"):
                 print "Abort!"
                 sys.exit(1)
-    
+
             print "delete tree...",
             shutil.rmtree(self.dest_package_dir)
             print "OK"
@@ -200,43 +197,43 @@ class StandalonePackageMaker(object):
                 raw_input("Path exist?!?!? continue? (Abort with Strg-C)")
         else:
             raw_input("continue? (Abort with Strg-C)")
-            
+
     def copy_packages(self):
         lib_dir = os.path.join(self.pylucid_env_dir, "lib")
         lib_sub_dirs = os.listdir(lib_dir)
         if len(lib_sub_dirs) != 1:
             print "Error: Wrong sub dirs in %r" % lib_dir
             sys.exist(3)
-    
+
         python_lib_dir = lib_sub_dirs[0]
         if not python_lib_dir.startswith("python"):
             print "Error: %r doesn't start with python!" % python_lib_dir
             sys.exist(3)
-    
+
         site_packages_dir = os.path.join(lib_dir, python_lib_dir, "site-packages")
-    
+
         dirs_to_copy = [
             ("PyLucid", os.path.join(self.pylucid_dir, "pylucid_project")),
             ("Django", os.path.join(self.pylucid_env_dir, "src", "django", "django")),
             ("dbpreferences", os.path.join(self.pylucid_env_dir, "src", "dbpreferences", "dbpreferences")),
             ("django-tools", os.path.join(self.pylucid_env_dir, "src", "django-tools", "django_tools")),
             ("python-creole", os.path.join(self.pylucid_env_dir, "src", "python-creole", "creole")),
-    
+
             ("django-dbtemplates", os.path.join(site_packages_dir, "dbtemplates")),
             ("django-reversion", os.path.join(site_packages_dir, "reversion")),
             ("django-tagging", os.path.join(site_packages_dir, "tagging")),
-    
+
             ("Pygments", os.path.join(site_packages_dir, "pygments")),
         ]
         files_to_copy = [
             ("feedparser", os.path.join(site_packages_dir, "feedparser.py")),
         ]
-    
+
         for dir_info in dirs_to_copy:
             if not os.path.isdir(dir_info[1]):
                 print "Error: %r doesn't exist!" % dir_info[1]
                 sys.exist(3)
-    
+
         for file_info in files_to_copy:
             if not os.path.isfile(file_info[1]):
                 print "Error: file %r not found!" % file_info[1]
@@ -244,7 +241,7 @@ class StandalonePackageMaker(object):
 
         #----------------------------------------------------------------------
         print
-        
+
         # Don't copy existing external_plugins and not local test plugins ;)
         ignore_path = []
         external_plugins = os.path.join(self.pylucid_dir, "pylucid_project", "external_plugins")
@@ -253,7 +250,7 @@ class StandalonePackageMaker(object):
                 continue
             full_path = os.path.join(external_plugins, dir_item)
             ignore_path.append(full_path)
-            
+
         # Copy only PyLucid media files and not local test files ;)
         media_path = os.path.join(self.pylucid_dir, "pylucid_project", "media")
         for dir_item in os.listdir(media_path):
@@ -261,7 +258,7 @@ class StandalonePackageMaker(object):
                 continue
             full_path = os.path.join(media_path, dir_item)
             ignore_path.append(full_path)
-    
+
         for package_name, path in dirs_to_copy:
             print "_" * 79
             print "copy %s" % package_name
@@ -276,10 +273,10 @@ class StandalonePackageMaker(object):
                 print "copytree2 error: %s" % why
             else:
                 print "OK"
-    
+
         #----------------------------------------------------------------------
         print
-    
+
         for module_name, path in files_to_copy:
             print "_" * 79
             print "copy %s" % module_name
@@ -292,7 +289,7 @@ class StandalonePackageMaker(object):
                 print "OK"
 
     def copy_standalone_script_files(self):
-        print    
+        print
         print "_" * 79
         print "copy standalone script files"
         src = os.path.join(self.pylucid_dir, "scripts", "standalone")
@@ -303,15 +300,15 @@ class StandalonePackageMaker(object):
             print "copytree2 error: %s" % why
         else:
             print "OK"
-            
+
     def chmod(self):
-        print    
+        print
         print "_" * 79
         print "make files executeable"
         for filename in EXECUTEABLE_FILES:
             filepath = os.path.join(self.dest_package_dir, filename)
-            print "chmod 0777 %s" % filepath
-            os.chmod(filepath, 0777)
+            print "chmod 0755 %s" % filepath
+            os.chmod(filepath, 0755)
 
     def remove_pkg_check(self):
         """
@@ -325,7 +322,7 @@ class StandalonePackageMaker(object):
         pylucid_app_init = os.path.join(pylucid_app, "__init__.py")
         print "Remove pkg_resources.require() check, by overwrite:"
         print pylucid_app_init
-    
+
         f = open(pylucid_app_init, 'w')
         f.write(PKG_CHECK_CONTENT % __file__)
         f.close()
@@ -341,14 +338,14 @@ class StandalonePackageMaker(object):
         version_file = os.path.join(self.dest_package_dir, "pylucid_project", "__init__.py")
         print "'hardcode' PyLucid version string, by overwrite:"
         print version_file
-    
+
         version_string2 = []
         for part in self.pylucid_version.split("."):
             if part.isdigit():
                 part = int(part)
             version_string2.append(part)
         version_string2 = repr(tuple(version_string2))
-    
+
         f = open(version_file, "w")
         f.write(PROJECT_INIT_FILE % (__file__, version_string2, self.pylucid_version))
         f.close()
@@ -371,13 +368,13 @@ class StandalonePackageMaker(object):
         print "_" * 79
         print "move PyLucid/Django static media files together"
         dest_media = os.path.join(self.dest_package_dir, "media")
-    
+
         pylucid_src_media = os.path.join(self.dest_package_dir, "pylucid_project", "media")
         pylucid_dst_media = os.path.join(dest_media)
         print "move files from %s to %s" % (pylucid_src_media, pylucid_dst_media)
         shutil.move(pylucid_src_media, pylucid_dst_media)
         print "OK"
-    
+
         django_src_media = os.path.join(self.dest_package_dir, "django", "contrib", "admin", "media")
         django_dst_media = os.path.join(dest_media, "django")
         print "move files from %s to %s" % (django_src_media, django_dst_media)
@@ -406,7 +403,7 @@ class StandalonePackageMaker(object):
         if os.path.isfile(archive_file):
             # Delete old archive, otherwise 7zip add new files
             os.remove(archive_file)
-    
+
         seven_zip = "/usr/bin/7z"
         cmd = [seven_zip, "a", "-mx9"] + switches + [archive_file, self.dest_package_dir]
         print "run:\n%s" % " ".join(cmd)
@@ -420,7 +417,7 @@ class StandalonePackageMaker(object):
                 print "e.g.: sudo aptitude install p7zip-full"
                 sys.exit(2)
             raise
-    
+
         while True:
             line = process.stdout.readline()
             if not line:
@@ -432,7 +429,7 @@ class StandalonePackageMaker(object):
                 sys.stdout.write('\r' + line)
             else:
                 print line
-    
+
         print "OK"
 
 
@@ -441,8 +438,8 @@ class StandalonePackageMaker(object):
 def main():
     parser = optparse.OptionParser(version=VERSION_STRING, usage=USAGE)
     options, args = parser.parse_args()
-    
-#    args = (os.path.expanduser("~/PyLucid_env"), os.path.expanduser("~"))
+
+    args = (os.path.expanduser("~/PyLucid_env"), os.path.expanduser("~/servershare"))
 
     if len(args) != 2:
         print(
