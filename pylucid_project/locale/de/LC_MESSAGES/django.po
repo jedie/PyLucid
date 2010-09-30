@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PyLucid v0.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-30 13:42+0000\n"
-"PO-Revision-Date: 2010-09-30 15:51+0200\n"
+"POT-Creation-Date: 2010-09-30 15:11+0000\n"
+"PO-Revision-Date: 2010-09-30 17:12+0200\n"
 "Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
 "Language-Team: - <>\n"
 "MIME-Version: 1.0\n"
@@ -1797,7 +1797,7 @@ msgstr "Diesen Kommentar löschen."
 #: pylucid_plugins/pylucid_comments/templates/comments/list.html:42
 #, python-format
 msgid "there exist no comment for '%(name)s'"
-msgstr "Es existiert keine Kommentar für '%(name)s'"
+msgstr "Es existiert kein Kommentar für '%(name)s'"
 
 #: pylucid_plugins/pylucid_comments/templates/comments/preview.html:3
 msgid "Preview your comment"
@@ -1829,15 +1829,26 @@ msgstr "Abschicken"
 #, python-format
 msgid ""
 "\n"
-"  %(comment_count)s comment%(s)s for '%(name)s':\n"
+"        %(counter)s comment for '%(name)s':\n"
+"    "
+msgid_plural ""
+"\n"
+"        %(counter)s comments for '%(name)s':\n"
+"    "
+msgstr[0] ""
+"\n"
+"  %(counter)s Kommentar für '%(name)s':\n"
 "  "
-msgstr ""
+msgstr[1] ""
+"\n"
+"  %(counter)s Kommentare für '%(name)s':\n"
+"  "
 
-#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/comments.html:13
+#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/comments.html:15
 msgid "loading..."
 msgstr "laden..."
 
-#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/comments.html:14
+#: pylucid_plugins/pylucid_comments/templates/pylucid_comments/comments.html:16
 msgid "Leave a comment"
 msgstr "Kommentar hinterlassen"
 
@@ -1928,6 +1939,8 @@ msgstr "\t* Fehler: Eintrag nicht gelöscht!"
 
 #: pylucid_plugins/system/admin_views.py:74
 #: pylucid_plugins/system/admin_views.py:109
+#: pylucid_plugins/system/admin_views.py:167
+#: pylucid_plugins/system/admin_views.py:189
 msgid "more info:"
 msgstr "Mehr Info auf:"
 

@@ -4,11 +4,13 @@
 {% block plugin_content %}
 {% get_comment_count for object2comment as comment_count %}
 <fieldset class="comments">
-<legend>
-  {% blocktrans with comment_count|pluralize:"s" as s and object2comment.get_name as name %}
-  {{ comment_count }} comment{{ s }} for '{{ name }}':
-  {% endblocktrans %}
-</legend>
+  <legend>
+    {% blocktrans with object2comment.get_name as name count comment_count as counter %}
+        {{ counter }} comment for '{{ name }}':
+    {% plural %}
+        {{ counter }} comments for '{{ name }}':
+    {% endblocktrans %}
+  </legend>
   {% render_comment_list for object2comment %}
   <h2 id="comments_commit_status" style="display:none;">{% trans "loading..." %}</h2>
   <a href="JavaScript:get_pylucid_comments_form();" id="leave_comment_link">{% trans "Leave a comment" %}</a>
