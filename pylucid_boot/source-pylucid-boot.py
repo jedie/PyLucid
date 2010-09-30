@@ -178,7 +178,7 @@ def after_install(options, home_dir):
     subprocess.call(cmd, **defaults)
 
     # copy manage.sh into env root directory
-    source_path = os.path.join(home_dir, "src", "pylucid", "scripts", "manage.sh")
+    source_path = os.path.join(home_dir, "src", "pylucid", "scripts", "create_page_instance.sh")
     verbose_copy(source_path, home_dir)
 
 
