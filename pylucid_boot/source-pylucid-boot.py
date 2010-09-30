@@ -113,13 +113,14 @@ def extend_parser(parser):
 
 def adjust_options(options, args):
     """
-    You can change options here, or change the args (if you accept
-    different kinds of arguments, be sure you modify ``args`` so it is
-    only ``[DEST_DIR]``).
+    Display MENU_TXT
     """
+    try:
+        home_dir = args[0]
+    except IndexError:
+        return # Error message would be created later
 
-    print "\nCreate PyLucid environment in:", args[0]
-
+    print "\nCreate PyLucid environment in:", home_dir
     if options.pip_type == None:
         options.pip_type = get_requirement_choice()
 
