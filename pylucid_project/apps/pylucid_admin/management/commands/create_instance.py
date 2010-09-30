@@ -9,10 +9,11 @@
     :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
+from optparse import make_option
+import codecs
 import os
 import shutil
-import codecs
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -24,14 +25,29 @@ ENV_PATH_PLACEHOLDER = '"/please/insert/path/to/PyLucid_env/'
 class Command(BaseCommand):
     verbosity = True
 
-    help = 'Create a PyLucid page instance'
-    args = 'self.destination'
+    help = (
+        "Create a PyLucid page instance\n"
+        "destination should be the absolute path for the new page instance."
+    )
+    args = 'destination'
 
     option_list = BaseCommand.option_list
 
+    def _set_file_rights(self, *files):
+        if self.verbosity:
+                self.stdout.write("\n")
+        for filename in files:
+            filepath = os.path.join(self.destination, filename)
+            assert os.path.isfile(filepath)
+            if self.verbosity:
+                self.stdout.write("set chmod 0755 to: %r\n" % filepath)
+            os.chmod(filepath, 0755)
+        if self.verbosity:
+                self.stdout.write("\n")
+
     def _verbose_copy(self, src, dst):
         if self.verbosity:
-            self.stdout.write("\ncopy: %r\nto: %r\n\n" % (src, dst))
+            self.stdout.write("\ncopy: %r\nto: %r\n" % (src, dst))
         shutil.copy2(src, dst)
 
     def _copy_scripts(self, filepath, rel_destination):
@@ -57,10 +73,15 @@ class Command(BaseCommand):
         f.write(content)
         f.close()
         if self.verbosity:
-            self.stdout.write("\nUpdate env path in %r\n" % filepath)
+            self.stdout.write("Update env path in %r\n" % filepath)
 
-    def _patch_env_path(self, filename):
-        self._patch_file(filename, ENV_PATH_PLACEHOLDER, '"%s/' % self.virtual_env_path)
+    def _patch_env_path(self, *files):
+        if self.verbosity:
+                self.stdout.write("\n")
+        for filename in files:
+            self._patch_file(filename, ENV_PATH_PLACEHOLDER, '"%s/' % self.virtual_env_path)
+        if self.verbosity:
+                self.stdout.write("\n")
 
     def handle(self, *args, **options):
         self.verbosity = int(options.get('verbosity', 1))
@@ -78,7 +99,7 @@ class Command(BaseCommand):
         self.stdout.write("\n\n")
 
         self.stdout.write("source..........: %s\n" % settings.PYLUCID_BASE_PATH)
-        self.stdout.write("destination.....: %s\n" % self.destination)
+        self.stdout.write("destination.....: %s\n" % self.style.HTTP_INFO(self.destination))
 
         self.virtual_env_path = os.path.normpath(os.environ["VIRTUAL_ENV"])
         self.stdout.write("env path........: %s\n" % self.virtual_env_path)
@@ -92,6 +113,12 @@ class Command(BaseCommand):
                 self.stderr.write("Abort.\n")
                 return
         else:
+            self.stderr.write(self.style.SQL_COLTYPE("Is destination path ok (y/n) ?"))
+            input = raw_input()
+            if input.lower() not in ("y", "j"):
+                self.stderr.write("Abort.\n")
+                return
+
             if self.verbosity:
                 self.stdout.write("create %r\n" % self.destination)
             os.makedirs(self.destination)
@@ -109,9 +136,12 @@ class Command(BaseCommand):
         self.stdout.write("\n")
 
 
-        self._patch_env_path("manage.py")
-        self._patch_env_path("index.fcgi")
-        self._patch_env_path("index.cgi")
+        # Set path to PyLucid_env in file content:
+        self._patch_env_path("manage.py", "index.fcgi", "index.cgi")
+
+        # Set chmod 0755 to files:
+        self._set_file_rights("manage.py", "index.fcgi", "index.cgi")
+
 
         media_source = os.path.join(settings.PYLUCID_BASE_PATH, "media")
         media_dest = os.path.join(self.destination, "media")
