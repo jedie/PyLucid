@@ -27,10 +27,11 @@ Please select how the pylucid own projects should be checkout:
 
 (1) Python packages from PyPi (no SVN or git needed)
 (2) source via SVN only (checkout git repository via github svn gateway)
-(3) source via git and clone with readonly
+(3) source via git and clone with readonly **preferred**
 (4) clone with git push access (Only for PyLucid collaborators)
 (5) abort
 """
+DEFAULT_MENU_CHOICE = 3
 
 PIP_INSTALL_DATA = {
     1: [# *** use python packages from PyPi
@@ -77,13 +78,15 @@ def get_requirement_choice():
         print MENU_TXT
 
         try:
-            input = raw_input("Please select: [%s] (default: 1) " % KEYS_STRING)
+            input = raw_input(
+                "Please select: [%s] (default: %s) " % (KEYS_STRING, DEFAULT_MENU_CHOICE)
+            )
         except KeyboardInterrupt:
             sys.exit(-1)
 
         print
         if input == "":
-            return 1
+            return DEFAULT_MENU_CHOICE
         try:
             number = int(input)
         except ValueError:
@@ -114,12 +117,20 @@ def adjust_options(options, args):
     different kinds of arguments, be sure you modify ``args`` so it is
     only ``[DEST_DIR]``).
     """
+
+    print "\nCreate PyLucid environment in:", args[0]
+
     if options.pip_type == None:
         options.pip_type = get_requirement_choice()
 
     if options.pip_type not in PIP_INSTALL_DATA:
         print "pip type wrong!"
         sys.exit(101)
+
+
+def verbose_copy(src, dst):
+    print("\ncopy: %r\nto: %r\n" % (src, dst))
+    shutil.copy2(src, dst)
 
 
 def after_install(options, home_dir):
@@ -165,6 +176,10 @@ def after_install(options, home_dir):
     cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + LIBS
     print " ".join(cmd)
     subprocess.call(cmd, **defaults)
+
+    # copy manage.sh into env root directory
+    source_path = os.path.join(home_dir, "src", "pylucid", "scripts", "manage.sh")
+    verbose_copy(source_path, home_dir)
 
 
 # PyLucid bootstrap script END
