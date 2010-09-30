@@ -17,9 +17,16 @@ import shutil
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+import random
 
 
 ENV_PATH_PLACEHOLDER = '"/please/insert/path/to/PyLucid_env/'
+ADDITIONAL_SETTINGS = """
+# A secret key for this particular Django installation.
+# Used to provide a seed in secret-key hashing algorithms.
+# Set this to a random string -- the longer, the better.
+SECRET_KEY="%s"
+"""
 
 
 class Command(BaseCommand):
@@ -56,7 +63,7 @@ class Command(BaseCommand):
         dst = os.path.join(self.destination, rel_destination)
         self._verbose_copy(source_path, dst)
 
-    def _patch_file(self, filename, placeholder, new_value):
+    def _patch_file(self, filename, placeholder, new_value, additional_content=None):
         filepath = os.path.join(self.destination, filename)
         f = codecs.open(filepath, "r", encoding="utf-8")
         content = f.read()
@@ -68,7 +75,11 @@ class Command(BaseCommand):
             f.close()
             return
 
-        content = content.replace(placeholder, new_value)
+        content = content.replace(placeholder, new_value)#
+
+        if additional_content:
+            content += additional_content
+
         f = codecs.open(filepath, "w", encoding="utf-8")
         f.write(content)
         f.close()
@@ -147,9 +158,14 @@ class Command(BaseCommand):
         media_source = os.path.join(settings.PYLUCID_BASE_PATH, "media")
         media_dest = os.path.join(self.destination, "media")
 
+        secret_key = ''.join(
+            [random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]
+        )
+
         self._patch_file("local_settings.py",
             'MEDIA_ROOT = "/var/www/YourSite/media/"',
-            'MEDIA_ROOT = "%s"' % media_dest
+            'MEDIA_ROOT = "%s"' % media_dest,
+            additional_content=ADDITIONAL_SETTINGS % secret_key
         )
 
 
