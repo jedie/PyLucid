@@ -20,7 +20,13 @@ function OpenInWindow(link) {
     log("OpenInWindow()");
     var url = $(link).attr("href");
     log("url:" + url);
-    win = window.open(url, "", "width=900, height=760, dependent=yes, resizable=yes, scrollbars=yes");
+    
+    window_name=url;
+    window_name = window_name.indexOf('?') > -1 ? window_name.substr(0, window_name.indexOf('?')) : window_name;
+    window_name = window_name.indexOf('#') > -1 ? window_name.substr(0, window_name.indexOf('#')) : window_name;
+    log("window name:" + window_name);
+    
+    win = window.open(url, window_name, "width=900, height=760, dependent=yes, resizable=yes, scrollbars=yes");
     win.focus();
     return false;
 }
@@ -28,7 +34,7 @@ function OpenInWindow(link) {
 
 function replace_complete_page(html) {
     // replace the complete page
-    document.open() // no append available since it is closed
+    document.open(); // no append available since it is closed
     document.write(html);
     document.close();
 }
@@ -48,7 +54,7 @@ function replace_page_content(data, textStatus) {
         log("redirect work-a-round: replace the complete page");
 		log(data);
         log("</body> index:" + data.indexOf("</body>"));
-        replace_complete_page(data)
+        replace_complete_page(data);
     } else {
         // log("put in #page_content:" + data);
 		if ($("#page_content").length == 0) {
