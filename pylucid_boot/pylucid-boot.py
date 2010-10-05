@@ -1274,7 +1274,7 @@ def get_requirement_choice():
     """
     Display menu and select a number.
     """
-    input_msg = "%s: [%s] (default: %s) " % (
+    input_msg = "%s [%s] (default: %s) " % (
         c.colorize("Please select:", opts=("bold",)),
         KEYS_STRING, c.colorize(DEFAULT_MENU_CHOICE, opts=("bold",))
     )
