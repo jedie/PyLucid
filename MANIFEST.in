@@ -1,5 +1,5 @@
 include AUTHORS
-include README
+include README.rst
 recursive-include pylucid_project/locale *
 recursive-include pylucid_project/media *
 recursive-exclude pylucid_project/media/PyLucid/headfile_cache *

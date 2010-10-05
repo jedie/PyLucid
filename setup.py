@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
     PyLucid distutils setup
@@ -10,7 +10,6 @@
 """
 
 import os
-import sys
 
 from setuptools import setup, find_packages
 
@@ -32,7 +31,7 @@ def get_authors():
 
 def get_long_description():
     try:
-        f = file(os.path.join(PACKAGE_ROOT, "README.textile"), "r")
+        f = file(os.path.join(PACKAGE_ROOT, "README.rst"), "r")
         long_description = f.read().strip()
         f.close()
     except Exception, err:
