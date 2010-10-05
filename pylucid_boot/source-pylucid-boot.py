@@ -87,6 +87,9 @@ class SysPath(object):
 
 class ColorOut(object):
     """
+    Borrowed from Django:
+    http://code.djangoproject.com/browser/django/trunk/django/utils/termcolors.py
+    
     >>> c = ColorOut()
     >>> c.supports_colors()
     True

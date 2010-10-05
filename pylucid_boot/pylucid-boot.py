@@ -1151,7 +1151,7 @@ LIBS = [
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
-(1) Python packages from PyPi (no SVN or git needed)
+(1) Python packages from PyPi (no SVN or git needed, not supported, yet!)
 (2) source via SVN only (checkout git repository via github svn gateway)
 (3) source via git and clone with readonly **preferred**
 (4) clone with git push access (Only for PyLucid collaborators)
@@ -1214,6 +1214,9 @@ class SysPath(object):
 
 class ColorOut(object):
     """
+    Borrowed from Django:
+    http://code.djangoproject.com/browser/django/trunk/django/utils/termcolors.py
+    
     >>> c = ColorOut()
     >>> c.supports_colors()
     True
