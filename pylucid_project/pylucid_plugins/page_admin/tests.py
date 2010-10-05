@@ -312,6 +312,45 @@ class PageAdminTest(PageAdminTestCase):
             )
         )
 
+
+class PageAdminHelperViewsTest(PageAdminTestCase):
+
+    def test_markup_help(self):
+        self.login("superuser")
+        url = reverse("PageAdmin-markup_help")
+        url += "?markup_id=%s" % MARKUP_CREOLE
+        response = self.client.get(url)
+        self.assertResponse(response,
+            must_contain=(
+                "<title>PyLucid - creole markup help</title>",
+                '<option value="6" selected="selected">Creole wiki markup</option>',
+                "creole_cheat_sheet.png",
+                "creole macros",
+            ),
+            must_not_contain=(
+                "XXX INVALID TEMPLATE STRING", "Traceback",
+                "errorlist", "This field is required.",
+            )
+        )
+
+    def test_page_list(self):
+        self.login("superuser")
+        url = reverse("PageAdmin-page_list")
+        url += "?markup_id=%s" % MARKUP_CREOLE
+        response = self.client.get(url)
+        self.assertResponse(response,
+            must_contain=(
+                "<title>PyLucid - page list</title>",
+                '<option value="6" selected="selected">Creole wiki markup</option>',
+                "list of all accessable pages",
+                "value='[[/permalink/1/welcome-to-your-pylucid-cms-|Welcome to your PyLucid CMS =;-)]]'",
+            ),
+            must_not_contain=(
+                "XXX INVALID TEMPLATE STRING", "Traceback",
+                "errorlist", "This field is required.",
+            )
+        )
+
 class PageAdminInlineEditTest(PageAdminTestCase):
     """
     Test with a user witch are logged in and has ADD_PERMISSION
@@ -437,11 +476,11 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminTest.test_rename_slug",
-        verbosity=2,
-        failfast=True
-    )
-#    management.call_command('test', __file__,
+#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminHelperViewsTest",
 #        verbosity=2,
-#        failfast=True
+##        failfast=True
 #    )
+    management.call_command('test', __file__,
+        verbosity=2,
+#        failfast=True
+    )

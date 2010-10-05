@@ -90,22 +90,22 @@ jQuery(document).ready(function($) {
         </td>
         <td title="for copy&amp;paste into your cms page">
             <input type="text" class="example_link" value='{% spaceless %}
-                {% if markup_id_str in "01" %} {# html #}
+                {% if markup_id == 0 or markup_id == 1 %} {# html #}
                     &lt;a href="{{ node.pagemeta.get_permalink }}"&gt;{{ node.pagemeta.get_title }}&lt;/a&gt;
                 {% endif %}
-                {% if markup_id_str == "2" %} {# tinyTextile #}
+                {% if markup_id == 2 %} {# tinyTextile #}
                 	[{{ node.pagemeta.get_permalink }} {{ node.pagemeta.get_title }}]
                 {% endif %}
-                {% if markup_id_str == "3" %} {# textile #}
+                {% if markup_id == 3 %} {# textile #}
                 	"{{ node.pagemeta.get_title }}":{{ node.pagemeta.get_permalink }}
                 {% endif %}
-                {% if markup_id_str == "4" %} {# markdown #}
+                {% if markup_id == 4 %} {# markdown #}
                 	[{{ node.pagemeta.get_name }}]({{ node.pagemeta.get_permalink }} "{{ node.pagemeta.get_title }}")
                 {% endif %}
-                {% if markup_id_str == "5" %} {# ReSt #}
+                {% if markup_id == 5 %} {# ReSt #}
                 	`{{ node.pagemeta.get_title }} &lt;{{ node.pagemeta.get_permalink }}&gt;`_
                 {% endif %}
-                {% if markup_id_str == "6" %} {# creole #}
+                {% if markup_id == 6 %} {# creole #}
                     [[{{ node.pagemeta.get_permalink }}|{{ node.pagemeta.get_title }}]]
                 {% endif %}
                 {% endspaceless %}'></input>

@@ -7,18 +7,8 @@
     List all available lucidTag
 """
 
-import inspect
-
-from django.template import RequestContext
-from django.utils.translation import ugettext as _
-
-from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-
-
-from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta
-from pylucid_project.utils.escape import escape
+from pylucid_project.apps.pylucid.models import PageTree
 
 from page_admin.forms import SelectMarkupForm
 
@@ -37,12 +27,12 @@ def page_list(request):
     # add all PageMeta objects into tree
     tree.add_pagemeta(request)
 
-    markup_id_str = None
+    markup_id = None
 
     if request.method == 'GET':
         form = SelectMarkupForm(request.GET)
         if form.is_valid():
-            markup_id_str = form.cleaned_data["markup"]
+            markup_id = form.cleaned_data["markup_id"]
     else:
         form = SelectMarkupForm()
 
@@ -50,7 +40,7 @@ def page_list(request):
         "title": "page list",
         "form": form,
         "form_url": request.path,
-        "markup_id_str": markup_id_str,
+        "markup_id": markup_id,
         "tree": tree,
     }
     return context

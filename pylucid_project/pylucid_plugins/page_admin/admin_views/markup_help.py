@@ -12,7 +12,7 @@ from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup.hightlighter import get_pygments_css
 from pylucid_project.apps.pylucid.markup import MARKUP_SHORT_DICT
 
-from page_admin.forms import SelectMarkupHelpForm
+from page_admin.forms import SelectMarkupForm
 
 
 @render_to()
@@ -20,24 +20,16 @@ from page_admin.forms import SelectMarkupHelpForm
 def markup_help(request):
     """ Display a help page for a markup given via GET parameter """
 
-    #~ MARKUP_CREOLE = 6
-    #~ MARKUP_HTML = 0
-    #~ MARKUP_HTML_EDITOR = 1
-    #~ MARKUP_TINYTEXTILE = 2
-    #~ MARKUP_TEXTILE = 3
-    #~ MARKUP_MARKDOWN = 4
-    #~ MARKUP_REST = 5
-
     # Fallback: Use 'markup_help_base.html' template, if markup_id is wrong
     short_markup_name = "base"
 
     if request.method == 'GET':
-        form = SelectMarkupHelpForm(request.GET)
+        form = SelectMarkupForm(request.GET)
         if form.is_valid():
-            markup_id = form.cleaned_data["markup"]
+            markup_id = form.cleaned_data["markup_id"]
             short_markup_name = MARKUP_SHORT_DICT[markup_id]
     else:
-        form = SelectMarkupHelpForm()
+        form = SelectMarkupForm()
 
     template_name = "page_admin/markup_help_%s.html" % short_markup_name
 

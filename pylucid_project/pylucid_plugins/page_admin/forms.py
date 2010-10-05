@@ -10,7 +10,6 @@ from update_journal.models import UpdateJournal
 from pylucid_comments.models import PyLucidComment
 
 from pylucid_project.apps.pylucid.markup import MARKUP_CHOICES, MARKUP_CREOLE, \
-    MARKUP_TINYTEXTILE, MARKUP_TEXTILE, MARKUP_MARKDOWN, MARKUP_REST, \
     MARKUP_HTML, MARKUP_HTML_EDITOR
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, \
                                                                             Design, Language
@@ -92,36 +91,12 @@ class ConvertMarkupForm(forms.ModelForm):
 
 class SelectMarkupForm(forms.Form):
     """ for page list admin view """
-    markup = forms.ChoiceField(
+    markup_id = forms.ChoiceField(
         choices=MARKUP_CHOICES,
         help_text=_("switch to other markup format"),
     )
-
-
-class SelectMarkupHelpForm(forms.Form):
-    """
-    For markup help admin view
-    There ist no help page for html code
-    """
-#    MARKUP_CHOICES = _markup_choices(
-#            MARKUP_CREOLE,
-#            MARKUP_TINYTEXTILE,
-#            MARKUP_TEXTILE,
-#            MARKUP_MARKDOWN,
-#            MARKUP_REST,
-#    )
-    markup = forms.ChoiceField(
-        choices=MARKUP_CHOICES,
-        help_text=_("switch to other markup help"),
-    )
-    def clean_markup(self):
-        return int(self.cleaned_data['markup'])
-
-
-#    class Meta:
-#        model = PageContent
-#        fields = ('markup',)
-
+    def clean_markup_id(self):
+        return int(self.cleaned_data['markup_id'])
 
 
 class PluginPageForm(forms.ModelForm):
