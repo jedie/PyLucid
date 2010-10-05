@@ -40,30 +40,30 @@ PIP_INSTALL_DATA = {
     ],
     2: [# use SVN
         # SVN Version from django:
-        "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
+        ("-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django"),
         # own sub projects
-        "-e", "svn+http://svn.github.com/jedie/python-creole.git#egg=python-creole",
-        "-e", "svn+http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences",
-        "-e", "svn+http://svn.github.com/jedie/django-tools.git#egg=django-tools",
-        "-e", "svn+http://svn.github.com/jedie/PyLucid.git#egg=pylucid",
+        ("-e", "svn+http://svn.github.com/jedie/python-creole.git#egg=python-creole"),
+        ("-e", "svn+http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences"),
+        ("-e", "svn+http://svn.github.com/jedie/django-tools.git#egg=django-tools"),
+        ("-e", "svn+http://svn.github.com/jedie/PyLucid.git#egg=pylucid"),
     ],
     3: [# git readonly clone
         # SVN Version from django:
-        "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
+        ("-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django"),
         # own sub projects
-        "-e", "git+git://github.com/jedie/python-creole.git#egg=python-creole",
-        "-e", "git+git://github.com/jedie/django-dbpreferences.git#egg=dbpreferences",
-        "-e", "git+git://github.com/jedie/django-tools.git#egg=django-tools",
-        "-e", "git+git://github.com/jedie/PyLucid.git#egg=pylucid",
+        ("-e", "git+git://github.com/jedie/python-creole.git#egg=python-creole"),
+        ("-e", "git+git://github.com/jedie/django-dbpreferences.git#egg=dbpreferences"),
+        ("-e", "git+git://github.com/jedie/django-tools.git#egg=django-tools"),
+        ("-e", "git+git://github.com/jedie/PyLucid.git#egg=pylucid"),
     ],
     4: [ # clone with git push access
         # SVN Version from django:
-        "-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django",
+        ("-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django"),
         # own sub projects
-        "-e", "git+git@github.com:jedie/python-creole.git#egg=python-creole",
-        "-e", "git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences",
-        "-e", "git+git@github.com:jedie/django-tools.git#egg=django-tools",
-        "-e", "git+git@github.com:jedie/PyLucid.git#egg=pylucid",
+        ("-e", "git+git@github.com:jedie/python-creole.git#egg=python-creole"),
+        ("-e", "git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences"),
+        ("-e", "git+git@github.com:jedie/django-tools.git#egg=django-tools"),
+        ("-e", "git+git@github.com:jedie/PyLucid.git#egg=pylucid"),
     ]
 }
 KEYS_STRING = ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
@@ -229,9 +229,69 @@ def adjust_options(options, args):
         sys.exit(101)
 
 
-def verbose_copy(src, dst):
-    print("\ncopy: %s\nto: %s\n" % (c.colorize(src, opts=("bold",)), c.colorize(dst, opts=("bold",))))
-    shutil.copy2(src, dst)
+class AfterInstall(object):
+    def __init__(self, options, home_dir):
+        self.options = options
+        self.home_dir = home_dir
+        self.logfile = os.path.abspath(os.path.join(home_dir, "PyLucid_pip.log"))
+        bin_dir = os.path.abspath(os.path.join(home_dir, "bin"))
+        self.easy_install = os.path.join(bin_dir, "easy_install")
+        self.pip_cmd = os.path.join(bin_dir, "pip")
+
+        self.subprocess_defaults = {
+            "cwd": bin_dir,
+            "env": {
+                "VIRTUAL_ENV": home_dir,
+                "PATH": bin_dir + ":" + os.environ["PATH"],
+            }
+        }
+
+    def run_cmd(self, cmd):
+        for part in cmd:
+            if part.startswith("/") or part.startswith("-"):
+                print c.colorize(part, foreground="blue"),
+            else:
+                print c.colorize(part, foreground="blue", opts=("bold",)),
+        print
+        subprocess.call(cmd, **self.subprocess_defaults)
+        print
+
+    def run_pip(self, info_text, pip_lines):
+        print
+        print c.colorize(info_text, foreground="green", opts=("bold", "underscore"))
+
+        for pip_line in pip_lines:
+            cmd = [self.pip_cmd, "install", "--verbose", "--log=%s" % self.logfile]
+            if isinstance(pip_line, (list, tuple)):
+                cmd += list(pip_line)
+            else:
+                cmd.append(pip_line)
+            self.run_cmd(cmd)
+
+    def install_pip(self):
+        print
+        print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
+        if os.path.isfile(self.pip_cmd):
+            print "Skip, pip exist at: %s\n" % c.colorize(self.pip_cmd, opts=("bold",))
+        else:
+            self.run_cmd([self.easy_install, '--always-copy', 'pip'])
+
+    def install_pylucid(self):
+        install_type = self.options.pip_type
+        install_data = PIP_INSTALL_DATA[install_type]
+        self.run_pip("install PyLucid projects", install_data)
+
+    def install_libs(self):
+        self.run_pip("install PyLucid libs", LIBS)
+
+    def copy_scripts(self):
+        # copy manage.sh into env root directory
+        source_path = os.path.join(self.home_dir, "src", "pylucid", "scripts", "create_page_instance.sh")
+        print("\ncopy: %s\nto: %s\n" % (
+            c.colorize(source_path, opts=("bold",)),
+            c.colorize(self.home_dir, opts=("bold",)))
+        )
+        shutil.copy2(source_path, self.home_dir)
 
 
 def after_install(options, home_dir):
@@ -239,50 +299,11 @@ def after_install(options, home_dir):
     called after virtualenv was created and setuptools installed.
     Now we installed PyLucid and used libs/packages.
     """
-    bin_dir = os.path.abspath(os.path.join(home_dir, "bin"))
-
-    defaults = {
-        "cwd": bin_dir,
-        "env": {
-            "VIRTUAL_ENV": home_dir,
-            "PATH": bin_dir + ":" + os.environ["PATH"],
-        }
-    }
-    easy_install = os.path.join(bin_dir, "easy_install")
-    pip = os.path.join(bin_dir, "pip")
-
-    print
-    print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
-    if os.path.isfile(pip):
-        print "Skip, pip exist at: %s\n" % c.colorize(pip, opts=("bold",))
-    else:
-        cmd = [easy_install, '--always-copy', 'pip']
-        print " ".join(cmd)
-        print
-        subprocess.call(cmd, **defaults)
-
-    PIP_LOG = os.path.abspath(os.path.join(home_dir, "PyLucid_pip.log"))
-
-    pip_type = options.pip_type
-    pip_names = PIP_INSTALL_DATA[pip_type]
-
-    print
-    print c.colorize("install PyLucid projects", foreground="green", opts=("bold", "underscore"))
-    cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + pip_names
-    print " ".join(cmd)
-    print
-    subprocess.call(cmd, **defaults)
-
-    print
-    print c.colorize("install PyLucid libs", foreground="green", opts=("bold", "underscore"))
-    cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + LIBS
-    print " ".join(cmd)
-    print
-    subprocess.call(cmd, **defaults)
-
-    # copy manage.sh into env root directory
-    source_path = os.path.join(home_dir, "src", "pylucid", "scripts", "create_page_instance.sh")
-    verbose_copy(source_path, home_dir)
+    a = AfterInstall(options, home_dir)
+    a.install_pip()
+    a.install_pylucid()
+    a.install_libs()
+    a.copy_scripts()
 
 
 # PyLucid bootstrap script END
