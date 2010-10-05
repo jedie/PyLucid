@@ -1263,20 +1263,24 @@ class ColorOut(object):
         if not code_list:
             return text
 
-        return '\x1b[%sm' % ';'.join(code_list) + text + '\x1b[0m'
+        return "\x1b[%sm%s\x1b[0m" % (';'.join(code_list), text)
+c = ColorOut()
 
 
 def get_requirement_choice():
     """
     Display menu and select a number.
     """
+    input_msg = "%s: [%s] (default: %s) " % (
+        c.colorize("Please select:", opts=("bold",)),
+        KEYS_STRING, c.colorize(DEFAULT_MENU_CHOICE, opts=("bold",))
+    )
+
     while True:
         print MENU_TXT
 
         try:
-            input = raw_input(
-                "Please select: [%s] (default: %s) " % (KEYS_STRING, DEFAULT_MENU_CHOICE)
-            )
+            input = raw_input(input_msg)
         except KeyboardInterrupt:
             sys.exit(-1)
 
@@ -1286,12 +1290,14 @@ def get_requirement_choice():
         try:
             number = int(input)
         except ValueError:
-            print "Error: Input is not a number!"
+            print c.colorize("Error:", foreground="red"), "Input is not a number!"
         else:
             if number == 5:
                 sys.exit(-1)
             elif number not in PIP_INSTALL_DATA:
-                print "Error: %r is not a valid choise!" % number
+                print c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
+                    c.colorize(number, opts=("bold",))
+                )
             else:
                 return number
 
@@ -1311,8 +1317,6 @@ def adjust_options(options, args):
     """
     Display MENU_TXT
     """
-    c = ColorOut()
-
     print c.colorize("PyLucid virtual environment bootstrap", opts=("bold", "underscore"))
     print
 
@@ -1350,7 +1354,7 @@ def adjust_options(options, args):
 
 
 def verbose_copy(src, dst):
-    print("\ncopy: %r\nto: %r\n" % (src, dst))
+    print("\ncopy: %s\nto: %s\n" % (c.colorize(src, opts=("bold",)), c.colorize(dst, opts=("bold",))))
     shutil.copy2(src, dst)
 
 
@@ -1371,31 +1375,33 @@ def after_install(options, home_dir):
     easy_install = os.path.join(bin_dir, "easy_install")
     pip = os.path.join(bin_dir, "pip")
 
-    print "-" * 79
-    print "install pip"
+    print
+    print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
     if os.path.isfile(pip):
-        print "Skip, pip exist at: %s" % pip
+        print "Skip, pip exist at: %s\n" % c.colorize(pip, opts=("bold",))
     else:
         cmd = [easy_install, '--always-copy', 'pip']
         print " ".join(cmd)
+        print
         subprocess.call(cmd, **defaults)
-
 
     PIP_LOG = os.path.abspath(os.path.join(home_dir, "PyLucid_pip.log"))
 
     pip_type = options.pip_type
     pip_names = PIP_INSTALL_DATA[pip_type]
 
-    print "-" * 79
-    print "install PyLucid projects"
+    print
+    print c.colorize("install PyLucid projects", foreground="green", opts=("bold", "underscore"))
     cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + pip_names
     print " ".join(cmd)
+    print
     subprocess.call(cmd, **defaults)
 
-    print "-" * 79
-    print "install PyLucid libs"
+    print
+    print c.colorize("install PyLucid libs", foreground="green", opts=("bold", "underscore"))
     cmd = [pip, "install", "--verbose", "--log=%s" % PIP_LOG] + LIBS
     print " ".join(cmd)
+    print
     subprocess.call(cmd, **defaults)
 
     # copy manage.sh into env root directory
