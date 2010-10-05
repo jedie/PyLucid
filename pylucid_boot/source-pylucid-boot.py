@@ -22,7 +22,6 @@ LIBS = [
 ]
 
 MENU_TXT = """
----------------------------------------------------------------------
 Please select how the pylucid own projects should be checkout:
 
 (1) Python packages from PyPi (no SVN or git needed)
@@ -70,6 +69,76 @@ PIP_INSTALL_DATA = {
 KEYS_STRING = ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
 
 
+class SysPath(object):
+    """
+    Helper to find a file in system path.
+    >>> SysPath().find("python")
+    '/usr/bin/python'
+    """
+    def __init__(self):
+        self.sys_path = os.environ["PATH"].split(":")
+
+    def find(self, filename):
+        for path in self.sys_path:
+            filepath = os.path.join(path, filename)
+            if os.path.isfile(filepath):
+                return filepath
+
+
+class ColorOut(object):
+    """
+    >>> c = ColorOut()
+    >>> c.supports_colors()
+    True
+    >>> c.color_support = True
+    >>> c.colorize('no color')
+    'no color'
+    >>> c.colorize('bold', opts=("bold",))
+    '\\x1b[1mbold\\x1b[0m'
+    >>> c.colorize("colors!", foreground="red", background="blue", opts=("bold", "blink"))
+    '\\x1b[31;44;1;5mcolors!\\x1b[0m'
+    """
+    color_names = ('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white')
+    foreground_colors = dict([(color_names[x], '3%s' % x) for x in range(8)])
+    background_colors = dict([(color_names[x], '4%s' % x) for x in range(8)])
+    opt_dict = {'bold': '1', 'underscore': '4', 'blink': '5', 'reverse': '7', 'conceal': '8'}
+
+    def __init__(self):
+        self.color_support = self.supports_colors()
+
+    def supports_colors(self):
+        if sys.platform in ('win32', 'Pocket PC'):
+            return False
+
+        # isatty is not always implemented!
+        if hasattr(sys.stdout, 'isatty') and sys.stdout.isatty():
+            return True
+        else:
+            return False
+
+    def colorize(self, text, foreground=None, background=None, opts=()):
+        """
+        Returns your text, enclosed in ANSI graphics codes.
+        """
+        if not self.color_support:
+            return text
+
+        code_list = []
+
+        if foreground:
+            code_list.append(self.foreground_colors[foreground])
+        if background:
+            code_list.append(self.background_colors[background])
+
+        for option in opts:
+            code_list.append(self.opt_dict[option])
+
+        if not code_list:
+            return text
+
+        return '\x1b[%sm' % ';'.join(code_list) + text + '\x1b[0m'
+
+
 def get_requirement_choice():
     """
     Display menu and select a number.
@@ -115,12 +184,36 @@ def adjust_options(options, args):
     """
     Display MENU_TXT
     """
+    c = ColorOut()
+
+    print c.colorize("PyLucid virtual environment bootstrap", opts=("bold", "underscore"))
+    print
+
     try:
         home_dir = args[0]
     except IndexError:
         return # Error message would be created later
 
-    print "\nCreate PyLucid environment in:", home_dir
+    print "Create PyLucid environment in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
+    print
+
+    p = SysPath()
+
+    svn_path = p.find("svn")
+    if svn_path:
+        print "subversion found in:", c.colorize(svn_path, opts=("bold",))
+    else:
+        print c.colorize("WARNING:", foreground="red", opts=("underscore",)),
+        print "subversion not found in path!"
+
+    git_path = p.find("git")
+    if git_path:
+        print "git found in:", c.colorize(git_path, opts=("bold",))
+    else:
+        print c.colorize("WARNING:", foreground="red", opts=("underscore",)),
+        print "git not found in path!"
+
+
     if options.pip_type == None:
         options.pip_type = get_requirement_choice()
 
