@@ -13,10 +13,10 @@
 <ul>
 {% for entry in feed.entries %}
     <li>
-    <h1><a href="{{ entry.link }}">{{ entry.title|safe }}</a></h1>
+    <h1><a href="{{ entry.link }}">{{ entry.title|striptags }}</a></h1>
     <p>
       {{ entry.updated }}<br />
-      {{ entry.summary|safe }}
+      {{ entry.summary|striptags }}
     </p>
     </li>
 {% endfor %}
