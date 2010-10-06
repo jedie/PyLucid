@@ -185,7 +185,7 @@
 
             {% if perms.pylucid.delete_pageplugin and perms.pylucid.delete_pagecontent and perms.pylucid.delete_pagemeta and perms.pylucid.delete_pagetree %}
                 <li>
-                    <a href="{% url admin:pylucid_pagetree_delete PYLUCID.pagemeta.id %}"
+                    <a href="{% url admin:pylucid_pagetree_delete PYLUCID.pagetree.id %}"
                         title="{% trans "delete current page" %}">
                         {% trans "delete page" %}
                     </a>
