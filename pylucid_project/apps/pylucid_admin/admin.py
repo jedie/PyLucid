@@ -2,9 +2,11 @@
 
 from django.conf import settings
 from django.contrib import admin
-from django.shortcuts import render_to_response
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
+from django.http import HttpResponse
+from django.shortcuts import render_to_response
 
 from reversion.admin import VersionAdmin
 
@@ -29,6 +31,22 @@ if settings.TEMPLATE_STRING_IF_INVALID != "":
 
     options.render_to_response = patched_render_to_response
     auth_admin.render_to_response = patched_render_to_response
+
+
+#-----------------------------------------------------------------------------
+
+
+def export_as_json(modeladmin, request, queryset):
+    """
+    from:
+    http://docs.djangoproject.com/en/dev/ref/contrib/admin/actions/#actions-that-provide-intermediate-pages
+    """
+    response = HttpResponse(mimetype="text/javascript")
+    serializers.serialize("json", queryset, stream=response, indent=4)
+    return response
+
+# Make export actions available site-wide
+admin.site.add_action(export_as_json, 'export_selected_as_json')
 
 
 #-----------------------------------------------------------------------------
@@ -89,7 +107,7 @@ if settings.DEBUG:
             superuser_only, permissions, must_staff = access_permissions
             return superuser_only
         superuser_only.boolean = True
-        
+
         def must_staff(self, obj):
             access_permissions = obj.get_permissions()
             superuser_only, permissions, must_staff = access_permissions
