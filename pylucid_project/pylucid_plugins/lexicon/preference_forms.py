@@ -16,10 +16,12 @@ TAG_INPUT_HELP_URL = \
 
 SKIP_TAGS_CACHE = None
 
+DEFAULT_SKIP_TAGS = "script a input h1 h2 h3 h4 h5 h6 textarea fieldset"
+
 class LexiconPrefForm(SitePreselectPreference, DBPreferencesBaseForm):
     skip_tags = forms.CharField(
         required=False,
-        initial="a input h1 h2 h3 h4 h5 h6 textarea fieldset script",
+        initial=DEFAULT_SKIP_TAGS,
         help_text=mark_safe(
             _('Don\'t replace a word if it exist in the given html tags.'
             ' (tagging field <a href="%s" class="openinwindow"'
@@ -37,9 +39,10 @@ class LexiconPrefForm(SitePreselectPreference, DBPreferencesBaseForm):
     def get_skip_tags(self):
         global SKIP_TAGS_CACHE
         if SKIP_TAGS_CACHE is None:
-#            print "*** Fill skip tags cache"
+            print "*** Fill skip tags cache"
             self.get_preferences()
-            skip_tag_string = self.data.get("skip_tags", "a input h1 h2 h3 h4 h5 h6 textarea fieldset")
+            print self.data
+            skip_tag_string = self.data.get("skip_tags", DEFAULT_SKIP_TAGS)
             SKIP_TAGS_CACHE = parse_tag_input(skip_tag_string)
 
 #        print "*** skip tags: %r" % SKIP_TAGS_CACHE
