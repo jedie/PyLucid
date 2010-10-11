@@ -99,7 +99,10 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
                 '<span class="gd">- Welcome to your fesh PyLucid CMS installation ;)</span>',
                 '<span class="gi">+ XXX replaced XXX ;)</span>',
             ),
-            must_not_contain=("Traceback", 'Simulate only, no entry changed.',)
+            must_not_contain=(
+                "Traceback", 'Simulate only, no entry changed.',
+                "XXX INVALID TEMPLATE STRING"
+            )
         )
         response = self.client.get("/")
         self.assertResponse(response,
@@ -110,13 +113,39 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
             )
         )
 
+    def test_Headfiles_replace(self):
+        self.login("superuser")
+        url = reverse("FindAndReplace-find_and_replace")
+        response = self.client.post(url, data={
+            'find_string': 'page messages',
+            'replace_string': 'XXX replaced XXX',
+            'content_type': 3, # EditableHtmlHeadFile
+            'languages': ['de', 'en'],
+            'sites': ['1'],
+            'save': 'find and replace',
+        })
+        self.assertResponse(response,
+            must_contain=(
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
+                '<form action="%s" method="post" id="find_and_replace' % url,
+                '<input type="text" name="find_string"',
+                '<input type="text" name="replace_string"',
+                '<legend class="pygments_code">Diff</legend>',
+                '<span class="gd">-    page messages</span>',
+                '<span class="gi">+    XXX replaced XXX</span>',
+            ),
+            must_not_contain=(
+                "Traceback", 'Simulate only, no entry changed.',
+                "XXX INVALID TEMPLATE STRING"
+            )
+        )
 
 
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
+#    management.call_command('test', "pylucid_plugins.find_and_replace.tests.FindReplaceTest.test_Headfiles_replace",
     management.call_command('test', __file__,
-        verbosity=1,
-#        verbosity=0,
+        verbosity=2,
 #        failfast=True
     )

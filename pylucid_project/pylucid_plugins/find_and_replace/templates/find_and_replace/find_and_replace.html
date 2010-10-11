@@ -31,7 +31,11 @@
         <fieldset class="results">
         <legend>
             <strong>
-                <a href="{{ item.entry.get_absolute_url }}">{{ item.entry }}</a>
+                {% if no_link %}
+                    {{ item.entry }}
+                {% else %}
+                    <a href="{{ item.entry.get_absolute_url }}">{{ item.entry }}</a>
+                {% endif %}
             </strong>
             <small class="changes">({{ item.changes }} {% trans 'changes' %})</small>
         </legend>
