@@ -7,7 +7,8 @@
 <p><small>
     Use feed {% if from_cache %}from cache{% else %}not from cache{% endif %}.
     Feed server response time was: {{ duration|floatformat:3 }}sec.<br />
-    Used preferences: {{ preferences }}
+    Used preferences: {{ preferences }}<br />
+    max entries: {{ max_entries }}
 </small></p>
 {% endif %}
 <ul>

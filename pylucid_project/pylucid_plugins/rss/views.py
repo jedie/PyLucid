@@ -33,7 +33,7 @@ from pylucid_project.utils.escape import escape
 from rss.preference_forms import PreferencesForm
 
 @render_to()#, debug=True)
-def lucidTag(request, url, debug=False, **kwargs):
+def lucidTag(request, url, max_entries=None, debug=False, **kwargs):
     """
     Include external RSS Feeds directly into a CMS page.
     
@@ -48,6 +48,7 @@ def lucidTag(request, url, debug=False, **kwargs):
     example:
         {% lucidTag rss url="http url" %}
         {% lucidTag rss url="http url" template_name="rss/MyOwnTemplate.html" %}
+        {% lucidTag rss url="http url" max_entries=5 %}
         {% lucidTag rss url="http url" socket_timeout=3 %}
         {% lucidTag rss url="http url" debug=True %}
     """
@@ -105,9 +106,13 @@ def lucidTag(request, url, debug=False, **kwargs):
         )
         return "<h1>RSS debug</h1><h2>Feed %r</h2>\n%s" % (url, feed_html)
 
+    if max_entries:
+        feed_dict["feed"].entries = feed_dict["feed"].entries[:max_entries]
+
     context = {
         "template_name": preferences["template_name"],
         "url": url,
+        "max_entries": max_entries,
         "feed": feed_dict["feed"],
         "duration": feed_dict["duration"],
         "from_cache": from_cache,
