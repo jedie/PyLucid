@@ -15,6 +15,7 @@ import codecs
 import os
 import shutil
 
+from django.contrib import admin
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 import random
@@ -56,6 +57,18 @@ class Command(BaseCommand):
         if self.verbosity:
             self.stdout.write("\ncopy: %r\nto: %r\n" % (src, dst))
         shutil.copy2(src, dst)
+
+    def _setup_media(self, function, src, dst):
+        if self.verbosity:
+            self.stdout.write("\nsrc: %r\ndst: %r\n" % (src, dst))
+            self.stdout.flush()
+        try:
+            function(src, dst)
+        except Exception, err:
+            self.stderr.write(self.style.ERROR("Error: %s\n" % err))
+        else:
+            if self.verbosity:
+                self.stdout.write("OK\n")
 
     def _copy_scripts(self, filepath, rel_destination):
         source_path = os.path.join(settings.PYLUCID_BASE_PATH, "../scripts", filepath)
@@ -154,8 +167,9 @@ class Command(BaseCommand):
         # Set chmod 0755 to files:
         self._set_file_rights("manage.py", "index.fcgi", "index.cgi")
 
-
-        media_source = os.path.join(settings.PYLUCID_BASE_PATH, "media")
+        django_admin_path = os.path.abspath(os.path.dirname(admin.__file__))
+        django_media_src = os.path.join(django_admin_path, "media")
+        pylucid_media_src = os.path.join(settings.PYLUCID_BASE_PATH, "media", "PyLucid")
         media_dest = os.path.join(self.destination, "media")
 
         secret_key = ''.join(
@@ -173,11 +187,15 @@ class Command(BaseCommand):
         self.stdout.write(" -" * 39)
         self.stdout.write("\n")
 
-        self.stdout.write("\nmedia source...... : %s\n" % media_source)
         self.stdout.write("media destination..: %s\n" % media_dest)
 
         if os.path.exists(media_dest):
-            self.stderr.write(self.style.NOTICE("\ndestination %r exist!\n" % media_dest))
+            if self.verbosity:
+                self.stdout.write(self.style.SQL_COLTYPE("\ndestination %r exist.\n" % media_dest))
+        else:
+            os.makedirs(media_dest)
+            if self.verbosity:
+                self.stdout.write(self.style.SQL_COLTYPE("\ndestination %r created.\n" % media_dest))
 
         self.stdout.write(
             "\nYou can copy or symlink the needed media files.\n"
@@ -187,29 +205,19 @@ class Command(BaseCommand):
         while True:
             input = raw_input(self.style.NOTICE("Copy or symlink media files (c/s) ?"))
             if input.lower() == "c":
-                copy_media_files = True
+                if self.verbosity:
+                    self.stdout.write("\ncopy media files...")
+                function = shutil.copytree
                 break
             elif input.lower() == "s":
-                copy_media_files = False
+                if self.verbosity:
+                    self.stdout.write("\nsymlink media files...")
+                function = os.symlink
                 break
 
-        if copy_media_files:
-            if self.verbosity:
-                self.stdout.write("\ncopy media files...")
-                self.stdout.flush()
-            function = shutil.copytree
-        else:
-            if self.verbosity:
-                self.stdout.write("\nsymlink media files\n")
-            function = os.symlink
+        self._setup_media(function, django_media_src, os.path.join(media_dest, "django"))
+        self._setup_media(function, pylucid_media_src, os.path.join(media_dest, "PyLucid"))
 
-        try:
-            function(media_source, media_dest)
-        except Exception, err:
-            self.stderr.write(self.style.ERROR("Error: %s\n" % err))
-        else:
-            if copy_media_files and self.verbosity:
-                self.stdout.write("OK\n")
 
         self.stdout.write("\n")
         self.stdout.write(" -" * 39)
