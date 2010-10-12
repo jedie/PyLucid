@@ -49,6 +49,11 @@ LANGUAGE_CODE = "en"
 CACHE_BACKEND = 'file:///tmp/PyLucid_cache_%s' % SITE_ID
 
 
+# Please uncomment and insert your name/email:
+#MANAGERS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
+#ADMINS = MANAGERS
+
+
 # Serve static files for the development server?
 # Using this method is inefficient and insecure.
 # Do not use this in a production setting!
