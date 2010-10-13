@@ -65,8 +65,6 @@ def _edit_page(request, form_url):
 
         "preview_html": preview_html,
 
-        "markup_id_str": str(pagecontent.markup),
-
         "edit_page_form": edit_page_form,
         "pagecontent": pagecontent,
         "pagemeta": pagemeta,
