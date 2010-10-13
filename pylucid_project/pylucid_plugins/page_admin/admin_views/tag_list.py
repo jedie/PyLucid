@@ -56,11 +56,14 @@ def tag_list(request):
             lucidtag_doc = inspect.getdoc(lucidtag_view)
             if lucidtag_doc: # Cutout lucidTag examples from DocString
                 assembler = DjangoTagAssembler()
-                _, cut_data = assembler.cut_out(lucidtag_doc)
+                cut_data = assembler.cut_out(lucidtag_doc)[1]
                 examples = cut_data
 
                 for example in examples:
-                    if not example.startswith("{%% lucidTag %s " % plugin_name):
+                    if not (
+                        example.startswith("{%% lucidTag %s " % plugin_name) or \
+                        example.startswith("{%% lucidTag %s." % plugin_name)
+                        ):
                         messages.info(request,
                             _("Info: lucidTag %(plugin_name)s has wrong tag example: %(example)r") % {
                                 "plugin_name": plugin_name, "example": example
