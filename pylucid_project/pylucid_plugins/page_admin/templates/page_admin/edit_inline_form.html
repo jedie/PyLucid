@@ -29,7 +29,7 @@ textarea {
 }
 --></style>
 <script type="text/javascript" src="{{ PyLucid_media_url }}jquery.textarearesizer.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.textarearesizer.js] !');"></script>
-{% if markup_id_str == "1" %}{# current markup is HTML+Editor #}
+{% if pagecontent.markup == 1 %}{# current markup is HTML+Editor #}
 <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js] !');"></script>
 <script type="text/javascript">
@@ -112,7 +112,7 @@ jQuery(document).ready(function($) {
 	
     // jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
     try {
-        {% if markup_id_str == "1" %}{# current markup is HTML+Editor #}
+        {% if pagecontent.markup == 1 %}{# current markup is HTML+Editor #}
           $("iframe:not(.processed)").TextAreaResizer();
         {% else %}
           $("textarea:not(.processed)").TextAreaResizer();
@@ -148,11 +148,9 @@ jQuery(document).ready(function($) {
          <button type="button" class="button">{% trans 'tag list' %}</button>
      </a>
 
-     {% if markup_id_str not in "01" %}{# Display button not if current markup is HTML/HTML+Editor #}
-     <a href="{% url PageAdmin-markup_help %}?markup={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'Markup help' %}">
+     <a href="{% url PageAdmin-markup_help %}?markup_id={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'Markup help' %}">
          <button type="button" class="button">{% trans 'markup help' %}</button>
      </a>
-     {% endif %}
  </div>
 {% with edit_page_form as form %}
     {% include "admin/pylucid/includes/pylucid_formset.html" %}
