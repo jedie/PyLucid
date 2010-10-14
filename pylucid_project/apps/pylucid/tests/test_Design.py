@@ -19,9 +19,7 @@ if __name__ == "__main__":
 
 from django.conf import settings
 
-from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile, ColorScheme
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.tests.test_tools.headfile import clean_headfile_cache
 from pylucid_project.tests.test_tools.scrapping import HTMLscrapper
 
 
