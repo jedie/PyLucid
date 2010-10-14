@@ -267,7 +267,10 @@ class PageAdminTest(PageAdminTestCase):
                 "<li>&#x7B;&#x7B; page_title &#x7D;&#x7D;</li>",
                 "<li>&#x7B;&#x7B; user &#x7D;&#x7D;</li>",
             ),
-            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback")
+            must_not_contain=(
+                "XXX INVALID TEMPLATE STRING", "Traceback",
+                "wrong tag example"
+            )
         )
 
     def test_translate_form(self):
