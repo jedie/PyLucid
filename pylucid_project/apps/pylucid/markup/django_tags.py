@@ -7,13 +7,7 @@
     -cut out django template tags from text.
     -reassembly cut out parts into text.
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -54,7 +48,8 @@ CUT_OUT_KEYS = ("block", "tag", "variable")
 
 ALL_KEYS = LEAVE_KEYS + CUT_OUT_KEYS
 
-PLACEHOLDER_CUT_OUT = u"DjangoTagAassembly%i"
+ESCAPE = ("Tag", "TagTag") # For mask existing placeholder
+PLACEHOLDER_CUT_OUT = u"DjangoTag%iAssembly"
 
 
 class DjangoTagAssembler(object):
@@ -71,83 +66,20 @@ class DjangoTagAssembler(object):
                     if key in LEAVE_KEYS:
                         # Don't replace this re match
                         return data
+                    data = data.replace(ESCAPE[1], ESCAPE[0])
                     cut_out_pos = len(cut_data)
                     cut_data.append(data)
                     return PLACEHOLDER_CUT_OUT % cut_out_pos
 
-        new_text = CUT_OUT_RE.sub(cut, text)
-        return new_text, cut_data
+        text = text.replace(ESCAPE[0], ESCAPE[1])
+        text = CUT_OUT_RE.sub(cut, text)
+        return text, cut_data
 
     def reassembly(self, text, cut_data):
-        for cut_out_pos, data in enumerate(cut_data):
-            placeholder = PLACEHOLDER_CUT_OUT % cut_out_pos
+        for no in xrange(len(cut_data) - 1, -1, -1):
+            data = cut_data[no]
+            placeholder = PLACEHOLDER_CUT_OUT % no
             text = text.replace(placeholder, data)
+        text = text.replace(ESCAPE[1], ESCAPE[0])
         return text
 
-
-
-
-class TestDjangoTagAssembler(unittest.TestCase):
-
-    test_text = """{% extends "base_generic.html" %}
-
-{% block title %}
-The page title: {{ section.title }}
-{% endblock %}
-
-<h1>{{ section.title }}</h1>
-
-Don't match {{{ **this** }}} stuff.
-Or {{/image.jpg| **that** }} it's from creole markup!
-
-<h2>
-  <a href="{{ story.get_absolute_url }}">
-    {{ story.headline|upper }}
-  </a>
-</h2>
-<p>{{ story.tease|truncatewords:"100" }}</p>"""
-
-    def setUp(self):
-        self.assembler = DjangoTagAssembler()
-
-    def test(self):
-        text2, cut_data = self.assembler.cut_out(self.test_text)
-#        from pprint import pprint
-#        pprint(cut_data)
-#        print text2
-        self.failUnlessEqual(cut_data, ['{% extends "base_generic.html" %}',
-             '{% block title %}\nThe page title: {{ section.title }}\n{% endblock %}',
-             '{{ section.title }}',
-             '{{ story.get_absolute_url }}',
-             '{{ story.headline|upper }}',
-             '{{ story.tease|truncatewords:"100" }}'
-        ])
-        self.failUnlessEqual(text2, """DjangoTagAassembly0
-
-DjangoTagAassembly1
-
-<h1>DjangoTagAassembly2</h1>
-
-Don't match {{{ **this** }}} stuff.
-Or {{/image.jpg| **that** }} it's from creole markup!
-
-<h2>
-  <a href="DjangoTagAassembly3">
-    DjangoTagAassembly4
-  </a>
-</h2>
-<p>DjangoTagAassembly5</p>""")
-        text = self.assembler.reassembly(text2, cut_data)
-        self.failUnlessEqual(self.test_text, text)
-
-    def test_unicode(self):
-        input_text = u"äöü {{ test }} äöü"
-        text2, cut_data = self.assembler.cut_out(input_text)
-        self.failUnlessEqual(cut_data, [u'{{ test }}'])
-        self.failUnlessEqual(text2, u"äöü DjangoTagAassembly0 äöü")
-
-        text3 = self.assembler.reassembly(text2, cut_data)
-        self.failUnlessEqual(text3, input_text)
-
-if __name__ == '__main__':
-    unittest.main()
