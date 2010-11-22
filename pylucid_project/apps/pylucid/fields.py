@@ -98,7 +98,7 @@ class ColorValueField(models.CharField):
         kwargs['max_length'] = 6
         models.CharField.__init__(self, *args, **kwargs)
 
-    def get_db_prep_save(self, value):
+    def get_db_prep_save(self, value, connection):
         "Returns field's value prepared for saving into a database."
         validate_css_color_value(value)
         return value
