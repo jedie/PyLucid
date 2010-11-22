@@ -105,7 +105,7 @@ class SwitchDesignTest(basetest.BaseUnittest):
         )
 
 
-class CloneDesignTest(basetest.BaseUnittest):
+class CloneDesignTest(basetest.BaseUnittest, TestCase):
     def _pre_setup(self, *args, **kwargs):
         super(CloneDesignTest, self)._pre_setup(*args, **kwargs)
 
@@ -221,6 +221,12 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         #print removed_items
         self.assertEqual(Color.objects.all().filter(colorscheme=self.colorscheme1).count(), 2)
         self.assertEqual(Color.objects.all().filter(colorscheme=self.colorscheme2).count(), 2)
+
+        self._old_debug = settings.DEBUG
+        settings.DEBUG = True # Needed to serve static files
+
+    def tearDown(self):
+        settings.DEBUG = self._old_debug
 
     def request_style(self, design):
         headfile = design.headfiles.all()[0]
