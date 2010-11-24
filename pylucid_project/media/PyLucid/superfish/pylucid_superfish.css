@@ -9,7 +9,6 @@
     min-width: 54em; /* no linebreak in admin index */ 
     width: 90%;
     height: 3em;
-    clear: both;
     float: none;
     
     /* from django admin panel: */
