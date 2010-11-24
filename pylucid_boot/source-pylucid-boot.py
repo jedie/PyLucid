@@ -305,6 +305,12 @@ def after_install(options, home_dir):
     a.install_libs()
     a.copy_scripts()
 
+    print
+    print "PyLucid environment created in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
+    print
+    print "Now you can create a new page instance, more info:"
+    print "http://www.pylucid.org/permalink/355/create-a-new-page-instance"
+    print
 
 # PyLucid bootstrap script END
 #-----------------------------------------------------------------------------
