@@ -33,7 +33,7 @@ from django import template
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
-from django.template import mark_safe
+from django.utils.safestring import mark_safe
 
 #from pylucid_project.apps.pylucid.system import pylucid_plugin
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS

@@ -20,7 +20,7 @@ import pkg_resources
 
 from django.conf import settings
 from django.contrib import messages
-from django.template import mark_safe
+from django.utils.safestring import mark_safe
 from django.utils.version import get_svn_revision
 import django
 
