@@ -4,23 +4,15 @@
     PyLucid <-> Pygments
     ~~~~~~~~~~~~~~~~~~~~
 
-    hightlight sourcecode
+    hightlight sourcecode with http://pygments.org/
 
-    http://pygments.org/
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.conf import settings
 from django.contrib import messages
-from django.template import mark_safe
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
