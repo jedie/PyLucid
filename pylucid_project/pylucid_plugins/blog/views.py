@@ -141,7 +141,7 @@ def summary(request):
 
     # For adding page update information into context by pylucid context processor
     try:
-        # Use the newest blog entry fro date info
+        # Use the newest blog entry for date info
         request.PYLUCID.updateinfo_object = queryset.latest("lastupdatetime")
     except BlogEntry.DoesNotExist:
         # No blog entries created, yet.
