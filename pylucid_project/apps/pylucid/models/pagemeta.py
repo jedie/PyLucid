@@ -24,11 +24,9 @@ from django.template.defaultfilters import slugify
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-# http://code.google.com/p/django-tagging/
-from tagging.fields import TagField
-
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
+from django_tools.tagging_addon.fields import jQueryTagModelField
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
@@ -84,7 +82,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
         lastupdatetime -> datetime of the last change
-        createby       -> ForeignKey to user who creaded this entry
+        createby       -> ForeignKey to user who created this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
     objects = PageMetaManager()
@@ -100,12 +98,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         help_text="A long page title (for e.g. page title or link title text)"
     )
 
-    tags = TagField(# from django-tagging
-        help_text=mark_safe(
-            _('tags for this entry. <a href="%s" class="openinwindow"'
-            ' title="Information about tag splitting.">tag format help</a>') % TAG_INPUT_HELP_URL
-        )
-    )
+    tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
 
     keywords = models.CharField(blank=True, max_length=255,
         help_text="Keywords for the html header. (separated by commas)"

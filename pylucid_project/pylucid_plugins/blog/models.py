@@ -15,26 +15,27 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core import urlresolvers
 from django.db.models import signals
-from django.utils.safestring import mark_safe
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 # http://code.google.com/p/django-tagging/
-from tagging.fields import TagField
 from tagging.models import Tag
 
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-from pylucid_project.apps.pylucid.models import PageContent, Language, PluginPage
+from pylucid_project.apps.pylucid.models import Language, PluginPage
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
 from pylucid_project.apps.pylucid.fields import MarkupModelField
 
+from django_tools.tagging_addon.fields import jQueryTagModelField
+
 from blog.preference_forms import BlogPrefForm
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -117,12 +118,7 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
     content = models.TextField(_('Content'))
     markup = MarkupModelField()
     language = models.ForeignKey(Language)
-    tags = TagField(# from django-tagging
-        help_text=mark_safe(
-            _('tags for this entry. <a href="%s" class="openinwindow"'
-            ' title="Information about tag splitting.">tag format help</a>') % TAG_INPUT_HELP_URL
-        )
-    )
+    tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"
     )

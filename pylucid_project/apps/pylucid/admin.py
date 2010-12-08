@@ -21,6 +21,7 @@ from django import forms
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin, messages
+from django.contrib.admin.sites import NotRegistered
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -34,6 +35,7 @@ from dbtemplates.models import Template
 
 from pylucid_project.apps.pylucid import models
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
+from pylucid_project.apps.pylucid.forms.pagemeta import PageMetaForm
 from pylucid_project.apps.pylucid.markup import hightlighter
 
 
@@ -85,6 +87,7 @@ admin.site.register(models.LogEntry, LogEntryAdmin)
 
 
 class PageMetaAdmin(BaseAdmin, VersionAdmin):
+    form = PageMetaForm
     list_display = ("id", "get_title", "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
     list_filter = ("language", "createby", "lastupdateby", "tags")#"keywords"
@@ -467,5 +470,8 @@ class DBTemplatesAdmin(TemplateAdmin):
     change_list_template = "admin/pylucid/change_list_with_design_link.html"
     list_display = ('name', "usage_info", 'creation_date', 'last_changed', 'site_list')
 
-admin.site.unregister(Template)
+try:
+    admin.site.unregister(Template)
+except NotRegistered, err:
+    pass
 admin.site.register(Template, DBTemplatesAdmin)

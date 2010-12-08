@@ -27,6 +27,7 @@ try:
     #from django_tools.utils import info_print;info_print.redirect_stdout()
     import django
     import dbpreferences
+    import django_tools
     import pylucid_project
     from pylucid_project.system.plugin_setup_info import PyLucidPluginSetupInfo
 except Exception, e:
@@ -128,6 +129,7 @@ TEMPLATE_DIRS = (
     os.path.join(PYLUCID_BASE_PATH, "apps/pylucid_admin/templates/"),
     os.path.join(PYLUCID_BASE_PATH, "apps/pylucid_update/templates/"),
 
+    os.path.join(os.path.abspath(os.path.dirname(django_tools.__file__)), "templates/"),
     os.path.join(os.path.abspath(os.path.dirname(dbpreferences.__file__)), "templates/"),
     os.path.join(os.path.abspath(os.path.dirname(django.__file__)), "contrib/admin/templates"),
 )

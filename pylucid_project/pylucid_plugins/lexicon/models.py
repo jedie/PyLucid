@@ -20,6 +20,8 @@ from django.utils.translation import ugettext_lazy as _
 # http://code.google.com/p/django-tagging/
 from tagging.fields import TagField
 
+# http://code.google.com/p/django-tools/
+from django_tools.tagging_addon.fields import jQueryTagModelField
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.fields import MarkupModelField
@@ -29,6 +31,7 @@ from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateI
     BaseModelManager
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -104,12 +107,7 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
             ' title="Information about tag splitting.">tag format help</a>') % TAG_INPUT_HELP_URL
         )
     )
-    tags = TagField(# from django-tagging
-        help_text=mark_safe(
-            _('tags for this entry. <a href="%s" class="openinwindow"'
-            ' title="Information about tag splitting.">tag format help</a>') % TAG_INPUT_HELP_URL
-        )
-    )
+    tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
     short_definition = models.CharField(_('Short definition'),
         help_text=_("A short explain."), max_length=255
     )

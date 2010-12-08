@@ -20,6 +20,7 @@ from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.site_utils import get_site_preselection
 
 from blog.forms import BlogEntryForm
+from blog.models import BlogEntry
 from blog.preference_forms import BlogPrefForm
 
 
@@ -52,6 +53,8 @@ def new_blog_entry(request):
     context = {
         "title": _("Create a new blog entry"),
         "form_url": request.path,
+        "tag_cloud": BlogEntry.objects.get_tag_cloud(request),
+        "add_tag_filter_link": False, # Don't add filters in tag cloud
     }
 
     if request.method == "POST":
