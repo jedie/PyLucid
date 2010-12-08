@@ -53,7 +53,7 @@ class TagLanguageSitesFilter(object):
         # change the tag queryset filter:
         self.fields["tags"].widget.tag_queryset_filters = {
             "language": language,
-            "sites": sites,
+            "sites__id__in": sites,
         }
 
 
