@@ -1,0 +1,65 @@
+{{ form_field_html }}
+
+<div class="field_help_text helper_buttons" id="markup_{{ field_id }}">
+    <input type="button" id="preview_submit_{{ field_id }}" name="preview" value="{% trans 'markup preview' %}" />
+   
+    <a href="{% url PageAdmin-markup_help %}" class="openinwindow markuphelp" title="{% trans 'markup help page' %}">
+        <button type="button" class="button">{% trans 'markup help' %}</button>
+    </a>
+    
+    <a href="{% url PageAdmin-page_list %}{% if pagecontent %}?markup={{ pagecontent.markup }}{% endif %}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
+        <button type="button" class="button">{% trans 'page list' %}</button>
+    </a>
+    
+    <a href="{% url PageAdmin-tag_list %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
+        <button type="button" class="button">{% trans 'tag list' %}</button>
+    </a>
+</div>
+
+<fieldset id="preview_{{ field_id }}"><legend>{% trans 'Markup preview' %}</legend>
+    <noscript>Please enable JavaScript for AJAX preview</noscript>
+    <div></div>
+</fieldset>
+
+<style>
+#preview_{{ field_id }} * {
+    padding: 0;
+    margin: 0;
+}
+#preview_{{ field_id }} ul {
+    padding: 0.5em 0 0 2em;
+}
+#preview_{{ field_id }} p {
+    padding-top: 1em;
+}
+</style>
+
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $("#preview_{{ field_id }}").hide();
+    
+    $("#preview_submit_{{ field_id }}").click(function() {
+        log("preview clicked");
+        $("#preview_{{ field_id }} div").html('<h2 class="noanchor">loading...</h2>');
+        $("#preview_{{ field_id }}").slideDown();
+        $("#preview_{{ field_id }}").fadeTo(0.5);
+        var data = {
+            "content": $("#{{ field_id }}").val(),
+            "markup": $("#id_markup").val()
+        }
+        log("preview data:" + data);
+        
+        $.ajax({
+            type: 'POST',
+            url: "preview/",
+            data: data,
+            success: function(data){
+                $("#preview_{{ field_id }} div").html(data);
+                $("#preview_{{ field_id }}").fadeTo(1);
+            },
+            error: ajax_error_handler,
+            dataType: "html"
+        });
+    });
+});
+</script>
