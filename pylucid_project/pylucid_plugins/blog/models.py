@@ -22,15 +22,12 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 # http://code.google.com/p/django-tagging/
 from tagging.models import Tag
 
-from django_tools.utils.messages import failsafe_message
-
-from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.markup.models import MarkupBaseModel
 from pylucid_project.apps.pylucid.models import Language, PluginPage
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
-from pylucid_project.apps.pylucid.fields import MarkupModelField
 
 from django_tools.tagging_addon.fields import jQueryTagModelField
 
@@ -95,9 +92,14 @@ class BlogEntryManager(models.Manager):
 
 
 
-class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
+class BlogEntry(MarkupBaseModel, AutoSiteM2M, UpdateInfoBaseModel):
     """
     A blog entry
+    
+    inherited from MarkupBaseModel:
+        content    -> the raw content
+        markup     -> the markup id (
+        get_html() -> rendered content
     
     inherited attributes from AutoSiteM2M:
         sites     -> ManyToManyField to Site
@@ -115,8 +117,6 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
     headline = models.CharField(_('Headline'),
         help_text=_("The blog entry headline"), max_length=255
     )
-    content = models.TextField(_('Content'))
-    markup = MarkupModelField()
     language = models.ForeignKey(Language)
     tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
     is_public = models.BooleanField(
@@ -178,11 +178,7 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         permalink = plugin_permalink(request, absolute_url)
         return permalink
 
-    def get_html(self):
-        """
-        returns the generate html code from the content applyed the markup.
-        """
-        return apply_markup(self.content, self.markup, failsafe_message)
+
 
     def __unicode__(self):
         return self.headline

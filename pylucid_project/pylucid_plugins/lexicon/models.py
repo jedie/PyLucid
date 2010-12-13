@@ -31,6 +31,7 @@ from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateI
     BaseModelManager
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
+from pylucid_project.apps.pylucid.markup.models import MarkupBaseModel
 
 
 
@@ -82,7 +83,7 @@ class LexiconEntryManager(BaseModelManager):
             return entry
 
 
-class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
+class LexiconEntry(MarkupBaseModel, AutoSiteM2M, UpdateInfoBaseModel):
     """
     A lexicon entry.
 
@@ -111,8 +112,8 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
     short_definition = models.CharField(_('Short definition'),
         help_text=_("A short explain."), max_length=255
     )
-    content = models.TextField(_('Content'), help_text=_("Explain the term"))
-    markup = MarkupModelField()
+    # TODO: Set help_text in MarkupBaseModel.content field
+    #content = models.TextField(_('Content'), help_text=_("Explain the term"))
 
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"

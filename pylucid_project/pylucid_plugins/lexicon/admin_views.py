@@ -75,15 +75,9 @@ def new_entry(request):
     if request.method == "POST":
         form = LexiconEntryForm(request.POST)
         if form.is_valid():
-            if "preview" in request.POST:
-                context["preview"] = apply_markup(
-                    form.cleaned_data["content"], form.cleaned_data["markup"],
-                    request, escape_django_tags=True
-                )
-            else:
-                instance = form.save()
-                messages.info(request, _("Lexicon entry '%s' saved.") % instance.term)
-                return http.HttpResponseRedirect(instance.get_absolute_url())
+            instance = form.save()
+            messages.info(request, _("Lexicon entry '%s' saved.") % instance.term)
+            return http.HttpResponseRedirect(instance.get_absolute_url())
     else:
         # Get preferences
         pref_form = LexiconPrefForm()

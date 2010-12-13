@@ -1,13 +1,7 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
-    {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
-    {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
-    <fieldset>    
-        {% include "admin/pylucid/includes/form_default_buttons.html" %}
-        {% include "admin/pylucid/includes/pylucid_formset.html" %}
-        {% include "admin/pylucid/includes/form_default_buttons.html" %}
-    </fieldset>
+<form action="{{ form_url }}" method="post" id="new_blog_entry_form" class="pylucid_form"> 
+    {% include "admin/pylucid/includes/default_pylucid_form.html" %}
 </form>
 {% endblock %}

@@ -21,11 +21,20 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
+from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
 
 from lexicon.models import LexiconEntry
 
 
-class LexiconEntryAdmin(BaseAdmin, VersionAdmin):
+class LexiconEntryAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
+    """
+    inherited attributes from BaseAdmin:
+        view_on_site_link -> html link with the absolute uri.
+        
+    inherited from MarkupPreview:
+        ajax_markup_preview() -> the markup content ajax preview view
+        get_urls()            -> add ajax view to admin urls 
+    """
     list_display = (
         "id", "term", "language", "tags", "is_public",
         "view_on_site_link", "site_info",
