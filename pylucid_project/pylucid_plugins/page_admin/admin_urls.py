@@ -27,11 +27,16 @@ from admin_views.translate_page import translate_page
 urlpatterns = patterns('',
     url(r'^new_content_page/$', new_content_page, name='PageAdmin-new_content_page'),
     url(r'^new_content_page/preview/$', markup_preview, name='PageAdmin-markup_preview'),
+
+    url(r'^edit_page/(?P<pagetree_id>\d+?)/$', edit_page, name='PageAdmin-edit_page'),
+    url(r'^edit_page/\d+?/preview/$', markup_preview, name='PageAdmin-edit_page_markup_preview'),
+
+    url(r'^translate/(?P<pagemeta_id>\d+?)/$', translate_page, name='PageAdmin-translate'),
+    url(r'^translate/\d+?/preview/$', markup_preview, name='PageAdmin-translate_markup_preview'),
+
     url(r'^new_plugin_page/$', new_plugin_page, name='PageAdmin-new_plugin_page'),
     url(r'^convert_markup/(?P<pagecontent_id>\d+?)/$', convert_markup, name='PageAdmin-convert_markup'),
-    url(r'^edit_page/(?P<pagetree_id>\d+?)/$', edit_page, name='PageAdmin-edit_page'),
     url(r'^page_order/(?P<pagetree_id>\d+?)/$', page_order, name='PageAdmin-page_order'),
-    url(r'^translate/(?P<pagemeta_id>\d+?)/$', translate_page, name='PageAdmin-translate'),
     url(r'^tag_list/$', tag_list, name='PageAdmin-tag_list'),
     url(r'^page_list/$', page_list, name='PageAdmin-page_list'),
     url(r'^markup_help/$', markup_help, name='PageAdmin-markup_help'),
