@@ -17,5 +17,6 @@ class MarkupContentWidget(Textarea):
         context = {
             "form_field_html": form_field_html,
             "field_id": attrs['id'],
+            "id_prefix": attrs['id'].split("-")[0] # FIXME: How to get the form prefix here?
         }
         return render_to_string("pylucid/markup/content_widget.html", context)

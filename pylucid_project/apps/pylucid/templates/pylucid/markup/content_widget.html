@@ -43,9 +43,28 @@ jQuery(document).ready(function($) {
         $("#preview_{{ field_id }} div").html('<h2 class="noanchor">loading...</h2>');
         $("#preview_{{ field_id }}").slideDown();
         $("#preview_{{ field_id }}").fadeTo(0.5);
+        
+        var content_selector = "#{{ field_id }}";
+        var content = $(content_selector);
+        if ( content.length == 0 ) {
+            $("#preview_{{ field_id }} div").html(
+                "AJAX error: can't get content field with '"+content_selector+"'"
+            );
+            return false;
+        }
+
+        var markup_selector = "#{{ id_prefix }}-markup";
+        var markup = $(markup_selector);
+        if ( markup.length == 0 ) {
+            $("#preview_{{ field_id }} div").html(
+                "AJAX error: can't get markup field with '"+markup_selector+"'"
+            );
+            return false;
+        }
+        
         var data = {
-            "content": $("#{{ field_id }}").val(),
-            "markup": $("#id_markup").val()
+            "content": content.val(),
+            "markup": markup.val()
         }
         log("preview data:" + data);
         
