@@ -1,5 +1,20 @@
 # coding:utf-8
 
+"""
+    edit a content/plugin page
+    ~~~~~~~~~~~~~~~~~~~
+    
+    Edit a content page:
+        form with: PageTree, PageMeta and PageContent at once.
+        
+    Edit a plugin page:
+        form with: PageTree, PageMeta and PluginPage at once.    
+    
+    
+    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 from django import http
 from django.conf import settings
 from django.contrib import messages
@@ -7,7 +22,6 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language, PluginPage
 
 from page_admin.forms import PageTreeForm, PageMetaForm, PageContentForm, PluginPageForm
@@ -31,26 +45,19 @@ def _edit_content_page(request, context, pagetree):
         if not (pagetree_form.is_valid() and pagemeta_form.is_valid() and pagecontent_form.is_valid()):
             context["has_errors"] = True
         else:
-            if "preview" in request.POST:
-                context["preview"] = apply_markup(
-                    pagecontent_form.cleaned_data["content"],
-                    pagecontent_form.cleaned_data["markup"],
-                    request, escape_django_tags=True
-                )
-                context["has_errors"] = False
-            else: # All forms are valid and it's not a preview -> Save all.
-                sid = transaction.savepoint()
-                try:
-                    pagetree_form.save()
-                    pagemeta_form.save()
-                    pagecontent_form.save()
-                except:
-                    transaction.savepoint_rollback(sid)
-                    raise
-                else:
-                    transaction.savepoint_commit(sid)
-                    messages.info(request, _("Content page %r updated.") % pagecontent)
-                    return http.HttpResponseRedirect(pagecontent.get_absolute_url())
+            # All forms are valid -> Save all.
+            sid = transaction.savepoint()
+            try:
+                pagetree_form.save()
+                pagemeta_form.save()
+                pagecontent_form.save()
+            except:
+                transaction.savepoint_rollback(sid)
+                raise
+            else:
+                transaction.savepoint_commit(sid)
+                messages.info(request, _("Content page %r updated.") % pagecontent)
+                return http.HttpResponseRedirect(pagecontent.get_absolute_url())
 
     # A list of all existing forms -> for form errorlist
     all_forms = [pagecontent_form, pagemeta_form, pagetree_form]

@@ -1,7 +1,11 @@
 # coding:utf-8
 
 """
-    translate a PageContent.
+    translate a PageContent
+    ~~~~~~~~~~~~~~~~~~~~~~~
+    
+    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django import http
@@ -11,7 +15,6 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
 from pylucid_project.utils.translate import translate
 
@@ -138,45 +141,33 @@ def translate_page(request, pagemeta_id=None):
                             dest_pagemeta_form.is_valid() and dest_pagecontent_form.is_valid()):
             context["has_errors"] = True
         else:
+            # All forms are valid -> Save all.
             context["has_errors"] = False
-            if "preview" in request.POST:
-                context["source_preview"] = apply_markup(
-                    source_pagecontent_form.cleaned_data["content"],
-                    source_pagecontent_form.cleaned_data["markup"],
-                    request, escape_django_tags=True
-                )
-                context["dest_preview"] = apply_markup(
-                    dest_pagecontent_form.cleaned_data["content"],
-                    dest_pagecontent_form.cleaned_data["markup"],
-                    request, escape_django_tags=True
-                )
-                context["has_errors"] = False
-            else: # All forms are valid and it's not a preview -> Save all.
-                sid = transaction.savepoint()
-                try:
-                    source_pagecontent_form.save()
-                    source_pagemeta_form.save()
+            sid = transaction.savepoint()
+            try:
+                source_pagecontent_form.save()
+                source_pagemeta_form.save()
 
-                    # Create new PageMeta entry
-                    new_pagemeta = dest_pagemeta_form.save(commit=False)
-                    new_pagemeta.pagetree = pagetree
-                    new_pagemeta.language = dest_language
-                    new_pagemeta.save()
+                # Create new PageMeta entry
+                new_pagemeta = dest_pagemeta_form.save(commit=False)
+                new_pagemeta.pagetree = pagetree
+                new_pagemeta.language = dest_language
+                new_pagemeta.save()
 
-                    # Create new PageContent entry
-                    new_pagecontent = dest_pagecontent_form.save(commit=False)
-                    new_pagecontent.pagemeta = new_pagemeta
-                    new_pagecontent.save()
-                except:
-                    transaction.savepoint_rollback(sid)
-                    raise
+                # Create new PageContent entry
+                new_pagecontent = dest_pagecontent_form.save(commit=False)
+                new_pagecontent.pagemeta = new_pagemeta
+                new_pagecontent.save()
+            except:
+                transaction.savepoint_rollback(sid)
+                raise
+            else:
+                transaction.savepoint_commit(sid)
+                if dest_pagemeta is None:
+                    messages.info(request, "New content %r crerated." % new_pagecontent)
                 else:
-                    transaction.savepoint_commit(sid)
-                    if dest_pagemeta is None:
-                        messages.info(request, "New content %r crerated." % new_pagecontent)
-                    else:
-                        messages.info(request, "All updated.")
-                    return http.HttpResponseRedirect(new_pagemeta.get_absolute_url())
+                    messages.info(request, "All updated.")
+                return http.HttpResponseRedirect(new_pagemeta.get_absolute_url())
     else:
         context["has_errors"] = False
         source_pagemeta_form = PageMetaForm(
