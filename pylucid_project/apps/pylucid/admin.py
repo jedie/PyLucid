@@ -37,6 +37,7 @@ from pylucid_project.apps.pylucid import models
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 from pylucid_project.apps.pylucid.forms.pagemeta import PageMetaForm
 from pylucid_project.apps.pylucid.markup import hightlighter
+from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
 
 
 
@@ -100,7 +101,15 @@ admin.site.register(models.PageMeta, PageMetaAdmin)
 class PageContentInline(admin.StackedInline):
     model = models.PageContent
 
-class PageContentAdmin(BaseAdmin, VersionAdmin):
+class PageContentAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
+    """
+    inherited attributes from BaseAdmin:
+        view_on_site_link -> html link with the absolute uri.
+        
+    inherited from MarkupPreview:
+        ajax_markup_preview() -> the markup content ajax preview view
+        get_urls()            -> add ajax view to admin urls 
+    """
     list_display = ("id", "get_title", "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
     list_filter = ("markup", "createby", "lastupdateby",)

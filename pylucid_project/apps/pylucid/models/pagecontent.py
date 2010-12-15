@@ -4,13 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -22,6 +16,7 @@ from django_tools import model_utils
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 from pylucid_project.apps.pylucid.fields import MarkupModelField
+from pylucid_project.apps.pylucid.markup.models import MarkupContentModelField
 
 
 TAG_INPUT_HELP_URL = \
@@ -38,7 +33,7 @@ class PageContentManager(BaseModelManager):
     pass
 
 
-class PageContent(BaseModel, UpdateInfoBaseModel):
+class PageContent(BaseModel, UpdateInfoBaseModel): # TODO inherit from MarkupBaseModel see above
     """
     A normal CMS Page with text content.
 
@@ -54,11 +49,11 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
 
     pagemeta = models.OneToOneField("pylucid.PageMeta")
 
-    content = models.TextField(blank=True, help_text="The CMS page content.")
+    # TODO: Use MarkupBaseModel after db_column change
+    content = MarkupContentModelField(blank=True, help_text="The CMS page content.")
     markup = MarkupModelField(
         db_column="markup_id" # TODO: rename in next migration release
     )
-    #models.IntegerField(db_column="markup_id", max_length=1, choices=MARKUP_CHOICES)
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
@@ -110,7 +105,6 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
         ordering = ("-lastupdatetime",)
 #        ordering = ("pagetree", "language")
 
+
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageContent)
-
-

@@ -2,19 +2,15 @@
 
 """
     PyLucid admin url patterns
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author:$
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.conf.urls.defaults import patterns, url
+
+from pylucid_project.apps.pylucid.markup.views import markup_preview
 
 from admin_views.bulk_editor import bulk_editor
 from admin_views.edit_page import edit_page
@@ -30,6 +26,7 @@ from admin_views.translate_page import translate_page
 
 urlpatterns = patterns('',
     url(r'^new_content_page/$', new_content_page, name='PageAdmin-new_content_page'),
+    url(r'^new_content_page/preview/$', markup_preview, name='PageAdmin-markup_preview'),
     url(r'^new_plugin_page/$', new_plugin_page, name='PageAdmin-new_plugin_page'),
     url(r'^convert_markup/(?P<pagecontent_id>\d+?)/$', convert_markup, name='PageAdmin-convert_markup'),
     url(r'^edit_page/(?P<pagetree_id>\d+?)/$', edit_page, name='PageAdmin-edit_page'),

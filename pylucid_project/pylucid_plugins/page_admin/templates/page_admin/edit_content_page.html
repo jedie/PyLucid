@@ -22,19 +22,12 @@
     </fieldset>
 {% endif %}
 
-{% if preview %}
-    {% include "admin/pylucid/includes/form_default_buttons.html" %}
-    <fieldset id="preview_fieldset"><legend>{% trans 'Markup preview' %}</legend>        
-        <div id="edit_page_preview">{{ preview }}</div>
-    </fieldset>
-{% endif %}
-
 <fieldset>
     <legend>
         PluginContent - {% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong>
     </legend>
     
-    {% include "admin/pylucid/includes/form_default_buttons.html" %}
+    {% include "admin/pylucid/includes/buttons_save_abort.html" %}
     
     {% with pagecontent_form.content as field %}
     <div title="{{ field.help_text }}" class="field {{ field.html_name }}">
@@ -64,7 +57,7 @@
 
 {% include "page_admin/includes/fieldsets_pagetree.html" %}
 
-{% include "admin/pylucid/includes/form_default_buttons.html" %}
+{% include "admin/pylucid/includes/buttons_save_abort.html" %}
 
 </form>
 {% endblock %}

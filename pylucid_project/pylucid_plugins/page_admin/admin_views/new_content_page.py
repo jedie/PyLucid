@@ -52,40 +52,31 @@ def new_content_page(request):
         pagemeta_form = PageMetaForm(request.POST, prefix=default_lang_entry.code)
         pagecontent_form = PageContentForm(request.POST)
         if pagetree_form.is_valid() and pagemeta_form.is_valid() and pagecontent_form.is_valid():
-            if "preview" in request.POST:
-                context["preview"] = apply_markup(
-                    pagecontent_form.cleaned_data["content"],
-                    pagecontent_form.cleaned_data["markup"],
-                    request=request,
-                    escape_django_tags=True
-                )
-                context["has_errors"] = False
+            sid = transaction.savepoint()
+            try:
+                # Create new PageTree entry
+                new_pagetree = pagetree_form.save(commit=False)
+                new_pagetree.page_type = PageTree.PAGE_TYPE
+                new_pagetree.save()
+
+                # Create new PageMeta entry
+                new_pagemeta = pagemeta_form.save(commit=False)
+                new_pagemeta.pagetree = new_pagetree
+                new_pagemeta.language = default_lang_entry
+                new_pagemeta.save()
+
+                # Create new PageContent entry
+                new_pagecontent = pagecontent_form.save(commit=False)
+                new_pagecontent.pagemeta = new_pagemeta
+                new_pagecontent.save()
+            except:
+                transaction.savepoint_rollback(sid)
+                raise
             else:
-                sid = transaction.savepoint()
-                try:
-                    # Create new PageTree entry
-                    new_pagetree = pagetree_form.save(commit=False)
-                    new_pagetree.page_type = PageTree.PAGE_TYPE
-                    new_pagetree.save()
-
-                    # Create new PageMeta entry
-                    new_pagemeta = pagemeta_form.save(commit=False)
-                    new_pagemeta.pagetree = new_pagetree
-                    new_pagemeta.language = default_lang_entry
-                    new_pagemeta.save()
-
-                    # Create new PageContent entry
-                    new_pagecontent = pagecontent_form.save(commit=False)
-                    new_pagecontent.pagemeta = new_pagemeta
-                    new_pagecontent.save()
-                except:
-                    transaction.savepoint_rollback(sid)
-                    raise
-                else:
-                    transaction.savepoint_commit(sid)
-                    url = new_pagecontent.get_absolute_url()
-                    messages.info(request, _("New content page %r created.") % url)
-                    return http.HttpResponseRedirect(url)
+                transaction.savepoint_commit(sid)
+                url = new_pagecontent.get_absolute_url()
+                messages.info(request, _("New content page %r created.") % url)
+                return http.HttpResponseRedirect(url)
     else:
         parent_pagetree = _get_pagetree(request)
         if parent_pagetree:
