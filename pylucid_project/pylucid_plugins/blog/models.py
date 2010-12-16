@@ -22,14 +22,17 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 # http://code.google.com/p/django-tagging/
 from tagging.models import Tag
 
-from pylucid_project.apps.pylucid.markup.models import MarkupBaseModel
+# http://code.google.com/p/django-tools/
+from django_tools.tagging_addon.fields import jQueryTagModelField
+from django_tools.utils.messages import failsafe_message
+
+from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import Language, PluginPage
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
-
-from django_tools.tagging_addon.fields import jQueryTagModelField
 
 from blog.preference_forms import BlogPrefForm
 
@@ -92,14 +95,9 @@ class BlogEntryManager(models.Manager):
 
 
 
-class BlogEntry(MarkupBaseModel, AutoSiteM2M, UpdateInfoBaseModel):
+class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
     """
     A blog entry
-    
-    inherited from MarkupBaseModel:
-        content    -> the raw content
-        markup     -> the markup id (
-        get_html() -> rendered content
     
     inherited attributes from AutoSiteM2M:
         sites     -> ManyToManyField to Site
@@ -117,6 +115,10 @@ class BlogEntry(MarkupBaseModel, AutoSiteM2M, UpdateInfoBaseModel):
     headline = models.CharField(_('Headline'),
         help_text=_("The blog entry headline"), max_length=255
     )
+
+    content = MarkupContentModelField()
+    markup = MarkupModelField()
+
     language = models.ForeignKey(Language)
     tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
     is_public = models.BooleanField(
@@ -133,6 +135,10 @@ class BlogEntry(MarkupBaseModel, AutoSiteM2M, UpdateInfoBaseModel):
         super(BlogEntry, self).save(*args, **kwargs)
 
         cache.clear() # FIXME: This cleaned the complete cache for every site!
+
+    def get_html(self):
+        """ returns the generate html content. """
+        return apply_markup(self.content, self.markup, failsafe_message)
 
     def get_name(self):
         return self.headline

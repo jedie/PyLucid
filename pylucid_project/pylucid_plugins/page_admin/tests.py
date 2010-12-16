@@ -156,19 +156,16 @@ class PageAdminTest(PageAdminTestCase):
 
     def test_markup_preview(self):
         self.login_with_permissions(ADD_CONTENT_PERMISSIONS)
-        response = self.client.post(CREATE_CONTENT_PAGE_URL,
-            data=self.get_page_content_post_data(preview="markup preview")
-            )
+        response = self.client.post(
+            CREATE_CONTENT_PAGE_URL + "preview/",
+            data=self.get_page_content_post_data(preview="markup preview"),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
         self.assertResponse(response,
             must_contain=(
                 '<p>The <strong>creole</strong> <i>content</i>.</p>',
-                'The **creole** //content//.',
-                '<title>PyLucid - Create a new page</title>',
-                'form action="%s"' % CREATE_CONTENT_PAGE_URL,
-                'input type="submit" name="save" value="save"',
-                'textarea id="id_content"',
             ),
-            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
+            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "error", "field is required")
         )
 
     def test_no_self_parent_choose(self):

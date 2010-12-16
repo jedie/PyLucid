@@ -1,4 +1,12 @@
-# coding:utf-8
+# coding: utf-8
+
+"""
+    PyLucid fields
+    ~~~~~~~~~~~~~~
+
+    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
 
 import re
 
@@ -11,12 +19,8 @@ from django import forms
 from django.db import models
 from django.core import exceptions
 from django.utils.translation import ugettext as _
-from django.utils.safestring import mark_safe
-from django.template.loader import render_to_string
-from django.template.context import RequestContext
 
-from django_tools.middlewares import ThreadLocal
-
+from pylucid_project.apps.pylucid.markup.widgets import MarkupContentWidget
 from pylucid_project.apps.pylucid.markup import MARKUP_CHOICES
 
 CSS_VALUE_RE = re.compile(r'[a-f0-9]{6}$', re.IGNORECASE) # For validation of a CSS value
@@ -115,6 +119,16 @@ class ColorValueField(models.CharField):
 
 #______________________________________________________________________________
 # Markup
+
+class MarkupContentModelField(models.TextField):
+    """
+    A model field for a django-tagging field.
+    Use a own widget to display existing tags and make them clickable with jQuery. 
+    """
+    def formfield(self, **kwargs):
+        # Use our own widget and give him access to the model class
+        kwargs['widget'] = MarkupContentWidget()
+        return super(MarkupContentModelField, self).formfield(**kwargs)
 
 class MarkupModelField(models.PositiveSmallIntegerField):
     # TODO: update in next migration release. Original was: models.IntegerField

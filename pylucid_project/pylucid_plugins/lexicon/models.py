@@ -24,14 +24,13 @@ from tagging.fields import TagField
 from django_tools.tagging_addon.fields import jQueryTagModelField
 from django_tools.utils.messages import failsafe_message
 
-from pylucid_project.apps.pylucid.fields import MarkupModelField
+from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import Language
 from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel, \
     BaseModelManager
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
-from pylucid_project.apps.pylucid.markup.models import MarkupBaseModel
 
 
 
@@ -83,7 +82,7 @@ class LexiconEntryManager(BaseModelManager):
             return entry
 
 
-class LexiconEntry(MarkupBaseModel, AutoSiteM2M, UpdateInfoBaseModel):
+class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
     """
     A lexicon entry.
 
@@ -112,8 +111,9 @@ class LexiconEntry(MarkupBaseModel, AutoSiteM2M, UpdateInfoBaseModel):
     short_definition = models.CharField(_('Short definition'),
         help_text=_("A short explain."), max_length=255
     )
-    # TODO: Set help_text in MarkupBaseModel.content field
-    #content = models.TextField(_('Content'), help_text=_("Explain the term"))
+
+    content = MarkupContentModelField(_('Content'), help_text=_("Explain the term"))
+    markup = MarkupModelField()
 
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"
@@ -168,9 +168,7 @@ class LexiconEntry(MarkupBaseModel, AutoSiteM2M, UpdateInfoBaseModel):
         return permalink
 
     def get_html(self):
-        """
-        returns the generate html code from the content applyed the markup.
-        """
+        """ returns the generate html content. """
         return apply_markup(self.content, self.markup, failsafe_message)
 
     def __unicode__(self):

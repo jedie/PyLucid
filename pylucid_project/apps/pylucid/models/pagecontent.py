@@ -15,8 +15,8 @@ from django.core.cache import cache
 from django_tools import model_utils
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
-from pylucid_project.apps.pylucid.fields import MarkupModelField
-from pylucid_project.apps.pylucid.markup.models import MarkupContentModelField
+from pylucid_project.apps.pylucid.fields import MarkupModelField, \
+    MarkupContentModelField
 
 
 TAG_INPUT_HELP_URL = \
@@ -33,7 +33,7 @@ class PageContentManager(BaseModelManager):
     pass
 
 
-class PageContent(BaseModel, UpdateInfoBaseModel): # TODO inherit from MarkupBaseModel see above
+class PageContent(BaseModel, UpdateInfoBaseModel):
     """
     A normal CMS Page with text content.
 
@@ -49,7 +49,6 @@ class PageContent(BaseModel, UpdateInfoBaseModel): # TODO inherit from MarkupBas
 
     pagemeta = models.OneToOneField("pylucid.PageMeta")
 
-    # TODO: Use MarkupBaseModel after db_column change
     content = MarkupContentModelField(blank=True, help_text="The CMS page content.")
     markup = MarkupModelField(
         db_column="markup_id" # TODO: rename in next migration release
