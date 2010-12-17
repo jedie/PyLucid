@@ -284,14 +284,17 @@ class AfterInstall(object):
     def install_libs(self):
         self.run_pip("install PyLucid libs", LIBS)
 
-    def copy_scripts(self):
-        # copy manage.sh into env root directory
-        source_path = os.path.join(self.home_dir, "src", "pylucid", "scripts", "create_page_instance.sh")
-        print("\ncopy: %s\nto: %s\n" % (
-            c.colorize(source_path, opts=("bold",)),
-            c.colorize(self.home_dir, opts=("bold",)))
-        )
-        shutil.copy2(source_path, self.home_dir)
+    def setup_pylucid_scripts(self):
+        """ symlink pylucid scripts into env root directory """
+
+        for filename in ("create_page_instance.sh", "fast_update.py"):
+            source_path = os.path.join(self.home_dir, "src", "pylucid", "scripts", filename)
+            dst_path = os.path.join(self.home_dir, filename)
+            print("\nsymlink: %s\nto: %s\n" % (
+                c.colorize(source_path, opts=("bold",)),
+                c.colorize(dst_path, opts=("bold",)))
+            )
+            os.symlink(source_path, dst_path)
 
 
 def after_install(options, home_dir):
@@ -303,7 +306,7 @@ def after_install(options, home_dir):
     a.install_pip()
     a.install_pylucid()
     a.install_libs()
-    a.copy_scripts()
+    a.setup_pylucid_scripts()
 
     print
     print "PyLucid environment created in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
