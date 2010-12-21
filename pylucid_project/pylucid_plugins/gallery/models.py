@@ -1,6 +1,15 @@
-# coding:utf-8
+# coding: utf-8
 
-from django import http
+"""
+    Gallery plugin
+    ~~~~~~~~~~~~~~
+
+    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+"""
+
+
+from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -10,6 +19,7 @@ from django_tools.fields.media_path import MediaPathModelField
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.apps.pylucid.models import Language # import here against import loops
+
 
 class GalleryModel(UpdateInfoBaseModel):
     """   
@@ -22,7 +32,7 @@ class GalleryModel(UpdateInfoBaseModel):
     pagetree = models.ForeignKey(PageTree, unique=True)
 
     path = MediaPathModelField(max_length=256,
-        help_text=_("Base path after MEDIA_ROOT")
+        help_text=_("Base path after MEDIA_ROOT '%s'") % settings.MEDIA_ROOT
     )
 
     template = models.CharField(max_length=256,
