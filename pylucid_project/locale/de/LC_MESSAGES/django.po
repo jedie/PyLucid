@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PyLucid v0.9\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-09-30 15:11+0000\n"
-"PO-Revision-Date: 2010-09-30 17:12+0200\n"
+"PO-Revision-Date: 2011-01-24 11:46+0100\n"
 "Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
 "Language-Team: - <>\n"
 "MIME-Version: 1.0\n"
@@ -1955,7 +1955,7 @@ msgstr ""
 #: pylucid_plugins/system/admin_views.py:81
 #, python-format
 msgid "\tsettings.PYLUCID.CACHE_DIR is %r"
-msgstr "\tsettings.CACHE_BACKEND ist '%s'"
+msgstr "\tsettings.PYLUCID.CACHE_DIR ist '%s'"
 
 #: pylucid_plugins/system/admin_views.py:83
 msgid "\theadfile cache disabled, ok."
@@ -1968,6 +1968,7 @@ msgstr "Prüfe, warum der Python Prozess diese Datei nicht cachen kann."
 #: pylucid_plugins/system/admin_views.py:111
 msgid "Set settings.PYLUCID.CACHE_DIR=\"\" to disable headfile cache."
 msgstr ""
+"Setzte settings.PYLUCID.CACHE_DIR=\"\" um den Headfile-Cache zu deaktivieren."
 
 #: pylucid_plugins/tag_navi/views.py:39
 #, python-format
