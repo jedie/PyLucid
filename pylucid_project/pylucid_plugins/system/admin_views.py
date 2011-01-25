@@ -1,12 +1,15 @@
 # coding:utf-8
 
 from datetime import datetime, timedelta
+from smtplib import SMTPException
 from tempfile import gettempdir
 import os
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.mail import send_mail, mail_admins
 from django.db import connection
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 from django.utils.tzinfo import FixedOffset
 
@@ -15,7 +18,7 @@ from pylucid_project.apps.pylucid.models import Language, PageTree, PageMeta, Lo
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.timezone import utc_offset
-from django.utils.safestring import mark_safe
+
 
 
 MYSQL_ENCODING_VARS = (
@@ -253,12 +256,21 @@ def base_check(request):
             )
     if exist_all:
         out.write("ok.")
-    out.write("\n" + "- " * 40)
+    out.write("\n" + "- " * 40 + "\n")
     out.write("END")
+
+    output = out.getlines()
+
+    try:
+        mail_admins("Base check.", output, fail_silently=True, connection=None, html_message=None)
+    except SMTPException, err:
+        output.append("\nMail send error: %s" % err)
+    else:
+        output.append("\nMail send to all admins, ok")
 
     context = {
         "title": "Basic system setup check",
-        "results": out.getlines(),
+        "results": output,
     }
     return context
 
