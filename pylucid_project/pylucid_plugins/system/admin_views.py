@@ -263,16 +263,16 @@ def base_check(request):
             ", ".join(["%s <%s>" % i for i in settings.ADMINS])
     )
 
-    output = out.getlines()
+    output = "\n".join(out.getlines())
 
     try:
         mail_admins("Base check.", output, fail_silently=True, connection=None, html_message=None)
     except SMTPException, err:
-        output.append("\nMail send error: %s" % err)
+        output += "\nMail send error: %s" % err
     else:
-        output.append("\nMail send to all admins, ok")
+        output += "\nMail send to all admins, ok"
 
-    output.append("\n\n- END -")
+    output += "\n\n- END -"
 
     context = {
         "title": "Basic system setup check",
