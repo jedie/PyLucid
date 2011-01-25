@@ -38,7 +38,7 @@ TEMPLATE_DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test.db3'
+        'NAME': 'test.db3' # You should use a absolute path to the SQlite file!
     }
 }
 
@@ -49,7 +49,20 @@ LANGUAGE_CODE = "en"
 CACHE_BACKEND = 'file:///tmp/PyLucid_cache_%s' % SITE_ID
 
 
-# Please uncomment and insert your name/email:
+# Please change email-/SMTP-Settings:
+
+# http://docs.djangoproject.com/en/dev/ref/settings/#email-backend
+EMAIL_HOST = "localhost"
+EMAIL_HOST_USER = "root@%s" % EMAIL_HOST
+EMAIL_HOST_PASSWORD = ""
+
+# http://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# http://docs.djangoproject.com/en/dev/ref/settings/#server-email
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# Please uncomment and insert your mail and email address:
 #MANAGERS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
 #ADMINS = MANAGERS
 
