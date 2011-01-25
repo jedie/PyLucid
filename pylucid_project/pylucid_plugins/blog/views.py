@@ -118,8 +118,8 @@ class AtomFeed(RssFeed):
     subtitle = RssFeed.description
 
 
-# The last class is the fallback class, if filename doesn't match
-FEEDS = [AtomFeed, RssFeed]
+FEEDS = (AtomFeed, RssFeed)
+FEED_FILENAMES = (AtomFeed.filename, RssFeed.filename)
 
 
 
@@ -151,7 +151,7 @@ def summary(request):
         "entries": paginator,
         "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-        "feeds": FEEDS,
+        "filenames": FEED_FILENAMES,
     }
     return context
 
@@ -183,7 +183,7 @@ def tag_view(request, tags):
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
         "used_tags": tags,
         "tags": "/".join(tags),
-        "feeds": FEEDS,
+        "filenames": FEED_FILENAMES,
     }
     return context
 
@@ -244,7 +244,7 @@ def detail_view(request, id, title):
 @render_to("blog/select_feed.html")
 def select_feed(request):
     """ Display a list with existing feed filenames. """
-    context = {"feeds": FEEDS}
+    context = {"filenames": FEED_FILENAMES}
     return context
 
 
