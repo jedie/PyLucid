@@ -4,19 +4,19 @@
 <div class="{{ CSS_PLUGIN_CLASS_NAME }} update_journal_feed">
 <h2>{% trans "Please select syndication feed format:" %}</h2>
 <ul>
-{% for feed in feeds %}
+{% for filename in filenames %}
     <li>
-        <a href="{% url UpdateJournal-feed feed.filename %}">{% url UpdateJournal-feed feed.filename %}</a>
+        <a href="{% url UpdateJournal-feed filename %}">{% url UpdateJournal-feed filename %}</a>
         <small>(
-        {% if feed.filename == "feed.rss" %}
+        {% if filename == "feed.rss" %}
             <a href="{% trans "http://en.wikipedia.org/wiki/RSS" %}">Really Simple Syndication</a> v2.01rev2
         {% endif %}
-        {% if feed.filename == "feed.atom" %}   
+        {% if filename == "feed.atom" %}   
             <a href="{% trans "http://en.wikipedia.org/wiki/Atom_(standard)" %}">Atom Syndication Format</a> v1.0
         {% endif %}
         )
         </small>
-    </li>    
+    </li>
 {% endfor %}
 </lu>
 </div>

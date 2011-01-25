@@ -109,8 +109,8 @@ class AtomFeed(RssFeed):
     subtitle = RssFeed.description
 
 
-# The last class is the fallback class, if filename doesn't match
-FEEDS = [AtomFeed, RssFeed]
+FEEDS = (AtomFeed, RssFeed)
+FEED_FILENAMES = (AtomFeed.filename, RssFeed.filename)
 
 
 @render_to("update_journal/select_feed.html")
@@ -118,7 +118,7 @@ def select_feed(request):
     """
     Display a list with existing feed filenames.
     """
-    context = {"feeds": FEEDS}
+    context = {"filenames": FEED_FILENAMES}
     return context
 
 
@@ -137,10 +137,10 @@ def feed(request, filename):
     # Work-a-round for http://code.djangoproject.com/ticket/13896
     old_lang_code = settings.LANGUAGE_CODE
     settings.LANGUAGE_CODE = lang_entry.code
-    
+
     feed = feed_class(request)
     response = feed(request)
-    
+
     settings.LANGUAGE_CODE = old_lang_code
-    
+
     return response
