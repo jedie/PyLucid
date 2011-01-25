@@ -257,7 +257,11 @@ def base_check(request):
     if exist_all:
         out.write("ok.")
     out.write("\n" + "- " * 40 + "\n")
-    out.write("END")
+
+    out.write(
+        "\nSent this base check output to settings.ADMINS: %r\n" %
+            ", ".join(["%s <%s>" % i for i in settings.ADMINS])
+    )
 
     output = out.getlines()
 
@@ -267,6 +271,8 @@ def base_check(request):
         output.append("\nMail send error: %s" % err)
     else:
         output.append("\nMail send to all admins, ok")
+
+    output.append("\n\n- END -")
 
     context = {
         "title": "Basic system setup check",
