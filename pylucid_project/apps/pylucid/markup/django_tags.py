@@ -23,7 +23,7 @@ CUT_OUT_RE = re.compile(r'''
         \}\}
     )
     |
-    (?P<creole_pre_inline> {{{ .*? }}} )
+    (?P<creole_pre_inline> {{{ (\n|.)*? }}} )
     |
     (?P<block>
         \{% \s* (?P<pass_block_start>.+?) .*? %\}

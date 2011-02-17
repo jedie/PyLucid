@@ -13,45 +13,45 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+
 import os
 import unittest
 from pprint import pprint
+
 
 if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
-from django.conf import settings
-from django.contrib.auth.models import Group
-from django.contrib.sites.models import Site
 
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.apps.pylucid.models import Language
 from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
 
 
-class Test_low_level_DjangoTagAssembler(unittest.TestCase):
+class Test_low_level_DjangoTagAssembler(unittest.TestCase, basetest.MarkupTestHelper):
     def setUp(self):
         self.assembler = DjangoTagAssembler()
 
     def test1(self):
-        test_text = """{% extends "base_generic.html" %}
+        test_text = self._prepare_text("""
+            {% extends "base_generic.html" %}
 
-{% block title %}
-The page title: {{ section.title }}
-{% endblock %}
-
-<h1>{{ section.title }}</h1>
-
-Don't match {{{ **this** }}} stuff.
-Or {{/image.jpg| **that** }} it's from creole markup!
-
-<h2>
-  <a href="{{ story.get_absolute_url }}">
-    {{ story.headline|upper }}
-  </a>
-</h2>
-<p>{{ story.tease|truncatewords:"100" }}</p>"""
+            {% block title %}
+            The page title: {{ section.title }}
+            {% endblock %}
+            
+            <h1>{{ section.title }}</h1>
+            
+            Don't match {{{ **this** }}} stuff.
+            Or {{/image.jpg| **that** }} it's from creole markup!
+            
+            <h2>
+              <a href="{{ story.get_absolute_url }}">
+                {{ story.headline|upper }}
+              </a>
+            </h2>
+            <p>{{ story.tease|truncatewords:"100" }}</p>
+        """)
 
         text2, cut_data = self.assembler.cut_out(test_text)
 #        pprint(cut_data)
@@ -63,23 +63,33 @@ Or {{/image.jpg| **that** }} it's from creole markup!
              '{{ story.headline|upper }}',
              '{{ story.tease|truncatewords:"100" }}'
         ])
-        self.failUnlessEqual(text2, """DjangoTag0Assembly
+        self.failUnlessEqual(text2, self._prepare_text("""
+            DjangoTag0Assembly
 
-DjangoTag1Assembly
-
-<h1>DjangoTag2Assembly</h1>
-
-Don't match {{{ **this** }}} stuff.
-Or {{/image.jpg| **that** }} it's from creole markup!
-
-<h2>
-  <a href="DjangoTag3Assembly">
-    DjangoTag4Assembly
-  </a>
-</h2>
-<p>DjangoTag5Assembly</p>""")
+            DjangoTag1Assembly
+            
+            <h1>DjangoTag2Assembly</h1>
+            
+            Don't match {{{ **this** }}} stuff.
+            Or {{/image.jpg| **that** }} it's from creole markup!
+            
+            <h2>
+              <a href="DjangoTag3Assembly">
+                DjangoTag4Assembly
+              </a>
+            </h2>
+            <p>DjangoTag5Assembly</p>
+        """))
         text = self.assembler.reassembly(text2, cut_data)
         self.failUnlessEqual(test_text, text)
+
+    def test_multilinepre(self):
+        test_text = u'start paragraph\n{{{\none\ntwo\n}}}\nthe end...'
+        text2, cut_data = self.assembler.cut_out(test_text)
+#        pprint(cut_data)
+#        print text2
+        self.failUnlessEqual(cut_data, [])
+        self.failUnlessEqual(text2, test_text)
 
     def test_unicode(self):
         input_text = u"äöü {{ test }} äöü"

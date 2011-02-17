@@ -49,7 +49,7 @@ class BaseUnittest(BaseTestCase, TestCase):
 
         if PageTree.objects.count() == 0:
             raise SystemExit("PyLucid initial data fixtures not loaded!")
-        
+
         # Fill PyLucid own UserProfile with SHA password data
         for usertype, data in self.TEST_USERS.iteritems():
             user = self._get_user(usertype)
@@ -187,6 +187,7 @@ class BaseLanguageTestCase(BaseUnittest):
             )
         )
 
+
 class BaseMoreLanguagesTestCase(BaseLanguageTestCase):
     """
     For tests with more existing languages
@@ -205,4 +206,37 @@ class BaseMoreLanguagesTestCase(BaseLanguageTestCase):
             self.languages[code] = new_language
 
 
+class MarkupTestHelper(object):
+    def _prepare_text(self, txt):
+        """
+        prepare the multiline, indentation text.
+        from https://github.com/jedie/python-creole/blob/master/tests/utils/utils.py
+        """
+        txt = unicode(txt)
+        txt = txt.splitlines()
+        assert txt[0] == "", "First must be empty!"
+        txt = txt[1:] # Skip the first line
+
+        # get the indentation level from the first line
+        count = False
+        for count, char in enumerate(txt[0]):
+            if char != " ":
+                break
+
+        assert count != False, "second line is empty!"
+
+        # remove indentation from all lines
+        txt = [i[count:].rstrip(" ") for i in txt]
+
+        #~ txt = re.sub("\n {2,}", "\n", txt)
+        txt = "\n".join(txt)
+
+        # strip *one* newline at the begining...
+        if txt.startswith("\n"): txt = txt[1:]
+        # and strip *one* newline at the end of the text
+        if txt.endswith("\n"): txt = txt[:-1]
+        #~ print repr(txt)
+        #~ print "-"*79
+
+        return txt
 
