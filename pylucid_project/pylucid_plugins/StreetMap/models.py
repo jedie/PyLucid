@@ -111,17 +111,9 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
     )
     markup = MarkupModelField()
 
-    def check_google_api_key(self):
-        if self.map_type == self.TYPE_GOOGLE:
-            # Get preferences from DB
-            pref_form = PreferencesForm()
-            preferences = pref_form.get_preferences()
-            if not preferences["google_maps_api_key"]:
-                request = ThreadLocal.get_current_request()
-                messages.warning(request, _(
-                    "You must insert your google maps key into preferences!"
-                    " Goto: Django admin site / Dbpreferences / StreetMap / edit preferences"
-                ))
+    kmlurl = models.CharField(max_length=256, null=True, blank=True,
+        help_text=_("url to kml file to show on the map")
+    )
 
     def get_template_name(self):
         """ return default or user set template name """
@@ -139,8 +131,6 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
                 find_template(self.template_name)
             except TemplateDoesNotExist, err:
                 message_dict["template_name"] = [_("Template doesn't exist.")]
-
-        self.check_google_api_key()
 
         if message_dict:
             raise ValidationError(message_dict)

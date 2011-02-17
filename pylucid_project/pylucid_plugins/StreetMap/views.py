@@ -48,19 +48,16 @@ def lucidTag(request, name=None):
         }
         return context
 
-    if settings.DEBUG or request.user.is_staff:
-        map_entry.check_google_api_key()
-
     # Get preferences from DB
     pref_form = PreferencesForm()
     preferences = pref_form.get_preferences()
 
     context = {
-        "google_maps_api_key": preferences["google_maps_api_key"],
         "map":map_entry,
-        "marker_lon": map_entry.marker_lon or map_entry.lon,
-        "marker_lat": map_entry.marker_lat or map_entry.lat,
+        "marker_lon": map_entry.marker_lon or 100000,
+        "marker_lat": map_entry.marker_lat or 100000,
         "marker_html": map_entry.get_html(),
+        "kmlurl": map_entry.kmlurl,
         "template_name": map_entry.get_template_name(),
         "lang_code": request.PYLUCID.current_language.code,
     }

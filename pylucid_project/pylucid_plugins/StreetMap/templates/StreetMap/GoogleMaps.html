@@ -3,24 +3,33 @@
 {% block plugin_content %}
 {% extrahead %}
 <!-- GoogleMaps.html extrahead START -->
-<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key={{ google_maps_api_key }}" type="text/javascript"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+
 <script type="text/javascript">
-function draw_google_map(map_slug, map_lon, map_lat, map_zoom, marker_html, marker_lon, marker_lat, marker_width, marker_height){
-    if (GBrowserIsCompatible()) {
-        var map = new GMap2(document.getElementById("google_map_"+map_slug));
-        map.setCenter(new GLatLng(map_lat, map_lon), map_zoom);
-        map.setUIToDefault();
-        
-        map.addOverlay(
-          new GMarker(new GLatLng(marker_lat, marker_lon), {
-            icon:new GIcon(G_DEFAULT_ICON),
-            title:marker_html
-          })
-        );
-    } else {
-		log("Browser is not compatible!");
-	}
+   google.load("maps", "3",  {other_params:"sensor=false"});
+
+function draw_google_map(map_slug, map_lon, map_lat, map_zoom, marker_html, marker_lon, marker_lat, marker_width, marker_height, map_kmlurl){
+    var latlng = new google.maps.LatLng(map_lat, map_lon);
+    var myOptions = {
+      zoom: map_zoom,
+      center: latlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("google_map_"+map_slug), myOptions);
+
+    if ( marker_lat != 10000 && marker_lon != 10000)
+    {
+        var markerLatlng = new google.maps.LatLng(marker_lat, marker_lon);
+        var marker = new google.maps.Marker({
+             position: markerLatlng,
+             title:marker_html
+         });
+        marker.setMap(map); 
+    }
+    var kmlLayer = new google.maps.KmlLayer(map_kmlurl);
+    kmlLayer.setMap(map);
 }
+
 </script>
 <!-- GoogleMaps.html extrahead END -->
 {% endextrahead %}
@@ -37,7 +46,7 @@ function draw_google_map(map_slug, map_lon, map_lat, map_zoom, marker_html, mark
         log("Wrong marker html code!");
         marker_html="";
     }
-	draw_google_map("{{ map.name }}", {{ map.lon }}, {{ map.lat }}, {{ map.zoom }}, marker_html, {{ marker_lon }}, {{ marker_lat }}, {{ map.marker_width }}, {{ map.marker_height }});
-	document.body.onunload=GUnload();
+    draw_google_map("{{ map.name }}", {{ map.lon }}, {{ map.lat }}, {{ map.zoom }}, marker_html, {{ marker_lon }}, {{ marker_lat }}, {{ map.marker_width }}, {{ map.marker_height }}, "{{ map.kmlurl }}");
+      
 </script>
 {% endblock %}
