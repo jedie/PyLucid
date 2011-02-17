@@ -3,7 +3,7 @@
 
 <pydev_project>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.4</pydev_property>
-<pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">PyLucid_env/bin/python</pydev_property>
+<pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">/home/${USERNAME}/PyLucid_env/bin/python</pydev_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/pylucid</path>
 <path>/pylucid/pylucid_project/pylucid_plugins</path>
@@ -11,5 +11,9 @@
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
 <path>/home/${USERNAME}/PyLucid_env/lib/python2.6</path>
 <path>/usr/lib/python2.6</path>
+<path>/home/${USERNAME}/PyLucid_env/src/django</path>
+<path>/home/${USERNAME}/PyLucid_env/src/dbpreferences</path>
+<path>/home/${USERNAME}/PyLucid_env/src/django-tools</path>
+<path>/home/${USERNAME}/PyLucid_env/src/python-creole</path>
 </pydev_pathproperty>
 </pydev_project>
