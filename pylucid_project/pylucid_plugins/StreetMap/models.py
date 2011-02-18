@@ -111,7 +111,7 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
     )
     markup = MarkupModelField()
 
-    kmlurl = models.CharField(max_length=256, null=True, blank=True,
+    kmlurl = models.CharField(max_length=1024, null=True, blank=True,
         help_text=_("url to kml file to show on the map")
     )
 
