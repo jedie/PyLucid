@@ -20,7 +20,8 @@ from django.db import models
 from django.core import exceptions
 from django.utils.translation import ugettext as _
 
-from pylucid_project.apps.pylucid.markup.widgets import MarkupContentWidget
+from pylucid_project.apps.pylucid.markup.widgets import MarkupContentWidget, \
+    MarkupSelectWidget
 from pylucid_project.apps.pylucid.markup import MARKUP_CHOICES
 
 CSS_VALUE_RE = re.compile(r'[a-f0-9]{6}$', re.IGNORECASE) # For validation of a CSS value
@@ -117,18 +118,17 @@ class ColorValueField(models.CharField):
         kwargs['widget'] = ColorValueInputWidget
         return super(ColorValueField, self).formfield(**kwargs)
 
+
 #______________________________________________________________________________
 # Markup
 
+
 class MarkupContentModelField(models.TextField):
-    """
-    A model field for a django-tagging field.
-    Use a own widget to display existing tags and make them clickable with jQuery. 
-    """
     def formfield(self, **kwargs):
-        # Use our own widget and give him access to the model class
+        # Use our own widget and put JavaScript preview stuff into page.
         kwargs['widget'] = MarkupContentWidget()
         return super(MarkupContentModelField, self).formfield(**kwargs)
+
 
 class MarkupModelField(models.PositiveSmallIntegerField):
     # TODO: update in next migration release. Original was: models.IntegerField
@@ -139,6 +139,11 @@ class MarkupModelField(models.PositiveSmallIntegerField):
         }
         defaults.update(kwargs)
         super(MarkupModelField, self).__init__(*args, **defaults)
+
+    def formfield(self, **kwargs):
+        # Use our own widget to put markup select field id into a JavaScript variable
+        kwargs['widget'] = MarkupSelectWidget()
+        return super(MarkupModelField, self).formfield(**kwargs)
 
 
 if __name__ == "__main__":

@@ -53,8 +53,15 @@ jQuery(document).ready(function($) {
             return false;
         }
 
-        var markup_selector = "#{{ id_prefix }}-markup";
-        var markup = $(markup_selector);
+        try {
+            // markup_selector set in pylucid/markup/select_widget.html
+            var markup = $(markup_selector);
+        } catch (e) {
+            $("#preview_{{ field_id }} div").html(
+                "AJAX error: can't get markup field id: '"+e+"'"
+            );
+            return false;
+        };
         if ( markup.length == 0 ) {
             $("#preview_{{ field_id }} div").html(
                 "AJAX error: can't get markup field with '"+markup_selector+"'"

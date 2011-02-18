@@ -170,6 +170,21 @@ class BlogPluginTest(BlogPluginTestCase):
         blog_article_url = "http://testserver/en/blog/1/the-blog-headline/"
         self.assertRedirect(response, url=blog_article_url, status_code=302)
 
+    def test_markup_preview_ids(self):
+        self.login_with_blog_add_permissions()
+        response = self.client.get(CREATE_URL)
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(response,
+            must_contain=(
+                '<fieldset id="preview_id_content">',
+                '$("#preview_id_content div")',
+
+                '<select name="markup" id="id_markup">',
+                'var markup_selector = "#id_markup";'
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required")
+        )
+
 
 class BlogPluginArticleTest(BlogPluginTestCase):
     """
@@ -392,11 +407,12 @@ class BlogPluginArticleTest(BlogPluginTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.blog.tests.BlogPluginArticleTest",
-#        verbosity=2,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.blog.tests.BlogPluginArticleTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_markup_preview_ids"
+
+    management.call_command('test', tests,
         verbosity=2,
-#        failfast=True
+        failfast=True
     )
