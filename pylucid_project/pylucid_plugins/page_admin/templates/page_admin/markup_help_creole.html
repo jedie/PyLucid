@@ -2,6 +2,7 @@
 
 {% block content %}{{ block.super }}
 <img alt="creole cheat sheet" class="float_left" src="{{ PyLucid_media_url }}markup_help/creole_cheat_sheet.png">
+
 <h2>creole macros</h2>
 <h3>html</h3>
 <p>Add html code e.g:</p>
@@ -41,10 +42,55 @@
 <p><strong>Important:</strong> The code should no contain django template tags! (use <em>&#x7B;%&nbsp;sourcecode&nbsp;%&#x7D;</em> for this!)</p>
 
 {% include "page_admin/includes/markup_help_common.html" %}
+
+<hr/>
+
+
+<h1>Creole additions:</h1>
+
+<div class="float_left">
+<h2>monospace - &lt;tt&gt;...&lt;/tt&gt;</h2>
+<pre>
+This is ##monospace## text.
+</pre>
+<p>Output: This is <tt>monospace</tt> text.</p>
+
+<h2>superscripted - &lt;sup&gt;...&lt;/sup&gt;</h2>
+<pre>
+This is ^^superscripted^^ text.
+</pre>
+<p>Output: This is <sup>superscripted</sup> text.</p>
+
+<h2>subscripted - &lt;sub&gt;...&lt;/sub&gt;</h2>
+<pre>
+This is ,,subscripted,, text.
+</pre>
+<p>Output: This is <sub>subscripted</sub> text.</p>
+</div>
+
+<h2>underlined - &lt;u&gt;...&lt;/u&gt;</h2>
+<pre>
+This is __underlined__ text.
+</pre>
+<p>Output: This is <u>underlined</u> text.</p>
+
+<h2>deleted - &lt;del&gt;...&lt;/del&gt;</h2>
+<pre>
+This is ~~deleted~~ text.
+</pre>
+<p>Output: This is <del>deleted</del> text.</p>
+
+<h2>small - &lt;small&gt;...&lt;/small&gt;</h2>
+<pre>
+This is --small-- text.
+</pre>
+<p>Output: This is <small>small</small> text.</p>
+
+<hr/>
+
 <h2>links</h2>
 <ul>
-	<li><a class="add_openinwindow" href="http://wikicreole.org/wiki/Creole1.0">Creole v1.0 spec</a></li>
-	<li><a class="add_openinwindow" href="http://wiki.wikicreole.org/">wiki.wikicreole.org</a></li>
+  <li><a class="add_openinwindow" href="http://wikicreole.org/wiki/Creole1.0">Creole v1.0 spec</a></li>
+  <li><a class="add_openinwindow" href="http://wiki.wikicreole.org/">wiki.wikicreole.org</a></li>
 </ul>
-
 {% endblock content %}
