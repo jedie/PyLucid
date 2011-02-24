@@ -31,8 +31,12 @@ def _get_queryset(request, count):
     """ TODO: Move to UpdateJournal.objects ? """
     queryset = UpdateJournal.on_site.all()
 
-    languages = request.PYLUCID.languages
-    queryset = queryset.filter(language__in=languages)
+    lang_entry = request.PYLUCID.current_language
+    language = lang_entry.pk
+    queryset = queryset.filter(language=language)
+
+    #languages = request.PYLUCID.languages
+    #queryset = queryset.filter(language__in=languages)
 
     if not request.user.is_staff:
         queryset = queryset.filter(staff_only=False)
