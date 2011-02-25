@@ -47,7 +47,7 @@ requirements = (
     "django-dbpreferences >= 0.3.3",
 
     # http://code.google.com/p/django-tools/
-    "django-tools >= 0.14.0",
+    "django-tools >= 0.15.0",
 
     # http://code.google.com/p/python-creole/
     "python-creole >= 0.2.4",

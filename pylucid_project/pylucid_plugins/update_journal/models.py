@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.managers import CurrentSiteManager
 
+from django_tools.fields.url import URLModelField2
+
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel
 from pylucid_project.apps.pylucid.models import Language
 
@@ -30,7 +32,10 @@ class UpdateJournal(BaseModel):
     content_type = models.ForeignKey(
         ContentType, verbose_name=_('content type'), related_name="content_type_set_for_%(class)s"
     )
-    object_url = models.URLField(verbose_name=_('object url'), help_text="absolute url to the item.",)
+    object_url = URLModelField2(verbose_name=_('object url'),
+        help_text="absolute url to the item. (without protocol/domain!)",
+        verify_exists=False, allow_schemes=None, allow_netloc=False,
+    )
 
     language = models.ForeignKey(Language)
 
