@@ -139,14 +139,17 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         cache.clear() # FIXME: This cleaned the complete cache for every site!
 
     def get_html(self):
-        """ returns the generate html content. """
+        """
+        return self.content rendered as html:
+            1. apply markup
+            2. parse lucidTags/django template tags
+        """
         content1 = apply_markup(self.content, self.markup, failsafe_message)
-
-        # Render django tags in PageContent with the global context
 
         request = get_current_request()
         context = request.PYLUCID.context
         content2 = render.render_string_template(content1, context)
+
         return content2
 
     def get_name(self):
