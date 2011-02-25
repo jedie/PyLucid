@@ -6,7 +6,7 @@
 
     Database models for the blog.
 
-    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -23,7 +23,9 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from tagging.models import Tag
 
 # http://code.google.com/p/django-tools/
+from django_tools.middlewares.ThreadLocal import get_current_request
 from django_tools.tagging_addon.fields import jQueryTagModelField
+from django_tools.template import render
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
@@ -138,7 +140,14 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
 
     def get_html(self):
         """ returns the generate html content. """
-        return apply_markup(self.content, self.markup, failsafe_message)
+        content1 = apply_markup(self.content, self.markup, failsafe_message)
+
+        # Render django tags in PageContent with the global context
+
+        request = get_current_request()
+        context = request.PYLUCID.context
+        content2 = render.render_string_template(content1, context)
+        return content2
 
     def get_name(self):
         return self.headline
