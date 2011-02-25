@@ -4,7 +4,7 @@
     PyLucid lexicon models
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -21,7 +21,9 @@ from django.utils.translation import ugettext_lazy as _
 from tagging.fields import TagField
 
 # http://code.google.com/p/django-tools/
+from django_tools.middlewares.ThreadLocal import get_current_request
 from django_tools.tagging_addon.fields import jQueryTagModelField
+from django_tools.template import render
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
@@ -168,8 +170,18 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         return permalink
 
     def get_html(self):
-        """ returns the generate html content. """
-        return apply_markup(self.content, self.markup, failsafe_message)
+        """
+        return self.content rendered as html:
+            1. apply markup
+            2. parse lucidTags/django template tags
+        """
+        content1 = apply_markup(self.content, self.markup, failsafe_message)
+
+        request = get_current_request()
+        context = request.PYLUCID.context
+        content2 = render.render_string_template(content1, context)
+
+        return content2
 
     def __unicode__(self):
         return self.term
