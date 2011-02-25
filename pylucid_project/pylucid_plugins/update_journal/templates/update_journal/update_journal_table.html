@@ -4,11 +4,11 @@
 {% if update_list %}
 <table id="page_updates">
   <tr>
-    <th>update time</th>
-    <th>title</th>
-    <th>user name</th>
+    <th>{% trans "update time" %}</th>
+    <th>{% trans "title" %}</th>
+    <th>{% trans "user name" %}</th>
     {% if perms.update_journal.change_updatejournal or perms.update_journal.delete_updatejournal %}
-        <th>actions</th>
+        <th>{% trans "actions" %}</th>
     {% endif %}
   </tr>
   {% for item in update_list %}
@@ -19,10 +19,10 @@
     {% if perms.update_journal.change_updatejournal or perms.update_journal.delete_updatejournal %}
     <td class="update_actions">
         {% if perms.update_journal.change_updatejournal %}
-            <a href="{% url admin:update_journal_updatejournal_change item.id %}" title="edit '{{ item.title|escape }}'">edit</a>
+            <a href="{% url admin:update_journal_updatejournal_change item.id %}" title="edit '{{ item.title|escape }}'">{% trans "edit" %}</a>
         {% endif %}
         {% if perms.update_journal.delete_updatejournal %}
-            <a href="{% url admin:update_journal_updatejournal_delete item.id %}" title="Delete '{{ item.title|escape }}' from the list">delete</a>
+            <a href="{% url admin:update_journal_updatejournal_delete item.id %}" title="Delete '{{ item.title|escape }}' from the list">{% trans "delete" %}</a>
         {% endif %}
     </td>
     {% endif %}
@@ -35,6 +35,6 @@
 </a>
 {% endif %}
 {% else %}
-    <p>No updates recorded in update journal.</p>
+    <p>{% trans "No updates recorded in update journal." %}</p>
 {% endif %}
 {% endblock %}
