@@ -2109,7 +2109,7 @@ msgstr "Objekt URL"
 
 #: pylucid_plugins/update_journal/preference_forms.py:12
 msgid "Default numbers of UpdateJournal entries in RSS/Atom feed."
-msgstr "Standard Anzahl der Seiten Ändrungen als RSS/Atom-Feeds."
+msgstr "Standard Anzahl der Seiten Änderungen als RSS/Atom-Feeds."
 
 #: pylucid_plugins/update_journal/preference_forms.py:16
 msgid "The maximal numbers of UpdateJournal entries in RSS/Atom feed."
@@ -2119,7 +2119,7 @@ msgstr ""
 
 #: pylucid_plugins/update_journal/views.py:73
 msgid "Update Journal - RSS feed"
-msgstr "\"Letzte Seiten Ändrungen\" als RSS-Feed."
+msgstr "\"Letzte Seiten Änderungen\" als RSS-Feed."
 
 #: pylucid_plugins/update_journal/views.py:90
 #, python-format
@@ -2128,7 +2128,7 @@ msgstr "Letzten %s Änderungen"
 
 #: pylucid_plugins/update_journal/views.py:108
 msgid "Update Journal - Atom feed"
-msgstr "\"Letzte Seiten Ändrungen\" als Atom-Feed."
+msgstr "\"Letzte Seiten Änderungen\" als Atom-Feed."
 
 #: pylucid_plugins/update_journal/templates/update_journal/cleanup.html:14
 msgid "remove only dead entries"
@@ -2140,7 +2140,7 @@ msgstr "Wählen Sie das Update-Journal-Feed-Format"
 
 #: pylucid_plugins/update_journal/templates/update_journal/update_journal_table.html:34
 msgid "get update journal as RSS/Atom feed."
-msgstr "Letzte Seiten Ändrungen als RSS / Atom-Feeds."
+msgstr "Letzte Seiten Änderungen als RSS / Atom-Feeds."
 
 #: utils/safe_obtain.py:17
 #, python-format
