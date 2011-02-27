@@ -91,6 +91,26 @@ class Test_low_level_DjangoTagAssembler(unittest.TestCase, basetest.MarkupTestHe
         self.failUnlessEqual(cut_data, [])
         self.failUnlessEqual(text2, test_text)
 
+    def test_creole_image(self):
+        test_text = u'a {{/image.jpg}} {{image.jpeg|text}}...'
+        text2, cut_data = self.assembler.cut_out(test_text)
+        self.failUnlessEqual(cut_data, [])
+        self.failUnlessEqual(text2, test_text)
+
+    def test_creole_image_upcase(self):
+        test_text = u'a {{/IMAGE.PNG}}...'
+        text2, cut_data = self.assembler.cut_out(test_text)
+#        pprint(cut_data)
+#        print text2
+        self.failUnlessEqual(cut_data, [])
+        self.failUnlessEqual(text2, test_text)
+
+    def test_not_a_creole_image(self):
+        test_text = u'a {{ variable|filter:"/" }}...'
+        text2, cut_data = self.assembler.cut_out(test_text)
+        self.failUnlessEqual(cut_data, [u'{{ variable|filter:"/" }}'])
+        self.failUnlessEqual(text2, u"a DjangoTag0Assembly...")
+
     def test_unicode(self):
         input_text = u"äöü {{ test }} äöü"
         text2, cut_data = self.assembler.cut_out(input_text)

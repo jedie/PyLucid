@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
     django tag assembler
     ~~~~~~~~~~~~~~~~~~~~
@@ -7,21 +8,17 @@
     -cut out django template tags from text.
     -reassembly cut out parts into text.
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+
 import re
-import unittest
 
 
+# FIXME: How can we better match on creole image, without a list of known image extensions?
 CUT_OUT_RE = re.compile(r'''
-    (?P<creole_image>
-        \{\{
-        .+?(\.jpg|\.jpeg|\.gif|\.png) \s*
-        (\| \s* .+? \s*)?
-        \}\}
-    )
+    (?P<creole_image> {{ .+?(.jpg|.jpeg|.gif|.png).*? }} )
     |
     (?P<creole_pre_inline> {{{ (\n|.)*? }}} )
     |
@@ -38,7 +35,7 @@ CUT_OUT_RE = re.compile(r'''
     (?P<variable>
         \{\{ [^\{\}]*? \}\}
     )
-''', re.VERBOSE | re.UNICODE | re.MULTILINE)
+''', re.VERBOSE | re.UNICODE | re.MULTILINE | re.IGNORECASE)
 
 # Ignore this re groups:
 LEAVE_KEYS = ("creole_image", "creole_pre_inline")

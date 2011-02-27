@@ -43,9 +43,9 @@ class MarkupTestCase(basetest.BaseUnittest, basetest.MarkupTestHelper):
         )
 
 
-class CreoleMarkupTest(MarkupTestCase):
+class PageContentCreoleMarkupTest(MarkupTestCase):
     def _pre_setup(self, *args, **kwargs):
-        super(CreoleMarkupTest, self)._pre_setup(*args, **kwargs)
+        super(PageContentCreoleMarkupTest, self)._pre_setup(*args, **kwargs)
         self.page_content.markup = MARKUP_CREOLE
         self.page_content.save()
 
@@ -61,6 +61,30 @@ class CreoleMarkupTest(MarkupTestCase):
             """),
         )
 
+    def test_image_link_without_title(self):
+        self._compare_content(
+            markup_content="foo {{/path/to/image.jpg}} bar",
+            html='<p>foo <img src="/path/to/image.jpg" alt="/path/to/image.jpg" /> bar</p>',
+        )
+        
+    def test_image_link_with_title(self):
+        self._compare_content(
+            markup_content="1 {{/path/to/image.jpg|image title}} one",
+            html='<p>1 <img src="/path/to/image.jpg" alt="image title" /> one</p>'
+        )
+        
+    def test_image_upcase_extension(self):
+        self._compare_content(
+            markup_content=self._prepare_text("""
+                1 {{/path/to/image.PNG}} one
+                2 {{IMAGE.GIF|test}} two
+            """),
+            html=self._prepare_text("""
+                <p>1 <img src="/path/to/image.PNG" alt="/path/to/image.PNG" /> one<br />
+                2 <img src="IMAGE.GIF" alt="test" /> two</p>                
+            """)
+        )
+        
     def test_singleline_pre(self):
         self._compare_content(
             markup_content="one {{{ **two** }}} **tree**!",
@@ -86,6 +110,9 @@ class CreoleMarkupTest(MarkupTestCase):
                 <p>the end...</p>
             """),
         )
+
+
+
 
 
 if __name__ == "__main__":

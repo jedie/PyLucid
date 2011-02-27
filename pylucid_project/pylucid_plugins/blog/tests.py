@@ -170,6 +170,30 @@ class BlogPluginTest(BlogPluginTestCase):
         blog_article_url = "http://testserver/en/blog/1/the-blog-headline/"
         self.assertRedirect(response, url=blog_article_url, status_code=302)
 
+    def test_creole_markup(self):
+        self.login_with_blog_add_permissions()
+        response = self.client.post(CREATE_URL, data={
+            "headline": "The blog headline",
+            "content": "A **//creole// markup** and a {{/image/url/pic.PNG|1 2}} nice?",
+            "markup": MARKUP_CREOLE,
+            "is_public": "on",
+            "language": self.default_language.id,
+            "sites": settings.SITE_ID,
+            "tags": "django-tagging, tag1, tag2",
+        })
+        blog_article_url = "http://testserver/en/blog/1/the-blog-headline/"
+        self.assertRedirect(response, url=blog_article_url, status_code=302)
+        
+        response = self.client.get(blog_article_url)
+        #self.raise_browser_traceback(response, "TEST")
+        self.assertResponse(response,
+            must_contain=(
+                '<p>A <strong><i>creole</i> markup</strong> and a <img src="/image/url/pic.PNG" alt="1 2" /> nice?</p>',
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required")
+        )
+        
+
     def test_markup_preview_ids(self):
         self.login_with_blog_add_permissions()
         response = self.client.get(CREATE_URL)
@@ -227,7 +251,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
             tags="sharedtag, zweiter_tag, deutsch-tag",
         )
 
-    def assertSecondAticle(self, response):
+    def assertSecondArticle(self, response):
         self.assertContentLanguage(response, self.default_language)
         self.assertResponse(response,
             must_contain=(
@@ -346,7 +370,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
             "/en/blog/2/second-entry-in-english/",
             HTTP_ACCEPT_LANGUAGE=self.default_language.code,
         )
-        self.assertSecondAticle(response)
+        self.assertSecondArticle(response)
 
     def test_second_entry_as_german(self):
         """
@@ -369,7 +393,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
             "/en/blog/2/second-entry-in-english/",
             HTTP_ACCEPT_LANGUAGE=self.other_language.code,
         )
-        self.assertSecondAticle(response)
+        self.assertSecondArticle(response)
 
     def _test_atom_feed(self, language):
         language_code = language.code
@@ -410,7 +434,7 @@ if __name__ == "__main__":
 
     tests = __file__
 #    tests = "pylucid_plugins.blog.tests.BlogPluginArticleTest"
-#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_markup_preview_ids"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
 
     management.call_command('test', tests,
         verbosity=2,
