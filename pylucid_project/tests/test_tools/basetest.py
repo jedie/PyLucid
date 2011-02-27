@@ -96,7 +96,10 @@ class BaseUnittest(BaseTestCase, TestCase):
         self.failUnlessEqual(response.status_code, 200)
 
     def assertAtomFeed(self, response, language_code):
-        self.failUnlessEqual(response["content-type"], "application/atom+xml")
+        # application/atom+xml; charset=utf8 -> application/atom+xml
+        content_type = response["content-type"].split(";",1)[0]
+        self.failUnlessEqual(content_type, "application/atom+xml")
+        
         self.failUnlessEqual(response["content-language"], language_code)
         self.assertResponse(response,
             must_contain=(
@@ -111,7 +114,10 @@ class BaseUnittest(BaseTestCase, TestCase):
         )
 
     def assertRssFeed(self, response, language_code):
-        self.failUnlessEqual(response["content-type"], "application/rss+xml")
+        # application/rss+xml; charset=utf8 -> application/rss+xml
+        content_type = response["content-type"].split(";",1)[0]
+        self.failUnlessEqual(content_type, "application/rss+xml")
+        
         self.failUnlessEqual(response["content-language"], language_code)
         self.assertResponse(response,
             must_contain=(
