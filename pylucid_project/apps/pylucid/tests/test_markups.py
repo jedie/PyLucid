@@ -64,7 +64,7 @@ class CreoleMarkupTest(MarkupTestCase):
     def test_singleline_pre(self):
         self._compare_content(
             markup_content="one {{{ **two** }}} **tree**!",
-            html="<p>one <pre> **two** </pre> <strong>tree</strong>!</p>",
+            html="<p>one <tt> **two** </tt> <strong>tree</strong>!</p>",
         )
 
     def test_multiline_pre(self):
