@@ -1,5 +1,15 @@
 # coding: utf-8
 
+
+"""
+    PyLucid gallery
+    ~~~~~~~~~~~~~~~
+    
+    :copyleft: 2010-2011 by the django-weave team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
+
 from fnmatch import fnmatch
 from glob import glob
 import os
@@ -7,7 +17,6 @@ import posixpath
 
 if __name__ == "__main__":
     # For doctest only
-    import os
     os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
     from django.conf import global_settings
     global_settings.SITE_ID = 1
@@ -239,7 +248,7 @@ def gallery(request, rest_url=""):
         )
         return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))
 
-    g = Gallery(request, config, rest_url)
+    gallery = Gallery(request, config, rest_url)
 
     if not request.is_ajax():
         # FIXME: In Ajax request, only the page_content would be replaced, not the
@@ -251,10 +260,14 @@ def gallery(request, rest_url=""):
             # e.g.: no breadcrumbs in template
             pass
         else:
-            for breadcrumb_info in g.breadcrumbs[1:]:
+            for breadcrumb_info in gallery.breadcrumbs[1:]:
                 breadcrumb_context_middlewares.add_link(**breadcrumb_info)
 
-    return g.render()
+        if gallery.rel_url:
+            # Add sub path to permalink
+            request.PYLUCID.context["page_permalink"] += "/%s/" % gallery.rel_url
+
+    return gallery.render()
 
 
 
