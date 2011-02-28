@@ -24,6 +24,7 @@ from pylucid_project.apps.pylucid.models import PageTree, PageMeta, \
 from pylucid_project.apps.pylucid.signals import pre_render_global_template
 from pylucid_project.apps.pylucid.system import pylucid_plugin, i18n
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+from django.template.loader import render_to_string
 
 
 
@@ -364,6 +365,9 @@ def resolve_url(request, url_lang_code, url_path):
         # url_lang_code doesn't contain a language code, it's a pagetree slug
         new_url = "%s/%s" % (url_lang_code, url_path)
         return _i18n_redirect(request, url_path=new_url)
+
+    # Put the language from the url to first, if exists.
+    i18n.resort_languages(request, url_lang_code)
 
     # activate language via auto detection
     i18n.activate_auto_language(request)

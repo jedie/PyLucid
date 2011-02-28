@@ -1,12 +1,14 @@
 # coding: utf-8
 
+
 """
     PyLucid models
     ~~~~~~~~~~~~~~
     
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 from django.conf import settings
 from django.contrib import messages
@@ -15,6 +17,7 @@ from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
@@ -22,6 +25,7 @@ from django_tools.middlewares import ThreadLocal
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.utils import form_utils
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -79,7 +83,7 @@ class BaseModelManager(models.Manager):
         model_instance.save()
         return model_instance
 
-    def get_by_prefered_language(self, request, queryset):
+    def get_by_prefered_language(self, request, queryset, show_lang_errors=False):
         """
         return a item from queryset in this way:
          - try to get in current language
@@ -96,6 +100,23 @@ class BaseModelManager(models.Manager):
                 tried_languages.append(language)
             else:
                 break
+
+        if show_lang_errors:
+            current_language = request.PYLUCID.current_language
+            if item.language != current_language:
+                try:
+                    item2 = queryset.get(language=current_language)
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    msg = render_to_string("pylucid/includes/language_info_link.html",
+                        {
+                            "item": item2,
+                            "language": current_language.description,
+                        }
+                    )
+                    messages.info(request, msg)
+
 
         return item, tried_languages
 

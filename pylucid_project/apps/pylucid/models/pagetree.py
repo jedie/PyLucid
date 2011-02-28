@@ -145,7 +145,7 @@ class PageTreeManager(BaseModelManager):
         If show_lang_errors==True:
             create a page_msg if PageMeta doesn't exist in client favored language.
         """
-        from pylucid_project.apps.pylucid.models import PageMeta  # against import loops.
+        from pylucid_project.apps.pylucid.models import PageMeta  # against import loops.      
 
         # client favored Language instance:
         lang_entry = request.PYLUCID.current_language
@@ -158,7 +158,7 @@ class PageTreeManager(BaseModelManager):
             return pagemeta
 
         queryset = PageMeta.objects.filter(pagetree=pagetree)
-        pagemeta, tried_languages = self.get_by_prefered_language(request, queryset)
+        pagemeta, tried_languages = self.get_by_prefered_language(request, queryset, show_lang_errors=show_lang_errors)
 
         if pagemeta is None:
             msg = ""

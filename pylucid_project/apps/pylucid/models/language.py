@@ -185,7 +185,7 @@ class LanguageManager(models.Manager):
         added to request.PYLUCID.languages
         
         Cache key: The language entry can have a permitViewGroup,
-            so we must use different caches for different users.
+            so we must use different caches for different user groups.
         """
         if hasattr(request, "PYLUCID") and hasattr(request.PYLUCID, "languages"):
             if settings.PYLUCID.I18N_DEBUG:

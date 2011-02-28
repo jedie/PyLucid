@@ -9,7 +9,7 @@
         - PyLucid initial data contains english and german pages.
         - related test in pylucid_plugins/language/tests.py
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -64,12 +64,19 @@ class TestI18n(basetest.BaseLanguageTestCase):
         german = Language.objects.get(code="de")
         self.assertContentLanguage(response, german)
 
-    def test_language_redirect(self):
+    def test_other_language_in_url(self):
         """
-        The url must be changed, if we get a german page with a english url.
+        Request a english page as a german user.
         """
         response = self.client.get("/en/welcome/", HTTP_ACCEPT_LANGUAGE="de-de,de;q=0.8,en-us;q=0.5,en;q=0.3")
-        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=301)
+        self.assertResponse(response,
+            must_contain=(
+                '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>',
+                '<a href="/de/welcome/" title="Open this content in Deutsch.">',
+                'This content exist also in Deutsch.',
+            ),
+            must_not_contain=("Traceback",)
+        )
 
     def test_no_lang_code(self):
         """
@@ -215,18 +222,14 @@ class TestI18nMoreLanguages(basetest.BaseMoreLanguagesTestCase):
         )
 
 
-#__test__ = {"doctest": """
-#Another way to test that 1 + 1 is equal to 2.
-#
-#>>> 1 + 1 == 2
-#True
-#"""}
-
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid.tests.test_i18n.TestI18n.test_page_without_lang", verbosity=2)
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid.tests.test_i18n.TestI18n.test_page_without_lang"
+
+    management.call_command('test', tests,
         verbosity=2,
         failfast=True
     )

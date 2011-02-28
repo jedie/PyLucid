@@ -1,27 +1,21 @@
 # coding: utf-8
 
+
 """
     PyLucid i18n tools
     ~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: JensDiemer $
-
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
-
-__version__ = "$Rev:$"
 
 
 if __name__ == "__main__":
     # For doctest only
     import os
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+
 
 from django.conf import settings
 from django.contrib import messages
@@ -215,6 +209,23 @@ def assert_language(request, language, save_get_parameter=False, check_url_langu
             return new_url
 
 
+
+def resort_languages(request, url_lang_code):
+    """
+    Put the language from the url to the first language.
+    """
+    if request.PYLUCID.languages[0].code == url_lang_code:
+        if settings.PYLUCID.I18N_DEBUG:
+            messages.info(request, "no need to resort languages: first language == url language code.")
+        return
+
+    for no, lang in enumerate(request.PYLUCID.languages):
+        if lang.code == url_lang_code:
+            url_lang = request.PYLUCID.languages.pop(no)
+            request.PYLUCID.languages.insert(0, url_lang)
+            if settings.PYLUCID.I18N_DEBUG:
+                messages.info(request, "move language %r (from url code) to first." % url_lang)
+            return
 
 
 
