@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
 
 """
     PyLucid update journal plugin
@@ -6,9 +7,8 @@
 
     Generate a list of the latest page updates.
 
-    :copyleft: 2007-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
-
 """
 
 
@@ -29,14 +29,20 @@ from update_journal.preference_forms import UpdateJournalPrefForm
 
 def _get_queryset(request, count):
     """ TODO: Move to UpdateJournal.objects ? """
+
+    # get preferences
+    pref_form = UpdateJournalPrefForm()
+    pref_data = pref_form.get_preferences()
+
     queryset = UpdateJournal.on_site.all()
 
-    lang_entry = request.PYLUCID.current_language
-    language = lang_entry.pk
-    queryset = queryset.filter(language=language)
-
-    #languages = request.PYLUCID.languages
-    #queryset = queryset.filter(language__in=languages)
+    if pref_data["current_language_only"]:
+        lang_entry = request.PYLUCID.current_language
+        language = lang_entry.pk
+        queryset = queryset.filter(language=language)
+    else:
+        languages = request.PYLUCID.languages
+        queryset = queryset.filter(language__in=languages)
 
     if not request.user.is_staff:
         queryset = queryset.filter(staff_only=False)
