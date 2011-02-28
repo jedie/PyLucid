@@ -167,7 +167,7 @@ class PageTreeManager(BaseModelManager):
             raise Http404(msg)
 
         if tried_languages and show_lang_errors:
-            messages.error(request,
+            messages.info(request,
                 _(
                     "PageMeta %(slug)s doesn't exist in client"
                     " favored language %(tried_languages)s,"
