@@ -20,6 +20,7 @@ if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from pylucid_project.tests.test_tools import basetest
@@ -183,7 +184,7 @@ class BlogPluginTest(BlogPluginTestCase):
         })
         blog_article_url = "http://testserver/en/blog/1/the-blog-headline/"
         self.assertRedirect(response, url=blog_article_url, status_code=302)
-        
+
         response = self.client.get(blog_article_url)
         #self.raise_browser_traceback(response, "TEST")
         self.assertResponse(response,
@@ -192,7 +193,6 @@ class BlogPluginTest(BlogPluginTestCase):
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
         )
-        
 
     def test_markup_preview_ids(self):
         self.login_with_blog_add_permissions()
@@ -207,6 +207,23 @@ class BlogPluginTest(BlogPluginTestCase):
                 'var markup_selector = "#id_markup";'
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
+        )
+
+    def test_markup_preview(self):
+        self.login("superuser")
+        url = reverse("Blog-markup_preview")
+        response = self.client.post(url, data={
+            'content': '**foo** //bar//',
+            'markup': 6,
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            follow=True,
+        )
+        self.assertResponse(response,
+            must_contain=(
+                '<p><strong>foo</strong> <i>bar</i></p>',
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING", "<body", "<html")
         )
 
 
@@ -349,19 +366,30 @@ class BlogPluginArticleTest(BlogPluginTestCase):
             )
         )
 
-    def test_update_journal(self):
+    def test_update_journal_de(self):
         # Check if listed in update journal
-        response = self.client.get("/")
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de")
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
             must_contain=(
                 '(blog entry)',
                 '<a href="/de/blog/4/zweiter-eintrag-in-deutsch/">Zweiter Eintrag in deutsch</a>',
                 '<a href="/de/blog/3/erster-eintrag-in-deutsch/">Erster Eintrag in deutsch</a>',
+            ),
+            must_not_contain=("Traceback", "First entry", "Second entry")
+        )
+
+    def test_update_journal_en(self):
+        # Check if listed in update journal
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="en")
+        self.failUnlessEqual(response.status_code, 200)
+        self.assertResponse(response,
+            must_contain=(
+                '(blog entry)',
                 '<a href="/en/blog/2/second-entry-in-english/">Second entry in english</a>',
                 '<a href="/en/blog/1/first-entry-in-english/">First entry in english</a>',
             ),
-            must_not_contain=("Traceback",)
+            must_not_contain=("Traceback", "Erster Eintrag", "Zweiter Eintrag")
         )
 
     def test_second_entry(self):
