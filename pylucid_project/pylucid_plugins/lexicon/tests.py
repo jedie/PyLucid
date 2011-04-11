@@ -9,7 +9,7 @@
         - PyLucid initial data contains english and german pages.
         - There exist only "PyLucid CMS" lexicon entry in english and german
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -134,7 +134,8 @@ class LexiconPluginTest1(LexiconPluginTestCase):
 
     def test_switch_url_language(self):
         """
-        Request german language entry, but english ist current language
+        TODO!
+        Request german language entry, but english is current language
         -> redirect to english url
         """
         response = self.client.get(
@@ -184,26 +185,19 @@ class LexiconPluginTest1(LexiconPluginTestCase):
 
     def test_create_new_entry_preview(self):
         self.login("superuser")
-        url = reverse("Lexicon-new_entry")
+        url = reverse("Lexicon-markup_preview")
         response = self.client.post(url, data={
             'content': '**foo** //bar//',
-            'is_public': 'on',
-            'language': 1,
             'markup': 6,
-            'preview': 'markup preview',
-            'short_definition': 'jojo',
-            'sites': 1,
-            'term': 'test'},
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             follow=True,
         )
         self.assertResponse(response,
             must_contain=(
-                '<title>PyLucid - Create a new lexicon entry</title>',
-                'Markup preview',
                 '<p><strong>foo</strong> <i>bar</i></p>',
-                'name="content">**foo** //bar//</textarea>',
             ),
-            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING", "<body", "<html")
         )
 
     def test_error_handling(self):
