@@ -116,9 +116,9 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
     def _pre_setup(self, *args, **kwargs):
         """ create some blog articles """
         super(PyLucidPluginsTest, self)._pre_setup(*args, **kwargs)
-        
+
         # TODO: use managment command for this, if exist ;)
-        self.login(usertype="superuser")         
+        self.login(usertype="superuser")
         response = self.client.get("/pylucid_admin/install/plugins/")
         self.failUnless(PyLucidAdminPage.objects.count() > 0, response.content + "\n\nno plugins installed?")
         self.assertResponse(response,
@@ -146,7 +146,7 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
             )
         )
         self.failUnlessEqual(response.status_code, 200)
-        
+
     def assertPermissionDenied(self, url):
         response = self.client.get(url)
         self.assertPyLucidPermissionDenied(response)
@@ -157,31 +157,31 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
         superuser_only_tested = False
         must_staff_only_tested = False
         permissions_only_tested = False
-        
+
         all_plugin_views = PyLucidAdminPage.objects.exclude(url_name=None)
         for item in all_plugin_views:
             url = item.get_absolute_url()
             superuser_only, permissions, must_staff = item.get_permissions()
-            
+
             if superuser_only:
                 # Test admin view for superusers only
                 if superuser_only_tested: # Test only one time
                     continue
                 superuser_only_tested = True
-                
+
                 # Anonymous user should have no access:
                 self.client = Client() # start a new session
                 self.assertLoginRedirect(url)
-                
+
                 self.login(usertype="normal")
                 self.assertPermissionDenied(url)
-                
+
                 self.login(usertype="staff")
                 self.assertPermissionDenied(url)
-                
+
                 self.login(usertype="superuser")
                 self.assertIsAdminPage(url)
-                
+
             elif must_staff and not permissions:
                 # User must be staff member, but must not have any permissions
                 if must_staff_only_tested: # Test only one time
@@ -190,32 +190,32 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
 
                 self.client = Client() # start a new session
                 self.assertLoginRedirect(url) # Anonymous user
-                
+
                 self.login(usertype="normal")
                 self.assertPermissionDenied(url)
-                
+
                 self.login(usertype="staff")
                 self.assertIsAdminPage(url)
-                
+
             elif permissions and not must_staff:
                 # Normal users with the right permissions can use this view
                 if permissions_only_tested: # Test only one time
                     continue
                 permissions_only_tested = True
-                
+
                 self.client = Client() # start a new session
                 self.assertLoginRedirect(url) # Anonymous user
-                
+
                 # Normal user, without any permissions
                 self.login(usertype="normal")
                 self.assertPermissionDenied(url)
-                
+
                 # Normal user with the right permissions
                 self.login_with_permissions(usertype="staff", permissions=permissions)
                 self.assertIsAdminPage(url)
-                
+
             sys.stdout.write(".")
-                
+
         # Check if every case was tested
         self.failUnless(superuser_only_tested == True)
         self.failUnless(must_staff_only_tested == True)
@@ -228,13 +228,12 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test', "apps.pylucid_admin.tests.PyLucidPluginsTest.test_access_admin_views",
+
+    tests = __file__
+#    tests = "apps.pylucid_admin.tests.PyLucidPluginsTest.test_access_admin_views"
+
+    management.call_command('test', tests,
 #        verbosity=0,
         verbosity=1,
         failfast=True
     )
-#    management.call_command('test', __file__,
-#        verbosity=1,
-##        verbosity=0,
-##        failfast=True
-#    )
