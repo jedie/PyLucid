@@ -15,7 +15,7 @@
     django documentation for a full list of all items:
         http://www.djangoproject.com/documentation/settings/
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -139,15 +139,15 @@ TEMPLATE_DIRS += PYLUCID_PLUGIN_SETUP_INFO.template_dirs
 
 TEMPLATE_LOADERS = (
     'dbtemplates.loader.load_template_source',
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
 )
 
 # A tuple of callables that are used to populate the context in RequestContext.
 # These callables take a request object as their argument and return a
 # dictionary of items to be merged into the context.
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.request",

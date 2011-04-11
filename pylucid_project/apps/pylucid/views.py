@@ -120,7 +120,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Add the page template content to the pylucid objects
     # Used to find context middleware plugins and in _render_template()
     template_name = context["template_name"] # Added in pylucid.context_processors
-    page_template, origin = loader.find_template_source(template_name)
+    page_template, origin = loader.find_template(template_name)
     request.PYLUCID.page_template = page_template
 
     # Get all plugin context middlewares from the template and add them to the context
