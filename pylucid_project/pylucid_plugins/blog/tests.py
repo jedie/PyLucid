@@ -9,7 +9,7 @@
         - PyLucid initial data contains english and german pages.
         - There exist only "PyLucid CMS" blog entry in english and german
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 

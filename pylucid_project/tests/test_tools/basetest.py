@@ -84,8 +84,13 @@ class BaseUnittest(BaseTestCase, TestCase):
             must_contain=(
                 # django
                 '<form action="%s" method="post" id="login-form">' % url,
-                '<input type="text" name="username"',
-                '<input type="password" name="password"',
+
+                '<label for="id_username" class="required">Username:</label>',
+                '<input id="id_username" type="text" name="username" maxlength="30" />',
+
+                '<label for="id_password" class="required">Password:</label>',
+                '<input type="password" name="password" id="id_password" />',
+
                 '<input type="submit" value="Log in" />',
                 # from pylucid:
                 'JS-SHA-Login',
@@ -97,9 +102,9 @@ class BaseUnittest(BaseTestCase, TestCase):
 
     def assertAtomFeed(self, response, language_code):
         # application/atom+xml; charset=utf8 -> application/atom+xml
-        content_type = response["content-type"].split(";",1)[0]
+        content_type = response["content-type"].split(";", 1)[0]
         self.failUnlessEqual(content_type, "application/atom+xml")
-        
+
         self.failUnlessEqual(response["content-language"], language_code)
         self.assertResponse(response,
             must_contain=(
@@ -115,9 +120,9 @@ class BaseUnittest(BaseTestCase, TestCase):
 
     def assertRssFeed(self, response, language_code):
         # application/rss+xml; charset=utf8 -> application/rss+xml
-        content_type = response["content-type"].split(";",1)[0]
+        content_type = response["content-type"].split(";", 1)[0]
         self.failUnlessEqual(content_type, "application/rss+xml")
-        
+
         self.failUnlessEqual(response["content-language"], language_code)
         self.assertResponse(response,
             must_contain=(
