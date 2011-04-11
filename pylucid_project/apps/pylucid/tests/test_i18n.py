@@ -72,8 +72,8 @@ class TestI18n(basetest.BaseLanguageTestCase):
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>',
-                '<a href="/de/welcome/" title="Open this content in Deutsch.">',
-                'This content exist also in Deutsch.',
+                '<a href="/de/welcome/" title="Diesen Inhalt in Deutsch öffnen.">',
+                'Diese Inhalt existiert auch in Deutsch.',
             ),
             must_not_contain=("Traceback",)
         )
@@ -227,7 +227,7 @@ if __name__ == "__main__":
     from django.core import management
 
     tests = __file__
-#    tests = "pylucid.tests.test_i18n.TestI18n.test_page_without_lang"
+#    tests = "pylucid.tests.test_i18n.TestI18n.test_other_language_in_url"
 
     management.call_command('test', tests,
         verbosity=2,
