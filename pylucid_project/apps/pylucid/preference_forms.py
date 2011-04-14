@@ -1,14 +1,19 @@
 # coding: utf-8
 
-import warnings
 
 from django import forms
+from django.contrib import messages
 from django.contrib.messages import constants as message_constants
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from dbpreferences.forms import DBPreferencesBaseForm
 
+from django_tools.middlewares import ThreadLocal
+
 from pylucid_project.apps.pylucid.models import Design
+
+
 
 #if Language.objects.count() == 0:
 #    # FIXME: Insert first language
@@ -94,7 +99,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         super(SystemPreferencesForm, self).__init__(*args, **kwargs)
         existing_designs = Design.on_site.all().values_list("id", "name")
 
-        self.fields['pylucid_admin_design'].choices = existing_designs
+        self.base_fields['pylucid_admin_design'].choices = existing_designs
 
         # Fallback if admin design not set
         initial = existing_designs[0][0]
@@ -103,7 +108,25 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
                 initial = id
                 break
 
-        self.fields['pylucid_admin_design'].initial = initial
+        self.base_fields['pylucid_admin_design'].initial = initial
+
+    def get_preferences(self):
+        """
+        Fall back to initial data, if something wrong with system preferences.
+        This is important, because nothing would work, if validation error raised.
+        """
+        try:
+            return super(SystemPreferencesForm, self).get_preferences()
+        except ValidationError, e:
+            self.data = self.save_form_init()
+
+            msg = 'Reset system preferences cause: %s' % e
+            request = ThreadLocal.get_current_request()
+            messages.info(request, msg)
+
+            return self.data
+
+        return super(SystemPreferencesForm, self).get_preferences()
 
     class Meta:
         app_label = 'pylucid'
