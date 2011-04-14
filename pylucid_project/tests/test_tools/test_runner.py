@@ -134,7 +134,15 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
 
         return test_suite
 
+    def setup_test_environment(self, **kwargs):
+        print "insert unittest plugin via symlink "
+        os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+        super(PyLucidTestRunner, self).setup_test_environment(**kwargs)
 
+    def teardown_test_environment(self, **kwargs):
+        super(PyLucidTestRunner, self).teardown_test_environment(**kwargs)
+        print "remove unittest plugin symlink"
+        os.remove(UNITTEST_PLUGIN_DST_PATH)
 
 if __name__ == "__main__":
     # Run all unittest directly

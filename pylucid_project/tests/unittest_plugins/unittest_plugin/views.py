@@ -41,6 +41,9 @@ REDIRECT_URL = "/"
 def http_get_view(request):
     action = request.GET[GET_KEY]
 
+    if action == "MSG_ERROR":
+        messages.error(request, message="A error messages")
+
     if action == ACTION_NONE_RESPONSE:
         # normal PageContent would be used.
         return None

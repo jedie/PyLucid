@@ -31,6 +31,28 @@ class PyLucidPluginSetupInfo(dict):
         # for expand: settings.INSTALLED_APPS
         self.installed_plugins = []
 
+        if "PYLUCID_ADD_PLUGINS_PATH" in os.environ:
+            additional_path = os.environ["PYLUCID_ADD_PLUGINS_PATH"]
+
+            plugin_package_list = list(plugin_package_list)
+
+            for path in additional_path.split(";"):
+                if self.verbose:
+                    print "Add additional plugin path: %s" % path
+
+                base_path, pkg_dir = os.path.split(path)
+                section = os.path.split(base_path)[1]
+
+                plugin_package_list.append(
+                    (base_path, section, pkg_dir)
+                )
+
+            plugin_package_list = tuple(plugin_package_list)
+
+            if self.verbose:
+                print "Use this paths: %s" % repr(plugin_package_list)
+
+
         for base_path, section, pkg_dir in plugin_package_list:
             # e.g.: (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins")
             self.add(base_path, section, pkg_dir)

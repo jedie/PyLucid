@@ -69,7 +69,7 @@ class PyLucidPlugin(object):
         except Exception, err:
             msg = u"Error importing %r from plugin %r" % (mod_pkg, self.name)
 
-            if str(err) == "No module named %s" % mod_name:
+            if str(err).startswith("No module named "):
                 raise self.ObjectNotFound("%s: %s" % (msg, err))
 
             # insert more information into the traceback
@@ -238,7 +238,7 @@ class PyLucidPlugins(dict):
 
             # Don't display pylucid comments"
             request.PYLUCID.object2comment = False
-                       
+
             try:
                 response = plugin_instance.call_plugin_view(
                     request, mod_name="views", func_name=method_name, method_kwargs={}
