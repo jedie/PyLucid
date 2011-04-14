@@ -92,7 +92,18 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
 
     def __init__(self, *args, **kwargs):
         super(SystemPreferencesForm, self).__init__(*args, **kwargs)
-        self.fields['pylucid_admin_design'].choices = Design.on_site.all().values_list("id", "name")
+        existing_designs = Design.on_site.all().values_list("id", "name")
+
+        self.fields['pylucid_admin_design'].choices = existing_designs
+
+        # Fallback if admin design not set
+        initial = existing_designs[0][0]
+        for id, name in existing_designs:
+            if name == "PyLucid Admin":
+                initial = id
+                break
+
+        self.fields['pylucid_admin_design'].initial = initial
 
     class Meta:
         app_label = 'pylucid'
