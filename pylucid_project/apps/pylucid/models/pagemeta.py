@@ -29,6 +29,7 @@ from django_tools import model_utils
 from django_tools.tagging_addon.fields import jQueryTagModelField
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
+from django_tools.middlewares import ThreadLocal
 
 
 TAG_INPUT_HELP_URL = \
@@ -137,21 +138,22 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
             #print "PageMeta permalink_cache len: %s, pk: %s" % (len(self._permalink_cache), self.pk)
             return self._permalink_cache[self.pk]
 
-        from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm # FIXME: against import loops.
+        # Get the system preferences
+        request = ThreadLocal.get_current_request()
+        sys_pref = request.PYLUCID.preferences
+        sys_pref_form = request.PYLUCID.preferences_form
 
-        sys_pref_form = SystemPreferencesForm()
-        sys_pref = sys_pref_form.get_preferences()
-        use_additions = sys_pref.get("permalink_additions", SystemPreferencesForm.PERMALINK_USE_TITLE)
+        use_additions = sys_pref.get("permalink_additions", sys_pref_form.PERMALINK_USE_TITLE)
 
         do_slugify = False
-        if use_additions == SystemPreferencesForm.PERMALINK_USE_TITLE:
+        if use_additions == sys_pref_form.PERMALINK_USE_TITLE:
             # Append the PageMeta title (language dependent)
             addition_txt = self.get_title()
             do_slugify = True
-        elif use_additions == SystemPreferencesForm.PERMALINK_USE_NAME:
+        elif use_additions == sys_pref_form.PERMALINK_USE_NAME:
             addition_txt = self.get_name()
             do_slugify = True
-        elif use_additions == SystemPreferencesForm.PERMALINK_USE_SLUG:
+        elif use_additions == sys_pref_form.PERMALINK_USE_SLUG:
             addition_txt = self.pagetree.slug
         else:
             addition_txt = ""

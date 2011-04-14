@@ -9,8 +9,6 @@ from django.utils.encoding import smart_str
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.system import pylucid_objects
-from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
-
 
 
 class PyLucidMiddleware(object):
@@ -21,8 +19,10 @@ class PyLucidMiddleware(object):
     def process_exception(self, request, exception):
         if isinstance(exception, Http404): # Handle 404 page not found errors
 
-            sys_pref_form = SystemPreferencesForm()
-            sys_pref = sys_pref_form.get_preferences()
+            # Get the system preferences
+            sys_pref = request.PYLUCID.preferences
+            sys_pref_form = request.PYLUCID.preferences_form
+
             log404_verbosity = sys_pref.get("log404_verbosity", sys_pref_form.LOG404_NOREDIRECT)
 
             if log404_verbosity == sys_pref_form.LOG404_NOTHING:

@@ -17,7 +17,7 @@ class AdminMenu(object):
         self.request = request
         self.output = output
 
-#        sys_preferences = SystemPreferencesForm().get_preferences()
+#        sys_preferences = request.PYLUCID.preferences
 #        admin_design_id = sys_preferences["pylucid_admin_design"]
 #        self.admin_design = Design.objects.get(id=admin_design_id)
 

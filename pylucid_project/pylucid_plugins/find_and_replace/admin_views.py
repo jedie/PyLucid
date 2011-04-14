@@ -2,18 +2,13 @@
 
 import time
 
-from django import http
 from django.contrib import messages
-from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.markup import hightlighter
-from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models.language import Language
-from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
-from pylucid_project.utils.site_utils import get_site_preselection
 
 from find_and_replace.forms import FindReplaceForm, CONTENT_TYPES_DICT, CONTENT_TYPES
 

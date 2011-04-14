@@ -18,6 +18,7 @@ from django.utils.safestring import mark_safe
 
 from django_tools.utils.messages import failsafe_message
 
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.system import extrahead
 from pylucid_project.utils.escape import escape
 
@@ -31,6 +32,9 @@ class PyLucidRequestObjects(object):
     _check_setattr = False
     def __init__(self, request):
         self.request = request
+
+        self.preferences_form = SystemPreferencesForm()
+        self.preferences = self.preferences_form.get_preferences()
 
         # FIXME: import here, against import loop:
         from pylucid_project.apps.pylucid.models import Language

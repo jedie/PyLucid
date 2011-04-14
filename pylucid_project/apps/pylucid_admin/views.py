@@ -23,7 +23,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design
-from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.system import pylucid_plugin, pylucid_objects
 from pylucid_project.apps.pylucid_admin.models import PyLucidAdminPage
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
@@ -45,7 +44,7 @@ def install_pylucid(request):
     output = []
     output.append("*** PyLucid install:")
 
-    sys_pref_form = SystemPreferencesForm()
+    sys_pref_form = request.PYLUCID.preferences_form
 
     # ------------------------------------------------------------------------
     pylucid_admin_group, created = Group.objects.get_or_create(name=settings.ADMIN.USER_GROUP)

@@ -104,6 +104,9 @@ MIDDLEWARE_CLASSES = (
 
     # Insert a html link anchor to all headlines:
     'pylucid_project.middlewares.headline_anchor.HeadlineAnchorMiddleware',
+
+    # Set django message level by user type and system preferences:
+    'pylucid_project.middlewares.message_level.MessageLevelMiddleware',
 )
 
 
