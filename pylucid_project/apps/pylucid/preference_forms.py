@@ -23,7 +23,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     # see: http://code.google.com/p/django-dbpreferences/issues/detail?id=4
     pylucid_admin_design = forms.ChoiceField(
         # choices= Set in __init__, so the Queryset would not execute at startup
-        required=False, initial=None,
+        initial=None,
         help_text=_("ID of the PyLucid Admin Design. (Not used yet!)")
     )
     ban_release_time = forms.IntegerField(
@@ -43,7 +43,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     )
     permalink_additions = forms.ChoiceField(
         choices=PERMALINK_USE_CHOICES,
-        required=True, initial=PERMALINK_USE_TITLE,
+        initial=PERMALINK_USE_TITLE,
         help_text=_("Should we append a additional text to every permalink?")
     )
 
@@ -58,7 +58,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     )
     log404_verbosity = forms.ChoiceField(
         choices=LOG404_CHOICES,
-        required=True, initial=LOG404_NOREDIRECT,
+        initial=LOG404_NOREDIRECT,
         help_text=_("Setup logging verbosity if 404 - 'Page not found' appears")
     )
 
@@ -71,25 +71,21 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     )
     message_level_anonymous = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        required=True,
         initial=message_constants.SUCCESS,
         help_text=_("Set django message level for anonymous user to set the minimum message that will be displayed.")
     )
     message_level_normalusers = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        required=True,
         initial=message_constants.INFO,
         help_text=_("Set django message level for normal users to set the minimum message that will be displayed.")
     )
     message_level_staff = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        required=True,
         initial=message_constants.DEBUG,
         help_text=_("Set django message level for staff users to set the minimum message that will be displayed.")
     )
     message_level_superuser = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        required=True,
         initial=message_constants.DEBUG,
         help_text=_("Set django message level for superusers to set the minimum message that will be displayed.")
     )
