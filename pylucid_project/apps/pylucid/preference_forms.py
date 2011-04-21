@@ -1,18 +1,20 @@
 # coding: utf-8
 
 
+import warnings
+
 from django import forms
 from django.contrib import messages
 from django.contrib.messages import constants as message_constants
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.messages.api import MessageFailure
 
 from dbpreferences.forms import DBPreferencesBaseForm
 
 from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.apps.pylucid.models import Design
-
 
 
 #if Language.objects.count() == 0:
@@ -30,10 +32,6 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         # choices= Set in __init__, so the Queryset would not execute at startup
         initial=None,
         help_text=_("ID of the PyLucid Admin Design. (Not used yet!)")
-    )
-    ban_release_time = forms.IntegerField(
-        help_text=_("How long should a IP address banned in minutes. (Changes need app restart)"),
-        initial=15, min_value=1, max_value=60 * 24 * 7
     )
 
     PERMALINK_USE_NONE = "nothing"
@@ -122,7 +120,12 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
 
             msg = 'Reset system preferences cause: %s' % e
             request = ThreadLocal.get_current_request()
-            messages.info(request, msg)
+            try:
+                messages.info(request, msg)
+            except MessageFailure:
+                # If message system is not initialized, e.g.:
+                # load the system preferences on module level
+                warnings.warn(msg)
 
             return self.data
 

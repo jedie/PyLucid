@@ -52,9 +52,9 @@ UPDATE08_PLUGIN_VIEWNAME = "update08"
 
 # Number of seconds after the IP ban cleanup method would be called.
 # This removed the outdated IPs from the ban list.
-# You can setup how long a IP address banned in:
-# Dbpreferences / pylucid / SystemPreferencesForm / ban_release_time - 
 CLEANUP_IP_BAN = 60
+# How long should a IP address banned in minutes:
+BAN_RELEASE_TIME = 15
 
 # internal placeholder: The PyLucid TOC Plugin insert it and the HeadlineAnchorMiddleware
 # replaced it with the Table of contents html code.
