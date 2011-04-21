@@ -97,6 +97,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         super(SystemPreferencesForm, self).__init__(*args, **kwargs)
         existing_designs = Design.on_site.all().values_list("id", "name")
 
+        self.fields['pylucid_admin_design'].choices = existing_designs
         self.base_fields['pylucid_admin_design'].choices = existing_designs
 
         # Fallback if admin design not set
