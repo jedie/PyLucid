@@ -27,7 +27,7 @@ Please select how the pylucid own projects should be checkout:
 (1) Python packages from PyPi (no SVN or git needed, not supported, yet!)
 (2) source via SVN only (checkout git repository via github svn gateway)
 (3) source via git and clone with readonly **preferred**
-(4) clone with git push access (Only for PyLucid collaborators)
+(4) clone with git push access (Only for PyLucid collaborators, clone django readonly)
 (5) abort
 """
 DEFAULT_MENU_CHOICE = 3
@@ -48,8 +48,8 @@ PIP_INSTALL_DATA = {
         ("-e", "svn+http://svn.github.com/jedie/PyLucid.git#egg=pylucid"),
     ],
     3: [# git readonly clone
-        # SVN Version from django:
-        ("-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django"),
+        # Official clone of the Django Subversion repository (readonly clone)
+        ("-e", "git+git://github.com/django/django.git#egg=django"),
         # own sub projects
         ("-e", "git+git://github.com/jedie/python-creole.git#egg=python-creole"),
         ("-e", "git+git://github.com/jedie/django-dbpreferences.git#egg=dbpreferences"),
@@ -57,8 +57,8 @@ PIP_INSTALL_DATA = {
         ("-e", "git+git://github.com/jedie/PyLucid.git#egg=pylucid"),
     ],
     4: [ # clone with git push access
-        # SVN Version from django:
-        ("-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django"),
+        # Official clone of the Django Subversion repository (readonly clone)
+        ("-e", "git+git://github.com/django/django.git#egg=django"),
         # own sub projects
         ("-e", "git+git@github.com:jedie/python-creole.git#egg=python-creole"),
         ("-e", "git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences"),
