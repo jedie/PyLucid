@@ -2,7 +2,7 @@ h1. description
 
 "PyLucid":http://www.pylucid.org/ is a Open Source web content management system written in Python using the Django Framework.
 
-This boot files are needed for easy create a pylucid virtual environment.
+This boot files are for easy create a pylucid virtual environment.
 
 
 h2. usage
@@ -10,13 +10,16 @@ h2. usage
 to create a PyLucid virtual environment you need only one file, e.g:
 
 pre. ~$ wget http://github.com/jedie/PyLucid-boot/raw/master/pylucid_boot/pylucid-boot.py
-~$ python pylucid-boot.py PyLucid_env
+~$ python pylucid-boot.py ~/PyLucid_env
 
 You get this menu:
-* (1) Python packages from PyPi (no SVN or git needed)
-* (2) source via SVN only (checkout git repository via github svn gateway)
-* (3) source via git and clone with readonly
-* (4) clone with git push access (Only for PyLucid collaborators)
+
+pre. Please select how the pylucid own projects should be checkout:
+(1) Python packages from PyPi (no SVN or git needed, not supported, yet!)
+(2) source via SVN only (checkout git repository via github svn gateway)
+(3) source via git and clone with readonly **preferred**
+(4) clone with git push access (Only for PyLucid collaborators)
+(5) abort
 
 
 h2. links
