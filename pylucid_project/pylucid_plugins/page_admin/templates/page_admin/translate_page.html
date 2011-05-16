@@ -48,6 +48,13 @@
     background-color: #fff;
     font-style: normal;
 }
+.pylucid_form .across_fields textarea {
+    max-width: 100%;
+    width: 100%;
+}
+.pylucid_form .across_fields .field_help_text {
+    margin-left: 0px;
+}
 </style>
 <script type="text/javascript">
 <!--
@@ -80,16 +87,6 @@ $(document).ready(function(){
     {% for form in all_forms %}      
         {% include "admin/pylucid/includes/form_errorlist.html" %}
     {% endfor %}
-    </fieldset>
-{% endif %}
-
-{% if source_preview %}
-    {% include "page_admin/includes/edit_content_page_buttons.html" %}
-    <fieldset id="preview_fieldset"><legend>{% trans 'Markup preview' %}</legend>    
-        <div class="across_fields">
-            <div class="source_float">{{ source_preview }}</div>
-            <div class="dest_float">{{ dest_preview }}</div>
-        </div>
     </fieldset>
 {% endif %}
 
