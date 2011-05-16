@@ -1,7 +1,8 @@
 {% extends "pylucid/css_anchor_div.html" %}
 
 {% block plugin_content %}
-<form id="search_form" method="get">
+<form id="search_form" method="post" action="?search=" class="pylucid_form">
+{% csrf_token %}
 {% for field in form %}
     {% if field.errors %}<fieldset>{% endif %}
     {{ field }}

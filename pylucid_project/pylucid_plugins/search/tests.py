@@ -8,9 +8,10 @@
     Info:
         - PyLucid initial data contains english and german pages.
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import os
 
@@ -20,15 +21,19 @@ if __name__ == "__main__":
 
 from pylucid_project.tests.test_tools.basetest import BaseUnittest
 
+from pylucid_project.pylucid_plugins.search.preference_forms import SearchPreferencesForm
+
 
 class SearchTest(BaseUnittest):
-    def test_get_search(self):
-        response = self.client.get("/", data={"search": "PyLucid"})
+
+    def test_search(self):
+        response = self.client.post("/?search=", data={"search": "PyLucid"})
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS - Advanced search</title>',
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
+                '<input type="hidden" name="search_page" value="true" >',
                 '<input type="text" name="search" value="PyLucid" id="id_search" />',
                 '<input type="submit" value="search" />',
                 'Search Form',
@@ -46,13 +51,14 @@ class SearchTest(BaseUnittest):
         )
 
     def test_short_terms(self):
-        response = self.client.get("/", data={"search": "py foo bar"})
+        response = self.client.post("/?search=", data={"search": "py foo bar"})
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS - Advanced search</title>',
                 "Ignore &#39;py&#39; (too small)",
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
+                '<input type="hidden" name="search_page" value="true" >',
                 '<input type="text" name="search" value="py foo bar" id="id_search" />',
                 '<input type="submit" value="search" />',
                 'Search Form',
@@ -68,7 +74,7 @@ class SearchTest(BaseUnittest):
         )
 
     def test_no_search_term_left(self):
-        response = self.client.get("/", data={"search": "py xy z"})
+        response = self.client.post("/?search=", data={"search": "py xy z"})
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response,
             must_contain=(
@@ -78,6 +84,7 @@ class SearchTest(BaseUnittest):
                 "Ignore &#39;z&#39; (too small)",
                 "Error: no search term left, can&#39;t search",
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
+                '<input type="hidden" name="search_page" value="true" >',
                 '<input type="text" name="search" value="py xy z" id="id_search" />',
                 '<input type="submit" value="search" />',
                 'Search Form',
@@ -99,7 +106,7 @@ if __name__ == "__main__":
     from django.core import management
 
     tests = __file__
-#    tests = "pylucid_plugins.page_admin.tests.ConvertMarkupTest"
+#    tests = "pylucid_plugins.search.tests.SearchTest.test_prefered_language"
 
     management.call_command('test', tests,
         verbosity=2,

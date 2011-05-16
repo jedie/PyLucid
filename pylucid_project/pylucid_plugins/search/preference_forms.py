@@ -36,7 +36,11 @@ class SearchPreferencesForm(DBPreferencesBaseForm):
         help_text=_("Minimum pause in seconds between two search from the same user. (Used 'REMOTE_ADDR')"),
         initial=3, min_value=1, max_value=60
     )
-#    max_
+
+    all_languages = forms.BooleanField(
+        help_text=_("Use all languages (checked) or only the user prefered langes (unchecked) as default search language?"),
+        initial=True, required=False,
+    )
 
     class Meta:
         app_label = 'search'
