@@ -18,6 +18,7 @@
 </p>
 
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+	{% csrf_token %}
     {% include "admin/pylucid/includes/buttons_save_abort.html" %}
     
     {{ formset.management_form }}

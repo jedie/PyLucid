@@ -134,6 +134,7 @@ jQuery(document).ready(function($) {
     {% trans 'Edit the CMS page' %} '<strong>{{ pagemeta.get_title|escape }}</strong>'
 </legend>
 <form action="{{ form_url }}" method="post" id="edit_page_form">
+{% csrf_token %}
  <div class="helper_buttons">
      <input type="submit" name="save" value="{% trans 'save' %}" />
      <input type="submit" id="submit_preview" name="preview" value="{% trans 'markup preview' %}" />

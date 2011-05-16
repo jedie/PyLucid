@@ -2,6 +2,7 @@
 
 {% block content %}
 <form id="search_form" method="post" action="{{ form_url }}" class="pylucid_form">
+	{% csrf_token %}
     <fieldset>
     <h2 class="form_collapse">Search Form</h2>
         {% include "admin/pylucid/includes/pylucid_formset.html" %}

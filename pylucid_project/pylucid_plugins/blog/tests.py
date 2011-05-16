@@ -151,15 +151,30 @@ class BlogPluginTest(BlogPluginTestCase):
             must_contain=(
                 '<title>PyLucid - Create a new blog entry</title>',
                 'form action="%s"' % CREATE_URL,
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
                 'textarea id="id_content"',
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
         )
 
+    def test_create_csrf_error(self):
+        self.login_with_blog_add_permissions()
+        csrf_client = Client(enforce_csrf_checks=True)
+        response = csrf_client.post(CREATE_URL)
+        self.assertResponse(response,
+            must_contain=(
+                "CSRF verification failed."
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required",
+
+            )
+        )
+
     def test_create_entry(self):
         self.login_with_blog_add_permissions()
-        response = self.client.post(CREATE_URL, data={
+        response = self.client.post(CREATE_URL,
+            data={
             "headline": "The blog headline",
             "content": "The **blog article content** in //creole// markup!",
             "markup": MARKUP_CREOLE,
@@ -460,8 +475,9 @@ if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
 
-    tests = __file__
-#    tests = "pylucid_plugins.blog.tests.BlogPluginArticleTest"
+#    tests = __file__
+    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
 
     management.call_command('test', tests,

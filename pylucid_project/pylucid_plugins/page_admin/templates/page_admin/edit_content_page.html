@@ -2,6 +2,7 @@
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+{% csrf_token %}
 <p>
     <small>
     Note: A new page can only create the default system language.

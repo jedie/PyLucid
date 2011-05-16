@@ -129,6 +129,7 @@ class PageAdminTest(PageAdminTestCase):
             must_contain=(
                 '<title>PyLucid - Create a new page</title>',
                 'form action="%s"' % CREATE_CONTENT_PAGE_URL,
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
                 'textarea id="id_content"',
             ),
@@ -278,6 +279,7 @@ class PageAdminTest(PageAdminTestCase):
             must_contain=(
                 "<title>PyLucid - Translate page &#39;welcome&#39; (English) into Deutsch.</title>",
                 "Translate page &#39;welcome&#39; (English) into Deutsch.",
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 '<input type="submit" name="save" value="save" />',
                 '''<input onclick="self.location.href='/en/welcome/'" name="abort" value="abort" type="reset" />''',
                 '<a href="/pylucid_admin/plugins/page_admin/markup_help/"',
@@ -373,6 +375,7 @@ class PageAdminInlineEditTest(PageAdminTestCase):
                 # JavaScript:
                 '$("#ajax_preview").show();',
                 # Some form strings:
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
                 'form action="/?page_admin=inline_edit"',
                 'textarea id="id_content"',
@@ -387,7 +390,6 @@ class PageAdminInlineEditTest(PageAdminTestCase):
     def test_ajax_preview(self):
         """ Test ajax edit page preview """
         self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
-
         response = self.client.post(INLINE_PREVIEW_URL,
             {"content": "A **creole** //preview//!", "preview": True},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
@@ -416,6 +418,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         self.assertResponse(response,
             must_contain=(
                 "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'The original markup is: <strong>tinytextile</strong>',
                 'h1. headlines',
             ),
@@ -434,6 +437,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         self.assertResponse(response,
             must_contain=(
                 "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
                 'The original markup is: <strong>tinytextile</strong>',
                 '<legend class="pygments_code">Diff</legend>',
@@ -476,11 +480,11 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminHelperViewsTest",
-#        verbosity=2,
-##        failfast=True
-#    )
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form"
+
+    management.call_command('test', tests,
         verbosity=2,
 #        failfast=True
     )

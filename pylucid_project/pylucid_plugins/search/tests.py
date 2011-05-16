@@ -28,6 +28,7 @@ class SearchTest(BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS - Advanced search</title>',
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 '<input type="text" name="search" value="PyLucid" id="id_search" />',
                 '<input type="submit" value="search" />',
                 'Search Form',
@@ -51,6 +52,7 @@ class SearchTest(BaseUnittest):
             must_contain=(
                 '<title>PyLucid CMS - Advanced search</title>',
                 "Ignore &#39;py&#39; (too small)",
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 '<input type="text" name="search" value="py foo bar" id="id_search" />',
                 '<input type="submit" value="search" />',
                 'Search Form',
@@ -75,6 +77,7 @@ class SearchTest(BaseUnittest):
                 "Ignore &#39;xy&#39; (too small)",
                 "Ignore &#39;z&#39; (too small)",
                 "Error: no search term left, can&#39;t search",
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 '<input type="text" name="search" value="py xy z" id="id_search" />',
                 '<input type="submit" value="search" />',
                 'Search Form',
@@ -94,12 +97,11 @@ class SearchTest(BaseUnittest):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.page_admin.tests.ConvertMarkupTest",
-##        verbosity=0,
-#        verbosity=1,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.page_admin.tests.ConvertMarkupTest"
+
+    management.call_command('test', tests,
         verbosity=2,
 #        failfast=True
     )

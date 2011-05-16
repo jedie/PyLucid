@@ -76,6 +76,7 @@ $(document).ready(function(){
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+{% csrf_token %}
 {% if not sites|length_is:"1" %}
 <p>
     <small>This new content page will be create on site: '<strong>{{ current_site }}</strong>'.</small>
