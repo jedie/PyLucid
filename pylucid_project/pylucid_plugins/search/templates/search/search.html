@@ -67,7 +67,7 @@
 	    {% for hit in search_results %}   
 	         <li onclick="JavaScript:window.location.href='{{ hit.url }}';">
 	                <a href="{{ hit.url }}" title="goto {{ hit.url }}">
-	                	<h3>{{ hit.headline }}</h3>
+	                	<h3 class="no_anchor">{{ hit.headline }}</h3>
 	                </a>
 	                <ul title="score: {{ hit.score }}, language: {{ hit.language.description }}, content type: {{ hit.content_type }}">
 		                {% for pre_txt, hit_txt, post_txt in hit.cutouts %}
