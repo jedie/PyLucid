@@ -222,7 +222,7 @@ jQuery(document).ready(function($) {
 
 <fieldset>
 <legend>
-	PyLucid <a href="http://www.pylucid.org/permalink/42/secure-login-without-https" title="What is the PyLucid JS-SHA-LogIn?">JS-SHA-LogIn</a>
+	PyLucid <a href="http://www.pylucid.org/permalink/42/secure-login-without-https" title="{% trans "What is the PyLucid JS-SHA-LogIn?" %}">JS-SHA-LogIn</a>
 </legend>
 
 <noscript>
@@ -232,22 +232,22 @@ jQuery(document).ready(function($) {
     </fieldset>
 </noscript>
 
-<p id="load_info">loading...</p>
+<p id="load_info">{% trans "loading..." %}</p>
 
-<form method="post" action="" name="login" id="login_form">
+<form method="post" action="" name="login" id="login_form" autocomplete="on">
   <p id="js_page_msg"></p>
   <p>
-  	<label for="id_username">Username:</label>
-    <input id="id_username" type="text" name="username" maxlength="30" />
+  	<label for="id_username">{% trans "Username" %}:</label>
+    <input id="id_username" type="text" name="username" maxlength="30" required="required" autocomplete="on" />
   </p>
   <p id="password_block">
-  	<label for="id_password">Password:</label>
-	<input id="id_password" type="password" name="password" maxlength="128" />
+  	<label for="id_password">{% trans "Password" %}:</label>
+	<input id="id_password" type="password" name="password" maxlength="128" required="required" autocomplete="off" />
   </p>
   <p id="sha_values_block">
   	<label>SHA values:</label>
-    <input readonly="readonly" name="sha_a2" maxlength="40" type="text" id="id_sha_a2" size="40" />
-    <input readonly="readonly" name="sha_b" maxlength="20" type="text" id="id_sha_b" size="20" />
+    <input readonly="readonly" name="sha_a2" maxlength="40" type="text" id="id_sha_a2" size="40" autocomplete="off" />
+    <input readonly="readonly" name="sha_b" maxlength="20" type="text" id="id_sha_b" size="20" autocomplete="off" />
   </p>
   <input id="submit_button" type="submit" value="{% trans 'Log in' %}" />
 </form>
