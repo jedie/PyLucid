@@ -117,8 +117,8 @@ class CloneDesignTest(basetest.BaseUnittest, TestCase):
         self.assertResponse(response,
             must_contain=(
                 "Clone a existing page design",
-                '<input type="text" name="new_name"',
-                '<select name="design"',
+                '<input id="id_new_name" name="new_name" type="text" />',
+                '<select id="id_design" name="design">',
                 "clone design",
             ),
             must_not_contain=("Traceback",)
@@ -141,8 +141,8 @@ class CloneDesignTest(basetest.BaseUnittest, TestCase):
         self.assertResponse(response,
             must_contain=(
                 "Clone a existing page design",
-                '<input type="text" name="new_name"',
-                '<select name="design"',
+                '<input id="id_new_name" name="new_name" type="text" />',
+                '<select id="id_design" name="design">',
                 "clone design",
                 "New design &#39;%s&#39; created." % new_name,
             ),
@@ -359,13 +359,13 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
                 'Change color scheme',
 
                 # colorscheme name:
-                '<input name="name" value="yellow"',
+                'name="name" type="text" value="yellow" />',
 
                 # colors:
-                '<input name="color_set-0-name" value="background"',
-                'name="color_set-0-value" value="222200"',
-                '<input name="color_set-1-name" value="foreground"',
-                'name="color_set-1-value" value="aaaa00"',
+                'name="color_set-0-name" type="text" value="background" />',
+                'name="color_set-0-value" style="background-ColorValue:#222200;" type="text" value="222200" />',
+                'name="color_set-1-name" type="text" value="foreground" />',
+                'name="color_set-1-value" style="background-ColorValue:#aaaa00;" type="text" value="aaaa00" />',
             ),
             must_not_contain=("Traceback",)
         )
@@ -492,13 +492,13 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
                 'Change color scheme',
 
                 # colorscheme name:
-                '<input name="name" value="yellow"',
+                'name="name" type="text" value="yellow" />',
 
                 # colors:
-                '<input name="color_set-0-name" value="background"',
-                'name="color_set-0-value" value="222200"',
-                '<input name="color_set-1-name" value="foreground"',
-                'name="color_set-1-value" value="0000ff"',
+                'name="color_set-0-name" type="text" value="background" />',
+                'name="color_set-0-value" style="background-ColorValue:#222200;" type="text" value="222200" />',
+                'name="color_set-1-name" type="text" value="foreground" />',
+                'name="color_set-1-value" style="background-ColorValue:#0000ff;" type="text" value="0000ff" />',
             ),
             must_not_contain=("Traceback", "This field is required.")
         )
@@ -550,13 +550,13 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
                 'Color &quot;foreground&quot; renamed to &quot;vordergrund&quot;:Headfiles &quot;test_styles.css&quot;, &quot;inverted_test_styles.css&quot; and colorschemes &quot;yellow&quot;, &quot;blue&quot; updated.',
 
                 # colorscheme name:
-                '<input name="name" value="yellow"',
+                'name="name" type="text" value="yellow" />',
 
                 # colors:
-                '<input name="color_set-0-name" value="hintergrund"',
-                'name="color_set-0-value" value="222200"',
-                '<input name="color_set-1-name" value="vordergrund"',
-                'name="color_set-1-value" value="aaaa00"',
+                'name="color_set-0-name" type="text" value="hintergrund" />',
+                'name="color_set-0-value" style="background-ColorValue:#222200;" type="text" value="222200" />',
+                'name="color_set-1-name" type="text" value="vordergrund" />',
+                'name="color_set-1-value" style="background-ColorValue:#aaaa00;" type="text" value="aaaa00" />',
             ),
             must_not_contain=("Traceback", "This field is required.")
         )
@@ -584,13 +584,13 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
                 'remove 1 colors: &quot;unused1&quot;',
 
                 # colorscheme name:
-                '<input name="name" value="yellow"',
+                'name="name" type="text" value="yellow" />',
 
                 # colors:
-                '<input name="color_set-0-name" value="background"',
-                'name="color_set-0-value" value="222200"',
-                '<input name="color_set-1-name" value="foreground"',
-                'name="color_set-1-value" value="aaaa00"',
+                'name="color_set-0-name" type="text" value="background" />',
+                'name="color_set-0-value" style="background-ColorValue:#222200;" type="text" value="222200" />',
+                'name="color_set-1-name" type="text" value="foreground" />',
+                'name="color_set-1-value" style="background-ColorValue:#aaaa00;" type="text" value="aaaa00" />',
             ),
             must_not_contain=("Traceback", "This field is required.")
         )
@@ -634,7 +634,7 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         self.assertResponse(response,
             must_contain=(
                 "The editable html head file &quot;new_headfile.css&quot; was added successfully. You may edit it again below.",
-                '<input type="checkbox" name="render"',
+                '<input id="id_render" name="render" type="checkbox" />',
                 "#00ff00;</textarea>",
             ),
             must_not_contain=("Traceback",)
@@ -664,7 +664,7 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
             must_contain=(
                 "Colors &quot;cyan:00ffff&quot; created in colorscheme &quot;yellow&quot;",
                 "The editable html head file &quot;new_headfile.css&quot; was changed successfully. You may edit it again below.",
-                '<input checked="checked" type="checkbox" name="render"',
+                '<input checked="checked" id="id_render" name="render" type="checkbox" />',
                 "{{ cyan }};</textarea>",
             ),
             must_not_contain=("Traceback",)

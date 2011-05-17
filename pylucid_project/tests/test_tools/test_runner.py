@@ -18,6 +18,7 @@ import os
 import sys
 import errno
 import unittest
+from django.utils.html import conditional_escape
 
 if __name__ == "__main__":
     # run all unittest directly
@@ -29,6 +30,7 @@ from django.db.models.loading import get_app, get_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.test.utils import setup_test_environment, teardown_test_environment
 from django.test.simple import DjangoTestSuiteRunner, build_test, build_suite, reorder_suite
+from django.forms import util
 
 import pylucid_project
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS, PyLucidPlugin
@@ -39,7 +41,15 @@ PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__)
 UNITTEST_PLUGIN_SRC_PATH = os.path.join(PYLUCID_PROJECT_ROOT, "tests", "unittest_plugin")
 UNITTEST_PLUGIN_DST_PATH = os.path.join(PYLUCID_PROJECT_ROOT, "pylucid_plugins", "unittest_plugin")
 
+#-----------------------------------------------------------------------------
 
+def sorted_flatatt(attrs):
+    """
+    same as original django.forms.util.flatatt(), but used sorted() for easy unittests.
+    see also:
+    http://groups.google.com/group/django-developers/browse_thread/thread/73de51ba44bb1a91
+    """
+    return u''.join([u' %s="%s"' % (k, conditional_escape(v)) for k, v in sorted(attrs.items())])
 
 #-----------------------------------------------------------------------------
 
@@ -134,6 +144,16 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
 
         return test_suite
 
+    def setup_test_environment(self, *args, **kwargs):
+        # Monkeypatch django.forms.util.flatatt()
+        self._origin_flatatt = util.flatatt
+        util.flatatt = sorted_flatatt
+
+        super(PyLucidTestRunner, self).setup_test_environment(*args, **kwargs)
+
+    def teardown_test_environment(self, *args, **kwargs):
+        util.flatatt = self._origin_flatatt # remove monkeypatch, why? Dont's know ;)
+        super(PyLucidTestRunner, self).teardown_test_environment(*args, **kwargs)
 
 
 if __name__ == "__main__":
