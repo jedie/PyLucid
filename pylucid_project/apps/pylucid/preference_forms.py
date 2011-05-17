@@ -74,7 +74,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     )
     message_level_anonymous = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        initial=message_constants.SUCCESS,
+        initial=message_constants.INFO,
         help_text=_("Set django message level for anonymous user to set the minimum message that will be displayed.")
     )
     message_level_normalusers = forms.ChoiceField(
