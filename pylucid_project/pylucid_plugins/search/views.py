@@ -37,7 +37,13 @@ def get_preferences():
 #-----------------------------------------------------------------------------
 
 class SearchForm(forms.Form):
-    search = forms.CharField()
+    search = forms.CharField(widget=forms.TextInput(
+        attrs={
+            "required":"required",
+            "autofocus":"autofocus",
+
+        }
+    ))
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
 
