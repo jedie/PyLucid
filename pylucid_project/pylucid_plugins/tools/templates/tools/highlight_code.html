@@ -10,6 +10,7 @@
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
+	{% csrf_token %}
     {% if highlighted %}
     {{ highlighted }}
     <h3>HTML code for copy&paste:</h3>

@@ -2,6 +2,7 @@
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
+	{% csrf_token %}
     <fieldset>
         <table class="info">
             <caption>log entries information</caption>        

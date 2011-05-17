@@ -2,6 +2,7 @@
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="cleanup_form" class="pylucid_form">
+	{% csrf_token %}
     <fieldset>
         <table class="info">
             <caption>update journal entry count</caption>        
