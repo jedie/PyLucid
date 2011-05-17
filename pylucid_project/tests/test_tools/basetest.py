@@ -4,13 +4,7 @@
     PyLucid unittest base class
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -192,7 +186,7 @@ class BaseLanguageTestCase(BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 '<body lang="%s">' % lang.code,
-                '<html xmlns="http://www.w3.org/1999/xhtml" lang="%(code)s" xml:lang="%(code)s">' % {
+                '<html lang="%(code)s">' % {
                     "code": lang.code
                 },
             )
