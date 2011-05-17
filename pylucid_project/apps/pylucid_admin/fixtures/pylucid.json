@@ -2892,6 +2892,19 @@
         }
     }, 
     {
+        "pk": 18, 
+        "model": "pylucid.pagecontent", 
+        "fields": {
+            "createby": 1, 
+            "lastupdatetime": "2011-05-16 12:02:02", 
+            "markup": 6, 
+            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://github.com/jedie/PyLucid/issues|GitHub Bug Tracker]].\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}", 
+            "pagemeta": 20, 
+            "lastupdateby": 1, 
+            "createtime": "2010-01-29 08:27:45"
+        }
+    }, 
+    {
         "pk": 2, 
         "model": "pylucid.pagecontent", 
         "fields": {
@@ -3019,19 +3032,6 @@
             "pagemeta": 1, 
             "lastupdateby": 1, 
             "createtime": "2009-11-03 03:37:10"
-        }
-    }, 
-    {
-        "pk": 18, 
-        "model": "pylucid.pagecontent", 
-        "fields": {
-            "createby": 1, 
-            "lastupdatetime": "2010-08-27 06:56:11", 
-            "markup": 6, 
-            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://github.com/jedie/PyLucid/issues|GitHub Bug Tracker]].\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}", 
-            "pagemeta": 20, 
-            "lastupdateby": 1, 
-            "createtime": "2010-01-29 08:27:45"
         }
     }, 
     {
@@ -3194,11 +3194,11 @@
         "pk": 6, 
         "model": "dbtemplates.template", 
         "fields": {
-            "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"{{ page_language }}\" xml:lang=\"{{ page_language }}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<link rel=\"canonical\" href=\"{{ page_permalink }}\" />\r\n<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n<meta name=\"robots\" content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\" content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\" content=\"{{ page_description }}\" />\r\n<meta name=\"DC.Date\" content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\" content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\" content=\"{{ page_language }}\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\" content=\"no\" />\r\n   \r\n<script type=\"text/javascript\" src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" ></script>\r\n<script type=\"text/javascript\" src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\"></script>\r\n   \r\n<link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/screen.css\" type=\"text/css\" media=\"screen, projection\" />\r\n<link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/print.css\" type=\"text/css\" media=\"print\" />\r\n<!--[if lt IE 8]>\r\n  <link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/ie.css\" type=\"text/css\" media=\"screen, projection\" />\r\n<![endif]-->\r\n\r\n{% block extrahead %}{% endblock %}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n</head><body lang=\"{{ page_language }}\"><a name=\"top\"></a>\r\n<div class=\"container\">\r\n   {% block body_content %}{% endblock %}\r\n   <div class=\"span-24 last\" id=\"footer\">\r\n      <p>powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}</p>\r\n   </div>\r\n</div>\r\n</body></html>", 
+            "content": "<!DOCTYPE html>\r\n<html lang=\"{{ page_language }}\">\r\n<head>\r\n<title>PyLucid CMS - {{ page_title }}</title>\r\n<link rel=\"canonical\" href=\"{{ page_permalink }}\" />\r\n<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />\r\n<meta name=\"robots\" content=\"{{ page_robots }}\" />\r\n<meta name=\"keywords\" content=\"{{ page_keywords }}\" />\r\n<meta name=\"description\" content=\"{{ page_description }}\" />\r\n<meta name=\"DC.Date\" content=\"{{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.Date.created\" content=\"{{ page_createtime|date:_(\"DATETIME_FORMAT\") }}\" />\r\n<meta name=\"DC.language\" content=\"{{ page_language }}\" />\r\n<meta name=\"MSSmartTagsPreventParsing\" content=\"TRUE\" />\r\n<meta http-equiv=\"imagetoolbar\" content=\"no\" />\r\n   \r\n<script type=\"text/javascript\" src=\"{{ Django_media_prefix }}js/jquery.min.js\" onerror=\"JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');\" ></script>\r\n<script type=\"text/javascript\" src=\"{{ PyLucid_media_url }}pylucid_js_tools.js\" onerror=\"JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');\"></script>\r\n   \r\n<link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/screen.css\" type=\"text/css\" media=\"screen, projection\" />\r\n<link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/print.css\" type=\"text/css\" media=\"print\" />\r\n<!--[if lt IE 8]>\r\n  <link rel=\"stylesheet\" href=\"{{ PyLucid_media_url }}blueprint/ie.css\" type=\"text/css\" media=\"screen, projection\" />\r\n<![endif]-->\r\n\r\n{% block extrahead %}{% endblock %}\r\n{% block extrahead2 %}<!-- ContextMiddleware extrahead -->{% endblock extrahead2 %}{# work a round for http://trac.pylucid.net/ticket/342 #}\r\n</head><body lang=\"{{ page_language }}\"><a name=\"top\"></a>\r\n<div class=\"container\">\r\n   {% block body_content %}{% endblock %}\r\n   <div class=\"span-24 last\" id=\"footer\">\r\n      <p>powered by {{ powered_by }} | {% lucidTag auth %} | <!-- script_duration --> | last modified: {{ page_lastupdatetime|date:_(\"DATETIME_FORMAT\") }}</p>\r\n   </div>\r\n</div>\r\n</body></html>", 
             "sites": [
                 1
             ], 
-            "last_changed": "2010-09-16 19:27:51", 
+            "last_changed": "2011-05-17 08:36:10", 
             "name": "initial_site_style/base_cms_site.html", 
             "creation_date": "2010-05-28 08:34:02"
         }
@@ -3224,7 +3224,7 @@
             "sites": [
                 1
             ], 
-            "last_changed": "2010-09-16 21:34:08", 
+            "last_changed": "2011-05-16 11:27:53", 
             "name": "initial_site_template/main.html", 
             "creation_date": "2008-05-23 11:11:06"
         }
