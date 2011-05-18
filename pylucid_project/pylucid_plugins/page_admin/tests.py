@@ -131,7 +131,7 @@ class PageAdminTest(PageAdminTestCase):
                 'form action="%s"' % CREATE_CONTENT_PAGE_URL,
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
-                'textarea id="id_content"',
+                '<textarea cols="40" id="id_content" name="content" rows="10">',
             ),
             must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
@@ -179,7 +179,7 @@ class PageAdminTest(PageAdminTestCase):
         response = self.client.get(url)
         self.assertResponse(response,
             must_contain=(
-                '<select name="parent" id="id_parent">',
+                '<select id="id_parent" name="parent">',
                 '<option value="" selected="selected">---------</option>',
                 '<option value="3">/designs/</option>',
             ),
@@ -286,8 +286,8 @@ class PageAdminTest(PageAdminTestCase):
                 '<a href="/pylucid_admin/plugins/page_admin/page_list/"',
                 '<a href="/pylucid_admin/plugins/page_admin/tag_list/"',
 
-                '<textarea id="id_source-content" rows="10" cols="40" name="source-content">Welcome to your fesh PyLucid CMS installation ;)',
-                '<textarea id="id_de-content" rows="10" cols="40" name="de-content">Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)',
+                '<textarea cols="40" id="id_source-content" name="source-content" rows="10">Welcome to your fesh PyLucid CMS installation ;)',
+                '<textarea cols="40" id="id_de-content" name="de-content" rows="10">Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)',
             ),
             must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
@@ -378,7 +378,7 @@ class PageAdminInlineEditTest(PageAdminTestCase):
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
                 'form action="/?page_admin=inline_edit"',
-                'textarea id="id_content"',
+                '<textarea cols="40" id="id_content" name="content" rows="15">Welcome',
             ),
             must_not_contain=(
                 "XXX INVALID TEMPLATE STRING",
@@ -438,14 +438,15 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
             must_contain=(
                 "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
                 'The original markup is: <strong>tinytextile</strong>',
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">- &lt;li&gt;1.&lt;/li&gt;</span>',
                 '<span class="gi">+ &lt;li&gt;1.</span>',
                 '<legend>new markup</legend>',
                 '<pre>* 1.', '** 1.1.</pre>',
-                'name="content">* 1.\n** 1.1.</textarea>'
+                '<textarea cols="40" id="id_content" name="content" rows="10">* 1.',
+                '** 1.1.</textarea>',
             ),
             must_not_contain=(
                 "XXX INVALID TEMPLATE STRING", "Traceback", 'Permission denied',
@@ -486,5 +487,5 @@ if __name__ == "__main__":
 
     management.call_command('test', tests,
         verbosity=2,
-#        failfast=True
+        failfast=True
     )

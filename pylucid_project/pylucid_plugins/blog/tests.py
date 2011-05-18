@@ -153,7 +153,7 @@ class BlogPluginTest(BlogPluginTestCase):
                 'form action="%s"' % CREATE_URL,
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
-                'textarea id="id_content"',
+                '<textarea cols="40" id="id_content" name="content" rows="10"></textarea>',
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
         )
@@ -218,7 +218,7 @@ class BlogPluginTest(BlogPluginTestCase):
                 '<fieldset id="preview_id_content">',
                 '$("#preview_id_content div")',
 
-                '<select name="markup" id="id_markup">',
+                '<select id="id_markup" name="markup">',
                 'var markup_selector = "#id_markup";'
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
@@ -467,20 +467,16 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         self._test_rss_feed(self.other_language)
 
 
-
-
-
-
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
 
-#    tests = __file__
-    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
+    tests = __file__
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
 
     management.call_command('test', tests,
         verbosity=2,
-        failfast=True
+#        failfast=True
     )

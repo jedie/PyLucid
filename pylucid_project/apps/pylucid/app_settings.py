@@ -1,10 +1,16 @@
 # coding: utf-8
+
+
 """
     PyLucid App. settings
     ~~~~~~~~~~~~~~~~~~~~~
     
     settings witch only used in the PyLucid app.
+    
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 # Every Plugin output gets a html DIV or SPAN tag around.
 # Here you can defined witch CSS class name the tag should used:
@@ -17,13 +23,6 @@ HEAD_FILES_URL_PREFIX = "headfile"
 PERMALINK_URL_PREFIX = "permalink"
 OLD_PERMALINK_PREFIX = "_goto"
 
-# File cache directory used for EditableHtmlHeadFile
-# filesystem path is: MEDIA_ROOT + PYLUCID_MEDIA_DIR + CACHE_DIR
-# URL if not cacheable in filesystem: /HEAD_FILES_URL_PREFIX/filepath
-# URL if written into filesystem path: MEDIA_URL + PYLUCID_MEDIA_DIR + CACHE_DIR + filepath
-# Set to "" if the python process has no write access
-CACHE_DIR = "headfile_cache"
-
 # i18n stuff:
 I18N_DEBUG = False # Display many info around detecting current language
 
@@ -34,6 +33,13 @@ HTTP_GET_VIEW_NAME = "http_get_view"
 # filesystem path: MEDIA_ROOT + PYLUCID_MEDIA_DIR
 # URLs: MEDIA_URL + PYLUCID_MEDIA_DIR
 PYLUCID_MEDIA_DIR = "PyLucid" # Without slashes at begin/end!
+
+# File cache directory used for EditableHtmlHeadFile
+# filesystem path is: MEDIA_ROOT + CACHE_DIR
+# URL if not cacheable in filesystem: /HEAD_FILES_URL_PREFIX/filepath
+# URL if written into filesystem path: MEDIA_URL + CACHE_DIR + filepath
+# Set to "" if the python process has no write access
+CACHE_DIR = "PyLucid_cache"
 
 AUTH_LOGOUT_GET_VIEW = "auth=logout"
 AUTH_GET_VIEW = "auth=login"

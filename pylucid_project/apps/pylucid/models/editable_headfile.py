@@ -4,7 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -35,6 +35,14 @@ from design import Design
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+
+
+HEADFILE_CACHE_PATH = os.path.join(
+    settings.MEDIA_ROOT, settings.PYLUCID.CACHE_DIR
+)
+HEADFILE_CACHE_URL = os.path.join(
+    settings.MEDIA_URL, settings.PYLUCID.CACHE_DIR
+)
 
 
 
@@ -70,12 +78,7 @@ class EditableHtmlHeadFileManager(models.Manager):
                     removed_items.append(fullpath)
                     os.rmdir(fullpath)
 
-        pylucid_cache_path = os.path.join(
-            settings.MEDIA_ROOT,
-            settings.PYLUCID.PYLUCID_MEDIA_DIR,
-            settings.PYLUCID.CACHE_DIR
-        )
-        delete_tree(pylucid_cache_path)
+        delete_tree(HEADFILE_CACHE_PATH)
 
         return removed_items
 
@@ -119,19 +122,12 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
             # The Design or this file used no colorscheme
             return self.filepath
 
-    def get_path(self, colorscheme):
-        """ Path for filesystem cache path and link url. """
-        return os.path.join(
-            settings.PYLUCID.PYLUCID_MEDIA_DIR, settings.PYLUCID.CACHE_DIR,
-            self.get_color_filepath(colorscheme)
-        )
-
     def get_cachepath(self, colorscheme):
         """
         Filesystem path with filename.
         TODO: Install section should create the directories!
         """
-        return os.path.join(settings.MEDIA_ROOT, self.get_path(colorscheme))
+        return os.path.join(HEADFILE_CACHE_PATH, self.get_color_filepath(colorscheme))
 
     def get_rendered(self, colorscheme):
         color_dict = colorscheme.get_color_dict()
@@ -232,7 +228,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
             def get_cached_url():
                 if os.path.isfile(cachepath):
                     # The file exist in media path -> Let the webserver send this file ;)
-                    return os.path.join(settings.MEDIA_URL, self.get_path(colorscheme))
+                    return os.path.join(HEADFILE_CACHE_URL, self.get_color_filepath(colorscheme))
 
             cached_url = get_cached_url()
             if cached_url: # Cache file was created in the past

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
 """
     PyLucid unittests
     ~~~~~~~~~~~~~~~~~
@@ -12,9 +13,10 @@
     TODO:
         * Test clone colorscheme in admin
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import os
 
@@ -213,8 +215,8 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         self.design3 = Design.objects.get(name="inverted blue")
         self.design4 = Design.objects.get(name="inverted yellow")
 
-        self.test_css_url1 = "/media/PyLucid/headfile_cache/ColorScheme_1/test_styles.css"
-        self.test_css_url2 = "/media/PyLucid/headfile_cache/ColorScheme_2/test_styles.css"
+        self.test_css_url1 = "/media/PyLucid_cache/ColorScheme_1/test_styles.css"
+        self.test_css_url2 = "/media/PyLucid_cache/ColorScheme_2/test_styles.css"
 
     def setUp(self):
         removed_items = EditableHtmlHeadFile.objects.clean_headfile_cache()
@@ -232,7 +234,7 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         headfile = design.headfiles.all()[0]
         colorscheme = design.colorscheme
         url = headfile.get_absolute_url(colorscheme)
-        self.assertTrue("/headfile_cache/" in url)
+        self.assertTrue("/PyLucid_cache/" in url)
         response = self.client.get(url)
         return response
 
@@ -254,14 +256,14 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         self.headfile1.content = "one"
         self.headfile1.save()
         url = self.headfile1.get_absolute_url()
-        self.assertTrue("/headfile_cache/" in url)
+        self.assertTrue("/PyLucid_cache/" in url)
         response = self.client.get(url)
         self.assertEqual(response.content, "one")
 
         self.headfile1.content = "two"
         self.headfile1.save()
         url = self.headfile1.get_absolute_url()
-        self.assertTrue("/headfile_cache/" in url)
+        self.assertTrue("/PyLucid_cache/" in url)
         response = self.client.get(url)
         self.assertEqual(response.content, "two")
 
@@ -680,11 +682,11 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
 
 if __name__ == "__main__":
     # Run all unittest directly
-#    management.call_command('test', "pylucid_plugins.design.tests.SwitchDesignTest",
-#        verbosity=2,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.design.tests.SwitchDesignTest"
+
+    management.call_command('test', tests,
         verbosity=2,
         failfast=True
     )

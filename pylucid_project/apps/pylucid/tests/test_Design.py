@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
 """
     PyLucid unittests
     ~~~~~~~~~~~~~~~~~
     
     TODO: Test colorscheme stuff
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import os
 
@@ -18,6 +20,8 @@ if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
+
+from dbpreferences.tests.BrowserDebug import debug_response
 
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests.test_tools.scrapping import HTMLscrapper
@@ -37,9 +41,10 @@ class DesignTestCase(basetest.BaseUnittest):
         settings.PYLUCID.CACHE_DIR = CACHE_DIR
         settings.CACHE_BACKEND = CACHE_BACKEND
 
-    def get_headlinks(self, response):
+    def get_headlinks(self, response, url_part):
         data = HTMLscrapper().grab(response.content, tags=("link",), attrs=("href",))
-        return [url for url in data["href"] if "headfile" in url]
+#        for url in data["href"]: print url
+        return [url for url in data["href"] if url_part in url]
 
     def assertHeadfiles(self, urls):
         for url in urls:
@@ -56,14 +61,15 @@ class DesignTest(DesignTestCase):
         url_part = "/%s/" % settings.PYLUCID.CACHE_DIR
 
         response = self.client.get("/")
-        urls = self.get_headlinks(response)
-        self.assertTrue(len(urls) == 2)
+#        debug_response(response)
+        urls = self.get_headlinks(response, url_part)
         self.assertHeadfiles(urls)
         for url in urls:
             self.assertTrue(
                 url_part in url,
                 "url doesn't contain %r: %r" % (url_part, url)
             )
+        self.assertTrue(len(urls) == 2)
 
     def test_send_view(self):
         settings.PYLUCID.CACHE_DIR = ""
@@ -71,15 +77,14 @@ class DesignTest(DesignTestCase):
         prefix = "/%s/" % settings.PYLUCID.HEAD_FILES_URL_PREFIX
 
         response = self.client.get("/en/")
-        urls = self.get_headlinks(response)
-        self.assertTrue(len(urls) == 2)
+        urls = self.get_headlinks(response, url_part="/headfile/")
         self.assertHeadfiles(urls)
         for url in urls:
             self.assertTrue(
                 url.startswith(prefix),
                 "url doesn't starts with %r: %r" % (prefix, url)
             )
-
+        self.assertTrue(len(urls) == 2)
 
 
 if __name__ == "__main__":

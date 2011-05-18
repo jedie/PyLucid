@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
 """
     PyLucid unittests
     ~~~~~~~~~~~~~~~~~
@@ -12,6 +13,7 @@
     :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import os
 
@@ -182,8 +184,8 @@ class LexiconPluginTest1(LexiconPluginTestCase):
                 "<title>PyLucid - Create a new lexicon entry</title>",
                 '<form action="%s" method="post" id="lexicon_form" class="pylucid_form">' % url,
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
-                '<input id="id_term" type="text" name="term" maxlength="255" />',
-                '<textarea id="id_content"',
+                '<input id="id_term" maxlength="255" name="term" type="text" />',
+                '<textarea cols="40" id="id_content" name="content" rows="10"></textarea>',
                 '<input type="submit" name="save" value="save" />',
 
             ),
@@ -323,5 +325,5 @@ if __name__ == "__main__":
 
     management.call_command('test', tests,
         verbosity=2,
-        failfast=True
+#        failfast=True
     )
