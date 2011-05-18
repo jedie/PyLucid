@@ -26,6 +26,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
+from django.utils.timesince import timesince
 from django.utils.translation import ugettext_lazy as _
 
 from reversion.admin import VersionAdmin
@@ -38,7 +39,6 @@ from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 from pylucid_project.apps.pylucid.forms.pagemeta import PageMetaForm
 from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
-
 
 
 class PageTreeAdmin(BaseAdmin, VersionAdmin):
@@ -70,9 +70,18 @@ admin.site.register(models.Language, LanguageAdmin)
 
 
 class LogEntryAdmin(BaseAdmin):
-    list_display = ("createtime", "createby", "view_on_site_link", "app_label", "action", "message")
+    def age(self, obj):
+        """ view on site link in admin changelist, try to use complete uri with site info. """
+        createtime = obj.createtime
+        return timesince(createtime)
+
+    age.short_description = _("age")
+
+    list_display = (
+        "createtime", "age", "createby", "view_on_site_link", "app_label", "action", "message"
+    )
     list_filter = (
-        "site", "app_label", "action", "createby"
+        "site", "app_label", "action", "createby", "remote_addr",
     )
     search_fields = ("app_label", "action", "message", "long_message", "data")
 admin.site.register(models.LogEntry, LogEntryAdmin)
