@@ -1,9 +1,7 @@
 {% if debug %}<!-- pylucid plugin ./admin_menu/includes/superfish_extrahead.html START -->{% endif %}
+{% compress css %}
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/superfish.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.css');" />
-<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.js');" ></script>
-
 <link rel="stylesheet" type="text/css" media="screen" href="{{ PyLucid_media_url }}superfish/pylucid_superfish.css" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/pylucid_superfish.css');" />
-<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/pylucid_superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/pylucid_superfish.js');" ></script>
 
 {# this must be here in the template and can't stored into the css file, because of the url #}
 <style type="text/css">
@@ -17,4 +15,11 @@
 }
 -->
 </style>
+{% endcompress %}
+
+{% compress js %}
+<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/superfish.js');" ></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}superfish/pylucid_superfish.js" onerror="JavaScript:alert('{{ PyLucid_media_url }}superfish/pylucid_superfish.js');" ></script>
+{% endcompress %}
+
 {% if debug %}<!-- pylucid plugin ./admin_menu/includes/superfish_extrahead.html END -->{% endif %}

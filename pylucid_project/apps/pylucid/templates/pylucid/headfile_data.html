@@ -1,0 +1,13 @@
+<!-- headfiledata design '{{ design.name }}' with colorscheme '{{ colorscheme.name }}' START -->
+{% compress css %}
+{% for html in inline_css_data %}
+	{{ html }}
+{% endfor %}
+{% endcompress %}
+
+{% compress js %}
+{% for html in inline_js_data %}
+	{{ html }}
+{% endfor %}
+{% endcompress %}
+<!-- headfiledata END -->

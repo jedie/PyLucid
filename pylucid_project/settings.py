@@ -177,7 +177,6 @@ if DEBUG:
 #    warn_invalid_template_vars.add_warning()
 
 
-
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -193,10 +192,11 @@ INSTALLED_APPS = (
     'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
 
     # external apps shipped and used with PyLucid:
-    'dbpreferences',
-    'dbtemplates',
-    'reversion',
-    'tagging',
+    'dbpreferences', # http://code.google.com/p/django-dbpreferences/
+    'dbtemplates', # http://code.google.com/p/django-dbtemplates/
+    'reversion', # http://code.google.com/p/django-reversion/
+    'tagging', # http://code.google.com/p/django-tagging/
+    'compressor', # https://github.com/jezdez/django_compressor
 )
 # Add all existing PyLucid plugins
 INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
@@ -207,6 +207,13 @@ COMMENTS_APP = "pylucid_project.pylucid_plugins.pylucid_comments"
 #http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
 #Default: 'django.test.simple.run_tests'
 TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.PyLucidTestRunner'
+
+#_____________________________________________________________________________
+# django-compressor settings
+# http://django_compressor.readthedocs.org/en/latest/settings/
+
+#COMPRESS = False
+COMPRESS = True
 
 #_____________________________________________________________________________
 # PyLucid own settings

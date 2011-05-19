@@ -6,6 +6,7 @@
 {% block extrahead %}{{ block.super }}
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrahead block START -->{% endif %}
 {% if Django_media_prefix and PyLucid_media_url %}
+	{% compress js %}
 	<script type="text/javascript">
 	    var PyLucid_media_url="{{ PyLucid_media_url }}";
 	    var markup_help_url="{% url PageAdmin-markup_help %}";
@@ -20,6 +21,7 @@
 	{% else %}
 	   <script type="text/javascript">var debug=false;</script>
 	{% endif %}
+	{% endcompress %}
 	{% include "admin_menu/includes/superfish_extrahead.html" %}
 {% else %}{# Django_media_prefix and/or PyLucid_media_url doesn't exist in e.g. 500 error #}
     <!-- Error: Can't include PyLucid JS files{% if debug %}, because Django_media_prefix and/or PyLucid_media_url is not defined!{% endif %} -->
@@ -31,11 +33,16 @@
 {% block extrastyle %}{{ block.super }}
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block START -->{% endif %}
 {% if PyLucid_media_url %}{# stylesheets for all Django admin views #}
+	{% compress css %}
     <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
 	<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_admin.css] !');"/>
+	{% endcompress %}
 {% else %}{# PyLucid_media_url doesn't exist in e.g. 500 error #}
     <!-- Error: Can't include PyLucid CSS files{% if debug %}, because PyLucid_media_url is not defined!{% endif %} -->
 {% endif %}
+
+{% lucidTag extrahead filepath="pygments.css" %}
+
 {% if pygments_css %}
 <link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
 {% endif %}

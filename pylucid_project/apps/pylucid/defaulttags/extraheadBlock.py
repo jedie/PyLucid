@@ -11,13 +11,7 @@
     PyLucid plugins should use {% extrahead %} block tag in plugin template for
     insert e.g. CSS/JS file links into html head.
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 

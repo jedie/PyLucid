@@ -1,25 +1,21 @@
 # coding: utf-8
 
-"""
-    PyLucid models
-    ~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
+"""
+    PyLucid Design model
+    ~~~~~~~~~~~~~~~~~~~~
 
     :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from django.template import TemplateDoesNotExist
-from django.template.loader import find_template
+from django.template.loader import find_template, render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, SiteM2M
@@ -70,6 +66,34 @@ class Design(SiteM2M, UpdateInfoBaseModel):
 
         if message_dict:
             raise ValidationError(message_dict)
+
+    def get_headfile_data(self):
+        colorscheme = self.colorscheme
+        headfiles = self.headfiles.all()
+        print headfiles
+
+        inline_css_data = []
+        inline_js_data = []
+
+        for headfile in headfiles:
+            headfile_type = headfile.get_type()
+            inline_html = headfile.get_inline_html(colorscheme)
+
+            if headfile_type == "css":
+                inline_css_data.append(inline_html)
+            elif headfile_type == "js":
+                inline_js_data.append(inline_html)
+            else:
+                raise NotImplementedError("Datatype %r unknown!" % headfile_type)
+
+        context = {
+            "design": self,
+            "colorscheme": self.colorscheme,
+            "inline_css_data": inline_css_data,
+            "inline_js_data": inline_js_data
+        }
+        headfile_data = render_to_string("pylucid/headfile_data.html", context)
+        return headfile_data
 
     def __unicode__(self):
         sites = self.sites.values_list('name', flat=True)
