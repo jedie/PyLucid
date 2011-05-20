@@ -44,7 +44,7 @@ def check_require(requirements):
 
 requirements = (
     # http://www.djangoproject.com/
-    "django > 1.2",
+    "django >= 1.3",
 
     # http://code.google.com/p/django-dbpreferences
     "django-dbpreferences >= 0.4.0",
@@ -63,6 +63,9 @@ requirements = (
 
     # http://code.google.com/p/django-tagging/
     "django_tagging > 0.3",
+
+    # https://github.com/jezdez/django_compressor
+    "django-compressor >= 0.9.1",
 )
 
 check_require(requirements)

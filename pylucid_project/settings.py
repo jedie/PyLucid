@@ -208,12 +208,6 @@ COMMENTS_APP = "pylucid_project.pylucid_plugins.pylucid_comments"
 #Default: 'django.test.simple.run_tests'
 TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.PyLucidTestRunner'
 
-#_____________________________________________________________________________
-# django-compressor settings
-# http://django_compressor.readthedocs.org/en/latest/settings/
-
-#COMPRESS = False
-COMPRESS = True
 
 #_____________________________________________________________________________
 # PyLucid own settings

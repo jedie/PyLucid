@@ -30,23 +30,17 @@
 {% endblock extrahead %}
 
 
-{% block extrastyle %}{{ block.super }}
+{% block extrastyle %}{% compress css %}{{ block.super }}
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block START -->{% endif %}
 {% if PyLucid_media_url %}{# stylesheets for all Django admin views #}
-	{% compress css %}
     <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
 	<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_admin.css] !');"/>
-	{% endcompress %}
+	{% lucidTag extrahead filepath="pygments.css" %}
 {% else %}{# PyLucid_media_url doesn't exist in e.g. 500 error #}
     <!-- Error: Can't include PyLucid CSS files{% if debug %}, because PyLucid_media_url is not defined!{% endif %} -->
 {% endif %}
-
-{% lucidTag extrahead filepath="pygments.css" %}
-
-{% if pygments_css %}
-<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
-{% endif %}
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block END -->{% endif %}
+{% endcompress %}
 {% endblock extrastyle %}
 
 

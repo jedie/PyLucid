@@ -5,15 +5,13 @@
     PyLucid Design model
     ~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.signals import m2m_changed
-from django.dispatch import receiver
 from django.template import TemplateDoesNotExist
 from django.template.loader import find_template, render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -31,7 +29,7 @@ TAG_INPUT_HELP_URL = \
 class DesignManager(models.Manager):
     pass
 
-#
+
 class Design(SiteM2M, UpdateInfoBaseModel):
     """
     Page design: template + CSS/JS files 
@@ -68,9 +66,11 @@ class Design(SiteM2M, UpdateInfoBaseModel):
             raise ValidationError(message_dict)
 
     def get_headfile_data(self):
+        """
+        Returns all headfiles with inline compressed data
+        """
         colorscheme = self.colorscheme
         headfiles = self.headfiles.all()
-        print headfiles
 
         inline_css_data = []
         inline_js_data = []
@@ -102,27 +102,3 @@ class Design(SiteM2M, UpdateInfoBaseModel):
     class Meta:
         app_label = 'pylucid'
         ordering = ("template",)
-
-
-@receiver(m2m_changed)
-def design_m2m_changed_callback(sender, **kwargs):
-    """
-    Delete cached headfile, after design m2m saved. 
-    """
-    action = kwargs["action"]
-    pk_set = kwargs["pk_set"]
-
-    if action != "post_add" or not pk_set:
-        return
-
-    # Import here, against import loops
-    from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile
-
-    model = kwargs["model"]
-    if not model == EditableHtmlHeadFile:
-        # Skip e.g. m2m to sites
-        return
-
-    for pk in pk_set:
-        headfile = EditableHtmlHeadFile.objects.get(pk=pk)
-        headfile.delete_all_cachefiles()
