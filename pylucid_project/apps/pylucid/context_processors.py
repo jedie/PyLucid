@@ -1,8 +1,10 @@
 # coding: utf-8
 
+
 """
 setup some "static" variables
 """
+
 
 import datetime
 try:
@@ -18,7 +20,6 @@ from django.utils.safestring import mark_safe
 from dbtemplates.models import Template
 
 from pylucid_project import VERSION_STRING
-from pylucid_project.apps.pylucid.markup.hightlighter import get_pygments_css
 from pylucid_project.utils import slug
 
 
@@ -71,12 +72,6 @@ def pylucid(request):
         context = request.PYLUCID.context
     else:
         # create a new context
-
-        # FIXME: Should we only insert pygments in admin section?
-        #    We can also add a new template tag to get the path and insert it in pylucid/templates/admin/base_site.html    
-        # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-        pygments_css_path = get_pygments_css(request)
-
         context = {
             "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % VERSION_STRING),
             # This value would be changed in index._render_cms_page(), if the
@@ -94,7 +89,6 @@ def pylucid(request):
             "debug": settings.DEBUG,
 
             "PYLUCID": request.PYLUCID,
-            "pygments_css": pygments_css_path,
         }
 
         pagetree = getattr(request.PYLUCID, "pagetree", None)

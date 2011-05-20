@@ -5,11 +5,13 @@
     ~~~~~~~~~~~~~~~~
 
     List all available lucidTag
+    
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
-from pylucid_project.apps.pylucid.markup.hightlighter import get_pygments_css
 from pylucid_project.apps.pylucid.markup import MARKUP_SHORT_DICT
 
 from page_admin.forms import SelectMarkupForm
@@ -33,15 +35,11 @@ def markup_help(request):
 
     template_name = "page_admin/markup_help_%s.html" % short_markup_name
 
-    # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-    pygments_css_path = get_pygments_css(request)
-
     context = {
         "template_name": template_name,
         "form_url": request.path,
         "form": form,
         "title": "%s markup help" % short_markup_name,
-        "pygments_css": pygments_css_path,
     }
     return context
 
