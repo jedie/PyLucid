@@ -4,8 +4,7 @@
 {% block plugin_content %}
 
 {# We can't use extrahead block here, because it's used in ajax view, too. #}
-<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}sha.js] !');"></script>
-<script type="text/javascript" src="{{ PyLucid_media_url }}shared_sha_tools.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}shared_sha_tools.js] !');"></script>
+{% compress css %}
 <style type="text/css">
 #login_form, #sha_values_block, #js_page_msg { display: none; }
 #js_page_msg { padding: 0.5em; }
@@ -13,6 +12,11 @@
 .page_msg_error { color: #ff0000; border: 1px solid #ff0000; }
 .page_msg_info { color: #0000ff; border: 1px solid #000000; }
 </style>
+{% endcompress %}
+
+{% compress js %}
+<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}sha.js] !');"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}shared_sha_tools.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}shared_sha_tools.js] !');"></script>
 <script type="text/javascript">
 var SALT_LEN={{ salt_len }};
 var HASH_LEN={{ hash_len }};
@@ -30,12 +34,17 @@ jQuery(document).ready(function($) {
         alert("Wrong challenge from server length:" + challenge.length + "!=" + SALT_LEN);
         return false;
     }
-    if (!hex_sha1) {
-        alert("sha.js not loaded.\n(hex_sha1 not defined)");
+    
+    if (typeof hex_sha1 == "undefined") {
+    	msg = "Error:\nsha.js not loaded.\n(hex_sha1 not defined)";
+        alert(msg);
+        $("#page_content").html("<strong>" + msg + "</strong>");
         return false;
     }
-    if (!sha_hexdigest) {
-        alert("Wrong shared_sha_tools.js loaded! Please update your media files\n(sha_hexdigest not defined)");
+    if (typeof sha_hexdigest == "undefined") {
+    	msg = "Error:\nWrong shared_sha_tools.js loaded! Please update your media files\n(sha_hexdigest not defined)";
+        alert(msg);
+        $("#page_content").html("<strong>" + msg + "</strong>");
         return false;
     }
 
@@ -175,11 +184,11 @@ jQuery(document).ready(function($) {
 			    log("It seems we get a complete html page: replace the complete page");
 				$("html").html(msg);
 //                replace_complete_page(msg); // from pylucid_js_tools.js
-                return false
+                return false;
 			}
 			if (msg.indexOf(";") == -1) {
 				log("Wrong server reponse! No ';' found!");
-				return false
+				return false;
 			}
 
 			// we get a new challenge and a error message from server
@@ -209,7 +218,7 @@ jQuery(document).ready(function($) {
     var ascii_uppercase = ascii_lowercase.toUpperCase();
     var test_string = " " + digits + ascii_lowercase + ascii_uppercase;
     var test_sha = sha_hexdigest(test_string);
-	var should_be = "5b415e2e5421a30b798c9b46638fcd7b58ff4d53".toLowerCase()
+	var should_be = "5b415e2e5421a30b798c9b46638fcd7b58ff4d53".toLowerCase();
     if (test_sha != should_be) {
 		var msg = "sha.js test failed!\n'" + test_sha + "' != '" + should_be + "'";
 		log(msg);
@@ -219,6 +228,7 @@ jQuery(document).ready(function($) {
 	log("sha.js is ok");
 });
 </script>
+{% endcompress %}
 
 <fieldset>
 <legend>
