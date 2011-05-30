@@ -54,19 +54,29 @@ class PyLucidAdminTest(PyLucidAdminTestCase):
         self.login(usertype="superuser")
         response = self.client.get("/admin/")
         self.failUnlessEqual(response.status_code, 200)
+
+        must_not_contain = [
+            # django
+            'form action="/admin/" method="post"',
+            # from pylucid:
+            '$("form").submit',
+            '$("form").find(":submit")'
+        ]
+
+        if ".pygments" not in response.content:
+            # The String /* Generic.Traceback */ is in pygments CSS code.
+            # We can only test if "Traceback" in response.content, if pygments
+            # CSS code is not inline the page (django-compressor is off)
+            must_not_contain.append("Traceback")
+
+
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid - Site administration</title>',
                 '<a href="/pylucid_admin/install/pylucid/">install PyLucid</a>',
                 '<a href="/pylucid_admin/install/plugins/">install plugins</a>',
             ),
-            must_not_contain=("Traceback",
-                # django
-                'form action="/admin/" method="post"',
-                # from pylucid:
-                '$("form").submit',
-                '$("form").find(":submit")'
-            )
+            must_not_contain=must_not_contain,
         )
 
     def test_install_plugins(self):
