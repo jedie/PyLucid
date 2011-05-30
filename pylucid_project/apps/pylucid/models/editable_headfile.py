@@ -38,13 +38,6 @@ TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
 
-HEADFILE_CACHE_PATH = os.path.join(
-    settings.MEDIA_ROOT, settings.PYLUCID.CACHE_DIR
-)
-HEADFILE_CACHE_URL = os.path.join(
-    settings.MEDIA_URL, settings.PYLUCID.CACHE_DIR
-)
-
 
 class EditableHtmlHeadFileManager(models.Manager):
     def iter_headfiles_by_colorscheme(self, colorscheme):

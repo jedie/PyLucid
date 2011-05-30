@@ -16,7 +16,7 @@ from django.contrib.sites.models import Site
 
 from django_tools.unittest_utils.unittest_base import BaseTestCase
 
-from pylucid_project.apps.pylucid.models import PageTree, Language
+from pylucid_project.apps.pylucid.models import PageTree, Language, EditableHtmlHeadFile
 
 
 supported_languages = dict(settings.LANGUAGES)
@@ -43,6 +43,13 @@ class BaseUnittest(BaseTestCase, TestCase):
 
         if PageTree.objects.count() == 0:
             raise SystemExit("PyLucid initial data fixtures not loaded!")
+
+        # Remove the real Pygments CSS content, because it contains the
+        # String "Traceback" which used in many tests.
+        # If django-compressor not work, the CSS content would be insert inline. 
+        pygments_css = EditableHtmlHeadFile.objects.get(filepath="pygments.css")
+        pygments_css.content = "Pygments CSS Content (removed by %s)" % __file__
+        pygments_css.save()
 
         # Fill PyLucid own UserProfile with SHA password data
         for usertype, data in self.TEST_USERS.iteritems():
@@ -79,8 +86,8 @@ class BaseUnittest(BaseTestCase, TestCase):
                 # django
                 '<form action="%s" method="post" id="login-form">' % url,
 
-                '<input id="id_username" type="text" name="username" maxlength="30" />',
-                '<input type="password" name="password" id="id_password" />',
+                '<input id="id_username" maxlength="30" name="username" type="text" />',
+                '<input id="id_password" name="password" type="password" />',
 
                 '<input type="submit" value="Log in" />',
                 # from pylucid:
