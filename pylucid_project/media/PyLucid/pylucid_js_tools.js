@@ -6,7 +6,7 @@ function log() {
 		debug = false;
 	}
     if (debug && window.console && window.console.log) {
-        window.console.log(Array.prototype.join.call(arguments,''););
+        window.console.log(Array.prototype.join.call(arguments,''));
     }
 }
 log("pylucid_js_tools.js loaded.");
