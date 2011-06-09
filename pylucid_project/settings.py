@@ -65,6 +65,13 @@ SQL_DEBUG = False
 # Should allways be False. It's only for developing! 
 PYLUCID_OBJECTS_DEBUG = False
 
+# We must set a defaul DB settings here, otherwise managment commands doesn't work.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'PleaseOverwrite_DATABASES_settings',
+    }
+}
 
 SITE_ID = 1 # Can be changed in local_settings
 
@@ -285,9 +292,13 @@ SITE_STYLE_PREFIX = 'site_stylesheet'
 # The PyLucid install instrucion page:
 INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
 
-# setup cache.
-# http://docs.djangoproject.com/en/dev/topics/cache/
-#CACHE_BACKEND = 'locmem://'
+# Set the Django cache system. Should be changed in local_settings.py !
+# https://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 # Django can't handling time zone very good.
@@ -308,7 +319,7 @@ LANGUAGE_CODE = "en"
 
 # use Django cache in dbtemplates.
 # see: http://api.rst2a.com/1.0/rst2/html?uri=http%3A//bitbucket.org/jezdez/django-dbtemplates/raw/tip/docs/overview.txt#caching
-DBTEMPLATES_CACHE_BACKEND = "dbtemplates.cache.DjangoCacheBackend"
+DBTEMPLATES_CACHE_BACKEND = "django.core.cache.backends.db.DatabaseCache"
 
 # Use django-reversion ?
 DBTEMPLATES_USE_REVERSION = True
