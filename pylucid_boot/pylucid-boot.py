@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 ## WARNING: This file is generated
-## using: '/usr/local/lib/python2.6/dist-packages/virtualenv-1.4.9-py2.6.egg/virtualenv.pyc'
+## python v2.7.1+ (r271:86832, Apr 11 2011, 18:13:53)  [GCC 4.5.2]
+## using: '/usr/lib/pymodules/python2.7/virtualenv.pyc' v1.4.9
 ## Generate with '/media/servershare/workspace/PyLucid-boot/pylucid_boot/create_bootstrap_script.py'
 #!/usr/bin/env python
 """Create a "virtual" Python installation
@@ -41,6 +42,8 @@ REQUIRED_MODULES = ['os', 'posix', 'posixpath', 'nt', 'ntpath', 'genericpath',
                     're', 'sre', 'sre_parse', 'sre_constants', 'sre_compile',
                     'lib-dynload', 'config', 'zlib']
 
+if sys.version_info[:2] >= (2, 7):
+    REQUIRED_MODULES.extend(['_weakrefset'])
 if sys.version_info[:2] >= (2, 6):
     REQUIRED_MODULES.extend(['warnings', 'linecache', '_abcoll', 'abc'])
 if sys.version_info[:2] <= (2, 3):
@@ -350,7 +353,8 @@ def _install_req(py_executable, unzip=False, distribute=False):
 def file_search_dirs():
     here = os.path.dirname(os.path.abspath(__file__))
     dirs = ['.', here,
-            join(here, 'virtualenv_support')]
+            #join(here, 'virtualenv_support')]
+            '/usr/share/python-virtualenv/']
     if os.path.splitext(os.path.dirname(__file__))[0] != 'virtualenv':
         # Probably some boot script; just in case virtualenv is installed...
         try:
@@ -470,9 +474,16 @@ def main():
     parser.add_option(
         '--distribute',
         dest='use_distribute',
-        action='store_true',
-        help='Use Distribute instead of Setuptools. Set environ variable'
-        'VIRTUALENV_USE_DISTRIBUTE to make it the default ')
+        action='store_true', default=True,
+        help='Ignored.  Distribute is used by default. See --setuptools '
+        'to use Setuptools instead of Distribute.')
+
+    parser.add_option(
+        '--setuptools',
+        dest='use_distribute',
+        action='store_false',
+        help='Use Setuptools instead of Distribute. Set environ variable '
+        'VIRTUALENV_USE_SETUPTOOLS to make it the default.')
 
     if 'extend_parser' in globals():
         extend_parser(parser)
@@ -596,7 +607,7 @@ def call_subprocess(cmd, show_stdout=True,
 
 
 def create_environment(home_dir, site_packages=True, clear=False,
-                       unzip_setuptools=False, use_distribute=False):
+                       unzip_setuptools=False, use_distribute=True):
     """
     Creates a new environment in ``home_dir``.
 
@@ -614,10 +625,10 @@ def create_environment(home_dir, site_packages=True, clear=False,
 
     install_distutils(lib_dir, home_dir)
 
-    if use_distribute or os.environ.get('VIRTUALENV_USE_DISTRIBUTE'):
-        install_distribute(py_executable, unzip=unzip_setuptools)
-    else:
+    if not use_distribute or os.environ.get('VIRTUALENV_USE_SETUPTOOLS'):
         install_setuptools(py_executable, unzip=unzip_setuptools)
+    else:
+        install_distribute(py_executable, unzip=unzip_setuptools)
 
     install_pip(py_executable)
 

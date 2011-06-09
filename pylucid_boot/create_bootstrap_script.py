@@ -40,7 +40,8 @@ def create_bootstrap_script():
     # Add info lines
     output_lines = output.splitlines()
     output_lines.insert(2, "## Generate with %r" % __file__)
-    output_lines.insert(2, "## using: %r" % virtualenv.__file__)
+    output_lines.insert(2, "## using: %r v%s" % (virtualenv.__file__, virtualenv.virtualenv_version))
+    output_lines.insert(2, "## python v%s" % sys.version.replace("\n", " "))
     output = "\n".join(output_lines)
     #print output
 
