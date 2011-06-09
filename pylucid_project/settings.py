@@ -317,10 +317,6 @@ LANGUAGE_CODE = "en"
 # dbtemplates settings
 # http://packages.python.org/django-dbtemplates/overview.html#settings
 
-# use Django cache in dbtemplates.
-# see: http://api.rst2a.com/1.0/rst2/html?uri=http%3A//bitbucket.org/jezdez/django-dbtemplates/raw/tip/docs/overview.txt#caching
-DBTEMPLATES_CACHE_BACKEND = "django.core.cache.backends.db.DatabaseCache"
-
 # Use django-reversion ?
 DBTEMPLATES_USE_REVERSION = True
 

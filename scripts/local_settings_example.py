@@ -57,6 +57,10 @@ CACHES = {
         # 'LOCATION': os.path.join(tempfile.gettempdir(), "PyLucid_cache_%s' % SITE_ID),       
     }
 }
+# Use the same cache in dbtemplates.
+# You can also defined a different cache system.
+# more information: http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
+CACHES["dbtemplates"] = CACHES["default"]
 
 # Please change email-/SMTP-Settings:
 
