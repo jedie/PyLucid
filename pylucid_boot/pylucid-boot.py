@@ -1371,8 +1371,9 @@ class AfterInstall(object):
     def __init__(self, options, home_dir):
         self.options = options
         self.home_dir = home_dir
-        self.logfile = os.path.abspath(os.path.join(home_dir, "PyLucid_pip.log"))
-        bin_dir = os.path.abspath(os.path.join(home_dir, "bin"))
+        self.abs_home_dir = os.path.abspath(home_dir)
+        self.logfile = os.path.join(self.abs_home_dir, "PyLucid_pip.log")
+        bin_dir = os.path.join(self.abs_home_dir, "bin")
         self.easy_install = os.path.join(bin_dir, "easy_install")
         self.pip_cmd = os.path.join(bin_dir, "pip")
 
@@ -1426,8 +1427,8 @@ class AfterInstall(object):
         """ symlink pylucid scripts into env root directory """
 
         for filename in ("create_page_instance.sh", "fast_update.py"):
-            source_path = os.path.join(self.home_dir, "src", "pylucid", "scripts", filename)
-            dst_path = os.path.join(self.home_dir, filename)
+            source_path = os.path.join(self.abs_home_dir, "src", "pylucid", "scripts", filename)
+            dst_path = os.path.join(self.abs_home_dir, filename)
             print("\nsymlink: %s\nto: %s\n" % (
                 c.colorize(source_path, opts=("bold",)),
                 c.colorize(dst_path, opts=("bold",)))
