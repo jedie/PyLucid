@@ -16,4 +16,8 @@
 <path>/home/${USERNAME}/PyLucid_env/src/django-tools</path>
 <path>/home/${USERNAME}/PyLucid_env/src/python-creole</path>
 </pydev_pathproperty>
+<pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION">
+<key>USERNAME</key>
+<value>ExampleUsername</value>
+</pydev_variables_property>
 </pydev_project>
