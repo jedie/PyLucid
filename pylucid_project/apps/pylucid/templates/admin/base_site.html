@@ -10,11 +10,11 @@
 	    var PyLucid_media_url="{{ PyLucid_media_url }}";
 	    var markup_help_url="{% url PageAdmin-markup_help %}";
 	</script>
-	<script type="text/javascript" src="{{ Django_media_prefix }}js/jquery.min.js" onerror="JavaScript:alert('Error loading file [{{ Django_media_prefix }}js/jquery.min.js] !');" ></script>
-    <script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_js_tools.js] !');"></script>
-    <script type="text/javascript" src="{{ PyLucid_media_url }}jquery.textarearesizer.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.textarearesizer.js] !');"></script>
-	<script type="text/javascript" src="{{ PyLucid_media_url }}codemirror/codemirror_min.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}codemirror/codemirror_min.js] !');"></script>
-    <script type="text/javascript" src="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js] !');"></script>
+	<script type="text/javascript" src="{{ Django_media_prefix }}js/jquery.min.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');" ></script>
+    <script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+    <script type="text/javascript" src="{{ PyLucid_media_url }}jquery.textarearesizer.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+	<script type="text/javascript" src="{{ PyLucid_media_url }}codemirror/codemirror_min.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+    <script type="text/javascript" src="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 	{% if debug %}
 	   <script type="text/javascript">var debug=true;log("debug is on");</script>
 	{% else %}
@@ -32,12 +32,12 @@
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block START -->{% endif %}
 {% if PyLucid_media_url %}{# stylesheets for all Django admin views #}
     <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
-	<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}pylucid_admin.css] !');"/>
+	<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"/>
 {% else %}{# PyLucid_media_url doesn't exist in e.g. 500 error #}
     <!-- Error: Can't include PyLucid CSS files{% if debug %}, because PyLucid_media_url is not defined!{% endif %} -->
 {% endif %}
 {% if pygments_css %}
-<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
+<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"/>
 {% endif %}
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block END -->{% endif %}
 {% endblock extrastyle %}

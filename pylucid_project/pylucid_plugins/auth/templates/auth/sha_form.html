@@ -4,8 +4,8 @@
 {% block plugin_content %}
 
 {# We can't use extrahead block here, because it's used in ajax view, too. #}
-<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}sha.js] !');"></script>
-<script type="text/javascript" src="{{ PyLucid_media_url }}shared_sha_tools.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}shared_sha_tools.js] !');"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}shared_sha_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <style type="text/css">
 #login_form, #sha_values_block, #js_page_msg { display: none; }
 #js_page_msg { padding: 0.5em; }
