@@ -54,7 +54,7 @@ def check_permissions(superuser_only, permissions=(), must_staff=None):
             must_staff = False
         else:
             must_staff = True
-    
+
     assert isinstance(must_staff, bool)
 
     def _inner(view_function):
@@ -68,14 +68,14 @@ def check_permissions(superuser_only, permissions=(), must_staff=None):
                 messages.error(request, msg)
                 url = settings.PYLUCID.AUTH_NEXT_URL % {"path": "/", "next_url": request.path}
                 return HttpResponseRedirect(url)
-            
+
             def permission_denied(msg):
                 LogEntry.objects.log_action(app_label="PyLucid", action="auth error", message=msg)
                 raise PermissionDenied()
-            
+
             if superuser_only and user.is_superuser != True:
                 return permission_denied("Your are not a superuser!")
-            
+
             if must_staff and user.is_staff != True:
                 return permission_denied("Your are not a staff member!")
 
@@ -125,6 +125,7 @@ def superuser_only(view_function):
     return _inner
 
 
+# TODO: Use this from django-tools!
 def render_to(template_name=None, debug=False):
     """
     Based on the decorators from django-annoying.
