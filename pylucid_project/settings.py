@@ -299,6 +299,11 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+# Use the same cache in dbtemplates.
+# You can also defined a different cache system.
+# more information: http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
+CACHES["dbtemplates"] = CACHES["default"]
+
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 # Django can't handling time zone very good.
