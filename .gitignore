@@ -7,5 +7,5 @@ local_settings.py
 *.db3
 /pylucid_project/media/PyLucid/headfile_cache
 /pylucid_project/media/PyLucid_cache
-#.pydevproject
+.pydevproject
 /.settings
