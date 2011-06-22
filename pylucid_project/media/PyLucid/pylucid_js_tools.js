@@ -457,15 +457,16 @@ jQuery(document).ready(function($) {
     $("textarea").each(function() {
 		set_textarea_size($(this));
 		
-		$(this).bind("keydown", function(event) {
+		$(this).bind("keyup", function(event) {
 			var k = event.keyCode 
 			//log("key code: " + k);
 			/*
 			 * 13 == Enter
 			 * 8  == backspace
-			 * 46 == delete 
+			 * 46 == delete
+			 * 17 == Control (for copy&paste: ctrl-c, ctrl-v)
 			 */
-			if (k==13 || k==8 || k==46) {
+			if (k==13 || k==8 || k==46 || k==17) {
 				set_textarea_size($(this));
 			}
 		});
