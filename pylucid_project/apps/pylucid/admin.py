@@ -361,9 +361,6 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
         # would be used in model.clean_fields()
         self.fields["mimetype"].required = False
 
-        # Don't apply jquery.textarearesizer.js:
-        self.fields["content"].widget.attrs["class"] += " processed"
-
 
 class EditableHtmlHeadFileAdmin(VersionAdmin):
     form = EditableHtmlHeadFileAdminForm
@@ -407,10 +404,8 @@ class DBTemplatesAdminAdminForm(TemplateAdminForm):
     class Media:
         js = (settings.MEDIA_URL + "PyLucid/codemirror_dbtemplates.js",)
 
-    def __init__(self, *args, **kwargs):
-        super(DBTemplatesAdminAdminForm, self).__init__(*args, **kwargs)
-        # Don't apply jquery.textarearesizer.js:
-        self.fields["content"].widget.attrs["class"] = " processed"
+#    def __init__(self, *args, **kwargs):
+#        super(DBTemplatesAdminAdminForm, self).__init__(*args, **kwargs)
 
 
 

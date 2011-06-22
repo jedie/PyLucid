@@ -14,13 +14,6 @@
 #ajax_preview { /* hide Ajax preview button and unhide it with JS */
   display: none;
 }
-div.grippie { /* for jquery.textarearesizer.js */
-  background-color: #dddddd;
-  cursor:s-resize;
-  height:9px;
-	width:100%;
-  overflow:hidden;
-}
 textarea {
   display:block;
   margin-bottom:0pt;
@@ -28,10 +21,9 @@ textarea {
   height: 20%;
 }
 --></style>
-<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.textarearesizer.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jquery.textarearesizer.js] !');"></script>
 {% if pagecontent.markup == 1 %}{# current markup is HTML+Editor #}
 <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
-<script type="text/javascript" src="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js] !');"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <script type="text/javascript">
 jQuery(document).ready(function($) {
   log("init wysiwyg");
@@ -48,7 +40,7 @@ var textarea_changed = false;
 
 jQuery(document).ready(function($) {
     log("edit_inline_form.html ready.");
-	
+
 	  // remove old page_msg, if exist
 	  $("#page_msg").slideUp();
 
@@ -109,17 +101,6 @@ jQuery(document).ready(function($) {
         {% endcomment %}
         self.location.href='{{ abort_url }}';
     });
-	
-    // jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
-    try {
-        {% if pagecontent.markup == 1 %}{# current markup is HTML+Editor #}
-          $("iframe:not(.processed)").TextAreaResizer();
-        {% else %}
-          $("textarea:not(.processed)").TextAreaResizer();
-        {% endif %}    
-    } catch (e) {
-        log("can't init TextAreaResizer:" + e);
-    }
 });
 </script>
 {% endextrahead %}

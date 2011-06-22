@@ -15,8 +15,8 @@
 {% endcompress %}
 
 {% compress js %}
-<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}sha.js] !');"></script>
-<script type="text/javascript" src="{{ PyLucid_media_url }}shared_sha_tools.js" onerror="JavaScript:alert('Error loading file [{{ PyLucid_media_url }}shared_sha_tools.js] !');"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+<script type="text/javascript" src="{{ PyLucid_media_url }}shared_sha_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <script type="text/javascript">
 var SALT_LEN={{ salt_len }};
 var HASH_LEN={{ hash_len }};

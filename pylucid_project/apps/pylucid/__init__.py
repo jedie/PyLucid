@@ -55,7 +55,7 @@ requirements = (
     # http://code.google.com/p/python-creole/
     "python-creole >= 0.2.4",
 
-    # http://code.google.com/p/django-reversion/
+    # https://github.com/etianen/django-reversion
     "django-reversion >= 1.1.2",
 
     # http://code.google.com/p/django-dbtemplates/
