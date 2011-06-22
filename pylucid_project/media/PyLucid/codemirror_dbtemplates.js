@@ -16,6 +16,5 @@ jQuery(document).ready(function($) {
 		height: "40em",
 		autoMatchParens: true
 	});	
-	log("CoreMirror initialized.");
-    // FIXME: How can we add jquery.textarearesizer.js to the iframe?		
+	log("CoreMirror initialized.");		
 });

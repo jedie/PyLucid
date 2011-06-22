@@ -39,9 +39,14 @@
     margin-left: 150px;
     font-size: 0.75em;
 }
-.pylucid_form input, .pylucid_form textarea {
-    width: 100%;
-    max-width: 80%;
+textarea {
+	width: 95% !important;
+}
+.pylucid_form input {
+	width: 80%;
+}
+.pylucid_form textarea {
+    width: 80% !important;
 }
 .pylucid_form .helper_buttons input, input[type=checkbox], input[type="submit"] {
     width: auto;
@@ -142,26 +147,6 @@ table.info caption {
 }
 .PyLucidPlugins.TOC a:hover {
   color: #286ea0;
-}
-/* ----------------------------------------------------------------------------
-   jquery.textarearesizer.js
-   http://plugins.jquery.com/project/TextAreaResizer
-------------------------------------------------------------------------------- */
-div.grippie {
-    background-color: #eeeeee;
-    cursor:s-resize;
-    height:9px;
-    width:100%;
-    overflow:hidden;
-}
-div.grippie:hover {
-    background-color: #cccccc;
-}
-textarea {
-    display:block;
-    margin-bottom:0pt;
-    min-height: 8em;
-	width: 85% !important;
 }
 /* ----------------------------------------------------------------------------
    CodeMirror
