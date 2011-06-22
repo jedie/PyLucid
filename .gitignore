@@ -8,3 +8,4 @@ local_settings.py
 /pylucid_project/media/PyLucid/headfile_cache
 /pylucid_project/media/PyLucid_cache
 .pydevproject
+/.settings
