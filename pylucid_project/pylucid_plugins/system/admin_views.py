@@ -18,6 +18,7 @@ from pylucid_project.apps.pylucid.models import Language, PageTree, PageMeta, Lo
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.timezone import utc_offset
+import pprint
 
 
 
@@ -49,13 +50,29 @@ def install(request):
 #-----------------------------------------------------------------------------
 
 def _cache_backend_test(request, out):
-    out.write(_("\tsettings.CACHE_BACKEND is '%s'") % settings.CACHE_BACKEND)
 
-    if settings.CACHE_BACKEND.startswith("dummy") or settings.CACHE_BACKEND.startswith("locmem"):
-        out.write(_("\tPlease setup CACHE_BACKEND in you local_settings.py!"))
-        tempdir = gettempdir()
-        out.write(_("\te.g.: CACHE_BACKEND='file://%s'") % os.path.join(tempdir, "PyLucid_cache"))
+    only_dummy_cache = None
+
+    if hasattr(settings, "CACHE_BACKEND"):
+        out.write(_("\tsettings.CACHE_BACKEND is '%s'") % settings.CACHE_BACKEND)
+        if settings.CACHE_BACKEND.startswith("dummy") or settings.CACHE_BACKEND.startswith("locmem"):
+            out.write(_("\tPlease setup CACHE_BACKEND in you local_settings.py!"))
+            tempdir = gettempdir()
+            out.write(_("\te.g.: CACHE_BACKEND='file://%s'") % os.path.join(tempdir, "PyLucid_cache"))
+            only_dummy_cache = True
+        else:
+            only_dummy_cache = False
     else:
+        out.write(_("\tsettings.CACHES is:"))
+        out.write(pprint.pformat(settings.CACHES))
+
+        if settings.CACHES['default']['BACKEND'] == 'django.core.cache.backends.locmem.LocMemCache':
+            out.write(_("\tPlease setup CACHES in you local_settings.py!"))
+            only_dummy_cache = True
+        else:
+            only_dummy_cache = False
+
+    if not only_dummy_cache:
         cache_key = "cache test"
         content = "A cache test content..."
         cache_timeout = 50
