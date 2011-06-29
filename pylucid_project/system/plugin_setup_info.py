@@ -22,6 +22,13 @@ class Plugin(object):
 
 
 class PyLucidPluginSetupInfo(dict):
+    """
+    A instance would be made in settings.py and bind to:
+    
+        settings.PYLUCID_PLUGIN_SETUP_INFO
+        
+    This instance used in pylucid_project.system.pylucid_plugins
+    """
     def __init__(self, plugin_package_list, verbose=True):
         super(PyLucidPluginSetupInfo, self).__init__()
         self.verbose = verbose
