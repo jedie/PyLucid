@@ -4,7 +4,7 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -15,6 +15,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.template import loader, RequestContext
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 
 from django_tools.template import render
 
@@ -25,6 +26,7 @@ from pylucid_project.apps.pylucid.signals import pre_render_global_template
 from pylucid_project.apps.pylucid.system import pylucid_plugin, i18n
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from django.template.loader import render_to_string
+
 
 
 
@@ -359,6 +361,10 @@ def _get_pagetree(request, url_path):
         raise http.Http404(msg)
 
 
+# We must exempt csrf test here, but we use csrf_protect() later in:
+# pylucid_project.apps.pylucid.system.pylucid_plugin.call_plugin()
+# pylucid_project.system.pylucid_plugins.PyLucidPlugin.call_plugin_view()
+@csrf_exempt
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
     if _lang_code_is_pagetree(request, url_lang_code):

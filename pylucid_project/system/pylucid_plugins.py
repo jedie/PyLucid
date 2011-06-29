@@ -11,6 +11,7 @@ from django.conf.urls.defaults import patterns, include
 from django.core import urlresolvers
 from django.utils.importlib import import_module
 from django.utils.log import getLogger
+from django.views.decorators.csrf import csrf_protect
 
 from pylucid_project.utils.python_tools import has_init_file
 
@@ -98,12 +99,19 @@ class PyLucidPlugin(object):
         return callable
 
     def call_plugin_view(self, request, mod_name, func_name, method_kwargs):
-        """ Call a plugin view """
+        """
+        Call a plugin view
+        used for pylucid-get-views and lucidTag calls 
+        """
         callable = self.get_callable(mod_name, func_name)
 
         # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
         request.plugin_name = self.name
         request.method_name = func_name
+
+        if func_name == "http_get_view" and not getattr(callable, 'csrf_exempt', False):
+            # Use csrf_protect only in pylucid get views and not für lucidTag calls
+            callable = csrf_protect(callable)
 
         # call the plugin view method
         response = callable(request, **method_kwargs)

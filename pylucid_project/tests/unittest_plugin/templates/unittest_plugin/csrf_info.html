@@ -1,0 +1,23 @@
+{% extends template_name %}
+
+{% block content %}
+<h1>Unittest Plugin - CSRF info</h1>
+<dl>
+  <dt>view name</dt><dd>{{ view_name }}</dd>
+  <dt>request.method</dt><dd>{{ request.method }}</dd>
+  <dt>request.POST["csrfmiddlewaretoken"]</dt><dd>{{ request.POST.csrfmiddlewaretoken|default:"-" }}</dd>
+  <dt>request.is_secure()</dt><dd>{{ request.is_secure }}</dd>
+  <dt>request.csrf_processing_done</dt><dd>{{ request.csrf_processing_done }}</dd>
+  <dt>request._dont_enforce_csrf_checks</dt><dd>{{ request_dont_enforce_csrf_checks }}</dd>
+  <dt>request.META.CSRF_COOKIE</dt><dd>{{ request.META.CSRF_COOKIE }}</dd>
+  <dt>request.META.HTTP_X_CSRFTOKEN</dt><dd>{{ request.META.HTTP_X_CSRFTOKEN|default:"-" }}</dd>
+  <dt>request.META.CSRF_COOKIE_USED</dt><dd>{{ request.META.CSRF_COOKIE_USED }}</dd>
+</dl>
+<form action="" method="post">
+	{% csrf_token %}
+	<input type="submit" value="POST with csrf-token" />
+</form>
+<form action="" method="post">
+	<input type="submit" value="POST without csrf-token" />
+</form>
+{% endblock content %}

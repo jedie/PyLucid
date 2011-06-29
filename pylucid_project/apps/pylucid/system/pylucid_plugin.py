@@ -23,6 +23,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils.encoding import smart_str
 from django.utils.importlib import import_module
+from django.views.decorators.csrf import csrf_protect
 
 from dbpreferences.forms import DBPreferencesBaseForm
 
@@ -66,7 +67,10 @@ def _raise_resolve_error(plugin_url_resolver, rest_url):
 
 
 def call_plugin(request, url_lang_code, prefix_url, rest_url):
-    """ Call a plugin and return the response. """
+    """
+    Call a plugin and return the response.
+    used for PluginPage
+    """
     lang_entry = request.PYLUCID.current_language
     pluginpage = request.PYLUCID.pluginpage
     pagemeta = request.PYLUCID.pagemeta
@@ -109,6 +113,9 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
     # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
     request.plugin_name = view_func.__module__.split(".", 1)[0] # FIXME: Find a better way!
     request.method_name = view_func.__name__
+
+    if not getattr(view_func, 'csrf_exempt', False):
+        view_func = csrf_protect(view_func)
 
     # Call the view
     response = view_func(request, *view_args, **view_kwargs)
