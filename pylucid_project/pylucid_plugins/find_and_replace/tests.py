@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
 """
     PyLucid unittests
     ~~~~~~~~~~~~~~~~~
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import os
 
@@ -45,8 +47,8 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         self.assertResponse(response,
             must_contain=(
                 '<form action="%s" method="post" id="find_and_replace' % url,
-                '<input type="text" name="find_string"',
-                '<input type="text" name="replace_string"',
+                '<input id="id_find_string" name="find_string" type="text" />',
+                '<input id="id_replace_string" name="replace_string" type="text" />',
             ),
             must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
@@ -54,9 +56,13 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
     def test_pagecontent_replace_simulate(self):
         self.login("superuser")
         url = reverse("FindAndReplace-find_and_replace")
+
+        find_string = "the"
+        replace_string = "XXX"
+
         response = self.client.post(url, data={
-            'find_string': 'the',
-            'replace_string': 'XXX',
+            'find_string': find_string,
+            'replace_string': replace_string,
             'content_type': 0, # PageContent
             'languages': ['de', 'en'],
             'save': 'find and replace',
@@ -65,10 +71,10 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         })
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
-                '<input type="text" name="find_string"',
-                '<input type="text" name="replace_string"',
+                '<input id="id_find_string" name="find_string" type="text" value="' + find_string,
+                '<input id="id_replace_string" name="replace_string" type="text" value="' + replace_string,
                 'Simulate only, no entry changed.',
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">-',
@@ -81,9 +87,13 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
     def test_pagecontent_replace(self):
         self.login("superuser")
         url = reverse("FindAndReplace-find_and_replace")
+
+        find_string = "Welcome to your fesh PyLucid CMS installation"
+        replace_string = "XXX replaced XXX"
+
         response = self.client.post(url, data={
-            'find_string': 'Welcome to your fesh PyLucid CMS installation',
-            'replace_string': 'XXX replaced XXX',
+            'find_string': find_string,
+            'replace_string': replace_string,
             'content_type': 0, # PageContent
             'languages': ['de', 'en'],
             'sites': ['1'],
@@ -91,10 +101,10 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         })
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
-                '<input type="text" name="find_string"',
-                '<input type="text" name="replace_string"',
+                '<input id="id_find_string" name="find_string" type="text" value="' + find_string,
+                '<input id="id_replace_string" name="replace_string" type="text" value="' + replace_string,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">- Welcome to your fesh PyLucid CMS installation ;)</span>',
                 '<span class="gi">+ XXX replaced XXX ;)</span>',
@@ -116,9 +126,13 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
     def test_Headfiles_replace(self):
         self.login("superuser")
         url = reverse("FindAndReplace-find_and_replace")
+
+        find_string = "page messages"
+        replace_string = "XXX replaced XXX"
+
         response = self.client.post(url, data={
-            'find_string': 'page messages',
-            'replace_string': 'XXX replaced XXX',
+            'find_string': find_string,
+            'replace_string': replace_string,
             'content_type': 3, # EditableHtmlHeadFile
             'languages': ['de', 'en'],
             'sites': ['1'],
@@ -126,10 +140,10 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         })
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
-                '<input type="text" name="find_string"',
-                '<input type="text" name="replace_string"',
+                '<input id="id_find_string" name="find_string" type="text" value="' + find_string,
+                '<input id="id_replace_string" name="replace_string" type="text" value="' + replace_string,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">-    page messages</span>',
                 '<span class="gi">+    XXX replaced XXX</span>',
@@ -144,8 +158,11 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.find_and_replace.tests.FindReplaceTest.test_Headfiles_replace",
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.find_and_replace.tests.FindReplaceTest.test_Headfiles_replace"
+
+    management.call_command('test', tests,
         verbosity=2,
 #        failfast=True
     )

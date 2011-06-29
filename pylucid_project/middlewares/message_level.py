@@ -27,13 +27,13 @@ class MessageLevelMiddleware(object):
 
         # get the level by user type and system preferences
         if request.user.is_superuser:
-            level = system_preferences.get("message_level_superuser", message_constants.DEBUG)
+            level = system_preferences["message_level_superuser"]
         elif request.user.is_staff:
-            level = system_preferences.get("message_level_staff", message_constants.DEBUG)
+            level = system_preferences["message_level_staff"]
         elif request.user.is_authenticated():
-            level = system_preferences.get("message_level_normalusers", message_constants.INFO)
+            level = system_preferences["message_level_normalusers"]
         else:
-            level = system_preferences.get("message_level_anonymous", message_constants.SUCCESS)
+            level = system_preferences["message_level_anonymous"]
 
         # Set the current used message level
         messages.set_level(request, level)

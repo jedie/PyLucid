@@ -1,20 +1,16 @@
 # coding: utf-8
 
+
 """
     PyLucid JS-SHA-Login tests
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     A secure JavaScript SHA-1 Login and a plaintext fallback login.
     
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-    
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
+
 
 import os
 
@@ -43,7 +39,7 @@ class LoginTest(basetest.BaseUnittest):
         """ Simple check if login link exist. """
         response = self.client.get("/admin/", HTTP_ACCEPT_LANGUAGE="en")
         self.assertAdminLoginPage(response)
-        
+
     def test_login_redirect(self):
         """
         Check login redirect
@@ -84,28 +80,28 @@ class LoginTest(basetest.BaseUnittest):
 
     def test_DOS_attack(self):
         settings.DEBUG = True
-        
+
         client = self.client
         userdata = self._get_userdata("normal")
-        username=userdata["username"]
+        username = userdata["username"]
 #        self.login("normal")
 #        client.logout()
-        
+
         # Get the login form: The channenge value would be stored into settion
         self.test_login_get_form()
         self.failUnless("challenge" in client.session)
-        
+
         pref_form = AuthPreferencesForm()
         preferences = pref_form.get_preferences()
         ban_limit = preferences["ban_limit"]
-        
+
         # Hold if all events would been received.
         tested_first_login = False
         tested_under_limit = False
         tested_limit_reached = False
         tested_banned = False
-        
-        for no in xrange(1, ban_limit+3):          
+
+        for no in xrange(1, ban_limit + 3):
             # get the salt
             response1 = client.post(
                 "/?auth=get_salt", {"username": username}, HTTP_X_REQUESTED_WITH='XMLHttpRequest'
@@ -119,8 +115,8 @@ class LoginTest(basetest.BaseUnittest):
                 },
                 HTTP_X_REQUESTED_WITH='XMLHttpRequest'
             )
-            
-            if no==1:
+
+            if no == 1:
                 # first request, normal failed 
                 tested_first_login = True
                 self.failUnless(len(response1.content) == 5) # the salt          
@@ -134,13 +130,13 @@ class LoginTest(basetest.BaseUnittest):
                         "<!DOCTYPE", "<body", "</html>",
                     )
                 )
-            elif no==ban_limit+1:
+            elif no == ban_limit + 1:
                 # The limit has been reached
                 tested_banned = True
                 self.assertResponse(response2, must_contain=('Add IP to ban list.',))
                 self.assertStatusCode(response2, 404)
                 self.failUnless(len(response1.content) == 5) # the salt
-            elif no>ban_limit:
+            elif no > ban_limit:
                 # IP is on the ban list
                 tested_limit_reached = True
                 self.assertStatusCode(response2, 403) # get forbidden page
@@ -159,7 +155,7 @@ class LoginTest(basetest.BaseUnittest):
                         "<!DOCTYPE", "<body", "</html>",
                     )
                 )
-            
+
         # Check if all events have been received.
         self.failUnless(tested_first_login == True)
         self.failUnless(tested_limit_reached == True)

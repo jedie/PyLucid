@@ -261,13 +261,6 @@ function process_markup() {
     }
     wysiwyg_used = true;
     
-    // jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
-    try {
-        $("iframe:not(.processed)").TextAreaResizer();    
-    } catch (e) {
-        log("can't init TextAreaResizer:" + e);
-    }
-    
   }
   if (wysiwyg_used == true && markup_id != "1") {
     log("destroy wysiwyg");
@@ -384,7 +377,7 @@ function get_pylucid_comments_form() {
 * code from: http://docs.djangoproject.com/en/dev/ref/contrib/csrf/#ajax
 * see also: http://docs.djangoproject.com/en/dev/releases/1.3/#csrf-exception-for-ajax-requests
 */
-$('html').ajaxSend(function(event, xhr, settings) {
+$(document).ajaxSend(function(event, xhr, settings) {
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
@@ -400,8 +393,23 @@ $('html').ajaxSend(function(event, xhr, settings) {
         }
         return cookieValue;
     }
-    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-        // Only send the token to relative URLs i.e. locally.
+    function sameOrigin(url) {
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    function safeMethod(method) {
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
         xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
     }
 });
@@ -409,9 +417,24 @@ $('html').ajaxSend(function(event, xhr, settings) {
 
 /****************************************************************************/
 
-
-var MIN_ROWS = 5;
+var MIN_ROWS = 1;
 var MAX_ROWS = 25;
+
+function set_textarea_size(textarea) {
+    rows = textarea.attr("value").split("\n").length;
+    
+    if (rows > MAX_ROWS) { rows = MAX_ROWS; }
+    if (rows < MIN_ROWS) { rows = MIN_ROWS; }
+
+    log("set textarea "+textarea.id+" row to:" + rows);
+    
+    textarea.css("height", "auto");
+    textarea.attr("rows", rows);
+}
+
+/****************************************************************************/
+
+
 var MAX_LENGTH = 255;
 
 
@@ -432,22 +455,22 @@ jQuery(document).ready(function($) {
     /************************************************************************
 	 * Resize all textareas                                                 */
     $("textarea").each(function() {
-        rows = this.value.split("\n").length;
-        if (rows > MAX_ROWS) {
-            rows = MAX_ROWS;
-        }
-        if (rows < MIN_ROWS) {
-            rows = MIN_ROWS;
-        }
-        log("set textarea row to:" + rows)
-        this.rows = rows;
+		set_textarea_size($(this));
+		
+		$(this).bind("keyup", function(event) {
+			var k = event.keyCode 
+			//log("key code: " + k);
+			/*
+			 * 13 == Enter
+			 * 8  == backspace
+			 * 46 == delete
+			 * 17 == Control (for copy&paste: ctrl-c, ctrl-v)
+			 */
+			if (k==13 || k==8 || k==46 || k==17) {
+				set_textarea_size($(this));
+			}
+		});
     });
-	// jquery.textarearesizer.js -> http://plugins.jquery.com/project/TextAreaResizer
-	try {
-        $("textarea:not(.processed)").TextAreaResizer();	
-    } catch (e) {
-	    log("can't init TextAreaResizer:" + e);
-    }
 	
     /************************************************************************
 	 * resize input fields                                                  */

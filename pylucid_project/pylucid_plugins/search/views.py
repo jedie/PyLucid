@@ -37,7 +37,13 @@ def get_preferences():
 #-----------------------------------------------------------------------------
 
 class SearchForm(forms.Form):
-    search = forms.CharField()
+    search = forms.CharField(widget=forms.TextInput(
+        attrs={
+            "required":"required",
+            "autofocus":"autofocus",
+
+        }
+    ))
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
 
@@ -47,7 +53,10 @@ class SearchForm(forms.Form):
 
 
 class AdvancedSearchForm(SearchForm):
-    language = forms.MultipleChoiceField(choices=Language.objects.get_choices())
+    language = forms.MultipleChoiceField(
+        choices=Language.objects.get_choices(),
+        widget=forms.CheckboxSelectMultiple,
+    )
 
 #-----------------------------------------------------------------------------
 
@@ -61,7 +70,7 @@ def _filter_search_terms(request, search_string):
     search_strings = []
     for term in raw_search_strings:
         if len(term) < preferences["min_term_len"]:
-            messages.info(request, "Ignore '%s' (too small)" % term)
+            messages.warning(request, "Ignore '%s' (too small)" % term)
         else:
             search_strings.append(term)
 
@@ -144,6 +153,11 @@ class SearchResults(object):
         score = self._calc_score(content, 1)
         score += self._calc_score(headline, 10)
         score += self._calc_score(meta_content, 5)
+
+        if language == self.request.PYLUCID.current_language:
+            # Multiply the score if the content language
+            # is the same as client prefered language 
+            score *= 2
 
         search_hit = SearchHit(
             model_instance=model_instance,
@@ -242,21 +256,29 @@ def _search(request, cleaned_data):
 @render_to("search/search.html")#, debug=True)
 def http_get_view(request):
 
-    if request.method == 'GET':
-        # called from lucidTag
-        form_data = request.GET
+    # XXX: Should we support GET search ?
+
+    if "search_page" in request.POST:
+        # Form send by search page
+        querydict = request.POST
     else:
-        # send own form back
-        form_data = request.POST
+        # Form was send by lucidTag -> set default search language
 
-    if not "language" in form_data:
-        # If the client has uses the lucidTag form, there exist no language information
-        # -> use the default language 
-        form_data._mutable = True
-        form_data["language"] = request.PYLUCID.current_language.code
-        form_data._mutable = False
+        querydict = request.POST.copy() # make POST QueryDict mutable
 
-    form = AdvancedSearchForm(form_data)
+        preferences = get_preferences()
+        use_all_languages = preferences["all_languages"]
+
+        if use_all_languages:
+            # use all accessible languages
+            accessible_languages = Language.objects.all_accessible(request.user)
+            codes = accessible_languages.values_list('code', flat=True)
+            querydict.setlist("language", codes)
+        else:
+            # preselect only the client preferred language
+            querydict["language"] = request.PYLUCID.current_language.code
+
+    form = AdvancedSearchForm(querydict)
 
     if form.is_valid():
         search_results = _search(request, form.cleaned_data)
@@ -269,7 +291,7 @@ def http_get_view(request):
     context = {
         "page_title": "Advanced search", # Change the global title with blog headline
         "form": form,
-        "form_url": request.path + "?search=do_search",
+        "form_url": request.path + "?search=",
         "search_results": search_results,
     }
     return context

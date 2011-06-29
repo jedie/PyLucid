@@ -38,7 +38,7 @@ TEMPLATE_DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test.db3' # You should use a absolute path to the SQlite file!
+        'NAME': 'test.db3' # You should set a absolute path to the SQlite file!
     }
 }
 
@@ -46,8 +46,24 @@ DATABASES = {
 SITE_ID = 1
 LANGUAGE_CODE = "en"
 
-CACHE_BACKEND = 'file:///tmp/PyLucid_cache_%s' % SITE_ID
-
+# Set the Django cache system.
+# The LocMemCache isn't memory-efficient. Should be changed!
+# see: http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        #
+        # e.g.:
+        # IMPORTANT needs: >>> import os, tempfile <<< !!!
+        #
+        # 'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        # 'LOCATION': os.path.join(tempfile.gettempdir(), "PyLucid_cache_%s" % SITE_ID),       
+    }
+}
+# Use the same cache in dbtemplates.
+# You can also defined a different cache system.
+# more information: http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
+CACHES["dbtemplates"] = CACHES["default"]
 
 # Please change email-/SMTP-Settings:
 

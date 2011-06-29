@@ -9,14 +9,14 @@
     use:
         http://code.google.com/closure/compiler/
 
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from pylucid_project.utils.closure_compiler import ClosureCompiler
 
 
-CODEMIRROR_BASE_URL = "http://marijn.haverbeke.nl/codemirror/js/"
+CODEMIRROR_BASE_URL = "https://github.com/marijnh/CodeMirror/raw/master/js/"
 SOURCE_URLS = (
     # Library
     ("codemirror_min.js", [CODEMIRROR_BASE_URL + "codemirror.js"]),
@@ -37,8 +37,8 @@ SOURCE_URLS = (
     ("parsehtmlmixed.js", [CODEMIRROR_BASE_URL + "parsehtmlmixed.js"]),
 
     # Contributed parsers
-    ("parsepython.js", ["http://marijn.haverbeke.nl/codemirror/contrib/python/js/parsepython.js"]),
-    ("parsedjango.js", ["http://github.com/jezdez/django-dbtemplates/raw/master/dbtemplates/media/dbtemplates/js/parsedjango.js"]),
+    ("parsepython.js", ["https://github.com/marijnh/CodeMirror/raw/master/contrib/python/js/parsepython.js"]),
+    ("parsedjango.js", ["http://github.com/jezdez/django-dbtemplates/raw/master/dbtemplates/static/dbtemplates/js/parsedjango.js"]),
 )
 
 

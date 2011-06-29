@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
 """
     PyLucid unittests
     ~~~~~~~~~~~~~~~~~
@@ -13,6 +14,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+
 import os
 
 if __name__ == "__main__":
@@ -21,6 +23,7 @@ if __name__ == "__main__":
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.test.client import Client
 
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.models import PageContent
@@ -160,6 +163,37 @@ class LexiconPluginTest1(LexiconPluginTestCase):
             must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
 
+    def test_create_csrf_error(self):
+        self.login("superuser")
+        csrf_client = Client(enforce_csrf_checks=True)
+        url = reverse("Lexicon-new_entry")
+        response = csrf_client.post(url)
+        self.assertResponse(response,
+            must_contain=(
+                "CSRF verification failed."
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required")
+        )
+
+    def test_create_form(self):
+        self.login("superuser")
+        url = reverse("Lexicon-new_entry")
+        response = self.client.get(url)
+        self.assertResponse(response,
+            must_contain=(
+                "<title>PyLucid - Create a new lexicon entry</title>",
+                '<form action="%s" method="post" id="lexicon_form" class="pylucid_form">' % url,
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
+                '<input id="id_term" maxlength="255" name="term" type="text" />',
+                '<textarea cols="40" id="id_content" name="content" rows="10"></textarea>',
+                '<input type="submit" name="save" value="save" />',
+
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required",
+                "XXX INVALID TEMPLATE STRING"
+            )
+        )
+
     def test_create_new_entry(self):
         self.login("superuser")
         url = reverse("Lexicon-new_entry")
@@ -285,11 +319,11 @@ class LexiconPluginTest2(LexiconPluginTestCase, basetest.BaseMoreLanguagesTestCa
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test',
-#        "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_error_handling",
-#        verbosity=2
-#    )
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_error_handling"
+
+    management.call_command('test', tests,
         verbosity=2,
-        failfast=True
+#        failfast=True
     )

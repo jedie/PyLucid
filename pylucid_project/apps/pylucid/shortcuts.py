@@ -7,7 +7,7 @@
     render_pylucid_response() - Similar to django.shortcuts.render_to_response, can be used in
         PyLucid plugin "ajax+normal response" views.
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -32,7 +32,7 @@ def render_pylucid_response(request, template_name, context, **kwargs):
     response_content = render_to_string(template_name, context, **kwargs)
 
     if request.is_ajax():
-        #if settings.DEBUG: print "make ajax response..."
+#        print "make ajax response..."
 
         # Get the extrahead storage (pylucid.system.extrahead.ExtraHead)
         extrahead = request.PYLUCID.extrahead
@@ -50,6 +50,7 @@ def render_pylucid_response(request, template_name, context, **kwargs):
         http_response_kwargs = {'mimetype': kwargs.pop('mimetype', None)}
         return http.HttpResponse(response_content, **http_response_kwargs)
     else:
+#        print "make normal response..."
         # Non-Ajax request: the string content would be replace the page content.
         # The {% extrahead %} content would be inserted into the globale template with
         # the PyLucid context middleware pylucid_plugin.extrahead.context_middleware

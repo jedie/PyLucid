@@ -1,0 +1,13 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+<ul>
+	<li>
+		{% trans "Your IP is:" %}
+		<a href="?remote_addr={{ request.META.REMOTE_ADDR }}" title="{% trans "Filter by your IP address" %}">
+			{{ request.META.REMOTE_ADDR }}
+		</a>
+	</li>
+</ul>
+{{ block.super }}
+{% endblock content %}

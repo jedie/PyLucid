@@ -6,17 +6,12 @@
 
     apply a markup to a content
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 import re
+
 
 
 if __name__ == "__main__":
@@ -140,14 +135,23 @@ def apply_creole(content):
     """
     from pylucid_project.apps.pylucid.markup import PyLucid_creole_macros
 
-    from creole import Parser
-    from creole.creole2html import HtmlEmitter
+    try:
+        # python-creole < v0.6
+        from creole import Parser
+        from creole.creole2html import HtmlEmitter
 
-    # Create document tree from creole markup
-    document = Parser(content).parse()
+        # Create document tree from creole markup
+        document = Parser(content).parse()
 
-    # Build html code from document tree
-    return HtmlEmitter(document, macros=PyLucid_creole_macros, verbose=0).emit()
+        # Build html code from document tree
+        return HtmlEmitter(document, macros=PyLucid_creole_macros, verbose=0).emit()
+    except ImportError:
+        # python-creole >= v0.6
+        from creole import creole2html
+
+        return creole2html(content, emitter_kwargs={"macros":PyLucid_creole_macros})
+
+
 
 
 def convert(raw_content, markup_no, page_msg):

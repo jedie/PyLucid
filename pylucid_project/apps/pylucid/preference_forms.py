@@ -1,14 +1,21 @@
 # coding: utf-8
 
+
 import warnings
 
 from django import forms
+from django.contrib import messages
 from django.contrib.messages import constants as message_constants
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.messages.api import MessageFailure
 
 from dbpreferences.forms import DBPreferencesBaseForm
 
+from django_tools.middlewares import ThreadLocal
+
 from pylucid_project.apps.pylucid.models import Design
+
 
 #if Language.objects.count() == 0:
 #    # FIXME: Insert first language
@@ -23,12 +30,8 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     # see: http://code.google.com/p/django-dbpreferences/issues/detail?id=4
     pylucid_admin_design = forms.ChoiceField(
         # choices= Set in __init__, so the Queryset would not execute at startup
-        required=False, initial=None,
+        initial=None,
         help_text=_("ID of the PyLucid Admin Design. (Not used yet!)")
-    )
-    ban_release_time = forms.IntegerField(
-        help_text=_("How long should a IP address banned in minutes. (Changes need app restart)"),
-        initial=15, min_value=1, max_value=60 * 24 * 7
     )
 
     PERMALINK_USE_NONE = "nothing"
@@ -43,7 +46,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     )
     permalink_additions = forms.ChoiceField(
         choices=PERMALINK_USE_CHOICES,
-        required=True, initial=PERMALINK_USE_TITLE,
+        initial=PERMALINK_USE_TITLE,
         help_text=_("Should we append a additional text to every permalink?")
     )
 
@@ -58,7 +61,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     )
     log404_verbosity = forms.ChoiceField(
         choices=LOG404_CHOICES,
-        required=True, initial=LOG404_NOREDIRECT,
+        initial=LOG404_NOREDIRECT,
         help_text=_("Setup logging verbosity if 404 - 'Page not found' appears")
     )
 
@@ -71,32 +74,63 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     )
     message_level_anonymous = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        required=True,
-        initial=message_constants.SUCCESS,
+        initial=message_constants.INFO,
         help_text=_("Set django message level for anonymous user to set the minimum message that will be displayed.")
     )
     message_level_normalusers = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        required=True,
         initial=message_constants.INFO,
         help_text=_("Set django message level for normal users to set the minimum message that will be displayed.")
     )
     message_level_staff = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        required=True,
         initial=message_constants.DEBUG,
         help_text=_("Set django message level for staff users to set the minimum message that will be displayed.")
     )
     message_level_superuser = forms.ChoiceField(
         choices=MESSAGE_LEVEL_CHOICES,
-        required=True,
         initial=message_constants.DEBUG,
         help_text=_("Set django message level for superusers to set the minimum message that will be displayed.")
     )
 
     def __init__(self, *args, **kwargs):
         super(SystemPreferencesForm, self).__init__(*args, **kwargs)
-        self.fields['pylucid_admin_design'].choices = Design.on_site.all().values_list("id", "name")
+        existing_designs = Design.on_site.all().values_list("id", "name")
+
+        self.fields['pylucid_admin_design'].choices = existing_designs
+        self.base_fields['pylucid_admin_design'].choices = existing_designs
+
+        # Fallback if admin design not set
+        initial = existing_designs[0][0]
+        for id, name in existing_designs:
+            if name == "PyLucid Admin":
+                initial = id
+                break
+
+        self.base_fields['pylucid_admin_design'].initial = initial
+
+    def get_preferences(self):
+        """
+        Fall back to initial data, if something wrong with system preferences.
+        This is important, because nothing would work, if validation error raised.
+        """
+        try:
+            return super(SystemPreferencesForm, self).get_preferences()
+        except ValidationError, e:
+            self.data = self.save_form_init()
+
+            msg = 'Reset system preferences cause: %s' % e
+            request = ThreadLocal.get_current_request()
+            try:
+                messages.info(request, msg)
+            except MessageFailure:
+                # If message system is not initialized, e.g.:
+                # load the system preferences on module level
+                warnings.warn(msg)
+
+            return self.data
+
+        return super(SystemPreferencesForm, self).get_preferences()
 
     class Meta:
         app_label = 'pylucid'

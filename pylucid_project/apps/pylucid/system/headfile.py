@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
     PyLucid headfile
     ~~~~~~~~~~~~~~~~
@@ -8,15 +9,10 @@
 
     Used in pylucid.models and pylucid_plugins.head_files.context_middleware 
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import os
 import mimetypes
@@ -58,14 +54,14 @@ class HeadfileInline(HeadfileBase):
     def __init__(self, data_type, content, tag_attrs={}):
         self.data_type = data_type
         self.check_type()
-        
+
         self.content = content
-        
+
         self.tag_attrs = DEFAULT_INLINE_ATTRIBUTES[data_type]
         self.tag_attrs.update(tag_attrs)
-        
+
         self.template_name = settings.PYLUCID.HEADFILE_INLINE_TEMPLATES % self.data_type
-        self.context = {"tag_attrs": self.tag_attrs, "content": self.content,}
+        self.context = {"tag_attrs": self.tag_attrs, "content": self.content, }
 
 
 class HeadfileLink(HeadfileBase):
@@ -76,25 +72,25 @@ class HeadfileLink(HeadfileBase):
     def __init__(self, url, tag_attrs={}):
         self.url = url
         if "?" in url:
-            path = url.split("?",1)[0]
+            path = url.split("?", 1)[0]
         else:
             path = url
         self.data_type = os.path.splitext(path)[1].lstrip(".")
         self.check_type()
 
         self.tag_attrs = self.make_tag_attrs(tag_attrs)
-        
-        self.template_name = settings.PYLUCID.HEADFILE_LINK_TEMPLATES % self.data_type      
+
+        self.template_name = settings.PYLUCID.HEADFILE_LINK_TEMPLATES % self.data_type
         self.context = {"url": self.url, "tag_attrs": self.tag_attrs}
-        
+
     def make_tag_attrs(self, tag_attrs):
         attributes = DEFAULT_LINK_ATTRIBUTES[self.data_type]
-        
+
         if settings.DEBUG:
             attributes["onerror"] = safestring.mark_safe(
                 "JavaScript:alert('Error loading file [%s] !');" % escape(self.url)
             )
-        
+
         attributes.update(tag_attrs)
         return attributes
 

@@ -1,20 +1,16 @@
 # coding: utf-8
 
+
 """
     PyLucid JS-SHA-Login
     ~~~~~~~~~~~~~~~~~~~~
     
     A secure JavaScript SHA-1 Login and a plaintext fallback login.
     
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-    
-    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
+
 
 from django.conf import settings
 from django.contrib import auth, messages
@@ -292,7 +288,7 @@ def _logout_view(request):
 def http_get_view(request):
     """
     Login+Logout view via GET parameters
-    """   
+    """
     action = request.GET["auth"]
 
     if action == "login":

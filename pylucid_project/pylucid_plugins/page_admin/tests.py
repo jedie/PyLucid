@@ -129,8 +129,9 @@ class PageAdminTest(PageAdminTestCase):
             must_contain=(
                 '<title>PyLucid - Create a new page</title>',
                 'form action="%s"' % CREATE_CONTENT_PAGE_URL,
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
-                'textarea id="id_content"',
+                '<textarea cols="40" id="id_content" name="content" rows="10">',
             ),
             must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
@@ -178,7 +179,7 @@ class PageAdminTest(PageAdminTestCase):
         response = self.client.get(url)
         self.assertResponse(response,
             must_contain=(
-                '<select name="parent" id="id_parent">',
+                '<select id="id_parent" name="parent">',
                 '<option value="" selected="selected">---------</option>',
                 '<option value="3">/designs/</option>',
             ),
@@ -278,14 +279,15 @@ class PageAdminTest(PageAdminTestCase):
             must_contain=(
                 "<title>PyLucid - Translate page &#39;welcome&#39; (English) into Deutsch.</title>",
                 "Translate page &#39;welcome&#39; (English) into Deutsch.",
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 '<input type="submit" name="save" value="save" />',
                 '''<input onclick="self.location.href='/en/welcome/'" name="abort" value="abort" type="reset" />''',
                 '<a href="/pylucid_admin/plugins/page_admin/markup_help/"',
                 '<a href="/pylucid_admin/plugins/page_admin/page_list/"',
                 '<a href="/pylucid_admin/plugins/page_admin/tag_list/"',
 
-                '<textarea id="id_source-content" rows="10" cols="40" name="source-content">Welcome to your fesh PyLucid CMS installation ;)',
-                '<textarea id="id_de-content" rows="10" cols="40" name="de-content">Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)',
+                '<textarea cols="40" id="id_source-content" name="source-content" rows="10">Welcome to your fesh PyLucid CMS installation ;)',
+                '<textarea cols="40" id="id_de-content" name="de-content" rows="10">Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)',
             ),
             must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
@@ -373,9 +375,10 @@ class PageAdminInlineEditTest(PageAdminTestCase):
                 # JavaScript:
                 '$("#ajax_preview").show();',
                 # Some form strings:
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
                 'form action="/?page_admin=inline_edit"',
-                'textarea id="id_content"',
+                '<textarea cols="40" id="id_content" name="content" rows="15">Welcome',
             ),
             must_not_contain=(
                 "XXX INVALID TEMPLATE STRING",
@@ -387,7 +390,6 @@ class PageAdminInlineEditTest(PageAdminTestCase):
     def test_ajax_preview(self):
         """ Test ajax edit page preview """
         self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
-
         response = self.client.post(INLINE_PREVIEW_URL,
             {"content": "A **creole** //preview//!", "preview": True},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
@@ -416,6 +418,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         self.assertResponse(response,
             must_contain=(
                 "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'The original markup is: <strong>tinytextile</strong>',
                 'h1. headlines',
             ),
@@ -434,14 +437,16 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         self.assertResponse(response,
             must_contain=(
                 "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid/headfile_cache/pygments.css"',
+                "<input type='hidden' name='csrfmiddlewaretoken' value='",
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
                 'The original markup is: <strong>tinytextile</strong>',
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">- &lt;li&gt;1.&lt;/li&gt;</span>',
                 '<span class="gi">+ &lt;li&gt;1.</span>',
                 '<legend>new markup</legend>',
                 '<pre>* 1.', '** 1.1.</pre>',
-                'name="content">* 1.\n** 1.1.</textarea>'
+                '<textarea cols="40" id="id_content" name="content" rows="10">* 1.',
+                '** 1.1.</textarea>',
             ),
             must_not_contain=(
                 "XXX INVALID TEMPLATE STRING", "Traceback", 'Permission denied',
@@ -476,11 +481,11 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.page_admin.tests.PageAdminHelperViewsTest",
-#        verbosity=2,
-##        failfast=True
-#    )
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form"
+
+    management.call_command('test', tests,
         verbosity=2,
-#        failfast=True
+        failfast=True
     )

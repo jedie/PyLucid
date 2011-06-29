@@ -129,12 +129,11 @@ class GalleryPluginTest(basetest.BaseUnittest):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.blog.tests.GalleryPluginArticleTest",
-#        verbosity=0,
-##        verbosity=1,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.blog.tests.GalleryPluginArticleTest"
+
+    management.call_command('test', tests ,
         verbosity=1,
 #        verbosity=0,
 #        failfast=True

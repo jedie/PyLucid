@@ -4,13 +4,7 @@
     PyLucid unittest base class
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -85,11 +79,8 @@ class BaseUnittest(BaseTestCase, TestCase):
                 # django
                 '<form action="%s" method="post" id="login-form">' % url,
 
-                '<label for="id_username" class="required">Username:</label>',
-                '<input id="id_username" type="text" name="username" maxlength="30" />',
-
-                '<label for="id_password" class="required">Password:</label>',
-                '<input type="password" name="password" id="id_password" />',
+                '<input id="id_username" maxlength="30" name="username" type="text" />',
+                '<input id="id_password" name="password" type="password" />',
 
                 '<input type="submit" value="Log in" />',
                 # from pylucid:
@@ -192,7 +183,7 @@ class BaseLanguageTestCase(BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 '<body lang="%s">' % lang.code,
-                '<html xmlns="http://www.w3.org/1999/xhtml" lang="%(code)s" xml:lang="%(code)s">' % {
+                '<html lang="%(code)s">' % {
                     "code": lang.code
                 },
             )

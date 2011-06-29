@@ -3,13 +3,14 @@
 {% if pygments_css %}
 {% block extrahead %}{{ block.super }}
 <!-- tools.highlight_code extrahead block start -->
-<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file [{{ pygments_css }}] !');"/>
+<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"/>
 <!-- tools.highlight_code extrahead block end -->
 {% endblock %}
 {% endif %}
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
+	{% csrf_token %}
     {% if highlighted %}
     {{ highlighted }}
     <h3>HTML code for copy&paste:</h3>
