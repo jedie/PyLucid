@@ -18,8 +18,11 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.utils.log import getLogger
 
 from pylucid_project.apps.pylucid.models import Language
+
+logger = getLogger("pylucid.unittest_plugin")
 
 #_____________________________________________________________________________
 # http_get_view()
@@ -41,8 +44,12 @@ REDIRECT_URL = "/"
 def http_get_view(request):
     action = request.GET[GET_KEY]
 
+    logger.debug("http_get_view() called with action: %r" % action)
+
     if action == "MSG_ERROR":
+        logger.debug("MSG_ERROR message created.")
         messages.error(request, message="A error messages")
+        return
 
     if action == ACTION_NONE_RESPONSE:
         # normal PageContent would be used.

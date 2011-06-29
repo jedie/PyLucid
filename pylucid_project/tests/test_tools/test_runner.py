@@ -14,23 +14,26 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import os
-import sys
 import errno
+import os
+import pprint
+import sys
 import unittest
-from django.utils.html import conditional_escape
+
 
 if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
+
 from django.conf import settings
-from django.test.testcases import TestCase
-from django.db.models.loading import get_app, get_apps
 from django.core.exceptions import ImproperlyConfigured
-from django.test.utils import setup_test_environment, teardown_test_environment
-from django.test.simple import DjangoTestSuiteRunner, build_test, build_suite, reorder_suite
+from django.db.models.loading import get_app, get_apps
 from django.forms import util
+from django.test.simple import DjangoTestSuiteRunner, build_test, build_suite, reorder_suite
+from django.test.testcases import TestCase
+from django.test.utils import setup_test_environment, teardown_test_environment
+from django.utils.html import conditional_escape
 
 import pylucid_project
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS, PyLucidPlugin
@@ -81,6 +84,28 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
         if self.verbosity >= 2:
             self.print_test_names(tests)
 
+    def _setup_unittest_plugin(self):
+        if os.path.exists(UNITTEST_PLUGIN_DST_PATH):
+            print "unitest plugin already exist in: %r" % UNITTEST_PLUGIN_DST_PATH
+        else:
+            print "insert unittest plugin via symlink:"
+            print "%s -> %s" % (UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+            os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+
+        plugin_name = "pylucid_project.pylucid_plugins.unittest_plugin"
+        if not plugin_name in settings.INSTALLED_APPS:
+            print "unittest_plugin added to settings.INSTALLED_APPS"
+            settings.INSTALLED_APPS.append(plugin_name)
+
+        if not "unittest_plugin" in PYLUCID_PLUGINS:
+            pkg_path = os.path.join(PYLUCID_PROJECT_ROOT, "pylucid_plugins")
+            PYLUCID_PLUGINS["unittest_plugin"] = PyLucidPlugin(
+                pkg_path, section="pylucid_project",
+                pkg_dir="pylucid_plugins", plugin_name="unittest_plugin"
+            )
+            print "unittest_plugin added to PYLUCID_PLUGINS"
+            print PYLUCID_PLUGINS.keys()
+
     def build_suite(self, test_labels, extra_tests=None, **kwargs):
         """
         Contruct a test suite from all available tests. Returns an instantiated test suite.
@@ -123,6 +148,9 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
                 test_suite.addTest(tests)
         else:
             # Add all pylucid related apps
+            if self.verbosity >= 2:
+                print "INSTALLED_APPS:"
+                pprint.pprint(settings.INSTALLED_APPS)
             for app_name in settings.INSTALLED_APPS:
                 if "pylucid" not in app_name:
                     # use only PyLucid stuff
@@ -149,17 +177,17 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
         self._origin_flatatt = util.flatatt
         util.flatatt = sorted_flatatt
 
-        print "insert unittest plugin via symlink "
-        os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+        self._setup_unittest_plugin()
 
         super(PyLucidTestRunner, self).setup_test_environment(*args, **kwargs)
 
     def teardown_test_environment(self, *args, **kwargs):
         util.flatatt = self._origin_flatatt # remove monkeypatch, why? Dont's know ;)
-        super(PyLucidTestRunner, self).teardown_test_environment(*args, **kwargs)
 
         print "remove unittest plugin symlink"
         os.remove(UNITTEST_PLUGIN_DST_PATH)
+
+        super(PyLucidTestRunner, self).teardown_test_environment(*args, **kwargs)
 
 
 if __name__ == "__main__":
