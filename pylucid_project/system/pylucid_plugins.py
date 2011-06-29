@@ -1,20 +1,24 @@
 # coding: utf-8
 
 
+import logging
 import os
+import pprint
 import sys
-import warnings
 
 from django.conf import settings
+from django.conf.urls.defaults import patterns, include
 from django.core import urlresolvers
-from django.utils.functional import LazyObject, SimpleLazyObject
 from django.utils.importlib import import_module
-from django.conf.urls.defaults import patterns, url, include
+from django.utils.log import getLogger
 
 from pylucid_project.utils.python_tools import has_init_file
 
-#DEBUG = True
-DEBUG = False
+
+logger = getLogger("pylucid.pylucid_plugins")
+#logger.setLevel(logging.DEBUG)
+#logger.addHandler(logging.StreamHandler())
+
 
 #PYLUCID_PLUGINS = None
 
@@ -126,7 +130,7 @@ class PyLucidPlugin(object):
 
         cache_key = self.pkg_string + url_prefix
         if cache_key in _PLUGIN_URL_CACHE:
-            #print "use _PLUGIN_URL_CACHE[%r]" % cache_key
+            logger.debug("use _PLUGIN_URL_CACHE[%r]" % cache_key)
             return _PLUGIN_URL_CACHE[cache_key]
 
         raw_plugin_urlpatterns = self.get_urlpatterns(urls_filename)
@@ -135,11 +139,10 @@ class PyLucidPlugin(object):
             (url_prefix, include(raw_plugin_urlpatterns)),
         )
 
-        if DEBUG:
-            print "url prefix: %r" % url_prefix
-            print "raw_plugin_urlpatterns: %r" % raw_plugin_urlpatterns
+        logger.debug("url prefix: %r" % url_prefix)
+        logger.debug("raw_plugin_urlpatterns: %r" % raw_plugin_urlpatterns)
+        logger.debug("put in _PLUGIN_URL_CACHE[%r]" % cache_key)
 
-        #print "put in _PLUGIN_URL_CACHE[%r]" % cache_key
         _PLUGIN_URL_CACHE[cache_key] = plugin_urlpatterns
 
         return plugin_urlpatterns
@@ -148,14 +151,11 @@ class PyLucidPlugin(object):
     def get_plugin_url_resolver(self, url_prefix, urls_filename="urls"):
         prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
 
-        if DEBUG:
-            print "prefix_urlpatterns: %r" % prefix_urlpatterns
+        logger.debug("prefix_urlpatterns: %r" % prefix_urlpatterns)
 
         plugin_url_resolver = urlresolvers.RegexURLResolver(r'^/', prefix_urlpatterns)
 
-        if DEBUG:
-            for key, value in plugin_url_resolver.reverse_dict.items():
-                print key, value
+        logger.debug("reverse_dict: %s" % pprint.pformat(plugin_url_resolver.reverse_dict))
 
         return plugin_url_resolver
 
