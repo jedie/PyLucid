@@ -23,6 +23,8 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
+from django_tools.unittest_utils.BrowserDebug import debug_response
+
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE
 
@@ -153,7 +155,7 @@ class BlogPluginTest(BlogPluginTestCase):
                 'form action="%s"' % CREATE_URL,
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
                 'input type="submit" name="save" value="save"',
-                '<textarea cols="40" id="id_content" name="content" rows="10"></textarea>',
+                '<textarea id="id_content" rows="10" cols="40" name="content"></textarea>',
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
         )
@@ -204,7 +206,7 @@ class BlogPluginTest(BlogPluginTestCase):
         #self.raise_browser_traceback(response, "TEST")
         self.assertResponse(response,
             must_contain=(
-                '<p>A <strong><i>creole</i> markup</strong> and a <img src="/image/url/pic.PNG" alt="1 2" /> nice?</p>',
+                '<p>A <strong><i>creole</i> markup</strong> and a <img src="/image/url/pic.PNG" title="1 2" alt="1 2" /> nice?</p>',
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
         )
@@ -218,7 +220,7 @@ class BlogPluginTest(BlogPluginTestCase):
                 '<fieldset id="preview_id_content">',
                 '$("#preview_id_content div")',
 
-                '<select id="id_markup" name="markup">',
+                '<select name="markup" id="id_markup">',
                 'var markup_selector = "#id_markup";'
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
@@ -467,14 +469,80 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         self._test_rss_feed(self.other_language)
 
 
+class BlogPluginCsrfTest(BlogPluginTestCase):
+    """
+    Test the Cross Site Request Forgery protection in PyLucid with the Blog Plugin
+    """
+    def _get_loggedin_client(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        test_user = self._get_userdata("superuser")
+        ok = csrf_client.login(username=test_user["username"],
+                               password=test_user["password"])
+        return csrf_client
+
+    def test_create_entry_without_token(self):
+        csrf_client = self._get_loggedin_client()
+
+        response = csrf_client.post(CREATE_URL,
+            data={
+            "headline": "The blog headline",
+            "content": "The **blog article content** in //creole// markup!",
+            "markup": MARKUP_CREOLE,
+            "is_public": "on",
+            "language": self.default_language.id,
+            "sites": settings.SITE_ID,
+            "tags": "django-tagging, tag1, tag2",
+        })
+#        debug_response(response)
+        self.assertResponse(response,
+            must_contain=("Forbidden", "CSRF cookie not set."),
+            must_not_contain=()
+        )
+
+    def test_create_entry_with_token(self):
+        settings.DEBUG = True
+
+        csrf_client = self._get_loggedin_client()
+
+        # get the current csrf token
+        response = csrf_client.get(CREATE_URL)
+        self.assertResponse(response,
+            must_contain=("<input type='hidden' name='csrfmiddlewaretoken' value='",),
+            must_not_contain=()
+        )
+        csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
+        csrf_token = csrf_cookie.value
+
+        # create blog entry with csrf token
+        response = csrf_client.post(CREATE_URL,
+            data={
+            "headline": "The blog headline",
+            "content": "The **blog article content** in //creole// markup!",
+            "markup": MARKUP_CREOLE,
+            "is_public": "on",
+            "language": self.default_language.id,
+            "sites": settings.SITE_ID,
+            "tags": "django-tagging, tag1, tag2",
+            "csrfmiddlewaretoken": csrf_token
+        })
+#        debug_response(response)
+        blog_article_url = "http://testserver/en/blog/1/the-blog-headline/"
+        self.assertRedirect(response, url=blog_article_url, status_code=302)
+
+
+
+
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
 
     tests = __file__
+    tests = "pylucid_plugins.blog.tests.BlogPluginCsrfTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_markup_preview_ids"
 
     management.call_command('test', tests,
         verbosity=2,
