@@ -245,7 +245,11 @@ AUTH_PROFILE_MODULE = "pylucid.UserProfile"
 # Serve static files for the development server?
 # Using this method is inefficient and insecure.
 # Do not use this in a production setting. Use this only for development.
-SERVE_STATIC_FILES = False
+if len(sys.argv) > 1 and sys.argv[1].startswith("runserver"):
+    SERVE_STATIC_FILES = True
+else:
+    SERVE_STATIC_FILES = False
+
 
 # Note: Every URL/path...
 # ...must be a absolute path.

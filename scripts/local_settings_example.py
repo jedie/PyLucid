@@ -82,9 +82,3 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 #MANAGERS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
 #ADMINS = MANAGERS
 
-
-# Serve static files for the development server?
-# Using this method is inefficient and insecure.
-# Do not use this in a production setting!
-# Only on for developer server!
-SERVE_STATIC_FILES = False
