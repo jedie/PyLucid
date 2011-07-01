@@ -22,6 +22,13 @@ class Plugin(object):
 
 
 class PyLucidPluginSetupInfo(dict):
+    """
+    A instance would be made in settings.py and bind to:
+    
+        settings.PYLUCID_PLUGIN_SETUP_INFO
+        
+    This instance used in pylucid_project.system.pylucid_plugins
+    """
     def __init__(self, plugin_package_list, verbose=True):
         super(PyLucidPluginSetupInfo, self).__init__()
         self.verbose = verbose
@@ -30,6 +37,28 @@ class PyLucidPluginSetupInfo(dict):
         self.template_dirs = []
         # for expand: settings.INSTALLED_APPS
         self.installed_plugins = []
+
+        if "PYLUCID_ADD_PLUGINS_PATH" in os.environ:
+            additional_path = os.environ["PYLUCID_ADD_PLUGINS_PATH"]
+
+            plugin_package_list = list(plugin_package_list)
+
+            for path in additional_path.split(";"):
+                if self.verbose:
+                    print "Add additional plugin path: %s" % path
+
+                base_path, pkg_dir = os.path.split(path)
+                section = os.path.split(base_path)[1]
+
+                plugin_package_list.append(
+                    (base_path, section, pkg_dir)
+                )
+
+            plugin_package_list = tuple(plugin_package_list)
+
+            if self.verbose:
+                print "Use this paths: %s" % repr(plugin_package_list)
+
 
         for base_path, section, pkg_dir in plugin_package_list:
             # e.g.: (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins")

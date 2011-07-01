@@ -26,9 +26,10 @@ from dbpreferences.tests.BrowserDebug import debug_response
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests.test_tools.scrapping import HTMLscrapper
 
-
+settings.SERVE_STATIC_FILES = True
+#CACHE_DIR = settings.PYLUCID.CACHE_DIR
 DEBUG = settings.DEBUG
-CACHE_BACKEND = settings.CACHE_BACKEND
+CACHE_BACKEND = settings.CACHES["default"]["BACKEND"]
 
 COMPRESS_DIR = "/%s/" % getattr(settings, "COMPRESS_OUTPUT_DIR", "CACHE")
 
@@ -36,11 +37,12 @@ COMPRESS_DIR = "/%s/" % getattr(settings, "COMPRESS_OUTPUT_DIR", "CACHE")
 
 class DesignTestCase(basetest.BaseUnittest):
     def setUp(self):
-        settings.CACHE_BACKEND = "dummy://"
+        settings.CACHES["default"]["BACKEND"] = "django.core.cache.backends.locmem.LocMemCache"
 
     def tearDown(self):
         # Recover changed settings
-        settings.CACHE_BACKEND = CACHE_BACKEND
+#        settings.PYLUCID.CACHE_DIR = CACHE_DIR
+        settings.CACHES["default"]["BACKEND"] = CACHE_BACKEND
 
     def get_headlinks(self, response, url_part):
         data = HTMLscrapper().grab(response.content, tags=("link",), attrs=("href",))

@@ -8,8 +8,17 @@
     
     This plugin would be symlinked into "./pylucid_project/pylucid_plugins/" before 
     unittests starts. This would be done in pylucid_project.tests.test_tools.test_runner.
+    
+    note:
+        You can also use the unittest_plugin in "normal" way:
+            * symlink it by hand into pylucid_plugins
+            * create a test PluginPage
+            * request the following urls:
+                .../csrf_no_decorator_view/
+                .../csrf_exempt_view/
+                /?unittest_plugin=csrf_test
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -17,9 +26,14 @@ from django import http
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.utils.log import getLogger
+from django.views.decorators.csrf import csrf_exempt
 
 from pylucid_project.apps.pylucid.models import Language
+from pylucid_project.apps.pylucid.decorators import render_to
+
+
+logger = getLogger("pylucid.unittest_plugin")
 
 #_____________________________________________________________________________
 # http_get_view()
@@ -41,7 +55,17 @@ REDIRECT_URL = "/"
 def http_get_view(request):
     action = request.GET[GET_KEY]
 
-    if action == ACTION_NONE_RESPONSE:
+    logger.debug("http_get_view() called with action: %r" % action)
+
+    if action == "MSG_ERROR":
+        logger.debug("MSG_ERROR message created.")
+        messages.error(request, message="A error messages")
+        return
+
+    elif action == "csrf_test":
+        return _csrf_page(request, view_name="csrf get view")
+
+    elif action == ACTION_NONE_RESPONSE:
         # normal PageContent would be used.
         return None
 
@@ -59,6 +83,25 @@ def http_get_view(request):
 
     else:
         raise AssertionError("Wrong GET action parameter!")
+
+
+#_____________________________________________________________________________
+# CsrfTest
+
+@render_to("unittest_plugin/csrf_info.html")
+def _csrf_page(request, view_name):
+    context = {
+        "view_name": view_name,
+        "request_dont_enforce_csrf_checks": getattr(request, "_dont_enforce_csrf_checks", None),
+    }
+    return context
+
+@csrf_exempt
+def csrf_exempt_view(request):
+    return _csrf_page(request, view_name="csrf_exempt_view()")
+
+def csrf_no_decorator_view(request):
+    return _csrf_page(request, view_name="csrf_no_decorator_view()")
 
 
 #_____________________________________________________________________________

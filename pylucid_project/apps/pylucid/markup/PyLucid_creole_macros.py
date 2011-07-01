@@ -20,13 +20,13 @@ except ImportError:
 from pylucid_project.apps.pylucid.markup.hightlighter import make_html
 
 
-def code(args, text):
+def code(ext, text):
     """
     Highlight sourcecode using
     Macro tag <<code ext=.EXT>>...<</code>>
     """
     try:
-        source_type = args.rsplit("=", 1)[-1]
+        source_type = ext.rsplit("=", 1)[-1]
     except (ValueError, IndexError):
         source_type = ""
 

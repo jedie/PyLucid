@@ -52,9 +52,12 @@ LANGUAGE_CODE = "en"
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        # e.g.: (needs '''import os, tempfile''' !)
+        #
+        # e.g.:
+        # IMPORTANT needs: >>> import os, tempfile <<< !!!
+        #
         # 'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        # 'LOCATION': os.path.join(tempfile.gettempdir(), "PyLucid_cache_%s' % SITE_ID),       
+        # 'LOCATION': os.path.join(tempfile.gettempdir(), "PyLucid_cache_%s" % SITE_ID),       
     }
 }
 # Use the same cache in dbtemplates.
