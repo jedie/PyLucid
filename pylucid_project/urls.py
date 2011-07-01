@@ -4,21 +4,14 @@
     global url patterns
     ~~~~~~~~~~~~~~~~~~~
 
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author:$
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url, include
-
 from django.contrib import admin
+from django.http import HttpResponse
 
 
 # TODO: Use own error views?
@@ -45,6 +38,15 @@ urlpatterns = patterns('',
     # DJANGO ADMIN PANEL
     url(r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
 )
+
+# Return a robots.txt that disallows all spiders when DEBUG is True.
+if settings.DEBUG:
+    urlpatterns += patterns("",
+        url(
+            "^robots.txt$",
+            lambda r: HttpResponse("User-agent: *\nDisallow: /", mimetype="text/plain")
+        ),
+    )
 
 # serve static files
 if settings.SERVE_STATIC_FILES:
