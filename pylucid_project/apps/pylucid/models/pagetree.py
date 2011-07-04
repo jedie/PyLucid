@@ -37,6 +37,7 @@ from django_tools import model_utils
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
 from pylucid_project.apps.pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel
+from pylucid_project.utils.local_sync_cache import LocalSyncCache
 
 
 
@@ -338,7 +339,8 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
             message_dict = {"parent": (mark_safe(msg),)}
             raise ValidationError(message_dict)
 
-    _url_cache = {}
+#    _url_cache = {}
+    _url_cache = LocalSyncCache(id="PageTree_absolute_url")
     def get_absolute_url(self):
         """ absolute url *without* language code (without domain/host part) """
         if self.pk in self._url_cache:
