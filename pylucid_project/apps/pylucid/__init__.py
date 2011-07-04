@@ -50,7 +50,7 @@ requirements = (
     "django-dbpreferences >= 0.4.0",
 
     # http://code.google.com/p/django-tools/
-    "django-tools >= 0.15.0",
+    "django-tools >= 0.17.0",
 
     # http://code.google.com/p/python-creole/
     "python-creole >= 0.2.4",

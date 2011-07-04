@@ -4,13 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -26,10 +20,11 @@ from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
+from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
+from django_tools.middlewares import ThreadLocal
 from django_tools.tagging_addon.fields import jQueryTagModelField
 
 from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
-from django_tools.middlewares import ThreadLocal
 
 
 TAG_INPUT_HELP_URL = \
@@ -115,7 +110,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         null=True, blank=True,
     )
 
-    _url_cache = {}
+    _url_cache = LocalSyncCache(id="PageMeta_absolute_url")
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
         if self.pk in self._url_cache:
@@ -129,7 +124,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         self._url_cache[self.pk] = url
         return url
 
-    _permalink_cache = {}
+    _permalink_cache = LocalSyncCache(id="PageMeta_permalink")
     def get_permalink(self):
         """
         return a permalink. Use page slug/name/title or nothing as additional text.
@@ -170,7 +165,6 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         self._url_cache.clear()
         self._permalink_cache.clear()
         self.pagetree._url_cache.clear()
-        cache.clear() # FIXME: This cleaned the complete cache for every site!
         return super(PageMeta, self).save(*args, **kwargs)
 
     def get_site(self):
