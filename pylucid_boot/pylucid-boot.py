@@ -1155,7 +1155,7 @@ LIBS = [
 
     # external Django apps
     "django-reversion", # http://code.google.com/p/django-reversion/
-    "django-dbtemplates", # http://code.google.com/p/django-dbtemplates/
+    "django-dbtemplates", # https://github.com/jezdez/django-dbtemplates
     "django-tagging", # http://code.google.com/p/django-tagging/
 ]
 
@@ -1178,7 +1178,7 @@ PIP_INSTALL_DATA = {
     ],
     2: [# use SVN
         # SVN Version from django:
-        ("-e", "svn+http://code.djangoproject.com/svn/django/trunk/#egg=django"),
+        ("-e", "svn+http://svn.github.com/django/django.git@1.3.X#egg=django"),
         # own sub projects
         ("-e", "svn+http://svn.github.com/jedie/python-creole.git#egg=python-creole"),
         ("-e", "svn+http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences"),
@@ -1187,7 +1187,7 @@ PIP_INSTALL_DATA = {
     ],
     3: [# git readonly clone
         # Official clone of the Django Subversion repository (readonly clone)
-        ("-e", "git+git://github.com/django/django.git#egg=django"),
+        ("-e", "git+git://github.com/django/django.git@1.3.X#egg=django"),
         # own sub projects
         ("-e", "git+git://github.com/jedie/python-creole.git#egg=python-creole"),
         ("-e", "git+git://github.com/jedie/django-dbpreferences.git#egg=dbpreferences"),
@@ -1196,7 +1196,7 @@ PIP_INSTALL_DATA = {
     ],
     4: [ # clone with git push access
         # Official clone of the Django Subversion repository (readonly clone)
-        ("-e", "git+git://github.com/django/django.git#egg=django"),
+        ("-e", "git+git://github.com/django/django.git@1.3.X#egg=django"),
         # own sub projects
         ("-e", "git+git@github.com:jedie/python-creole.git#egg=python-creole"),
         ("-e", "git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences"),
