@@ -162,9 +162,14 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
 
     def save(self, *args, **kwargs):
         """ reset PageMeta and PageTree url cache """
+        # Clean the local url cache dict
         self._url_cache.clear()
         self._permalink_cache.clear()
         self.pagetree._url_cache.clear()
+
+        # FIXME: We must clean the page cache, but this cleans it for every sites!
+        cache.clear()
+
         return super(PageMeta, self).save(*args, **kwargs)
 
     def get_site(self):

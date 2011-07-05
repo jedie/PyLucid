@@ -359,8 +359,13 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         """ reset PageMeta and PageTree url cache """
         from pagemeta import PageMeta # against import loops.
 
+        # Clean the local url cache dict
         self._url_cache.clear()
         PageMeta._url_cache.clear()
+
+        # FIXME: We must clean the page cache, but this cleans it for every sites!
+        cache.clear()
+
         return super(PageTree, self).save(*args, **kwargs)
 
     def get_site(self):
