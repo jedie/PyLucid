@@ -34,7 +34,11 @@ class PyLucidMiddleware(object):
             try:
                 r = Redirect.objects.get(site__id__exact=settings.SITE_ID, old_path=path)
             except Redirect.DoesNotExist:
-                pass
+                LogEntry.objects.log_action(
+                    app_label="pylucid", action="PyLucidMiddleware.process_exception()",
+                    message="Redirect for %r doesn't exist." % path
+                )
+                return
             else:
                 # Redirect entry exist
                 if log404_verbosity == sys_pref_form.LOG404_NOREDIRECT:
