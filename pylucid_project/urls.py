@@ -12,11 +12,12 @@ from django.conf import settings
 from django.conf.urls.defaults import patterns, url, include
 from django.contrib import admin
 from django.http import HttpResponse
+from django.views.defaults import server_error, page_not_found
 
 
 # TODO: Use own error views?
-handler500 = "django.views.defaults.server_error"
-handler404 = "django.views.defaults.page_not_found"
+handler500 = server_error
+handler404 = page_not_found
 
 
 admin.autodiscover()
