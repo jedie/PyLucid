@@ -18,9 +18,10 @@ from django.db.models import get_apps, get_models
 from django.utils.translation import ugettext_lazy as _
 from django.views.debug import get_safe_settings
 
+from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
+
 from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
 
@@ -76,30 +77,11 @@ def show_internals(request):
         if isinstance(key, basestring)
     ])
 
-    cache_object_names = ("_url_cache", "_permalink_cache")
-    cache_status = []
-    for app in get_apps():
-        for model in get_models(app):
-            for cache_object_name in cache_object_names:
-                if hasattr(model, cache_object_name):
-                    model_name = model._meta.object_name
-                    cache_obj = getattr(model, cache_object_name)
-
-                    try:
-                        cache_obj_size = sys.getsizeof(cache_obj) # New in version 2.6
-                    except AttributeError:
-                        cache_obj_size = None
-
-                    cache_status.append({
-                        "key":"%s.%s" % (model_name, cache_object_name),
-                        "length": len(cache_obj),
-                        "size": cache_obj_size,
-                    })
-
     context = {
         "title": "Show internals",
 
-        "cache_status": cache_status,
+        "pid": os.getpid(),
+        "cache_information": LocalSyncCache.get_cache_information(),
 
         "permissions": Permission.objects.all(),
 

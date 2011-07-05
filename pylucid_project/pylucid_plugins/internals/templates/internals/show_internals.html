@@ -9,12 +9,34 @@
 <hr/>
 
 <h2>Cache status</h2>
+<p>current pid: {{ pid }}</p>
 <table>
-    <tr><th>item</th><th>item count</th><th>size</th></tr>
-{% for item in cache_status %}
-    <tr><td>{{ item.key }}</td><td>{{ item.length }}</td><td>{% if item.size %}{{ item.size|filesizeformat }}{% else %}-{% endif %}</td></tr>
+    <tr>
+    	<th>id</th>
+    	<th>item count</th>
+    	<th>size</th>
+    	<th>last reset</th>
+    	<th>global update time</th>
+    	<th>cleared in this thread?</th>
+    </tr>
+{% for item in cache_information %}
+    <tr>
+    	<td>{{ item.instance.id }}</td>
+    	<td>{{ item.length }}</td>
+    	<td>{% if item.size %}{{ item.size|filesizeformat }}{% else %}-{% endif %}</td>
+    	<td>{{ item.instance.last_reset }} ({{ item.last_reset_datetime }} - since: {{ item.last_reset_datetime|timesince }})</td>
+    	<td>
+    		{% if item.global_update_time %}
+    			{{ item.global_update_time }} ({{ item.global_update_datetime }} - since: {{ item.global_update_datetime|timesince }})
+    		{% else %}
+    			-
+    		{% endif %}
+    	</td>
+    	<td>{{ item.cleared|yesno }}</td>
+    </tr>
 {% endfor %}
 </table>
+
 
 <h2>urlpatterns</h2>
 <table>
