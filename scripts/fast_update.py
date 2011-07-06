@@ -15,7 +15,7 @@
 import sys, os, subprocess
 
 
-GIT_CMD = "git pull origin master"
+GIT_CMD = "git pull origin"
 SVN_CMD = "svn update"
 
 
