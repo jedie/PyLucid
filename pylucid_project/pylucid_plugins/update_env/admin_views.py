@@ -72,37 +72,37 @@ class Package(object):
     }
     UPDATE_CMD = {
         SVN: ["svn", "update"],
-        GIT: ["git", "pull", "origin", "master"]
+        GIT: ["git", "pull", "origin"]
     }
-    
+
     def __init__(self, path):
         self.path = path
         self.name = os.path.basename(path)
         self.output = u"Not collected yet."
-        
+
         if os.path.isdir(os.path.join(path, ".svn")):
             self.type = self.SVN
         elif os.path.isdir(os.path.join(path, ".git")):
             self.type = self.GIT
         else:
             self.type = None
-    
+
     def _cmd(self, cmd_dict):
         """ subprocess the VCS command and store ouput in self.output """
         assert self.type is not None
         cmd = cmd_dict[self.type]
-        
+
         process = subprocess.Popen(
             cmd, cwd=self.path,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         self.output = process.stdout.read()
         self.output += process.stderr.read()
-    
+
     def collect_status(self):
         """ call STATUS_CMD and save the output in self.output """
         self._cmd(self.STATUS_CMD)
-        
+
     def update(self):
         """ call UPDATE_CMD and save the output in self.output """
         self._cmd(self.UPDATE_CMD)
@@ -111,17 +111,17 @@ class Package(object):
 class VCS_info(object):
     def __init__(self, env_path):
         self.env_path = env_path
-        
+
         self.package_info = {}
-        
+
         self.read_src()
         self.read_external_plugins()
-        
+
     def _add_path(self, abs_path):
         package = Package(abs_path)
         if package.type is not None:
             self.package_info[package.name] = package
-        
+
     def read_src(self):
         """
         init packages from PyLucid_env/src/
@@ -130,12 +130,12 @@ class VCS_info(object):
         for dir in os.listdir(base_path):
             abs_path = os.path.join(base_path, dir)
             self._add_path(abs_path)
-    
+
     def read_external_plugins(self):
         """
         init packages from PyLucid_env/src/pylucid/pylucid_project/external_plugins/
         """
-        base_path = os.path.join(self.env_path, "src", "pylucid","pylucid_project","external_plugins")
+        base_path = os.path.join(self.env_path, "src", "pylucid", "pylucid_project", "external_plugins")
         for dir in os.listdir(base_path):
             abs_path = os.path.join(base_path, dir)
             if not os.path.islink(abs_path):
@@ -145,7 +145,7 @@ class VCS_info(object):
                 real_path = os.path.realpath(abs_path)
                 plugin_base_path = os.path.split(real_path)[0] # PyLucid plugins used a subdirectory
                 self._add_path(plugin_base_path)
-    
+
     def collect_all_status(self):
         """
         Collect 'SVN info' or 'git log' for all packages.
@@ -190,12 +190,12 @@ def update(request, src_name):
     env_path = _get_env_path(request)
     if env_path is None:
         return context # virtualenv path unknown, page_mags was created
-    
+
     vcs_info = VCS_info(env_path)
     if src_name not in vcs_info.package_info:
         messages.error(request, "Wrong package!")
         return context
-    
+
     package = vcs_info.package_info[src_name]
     package.update()
 
