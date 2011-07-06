@@ -31,11 +31,11 @@ from pylucid_project.apps.pylucid.shortcuts import bad_request
 from poll.models import Poll, Choice, UserVotes, IPVotes
 
 
-CHECK_SESSION = False
-#CHECK_SESSION = True
+#CHECK_SESSION = False
+CHECK_SESSION = True
 
-CHECK_COOKIES = False
-#CHECK_COOKIES = True
+#CHECK_COOKIES = False
+CHECK_COOKIES = True
 
 
 def _get_poll_or_404(id):
