@@ -19,7 +19,8 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
-from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response
+from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response, \
+    bad_request
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.utils import crypt
 
@@ -52,29 +53,14 @@ def _get_challenge(request):
     return challenge
 
 
-def _bad_request(debug_msg):
-    """
-    Create a new LogEntry and return a HttpResponseBadRequest
-    """
-    LogEntry.objects.log_action(
-        app_label="pylucid_plugin.auth", action="login error", message=debug_msg,
-    )
-    if settings.DEBUG:
-        msg = debug_msg
-    else:
-        msg = ""
-
-    return HttpResponseBadRequest(msg)
-
-
 def _is_post_ajax_request(request):
     if not request.is_ajax():
         debug_msg = "request is not a ajax request"
-        return _bad_request(debug_msg)
+        return bad_request(debug_msg)
 
     if request.method != 'POST':
         debug_msg = "request method %r wrong, only POST allowed" % request.method
-        return _bad_request(debug_msg)
+        return bad_request(debug_msg)
 
 
 def lucidTag(request):
@@ -145,13 +131,13 @@ def _sha_auth(request):
     form = ShaLoginForm(request.POST)
     if not form.is_valid():
         debug_msg = "ShaLoginForm is not valid: %r" % form.errors
-        return _bad_request(debug_msg)
+        return bad_request(debug_msg)
 
     try:
         challenge = request.session.pop("challenge")
     except KeyError, err:
         debug_msg = "Can't get 'challenge' from session: %s" % err
-        return _bad_request(debug_msg)
+        return bad_request(debug_msg)
 
     try:
         user1, user_profile = form.get_user_and_profile()
@@ -247,14 +233,14 @@ def _login_view(request):
 
     if request.method != 'GET':
         debug_msg = "request method %r wrong, only GET allowed" % request.method
-        return _bad_request(debug_msg) # Return HttpResponseBadRequest
+        return bad_request(debug_msg) # Return HttpResponseBadRequest
 
     next_url = request.GET.get("next_url", request.path)
 
     if "://" in next_url: # FIXME: How to validate this better?
         # Don't redirect to other pages.
         debug_msg = "next url %r seems to be wrong!" % next_url
-        return _bad_request(debug_msg) # Return HttpResponseBadRequest
+        return bad_request(debug_msg) # Return HttpResponseBadRequest
 
     form = ShaLoginForm()
 
@@ -301,6 +287,6 @@ def http_get_view(request):
         return _logout_view(request)
     else:
         debug_msg = "Wrong get view parameter!"
-        return _bad_request(debug_msg) # Return HttpResponseBadRequest
+        return bad_request(debug_msg) # Return HttpResponseBadRequest
 
 

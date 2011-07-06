@@ -13,7 +13,10 @@
 
 
 from django import http
+from django.conf import settings
 from django.template.loader import render_to_string
+
+from pylucid_project.apps.pylucid.models.log import LogEntry
 
 
 def render_pylucid_response(request, template_name, context, **kwargs):
@@ -57,5 +60,17 @@ def render_pylucid_response(request, template_name, context, **kwargs):
         return response_content
 
 
+def bad_request(debug_msg):
+    """
+    Create a new LogEntry and return a HttpResponseBadRequest
+    """
+    LogEntry.objects.log_action(
+        app_label="pylucid_plugin.auth", action="login error", message=debug_msg,
+    )
+    if settings.DEBUG:
+        msg = debug_msg
+    else:
+        msg = ""
 
+    return http.HttpResponseBadRequest(msg)
 

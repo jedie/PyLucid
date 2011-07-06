@@ -1,0 +1,48 @@
+# coding: utf-8
+
+"""
+    A simple poll plugin
+    ~~~~~~~~~~~~~~~~~~~~
+    
+    Based on django poll tutorial
+
+    :copyleft: 2011 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+"""
+
+from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
+
+from poll.models import Poll, Choice, UserVotes, IPVotes
+
+
+class ChoiceInline(admin.TabularInline):
+    model = Choice
+    extra = 3
+
+class PollAdmin(admin.ModelAdmin):
+    list_display = ("question", "lucidTag_example", "lastupdatetime", "lastupdateby")
+#    fieldsets = [
+#        (None, {"fields": ["question"]}),
+#        ("permissions", {
+#            "fields": ["limit_to_group", "allow_anonymous"],
+#        }),
+#        ("site information", {"fields": ["sites"]}),
+#    ]
+    inlines = [ChoiceInline]
+
+    def lucidTag_example(self, obj):
+        return '{%% lucidTag poll id=%i %%}' % obj.id
+    lucidTag_example.short_description = _("lucidTag example")
+
+admin.site.register(Poll, PollAdmin)
+
+class UserVotesAdmin(admin.ModelAdmin):
+    list_display = ("user", "poll")
+
+admin.site.register(UserVotes, UserVotesAdmin)
+
+class IPVotesAdmin(admin.ModelAdmin):
+    list_display = ("ip", "count", "poll")
+
+admin.site.register(IPVotes, IPVotesAdmin)

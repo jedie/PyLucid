@@ -1,0 +1,11 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+<h1>{{ poll.question }}</h1>
+{% if poll_message %}<p><strong>{{ poll_message }}</strong></p>{% endif %}
+<ul>
+{% for choice in poll.choice_set.all %}
+    <li>{{ choice.choice }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+{% endfor %}
+</ul>
+{% endblock plugin_content %}
