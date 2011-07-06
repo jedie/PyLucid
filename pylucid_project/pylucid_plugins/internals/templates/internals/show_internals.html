@@ -17,7 +17,11 @@
     	<th>size</th>
     	<th>last reset</th>
     	<th>global update time</th>
-    	<th>cleared in this thread?</th>
+    	<th>cleared</th>
+    	<th>init</th>
+    	<th>request</th>
+    	<th>own cleared</th>
+    	<th>ext cleard</th>
     </tr>
 {% for item in cache_information %}
     <tr>
@@ -32,7 +36,11 @@
     			-
     		{% endif %}
     	</td>
-    	<td>{{ item.cleared|yesno }}</td>
+    	<td title="cleard in this thread?">{{ item.cleared|yesno }}</td>
+    	<td title="How often __init__ used, should allways be 1!">{{ item.init_counter }}</td>
+    	<td title="In how many requests was this cache used?">{{ item.instance.request_counter }}</td>
+    	<td title="How often was clear() called in own thread?">{{ item.instance.own_clear_counter }}</td>
+    	<td title="How often was clear() from external thread done?">{{ item.instance.ext_clear_counter }}</td>
     </tr>
 {% endfor %}
 </table>
