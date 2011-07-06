@@ -5,7 +5,7 @@
 {% if poll_message %}<p><strong>{{ poll_message }}</strong></p>{% endif %}
 <ul>
 {% for choice in poll.choice_set.all %}
-    <li>{{ choice.choice }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+    <li>{{ choice.votes }} vote{{ choice.votes|pluralize }} for: {{ choice.choice }}</li>
 {% endfor %}
 </ul>
 {% endblock plugin_content %}
