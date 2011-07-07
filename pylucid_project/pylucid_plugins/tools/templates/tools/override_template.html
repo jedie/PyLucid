@@ -6,11 +6,12 @@
 	{% trans 'more info on:' %}<a href="http://www.pylucid.org#FIXME">pylucid.org</a>
 </p>
 <form action="{{ form_url }}" method="post" class="pylucid_form">
-{% include "admin/pylucid/includes/pylucid_formset.html" %}
-<div class="helper_buttons">
-    <input type="submit" name="preview" value="{% trans 'preview' %}" title="{% trans 'Display only the sourcecode of the template.' %}" />
-    <input type="submit" name="override" value="{% trans 'override' %}" title="{% trans 'Read the template from filesystem and create a new dbtemplate entry.' %}" />
-</div>
+	{% csrf_token %}
+	{% include "admin/pylucid/includes/pylucid_formset.html" %}
+	<div class="helper_buttons">
+	    <input type="submit" name="preview" value="{% trans 'preview' %}" title="{% trans 'Display only the sourcecode of the template.' %}" />
+	    <input type="submit" name="override" value="{% trans 'override' %}" title="{% trans 'Read the template from filesystem and create a new dbtemplate entry.' %}" />
+	</div>
 </form>
 {% if template %}
 <h2>preview sourcecode of '{{ template.name }}'</h2>

@@ -15,6 +15,7 @@
 {% endif %}
 
 <form action="{{ form_url }}" method="post" id="switch_design_form" class="pylucid_form">
+	{% csrf_token %}
     {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
     {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
     <fieldset>

@@ -5,6 +5,7 @@
     A copy of all Design componets (like Template, Headfiles, ColorScheme) would be created with the new name you given here.<br/>
 </p>
 <form action="{{ form_url }}" method="post" id="clone_design_form" class="pylucid_form">
+	{% csrf_token %}
     {% include "admin/pylucid/includes/form_fieldset_errorlist.html" %}
     {% include "admin/pylucid/includes/markup_preview_fieldset.html" %}
     <fieldset>
