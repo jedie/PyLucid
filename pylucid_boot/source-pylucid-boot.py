@@ -285,17 +285,32 @@ class AfterInstall(object):
     def install_libs(self):
         self.run_pip("install PyLucid libs", LIBS)
 
-    def setup_pylucid_scripts(self):
-        """ symlink pylucid scripts into env root directory """
-
-        for filename in ("create_page_instance.sh", "fast_update.py"):
-            source_path = os.path.join(self.abs_home_dir, "src", "pylucid", "scripts", filename)
-            dst_path = os.path.join(self.abs_home_dir, filename)
-            print("\nsymlink: %s\nto: %s\n" % (
-                c.colorize(source_path, opts=("bold",)),
-                c.colorize(dst_path, opts=("bold",)))
-            )
+    def verbose_symlink(self, source_path, dst_path):
+        print("\nsymlink: %s\nto: %s\n" % (
+            c.colorize(source_path, opts=("bold",)),
+            c.colorize(dst_path, opts=("bold",)))
+        )
+        try:
             os.symlink(source_path, dst_path)
+        except Exception, e:
+            import traceback
+            sys.stderr.write(traceback.format_exc())
+
+    def symlink_scripts(self):
+        """ symlink needfull scripts into env root directory """
+
+        # symlink 'create_page_instance.sh' into virtualenv root
+        filename = "create_page_instance.sh"
+        source_path = os.path.join(self.abs_home_dir, "src", "pylucid", "scripts", filename)
+        dst_path = os.path.join(self.abs_home_dir, filename)
+        self.verbose_symlink(source_path, dst_path)
+
+        # symlink "upgrade_virtualenv.py" from django-tools into  virtualenv root
+        filename = "upgrade_virtualenv.py"
+        source_path = os.path.join(self.abs_home_dir, "src", "django-tools", "django_tools", filename)
+        dst_path = os.path.join(self.abs_home_dir, filename)
+        self.verbose_symlink(source_path, dst_path)
+
 
 
 def after_install(options, home_dir):
@@ -307,7 +322,7 @@ def after_install(options, home_dir):
     a.install_pip()
     a.install_pylucid()
     a.install_libs()
-    a.setup_pylucid_scripts()
+    a.symlink_scripts()
 
     print
     print "PyLucid environment created in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
