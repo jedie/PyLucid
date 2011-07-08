@@ -4,31 +4,22 @@
     PyLucid plugin tools
     ~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
 
 
 import re
-import sys
-import warnings
 
 from django import http
 from django.conf import settings
-from django.conf.urls.defaults import patterns, url
 from django.contrib import messages
 from django.core import urlresolvers
-from django.http import HttpResponse
-from django.template import loader
 from django.utils.encoding import smart_str
-from django.utils.importlib import import_module
 from django.views.decorators.csrf import csrf_protect
 
 from dbpreferences.forms import DBPreferencesBaseForm
-
-from pylucid_project.apps.pylucid.models import PluginPage, PageTree
-from pylucid_project.apps.pylucid.system import pylucid_objects
 
 
 class PyLucidDBPreferencesBaseForm(DBPreferencesBaseForm):
@@ -48,14 +39,12 @@ class PyLucidDBPreferencesBaseForm(DBPreferencesBaseForm):
         return preferences
 
 
-
-
-
 class PluginGetResolver(object):
     def __init__(self, resolver):
         self.resolver = resolver
     def __call__(self, *args, **kwargs):
         return self.resolver
+
 
 def _raise_resolve_error(plugin_url_resolver, rest_url):
     tried = [i[0][0][0] for i in plugin_url_resolver.reverse_dict.values()]
@@ -132,6 +121,9 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
 #______________________________________________________________________________
 # ContextMiddleware functions
 
+# TODO: Should we use TemplateResponse?
+# https://docs.djangoproject.com/en/dev/ref/template-response/ 
+
 TAG_RE = re.compile("<!-- ContextMiddleware (.*?) -->", re.UNICODE)
 from django.utils.importlib import import_module
 from django.utils.functional import memoize
@@ -156,8 +148,10 @@ def context_middleware_request(request):
     context["context_middlewares"] = {}
 
     page_template = request.PYLUCID.page_template # page template content
-    plugin_names = TAG_RE.findall(page_template)
-#    messages.info(request, "Found ContextMiddlewares in content via RE: %r" % plugin_names)
+    content = page_template.render(request.PYLUCID.context)
+
+    plugin_names = TAG_RE.findall(content)
+#    messages.debug(request, "Found ContextMiddlewares in content via RE: %r" % plugin_names)
 
     for plugin_name in plugin_names:
         # Get the middleware class from the plugin
@@ -171,7 +165,8 @@ def context_middleware_request(request):
         instance = middleware_class(request, context)
         # Add it to the context
         context["context_middlewares"][plugin_name] = instance
-#        messages.info(request, "Init ContextMiddleware %r" % plugin_name)
+#        messages.debug(request, "Init ContextMiddleware %r" % plugin_name)
+
 
 def context_middleware_response(request, response):
     """

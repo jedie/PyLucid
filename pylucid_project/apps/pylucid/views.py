@@ -193,7 +193,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
     # Render django tags in global template with global context
-    complete_page = render.render_string_template(page_template, context)
+    complete_page = page_template.render(context)
 
     # create response object
     response = http.HttpResponse(complete_page, mimetype="text/html")
