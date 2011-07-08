@@ -151,7 +151,7 @@ TEMPLATE_DIRS += PYLUCID_PLUGIN_SETUP_INFO.template_dirs
 #print "settings.TEMPLATE_DIRS:\n", "\n".join(TEMPLATE_DIRS)
 
 TEMPLATE_LOADERS = (
-    'dbtemplates.loader.load_template_source',
+    'dbtemplates.loader.Loader',
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 )
