@@ -100,7 +100,7 @@ def cleanup(request):
 
                 now = datetime.now()
                 datetime_filter = now - delta
-                queryset = queryset.exclude(createtime__gte=datetime_filter)
+                queryset = queryset.exclude(lastupdatetime__gte=datetime_filter)
 
             delete_count = queryset.count()
             queryset.delete()
