@@ -148,9 +148,17 @@ def context_middleware_request(request):
     context["context_middlewares"] = {}
 
     page_template = request.PYLUCID.page_template # page template content
-    content = page_template.render(request.PYLUCID.context)
+
+    # FIXME:
+    # We render the page here completely, only to get the ContextMiddlewares
+    # This seems to be not the best way.
+    #
+    request._dont_call_lucid_tags = True # Don't render any lucidTags here
+    content = page_template.render(context)
+    request._dont_call_lucid_tags = False
 
     plugin_names = TAG_RE.findall(content)
+
 #    messages.debug(request, "Found ContextMiddlewares in content via RE: %r" % plugin_names)
 
     for plugin_name in plugin_names:
