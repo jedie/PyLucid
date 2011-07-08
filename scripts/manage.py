@@ -80,8 +80,7 @@ except ImportError, msg:
 try:
     import settings as settings_mod
 except ImportError:
-    sys.stderr.write("Error: Can't import settings.py\n")
-    sys.exit(1)
+    _error("Error: Can't import settings.py\n")
 
 
 # setup the environment before we start accessing things in the settings.
