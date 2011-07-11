@@ -125,7 +125,7 @@ def apply_restructuretext(content, page_msg):
 
 
 
-def apply_creole(content):
+def apply_creole(content, page_msg):
     """
     Use python-creole:
     http://code.google.com/p/python-creole/
@@ -134,6 +134,14 @@ def apply_creole(content):
     into the generated page
     """
     from pylucid_project.apps.pylucid.markup import PyLucid_creole_macros
+
+    emitter_kwargs = {"macros":PyLucid_creole_macros}
+
+    if settings.DEBUG:
+        emitter_kwargs.update({
+            "verbose": 2,
+            "stderr": page_msg
+        })
 
     try:
         # python-creole < v0.6
@@ -144,12 +152,14 @@ def apply_creole(content):
         document = Parser(content).parse()
 
         # Build html code from document tree
-        return HtmlEmitter(document, macros=PyLucid_creole_macros, verbose=0).emit()
+        return HtmlEmitter(**emitter_kwargs).emit()
     except ImportError:
         # python-creole >= v0.6
         from creole import creole2html
+        return creole2html(content, emitter_kwargs=emitter_kwargs)
 
-        return creole2html(content, emitter_kwargs={"macros":PyLucid_creole_macros})
+
+
 
 
 
@@ -164,7 +174,7 @@ def convert(raw_content, markup_no, page_msg):
     elif markup_no == MARKUP_REST:
         html_content = apply_restructuretext(raw_content, page_msg)
     elif markup_no == MARKUP_CREOLE:
-        html_content = apply_creole(raw_content)
+        html_content = apply_creole(raw_content, page_msg)
     elif markup_no in (MARKUP_HTML, MARKUP_HTML_EDITOR):
         html_content = raw_content
     else:
