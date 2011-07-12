@@ -8,7 +8,7 @@
     Info:
         - PyLucid initial data contains english and german pages.
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -125,13 +125,32 @@ class PageAdminTest(PageAdminTestCase):
         self.login_with_permissions(ADD_CONTENT_PERMISSIONS)
         response = self.client.get(CREATE_CONTENT_PAGE_URL)
         self.failUnlessEqual(response.status_code, 200)
-        self.assertResponse(response,
+
+        csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
+        csrf_token = csrf_cookie.value
+
+        # XXX: work-a-round for: https://github.com/gregmuellegger/django/issues/1
+        response.content = response.content.replace(
+            """.before('<h2 class="ajax_msg">submit...</h2>');""",
+            """.before('submit...');""",
+        )
+        response.content = response.content.replace(
+            """.html('<h2 class="noanchor">loading...</h2>');""",
+            """.html('loading...');"""
+        )
+        self.assertDOM(response,
             must_contain=(
                 '<title>PyLucid - Create a new page</title>',
+                "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
+                '<input type="submit" name="save" value="save" />',
+                '<textarea id="id_content" rows="10" cols="40" name="content"></textarea>',
+                '<input type="button" id="preview_submit_id_content" name="preview" value="markup preview" />',
+                '<legend>Markup preview</legend>',
+            )
+        )
+        self.assertResponse(response,
+            must_contain=(
                 'form action="%s"' % CREATE_CONTENT_PAGE_URL,
-                "<input type='hidden' name='csrfmiddlewaretoken' value='",
-                'input type="submit" name="save" value="save"',
-                '<textarea cols="40" id="id_content" name="content" rows="10">',
             ),
             must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
@@ -177,14 +196,32 @@ class PageAdminTest(PageAdminTestCase):
         self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
         url = reverse("PageAdmin-edit_page", kwargs={"pagetree_id":1}) # edit the page with ID==1
         response = self.client.get(url)
-        self.assertResponse(response,
+
+        # XXX: work-a-round for: https://github.com/gregmuellegger/django/issues/1
+        response.content = response.content.replace(
+            """.before('<h2 class="ajax_msg">submit...</h2>');""",
+            """.before('submit...');""",
+        )
+        response.content = response.content.replace(
+            """.html('<h2 class="noanchor">loading...</h2>');""",
+            """.html('loading...');"""
+        )
+
+        self.assertDOM(response,
             must_contain=(
-                '<select id="id_parent" name="parent">',
                 '<option value="" selected="selected">---------</option>',
                 '<option value="3">/designs/</option>',
             ),
-            must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required"
-                '<option value="1">/welcome/</option>'
+            must_not_contain=(
+                '<option value="1">/welcome/</option>',
+            )
+        )
+        self.assertResponse(response,
+            must_contain=(
+                '<select', 'id="id_parent"', 'name="parent"',
+            ),
+            must_not_contain=("XXX INVALID TEMPLATE STRING",
+                "Traceback", "Form errors", "field is required"
             )
         )
 
@@ -275,19 +312,37 @@ class PageAdminTest(PageAdminTestCase):
         self.login("superuser")
         url = reverse("PageAdmin-translate", kwargs={"pagemeta_id":1})
         response = self.client.get(url)
-        self.assertResponse(response,
+
+        csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
+        csrf_token = csrf_cookie.value
+
+        # XXX: work-a-round for: https://github.com/gregmuellegger/django/issues/1
+        response.content = response.content.replace(
+            """.before('<h2 class="ajax_msg">submit...</h2>');""",
+            """.before('submit...');""",
+        )
+        response.content = response.content.replace(
+            """.html('<h2 class="noanchor">loading...</h2>');""",
+            """.html('loading...');"""
+        )
+        self.assertDOM(response,
             must_contain=(
                 "<title>PyLucid - Translate page &#39;welcome&#39; (English) into Deutsch.</title>",
-                "Translate page &#39;welcome&#39; (English) into Deutsch.",
-                "<input type='hidden' name='csrfmiddlewaretoken' value='",
+                "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
                 '<input type="submit" name="save" value="save" />',
                 '''<input onclick="self.location.href='/en/welcome/'" name="abort" value="abort" type="reset" />''',
+            )
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "Translate page &#39;welcome&#39; (English) into Deutsch.",
                 '<a href="/pylucid_admin/plugins/page_admin/markup_help/"',
                 '<a href="/pylucid_admin/plugins/page_admin/page_list/"',
                 '<a href="/pylucid_admin/plugins/page_admin/tag_list/"',
 
-                '<textarea cols="40" id="id_source-content" name="source-content" rows="10">Welcome to your fesh PyLucid CMS installation ;)',
-                '<textarea cols="40" id="id_de-content" name="de-content" rows="10">Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)',
+                '>Welcome to your fesh PyLucid CMS installation ;)',
+                '>Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)',
+                '{% lucidTag update_journal %}</textarea>',
             ),
             must_not_contain=("XXX INVALID TEMPLATE STRING", "Traceback", "Form errors", "field is required")
         )
@@ -366,6 +421,30 @@ class PageAdminInlineEditTest(PageAdminTestCase):
 
         response = self.client.get(INLINE_EDIT_PAGE_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.failUnlessEqual(response.status_code, 200)
+
+        csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
+        csrf_token = csrf_cookie.value
+
+        # XXX: work-a-round for: https://github.com/gregmuellegger/django/issues/1
+        response.content = response.content.replace(
+            """.before('<h2 class="ajax_msg">submit...</h2>');""",
+            """.before('submit...');""",
+        )
+        response.content = response.content.replace(
+            """.html('<h2 class="ajax_msg">loading...</h2>');""",
+            """.html('loading...');"""
+        )
+
+        self.assertDOM(response,
+            must_contain=(
+                '<div id="edit_page_preview"></div>',
+                "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
+                '<input type="submit" name="save" value="save" />',
+                '<input type="submit" id="submit_preview" name="preview" value="markup preview" />',
+                '<button type="button" id="ajax_preview" title="markup preview">markup preview</button>',
+                '<label for="id_content"><strong>Content</strong>:</label>',
+            )
+        )
         self.assertResponse(response,
             must_contain=(
                 "Edit the CMS page '<strong>Welcome to your PyLucid CMS =;-)</strong>'",
@@ -375,10 +454,8 @@ class PageAdminInlineEditTest(PageAdminTestCase):
                 # JavaScript:
                 '$("#ajax_preview").show();',
                 # Some form strings:
-                "<input type='hidden' name='csrfmiddlewaretoken' value='",
-                'input type="submit" name="save" value="save"',
                 'form action="/?page_admin=inline_edit"',
-                '<textarea cols="40" id="id_content" name="content" rows="15">Welcome',
+                '&#x7B;% lucidTag update_journal %&#x7D;</textarea>',
             ),
             must_not_contain=(
                 "XXX INVALID TEMPLATE STRING",
@@ -397,7 +474,7 @@ class PageAdminInlineEditTest(PageAdminTestCase):
         self.failUnlessEqual(response.status_code, 200)
         self.failUnlessEqual(
             response.content,
-            '<p>A <strong>creole</strong> <i>preview</i>!</p>\n'
+            '<p>A <strong>creole</strong> <i>preview</i>!</p>'
         )
 
 
@@ -434,19 +511,31 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
             'preview': 'Vorschau',
             'verbose': 'on'
         })
-        self.assertResponse(response,
+        csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
+        csrf_token = csrf_cookie.value
+
+        # XXX: work-a-round for: https://github.com/gregmuellegger/django/issues/1
+        response.content = response.content.replace(
+            """.html('<h2 class="noanchor">loading...</h2>');""",
+            """.html('loading...');"""
+        )
+
+        self.assertDOM(response,
             must_contain=(
                 "<title>PyLucid - Convert &#39;tinyTextile&#39; markup</title>",
-                "<input type='hidden' name='csrfmiddlewaretoken' value='",
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
-                'The original markup is: <strong>tinytextile</strong>',
+                "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">- &lt;li&gt;1.&lt;/li&gt;</span>',
                 '<span class="gi">+ &lt;li&gt;1.</span>',
                 '<legend>new markup</legend>',
-                '<pre>* 1.', '** 1.1.</pre>',
-                '<textarea cols="40" id="id_content" name="content" rows="10">* 1.',
-                '** 1.1.</textarea>',
+                '<pre>* 1.\n** 1.1.</pre>',
+                '<textarea cols="40" id="id_content" name="content" rows="10">* 1.\n** 1.1.</textarea>',
+            )
+        )
+        self.assertResponse(response,
+            must_contain=(
+                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
+                'The original markup is: <strong>tinytextile</strong>',
             ),
             must_not_contain=(
                 "XXX INVALID TEMPLATE STRING", "Traceback", 'Permission denied',
@@ -483,6 +572,7 @@ if __name__ == "__main__":
     from django.core import management
 
     tests = __file__
+#    tests = "pylucid_plugins.page_admin.tests.PageAdminTest"
 #    tests = "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form"
 
     management.call_command('test', tests,

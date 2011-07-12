@@ -39,16 +39,29 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         - self.other_language - alternative Language mode instance (default: de instance)
         - assertContentLanguage() - Check if response is in right language
     """
+
+    def assertInputFields(self, response, find_string, replace_string):
+        self.assertDOM(response,
+            must_contain=(
+                '<input id="id_find_string" name="find_string" type="text" value="%s" />' % find_string,
+                '<input id="id_replace_string" name="replace_string" type="text" value="%s" />' % replace_string,
+            )
+        )
+
     def test_replace_form(self):
         """ Simply test if we get the find&replace form as a superuser. """
         self.login("superuser")
         url = reverse("FindAndReplace-find_and_replace")
         response = self.client.get(url)
+        self.assertDOM(response,
+            must_contain=(
+                '<input id="id_find_string" name="find_string" type="text" />',
+                '<input id="id_replace_string" name="replace_string" type="text" />',
+            )
+        )
         self.assertResponse(response,
             must_contain=(
                 '<form action="%s" method="post" id="find_and_replace' % url,
-                '<input id="id_find_string" name="find_string" type="text" />',
-                '<input id="id_replace_string" name="replace_string" type="text" />',
             ),
             must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )
@@ -69,12 +82,11 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
             'sites': ['1'],
             'simulate': 'on'
         })
+        self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
                 '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
-                '<input id="id_find_string" name="find_string" type="text" value="' + find_string,
-                '<input id="id_replace_string" name="replace_string" type="text" value="' + replace_string,
                 'Simulate only, no entry changed.',
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">-',
@@ -99,12 +111,11 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
             'sites': ['1'],
             'save': 'find and replace',
         })
+        self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
                 '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
-                '<input id="id_find_string" name="find_string" type="text" value="' + find_string,
-                '<input id="id_replace_string" name="replace_string" type="text" value="' + replace_string,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">- Welcome to your fesh PyLucid CMS installation ;)</span>',
                 '<span class="gi">+ XXX replaced XXX ;)</span>',
@@ -138,12 +149,11 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
             'sites': ['1'],
             'save': 'find and replace',
         })
+        self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
                 '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
-                '<input id="id_find_string" name="find_string" type="text" value="' + find_string,
-                '<input id="id_replace_string" name="replace_string" type="text" value="' + replace_string,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">-    page messages</span>',
                 '<span class="gi">+    XXX replaced XXX</span>',

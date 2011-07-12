@@ -9,10 +9,18 @@
 """
 
 import os
+import re
 
+
+if __name__ == "__main__":
+    # run all unittest directly
+    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+
+from django import forms
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.sites.models import Site
+from django.utils.html import conditional_escape
 
 from django_tools.unittest_utils.unittest_base import BaseTestCase
 
@@ -20,7 +28,6 @@ from pylucid_project.apps.pylucid.models import PageTree, Language
 
 
 supported_languages = dict(settings.LANGUAGES)
-
 
 
 class BaseUnittest(BaseTestCase, TestCase):
@@ -74,15 +81,26 @@ class BaseUnittest(BaseTestCase, TestCase):
         with PyLucid modifications
         """
         url = response.request["PATH_INFO"]
+
+        # XXX: work-a-round for: https://github.com/gregmuellegger/django/issues/1
+        response.content = re.sub(
+            "js_sha_link(\+*)='(.*?)'",
+            "js_sha_link\g<1>='XXX'",
+            response.content
+        )
+        self.assertDOM(response,
+            must_contain=(
+                '<input id="id_username" maxlength="30" name="username" type="text" />',
+                '<input id="id_password" name="password" type="password" />',
+                '<input type="submit" value="Log in" />',
+            )
+        )
+
         self.assertResponse(response,
             must_contain=(
                 # django
                 '<form action="%s" method="post" id="login-form">' % url,
 
-                '<input id="id_username" maxlength="30" name="username" type="text" />',
-                '<input id="id_password" name="password" type="password" />',
-
-                '<input type="submit" value="Log in" />',
                 # from pylucid:
                 'JS-SHA-Login',
                 "Do really want to send your password in plain text?",
@@ -242,3 +260,15 @@ class MarkupTestHelper(object):
 
         return txt
 
+
+if __name__ == "__main__":
+    # Run all unittest directly
+    from django.core import management
+
+    tests = __file__
+#    tests = "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form"
+
+    management.call_command('test', tests,
+        verbosity=2,
+        failfast=True
+    )

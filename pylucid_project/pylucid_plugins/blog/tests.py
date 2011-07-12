@@ -507,12 +507,19 @@ class BlogPluginCsrfTest(BlogPluginTestCase):
 
         # get the current csrf token
         response = csrf_client.get(CREATE_URL)
-        self.assertResponse(response,
-            must_contain=("<input type='hidden' name='csrfmiddlewaretoken' value='",),
-            must_not_contain=()
-        )
         csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
         csrf_token = csrf_cookie.value
+
+        # XXX: work-a-round for: https://github.com/gregmuellegger/django/issues/1
+        response.content = response.content.replace(
+            """.html('<h2 class="noanchor">loading...</h2>');""",
+            """.html('loading...');"""
+        )
+        self.assertDOM(response,
+            must_contain=(
+                "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
+            ),
+        )
 
         # create blog entry with csrf token
         response = csrf_client.post(CREATE_URL,
@@ -538,7 +545,7 @@ if __name__ == "__main__":
     from django.core import management
 
     tests = __file__
-    tests = "pylucid_plugins.blog.tests.BlogPluginCsrfTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginCsrfTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
@@ -546,5 +553,5 @@ if __name__ == "__main__":
 
     management.call_command('test', tests,
         verbosity=2,
-#        failfast=True
+        failfast=True
     )

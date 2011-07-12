@@ -9,7 +9,7 @@
         - PyLucid initial data contains english and german pages.
         - There exist only "PyLucid CMS" blog entry in english and german
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -55,6 +55,13 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
 
     def setUp(self):
         Comment.objects.all().delete()
+        self._old_ADMINS = settings.ADMINS
+        settings.ADMINS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
+        super(PyLucidCommentsPageMetaTest, self).setUp()
+
+    def tearDown(self):
+        super(PyLucidCommentsPageMetaTest, self).tearDown()
+        settings.ADMINS = self._old_ADMINS
 
     def _get_form(self):
         url = self.absolute_url + "?pylucid_comments=get_form"
@@ -71,12 +78,16 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
     def test_get_form(self):
         """ get the comment form via AJAX """
         response = self._get_form()
-        self.assertResponse(response,
+        self.assertDOM(response,
             must_contain=(
-                '<form action="JavaScript:void(0)" method="post" id="comment_form">',
                 '<input id="id_content_type" name="content_type" type="hidden" value="pylucid.pagemeta" />',
                 '<input id="id_object_pk" name="object_pk" type="hidden" value="%i" />' % self.pagemeta.pk,
                 '<input checked="checked" id="id_notify" name="notify" type="checkbox" />'
+            )
+        )
+        self.assertResponse(response,
+            must_contain=(
+                '<form action="JavaScript:void(0)" method="post" id="comment_form">',
             ),
             must_not_contain=(
                 "Traceback", "Form errors", "field is required",
@@ -102,10 +113,9 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
 
         # Check if ADMINS get's a email.
         #for email in mail.outbox:print email.message()
-        if len(mail.outbox) > 1:
-            print "FIXME: Why two mails sended???"
-#        self.failUnless(len(mail.outbox) == 1, len(mail.outbox)) # FIXME: Why two mails sended???
-        self.failUnless(len(mail.outbox) > 0, len(mail.outbox))
+
+        self.assertEqual(len(mail.outbox), len(settings.ADMINS))
+
         email_text = mail.outbox[0].message()
         #print email_text
         self.failUnless("The comment is public." not in email_text)
@@ -120,7 +130,7 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
 
         # Check if anonymous data stored in cookie would be used:
         response = self._get_form()
-        self.assertResponse(response,
+        self.assertDOM(response,
             must_contain=(
                 '<input id="id_name" maxlength="50" name="name" type="text" value="John Doe" />',
                 '<input id="id_email" name="email" type="text" value="john.doe@example.tld" />',
@@ -133,14 +143,18 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
         url = self.absolute_url + "?pylucid_comments=submit"
         data = self.getValidData(self.pagemeta, preview="On", comment="comment from test_submit_preview()")
         response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertResponse(response,
+        self.assertDOM(response,
             must_contain=(
-                'Preview your comment',
                 '<blockquote><p>comment from test_submit_preview()</p></blockquote>',
-                '<form action="JavaScript:void(0)" method="post" id="comment_form">',
                 '<input id="id_content_type" name="content_type" type="hidden" value="pylucid.pagemeta" />',
                 '<input id="id_object_pk" name="object_pk" type="hidden" value="%i" />' % self.pagemeta.pk,
                 '<input id="id_notify" name="notify" type="checkbox" />'
+            )
+        )
+        self.assertResponse(response,
+            must_contain=(
+                'Preview your comment',
+                '<form action="JavaScript:void(0)" method="post" id="comment_form">',
             ),
             must_not_contain=(
                 "Traceback", "Form errors", "field is required",
@@ -155,14 +169,18 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
         data = self.getValidData(self.pagemeta, comment="", notify="on")
         response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.failUnless(Comment.objects.count() == 0)
+        self.assertDOM(response,
+            must_contain=(
+                '<input id="id_content_type" name="content_type" type="hidden" value="pylucid.pagemeta" />',
+                '<input id="id_object_pk" name="object_pk" type="hidden" value="%i" />' % self.pagemeta.pk,
+                '<input checked="checked" id="id_notify" name="notify" type="checkbox" value="on" />'
+            )
+        )
         self.assertResponse(response,
             must_contain=(
                 'Please correct the error below',
                 'This field is required.',
                 '<form action="JavaScript:void(0)" method="post" id="comment_form">',
-                '<input id="id_content_type" name="content_type" type="hidden" value="pylucid.pagemeta" />',
-                '<input id="id_object_pk" name="object_pk" type="hidden" value="%i" />' % self.pagemeta.pk,
-                '<input checked="checked" id="id_notify" name="notify" type="checkbox" value="on" />'
             ),
             must_not_contain=("Traceback", "<body", "</html>")
         )
@@ -181,10 +199,8 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
 
         # Check if ADMINS get's a email.
         #for email in mail.outbox:print email.message()
-        if len(mail.outbox) > 1:
-            print "FIXME: Why two mails sended???"
-#        self.failUnless(len(mail.outbox) == 1, len(mail.outbox)) 
-        self.failUnless(len(mail.outbox) > 0, len(mail.outbox))
+        self.assertEqual(len(mail.outbox), len(settings.ADMINS))
+
         email_text = mail.outbox[0].message()
         #print email_text
         self.failUnless("The comment is public." not in email_text)
@@ -262,12 +278,10 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.blog.tests.BlogPluginArticleTest",
-##        verbosity=0,
-#        verbosity=1,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
+
+    tests = __file__
+
+    management.call_command('test', tests,
         verbosity=1,
 #        verbosity=0,
 #        failfast=True

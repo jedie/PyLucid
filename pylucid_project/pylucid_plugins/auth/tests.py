@@ -51,11 +51,15 @@ class LoginTest(basetest.BaseUnittest):
     def test_login_get_form(self):
         """ Simple check if login link exist. """
         response = self.client.get(LOGIN_URL)
+        self.assertDOM(response,
+            must_contain=(
+                '<input id="submit_button" type="submit" value="Log in" />',
+            )
+        )
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS',
                 "JS-SHA-LogIn", "username", "var challenge=",
-                '<input id="submit_button" type="submit" value="Log in" />',
             ),
             must_not_contain=(
                 "Traceback", 'Permission denied'
@@ -63,14 +67,20 @@ class LoginTest(basetest.BaseUnittest):
         )
 
     def test_login_ajax_form(self):
-        """ Check if we get the login form via AJAX """
-        response = self.client.get(LOGIN_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        """ Check if we get the login form via AJAX
+        FIXME: We get no ajax response, why? In real-life it works.
+        """
+        response = self.client.get("/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.failUnlessEqual(response.status_code, 200)
+        self.assertDOM(response,
+            must_contain=(
+                '<input id="submit_button" type="submit" value="Log in" />',
+            )
+        )
         self.assertResponse(response,
             must_contain=(
                 '<div class="PyLucidPlugins auth" id="auth_http_get_view">',
                 "JS-SHA-LogIn", "username", "var challenge=",
-                '<input id="submit_button" type="submit" value="Log in" />',
             ),
             must_not_contain=(
                 '<title>PyLucid CMS', "<body", "<head>", # <- not a complete page
@@ -166,9 +176,13 @@ class LoginTest(basetest.BaseUnittest):
 if __name__ == "__main__":
     # Run this unittest directly
     from django.core import management
-    management.call_command('test', __file__,
+
+    tests = __file__
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_login_link"
+
+    management.call_command('test', tests,
 #        verbosity=0,
         verbosity=1,
 #        verbosity=2,
-        failfast=True
+#        failfast=True
     )
