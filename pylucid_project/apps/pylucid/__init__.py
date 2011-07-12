@@ -44,25 +44,25 @@ def check_require(requirements):
 
 requirements = (
     # http://www.djangoproject.com/
-    "django > 1.2",
+    "django >= 1.3",
 
     # http://code.google.com/p/django-dbpreferences
-    "django-dbpreferences >= 0.4.0",
+    "django-dbpreferences >= 0.4.1",
 
     # http://code.google.com/p/django-tools/
-    "django-tools >= 0.17.0",
+    "django-tools >= 0.18.0",
 
     # http://code.google.com/p/python-creole/
-    "python-creole >= 0.2.4",
+    "python-creole >= 0.6.0",
 
     # https://github.com/etianen/django-reversion
-    "django-reversion >= 1.1.2",
+    "django-reversion >= 1.4.0",
 
     # http://code.google.com/p/django-dbtemplates/
-    "django-dbtemplates >= 0.5.8",
+    "django-dbtemplates >= 1.1.1",
 
     # http://code.google.com/p/django-tagging/
-    "django_tagging > 0.3",
+    "django_tagging >= 0.3.1",
 )
 
 check_require(requirements)
