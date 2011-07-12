@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
-{% block branding %}<a name="top" \><h1 class="admin_headline">PyLucid Update
+{% block branding %}<a name="top" /><h1 class="admin_headline">PyLucid Update
 {% if not sites|length_is:"1" %}
     <small>(site: <strong title="Update on site '{{ site.domain }}'">{{ site.name }}</strong>)</small>
 {% endif %}
