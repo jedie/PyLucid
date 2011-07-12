@@ -36,6 +36,14 @@ class LoginTest(basetest.BaseUnittest):
         self.client = Client() # start a new session
 
     def test_login_link(self):
+        response = self.client.get("/")
+        self.assertDOM(response,
+            must_contain=(
+                '''<a href="?auth=login" id="login_link" rel="nofollow" onclick="return get_pylucid_ajax_view('?auth=login');">Log in</a>''',
+            )
+        )
+
+    def test_admin_login_page(self):
         """ Simple check if login link exist. """
         response = self.client.get("/admin/", HTTP_ACCEPT_LANGUAGE="en")
         self.assertAdminLoginPage(response)
