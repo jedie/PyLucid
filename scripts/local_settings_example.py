@@ -1,5 +1,6 @@
 # coding:utf-8
 
+import os, tempfile
 
 #
 # Here a example local_settings.py
@@ -51,35 +52,41 @@ LANGUAGE_CODE = "en"
 # The LocMemCache isn't memory-efficient. Should be changed!
 # see: http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache
 #
-# Default mode for cache directory is 0700 -> Useable only for current user
-# Change to 0777 if web process runs e.g. with nobody!
-#
 # You can test if cache works, with:
 #     PyLucid admin menu / system / base check
 #
-_PATH_CHMODE = 0700
-def _get_and_create_tempdir_location(suffix):
+_CACHE_PATH_PREFIX = "PyLucid"
+# Change it with e.g. your username to make this cache "unique" on the server.
+# This can be usefull on shared webhosting.
+#
+_CACHE_PATH_SUFFIX = str(SITE_ID)
+# Must not changed.
+#
+_CACHE_PATH_MODE = 0700
+# Default mode for cache directory is 0700 -> Useable only for current user.
+# Change to 0777 if web process runs e.g. with nobody!
+#
+def _get_and_create_tempdir_location(entry):
     """Little helper for easy setup a cache filesystem path in temp"""
-    import os, tempfile
-    path = os.path.join(tempfile.gettempdir(), suffix)
+    path = os.path.join(tempfile.gettempdir(), "%s_%s_%s" % (_CACHE_PATH_PREFIX, entry, _CACHE_PATH_SUFFIX))
     if not os.path.exists(path):
-        os.makedirs(path, _PATH_CHMODE)
+        os.makedirs(path, _CACHE_PATH_MODE)
     else:
-        os.chmod(path, _PATH_CHMODE)
+        os.chmod(path, _CACHE_PATH_MODE)
     return path
 
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': _get_and_create_tempdir_location("PyLucid_default_cache_%s" % SITE_ID),
+        'LOCATION': _get_and_create_tempdir_location("default_cache"),
     },
     'dbtemplates': { # http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': _get_and_create_tempdir_location("PyLucid_dbtemplates_cache_%s" % SITE_ID),
+        'LOCATION': _get_and_create_tempdir_location("dbtemplates_cache"),
     },
     'local_sync_cache': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': _get_and_create_tempdir_location("PyLucid_local_sync_cache_%s" % SITE_ID),
+        'LOCATION': _get_and_create_tempdir_location("local_sync_cache"),
     }
 }
 
