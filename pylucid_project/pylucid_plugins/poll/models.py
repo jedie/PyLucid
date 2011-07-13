@@ -16,6 +16,7 @@ from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, \
                                                             UpdateInfoBaseModel
 
 from django_tools import limit_to_usergroups
+from django.db.models import aggregates
 
 
 class Poll(AutoSiteM2M, UpdateInfoBaseModel):
@@ -55,6 +56,12 @@ class Choice(models.Model):
     poll = models.ForeignKey(Poll)
     choice = models.CharField(max_length=200)
     votes = models.IntegerField(default=0, editable=False)
+
+    def percent(self):
+        result = Choice.objects.filter(poll=self.poll).aggregate(aggregates.Sum("votes"))
+        votes_sum = result["votes__sum"]
+        return float(self.votes) / votes_sum * 100
+
     def __unicode__(self):
         return self.choice
 
