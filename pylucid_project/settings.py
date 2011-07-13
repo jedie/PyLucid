@@ -35,6 +35,13 @@ except Exception, e:
     sys.stderr.write(traceback.format_exc())
     raise
 
+try:
+    import south
+except ImportError:
+    _south_exists = False
+else:
+    _south_exists = True
+
 PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 #print "PYLUCID_BASE_PATH:", PYLUCID_BASE_PATH
 #PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
@@ -207,6 +214,9 @@ INSTALLED_APPS = (
     'reversion',
     'tagging',
 )
+if _south_exists: # Add south if it can be imported above
+    INSTALLED_APPS += ("south",)
+
 # Add all existing PyLucid plugins
 INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
 #print "settings.INSTALLED_APPS:", "\n".join(INSTALLED_APPS)

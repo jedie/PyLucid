@@ -41,6 +41,7 @@ PACKAGES = (
     'feedparser',
     'pip',
     'pygments',
+    'south',
     'pylucid',
     'python-creole'
 )
