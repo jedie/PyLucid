@@ -72,19 +72,18 @@ def _cache_backend_test(request, out):
         else:
             only_dummy_cache = False
 
+    out.write("")
+
     if not only_dummy_cache:
-        cache_key = "cache test"
+        cache_key = "cache_test"
         content = "A cache test content..."
         cache_timeout = 50
         cache.set(cache_key, content, cache_timeout)
         cached_content = cache.get(cache_key)
-        if cached_content == None:
-            out.write(_("\t* Get None back. Cache didn't work!"))
-        elif cached_content == content:
-            out.write(_("\t* Cache works fine ;)"))
+        if cached_content == content:
+            out.write(_("\t* OK, cache works fine ;)"))
         else:
-            # Should never appears
-            out.write(_("\t* Error! Cache content not the same!"))
+            out.write(_("\t* ERROR: Cache didn't work! (Get %r back.)" % cached_content))
 
         cache.delete(cache_key)
         cached_content = cache.get(cache_key)
