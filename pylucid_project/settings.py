@@ -42,6 +42,14 @@ except ImportError:
 else:
     _south_exists = True
 
+
+# Used by a few dynamic settings:
+if len(sys.argv) > 1 and sys.argv[1].startswith("runserver"):
+    RUN_WITH_DEV_SERVER = True
+else:
+    RUN_WITH_DEV_SERVER = False
+
+
 PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 #print "PYLUCID_BASE_PATH:", PYLUCID_BASE_PATH
 #PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
@@ -257,7 +265,7 @@ AUTH_PROFILE_MODULE = "pylucid.UserProfile"
 # Serve static files for the development server?
 # Using this method is inefficient and insecure.
 # Do not use this in a production setting. Use this only for development.
-if len(sys.argv) > 1 and sys.argv[1].startswith("runserver"):
+if RUN_WITH_DEV_SERVER:
     SERVE_STATIC_FILES = True
 else:
     SERVE_STATIC_FILES = False
@@ -308,20 +316,6 @@ SITE_STYLE_PREFIX = 'site_stylesheet'
 # The PyLucid install instrucion page:
 INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
 
-# Set the Django cache system. Should be changed in local_settings.py !
-# https://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-}
-# Use the same cache in dbtemplates.
-# You can also defined a different cache system.
-# more information: http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
-CACHES["dbtemplates"] = CACHES["default"]
-
-CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
-
 # Django can't handling time zone very good.
 # The Django default TIME_ZONE is 'America/Chicago' (Central Standard Time Zone, (CST), UTC-6)
 # but this is not the best choice.
@@ -340,6 +334,36 @@ LANGUAGE_CODE = "en"
 
 # Use django-reversion ?
 DBTEMPLATES_USE_REVERSION = True
+
+#_______________________________________________________________________________
+# settings for local_sync_cache from django-tools
+
+if DEBUG and RUN_WITH_DEV_SERVER:
+    LOCAL_SYNC_CACHE_DEBUG = True
+else:
+    LOCAL_SYNC_CACHE_DEBUG = False
+
+LOCAL_SYNC_CACHE_BACKEND = "local_sync_cache"
+
+#_______________________________________________________________________________
+
+# Set the Django cache system.
+# The LocMemCache isn't memory-efficient. Should be changed in local_settings.py !
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'PyLucid-default-cache',
+    },
+    'dbtemplates': { # http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'PyLucid-dbtemplates-cache',
+    },
+    LOCAL_SYNC_CACHE_BACKEND: { # https://github.com/jedie/django-tools/blob/master/django_tools/local_sync_cache/local_sync_cache.py
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'PyLucid-local_sync-cache',
+    },
+}
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 #_______________________________________________________________________________
 

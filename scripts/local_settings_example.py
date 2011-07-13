@@ -46,24 +46,43 @@ DATABASES = {
 SITE_ID = 1
 LANGUAGE_CODE = "en"
 
+
 # Set the Django cache system.
 # The LocMemCache isn't memory-efficient. Should be changed!
 # see: http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache
+#
+# Default mode for cache directory is 0700 -> Useable only for current user
+# Change to 0777 if web process runs e.g. with nobody!
+#
+# You can test if cache works, with:
+#     PyLucid admin menu / system / base check
+#
+_PATH_CHMODE = 0700
+def _get_and_create_tempdir_location(suffix):
+    """Little helper for easy setup a cache filesystem path in temp"""
+    import os, tempfile
+    path = os.path.join(tempfile.gettempdir(), suffix)
+    if not os.path.exists(path):
+        os.makedirs(path, _PATH_CHMODE)
+    else:
+        os.chmod(path, _PATH_CHMODE)
+    return path
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        #
-        # e.g.:
-        # IMPORTANT needs: >>> import os, tempfile <<< !!!
-        #
-        # 'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        # 'LOCATION': os.path.join(tempfile.gettempdir(), "PyLucid_cache_%s" % SITE_ID),       
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': _get_and_create_tempdir_location("PyLucid_default_cache_%s" % SITE_ID),
+    },
+    'dbtemplates': { # http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': _get_and_create_tempdir_location("PyLucid_dbtemplates_cache_%s" % SITE_ID),
+    },
+    'local_sync_cache': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': _get_and_create_tempdir_location("PyLucid_local_sync_cache_%s" % SITE_ID),
     }
 }
-# Use the same cache in dbtemplates.
-# You can also defined a different cache system.
-# more information: http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
-CACHES["dbtemplates"] = CACHES["default"]
+
 
 # Please change email-/SMTP-Settings:
 
