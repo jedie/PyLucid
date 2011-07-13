@@ -108,6 +108,7 @@ def show_internals(request):
         ),
 
         "sys_path": sys.path,
+        "os_environ": os.environ,
     }
     return context
 

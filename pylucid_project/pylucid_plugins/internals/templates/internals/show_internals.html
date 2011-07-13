@@ -107,9 +107,16 @@
 <h2>python sys.path</h2>
 <ul>
     {% for path in sys_path %}
-    <li>{{ path }}
-    </li>
+    <li>{{ path }}</li>
     {% endfor %}
 </ul>
+
+<h2>os.environ</h2>
+<dl>
+    {% for key, value in os_environ.items %}
+	  <dt>{{ key }}</dt>
+	  <dd>{{ value|escape }}</dd>
+    {% endfor %}
+</dl>
 <!-- view_content block end -->
 {% endblock %}
