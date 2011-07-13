@@ -22,12 +22,6 @@ import random
 
 
 ENV_PATH_PLACEHOLDER = '"/please/insert/path/to/PyLucid_env/'
-ADDITIONAL_SETTINGS = """
-# A secret key for this particular Django installation.
-# Used to provide a seed in secret-key hashing algorithms.
-# Set this to a random string -- the longer, the better.
-SECRET_KEY="%s"
-"""
 
 
 class Command(BaseCommand):
@@ -76,22 +70,20 @@ class Command(BaseCommand):
         dst = os.path.join(self.destination, rel_destination)
         self._verbose_copy(source_path, dst)
 
-    def _patch_file(self, filename, placeholder, new_value, additional_content=None):
+    def _patch_file(self, filename, patch_data):
+        self.stdout.write("\npatch file: %r\n" % filename)
         filepath = os.path.join(self.destination, filename)
         f = codecs.open(filepath, "r", encoding="utf-8")
         content = f.read()
         f.close()
-        if not placeholder in content:
-            self.stderr.write(self.style.ERROR(
-                "Can't patch file %r!\n(String %r not found!)\n" % (filepath, placeholder)
-            ))
-            f.close()
-            return
 
-        content = content.replace(placeholder, new_value)#
-
-        if additional_content:
-            content += additional_content
+        for placeholder, new_value in patch_data:
+            if not placeholder in content:
+                self.stderr.write(self.style.ERROR(
+                    "Can't patch file %r!\n(String %r not found!)\n" % (filepath, placeholder)
+                ))
+            else:
+                content = content.replace(placeholder, new_value)
 
         f = codecs.open(filepath, "w", encoding="utf-8")
         f.write(content)
@@ -103,7 +95,9 @@ class Command(BaseCommand):
         if self.verbosity:
                 self.stdout.write("\n")
         for filename in files:
-            self._patch_file(filename, ENV_PATH_PLACEHOLDER, '"%s/' % self.virtual_env_path)
+            self._patch_file(filename,
+                patch_data=[(ENV_PATH_PLACEHOLDER, '"%s/' % self.virtual_env_path)]
+            )
         if self.verbosity:
                 self.stdout.write("\n")
 
@@ -177,11 +171,21 @@ class Command(BaseCommand):
         )
 
         self._patch_file("local_settings.py",
-            'MEDIA_ROOT = "/var/www/YourSite/media/"',
-            'MEDIA_ROOT = "%s"' % media_dest,
-            additional_content=ADDITIONAL_SETTINGS % secret_key
+            patch_data=[
+                (
+                    'MEDIA_ROOT = "/var/www/YourSite/media/"',
+                    'MEDIA_ROOT = "%s"' % media_dest
+                ),
+                (
+                    'SECRET_KEY = "add-a-secret-key"',
+                    'SECRET_KEY = "%s"' % secret_key
+                ),
+                (
+                    '_CACHE_PATH_PREFIX = "PyLucid"',
+                    '_CACHE_PATH_PREFIX = "%s"' % os.environ.get("USERNAME", "PyLucid")
+                )
+            ]
         )
-
 
         self.stdout.write("\n")
         self.stdout.write(" -" * 39)

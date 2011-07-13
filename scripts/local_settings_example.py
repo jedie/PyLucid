@@ -47,6 +47,11 @@ DATABASES = {
 SITE_ID = 1
 LANGUAGE_CODE = "en"
 
+# A secret key for this particular Django installation.
+# Used to provide a seed in secret-key hashing algorithms.
+# Set this to a random string -- the longer, the better.
+SECRET_KEY = "add-a-secret-key"
+
 
 # Set the Django cache system.
 # The LocMemCache isn't memory-efficient. Should be changed!
