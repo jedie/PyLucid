@@ -11,7 +11,8 @@
         * limit view and/or vote to a poll to usertype/usergroup
         * Save
         
-    TODO: Use 
+    See also:
+        http://www.pylucid.org/permalink/375/poll
 
     :copyleft: 2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
@@ -20,7 +21,8 @@
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
 from django_tools.decorators import render_to
@@ -29,6 +31,7 @@ from django_tools import limit_to_usergroups
 from pylucid_project.apps.pylucid.shortcuts import bad_request
 
 from poll.models import Poll, Choice, UserVotes, IPVotes
+
 
 
 #CHECK_SESSION = False
@@ -149,21 +152,37 @@ def _get_poll_content(request, poll):
 
 def lucidTag(request, id=None):
     """
-    Add a poll to the page content
+    Add a poll to the page content.
+    
+    {% lucidTag poll %}
+        Display the newest, votable poll.
+        
+    {% lucidTag poll id=X %}
+        Display a specific poll.
+        (Look into admin changelist to the the right ID)
+        
+    {% lucidTag poll.all_polls %}
+        Display all existing polls.
+        Filter with 'hide_deactivated' and/or 'not_voteable'
     
     example:
-        {% lucidTag poll id=1 %}
-        {% lucidTag poll.all_polls %}
+        {% lucidTag poll id=23 %}
         {% lucidTag poll.all_polls hide_deactivated=True %}
         {% lucidTag poll.all_polls not_voteable=True %}
         {% lucidTag poll.all_polls hide_deactivated=True not_voteable=True %}
     """
     if id is None:
-        if settings.DEBUG or request.user.is_staff:
-            messages.error(request, _("lucidTag poll error: You must add the 'id' parameter!"))
-        return "[poll error]"
-
-    poll = _get_poll_or_404(id)
+        # Display the newest, voteable poll
+        queryset = Poll.on_site.filter(active=True).order_by("createtime")
+        polls = limit_to_usergroups.filter_permission(queryset, permit_vote=request.user)
+        if not polls:
+            return render_to_response(
+                "poll/no_active_poll.html", context_instance=RequestContext(request)
+            )
+        poll = polls[0]
+    else:
+        # Display a definite poll
+        poll = _get_poll_or_404(id)
 
     if not limit_to_usergroups.has_permission(poll, permit_view=request.user):
         if settings.DEBUG:
