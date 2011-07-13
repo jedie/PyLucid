@@ -21,7 +21,10 @@ class ChoiceInline(admin.TabularInline):
     extra = 3
 
 class PollAdmin(admin.ModelAdmin):
-    list_display = ("question", "lucidTag_example", "lastupdatetime", "lastupdateby")
+    list_display = ("question", "active", "lucidTag_example", "lastupdatetime", "lastupdateby")
+    list_display_links = ("question",)
+    list_editable = ("active",)
+    list_filter = ("active",)
 #    fieldsets = [
 #        (None, {"fields": ["question"]}),
 #        ("permissions", {
