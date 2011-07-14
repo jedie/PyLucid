@@ -18,7 +18,7 @@
 
 # http://code.google.com/p/django-dbpreferences/
 # http://pypi.python.org/pypi/django-dbpreferences
--e git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences
+-e git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences
 
 # http://code.google.com/p/django-tools/
 # http://pypi.python.org/pypi/django-tools
