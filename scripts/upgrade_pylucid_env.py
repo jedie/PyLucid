@@ -183,8 +183,48 @@ def call_pip(options, *args):
         subprocess.call(cmd)
 
 
-def do_upgrade(options, filename):
+def select_requirement(options, filename):
     requirements = parse_requirements(filename)
+
+    print "\nWhich package should be upgraded?\n"
+    for no, requirement in enumerate(requirements):
+        print "(%i) %s" % (no, requirement)
+
+    print "(a) upgrade all packages"
+
+    try:
+        input = raw_input("\nPlease select (one entry or comma seperated):")
+    except KeyboardInterrupt:
+        print(c.colorize("Abort, ok.", foreground="blue"))
+        sys.exit()
+
+    selection = [i for i in input.split(",") if i.strip()]
+    if len(selection) == 0:
+        print(c.colorize("Abort, ok.", foreground="blue"))
+        sys.exit()
+
+    print "Your selection:", repr(selection)
+
+    if "a" in selection:
+        print "Upgrade all packages."
+        return requirements
+
+    req_dict = dict([(str(no), r) for no, r in enumerate(requirements)])
+    selected_req = []
+    for item in selection:
+        print "%s\t" % item,
+        try:
+            req = req_dict[item]
+        except KeyError:
+            print "(Invalid, skip.)"
+        else:
+            print req
+            selected_req.append(req)
+
+    return selected_req
+
+
+def do_upgrade(options, requirements):
     for requirement in requirements:
         call_pip(options, requirement)
 
@@ -230,7 +270,21 @@ def main():
 
     print_options(options)
 
-    do_upgrade(options, filename)
+    requirements = select_requirement(options, filename)
+    if len(requirements) == 0:
+        print "Nothing to upgrade, abort."
+        sys.exit()
+
+    try:
+        input = raw_input("\nStart upgrade (y/n) ?")
+    except KeyboardInterrupt:
+        print(c.colorize("Abort, ok.", foreground="blue"))
+        sys.exit()
+    if input.lower() not in ("y", "j"):
+        print(c.colorize("Abort, ok.", foreground="blue"))
+        sys.exit()
+
+    do_upgrade(options, requirements)
 
     print("-"*get_terminal_size()[0])
 
