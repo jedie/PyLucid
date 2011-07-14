@@ -65,7 +65,7 @@ def get_requirements():
 
     requirements = []
     requirements += parse_requirements("basic_requirements.txt")
-    requirements += parse_requirements("pypi_installation.txt")
+    requirements += parse_requirements("normal_installation.txt")
     return requirements
 
 try:
