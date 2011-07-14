@@ -10,63 +10,16 @@
 """
 
 
-LIBS = [
-    # Python packages
-    "feedparser", # http://pypi.python.org/pypi/FeedParser/
-    "Pygments", # http://pygments.org/
-
-    # external Django apps
-    "django-reversion", # http://code.google.com/p/django-reversion/
-    "django-dbtemplates", # https://github.com/jezdez/django-dbtemplates
-    "django-tagging", # http://code.google.com/p/django-tagging/
-]
-
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
-(1) Python packages from PyPi (no SVN or git needed, not supported, yet!)
-(2) source via SVN only (checkout git repository via github svn gateway)
-(3) source via git and clone with readonly **preferred**
-(4) clone with git push access (Only for PyLucid collaborators, clone django readonly)
-(5) abort
+(1) normal installation
+(2) developer installation
 """
-DEFAULT_MENU_CHOICE = 3
-
-PIP_INSTALL_DATA = {
-    1: [# *** use python packages from PyPi
-        "python-creole", "django-dbpreferences", "django-tools",
-        "PyLucid",
-        "Django"
-    ],
-    2: [# use SVN
-        # SVN Version from django:
-        ("-e", "svn+http://svn.github.com/django/django.git@1.3.X#egg=django"),
-        # own sub projects
-        ("-e", "svn+http://svn.github.com/jedie/python-creole.git#egg=python-creole"),
-        ("-e", "svn+http://svn.github.com/jedie/django-dbpreferences.git#egg=dbpreferences"),
-        ("-e", "svn+http://svn.github.com/jedie/django-tools.git#egg=django-tools"),
-        ("-e", "svn+http://svn.github.com/jedie/PyLucid.git#egg=pylucid"),
-    ],
-    3: [# git readonly clone
-        # Official clone of the Django Subversion repository (readonly clone)
-        ("-e", "git+git://github.com/django/django.git@1.3.X#egg=django"),
-        # own sub projects
-        ("-e", "git+git://github.com/jedie/python-creole.git#egg=python-creole"),
-        ("-e", "git+git://github.com/jedie/django-dbpreferences.git#egg=dbpreferences"),
-        ("-e", "git+git://github.com/jedie/django-tools.git#egg=django-tools"),
-        ("-e", "git+git://github.com/jedie/PyLucid.git#egg=pylucid"),
-    ],
-    4: [ # clone with git push access
-        # Official clone of the Django Subversion repository (readonly clone)
-        ("-e", "git+git://github.com/django/django.git@1.3.X#egg=django"),
-        # own sub projects
-        ("-e", "git+git@github.com:jedie/python-creole.git#egg=python-creole"),
-        ("-e", "git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences"),
-        ("-e", "git+git@github.com:jedie/django-tools.git#egg=django-tools"),
-        ("-e", "git+git@github.com:jedie/PyLucid.git#egg=pylucid"),
-    ]
-}
-KEYS_STRING = ",".join([str(i) for i in PIP_INSTALL_DATA.keys()])
+INSTALL_NORMAL = "normal"
+INSTALL_DEV = "developer"
+CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_DEV}
+DEFAULT_MENU_CHOICE = CHOICES["1"]
 
 
 class SysPath(object):
@@ -147,44 +100,39 @@ def get_requirement_choice():
     """
     Display menu and select a number.
     """
-    input_msg = "%s [%s] (default: %s) " % (
+    choice_keys = CHOICES.keys()
+    input_msg = "%s (%s) (default: %s) " % (
         c.colorize("Please select:", opts=("bold",)),
-        KEYS_STRING, c.colorize(DEFAULT_MENU_CHOICE, opts=("bold",))
+        "/".join(choice_keys),
+        DEFAULT_MENU_CHOICE
     )
 
-    while True:
-        print MENU_TXT
+    print MENU_TXT
+    try:
+        input = raw_input(input_msg)
+    except KeyboardInterrupt:
+        print(c.colorize("Abort, ok.", foreground="blue"))
+        sys.exit()
 
-        try:
-            input = raw_input(input_msg)
-        except KeyboardInterrupt:
-            sys.exit(-1)
+    if input == "":
+        return DEFAULT_MENU_CHOICE
 
-        print
-        if input == "":
-            return DEFAULT_MENU_CHOICE
-        try:
-            number = int(input)
-        except ValueError:
-            print c.colorize("Error:", foreground="red"), "Input is not a number!"
-        else:
-            if number == 5:
-                sys.exit(-1)
-            elif number not in PIP_INSTALL_DATA:
-                print c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
-                    c.colorize(number, opts=("bold",))
-                )
-            else:
-                return number
+    try:
+        return CHOICES[input]
+    except KeyError:
+        print c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
+            c.colorize(number, opts=("bold",))
+        )
+        sys.exit(-1)
 
 
 def extend_parser(parser):
     """
     extend optparse options.
     """
-    parser.add_option("-t", "--type", type="int",
+    parser.add_option("-t", "--type", type="string",
         dest="pip_type", default=None,
-        help="pip install type (%r)" % KEYS_STRING
+        help="pip install type: %s" % ", ".join(CHOICES.values())
     )
 
 
@@ -206,27 +154,18 @@ def adjust_options(options, args):
 
     p = SysPath()
 
-    svn_path = p.find("svn")
-    if svn_path:
-        print "subversion found in:", c.colorize(svn_path, opts=("bold",))
-    else:
-        print c.colorize("WARNING:", foreground="red", opts=("underscore",)),
-        print "subversion not found in path!"
-
     git_path = p.find("git")
     if git_path:
         print "git found in:", c.colorize(git_path, opts=("bold",))
     else:
-        print c.colorize("WARNING:", foreground="red", opts=("underscore",)),
+        print c.colorize("ERROR:", foreground="red", opts=("underscore",)),
         print "git not found in path!"
-
 
     if options.pip_type == None:
         options.pip_type = get_requirement_choice()
-
-    if options.pip_type not in PIP_INSTALL_DATA:
+    elif options.pip_type not in CHOICES.values():
         print "pip type wrong!"
-        sys.exit(101)
+        sys.exit(-1)
 
 
 class AfterInstall(object):
@@ -247,7 +186,16 @@ class AfterInstall(object):
             }
         }
 
+        # NORMAL_INSTALLATION and DEVELOPER_INSTALLATION added by create_bootstrap_script.py!
+        if self.options.pip_type == INSTALL_NORMAL:
+            self.dev_install = False
+        elif self.options.pip_type == INSTALL_DEV:
+            self.dev_install = True
+        else:
+            raise ValueError
+
     def run_cmd(self, cmd):
+        print "_" * 79
         for part in cmd:
             if part.startswith("/") or part.startswith("-"):
                 print c.colorize(part, foreground="blue"),
@@ -262,7 +210,7 @@ class AfterInstall(object):
         print c.colorize(info_text, foreground="green", opts=("bold", "underscore"))
 
         for pip_line in pip_lines:
-            cmd = [self.pip_cmd, "install", "--verbose", "--log=%s" % self.logfile]
+            cmd = [self.pip_cmd, "install", "--log=%s" % self.logfile]
             if isinstance(pip_line, (list, tuple)):
                 cmd += list(pip_line)
             else:
@@ -278,13 +226,13 @@ class AfterInstall(object):
             print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
             self.run_cmd([self.easy_install, '--always-copy', 'pip'])
 
-    def install_pylucid(self):
-        install_type = self.options.pip_type
-        install_data = PIP_INSTALL_DATA[install_type]
-        self.run_pip("install PyLucid projects", install_data)
+    def install_packages(self):
+        if self.dev_install:
+            install_data = DEVELOPER_INSTALLATION
+        else:
+            install_data = NORMAL_INSTALLATION
 
-    def install_libs(self):
-        self.run_pip("install PyLucid libs", LIBS)
+        self.run_pip("install PyLucid projects", install_data)
 
     def verbose_symlink(self, source_path, dst_path):
         print("\nsymlink: %s\nto: %s\n" % (
@@ -299,18 +247,24 @@ class AfterInstall(object):
 
     def symlink_scripts(self):
         """ symlink needfull scripts into env root directory """
+        def symlink_pylucid_script(filename):
+            source_path = os.path.join(self.abs_home_dir, "src", "pylucid", "scripts", filename)
+            dst_path = os.path.join(self.abs_home_dir, filename)
+            self.verbose_symlink(source_path, dst_path)
 
-        # symlink 'create_page_instance.sh' into virtualenv root
-        filename = "create_page_instance.sh"
-        source_path = os.path.join(self.abs_home_dir, "src", "pylucid", "scripts", filename)
-        dst_path = os.path.join(self.abs_home_dir, filename)
-        self.verbose_symlink(source_path, dst_path)
+        # symlink some PyLucid scripts from pylucid/scripts/ into virtualenv root
+        symlink_pylucid_script("create_page_instance.sh")
 
-        # symlink "upgrade_virtualenv.py" from django-tools into  virtualenv root
-        filename = "upgrade_virtualenv.py"
-        source_path = os.path.join(self.abs_home_dir, "src", "django-tools", "django_tools", filename)
-        dst_path = os.path.join(self.abs_home_dir, filename)
-        self.verbose_symlink(source_path, dst_path)
+        if self.dev_install:
+            symlink_pylucid_script("upgrade_pylucid_dev_env.sh")
+        else:
+            symlink_pylucid_script("upgrade_pylucid_env.sh")
+
+#        # symlink "upgrade_virtualenv.py" from django-tools into  virtualenv root
+#        filename = "upgrade_virtualenv.py"
+#        source_path = os.path.join(self.abs_home_dir, "src", "django-tools", "django_tools", filename)
+#        dst_path = os.path.join(self.abs_home_dir, filename)
+#        self.verbose_symlink(source_path, dst_path)
 
 
 
@@ -321,8 +275,7 @@ def after_install(options, home_dir):
     """
     a = AfterInstall(options, home_dir)
     a.install_pip()
-    a.install_pylucid()
-    a.install_libs()
+    a.install_packages()
     a.symlink_scripts()
 
     print
