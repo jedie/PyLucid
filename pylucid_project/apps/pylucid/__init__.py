@@ -1,22 +1,28 @@
 # coding: utf-8
 
 """
+    Check requirements
+    ~~~~~~~~~~~~~~~~~~
+
     Check some external libs with pkg_resources.require()
     We only create warnings on VersionConflict and DistributionNotFound exceptions.
     
-    See also: ./scripts/requirements/external_apps.txt
-    See also: ./scripts/requirements/libs.txt
-    
-    Format info for pkg_resources.require():
-    http://peak.telecommunity.com/DevCenter/PkgResources#requirement-objects
+    We use the requirements files from ./pylucid/requirements/*.txt
+       
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import os
+import sys
 import warnings
+import traceback
+
+from django.conf import settings
 
 try:
     import pkg_resources
 except ImportError, e:
-    import sys
     etype, evalue, etb = sys.exc_info()
     evalue = etype(
         (
@@ -42,27 +48,32 @@ def check_require(requirements):
             warnings.warn("Distribution not found: %s" % err)
 
 
-requirements = (
-    # http://www.djangoproject.com/
-    "django >= 1.3",
+def get_requirements():
+    def parse_requirements(filename):
+        filepath = os.path.join(settings.PYLUCID_BASE_PATH, "../requirements", filename)
+        f = file(filepath, "r")
+        entries = []
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or line.startswith("-r"):
+                continue
+            if line.startswith("-e "):
+                line = line.split("#egg=")[1]
+            entries.append(line)
+        f.close()
+        return entries
 
-    # http://code.google.com/p/django-dbpreferences
-    "django-dbpreferences >= 0.4.1",
+    requirements = []
+    requirements += parse_requirements("basic_requirements.txt")
+    requirements += parse_requirements("pypi_installation.txt")
+    return requirements
 
-    # http://code.google.com/p/django-tools/
-    "django-tools >= 0.18.0",
+try:
+    requirements = get_requirements()
+    check_require(requirements)
+except Exception, e:
+    if settings.DEBUG and settings.RUN_WITH_DEV_SERVER:
+        raise
 
-    # http://code.google.com/p/python-creole/
-    "python-creole >= 0.6.0",
-
-    # https://github.com/etianen/django-reversion
-    "django-reversion >= 1.4.0",
-
-    # http://code.google.com/p/django-dbtemplates/
-    "django-dbtemplates >= 1.1.1",
-
-    # http://code.google.com/p/django-tagging/
-    "django_tagging >= 0.3.1",
-)
-
-check_require(requirements)
+    sys.stderr.write("Can't check requirements:")
+    sys.stderr.write(traceback.format_exc())
