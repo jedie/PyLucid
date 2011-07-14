@@ -1409,10 +1409,11 @@ class AfterInstall(object):
 
     def install_pip(self):
         print
-        print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
         if os.path.isfile(self.pip_cmd):
-            print "Skip, pip exist at: %s\n" % c.colorize(self.pip_cmd, opts=("bold",))
+            print c.colorize("update existing pip", foreground="green", opts=("bold", "underscore"))
+            self.run_cmd([self.pip_cmd, 'install', "--upgrade", 'pip'])
         else:
+            print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
             self.run_cmd([self.easy_install, '--always-copy', 'pip'])
 
     def install_pylucid(self):
