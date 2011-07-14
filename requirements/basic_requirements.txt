@@ -1,0 +1,29 @@
+# Python packages
+#-----------------
+
+# http://code.google.com/p/feedparser/
+# http://pypi.python.org/pypi/feedparser/
+feedparser>=5.0.1,<5.1
+
+# http://pygments.org/
+# http://pypi.python.org/pypi/Pygments
+Pygments>=1.4,<1.5
+
+# external Django apps
+#----------------------
+
+# https://github.com/etianen/django-reversion
+# http://pypi.python.org/pypi/django-reversion
+django-reversion>=1.4,<1.5
+
+# https://github.com/jezdez/django-dbtemplates
+# http://pypi.python.org/pypi/django-dbtemplates
+django-dbtemplates>=1.1.1,<1.2
+
+# http://code.google.com/p/django-tagging/
+# http://pypi.python.org/pypi/django-tagging
+django-tagging>=0.3.1,<0.4
+
+# http://south.aeracode.org/
+# http://pypi.python.org/pypi/South
+South>=0.7.3,<0.8

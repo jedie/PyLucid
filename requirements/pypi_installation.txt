@@ -1,0 +1,28 @@
+#
+# Normal installation requirements, using all packages from pypi.
+# This is for all normal PyLucid users.
+#
+
+# include the basic requirements
+-r basic_requirements.txt
+
+# http://www.djangoproject.com/
+# http://pypi.python.org/pypi/Django
+Django>=1.3,<1.4
+
+# PyLucid own projects
+#----------------------
+
+# http://pypi.python.org/pypi/python-creole
+python-creole==0.6
+
+# http://pypi.python.org/pypi/django-dbpreferences
+django-dbpreferences>=0.4.1,<0.5
+
+# http://pypi.python.org/pypi/django-tools
+django-tools>=0.18,<0.19
+
+# git readonly clone of PyLucid
+# http://www.pylucid.org/
+# http://pypi.python.org/pypi/PyLucid
+-e git+git://github.com/jedie/PyLucid.git#egg=pylucid

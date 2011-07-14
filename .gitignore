@@ -1,9 +1,10 @@
 local_settings.py
-*.pyc
+*.py[co]
 *.log
 *~
-/PyLucid.egg-info
+*.egg-info
 /dist
+/build
 *.db3
 /pylucid_project/media/PyLucid/headfile_cache
 /pylucid_project/media/PyLucid_cache

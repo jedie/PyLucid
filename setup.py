@@ -4,8 +4,13 @@
 """
     PyLucid distutils setup
     ~~~~~~~~~~~~~~~~~~~~~~~
+    
+    Links
+    ~~~~~
+    
+    http://www.python-forum.de/viewtopic.php?f=21&t=26895 (de)
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -39,8 +44,30 @@ def get_long_description():
     return long_description
 
 
+def get_install_requires():
+    def parse_requirements(filename):
+        filepath = os.path.join(PACKAGE_ROOT, "requirements", filename)
+        f = file(filepath, "r")
+        entries = []
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or line.startswith("-r"):
+                continue
+            if line.startswith("-e "):
+                line = line.split("#egg=")[1]
+            if line.lower() == "pylucid":
+                continue
+            entries.append(line)
+        f.close()
+        return entries
 
-setup(
+    requirements = []
+    requirements += parse_requirements("basic_requirements.txt")
+    requirements += parse_requirements("pypi_installation.txt")
+    return requirements
+
+
+setup_info = dict(
     name='PyLucid',
     version=VERSION_STRING,
     description='PyLucid is an open-source web content management system (CMS) using django.',
@@ -51,7 +78,8 @@ setup(
     packages=find_packages(
         exclude=[".project", ".pydevproject", "pylucid_project.external_plugins.*"]
     ),
-    include_package_data=True, # include package data under svn source control
+    include_package_data=True, # include package data under version control
+    install_requires=get_install_requires(),
     zip_safe=False,
     classifiers=[
 #        'Development Status :: 1 - Planning',
@@ -75,3 +103,4 @@ setup(
         "Operating System :: OS Independent",
     ]
 )
+setup(**setup_info)
