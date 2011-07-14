@@ -22,7 +22,7 @@ if __name__ == "__main__":
 import pkg_resources
 
 from pip import locations
-from pip.util import get_installed_distributions, get_terminal_size
+from pip.util import get_terminal_size
 import pip
 
 try:
@@ -168,14 +168,17 @@ def parse_requirements(filename):
 
 def call_pip(options, *args):
     pip_executeable = os.path.join(locations.bin_py, "pip")
-    cmd = [pip_executeable, "install", "--upgrade"]
+    cmd = [
+        pip_executeable, "install", "--upgrade", "--no-dependencies",
+        "--download-cache=%s" % options.download_cache
+    ]
     if options.verbose:
         cmd.append("--verbose")
     if options.logfile:
         cmd.append("--log=%s" % options.logfile)
     cmd += args
-    print("-"*get_terminal_size()[0])
-    print("run: %s" % c.colorize(" ".join(cmd), foreground="blue"))
+    print("_" * get_terminal_size()[0])
+    print(c.colorize(" ".join(cmd), foreground="blue"))
     if not options.dryrun:
         subprocess.call(cmd)
 
@@ -201,6 +204,11 @@ def main():
     parser.add_option("--log",
                       action="store", dest="logfile", default="upgrade_pylucid_env.log",
                       help="Log file where complete pip output will be kept")
+    parser.add_option("--download-cache",
+                      action="store", dest="download_cache",
+                      default=os.path.join(sys.prefix, "pypi_cache"),
+                      help="Cache downloaded packages in DIR")
+
 
     options, args = parser.parse_args()
 #    print options, args
