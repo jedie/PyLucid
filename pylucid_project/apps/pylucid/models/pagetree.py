@@ -389,11 +389,9 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
 
         # Add validation error message
         msg = _(
-            "Can't set permitViewGroup to <strong>%(own_group)s</strong>,"
-            " because the parent page <strong>%(parent_page)s</strong> used <strong>%(parent_page_group)s</strong>!"
+            "Error: Parent page <strong>%(parent_page)s</strong> used <strong>%(parent_page_group)s</strong>!"
             " You must used <strong>%(parent_page_group)s</strong> for this page, too."
         ) % {
-            "own_group": self.permitViewGroup,
             "parent_page": parent_page.slug,
             "parent_page_group": parent_page_group,
         }
