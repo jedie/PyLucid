@@ -320,6 +320,8 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         # check if parent is the same entry: child <-> parent loop:
         super(PageTree, self).clean_fields(exclude)
 
+        message_dict = {}
+
         # Check if slug exist in the same sub tree:
         if "slug" not in exclude:
             queryset = PageTree.on_site.filter(slug=self.slug, parent=self.parent)
@@ -337,8 +339,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
                     parent_url = self.parent.get_absolute_url()
 
                 msg = "Page '%s<strong>%s</strong>/' exists already." % (parent_url, self.slug)
-                message_dict = {"slug": (mark_safe(msg),)}
-                raise ValidationError(message_dict)
+                message_dict["slug"] = (mark_safe(msg),)
 
         # Check if parent page is a ContentPage, a plugin page can't have any sub pages!
         if "parent" not in exclude and self.parent is not None and self.parent.page_type != self.PAGE_TYPE:
@@ -347,8 +348,61 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
                 "Can't use the <strong>plugin</strong> page '%s' as parent page!"
                 " Please choose a <strong>content</strong> page."
             ) % parent_url
-            message_dict = {"parent": (mark_safe(msg),)}
+            message_dict["parent"] = (mark_safe(msg),)
+
+        # Prevents that a unprotected page created below a protected page.
+        self.validate_permit_group("permitViewGroup", exclude, message_dict)
+        self.validate_permit_group("permitEditGroup", exclude, message_dict)
+
+        if message_dict:
             raise ValidationError(message_dict)
+
+    def validate_permit_group(self, attribute, exclude, message_dict):
+        """
+        Prevents that a unprotected page created below a protected page.
+        validate self.permitViewGroup and self.permitEditGroup
+        """
+        if attribute in exclude:
+            return
+
+        parent_page = self.recusive_attribute(attribute)
+        if parent_page is None:
+            # So parent page back to root has set a permission group
+            return
+
+        # we are below a protected page -> Check if permission group is the same.
+        parent_page_group = getattr(parent_page, attribute)
+        own_group = getattr(self, attribute)
+
+        if parent_page_group == own_group:
+            # permission is the same -> ok
+            return
+
+        # Add validation error message
+        msg = _(
+            "Can't set permitViewGroup to <strong>%(own_group)s</strong>,"
+            " because the parent page <strong>%(parent_page)s</strong> used <strong>%(parent_page_group)s</strong>!"
+            " You must used <strong>%(parent_page_group)s</strong> for this page, too."
+        ) % {
+            "own_group": self.permitViewGroup,
+            "parent_page": parent_page.slug,
+            "parent_page_group": parent_page_group,
+        }
+        message_dict[attribute] = (mark_safe(msg),)
+
+    def recusive_attribute(self, attribute):
+        """
+        return the PageTree instance back to root if the give attribute is not None.
+        used e.g. with permitViewGroup and permitEditGroup in self.clean_fields() to
+        prevents that a unprotected page created below a protected page. 
+        """
+        if self.parent is None: # parent is the tree root
+            return None
+
+        if getattr(self.parent, attribute, None) is not None:
+            return self.parent
+        else:
+            return self.parent.recusive_attribute(attribute)
 
     _url_cache = LocalSyncCache(id="PageTree_absolute_url")
     def get_absolute_url(self):
