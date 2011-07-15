@@ -354,6 +354,15 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         self.validate_permit_group("permitViewGroup", exclude, message_dict)
         self.validate_permit_group("permitEditGroup", exclude, message_dict)
 
+        # Warn user if PageTree permissions mismatch with sub pages
+        attributes = []
+        for attribute in ("permitViewGroup", "permitEditGroup"):
+            if attribute not in exclude and attribute not in message_dict:
+                # ...and don't check if self.validate_permit_group() has raise a ValidationError
+                attributes.append(attribute)
+        if attributes:
+            self.check_sub_page_permissions(attributes)
+
         if message_dict:
             raise ValidationError(message_dict)
 
@@ -399,10 +408,38 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         if self.parent is None: # parent is the tree root
             return None
 
-        if getattr(self.parent, attribute, None) is not None:
+        if getattr(self.parent, attribute) is not None:
             return self.parent
         else:
             return self.parent.recusive_attribute(attribute)
+
+    def check_sub_page_permissions(self, attributes):
+        """
+        Warn user if PageTree permissions mismatch with sub pages.
+        """
+        request = ThreadLocal.get_current_request()
+        if request is None:
+            # Check only if we are in a request
+            return
+
+        sub_pages = PageTree.objects.filter(parent=self).only(*attributes)
+        for attribute in attributes:
+            own_permission = getattr(self, attribute)
+            for sub_page in sub_pages:
+                sub_page_permission = getattr(sub_page, attribute)
+                if sub_page_permission != own_permission:
+                    msg = _(
+                        "PageTree permission mismatch:"
+                        " current %(attribute)s is set to '%(own_permission)s'"
+                        " and sub page '%(slug)s' used '%(sub_permission)s'."
+                        " This may be ok."
+                    ) % {
+                        "slug": sub_page.slug,
+                        "attribute": attribute,
+                        "own_permission": own_permission,
+                        "sub_permission": sub_page_permission,
+                    }
+                    messages.warning(request, msg)
 
     _url_cache = LocalSyncCache(id="PageTree_absolute_url")
     def get_absolute_url(self):
