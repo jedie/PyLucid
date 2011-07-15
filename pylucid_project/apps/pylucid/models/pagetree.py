@@ -48,8 +48,11 @@ class PageTreeManager(BaseModelManager):
         get_or_create() method, witch expected a request object as the first argument.
     """
     def filter_accessible(self, queryset, user):
-        """ filter all pages with can't accessible for the given user """
-
+        """
+        exclude form pagetree queryset all pages which the given user can't see
+        by checking PageTree.permitViewGroup
+        TODO: Check in unittests
+        """
         if user.is_anonymous():
             # Anonymous user are in no user group
             return queryset.filter(permitViewGroup__isnull=True)
@@ -58,7 +61,7 @@ class PageTreeManager(BaseModelManager):
             # Superuser can see everything ;)
             return queryset
 
-        # filter pages for not superuser and not anonymous
+        # filter pages for authenticated,normal users
 
         user_groups = user.groups.values_list('pk', flat=True)
 
@@ -72,7 +75,7 @@ class PageTreeManager(BaseModelManager):
         )
 
     def all_accessible(self, user=None, filter_showlinks=False):
-        """ returns all pages that the given user can access. """
+        """ returns a PageTree queryset with all items that the given user can access. """
         if user == None:
             user = ThreadLocal.get_current_user()
 
@@ -131,7 +134,9 @@ class PageTreeManager(BaseModelManager):
 
     def get_pagemeta(self, request, pagetree, show_lang_errors=True):
         """
-        retuns the PageMeta instance witch associated to the given >pagetree< instance.
+        return PageMeta instance witch associated to the given >pagetree< instance.
+        
+        raise PermissionDenied if current user hasn't the pagemeta.permitViewGroup permissions. 
         
         dissolving language in client favored languages
         if not exist:
@@ -174,8 +179,18 @@ class PageTreeManager(BaseModelManager):
                 }
             )
 
-        return pagemeta
+        # Check PageMeta.permitViewGroup permissions:
+        # TODO: Check this in unittests!
+        if pagemeta.permitViewGroup == None:
+            # everyone can't see this page
+            return pagemeta
+        elif request.user.is_superuser: # Superuser can see everything ;)
+            return pagemeta
+        elif request.user.is_authenticated() and pagemeta.permitViewGroup in request.user.groups:
+            return pagemeta
 
+        # The user is anonymous or is authenticated but is not in the right user group
+        raise PermissionDenied
 
     def get_page_from_url(self, request, url_path):
         """
@@ -200,7 +215,9 @@ class PageTreeManager(BaseModelManager):
 
             page_view_group = page.permitViewGroup
 
-            # Check permissions
+            # Check permissions only for PageTree
+            # Note: PageMeta.permitViewGroup would be checked in self.get_pagemeta()
+            # TODO: Check this in unittests!
             if request.user.is_anonymous():
                 # Anonymous user are in no user group
                 if page_view_group != None:
