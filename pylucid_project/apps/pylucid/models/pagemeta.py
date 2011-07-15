@@ -152,7 +152,24 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         if parent_pagetree is None: # parent is the tree root
             return None
 
-        parent_pagemeta = PageMeta.objects.get(pagetree=parent_pagetree)
+        request = ThreadLocal.get_current_request()
+        if request is None:
+            # Check only if we are in a request
+            return
+
+        queryset = PageMeta.objects.filter(pagetree=parent_pagetree)
+        parent_pagemeta = None
+        languages = request.PYLUCID.languages # languages are in client prefered order
+        for language in languages:
+            try:
+                parent_pagemeta = queryset.get(language=language)
+            except PageMeta.DoesNotExist:
+                continue
+            else:
+                break
+
+        if parent_pagemeta is None:
+            return
 
         if getattr(parent_pagemeta, attribute) is not None:
             # the attribute was set by parent page
