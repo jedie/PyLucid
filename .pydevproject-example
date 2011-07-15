@@ -12,7 +12,7 @@
 <path>/home/${USERNAME}/PyLucid_env/lib/python${PYTHON_VERSION}</path>
 <path>/usr/lib/python${PYTHON_VERSION}</path>
 <path>/home/${USERNAME}/PyLucid_env/src/django</path>
-<path>/home/${USERNAME}/PyLucid_env/src/dbpreferences</path>
+<path>/home/${USERNAME}/PyLucid_env/src/django-dbpreferences</path>
 <path>/home/${USERNAME}/PyLucid_env/src/django-tools</path>
 <path>/home/${USERNAME}/PyLucid_env/src/python-creole</path>
 </pydev_pathproperty>
