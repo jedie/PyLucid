@@ -564,6 +564,31 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         )
 
 
+class BulkEditorCsrfTest(PageAdminTestCase):
+    """ Test the Cross Site Request Forgery protection """
+    def _get_loggedin_client(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        test_user = self._get_userdata("superuser")
+        ok = csrf_client.login(username=test_user["username"],
+                               password=test_user["password"])
+        return csrf_client
+
+    def test_csrf_token(self):
+        csrf_client = self._get_loggedin_client()
+
+        url = reverse("PageAdmin-bulk_editor")
+        response = csrf_client.get(url)
+
+        csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
+        self.assertIsNot(csrf_cookie, False)
+        csrf_token = csrf_cookie.value
+
+        self.assertDOM(response,
+            must_contain=(
+                "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
+            ),
+        )
 
 
 
@@ -572,7 +597,7 @@ if __name__ == "__main__":
     from django.core import management
 
     tests = __file__
-#    tests = "pylucid_plugins.page_admin.tests.PageAdminTest"
+    tests = "pylucid_plugins.page_admin.tests.BulkEditorCsrfTest"
 #    tests = "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form"
 
     management.call_command('test', tests,

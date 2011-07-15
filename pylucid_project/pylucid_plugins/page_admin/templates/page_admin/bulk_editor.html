@@ -16,6 +16,7 @@
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="masses_editor_select_form" class="pylucid_form">
+{% csrf_token %}
 {% include "admin/pylucid/includes/pylucid_formset.html" %}
 {% if formset %}
 
