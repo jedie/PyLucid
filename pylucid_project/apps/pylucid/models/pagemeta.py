@@ -12,6 +12,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -24,7 +25,8 @@ from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.middlewares import ThreadLocal
 from django_tools.tagging_addon.fields import jQueryTagModelField
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
+from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager, \
+    PermissionsBase
 
 
 TAG_INPUT_HELP_URL = \
@@ -71,7 +73,7 @@ class PageMetaManager(BaseModelManager):
         return pagemeta
 
 
-class PageMeta(BaseModel, UpdateInfoBaseModel):
+class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
     """
     Meta data for PageContent or PluginPage
 
@@ -80,6 +82,10 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
         lastupdatetime -> datetime of the last change
         createby       -> ForeignKey to user who created this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
+        
+    inherited from PermissionsBase:
+        validate_permit_group()
+        check_sub_page_permissions()
     """
     objects = PageMetaManager()
     on_site = CurrentSiteManager()
@@ -106,9 +112,54 @@ class PageMeta(BaseModel, UpdateInfoBaseModel):
     )
 
     permitViewGroup = models.ForeignKey(Group, related_name="%(class)s_permitViewGroup",
-        help_text="Limit viewable to a group?",
+        help_text="Limit viewable this page in this language to a user group?",
         null=True, blank=True,
     )
+    # FIXME: Add permitEditGroup, too.
+    # e.g.: allow only usergroup X to edit this page in language Y
+    # https://github.com/jedie/PyLucid/issues/57
+
+    def clean_fields(self, exclude):
+        super(PageMeta, self).clean_fields(exclude)
+
+        message_dict = {}
+
+        # Prevents that a unprotected page created below a protected page.
+        # TODO: Check this in unittests
+        # validate_permit_group() method inherited from PermissionsBase
+        self.validate_permit_group("permitViewGroup", exclude, message_dict)
+
+        # Warn user if PageMeta permissions mismatch with sub pages
+        # TODO: Check this in unittests
+        queryset = PageMeta.objects.filter(pagetree__parent=self.pagetree)
+        self.check_sub_page_permissions(# method inherited from PermissionsBase
+            ("permitViewGroup",), # TODO: permitEditGroup, read above
+            exclude, message_dict, queryset
+        )
+
+        if message_dict:
+            raise ValidationError(message_dict)
+
+    def recusive_attribute(self, attribute):
+        """
+        Goes the pagetree back to root and return the first match of attribute if not None.
+        
+        used e.g.
+            with permitViewGroup and permitEditGroup
+            from self.validate_permit_group() and self.check_sub_page_permissions()
+        """
+        parent_pagetree = self.pagetree.parent
+        if parent_pagetree is None: # parent is the tree root
+            return None
+
+        parent_pagemeta = PageMeta.objects.get(pagetree=parent_pagetree)
+
+        if getattr(parent_pagemeta, attribute) is not None:
+            # the attribute was set by parent page
+            return parent_pagemeta
+        else:
+            # go down to root
+            return parent_pagemeta.recusive_attribute(attribute)
 
     _url_cache = LocalSyncCache(id="PageMeta_absolute_url")
     def get_absolute_url(self):

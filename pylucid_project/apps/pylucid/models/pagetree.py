@@ -31,7 +31,8 @@ from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
-from pylucid_project.apps.pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel, \
+    PermissionsBase
 
 
 
@@ -267,7 +268,7 @@ class PageTreeManager(BaseModelManager):
         return backlist
 
 
-class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
+class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
     """
     The CMS page tree
 
@@ -280,6 +281,10 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
         lastupdatetime -> datetime of the last change
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
+        
+    inherited from PermissionsBase:
+        validate_permit_group()
+        check_sub_page_permissions()
     """
     PAGE_TYPE = 'C'
     PLUGIN_TYPE = 'P'
@@ -351,93 +356,40 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel):
             message_dict["parent"] = (mark_safe(msg),)
 
         # Prevents that a unprotected page created below a protected page.
+        # TODO: Check this in unittests
+        # validate_permit_group() method inherited from PermissionsBase
         self.validate_permit_group("permitViewGroup", exclude, message_dict)
         self.validate_permit_group("permitEditGroup", exclude, message_dict)
 
         # Warn user if PageTree permissions mismatch with sub pages
-        attributes = []
-        for attribute in ("permitViewGroup", "permitEditGroup"):
-            if attribute not in exclude and attribute not in message_dict:
-                # ...and don't check if self.validate_permit_group() has raise a ValidationError
-                attributes.append(attribute)
-        if attributes:
-            self.check_sub_page_permissions(attributes)
+        # TODO: Check this in unittests
+        queryset = PageTree.objects.filter(parent=self)
+        self.check_sub_page_permissions(# method inherited from PermissionsBase
+            ("permitViewGroup", "permitEditGroup"),
+            exclude, message_dict, queryset
+        )
 
         if message_dict:
             raise ValidationError(message_dict)
 
-    def validate_permit_group(self, attribute, exclude, message_dict):
-        """
-        Prevents that a unprotected page created below a protected page.
-        validate self.permitViewGroup and self.permitEditGroup
-        """
-        if attribute in exclude:
-            return
-
-        parent_page = self.recusive_attribute(attribute)
-        if parent_page is None:
-            # So parent page back to root has set a permission group
-            return
-
-        # we are below a protected page -> Check if permission group is the same.
-        parent_page_group = getattr(parent_page, attribute)
-        own_group = getattr(self, attribute)
-
-        if parent_page_group == own_group:
-            # permission is the same -> ok
-            return
-
-        # Add validation error message
-        msg = _(
-            "Error: Parent page <strong>%(parent_page)s</strong> used <strong>%(parent_page_group)s</strong>!"
-            " You must used <strong>%(parent_page_group)s</strong> for this page, too."
-        ) % {
-            "parent_page": parent_page.slug,
-            "parent_page_group": parent_page_group,
-        }
-        message_dict[attribute] = (mark_safe(msg),)
-
     def recusive_attribute(self, attribute):
         """
-        return the PageTree instance back to root if the give attribute is not None.
-        used e.g. with permitViewGroup and permitEditGroup in self.clean_fields() to
-        prevents that a unprotected page created below a protected page. 
+        Goes the pagetree back to root and return the first match of attribute if not None.
+        
+        used e.g.
+            with permitViewGroup and permitEditGroup
+            from self.validate_permit_group() and self.check_sub_page_permissions()
         """
-        if self.parent is None: # parent is the tree root
+        parent = self.parent
+        if parent is None: # parent is the tree root
             return None
 
-        if getattr(self.parent, attribute) is not None:
-            return self.parent
+        if getattr(parent, attribute) is not None:
+            # the attribute was set by parent page
+            return parent
         else:
-            return self.parent.recusive_attribute(attribute)
-
-    def check_sub_page_permissions(self, attributes):
-        """
-        Warn user if PageTree permissions mismatch with sub pages.
-        """
-        request = ThreadLocal.get_current_request()
-        if request is None:
-            # Check only if we are in a request
-            return
-
-        sub_pages = PageTree.objects.filter(parent=self).only(*attributes)
-        for attribute in attributes:
-            own_permission = getattr(self, attribute)
-            for sub_page in sub_pages:
-                sub_page_permission = getattr(sub_page, attribute)
-                if sub_page_permission != own_permission:
-                    msg = _(
-                        "PageTree permission mismatch:"
-                        " current %(attribute)s is set to '%(own_permission)s'"
-                        " and sub page '%(slug)s' used '%(sub_permission)s'."
-                        " This may be ok."
-                    ) % {
-                        "slug": sub_page.slug,
-                        "attribute": attribute,
-                        "own_permission": own_permission,
-                        "sub_permission": sub_page_permission,
-                    }
-                    messages.warning(request, msg)
+            # go down to root
+            return parent.recusive_attribute(attribute)
 
     _url_cache = LocalSyncCache(id="PageTree_absolute_url")
     def get_absolute_url(self):
