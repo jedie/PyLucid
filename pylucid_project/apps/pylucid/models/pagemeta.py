@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.cache import cache
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -90,7 +90,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
     objects = PageMetaManager()
     on_site = CurrentSiteManager()
 
-    pagetree = models.ForeignKey("pylucid.PageTree")
+    pagetree = models.ForeignKey("pylucid.PageTree") # Should we add null=True, blank=True here? see clean_fields() below
     language = models.ForeignKey("pylucid.Language")
 
     name = models.CharField(blank=True, max_length=150,
@@ -123,6 +123,13 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         super(PageMeta, self).clean_fields(exclude)
 
         message_dict = {}
+
+        try:
+            # We can only check the sub pages, if exists ;)
+            pagetree = self.pagetree
+        except ObjectDoesNotExist:
+            # FIXME: Should self.pagetree() field has null=True, blank=True ?
+            return
 
         # Prevents that a unprotected page created below a protected page.
         # TODO: Check this in unittests
