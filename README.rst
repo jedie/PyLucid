@@ -2,7 +2,7 @@
  about PyLucid
 ===============
 
-PyLucid is a Open Source web content management system written in Python using `Django, jQuery and many more external software... <http://www.pylucid.org/permalink/41/dependencies-and-copyrights>`_
+PyLucid is an Open Source web content management system written in Python using `Django, jQuery and many more external software... <http://www.pylucid.org/permalink/41/dependencies-and-copyrights>`_
 
 Some PyLucid Features are:
 
@@ -18,7 +18,7 @@ Some PyLucid Features are:
 - Revision controlled content
 - WYSIWYG html Editor / markups: Creole, textile, markdown, ReStructuredText
 - expandable with plugins
-- some built in plugins:
+- `many built-in plugins </permalink/90/about-the-built-in-plugins>`_:
 
   - `secure JS-SHA Login <http://www.pylucid.org/permalink/42/secure-login-without-https>`_
 
@@ -26,8 +26,9 @@ Some PyLucid Features are:
 
     - `weblog <http://www.pylucid.org/permalink/141/blog>`_ (Complete blogging solution)
     - `comments / guestbook <http://www.pylucid.org/permalink/351/the-comments-plugin-also-usefull-as-guestbook>`_ (comments for pages, blog articles, lexicon entries)
-    - `StreetMap <http://www.pylucid.org/permalink/295/the-streetmap-plugin>`_ (insert google maps or OpenStreetMaps)
+    - `StreetMap <http://www.pylucid.org/permalink/295/the-streetmap-plugin>`_ (insert google maps or StreetMaps)
     - `lexicon <http://www.pylucid.org/permalink/301/the-lexicon-plugin>`_ (explane words in content)
+    - `poll </permalink/375/poll>`_
     - `RSS <http://www.pylucid.org/permalink/123/includes-rss-newsfeeds>`_ (include external feeds into a page)
     - `source code <http://www.pylucid.org/permalink/309/highlight-source-code>`_ (include highlighted source code into content)
     - `simple picture gallery <http://www.pylucid.org/permalink/340/pylucid-screenshots>`_
@@ -101,3 +102,4 @@ Sourcode and bug tracker
   http://github.com/jedie/PyLucid
 Sourceforge
   http://sourceforge.net/projects/pylucid/
+
