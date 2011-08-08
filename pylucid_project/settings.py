@@ -44,7 +44,7 @@ else:
 
 
 # Used by a few dynamic settings:
-if len(sys.argv) > 1 and sys.argv[1].startswith("runserver"):
+if "runserver" in sys.argv:
     RUN_WITH_DEV_SERVER = True
 else:
     RUN_WITH_DEV_SERVER = False
