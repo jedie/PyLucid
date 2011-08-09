@@ -22,6 +22,8 @@ from pylucid_project.apps.pylucid.markup.django_tags import DjangoTagAssembler
 from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.escape import escape
+from pylucid_project.apps.pylucid.markup.converter import apply_markup
+from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE
 
 
 @render_to("page_admin/tag_list_popup.html")
@@ -44,7 +46,7 @@ def tag_list(request):
             messages.error(request, "Can't get plugin view: %s" % err)
             continue
 
-        lucidtag_doc = None
+        doc = None
         examples = None
         fallback_example = None
 
@@ -74,19 +76,21 @@ def tag_list(request):
 
                 lucidtag_doc = lucidtag_doc.split("example:", 1)[0].strip()
 
-                # Escape "&", "<", ">" and django template tags chars like "{" and "}"
-                lucidtag_doc = escape(lucidtag_doc)
+            lucidtag_doc = unicode(lucidtag_doc)
+            doc = apply_markup(lucidtag_doc,
+                markup_no=MARKUP_CREOLE, request=request,
+                escape_django_tags=True
+            )
 
         if not examples:
             # No DocString or it contains no examples -> generate a example
             fallback_example = escape("{%% lucidTag %s %%}" % plugin_name)
 
-
         lucid_tags.append({
             "plugin_name": plugin_name.replace("_", " "),
             "fallback_example": fallback_example,
             "examples": examples,
-            "doc": lucidtag_doc,
+            "doc": doc,
         })
 
     # Sort by plugin name case-insensitive
