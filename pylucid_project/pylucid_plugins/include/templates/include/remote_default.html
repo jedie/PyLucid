@@ -1,0 +1,26 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+<fieldset>
+<legend><a href="{{ url }}">{{ url }}</a></legend>
+{% if user.is_staff %}<small>
+<dl>
+	<dt>Used cache:</dt>
+	<dd>{{ from_cache|yesno }}</dd>
+	
+	<dt>Server response time:</dt>
+	<dd>{{ duration|floatformat:3 }}sec.</dd>
+	
+    <dt>Used preferences:</dt>
+    <dd><pre>{{ preferences|pprint }}</pre></dd>
+	
+    <dt>Request Headers:</dt>
+    <dd><pre>{{ request_header }}</pre></dd>
+	
+    <dt>Response Headers:</dt>
+    <dd><pre>{{ response_info }}</pre></dd>
+</dl>
+</small>{% endif %}
+{{ content }}
+</fieldset>
+{% endblock %}

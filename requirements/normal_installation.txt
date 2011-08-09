@@ -20,7 +20,7 @@ python-creole>=0.6,<0.8
 django-dbpreferences>=0.4.2,<0.5
 
 # http://pypi.python.org/pypi/django-tools
-django-tools>=0.18.1,<0.19
+django-tools>=0.19,<0.20
 
 # git readonly clone of PyLucid
 # http://www.pylucid.org/

@@ -10,17 +10,25 @@
 
 import os
 import sys
+import time
 import traceback
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.cache import cache
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 
+from django_tools.utils.http import HttpRequest
+
+from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.apps.pylucid.markup import MARKUP_DATA
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.markup.hightlighter import make_html
+from pylucid_project.pylucid_plugins.include.preference_forms import PreferencesForm
 from pylucid_project.utils.escape import escape
+
+
 
 
 MARKUPS = dict(tuple([(data[1], data[0]) for data in MARKUP_DATA]))
@@ -35,9 +43,7 @@ def _error(request, msg, staff_msg):
             # put the full traceback into page_msg, but only for superusers
             messages.debug(request,
                 mark_safe(
-                    "%s:<pre>%s</pre>" % (
-                        staff_msg, traceback.format_exc()
-                    )
+                    "%s:<pre>%s</pre>" % (escape(staff_msg), escape(traceback.format_exc()))
                 )
             )
             return
@@ -78,6 +84,11 @@ def _render(request, content, path_or_url, markup, highlight, ext, strip_html):
     return content
 
 
+
+
+
+
+
 def local_file(request, filepath, encoding="utf-8", markup=None, highlight=False, ext=None, strip_html=True):
     """
     include a local files from filesystem into a page.
@@ -95,15 +106,72 @@ def local_file(request, filepath, encoding="utf-8", markup=None, highlight=False
     return _render(request, content, filepath, markup, highlight, ext, strip_html)
 
 
-def remote(request, url, encoding="utf-8", markup=None, strip_html=True):
-    raise NotImplemented("TODO!")
+@render_to()#, debug=True)
+def remote(request, url, encoding=None, markup=None, highlight=False, ext=None, strip_html=True, **kwargs):
+
+    # Get preferences from DB and overwrite them
+    pref_form = PreferencesForm()
+    preferences = pref_form.get_preferences(request, lucidtag_kwargs=kwargs)
+
+    cache_key = "include_remote_%s XXX" % url
+    context = cache.get(cache_key)
+    if context:
+        from_cache = True
+    else:
+        from_cache = False
+
+        # Get the current page url, for referer
+        context = request.PYLUCID.context
+        page_absolute_url = context["page_absolute_url"]
+
+        socket_timeout = preferences["socket_timeout"]
+
+        user_agent = preferences["user_agent"]
+
+        start_time = time.time()
+        try:
+            r = HttpRequest(url, timeout=socket_timeout)
+            r.request.add_header("User-agent", user_agent)
+            r.request.add_header("Referer", page_absolute_url)
+
+            response = r.get_response()
+            raw_content = r.get_unicode()
+        except Exception, err:
+            return _error(request, "Include error.", "Can't get %r: %s" % (url, err))
+
+        duration = time.time() - start_time
+
+        try:
+            request_header = response.request_header
+        except Exception, err: # FIXME
+            request_header = "[Error: %s]" % err
+
+        context = {
+            "raw_content": raw_content,
+            "request_header": request_header,
+            "response_info": response.info(),
+            "duration": duration,
+        }
+        cache.set(cache_key, context , preferences["cache_timeout"])
+
+    content = context["raw_content"]
+    content = _render(request, content, url, markup, highlight, ext, strip_html)
+
+    context.update({
+        "template_name": preferences["remote_template"],
+        "url": url,
+        "content": content,
+        "from_cache": from_cache,
+        "preferences": preferences,
+    })
+    return context
 
 
 def lucidTag(request, **kwargs):
     """
     include a local file or a remote page into CMS page.
     
-    Available arguments are:
+    Shared arguments for include.local_file and include.remote:
     |= parameter |= default |= description
     | encoding   | "utf-8"  | content charset
     | markup     | None     | Name of the Markup to apply (e.g.: "creole", "rest")
@@ -112,7 +180,13 @@ def lucidTag(request, **kwargs):
     | strip_html | True     | Cut html tags out from content?
     
     You can combine markup and highlight. Result is pygmentised html code ;)
-    if not markup and not highlight, the result would be strip_html (optional) and then escaped. 
+    if not markup and not highlight, the result would be strip_html (optional) and then escaped.
+    
+    Optional arguments for include.remote to overwrite preferences:
+    |= parameter      |= description
+    | remote_template | template filename for render the result
+    | socket_timeout  | socket timeout in seconds for getting remote data
+    | cache_timeout   | number of seconds to cache remote data
     
     example:
     
@@ -121,5 +195,5 @@ def lucidTag(request, **kwargs):
     """
     return _error(request, "Include error.",
         "Wrong lucidTag Syntax:"
-        " You must use {% lucidTag.local_file ... %} or {% lucidTag.remote ... %} !"
+        " You must use {% lucidTag include.local_file ... %} or {% lucidTag include.remote ... %} !"
     )
