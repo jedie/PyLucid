@@ -22,6 +22,7 @@ from django.conf import settings
 from django.conf.urls.defaults import patterns, url
 from django.contrib import admin, messages
 from django.contrib.admin.sites import NotRegistered
+from django.contrib.admin.util import unquote
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -52,6 +53,25 @@ class PageTreeAdmin(BaseAdmin, VersionAdmin):
     )
     date_hierarchy = 'lastupdatetime'
     search_fields = ("slug",)
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """
+        Redirect to parent page, after deletion.
+        """
+        if request.POST: # The user has already confirmed the deletion.
+            pagetree = self.get_object(request, unquote(object_id))
+            parent = pagetree.parent
+
+        response = super(PageTreeAdmin, self).delete_view(request, object_id, extra_context)
+        if request.POST and isinstance(response, HttpResponseRedirect):
+            # Object has been deleted.
+            if parent is None:
+                url = "/"
+            else:
+                url = parent.get_absolute_url()
+            return HttpResponseRedirect(url)
+
+        return response
 
 admin.site.register(models.PageTree, PageTreeAdmin)
 
