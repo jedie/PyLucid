@@ -34,6 +34,7 @@ from pylucid_project.utils.escape import escape
 MARKUPS = dict(tuple([(data[1], data[0]) for data in MARKUP_DATA]))
 
 
+
 def _error(request, msg, staff_msg):
     etype, value, tb = sys.exc_info()
     if tb is not None:
@@ -54,7 +55,7 @@ def _error(request, msg, staff_msg):
     return "[%s]" % msg
 
 
-def _render(request, content, path_or_url, markup, highlight, ext, strip_html):
+def _render(request, content, path_or_url, markup, highlight, strip_html):
     markup_no = None
     if markup:
         if markup not in MARKUPS:
@@ -65,15 +66,14 @@ def _render(request, content, path_or_url, markup, highlight, ext, strip_html):
 
     if markup_no:
         content = apply_markup(content, markup_no, request, escape_django_tags=False) # xxx: escape_django_tags
-        if highlight and not ext:
-            ext = "html"
+        if highlight == True:
+            highlight = "html"
 
-    if highlight:
-        if ext:
-            source_type = ext
-        else:
-            source_type = os.path.splitext(path_or_url)[1]
-        content = make_html(content, source_type)
+    if highlight == True:
+        highlight = os.path.splitext(path_or_url)[1]
+
+    if highlight is not None:
+        content = make_html(content, highlight)
 
     if not (markup_no or highlight):
         if strip_html:
@@ -83,11 +83,19 @@ def _render(request, content, path_or_url, markup, highlight, ext, strip_html):
     return content
 
 
-def local_file(request, filepath, encoding="utf-8", markup=None, highlight=False, ext=None, strip_html=True):
+def local_file(request, filepath, encoding="utf-8", markup=None, highlight=None, strip_html=True):
     """
     include a local files from filesystem into a page.
     Arguments, see DocString of lucidTag()
     """
+    filepath = os.path.normpath(os.path.abspath(filepath))
+
+    # include local files only, if it stored under this path:
+    basepath = getattr(settings, "PYLUCID_INCLUDE_BASEPATH", settings.MEDIA_ROOT)
+    basepath = os.path.normpath(basepath)
+    if not filepath.startswith(basepath):
+        return _error(request, "Include error.", "Filepath doesn't start with %r" % basepath)
+
     try:
         f = file(filepath, "r")
         content = f.read()
@@ -97,11 +105,11 @@ def local_file(request, filepath, encoding="utf-8", markup=None, highlight=False
     except Exception, err:
         return _error(request, "Include error.", "Can't read file %r: %s" % (filepath, err))
 
-    return _render(request, content, filepath, markup, highlight, ext, strip_html)
+    return _render(request, content, filepath, markup, highlight, strip_html)
 
 
 @render_to()#, debug=True)
-def remote(request, url, encoding=None, markup=None, highlight=False, ext=None, strip_html=True, **kwargs):
+def remote(request, url, encoding=None, markup=None, highlight=None, strip_html=True, **kwargs):
     """
     include a remote file into a page.
     Arguments, see DocString of lucidTag()
@@ -152,7 +160,7 @@ def remote(request, url, encoding=None, markup=None, highlight=False, ext=None, 
         cache.set(cache_key, context , preferences["cache_timeout"])
 
     content = context["raw_content"]
-    content = _render(request, content, url, markup, highlight, ext, strip_html)
+    content = _render(request, content, url, markup, highlight, strip_html)
 
     context.update({
         "template_name": preferences["remote_template"],
@@ -172,8 +180,7 @@ def lucidTag(request, **kwargs):
     |= parameter |= default |= description
     | encoding   | "utf-8"  | content charset
     | markup     | None     | Name of the Markup to apply (e.g.: "creole", "rest")
-    | highlight  | False    | Highlight the content with pygments?
-    | ext        | None     | File extensions for pygments (e.g.: "py", "html+django")
+    | highlight  | None     | File extensions for pygments or True for autodetection (e.g.: "py", "html+django")
     | strip_html | True     | Cut html tags out from content?
     
     You can combine markup and highlight. Result is pygmentised html code ;)
