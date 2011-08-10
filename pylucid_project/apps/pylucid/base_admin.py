@@ -19,6 +19,20 @@ class BaseAdmin(admin.ModelAdmin):
         html = render_to_string('admin/pylucid/includes/view_on_site_link.html', context)
         return html
 
+    def response_change(self, request, obj):
+        """
+        Don't leave in admin, after edit a object -> goto obj.get_absolute_url()
+        """
+        response = super(BaseAdmin, self).response_change(request, obj)
+        if isinstance(response, HttpResponseRedirect):
+            url = response["location"]
+            if url in ('../', '../../../'):
+                # Don't got to admin index or change-list page
+                # goto changed object
+                url = obj.get_absolute_url()
+                return HttpResponseRedirect(url)
+        return response
+
     view_on_site_link.short_description = _("View on site")
     view_on_site_link.allow_tags = True
 
