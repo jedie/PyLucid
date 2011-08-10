@@ -55,7 +55,6 @@ def _error(request, msg, staff_msg):
 
 
 def _render(request, content, path_or_url, markup, highlight, ext, strip_html):
-    # XXX: markup + sript html???
     markup_no = None
     if markup:
         if markup not in MARKUPS:
@@ -84,11 +83,6 @@ def _render(request, content, path_or_url, markup, highlight, ext, strip_html):
     return content
 
 
-
-
-
-
-
 def local_file(request, filepath, encoding="utf-8", markup=None, highlight=False, ext=None, strip_html=True):
     """
     include a local files from filesystem into a page.
@@ -108,12 +102,15 @@ def local_file(request, filepath, encoding="utf-8", markup=None, highlight=False
 
 @render_to()#, debug=True)
 def remote(request, url, encoding=None, markup=None, highlight=False, ext=None, strip_html=True, **kwargs):
-
+    """
+    include a remote file into a page.
+    Arguments, see DocString of lucidTag()
+    """
     # Get preferences from DB and overwrite them
     pref_form = PreferencesForm()
     preferences = pref_form.get_preferences(request, lucidtag_kwargs=kwargs)
 
-    cache_key = "include_remote_%s XXX" % url
+    cache_key = "include_remote_%s" % url
     context = cache.get(cache_key)
     if context:
         from_cache = True
@@ -130,7 +127,8 @@ def remote(request, url, encoding=None, markup=None, highlight=False, ext=None, 
 
         start_time = time.time()
         try:
-            r = HttpRequest(url, timeout=socket_timeout)
+            # Request the url content in unicode
+            r = HttpRequest(url, timeout=socket_timeout, threadunsafe_workaround=True)
             r.request.add_header("User-agent", user_agent)
             r.request.add_header("Referer", page_absolute_url)
 
@@ -141,15 +139,14 @@ def remote(request, url, encoding=None, markup=None, highlight=False, ext=None, 
 
         duration = time.time() - start_time
 
-        try:
-            request_header = response.request_header
-        except Exception, err: # FIXME
-            request_header = "[Error: %s]" % err
+        # get request/response information
+        request_header = response.request_header
+        response_info = response.info()
 
         context = {
             "raw_content": raw_content,
             "request_header": request_header,
-            "response_info": response.info(),
+            "response_info": response_info,
             "duration": duration,
         }
         cache.set(cache_key, context , preferences["cache_timeout"])
