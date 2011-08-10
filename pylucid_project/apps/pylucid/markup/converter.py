@@ -105,23 +105,19 @@ def apply_markdown(content, page_msg):
 
 
 def apply_restructuretext(content, page_msg):
+    from creole.exceptions import DocutilsImportError
     try:
-        from docutils.core import publish_parts
-    except ImportError:
+        from creole.rest2html.clean_writer import rest2html
+    except DocutilsImportError:
         page_msg(
             "Markup error: The Python docutils library isn't installed."
             " Download: http://docutils.sourceforge.net/"
         )
         return fallback_markup(content)
     else:
-        docutils_settings = getattr(
-            settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {}
-        )
-        parts = publish_parts(
-            source=content, writer_name="html4css1",
-            settings_overrides=docutils_settings
-        )
-        return parts["fragment"]
+        #docutils_settings = getattr(settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {})
+        rest = rest2html(content)
+        return rest
 
 
 
@@ -130,33 +126,20 @@ def apply_creole(content, page_msg):
     Use python-creole:
     http://code.google.com/p/python-creole/
 
-    We used verbose=1 for inser error information (e.g. not existing macro)
+    We used verbose for insert error information (e.g. not existing macro)
     into the generated page
     """
     from pylucid_project.apps.pylucid.markup import PyLucid_creole_macros
 
     emitter_kwargs = {"macros":PyLucid_creole_macros}
-
     if settings.DEBUG:
         emitter_kwargs.update({
             "verbose": 2,
             "stderr": page_msg
         })
 
-    try:
-        # python-creole < v0.6
-        from creole import Parser
-        from creole.creole2html import HtmlEmitter
-
-        # Create document tree from creole markup
-        document = Parser(content).parse()
-
-        # Build html code from document tree
-        return HtmlEmitter(**emitter_kwargs).emit()
-    except ImportError:
-        # python-creole >= v0.6
-        from creole import creole2html
-        return creole2html(content, emitter_kwargs=emitter_kwargs)
+    from creole import creole2html
+    return creole2html(content, emitter_kwargs=emitter_kwargs)
 
 
 
