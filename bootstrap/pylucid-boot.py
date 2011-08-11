@@ -1144,9 +1144,9 @@ NORMAL_INSTALLATION = ['feedparser>=5.0.1,<5.1',
  'django-tagging>=0.3.1,<0.4',
  'South>=0.7.3,<0.8',
  'Django>=1.3,<1.4',
- 'python-creole==0.6',
- 'django-dbpreferences>=0.4.1,<0.5',
- 'django-tools>=0.18,<0.19',
+ 'python-creole>=0.7.3,<0.8',
+ 'django-dbpreferences>=0.4.2,<0.5',
+ 'django-tools>=0.19.1,<0.20',
  '--editable=git+git://github.com/jedie/PyLucid.git#egg=pylucid']
 
 # requirements from developer_installation.txt
@@ -1158,7 +1158,7 @@ DEVELOPER_INSTALLATION = ['feedparser>=5.0.1,<5.1',
  'South>=0.7.3,<0.8',
  '--editable=git+git://github.com/django/django.git@1.3.X#egg=django',
  '--editable=git+git@github.com:jedie/python-creole.git#egg=python-creole',
- '--editable=git+git@github.com:jedie/django-dbpreferences.git#egg=dbpreferences',
+ '--editable=git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences',
  '--editable=git+git@github.com:jedie/django-tools.git#egg=django-tools',
  '--editable=git+git@github.com:jedie/PyLucid.git#egg=pylucid']
 
@@ -1207,7 +1207,7 @@ class ColorOut(object):
     """
     Borrowed from Django:
     http://code.djangoproject.com/browser/django/trunk/django/utils/termcolors.py
-    
+
     >>> c = ColorOut()
     >>> c.supports_colors()
     True
