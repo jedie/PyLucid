@@ -46,7 +46,7 @@ Some PyLucid Features are:
 
 To create a [[http://www.pylucid.org/permalink/135/install-pylucid-in-a-virtual-environment|PyLucid virtual environment]], use our bootstrap script:
 {{{
-/home/FooBar$ wget https://raw.github.com/jedie/PyLucid-boot/master/pylucid_boot/pylucid-boot.py
+/home/FooBar$ wget https://raw.github.com/jedie/PyLucid/master/bootstrap/pylucid-boot.py
 /home/FooBar$ python pylucid-boot.py PyLucid_env
 }}}
 
