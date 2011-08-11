@@ -22,7 +22,8 @@ Some PyLucid Features are:
 *** [[http://www.pylucid.org/permalink/301/the-lexicon-plugin|lexicon]] (explane words in content)
 *** [[/permalink/375/poll|poll]]
 *** [[http://www.pylucid.org/permalink/123/includes-rss-newsfeeds|RSS]] (include external feeds into a page)
-*** [[http://www.pylucid.org/permalink/309/highlight-source-code|source code]] (include highlighted source code into content)
+*** [[http://www.pylucid.org/permalink/309/highlight-source-code|source code]] (highlight source code into content)
+*** [[/permalink/381/about-the-include-plugin|include]] local/remote file content into page
 *** [[http://www.pylucid.org/permalink/340/pylucid-screenshots|simple picture gallery]]
 ** navigation:
 *** basics: main menu (split able), sub menu and sitemap
