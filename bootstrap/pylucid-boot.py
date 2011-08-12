@@ -2,7 +2,7 @@
 ## WARNING: This file is generated
 ## python v2.7.1+ (r271:86832, Apr 11 2011, 18:13:53)  [GCC 4.5.2]
 ## using: '/usr/lib/pymodules/python2.7/virtualenv.pyc' v1.4.9
-## Generate with '/media/servershare/workspace/PyLucid-boot/pylucid_boot/create_bootstrap_script.py'
+## Generated with '/PyLucid_env/src/pylucid/bootstrap/create_bootstrap_script.py'
 #!/usr/bin/env python
 """Create a "virtual" Python installation
 """
@@ -1162,7 +1162,7 @@ DEVELOPER_INSTALLATION = ['feedparser>=5.0.1,<5.1',
  '--editable=git+git@github.com:jedie/django-tools.git#egg=django-tools',
  '--editable=git+git@github.com:jedie/PyLucid.git#egg=pylucid']
 
-# source bootstrap script: '/media/servershare/workspace/PyLucid-boot/pylucid_boot/source-pylucid-boot.py'
+# source bootstrap script: '/home/jens/PyLucid_env/src/pylucid/bootstrap/source-pylucid-boot.py'
 #-----------------------------------------------------------------------------
 # PyLucid bootstrap script START
 
@@ -1207,7 +1207,7 @@ class ColorOut(object):
     """
     Borrowed from Django:
     http://code.djangoproject.com/browser/django/trunk/django/utils/termcolors.py
-
+    
     >>> c = ColorOut()
     >>> c.supports_colors()
     True

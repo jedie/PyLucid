@@ -90,7 +90,8 @@ def create_bootstrap_script():
 
     # Add info lines
     output_lines = output.splitlines()
-    output_lines.insert(2, "## Generate with %r" % __file__)
+    generator_filepath = "/PyLucid_env/" + __file__.split("/PyLucid_env/")[1]
+    output_lines.insert(2, "## Generated with %r" % generator_filepath)
     output_lines.insert(2, "## using: %r v%s" % (virtualenv.__file__, virtualenv.virtualenv_version))
     output_lines.insert(2, "## python v%s" % sys.version.replace("\n", " "))
     output = "\n".join(output_lines)
