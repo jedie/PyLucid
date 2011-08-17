@@ -44,10 +44,7 @@ else:
 
 
 # Used by a few dynamic settings:
-if "runserver" in sys.argv:
-    RUN_WITH_DEV_SERVER = True
-else:
-    RUN_WITH_DEV_SERVER = False
+RUN_WITH_DEV_SERVER = "runserver" in sys.argv
 
 
 PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
