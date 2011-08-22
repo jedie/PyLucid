@@ -35,12 +35,25 @@ except Exception, e:
     sys.stderr.write(traceback.format_exc())
     raise
 
+
 try:
     import south
 except ImportError:
     _south_exists = False
 else:
     _south_exists = True
+
+
+try:
+    # Use https://github.com/jedie/django-processinfo if installed
+    import django_processinfo
+except ImportError:
+    _processinfo_exists = False
+else:
+    _processinfo_exists = True
+    # include app settings from ./django_processinfo/app_settings.py
+    from django_processinfo import app_settings as PROCESSINFO
+
 
 
 # Used by a few dynamic settings:
@@ -130,7 +143,8 @@ MIDDLEWARE_CLASSES = (
     # Set django message level by user type and system preferences:
     'pylucid_project.middlewares.message_level.MessageLevelMiddleware',
 )
-
+if _processinfo_exists:
+    MIDDLEWARE_CLASSES = ('django_processinfo.middlewares.django_processinfo.ProcessInfoMiddleware',) + MIDDLEWARE_CLASSES
 
 # Add stack information to every messages, but only if..
 #     ...settings.DEBUG == True
@@ -158,6 +172,9 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.abspath(os.path.dirname(dbpreferences.__file__)), "templates/"),
     os.path.join(os.path.abspath(os.path.dirname(django.__file__)), "contrib/admin/templates"),
 )
+if _processinfo_exists:
+    TEMPLATE_DIRS += (os.path.join(os.path.abspath(os.path.dirname(django_processinfo.__file__)), "templates/"),)
+
 # Add all templates subdirs from all existing PyLucid plugins
 TEMPLATE_DIRS += PYLUCID_PLUGIN_SETUP_INFO.template_dirs
 #print "settings.TEMPLATE_DIRS:\n", "\n".join(TEMPLATE_DIRS)
@@ -221,6 +238,8 @@ INSTALLED_APPS = (
 )
 if _south_exists: # Add south if it can be imported above
     INSTALLED_APPS += ("south",)
+if _processinfo_exists:
+    INSTALLED_APPS += ("django_processinfo",)
 
 # Add all existing PyLucid plugins
 INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
