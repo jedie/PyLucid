@@ -8,6 +8,8 @@
     We only create warnings on VersionConflict and DistributionNotFound exceptions.
     
     We use the requirements files from ./pylucid/requirements/*.txt
+    
+    FIXME: Can it be that pkg_resources.require("pylucid") is sufficient?
        
     :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
