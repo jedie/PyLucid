@@ -60,7 +60,7 @@ SECRET_KEY = "add-a-secret-key"
 # You can test if cache works, with:
 #     PyLucid admin menu / system / base check
 #
-_CACHE_PATH_PREFIX = "PyLucid"
+_CACHE_PATH_PREFIX = os.environ.get("USERNAME", "PyLucid")
 # Change it with e.g. your username to make this cache "unique" on the server.
 # This can be usefull on shared webhosting.
 #

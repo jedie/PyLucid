@@ -170,22 +170,22 @@ class Command(BaseCommand):
             [random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]
         )
 
-        self._patch_file("local_settings.py",
-            patch_data=[
-                (
-                    'MEDIA_ROOT = "/var/www/YourSite/media/"',
-                    'MEDIA_ROOT = "%s"' % media_dest
-                ),
-                (
-                    'SECRET_KEY = "add-a-secret-key"',
-                    'SECRET_KEY = "%s"' % secret_key
-                ),
-                (
-                    '_CACHE_PATH_PREFIX = "PyLucid"',
-                    '_CACHE_PATH_PREFIX = "%s"' % os.environ.get("USERNAME", "PyLucid")
-                )
-            ]
-        )
+        patch_data = [
+            (
+                'MEDIA_ROOT = "/var/www/YourSite/media/"',
+                'MEDIA_ROOT = "%s"' % media_dest
+            ),
+            (
+                'SECRET_KEY = "add-a-secret-key"',
+                'SECRET_KEY = "%s"' % secret_key
+            ),
+            (
+                '_CACHE_PATH_PREFIX = os.environ.get("USERNAME", "PyLucid")',
+                '_CACHE_PATH_PREFIX = "%s"' % os.environ.get("USERNAME", "PyLucid")
+            )
+        ]
+
+        self._patch_file("local_settings.py", patch_data)
 
         self.stdout.write("\n")
         self.stdout.write(" -" * 39)
