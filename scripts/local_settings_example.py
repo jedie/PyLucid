@@ -72,13 +72,24 @@ _CACHE_PATH_MODE = 0700
 # Change to 0777 if web process runs e.g. with nobody!
 #
 def _get_and_create_tempdir_location(entry):
-    """Little helper for easy setup a cache filesystem path in temp"""
-    path = os.path.join(tempfile.gettempdir(), "%s_%s_%s" % (_CACHE_PATH_PREFIX, entry, _CACHE_PATH_SUFFIX))
-    if not os.path.exists(path):
-        os.makedirs(path, _CACHE_PATH_MODE)
-    else:
-        os.chmod(path, _CACHE_PATH_MODE)
-    return path
+    """
+    Little helper for easy setup a cache filesystem path in temp.
+    Try global temp directory, "tmp" in users's home or "tmp" in current working dir
+    """
+    possible_paths = (tempfile.gettempdir(), os.path.expanduser("~/tmp"), "tmp")
+    sub_dir = "%s_%s_%s" % (_CACHE_PATH_PREFIX, entry, _CACHE_PATH_SUFFIX)
+    for path in possible_paths:
+        path = os.path.join(path, sub_dir)
+        try:
+            if not os.path.exists(path):
+                os.makedirs(path, _CACHE_PATH_MODE)
+            else:
+                os.chmod(path, _CACHE_PATH_MODE)
+        except:
+            continue
+        else:
+            return path
+    raise SystemError("Can't get a temp directory, tried: %s" % repr(possible_paths))
 
 CACHES = {
     'default': {
