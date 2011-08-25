@@ -11,42 +11,87 @@ import shutil
 import optparse
 import warnings
 import subprocess
+import pkg_resources
+import time
+import codecs
+import random
 
 
-__version__ = (0, 1, 0, 'alpha')
+__version__ = (0, 2, 0)
+
+
+#------------------------------------------------------------------------------
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
 
 
-try:
-    process = subprocess.Popen(
-       ["git", "log", "--format='%h'", "-1", "HEAD"],
-       stdout=subprocess.PIPE
-    )
-except Exception, err:
-    warnings.warn("Can't get git hash: %s" % err)
-else:
+#GET_GIT_VER_VERBOSE = True
+GET_GIT_VER_VERBOSE = False
+
+def _error(msg):
+    if GET_GIT_VER_VERBOSE:
+        warnings.warn(msg)
+    return ""
+
+def get_commit_timestamp(path=None):
+    if path is None:
+        path = os.path.abspath(os.path.dirname(__file__))
+
+    try:
+        process = subprocess.Popen(
+            # %ct: committer date, UNIX timestamp  
+            ["/usr/bin/git", "log", "--pretty=format:%ct", "-1", "HEAD"],
+            shell=False, cwd=path,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+    except Exception, err:
+        return _error("Can't get git hash: %s" % err)
+
     process.wait()
     returncode = process.returncode
-    if returncode == 0:
-        output = process.stdout.readline().strip().strip("'")
-        if len(output) != 7:
-            warnings.warn("Can't get git hash, output was: %r" % output)
-        else:
-            VERSION_STRING += ".git-%s" % output
-    else:
-        warnings.warn("Can't get git hash, returncode was: %s" % returncode)
+    if returncode != 0:
+        return _error(
+            "Can't get git hash, returncode was: %r"
+            " - git stdout: %r"
+            " - git stderr: %r"
+            % (returncode, process.stdout.readline(), process.stderr.readline())
+        )
+
+    output = process.stdout.readline().strip()
+    try:
+        timestamp = int(output)
+    except Exception, err:
+        return _error("git log output is not a number, output was: %r" % output)
+
+    try:
+        return time.strftime(".%m%d", time.gmtime(timestamp))
+    except Exception, err:
+        return _error("can't convert %r to time string: %s" % (timestamp, err))
+
+
+VERSION_STRING += get_commit_timestamp()
+
+
+#------------------------------------------------------------------------------
+
 
 USAGE = """
 %prog [OPTIONS] PYLUCID_ENV_DIR DEST
 """
 
-COPYTREE_IGNORE = (
+COPYTREE_IGNORE_FILES = (
     '*.pyc', 'tmp*', '.tmp*', "*~",
-    ".svn", ".git", ".project", ".pydev*",
     "local_settings.py", "*.db3",
-    "*.egg-info",
+    "*.pth", "*.egg", "*.egg-link", "*.egg-info",
+    "AUTHORS", "INSTALL", "README", "README.*", "LICENSE", "MANIFEST.in", "setup.*"
+)
+COPYTREE_IGNORE_DIRS = (
+    "dist", "bootstrap", "docs", "extras", "pip", "tests", "scripts",
+)
+
+KEEP_ROOT_FILES = (
+    "feedparser.py",
 )
 
 EXECUTEABLE_FILES = (
@@ -83,8 +128,7 @@ def copytree2(src, dst, ignore, ignore_path=None):
     similar to shutil.copytree, except:
         + don't copy links as symlinks
         + create destination dir, only if not exist
-        + ignore directories starts with "." (e.g.: .svn, .git)
-        + ignore full path
+        + ignore items starts with "." (e.g.: .svn, .git)
     """
     names = os.listdir(src)
 
@@ -101,15 +145,18 @@ def copytree2(src, dst, ignore, ignore_path=None):
     for name in names:
         if name in ignored_names:
             continue
-        srcname = os.path.join(src, name)
-        if ignore_path and srcname in ignore_path:
+        if name.startswith("."):
             continue
+        srcname = os.path.join(src, name)
         dstname = os.path.join(dst, name)
         try:
             if os.path.isdir(srcname):
+                if ignore_path and name in ignore_path:
+                    continue
                 copytree2(srcname, dstname, ignore, ignore_path)
             else:
                 shutil.copy2(srcname, dstname)
+#                print count, srcname
         except (IOError, os.error), why:
             errors.append((srcname, dstname, str(why)))
         # catch the Error from the recursive copytree so that we can
@@ -126,13 +173,36 @@ def copytree2(src, dst, ignore, ignore_path=None):
         raise CopyTreeError(errors)
 
 
+class ReqInfo(object):
+    """
+    Information witch paths we must copied.
+    Get this information from pylucid's setup.py
+    """
+    def __init__(self, project_name):
+        self.dists = pkg_resources.require(project_name)
+        self.paths = self.get_paths()
+
+    def get_paths(self):
+        paths = []
+        for dist in self.dists:
+            path = dist.location
+            if path not in paths:
+                paths.append(path)
+        return paths
+
+    def debug(self):
+        for dist in self.dists:
+            print "_"*79
+            print dist
+            print "project_name..:", dist.project_name
+            print "location......:", dist.location
 
 
 class StandalonePackageMaker(object):
     def __init__(self, pylucid_env_dir, dest_dir):
-        self.dest_dir = os.path.abspath(dest_dir)
+        self.dest_dir = self._make_abspath(dest_dir)
         self.dest_package_dir = os.path.join(self.dest_dir, "PyLucid_standalone")
-        self.pylucid_env_dir = os.path.abspath(pylucid_env_dir)
+        self.pylucid_env_dir = self._make_abspath(pylucid_env_dir)
         self.pylucid_dir = os.path.join(self.pylucid_env_dir, "src", "pylucid")
 
         self.precheck()
@@ -143,8 +213,12 @@ class StandalonePackageMaker(object):
         self.pylucid_version = self.get_pylucid_version()
         print "found: PyLucid v%s\n" % self.pylucid_version
 
+        self.req = ReqInfo("pylucid")
+
         self.check_if_dest_exist()
         self.copy_packages()
+        self.cleanup_dest_dir()
+        self.create_local_settings()
         self.copy_standalone_script_files()
         self.chmod()
         self.remove_pkg_check()
@@ -164,6 +238,11 @@ class StandalonePackageMaker(object):
         self.create_archive(archive_file_prefix + ".7z", switches=["-t7z"])
         self.create_archive(archive_file_prefix + ".zip", switches=["-tzip"])
 
+    def _make_abspath(self, path):
+        path = os.path.expanduser(path)
+        path = os.path.normpath(path)
+        path = os.path.abspath(path)
+        return path
 
     def precheck(self):
         if not os.path.isdir(self.pylucid_env_dir):
@@ -198,95 +277,76 @@ class StandalonePackageMaker(object):
         else:
             raw_input("continue? (Abort with Strg-C)")
 
+    def _patch_file(self, sourcepath, destpath, patch_data):
+        f = codecs.open(sourcepath, "r", encoding="utf-8")
+        content = f.read()
+        f.close()
+
+        for placeholder, new_value in patch_data:
+            if not placeholder in content:
+                print "Patch file %r Error: String %r not found!" % (sourcepath, placeholder)
+            else:
+                content = content.replace(placeholder, new_value)
+
+        f = codecs.open(destpath, "w", encoding="utf-8")
+        f.write(content)
+        f.close()
+
+    def create_local_settings(self):
+        print "_"*79
+        print "Create local_settings.py file..."
+
+        sourcepath = os.path.join(self.pylucid_dir, "scripts", "local_settings_example.py")
+        destpath = os.path.join(self.dest_package_dir, "local_settings.py")
+
+        secret_key = ''.join(
+            [random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]
+        )
+        patch_data = [
+            (
+                'MEDIA_ROOT = "/var/www/YourSite/media/"',
+                'MEDIA_ROOT = os.path.join(os.getcwd(), "media")'
+            ),
+            (
+                'SECRET_KEY = "add-a-secret-key"',
+                'SECRET_KEY = "Please change this! %s"' % secret_key
+            ),
+        ]
+
+        self._patch_file(sourcepath, destpath, patch_data)
+
     def copy_packages(self):
-        lib_dir = os.path.join(self.pylucid_env_dir, "lib")
-        lib_sub_dirs = os.listdir(lib_dir)
-        if len(lib_sub_dirs) != 1:
-            print "Error: Wrong sub dirs in %r" % lib_dir
-            sys.exit(3)
-
-        python_lib_dir = lib_sub_dirs[0]
-        if not python_lib_dir.startswith("python"):
-            print "Error: %r doesn't start with python!" % python_lib_dir
-            sys.exit(3)
-
-        site_packages_dir = os.path.join(lib_dir, python_lib_dir, "site-packages")
-
-        dirs_to_copy = [
-            ("PyLucid", os.path.join(self.pylucid_dir, "pylucid_project")),
-            ("Django", os.path.join(self.pylucid_env_dir, "src", "django", "django")),
-            ("dbpreferences", os.path.join(self.pylucid_env_dir, "src", "dbpreferences", "dbpreferences")),
-            ("django-tools", os.path.join(self.pylucid_env_dir, "src", "django-tools", "django_tools")),
-            ("python-creole", os.path.join(self.pylucid_env_dir, "src", "python-creole", "creole")),
-
-            ("django-dbtemplates", os.path.join(site_packages_dir, "dbtemplates")),
-            ("django-reversion", os.path.join(site_packages_dir, "reversion")),
-            ("django-tagging", os.path.join(site_packages_dir, "tagging")),
-
-            ("Pygments", os.path.join(site_packages_dir, "pygments")),
-        ]
-        files_to_copy = [
-            ("feedparser", os.path.join(site_packages_dir, "feedparser.py")),
-        ]
-
-        for dir_info in dirs_to_copy:
-            if not os.path.isdir(dir_info[1]):
-                print "Error: %r doesn't exist!" % dir_info[1]
-                sys.exit(3)
-
-        for file_info in files_to_copy:
-            if not os.path.isfile(file_info[1]):
-                print "Error: file %r not found!" % file_info[1]
-                sys.exit(3)
-
-        #----------------------------------------------------------------------
-        print
-
-        # Don't copy existing external_plugins and not local test plugins ;)
-        ignore_path = []
-        external_plugins = os.path.join(self.pylucid_dir, "pylucid_project", "external_plugins")
-        for dir_item in os.listdir(external_plugins):
-            if dir_item == "__init__.py":
-                continue
-            full_path = os.path.join(external_plugins, dir_item)
-            ignore_path.append(full_path)
-
-        # Copy only PyLucid media files and not local test files ;)
-        media_path = os.path.join(self.pylucid_dir, "pylucid_project", "media")
-        for dir_item in os.listdir(media_path):
-            if dir_item == "PyLucid":
-                continue
-            full_path = os.path.join(media_path, dir_item)
-            ignore_path.append(full_path)
-
-        for package_name, path in dirs_to_copy:
+        for path in self.req.paths:
             print "_" * 79
-            print "copy %s" % package_name
-            package_dest = os.path.join(self.dest_package_dir, os.path.split(path)[1])
-            print "%s -> %s" % (path, package_dest)
+            print "copy %s" % path
+
+            if not os.path.isdir(path):
+                print "Error: %r doesn't exist!" % path
+                sys.exit(3)
+
+            print "%s -> %s" % (path, self.dest_package_dir)
             try:
-                files_copied = copytree2(
-                    path, package_dest,
-                    shutil.ignore_patterns(*COPYTREE_IGNORE), ignore_path
+                copytree2(
+                    path, self.dest_package_dir,
+                    shutil.ignore_patterns(*COPYTREE_IGNORE_FILES),
+                    ignore_path=COPYTREE_IGNORE_DIRS
                 )
             except OSError, why:
                 print "copytree2 error: %s" % why
             else:
                 print "OK"
 
-        #----------------------------------------------------------------------
-        print
-
-        for module_name, path in files_to_copy:
-            print "_" * 79
-            print "copy %s" % module_name
-            print "%s -> %s" % (path, self.dest_package_dir)
-            try:
-                shutil.copy2(path, self.dest_package_dir)
-            except OSError, why:
-                print "copy error: %s" % why
-            else:
-                print "OK"
+    def cleanup_dest_dir(self):
+        print "_"*79
+        print "Cleanup dest dir:"
+        for filename in os.listdir(self.dest_package_dir):
+            path = os.path.join(self.dest_package_dir, filename)
+            if not os.path.isfile(path):
+                continue
+            if filename in KEEP_ROOT_FILES:
+                continue
+            print "remove: %r (%s)" % (filename, path)
+            os.remove(path)
 
     def copy_standalone_script_files(self):
         print
@@ -295,7 +355,7 @@ class StandalonePackageMaker(object):
         src = os.path.join(self.pylucid_dir, "scripts", "standalone")
         print "%s -> %s" % (src, self.dest_package_dir)
         try:
-            copytree2(src, self.dest_package_dir, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE))
+            copytree2(src, self.dest_package_dir, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE_FILES))
         except OSError, why:
             print "copytree2 error: %s" % why
         else:
