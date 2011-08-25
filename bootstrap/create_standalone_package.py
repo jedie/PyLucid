@@ -439,8 +439,6 @@ def main():
     parser = optparse.OptionParser(version=VERSION_STRING, usage=USAGE)
     options, args = parser.parse_args()
 
-    args = (os.path.expanduser("~/PyLucid_env"), os.path.expanduser("~/servershare"))
-
     if len(args) != 2:
         print(
             "You must give two arguments: PYLUCID_ENV_DIR and DEST"
