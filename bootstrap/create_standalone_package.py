@@ -203,12 +203,12 @@ class StandalonePackageMaker(object):
         lib_sub_dirs = os.listdir(lib_dir)
         if len(lib_sub_dirs) != 1:
             print "Error: Wrong sub dirs in %r" % lib_dir
-            sys.exist(3)
+            sys.exit(3)
 
         python_lib_dir = lib_sub_dirs[0]
         if not python_lib_dir.startswith("python"):
             print "Error: %r doesn't start with python!" % python_lib_dir
-            sys.exist(3)
+            sys.exit(3)
 
         site_packages_dir = os.path.join(lib_dir, python_lib_dir, "site-packages")
 
@@ -232,12 +232,12 @@ class StandalonePackageMaker(object):
         for dir_info in dirs_to_copy:
             if not os.path.isdir(dir_info[1]):
                 print "Error: %r doesn't exist!" % dir_info[1]
-                sys.exist(3)
+                sys.exit(3)
 
         for file_info in files_to_copy:
             if not os.path.isfile(file_info[1]):
                 print "Error: file %r not found!" % file_info[1]
-                sys.exist(3)
+                sys.exit(3)
 
         #----------------------------------------------------------------------
         print
