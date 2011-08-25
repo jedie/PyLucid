@@ -170,7 +170,7 @@ def inspectdb(request):
     call_command("inspectdb")
 
 
-def mysqldb_info(request):
+def database_info(request):
     # http://paste.pocoo.org/show/301/
 
     print "<pre>"
@@ -315,12 +315,12 @@ def print_menu(actions):
 actions = [
     {
         "slug": "syncdb",
-        "func":syncdb,
+        "func": syncdb,
         "title": "Creates the database tables for all apps in INSTALLED_APPS",
     },
     {
         "slug": "migrate",
-        "func":migrate,
+        "func": migrate,
         "title": "Start south migrate",
     },
     {
@@ -330,7 +330,7 @@ actions = [
     },
     {
         "slug": "loaddata",
-        "func":loaddata,
+        "func": loaddata,
         "title": "insert the initial data",
     },
     {
@@ -340,23 +340,23 @@ actions = [
     },
     {
         "slug": "info",
-        "func":info,
+        "func": info,
         "title": "Display some system informations",
     },
     {
         "slug": "diffsettings",
-        "func":diffsettings,
+        "func": diffsettings,
         "title": "Displays differences between the current settings file and Django's default settings.",
     },
     {
         "slug": "inspectdb",
-        "func":inspectdb,
+        "func": inspectdb,
         "title": "Introspects the database tables",
     },
     {
-        "slug": "mysqldb_info",
-        "func":mysqldb_info,
-        "title": "MySQLdb informations",
+        "slug": "database_info",
+        "func": database_info,
+        "title": "Information about Database backends",
     },
 ]
 
