@@ -361,6 +361,11 @@ class StandalonePackageMaker(object):
         else:
             print "OK"
 
+        old = os.path.join(self.dest_package_dir, "default.htaccess")
+        new = os.path.join(self.dest_package_dir, ".htaccess")
+        print "rename %r to %r" % (old, new)
+        os.rename(old, new)
+
     def chmod(self):
         print
         print "_" * 79
