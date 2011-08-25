@@ -24,13 +24,14 @@ print "Content-Type: text/html; charset=utf-8\n"
 # turn on traceback manager for CGI scripts
 import cgitb; cgitb.enable()
 
-import os
+from pprint import pprint
+import atexit
 import cgi
+import codecs
+import os
+import pwd
 import sys
 import time
-import atexit
-import codecs
-from pprint import pprint
 from wsgiref.handlers import CGIHandler
 
 
@@ -116,34 +117,40 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ImproperlyConfigured
 
 
-ERROR_INFO = "%s - INFO: Have you create a 'local_settings.py' file???"
+ERROR_INFO = "INFO: Have you create a 'local_settings.py' file???"
+
+
+def call_command(command):
+    print "<pre>"
+    try:
+        management.call_command(command, verbosity=1, interactive=False)
+    except ImproperlyConfigured, err:
+        etype, evalue, etb = sys.exc_info()
+        evalue = etype("Error call %r: %s - %s" % (command, evalue, ERROR_INFO))
+        raise etype, evalue, etb
+    print "</pre>"
+    print "<p><strong>%s done.</strong></p>" % command
 
 
 def syncdb(request):
-    print "<pre>"
-    try:
-        management.call_command('syncdb', verbosity=1, interactive=False)
-    except ImproperlyConfigured, err:
-        etype, evalue, etb = sys.exc_info()
-        evalue = etype(ERROR_INFO % evalue)
-        raise etype, evalue, etb
-    else:
-        print "</pre>"
-        print "<p><strong>syncdb done.</strong></p>"
-        print "<hr/>"
+    call_command("syncdb")
 
-        print "<ul><h4>list of settings.INSTALLED_APPS:</h4>"
-        for app_name in settings.INSTALLED_APPS:
-            print "<li>%s</li>" % app_name
-        print "</ul>"
+def migrate(request):
+    call_command("migrate")
 
 def loaddata(request):
     print "<pre>"
     management.call_command('loaddata', "pylucid.json", verbosity=1, interactive=False)
     print "</pre>"
 
+
 def info(request):
-    print "<p>Python %s</p>" % sys.version.replace("\n", " ")
+    print "<p>Python v%s</p>" % sys.version.replace("\n", " ")
+    try:
+        username = pwd.getpwuid(os.getuid())[0]
+    except Exception, err:
+        username = "[Error: %s]" % username
+    print "<p>Running under user: <strong>%s</strong></p>" % username
     print "<p>os.uname(): %s</p>" % " - ".join(os.uname())
 
     print "<ul><h5>sys.path:</h5>"
@@ -157,46 +164,54 @@ def info(request):
     cgi.print_environ_usage()
 
 def diffsettings(request):
-    print "<pre>"
-    management.call_command('diffsettings', verbosity=1, interactive=False)
-    print "</pre>"
+    call_command("diffsettings")
 
 def inspectdb(request):
-    print "<pre>"
-    management.call_command('inspectdb', verbosity=1, interactive=False)
-    print "</pre>"
+    call_command("inspectdb")
 
 
 def mysqldb_info(request):
     # http://paste.pocoo.org/show/301/
 
-    import MySQLdb
     print "<pre>"
-    print "MySQLdb Version:", MySQLdb.__version__
-    print "MySQLdb version_info:", MySQLdb.version_info
-
     print "django db backend name: %s" % backend.Database.__name__
-    print "django db backend module: %s" % backend.Database.__file__
+    print "django db backend module: %s\n" % backend.Database.__file__
 
-    cursor = connection.cursor()
-    print "\nMySQL server encoding:"
-    cursor.execute("SHOW VARIABLES LIKE %s;", ("character_set_server",))
-    server_encoding = cursor.fetchone()[1]
-    print "\tMySQL variable 'character_set_server':", server_encoding
-    print
+    try:
+        import MySQLdb
+    except ImportError, err:
+        print "MySQLdb not installed: %s" % err
+    else:
+        print "MySQLdb v<strong>%s</strong> installed." % ".".join([str(i) for i in MySQLdb.version_info])
 
-    if server_encoding != "utf8":
-        print "Try to change the encoding to utf8"
-        sql = "ALTER DATABASE %s CHARACTER SET utf8 COLLATE utf8_unicode_ci;" % settings.DATABASE_NAME
-        print sql
-        cursor.execute(sql)
-        print "OK"
+    try:
+        import sqlite3
+    except ImportError, err:
+        print "SQlite not installed? - %s" % err
+    else:
+        print "SQLite v<strong>%s</strong> installed." % ".".join([str(i) for i in sqlite3.sqlite_version_info])
 
-    # http://dev.mysql.com/doc/refman/5.1/en/charset-database.html
+    backend_name = backend.Database.__name__
+    if "mysql" in backend_name.lower():
+        cursor = connection.cursor()
+        print "\nMySQL server encoding:"
+        cursor.execute("SHOW VARIABLES LIKE %s;", ("character_set_server",))
+        server_encoding = cursor.fetchone()[1]
+        print "\tMySQL variable 'character_set_server':", server_encoding
+        print
 
-    #~ ALTER DATABASE db_name
-    #~ [[DEFAULT] CHARACTER SET charset_name]
-    #~ [[DEFAULT] COLLATE collation_name]
+        if server_encoding != "utf8":
+            print "Try to change the encoding to utf8"
+            sql = "ALTER DATABASE %s CHARACTER SET utf8 COLLATE utf8_unicode_ci;" % settings.DATABASE_NAME
+            print sql
+            cursor.execute(sql)
+            print "OK"
+
+        # http://dev.mysql.com/doc/refman/5.1/en/charset-database.html
+
+        #~ ALTER DATABASE db_name
+        #~ [[DEFAULT] CHARACTER SET charset_name]
+        #~ [[DEFAULT] COLLATE collation_name]
 
     print "</pre>"
 
@@ -302,6 +317,11 @@ actions = [
         "slug": "syncdb",
         "func":syncdb,
         "title": "Creates the database tables for all apps in INSTALLED_APPS",
+    },
+    {
+        "slug": "migrate",
+        "func":migrate,
+        "title": "Start south migrate",
     },
     {
         "slug": "create_superuser",
