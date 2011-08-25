@@ -1,0 +1,26 @@
+
+
+= about PyLucid =
+
+PyLucid is an Open Source (GPL v3) web content management system written in Python.
+
+Official Homepage: http://www.pylucid.org
+
+
+
+This is the "standalone" package, which contains all needed packages.
+
+* simple move files via FTP on Webspace
+* customize local_settings.py and .htaccess for your needs
+
+
+
+Complete install instructions:
+
+* http://www.pylucid.org/permalink/331/1b-install-pylucid-standalone-package
+
+
+
+Informations about dependencies and copyrights:
+
+* http://www.pylucid.org/permalink/41/dependencies-and-copyrights
