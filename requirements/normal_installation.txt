@@ -22,6 +22,9 @@ django-dbpreferences>=0.4.2,<0.5
 # http://pypi.python.org/pypi/django-tools
 django-tools>=0.19.1,<0.20
 
+# http://pypi.python.org/pypi/django-processinfo
+django-processinfo>=0.4
+
 # git readonly clone of PyLucid
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid

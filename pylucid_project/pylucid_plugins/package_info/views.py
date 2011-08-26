@@ -38,6 +38,7 @@ PACKAGES = (
     'django-reversion',
     'django-tagging',
     'django-tools',
+    'django-processinfo',
     'feedparser',
     'pip',
     'pygments',

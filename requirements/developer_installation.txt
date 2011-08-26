@@ -24,6 +24,10 @@
 # http://pypi.python.org/pypi/django-tools
 -e git+git@github.com:jedie/django-tools.git#egg=django-tools
 
+# https://github.com/jedie/django-processinfo
+# http://pypi.python.org/pypi/django-processinfo
+-e git+git@github.com:jedie/django-processinfo.git#egg=django-processinfo
+
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid
 -e git+git@github.com:jedie/PyLucid.git#egg=pylucid

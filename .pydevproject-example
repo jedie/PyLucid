@@ -15,6 +15,7 @@
 <path>/home/${USERNAME}/PyLucid_env/src/django-dbpreferences</path>
 <path>/home/${USERNAME}/PyLucid_env/src/django-tools</path>
 <path>/home/${USERNAME}/PyLucid_env/src/python-creole</path>
+<path>/home/${USERNAME}/PyLucid_env/src/django-processinfo</path>
 </pydev_pathproperty>
 <pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION">
 <key>USERNAME</key>
