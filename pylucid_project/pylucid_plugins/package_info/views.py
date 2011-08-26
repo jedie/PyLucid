@@ -10,6 +10,10 @@
 """
 
 import os
+import subprocess
+import sys
+import traceback
+import time
 
 if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
@@ -59,11 +63,11 @@ STATIC_PKG_INFO["django"] = {
 }
 STATIC_PKG_INFO["django-dbtemplates"] = {
     "license": "BSD",
-    "license_url": "http://bitbucket.org/jezdez/django-dbtemplates/src/tip/LICENSE",
+    "license_url": "https://github.com/jezdez/django-dbtemplates/blob/develop/LICENSE",
 }
 STATIC_PKG_INFO["django-reversion"] = {
     "license": "New BSD",
-    "license_url": "http://code.google.com/p/django-reversion/source/browse/trunk/LICENSE",
+    "license_url": "https://github.com/etianen/django-reversion/blob/master/LICENSE",
 }
 STATIC_PKG_INFO["pylucid"] = {
     "license": "GNU GPL v3 or above",
@@ -71,14 +75,18 @@ STATIC_PKG_INFO["pylucid"] = {
     "version": VERSION_STRING,
 }
 STATIC_PKG_INFO["pip"] = {
-    "license_url": "http://bitbucket.org/ianb/pip/src/tip/docs/license.txt",
+    "license_url": "https://github.com/pypa/pip/blob/develop/LICENSE.txt",
 }
 STATIC_PKG_INFO["pygments"] = {
-    "license_url": "http://dev.pocoo.org/projects/pygments/browser/LICENSE",
+    "license_url": "https://bitbucket.org/birkenfeld/pygments-main/src/tip/LICENSE",
 }
 STATIC_PKG_INFO["python-creole"] = {
     "license": "GNU GPL v3 or above",
-    "license_url": "http://code.google.com/p/python-creole/source/browse/trunk/LICENSE",
+    "license_url": "https://github.com/jedie/python-creole/blob/master/LICENSE",
+}
+STATIC_PKG_INFO["django-processinfo"] = {
+    "license": "GNU GPL v3 or above",
+    "license_url": "https://github.com/jedie/django-processinfo/blob/master/LICENSE",
 }
 
 
@@ -183,12 +191,75 @@ class PackageInfo(dict):
         if os.path.isdir(svn_dir):
             svn_revision = get_svn_revision(location)
             if svn_revision != "SVN-unknown":
-                self["version"] += " %s" % svn_revision
+                self["version"] += " - SVN revision: %s" % svn_revision
             return
 
         git_dir = os.path.join(location, ".git")
         if os.path.isdir(git_dir):
-            self["version"] += " %s" % get_commit_timestamp(location)
+            commit_info = self.get_commit_info(location)
+            if commit_info:
+                self["version"] += " - Last git commit: %s" % commit_info
+
+    def get_commit_info(self, path):
+        # %ct: committer date, UNIX timestamp
+        cmd = ["/usr/bin/git", "log", "--pretty=format:%ct", "-1", "HEAD"]
+        try:
+            process = subprocess.Popen(cmd, shell=False, cwd=path,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            )
+        except Exception:
+            if settings.DEBUG:
+                # insert more information into the traceback and re-raise the original error
+                etype, evalue, etb = sys.exc_info()
+                evalue = etype(
+                    'subprocess error, running %r: %s)' % (
+                        " ".join(cmd), evalue
+                    )
+                )
+                raise etype, evalue, etb
+            return
+
+        process.wait()
+        returncode = process.returncode
+        output = process.stdout.read().strip()
+        error = process.stderr.read().strip()
+        if returncode != 0:
+            if settings.DEBUG:
+                raise RuntimeError(
+                    "Can't get git hash, returncode was: %r"
+                    " - git stdout: %r"
+                    " - git stderr: %r"
+                    % (returncode, output, error)
+                )
+            return
+
+        try:
+            timestamp = int(output)
+        except Exception:
+            if settings.DEBUG:
+                # insert more information into the traceback and re-raise the original error
+                etype, evalue, etb = sys.exc_info()
+                evalue = etype(
+                    'git stdout: %r - git stderr: %r - (Original error: %s)' % (
+                        output, error, evalue
+                    )
+                )
+                raise etype, evalue, etb
+            return
+
+        try:
+            return time.strftime("%d.%m.%Y", time.gmtime(timestamp))
+        except Exception:
+            if settings.DEBUG:
+                # insert more information into the traceback and re-raise the original error
+                etype, evalue, etb = sys.exc_info()
+                evalue = etype(
+                    "Can't convert %s: %s" % (
+                        repr(timestamp), evalue
+                    )
+                )
+                raise etype, evalue, etb
+            return
 
 
 class EnvironmetInfo(dict):
