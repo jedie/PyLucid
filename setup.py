@@ -42,6 +42,7 @@ def get_long_description():
         https://code.google.com/p/python-creole/wiki/UseInSetup
     """
     desc_creole = ""
+    raise_errors = "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv
     try:
         f = file(os.path.join(PACKAGE_ROOT, "README.creole"), "r")
         desc_creole = f.read()
@@ -57,11 +58,17 @@ def get_long_description():
 
         desc_html = creole2html(desc_creole)
         long_description = html2rest(desc_html)
+        long_description = long_description.encode("utf-8")
     except Exception, err:
-        if "sdist" in sys.argv or "--long-description" in sys.argv:
+        if raise_errors:
             raise
         # Don't raise the error e.g. in ./setup install process
         long_description = "[Error: %s]\n%s" % (err, desc_creole)
+
+    if raise_errors:
+        # Try if created ReSt code can be convertet into html
+        from creole.rest2html.clean_writer import rest2html
+        rest2html(long_description)
 
     return long_description
 
