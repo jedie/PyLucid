@@ -84,7 +84,7 @@ COPYTREE_IGNORE_FILES = (
     '*.pyc', 'tmp*', '.tmp*', "*~",
     "local_settings.py", "*.db3",
     "*.pth", "*.egg", "*.egg-link", "*.egg-info",
-    "AUTHORS", "INSTALL", "README", "README.*", "LICENSE", "MANIFEST.in", "setup.*"
+    "AUTHORS", "INSTALL", "README.*", "LICENSE", "MANIFEST.in", "setup.*"
 )
 COPYTREE_IGNORE_DIRS = (
     "dist", "bootstrap", "docs", "extras", "pip", "tests", "scripts",
