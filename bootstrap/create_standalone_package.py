@@ -495,7 +495,7 @@ class StandalonePackageMaker(object):
             else:
                 print line
 
-        print "OK"
+        print "\n-- END --\n"
 
 
 
