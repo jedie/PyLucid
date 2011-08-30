@@ -8,23 +8,18 @@
     You should check if the shebang is ok for your environment!
         some examples:
             #!/usr/bin/env python
-            #!/usr/bin/env python2.4
-            #!/usr/bin/env python2.5
+            #!/usr/bin/env python2.6
+            #!/usr/bin/env python2.7
             #!/usr/bin/python
-            #!/usr/bin/python2.4
-            #!/usr/bin/python2.5
+            #!/usr/bin/python2.6
+            #!/usr/bin/python2.7
             #!C:\python\python.exe
 
     You must change the variable VIRTUALENV_FILE here!
+    But create_page_instance.sh will do this for you, see:
+        http://www.pylucid.org/permalink/355/1a2-create-a-new-page-instance
 
-
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2007-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -193,7 +188,12 @@ def run_django_fcgi():
         evalue = etype("Can't import django stuff: %s" % err)
         raise etype, evalue, etb
 
-    # usable parameter see also django/core/servers/fastcgi.py
+    # usable parameter see also:
+    #   https://code.djangoproject.com/browser/django/trunk/django/core/servers/fastcgi.py
+    # method="prefork" creates processes and used this:
+    #   http://trac.saddi.com/flup/browser/flup/server/preforkserver.py
+    # method="threaded" creates threads and used this:
+    #   http://trac.saddi.com/flup/browser/flup/server/threadpool.py
     runfastcgi(
         protocol="fcgi", # fcgi, scgi, ajp, ... (django default: fcgi)
         host=None, # hostname to listen on (django default: None)
