@@ -87,7 +87,7 @@ COPYTREE_IGNORE_FILES = (
     "AUTHORS", "INSTALL", "README.*", "LICENSE", "MANIFEST.in", "setup.*"
 )
 COPYTREE_IGNORE_DIRS = (
-    "dist", "bootstrap", "docs", "extras", "pip", "tests", "scripts",
+    "dist", "build", "bootstrap", "docs", "extras", "pip", "tests", "scripts",
 )
 
 KEEP_ROOT_FILES = (
