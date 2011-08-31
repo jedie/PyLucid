@@ -143,9 +143,11 @@ class Command(BaseCommand):
 
 
         self._copy_scripts("manage.py", "manage.py")
-        self._copy_scripts("fcgi_scripts/default.htaccess", ".htaccess")
-        self._copy_scripts("fcgi_scripts/index.fcgi", "index.fcgi")
-        self._copy_scripts("cgi_scripts/index.cgi", "index.cgi")
+        self._copy_scripts("apache_files/default.htaccess", ".htaccess")
+        self._copy_scripts("apache_files/index.fcgi", "index.fcgi")
+        self._copy_scripts("apache_files/index.wsgi", "index.wsgi")
+        self._copy_scripts("apache_files/index.cgi", "index.cgi")
+        self._copy_scripts("apache_files/index.html", "index.html")
         self._copy_scripts("local_settings_example.py", "local_settings.py")
         self._copy_scripts("info_index.html", "index.html")
 
@@ -156,10 +158,10 @@ class Command(BaseCommand):
 
 
         # Set path to PyLucid_env in file content:
-        self._patch_env_path("manage.py", "index.fcgi", "index.cgi")
+        self._patch_env_path("manage.py", "index.fcgi", "index.wsgi", "index.cgi")
 
         # Set chmod 0755 to files:
-        self._set_file_rights("manage.py", "index.fcgi", "index.cgi")
+        self._set_file_rights("manage.py", "index.fcgi", "index.wsgi", "index.cgi")
 
         django_admin_path = os.path.abspath(os.path.dirname(admin.__file__))
         django_media_src = os.path.join(django_admin_path, "media")

@@ -1,8 +1,8 @@
 #
 # PyLucid .htaccess file
-# per default: using the CGI Version (index.cgi, not preferred!)
+# per default: using the fastCGI Version (index.fcgi)
 #
-# You can easy change the rewrite rule to use fastCGI (recommended), see below.
+# For tests, you can easy change the rewrite rule to use CGI, see below.
 #
 # Note:
 #    You should be careful uncomment settings.
@@ -16,18 +16,31 @@
 #    http://httpd.apache.org/docs/2.2/mod/core.html#allowoverride
 #
 
-# Enable execution of CGI scripts using mod_cgi
+
+# Enable execution of scripts (not needed in every cases)
 # http://httpd.apache.org/docs/2.0/mod/core.html#options
 #Options +ExecCGI
 
-# Old mod_fastcgi Apache module:
+
+#-----------------------------------------------------------------------
+#
+# Activate script Handler (not needed in every cases)
+# http://httpd.apache.org/docs/2.0/mod/mod_mime.html#addhandler
+#
+
+# libapache2-mod-wsgi
+#AddHandler wsgi-script .wsgi
+
+# Old libapache2-mod-fastcgi Apache module:
 #AddHandler fastcgi-script .fcgi
 
-# New mod_fcgid Apache module:
+# New libapache2-mod-fcgid Apache module:
 #AddHandler fcgid-script .fcgi
 
-# http://httpd.apache.org/docs/2.0/mod/mod_mime.html#addhandler
+# normal CGI (should be used only for tests)
 #AddHandler cgi-script .cgi
+
+#-----------------------------------------------------------------------
 
 
 # http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html
@@ -47,7 +60,7 @@ RewriteRule .* - [F]
 
 # All requests would be "redirected" to PyLucid.
 # Here we can exclude some directories.
-# Default: Leave out all request to /media/ 
+# Default: Leave out all request to /media/
 # You can add more directories if needed.
 RewriteRule ^media - [L]
 
@@ -55,6 +68,7 @@ RewriteRule ^media - [L]
 # Forbid the directly access to some files (send 403 HTTP response)
 RewriteRule ^index.cgi$ - [F,L]
 RewriteRule ^index.fcgi$ - [F,L]
+RewriteRule ^index.wsgi$ - [F,L]
 RewriteRule ^manage.py$ - [F,L]
 RewriteRule ^local_settings.py$ - [F,L]
 
@@ -62,23 +76,31 @@ RewriteCond %{REQUEST_FILENAME} !-f
 
 
 #-----------------------------------------------------------------------
+#
+# Specify if CGI, fastCGI or mod_wsgi dispatcher used:
+#
 
 # for CGI Version (should be used for tests only):
-RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
+#RewriteRule ^(.*)$ index.cgi/$1 [QSA,L]
 
 # for fastCGI Version (recommended):
-#RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
+RewriteRule ^(.*)$ index.fcgi/$1 [QSA,L]
+
+# for mod_wsgi:
+#RewriteRule ^(.*)$ index.wsgi/$1 [QSA,L]
 
 #-----------------------------------------------------------------------
 
 
 # Nobody should have access to some files!
-# If you use a SQLite Database and the DB file is in you DocRoot, you should
-# also deny the access for everybody.
 # http://httpd.apache.org/docs/2.2/mod/core.html#files
 <Files manage.py>
     Deny from all
 </Files>
 <Files local_settings.py>
+    Deny from all
+</Files>
+<Files ~ "\.(db3|db)$">
+    # SQLite Database file in DocRoot
     Deny from all
 </Files>

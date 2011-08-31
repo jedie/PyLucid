@@ -95,9 +95,14 @@ KEEP_ROOT_FILES = (
 )
 
 EXECUTEABLE_FILES = (
-    "index.cgi", "index.fcgi",
+    "index.cgi", "index.fcgi", "index.wsgi",
     "install_pylucid.cgi",
     "manage.py",
+)
+
+SCRIPT_PATCH_DATA = (
+    ('os.environ["VIRTUALENV_FILE"] = ', '# Not needed in standalone package!\n# os.environ["VIRTUALENV_FILE"] = '),
+    ('    activate_virtualenv()', '    # Not needed in standalone package!\n    # activate_virtualenv()'),
 )
 
 PKG_CHECK_CONTENT = """
@@ -220,11 +225,11 @@ class StandalonePackageMaker(object):
         self.cleanup_dest_dir()
         self.create_local_settings()
         self.copy_standalone_script_files()
+        self.patch_script_files()
         self.chmod()
         self.remove_pkg_check()
         self.hardcode_version_string()
         self.merge_static_files()
-        self.copy_wsgiref()
 
         print
         print "_" * 79
@@ -277,18 +282,19 @@ class StandalonePackageMaker(object):
         else:
             raw_input("continue? (Abort with Strg-C)")
 
-    def _patch_file(self, sourcepath, destpath, patch_data):
-        f = codecs.open(sourcepath, "r", encoding="utf-8")
+    def _patch_file(self, filepath, patch_data):
+        print "Patch file %r..." % filepath
+        f = codecs.open(filepath, "r", encoding="utf-8")
         content = f.read()
         f.close()
 
         for placeholder, new_value in patch_data:
             if not placeholder in content:
-                print "Patch file %r Error: String %r not found!" % (sourcepath, placeholder)
+                print "Waring: String %r not found in %r!" % (placeholder, filepath)
             else:
                 content = content.replace(placeholder, new_value)
 
-        f = codecs.open(destpath, "w", encoding="utf-8")
+        f = codecs.open(filepath, "w", encoding="utf-8")
         f.write(content)
         f.close()
 
@@ -298,6 +304,9 @@ class StandalonePackageMaker(object):
 
         sourcepath = os.path.join(self.pylucid_dir, "scripts", "local_settings_example.py")
         destpath = os.path.join(self.dest_package_dir, "local_settings.py")
+
+        print "copy %s -> %s" % (sourcepath, destpath)
+        shutil.copy2(sourcepath, destpath)
 
         secret_key = ''.join(
             [random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]
@@ -313,7 +322,7 @@ class StandalonePackageMaker(object):
             ),
         ]
 
-        self._patch_file(sourcepath, destpath, patch_data)
+        self._patch_file(destpath, patch_data)
 
     def copy_packages(self):
         for path in self.req.paths:
@@ -352,19 +361,32 @@ class StandalonePackageMaker(object):
         print
         print "_" * 79
         print "copy standalone script files"
-        src = os.path.join(self.pylucid_dir, "scripts", "standalone")
-        print "%s -> %s" % (src, self.dest_package_dir)
-        try:
-            copytree2(src, self.dest_package_dir, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE_FILES))
-        except OSError, why:
-            print "copytree2 error: %s" % why
-        else:
-            print "OK"
+
+        def copy_files(scripts_sub_dir):
+            src = os.path.join(self.pylucid_dir, "scripts", scripts_sub_dir)
+            print "%s -> %s" % (src, self.dest_package_dir)
+            try:
+                copytree2(src, self.dest_package_dir, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE_FILES))
+            except OSError, why:
+                print "copytree2 error: %s" % why
+            else:
+                print "OK"
+
+        copy_files("apache_files")
+        copy_files("standalone")
 
         old = os.path.join(self.dest_package_dir, "default.htaccess")
         new = os.path.join(self.dest_package_dir, ".htaccess")
         print "rename %r to %r" % (old, new)
         os.rename(old, new)
+
+    def patch_script_files(self):
+        print
+        print "_" * 79
+        print "patch script files"
+        for filename in ("index.cgi", "index.fcgi", "index.wsgi"):
+            filepath = os.path.join(self.dest_package_dir, filename)
+            self._patch_file(filepath, SCRIPT_PATCH_DATA)
 
     def chmod(self):
         print
@@ -445,16 +467,6 @@ class StandalonePackageMaker(object):
         print "move files from %s to %s" % (django_src_media, django_dst_media)
         shutil.move(django_src_media, django_dst_media)
         print "OK"
-
-    def copy_wsgiref(self):
-        print
-        print "_" * 79
-        import wsgiref
-        print "copy wsgiref"
-        wsgiref_src = os.path.abspath(os.path.dirname(wsgiref.__file__))
-        wsgiref_dst = os.path.join(self.dest_package_dir, "wsgiref")
-        print "%s -> %s" % (wsgiref_src, wsgiref_dst)
-        copytree2(wsgiref_src, wsgiref_dst, ignore=shutil.ignore_patterns("*.pyc", "*.pyo"))
 
     def create_archive(self, archive_file, switches):
         """

@@ -2,17 +2,17 @@
 # coding: utf-8
 
 """
-    PyLucid fastCGI dispatcher
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    PyLucid mod_wsgi dispatcher
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     You should check if the shebang is ok for your environment!
         some examples:
             #!/usr/bin/env python
-            #!/usr/bin/env python2.6
-            #!/usr/bin/env python2.7
+            #!/usr/bin/env python2.4
+            #!/usr/bin/env python2.5
             #!/usr/bin/python
-            #!/usr/bin/python2.6
-            #!/usr/bin/python2.7
+            #!/usr/bin/python2.4
+            #!/usr/bin/python2.5
             #!C:\python\python.exe
 
     You must change the variable VIRTUALENV_FILE here!
@@ -27,9 +27,9 @@
 import os
 import sys
 import time
+import atexit
 import traceback
 import StringIO
-
 
 #####################################################################################################
 # PLEASE CHANGE THIS PATH:
@@ -40,13 +40,19 @@ os.environ["VIRTUALENV_FILE"] = "/please/insert/path/to/PyLucid_env/bin/activate
 #
 #####################################################################################################
 
-
 # This must normaly not changes, because you should use a local_settings.py file
 os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
+#DEBUG = True
+DEBUG = False
 
-# Low level log file. Only created if the fastCGI app can't start.
-LOGFILE = "low_level_fcgi.log"
+BASE_PATH = os.path.abspath(os.path.dirname(__file__))
+sys.path.insert(0, BASE_PATH)
+
+# Low level log file.
+LOGFILE = os.path.join(BASE_PATH, "low_level_wsgi.log")
+
+APP_ERROR = ""
 
 
 def low_level_log(msg):
@@ -59,6 +65,10 @@ def low_level_log(msg):
         sys.stderr.write(msg)
     except Exception, err:
         sys.stderr.write("Error, creating %r: %s" % (LOGFILE, err))
+
+if DEBUG:
+    atexit.register(low_level_log, "-- END --")
+    low_level_log("startup %r..." % __file__)
 
 
 def tail_log(max=20):
@@ -144,37 +154,84 @@ def get_apache_load_files(path):
                 modules.append(name)
     return modules
 
+def get_pylucid_ver():
+    try:
+        from pylucid_project import VERSION_STRING
+        return VERSION_STRING
+    except Exception, err:
+        return "[Error: %s]" % err
+
+def get_ip_info():
+    try:
+        import socket
+        domain_name = socket.getfqdn()
+    except Exception, err:
+        domain_name = "[Error: %s]" % err
+        ip_addresses = "-"
+    else:
+        try:
+            ip_addresses = ", ".join(socket.gethostbyname_ex(domain_name)[2])
+        except Exception, err:
+            ip_addresses = "[Error: %s]" % err
+    return ip_addresses, domain_name
+
 
 def lowlevel_error_app(environ, start_response):
     """
-    Fallback fastcgi application, used to display the user some information, why the
+    Fallback application, used to display the user some information, why the
     main app doesn't start.
     """
     start_response('200 OK', [('Content-Type', 'text/html')])
     yield "<h1>PyLucid - Low level error ;( </h1>"
-    yield "<p>Python v%s</p>" % sys.version
+
+    yield "<h2>Last lines in %s</h2>" % LOGFILE
+    yield "<pre>%s</pre>" % tail_log()
+
+    global APP_ERROR
+    yield "<h2>App traceback:</h2>"
+    yield "<pre>%s</pre>" % APP_ERROR
+
+    yield "<h2>System informations:</h2>"
+    yield "<ul>"
+    yield "<li>PyLucid v%s</li>" % get_pylucid_ver()
+    yield "<li>Python v%s</li>" % sys.version
+    yield "<li>sys.prefix: %r</li>" % sys.prefix
+    yield "<li>os.uname: %r</li>" % " ".join(os.uname())
+    yield "<li>PID: %s, UID: %s, GID: %s</li>" % (os.getpid(), os.getuid(), os.getgid())
+    yield "<li>IPs: %s, Domain: %s</li>" % get_ip_info()
+    yield "</ul>"
+
     from cgi import escape
 
-    yield "<h3>Apache modules:</h3>"
+    yield "<h2>Apache modules:</h2>"
     try:
         path = "/etc/apache2/mods-enabled"
-        yield "<p><small>(load files from %r)</small>" % path
+        yield "<p><small>(load files from %r)</small><br />" % path
         modules = get_apache_load_files(path)
-        yield "<ul>"
-        for module in sorted(modules):
-            yield "<li>%s</li>" % module
-        yield "</ul>"
+        yield ", ".join(sorted(modules))
+        yield "</p>"
     except:
         yield "Error: %s" % traceback.format_exc()
 
-    yield "<h3>Environment</h3>"
+    yield "<h2>Environment</h2>"
+
+    yield "<h3>WSGI Environment</h3>"
+    yield "<table>"
+    for k, v in sorted(environ.items()):
+        yield '<tr><th>%s</th><td>%s</td></tr>' % (escape(k), escape(repr(v)))
+    yield "</table>"
+
+    yield "<h3>OS Environment</h3>"
     yield "<table>"
     for k, v in sorted(os.environ.items()):
         yield '<tr><th>%s</th><td>%s</td></tr>' % (escape(k), escape(v))
     yield "</table>"
 
-    yield "<h2>Last lines in %s</h2>" % LOGFILE
-    yield "<pre>%s</pre>" % tail_log()
+    yield "<h2>sys.path</h2>"
+    yield "<ul>"
+    for path in sys.path:
+        yield "<li>%s</li>" % path
+    yield "</ul>"
 
     yield "<h2>Try to run django app with CGI:</h2>"
     yield "<p>(You will see the raw, escaped response content or a traceback!)</p>"
@@ -189,11 +246,37 @@ def lowlevel_error_app(environ, start_response):
     yield "<p>Low level traceback -- END --</p>"
 
 
-def run_django_fcgi():
-    """
-    run the django app with django.core.servers.fastcgi.runfastcgi
-    turn flup debug on, if settings.DEBUG is on.
-    """
+
+def info_app(environ, start_response):
+    low_level_log("startup info_app...")
+    headers = []
+    headers.append(('Content-Type', 'text/plain'))
+    write = start_response('200 OK', headers)
+
+    import cStringIO
+
+    input = environ['wsgi.input']
+    output = cStringIO.StringIO()
+
+    print >> output, "PID: %s" % os.getpid()
+    print >> output, "UID: %s" % os.getuid()
+    print >> output, "GID: %s" % os.getgid()
+    print >> output
+
+    keys = environ.keys()
+    keys.sort()
+    for key in keys:
+        print >> output, '%s: %s' % (key, repr(environ[key]))
+    print >> output
+
+    output.write(input.read(int(environ.get('CONTENT_LENGTH', '0'))))
+
+    return [output.getvalue()]
+
+
+
+def get_wsgi_app():
+    """ return pylucid WSGI app """
     activate_virtualenv()
 
     try:
@@ -205,65 +288,38 @@ def run_django_fcgi():
 
     try:
         from django.core.handlers.wsgi import WSGIHandler
-        from django.core.servers.fastcgi import runfastcgi
     except Exception, err:
         etype, evalue, etb = sys.exc_info()
         evalue = etype("Can't import django stuff: %s" % err)
         raise etype, evalue, etb
 
-    # usable parameter see also:
-    #   https://code.djangoproject.com/browser/django/trunk/django/core/servers/fastcgi.py
-    # method="prefork" creates processes and used this:
-    #   http://trac.saddi.com/flup/browser/flup/server/preforkserver.py
-    # method="threaded" creates threads and used this:
-    #   http://trac.saddi.com/flup/browser/flup/server/threadpool.py
-    runfastcgi(
-        protocol="fcgi", # fcgi, scgi, ajp, ... (django default: fcgi)
-        host=None, # hostname to listen on (django default: None)
-        port=None, # port to listen on (django default: None)
-        socket=None, # UNIX socket to listen on (django default: None)
+    return WSGIHandler()
 
-        method="threaded", # prefork or threaded (django default: "prefork")
-        daemonize="false", # whether to detach from terminal (django default: None)
-        umask=None, # umask to use when daemonizing e.g.: "022" (django default: None)
-        pidfile=None, # write the spawned process-id to this file (django default: None)
-        workdir="/", # change to this directory when daemonizing.  (django default: "/")
 
-        minspare=2, # min number of spare processes / threads (django default:  2)
-        maxspare=5, # max number of spare processes / threads (django default:  5)
-        maxchildren=50, # hard limit number of processes / threads (django default: 50)
-        maxrequests=100, # number of requests before killed/forked (django default: 0 = no limit)
-        # maxrequests -> work only in prefork mode
 
-        debug=settings.DEBUG, # Enable flup debug traceback page
-        outlog=None, # write stdout to this file (django default: None)
-        errlog=None, # write stderr to this file (django default: None)
-    )
+class LoggingMiddleware:
+    def __init__(self, application):
+        self.__application = application
+    def __call__(self, environ, start_response):
+        low_level_log("REQUEST: %s" % repr(environ))
 
+        def _start_response(status, headers, *args):
+            low_level_log("RESPONSE: %s %s" % (status, repr(headers)))
+            return start_response(status, headers, *args)
+
+        return self.__application(environ, _start_response)
 
 try:
-    run_django_fcgi()
+    if DEBUG:
+        application = LoggingMiddleware(get_wsgi_app())
+    else:
+        application = get_wsgi_app()
 except:
-    # Catch the traceback and run a minimal debug application
-    low_level_log(traceback.format_exc()) # Write full traceback into LOGFILEdrag
-    try:
-        # Try to run lowlevel_error_app as FastCGI
-        # http://trac.saddi.com/flup/browser/flup/server/fcgi.py
-        from flup.server.fcgi import WSGIServer
-        WSGIServer(lowlevel_error_app, debug=True).run()
-    except:
-        low_level_log(
-            "Can't start lowlevel_error_app with flup fastCGI: %s" % traceback.format_exc()
-        )
-        try:
-            # Try to run lowlevel_error_app as CGI
-            # http://trac.saddi.com/flup/browser/flup/server/cgi.py
-            from flup.server.cgi import WSGIServer
-            WSGIServer(lowlevel_error_app).run()
-        except:
-            low_level_log(
-                "Can't start lowlevel_error_app with flup CGI: %s" % traceback.format_exc()
-            )
+    # Catch the traceback and run a minimal wsgi debug application
+    APP_ERROR = traceback.format_exc()
+    low_level_log(APP_ERROR) # Write full traceback into LOGFILE
+    application = lowlevel_error_app
+
 
 
 
