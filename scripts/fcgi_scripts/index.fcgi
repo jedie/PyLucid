@@ -133,6 +133,18 @@ def run_django_cgi():
         buffer.close()
 
 
+def get_apache_load_files(path):
+    """ Simply get a list of all *.load files from the path. """
+    modules = []
+    for item in os.listdir(path):
+        filepath = os.path.join(path, item)
+        if os.path.isfile(filepath):
+            name, ext = os.path.splitext(item)
+            if ext == ".load" and name not in modules:
+                modules.append(name)
+    return modules
+
+
 def lowlevel_error_app(environ, start_response):
     """
     Fallback fastcgi application, used to display the user some information, why the
@@ -142,6 +154,18 @@ def lowlevel_error_app(environ, start_response):
     yield "<h1>PyLucid - Low level error ;( </h1>"
     yield "<p>Python v%s</p>" % sys.version
     from cgi import escape
+
+    yield "<h3>Apache modules:</h3>"
+    try:
+        path = "/etc/apache2/mods-enabled"
+        yield "<p><small>(load files from %r)</small>" % path
+        modules = get_apache_load_files(path)
+        yield "<ul>"
+        for module in sorted(modules):
+            yield "<li>%s</li>" % module
+        yield "</ul>"
+    except:
+        yield "Error: %s" % traceback.format_exc()
 
     yield "<h3>Environment</h3>"
     yield "<table>"
