@@ -290,7 +290,7 @@ class StandalonePackageMaker(object):
 
         for placeholder, new_value in patch_data:
             if not placeholder in content:
-                print "Waring: String %r not found in %r!" % (placeholder, filepath)
+                print "Warning: String %r not found in %r!" % (placeholder, filepath)
             else:
                 content = content.replace(placeholder, new_value)
 
