@@ -61,7 +61,7 @@ def low_level_log(msg):
         sys.stderr.write("Error, creating %r: %s" % (LOGFILE, err))
 
 
-def tail_log(max=7):
+def tail_log(max=20):
     """ returns the last >max< lines, from LOGFILE """
     try:
         f = file(LOGFILE, "r")
@@ -77,8 +77,6 @@ def tail_log(max=7):
         return "Error, getting %r content:\n%s" % (
             LOGFILE, traceback.format_exc()
         )
-
-
 
 
 def activate_virtualenv():
@@ -145,7 +143,7 @@ def lowlevel_error_app(environ, start_response):
     yield "<p>Python v%s</p>" % sys.version
     from cgi import escape
 
-    yield "<h3>FastCGI Environment</h3>"
+    yield "<h3>Environment</h3>"
     yield "<table>"
     for k, v in sorted(os.environ.items()):
         yield '<tr><th>%s</th><td>%s</td></tr>' % (escape(k), escape(v))
@@ -163,7 +161,8 @@ def lowlevel_error_app(environ, start_response):
         yield "Error: %s" % traceback.format_exc()
     yield "</pre>"
 
-    yield "<p><small>Low level traceback - END</small></p>"
+    yield "<hr />"
+    yield "<p>Low level traceback -- END --</p>"
 
 
 def run_django_fcgi():
@@ -221,15 +220,26 @@ def run_django_fcgi():
 try:
     run_django_fcgi()
 except:
-    # Catch the traceback and run a minimal fcgi debug application
+    # Catch the traceback and run a minimal debug application
     low_level_log(traceback.format_exc()) # Write full traceback into LOGFILEdrag
     try:
+        # Try to run lowlevel_error_app as FastCGI
         # http://trac.saddi.com/flup/browser/flup/server/fcgi.py
         from flup.server.fcgi import WSGIServer
         WSGIServer(lowlevel_error_app, debug=True).run()
     except:
         low_level_log(
-            "Can't start lowlevel_error_app: %s" % traceback.format_exc()
+            "Can't start lowlevel_error_app with flup fastCGI: %s" % traceback.format_exc()
         )
+        try:
+            # Try to run lowlevel_error_app as CGI
+            # http://trac.saddi.com/flup/browser/flup/server/cgi.py
+            from flup.server.cgi import WSGIServer
+            WSGIServer(lowlevel_error_app).run()
+        except:
+            low_level_log(
+                "Can't start lowlevel_error_app with flup CGI: %s" % traceback.format_exc()
+            )
+
 
 
