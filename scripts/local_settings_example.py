@@ -10,6 +10,7 @@ import os, tempfile
 # see also:
 # http://www.pylucid.org/permalink/332/a-complete-local_settingspy-example
 #
+BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 
 # Absolute _local_filesystem_path_ to the directory that holds media.
@@ -39,7 +40,7 @@ TEMPLATE_DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test.db3' # You should set a absolute path to the SQlite file!
+        'NAME': os.path.join(BASE_PATH, "test.db3") # You should use a absolute path to the SQlite file!
     }
 }
 
