@@ -1,3 +1,4 @@
+# coding: utf-8
 
 """
     PyLucid defaulttags
@@ -12,13 +13,7 @@
     with:
         add_to_builtins('PyLucid.defaulttags')
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate: 2008-09-12 13:49:04 +0200 (Fr, 12 Sep 2008) $
-    $Rev: 1763 $
-    $Author: JensDiemer $
-
-    :copyleft: 2007 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
