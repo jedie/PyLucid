@@ -60,11 +60,12 @@ To create a [[http://www.pylucid.org/permalink/135/install-pylucid-in-a-virtual-
 After run our script you have these files/directory:
 
 | ///var/www/YourSite///**media**/            | Static media files
-| ///var/www/YourSite///**index.cgi**         | cgi handler, should only used for debugging
-| ///var/www/YourSite///**index.fcgi**        | fastCGI handler
+| ///var/www/YourSite///**index.fcgi**        | fastCGI dispatcher file
+| ///var/www/YourSite///**index.wsgi**        | mod_WSGI dispatcher file
+| ///var/www/YourSite///**index.cgi**         | CGI handler, should only used for debugging
 | ///var/www/YourSite///**local_settings.py** | [[/permalink/332/a-complete-local_settingspy-example|your own settings]]
 | ///var/www/YourSite///**manage.py**         | Access to django cli management
-| ///var/www/YourSite///**.htaccess**         | prepared to use fastCGI via mod_rewrite
+| ///var/www/YourSite///**.htaccess**         | [[http://www.pylucid.org/permalink/136/change-between-fastcgi-mod_wsgi-and-cgi|prepared to use fast_CGI, mod_WSGI, CGI via mod_rewrite]]
 
 
 
