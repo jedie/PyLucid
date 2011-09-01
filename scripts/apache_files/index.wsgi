@@ -196,6 +196,7 @@ def lowlevel_error_app(environ, start_response):
     yield "<li>PyLucid v%s</li>" % get_pylucid_ver()
     yield "<li>Python v%s</li>" % sys.version
     yield "<li>sys.prefix: %r</li>" % sys.prefix
+    yield "<li>__name__: %r</li>" % __name__
     yield "<li>os.uname: %r</li>" % " ".join(os.uname())
     yield "<li>PID: %s, UID: %s, GID: %s</li>" % (os.getpid(), os.getuid(), os.getgid())
     yield "<li>IPs: %s, Domain: %s</li>" % get_ip_info()
@@ -309,16 +310,25 @@ class LoggingMiddleware:
 
         return self.__application(environ, _start_response)
 
+
 try:
-    if DEBUG:
-        application = LoggingMiddleware(get_wsgi_app())
-    else:
-        application = get_wsgi_app()
+    # will only be present when running under Apache/mod_wsgi
+    from mod_wsgi import version
 except:
-    # Catch the traceback and run a minimal wsgi debug application
-    APP_ERROR = traceback.format_exc()
-    low_level_log(APP_ERROR) # Write full traceback into LOGFILE
-    application = lowlevel_error_app
+    low_level_log(
+        "Seems we are not running under Apache/mod_wsgi (Original error: %s)" % traceback.format_exc()
+    )
+else:
+    try:
+        if DEBUG:
+            application = LoggingMiddleware(get_wsgi_app())
+        else:
+            application = get_wsgi_app()
+    except:
+        # Catch the traceback and run a minimal wsgi debug application
+        APP_ERROR = traceback.format_exc()
+        low_level_log(APP_ERROR) # Write full traceback into LOGFILE
+        application = lowlevel_error_app
 
 
 
