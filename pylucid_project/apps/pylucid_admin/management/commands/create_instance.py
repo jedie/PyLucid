@@ -149,7 +149,6 @@ class Command(BaseCommand):
         self._copy_scripts("apache_files/index.cgi", "index.cgi")
         self._copy_scripts("apache_files/index.html", "index.html")
         self._copy_scripts("local_settings_example.py", "local_settings.py")
-        self._copy_scripts("info_index.html", "index.html")
 
 
         self.stdout.write("\n")
