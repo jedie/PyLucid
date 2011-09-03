@@ -40,14 +40,28 @@ urlpatterns = patterns('',
     url(r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
 )
 
-# Return a robots.txt that disallows all spiders when DEBUG is True.
+#-----------------------------------------------------------------------------
+
+# Default robots.txt content. If you want to use your own robots.txt, look into .htaccess
+# more information: http://www.pylucid.org/permalink/390/robots-txt
 if settings.DEBUG:
+    # Disallow access to all pages in DEBUG mode. 
     urlpatterns += patterns("",
         url(
             "^robots.txt$",
             lambda r: HttpResponse("User-agent: *\nDisallow: /", mimetype="text/plain")
         ),
     )
+else:
+    # Disallow all URLs that one '?' contains
+    urlpatterns += patterns("",
+        url(
+            "^robots.txt$",
+            lambda r: HttpResponse("User-agent: *\nDisallow: /*?", mimetype="text/plain")
+        ),
+    )
+
+#-----------------------------------------------------------------------------
 
 # serve static files
 if settings.SERVE_STATIC_FILES:
