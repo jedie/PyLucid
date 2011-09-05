@@ -9,6 +9,11 @@ feedparser>=5.0.1,<5.1
 # http://pypi.python.org/pypi/Pygments
 Pygments>=1.4,<1.5
 
+# http://trac.saddi.com/flup
+# http://pypi.python.org/pypi/flup
+# needed, for fastCGI usage
+flup>=1.0.2,<1.1
+
 # external Django apps
 #----------------------
 
