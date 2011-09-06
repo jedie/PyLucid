@@ -186,7 +186,8 @@ table.info caption {
 .module th a[href="pylucid/logentry/"],
 .module th a[href="redirect/redirectmodel/"],
 .module th a[href="redirects/redirect/"],
-.module th a[href="StreetMap/mapentry/"]
+.module th a[href="StreetMap/mapentry/"],
+.module th a[href="django_processinfo/sitestatistics/"]
  {
     background-color: #e8eff6;
     border-left: 5px solid #acc5e1;
