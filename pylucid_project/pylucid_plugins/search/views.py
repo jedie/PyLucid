@@ -27,6 +27,7 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.python_tools import cutout
 
 from pylucid_project.pylucid_plugins.search.preference_forms import SearchPreferencesForm
+from django_tools.template.filters import human_duration
 
 
 def get_preferences():
@@ -242,12 +243,15 @@ def _search(request, cleaned_data):
 
     search_lang_codes = cleaned_data["language"]
     search_results = Search(request).search(search_lang_codes, search_strings)
+    hits_count = len(search_results.hits)
+    duration = human_duration(search_results.duration)
+    msg = "done in %s, %s hits for: %r" % (duration, hits_count, search_strings)
     LogEntry.objects.log_action(
-        app_label="search", action="search done", message=None,
+        app_label="search", action="search done", message=msg,
         data={
             "search_strings": search_strings,
             "duration": search_results.duration,
-            "hits": len(search_results.hits),
+            "hits": hits_count,
         }
     )
     return search_results
