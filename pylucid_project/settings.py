@@ -231,6 +231,13 @@ COMMENTS_APP = "pylucid_project.pylucid_plugins.pylucid_comments"
 #Default: 'django.test.simple.run_tests'
 TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.PyLucidTestRunner'
 
+if RUN_WITH_DEV_SERVER:
+    # print mails to console if dev server used.
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    ADMINS = (
+        ("test", "dev_server_test@example_domain.tld"),
+    )
+
 #_____________________________________________________________________________
 # PyLucid own settings
 
