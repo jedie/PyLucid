@@ -79,7 +79,8 @@ class LoginTest(basetest.BaseUnittest):
 
     def test_login_ajax_form(self):
         """ Check if we get the login form via AJAX
-        FIXME: We get no ajax response, why? In real-life it works.
+        FIXME: We get no ajax response, if unittests runs all tests, but it works
+        if only this test runs, why?
         """
         response = self.client.get("/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.failUnlessEqual(response.status_code, 200)
@@ -94,7 +95,7 @@ class LoginTest(basetest.BaseUnittest):
                 "JS-SHA-LogIn", "username", "var challenge=",
             ),
             must_not_contain=(
-                '<title>PyLucid CMS', "<body", "<head>", # <- not a complete page
+                "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- not a complete page
                 "Traceback", 'Permission denied'
             ),
         )
@@ -210,7 +211,7 @@ class LoginTest(basetest.BaseUnittest):
             ),
             must_not_contain=(
                 "Traceback", "Form errors", "field is required",
-                "<!DOCTYPE", "<body", "</html>",
+                "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- not a complete page
             )
         )
 
@@ -234,11 +235,12 @@ if __name__ == "__main__":
     from django.core import management
 
     tests = __file__
-    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_login_ajax_form"
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
 
     management.call_command('test', tests,
 #        verbosity=0,
-        verbosity=1,
-#        verbosity=2,
+#        verbosity=1,
+        verbosity=2,
 #        failfast=True
     )
