@@ -374,7 +374,9 @@ CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 try:
     from local_settings import *
 except ImportError, err:
-    if str(err) == "No module named local_settings":
+    if "create_instance" in sys.argv:
+        pass
+    elif str(err) == "No module named local_settings":
         msg = (
             "There is no local_settings.py file in '%s' !"
             " (Original error was: %s)\n"
