@@ -283,6 +283,10 @@ else:
 #     Example-2: "/home/foo/htdocs/media/"
 MEDIA_ROOT = os.path.join(PYLUCID_BASE_PATH, "media") + "/"
 
+# Set base path for include plugin: 
+# http://www.pylucid.org/permalink/381/about-the-include-plugin
+PYLUCID_INCLUDE_BASEPATH = MEDIA_ROOT
+
 # URL that handles the media served from MEDIA_ROOT.
 #     Example-1: "/media/" (default)
 #     Examlpe-2: "http://other_domain.net/media/"
