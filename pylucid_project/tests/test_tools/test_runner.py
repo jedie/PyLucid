@@ -80,7 +80,7 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
         template_dir = os.path.join(UNITTEST_PLUGIN_DST_PATH, "templates")
         if not template_dir in settings.TEMPLATE_DIRS:
             print "unittest_plugin added to settings.TEMPLATE_DIRS"
-            settings.TEMPLATE_DIRS = list(settings.TEMPLATE_DIRS).append(template_dir)
+            settings.TEMPLATE_DIRS += (template_dir,)
 
         plugin_name = "pylucid_project.pylucid_plugins.unittest_plugin"
         if not plugin_name in settings.INSTALLED_APPS:
