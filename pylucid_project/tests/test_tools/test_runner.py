@@ -4,13 +4,7 @@
     PyLucid project unittest runner
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -82,6 +76,11 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
             print "insert unittest plugin via symlink:"
             print "%s -> %s" % (UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
             os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+
+        template_dir = os.path.join(UNITTEST_PLUGIN_DST_PATH, "templates")
+        if not template_dir in settings.TEMPLATE_DIRS:
+            print "unittest_plugin added to settings.TEMPLATE_DIRS"
+            settings.TEMPLATE_DIRS = list(settings.TEMPLATE_DIRS).append(template_dir)
 
         plugin_name = "pylucid_project.pylucid_plugins.unittest_plugin"
         if not plugin_name in settings.INSTALLED_APPS:
