@@ -13,6 +13,8 @@
 
 
 import os
+from django.http import HttpResponse
+
 
 if __name__ == "__main__":
     # run all unittest directly
@@ -33,6 +35,7 @@ LOGIN_URL = "?auth=login"
 
 class LoginTest(basetest.BaseUnittest):
     def setUp(self):
+        settings.DEBUG = False
         self.client = Client() # start a new session
 
     def test_login_link(self):
@@ -180,13 +183,58 @@ class LoginTest(basetest.BaseUnittest):
         self.failUnless(tested_under_limit == True)
         self.failUnless(tested_banned == True)
 
+    def test_get_salt_csrf(self):
+        """
+        https://github.com/jedie/PyLucid/issues/61
+        """
+        settings.DEBUG = True
+
+        user = self._get_user("normal")
+        username = user.username
+        user_profile = user.get_profile()
+        salt = user_profile.sha_login_salt
+
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        response = csrf_client.get("/")
+        csrf_cookie = response.cookies[settings.CSRF_COOKIE_NAME]
+        csrf_token = csrf_cookie.value
+
+        # Check if CSRF token is in JS Data
+        response = csrf_client.get("/?auth=login",
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertResponse(response,
+            must_contain=(
+                "var CSRF_TOKEN='%s';" % csrf_token,
+            ),
+            must_not_contain=(
+                "Traceback", "Form errors", "field is required",
+                "<!DOCTYPE", "<body", "</html>",
+            )
+        )
+
+        # Check if we get the salt, insted of a CSRF error
+        response = csrf_client.post(
+            "/?auth=get_salt",
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            HTTP_X_CSRFToken=csrf_token,
+            data={
+                "username": username,
+                "csrfmiddlewaretoken": csrf_token,
+            }
+        )
+        if response.content != salt:
+            self.raise_browser_traceback(response, "Response content is not salt %r" % salt)
+
+
 
 if __name__ == "__main__":
     # Run this unittest directly
     from django.core import management
 
     tests = __file__
-#    tests = "pylucid_plugins.auth.tests.LoginTest.test_login_link"
+    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
 
     management.call_command('test', tests,
 #        verbosity=0,
