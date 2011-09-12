@@ -257,7 +257,7 @@ def _login_view(request):
         "next_url": next_url,
         "form": form,
 
-        # We send 'csrfmiddlewaretoken' explicite in AJAX POST requests
+        # We send 'csrfmiddlewaretoken' explicit in AJAX POST requests
         # The problem is, that the cookie mailformed if the current page
         # comes from cache. Don't know why :(
         # https://github.com/jedie/PyLucid/issues/61

@@ -364,6 +364,7 @@ def _get_pagetree(request, url_path):
 # We must exempt csrf test here, but we use csrf_protect() later in:
 # pylucid_project.apps.pylucid.system.pylucid_plugin.call_plugin()
 # pylucid_project.system.pylucid_plugins.PyLucidPlugin.call_plugin_view()
+# see also: https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#csrfviewmiddleware-process-view-not-used
 @csrf_exempt
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """

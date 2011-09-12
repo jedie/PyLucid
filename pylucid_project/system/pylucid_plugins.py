@@ -1,5 +1,14 @@
 # coding: utf-8
 
+"""
+    PyLucid plugins
+    ~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.p
+
+"""
+
 
 import logging
 import os
@@ -9,6 +18,7 @@ import sys
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include
 from django.core import urlresolvers
+from django.http import HttpResponse
 from django.utils.importlib import import_module
 from django.utils.log import getLogger
 from django.views.decorators.csrf import csrf_protect
@@ -109,12 +119,16 @@ class PyLucidPlugin(object):
         request.plugin_name = self.name
         request.method_name = func_name
 
-        if func_name == "http_get_view" and not getattr(callable, 'csrf_exempt', False):
+        csrf_exempt = getattr(callable, 'csrf_exempt', False)
+        if func_name == "http_get_view" and not csrf_exempt:
             # Use csrf_protect only in pylucid get views and not für lucidTag calls
             callable = csrf_protect(callable)
 
         # call the plugin view method
         response = callable(request, **method_kwargs)
+
+        if csrf_exempt and isinstance(response, HttpResponse):
+            response.csrf_exempt = True
 
         request.plugin_name = None
         request.method_name = None

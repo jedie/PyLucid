@@ -16,6 +16,7 @@ from django import http
 from django.conf import settings
 from django.contrib import messages
 from django.core import urlresolvers
+from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_protect
 
@@ -103,11 +104,15 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
     request.plugin_name = view_func.__module__.split(".", 1)[0] # FIXME: Find a better way!
     request.method_name = view_func.__name__
 
+    csrf_exempt = getattr(view_func, 'csrf_exempt', False)
     if not getattr(view_func, 'csrf_exempt', False):
         view_func = csrf_protect(view_func)
 
     # Call the view
     response = view_func(request, *view_args, **view_kwargs)
+
+    if csrf_exempt and isinstance(response, HttpResponse):
+        response.csrf_exempt = True
 
     request.plugin_name = None
     request.method_name = None
