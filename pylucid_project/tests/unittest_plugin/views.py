@@ -199,3 +199,17 @@ def test_add_headfiles(request):
     output = render_to_response('unittest_plugin/test_extrahead_blocktag.html', context)
     return output
 
+#_____________________________________________________________________________
+
+
+def test_cache(request):
+    msg = request.COOKIES.get("test_messages", "not set")
+    return "Response from unittest_plugin.test_cache() [%s]" % msg
+
+def test_messages(request):
+    for msg_type in ("debug", "info", "success", "warning", "error"):
+        callable = getattr(messages, msg_type)
+        callable(request, "A %r message" % msg_type)
+    msg = request.COOKIES.get("test_messages", "not set")
+    return "Response from unittest_plugin.test_messages() [%s]" % msg
+

@@ -13,7 +13,7 @@ def has_messages(request):
 class PyLucidCacheMiddlewareBase(object):
     def use_cache(self, request):
         if not request.method in ('GET', 'HEAD'):
-            print "cache not %r" % request.method
+            #print "cache not %r" % request.method
             return False
         if request.GET:
             # Don't cache PyLucid get views
@@ -28,6 +28,7 @@ class PyLucidCacheMiddlewareBase(object):
 
         if has_messages(request):
             # Don't cache pages for anonymous users which contains a messages
+            #print "*** page for anonymous users has messages -> don't cache"
             return False
 
         return True
@@ -38,21 +39,13 @@ class PyLucidFetchFromCacheMiddleware(PyLucidCacheMiddlewareBase):
         Try to fetch response from cache, if exists.
         """
         if not self.use_cache(request):
-            return
-
-        if has_messages(request):
-            # A message should inserted into the page, we can't used
-            # the cached version of the page here 
+            #print "Don't fetch from cache."
             return
 
         cache_key = request.path
         response = cache.get(cache_key)
-        if response is not None:
-            # Insert current cookies from user to the cached response
-#            cookies = request.COOKIES
-#            for key, value in cookies.items():
-#                response.set_cookie(key, value)
-
+        if response is not None: # cache hit
+            #print "Use %r from cache!" % cache_key
             response._from_cache = True
             return response
 
@@ -63,16 +56,17 @@ class PyLucidUpdateCacheMiddleware(PyLucidCacheMiddlewareBase):
             return response
 
         if not self.use_cache(request):
+            #print "Don't put to cache."
             return response
 
         cookies = response.cookies.copy() # Store the cookies from current user
-        print "Old cookies:", cookies
+        #print "Old cookies:", cookies
 
         response.cookies.clear() # Don't cache any cookies
 
         cache_key = request.path
         cache.set(cache_key, response)
-        print "Put to cache %r Cookies: %r" % (cache_key, response.cookies)
+        #print "Put to cache %r Cookies: %r" % (cache_key, response.cookies)
         response.cookies = cookies # Restore the cookies from the current user
-        print "Restored Cookies:", response.cookies
+        #print "Restored Cookies:", response.cookies
         return response

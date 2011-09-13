@@ -54,4 +54,13 @@ urlpatterns = patterns('',
         views.test_add_headfiles, name='UnittestPlugin-test_add_headfiles'
     ),
 
+    url(
+        r'^test_cache/$',
+        views.test_cache, name='UnittestPlugin-test_cache'
+    ),
+    url(
+        r'^test_messages/$',
+        views.test_messages, name='UnittestPlugin-test_messages'
+    ),
+
 )
