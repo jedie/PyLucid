@@ -4,6 +4,7 @@ from django import http
 from django.conf import settings
 from django.core.cache import cache
 from Cookie import SimpleCookie
+from django.utils.cache import get_max_age, patch_response_headers
 
 def has_messages(request):
     if hasattr(request, '_messages') and len(request._messages) != 0:
@@ -55,9 +56,24 @@ class PyLucidUpdateCacheMiddleware(PyLucidCacheMiddlewareBase):
             # Current response comes from the cache, no need to update the cache
             return response
 
+        if response.status_code != 200: # Don't cache e.g. error pages
+            return response
+
         if not self.use_cache(request):
             #print "Don't put to cache."
             return response
+
+        # get the timeout from the "max-age" section of the "Cache-Control" header
+        timeout = get_max_age(response)
+        if timeout == None:
+            # use default cache_timeout
+            timeout = settings.CACHE_MIDDLEWARE_SECONDS
+        elif timeout == 0:
+            # Don't cache this page
+            return response
+
+        # Adds ETag, Last-Modified, Expires and Cache-Control headers
+        patch_response_headers(response, timeout)
 
         cookies = response.cookies.copy() # Store the cookies from current user
         #print "Old cookies:", cookies
@@ -65,7 +81,7 @@ class PyLucidUpdateCacheMiddleware(PyLucidCacheMiddlewareBase):
         response.cookies.clear() # Don't cache any cookies
 
         cache_key = request.path
-        cache.set(cache_key, response)
+        cache.set(cache_key, response, timeout)
         #print "Put to cache %r Cookies: %r" % (cache_key, response.cookies)
         response.cookies = cookies # Restore the cookies from the current user
         #print "Restored Cookies:", response.cookies
