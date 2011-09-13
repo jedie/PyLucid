@@ -17,7 +17,7 @@ import codecs
 import random
 
 
-__version__ = (0, 2, 0)
+__version__ = (0, 2, 1)
 
 
 #------------------------------------------------------------------------------
@@ -204,10 +204,20 @@ class ReqInfo(object):
 
 
 class StandalonePackageMaker(object):
-    def __init__(self, pylucid_env_dir, dest_dir):
+    def __init__(self, dest_dir):
         self.dest_dir = self._make_abspath(dest_dir)
         self.dest_package_dir = os.path.join(self.dest_dir, "PyLucid_standalone")
-        self.pylucid_env_dir = self._make_abspath(pylucid_env_dir)
+
+        env_path = os.environ.get("VIRTUAL_ENV")
+        if env_path is None:
+            print "Error: VIRTUAL_ENV not in environment!"
+            print "Have you activate the virtualenv?"
+            sys.exit(-1)
+        if not os.path.isdir(env_path):
+            print "Error: VIRTUAL_ENV path %r doesn't exist?!?!" % env_path
+            sys.exit(-1)
+
+        self.pylucid_env_dir = env_path
         self.pylucid_dir = os.path.join(self.pylucid_env_dir, "src", "pylucid")
 
         self.precheck()
@@ -516,17 +526,16 @@ def main():
     parser = optparse.OptionParser(version=VERSION_STRING, usage=USAGE)
     options, args = parser.parse_args()
 
-    if len(args) != 2:
+    if len(args) != 1:
         print(
-            "You must give two arguments: PYLUCID_ENV_DIR and DEST"
-            " (you gave %s)" % repr(args)[1:-1]
+            "You must give the destination path as command argument!"
+            " (you gave %r)" % repr(args)[1:-1]
         )
         parser.print_help()
         sys.exit(2)
 
-    pylucid_env_dir = args[0]
-    dest_dir = args[1]
-    StandalonePackageMaker(pylucid_env_dir, dest_dir)
+    dest_dir = args[0]
+    StandalonePackageMaker(dest_dir)
 
     print "\n\nPyLucid standalone package created."
 
