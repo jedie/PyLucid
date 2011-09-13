@@ -285,6 +285,7 @@ def _render_root_page(request, url_lang_code=None):
     return _render_page(request, pagetree, url_lang_code)
 
 
+@csrf_exempt
 def root_page(request):
     """ render the first root page in system default language """
     # activate language via auto detection
@@ -311,6 +312,7 @@ def _lang_code_is_pagetree(request, url_lang_code):
     return False
 
 
+@csrf_exempt
 def lang_root_page(request, url_lang_code):
     """ url with lang code but no page slug """
 
@@ -393,6 +395,7 @@ def page_without_lang(request, url_path):
     return _i18n_redirect(request, url_path)
 
 
+@csrf_exempt
 def permalink(request, page_id, url_rest=""):
     """ resolve a permalink and redirect to the real url. """
     # activate language via auto detection
