@@ -1543,20 +1543,22 @@ def create_bootstrap_script(extra_text, python_version=''):
 # requirements from normal_installation.txt
 NORMAL_INSTALLATION = ['feedparser>=5.0.1,<5.1',
  'Pygments>=1.4,<1.5',
+ 'flup>=1.0.2,<1.1',
  'django-reversion>=1.4,<1.5',
  'django-dbtemplates>=1.1.1,<1.2',
  'django-tagging>=0.3.1,<0.4',
  'South>=0.7.3,<0.8',
- 'Django>=1.3,<1.4',
- 'python-creole>=0.7.3,<0.8',
+ 'Django>=1.3.1,<1.4',
+ 'python-creole>=0.8.2,<0.9',
  'django-dbpreferences>=0.4.2,<0.5',
- 'django-tools>=0.19.1,<0.20',
+ 'django-tools>=0.19.5,<0.20',
  'django-processinfo>=0.4',
  '--editable=git+git://github.com/jedie/PyLucid.git#egg=pylucid']
 
 # requirements from developer_installation.txt
 DEVELOPER_INSTALLATION = ['feedparser>=5.0.1,<5.1',
  'Pygments>=1.4,<1.5',
+ 'flup>=1.0.2,<1.1',
  'django-reversion>=1.4,<1.5',
  'django-dbtemplates>=1.1.1,<1.2',
  'django-tagging>=0.3.1,<0.4',
