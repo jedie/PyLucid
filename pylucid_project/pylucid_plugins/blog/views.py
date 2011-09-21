@@ -136,8 +136,7 @@ def summary(request):
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
-    current_lang = request.PYLUCID.current_language.description
-    _add_breadcrumb(request, _("All articles in %s.") % current_lang)
+    _add_breadcrumb(request, _("All articles."))
 
     # For adding page update information into context by pylucid context processor
     try:
@@ -170,9 +169,8 @@ def tag_view(request, tags):
     paginator = BlogEntry.objects.paginate(request, queryset)
 
     # Add link to the breadcrumbs ;)
-    text = _("All items tagged with: %s") % ", ".join(tags)
-    current_lang = request.PYLUCID.current_language.description
-    _add_breadcrumb(request, text, text + _(" and are written in %s.") % current_lang)
+    text = _("All items tagged with: %s") % ", ".join(["'%s'" % tag for tag in tags])
+    _add_breadcrumb(request, text)
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
