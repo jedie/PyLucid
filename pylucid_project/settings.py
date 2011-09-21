@@ -372,6 +372,9 @@ CACHES = {
     },
 }
 
+# Set default cache timeout (in seconds) to 2 Days (used in own PyLucid cache middleware, too) 
+CACHE_MIDDLEWARE_SECONDS = 60 * 60 * 48
+
 #_______________________________________________________________________________
 
 
