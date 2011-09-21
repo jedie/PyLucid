@@ -92,21 +92,23 @@ MIDDLEWARE_CLASSES = (
     'django_processinfo.middlewares.django_processinfo.ProcessInfoMiddleware',
     'pylucid_project.middlewares.ip_ban.IPBanMiddleware',
 
-    'django_tools.local_sync_cache.LocalSyncCacheMiddleware.LocalSyncCacheMiddleware',
-
     # Insert a statistic line into the generated page:
     'pylucid_project.middlewares.pagestats.PageStatsMiddleware',
 
-    'django.middleware.cache.UpdateCacheMiddleware',
+    'django_tools.local_sync_cache.LocalSyncCacheMiddleware.LocalSyncCacheMiddleware',
 
     # From http://code.google.com/p/django-tools/
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    'pylucid_project.middlewares.cache.PyLucidFetchFromCacheMiddleware',
+    'pylucid_project.middlewares.cache.PyLucidUpdateCacheMiddleware',
+
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 
     'dbpreferences.middleware.DBPreferencesMiddleware',
@@ -118,7 +120,6 @@ MIDDLEWARE_CLASSES = (
 #    'django_tools.middlewares.SlowerDevServer.SlowerDevServerMiddleware',
 
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
 
     'django.middleware.transaction.TransactionMiddleware',
     'reversion.middleware.RevisionMiddleware',
@@ -370,7 +371,6 @@ CACHES = {
         'LOCATION': 'PyLucid-local_sync-cache',
     },
 }
-CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 #_______________________________________________________________________________
 
