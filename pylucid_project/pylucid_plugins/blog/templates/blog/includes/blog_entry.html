@@ -1,5 +1,5 @@
-<h2><a href="{{ entry.get_absolute_url }}" class="blog_headline" hreflang="{{ entry.language.code }}">{{ entry.headline }}</a></h2>
-<small class="headline_info">{% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.</small>
+<h2><a href="{{ entry.get_absolute_url }}" class="blog_headline" hreflang="{{ entry.language.code }}">{{ entry.createtime|date:_("DATE_FORMAT") }} - {{ entry.headline }}</a></h2>
+<small class="headline_info" title="{{ entry.createtime|date:_("DATETIME_FORMAT") }}">{% blocktrans with entry.createtime|timesince as time %}Before {{ time }} published by{% endblocktrans %} {{ entry.createby }}.</small>
 
 {% if not entry.is_public %}
     <p class="admin_info_line">not public</p>
