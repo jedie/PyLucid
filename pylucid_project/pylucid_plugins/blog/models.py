@@ -45,6 +45,11 @@ TAG_INPUT_HELP_URL = \
 
 
 class BlogEntryManager(models.Manager):
+    def _get_preferences(self):
+        pref_form = BlogPrefForm()
+        preferences = pref_form.get_preferences()
+        return preferences
+
     def all_accessible(self, request, filter_language=False):
         """ returns a queryset of all blog entries that the current user can access. """
         filters = self.get_filters(request, filter_language=filter_language)
@@ -57,8 +62,15 @@ class BlogEntryManager(models.Manager):
         filters = {"sites__id__exact": settings.SITE_ID}
 
         if filter_language:
-            current_lang = request.PYLUCID.current_language
-            filters["language"] = current_lang
+            # Filter by language
+            preferences = self._get_preferences()
+            language_filter = preferences["language_filter"]
+            if language_filter == BlogPrefForm.CURRENT_LANGUAGE:
+                # Display only blog entries in current language (select on the page)             
+                filters["language"] = request.PYLUCID.current_language
+            elif language_filter == BlogPrefForm.PREFERED_LANGUAGES:
+                # Filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)
+                filters["language_in"] = request.PYLUCID.current_languages
 
         if not request.user.has_perm("blog.change_blogentry"):
             filters["is_public"] = True
@@ -73,8 +85,7 @@ class BlogEntryManager(models.Manager):
     def paginate(self, request, queryset):
         """ Limit the queryset with django Paginator and returns the Paginator instance """
         # Get number of entries allowed by the users see on a page. 
-        pref_form = BlogPrefForm()
-        preferences = pref_form.get_preferences()
+        preferences = self._get_preferences()
         if request.user.is_anonymous():
             max_count = preferences.get("max_anonym_count", 10)
         else:

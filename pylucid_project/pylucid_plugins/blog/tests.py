@@ -29,6 +29,7 @@ from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE
 
 from pylucid_project.pylucid_plugins.blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 
 SUMMARY_URL = "/%s/blog/"
@@ -252,6 +253,10 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         """ create some blog articles """
         super(BlogPluginArticleTest, self)._pre_setup(*args, **kwargs)
 
+        self.pref_form = BlogPrefForm()
+        self.pref_form["language_filter"] = BlogPrefForm.CURRENT_LANGUAGE
+        self.pref_form.save()
+
         defaults = {
             "markup": MARKUP_CREOLE,
             "is_public": True,
@@ -291,11 +296,11 @@ class BlogPluginArticleTest(BlogPluginTestCase):
             must_contain=(
                 '<title>PyLucid CMS - Second entry in english</title>',
 
-                '<a href="/en/blog/2/second-entry-in-english/" class="blog_headline"'
-                ' hreflang="en">Second entry in english</a>',
+                '<a href="/en/blog/2/second-entry-in-english/" class="blog_headline" hreflang="en">',
+                'Second entry in english</a>',
 
-                '<a href="/en/blog/2/second-entry-in-english/"'
-                ' title="Article &#39;Second entry in english&#39;">Second entry in english</a>',
+                '<a href="/en/blog/2/second-entry-in-english/" title="Article &#39;Second entry in english&#39;">',
+                'Second entry in english</a>',
 
                 # english tag cloud:
                 'tag cloud', '<a href="/en/blog/tags/english-tag/" style="font-size:2em;">english-tag</a>',
@@ -311,7 +316,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
                 "All articles", "Alle Artikel",
 
                 # not the german tag cloud:
-                'Tag Cloud', '<a href="/en/blog/tags/deutsch-tag/" style="font-size:2em;">deutsch-tag</a>',
+                'Tag Cloud', '<a href="/en/blog/tags/deutsch-tag/" style="font-size:2em;">', 'deutsch-tag</a>',
             )
         )
 
@@ -390,8 +395,8 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         self.assertResponse(response,
             must_contain=(
                 '(blog entry)',
-                '<a href="/de/blog/4/zweiter-eintrag-in-deutsch/">Zweiter Eintrag in deutsch</a>',
-                '<a href="/de/blog/3/erster-eintrag-in-deutsch/">Erster Eintrag in deutsch</a>',
+                '<a href="/de/blog/4/zweiter-eintrag-in-deutsch/">', 'Zweiter Eintrag in deutsch</a>',
+                '<a href="/de/blog/3/erster-eintrag-in-deutsch/">', 'Erster Eintrag in deutsch</a>',
             ),
             must_not_contain=("Traceback", "First entry", "Second entry")
         )
@@ -403,8 +408,8 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         self.assertResponse(response,
             must_contain=(
                 '(blog entry)',
-                '<a href="/en/blog/2/second-entry-in-english/">Second entry in english</a>',
-                '<a href="/en/blog/1/first-entry-in-english/">First entry in english</a>',
+                '<a href="/en/blog/2/second-entry-in-english/">', 'Second entry in english</a>',
+                '<a href="/en/blog/1/first-entry-in-english/">', 'First entry in english</a>',
             ),
             must_not_contain=("Traceback", "Erster Eintrag", "Zweiter Eintrag")
         )
@@ -467,6 +472,24 @@ class BlogPluginArticleTest(BlogPluginTestCase):
 
     def test_rss_feed_other_language(self):
         self._test_rss_feed(self.other_language)
+
+    def test_all_languages(self):
+        self.pref_form = BlogPrefForm()
+        self.pref_form["language_filter"] = BlogPrefForm.ALL_LANGUAGES
+        self.pref_form.save()
+
+        response = self.client.get("/%s/blog/" % self.default_language.code,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.assertResponse(response,
+            must_contain=(
+                'Zweiter Eintrag in deutsch',
+                'Zweiter Eintrag in deutsch',
+                'Second entry in english',
+                'First entry in english',
+            ),
+            must_not_contain=("Traceback",)
+        )
 
 
 class BlogPluginCsrfTest(BlogPluginTestCase):
@@ -549,7 +572,7 @@ if __name__ == "__main__":
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
-#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_markup_preview_ids"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginArticleTest.test_all_languages"
 
     management.call_command('test', tests,
         verbosity=2,
