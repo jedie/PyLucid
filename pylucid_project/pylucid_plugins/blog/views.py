@@ -28,12 +28,11 @@ from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
-from blog.models import BlogEntry
-from blog.preference_forms import BlogPrefForm
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
-
 
 
 def _add_breadcrumb(request, *args, **kwargs):

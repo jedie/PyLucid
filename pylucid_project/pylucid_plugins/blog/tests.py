@@ -53,11 +53,11 @@ class BlogPluginTestCase(basetest.BaseLanguageTestCase):
     """
     SUMMARY_MUST_CONTAIN_EN = (
         '<a href="/en/blog/" title="Your personal weblog.">blog</a>',
-        '<a href="/en/blog/">All articles in English.</a>',
+        '<a href="/en/blog/">All articles.</a>',
     )
     SUMMARY_MUST_CONTAIN_DE = (
         '<a href="/de/blog/" title="Dein eigener Weblog.">blog</a>',
-        '<a href="/de/blog/">Alle Artikel in Deutsch.</a>',
+        '<a href="/de/blog/">Alle Artikel.</a>',
     )
     ENTRY_MUST_CONTAIN_EN = (
         '<a href="/en/blog/detail/PyLucid CMS/" title="PyLucid CMS', # breadcrumbs
@@ -576,5 +576,5 @@ if __name__ == "__main__":
 
     management.call_command('test', tests,
         verbosity=2,
-        failfast=True
+#        failfast=True
     )

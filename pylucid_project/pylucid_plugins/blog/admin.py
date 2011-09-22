@@ -17,14 +17,25 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
-
-from blog.models import BlogEntry
-
 from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
 
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
+    BlogEntryContent
 
-class BlogEntryAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
+
+class BlogEntryAdmin(admin.ModelAdmin):
     """
+    Language independend Blog entry.
+    """
+    list_display = ("id", "site_info",)
+    list_filter = ("sites",)
+admin.site.register(BlogEntry, BlogEntryAdmin)
+
+
+class BlogEntryContentAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
+    """
+    Language depend blog entry content.
+    
     inherited attributes from BaseAdmin:
         view_on_site_link -> html link with the absolute uri.
         
@@ -32,13 +43,11 @@ class BlogEntryAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
         ajax_markup_preview() -> the markup content ajax preview view
         get_urls()            -> add ajax view to admin urls 
     """
-    list_display = ("id", "headline", "is_public", "view_on_site_link", "site_info", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "headline", "is_public", "view_on_site_link", "lastupdatetime", "lastupdateby")
     list_display_links = ("headline",)
-    list_filter = ("is_public", "sites", "createby", "lastupdateby",)
+    list_filter = ("is_public", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'
     search_fields = ("headline", "content")
     ordering = ('-lastupdatetime',)
 
-
-
-admin.site.register(BlogEntry, BlogEntryAdmin)
+admin.site.register(BlogEntryContent, BlogEntryContentAdmin)

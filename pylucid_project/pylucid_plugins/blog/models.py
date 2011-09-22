@@ -36,7 +36,7 @@ from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
 
-from blog.preference_forms import BlogPrefForm
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 
 
@@ -107,15 +107,24 @@ class BlogEntryManager(models.Manager):
             return paginator.page(paginator.num_pages)
 
 
-
-class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
+class BlogEntry(AutoSiteM2M):
     """
-    A blog entry
+    Language independend Blog entry.
     
     inherited attributes from AutoSiteM2M:
         sites     -> ManyToManyField to Site
         on_site   -> sites.managers.CurrentSiteManager instance
         site_info -> a string with all site names, for admin.ModelAdmin list_display
+    """
+    objects = BlogEntryManager()
+
+    def __unicode__(self):
+        return "Blog entry %i" % self.pk
+
+
+class BlogEntryContent(UpdateInfoBaseModel):
+    """
+    Language depend blog entry content.
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -123,7 +132,7 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    objects = BlogEntryManager()
+    entry = models.ForeignKey(BlogEntry)
 
     headline = models.CharField(_('Headline'),
         help_text=_("The blog entry headline"), max_length=255
@@ -207,8 +216,6 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         permalink = plugin_permalink(request, absolute_url)
         return permalink
 
-
-
     def __unicode__(self):
         return self.headline
 
@@ -217,7 +224,7 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
 
 
 # Add a entry into update journal
-signals.post_save.connect(receiver=update_journal.save_receiver, sender=BlogEntry)
+signals.post_save.connect(receiver=update_journal.save_receiver, sender=BlogEntryContent)
 
 
 
