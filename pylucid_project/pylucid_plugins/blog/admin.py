@@ -13,6 +13,7 @@
 
 from django.conf.urls.defaults import patterns
 from django.contrib import admin
+from django.utils.translation import ugettext as _
 
 from reversion.admin import VersionAdmin
 
@@ -21,13 +22,23 @@ from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
 
 from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
     BlogEntryContent
+from django.template.loader import render_to_string
 
 
 class BlogEntryAdmin(admin.ModelAdmin):
     """
     Language independend Blog entry.
     """
-    list_display = ("id", "site_info",)
+    def contents(self, obj):
+        contents = BlogEntryContent.objects.filter(entry=obj)
+        context = {
+            "contents": contents
+        }
+        return render_to_string("admin/blog/entry_contents.html", context)
+    contents.short_description = _("Existing content entries")
+    contents.allow_tags = True
+
+    list_display = ("id", "site_info", "contents")
     list_filter = ("sites",)
 admin.site.register(BlogEntry, BlogEntryAdmin)
 

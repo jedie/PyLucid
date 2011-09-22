@@ -1,0 +1,5 @@
+<ul>
+{% for entry in contents %}
+	<li>{{ entry.language.code }}: <a href="{% url admin:blog_blogentrycontent_change entry.pk %}" title="edit">{{ entry }}</a></li>
+{% endfor %}
+</ul>
