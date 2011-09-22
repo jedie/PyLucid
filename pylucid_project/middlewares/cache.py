@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 from Cookie import SimpleCookie
 from django.utils.cache import get_max_age, patch_response_headers
+from django.http import HttpResponse
 
 def has_messages(request):
     if hasattr(request, '_messages') and len(request._messages) != 0:
@@ -72,17 +73,19 @@ class PyLucidUpdateCacheMiddleware(PyLucidCacheMiddlewareBase):
             # Don't cache this page
             return response
 
+        # Create a new HttpResponse for the cache, so we can skip existing
+        # cookies and attributes like response.csrf_processing_done
+        response2 = HttpResponse(
+            content=response._container,
+            status=200,
+            content_type=response['Content-Type']
+        )
+
         # Adds ETag, Last-Modified, Expires and Cache-Control headers
-        patch_response_headers(response, timeout)
-
-        cookies = response.cookies.copy() # Store the cookies from current user
-        #print "Old cookies:", cookies
-
-        response.cookies.clear() # Don't cache any cookies
+        patch_response_headers(response2, timeout)
 
         cache_key = request.path
-        cache.set(cache_key, response, timeout)
-        #print "Put to cache %r Cookies: %r" % (cache_key, response.cookies)
-        response.cookies = cookies # Restore the cookies from the current user
-        #print "Restored Cookies:", response.cookies
+        cache.set(cache_key, response2, timeout)
+
+        #print "PyLucidUpdateCacheMiddleware.process_response send cookies:", response.cookies
         return response
