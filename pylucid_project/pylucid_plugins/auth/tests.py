@@ -184,6 +184,44 @@ class LoginTest(basetest.BaseUnittest):
         self.failUnless(tested_under_limit == True)
         self.failUnless(tested_banned == True)
 
+    def test_get_salt_with_wrong_csrf_token(self):
+        settings.DEBUG = True
+        user = self._get_user("normal")
+        username = user.username
+        user_profile = user.get_profile()
+        salt = user_profile.sha_login_salt
+
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        # Create session
+        response = csrf_client.get("/?auth=login",
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        sessionid = response.cookies["sessionid"]
+
+        # send POST with sessionid but with wrong csrf token
+        response = csrf_client.post(
+            "/?auth=get_salt",
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            HTTP_COOKIE=(
+                "%s=1234567890abcdef1234567890abcdef;"
+                "sessionid=%s"
+            ) % (settings.CSRF_COOKIE_NAME, sessionid),
+            data={
+                "username": username,
+            }
+        )
+        self.assertResponse(response,
+            must_contain=(
+                'Forbidden', 'CSRF verification failed.',
+                'CSRF token missing or incorrect.',
+            ),
+            must_not_contain=(
+                salt,
+                "Traceback", "Form errors", "field is required",
+            )
+        )
+
     def test_get_salt_csrf(self):
         """
         https://github.com/jedie/PyLucid/issues/61
@@ -197,20 +235,22 @@ class LoginTest(basetest.BaseUnittest):
 
         csrf_client = Client(enforce_csrf_checks=True)
 
-        response = csrf_client.get("/")
-        csrf_cookie = response.cookies[settings.CSRF_COOKIE_NAME]
-        csrf_token = csrf_cookie.value
+        response = csrf_client.get("/") # Put page into cache
 
-        # Check if CSRF token is in JS Data
+        # Get the CSRF token
         response = csrf_client.get("/?auth=login",
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
+        csrf_cookie = response.cookies[settings.CSRF_COOKIE_NAME]
+        csrf_token = csrf_cookie.value
+
         self.assertResponse(response,
             must_contain=(
-                "var CSRF_TOKEN='%s';" % csrf_token,
+                '<p id="load_info">loading...</p>',
             ),
             must_not_contain=(
                 "Traceback", "Form errors", "field is required",
+                csrf_token,
                 "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- not a complete page
             )
         )
@@ -219,14 +259,35 @@ class LoginTest(basetest.BaseUnittest):
         response = csrf_client.post(
             "/?auth=get_salt",
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            HTTP_X_CSRFToken=csrf_token,
+            HTTP_X_CSRFTOKEN=csrf_token,
             data={
                 "username": username,
-                "csrfmiddlewaretoken": csrf_token,
             }
         )
         if response.content != salt:
-            self.raise_browser_traceback(response, "Response content is not salt %r" % salt)
+            self.raise_browser_traceback(response,
+                "Response content is not salt %r - content: %r" % (salt, response.content)
+            )
+
+        # remove client cookie and check if csrf protection works
+        del(csrf_client.cookies[settings.CSRF_COOKIE_NAME])
+        response = csrf_client.post(
+            "/?auth=get_salt",
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            data={
+                "username": username,
+            }
+        )
+        self.assertResponse(response,
+            must_contain=(
+                'Forbidden', 'CSRF verification failed.',
+                'CSRF cookie not set.',
+            ),
+            must_not_contain=(
+                salt, csrf_token,
+                "Traceback", "Form errors", "field is required",
+            )
+        )
 
 
 
@@ -237,6 +298,7 @@ if __name__ == "__main__":
     tests = __file__
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_login_ajax_form"
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_with_wrong_csrf_token"
 
     management.call_command('test', tests,
 #        verbosity=0,

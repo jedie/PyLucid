@@ -28,6 +28,7 @@ from pylucid_project.utils.python_tools import cutout
 
 from pylucid_project.pylucid_plugins.search.preference_forms import SearchPreferencesForm
 from django_tools.template.filters import human_duration
+from django.views.decorators.csrf import csrf_exempt
 
 
 def get_preferences():
@@ -256,7 +257,7 @@ def _search(request, cleaned_data):
     )
     return search_results
 
-
+@csrf_exempt # FIXME: Use AJAX?
 @render_to("search/search.html")#, debug=True)
 def http_get_view(request):
 

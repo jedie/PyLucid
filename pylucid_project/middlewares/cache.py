@@ -80,6 +80,12 @@ class PyLucidUpdateCacheMiddleware(PyLucidCacheMiddlewareBase):
             status=200,
             content_type=response['Content-Type']
         )
+        if settings.DEBUG:
+            # Check if we store a {% csrf_token %} into the cache
+            # This can't work ;)
+            for content in response._container:
+                if "csrfmiddlewaretoken" in content:
+                    raise AssertionError("csrf_token would be put into the cache! content: %r" % content)
 
         # Adds ETag, Last-Modified, Expires and Cache-Control headers
         patch_response_headers(response2, timeout)

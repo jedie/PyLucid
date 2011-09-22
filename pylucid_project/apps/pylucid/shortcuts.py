@@ -12,11 +12,12 @@
 """
 
 
-from django import http
 from django.conf import settings
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 
 from pylucid_project.apps.pylucid.models.log import LogEntry
+
 
 
 def render_pylucid_response(request, template_name, context, **kwargs):
@@ -51,13 +52,15 @@ def render_pylucid_response(request, template_name, context, **kwargs):
         response_content = extra_head_content + "\n" + response_content
 
         http_response_kwargs = {'mimetype': kwargs.pop('mimetype', None)}
-        return http.HttpResponse(response_content, **http_response_kwargs)
+        return HttpResponse(response_content, **http_response_kwargs)
     else:
 #        print "make normal response..."
         # Non-Ajax request: the string content would be replace the page content.
         # The {% extrahead %} content would be inserted into the globale template with
         # the PyLucid context middleware pylucid_plugin.extrahead.context_middleware
-        return response_content
+        response = HttpResponse(response_content)
+        response.replace_main_content = True # Plugin replace the page content
+        return response
 
 
 def bad_request(debug_msg):

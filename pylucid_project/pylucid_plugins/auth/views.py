@@ -27,6 +27,7 @@ from pylucid_project.utils import crypt
 # auth own stuff
 from forms import WrongUserError, UsernameForm, ShaLoginForm
 from preference_forms import AuthPreferencesForm
+from django.views.decorators.csrf import requires_csrf_token, csrf_protect
 
 
 # DEBUG is usefull for debugging. It send always the same challenge "12345" 
@@ -120,6 +121,7 @@ def _wrong_login(request, debug_msg, user=None):
     return HttpResponse(response, content_type="text/plain")
 
 
+@csrf_protect
 def _sha_auth(request):
     """
     login the user with username and sha values.
@@ -180,6 +182,7 @@ def _sha_auth(request):
         return HttpResponse("OK", content_type="text/plain")
 
 
+@csrf_protect
 def _get_salt(request):
     """
     return the user password salt.
@@ -227,6 +230,7 @@ def _get_salt(request):
     return HttpResponse(salt, content_type="text/plain")
 
 
+@csrf_protect
 def _login_view(request):
     if DEBUG:
         print("auth debug mode is on!")
@@ -256,15 +260,15 @@ def _login_view(request):
         "sha_auth_url": request.path + "?auth=sha_auth",
         "next_url": next_url,
         "form": form,
-
-        # We send 'csrfmiddlewaretoken' explicit in AJAX POST requests
-        # The problem is, that the cookie mailformed if the current page
-        # comes from cache. Don't know why :(
-        # https://github.com/jedie/PyLucid/issues/61
-        "csrf_token": request.META["CSRF_COOKIE"],
-
         "pass_reset_link": "#TODO",
     }
+
+    # IMPORTANT: We must do the following, so that the
+    # CsrfViewMiddleware.process_response() would set the CSRF_COOKIE
+    # see also # https://github.com/jedie/PyLucid/issues/61
+    # XXX in Django => 1.4 we can use @ensure_csrf_cookie
+    # https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#django.views.decorators.csrf.ensure_csrf_cookie
+    request.META["CSRF_COOKIE_USED"] = True
 
     # return a string for replacing the normal cms page content
     return render_pylucid_response(request, 'auth/sha_form.html', context, context_instance=RequestContext(request))

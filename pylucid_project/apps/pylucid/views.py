@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.template import loader, RequestContext
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_view_exempt, csrf_exempt
 
 from django_tools.template import render
 
@@ -132,18 +132,18 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     get_view_replace_content = False
     get_view_response = PYLUCID_PLUGINS.call_get_views(request)
     if get_view_response is not None: # Use plugin response
-        if isinstance(get_view_response, http.HttpResponse):
+        assert isinstance(get_view_response, http.HttpResponse), (
+            "Plugin get view must return None or HttpResponse! (returned: %r)"
+        ) % type(get_view_response)
+
+        if getattr(get_view_response, "replace_main_content", False):
+            # Plugin replace the page content
+            context["page_content"] = get_view_response.content
+            get_view_replace_content = True
+        else:
             # Plugin would be build the complete html page
             response = _apply_context_middleware(request, get_view_response)
             return response
-
-        assert isinstance(get_view_response, basestring), (
-            "Plugin get view must return None, HttpResponse or a basestring! (returned: %r)"
-        ) % type(get_view_response)
-
-        # Plugin replace the page content
-        context["page_content"] = get_view_response
-        get_view_replace_content = True
 
     # call page plugin, if current page is a plugin page
     page_plugin_response = None
@@ -285,7 +285,7 @@ def _render_root_page(request, url_lang_code=None):
     return _render_page(request, pagetree, url_lang_code)
 
 
-@csrf_exempt
+@csrf_view_exempt
 def root_page(request):
     """ render the first root page in system default language """
     # activate language via auto detection
@@ -312,7 +312,7 @@ def _lang_code_is_pagetree(request, url_lang_code):
     return False
 
 
-@csrf_exempt
+@csrf_view_exempt
 def lang_root_page(request, url_lang_code):
     """ url with lang code but no page slug """
 
@@ -366,8 +366,8 @@ def _get_pagetree(request, url_path):
 # We must exempt csrf test here, but we use csrf_protect() later in:
 # pylucid_project.apps.pylucid.system.pylucid_plugin.call_plugin()
 # pylucid_project.system.pylucid_plugins.PyLucidPlugin.call_plugin_view()
-# see also: https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#csrfviewmiddleware-process-view-not-used
-@csrf_exempt
+# see also: https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#view-needs-protection-for-one-path
+@csrf_view_exempt
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
     if _lang_code_is_pagetree(request, url_lang_code):

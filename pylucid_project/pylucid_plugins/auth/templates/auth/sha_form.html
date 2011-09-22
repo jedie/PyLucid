@@ -14,7 +14,6 @@
 .page_msg_info { color: #0000ff; border: 1px solid #000000; }
 </style>
 <script type="text/javascript">
-var CSRF_TOKEN='{{ csrf_token }}';
 var SALT_LEN={{ salt_len }};
 var HASH_LEN={{ hash_len }};
 var challenge="{{ challenge }}"; // changed via ajax, after wrong login
@@ -26,7 +25,7 @@ try {
     alert("Error, jQuery JS not loaded!\n Original error was:" + e);
 }
 
-jQuery(document).ready(function($) {
+jQuery(document).ready(function($) {   
     if (challenge.length != SALT_LEN) {
         alert("Wrong challenge from server length:" + challenge.length + "!=" + SALT_LEN);
         return false;
@@ -96,7 +95,7 @@ jQuery(document).ready(function($) {
 				page_msg_info("{% trans 'Get the hash salt value from server...' %}");
                 var post_data = {
                     "username": username,
-                    "csrfmiddlewaretoken": CSRF_TOKEN
+                    //"csrfmiddlewaretoken": CSRF_TOKEN
                 };
                 log("get user salt from server, send POST:" + $.param(post_data));
 				response = $.ajax({
@@ -155,7 +154,6 @@ jQuery(document).ready(function($) {
 
 			var post_data = {
 			    "username": username, "sha_a2": sha_a2, "sha_b": sha_b,
-			    "csrfmiddlewaretoken": CSRF_TOKEN
 			}
 			log("auth user, send POST:" + $.param(post_data));
 			page_msg_info("{% trans 'Send SHA-1 values to the server...' %}");
