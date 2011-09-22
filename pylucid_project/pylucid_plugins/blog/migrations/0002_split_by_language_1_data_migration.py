@@ -46,7 +46,7 @@ class Migration(SchemaMigration):
                 entry=entry,
                 createby=entry.createby,
                 lastupdateby=entry.lastupdateby,
-                headline=entry.content,
+                headline=entry.headline,
                 content=entry.content,
                 markup=entry.markup,
                 language=entry.language,
