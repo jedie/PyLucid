@@ -154,7 +154,7 @@ class BlogEntryContent(UpdateInfoBaseModel):
         FIXME: clean only the blog summary and detail page:
             http://www.python-forum.de/topic-22739.html (de)
         """
-        super(BlogEntry, self).save(*args, **kwargs)
+        super(BlogEntryContent, self).save(*args, **kwargs)
 
         cache.clear() # FIXME: This cleaned the complete cache for every site!
 
