@@ -105,7 +105,7 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
     request.method_name = view_func.__name__
 
     csrf_exempt = getattr(view_func, 'csrf_exempt', False)
-    if not getattr(view_func, 'csrf_exempt', False):
+    if not csrf_exempt:
         view_func = csrf_protect(view_func)
 
     # Call the view
