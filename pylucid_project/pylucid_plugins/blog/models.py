@@ -239,15 +239,31 @@ class BlogEntryContent(UpdateInfoBaseModel):
     def get_absolute_url(self):
         url_title = slugify(self.headline)
         viewname = "Blog-detail_view"
-        reverse_kwargs = {"id": self.pk, "title":url_title}
+
+        reverse_kwargs = {
+            "year": "%s" % self.createtime.year,
+            "month": "%s" % self.createtime.month,
+            "day": "%s" % self.createtime.day,
+
+#            "year": self.createtime.strftime('%Y'),
+#            "month": self.createtime.strftime('%m'),
+#            "day": self.createtime.strftime('%d'),
+
+            "id": self.pk, "title":url_title
+        }
+        print reverse_kwargs
         try:
             # This only worked inner lucidTag
             url = urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
-        except urlresolvers.NoReverseMatch:
+        except urlresolvers.NoReverseMatch, err:
+            if settings.RUN_WITH_DEV_SERVER:
+                print "*** Blog url reverse error 1: %s" % err
             # Use the first PluginPage instance
             try:
                 url = PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
-            except urlresolvers.NoReverseMatch:
+            except urlresolvers.NoReverseMatch, err:
+                if settings.RUN_WITH_DEV_SERVER:
+                    print "*** Blog url reverse error 2: %s" % err
                 return "#No-Blog-PagePlugin-exists"
 
         if not url.startswith("/%s/" % self.language.code):

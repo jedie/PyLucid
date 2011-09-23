@@ -34,6 +34,7 @@ from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
+from django.http import HttpResponsePermanentRedirect
 
 
 def _add_breadcrumb(request, *args, **kwargs):
@@ -190,18 +191,17 @@ def tag_view(request, tags):
     }
     return context
 
-
 @csrf_protect
 @render_to("blog/detail_view.html")
-def detail_view(request, id, title):
+def detail_view(request, year, month, day, id, title):
     """
     Display one blog entry with a comment form.
     """
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request, filter_language=False)
+    prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     try:
-        entry = queryset.get(pk=id)
+        entry = prefiltered_queryset.get(pk=id)
     except BlogEntry.DoesNotExist:
         # It's possible that the user comes from a external link.
         msg = "Blog entry doesn't exist."
@@ -220,7 +220,8 @@ def detail_view(request, id, title):
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, entry.headline, _("Article '%s'") % entry.headline)
 
-    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
+    # Calculate the tag cloud from all existing entries
+    tag_cloud = BlogEntryContent.objects.get_tag_cloud(request)
 
     # Change permalink from the blog root page to this entry detail view
     permalink = entry.get_permalink(request)
@@ -240,6 +241,34 @@ def detail_view(request, id, title):
         "page_permalink": permalink, # Change the permalink in the global page template
     }
     return context
+
+#------------------------------------------------------------------------------
+
+def redirect_old_urls(request, id, title):
+    """ permanent redirect old url's to new url scheme """
+    prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    try:
+        entry = prefiltered_queryset.get(pk=id)
+    except BlogEntry.DoesNotExist:
+        # It's possible that the user comes from a external link.
+        msg = "Blog entry doesn't exist."
+        if settings.DEBUG or request.user.is_staff:
+            msg += " (ID %r wrong.)" % id
+        messages.error(request, msg)
+        return summary(request)
+
+    url = entry.get_absolute_url()
+    return HttpResponsePermanentRedirect(url)
+
+def year_archive(request, year):
+    raise NotImplementedError
+
+def month_archive(request, year, month):
+    raise NotImplementedError
+
+def day_archive(request, year, month, day):
+    raise NotImplementedError
 
 #------------------------------------------------------------------------------
 
