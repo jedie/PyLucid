@@ -35,6 +35,7 @@ from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateI
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
+from pylucid_project.utils.i18n_utils import filter_by_language
 
 from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm, get_preferences
 
@@ -124,25 +125,9 @@ class BlogEntryContentManager(models.Manager):
         prefered_languages_pk = tuple([lang.pk for lang in request.PYLUCID.languages])
         queryset = queryset.filter(language__in=prefered_languages_pk)
 
-
-        # Group language & content by entry
-        values_list = queryset.values_list("pk", "entry", "language")
-        entry_dict = {}
-        for content_id, entry_id, language_id in values_list:
-            if entry_id not in entry_dict:
-                entry_dict[entry_id] = [(language_id, content_id)]
-            else:
-                entry_dict[entry_id].append((language_id, content_id))
-
-
         # Create a list of content id's which the best language match
-        used_ids = []
-        for existing_entries in entry_dict.values():
-            temp_content_dict = dict(existing_entries)
-            for prefered in prefered_languages_pk:
-                if prefered in temp_content_dict:
-                    used_ids.append(temp_content_dict[prefered])
-                    break
+        values_list = queryset.values_list("pk", "entry", "language")
+        used_ids = filter_by_language(values_list, prefered_languages_pk)
 
         # Get the current blog content we display on the current paginator page
         used_content = self.model.objects.filter(pk__in=used_ids)
