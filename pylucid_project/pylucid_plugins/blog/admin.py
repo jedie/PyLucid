@@ -54,7 +54,7 @@ class BlogEntryContentAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
         ajax_markup_preview() -> the markup content ajax preview view
         get_urls()            -> add ajax view to admin urls 
     """
-    list_display = ("id", "headline", "is_public", "view_on_site_link", "lastupdatetime", "lastupdateby")
+    list_display = ("id", "headline", "is_public", "view_on_site_link", "lastupdatetime", "lastupdateby", "createtime")
     list_display_links = ("headline",)
     list_filter = ("is_public", "createby", "lastupdateby",)
     date_hierarchy = 'lastupdatetime'

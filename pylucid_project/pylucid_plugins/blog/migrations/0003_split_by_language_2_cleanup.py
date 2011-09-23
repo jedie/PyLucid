@@ -1,83 +1,80 @@
 # encoding: utf-8
 
 """
-    Split the blog model into two models with
-    language depend and independent informations.
-
-    see also:
-    
-    https://github.com/jedie/PyLucid/issues/28
-    https://github.com/jedie/PyLucid/issues/64
-    
-    First we create the new table and do a data migration.
-    In second step we remove all unused columns from BlogEntry model.
+    Second step: Delete obsolete column in BlogEntry model
 """
 
 import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-from django.conf import settings
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Deleting field 'BlogEntry.createby'
+        db.delete_column('blog_blogentry', 'createby_id')
 
-        # Adding model 'BlogEntryContent'
-        db.create_table('blog_blogentrycontent', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('createtime', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('lastupdatetime', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('createby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='blogentrycontent_createby', null=True, to=orm['auth.User'])),
-            ('lastupdateby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='blogentrycontent_lastupdateby', null=True, to=orm['auth.User'])),
-            ('entry', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['blog.BlogEntry'])),
-            ('headline', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(db_index=True, max_length=255, blank=True)),
-            ('content', self.gf('pylucid_project.apps.pylucid.fields.MarkupContentModelField')()),
-            ('markup', self.gf('pylucid_project.apps.pylucid.fields.MarkupModelField')()),
-            ('language', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pylucid.Language'])),
-            ('tags', self.gf('django_tools.tagging_addon.fields.jQueryTagModelField')()),
-            ('is_public', self.gf('django.db.models.fields.BooleanField')(default=True)),
-        ))
-        db.send_create_signal('blog', ['BlogEntryContent'])
+        # Deleting field 'BlogEntry.lastupdatetime'
+        db.delete_column('blog_blogentry', 'lastupdatetime')
 
-        print "\tDo datamigration of blog entries:",
-        for entry in orm.BlogEntry.objects.all():
-            print entry.pk,
-            new_entry = orm.BlogEntryContent.objects.create(
-                entry=entry,
-                createby=entry.createby,
-                lastupdateby=entry.lastupdateby,
-                headline=entry.headline,
-                content=entry.content,
-                markup=entry.markup,
-                language=entry.language,
-                tags=entry.tags,
-                is_public=entry.is_public,
-            )
+        # Deleting field 'BlogEntry.tags'
+        db.delete_column('blog_blogentry', 'tags')
 
-            # Temorary disable auto new function
-            # see: http://stackoverflow.com/questions/7499767/temporarily-disable-auto-now-auto-now-add
-            for field in new_entry._meta.local_fields:
-                if field.name == "lastupdatetime":
-                    field.auto_now = False
-                elif field.name == "createtime":
-                    field.auto_now_add = False
+        # Deleting field 'BlogEntry.lastupdateby'
+        db.delete_column('blog_blogentry', 'lastupdateby_id')
 
-            new_entry.createtime = entry.createtime
-            new_entry.lastupdatetime = entry.lastupdatetime
-            new_entry.save()
+        # Deleting field 'BlogEntry.language'
+        db.delete_column('blog_blogentry', 'language_id')
 
-            for field in new_entry._meta.local_fields:
-                if field.name == "lastupdatetime":
-                    field.auto_now = True
-                elif field.name == "createtime":
-                    field.auto_now_add = True
-        print "done."
+        # Deleting field 'BlogEntry.headline'
+        db.delete_column('blog_blogentry', 'headline')
+
+        # Deleting field 'BlogEntry.markup'
+        db.delete_column('blog_blogentry', 'markup')
+
+        # Deleting field 'BlogEntry.content'
+        db.delete_column('blog_blogentry', 'content')
+
+        # Deleting field 'BlogEntry.createtime'
+        db.delete_column('blog_blogentry', 'createtime')
 
 
     def backwards(self, orm):
         raise RuntimeError("Cannot reverse this migration.")
+#        # Deleting model 'BlogEntryContent'
+#        db.delete_table('blog_blogentrycontent')
+#
+#        # Adding field 'BlogEntry.createby'
+#        db.add_column('blog_blogentry', 'createby', self.gf('django.db.models.fields.related.ForeignKey')(related_name='blogentry_createby', null=True, to=orm['auth.User'], blank=True), keep_default=False)
+#
+#        # Adding field 'BlogEntry.lastupdatetime'
+#        db.add_column('blog_blogentry', 'lastupdatetime', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, default='XXX', blank=True), keep_default=False)
+#
+#        # Adding field 'BlogEntry.tags'
+#        db.add_column('blog_blogentry', 'tags', self.gf('django_tools.tagging_addon.fields.jQueryTagModelField')(default=''), keep_default=False)
+#
+#        # Adding field 'BlogEntry.is_public'
+#        db.add_column('blog_blogentry', 'is_public', self.gf('django.db.models.fields.BooleanField')(default=True), keep_default=False)
+#
+#        # Adding field 'BlogEntry.lastupdateby'
+#        db.add_column('blog_blogentry', 'lastupdateby', self.gf('django.db.models.fields.related.ForeignKey')(related_name='blogentry_lastupdateby', null=True, to=orm['auth.User'], blank=True), keep_default=False)
+#
+#        # Adding field 'BlogEntry.language'
+#        db.add_column('blog_blogentry', 'language', self.gf('django.db.models.fields.related.ForeignKey')(default='XXX', to=orm['pylucid.Language']), keep_default=False)
+#
+#        # Adding field 'BlogEntry.headline'
+#        db.add_column('blog_blogentry', 'headline', self.gf('django.db.models.fields.CharField')(default='XXX', max_length=255), keep_default=False)
+#
+#        # Adding field 'BlogEntry.markup'
+#        db.add_column('blog_blogentry', 'markup', self.gf('pylucid_project.apps.pylucid.fields.MarkupModelField')(default='XXX'), keep_default=False)
+#
+#        # Adding field 'BlogEntry.content'
+#        db.add_column('blog_blogentry', 'content', self.gf('pylucid_project.apps.pylucid.fields.MarkupContentModelField')(default='XXX'), keep_default=False)
+#
+#        # Adding field 'BlogEntry.createtime'
+#        db.add_column('blog_blogentry', 'createtime', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default='XXX', blank=True), keep_default=False)
+
 
     models = {
         'auth.group': {
@@ -110,19 +107,10 @@ class Migration(SchemaMigration):
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         'blog.blogentry': {
-            'Meta': {'ordering': "('-createtime', '-lastupdatetime')", 'object_name': 'BlogEntry'},
-            'content': ('pylucid_project.apps.pylucid.fields.MarkupContentModelField', [], {}),
-            'createby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'blogentry_createby'", 'null': 'True', 'to': "orm['auth.User']"}),
-            'createtime': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'headline': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'Meta': {'object_name': 'BlogEntry'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_public': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'language': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['pylucid.Language']"}),
-            'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'blogentry_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
-            'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'markup': ('pylucid_project.apps.pylucid.fields.MarkupModelField', [], {}),
-            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': [settings.SITE_ID], 'to': "orm['sites.Site']", 'symmetrical': 'False'}),
-            'tags': ('django_tools.tagging_addon.fields.jQueryTagModelField', [], {})
+            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[1]', 'to': "orm['sites.Site']", 'symmetrical': 'False'}),
+            'is_public': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
         },
         'blog.blogentrycontent': {
             'Meta': {'ordering': "('-createtime', '-lastupdatetime')", 'object_name': 'BlogEntryContent'},
@@ -157,7 +145,7 @@ class Migration(SchemaMigration):
             'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'language_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
             'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'permitViewGroup': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'language_permitViewGroup'", 'null': 'True', 'to': "orm['auth.Group']"}),
-            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': [settings.SITE_ID], 'to': "orm['sites.Site']", 'symmetrical': 'False'})
+            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[1]', 'to': "orm['sites.Site']", 'symmetrical': 'False'})
         },
         'sites.site': {
             'Meta': {'ordering': "('domain',)", 'object_name': 'Site', 'db_table': "'django_site'"},

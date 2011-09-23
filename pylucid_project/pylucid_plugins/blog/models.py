@@ -10,14 +10,15 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-from django.db import models
 from django.conf import settings
-from django.core.cache import cache
 from django.core import urlresolvers
+from django.core.cache import cache
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.db import models
 from django.db.models import signals
 from django.template.defaultfilters import slugify
+from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 # http://code.google.com/p/django-tagging/
 from tagging.models import Tag, TaggedItem
@@ -54,6 +55,25 @@ class BlogEntry(AutoSiteM2M):
         on_site   -> sites.managers.CurrentSiteManager instance
         site_info -> a string with all site names, for admin.ModelAdmin list_display
     """
+    is_public = models.BooleanField(
+        default=True, help_text=_(
+            "Is this entry is public viewable?"
+            " (If not checked: Every language is non-public,"
+            "  otherwise: Public only in the language, if there even set 'is public'.)"
+        )
+    )
+
+    def save(self, *args, **kwargs):
+        """
+        Clean the complete cache.
+        
+        FIXME: clean only the blog summary and detail page:
+            http://www.python-forum.de/topic-22739.html (de)
+        """
+        super(BlogEntry, self).save(*args, **kwargs)
+
+        cache.clear() # FIXME: This cleaned the complete cache for every site!
+
     def __unicode__(self):
         return "Blog entry %i" % self.pk
 
@@ -82,6 +102,7 @@ class BlogEntryContentManager(models.Manager):
                 filters["language_in"] = request.PYLUCID.current_languages
 
         if not request.user.has_perm("blog.change_blogentry") or not request.user.has_perm("blog.change_blogentrycontent"):
+            filters["entry__is_public"] = True
             filters["is_public"] = True
 
         return filters
@@ -193,18 +214,32 @@ class BlogEntryContent(UpdateInfoBaseModel):
 
     entry = models.ForeignKey(BlogEntry)
 
-    headline = models.CharField(_('Headline'),
+    headline = models.CharField(_('Headline'), unique_for_date="createtime",
         help_text=_("The blog entry headline"), max_length=255
     )
-
+    slug = models.SlugField(max_length=255, unique_for_date="createtime", blank=True,
+        help_text=_(
+            "for url (would be set automaticly from headline, if emtpy."
+            " Createtime + this slug are used for identify this blog entry)"
+        ),
+    )
     content = MarkupContentModelField()
     markup = MarkupModelField()
 
     language = models.ForeignKey(Language)
     tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
     is_public = models.BooleanField(
-        default=True, help_text="Is post public viewable?"
+        default=True, help_text=_("Is entry in this language is public viewable?")
     )
+
+    def clean_fields(self, exclude=None):
+        if not self.slug:
+            self.slug = slugify(self.headline)
+
+        # Check if headline/slug is unique for createtime
+        self.validate_unique()
+
+        super(BlogEntryContent, self).clean_fields(exclude)
 
     def save(self, *args, **kwargs):
         """
@@ -248,14 +283,13 @@ class BlogEntryContent(UpdateInfoBaseModel):
         }
 
     def get_absolute_url(self):
-        url_title = slugify(self.headline)
         viewname = "Blog-detail_view"
 
         reverse_kwargs = {
             "year": self.createtime.year,
             "month": self.createtime.month,
             "day": self.createtime.day,
-            "id": self.pk, "title":url_title
+            "slug": self.slug
         }
         try:
             # This only worked inner lucidTag

@@ -1,27 +1,27 @@
 # encoding: utf-8
-
-"""
-    Split the blog model into two models with
-    language depend and independent informations.
-
-    see also:
-    
-    https://github.com/jedie/PyLucid/issues/28
-    https://github.com/jedie/PyLucid/issues/64
-    
-    First we create the new table and do a data migration.
-    In second step we remove all unused columns from BlogEntry model.
-"""
-
 import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-from django.conf import settings
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        
+        # Adding model 'BlogEntry'
+        db.create_table('blog_blogentry', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('is_public', self.gf('django.db.models.fields.BooleanField')(default=True)),
+        ))
+        db.send_create_signal('blog', ['BlogEntry'])
+
+        # Adding M2M table for field sites on 'BlogEntry'
+        db.create_table('blog_blogentry_sites', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('blogentry', models.ForeignKey(orm['blog.blogentry'], null=False)),
+            ('site', models.ForeignKey(orm['sites.site'], null=False))
+        ))
+        db.create_unique('blog_blogentry_sites', ['blogentry_id', 'site_id'])
 
         # Adding model 'BlogEntryContent'
         db.create_table('blog_blogentrycontent', (
@@ -32,7 +32,7 @@ class Migration(SchemaMigration):
             ('lastupdateby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='blogentrycontent_lastupdateby', null=True, to=orm['auth.User'])),
             ('entry', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['blog.BlogEntry'])),
             ('headline', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(db_index=True, max_length=255, blank=True)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(db_index=True, max_length=255, null=True, blank=True)),
             ('content', self.gf('pylucid_project.apps.pylucid.fields.MarkupContentModelField')()),
             ('markup', self.gf('pylucid_project.apps.pylucid.fields.MarkupModelField')()),
             ('language', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pylucid.Language'])),
@@ -41,43 +41,18 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('blog', ['BlogEntryContent'])
 
-        print "\tDo datamigration of blog entries:",
-        for entry in orm.BlogEntry.objects.all():
-            print entry.pk,
-            new_entry = orm.BlogEntryContent.objects.create(
-                entry=entry,
-                createby=entry.createby,
-                lastupdateby=entry.lastupdateby,
-                headline=entry.headline,
-                content=entry.content,
-                markup=entry.markup,
-                language=entry.language,
-                tags=entry.tags,
-                is_public=entry.is_public,
-            )
-
-            # Temorary disable auto new function
-            # see: http://stackoverflow.com/questions/7499767/temporarily-disable-auto-now-auto-now-add
-            for field in new_entry._meta.local_fields:
-                if field.name == "lastupdatetime":
-                    field.auto_now = False
-                elif field.name == "createtime":
-                    field.auto_now_add = False
-
-            new_entry.createtime = entry.createtime
-            new_entry.lastupdatetime = entry.lastupdatetime
-            new_entry.save()
-
-            for field in new_entry._meta.local_fields:
-                if field.name == "lastupdatetime":
-                    field.auto_now = True
-                elif field.name == "createtime":
-                    field.auto_now_add = True
-        print "done."
-
 
     def backwards(self, orm):
-        raise RuntimeError("Cannot reverse this migration.")
+        
+        # Deleting model 'BlogEntry'
+        db.delete_table('blog_blogentry')
+
+        # Removing M2M table for field sites on 'BlogEntry'
+        db.delete_table('blog_blogentry_sites')
+
+        # Deleting model 'BlogEntryContent'
+        db.delete_table('blog_blogentrycontent')
+
 
     models = {
         'auth.group': {
@@ -110,19 +85,10 @@ class Migration(SchemaMigration):
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         'blog.blogentry': {
-            'Meta': {'ordering': "('-createtime', '-lastupdatetime')", 'object_name': 'BlogEntry'},
-            'content': ('pylucid_project.apps.pylucid.fields.MarkupContentModelField', [], {}),
-            'createby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'blogentry_createby'", 'null': 'True', 'to': "orm['auth.User']"}),
-            'createtime': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'headline': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'Meta': {'object_name': 'BlogEntry'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_public': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'language': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['pylucid.Language']"}),
-            'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'blogentry_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
-            'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'markup': ('pylucid_project.apps.pylucid.fields.MarkupModelField', [], {}),
-            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': [settings.SITE_ID], 'to': "orm['sites.Site']", 'symmetrical': 'False'}),
-            'tags': ('django_tools.tagging_addon.fields.jQueryTagModelField', [], {})
+            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[1]', 'to': "orm['sites.Site']", 'symmetrical': 'False'})
         },
         'blog.blogentrycontent': {
             'Meta': {'ordering': "('-createtime', '-lastupdatetime')", 'object_name': 'BlogEntryContent'},
@@ -137,7 +103,7 @@ class Migration(SchemaMigration):
             'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'blogentrycontent_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
             'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'markup': ('pylucid_project.apps.pylucid.fields.MarkupModelField', [], {}),
-            'slug': ('django.db.models.fields.SlugField', [], {'db_index': 'True', 'max_length': '255', 'blank': 'True'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'tags': ('django_tools.tagging_addon.fields.jQueryTagModelField', [], {})
         },
         'contenttypes.contenttype': {
@@ -157,7 +123,7 @@ class Migration(SchemaMigration):
             'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'language_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
             'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'permitViewGroup': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'language_permitViewGroup'", 'null': 'True', 'to': "orm['auth.Group']"}),
-            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': [settings.SITE_ID], 'to': "orm['sites.Site']", 'symmetrical': 'False'})
+            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[1]', 'to': "orm['sites.Site']", 'symmetrical': 'False'})
         },
         'sites.site': {
             'Meta': {'ordering': "('domain',)", 'object_name': 'Site', 'db_table': "'django_site'"},
