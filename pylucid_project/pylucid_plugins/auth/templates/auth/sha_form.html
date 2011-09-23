@@ -95,7 +95,6 @@ jQuery(document).ready(function($) {
 				page_msg_info("{% trans 'Get the hash salt value from server...' %}");
                 var post_data = {
                     "username": username,
-                    //"csrfmiddlewaretoken": CSRF_TOKEN
                 };
                 log("get user salt from server, send POST:" + $.param(post_data));
 				response = $.ajax({
