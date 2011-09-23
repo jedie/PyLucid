@@ -38,15 +38,27 @@ from pylucid_project.pylucid_plugins import update_journal
 from pylucid_project.utils.i18n_utils import filter_by_language
 
 from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm, get_preferences
-
+from tagging.utils import calculate_cloud, LOGARITHMIC
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
 
+class BlogEntry(AutoSiteM2M):
+    """
+    Language independend Blog entry.
+    
+    inherited attributes from AutoSiteM2M:
+        sites     -> ManyToManyField to Site
+        on_site   -> sites.managers.CurrentSiteManager instance
+        site_info -> a string with all site names, for admin.ModelAdmin list_display
+    """
+    def __unicode__(self):
+        return "Blog entry %i" % self.pk
 
-class BlogEntryManager(models.Manager):
+
+class BlogEntryContentManager(models.Manager):
     def all_accessible(self, request, filter_language=False):
         """ returns a queryset of all blog entries that the current user can access. """
         filters = self.get_filters(request, filter_language=filter_language)
@@ -54,9 +66,9 @@ class BlogEntryManager(models.Manager):
 
     def get_filters(self, request, filter_language=True):
         """
-        Construct queryset filter kwargs, to limit the BlogEntry queryset for the current user
+        Construct queryset filter kwargs, to limit the queryset for the current user
         """
-        filters = {"sites__id__exact": settings.SITE_ID}
+        filters = {"entry__sites__id__exact": settings.SITE_ID}
 
         if filter_language:
             # Filter by language
@@ -69,65 +81,61 @@ class BlogEntryManager(models.Manager):
                 # Filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)
                 filters["language_in"] = request.PYLUCID.current_languages
 
-        if not request.user.has_perm("blog.change_blogentry"):
+        if not request.user.has_perm("blog.change_blogentry") or not request.user.has_perm("blog.change_blogentrycontent"):
             filters["is_public"] = True
 
         return filters
+
+    def get_prefiltered_queryset(self, request, tags=None, filter_language=True):
+        filters = self.get_filters(request, filter_language=True)
+        queryset = self.model.objects.filter(**filters)
+
+        if tags is not None:
+            # filter by tags 
+            queryset = TaggedItem.objects.get_by_model(queryset, tags)
+
+        return queryset
 
     def get_tag_cloud(self, request):
         filters = self.get_filters(request, filter_language=True)
         tag_cloud = Tag.objects.cloud_for_model(self.model, steps=2, filters=filters)
         return tag_cloud
 
+    def cloud_for_queryset(self, queryset, steps=2, distribution=LOGARITHMIC, min_count=None):
+        """
+        returns the tag cloud for the given queryset
+        See: https://code.google.com/p/django-tagging/issues/detail?id=137
+        """
+        tags = list(
+            Tag.objects.usage_for_queryset(queryset, counts=True, min_count=min_count)
+        )
+        return calculate_cloud(tags, steps, distribution)
 
-
-class BlogEntry(AutoSiteM2M):
-    """
-    Language independend Blog entry.
-    
-    inherited attributes from AutoSiteM2M:
-        sites     -> ManyToManyField to Site
-        on_site   -> sites.managers.CurrentSiteManager instance
-        site_info -> a string with all site names, for admin.ModelAdmin list_display
-    """
-    objects = BlogEntryManager()
-
-    def __unicode__(self):
-        return "Blog entry %i" % self.pk
-
-
-class BlogEntryContentManager(models.Manager):
     def get_filtered_queryset(self, request, tags=None, filter_language=True):
-        queryset = self.model.objects.all()
-
-        # only entries from the current site
-        queryset = queryset.filter(entry__sites__id__exact=settings.SITE_ID)
-
-        if not request.user.has_perm("blog.change_blogentry") or not request.user.has_perm("blog.change_blogentrycontent"):
-            queryset = queryset.filter(is_public=True)
-
-        if tags is not None:
-            # filter by tags 
-            queryset = TaggedItem.objects.get_by_model(queryset, tags)
+        queryset = self.get_prefiltered_queryset(request, tags=tags, filter_language=filter_language)
 
         # To get allways the same paginate count, we create first a list of
-        # all BlogEntry and use the default language (A BlogEntry must at least
-        # exist in the default language)
-        queryset = queryset.filter(language=request.PYLUCID.default_language)
-        queryset = queryset.only("entry")
-        paginator = self.paginate(request, queryset)
-        entry_ids = paginator.object_list.values_list("entry", flat=True)
+        # all BlogEntry ids
+        all_entry_ids = tuple(set(queryset.values_list("entry", flat=True)))
+        # print "all_entry_ids:", all_entry_ids
+
+        paginator = self.paginate(request, all_entry_ids)
+        entry_ids = paginator.object_list
+        # print "entry_ids:", entry_ids
 
         # Create a new QuerySet with all content entries on current paginator page        
         queryset = self.model.objects.filter(entry__in=entry_ids)
 
         # filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)
         prefered_languages_pk = tuple([lang.pk for lang in request.PYLUCID.languages])
+        # print "prefered_languages_pk:", prefered_languages_pk
         queryset = queryset.filter(language__in=prefered_languages_pk)
 
         # Create a list of content id's which the best language match
         values_list = queryset.values_list("pk", "entry", "language")
+        # print "values_list:", values_list
         used_ids = filter_by_language(values_list, prefered_languages_pk)
+        # print "used_ids:", used_ids
 
         # Get the current blog content we display on the current paginator page
         used_content = self.model.objects.filter(pk__in=used_ids)

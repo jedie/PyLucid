@@ -131,7 +131,8 @@ def summary(request):
     # Get all blog entries, that the current user can see
     paginator = BlogEntryContent.objects.get_filtered_queryset(request, filter_language=True)
 
-    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
+    # Calculate the tag cloud from all existing entries
+    tag_cloud = BlogEntryContent.objects.get_tag_cloud(request)
 
     _add_breadcrumb(request, _("All articles."))
 
@@ -160,16 +161,23 @@ def tag_view(request, tags):
     tags = _split_tags(tags)
 
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request, tags, filter_language=True)
+    paginator = BlogEntryContent.objects.get_filtered_queryset(request, tags=tags, filter_language=True)
 
-    # Limit the queryset with django Paginator
-    paginator = BlogEntry.objects.paginate(request, queryset)
+    # Calculate the tag cloud from the current used queryset
+    queryset = paginator.object_list
+    tag_cloud = BlogEntryContent.objects.cloud_for_queryset(queryset)
 
     # Add link to the breadcrumbs ;)
     text = _("All items tagged with: %s") % ", ".join(["'%s'" % tag for tag in tags])
     _add_breadcrumb(request, text)
 
-    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
+    # For adding page update information into context by pylucid context processor
+    try:
+        # Use the newest blog entry for date info
+        request.PYLUCID.updateinfo_object = paginator.object_list[0]
+    except BlogEntry.DoesNotExist:
+        # No blog entries created, yet.
+        pass
 
     context = {
         "entries": paginator,
