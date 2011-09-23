@@ -42,39 +42,6 @@ class Migration(SchemaMigration):
 
     def backwards(self, orm):
         raise RuntimeError("Cannot reverse this migration.")
-#        # Deleting model 'BlogEntryContent'
-#        db.delete_table('blog_blogentrycontent')
-#
-#        # Adding field 'BlogEntry.createby'
-#        db.add_column('blog_blogentry', 'createby', self.gf('django.db.models.fields.related.ForeignKey')(related_name='blogentry_createby', null=True, to=orm['auth.User'], blank=True), keep_default=False)
-#
-#        # Adding field 'BlogEntry.lastupdatetime'
-#        db.add_column('blog_blogentry', 'lastupdatetime', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, default='XXX', blank=True), keep_default=False)
-#
-#        # Adding field 'BlogEntry.tags'
-#        db.add_column('blog_blogentry', 'tags', self.gf('django_tools.tagging_addon.fields.jQueryTagModelField')(default=''), keep_default=False)
-#
-#        # Adding field 'BlogEntry.is_public'
-#        db.add_column('blog_blogentry', 'is_public', self.gf('django.db.models.fields.BooleanField')(default=True), keep_default=False)
-#
-#        # Adding field 'BlogEntry.lastupdateby'
-#        db.add_column('blog_blogentry', 'lastupdateby', self.gf('django.db.models.fields.related.ForeignKey')(related_name='blogentry_lastupdateby', null=True, to=orm['auth.User'], blank=True), keep_default=False)
-#
-#        # Adding field 'BlogEntry.language'
-#        db.add_column('blog_blogentry', 'language', self.gf('django.db.models.fields.related.ForeignKey')(default='XXX', to=orm['pylucid.Language']), keep_default=False)
-#
-#        # Adding field 'BlogEntry.headline'
-#        db.add_column('blog_blogentry', 'headline', self.gf('django.db.models.fields.CharField')(default='XXX', max_length=255), keep_default=False)
-#
-#        # Adding field 'BlogEntry.markup'
-#        db.add_column('blog_blogentry', 'markup', self.gf('pylucid_project.apps.pylucid.fields.MarkupModelField')(default='XXX'), keep_default=False)
-#
-#        # Adding field 'BlogEntry.content'
-#        db.add_column('blog_blogentry', 'content', self.gf('pylucid_project.apps.pylucid.fields.MarkupContentModelField')(default='XXX'), keep_default=False)
-#
-#        # Adding field 'BlogEntry.createtime'
-#        db.add_column('blog_blogentry', 'createtime', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default='XXX', blank=True), keep_default=False)
-
 
     models = {
         'auth.group': {
