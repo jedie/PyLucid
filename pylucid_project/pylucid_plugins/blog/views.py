@@ -35,7 +35,7 @@ from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 # from django-tagging
 from tagging.models import Tag, TaggedItem
 from django.http import HttpResponsePermanentRedirect
-from django.views.generic.date_based import archive_year
+from django.views.generic.date_based import archive_year, archive_month
 
 
 def _add_breadcrumb(request, *args, **kwargs):
@@ -278,7 +278,19 @@ def year_archive(request, year):
     )
 
 def month_archive(request, year, month):
-    raise NotImplementedError
+    print "***"
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    # Add link to the breadcrumbs ;)
+    _add_breadcrumb(request, _("%s.%s archive") % (year, month), _("All article from %s.%s") % (year, month))
+
+    context = {
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+    }
+    return archive_month(
+        request, year, month, queryset, date_field="createtime", extra_context=context,
+        month_format="%m", allow_empty=True
+    )
 
 def day_archive(request, year, month, day):
     raise NotImplementedError
