@@ -35,6 +35,7 @@ from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 # from django-tagging
 from tagging.models import Tag, TaggedItem
 from django.http import HttpResponsePermanentRedirect
+from django.views.generic.date_based import archive_year
 
 
 def _add_breadcrumb(request, *args, **kwargs):
@@ -191,6 +192,7 @@ def tag_view(request, tags):
     }
     return context
 
+
 @csrf_protect
 @render_to("blog/detail_view.html")
 def detail_view(request, year, month, day, id, title):
@@ -262,7 +264,18 @@ def redirect_old_urls(request, id, title):
     return HttpResponsePermanentRedirect(url)
 
 def year_archive(request, year):
-    raise NotImplementedError
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    # Add link to the breadcrumbs ;)
+    _add_breadcrumb(request, _("%s archive") % year, _("All article from year %s") % year)
+
+    context = {
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+    }
+    return archive_year(
+        request, year, queryset, date_field="createtime", extra_context=context,
+        make_object_list=True
+    )
 
 def month_archive(request, year, month):
     raise NotImplementedError

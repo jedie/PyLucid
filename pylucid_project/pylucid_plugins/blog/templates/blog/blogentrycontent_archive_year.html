@@ -1,0 +1,13 @@
+{% extends template_name %}
+{% load comments %}
+
+{% block content %}
+<div class="{{ CSS_PLUGIN_CLASS_NAME }} blog">
+<h1>Year {{ year }} archive</h1>
+<ul>
+{% for entry in object_list %}
+    <li><a href="{{ entry.get_absolute_url }}" class="blog_headline" hreflang="{{ entry.language.code }}">{{ entry.createtime|date:_("DATE_FORMAT") }} - {{ entry.headline }}</a></li>
+{% endfor %}
+</ul>
+</div>
+{% endblock content %}

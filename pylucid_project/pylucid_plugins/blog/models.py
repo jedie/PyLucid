@@ -111,15 +111,30 @@ class BlogEntryContentManager(models.Manager):
         )
         return calculate_cloud(tags, steps, distribution)
 
-    def get_filtered_queryset(self, request, tags=None, filter_language=True):
-        queryset = self.get_prefiltered_queryset(request, tags=tags, filter_language=filter_language)
+    def paginate(self, request, queryset, max_count):
+        """ Limit the queryset with django Paginator and returns the Paginator instance """
+        # Show max_count entries per page
+        paginator = Paginator(queryset, max_count)
 
+        # Make sure page request is an int. If not, deliver first page.
+        try:
+            page = int(request.GET.get('page', '1'))
+        except ValueError:
+            page = 1
+
+        # If page request (9999) is out of range, deliver last page of results.
+        try:
+            return paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            return paginator.page(paginator.num_pages)
+
+    def paginator_by_queryset(self, request, queryset, max_count):
         # To get allways the same paginate count, we create first a list of
         # all BlogEntry ids
         all_entry_ids = tuple(set(queryset.values_list("entry", flat=True)))
         # print "all_entry_ids:", all_entry_ids
 
-        paginator = self.paginate(request, all_entry_ids)
+        paginator = self.paginate(request, all_entry_ids, max_count)
         entry_ids = paginator.object_list
         # print "entry_ids:", entry_ids
 
@@ -143,8 +158,13 @@ class BlogEntryContentManager(models.Manager):
 
         return paginator
 
-    def paginate(self, request, queryset):
-        """ Limit the queryset with django Paginator and returns the Paginator instance """
+    def get_filtered_queryset(self, request, tags=None, filter_language=True):
+        """
+        returns paginator with all blog entries
+        e.g. for summary
+        """
+        queryset = self.get_prefiltered_queryset(request, tags=tags, filter_language=filter_language)
+
         # Get number of entries allowed by the users see on a page. 
         preferences = get_preferences()
         if request.user.is_anonymous():
@@ -152,20 +172,11 @@ class BlogEntryContentManager(models.Manager):
         else:
             max_count = preferences.get("max_user_count", 30)
 
-        # Show max_count entries per page
-        paginator = Paginator(queryset, max_count)
+        paginator = self.paginator_by_queryset(request, queryset, max_count)
+        return paginator
 
-        # Make sure page request is an int. If not, deliver first page.
-        try:
-            page = int(request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
-
-        # If page request (9999) is out of range, deliver last page of results.
-        try:
-            return paginator.page(page)
-        except (EmptyPage, InvalidPage):
-            return paginator.page(paginator.num_pages)
+    def test(self):
+        from django.views.generic.date_based import archive_year
 
 
 class BlogEntryContent(UpdateInfoBaseModel):
@@ -241,17 +252,11 @@ class BlogEntryContent(UpdateInfoBaseModel):
         viewname = "Blog-detail_view"
 
         reverse_kwargs = {
-            "year": "%s" % self.createtime.year,
-            "month": "%s" % self.createtime.month,
-            "day": "%s" % self.createtime.day,
-
-#            "year": self.createtime.strftime('%Y'),
-#            "month": self.createtime.strftime('%m'),
-#            "day": self.createtime.strftime('%d'),
-
+            "year": self.createtime.year,
+            "month": self.createtime.month,
+            "day": self.createtime.day,
             "id": self.pk, "title":url_title
         }
-        print reverse_kwargs
         try:
             # This only worked inner lucidTag
             url = urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
