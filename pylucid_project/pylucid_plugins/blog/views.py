@@ -28,7 +28,8 @@ from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
-from pylucid_project.pylucid_plugins.blog.models import BlogEntry
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
+    BlogEntryContent
 from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
@@ -128,10 +129,7 @@ def summary(request):
     Display summary list with all blog entries.
     """
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request, filter_language=True)
-
-    # Limit the queryset with django Paginator
-    paginator = BlogEntry.objects.paginate(request, queryset)
+    paginator = BlogEntryContent.objects.get_filtered_queryset(request, filter_language=True)
 
     tag_cloud = BlogEntry.objects.get_tag_cloud(request)
 
@@ -140,7 +138,7 @@ def summary(request):
     # For adding page update information into context by pylucid context processor
     try:
         # Use the newest blog entry for date info
-        request.PYLUCID.updateinfo_object = queryset.latest("lastupdatetime")
+        request.PYLUCID.updateinfo_object = paginator.object_list[0]
     except BlogEntry.DoesNotExist:
         # No blog entries created, yet.
         pass

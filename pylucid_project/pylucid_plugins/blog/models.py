@@ -20,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 # http://code.google.com/p/django-tagging/
-from tagging.models import Tag
+from tagging.models import Tag, TaggedItem
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares.ThreadLocal import get_current_request
@@ -36,7 +36,7 @@ from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
 
-from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm, get_preferences
 
 
 
@@ -44,12 +44,8 @@ TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
 
-class BlogEntryManager(models.Manager):
-    def _get_preferences(self):
-        pref_form = BlogPrefForm()
-        preferences = pref_form.get_preferences()
-        return preferences
 
+class BlogEntryManager(models.Manager):
     def all_accessible(self, request, filter_language=False):
         """ returns a queryset of all blog entries that the current user can access. """
         filters = self.get_filters(request, filter_language=filter_language)
@@ -63,7 +59,7 @@ class BlogEntryManager(models.Manager):
 
         if filter_language:
             # Filter by language
-            preferences = self._get_preferences()
+            preferences = get_preferences()
             language_filter = preferences["language_filter"]
             if language_filter == BlogPrefForm.CURRENT_LANGUAGE:
                 # Display only blog entries in current language (select on the page)             
@@ -82,10 +78,82 @@ class BlogEntryManager(models.Manager):
         tag_cloud = Tag.objects.cloud_for_model(self.model, steps=2, filters=filters)
         return tag_cloud
 
+
+
+class BlogEntry(AutoSiteM2M):
+    """
+    Language independend Blog entry.
+    
+    inherited attributes from AutoSiteM2M:
+        sites     -> ManyToManyField to Site
+        on_site   -> sites.managers.CurrentSiteManager instance
+        site_info -> a string with all site names, for admin.ModelAdmin list_display
+    """
+    objects = BlogEntryManager()
+
+    def __unicode__(self):
+        return "Blog entry %i" % self.pk
+
+
+class BlogEntryContentManager(models.Manager):
+    def get_filtered_queryset(self, request, tags=None, filter_language=True):
+        queryset = self.model.objects.all()
+
+        # only entries from the current site
+        queryset = queryset.filter(entry__sites__id__exact=settings.SITE_ID)
+
+        if not request.user.has_perm("blog.change_blogentry") or not request.user.has_perm("blog.change_blogentrycontent"):
+            queryset = queryset.filter(is_public=True)
+
+        if tags is not None:
+            # filter by tags 
+            queryset = TaggedItem.objects.get_by_model(queryset, tags)
+
+        # To get allways the same paginate count, we create first a list of
+        # all BlogEntry and use the default language (A BlogEntry must at least
+        # exist in the default language)
+        queryset = queryset.filter(language=request.PYLUCID.default_language)
+        queryset = queryset.only("entry")
+        paginator = self.paginate(request, queryset)
+        entry_ids = paginator.object_list.values_list("entry", flat=True)
+
+        # Create a new QuerySet with all content entries on current paginator page        
+        queryset = self.model.objects.filter(entry__in=entry_ids)
+
+        # filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)
+        prefered_languages_pk = tuple([lang.pk for lang in request.PYLUCID.languages])
+        queryset = queryset.filter(language__in=prefered_languages_pk)
+
+
+        # Group language & content by entry
+        values_list = queryset.values_list("pk", "entry", "language")
+        entry_dict = {}
+        for content_id, entry_id, language_id in values_list:
+            if entry_id not in entry_dict:
+                entry_dict[entry_id] = [(language_id, content_id)]
+            else:
+                entry_dict[entry_id].append((language_id, content_id))
+
+
+        # Create a list of content id's which the best language match
+        used_ids = []
+        for existing_entries in entry_dict.values():
+            temp_content_dict = dict(existing_entries)
+            for prefered in prefered_languages_pk:
+                if prefered in temp_content_dict:
+                    used_ids.append(temp_content_dict[prefered])
+                    break
+
+        # Get the current blog content we display on the current paginator page
+        used_content = self.model.objects.filter(pk__in=used_ids)
+        paginator.object_list = used_content
+
+        return paginator
+
     def paginate(self, request, queryset):
         """ Limit the queryset with django Paginator and returns the Paginator instance """
         # Get number of entries allowed by the users see on a page. 
-        preferences = self._get_preferences()
+        preferences = get_preferences()
         if request.user.is_anonymous():
             max_count = preferences.get("max_anonym_count", 10)
         else:
@@ -107,21 +175,6 @@ class BlogEntryManager(models.Manager):
             return paginator.page(paginator.num_pages)
 
 
-class BlogEntry(AutoSiteM2M):
-    """
-    Language independend Blog entry.
-    
-    inherited attributes from AutoSiteM2M:
-        sites     -> ManyToManyField to Site
-        on_site   -> sites.managers.CurrentSiteManager instance
-        site_info -> a string with all site names, for admin.ModelAdmin list_display
-    """
-    objects = BlogEntryManager()
-
-    def __unicode__(self):
-        return "Blog entry %i" % self.pk
-
-
 class BlogEntryContent(UpdateInfoBaseModel):
     """
     Language depend blog entry content.
@@ -132,6 +185,8 @@ class BlogEntryContent(UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
+    objects = BlogEntryContentManager()
+
     entry = models.ForeignKey(BlogEntry)
 
     headline = models.CharField(_('Headline'),

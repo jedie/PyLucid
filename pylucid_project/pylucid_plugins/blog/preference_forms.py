@@ -46,3 +46,9 @@ class BlogPrefForm(SitePreselectPreference, DBPreferencesBaseForm):
     )
     class Meta:
         app_label = 'blog'
+
+
+def get_preferences():
+    pref_form = BlogPrefForm()
+    preferences = pref_form.get_preferences()
+    return preferences
