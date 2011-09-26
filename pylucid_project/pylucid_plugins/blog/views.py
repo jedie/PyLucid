@@ -24,7 +24,8 @@ from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
-from django.views.generic.date_based import archive_year, archive_month
+from django.views.generic.date_based import archive_year, archive_month, \
+    archive_day
 
 from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
@@ -292,6 +293,10 @@ def redirect_old_urls(request, id, title):
     url = entry.get_absolute_url()
     return HttpResponsePermanentRedirect(url)
 
+
+#------------------------------------------------------------------------------
+
+
 def year_archive(request, year):
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
@@ -306,8 +311,8 @@ def year_archive(request, year):
         make_object_list=True
     )
 
+
 def month_archive(request, year, month):
-    print "***"
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     # Add link to the breadcrumbs ;)
@@ -322,7 +327,19 @@ def month_archive(request, year, month):
     )
 
 def day_archive(request, year, month, day):
-    raise NotImplementedError
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    # Add link to the breadcrumbs ;)
+    _add_breadcrumb(request, _("%s.%s.%s archive") % (year, month, day), _("All article from %s.%s.%s") % (year, month, day))
+
+    context = {
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+    }
+    return archive_day(
+        request, year, month, day, queryset, date_field="createtime", extra_context=context,
+        month_format="%m", allow_empty=True
+    )
+
 
 #------------------------------------------------------------------------------
 
