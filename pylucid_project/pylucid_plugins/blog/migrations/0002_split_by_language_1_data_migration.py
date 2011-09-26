@@ -14,15 +14,17 @@
 """
 
 import datetime
+
 from south.db import db
 from south.v2 import SchemaMigration
-from django.db import models
+
 from django.conf import settings
+from django.db import models
+from django.template.defaultfilters import slugify
+
 
 class Migration(SchemaMigration):
-
     def forwards(self, orm):
-
         # Adding model 'BlogEntryContent'
         db.create_table('blog_blogentrycontent', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -49,6 +51,7 @@ class Migration(SchemaMigration):
                 createby=entry.createby,
                 lastupdateby=entry.lastupdateby,
                 headline=entry.headline,
+                slug=slugify(entry.headline),
                 content=entry.content,
                 markup=entry.markup,
                 language=entry.language,
