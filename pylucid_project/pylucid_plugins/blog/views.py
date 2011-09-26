@@ -37,6 +37,7 @@ from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
+import datetime
 
 
 
@@ -298,7 +299,10 @@ def redirect_old_urls(request, id, title):
 
 
 def year_archive(request, year):
-    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+    """
+    Display year archive
+    """
+    year = int(year)
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, _("%s archive") % year, _("All article from year %s") % year)
@@ -306,13 +310,43 @@ def year_archive(request, year):
     context = {
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
     }
+
+    # Get next year
+    now = datetime.datetime.now()
+    if year < now.year:
+        queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+        next_year = datetime.datetime(year=year, month=12, day=31)
+        try:
+            entry_in_next_year = queryset.filter(createtime__gte=next_year).only("createtime").order_by("-createtime")[0]
+        except IndexError:
+            # no entries in next year
+            pass
+        else:
+            context["next_year"] = entry_in_next_year.createtime.year
+
+    # Get previous year
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+    previous_year = datetime.datetime(year=year, month=1, day=1)
+    try:
+        entry_in_previous_year = queryset.filter(createtime__lte=previous_year).only("createtime").order_by("-createtime")[0]
+    except IndexError:
+        # no entries in previous year
+        pass
+    else:
+        context["previous_year"] = entry_in_previous_year.createtime.year
+
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
     return archive_year(
         request, year, queryset, date_field="createtime", extra_context=context,
-        make_object_list=True
+        make_object_list=True,
+        allow_empty=True
     )
 
 
 def month_archive(request, year, month):
+    """
+    TODO: Set previous-/next-month by filtering
+    """
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     # Add link to the breadcrumbs ;)
@@ -326,7 +360,11 @@ def month_archive(request, year, month):
         month_format="%m", allow_empty=True
     )
 
+
 def day_archive(request, year, month, day):
+    """
+    TODO: Set previous-/next-day by filtering
+    """
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     # Add link to the breadcrumbs ;)
