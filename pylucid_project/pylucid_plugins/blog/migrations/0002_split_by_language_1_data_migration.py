@@ -9,14 +9,15 @@
     https://github.com/jedie/PyLucid/issues/28
     https://github.com/jedie/PyLucid/issues/64
     
-    First we create the new tabel and do a data migration.
-    In second step we remove all unused colums from BlogEntry model.
+    First we create the new table and do a data migration.
+    In second step we remove all unused columns from BlogEntry model.
 """
 
 import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from django.conf import settings
 
 class Migration(SchemaMigration):
 
@@ -31,6 +32,7 @@ class Migration(SchemaMigration):
             ('lastupdateby', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='blogentrycontent_lastupdateby', null=True, to=orm['auth.User'])),
             ('entry', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['blog.BlogEntry'])),
             ('headline', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('slug', self.gf('django.db.models.fields.SlugField')(db_index=True, max_length=255, blank=True)),
             ('content', self.gf('pylucid_project.apps.pylucid.fields.MarkupContentModelField')()),
             ('markup', self.gf('pylucid_project.apps.pylucid.fields.MarkupModelField')()),
             ('language', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pylucid.Language'])),
@@ -119,7 +121,7 @@ class Migration(SchemaMigration):
             'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'blogentry_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
             'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'markup': ('pylucid_project.apps.pylucid.fields.MarkupModelField', [], {}),
-            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[1]', 'to': "orm['sites.Site']", 'symmetrical': 'False'}),
+            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': [settings.SITE_ID], 'to': "orm['sites.Site']", 'symmetrical': 'False'}),
             'tags': ('django_tools.tagging_addon.fields.jQueryTagModelField', [], {})
         },
         'blog.blogentrycontent': {
@@ -135,6 +137,7 @@ class Migration(SchemaMigration):
             'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'blogentrycontent_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
             'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'markup': ('pylucid_project.apps.pylucid.fields.MarkupModelField', [], {}),
+            'slug': ('django.db.models.fields.SlugField', [], {'db_index': 'True', 'max_length': '255', 'blank': 'True'}),
             'tags': ('django_tools.tagging_addon.fields.jQueryTagModelField', [], {})
         },
         'contenttypes.contenttype': {
@@ -154,7 +157,7 @@ class Migration(SchemaMigration):
             'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'language_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
             'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'permitViewGroup': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'language_permitViewGroup'", 'null': 'True', 'to': "orm['auth.Group']"}),
-            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[1]', 'to': "orm['sites.Site']", 'symmetrical': 'False'})
+            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': [settings.SITE_ID], 'to': "orm['sites.Site']", 'symmetrical': 'False'})
         },
         'sites.site': {
             'Meta': {'ordering': "('domain',)", 'object_name': 'Site', 'db_table': "'django_site'"},

@@ -21,9 +21,6 @@ class Migration(SchemaMigration):
         # Deleting field 'BlogEntry.tags'
         db.delete_column('blog_blogentry', 'tags')
 
-        # Deleting field 'BlogEntry.is_public'
-        db.delete_column('blog_blogentry', 'is_public')
-
         # Deleting field 'BlogEntry.lastupdateby'
         db.delete_column('blog_blogentry', 'lastupdateby_id')
 
@@ -45,39 +42,6 @@ class Migration(SchemaMigration):
 
     def backwards(self, orm):
         raise RuntimeError("Cannot reverse this migration.")
-#        # Deleting model 'BlogEntryContent'
-#        db.delete_table('blog_blogentrycontent')
-#
-#        # Adding field 'BlogEntry.createby'
-#        db.add_column('blog_blogentry', 'createby', self.gf('django.db.models.fields.related.ForeignKey')(related_name='blogentry_createby', null=True, to=orm['auth.User'], blank=True), keep_default=False)
-#
-#        # Adding field 'BlogEntry.lastupdatetime'
-#        db.add_column('blog_blogentry', 'lastupdatetime', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, default='XXX', blank=True), keep_default=False)
-#
-#        # Adding field 'BlogEntry.tags'
-#        db.add_column('blog_blogentry', 'tags', self.gf('django_tools.tagging_addon.fields.jQueryTagModelField')(default=''), keep_default=False)
-#
-#        # Adding field 'BlogEntry.is_public'
-#        db.add_column('blog_blogentry', 'is_public', self.gf('django.db.models.fields.BooleanField')(default=True), keep_default=False)
-#
-#        # Adding field 'BlogEntry.lastupdateby'
-#        db.add_column('blog_blogentry', 'lastupdateby', self.gf('django.db.models.fields.related.ForeignKey')(related_name='blogentry_lastupdateby', null=True, to=orm['auth.User'], blank=True), keep_default=False)
-#
-#        # Adding field 'BlogEntry.language'
-#        db.add_column('blog_blogentry', 'language', self.gf('django.db.models.fields.related.ForeignKey')(default='XXX', to=orm['pylucid.Language']), keep_default=False)
-#
-#        # Adding field 'BlogEntry.headline'
-#        db.add_column('blog_blogentry', 'headline', self.gf('django.db.models.fields.CharField')(default='XXX', max_length=255), keep_default=False)
-#
-#        # Adding field 'BlogEntry.markup'
-#        db.add_column('blog_blogentry', 'markup', self.gf('pylucid_project.apps.pylucid.fields.MarkupModelField')(default='XXX'), keep_default=False)
-#
-#        # Adding field 'BlogEntry.content'
-#        db.add_column('blog_blogentry', 'content', self.gf('pylucid_project.apps.pylucid.fields.MarkupContentModelField')(default='XXX'), keep_default=False)
-#
-#        # Adding field 'BlogEntry.createtime'
-#        db.add_column('blog_blogentry', 'createtime', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default='XXX', blank=True), keep_default=False)
-
 
     models = {
         'auth.group': {
@@ -112,7 +76,8 @@ class Migration(SchemaMigration):
         'blog.blogentry': {
             'Meta': {'object_name': 'BlogEntry'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[1]', 'to': "orm['sites.Site']", 'symmetrical': 'False'})
+            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'default': '[1]', 'to': "orm['sites.Site']", 'symmetrical': 'False'}),
+            'is_public': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
         },
         'blog.blogentrycontent': {
             'Meta': {'ordering': "('-createtime', '-lastupdatetime')", 'object_name': 'BlogEntryContent'},
@@ -127,6 +92,7 @@ class Migration(SchemaMigration):
             'lastupdateby': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'blogentrycontent_lastupdateby'", 'null': 'True', 'to': "orm['auth.User']"}),
             'lastupdatetime': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'markup': ('pylucid_project.apps.pylucid.fields.MarkupModelField', [], {}),
+            'slug': ('django.db.models.fields.SlugField', [], {'db_index': 'True', 'max_length': '255', 'blank': 'True'}),
             'tags': ('django_tools.tagging_addon.fields.jQueryTagModelField', [], {})
         },
         'contenttypes.contenttype': {

@@ -19,7 +19,7 @@ urlpatterns = patterns('',
         views.day_archive, name='Blog-day_archive'
     ),
 
-    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<id>\d+?)/(?P<title>.*)/$',
+    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<slug>[-\w]+)/$',
         views.detail_view, name='Blog-detail_view'
     ),
 

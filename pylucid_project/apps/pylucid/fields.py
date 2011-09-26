@@ -9,7 +9,6 @@
 """
 
 import re
-from south.modelsinspector import add_introspection_rules
 
 if __name__ == "__main__":
     # For doctest only
@@ -20,6 +19,8 @@ from django import forms
 from django.db import models
 from django.core import exceptions
 from django.utils.translation import ugettext as _
+
+from south.modelsinspector import add_introspection_rules
 
 from pylucid_project.apps.pylucid.markup.widgets import MarkupContentWidget, \
     MarkupSelectWidget

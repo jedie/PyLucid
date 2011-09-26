@@ -195,7 +195,7 @@ def tag_view(request, tags):
 
 @csrf_protect
 @render_to("blog/detail_view.html")
-def detail_view(request, year, month, day, id, title):
+def detail_view(request, year, month, day, slug):
     """
     Display one blog entry with a comment form.
     """
@@ -203,8 +203,11 @@ def detail_view(request, year, month, day, id, title):
     prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     try:
-        entry = prefiltered_queryset.get(pk=id)
+        entry = prefiltered_queryset.get(slug=slug,
+            createtime__year=year, createtime__month=month, createtime__day=day
+        )
     except BlogEntry.DoesNotExist:
+        # XXX: redirect to day_archive() ?
         # It's possible that the user comes from a external link.
         msg = "Blog entry doesn't exist."
         if settings.DEBUG or request.user.is_staff:
