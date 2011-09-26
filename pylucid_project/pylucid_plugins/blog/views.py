@@ -208,7 +208,7 @@ def detail_view(request, year, month, day, slug):
     prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     try:
-        entry = prefiltered_queryset.get(createtime__year=year, createtime__month=month, createtime__day=day, slug=slug)
+        content_entry = prefiltered_queryset.get(createtime__year=year, createtime__month=month, createtime__day=day, slug=slug)
     except BlogEntryContent.DoesNotExist:
         # XXX: redirect to day_archive() ?
         # It's possible that the user comes from a external link.
@@ -216,32 +216,35 @@ def detail_view(request, year, month, day, slug):
         url = urlresolvers.reverse("Blog-summary")
         return HttpResponseRedirect(url)
 
-#    new_url = i18n.assert_language(request, entry.language)
-#    if new_url:
-#        # the current language is not the same as entry language -> redirect to right url
-#        # e.g. someone followed a external link to this article, but his preferred language
-#        # is a other language as this article. Activate the article language and "reload"
-#        return http.HttpResponsePermanentRedirect(new_url)
+
+    client_language = request.PYLUCID.current_language
+    if content_entry.language != client_language:
+        # Look if this entry exists in the client preferred language
+        entry = content_entry.entry
+        new_content_entry = prefiltered_queryset.get(entry=entry, language=client_language)
+        new_url = new_content_entry.get_absolute_url()
+        messages.info(request, _("You are redirected to the entry in your preferred language."))
+        return HttpResponseRedirect(new_url)
 
     # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, entry.headline, _("Article '%s'") % entry.headline)
+    _add_breadcrumb(request, content_entry.headline, _("Article '%s'") % content_entry.headline)
 
     # Calculate the tag cloud from all existing entries
     tag_cloud = BlogEntryContent.objects.get_tag_cloud(request)
 
     # Change permalink from the blog root page to this entry detail view
-    permalink = entry.get_permalink(request)
+    permalink = content_entry.get_permalink(request)
     request.PYLUCID.context["page_permalink"] = permalink # for e.g. the HeadlineAnchor
 
     # Add comments in this view to the current blog entry and not to PageMeta
-    request.PYLUCID.object2comment = entry
+    request.PYLUCID.object2comment = content_entry
 
     # For adding page update information into context by pylucid context processor
-    request.PYLUCID.updateinfo_object = entry
+    request.PYLUCID.updateinfo_object = content_entry
 
     context = {
-        "page_title": entry.headline, # Change the global title with blog headline
-        "entry": entry,
+        "page_title": content_entry.headline, # Change the global title with blog headline
+        "entry": content_entry,
         "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
         "page_permalink": permalink, # Change the permalink in the global page template
@@ -254,11 +257,11 @@ def permalink_view(request, id, slug=None):
     """ redirect to language depent blog entry """
     prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
-    prefered_languages = request.PYLUCID.languages
+    preferred_languages = request.PYLUCID.languages
 
     prefiltered_queryset = prefiltered_queryset.filter(entry__id__exact=id)
     try:
-        entry = prefiltered_queryset.filter(language__in=prefered_languages)[0]
+        entry = prefiltered_queryset.filter(language__in=preferred_languages)[0]
     except BlogEntry.DoesNotExist:
         # wrong permalink -> display summary
         msg = "Blog entry doesn't exist."
