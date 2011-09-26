@@ -23,6 +23,7 @@ urlpatterns = patterns('',
         views.detail_view, name='Blog-detail_view'
     ),
 
+    url(r'^(?P<id>\d+?)/(?P<slug>.*)/$', views.permalink_view, name='Blog-permalink_view'),
     url(r'^(?P<id>\d+?)/(?P<title>.*)/$', views.redirect_old_urls),
 
     url(r'^feed/(?P<tags>.+)/(?P<filename>.+?)$', views.feed, name='Blog-tag_feed'),

@@ -11,18 +11,20 @@
     TODO:
         * Detail view, use BlogEntry.get_absolute_url()
 
-    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 
-from django import http
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.syndication.views import Feed
+from django.core import urlresolvers
+from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
+from django.views.generic.date_based import archive_year, archive_month
 
 from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
@@ -34,26 +36,29 @@ from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
-from django.http import HttpResponsePermanentRedirect
-from django.views.generic.date_based import archive_year, archive_month
+
 
 
 def _add_breadcrumb(request, *args, **kwargs):
     """ shortcut for add breadcrumb link """
     context = request.PYLUCID.context
-    breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+    try:
+        breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+    except KeyError:
+        # No breadcrumbs used in current template
+        return
     breadcrumb_context_middlewares.add_link(*args, **kwargs)
 
 
-def _get_queryset(request, tags=None, filter_language=False):
-    # Get all blog entries, that the current user can see
-    queryset = BlogEntry.objects.all_accessible(request, filter_language=filter_language)
-
-    if tags is not None:
-        # filter by tags 
-        queryset = TaggedItem.objects.get_by_model(queryset, tags)
-
-    return queryset
+#def _get_queryset(request, tags=None, filter_language=False):
+#    # Get all blog entries, that the current user can see
+#    queryset = BlogEntry.objects.all_accessible(request, filter_language=filter_language)
+#
+#    if tags is not None:
+#        # filter by tags 
+#        queryset = TaggedItem.objects.get_by_model(queryset, tags)
+#
+#    return queryset
 
 
 def _split_tags(raw_tags):
@@ -203,24 +208,20 @@ def detail_view(request, year, month, day, slug):
     prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     try:
-        entry = prefiltered_queryset.get(slug=slug,
-            createtime__year=year, createtime__month=month, createtime__day=day
-        )
-    except BlogEntry.DoesNotExist:
+        entry = prefiltered_queryset.get(createtime__year=year, createtime__month=month, createtime__day=day, slug=slug)
+    except BlogEntryContent.DoesNotExist:
         # XXX: redirect to day_archive() ?
         # It's possible that the user comes from a external link.
-        msg = "Blog entry doesn't exist."
-        if settings.DEBUG or request.user.is_staff:
-            msg += " (ID %r wrong.)" % id
-        messages.error(request, msg)
-        return summary(request)
+        messages.error(request, _("Entry for this url doesn't exist."))
+        url = urlresolvers.reverse("Blog-summary")
+        return HttpResponseRedirect(url)
 
-    new_url = i18n.assert_language(request, entry.language)
-    if new_url:
-        # the current language is not the same as entry language -> redirect to right url
-        # e.g. someone followed a external link to this article, but his preferred language
-        # is a other language as this article. Activate the article language and "reload"
-        return http.HttpResponsePermanentRedirect(new_url)
+#    new_url = i18n.assert_language(request, entry.language)
+#    if new_url:
+#        # the current language is not the same as entry language -> redirect to right url
+#        # e.g. someone followed a external link to this article, but his preferred language
+#        # is a other language as this article. Activate the article language and "reload"
+#        return http.HttpResponsePermanentRedirect(new_url)
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, entry.headline, _("Article '%s'") % entry.headline)
@@ -246,6 +247,28 @@ def detail_view(request, year, month, day, slug):
         "page_permalink": permalink, # Change the permalink in the global page template
     }
     return context
+
+#------------------------------------------------------------------------------
+
+def permalink_view(request, id, slug=None):
+    """ redirect to language depent blog entry """
+    prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    prefered_languages = request.PYLUCID.languages
+
+    prefiltered_queryset = prefiltered_queryset.filter(entry__id__exact=id)
+    try:
+        entry = prefiltered_queryset.filter(language__in=prefered_languages)[0]
+    except BlogEntry.DoesNotExist:
+        # wrong permalink -> display summary
+        msg = "Blog entry doesn't exist."
+        if settings.DEBUG or request.user.is_staff:
+            msg += " (ID %r wrong.)" % id
+        messages.error(request, msg)
+        return summary(request)
+
+    url = entry.get_absolute_url()
+    return HttpResponsePermanentRedirect(url)
 
 #------------------------------------------------------------------------------
 

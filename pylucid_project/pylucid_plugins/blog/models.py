@@ -17,7 +17,6 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db import models
 from django.db.models import signals
 from django.template.defaultfilters import slugify
-from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tagging/
@@ -74,6 +73,41 @@ class BlogEntry(AutoSiteM2M):
 
         cache.clear() # FIXME: This cleaned the complete cache for every site!
 
+    def get_permalink(self, request, slug=None):
+        """
+        permalink to this entry (language indepent)
+        """
+        if slug is None:
+            # Add language depend slug, but we didn't use it in permalink_view()
+            prefered_languages = request.PYLUCID.languages
+            queryset = BlogEntryContent.objects.filter(entry=self).only("slug")
+            slug = queryset.filter(language__in=prefered_languages)[0].slug
+
+        reverse_kwargs = {"id": self.id, "slug": slug}
+        viewname = "Blog-permalink_view"
+        try:
+            # This only worked inner lucidTag
+            url = urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
+        except urlresolvers.NoReverseMatch, err:
+            if settings.RUN_WITH_DEV_SERVER:
+                print "*** Blog entry url reverse error 1: %s" % err
+            # Use the first PluginPage instance
+            try:
+                url = PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
+            except urlresolvers.NoReverseMatch, err:
+                if settings.RUN_WITH_DEV_SERVER:
+                    print "*** Blog entry url reverse error 2: %s" % err
+                return "#No-Blog-PagePlugin-exists"
+
+        if hasattr(request.PYLUCID, "pagemeta"):
+            # we on the cms pages and not in admin
+            permalink = plugin_permalink(request, url)
+        else:
+            # we are e.g. in admin page
+            permalink = url
+
+        return permalink
+
     def __unicode__(self):
         return "Blog entry %i" % self.pk
 
@@ -99,7 +133,7 @@ class BlogEntryContentManager(models.Manager):
                 filters["language"] = request.PYLUCID.current_language
             elif language_filter == BlogPrefForm.PREFERED_LANGUAGES:
                 # Filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)
-                filters["language_in"] = request.PYLUCID.current_languages
+                filters["language__in"] = request.PYLUCID.languages
 
         if not request.user.has_perm("blog.change_blogentry") or not request.user.has_perm("blog.change_blogentrycontent"):
             filters["entry__is_public"] = True
@@ -316,9 +350,8 @@ class BlogEntryContent(UpdateInfoBaseModel):
         return url
 
     def get_permalink(self, request):
-        """ permalink to this entry detail view """
-        absolute_url = self.get_absolute_url() # Absolute url to this entry
-        permalink = plugin_permalink(request, absolute_url)
+        """ permalink to this entry language indepent """
+        permalink = self.entry.get_permalink(request, self.slug)
         return permalink
 
     def __unicode__(self):
