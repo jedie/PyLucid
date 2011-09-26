@@ -7,5 +7,23 @@
 <fieldset class="entry">
     {% include "blog/includes/blog_entry.html" %}
 </fieldset>
+
+<fieldset class="archive_links"><legend>{% trans 'archive' %}</legend>
+{% spaceless %}
+/<a href="{% url Blog-year_archive entry.lastupdatetime|date:"Y" %}"
+    title="{% blocktrans with entry.createtime|date:"Y" as year %}{{ year }} year archive{% endblocktrans %}">
+    {{ entry.lastupdatetime|date:"Y" }}
+</a>
+/<a href="{% url Blog-month_archive entry.lastupdatetime|date:"Y" entry.lastupdatetime|date:"m" %}"
+    title="{% blocktrans with entry.createtime|date:"YEAR_MONTH_FORMAT" as month %}{{ month }} month archive{% endblocktrans %}">
+    {{ entry.lastupdatetime|date:"m" }}
+</a>
+/<a href="{% url Blog-day_archive entry.lastupdatetime|date:"Y" entry.lastupdatetime|date:"m" entry.lastupdatetime|date:"d" %}"
+    title="{% blocktrans with entry.createtime|date:"MONTH_DAY_FORMAT" as day %}{{ day }} day archive{% endblocktrans %}">
+    {{ entry.lastupdatetime|date:"d" }}
+</a>
+/
+{% endspaceless %}
+</fieldset>
 </div>
 {% endblock content %}
