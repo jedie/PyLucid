@@ -55,6 +55,9 @@ class BlogEntryAdmin(BaseAdmin):
 
         request = ThreadLocal.get_current_request()
         permalink = obj.get_permalink(request)
+        if permalink is None:
+            return u"<i>[no permalink available]</i>"
+
         context = {"permalink": permalink}
         html = render_to_string('admin/blog/permalink.html', context)
         return html

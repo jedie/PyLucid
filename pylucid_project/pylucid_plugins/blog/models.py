@@ -81,7 +81,11 @@ class BlogEntry(SiteM2M):
             # Add language depend slug, but we didn't use it in permalink_view()
             prefered_languages = request.PYLUCID.languages
             queryset = BlogEntryContent.objects.filter(entry=self).only("slug")
-            slug = queryset.filter(language__in=prefered_languages)[0].slug
+            try:
+                slug = queryset.filter(language__in=prefered_languages)[0].slug
+            except IndexError:# BlogEntryContent.DoesNotExist
+                # no content exist
+                return
 
         reverse_kwargs = {"id": self.id, "slug": slug}
         viewname = "Blog-permalink_view"
@@ -143,12 +147,14 @@ class BlogEntryContentManager(models.Manager):
 
     def get_prefiltered_queryset(self, request, tags=None, filter_language=True):
         filters = self.get_filters(request, filter_language=True)
-        queryset = self.model.objects.filter(**filters)
 
         if tags is not None:
             # filter by tags 
-            queryset = TaggedItem.objects.get_by_model(queryset, tags)
+            queryset = TaggedItem.objects.get_by_model(self.model, tags)
+        else:
+            queryset = self.model.objects.all()
 
+        queryset = queryset.filter(**filters)
         return queryset
 
     def get_tag_cloud(self, request, filter_language=True):
