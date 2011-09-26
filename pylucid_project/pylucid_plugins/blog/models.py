@@ -31,7 +31,7 @@ from django_tools.utils.messages import failsafe_message
 from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import Language, PluginPage
-from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
+from pylucid_project.apps.pylucid.models.base_models import SiteM2M, UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
@@ -45,7 +45,7 @@ TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
 
-class BlogEntry(AutoSiteM2M):
+class BlogEntry(SiteM2M):
     """
     Language independend Blog entry.
     
@@ -151,8 +151,8 @@ class BlogEntryContentManager(models.Manager):
 
         return queryset
 
-    def get_tag_cloud(self, request):
-        filters = self.get_filters(request, filter_language=True)
+    def get_tag_cloud(self, request, filter_language=True):
+        filters = self.get_filters(request, filter_language=filter_language)
         tag_cloud = Tag.objects.cloud_for_model(self.model, steps=2, filters=filters)
         return tag_cloud
 
