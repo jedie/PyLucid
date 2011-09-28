@@ -14,6 +14,7 @@
 
 import os
 import sys
+import traceback
 from optparse import make_option
 
 from django.conf import settings
@@ -111,8 +112,8 @@ class Command(BaseCommand):
             if cmd_type == COMPILE_MESSAGES:
                 try:
                     compile_messages(self.stderr)
-                except Exception, err:
-                    print "Error: %s" % err
+                except Exception:
+                    print traceback.format_exc()
             elif cmd_type == MAKE_MESSAGES:
                 try:
                     make_messages(
@@ -126,8 +127,8 @@ class Command(BaseCommand):
                         no_wrap=False,
                         no_obsolete=True,
                     )
-                except Exception, err:
-                    print "Error: %s" % err
+                except Exception:
+                    print traceback.format_exc()
             else:
                 raise
 
