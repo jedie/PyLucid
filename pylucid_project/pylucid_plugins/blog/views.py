@@ -52,17 +52,6 @@ def _add_breadcrumb(request, *args, **kwargs):
     breadcrumb_context_middlewares.add_link(*args, **kwargs)
 
 
-#def _get_queryset(request, tags=None, filter_language=False):
-#    # Get all blog entries, that the current user can see
-#    queryset = BlogEntry.objects.all_accessible(request, filter_language=filter_language)
-#
-#    if tags is not None:
-#        # filter by tags 
-#        queryset = TaggedItem.objects.get_by_model(queryset, tags)
-#
-#    return queryset
-
-
 def _split_tags(raw_tags):
     "simple split tags from url"
     tags = raw_tags.strip("/").split("/")
@@ -104,7 +93,7 @@ class RssFeed(Feed):
             ) % {"count":self.count, "tags": ",".join(self.tags)}
 
     def items(self):
-        queryset = _get_queryset(self.request, self.tags, filter_language=True)
+        queryset = BlogEntryContent.objects.get_prefiltered_queryset(self.request, tags=self.tags, filter_language=True)
         return queryset[:self.count]
 
     def item_title(self, item):
