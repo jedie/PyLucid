@@ -140,7 +140,7 @@ def summary(request):
     try:
         # Use the newest blog entry for date info
         request.PYLUCID.updateinfo_object = paginator.object_list[0]
-    except BlogEntry.DoesNotExist:
+    except IndexError:
         # No blog entries created, yet.
         pass
 
@@ -177,7 +177,7 @@ def tag_view(request, tags):
     try:
         # Use the newest blog entry for date info
         request.PYLUCID.updateinfo_object = paginator.object_list[0]
-    except BlogEntry.DoesNotExist:
+    except IndexError:
         # No blog entries created, yet.
         pass
 
