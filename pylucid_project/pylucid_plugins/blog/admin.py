@@ -26,6 +26,7 @@ from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
 from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
     BlogEntryContent
 import traceback
+from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
 
 
@@ -38,6 +39,8 @@ class BlogEntryAdmin(BaseAdmin):
     """
     def contents(self, obj):
         contents = BlogEntryContent.objects.filter(entry=obj)
+        for entry in contents:
+            entry.is_public_html = _boolean_icon(entry.is_public)
         context = {
             "contents": contents
         }
@@ -64,7 +67,7 @@ class BlogEntryAdmin(BaseAdmin):
 
     permalink.allow_tags = True
 
-    list_display = ("id", "site_info", "contents", "permalink")
+    list_display = ("id", "is_public", "site_info", "contents", "permalink")
     list_filter = ("sites",)
 admin.site.register(BlogEntry, BlogEntryAdmin)
 
