@@ -1,0 +1,126 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin_views.py:79
+msgid "hightlight sourcecode"
+msgstr "Sourcecode hervorheben"
+
+#: admin_views.py:111
+msgid "Delete old log entries"
+msgstr "Alte Log-Einträge löschen"
+
+#: admin_views.py:151 admin_views.py:174
+#, python-format
+msgid "Delete %(count)s entries in %(duration).2fsec"
+msgstr ""
+
+#: admin_views.py:179
+msgid "Delete old session entries"
+msgstr "Alte Session-Einträge löschen"
+
+#: admin_views.py:253
+msgid "override template"
+msgstr "Template Überschreiben"
+
+#: admin_views.py:281
+#, python-format
+msgid "New dbtemplate entry %s created."
+msgstr "Neuer dbtemplate Eintrag %s erstellt."
+
+#: admin_views.py:289
+#, python-format
+msgid "dbtemplate entry %s already exists!"
+msgstr "dbtemplate Eintrag %s existiert schon!"
+
+#: admin_views.py:291
+msgid " You can edit it now."
+msgstr "Du kannst es jetzt bearbeiten."
+
+#: forms.py:29
+msgid "keep the last X entries"
+msgstr "Letzten X Einträge behalten"
+
+#: forms.py:30
+msgid "keep entries from the last X days"
+msgstr "behalte Einträge der letzten X Tag(e)"
+
+#: forms.py:31
+msgid "keep entries from the last X hours"
+msgstr "behalte Einträge der letzten X Stunde(n)"
+
+#: forms.py:33
+msgid "Number of entries to be retained."
+msgstr "Anzahl der Einträge die beibehalten werden."
+
+#: forms.py:35
+msgid "Witch 'retained' type is the given number?"
+msgstr "Welche \"behalte letzten X\" Typ ist die Zahl?"
+
+#: forms.py:38
+msgid "Limit the query to the current site?"
+msgstr "Auf aktuelle Seite beschränken?"
+
+#: forms.py:139
+msgid "Select the template you would like to overwrite in dbtemplate."
+msgstr "Wähle das Template welches du in dbtemplate überschreiben willst."
+
+#: templates/tools/cleanup_log.html:16 templates/tools/highlight_code.html:29
+msgid "submit"
+msgstr "Absenden"
+
+#: templates/tools/highlight_code.html:30
+msgid "makes the textarea bigger"
+msgstr "Texteingabefeld vergrößern"
+
+#: templates/tools/highlight_code.html:33
+msgid "makes the textarea smaller"
+msgstr "Texteingabefeld verkleinern"
+
+#: templates/tools/override_template.html:5
+msgid ""
+"Override a template. Read the original template from filesystem and create a "
+"dbtemplate entry"
+msgstr ""
+"Überschreiben eines Templates. Liest das Template vom Dateisystem und "
+"erzeugt einen dbtemplate Eintrag."
+
+#: templates/tools/override_template.html:6
+msgid "more info on:"
+msgstr "Mehr Informationen auf:"
+
+#: templates/tools/override_template.html:12
+msgid "preview"
+msgstr "Vorschau"
+
+#: templates/tools/override_template.html:12
+msgid "Display only the sourcecode of the template."
+msgstr "Nur den Sourcecode des Templates anzeigen."
+
+#: templates/tools/override_template.html:13
+msgid "override"
+msgstr "überschreiben"
+
+#: templates/tools/override_template.html:13
+msgid "Read the template from filesystem and create a new dbtemplate entry."
+msgstr ""
+"Liest das Template vom Dateisystem und erzeugt einen dbtemplate Eintrag."

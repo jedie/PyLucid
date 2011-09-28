@@ -1,0 +1,94 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin_views.py:57
+msgid "Switch a PyLucid page design"
+msgstr "Wechsel PyLucid Seiten Design"
+
+#: admin_views.py:67
+#, python-format
+msgid "Error: Design with ID %(id)r doesn't exist: %(err)s"
+msgstr "Fehler: Design mit ID %(id)r existiert nicht: %(err)s"
+
+#: admin_views.py:84
+msgid "delete 'design switch', turn to automatic mode."
+msgstr "Lösche \"Design Umschaltung\", schalte im normalen Automatik Modus."
+
+#: admin_views.py:87
+#, python-format
+msgid "Save design ID %r"
+msgstr "Speicher Design ID %r"
+
+#: admin_views.py:171
+msgid "Clone a existing page design with all associated components."
+msgstr ""
+"Klone ein existierende Seiten Design und alle dazugehörigen Komponenten."
+
+#: admin_views.py:202
+#, python-format
+msgid "New design '%s' created."
+msgstr "Neues Design '%s' erstellt."
+
+#: forms.py:23
+msgid "Select the PyLucid page design"
+msgstr "Wähle das PyLucid Seiten Design"
+
+#: forms.py:42
+msgid "Name of the cloned design. (used for all design components, too)"
+msgstr ""
+"Name des Design Klones. (Wird auch in allen dazugehörigen Komponenten "
+"genutzt)"
+
+#: forms.py:46
+msgid "Site set to all design components"
+msgstr "Seite for alle Design Komponenten"
+
+#: forms.py:66
+#, python-format
+msgid "new name contains invalid characters! (Original error: %s)"
+msgstr "Neuer Name beinhaltet unzuläßige Zeichen! (Original Fehler: %s)"
+
+#: forms.py:71
+msgid "A design with this name exist already."
+msgstr "Ein Design mit diesem Namen existiert bereits."
+
+#: forms.py:74
+msgid "A ColorScheme with this name exist already."
+msgstr "Ein Farbschema mit diesem Namen existiert bereits."
+
+#: forms.py:77
+msgid "A editable headfile filepath startswith with this new name."
+msgstr "Ein \"Headfile\" startet mit diesem neuen Namen."
+
+#: forms.py:85
+#, python-format
+msgid "A template named '%s' exist already"
+msgstr "Template mit Namen '%s' existiert schon!"
+
+#: templates/design/clone.html:14
+msgid "clone design"
+msgstr "Clone Design"
+
+#: templates/design/switch.html:24
+msgid "switch design"
+msgstr "Switch Design"

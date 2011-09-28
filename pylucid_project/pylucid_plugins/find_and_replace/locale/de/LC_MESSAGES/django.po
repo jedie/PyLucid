@@ -1,0 +1,91 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin_views.py:40
+#, python-format
+msgid "%(count)s %(model_name)s entries total exist."
+msgstr "%(count)s %(model_name)s Einträge existieren (Gesamt)"
+
+#: admin_views.py:58
+#, python-format
+msgid "%(count)s %(model_name)s filtered entries found."
+msgstr "%(count)s %(model_name)s gefilterte Einträge gefunden."
+
+#: admin_views.py:67
+#, python-format
+msgid "%(count)s %(model_name)s entries contains 'find string'."
+msgstr "%(count)s %(model_name)s Einträge beinhalten den Suchtext."
+
+#: admin_views.py:103
+#, python-format
+msgid "%(changes)s changes in %(count)s %(model_name)s entries."
+msgstr "%(changes)s Änderungen in %(count)s %(model_name)s Einträgen."
+
+#: admin_views.py:121
+msgid "Find and replace"
+msgstr "Suchen und Ersetzten"
+
+#: forms.py:35
+msgid "Please select the content type for the operation."
+msgstr "Bitte einen \"Inhaltstypen\" für diese Funktion aussuchen."
+
+#: forms.py:38
+msgid "Limit the language. (Would not be used for any content type.)"
+msgstr "Begrenze die Sprachen. (Wird nocht für alle Inhaltstypen genutzt.)"
+
+#: forms.py:42
+msgid "Limit to these sites"
+msgstr "Auf diese Seiten beschränken"
+
+#: forms.py:47
+msgid "Don't replace anything."
+msgstr "Nichts wird geändert."
+
+#: preference_forms.py:11
+msgid "Min length of a search term"
+msgstr "Min. Länge eines Suchbegriffs"
+
+#: preference_forms.py:15
+msgid "Max length of a search term"
+msgstr "Maximale Suchbegriff länge"
+
+#: preference_forms.py:19
+msgid "The length of the text-hit-cutouts"
+msgstr "Länge des Treffer Text Ausschnitt"
+
+#: preference_forms.py:23
+msgid "Max. cutout lines for every search term"
+msgstr "Max. Anzahl der Treffer Zeilen für jeden Suchbegriff"
+
+#: templates/find_and_replace/find_and_replace.html:23
+msgid "find and replace"
+msgstr "Suchen und Ersetzten"
+
+#: templates/find_and_replace/find_and_replace.html:29
+msgid "results"
+msgstr "Ergebnisse"
+
+#: templates/find_and_replace/find_and_replace.html:30
+#: templates/find_and_replace/find_and_replace.html:41
+msgid "changes"
+msgstr "Änderungen"

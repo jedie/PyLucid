@@ -1,0 +1,165 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: forms.py:13
+msgid "Email address"
+msgstr "E-Mail-Adresse"
+
+#: forms.py:14
+msgid "not published, only used for notification"
+msgstr "Wird nicht veröffentlicht, nur für Benachrichtigung"
+
+#: forms.py:17
+msgid ""
+"Send me a mail if someone replay on my comment. (Needs a email address ;)"
+msgstr ""
+"Sende eine Email, wenn jemand noch ein Kommentar abgibt. (Benötigt eine "
+"EMail Adresse ;)"
+
+#: models.py:37
+msgid "PyLucid comment"
+msgstr "PyLucid Kommentar"
+
+#: models.py:38
+msgid "PyLucid pylucid_comments"
+msgstr ""
+
+#: preference_forms.py:13
+msgid "Number of pause errors after IP would be banned."
+msgstr ""
+"Anzahl der Limit Überschreibungen, nach der die IP Adresse verboten wird."
+
+#: preference_forms.py:17
+msgid ""
+"Minimum pause in seconds between two comments (Used 'REMOTE_ADDR' + username)"
+msgstr ""
+"Minimale Pause in Sekunden zwischen zwei Kommentaren vom selben Nutzer. "
+"(nutzt 'REMOTE_ADDR' + Benutzername)"
+
+#: preference_forms.py:27
+msgid ""
+"Keywords for auto hide a new comment, for later moderation. (Comma seperated)"
+msgstr ""
+"Stichwörter für automatisches nicht-veröffentlichen eines neuen Kommentars. "
+"(Komma getrennt)"
+
+#: preference_forms.py:31
+msgid "Email every settings.ADMINS after a new comment submitted."
+msgstr ""
+"Sende eine Email an alle settings.ADMINS, nachdem ein neuer Kommentar "
+"erstellt wurde."
+
+#: views.py:99
+msgid "Your comment has been saved."
+msgstr "Dein Kommentar wurde gespeichert."
+
+#: views.py:101
+msgid "Your comment waits for moderation."
+msgstr "Ihr Kommentar muss auf eine Moderation warten."
+
+#: templates/comments/list.html:17
+#, python-format
+msgid "Before %(time)s"
+msgstr "Vor %(time)s"
+
+#: templates/comments/list.html:19
+msgid "DATETIME_FORMAT"
+msgstr ""
+
+#: templates/comments/list.html:26
+msgid "edit this comment entry"
+msgstr "Diesen Kommentar bearbeiten"
+
+#: templates/comments/list.html:26
+msgid "edit"
+msgstr "Bearbeiten"
+
+#: templates/comments/list.html:29
+msgid "delete this comment entry"
+msgstr "Diesen Kommentar löschen."
+
+#: templates/comments/list.html:29
+msgid "delete"
+msgstr "Löschen"
+
+#: templates/comments/list.html:42
+#, python-format
+msgid "there exist no comment for '%(name)s'"
+msgstr "Es existiert kein Kommentar für '%(name)s'"
+
+#: templates/comments/preview.html:3
+msgid "Preview your comment"
+msgstr "Kommentarvorschau"
+
+#: templates/comments/preview.html:7
+msgid "and"
+msgstr "und"
+
+#: templates/comments/preview.html:7
+msgid "Post your comment"
+msgstr "Kommentar abschicken"
+
+#: templates/comments/preview.html:7
+msgid "or make changes"
+msgstr "oder Änderungen vornehmen"
+
+#: templates/pylucid_comments/comment_form.html:6
+msgid "Please correct the error below"
+msgid_plural "Please correct the errors below"
+msgstr[0] "Bitte unten stehenden Fehler korrigieren."
+msgstr[1] "Bitte unten stehende Fehler korrigieren."
+
+#: templates/pylucid_comments/comment_form.html:17
+msgid "Post"
+msgstr "Abschicken"
+
+#: templates/pylucid_comments/comment_form.html:18
+msgid "Preview"
+msgstr "Vorschau"
+
+#: templates/pylucid_comments/comments.html:8
+#, python-format
+msgid ""
+"\n"
+"        %(counter)s comment for '%(name)s':\n"
+"    "
+msgid_plural ""
+"\n"
+"        %(counter)s comments for '%(name)s':\n"
+"    "
+msgstr[0] ""
+"\n"
+"  %(counter)s Kommentar für '%(name)s':\n"
+"  "
+msgstr[1] ""
+"\n"
+"  %(counter)s Kommentare für '%(name)s':\n"
+"  "
+
+#: templates/pylucid_comments/comments.html:15
+msgid "loading..."
+msgstr "laden..."
+
+#: templates/pylucid_comments/comments.html:16
+msgid "Leave a comment"
+msgstr "Kommentar hinterlassen"

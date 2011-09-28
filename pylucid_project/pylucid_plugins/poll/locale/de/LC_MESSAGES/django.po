@@ -1,0 +1,80 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin.py:39
+msgid "lucidTag example"
+msgstr "lucidTag Beispiel"
+
+#: models.py:37
+msgid "Can users vote to this poll or just see the result?"
+msgstr ""
+
+#: models.py:40
+msgid "Limit vote to user-types/user-groups."
+msgstr ""
+
+#: models.py:41
+msgid "Limit result view to user-types/user-groups."
+msgstr ""
+
+#: models.py:45
+msgid "Limit votes from the same IP - 0 == unlimited"
+msgstr ""
+
+#: views.py:49
+#, fuzzy, python-format
+msgid "Poll with ID %s doesn't exist"
+msgstr "Fehler: Design mit ID %(id)r existiert nicht: %(err)s"
+
+#: views.py:92
+msgid "This poll is not active."
+msgstr ""
+
+#: views.py:95 views.py:227 views.py:235
+msgid "You have no permission to vote this poll."
+msgstr ""
+
+#: views.py:103 views.py:109 views.py:117
+msgid "You have vote for this in the past."
+msgstr ""
+
+#: views.py:123 views.py:243
+msgid "No more votes allowed."
+msgstr ""
+
+#: views.py:223
+msgid "This poll is not active!"
+msgstr ""
+
+#: views.py:249
+msgid "You didn't select a choice."
+msgstr ""
+
+#: views.py:255
+msgid "Choice is not valid."
+msgstr ""
+
+#: views.py:260
+#, fuzzy
+msgid "You choice was saved"
+msgstr "Dein Kommentar wurde gespeichert."

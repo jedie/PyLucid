@@ -336,6 +336,12 @@ TIME_ZONE = "UTC"
 # (Default from django is en-us, but this doesn't exist in PyLucid installed data)
 LANGUAGE_CODE = "en"
 
+# https://docs.djangoproject.com/en/1.3/ref/settings/#std:setting-LOCALE_PATHS
+LOCALE_PATHS = (
+    os.path.join(PYLUCID_BASE_PATH, "apps", "pylucid", "locale"),
+)
+USE_I18N = True
+
 #_______________________________________________________________________________
 # dbtemplates settings
 # http://packages.python.org/django-dbtemplates/overview.html#settings
