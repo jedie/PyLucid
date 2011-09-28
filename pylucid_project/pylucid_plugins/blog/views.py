@@ -136,6 +136,8 @@ FEED_FILENAMES = (AtomFeed.filename, RssFeed.filename)
 def summary(request):
     """
     Display summary list with all blog entries.
+    
+    TODO: Set http robots ==> "noindex,follow"
     """
     # Get all blog entries, that the current user can see
     paginator = BlogEntryContent.objects.get_filtered_queryset(request, filter_language=True)
@@ -166,6 +168,8 @@ def summary(request):
 def tag_view(request, tags):
     """
     Display summary list with blog entries filtered by the given tags.
+    
+    TODO: Set http robots ==> "noindex,follow"
     """
     tags = _split_tags(tags)
 
@@ -218,15 +222,30 @@ def detail_view(request, year, month, day, slug):
         url = urlresolvers.reverse("Blog-summary")
         return HttpResponseRedirect(url)
 
-
     client_language = request.PYLUCID.current_language
     if content_entry.language != client_language:
         # Look if this entry exists in the client preferred language
         entry = content_entry.entry
-        new_content_entry = prefiltered_queryset.get(entry=entry, language=client_language)
-        new_url = new_content_entry.get_absolute_url()
-        messages.info(request, _("You are redirected to the entry in your preferred language."))
-        return HttpResponseRedirect(new_url)
+        try:
+            new_content_entry = prefiltered_queryset.get(entry=entry, language=client_language)
+        except BlogEntryContent.DoesNotExist:
+            # Doesn't exist in client preferred language
+            pass
+        else:
+            new_url = new_content_entry.get_absolute_url()
+            messages.info(request, _("You are redirected to the entry in your preferred language."))
+            return HttpResponseRedirect(new_url)
+
+    new_url = i18n.assert_language(request, content_entry.language)
+    if new_url:
+        # the current language is not the same as entry language -> redirect to right url
+        # e.g. someone followed a external link to this article, but his preferred language
+        # is a other language as this article. Activate the article language and "reload"
+        if settings.DEBUG or request.user.is_staff:
+            messages.info(request,
+                "current url %r doesn't contain right language, redirect to %r" % (request.path, new_url)
+            )
+        return HttpResponsePermanentRedirect(new_url)
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, content_entry.headline, _("Article '%s'") % content_entry.headline)
@@ -301,6 +320,8 @@ def redirect_old_urls(request, id, title):
 def year_archive(request, year):
     """
     Display year archive
+    
+    TODO: Set http robots ==> "noindex,follow"
     """
     year = int(year)
 
@@ -346,6 +367,7 @@ def year_archive(request, year):
 def month_archive(request, year, month):
     """
     TODO: Set previous-/next-month by filtering
+    TODO: Set http robots ==> "noindex,follow"
     """
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
@@ -364,6 +386,7 @@ def month_archive(request, year, month):
 def day_archive(request, year, month, day):
     """
     TODO: Set previous-/next-day by filtering
+    TODO: Set http robots ==> "noindex,follow"
     """
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
@@ -384,7 +407,10 @@ def day_archive(request, year, month, day):
 
 @render_to("blog/select_feed.html")
 def select_feed(request):
-    """ Display a list with existing feed filenames. """
+    """
+    Display a list with existing feed filenames.
+    TODO: Set http robots ==> "noindex,follow"
+    """
     context = {"filenames": FEED_FILENAMES}
     return context
 
