@@ -1,0 +1,184 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:45
+msgid "edit page content inline"
+msgstr "Inhalt der Seite 'inline' bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:47
+msgid "edit page"
+msgstr "Seite bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:53
+msgid "edit all page attributes in a seperated view"
+msgstr "Alle Seiten Attribute im eigenen View bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:54
+msgid "edit all"
+msgstr "alles bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:59
+msgid "low level editing page parts in django admin panel (not recommented!)"
+msgstr ""
+"Low-Level-Bearbeitung von Seitenteile im Django Admin Panel (nicht "
+"empfohlen!)"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:60
+msgid "django admin"
+msgstr "Django Admin Seite"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:67
+msgid "edit only 'plugin page' entry in with django admin panel"
+msgstr "nur 'plugin page' Eintrag in Django Admin bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:68
+msgid "edit plugin page"
+msgstr "Plugin Seite bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:77
+msgid "edit only 'PageContent' part in django admin panel"
+msgstr "Nur 'PageContent' Eintrag in Django Admin bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:78
+msgid "edit page content"
+msgstr "Seiten Inhalt bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:87
+msgid "edit only 'PageTree' part in django admin panel"
+msgstr "Nur 'PageTree' Eintrag in Django Admin bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:88
+msgid "edit page tree"
+msgstr "Seitenbaum bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:95
+msgid "edit only 'PageMeta' part in django admin panel"
+msgstr "Nur 'PageTree' Eintrag in Django Admin bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:96
+msgid "edit page meta"
+msgstr "Meta Angaben bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:105
+msgid "edit current style/template in django admin panel"
+msgstr "Aktuelle Style/Tremplate in Django Admin Seite bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:106
+msgid "edit current look"
+msgstr "Aussehen bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:112
+msgid "edit current design:"
+msgstr "Bearbeite aktuelles Design:"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:113
+msgid "design"
+msgstr "Design"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:120
+msgid "edit current colorscheme:"
+msgstr "Bearbeite aktuelles Farbschema:"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:121
+msgid "colorscheme"
+msgstr "Farbschema"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:129
+msgid "edit headfile:"
+msgstr "Bearbeite Kopfdatei:"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:138
+msgid "edit page template:"
+msgstr "Bearbeite aktuelles Seiten Template:"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:139
+msgid "page template"
+msgstr "Seiten Template"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:152
+msgid "translate page into a other language"
+msgstr "Übersetzte Aktuelle Seite in andere Sprache"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:153
+msgid "translate content"
+msgstr "Seiteninhalt Übersetzen"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:158
+msgid ""
+"auto translate page into a other language and prefill fields with google "
+"translation service"
+msgstr ""
+"Automatisches Übersetzten der Seite mit vorausgefüllten Feldern mit dem "
+"Google Übersetztungs Service"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:159
+msgid "prefill with google"
+msgstr "Vorgefüllt mit google"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:170
+msgid "Convert page content markup"
+msgstr "Konvertierte Seiteninhalt in anderes Markup"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:171
+msgid "convert markup"
+msgstr "Markup konvertieren"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:180
+msgid "change the link oder of the current menu level"
+msgstr "Links Reihenfolge des aktuellen Menü Levels ändern"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:181
+msgid "change page order"
+msgstr "Reihenfolge bearbeiten"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:189
+msgid "delete current page"
+msgstr "Aktuelle Seite Löschen"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:190
+msgid "delete page"
+msgstr "Seite Löschen"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:203
+msgid "Go into Django Admin site index"
+msgstr "Gehe zum Django Admin Seiten Index"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:204
+msgid "Django admin site"
+msgstr "Django Admin Seite"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:227
+msgid "PyLucid admin menu"
+msgstr "PyLucid Admin Menü"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:235
+msgid "install PyLucid"
+msgstr "PyLucid installieren"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:238
+msgid "install plugins"
+msgstr "Plugins installieren"
+
+#: templates/admin_menu/includes/pylucid_admin_menu.html:241
+msgid "update section"
+msgstr "Update Sektion"

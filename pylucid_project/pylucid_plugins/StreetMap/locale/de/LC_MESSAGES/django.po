@@ -1,0 +1,140 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin.py:30
+msgid "lucidTag example"
+msgstr "lucidTag Beispiel"
+
+#: admin.py:36
+msgid "preview"
+msgstr "Vorschau"
+
+#: models.py:55
+msgid "Short name for lucidTag"
+msgstr "Kurzname für 'lucidTag'"
+
+#: models.py:61
+msgid "Template path for this map. (Optional, leave empty for default!"
+msgstr "Template Pfad für diese Karte. (Leerlassen, für Standart Template!)"
+
+#: models.py:68
+msgid "Map width size"
+msgstr "Karten Breite"
+
+#: models.py:72
+msgid "Map height size"
+msgstr "Karten Höhe"
+
+#: models.py:76
+msgid "map geographic longitude (vertically) coordinate"
+msgstr "Karten Koordinaten, geographische Länge (vertikal/longitude)"
+
+#: models.py:79
+msgid "map geographic latitude (horizontally) coordinate"
+msgstr "Karten Koordinaten, geographische Breite (horizontal/latitude)"
+
+#: models.py:83
+msgid "Map zoom factor"
+msgstr "Karten Zoom Faktor"
+
+#: models.py:88
+msgid ""
+"Text marker longitude (vertically) coordinate. (Optional, leave empty to use "
+"the map centre.)"
+msgstr ""
+"Text Markierungs Koordinaten, geographische Länge (vertikal/longitude) "
+"(Optional, nutzte Kartenmittelpunkt, wenn leer)"
+
+#: models.py:94
+msgid ""
+"Text marker latitude (horizontally) coordinate (Optional, leave empty to use "
+"the map centre.)"
+msgstr ""
+"Text Markierungs Koordinaten, geographische Breite (horizontal/latitude) "
+"(Optional, nutzte Kartenmittelpunkt, wenn leer)"
+
+#: models.py:100
+msgid "Text marker width size"
+msgstr "Text Markierung Breite"
+
+#: models.py:104
+msgid "Text marker height size"
+msgstr "Text Markierung Höhe"
+
+#: models.py:108
+msgid ""
+"Marker text. (Optional, leave empty if no popup marker should be displayed.)"
+msgstr "Marker Text. (Optional, Kein Marker Popup, wenn leer.)"
+
+#: models.py:115
+msgid "url to kml file to show on the map"
+msgstr ""
+
+#: models.py:133
+msgid "Template doesn't exist."
+msgstr "Template existiert nicht."
+
+#: preference_forms.py:12
+msgid "Google Maps API Key (Leave empty if you only use OpenStreetMaps.)"
+msgstr ""
+"Google-Maps-Key (Kann leer gelassen werden, wenn nur OpenStreetMaps genutzt "
+"werden)"
+
+#: views.py:32
+msgid "lucidTag StreetMap error: You must add the 'name' parameter!"
+msgstr "lucidTag StreetMap Fehler: Parameter 'name' fehlt!"
+
+#: views.py:40
+#, python-format
+msgid "lucidTag StreetMap error: There exist no map entry with the name: %r"
+msgstr ""
+"lucidTag StreetMap Fehler: Es existiert kein Karten Eintrag mit name: %r"
+
+#: views.py:44
+#, python-format
+msgid "Existing maps are: %r"
+msgstr "Existierende Karten: %r"
+
+#: templates/StreetMap/create_map.html:1
+msgid "create a new street map entry in django admin site"
+msgstr "Neue Karte in Django Admin erstellen"
+
+#: templates/StreetMap/create_map.html:1
+msgid "create a new map entry"
+msgstr "Neue Karte erstellen."
+
+#: templates/StreetMap/includes/GoogleMaps_link.html:1
+msgid "See this map on google maps web page"
+msgstr "Zeige Karte auf Google-Maps Webseite"
+
+#: templates/StreetMap/includes/OpenStreetMap_link.html:1
+msgid "See this map on OpenStreetMap webpage"
+msgstr "Zeige Karte auf OpenStreetMap Webseite"
+
+#: templates/StreetMap/includes/edit_link.html:3
+msgid "edit in django admin site"
+msgstr "In Django Admin Seite bearbeiten"
+
+#: templates/StreetMap/includes/edit_link.html:3
+msgid "edit this map entry"
+msgstr "diese Karte ändern"

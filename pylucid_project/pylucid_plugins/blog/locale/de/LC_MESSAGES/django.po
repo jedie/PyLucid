@@ -1,0 +1,177 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin_views.py:54
+msgid "Create a new blog entry"
+msgstr "Neuen Blog Eintrag erstellen"
+
+#: admin_views.py:64
+#, python-format
+msgid "New blog entry '%s' saved."
+msgstr "Neuer Blog Eintrag '%s' gespeichert."
+
+#: models.py:128
+msgid "Headline"
+msgstr "Überschrift"
+
+#: models.py:129
+msgid "The blog entry headline"
+msgstr "Überschrift des Blog Eintrags"
+
+#: preference_forms.py:16
+msgid "Don't filter by languages. Allways display all blog entries."
+msgstr ""
+
+#: preference_forms.py:17
+msgid ""
+"Filter by client prefered languages (set in browser and send by "
+"HTTP_ACCEPT_LANGUAGE header)"
+msgstr ""
+
+#: preference_forms.py:18
+msgid "Display only blog entries in current language (select on the page)"
+msgstr ""
+
+#: preference_forms.py:21
+msgid "How to filter blog entries by language?"
+msgstr ""
+
+#: preference_forms.py:27
+msgid ""
+"The maximal numbers of blog entries, displayed together for anonymous users"
+msgstr ""
+"Die maximale Zahl der gleichzeitig sichtbaren Blog-Einträge für anonyme "
+"Benutzer."
+
+#: preference_forms.py:34
+msgid ""
+"The maximal numbers of blog entries, displayed together for logged in "
+"PyLucid users."
+msgstr ""
+"Die maximale Zahl der gleichzeitig sichtbaren Blog-Einträge für eingeloggte "
+"PyLucid Benutzer."
+
+#: preference_forms.py:41
+msgid "Default numbers of blog articles in RSS/Atom feed."
+msgstr "Standard Anzahl der Blog Artikel im RSS/Atom Feed."
+
+#: preference_forms.py:45
+msgid "The maximal numbers of blog articles in RSS/Atom feed."
+msgstr "Die maximale Zahl der Blog-Einträge in RSS/Atom feeds."
+
+#: views.py:66
+msgid "Blog - RSS feed"
+msgstr "Blog - RSS Feed"
+
+#: views.py:91
+#, python-format
+msgid "Last %s blog articles"
+msgstr "Letzten %s Blog Artikel"
+
+#: views.py:94
+#, python-format
+msgid "Last %(count)s blog articles tagged with: %(tags)s"
+msgstr "Letzten %(count)s Blog Artikel getaggt mit: %(tags)s"
+
+#: views.py:117
+msgid "Blog - Atom feed"
+msgstr "Blog - Atom Feed"
+
+#: views.py:139
+#, fuzzy
+msgid "All articles."
+msgstr "Alle Artikel in %s."
+
+#: views.py:172
+#, python-format
+msgid "All items tagged with: %s"
+msgstr "Alle Einträge die mit '%s' getaggt sind."
+
+#: views.py:216
+#, python-format
+msgid "Article '%s'"
+msgstr "Artikel '%s'"
+
+#: templates/blog/feed_description.html:1
+#: templates/blog/feed_description.html:3
+#: templates/blog/includes/blog_entry.html:2
+#: templates/blog/includes/blog_entry.html:14
+msgid "DATETIME_FORMAT"
+msgstr ""
+
+#: templates/blog/select_feed.html:5
+msgid "Please select syndication feed format:"
+msgstr "Bitte wählen Sie Syndication-Feed-Format:"
+
+#: templates/blog/select_feed.html:12 templates/blog/summary.html:30
+msgid "http://en.wikipedia.org/wiki/RSS"
+msgstr "http://de.wikipedia.org/wiki/RSS"
+
+#: templates/blog/select_feed.html:15 templates/blog/summary.html:33
+msgid "http://en.wikipedia.org/wiki/Atom_(standard)"
+msgstr "http://de.wikipedia.org/wiki/Atom_(Format)"
+
+#: templates/blog/summary.html:19
+msgid "Syndication feed format:"
+msgstr "Syndication-Feed-Format:"
+
+#: templates/blog/includes/admin_links.html:3
+msgid "edit"
+msgstr "Bearbeiten"
+
+#: templates/blog/includes/admin_links.html:6
+msgid "delete"
+msgstr "Löschen"
+
+#: templates/blog/includes/blog_entry.html:1
+msgid "DATE_FORMAT"
+msgstr ""
+
+#: templates/blog/includes/blog_entry.html:2
+#, python-format
+msgid "Before %(time)s published by"
+msgstr "Vor %(time)s veröffentlicht, durch"
+
+#: templates/blog/includes/pagination.html:3
+msgid "Pages:"
+msgstr "Seiten:"
+
+#: templates/blog/includes/pagination.html:7
+msgid "&lt; goto previous page"
+msgstr "&lt; zur vorherigen Seite gehen"
+
+#: templates/blog/includes/pagination.html:7
+msgid "previous"
+msgstr "vorherig"
+
+#: templates/blog/includes/pagination.html:21
+msgid "goto next page &gt;"
+msgstr "zur nächsten Seite gehen &gt;"
+
+#: templates/blog/includes/pagination.html:21
+msgid "next"
+msgstr "weiter"
+
+#: templates/blog/includes/tagcloud.html:1
+msgid "tag cloud"
+msgstr "Tag Cloud"

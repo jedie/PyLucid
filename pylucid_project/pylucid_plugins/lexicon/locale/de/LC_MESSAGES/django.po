@@ -1,0 +1,108 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin_views.py:68
+msgid "Create a new lexicon entry"
+msgstr "Neuen Lexicon Eintrag erstellen"
+
+#: admin_views.py:79
+#, python-format
+msgid "Lexicon entry '%s' saved."
+msgstr "Lexicon Eintrag '%s' gespeichert."
+
+#: models.py:67 views.py:56
+msgid "Unknown lexicon term."
+msgstr "Unbekannter Lexicon Eintrag."
+
+#: models.py:104 templates/lexicon/detail_view.html:7
+msgid "Term"
+msgstr "Begriff"
+
+#: models.py:104
+msgid "Term in primitive form"
+msgstr "Begriff in primitiver Form"
+
+#: models.py:108
+#, python-format
+msgid ""
+"alias for this entry. <a href=\"%s\" class=\"openinwindow\" title="
+"\"Information about tag splitting.\">tag format help</a>"
+msgstr ""
+"Alias für diesen Eintrag. <a href=\"%s\" class=\"openinwindow\" title="
+"\"Informationen über Tag-Trennung.\">tag Format Hilfe</a>"
+
+#: models.py:113 templates/lexicon/detail_popup.html:40
+#: templates/lexicon/detail_view.html:10
+msgid "Short definition"
+msgstr "Kurzdefinition"
+
+#: models.py:114
+msgid "A short explain."
+msgstr "Kurze Erklärung."
+
+#: models.py:117 templates/lexicon/detail_popup.html:43
+#: templates/lexicon/detail_view.html:13
+msgid "Content"
+msgstr "Inhalt"
+
+#: models.py:117
+msgid "Explain the term"
+msgstr "Erkläre den Begriff"
+
+#: models.py:149
+#, python-format
+msgid "New lexicon entry '%s'."
+msgstr "Neuer Lexicon Eintrag '%s'."
+
+#: preference_forms.py:26
+#, python-format
+msgid ""
+"Don't replace a word if it exist in the given html tags. (tagging field <a "
+"href=\"%s\" class=\"openinwindow\" title=\"Information about splitting."
+"\">format help</a>)"
+msgstr ""
+"Ersetzt keine Lexikon Wörter in den angegebenen HTML-Tags. <a href=\"%s\" "
+"class=\"openinwindow\" title=\"Informationen über Tag-Trennung.\">tag Format "
+"Hilfe</a>"
+
+#: signal_receiver.py:111
+msgid "Wrong HTML code"
+msgstr "Falscher HTML Code"
+
+#: templates/lexicon/detail_popup.html:9
+#: templates/lexicon/detail_popup.html:10
+#: templates/lexicon/detail_popup.html:50
+msgid "DATETIME_FORMAT"
+msgstr ""
+
+#: templates/lexicon/detail_popup.html:35
+msgid "goto lexicon summary page"
+msgstr "Gehe zur Lexikon Übersichtsseite"
+
+#: templates/lexicon/includes/admin_links.html:4
+msgid "edit"
+msgstr "Bearbeiten"
+
+#: templates/lexicon/includes/admin_links.html:7
+msgid "delete"
+msgstr "Löschen"

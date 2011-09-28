@@ -1,0 +1,245 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: forms.py:80
+msgid "convert the current page content to this new markup"
+msgstr "Konvertiert aktuelle Seite in dieses Markup"
+
+#: forms.py:83
+msgid "Display original html and a html diff."
+msgstr "Display Original HTML-Code und eine HTML-diff."
+
+#: forms.py:96
+msgid "switch to other markup format"
+msgstr "Zum anderen Markup Format wechseln"
+
+#: forms.py:165
+msgid "The model and attribute for bulk edit."
+msgstr "Das Modell und die Attribute für die Bulk-Bearbeitung."
+
+#: forms.py:168
+msgid "Filter queryset in this language (if possible)"
+msgstr "Filter QuerySet in dieser Sprache (falls möglich)"
+
+#: views.py:56
+msgid "Page content updated."
+msgstr "Seiten Inhalt aktualisiert."
+
+#: views.py:108
+msgid "Wrong get view parameter!"
+msgstr "Falsche 'get view' Parameter!"
+
+#: admin_views/bulk_editor.py:59
+msgid "No items changed."
+msgstr "Kein Eintrag geändert."
+
+#: admin_views/bulk_editor.py:66
+#, python-format
+msgid "%(count)s items saved (IDs: %(ids)s)"
+msgstr "%(count)s Einträge gespeichert (IDs: %(ids)s)"
+
+#: admin_views/convert_markup.py:32
+msgid "Wrong PageContent ID."
+msgstr "Falsche PageContent ID."
+
+#: admin_views/convert_markup.py:49
+#, python-format
+msgid "Convert '%s' markup"
+msgstr "Markup '%s' konvertieren"
+
+#: admin_views/convert_markup.py:87 admin_views/edit_page.py:59
+#, python-format
+msgid "Content page %r updated."
+msgstr "Seiteninhalt %r aktualisiert."
+
+#: admin_views/edit_page.py:66
+msgid "Edit a content page"
+msgstr "PageContent bearbeiten"
+
+#: admin_views/edit_page.py:121
+#, python-format
+msgid "Plugin page %r updated."
+msgstr "Plugin Seite %r aktualisiert."
+
+#: admin_views/edit_page.py:131
+msgid "Edit a plugin page"
+msgstr "Plugin Seite bearbeiten"
+
+#: admin_views/new_content_page.py:43
+msgid "Create a new page"
+msgstr "Neue Seite erstellen"
+
+#: admin_views/new_content_page.py:78
+#, python-format
+msgid "New content page %r created."
+msgstr "Neue PageContent %r erstellt."
+
+#: admin_views/new_plugin_page.py:27
+msgid "Create a new plugin page"
+msgstr "Neue Plugin Seite erstellen"
+
+#: admin_views/new_plugin_page.py:76
+#, python-format
+msgid "New plugin page %r created."
+msgstr "Neue Plugin Seite %r erstellt."
+
+#: admin_views/tag_list.py:55
+#, python-format
+msgid "Info: lucidTag %s used a decorator without functools.wraps!"
+msgstr ""
+
+#: admin_views/tag_list.py:70
+#, python-format
+msgid "Info: lucidTag %(plugin_name)s has wrong tag example: %(example)r"
+msgstr ""
+
+#: admin_views/translate_page.py:54
+#, python-format
+msgid "Translate page '%(name)s' (%(desc_lang)s) - Select destination language"
+msgstr ""
+"Seite '%(name)s' (%(desc_lang)s) übersetzten - Bitte Ziel-Sprache auswählen."
+
+#: admin_views/translate_page.py:107
+#, python-format
+msgid "Translate page '%(name)s' (%(source_lang)s) into %(dest_lang)s."
+msgstr "Seite '%(name)s' (%(source_lang)s) übersetzten nach %(dest_lang)s."
+
+#: templates/page_admin/convert_markup.html:12
+#: templates/page_admin/convert_markup.html:37
+#: templates/page_admin/edit_inline_form.html:121
+msgid "save"
+msgstr "Speichern"
+
+#: templates/page_admin/convert_markup.html:13
+#: templates/page_admin/convert_markup.html:38
+#: templates/page_admin/edit_inline_form.html:126
+msgid "abort"
+msgstr "Abbrechen"
+
+#: templates/page_admin/convert_markup.html:16
+msgid "original html (generated with the original markup)"
+msgstr "Original HTML-Code (mit der Original-Markup generiert)"
+
+#: templates/page_admin/convert_markup.html:18
+msgid "converted html (generated with the converted markup)"
+msgstr "HTML umgewandelt (mit den konvertierten Markup generiert)"
+
+#: templates/page_admin/convert_markup.html:22
+msgid "html diff (without whitespace)"
+msgstr "HTML-diff (ohne Leerzeichen)"
+
+#: templates/page_admin/convert_markup.html:24
+msgid "(Generated html code is the same. No differences found.)"
+msgstr "(Generierten HTML-Code ist der gleiche. Keine Unterschiede gefunden.)"
+
+#: templates/page_admin/convert_markup.html:30
+msgid "new markup"
+msgstr "neue Markup"
+
+#: templates/page_admin/convert_markup.html:40
+msgid "markup help page"
+msgstr "Markup Hilfe Seite"
+
+#: templates/page_admin/convert_markup.html:41
+#: templates/page_admin/edit_inline_form.html:135
+msgid "markup help"
+msgstr "Markup Hilfe"
+
+#: templates/page_admin/convert_markup.html:44
+msgid "preview"
+msgstr "Vorschau"
+
+#: templates/page_admin/convert_markup.html:45
+msgid "makes the textarea bigger"
+msgstr "Texteingabefeld vergrößern"
+
+#: templates/page_admin/convert_markup.html:48
+msgid "makes the textarea smaller"
+msgstr "Texteingabefeld verkleinern"
+
+#: templates/page_admin/edit_content_page.html:19
+#: templates/page_admin/edit_plugin_page.html:11
+#: templates/page_admin/translate_page.html:87
+msgid "Form errors:"
+msgstr "Formular Fehler:"
+
+#: templates/page_admin/edit_content_page.html:28
+msgid "Language:"
+msgstr "Sprache:"
+
+#: templates/page_admin/edit_content_page.html:52
+#: templates/page_admin/edit_plugin_page.html:27
+msgid "Language"
+msgstr "Sprache"
+
+#: templates/page_admin/edit_inline_form.html:61
+msgid "submit"
+msgstr "Absenden"
+
+#: templates/page_admin/edit_inline_form.html:69
+msgid "Textarea has been changed! Changes are not saved if you leave."
+msgstr ""
+"Texteingabefeld hat sich geändert! Änderungen sind noch nicht gespeichert."
+
+#: templates/page_admin/edit_inline_form.html:82
+msgid "loading"
+msgstr "laden"
+
+#: templates/page_admin/edit_inline_form.html:110
+msgid "Preview"
+msgstr "Vorschau"
+
+#: templates/page_admin/edit_inline_form.html:116
+msgid "Edit the CMS page"
+msgstr "CMS Seite bearbeiten"
+
+#: templates/page_admin/edit_inline_form.html:122
+#: templates/page_admin/edit_inline_form.html:123
+#: templates/page_admin/edit_inline_form.html:124
+msgid "markup preview"
+msgstr "Markup Vorschau"
+
+#: templates/page_admin/edit_inline_form.html:127
+msgid "List of all pages for creating links"
+msgstr "Liste aller Seiten. (Für Link Erstellung)"
+
+#: templates/page_admin/edit_inline_form.html:128
+msgid "page list"
+msgstr "Seiten Liste"
+
+#: templates/page_admin/edit_inline_form.html:130
+msgid "List of all available PyLucid template tags"
+msgstr "Liste aller verfügbaren PyLucid Template-Tags"
+
+#: templates/page_admin/edit_inline_form.html:131
+msgid "tag list"
+msgstr "Tag Liste"
+
+#: templates/page_admin/edit_inline_form.html:134
+msgid "Markup help"
+msgstr "Markup Hilfe"
+
+#: templates/page_admin/markup_help_base.html:29
+#: templates/page_admin/page_list_popup.html:75
+msgid "change"
+msgstr "ändern"

@@ -1,0 +1,123 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: forms.py:16
+msgid "30"
+msgstr ""
+
+#: forms.py:16 templates/auth/sha_form.html:244
+msgid "Username"
+msgstr "Benutzername"
+
+#: forms.py:17
+msgid ""
+"Required. 30 characters or fewer. Alphanumeric characters only (letters, "
+"digits and underscores)."
+msgstr ""
+"Erforderlich. 30 Zeichen oder weniger. Alphanumerische Zeichen (Buchstaben, "
+"Ziffern und Unterstriche)."
+
+#: preference_forms.py:11
+msgid "Numbers login log messages after IP would be banned."
+msgstr ""
+"Zahlen der Login-Log-Meldungen nach der die IP Adresse verboten werden würde."
+
+#: preference_forms.py:15
+msgid ""
+"Minimum pause in seconds between two login log messages from the same user. "
+"(Used 'REMOTE_ADDR')"
+msgstr ""
+"Minimale Pause in Sekunden zwischen zwei Login-Log-Meldungen vom selben "
+"Nutzer. (Nutzt 'REMOTE_ADDR')"
+
+#: views.py:93
+msgid "Wrong username/password."
+msgstr "Falscher Benutzername/Passwort."
+
+#: views.py:280
+msgid "You are logged out!"
+msgstr "Erfolgreich abgemeldet."
+
+#: templates/auth/django_login.html:11
+msgid "or use:"
+msgstr "oder benutzte:"
+
+#: templates/auth/django_login.html:14
+msgid "JS-SHA-Login"
+msgstr "JS-SHA-Login"
+
+#: templates/auth/django_login.html:44
+msgid "Do really want to send your password in plain text?"
+msgstr "Willst du wirklich dein Passwort im Klartext senden?"
+
+#: templates/auth/login_info.html:1
+msgid "You are logged in. Last login was:"
+msgstr "You are in. Letzter Login war:"
+
+#: templates/auth/login_info.html:1
+msgid "DATETIME_FORMAT"
+msgstr ""
+
+#: templates/auth/login_link.html:4 templates/auth/sha_form.html:256
+msgid "Log in"
+msgstr "Anmelden"
+
+#: templates/auth/logout_link.html:1
+msgid "Log out"
+msgstr "Abmelden"
+
+#: templates/auth/sha_form.html:75
+msgid "Username is too short."
+msgstr "Benutzername ist zu kurz."
+
+#: templates/auth/sha_form.html:85
+msgid "Password is too short. It must be at least eight characters long."
+msgstr "Passwort ist zu kurz. Es muß min. acht Zeichen lang sein."
+
+#: templates/auth/sha_form.html:90
+msgid "Only ASCII letters in password allowed!"
+msgstr "Nur ASCII Zeichen im Passwort erlaubt!"
+
+#: templates/auth/sha_form.html:95
+msgid "Get the hash salt value from server..."
+msgstr "Hole den Hash-Salt-Wert from Server..."
+
+#: templates/auth/sha_form.html:158
+msgid "Send SHA-1 values to the server..."
+msgstr "Sende SHA-1 Wert zum Server..."
+
+#: templates/auth/sha_form.html:229
+msgid "What is the PyLucid JS-SHA-LogIn?"
+msgstr ""
+
+#: templates/auth/sha_form.html:233
+msgid "Error"
+msgstr "Fehler"
+
+#: templates/auth/sha_form.html:239
+msgid "loading..."
+msgstr "laden..."
+
+#: templates/auth/sha_form.html:248
+msgid "Password"
+msgstr ""

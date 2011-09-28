@@ -1,0 +1,48 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: models.py:29
+msgid "The destination url for the redirect"
+msgstr "Die Ziel-URL für die Umleitung"
+
+#: models.py:32
+msgid "Response type"
+msgstr ""
+
+#: models.py:35
+msgid "redirect the full url or raise 404 if url has additional parts."
+msgstr ""
+"Vollständige URL Umleiten oder 404 Fehler auslösen, wenn URL länger ist."
+
+#: models.py:38
+msgid "Append a GET query string, if exist?"
+msgstr "GET-Parameter anhängen, falls vorhanden?"
+
+#: models.py:41
+msgid "Don't redirect, just display some info. (Only for staff members!)"
+msgstr "Nicht umleiten, nur Informationen anzeigen. (Nur für Mitarbeiter!)"
+
+#: views.py:31
+#, python-format
+msgid "Redirect entry for page: %s doesn't exist, please create."
+msgstr "Umleitungs-Eintrag für Seite: %s nicht vorhanden ist, bitte erstellen."

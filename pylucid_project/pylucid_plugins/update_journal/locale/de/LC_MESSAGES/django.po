@@ -1,0 +1,152 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PyLucid v0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-09-28 14:58+0000\n"
+"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
+"Language-Team: - <>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: de\n"
+"X-Poedit-Country: Deutschland\n"
+"X-Poedit-SourceCharset: UFT-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin_views.py:44
+msgid "Remove dead links and delete old entries from update journal"
+msgstr "Entferne tote Links und lösche alte Einträge vom UpdateJournal"
+
+#: forms.py:13
+msgid "keep the last X entries"
+msgstr "Letzten X Einträge behalten"
+
+#: forms.py:14
+msgid "keep entries from the last X days"
+msgstr "behalte Einträge der letzten X Tag(e)"
+
+#: forms.py:15
+msgid "keep entries from the last X hours"
+msgstr "behalte Einträge der letzten X Stunde(n)"
+
+#: forms.py:17
+msgid "Number of entries to be retained."
+msgstr "Anzahl der Einträge die beibehalten werden."
+
+#: forms.py:19
+msgid "Witch 'retained' type is the given number?"
+msgstr "Welche \"behalte letzten X\" Typ ist die Zahl?"
+
+#: forms.py:22
+msgid "Limit the query to the current site?"
+msgstr "Auf aktuelle Seite beschränken?"
+
+#: models.py:24
+msgid "user's name"
+msgstr "Benutzername"
+
+#: models.py:33 models.py:104
+msgid "content type"
+msgstr ""
+
+#: models.py:35
+msgid "object url"
+msgstr "Objekt URL"
+
+#: preference_forms.py:22
+msgid "Default numbers of UpdateJournal entries in RSS/Atom feed."
+msgstr "Standard Anzahl der Seiten Änderungen als RSS/Atom-Feeds."
+
+#: preference_forms.py:26
+msgid "The maximal numbers of UpdateJournal entries in RSS/Atom feed."
+msgstr ""
+"Die maximale Zahl der gleichzeitig sichtbaren UpdateJournal-Einträge im RSS/"
+"Atom feed."
+
+#: preference_forms.py:30
+msgid ""
+"Display only updates in current language (checked) or in every languages "
+"(unchecked)."
+msgstr ""
+
+#: views.py:83
+msgid "Update Journal - RSS feed"
+msgstr "\"Letzte Seiten Änderungen\" als RSS-Feed."
+
+#: views.py:100
+#, python-format
+msgid "Last %s updates and changes"
+msgstr "Letzten %s Änderungen"
+
+#: views.py:118
+msgid "Update Journal - Atom feed"
+msgstr "\"Letzte Seiten Änderungen\" als Atom-Feed."
+
+#: templates/update_journal/cleanup.html:14
+msgid "submit"
+msgstr "Absenden"
+
+#: templates/update_journal/cleanup.html:15
+msgid "remove only dead entries"
+msgstr "Nur tote Einträge entfernen"
+
+#: templates/update_journal/feed_description.html:15
+#: templates/update_journal/update_journal_table.html:16
+msgid "DATETIME_FORMAT"
+msgstr ""
+
+#: templates/update_journal/select_feed.html:5
+msgid "Please select syndication feed format:"
+msgstr "Bitte wählen Sie Syndication-Feed-Format:"
+
+#: templates/update_journal/select_feed.html:12
+msgid "http://en.wikipedia.org/wiki/RSS"
+msgstr "http://de.wikipedia.org/wiki/RSS"
+
+#: templates/update_journal/select_feed.html:15
+msgid "http://en.wikipedia.org/wiki/Atom_(standard)"
+msgstr "http://de.wikipedia.org/wiki/Atom_(Format)"
+
+#: templates/update_journal/update_journal_table.html:7
+msgid "update time"
+msgstr "Aktualisierungs Zeit"
+
+#: templates/update_journal/update_journal_table.html:8
+msgid "title"
+msgstr "Titel"
+
+#: templates/update_journal/update_journal_table.html:9
+msgid "user name"
+msgstr "Benutzername"
+
+#: templates/update_journal/update_journal_table.html:11
+msgid "actions"
+msgstr "Aktionen"
+
+#: templates/update_journal/update_journal_table.html:22
+msgid "edit"
+msgstr "Bearbeiten"
+
+#: templates/update_journal/update_journal_table.html:25
+msgid "delete"
+msgstr "Löschen"
+
+#: templates/update_journal/update_journal_table.html:33
+msgid "select update journal feed format"
+msgstr "Wählen Sie das Update-Journal-Feed-Format"
+
+#: templates/update_journal/update_journal_table.html:34
+msgid "get update journal as RSS/Atom feed."
+msgstr "Letzte Seiten Änderungen als RSS / Atom-Feeds."
+
+#: templates/update_journal/update_journal_table.html:38
+msgid "No updates recorded in update journal."
+msgstr "Keine Einträge im \"Update Journal\" vorhanden."
