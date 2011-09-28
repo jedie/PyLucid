@@ -2,13 +2,14 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR Jens Diemer <pylucid@jensdiemer.de>, 2010.
+# Jens Diemer <pylucid@jensdiemer.de>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PyLucid v0.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-28 14:58+0000\n"
-"PO-Revision-Date: 2011-02-28 13:18+0100\n"
+"POT-Creation-Date: 2011-09-28 15:13+0000\n"
+"PO-Revision-Date: 2011-09-28 17:39+0200\n"
 "Last-Translator: Jens Diemer <pylucid@jensdiemer.de>\n"
 "Language-Team: - <>\n"
 "Language: \n"
@@ -21,40 +22,72 @@ msgstr ""
 "X-Poedit-Basepath: ../../../\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin_views.py:54
+#: admin.py:48
+msgid "Edit existing content entries"
+msgstr "Aktuellen Inhalt Ändern."
+
+#: admin_views.py:57
 msgid "Create a new blog entry"
 msgstr "Neuen Blog Eintrag erstellen"
 
-#: admin_views.py:64
+#: admin_views.py:74
 #, python-format
 msgid "New blog entry '%s' saved."
 msgstr "Neuer Blog Eintrag '%s' gespeichert."
 
-#: models.py:128
+#: forms.py:30
+msgid "On which site should this entry exists?"
+msgstr "Auf welcher SITE soll dieser Eintrag sichtbar sein?"
+
+#: models.py:59
+msgid ""
+"Is this entry is public viewable? (If not checked: Every language is non-"
+"public,  otherwise: Public only in the language, if there even set 'is "
+"public'.)"
+msgstr ""
+"Ist diese Eintrag öffentlich? (Wenn nicht aktiv, ist der Eintrag in allen "
+"Sprachen nicht öffentlich. Wenn aktiv: Dann zählt die Einstellung der "
+"jeweiligen Sprache.)"
+
+#: models.py:257
 msgid "Headline"
 msgstr "Überschrift"
 
-#: models.py:129
+#: models.py:258
 msgid "The blog entry headline"
 msgstr "Überschrift des Blog Eintrags"
 
+#: models.py:262
+msgid ""
+"for url (would be set automaticly from headline, if emtpy. Createtime + this "
+"slug are used for identify this blog entry)"
+msgstr ""
+"Für URL (Wird automatisch aus der Überschrift generiert. Erstellungszeit + "
+"dieser SLUG dient zur Identifizierung dieses Artikels)"
+
+#: models.py:272
+msgid "Is entry in this language is public viewable?"
+msgstr "Ist dieser Eintrag in dieser Sprache Öffentlich?"
+
 #: preference_forms.py:16
 msgid "Don't filter by languages. Allways display all blog entries."
-msgstr ""
+msgstr "Nicht nach Sprachen Filtern. Zeige immer alle Einträge."
 
 #: preference_forms.py:17
 msgid ""
 "Filter by client prefered languages (set in browser and send by "
 "HTTP_ACCEPT_LANGUAGE header)"
 msgstr ""
+"Filtern mit bevorzugten Sprachen des Clients (Im Browser gesetzt und per "
+"HTTP_ACCEPT_LANGUAGE Header genutzt)"
 
 #: preference_forms.py:18
 msgid "Display only blog entries in current language (select on the page)"
-msgstr ""
+msgstr "Einträge nur in aktueller Sprache zeigen (Auswählbar auf Seite)"
 
 #: preference_forms.py:21
 msgid "How to filter blog entries by language?"
-msgstr ""
+msgstr "Wie Einträge nach Sprache Filtern?"
 
 #: preference_forms.py:27
 msgid ""
@@ -79,38 +112,183 @@ msgstr "Standard Anzahl der Blog Artikel im RSS/Atom Feed."
 msgid "The maximal numbers of blog articles in RSS/Atom feed."
 msgstr "Die maximale Zahl der Blog-Einträge in RSS/Atom feeds."
 
-#: views.py:66
+#: views.py:64
 msgid "Blog - RSS feed"
 msgstr "Blog - RSS Feed"
 
-#: views.py:91
+#: views.py:89
 #, python-format
 msgid "Last %s blog articles"
 msgstr "Letzten %s Blog Artikel"
 
-#: views.py:94
+#: views.py:92
 #, python-format
 msgid "Last %(count)s blog articles tagged with: %(tags)s"
 msgstr "Letzten %(count)s Blog Artikel getaggt mit: %(tags)s"
 
-#: views.py:117
+#: views.py:115
 msgid "Blog - Atom feed"
 msgstr "Blog - Atom Feed"
 
-#: views.py:139
-#, fuzzy
+#: views.py:137
 msgid "All articles."
-msgstr "Alle Artikel in %s."
+msgstr "Alle Artikel."
 
-#: views.py:172
+#: views.py:173
 #, python-format
 msgid "All items tagged with: %s"
 msgstr "Alle Einträge die mit '%s' getaggt sind."
 
-#: views.py:216
+#: views.py:210
+msgid "Entry for this url doesn't exist."
+msgstr "Eintrag mit dieser URL existiert nicht."
+
+#: views.py:225
+msgid "You are redirected to the entry in your preferred language."
+msgstr "Weitergeleitet zum Eintrag in bevorzugter Sprache."
+
+#: views.py:240
 #, python-format
 msgid "Article '%s'"
 msgstr "Artikel '%s'"
+
+#: views.py:318
+#, python-format
+msgid "%s archive"
+msgstr "%s Archiv"
+
+#: views.py:318
+#, python-format
+msgid "All article from year %s"
+msgstr "Alle Artikel im Jahr %s"
+
+#: views.py:365
+#, python-format
+msgid "%(month)s-%(year)s archive"
+msgstr "%(month)s.%(year)s Archiv"
+
+#: views.py:366
+#, python-format
+msgid "All article from %(month)s.%(year)s"
+msgstr "Alle Artikel von %(month)s.%(year)s"
+
+#: views.py:387
+#, python-format
+msgid "%(day)s-%(month)s-%(year)s archive"
+msgstr "%(day)s.%(month)s.%(year)s Archive"
+
+#: views.py:388
+#, python-format
+msgid "All article from %(day)s-%(month)s-%(year)s"
+msgstr "Alle Artikel von %(day)s.%(month)s.%(year)s"
+
+#: templates/admin/blog/permalink.html:1
+msgid "permalink to this entry"
+msgstr "Permalink zu diesem Eintrag"
+
+#: templates/blog/blogentrycontent_archive_day.html:6
+#: templates/blog/blogentrycontent_archive_month.html:6
+msgid "Archives"
+msgstr "Archive"
+
+#: templates/blog/blogentrycontent_archive_day.html:8
+#: templates/blog/blogentrycontent_archive_month.html:8
+#: templates/blog/blogentrycontent_archive_year.html:8
+#: templates/blog/detail_view.html:11
+msgid "archive"
+msgstr "Archiv"
+
+#: templates/blog/blogentrycontent_archive_day.html:11
+#: templates/blog/blogentrycontent_archive_month.html:11
+msgid "goto previous month"
+msgstr "zum vorherigen Monat wechseln"
+
+#: templates/blog/blogentrycontent_archive_day.html:13
+msgid "current day"
+msgstr "aktueller Tag"
+
+#: templates/blog/blogentrycontent_archive_day.html:15
+#: templates/blog/blogentrycontent_archive_month.html:15
+msgid "goto next month"
+msgstr "zum nächsten Monat wechseln"
+
+#: templates/blog/blogentrycontent_archive_day.html:22
+#: templates/blog/blogentrycontent_archive_month.html:22
+#: templates/blog/blogentrycontent_archive_year.html:24
+#: templates/blog/includes/blog_entry.html:1
+msgid "DATE_FORMAT"
+msgstr ""
+
+#: templates/blog/blogentrycontent_archive_day.html:25
+#, python-format
+msgid ""
+"\n"
+"            There exist no entries in %(day)s.\n"
+"        "
+msgstr ""
+"\n"
+"            Es existieren keine Einträge in %(day)s.\n"
+"        "
+
+#: templates/blog/blogentrycontent_archive_day.html:32
+#: templates/blog/blogentrycontent_archive_month.html:32
+msgid "goto year archive"
+msgstr "zum Jahres Archive wechseln"
+
+#: templates/blog/blogentrycontent_archive_day.html:32
+#: templates/blog/blogentrycontent_archive_month.html:32
+msgid "year archive"
+msgstr "Jahres Archiv"
+
+#: templates/blog/blogentrycontent_archive_day.html:34
+msgid "goto month archive"
+msgstr "zum Monats Archiv wechseln"
+
+#: templates/blog/blogentrycontent_archive_day.html:34
+msgid "month archive"
+msgstr "Monats Archiv"
+
+#: templates/blog/blogentrycontent_archive_month.html:13
+msgid "current month"
+msgstr "aktueller Monat"
+
+#: templates/blog/blogentrycontent_archive_month.html:25
+#, python-format
+msgid ""
+"\n"
+"            There exist no entries in %(month)s.\n"
+"        "
+msgstr ""
+"\n"
+"            Es existieren keine Einträge in %(month)s.\n"
+"        "
+
+#: templates/blog/blogentrycontent_archive_year.html:12
+msgid "goto previous year"
+msgstr "zum vorherigen Jahr wechseln"
+
+#: templates/blog/blogentrycontent_archive_year.html:15
+msgid "current year"
+msgstr "aktuelles Jahr"
+
+#: templates/blog/blogentrycontent_archive_year.html:18
+msgid "goto next year"
+msgstr "zum nächsten Jahr wechseln"
+
+#: templates/blog/detail_view.html:14
+#, python-format
+msgid "%(year)s year archive"
+msgstr "%(year)s Jahres Archiv"
+
+#: templates/blog/detail_view.html:18
+#, python-format
+msgid "%(month)s month archive"
+msgstr "%(month)s Monats Archiv"
+
+#: templates/blog/detail_view.html:22
+#, python-format
+msgid "%(day)s day archive"
+msgstr "%(day)s Tag Archive"
 
 #: templates/blog/feed_description.html:1
 #: templates/blog/feed_description.html:3
@@ -142,10 +320,6 @@ msgstr "Bearbeiten"
 #: templates/blog/includes/admin_links.html:6
 msgid "delete"
 msgstr "Löschen"
-
-#: templates/blog/includes/blog_entry.html:1
-msgid "DATE_FORMAT"
-msgstr ""
 
 #: templates/blog/includes/blog_entry.html:2
 #, python-format

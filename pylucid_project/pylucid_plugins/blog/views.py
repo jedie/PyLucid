@@ -361,7 +361,10 @@ def month_archive(request, year, month):
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, _("%s.%s archive") % (year, month), _("All article from %s.%s") % (year, month))
+    _add_breadcrumb(request,
+        _("%(month)s-%(year)s archive") % {"year":year, "month":month},
+        _("All article from %(month)s.%(year)s") % {"year":year, "month":month}
+    )
 
     context = {
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
@@ -380,7 +383,10 @@ def day_archive(request, year, month, day):
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, _("%s.%s.%s archive") % (year, month, day), _("All article from %s.%s.%s") % (year, month, day))
+    _add_breadcrumb(request,
+        _("%(day)s-%(month)s-%(year)s archive") % {"year":year, "month":month, "day":day},
+        _("All article from %(day)s-%(month)s-%(year)s") % {"year":year, "month":month, "day":day}
+    )
 
     context = {
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
