@@ -4,7 +4,7 @@
     PyLucid blog plugin
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -19,9 +19,12 @@ from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.site_utils import get_site_preselection
 
-from blog.forms import BlogEntryForm
-from blog.models import BlogEntry
-from blog.preference_forms import BlogPrefForm
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
+    BlogEntryContent
+from pylucid_project.pylucid_plugins.blog.forms import BlogForm
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
+
+
 
 
 def install(request):
@@ -53,16 +56,23 @@ def new_blog_entry(request):
     context = {
         "title": _("Create a new blog entry"),
         "form_url": request.path,
-        "tag_cloud": BlogEntry.objects.get_tag_cloud(request),
+        "tag_cloud": BlogEntryContent.objects.get_tag_cloud(request),
         "add_tag_filter_link": False, # Don't add filters in tag cloud
     }
 
     if request.method == "POST":
-        form = BlogEntryForm(request.POST)
+        form = BlogForm(request.POST)
         if form.is_valid():
-            instance = form.save()
-            messages.success(request, _("New blog entry '%s' saved.") % instance.headline)
-            return http.HttpResponseRedirect(instance.get_absolute_url())
+            new_entry = BlogEntry.objects.create()
+            new_entry.sites = form.cleaned_data["sites"]
+            new_entry.save()
+
+            blog_content = form.save(commit=False)
+            blog_content.entry = new_entry
+            blog_content.save()
+
+            messages.success(request, _("New blog entry '%s' saved.") % blog_content.headline)
+            return http.HttpResponseRedirect(blog_content.get_absolute_url())
     else:
         # Get preferences
         pref_form = BlogPrefForm()
@@ -71,7 +81,7 @@ def new_blog_entry(request):
             "sites": get_site_preselection(pref_form, request), # preselect sites field
             "language": request.PYLUCID.current_language.pk, # preselect current language
         }
-        form = BlogEntryForm(initial=initial)
+        form = BlogForm(initial=initial)
 
     context["form"] = form
     return context

@@ -1,0 +1,30 @@
+{% extends template_name %}
+{% load comments %}
+
+{% block content %}
+<div class="{{ CSS_PLUGIN_CLASS_NAME }} blog">
+<h1>Year {{ year }} archive</h1>
+
+<fieldset class="archive_links"><legend>{% trans 'archive' %}</legend>
+{% if previous_year or next_year %}
+    <p>
+        {% if previous_year %}<!-- FIXME: exist if no entry in revious year -->
+            <a href="{% url Blog-year_archive previous_year %}" title="{% trans "goto previous year" %}">&lt;&lt; {{ previous_year }}</a>
+            |
+        {% endif %}
+            <strong><a href=""><span title="{% trans "current year" %}">{{ year }}</span></a></strong>
+        {% if next_year %}
+            |
+            <a href="{% url Blog-year_archive next_year %}" title="{% trans "goto next year" %}">{{ next_year }} &gt;&gt;</a>
+        {% endif %}
+    </p>
+{% endif %}
+<ul>
+{% for entry in object_list %}
+    <li><a href="{{ entry.get_absolute_url }}" class="blog_headline" hreflang="{{ entry.language.code }}">{{ entry.createtime|date:_("DATE_FORMAT") }} - {{ entry.headline }}</a></li>
+{% endfor %}
+</ul>
+</fieldset>
+
+</div>
+{% endblock content %}

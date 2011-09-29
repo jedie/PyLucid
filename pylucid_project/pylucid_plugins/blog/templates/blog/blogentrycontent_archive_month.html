@@ -1,0 +1,37 @@
+{% extends template_name %}
+{% load comments %}
+
+{% block content %}
+<div class="{{ CSS_PLUGIN_CLASS_NAME }} blog">
+<h1>{% trans "Archives" %} {{ month|date:"YEAR_MONTH_FORMAT" }}</h1>
+
+<fieldset class="archive_links"><legend>{% trans 'archive' %}</legend>
+<p>
+    {% if previous_month %}<!-- FIXME: exist if no entry in revious month -->
+        <a href="{% url Blog-month_archive previous_month|date:"Y" previous_month|date:"m" %}" title="{% trans "goto previous month" %}">&lt;&lt; {{ previous_month|date:"YEAR_MONTH_FORMAT" }}</a>
+    {% endif %}
+        | <strong><a href=""><span title="{% trans "current month" %}">{{ month|date:"YEAR_MONTH_FORMAT" }}</span></a></strong> |
+    {% if next_month %}
+        <a href="{% url Blog-month_archive next_month|date:"Y" next_month|date:"m" %}" title="{% trans "goto next month" %}">{{ next_month|date:"YEAR_MONTH_FORMAT" }} &gt;&gt;</a>
+    {% else %}
+        -
+    {% endif %}
+</p>
+<ul>
+{% for entry in object_list %}
+    <li><a href="{{ entry.get_absolute_url }}" class="blog_headline" hreflang="{{ entry.language.code }}">{{ entry.createtime|date:_("DATE_FORMAT") }} - {{ entry.headline }}</a></li>
+{% empty %}
+    <li>
+        {% blocktrans with month=month|date:"YEAR_MONTH_FORMAT" %}
+            There exist no entries in {{ month }}.
+        {% endblocktrans %}
+    </li>
+{% endfor %}
+</ul>
+<p>
+    <i><a href="{% url Blog-year_archive month|date:"Y" %}" title="{% trans "goto year archive" %}">{% trans "year archive" %}</a></i>
+</p>
+</fieldset>
+
+</div>
+{% endblock content %}

@@ -58,7 +58,7 @@ def lucidTag(request, **context):
         {% lucidTag generic.ohloh project="python" js_file="project_users.js?style=rainbow" %}
         {% lucidTag generic template_name="myowntemplate.html" %}
     """
-    if "template_name" not in context and (request.user.is_staff() or settings.DEBUG):
+    if "template_name" not in context and (request.user.is_staff or settings.DEBUG):
         messages.info(request, _("At least you must add template_name argument to {% lucidTag generic %} !"))
     else:
         return context

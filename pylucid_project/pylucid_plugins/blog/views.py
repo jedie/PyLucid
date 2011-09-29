@@ -11,47 +11,45 @@
     TODO:
         * Detail view, use BlogEntry.get_absolute_url()
 
-    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 
-from django import http
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.syndication.views import Feed
+from django.core import urlresolvers
+from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
+from django.views.generic.date_based import archive_year, archive_month, \
+    archive_day
 
 from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
-from blog.models import BlogEntry
-from blog.preference_forms import BlogPrefForm
+from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
+    BlogEntryContent
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
+import datetime
 
 
 
 def _add_breadcrumb(request, *args, **kwargs):
     """ shortcut for add breadcrumb link """
     context = request.PYLUCID.context
-    breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+    try:
+        breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+    except KeyError:
+        # No breadcrumbs used in current template
+        return
     breadcrumb_context_middlewares.add_link(*args, **kwargs)
-
-
-def _get_queryset(request, tags=None, filter_language=False):
-    # Get all blog entries, that the current user can see
-    queryset = BlogEntry.objects.all_accessible(request, filter_language=filter_language)
-
-    if tags is not None:
-        # filter by tags 
-        queryset = TaggedItem.objects.get_by_model(queryset, tags)
-
-    return queryset
 
 
 def _split_tags(raw_tags):
@@ -95,7 +93,7 @@ class RssFeed(Feed):
             ) % {"count":self.count, "tags": ",".join(self.tags)}
 
     def items(self):
-        queryset = _get_queryset(self.request, self.tags, filter_language=True)
+        queryset = BlogEntryContent.objects.get_prefiltered_queryset(self.request, tags=self.tags, filter_language=True)
         return queryset[:self.count]
 
     def item_title(self, item):
@@ -127,22 +125,22 @@ FEED_FILENAMES = (AtomFeed.filename, RssFeed.filename)
 def summary(request):
     """
     Display summary list with all blog entries.
+    
+    TODO: Set http robots ==> "noindex,follow"
     """
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request, filter_language=True)
+    paginator = BlogEntryContent.objects.get_filtered_queryset(request, filter_language=True)
 
-    # Limit the queryset with django Paginator
-    paginator = BlogEntry.objects.paginate(request, queryset)
-
-    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
+    # Calculate the tag cloud from all existing entries
+    tag_cloud = BlogEntryContent.objects.get_tag_cloud(request)
 
     _add_breadcrumb(request, _("All articles."))
 
     # For adding page update information into context by pylucid context processor
     try:
         # Use the newest blog entry for date info
-        request.PYLUCID.updateinfo_object = queryset.latest("lastupdatetime")
-    except BlogEntry.DoesNotExist:
+        request.PYLUCID.updateinfo_object = paginator.object_list[0]
+    except IndexError:
         # No blog entries created, yet.
         pass
 
@@ -159,20 +157,29 @@ def summary(request):
 def tag_view(request, tags):
     """
     Display summary list with blog entries filtered by the given tags.
+    
+    TODO: Set http robots ==> "noindex,follow"
     """
     tags = _split_tags(tags)
 
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request, tags, filter_language=True)
+    paginator = BlogEntryContent.objects.get_filtered_queryset(request, tags=tags, filter_language=True)
 
-    # Limit the queryset with django Paginator
-    paginator = BlogEntry.objects.paginate(request, queryset)
+    # Calculate the tag cloud from the current used queryset
+    queryset = paginator.object_list
+    tag_cloud = BlogEntryContent.objects.cloud_for_queryset(queryset)
 
     # Add link to the breadcrumbs ;)
     text = _("All items tagged with: %s") % ", ".join(["'%s'" % tag for tag in tags])
     _add_breadcrumb(request, text)
 
-    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
+    # For adding page update information into context by pylucid context processor
+    try:
+        # Use the newest blog entry for date info
+        request.PYLUCID.updateinfo_object = paginator.object_list[0]
+    except IndexError:
+        # No blog entries created, yet.
+        pass
 
     context = {
         "entries": paginator,
@@ -188,48 +195,66 @@ def tag_view(request, tags):
 
 @csrf_protect
 @render_to("blog/detail_view.html")
-def detail_view(request, id, title):
+def detail_view(request, year, month, day, slug):
     """
     Display one blog entry with a comment form.
     """
     # Get all blog entries, that the current user can see
-    queryset = _get_queryset(request, filter_language=False)
+    prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     try:
-        entry = queryset.get(pk=id)
-    except BlogEntry.DoesNotExist:
+        content_entry = prefiltered_queryset.get(createtime__year=year, createtime__month=month, createtime__day=day, slug=slug)
+    except BlogEntryContent.DoesNotExist:
+        # XXX: redirect to day_archive() ?
         # It's possible that the user comes from a external link.
-        msg = "Blog entry doesn't exist."
-        if settings.DEBUG or request.user.is_staff:
-            msg += " (ID %r wrong.)" % id
-        messages.error(request, msg)
-        return summary(request)
+        messages.error(request, _("Entry for this url doesn't exist."))
+        url = urlresolvers.reverse("Blog-summary")
+        return HttpResponseRedirect(url)
 
-    new_url = i18n.assert_language(request, entry.language)
+    client_language = request.PYLUCID.current_language
+    if content_entry.language != client_language:
+        # Look if this entry exists in the client preferred language
+        entry = content_entry.entry
+        try:
+            new_content_entry = prefiltered_queryset.get(entry=entry, language=client_language)
+        except BlogEntryContent.DoesNotExist:
+            # Doesn't exist in client preferred language
+            pass
+        else:
+            new_url = new_content_entry.get_absolute_url()
+            messages.info(request, _("You are redirected to the entry in your preferred language."))
+            return HttpResponseRedirect(new_url)
+
+    new_url = i18n.assert_language(request, content_entry.language)
     if new_url:
         # the current language is not the same as entry language -> redirect to right url
         # e.g. someone followed a external link to this article, but his preferred language
         # is a other language as this article. Activate the article language and "reload"
-        return http.HttpResponsePermanentRedirect(new_url)
+        if settings.DEBUG or request.user.is_staff:
+            messages.info(request,
+                "current url %r doesn't contain right language, redirect to %r" % (request.path, new_url)
+            )
+        return HttpResponsePermanentRedirect(new_url)
 
     # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, entry.headline, _("Article '%s'") % entry.headline)
+    _add_breadcrumb(request, content_entry.headline, _("Article '%s'") % content_entry.headline)
 
-    tag_cloud = BlogEntry.objects.get_tag_cloud(request)
+    # Calculate the tag cloud from all existing entries
+    tag_cloud = BlogEntryContent.objects.get_tag_cloud(request)
 
     # Change permalink from the blog root page to this entry detail view
-    permalink = entry.get_permalink(request)
+    permalink = content_entry.get_permalink(request)
     request.PYLUCID.context["page_permalink"] = permalink # for e.g. the HeadlineAnchor
 
     # Add comments in this view to the current blog entry and not to PageMeta
-    request.PYLUCID.object2comment = entry
+    request.PYLUCID.object2comment = content_entry
 
     # For adding page update information into context by pylucid context processor
-    request.PYLUCID.updateinfo_object = entry
+    request.PYLUCID.updateinfo_object = content_entry
 
     context = {
-        "page_title": entry.headline, # Change the global title with blog headline
-        "entry": entry,
+        "page_title": content_entry.headline, # Change the global title with blog headline
+        "entry": content_entry,
         "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
         "page_permalink": permalink, # Change the permalink in the global page template
@@ -238,10 +263,149 @@ def detail_view(request, id, title):
 
 #------------------------------------------------------------------------------
 
+def permalink_view(request, id, slug=None):
+    """ redirect to language depent blog entry """
+    prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    preferred_languages = request.PYLUCID.languages
+
+    prefiltered_queryset = prefiltered_queryset.filter(entry__id__exact=id)
+    try:
+        entry = prefiltered_queryset.filter(language__in=preferred_languages)[0]
+    except BlogEntry.DoesNotExist:
+        # wrong permalink -> display summary
+        msg = "Blog entry doesn't exist."
+        if settings.DEBUG or request.user.is_staff:
+            msg += " (ID %r wrong.)" % id
+        messages.error(request, msg)
+        return summary(request)
+
+    url = entry.get_absolute_url()
+    return HttpResponsePermanentRedirect(url)
+
+#------------------------------------------------------------------------------
+
+def redirect_old_urls(request, id, title):
+    """ permanent redirect old url's to new url scheme """
+    prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    try:
+        entry = prefiltered_queryset.get(pk=id)
+    except BlogEntry.DoesNotExist:
+        # It's possible that the user comes from a external link.
+        msg = "Blog entry doesn't exist."
+        if settings.DEBUG or request.user.is_staff:
+            msg += " (ID %r wrong.)" % id
+        messages.error(request, msg)
+        return summary(request)
+
+    url = entry.get_absolute_url()
+    return HttpResponsePermanentRedirect(url)
+
+
+#------------------------------------------------------------------------------
+
+
+def year_archive(request, year):
+    """
+    Display year archive
+    
+    TODO: Set http robots ==> "noindex,follow"
+    """
+    year = int(year)
+
+    # Add link to the breadcrumbs ;)
+    _add_breadcrumb(request, _("%s archive") % year, _("All article from year %s") % year)
+
+    context = {
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+    }
+
+    # Get next year
+    now = datetime.datetime.now()
+    if year < now.year:
+        queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+        next_year = datetime.datetime(year=year, month=12, day=31)
+        try:
+            entry_in_next_year = queryset.filter(createtime__gte=next_year).only("createtime").order_by("-createtime")[0]
+        except IndexError:
+            # no entries in next year
+            pass
+        else:
+            context["next_year"] = entry_in_next_year.createtime.year
+
+    # Get previous year
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+    previous_year = datetime.datetime(year=year, month=1, day=1)
+    try:
+        entry_in_previous_year = queryset.filter(createtime__lte=previous_year).only("createtime").order_by("-createtime")[0]
+    except IndexError:
+        # no entries in previous year
+        pass
+    else:
+        context["previous_year"] = entry_in_previous_year.createtime.year
+
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+    return archive_year(
+        request, year, queryset, date_field="createtime", extra_context=context,
+        make_object_list=True,
+        allow_empty=True
+    )
+
+
+def month_archive(request, year, month):
+    """
+    TODO: Set previous-/next-month by filtering
+    TODO: Set http robots ==> "noindex,follow"
+    """
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    # Add link to the breadcrumbs ;)
+    _add_breadcrumb(request,
+        _("%(month)s-%(year)s archive") % {"year":year, "month":month},
+        _("All article from %(month)s.%(year)s") % {"year":year, "month":month}
+    )
+
+    context = {
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+    }
+    return archive_month(
+        request, year, month, queryset, date_field="createtime", extra_context=context,
+        month_format="%m", allow_empty=True
+    )
+
+
+def day_archive(request, year, month, day):
+    """
+    TODO: Set previous-/next-day by filtering
+    TODO: Set http robots ==> "noindex,follow"
+    """
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+
+    # Add link to the breadcrumbs ;)
+    _add_breadcrumb(request,
+        _("%(day)s-%(month)s-%(year)s archive") % {"year":year, "month":month, "day":day},
+        _("All article from %(day)s-%(month)s-%(year)s") % {"year":year, "month":month, "day":day}
+    )
+
+    context = {
+        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+    }
+    return archive_day(
+        request, year, month, day, queryset, date_field="createtime", extra_context=context,
+        month_format="%m", allow_empty=True
+    )
+
+
+#------------------------------------------------------------------------------
+
 
 @render_to("blog/select_feed.html")
 def select_feed(request):
-    """ Display a list with existing feed filenames. """
+    """
+    Display a list with existing feed filenames.
+    TODO: Set http robots ==> "noindex,follow"
+    """
     context = {"filenames": FEED_FILENAMES}
     return context
 

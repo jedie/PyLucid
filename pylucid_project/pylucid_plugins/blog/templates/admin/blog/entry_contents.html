@@ -1,0 +1,8 @@
+<ul>
+{% for entry in contents %}
+	<li>
+        <span title="is public: {{ entry.is_public|yesno }}">{{ entry.is_public_html }}</span>
+	    {{ entry.language.code }}: <a href="{% url admin:blog_blogentrycontent_change entry.pk %}" title="edit">{{ entry }}</a>
+	</li>
+{% endfor %}
+</ul>

@@ -30,6 +30,8 @@ class TagLanguageSitesFilter(object):
     ---------------------------------------------------------------------------
     IMPORANT: TagLanguageSitesFilter must used before forms.ModelForm!
     """
+    sites_filter = "sites__id__in"
+
     def __init__(self, *args, **kwargs):
         """
         prepare the tag queryset filter
@@ -53,7 +55,7 @@ class TagLanguageSitesFilter(object):
         # change the tag queryset filter:
         self.fields["tags"].widget.tag_queryset_filters = {
             "language": language,
-            "sites__id__in": sites,
+            self.sites_filter: sites,
         }
 
 

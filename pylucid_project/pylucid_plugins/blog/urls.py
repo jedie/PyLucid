@@ -1,16 +1,34 @@
 # coding: utf-8
 
+
 from django.conf.urls.defaults import patterns, url
 
-from blog.views import summary, tag_view, detail_view, feed, select_feed
+from pylucid_project.pylucid_plugins.blog import views
+
 
 urlpatterns = patterns('',
-    url(r'^tags/(?P<tags>.+?)/$', tag_view, name='Blog-tag_view'),
-    url(r'^(?P<id>\d+?)/(?P<title>.*)/$', detail_view, name='Blog-detail_view'),
+    url(r'^tags/(?P<tags>.+?)/$', views.tag_view, name='Blog-tag_view'),
 
-    url(r'^feed/(?P<tags>.+)/(?P<filename>.+?)$', feed, name='Blog-tag_feed'),
-    url(r'^feed/(?P<filename>.+?)$', feed, name='Blog-feed'),
-    url(r'^feed/', select_feed, name='Blog-select_feed'),
+    url(r'^(?P<year>\d{4})/$',
+        views.year_archive, name='Blog-year_archive'
+    ),
+    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/$',
+        views.month_archive, name='Blog-month_archive'
+    ),
+    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$',
+        views.day_archive, name='Blog-day_archive'
+    ),
 
-    url(r'^', summary, name='Blog-summary'),
+    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<slug>[-\w]+)/$',
+        views.detail_view, name='Blog-detail_view'
+    ),
+
+    url(r'^(?P<id>\d+?)/(?P<slug>.*)/$', views.permalink_view, name='Blog-permalink_view'),
+    url(r'^(?P<id>\d+?)/(?P<title>.*)/$', views.redirect_old_urls),
+
+    url(r'^feed/(?P<tags>.+)/(?P<filename>.+?)$', views.feed, name='Blog-tag_feed'),
+    url(r'^feed/(?P<filename>.+?)$', views.feed, name='Blog-feed'),
+    url(r'^feed/', views.select_feed, name='Blog-select_feed'),
+
+    url(r'^', views.summary, name='Blog-summary'),
 )

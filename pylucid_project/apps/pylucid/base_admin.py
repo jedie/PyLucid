@@ -3,7 +3,8 @@
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.conf import settings
 
 
 class BaseAdmin(admin.ModelAdmin):
@@ -24,12 +25,21 @@ class BaseAdmin(admin.ModelAdmin):
         Don't leave in admin, after edit a object -> goto obj.get_absolute_url()
         """
         response = super(BaseAdmin, self).response_change(request, obj)
+
+        if not hasattr(obj, "get_absolute_url"):
+            return response
+
         if isinstance(response, HttpResponseRedirect):
             url = response["location"]
+            #messages.debug(request, "redirect to %r" % url)
             if url in ('../', '../../../'):
-                # Don't got to admin index or change-list page
-                # goto changed object
-                url = obj.get_absolute_url()
+                # Don't got to admin index or change-list page -> goto changed object
+                try:
+                    url = obj.get_absolute_url()
+                except Exception, err:
+                    if settings.DEBUG or request.user.is_staff:
+                        messages.error(request, "Can't get_absolute_url() from object %r: %s" % (obj, err))
+
                 return HttpResponseRedirect(url)
         return response
 

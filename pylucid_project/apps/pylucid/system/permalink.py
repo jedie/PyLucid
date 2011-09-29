@@ -30,7 +30,7 @@ def plugin_permalink(request, absolute_url):
             messages.error(request,
                 "entry url %r doesn't start with current url %r!" % (absolute_url, current_url)
             )
-        return page_permalink # fallback
+        return absolute_url # fallback
 
     additional_url = absolute_url[len(current_url):]
     permalink = posixpath.join(page_permalink, additional_url)
