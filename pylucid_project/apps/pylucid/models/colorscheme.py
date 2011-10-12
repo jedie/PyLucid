@@ -20,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.fields import ColorValueField
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.utils.css_color_utils import get_new_css_names
 
 

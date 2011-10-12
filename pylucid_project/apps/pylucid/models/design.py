@@ -22,7 +22,8 @@ from django.template import TemplateDoesNotExist
 from django.template.loader import find_template
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, SiteM2M
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
+from pylucid_project.base_models.many2many import SiteM2M
 
 # other PyLucid models
 from colorscheme import ColorScheme

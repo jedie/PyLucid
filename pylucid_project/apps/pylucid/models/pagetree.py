@@ -31,8 +31,9 @@ from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
-from pylucid_project.apps.pylucid.models.base_models import BaseModel, BaseModelManager, UpdateInfoBaseModel, \
-    PermissionsBase
+from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
+from pylucid_project.base_models.permissions import PermissionsBase
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 
 
 

@@ -21,6 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tagging/
 from tagging.models import Tag, TaggedItem
+from tagging.utils import calculate_cloud, LOGARITHMIC
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares.ThreadLocal import get_current_request
@@ -31,14 +32,16 @@ from django_tools.utils.messages import failsafe_message
 from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import Language, PluginPage
-from pylucid_project.apps.pylucid.models.base_models import SiteM2M, UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
+from pylucid_project.base_models.base_markup_model import MarkupBaseModel
+from pylucid_project.base_models.many2many import SiteM2M
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.pylucid_plugins import update_journal
 from pylucid_project.utils.i18n_utils import filter_by_language
 
 from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm, get_preferences
-from tagging.utils import calculate_cloud, LOGARITHMIC
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -240,9 +243,14 @@ class BlogEntryContentManager(models.Manager):
         from django.views.generic.date_based import archive_year
 
 
-class BlogEntryContent(UpdateInfoBaseModel):
+class BlogEntryContent(MarkupBaseModel, UpdateInfoBaseModel):
     """
     Language depend blog entry content.
+
+    inherited attributes from MarkupBaseModel:
+        content field
+        markup field
+        get_html() method
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -263,8 +271,6 @@ class BlogEntryContent(UpdateInfoBaseModel):
             " Createtime + this slug are used for identify this blog entry)"
         ),
     )
-    content = MarkupContentModelField()
-    markup = MarkupModelField()
 
     language = models.ForeignKey(Language)
     tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
@@ -293,20 +299,6 @@ class BlogEntryContent(UpdateInfoBaseModel):
         super(BlogEntryContent, self).save(*args, **kwargs)
 
         cache.clear() # FIXME: This cleaned the complete cache for every site!
-
-    def get_html(self):
-        """
-        return self.content rendered as html:
-            1. apply markup
-            2. parse lucidTags/django template tags
-        """
-        content1 = apply_markup(self.content, self.markup, failsafe_message)
-
-        request = get_current_request()
-        context = request.PYLUCID.context
-        content2 = render.render_string_template(content1, context)
-
-        return content2
 
     def get_name(self):
         return self.headline

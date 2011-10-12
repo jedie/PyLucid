@@ -8,15 +8,15 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+from django.db.models import aggregates
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, \
-                                                            UpdateInfoBaseModel
-
 from django_tools import limit_to_usergroups
-from django.db.models import aggregates
+
+from pylucid_project.base_models.many2many import AutoSiteM2M
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 
 
 class Poll(AutoSiteM2M, UpdateInfoBaseModel):
