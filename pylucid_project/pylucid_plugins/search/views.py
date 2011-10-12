@@ -11,14 +11,17 @@
 import time
 import traceback
 
-from django import forms
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
+from django.views.decorators.csrf import csrf_exempt
 
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
+
+from django_tools.template.filters import human_duration
 
 from pylucid_project.apps.pylucid.context_processors import NowUpdateInfo
 from pylucid_project.apps.pylucid.decorators import render_to
@@ -26,41 +29,10 @@ from pylucid_project.apps.pylucid.models import Language, LogEntry
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from pylucid_project.utils.python_tools import cutout
 
-from pylucid_project.pylucid_plugins.search.preference_forms import SearchPreferencesForm
-from django_tools.template.filters import human_duration
-from django.views.decorators.csrf import csrf_exempt
+from pylucid_project.pylucid_plugins.search.preference_forms import get_preferences
+from pylucid_project.pylucid_plugins.search.forms import AdvancedSearchForm, \
+    SearchForm
 
-
-def get_preferences():
-    pref_form = SearchPreferencesForm()
-    preferences = pref_form.get_preferences()
-    return preferences
-
-#-----------------------------------------------------------------------------
-
-class SearchForm(forms.Form):
-    search = forms.CharField(widget=forms.TextInput(
-        attrs={
-            "required":"required",
-            "autofocus":"autofocus",
-
-        }
-    ))
-    def __init__(self, *args, **kwargs):
-        super(SearchForm, self).__init__(*args, **kwargs)
-
-        preferences = get_preferences()
-        self.fields['search'].min_length = preferences["min_term_len"]
-        self.fields['search'].max_length = preferences["max_term_len"]
-
-
-class AdvancedSearchForm(SearchForm):
-    language = forms.MultipleChoiceField(
-        choices=Language.objects.get_choices(),
-        widget=forms.CheckboxSelectMultiple,
-    )
-
-#-----------------------------------------------------------------------------
 
 def _filter_search_terms(request, search_string):
     """
@@ -256,6 +228,7 @@ def _search(request, cleaned_data):
         }
     )
     return search_results
+
 
 @csrf_exempt # FIXME: Use AJAX?
 @render_to("search/search.html")#, debug=True)

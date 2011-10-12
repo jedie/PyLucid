@@ -44,3 +44,8 @@ class SearchPreferencesForm(DBPreferencesBaseForm):
 
     class Meta:
         app_label = 'search'
+
+def get_preferences():
+    pref_form = SearchPreferencesForm()
+    preferences = pref_form.get_preferences()
+    return preferences
