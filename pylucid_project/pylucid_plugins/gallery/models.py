@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_tools.fields.sign_separated import SignSeparatedModelField
 from django_tools.fields.media_path import MediaPathModelField
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.apps.pylucid.models import Language # import here against import loops
 

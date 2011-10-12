@@ -10,13 +10,15 @@
 
 from django.db import models
 from django.core.cache import cache
+from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
-from pylucid_project.apps.pylucid.fields import MarkupModelField, \
-    MarkupContentModelField
+from pylucid_project.base_models.base_markup_model import MarkupBaseModel
+from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
+
 
 
 TAG_INPUT_HELP_URL = \
@@ -33,11 +35,16 @@ class PageContentManager(BaseModelManager):
     pass
 
 
-class PageContent(BaseModel, UpdateInfoBaseModel):
+class PageContent(BaseModel, MarkupBaseModel, UpdateInfoBaseModel):
     """
     A normal CMS Page with text content.
 
     signals connection is in pylucid_project.apps.pylucid.models.__init__
+
+    inherited attributes from MarkupBaseModel:
+        content field
+        markup field
+        get_html() method
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -48,11 +55,6 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
     objects = PageContentManager()
 
     pagemeta = models.OneToOneField("pylucid.PageMeta")
-
-    content = MarkupContentModelField(blank=True, help_text="The CMS page content.")
-    markup = MarkupModelField(
-        db_column="markup_id" # TODO: rename in next migration release
-    )
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """

@@ -26,11 +26,12 @@ from django_tools.tagging_addon.fields import jQueryTagModelField
 from django_tools.template import render
 from django_tools.utils.messages import failsafe_message
 
-from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import Language
-from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel, \
-    BaseModelManager
+from pylucid_project.base_models.base_markup_model import MarkupBaseModel
+from pylucid_project.base_models.base_models import BaseModelManager
+from pylucid_project.base_models.many2many import AutoSiteM2M
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
 
@@ -84,7 +85,7 @@ class LexiconEntryManager(BaseModelManager):
             return entry
 
 
-class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
+class LexiconEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
     """
     A lexicon entry.
 
@@ -92,6 +93,11 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         sites     -> ManyToManyField to Site
         on_site   -> sites.managers.CurrentSiteManager instance
         site_info -> a string with all site names, for admin.ModelAdmin list_display
+
+    inherited attributes from MarkupBaseModel:
+        content field
+        markup field
+        get_html() method
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -114,12 +120,16 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         help_text=_("A short explain."), max_length=255
     )
 
-    content = MarkupContentModelField(_('Content'), help_text=_("Explain the term"))
-    markup = MarkupModelField()
-
     is_public = models.BooleanField(
         default=True, help_text="Is post public viewable?"
     )
+
+    def __init__(self, *args, **kwargs):
+        super(LexiconEntry, self).__init__(*args, **kwargs)
+
+        # Change field meta data in a DRY way
+        content_field = self._meta.get_field_by_name("content")[0]
+        content_field.help_text = _("Explain the term")
 
     def save(self, *args, **kwargs):
         """
@@ -168,20 +178,6 @@ class LexiconEntry(AutoSiteM2M, UpdateInfoBaseModel):
         absolute_url = self.get_absolute_url() # Absolute url to this entry
         permalink = plugin_permalink(request, absolute_url)
         return permalink
-
-    def get_html(self):
-        """
-        return self.content rendered as html:
-            1. apply markup
-            2. parse lucidTags/django template tags
-        """
-        content1 = apply_markup(self.content, self.markup, failsafe_message)
-
-        request = get_current_request()
-        context = request.PYLUCID.context
-        content2 = render.render_string_template(content1, context)
-
-        return content2
 
     def __unicode__(self):
         return self.term

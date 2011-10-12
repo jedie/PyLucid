@@ -30,7 +30,8 @@ from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.apps.pylucid.fields import MarkupModelField
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
-from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
+from pylucid_project.base_models.many2many import AutoSiteM2M
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 
 from StreetMap.preference_forms import PreferencesForm
 
@@ -103,6 +104,8 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
         default=125,
         help_text=_("Text marker height size")
     )
+
+    # TODO: Use MarkupBaseModel
     marker_text = models.TextField(null=True, blank=True,
         help_text=_(
             "Marker text."

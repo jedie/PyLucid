@@ -48,7 +48,7 @@ def get_search_results(request, search_languages, search_strings, search_results
             url=item.get_absolute_url(),
 
             # the main content -> result lines would be cut out from hits in this content
-            content=item.content,
+            content=item.get_search_content(request),
 
             # hits in meta content has a higher score, but the content would not displayed 
             meta_content=meta_content,

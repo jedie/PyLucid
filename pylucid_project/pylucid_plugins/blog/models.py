@@ -23,20 +23,18 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from tagging.models import Tag
 
 # http://code.google.com/p/django-tools/
-from django_tools.middlewares.ThreadLocal import get_current_request
 from django_tools.tagging_addon.fields import jQueryTagModelField
-from django_tools.template import render
-from django_tools.utils.messages import failsafe_message
 
-from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
-from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import Language, PluginPage
-from pylucid_project.apps.pylucid.models.base_models import AutoSiteM2M, UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
+from pylucid_project.base_models.base_markup_model import MarkupBaseModel
+from pylucid_project.base_models.many2many import AutoSiteM2M
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.pylucid_plugins import update_journal
 
 from blog.preference_forms import BlogPrefForm
+
 
 
 
@@ -108,7 +106,7 @@ class BlogEntryManager(models.Manager):
 
 
 
-class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
+class BlogEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
     """
     A blog entry
     
@@ -116,6 +114,11 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         sites     -> ManyToManyField to Site
         on_site   -> sites.managers.CurrentSiteManager instance
         site_info -> a string with all site names, for admin.ModelAdmin list_display
+
+    inherited attributes from MarkupBaseModel:
+        content field
+        markup field
+        get_html() method
 
     inherited attributes from UpdateInfoBaseModel:
         createtime     -> datetime of creation
@@ -128,9 +131,6 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
     headline = models.CharField(_('Headline'),
         help_text=_("The blog entry headline"), max_length=255
     )
-
-    content = MarkupContentModelField()
-    markup = MarkupModelField()
 
     language = models.ForeignKey(Language)
     tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
@@ -148,20 +148,6 @@ class BlogEntry(AutoSiteM2M, UpdateInfoBaseModel):
         super(BlogEntry, self).save(*args, **kwargs)
 
         cache.clear() # FIXME: This cleaned the complete cache for every site!
-
-    def get_html(self):
-        """
-        return self.content rendered as html:
-            1. apply markup
-            2. parse lucidTags/django template tags
-        """
-        content1 = apply_markup(self.content, self.markup, failsafe_message)
-
-        request = get_current_request()
-        context = request.PYLUCID.context
-        content2 = render.render_string_template(content1, context)
-
-        return content2
 
     def get_name(self):
         return self.headline

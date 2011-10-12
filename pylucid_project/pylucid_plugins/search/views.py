@@ -15,6 +15,7 @@ import traceback
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_exempt
 
@@ -63,7 +64,7 @@ class SearchHit(object):
         self.headline = headline
         self.language = language
         self.url = url
-        self.content = content
+        self.content = strip_tags(content)
 
         preferences = get_preferences()
         self.text_cutout_len = preferences["text_cutout_len"]

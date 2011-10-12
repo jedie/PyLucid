@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 from django_tools.middlewares import ThreadLocal
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from django_tools.utils.messages import failsafe_message
 
 

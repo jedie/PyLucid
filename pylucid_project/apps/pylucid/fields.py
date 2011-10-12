@@ -146,6 +146,24 @@ class MarkupModelField(models.PositiveSmallIntegerField):
         return super(MarkupModelField, self).formfield(**kwargs)
 
 
+class RootAppChoiceField(models.CharField):
+    def get_choices_default(self):
+        from pylucid_project.apps.pylucid.models.pluginpage import PluginPage # import loops
+        PluginPage.objects.get_app_choices()
+
+
+try:
+    from south.modelsinspector import add_introspection_rules
+except ImportError:
+    pass
+else:
+    add_introspection_rules([], ["^pylucid_project\.apps\.pylucid\.fields.\ColorValueFormField"])
+    add_introspection_rules([], ["^pylucid_project\.apps\.pylucid\.fields.\ColorValueField"])
+    add_introspection_rules([], ["^pylucid_project\.apps\.pylucid\.fields.\MarkupContentModelField"])
+    add_introspection_rules([], ["^pylucid_project\.apps\.pylucid\.fields.\MarkupModelField"])
+    add_introspection_rules([], ["^pylucid_project\.apps\.pylucid\.fields.\RootAppChoiceField"])
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod(

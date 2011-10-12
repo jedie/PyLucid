@@ -20,7 +20,8 @@ from django_tools.fields.language_code import LanguageCodeModelField
 from django_tools.middlewares import ThreadLocal
 from django_tools.utils.messages import failsafe_message
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
+from pylucid_project.base_models.many2many import AutoSiteM2M
 
 
 supported_languages = dict(settings.LANGUAGES)

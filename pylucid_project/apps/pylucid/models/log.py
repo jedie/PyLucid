@@ -27,7 +27,7 @@ from django_tools.middlewares import ThreadLocal
 # http://code.google.com/p/django-dbpreferences/
 from dbpreferences.fields import DictField
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 
 
 META_KEYS = (

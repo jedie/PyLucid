@@ -27,7 +27,6 @@ from django.utils.translation import ugettext as _
 # http://code.google.com/p/django-tagging/
 from tagging.utils import parse_tag_input
 
-from lexicon.models import LexiconEntry
 from lexicon.sub_html import SubHtml
 
 
@@ -81,6 +80,7 @@ def pre_render_global_template_handler(**kwargs):
     current_lang = request.PYLUCID.current_language
     page_content = request.PYLUCID.context["page_content"]
 
+    from lexicon.models import LexiconEntry # import loops
     queryset = LexiconEntry.on_site.filter(is_public=True).filter(language=current_lang)
     entries = queryset.values_list("term", "alias", "short_definition")
 

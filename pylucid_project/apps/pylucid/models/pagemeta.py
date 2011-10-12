@@ -25,8 +25,9 @@ from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.middlewares import ThreadLocal
 from django_tools.tagging_addon.fields import jQueryTagModelField
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager, \
-    PermissionsBase
+from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
+from pylucid_project.base_models.permissions import PermissionsBase
 
 
 TAG_INPUT_HELP_URL = \
