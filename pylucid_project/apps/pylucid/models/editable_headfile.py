@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_tools.template import render
 from django_tools.utils.messages import failsafe_message
 
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.utils.css_color_utils import unify_spelling, \
                         get_new_css_names, replace_css_name, unique_color_name
 from pylucid_project.apps.pylucid.system import headfile

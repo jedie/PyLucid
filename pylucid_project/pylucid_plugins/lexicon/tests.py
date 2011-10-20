@@ -337,5 +337,5 @@ if __name__ == "__main__":
 
     management.call_command('test', tests,
         verbosity=2,
-        failfast=True
+#        failfast=True
     )

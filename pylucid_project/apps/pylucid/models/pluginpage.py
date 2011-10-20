@@ -16,22 +16,19 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
-from django_tools.utils import installed_apps_utils
 from django_tools import model_utils
-
+from django_tools.utils import installed_apps_utils
 from django_tools.utils.messages import failsafe_message
+
+from pylucid_project.apps.pylucid.fields import RootAppChoiceField
+from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, BaseModel, BaseModelManager
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
-
-
-class RootAppChoiceField(models.CharField):
-    def get_choices_default(self):
-        PluginPage.objects.get_app_choices()
 
 class PluginPageManager(BaseModelManager):
     """
@@ -167,3 +164,4 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
 
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PluginPage)
+

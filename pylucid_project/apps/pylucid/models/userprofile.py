@@ -15,7 +15,8 @@ from django.contrib.auth.models import User
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.utils import crypt
-from pylucid_project.apps.pylucid.models.base_models import UpdateInfoBaseModel, AutoSiteM2M
+from pylucid_project.base_models.update_info import UpdateInfoBaseModel
+from pylucid_project.base_models.many2many import AutoSiteM2M
 
 
 TAG_INPUT_HELP_URL = \
