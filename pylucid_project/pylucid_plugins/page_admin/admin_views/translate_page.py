@@ -88,7 +88,7 @@ def translate_page(request, pagemeta_id=None):
         "abort_url": source_pagemeta.get_absolute_url(),
     }
 
-    # select the destination languare
+    # select the destination language
     result = _select_language(request, context, source_pagemeta)
     if isinstance(result, Language):
         # Language was selected or they exit only one other language
