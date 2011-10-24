@@ -25,7 +25,7 @@ from page_admin.forms import PageMetaForm, PageContentForm, LanguageSelectForm
 def _select_language(request, context, source_pagemeta):
     """
     choose the translation destination language.
-    If one one other language available -> return it directly.
+    If only one other language available -> return it directly.
     """
     other_languages = Language.objects.exclude(code=source_pagemeta.language.code)
     if len(other_languages) == 0:
