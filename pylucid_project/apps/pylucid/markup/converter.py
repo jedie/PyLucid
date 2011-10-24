@@ -120,7 +120,6 @@ def apply_restructuretext(content, page_msg):
         return rest
 
 
-
 def apply_creole(content, page_msg):
     """
     Use python-creole:
@@ -129,22 +128,26 @@ def apply_creole(content, page_msg):
     We used verbose for insert error information (e.g. not existing macro)
     into the generated page
     """
+    from creole import creole2html
     from pylucid_project.apps.pylucid.markup import PyLucid_creole_macros
 
-    emitter_kwargs = {"macros":PyLucid_creole_macros}
     if settings.DEBUG:
-        emitter_kwargs.update({
-            "verbose": 2,
+        verbose = 2
+    else:
+        verbose = 1
+
+    try:
+        # new python-creole v1.0 API
+        return creole2html(content, macros2=PyLucid_creole_macros, stderr=page_msg, verbose=verbose)
+    except TypeError:
+        # TODO: Remove work-a-round in future release
+        # old python-creole API
+        emitter_kwargs = {
+            "macros":PyLucid_creole_macros,
+            "verbose": verbose,
             "stderr": page_msg
-        })
-
-    from creole import creole2html
-    return creole2html(content, emitter_kwargs=emitter_kwargs)
-
-
-
-
-
+        }
+        return creole2html(content, emitter_kwargs=emitter_kwargs)
 
 
 def convert(raw_content, markup_no, page_msg):
