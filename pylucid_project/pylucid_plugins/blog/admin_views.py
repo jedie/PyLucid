@@ -89,6 +89,28 @@ def new_blog_entry(request):
     return context
 
 
+@check_permissions(superuser_only=False, permissions=("blog.change_blogentry",))
+@render_to("blog/edit_blog_entry.html")
+def edit_blog_entry(request, id=None):
+    if id is None:
+        raise
+
+    entry = BlogEntryContent.objects.get(pk=id)
+    if request.method == "POST":
+        form = BlogContentForm(request.POST, instance=entry)
+        if form.is_valid():
+            instance = form.save()
+            messages.success(request, "%r updated." % instance)
+            return http.HttpResponseRedirect(instance.get_absolute_url())
+    else:
+        form = BlogContentForm(instance=entry)
+
+    return {
+        "title": _("Edit a blog entry"),
+        "abort_url": entry.get_absolute_url(),
+        "form": form,
+    }
+
 
 @check_permissions(superuser_only=False, permissions=("blog.change_blogentry",))
 @render_to()

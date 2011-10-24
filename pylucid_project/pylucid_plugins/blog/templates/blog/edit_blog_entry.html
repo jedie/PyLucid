@@ -1,0 +1,7 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form action="{{ form_url }}" method="post" id="edit_blog_entry_form" class="pylucid_form"> 
+    {% include "admin/pylucid/includes/default_pylucid_form.html" %}
+</form>
+{% endblock %}
