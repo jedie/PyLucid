@@ -141,6 +141,7 @@ MESSAGE_STORAGE = "django_tools.utils.messages.StackInfoStorage"
 # initialized all pylucid plugins
 PYLUCID_PLUGIN_SETUP_INFO = PyLucidPluginSetupInfo(
     plugin_package_list=(
+        (PYLUCID_BASE_PATH, "pylucid_project", "apps"), # base apps
         (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins"),
         (PYLUCID_BASE_PATH, "pylucid_project", "external_plugins"),
     ),
@@ -148,20 +149,20 @@ PYLUCID_PLUGIN_SETUP_INFO = PyLucidPluginSetupInfo(
     verbose=False
 )
 
-TEMPLATE_DIRS = (
-    os.path.join(PYLUCID_BASE_PATH, "apps/pylucid/templates/"),
-    os.path.join(PYLUCID_BASE_PATH, "apps/pylucid_admin/templates/"),
-    os.path.join(PYLUCID_BASE_PATH, "apps/pylucid_update/templates/"),
 
+# Add all templates subdirs from all existing PyLucid apps + plugins
+TEMPLATE_DIRS = PYLUCID_PLUGIN_SETUP_INFO.template_dirs
+
+# Append "static" template directories:
+TEMPLATE_DIRS += (
     os.path.join(os.path.abspath(os.path.dirname(django_tools.__file__)), "templates/"),
     os.path.join(os.path.abspath(os.path.dirname(dbpreferences.__file__)), "templates/"),
     os.path.join(os.path.abspath(os.path.dirname(django_processinfo.__file__)), "templates/"),
 
     os.path.join(os.path.abspath(os.path.dirname(django.__file__)), "contrib/admin/templates"),
 )
-# Add all templates subdirs from all existing PyLucid plugins
-TEMPLATE_DIRS += PYLUCID_PLUGIN_SETUP_INFO.template_dirs
 #print "settings.TEMPLATE_DIRS:\n", "\n".join(TEMPLATE_DIRS)
+
 
 TEMPLATE_LOADERS = (
     'dbtemplates.loader.Loader',
@@ -209,11 +210,6 @@ INSTALLED_APPS = (
     'django.contrib.comments',
     'django.contrib.redirects',
 
-    # PyLucid own apps:
-    'pylucid_project.apps.pylucid',
-    'pylucid_project.apps.pylucid_admin',
-    'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
-
     # external apps shipped and used with PyLucid:
     'dbpreferences',
     'dbtemplates',
@@ -222,7 +218,7 @@ INSTALLED_APPS = (
     'south',
     'django_processinfo',
 )
-# Add all existing PyLucid plugins
+# Add all existing PyLucid apps + plugins
 INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
 #print "settings.INSTALLED_APPS:", "\n".join(INSTALLED_APPS)
 

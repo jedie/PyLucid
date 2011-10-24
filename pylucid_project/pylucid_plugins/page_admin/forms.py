@@ -130,16 +130,6 @@ PageOrderFormSet = modelformset_factory(
 )
 
 
-
-class LanguageSelectForm(forms.Form):
-    language = forms.ChoiceField()
-
-    def __init__(self, languages, *args, **kwargs):
-        """ Change form field data in a DRY way """
-        super(LanguageSelectForm, self).__init__(*args, **kwargs)
-        self.fields['language'].choices = [(lang.code, lang.description) for lang in languages]
-
-
 class MassesEditorSelectForm(forms.Form):
     """
     TODO: implement a API for generating _DATA. So that other plugins can easy add some items.

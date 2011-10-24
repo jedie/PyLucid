@@ -4,7 +4,7 @@
     translate a PageContent
     ~~~~~~~~~~~~~~~~~~~~~~~
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -14,54 +14,12 @@ from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
+from pylucid_project.apps.i18n.utils.translate import translate
+from pylucid_project.apps.i18n.views import select_language
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
-from pylucid_project.utils.translate import translate
 
-from page_admin.forms import PageMetaForm, PageContentForm, LanguageSelectForm
-
-
-
-def _select_language(request, context, source_pagemeta):
-    """
-    choose the translation destination language.
-    If only one other language available -> return it directly.
-    """
-    other_languages = Language.objects.exclude(code=source_pagemeta.language.code)
-    if len(other_languages) == 0:
-        # should not happend
-        messages.error(request, "Error: There exist only one Language!")
-        return http.HttpResponseRedirect(source_pagemeta.get_absolute_url())
-    elif len(other_languages) == 1:
-        # Only one other language available, so the user must not choose one ;)
-        return other_languages[0]
-    else:
-        # There are more than one other language -> display a form for choose one.
-        if "language" in request.GET:
-            form = LanguageSelectForm(other_languages, request.GET)
-            if form.is_valid():
-                lang_code = form.cleaned_data["language"]
-                for lang in other_languages:
-                    if lang.code == lang_code:
-                        return lang
-                raise RuntimeError() # should never happen
-        else:
-            default_lang_entry = Language.objects.get_or_create_default(request)
-            form = LanguageSelectForm(other_languages, initial={
-                    "language": default_lang_entry.code, # FIXME: Seems not to work
-                })
-        context.update({
-            "title": _("Translate page '%(name)s' (%(desc_lang)s) - Select destination language") % {
-                "name": source_pagemeta.name,
-                "desc_lang": source_pagemeta.language.description
-            },
-            "template_name": "page_admin/select_translate_language.html",
-            "form": form,
-        })
-        return context
-
-
-
+from page_admin.forms import PageMetaForm, PageContentForm
 
 
 @check_permissions(superuser_only=False, permissions=(
@@ -76,6 +34,7 @@ def translate_page(request, pagemeta_id=None):
     source_pagemeta = PageMeta.objects.get(id=pagemeta_id)
     pagetree = source_pagemeta.pagetree
     source_language = source_pagemeta.language
+    absolute_url = source_pagemeta.get_absolute_url()
 
     is_pluginpage = pagetree.page_type == PageTree.PLUGIN_TYPE
     if is_pluginpage:
@@ -84,12 +43,9 @@ def translate_page(request, pagemeta_id=None):
     else:
         source_pagecontent = PageContent.objects.get(pagemeta=source_pagemeta)
 
-    context = {
-        "abort_url": source_pagemeta.get_absolute_url(),
-    }
 
     # select the destination language
-    result = _select_language(request, context, source_pagemeta)
+    result = select_language(request, absolute_url, source_pagemeta.language, source_pagemeta.name)
     if isinstance(result, Language):
         # Language was selected or they exit only one other language
         dest_language = result
@@ -103,14 +59,15 @@ def translate_page(request, pagemeta_id=None):
         raise RuntimeError() # Should never happen
 
 
-    context.update({
+    context = {
         "title": _("Translate page '%(name)s' (%(source_lang)s) into %(dest_lang)s.") % {
             "name": source_pagemeta.name,
+            "abort_url": absolute_url,
             "source_lang": source_pagemeta.language.description,
             "dest_lang": dest_language.description,
         },
         "template_name": "page_admin/translate_page.html",
-    })
+    }
 
     try:
         dest_pagemeta = PageMeta.objects.get(pagetree=pagetree, language=dest_language)
@@ -164,9 +121,9 @@ def translate_page(request, pagemeta_id=None):
             else:
                 transaction.savepoint_commit(sid)
                 if dest_pagemeta is None:
-                    messages.info(request, "New content %r crerated." % new_pagecontent)
+                    messages.success(request, "New content %r created." % new_pagecontent)
                 else:
-                    messages.info(request, "All updated.")
+                    messages.success(request, "All updated.")
                 return http.HttpResponseRedirect(new_pagemeta.get_absolute_url())
     else:
         context["has_errors"] = False

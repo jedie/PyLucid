@@ -20,6 +20,11 @@ from pylucid_project.apps.pylucid.forms.utils import TagLanguageSitesFilter
 from pylucid_project.pylucid_plugins.blog.models import BlogEntryContent
 
 
+class BlogContentForm(forms.ModelForm):
+    class Meta:
+        model = BlogEntryContent
+        exclude = ("entry",)
+
 class BlogForm(TagLanguageSitesFilter, forms.ModelForm):
     """
     Form for create/edit a blog entry.

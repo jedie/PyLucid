@@ -1,0 +1,4 @@
+
+== i18n application ==
+
+This application should contain helper stuff around Internationalization.

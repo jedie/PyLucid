@@ -9,7 +9,7 @@
 """
 
 
-from django import http
+from django import http, forms
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
@@ -21,8 +21,10 @@ from pylucid_project.utils.site_utils import get_site_preselection
 
 from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
     BlogEntryContent
-from pylucid_project.pylucid_plugins.blog.forms import BlogForm
+from pylucid_project.pylucid_plugins.blog.forms import BlogForm, BlogContentForm
 from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
+from pylucid_project.apps.pylucid.models.language import Language
+from pylucid_project.apps.i18n.views import select_language
 
 
 
@@ -86,3 +88,102 @@ def new_blog_entry(request):
     context["form"] = form
     return context
 
+
+
+@check_permissions(superuser_only=False, permissions=("blog.change_blogentry",))
+@render_to()
+def translate_blog_entry(request, id=None):
+    if id is None:
+        raise
+
+    source_entry = BlogEntryContent.objects.get(pk=id)
+    absolute_url = source_entry.get_absolute_url()
+
+
+    # select the destination language
+    result = select_language(request, absolute_url, source_entry.language, source_entry.headline)
+    if isinstance(result, Language):
+        # Language was selected or they exit only one other language
+        dest_language = result
+    elif isinstance(result, dict):
+        # template context returned -> render language select form
+        return result
+    elif isinstance(result, http.HttpResponse):
+        # e.g. error
+        return result
+    else:
+        raise RuntimeError() # Should never happen
+
+
+    context = {
+        "title": _("Translate a blog entry"),
+        "template_name": "blog/translate_blog_entry.html",
+        "abort_url": absolute_url,
+        "has_errors": False,
+    }
+
+    try:
+        dest_entry = BlogEntryContent.objects.get(entry=source_entry.entry, language=dest_language)
+    except BlogEntryContent.DoesNotExist:
+        dest_entry = None
+        dest_initial = {
+            "entry": source_entry.entry,
+            "language":dest_language,
+            "markup": source_entry.markup,
+            "is_public": source_entry.is_public,
+        }
+
+    if request.method == "POST":
+        source_form = BlogContentForm(request.POST, prefix="source", instance=source_entry)
+        if dest_entry is None:
+            dest_form = BlogContentForm(request.POST, prefix="dest", initial=dest_initial)
+        else:
+            dest_form = BlogContentForm(request.POST, prefix="dest", instance=dest_entry)
+
+        if source_form.is_valid() and dest_form.is_valid():
+            # All forms are valid -> Save all.
+            source_form.save()
+            dest_entry2 = dest_form.save(commit=False)
+            dest_entry2.entry = source_entry.entry
+            dest_entry2.save()
+            if dest_entry is None:
+                messages.success(request, "All saved. New entry %r created." % dest_entry2)
+            else:
+                messages.success(request, "All saved.")
+            return http.HttpResponseRedirect(dest_entry2.get_absolute_url())
+        context["has_errors"] = True
+    else:
+        source_form = BlogContentForm(prefix="source", instance=source_entry)
+        if dest_entry is None:
+            dest_form = BlogContentForm(prefix="dest", initial=dest_initial)
+        else:
+            dest_form = BlogContentForm(prefix="dest", instance=dest_entry)
+
+    source_fields = []
+    dest_fields = []
+    line_fields = []
+    for source_field, dest_field in zip(source_form, dest_form):
+        assert source_field.name == dest_field.name
+        if source_field.name in ("content", "language", "markup"):
+            # Fields witch displayed side by side.
+            source_fields.append(source_field)
+            dest_fields.append(dest_field)
+        else:
+            # Fields witch renders alternating one below the other.
+            source_field.language = source_entry.language
+            line_fields.append(source_field)
+            dest_field.language = dest_language
+            line_fields.append(dest_field)
+
+    context.update({
+        "source_entry": source_entry,
+        "dest_language": dest_language,
+        "source_form": source_form,
+        "dest_form": dest_form,
+        "all_forms": [source_form, dest_form],
+        "source_fields": source_fields,
+        "dest_fields": dest_fields,
+        "line_fields": line_fields,
+    })
+    print context
+    return context
