@@ -22,6 +22,9 @@ import traceback
 
 from django.conf import settings
 
+#DEBUG = True
+DEBUG = False
+
 try:
     import pkg_resources
 except ImportError, e:
@@ -42,6 +45,11 @@ def check_require(requirements):
     Display only warnings on VersionConflict and DistributionNotFound exceptions.
     """
     for requirement in requirements:
+        if requirement == "pylucid":
+            # Skip, because pkg_resources.require() would check all requirement from pylucid, too.
+            continue
+        if DEBUG and settings.RUN_WITH_DEV_SERVER:
+            print requirement
         try:
             pkg_resources.require(requirement)
         except pkg_resources.VersionConflict, err:
@@ -52,7 +60,9 @@ def check_require(requirements):
 
 def get_requirements():
     def parse_requirements(filename):
-        filepath = os.path.join(settings.PYLUCID_BASE_PATH, "../requirements", filename)
+        filepath = os.path.normpath(os.path.join(settings.PYLUCID_BASE_PATH, "../requirements", filename))
+        if DEBUG and settings.RUN_WITH_DEV_SERVER:
+            print "Use %r" % filepath
         f = file(filepath, "r")
         entries = []
         for line in f:
@@ -61,6 +71,8 @@ def get_requirements():
                 continue
             if line.startswith("-e "):
                 line = line.split("#egg=")[1]
+            if DEBUG and settings.RUN_WITH_DEV_SERVER:
+                print line
             entries.append(line)
         f.close()
         return entries
@@ -74,7 +86,7 @@ try:
     requirements = get_requirements()
     check_require(requirements)
 except Exception, e:
-    if settings.DEBUG and settings.RUN_WITH_DEV_SERVER:
+    if (DEBUG or settings.DEBUG) and settings.RUN_WITH_DEV_SERVER:
         raise
 
     sys.stderr.write("Can't check requirements:")
