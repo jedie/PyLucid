@@ -26,6 +26,7 @@ from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 from pylucid_project.apps.pylucid.models.language import Language
 from pylucid_project.apps.i18n.views import select_language
 from pylucid_project.apps.i18n.utils.translate import prefill
+from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 
 
 
@@ -56,9 +57,18 @@ def new_blog_entry(request):
 #    user_site_ids = user_profile.sites.values_list("id", "name")
 #    m2m_limit = {"sites": user_site_ids} # Limit the site choice field with LimitManyToManyFields
 
+    try:
+        plugin_page = PluginPage.objects.filter(app_label__endswith="blog")[0]
+    except IndexError:
+        messages.error(request, _("There exist no blog plugin page, yet. Please create one, first."))
+        return http.HttpResponseRedirect("/")
+
+    abort_url = plugin_page.get_absolute_url()
+
     context = {
         "title": _("Create a new blog entry"),
         "form_url": request.path,
+        "abort_url": abort_url,
         "tag_cloud": BlogEntryContent.objects.get_tag_cloud(request),
         "add_tag_filter_link": False, # Don't add filters in tag cloud
     }
