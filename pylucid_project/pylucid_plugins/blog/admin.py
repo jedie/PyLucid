@@ -27,10 +27,23 @@ from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
     BlogEntryContent
 import traceback
 from django.contrib.admin.templatetags.admin_list import _boolean_icon
+from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 
 
+class BlogBaseAdmin(BaseAdmin, VersionAdmin):
 
-class BlogEntryAdmin(BaseAdmin):
+    change_list_template = "reversion/blog/change_list.html"
+
+    def __init__(self, *args, **kwargs):
+        self.plugin_pages = PluginPage.objects.filter(app_label__endswith="blog")
+        super(BlogBaseAdmin, self).__init__(*args, **kwargs)
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = {"plugin_pages":self.plugin_pages}
+        return super(BlogBaseAdmin, self).changelist_view(request, extra_context=extra_context)
+
+
+class BlogEntryAdmin(BlogBaseAdmin):
     """
     Language independend Blog entry.
     
@@ -64,7 +77,6 @@ class BlogEntryAdmin(BaseAdmin):
         context = {"permalink": permalink}
         html = render_to_string('admin/blog/permalink.html', context)
         return html
-
     permalink.allow_tags = True
 
     list_display = ("id", "is_public", "site_info", "contents", "permalink")
@@ -72,7 +84,7 @@ class BlogEntryAdmin(BaseAdmin):
 admin.site.register(BlogEntry, BlogEntryAdmin)
 
 
-class BlogEntryContentAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
+class BlogEntryContentAdmin(BlogBaseAdmin, MarkupPreview):
     """
     Language depend blog entry content.
     

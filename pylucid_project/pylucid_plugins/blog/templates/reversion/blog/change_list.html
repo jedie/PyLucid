@@ -1,0 +1,16 @@
+{% extends "reversion/change_list.html" %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+table#result_list ul {
+    padding: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+</style>
+{% endblock extrastyle %}
+
+{% block content %}
+{% include "reversion/blog/includes/blog_plugin_links.html" %}
+{{ block.super }}
+{% endblock content %}
