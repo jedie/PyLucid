@@ -75,7 +75,7 @@ $(document).ready(function(){
 {% endblock extrahead %}
 
 {% block content %}
-<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
+<form action="" method="post" id="edit_page_form" class="pylucid_form">
 {% csrf_token %}
 {% if not sites|length_is:"1" %}
 <p>
@@ -91,10 +91,9 @@ $(document).ready(function(){
     </fieldset>
 {% endif %}
 
-<fieldset><legend>PluginContent</legend>
-    
-    {% include "admin/pylucid/includes/buttons_save_abort.html" %}
-    
+{% include "i18n/includes/buttons_save_abort_translate.html" %}
+
+<fieldset><legend>PluginContent</legend>    
     {% with source_pagecontent_form.content as field %}
     <div class="across_fields" title="{{ field.help_text }}">
         <div class="source_float" title="{{ source_pagecontent_form.language.description }} - {{ field.help_text }}">
@@ -114,6 +113,8 @@ $(document).ready(function(){
     </div>
     {% endwith %}
 </fieldset>
+
+{% include "i18n/includes/buttons_save_abort_translate.html" %}
 
 <fieldset>
     <h2 class="form_collapse">PageMeta</h2>
@@ -145,7 +146,7 @@ $(document).ready(function(){
     {% endfor %}
 </fieldset>
 
-{% include "admin/pylucid/includes/buttons_save_abort.html" %}
+{% include "i18n/includes/buttons_save_abort_translate.html" %}
 
 </form>
 {% endblock %}

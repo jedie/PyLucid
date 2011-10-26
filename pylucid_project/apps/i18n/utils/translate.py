@@ -79,6 +79,10 @@ def prefill(source_form, dest_form, source_language, dest_language, only_fields=
             )
             continue
 
+        if not source_value:
+            # Skip empty fields
+            continue
+
         dest_key = dest_form.add_prefix(field_name)
         dest_value = dest_form.data[dest_key]
         if dest_value:

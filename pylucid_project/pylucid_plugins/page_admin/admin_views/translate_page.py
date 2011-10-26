@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.apps.i18n.utils.translate import translate
+from pylucid_project.apps.i18n.utils.translate import translate, prefill
 from pylucid_project.apps.i18n.views import select_language
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
@@ -94,39 +94,70 @@ def translate_page(request, pagemeta_id=None):
                 request.POST, prefix=dest_language.code, instance=dest_pagecontent
             )
 
-        if not (source_pagemeta_form.is_valid() and source_pagecontent_form.is_valid() and
-                            dest_pagemeta_form.is_valid() and dest_pagecontent_form.is_valid()):
-            context["has_errors"] = True
-        else:
-            # All forms are valid -> Save all.
-            context["has_errors"] = False
-            sid = transaction.savepoint()
-            try:
-                source_pagecontent_form.save()
-                source_pagemeta_form.save()
+        if "autotranslate" in request.POST:
+            if source_pagemeta_form.is_valid() and source_pagecontent_form.is_valid():
+                all_filled_fields = []
+                all_errors = []
 
-                # Create new PageMeta entry
-                new_pagemeta = dest_pagemeta_form.save(commit=False)
-                new_pagemeta.pagetree = pagetree
-                new_pagemeta.language = dest_language
-                new_pagemeta.save()
+                # Translate PageContent
+                dest_pagecontent_form, filled_fields, errors = prefill(
+                    source_pagecontent_form, dest_pagecontent_form,
+                    source_pagemeta.language, dest_language,
+                    only_fields=("content",),
+                    #debug=True,
+                )
+                all_filled_fields += filled_fields
+                all_errors += errors
 
-                # Create new PageContent entry
-                new_pagecontent = dest_pagecontent_form.save(commit=False)
-                new_pagecontent.pagemeta = new_pagemeta
-                new_pagecontent.save()
-            except:
-                transaction.savepoint_rollback(sid)
-                raise
-            else:
-                transaction.savepoint_commit(sid)
-                if dest_pagemeta is None:
-                    messages.success(request, "New content %r created." % new_pagecontent)
+                # Translate fields from PageMeta
+                dest_pagemeta_form, filled_fields, errors = prefill(
+                    source_pagemeta_form, dest_pagemeta_form,
+                    source_pagemeta.language, dest_language,
+                    only_fields=("name", "title", "description"),
+                    #debug=True,
+                )
+                all_filled_fields += filled_fields
+                all_errors += errors
+
+
+                if all_filled_fields:
+                    messages.success(request, "These fields are translated with google: %s" % ", ".join(all_filled_fields))
                 else:
-                    messages.success(request, "All updated.")
-                return http.HttpResponseRedirect(new_pagemeta.get_absolute_url())
+                    messages.info(request, "No fields translated with google, because all fields have been a translation.")
+                if all_errors:
+                    for error in all_errors:
+                        messages.error(request, error)
+        else:
+            # don't translate -> save if valid
+            if (source_pagemeta_form.is_valid() and source_pagecontent_form.is_valid() and
+                                dest_pagemeta_form.is_valid() and dest_pagecontent_form.is_valid()):
+                # All forms are valid -> Save all.
+                sid = transaction.savepoint()
+                try:
+                    source_pagecontent_form.save()
+                    source_pagemeta_form.save()
+
+                    # Create new PageMeta entry
+                    new_pagemeta = dest_pagemeta_form.save(commit=False)
+                    new_pagemeta.pagetree = pagetree
+                    new_pagemeta.language = dest_language
+                    new_pagemeta.save()
+
+                    # Create new PageContent entry
+                    new_pagecontent = dest_pagecontent_form.save(commit=False)
+                    new_pagecontent.pagemeta = new_pagemeta
+                    new_pagecontent.save()
+                except:
+                    transaction.savepoint_rollback(sid)
+                    raise
+                else:
+                    transaction.savepoint_commit(sid)
+                    if dest_pagemeta is None:
+                        messages.success(request, "New content %r created." % new_pagecontent)
+                    else:
+                        messages.success(request, "All updated.")
+                    return http.HttpResponseRedirect(new_pagemeta.get_absolute_url())
     else:
-        context["has_errors"] = False
         source_pagemeta_form = PageMetaForm(
             prefix="source", instance=source_pagemeta
         )
@@ -154,47 +185,6 @@ def translate_page(request, pagemeta_id=None):
             )
 
 
-        if "prefill" in request.GET:
-            filled_fields = []
-            if "content" not in dest_pagecontent_form.initial:
-                source_content = source_pagecontent_form.initial["content"]
-                try:
-                    translated_content = translate(
-                        source_content, src=source_language.code, to=dest_language.code
-                    )
-                except ValueError, err:
-                    messages.info(request, "Can't translate content with google: %s" % err)
-                else:
-                    dest_pagecontent_form.initial["content"] = translated_content
-                    filled_fields.append("content")
-                    dest_pagecontent_form.fields['content'].widget.attrs['class'] = 'auto_translated'
-
-            for key, source_value in source_pagemeta_form.initial.iteritems():
-                if not source_value \
-                    or not isinstance(source_value, basestring)\
-                    or key == "robots" \
-                    or dest_pagemeta_form.initial.get(key, None):
-                    # Skip empty, non string, robots field and if dest. value exist
-                    continue
-
-                try:
-                    dest_value = translate(
-                        source_value, src=source_language.code, to=dest_language.code
-                    )
-                except ValueError, err:
-                    messages.info(request,
-                        "Can't translate %(key)s with google: %(err)s" % {"key":key, "err":err}
-                    )
-                else:
-                    dest_pagemeta_form.initial[key] = dest_value
-                    filled_fields.append(key)
-                    dest_pagemeta_form.fields[key].widget.attrs['class'] = 'auto_translated'
-
-            if filled_fields:
-                messages.info(request, "These fields are translated via google: %s" % ", ".join(filled_fields))
-            else:
-                messages.info(request, "No fields translated via google.")
-
     source_pagecontent_form.language = source_language
     dest_pagecontent_form.language = dest_language
 
@@ -205,13 +195,20 @@ def translate_page(request, pagemeta_id=None):
         dest_field.language = dest_language
         pagemeta_fields.append(dest_field)
 
+    all_forms = [
+        source_pagemeta_form, source_pagecontent_form,
+        dest_pagemeta_form, dest_pagecontent_form
+    ]
+    has_errors = False
+    for form in all_forms:
+        if form.errors:
+            has_errors = True
+            break
+
     context.update({
-        "form_url": request.path,
         "abort_url": source_pagemeta.get_absolute_url(),
-        "all_forms": [
-            source_pagemeta_form, source_pagecontent_form,
-            dest_pagemeta_form, dest_pagecontent_form
-        ],
+        "all_forms": all_forms,
+        "has_errors": has_errors,
         "source_pagemeta_form": source_pagemeta_form,
         "source_pagecontent_form": source_pagecontent_form,
         "dest_pagemeta_form": dest_pagemeta_form,
