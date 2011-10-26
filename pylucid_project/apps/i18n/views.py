@@ -54,5 +54,6 @@ def select_language(request, absolute_url, source_language, source_entry_name):
             "template_name": "i18n/select_translate_language.html",
             "form": form,
             "abort_url": absolute_url,
+            "other_languages": other_languages,
         }
         return context

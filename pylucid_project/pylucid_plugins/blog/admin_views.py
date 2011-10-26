@@ -25,6 +25,7 @@ from pylucid_project.pylucid_plugins.blog.forms import BlogForm, BlogContentForm
 from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 from pylucid_project.apps.pylucid.models.language import Language
 from pylucid_project.apps.i18n.views import select_language
+from pylucid_project.apps.i18n.utils.translate import prefill
 
 
 
@@ -121,7 +122,6 @@ def translate_blog_entry(request, id=None):
     source_entry = BlogEntryContent.objects.get(pk=id)
     absolute_url = source_entry.get_absolute_url()
 
-
     # select the destination language
     result = select_language(request, absolute_url, source_entry.language, source_entry.headline)
     if isinstance(result, Language):
@@ -141,7 +141,6 @@ def translate_blog_entry(request, id=None):
         "title": _("Translate a blog entry"),
         "template_name": "blog/translate_blog_entry.html",
         "abort_url": absolute_url,
-        "has_errors": False,
     }
 
     try:
@@ -157,23 +156,39 @@ def translate_blog_entry(request, id=None):
 
     if request.method == "POST":
         source_form = BlogContentForm(request.POST, prefix="source", instance=source_entry)
+
         if dest_entry is None:
             dest_form = BlogContentForm(request.POST, prefix="dest", initial=dest_initial)
         else:
             dest_form = BlogContentForm(request.POST, prefix="dest", instance=dest_entry)
 
-        if source_form.is_valid() and dest_form.is_valid():
-            # All forms are valid -> Save all.
-            source_form.save()
-            dest_entry2 = dest_form.save(commit=False)
-            dest_entry2.entry = source_entry.entry
-            dest_entry2.save()
-            if dest_entry is None:
-                messages.success(request, "All saved. New entry %r created." % dest_entry2)
-            else:
-                messages.success(request, "All saved.")
-            return http.HttpResponseRedirect(dest_entry2.get_absolute_url())
-        context["has_errors"] = True
+        if "autotranslate" in request.POST:
+            if source_form.is_valid():
+                dest_form, filled_fields, errors = prefill(
+                    source_form, dest_form,
+                    source_entry.language, dest_language,
+                    only_fields=("headline", "content"),
+                    #debug=True,
+                )
+                if filled_fields:
+                    messages.success(request, "These fields are translated with google: %s" % ", ".join(filled_fields))
+                else:
+                    messages.info(request, "No fields translated with google, because all fields have been a translation.")
+                if errors:
+                    for error in errors:
+                        messages.error(request, error)
+        else:
+            if source_form.is_valid() and dest_form.is_valid():
+                # All forms are valid -> Save all.
+                source_form.save()
+                dest_entry2 = dest_form.save(commit=False)
+                dest_entry2.entry = source_entry.entry
+                dest_entry2.save()
+                if dest_entry is None:
+                    messages.success(request, "All saved. New entry %r created." % dest_entry2)
+                else:
+                    messages.success(request, "All saved.")
+                return http.HttpResponseRedirect(dest_entry2.get_absolute_url())
     else:
         source_form = BlogContentForm(prefix="source", instance=source_entry)
         if dest_entry is None:
@@ -197,15 +212,20 @@ def translate_blog_entry(request, id=None):
             dest_field.language = dest_language
             line_fields.append(dest_field)
 
+    if source_form.errors or dest_form.errors:
+        has_errors = True
+    else:
+        has_errors = False
+
     context.update({
         "source_entry": source_entry,
         "dest_language": dest_language,
         "source_form": source_form,
         "dest_form": dest_form,
         "all_forms": [source_form, dest_form],
+        "has_errors": has_errors,
         "source_fields": source_fields,
         "dest_fields": dest_fields,
         "line_fields": line_fields,
     })
-    print context
     return context

@@ -77,7 +77,7 @@ $(document).ready(function(){
 {% block content %}
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">{% csrf_token %}
 
-{% include "admin/pylucid/includes/buttons_save_abort.html" %}
+{% include "i18n/includes/buttons_save_abort_translate.html" %}
 
 {% if not sites|length_is:"1" %}
 <p>
@@ -108,7 +108,7 @@ $(document).ready(function(){
     </div>
 </fieldset>
 
-{% include "admin/pylucid/includes/buttons_save_abort.html" %}
+{% include "i18n/includes/buttons_save_abort_translate.html" %}
     
 <fieldset>   
     {% for field in line_fields %}
@@ -138,7 +138,7 @@ $(document).ready(function(){
     {% endfor %}
 </fieldset>
     
-    {% include "admin/pylucid/includes/buttons_save_abort.html" %}
+{% include "i18n/includes/buttons_save_abort_translate.html" %}
 
 </form>
 {% endblock %}

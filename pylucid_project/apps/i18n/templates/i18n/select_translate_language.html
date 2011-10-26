@@ -1,8 +1,17 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-<form action="{{ form_url }}" method="get" id="edit_page_form" class="pylucid_form">
-{% include "admin/pylucid/includes/pylucid_formset.html" %}
-{% include "admin/pylucid/includes/buttons_save_abort.html" %}
-</form>
+<div class="pylucid_form">   
+    <div class="field">
+        <ul>
+            {% for language in other_languages %}
+            <li><a href="?language={{ language.code }}">{{ language.description }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="helper_buttons">
+        <a href="{{ abort_url }}"><button type="button">{% trans 'abort' %}</button></a>
+    </div>
+</div>
 {% endblock %}

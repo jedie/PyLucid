@@ -1,0 +1,6 @@
+<p>Links to existing Blog plugin pages:</p>
+<ul>
+    {% for plugin_page in plugin_pages %}
+        <li>{% with plugin_page.get_absolute_url as url %}<a href="{{ url }}">{{ url }}</a>{% endwith %}</li>
+    {% endfor %}
+</ul>
