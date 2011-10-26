@@ -1,0 +1,104 @@
+[
+    {
+        "pk": 1, 
+        "model": "blog.blogentry", 
+        "fields": {
+            "is_public": true, 
+            "sites": [
+                1
+            ]
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "blog.blogentry", 
+        "fields": {
+            "is_public": true, 
+            "sites": [
+                1
+            ]
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "blog.blogentry", 
+        "fields": {
+            "is_public": true, 
+            "sites": [
+                1
+            ]
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "blog.blogentrycontent", 
+        "fields": {
+            "createby": 1, 
+            "language": 2, 
+            "lastupdatetime": "2000-12-24 12:00:00", 
+            "tags": "sharedtag, dritter_tag, deutsch-tag", 
+            "headline": "Dritter Eintrag nur in deutsch", 
+            "markup": 6, 
+            "slug": "dritter-eintrag-nur-in-deutsch", 
+            "content": "3. **Blog Artikel** nur in //deutsch//!", 
+            "is_public": true, 
+            "entry": 3, 
+            "lastupdateby": 1, 
+            "createtime": "2000-12-24 12:00:00"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "blog.blogentrycontent", 
+        "fields": {
+            "createby": 1, 
+            "language": 1, 
+            "lastupdatetime": "2000-12-24 12:00:00", 
+            "tags": "sharedtag, second_tag, english-tag", 
+            "headline": "Second entry only in english", 
+            "markup": 6, 
+            "slug": "second-entry-only-in-english", 
+            "content": "2. **blog article** only in //english//!", 
+            "is_public": true, 
+            "entry": 2, 
+            "lastupdateby": 1, 
+            "createtime": "2000-12-24 12:00:00"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "blog.blogentrycontent", 
+        "fields": {
+            "createby": 1, 
+            "language": 2, 
+            "lastupdatetime": "2000-12-24 12:00:00", 
+            "tags": "sharedtag, erster_tag, deutsch-tag", 
+            "headline": "Erster Eintrag in deutsch", 
+            "markup": 6, 
+            "slug": "erster-eintrag-in-deutsch", 
+            "content": "1. **Blog Artikel** in //deutsch//!", 
+            "is_public": true, 
+            "entry": 1, 
+            "lastupdateby": 1, 
+            "createtime": "2000-12-24 12:00:00"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "blog.blogentrycontent", 
+        "fields": {
+            "createby": 1, 
+            "language": 1, 
+            "lastupdatetime": "2000-12-24 12:00:00", 
+            "tags": "sharedtag, first_tag, english-tag", 
+            "headline": "First entry in english", 
+            "markup": 6, 
+            "slug": "first-entry-in-english", 
+            "content": "1. **blog article** in //english//!", 
+            "is_public": true, 
+            "entry": 1, 
+            "lastupdateby": 1, 
+            "createtime": "2000-12-24 12:00:00"
+        }
+    }
+]
