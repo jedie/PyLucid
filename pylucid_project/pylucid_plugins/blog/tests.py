@@ -21,16 +21,19 @@ if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
+from django.contrib.messages import constants as message_constants
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from django_tools.unittest_utils.BrowserDebug import debug_response
 
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE
 
-from pylucid_project.pylucid_plugins.blog.models import BlogEntry
-from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
+from blog.models import DEBUG_LANG_FILTER, BlogEntry
+from blog.preference_forms import BlogPrefForm
 
 
 SUMMARY_URL = "/%s/blog/"
@@ -61,41 +64,42 @@ class BlogPluginTestCase(basetest.BaseLanguageTestCase):
     def _pre_setup(self, *args, **kwargs):
         self.fixtures.append(BLOG_UNITTEST_FIXTURES)
         super(BlogPluginTestCase, self)._pre_setup(*args, **kwargs)
+        settings.DEBUG = False
 
-    SUMMARY_MUST_CONTAIN_EN = (
-        '<a href="/en/blog/" title="Your personal weblog.">blog</a>',
-        '<a href="/en/blog/">All articles.</a>',
-
+    # existing english entries from test fixtures:
+    FIRST_ENTRY = (
         "First entry in english",
         "/en/blog/%s/first-entry-in-english/" % TEST_DATE,
-
-        "Dritter Eintrag nur in deutsch",
-        "/de/blog/%s/dritter-eintrag-nur-in-deutsch/" % TEST_DATE,
-
+        "<p>1. <strong>blog article</strong> in <i>english</i>!</p>",
+    )
+    SECOND_ENTRY = (
         "Second entry only in english",
         "/en/blog/%s/second-entry-only-in-english/" % TEST_DATE,
-    )
-    SUMMARY_MUST_NOT_CONTAIN_EN = (
-        "Dein eigener Weblog",
-        "Erster Eintrag in deutsch", "/erster-eintrag-in-deutsch/",
+        "<p>2. <strong>blog article</strong> only in <i>english</i>!</p>",
     )
 
-    SUMMARY_MUST_CONTAIN_DE = (
-        '<a href="/de/blog/" title="Dein eigener Weblog.">blog</a>',
-        '<a href="/de/blog/">Alle Artikel.</a>',
-
+    # existing german entries from test fixtures:
+    ERSTER_EINTRAG = (
         "Erster Eintrag in deutsch",
         "/de/blog/%s/erster-eintrag-in-deutsch/" % TEST_DATE,
-
-        "Second entry only in english",
-        "/en/blog/%s/second-entry-only-in-english/" % TEST_DATE,
-
+        "<p>1. <strong>Blog Artikel</strong> in <i>deutsch</i>!</p>"
+    )
+    DRITTER_EINTRAG = (
         "Dritter Eintrag nur in deutsch",
         "/de/blog/%s/dritter-eintrag-nur-in-deutsch/" % TEST_DATE,
+        "<p>3. <strong>Blog Artikel</strong> nur in <i>deutsch</i>!</p>"
     )
-    SUMMARY_MUST_NOT_CONTAIN_DE = (
-        "Your personal weblog",
-        "First entry in english", "/first-entry-in-english/",
+
+    SUMMARY_EN_CONTAINS = (
+        '<a href="/en/blog/" title="Your personal weblog.">blog</a>',
+        '<a href="/en/blog/">All articles.</a>',
+        "comments for 'blog':", "Leave a comment</a>", # from pylucid comments
+
+    )
+    SUMMARY_DE_CONTAINS = (
+        '<a href="/de/blog/" title="Dein eigener Weblog.">blog</a>',
+        '<a href="/de/blog/">Alle Artikel.</a>',
+        "Kommentare für 'blog':", "Kommentar hinterlassen</a>", # from pylucid comments
     )
 
     ENTRY_MUST_CONTAIN_EN = (
@@ -113,23 +117,24 @@ class BlogPluginTestCase(basetest.BaseLanguageTestCase):
         'Leave a comment</a>', # from pylucid comments
     )
 
-    def assertBlogPage(self, response, must_contain, must_not_contain):
+    def assertBlogPage(self, response, language, must_contain, must_not_contain):
         self.failUnlessEqual(response.status_code, 200)
         self.assertResponse(response, must_contain=must_contain,
             must_not_contain=must_not_contain + ("Traceback", "XXX INVALID TEMPLATE STRING")
         )
+        self.assertContentLanguage(response, language)
 
-    def assertSummaryEN(self, response):
-        self.assertBlogPage(response,
-            must_contain=self.SUMMARY_MUST_CONTAIN_EN,
-            must_not_contain=self.SUMMARY_MUST_NOT_CONTAIN_EN,
-        )
-
-    def assertSummaryDE(self, response):
-        self.assertBlogPage(response,
-            must_contain=self.SUMMARY_MUST_CONTAIN_DE,
-            must_not_contain=self.SUMMARY_MUST_NOT_CONTAIN_DE,
-        )
+#    def assertSummaryEN(self, response):
+#        self.assertBlogPage(response,
+#            must_contain=self.SUMMARY_MUST_CONTAIN_EN,
+#            must_not_contain=self.SUMMARY_MUST_NOT_CONTAIN_EN,
+#        )
+#
+#    def assertSummaryDE(self, response):
+#        self.assertBlogPage(response,
+#            must_contain=self.SUMMARY_MUST_CONTAIN_DE,
+#            must_not_contain=self.SUMMARY_MUST_NOT_CONTAIN_DE,
+#        )
 
     def assertEntryEN(self, response):
         self.assertBlogPage(response, must_contain=self.ENTRY_MUST_CONTAIN_EN)
@@ -144,14 +149,73 @@ class BlogPluginTestCase(basetest.BaseLanguageTestCase):
 
 
 class BlogPluginAnonymousTest(BlogPluginTestCase):
-    def test_summary_en(self):
+    """
+    ALL_LANGUAGES - "Don't filter by languages. Allways display all blog entries."
+    PREFERED_LANGUAGES - "Filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)"
+    CURRENT_LANGUAGE - "Display only blog entries in current language (select on the page)"
+    """
+
+    def setUp(self):
+        cache.clear()
+
+        system_preferences = SystemPreferencesForm()
+        system_preferences["message_level_anonymous"] = message_constants.DEBUG
+        system_preferences.save()
+        DEBUG_LANG_FILTER = True
+        settings.PYLUCID.I18N_DEBUG = True
+
+
+    def _set_language_filter(self, language_filter):
+        self.pref_form = BlogPrefForm()
+        self.pref_form["language_filter"] = language_filter
+        self.pref_form.save()
+
+    def test_summary_en_all_languages(self):
+        self._set_language_filter(BlogPrefForm.ALL_LANGUAGES)
+
         response = self.client.get(
             SUMMARY_URL % self.default_language.code,
             HTTP_ACCEPT_LANGUAGE=self.default_language.code,
         )
-        self.assertSummaryEN(response)
-        self.assertContentLanguage(response, self.default_language)
+        self.assertBlogPage(response, self.default_language,
+            must_contain=self.SUMMARY_EN_CONTAINS + self.FIRST_ENTRY + self.SECOND_ENTRY + self.DRITTER_EINTRAG,
+            must_not_contain=self.SUMMARY_DE_CONTAINS + self.ERSTER_EINTRAG,
+        )
 
+    def test_summary_en_current_languages(self):
+        self._set_language_filter(BlogPrefForm.CURRENT_LANGUAGE)
+
+        response = self.client.get(
+            SUMMARY_URL % self.default_language.code,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.assertBlogPage(response, self.default_language,
+            must_contain=self.SUMMARY_EN_CONTAINS + self.FIRST_ENTRY + self.SECOND_ENTRY,
+            must_not_contain=self.SUMMARY_DE_CONTAINS + self.ERSTER_EINTRAG + self.DRITTER_EINTRAG,
+        )
+
+#    def test_summary_en_prefered_languages(self):
+#        self._set_language_filter(BlogPrefForm.PREFERED_LANGUAGES)
+#
+#        response = self.client.get(
+#            SUMMARY_URL % self.default_language.code,
+#            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+#        )
+#        self.assertBlogPage(response, self.default_language,
+#            must_contain=self.SUMMARY_EN_CONTAINS + self.FIRST_ENTRY + self.SECOND_ENTRY,
+#            must_not_contain=self.SUMMARY_DE_CONTAINS + self.ERSTER_EINTRAG + self.DRITTER_EINTRAG,
+#        )
+#
+#        response = self.client.get(
+#            SUMMARY_URL % self.default_language.code,
+#            HTTP_ACCEPT_LANGUAGE=";".join([self.default_language.code, self.other_language]),
+#        )
+#        self.assertBlogPage(response, self.default_language,
+#            must_contain=self.SUMMARY_EN_CONTAINS + self.FIRST_ENTRY + self.SECOND_ENTRY + self.DRITTER_EINTRAG,
+#            must_not_contain=self.SUMMARY_DE_CONTAINS + self.ERSTER_EINTRAG,
+#        )
+
+'''
     def test_summary_de(self):
         response = self.client.get(
             SUMMARY_URL % self.other_language.code,
@@ -185,6 +249,35 @@ class BlogPluginAnonymousTest(BlogPluginTestCase):
             url="http://testserver/?auth=login&next_url=%s" % url,
             status_code=302
         )
+
+    def _test_atom_feed(self, language):
+        language_code = language.code
+        response = self.client.get(
+            "/%s/blog/feed/feed.atom" % language_code,
+            HTTP_ACCEPT_LANGUAGE=language_code,
+        )
+        self.assertAtomFeed(response, language_code)
+
+    def test_atom_feed_default_language(self):
+        self._test_atom_feed(self.default_language)
+
+    def test_atom_feed_other_language(self):
+        self._test_atom_feed(self.other_language)
+
+    def _test_rss_feed(self, language):
+        language_code = language.code
+        response = self.client.get(
+            "/%s/blog/feed/feed.rss" % language_code,
+            HTTP_ACCEPT_LANGUAGE=language_code,
+        )
+        self.assertRssFeed(response, language_code)
+
+    def test_rss_feed_default_language(self):
+        self._test_rss_feed(self.default_language)
+
+    def test_rss_feed_other_language(self):
+        self._test_rss_feed(self.other_language)
+'''
 
 
 
@@ -309,6 +402,7 @@ class BlogPluginTest(BlogPluginTestCase):
         )
 
 
+
 '''
 TODO:
 
@@ -320,9 +414,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         """ create some blog articles """
         super(BlogPluginArticleTest, self)._pre_setup(*args, **kwargs)
 
-        self.pref_form = BlogPrefForm()
-        self.pref_form["language_filter"] = BlogPrefForm.CURRENT_LANGUAGE
-        self.pref_form.save()
+
 
     def assertSecondArticle(self, response):
         self.assertContentLanguage(response, self.default_language)
@@ -479,34 +571,6 @@ class BlogPluginArticleTest(BlogPluginTestCase):
         )
         self.assertSecondArticle(response)
 
-    def _test_atom_feed(self, language):
-        language_code = language.code
-        response = self.client.get(
-            "/%s/blog/feed/feed.atom" % language_code,
-            HTTP_ACCEPT_LANGUAGE=language_code,
-        )
-        self.assertAtomFeed(response, language_code)
-
-    def test_atom_feed_default_language(self):
-        self._test_atom_feed(self.default_language)
-
-    def test_atom_feed_other_language(self):
-        self._test_atom_feed(self.other_language)
-
-    def _test_rss_feed(self, language):
-        language_code = language.code
-        response = self.client.get(
-            "/%s/blog/feed/feed.rss" % language_code,
-            HTTP_ACCEPT_LANGUAGE=language_code,
-        )
-        self.assertRssFeed(response, language_code)
-
-    def test_rss_feed_default_language(self):
-        self._test_rss_feed(self.default_language)
-
-    def test_rss_feed_other_language(self):
-        self._test_rss_feed(self.other_language)
-
     def test_all_languages(self):
         self.pref_form = BlogPrefForm()
         self.pref_form["language_filter"] = BlogPrefForm.ALL_LANGUAGES
@@ -531,6 +595,14 @@ class BlogPluginCsrfTest(BlogPluginTestCase):
     """
     Test the Cross Site Request Forgery protection in PyLucid with the Blog Plugin
     """
+    def setUp(self):
+        super(BlogPluginCsrfTest, self).setUp()
+        settings.DEBUG = True
+
+    def tearDown(self):
+        super(BlogPluginCsrfTest, self).tearDown()
+        settings.DEBUG = False
+
     def _get_loggedin_client(self):
         csrf_client = Client(enforce_csrf_checks=True)
 
@@ -559,8 +631,6 @@ class BlogPluginCsrfTest(BlogPluginTestCase):
         )
 
     def test_create_entry_with_token(self):
-        settings.DEBUG = True
-
         csrf_client = self._get_loggedin_client()
 
         # get the current csrf token
@@ -598,12 +668,15 @@ class BlogPluginCsrfTest(BlogPluginTestCase):
 
 
 
+
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
 
     tests = __file__
 #    tests = "pylucid_plugins.blog.tests.BlogPluginCsrfTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginAnonymousTest"
+#    tests = "pylucid_plugins.blog.tests.BlogLanguageFilterTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
