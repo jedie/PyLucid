@@ -20,10 +20,13 @@ if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
+from django.core.cache import cache
+from django.contrib.messages import constants as message_constants
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 
 from pylucid_project.tests.test_tools import basetest
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.models import Language
 
 
@@ -45,6 +48,9 @@ class TestI18n(basetest.BaseLanguageTestCase):
         the default language should be returned
         """
         response = self.client.get("/")
+        self.assertRedirect(response, url="http://testserver/en/welcome/", status_code=302)
+
+        response = self.client.get("/en/welcome/")
         self.failUnlessEqual(response.status_code, 200)
         self.assertContentLanguage(response, self.default_language)
 
@@ -52,17 +58,19 @@ class TestI18n(basetest.BaseLanguageTestCase):
         """
         we must get german.
         """
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de-de,de;q=0.8,en-us;q=0.5,en;q=0.3")
+        accept_languages = "de-de,de;q=0.8,en-us;q=0.5,en;q=0.3"
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_languages)
+        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
+
+        response = self.client.get("/de/welcome/", HTTP_ACCEPT_LANGUAGE=accept_languages)
         self.failUnlessEqual(response.status_code, 200)
-        german = Language.objects.get(code="de")
-        self.assertContentLanguage(response, german)
+        self.assertContentLanguage(response, self.other_language)
 
     def test_fallback_language(self):
         """ the first part of a language code must be used as a fallback """
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de-AT;q=0.9,de-de;q=0.8,en-us;q=0.5")
-        self.failUnlessEqual(response.status_code, 200)
-        german = Language.objects.get(code="de")
-        self.assertContentLanguage(response, german)
+        accept_languages = "de-AT;q=0.9,de-de;q=0.8,en-us;q=0.5"
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_languages)
+        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
 
     def test_other_language_in_url(self):
         """
@@ -132,6 +140,9 @@ class TestI18n(basetest.BaseLanguageTestCase):
 #            print language, language.sites.all()
 
         response = self.client.get("/")
+        self.assertRedirect(response, url="http://testserver/en/welcome/", status_code=302)
+
+        response = self.client.get("/en/welcome/")
         self.assertResponse(response,
             must_contain=("<body", 'Welcome to your PyLucid CMS =;-)'),
             must_not_contain=("Traceback",)
@@ -221,6 +232,52 @@ class TestI18nMoreLanguages(basetest.BaseMoreLanguagesTestCase):
             must_not_contain=("Traceback",)
         )
 
+
+class TestLanguageDetection(basetest.BaseLanguageTestCase):
+    def setUp(self):
+        super(TestLanguageDetection, self).setUp()
+
+        cache.clear()
+        self.system_preferences = SystemPreferencesForm()
+        self.old_message_level = self.system_preferences["message_level_anonymous"]
+
+    def tearDown(self):
+        super(TestLanguageDetection, self).tearDown()
+        self.system_preferences["message_level_anonymous"] = self.old_message_level
+        self.system_preferences.save()
+        settings.DEBUG = False
+        settings.PYLUCID.I18N_DEBUG = False
+
+    def enable_debug(self):
+        settings.DEBUG = True
+        settings.PYLUCID.I18N_DEBUG = True
+        self.system_preferences["message_level_anonymous"] = message_constants.DEBUG
+        self.system_preferences.save()
+
+    def test_root_redirect_without_client_prefered_language(self):
+        response = self.client.get("/")
+        self.assertRedirect(response, url="http://testserver/en/welcome/", status_code=302)
+
+    def test_root_redirect_with_de_prefered_language(self):
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de")
+        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
+
+    def test_root_redirect_with_de_prefered_language(self):
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="es;de")
+        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
+
+    def test_no_client_prefered_language(self):
+        response = self.client.get("/")
+        self.assertRedirect(response, url="http://testserver/en/welcome/", status_code=302)
+
+        self.enable_debug()
+
+        response = self.client.get("http://testserver/en/")
+        self.assertContentLanguage(response, self.default_language)
+        self.assertResponse(response,
+            must_contain=("XXXXX",),
+            must_not_contain=("Traceback", "Wrong language code", "Enter a valid language code")
+        )
 
 if __name__ == "__main__":
     # Run all unittest directly
