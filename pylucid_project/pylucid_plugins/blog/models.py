@@ -41,11 +41,16 @@ from pylucid_project.pylucid_plugins import update_journal
 from pylucid_project.utils.i18n_utils import filter_by_language
 
 from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm, get_preferences
+from django.contrib import messages
 
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+
+
+#DEBUG_LANG_FILTER = True
+DEBUG_LANG_FILTER = False
 
 
 class BlogEntry(SiteM2M):
@@ -135,6 +140,9 @@ class BlogEntryContentManager(models.Manager):
             # Filter by language
             preferences = get_preferences()
             language_filter = preferences["language_filter"]
+            if DEBUG_LANG_FILTER:
+                messages.debug(request, "language filter: %s" % language_filter)
+
             if language_filter == BlogPrefForm.CURRENT_LANGUAGE:
                 # Display only blog entries in current language (select on the page)             
                 filters["language"] = request.PYLUCID.current_language
@@ -145,6 +153,9 @@ class BlogEntryContentManager(models.Manager):
         if not request.user.has_perm("blog.change_blogentry") or not request.user.has_perm("blog.change_blogentrycontent"):
             filters["entry__is_public"] = True
             filters["is_public"] = True
+
+        if DEBUG_LANG_FILTER:
+            messages.debug(request, "queryset filter: %s" % repr(filters))
 
         return filters
 
