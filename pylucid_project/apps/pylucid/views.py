@@ -267,8 +267,7 @@ def _prepage_request(request, lang_entry):
 #_____________________________________________________________________________
 # root_page + lang_root_page views:
 
-def _render_root_page(request, url_lang_code=None):
-    """ render the root page, used in root_page and lang_root_page views """
+def _get_root_page(request):
     user = request.user
     try:
         pagetree = PageTree.objects.get_root_page(user) # Get the first PageTree entry
@@ -281,17 +280,26 @@ def _render_root_page(request, url_lang_code=None):
         ) % err
         messages.error(request, msg)
         return http.HttpResponseRedirect(reverse("admin:index"))
-
-    return _render_page(request, pagetree, url_lang_code)
+    return pagetree
 
 
 @csrf_view_exempt
 def root_page(request):
-    """ render the first root page in system default language """
+    """
+    redirect to a url with language code
+    We can't serve the root page here, because it will be cached in current
+    language with "/" as key. So a other client with other language will see
+    the page always in the cached language and not in his preferred language
+    """
     # activate language via auto detection
     i18n.activate_auto_language(request)
 
-    return _render_root_page(request)
+    pagetree = _get_root_page(request)
+    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
+    url = pagemeta.get_absolute_url()
+
+    return http.HttpResponseRedirect(url)
+
 
 def _lang_code_is_pagetree(request, url_lang_code):
     """
@@ -323,7 +331,9 @@ def lang_root_page(request, url_lang_code):
     # activate i18n
     i18n.activate_auto_language(request)
 
-    return _render_root_page(request, url_lang_code)
+    pagetree = _get_root_page(request)
+
+    return _render_page(request, pagetree, url_lang_code)
 
 #-----------------------------------------------------------------------------
 
