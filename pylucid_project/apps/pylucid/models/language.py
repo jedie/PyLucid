@@ -3,6 +3,8 @@
 """
     PyLucid models
     ~~~~~~~~~~~~~~
+    
+    TODO: move this model to i18n app!
 
     :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
