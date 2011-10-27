@@ -15,6 +15,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
+import datetime
 
 from django.conf import settings
 from django.contrib import messages
@@ -31,13 +32,11 @@ from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
-from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
-    BlogEntryContent
-from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
+from blog.models import BlogEntry, BlogEntryContent
+from blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
-import datetime
 
 
 
