@@ -2,8 +2,8 @@
 # coding: utf-8
 
 """
-    PyLucid unittests
-    ~~~~~~~~~~~~~~~~~
+    i18n unittests
+    ~~~~~~~~~~~~~~
     
     Info:
         - PyLucid initial data contains english and german pages.
@@ -14,20 +14,32 @@
 """
 
 import os
+from django.utils.log import getLogger
+import logging
 
 if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 from django.conf import settings
-from django.core.cache import cache
-from django.contrib.messages import constants as message_constants
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
+from django.core.cache import cache
 
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.models import Language
+
+
+class TestI18nWithCache(basetest.BaseLanguageTestCase):
+    def test_other_language_in_url(self):
+        """
+        Request a English page as a German user.
+        """
+        #self.enable_i18n_debug()
+
+        cache.clear()
+        response = self.client.get("/en/welcome/", HTTP_ACCEPT_LANGUAGE="de-de,de;q=0.8,en-us;q=0.5,en;q=0.3")
+        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=301)
 
 
 class TestI18n(basetest.BaseLanguageTestCase):
@@ -42,6 +54,9 @@ class TestI18n(basetest.BaseLanguageTestCase):
         - self.other_language - alternative Language mode instance (default: de instance)
         - assertContentLanguage() - Check if response is in right language
     """
+    def setUp(self):
+        cache.clear()
+
     def test_no_accept_language(self):
         """
         request root page without any HTTP_ACCEPT_LANGUAGE
@@ -51,7 +66,7 @@ class TestI18n(basetest.BaseLanguageTestCase):
         self.assertRedirect(response, url="http://testserver/en/welcome/", status_code=302)
 
         response = self.client.get("/en/welcome/")
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertContentLanguage(response, self.default_language)
 
     def test_accept_language_de(self):
@@ -63,7 +78,7 @@ class TestI18n(basetest.BaseLanguageTestCase):
         self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
 
         response = self.client.get("/de/welcome/", HTTP_ACCEPT_LANGUAGE=accept_languages)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertContentLanguage(response, self.other_language)
 
     def test_fallback_language(self):
@@ -71,20 +86,6 @@ class TestI18n(basetest.BaseLanguageTestCase):
         accept_languages = "de-AT;q=0.9,de-de;q=0.8,en-us;q=0.5"
         response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_languages)
         self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
-
-    def test_other_language_in_url(self):
-        """
-        Request a english page as a german user.
-        """
-        response = self.client.get("/en/welcome/", HTTP_ACCEPT_LANGUAGE="de-de,de;q=0.8,en-us;q=0.5,en;q=0.3")
-        self.assertResponse(response,
-            must_contain=(
-                '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>',
-                '<a href="/de/welcome/" title="Diesen Inhalt in Deutsch öffnen.">',
-                'Diese Inhalt existiert auch in Deutsch.',
-            ),
-            must_not_contain=("Traceback",)
-        )
 
     def test_no_lang_code(self):
         """
@@ -120,9 +121,8 @@ class TestI18n(basetest.BaseLanguageTestCase):
         lang.permitViewGroup = test_group
         lang.save()
 
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=lang_code)
-        self.failUnlessEqual(response.status_code, 200)
-        self.assertContentLanguage(response, self.default_language)
+        response = self.client.get("/de/welcome/", HTTP_ACCEPT_LANGUAGE=lang_code)
+        self.assertRedirect(response, url="http://testserver/en/welcome/", status_code=301)
 
     def test_no_language_on_site(self):
         """
@@ -149,7 +149,6 @@ class TestI18n(basetest.BaseLanguageTestCase):
         )
 
 
-
 class TestI18nMoreLanguages(basetest.BaseMoreLanguagesTestCase):
     """
     inherited from BaseUnittest:
@@ -166,35 +165,121 @@ class TestI18nMoreLanguages(basetest.BaseMoreLanguagesTestCase):
         - created languages: "es", "es-ar", "pt", "hr"
         - self.languages - A dict with language code as keys and language instance as values
     """
-    def test_language_exists(self):
-        """ test if we really have more languages ;) """
-        self.failUnless(Language.objects.count() >= 6)
+    def setUp(self):
+        cache.clear()
 
-    def assertItsCroatian(self, response):
+    def assertItsCroatian_with_en(self, response):
         """
         Croatian doesn't exist. But it's a supported language.
-            - The ContentPage is in system default language.
-            - gexttext works in croatian
+            - The ContentPage is in EN
+            - gettext translations works and used croatian.
         """
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertContentLanguage(response, self.default_language)
         self.assertResponse(response,
             must_contain=(
+                '<html lang="en">',
+                '<h2 id="page_title">Welcome to your PyLucid CMS =;-)</h2>',
                 '''<strong title="Current used language is 'Croatian'.">Croatian</strong>''',
-                'PageMeta welcome doesn&#39;t exist in client favored language Croatian, use English entry.',
                 '>Prijavi se<', # 'Login in' translated in croatian 
             ),
             must_not_contain=("Traceback",)
         )
 
-    def test_accept_language_hr(self):
-        """       
-        But Croatian must be active.
+    def assertItsCroatian_with_de(self, response):
         """
+        Croatian doesn't exist. But it's a supported language.
+            - The ContentPage is in DE
+            - gettext translations works and used croatian.
+        """
+        self.assertStatusCode(response, 200)
+        self.assertContentLanguage(response, self.other_language)
+        self.assertResponse(response,
+            must_contain=(
+                '<html lang="de">',
+                '<h2 id="page_title">Willkommen auf deiner PyLucid CMS Seite =;-)</h2>',
+                '''<strong title="Current used language is 'Croatian'.">Croatian</strong>''',
+                '>Prijavi se<', # 'Login in' translated in croatian 
+            ),
+            must_not_contain=("Traceback",)
+        )
+
+    def assertItsNotCroation_its_de(self, response):
+        self.assertContentLanguage(response, self.other_language)
+        self.assertResponse(response,
+            must_contain=(
+                '<html lang="de">',
+                '<h2 id="page_title">Willkommen auf deiner PyLucid CMS Seite =;-)</h2>',
+                '''<strong title="Current used language is 'Deutsch'.">Deutsch</strong>''',
+
+            ),
+            must_not_contain=("Traceback",
+                '''<strong title="Current used language is 'Croatian'.">Croatian</strong>''',
+                'Prijavi se', # 'Login in' translated in croatian
+            )
+        )
+
+    def test_language_exists(self):
+        """ test if we really have more languages ;) """
+        self.failUnless(Language.objects.count() >= 6)
+
+    def test_cache_language_collision(self):
+#        self.enable_i18n_debug()
+
+#        logger = getLogger("PyLucidCacheMiddleware")
+#        logger.setLevel(logging.DEBUG)
+#        logger.addHandler(logging.StreamHandler())
+
         accept_language = "hr;q=0.8,en;q=0.3"
 
+        response = self.client.get("/de/welcome/", HTTP_ACCEPT_LANGUAGE=accept_language)
+        redirected_url = "http://testserver/en/welcome/"
+        self.assertRedirect(response, url=redirected_url, status_code=301)
+        self.assertFalse(response._from_cache)
+
+        # add hr to cache
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
+        self.assertItsCroatian_with_en(response)
+        self.assertFalse(response._from_cache)
+
+        # add de to cache
+        response = self.client.get("/de/welcome/", HTTP_ACCEPT_LANGUAGE="de")
+        self.assertItsNotCroation_its_de(response)
+        self.assertFalse(response._from_cache)
+
+        # check hr cached version:
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
+        self.assertItsCroatian_with_en(response)
+        self.assertTrue(response._from_cache)
+
+        # check de cached version:        
+        response = self.client.get("/de/welcome/", HTTP_ACCEPT_LANGUAGE="de")
+        self.assertItsNotCroation_its_de(response)
+        self.assertTrue(response._from_cache)
+
+    def test_accept_language_hr_fallback_to_en(self):
+        accept_language = "hr;q=0.8,en;q=0.3"
         response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_language)
-        self.assertItsCroatian(response)
+        redirected_url = "http://testserver/en/welcome/"
+        self.assertRedirect(response, url=redirected_url, status_code=302)
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
+        self.assertItsCroatian_with_en(response)
+
+    def test_accept_language_hr_fallback_to_de(self):
+        accept_language = "hr;q=0.8,de;q=0.3"
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_language)
+        redirected_url = "http://testserver/de/welcome/"
+        self.assertRedirect(response, url=redirected_url, status_code=302)
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
+        self.assertItsCroatian_with_de(response)
+
+    def test_accept_language_hr_fallback_to_default(self):
+        accept_language = "hr;q=0.8,xx;q=0.3"
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_language)
+        redirected_url = "http://testserver/en/welcome/"
+        self.assertRedirect(response, url=redirected_url, status_code=302)
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
+        self.assertItsCroatian_with_en(response)
 
     def test_use_first_supported(self):
         """
@@ -206,78 +291,65 @@ class TestI18nMoreLanguages(basetest.BaseMoreLanguagesTestCase):
         the first useable language is Croatian.
         """
         accept_language = "not-exist;q=0.9,pt-br;q=0.8,hr;q=0.8,en;q=0.3"
-
         response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_language)
-        self.assertItsCroatian(response)
+        redirected_url = "http://testserver/en/welcome/"
+        self.assertRedirect(response, url=redirected_url, status_code=302)
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
+        self.assertItsCroatian_with_en(response)
 
     def test_not_exist_language(self):
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="not-exist;q=0.9,ja;q=0.8")
-        self.failUnlessEqual(response.status_code, 200)
+        accept_language = "not-exist;q=0.9,ja;q=0.8"
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_language)
+        redirected_url = "http://testserver/en/welcome/"
+        self.assertRedirect(response, url=redirected_url, status_code=302)
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
         self.assertContentLanguage(response, self.default_language)
 
-    def test_fallback_language(self):
+    def test_fallback_language_anonymous(self):
         """
         "pt-br"  (Brazilian Portuguese) is not installed, but "pt" (Portuguese) exist.
         PyLucid must fallback to pt, even if it's not in accept language
+        
+        Anonymous users didn't get a information message, cause of not cacheable if messages exist
         """
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="not-exist;q=0.9,pt-br;q=0.8")
-        self.failUnlessEqual(response.status_code, 200)
+        accept_language = "not-exist;q=0.9,pt-br;q=0.8"
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_language)
+        redirected_url = "http://testserver/en/welcome/"
+        self.assertRedirect(response, url=redirected_url, status_code=302)
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
         self.assertContentLanguage(response, self.default_language)
         self.assertResponse(response,
             must_contain=(
                 '''<strong title="Current used language is 'Portuguese'.">Portuguese</strong>''',
-                'PageMeta welcome doesn&#39;t exist in client favored language Portuguese, use English entry.',
                 '>Entrar<', # 'Login in' translated in Portuguese 
             ),
             must_not_contain=("Traceback",)
         )
 
+    def test_fallback_language_user_information(self):
+        """
+        "pt-br"  (Brazilian Portuguese) is not installed, but "pt" (Portuguese) exist.
+        PyLucid must fallback to pt, even if it's not in accept language
+        """
+        self.login("normal") # users get a messages
 
-class TestLanguageDetection(basetest.BaseLanguageTestCase):
-    def setUp(self):
-        super(TestLanguageDetection, self).setUp()
-
-        cache.clear()
-        self.system_preferences = SystemPreferencesForm()
-        self.old_message_level = self.system_preferences["message_level_anonymous"]
-
-    def tearDown(self):
-        super(TestLanguageDetection, self).tearDown()
-        self.system_preferences["message_level_anonymous"] = self.old_message_level
-        self.system_preferences.save()
-        settings.DEBUG = False
-        settings.PYLUCID.I18N_DEBUG = False
-
-    def enable_debug(self):
-        settings.DEBUG = True
-        settings.PYLUCID.I18N_DEBUG = True
-        self.system_preferences["message_level_anonymous"] = message_constants.DEBUG
-        self.system_preferences.save()
-
-    def test_root_redirect_without_client_prefered_language(self):
-        response = self.client.get("/")
-        self.assertRedirect(response, url="http://testserver/en/welcome/", status_code=302)
-
-    def test_root_redirect_with_de_prefered_language(self):
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de")
-        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
-
-    def test_root_redirect_with_de_prefered_language(self):
-        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="es;de")
-        self.assertRedirect(response, url="http://testserver/de/welcome/", status_code=302)
-
-    def test_no_client_prefered_language(self):
-        response = self.client.get("/")
-        self.assertRedirect(response, url="http://testserver/en/welcome/", status_code=302)
-
-        self.enable_debug()
-
-        response = self.client.get("http://testserver/en/")
+        accept_language = "not-exist;q=0.9,pt-br;q=0.8"
+        response = self.client.get("/", HTTP_ACCEPT_LANGUAGE=accept_language)
+        redirected_url = "http://testserver/en/welcome/"
+        self.assertRedirect(response, url=redirected_url, status_code=302)
+        response = self.client.get(redirected_url, HTTP_ACCEPT_LANGUAGE=accept_language)
         self.assertContentLanguage(response, self.default_language)
         self.assertResponse(response,
-            must_contain=("XXXXX",),
-            must_not_contain=("Traceback", "Wrong language code", "Enter a valid language code")
+            must_contain=(
+                '<a href="?auth=logout">Sair [normal test user]</a>', # logout in Portuguese
+                '''<strong title="Current used language is 'Portuguese'.">Portuguese</strong>''',
+                'PageMeta welcome doesn&#39;t exist in client favored language Portuguese, use English entry.',
+            ),
+            must_not_contain=("Traceback",)
         )
+
+
+
 
 if __name__ == "__main__":
     # Run all unittest directly

@@ -385,9 +385,6 @@ def resolve_url(request, url_lang_code, url_path):
         new_url = "%s/%s" % (url_lang_code, url_path)
         return _i18n_redirect(request, url_path=new_url)
 
-    # Put the language from the url to first, if exists.
-    i18n.resort_languages(request, url_lang_code)
-
     # activate language via auto detection
     i18n.activate_auto_language(request)
 

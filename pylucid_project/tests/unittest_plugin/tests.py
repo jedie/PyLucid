@@ -129,6 +129,7 @@ class TestUnitestPluginPage(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
+        self.assertFalse(response._from_cache)
 
         # request page from cache, so not [two] -> old content with [one]
         client.cookies["test_messages"] = "two"
@@ -139,6 +140,7 @@ class TestUnitestPluginPage(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
+        self.assertTrue(response._from_cache)
 
     def test_non_caching_pages_with_messages(self):
         system_preferences = SystemPreferencesForm()
@@ -162,6 +164,7 @@ class TestUnitestPluginPage(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
+        self.assertFalse(response._from_cache)
 
         # Request from cache?
         client.cookies["test_messages"] = "two"
@@ -178,6 +181,7 @@ class TestUnitestPluginPage(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
+        self.assertFalse(response._from_cache)
 
     def test_MessageLevelMiddleware(self):
         url = self.url + "test_messages/"
@@ -326,7 +330,7 @@ class UnittestPluginCsrfTests(basetest.BaseUnittest):
             must_contain=("CSRF verification failed. Request aborted.",),
             must_not_contain=("Traceback",)
         )
-        self.failUnlessEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
     def test_post_csrf_no_decorator_view_with_token(self):
         # get the current csrf token
@@ -359,7 +363,7 @@ class UnittestPluginCsrfTests(basetest.BaseUnittest):
             must_contain=("CSRF verification failed. Request aborted.",),
             must_not_contain=("Traceback",)
         )
-        self.failUnlessEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
     def test_post_csrf_in_get_view_with_token(self):
         # get the current csrf token

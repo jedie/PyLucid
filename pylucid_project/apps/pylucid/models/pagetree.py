@@ -17,8 +17,7 @@ from django.contrib.auth.models import Group
 from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.sites.models import Site
 from django.core.cache import cache
-from django.core.exceptions import PermissionDenied
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
 from django.http import Http404
 from django.template.defaultfilters import slugify
@@ -168,7 +167,9 @@ class PageTreeManager(BaseModelManager):
                 msg += "This page %r doesn't exist in any languages???" % pagetree
             raise Http404(msg)
 
-        if tried_languages and show_lang_errors:
+        if tried_languages and show_lang_errors and (settings.DEBUG or request.user.is_authenticated()):
+            # We should not inform anonymous user, because the page
+            # would not caches, if messages exist!
             messages.info(request,
                 _(
                     "PageMeta %(slug)s doesn't exist in client"
