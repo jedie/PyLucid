@@ -43,7 +43,7 @@ class LanguagePluginTest(basetest.BaseLanguageTestCase):
         # first request must return default language
         response = self.client.get("/en/")
         self.assertContentLanguage(response, self.default_language)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         # Switch language must rediret to new url with new language code
         response = self.client.get("/en/?language=" + self.other_lang_code)
@@ -52,7 +52,7 @@ class LanguagePluginTest(basetest.BaseLanguageTestCase):
         # After language switch, we must get the switched language
         response = self.client.get("http://testserver/de/")
         self.assertContentLanguage(response, self.other_language)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
     def test_not_existing(self):
         """
@@ -60,7 +60,7 @@ class LanguagePluginTest(basetest.BaseLanguageTestCase):
         Note: "not-exist" is a valid language, see: django_tools.validators.validate_language_code
         """
         response = self.client.get("/en/?language=not-exist") # lang code is valid
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertContentLanguage(response, self.default_language)
 
         # No debug info should be present
@@ -73,7 +73,7 @@ class LanguagePluginTest(basetest.BaseLanguageTestCase):
         request a not existing language
         """
         response = self.client.get("/en/?language=wrong format!") # lang code is not valid
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertContentLanguage(response, self.default_language)
 
         # No debug info should be present

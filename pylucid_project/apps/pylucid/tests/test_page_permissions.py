@@ -56,7 +56,7 @@ class TestPagePermissions(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
     def test_no_permitViewGroup(self):
         """

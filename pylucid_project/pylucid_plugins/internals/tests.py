@@ -42,7 +42,7 @@ class ShowInternalsTest(BaseUnittest):
     def test_summary(self):
         self.login("superuser")
         response = self.client.get(self.url)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid - Show internals</title>',

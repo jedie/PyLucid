@@ -30,7 +30,7 @@ class SearchTest(BaseUnittest):
 
     def test_search(self):
         response = self.client.post("/?search=", data={"search": "PyLucid"})
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS - Advanced search</title>',
@@ -54,7 +54,7 @@ class SearchTest(BaseUnittest):
 
     def test_short_terms(self):
         response = self.client.post("/?search=", data={"search": "py foo bar"})
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
         csrf_token = csrf_cookie.value
@@ -84,7 +84,7 @@ class SearchTest(BaseUnittest):
 
     def test_no_search_term_left(self):
         response = self.client.post("/?search=", data={"search": "py xy z"})
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
         csrf_token = csrf_cookie.value

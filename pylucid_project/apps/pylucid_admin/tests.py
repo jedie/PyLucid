@@ -53,7 +53,7 @@ class PyLucidAdminTest(PyLucidAdminTestCase):
     def test_admin_index(self):
         self.login(usertype="superuser")
         response = self.client.get("/admin/")
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid - Site administration</title>',
@@ -72,7 +72,7 @@ class PyLucidAdminTest(PyLucidAdminTestCase):
     def test_install_plugins(self):
         self.login(usertype="superuser")
         response = self.client.get("/pylucid_admin/install/plugins/")
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid - PyLucid - Plugin install</title>',
@@ -145,7 +145,7 @@ class PyLucidPluginsTest(PyLucidAdminTestCase):
                 '<input type="submit" value="Log in" />',
             )
         )
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
     def assertPermissionDenied(self, url):
         response = self.client.get(url)

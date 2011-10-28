@@ -24,7 +24,7 @@ class AdminMenuTest(basetest.BaseUnittest):
         Admin menu must not in the page for anonymous users.
         """
         response = self.client.get("/")
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<a href="?auth=login"',
@@ -41,7 +41,7 @@ class AdminMenuTest(basetest.BaseUnittest):
         """
         self.login(usertype="superuser")
         response = self.client.get("/")
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<div class="PyLucidPlugins admin_menu" id="admin_menu_lucidTag">',

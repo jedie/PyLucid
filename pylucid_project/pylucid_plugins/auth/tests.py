@@ -83,7 +83,7 @@ class LoginTest(basetest.BaseUnittest):
         if only this test runs, why?
         """
         response = self.client.get("/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertDOM(response,
             must_contain=(
                 '<input id="submit_button" type="submit" value="Log in" />',
