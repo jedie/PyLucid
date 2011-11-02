@@ -4,7 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -14,11 +14,10 @@ from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.base_models.base_markup_model import MarkupBaseModel
 from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
-
 
 
 TAG_INPUT_HELP_URL = \

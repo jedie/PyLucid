@@ -28,17 +28,15 @@ from django.utils.translation import ugettext_lazy as _
 from django_tools import model_utils
 from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.middlewares import ThreadLocal
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
 from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
 from pylucid_project.base_models.permissions import PermissionsBase
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
-
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
-
 
 
 class PageTreeManager(BaseModelManager):

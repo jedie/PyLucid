@@ -23,17 +23,17 @@ from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
+from django_tools.models import UpdateInfoBaseModel
 
 # http://code.google.com/p/django-dbpreferences/
 from dbpreferences.fields import DictField
-
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 
 
 META_KEYS = (
     "REMOTE_ADDR", "REMOTE_USER", "REQUEST_METHOD", "QUERY_STRING",
     "HTTP_REFERER", "HTTP_USER_AGENT", "HTTP_ACCEPT_ENCODING", "HTTP_ACCEPT_LANGUAGE"
 )
+
 
 class LogEntryManager(models.Manager):
 

@@ -4,13 +4,7 @@
     PyLucid OpenStreetMap plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -27,11 +21,11 @@ from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.apps.pylucid.fields import MarkupModelField
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.base_models.many2many import AutoSiteM2M
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 
 from StreetMap.preference_forms import PreferencesForm
 

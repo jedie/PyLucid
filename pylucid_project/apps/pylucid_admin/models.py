@@ -11,23 +11,23 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from django_tools.middlewares import ThreadLocal
+from django_tools.models import UpdateInfoBaseModel
+from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeManager, TreeGenerator
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
-from django_tools.utils.messages import failsafe_message
 
 
 class PyLucidAdminManager(TreeManager):
     def get_tree_for_user(self, user):
         filtered_items = self.get_for_user(user)
-        tree = TreeGenerator(filtered_items)        
+        tree = TreeGenerator(filtered_items)
         #tree.debug()
 
         # Hide categories, if they has sub entry links        
         for node in tree.iter_flat_list():
             if not node.data["absolute_url"] and not node.subnodes:
-                node.visible=False
-        
+                node.visible = False
+
         return tree
 
     def get_for_user(self, user):
@@ -39,11 +39,11 @@ class PyLucidAdminManager(TreeManager):
         for item in all_items:
             access_permissions = item.get_permissions()
             superuser_only, permissions, must_staff = access_permissions
-                      
+
             if superuser_only == True and user.is_superuser != True:
                 continue
             if must_staff == True and user.is_staff != True:
-                continue         
+                continue
             if not user.has_perms(permissions):
                 continue
 

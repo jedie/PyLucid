@@ -4,7 +4,7 @@
     Gallery plugin
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -13,10 +13,10 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from django_tools.fields.sign_separated import SignSeparatedModelField
 from django_tools.fields.media_path import MediaPathModelField
+from django_tools.fields.sign_separated import SignSeparatedModelField
+from django_tools.models import UpdateInfoBaseModel
 
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.models import PageTree
 from pylucid_project.apps.pylucid.models import Language # import here against import loops
 

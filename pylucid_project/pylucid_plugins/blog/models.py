@@ -24,13 +24,13 @@ from tagging.models import Tag
 
 # http://code.google.com/p/django-tools/
 from django_tools.tagging_addon.fields import jQueryTagModelField
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.apps.pylucid.models import Language, PluginPage
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.base_models.base_markup_model import MarkupBaseModel
 from pylucid_project.base_models.many2many import AutoSiteM2M
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.pylucid_plugins import update_journal
 
 from blog.preference_forms import BlogPrefForm
