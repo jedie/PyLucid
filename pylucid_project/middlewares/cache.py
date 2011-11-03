@@ -108,7 +108,7 @@ class PyLucidUpdateCacheMiddleware(PyLucidCacheMiddlewareBase):
             # use default cache_timeout
             timeout = settings.CACHE_MIDDLEWARE_SECONDS
         elif timeout == 0:
-            logger.debug("Don't cache this page (timetout == 0)")
+            logger.debug("Don't cache this page (timeout == 0)")
             return response
 
         # Create a new HttpResponse for the cache, so we can skip existing
