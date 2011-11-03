@@ -158,17 +158,18 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
 
         page_plugin_response = pylucid_plugin.call_plugin(request, url_lang_code, prefix_url, rest_url)
 
-        if isinstance(page_plugin_response, http.HttpResponse):
-            # Plugin would be build the complete html page
-            response = _apply_context_middleware(request, page_plugin_response)
-            context["page_content"] = response.content
-            return response
-        elif page_plugin_response == None:
-            raise RuntimeError(
-                "PagePlugin has return None, but it must return a HttpResponse object or a basestring!"
-            )
-        # Plugin replace the page content
-        context["page_content"] = page_plugin_response
+        if page_plugin_response is not None: # Use plugin response
+            assert isinstance(page_plugin_response, http.HttpResponse), (
+                "Plugin view must return None or HttpResponse! (returned: %r)"
+            ) % type(page_plugin_response)
+
+            if getattr(page_plugin_response, "replace_main_content", False):
+                # Plugin replace the page content
+                context["page_content"] = page_plugin_response.content
+            else:
+                # Plugin would be build the complete html page
+                response = _apply_context_middleware(request, page_plugin_response)
+                return response
     else:
         # No PluginPage
         pagecontent_instance = _get_page_content(request)
