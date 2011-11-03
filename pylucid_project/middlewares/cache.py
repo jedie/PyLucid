@@ -118,7 +118,8 @@ class PyLucidUpdateCacheMiddleware(PyLucidCacheMiddlewareBase):
             status=200,
             content_type=response['Content-Type'],
         )
-        response2['Content-Language'] = response['Content-Language']
+        if response.has_header("Content-Language"):
+            response2['Content-Language'] = response['Content-Language']
         if settings.DEBUG or settings.RUN_WITH_DEV_SERVER:
             # Check if we store a {% csrf_token %} into the cache
             # This can't work ;)
