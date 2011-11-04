@@ -61,7 +61,7 @@ class SwitchDesignTest(basetest.BaseUnittest):
 
     def test_switch(self):
         # request root page before switch design
-        response = self.client.get("/")
+        response = self.client.get("/en/welcome/")
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>'
@@ -84,7 +84,7 @@ class SwitchDesignTest(basetest.BaseUnittest):
         )
 
         # request root page after design switch
-        response = self.client.get("/")
+        response = self.client.get("/en/welcome/")
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>'
@@ -97,7 +97,7 @@ class SwitchDesignTest(basetest.BaseUnittest):
         Design.objects.get(id=4).delete()
 
         # Should switch back to main design and give a page messages
-        response = self.client.get("/")
+        response = self.client.get("/en/welcome/")
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid CMS - Welcome to your PyLucid CMS =;-)</title>',
@@ -702,5 +702,5 @@ if __name__ == "__main__":
 
     management.call_command('test', tests,
         verbosity=2,
-        failfast=True
+#        failfast=True
     )

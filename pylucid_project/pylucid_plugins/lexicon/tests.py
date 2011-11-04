@@ -150,7 +150,7 @@ class LexiconPluginTest1(LexiconPluginTestCase):
         )
 
     def test_get_view(self):
-        response = self.client.get("/?lexicon=PyLucid CMS")
+        response = self.client.get("/en/welcome/?lexicon=PyLucid CMS")
         self.assertResponse(response,
             must_contain=(
                 'PyLucid CMS',
