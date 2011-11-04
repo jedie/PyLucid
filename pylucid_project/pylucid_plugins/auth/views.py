@@ -241,7 +241,7 @@ def _login_view(request):
 
     next_url = request.GET.get("next_url", request.path)
 
-    if "://" in next_url: # FIXME: How to validate this better?
+    if "//" in next_url: # FIXME: How to validate this better?
         # Don't redirect to other pages.
         debug_msg = "next url %r seems to be wrong!" % next_url
         return bad_request(debug_msg) # Return HttpResponseBadRequest
