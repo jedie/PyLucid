@@ -30,7 +30,7 @@ from pylucid_project.tests.test_tools import basetest
 from preference_forms import AuthPreferencesForm
 
 
-LOGIN_URL = "?auth=login"
+LOGIN_URL = "/en/welcome/?auth=login"
 
 
 class LoginTest(basetest.BaseUnittest):
@@ -39,7 +39,7 @@ class LoginTest(basetest.BaseUnittest):
         self.client = Client() # start a new session
 
     def test_login_link(self):
-        response = self.client.get("/")
+        response = self.client.get("/en/welcome/")
         self.assertDOM(response,
             must_contain=(
                 '''<a href="?auth=login" id="login_link" rel="nofollow" onclick="return get_pylucid_ajax_view('?auth=login');">Log in</a>''',
@@ -82,7 +82,7 @@ class LoginTest(basetest.BaseUnittest):
         FIXME: We get no ajax response, if unittests runs all tests, but it works
         if only this test runs, why?
         """
-        response = self.client.get("/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.get("/en/welcome/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertStatusCode(response, 200)
         self.assertDOM(response,
             must_contain=(
