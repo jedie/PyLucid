@@ -125,7 +125,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
                 "XXX INVALID TEMPLATE STRING"
             )
         )
-        response = self.client.get("/")
+        response = self.client.get("/en/welcome/")
         self.assertResponse(response,
             must_contain=('XXX replaced XXX',),
             must_not_contain=(
