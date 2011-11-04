@@ -27,7 +27,7 @@ class AdminMenuTest(basetest.BaseUnittest):
         self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
-                '<a href="?auth=login"',
+                'Log in</a>',
             ),
             must_not_contain=("Traceback",
                 '<div class="PyLucidPlugins admin_menu" id="admin_menu_lucidTag">',

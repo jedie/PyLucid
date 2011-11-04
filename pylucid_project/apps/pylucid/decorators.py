@@ -10,6 +10,7 @@
 
 import sys
 import warnings
+from pylucid_project.apps.pylucid.shortcuts import bad_request
 try:
     from functools import wraps
 except ImportError:
@@ -122,6 +123,24 @@ def superuser_only(view_function):
         if not request.user.is_superuser:
             raise PermissionDenied
         return view_function(request, *args, **kwargs)
+    return _inner
+
+
+def check_request(app_label, action, must_post=False, must_ajax=False):
+    assert (must_post or must_ajax), "must_post or must_ajax must be set to True!"
+    def _inner(view_function):
+        @wraps(view_function)
+        def _wrapper(request, *args, **kwargs):
+            if must_post and request.method != 'POST':
+                return bad_request(app_label=app_label, action=action,
+                    debug_msg="request method %r wrong, only POST allowed" % request.method
+                )
+            if must_ajax and request.is_ajax() != True:
+                return bad_request(app_label=app_label, action=action,
+                    debug_msg="request is not a ajax request"
+                )
+            return view_function(request, *args, **kwargs)
+        return _wrapper
     return _inner
 
 

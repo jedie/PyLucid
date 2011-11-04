@@ -46,10 +46,7 @@ jQuery(document).ready(function($) {
     $("#id_username").focus();
 
 	// remove old page_msg, if exist
-	log("is_ajax: '{{ is_ajax }}'");
-	if ("{{ is_ajax }}" == "True") {
-		$("#page_msg").slideUp();
-	}
+	$("#page_msg").slideUp();
 
 	$("#id_username").change(function() {
 		// if the username change, we must get a new salt from server.

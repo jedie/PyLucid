@@ -13,18 +13,16 @@
 
 
 import os
-from django.http import HttpResponse
 
 
 if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
+from django.core.cache import cache
 from django.conf import settings
 from django.test.client import Client
-from django_tools.unittest_utils import unittest_base, BrowserDebug
 
-from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.tests.test_tools import basetest
 
 from preference_forms import AuthPreferencesForm
@@ -42,7 +40,7 @@ class LoginTest(basetest.BaseUnittest):
         response = self.client.get("/en/welcome/")
         self.assertDOM(response,
             must_contain=(
-                '''<a href="?auth=login" id="login_link" rel="nofollow" onclick="return get_pylucid_ajax_view('?auth=login');">Log in</a>''',
+                '''<a href="#top" id="login_link" rel="nofollow" onclick="return get_pylucid_ajax_view('?auth=login');">Log in</a>''',
             )
         )
 
@@ -59,30 +57,29 @@ class LoginTest(basetest.BaseUnittest):
         response = self.client.get("/pylucid_admin/menu/", HTTP_ACCEPT_LANGUAGE="en")
         self.assertRedirect(response, "http://testserver/admin/?next=/pylucid_admin/menu/")
 
-    def test_login_get_form(self):
-        """ Simple check if login link exist. """
+    def test_non_ajax_request(self):
+        settings.DEBUG = True
+        cache.clear()
         response = self.client.get(LOGIN_URL)
-        self.assertDOM(response,
-            must_contain=(
-                '<input id="submit_button" type="submit" value="Log in" />',
-            )
-        )
         self.assertResponse(response,
             must_contain=(
-                '<title>PyLucid CMS',
-                "JS-SHA-LogIn", "username", "var challenge=",
+                "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- a complete page
+                "Ignore login request, because it&#39;s not AJAX.", # debug page messages
             ),
             must_not_contain=(
-                "Traceback", 'Permission denied'
+                "Traceback", 'Permission denied',
+                '<div class="PyLucidPlugins auth" id="auth_http_get_view">',
+                "JS-SHA-LogIn", "username", "var challenge=",
             ),
         )
+        settings.DEBUG = False
 
     def test_login_ajax_form(self):
         """ Check if we get the login form via AJAX
         FIXME: We get no ajax response, if unittests runs all tests, but it works
         if only this test runs, why?
         """
-        response = self.client.get("/en/welcome/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.get(LOGIN_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertStatusCode(response, 200)
         self.assertDOM(response,
             must_contain=(
@@ -109,8 +106,8 @@ class LoginTest(basetest.BaseUnittest):
 #        self.login("normal")
 #        client.logout()
 
-        # Get the login form: The channenge value would be stored into settion
-        self.test_login_get_form()
+        # Get the login form: The challenge value would be stored into session
+        client.get("/en/welcome/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.failUnless("challenge" in client.session)
 
         pref_form = AuthPreferencesForm()
@@ -126,10 +123,11 @@ class LoginTest(basetest.BaseUnittest):
         for no in xrange(1, ban_limit + 3):
             # get the salt
             response1 = client.post(
-                "/?auth=get_salt", {"username": username}, HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+                "/en/welcome/?auth=get_salt", {"username": username}, HTTP_X_REQUESTED_WITH='XMLHttpRequest'
             )
+
             response2 = client.post(
-                "/?auth=sha_auth",
+                "/en/welcome/?auth=sha_auth",
                 {
                     "username": username,
                     "sha_a2": "0123456789abcdef0123456789abcdef01234567",
@@ -139,7 +137,9 @@ class LoginTest(basetest.BaseUnittest):
             )
 
             if no == 1:
-                # first request, normal failed 
+                # first request, normal failed
+                self.assertStatusCode(response1, 200)
+                self.assertStatusCode(response2, 200)
                 tested_first_login = True
                 self.failUnless(len(response1.content) == 5) # the salt          
                 self.assertResponse(response2,
@@ -161,11 +161,13 @@ class LoginTest(basetest.BaseUnittest):
             elif no > ban_limit:
                 # IP is on the ban list
                 tested_limit_reached = True
-                self.assertStatusCode(response2, 403) # get forbidden page
                 self.assertStatusCode(response1, 403) # get forbidden page
+                self.assertStatusCode(response2, 403) # get forbidden page
             else:
                 # under ban limit: comment was saved, page should be reloaded
                 tested_under_limit = True
+                self.assertStatusCode(response1, 200)
+                self.assertStatusCode(response2, 200)
                 self.failUnless(len(response1.content) == 5) # the salt
                 self.assertResponse(response2,
                     must_contain=(
@@ -194,14 +196,15 @@ class LoginTest(basetest.BaseUnittest):
         csrf_client = Client(enforce_csrf_checks=True)
 
         # Create session
-        response = csrf_client.get("/?auth=login",
+        response = csrf_client.get(LOGIN_URL,
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
+        self.assertStatusCode(response, 200)
         sessionid = response.cookies["sessionid"]
 
         # send POST with sessionid but with wrong csrf token
         response = csrf_client.post(
-            "/?auth=get_salt",
+            "/en/welcome/?auth=get_salt",
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             HTTP_COOKIE=(
                 "%s=1234567890abcdef1234567890abcdef;"
@@ -235,12 +238,14 @@ class LoginTest(basetest.BaseUnittest):
 
         csrf_client = Client(enforce_csrf_checks=True)
 
-        response = csrf_client.get("/") # Put page into cache
+        response = csrf_client.get("/en/welcome/") # Put page into cache
+        self.assertStatusCode(response, 200)
 
         # Get the CSRF token
-        response = csrf_client.get("/?auth=login",
+        response = csrf_client.get(LOGIN_URL,
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
+        self.assertStatusCode(response, 200)
         csrf_cookie = response.cookies[settings.CSRF_COOKIE_NAME]
         csrf_token = csrf_cookie.value
 
@@ -257,7 +262,7 @@ class LoginTest(basetest.BaseUnittest):
 
         # Check if we get the salt, insted of a CSRF error
         response = csrf_client.post(
-            "/?auth=get_salt",
+            "/en/welcome/?auth=get_salt",
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             HTTP_X_CSRFTOKEN=csrf_token,
             data={
@@ -272,7 +277,7 @@ class LoginTest(basetest.BaseUnittest):
         # remove client cookie and check if csrf protection works
         del(csrf_client.cookies[settings.CSRF_COOKIE_NAME])
         response = csrf_client.post(
-            "/?auth=get_salt",
+            "/en/welcome/?auth=get_salt",
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             data={
                 "username": username,

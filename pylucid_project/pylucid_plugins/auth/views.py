@@ -5,7 +5,7 @@
     PyLucid JS-SHA-Login
     ~~~~~~~~~~~~~~~~~~~~
     
-    A secure JavaScript SHA-1 Login and a plaintext fallback login.
+    A secure JavaScript SHA-1 AJAX Login.
     
     :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
@@ -14,13 +14,12 @@
 
 from django.conf import settings
 from django.contrib import auth, messages
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
-from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response, \
-    bad_request
+from pylucid_project.apps.pylucid.shortcuts import bad_request, ajax_response
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.utils import crypt
 
@@ -28,6 +27,10 @@ from pylucid_project.utils import crypt
 from forms import WrongUserError, UsernameForm, ShaLoginForm
 from preference_forms import AuthPreferencesForm
 from django.views.decorators.csrf import requires_csrf_token, csrf_protect
+from pylucid_project.apps.pylucid.decorators import check_request
+
+
+APP_LABEL = "pylucid_plugin.auth"
 
 
 # DEBUG is usefull for debugging. It send always the same challenge "12345" 
@@ -52,16 +55,6 @@ def _get_challenge(request):
     request.session["challenge"] = challenge
 
     return challenge
-
-
-def _is_post_ajax_request(request):
-    if not request.is_ajax():
-        debug_msg = "request is not a ajax request"
-        return bad_request(debug_msg)
-
-    if request.method != 'POST':
-        debug_msg = "request method %r wrong, only POST allowed" % request.method
-        return bad_request(debug_msg)
 
 
 def lucidTag(request):
@@ -121,25 +114,22 @@ def _wrong_login(request, debug_msg, user=None):
     return HttpResponse(response, content_type="text/plain")
 
 
+@check_request(app_label="pylucid_plugin.auth", action="_sha_auth() error", must_post=True, must_ajax=True)
 @csrf_protect
 def _sha_auth(request):
     """
     login the user with username and sha values.
     """
-    response = _is_post_ajax_request(request)
-    if response is not None: # It's not a Ajax POST request
-        return response # Return HttpResponseBadRequest
-
     form = ShaLoginForm(request.POST)
     if not form.is_valid():
         debug_msg = "ShaLoginForm is not valid: %r" % form.errors
-        return bad_request(debug_msg)
+        return bad_request(APP_LABEL, "_sha_auth() error", debug_msg)
 
     try:
         challenge = request.session.pop("challenge")
     except KeyError, err:
         debug_msg = "Can't get 'challenge' from session: %s" % err
-        return bad_request(debug_msg)
+        return bad_request(APP_LABEL, "_sha_auth() error", debug_msg)
 
     try:
         user1, user_profile = form.get_user_and_profile()
@@ -182,16 +172,13 @@ def _sha_auth(request):
         return HttpResponse("OK", content_type="text/plain")
 
 
+@check_request(app_label="pylucid_plugin.auth", action="_get_salt() error", must_post=True, must_ajax=True)
 @csrf_protect
 def _get_salt(request):
     """
     return the user password salt.
     If the user doesn't exist or is not active, return a pseudo salt.
     """
-    response = _is_post_ajax_request(request)
-    if response is not None: # It's not a Ajax POST request
-        return response # Return HttpResponseBadRequest
-
     user_profile = None
     form = UsernameForm(request.POST)
     if form.is_valid():
@@ -235,16 +222,22 @@ def _login_view(request):
     if DEBUG:
         print("auth debug mode is on!")
 
+    if not request.is_ajax():
+        # Do nothing, if it's not a ajax request.
+        if settings.DEBUG:
+            messages.error(request, "Ignore login request, because it's not AJAX.")
+        return
+
     if request.method != 'GET':
         debug_msg = "request method %r wrong, only GET allowed" % request.method
-        return bad_request(debug_msg) # Return HttpResponseBadRequest
+        return bad_request(APP_LABEL, "_login_view() error", debug_msg) # Return HttpResponseBadRequest
 
     next_url = request.GET.get("next_url", request.path)
 
     if "//" in next_url: # FIXME: How to validate this better?
         # Don't redirect to other pages.
         debug_msg = "next url %r seems to be wrong!" % next_url
-        return bad_request(debug_msg) # Return HttpResponseBadRequest
+        return bad_request(APP_LABEL, "_login_view() error", debug_msg) # Return HttpResponseBadRequest
 
     form = ShaLoginForm()
 
@@ -252,7 +245,6 @@ def _login_view(request):
     challenge = _get_challenge(request)
 
     context = {
-        "is_ajax": request.is_ajax(),
         "challenge": challenge,
         "salt_len": crypt.SALT_LEN,
         "hash_len": crypt.HASH_LEN,
@@ -271,7 +263,7 @@ def _login_view(request):
     request.META["CSRF_COOKIE_USED"] = True
 
     # return a string for replacing the normal cms page content
-    return render_pylucid_response(request, 'auth/sha_form.html', context, context_instance=RequestContext(request))
+    return ajax_response(request, 'auth/sha_form.html', context, context_instance=RequestContext(request))
 
 
 def _logout_view(request):
@@ -298,6 +290,6 @@ def http_get_view(request):
         return _logout_view(request)
     else:
         debug_msg = "Wrong get view parameter!"
-        return bad_request(debug_msg) # Return HttpResponseBadRequest
+        return bad_request(APP_LABEL, "http_get_view() error", debug_msg) # Return HttpResponseBadRequest
 
 
