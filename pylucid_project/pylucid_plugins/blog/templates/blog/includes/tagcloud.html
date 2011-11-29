@@ -5,7 +5,7 @@
     {% if tag.name in used_tags %}
         <strong style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</strong>
     {% else %}
-        <a href="{% url Blog-tag_view tags=tag.name %}" style="font-size:{{ tag.font_size }}em;">{{ tag.name }}</a>
+        <a href="{% url Blog-tag_view tags=tag.name %}" style="font-size:{{ tag.font_size }}em;" rel="nofollow">{{ tag.name }}</a>
     {% endif %}
     
     {% if add_tag_filter_link %}

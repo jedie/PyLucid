@@ -59,6 +59,30 @@ def get_formatter():
     )
     return formatter
 
+
+def get_lexer(source_type, sourcecode):
+    errors = []
+    try:
+        if source_type == "":
+            return lexers.guess_lexer(sourcecode)
+        else:
+            return lexers.get_lexer_by_name(source_type)
+    except lexers.ClassNotFound, err:
+        errors.append(err)
+
+    try: # try if given source_type is a filename
+        return lexers.get_lexer_for_filename(source_type, sourcecode)
+    except lexers.ClassNotFound, err:
+        errors.append(err)
+
+    try: # try if given source_type is a mimetype
+        return lexers.get_lexer_for_mimetype(source_type)
+    except lexers.ClassNotFound, err:
+        errors.append(err)
+
+    raise lexers.ClassNotFound(",\n ".join([str(err) for err in errors]))
+
+
 def pygmentize(sourcecode, source_type):
     """
     returned html-code and the lexer_name
@@ -68,13 +92,10 @@ def pygmentize(sourcecode, source_type):
         html = no_hightlight(sourcecode)
         return html, lexer_name
 
-    ext = source_type.lower().strip("'\" ").lstrip(".")
+    source_type = source_type.lower().strip("'\" ").lstrip(".")
 
     try:
-        if ext == "":
-            lexer = lexers.guess_lexer(sourcecode)
-        else:
-            lexer = lexers.get_lexer_by_name(ext)
+        lexer = get_lexer(source_type, sourcecode)
     except lexers.ClassNotFound, err:
         info = _("unknown type")
         lexer_name = u'<small title="%s">%s</small>' % (err, info)

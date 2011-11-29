@@ -8,10 +8,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.managers import CurrentSiteManager
 
 from django_tools.fields.url import URLModelField2
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.apps.pylucid.models import Language
 from pylucid_project.base_models.base_models import BaseModel
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 
 
 class UpdateJournal(BaseModel):

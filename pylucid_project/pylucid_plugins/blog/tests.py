@@ -306,7 +306,7 @@ class BlogPluginTest(BlogPluginTestCase):
         """
         self.login_with_blog_add_permissions()
         response = self.client.get(CREATE_URL)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid - Create a new blog entry</title>',
@@ -372,7 +372,7 @@ class BlogPluginTest(BlogPluginTestCase):
     def test_markup_preview_ids(self):
         self.login_with_blog_add_permissions()
         response = self.client.get(CREATE_URL)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<fieldset id="preview_id_content">',
@@ -517,7 +517,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
     def test_update_journal_de(self):
         # Check if listed in update journal
         response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="de")
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '(blog entry)',
@@ -530,7 +530,7 @@ class BlogPluginArticleTest(BlogPluginTestCase):
     def test_update_journal_en(self):
         # Check if listed in update journal
         response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="en")
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '(blog entry)',

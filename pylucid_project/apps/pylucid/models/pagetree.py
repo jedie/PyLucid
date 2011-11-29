@@ -17,8 +17,7 @@ from django.contrib.auth.models import Group
 from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.sites.models import Site
 from django.core.cache import cache
-from django.core.exceptions import PermissionDenied
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
 from django.http import Http404
 from django.template.defaultfilters import slugify
@@ -29,17 +28,15 @@ from django.utils.translation import ugettext_lazy as _
 from django_tools import model_utils
 from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.middlewares import ThreadLocal
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
 from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
 from pylucid_project.base_models.permissions import PermissionsBase
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
-
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
-
 
 
 class PageTreeManager(BaseModelManager):
@@ -168,7 +165,9 @@ class PageTreeManager(BaseModelManager):
                 msg += "This page %r doesn't exist in any languages???" % pagetree
             raise Http404(msg)
 
-        if tried_languages and show_lang_errors:
+        if tried_languages and show_lang_errors and (settings.DEBUG or request.user.is_authenticated()):
+            # We should not inform anonymous user, because the page
+            # would not caches, if messages exist!
             messages.info(request,
                 _(
                     "PageMeta %(slug)s doesn't exist in client"

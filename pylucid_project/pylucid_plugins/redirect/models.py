@@ -4,7 +4,8 @@ from django import http
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
+from django_tools.models import UpdateInfoBaseModel
+
 from pylucid_project.apps.pylucid.models import PageTree
 
 

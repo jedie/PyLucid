@@ -16,14 +16,13 @@
 import os
 import logging
 
-
 if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
-
 from django.conf import settings
 from django.contrib.messages import constants as message_constants
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.utils.log import getLogger
@@ -57,8 +56,8 @@ class TestUnitestPlugin(basetest.BaseUnittest):
         )
 
     def test_anonymous(self):
-        self.login("superuser")
-        response = self.client.get("/?unittest_plugin=MSG_ERROR")
+        cache.clear() # page message can be only see, if cache not used!
+        response = self.client.get("/en/welcome/?unittest_plugin=MSG_ERROR")
 #        response = self.client.get("/pylucid_admin/plugins/internals/show_internals/")
         self.assertResponse(response,
             must_contain=("<html", "A error messages"),
@@ -129,6 +128,7 @@ class TestUnitestPluginPage(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
+        self.assertFalse(response._from_cache)
 
         # request page from cache, so not [two] -> old content with [one]
         client.cookies["test_messages"] = "two"
@@ -139,6 +139,7 @@ class TestUnitestPluginPage(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
+        self.assertTrue(response._from_cache)
 
     def test_non_caching_pages_with_messages(self):
         system_preferences = SystemPreferencesForm()
@@ -162,6 +163,7 @@ class TestUnitestPluginPage(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
+        self.assertFalse(response._from_cache)
 
         # Request from cache?
         client.cookies["test_messages"] = "two"
@@ -178,6 +180,7 @@ class TestUnitestPluginPage(basetest.BaseUnittest):
             ),
             must_not_contain=("Traceback",)
         )
+        self.assertFalse(response._from_cache)
 
     def test_MessageLevelMiddleware(self):
         url = self.url + "test_messages/"
@@ -326,7 +329,7 @@ class UnittestPluginCsrfTests(basetest.BaseUnittest):
             must_contain=("CSRF verification failed. Request aborted.",),
             must_not_contain=("Traceback",)
         )
-        self.failUnlessEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
     def test_post_csrf_no_decorator_view_with_token(self):
         # get the current csrf token
@@ -347,27 +350,27 @@ class UnittestPluginCsrfTests(basetest.BaseUnittest):
     #--------------------------------------------------------------------------
 
     def test_get_csrf_in_get_view(self):
-        response = self.csrf_client.get("/?unittest_plugin=csrf_test")
+        response = self.csrf_client.get("/en/welcome/?unittest_plugin=csrf_test")
         self.assertResponse(response,
             must_contain=("<dt>view name</dt><dd>csrf get view</dd>",),
             must_not_contain=("Traceback",)
         )
 
     def test_post_csrf_in_get_view_without_token(self):
-        response = self.csrf_client.post("/?unittest_plugin=csrf_test")
+        response = self.csrf_client.post("/en/welcome/?unittest_plugin=csrf_test")
         self.assertResponse(response,
             must_contain=("CSRF verification failed. Request aborted.",),
             must_not_contain=("Traceback",)
         )
-        self.failUnlessEqual(response.status_code, 403)
+        self.assertStatusCode(response, 403)
 
     def test_post_csrf_in_get_view_with_token(self):
         # get the current csrf token
-        csrf_token = self.request_csrf_token("/?unittest_plugin=csrf_test")
+        csrf_token = self.request_csrf_token("/en/welcome/?unittest_plugin=csrf_test")
 
         # send a POST with csrf token
         response = self.csrf_client.post(
-            "/?unittest_plugin=csrf_test",
+            "/en/welcome/?unittest_plugin=csrf_test",
             data={"csrfmiddlewaretoken": csrf_token}
         )
         self.assertResponse(response,
@@ -384,12 +387,13 @@ if __name__ == "__main__":
     # Run all unittest directly   
     from django.core import management
 
+    tests = __file__
 #    tests = "pylucid_project.pylucid_plugins.unittest_plugin.tests"
 #    tests = "pylucid_project.pylucid_plugins.unittest_plugin.tests.UnittestPluginCsrfTests"
 #    tests = "pylucid_project.pylucid_plugins.unittest_plugin.tests.TestUnitestPlugin.test_if_plugin_exists"
-    tests = "pylucid_project.pylucid_plugins.unittest_plugin.tests.TestUnitestPluginPage"
+#    tests = "pylucid_project.pylucid_plugins.unittest_plugin.tests.TestUnitestPluginPage"
 
     management.call_command('test', tests,
         verbosity=2,
-#        failfast=True
+        failfast=True
     )

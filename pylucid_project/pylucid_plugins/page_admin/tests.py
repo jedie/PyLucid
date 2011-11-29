@@ -124,7 +124,7 @@ class PageAdminTest(PageAdminTestCase):
         """
         self.login_with_permissions(ADD_CONTENT_PERMISSIONS)
         response = self.client.get(CREATE_CONTENT_PAGE_URL)
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
         csrf_token = csrf_cookie.value
@@ -420,7 +420,7 @@ class PageAdminInlineEditTest(PageAdminTestCase):
         self.login_with_permissions(CHANGE_CONTENT_PERMISSIONS)
 
         response = self.client.get(INLINE_EDIT_PAGE_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
         csrf_cookie = response.cookies.get(settings.CSRF_COOKIE_NAME, False)
         csrf_token = csrf_cookie.value
@@ -471,7 +471,7 @@ class PageAdminInlineEditTest(PageAdminTestCase):
             {"content": "A **creole** //preview//!", "preview": True},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest'
         )
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
         self.failUnlessEqual(
             response.content,
             '<p>A <strong>creole</strong> <i>preview</i>!</p>'

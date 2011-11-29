@@ -11,12 +11,20 @@ print &quot;Python is cool!&quot;
 
 </pre></div>
 </td></tr></table></fieldset>
-<p>result:<br />
-<fieldset class="pygments_code">
-<legend class="pygments_code">Python</legend><table class="pygmentstable"><tr><td class="linenos"><pre>1</pre></td><td class="code"><div class="pygments"><pre><span class="k">print</span> <span class="s">&quot;Python is cool!&quot;</span>
-</pre></div>
-</td></tr></table></fieldset>
+
+<ul>
+    You can pass the follow types to the <strong>ext=</strong> argument:
+    <li>file extension - e.g.: ext=".sh"</li>
+    <li>filename - e.g.: ext="apache.conf"</li>
+    <li>mimetype - e.g.: ext="text/x-python-doctest"</li>
+</ul>
+See also <a href="http://pygments.org/docs/lexers/" class="openinwindow">existing pygments lexers</a>.
 </p>
+
+<p>result:</p>
+{% sourcecode ext=".py" %}
+print "Python is cool!"
+{% endsourcecode %}
 
 <p><strong>Info:</strong></p>
 
@@ -25,4 +33,4 @@ print &quot;Python is cool!&quot;
     <li>You didn't see the result in "markup preview"!</li>
 </ul>
 
-<p>more info, on PyLucid homepage: <a href="http://www.pylucid.org/permalink/309/highlight-source-code">highlight source code</a></p>
+<p>more info, on PyLucid homepage: <a href="http://www.pylucid.org/permalink/309/highlight-source-code" class="openinwindow">highlight source code</a></p>

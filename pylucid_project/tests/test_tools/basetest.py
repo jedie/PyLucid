@@ -18,12 +18,15 @@ if __name__ == "__main__":
 
 from django import forms
 from django.conf import settings
-from django.test import TestCase
+from django.contrib.messages import constants as message_constants
 from django.contrib.sites.models import Site
+from django.core.cache import cache
+from django.test import TestCase
 from django.utils.html import conditional_escape
 
 from django_tools.unittest_utils.unittest_base import BaseTestCase
 
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.models import PageTree, Language
 
 
@@ -107,7 +110,7 @@ class BaseUnittest(BaseTestCase, TestCase):
             ),
             must_not_contain=("Traceback",)
         )
-        self.failUnlessEqual(response.status_code, 200)
+        self.assertStatusCode(response, 200)
 
     def assertAtomFeed(self, response, language_code):
         # application/atom+xml; charset=utf8 -> application/atom+xml
@@ -178,9 +181,32 @@ class BaseLanguageTestCase(BaseUnittest):
     """
     Contains some language helper stuff.    
     """
+    def tearDown(self):
+        super(BaseLanguageTestCase, self).tearDown()
+        if self.system_preferences is not None:
+            # revert changes from self.enable_i18n_debug()
+            self.system_preferences["message_level_anonymous"] = self.old_message_level
+            self.system_preferences.save()
+        settings.DEBUG = False
+        settings.PYLUCID.I18N_DEBUG = False
+
+    def enable_i18n_debug(self):
+        """
+        enable DEBUG, PYLUCID.I18N_DEBUG and set message_level_anonymous to DEBUG.
+        """
+        cache.clear()
+        self.system_preferences = SystemPreferencesForm()
+        self.old_message_level = self.system_preferences["message_level_anonymous"]
+        self.system_preferences["message_level_anonymous"] = message_constants.DEBUG
+        self.system_preferences.save()
+        settings.DEBUG = True
+        settings.PYLUCID.I18N_DEBUG = True
+
     def _pre_setup(self, *args, **kwargs):
         """ create some language related attributes """
         super(BaseLanguageTestCase, self)._pre_setup(*args, **kwargs)
+
+        self.system_preferences = None # used in enable_i18n_debug() and tearDown()
 
         # default language is defined with settings.LANGUAGE_CODE
         self.default_language = Language.objects._get_default_language()

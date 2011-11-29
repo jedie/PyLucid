@@ -9,7 +9,7 @@
         - PyLucid initial data contains english and german pages.
         - related test in pylucid/tests/test_i18n.py
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -19,10 +19,8 @@ if __name__ == "__main__":
     # run all unittest directly
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
-from django.conf import settings
 
 from pylucid_project.tests.test_tools import basetest
-from pylucid_project.apps.pylucid.models import Language
 
 
 class LanguagePluginTest(basetest.BaseLanguageTestCase):
@@ -43,26 +41,26 @@ class LanguagePluginTest(basetest.BaseLanguageTestCase):
         the default language should be returned
         """
         # first request must return default language
-        response = self.client.get("/")
-        self.failUnlessEqual(response.status_code, 200)
+        response = self.client.get("/en/")
         self.assertContentLanguage(response, self.default_language)
+        self.assertStatusCode(response, 200)
 
         # Switch language must rediret to new url with new language code
-        response = self.client.get("/?language=" + self.other_lang_code)
+        response = self.client.get("/en/?language=" + self.other_lang_code)
         self.assertRedirect(response, url="http://testserver/de/", status_code=302)
 
         # After language switch, we must get the switched language
-        response = self.client.get("/")
-        self.failUnlessEqual(response.status_code, 200)
+        response = self.client.get("http://testserver/de/")
         self.assertContentLanguage(response, self.other_language)
+        self.assertStatusCode(response, 200)
 
     def test_not_existing(self):
         """
         request a not existing language
         Note: "not-exist" is a valid language, see: django_tools.validators.validate_language_code
         """
-        response = self.client.get("/?language=not-exist") # lang code is valid
-        self.failUnlessEqual(response.status_code, 200)
+        response = self.client.get("/en/?language=not-exist") # lang code is valid
+        self.assertStatusCode(response, 200)
         self.assertContentLanguage(response, self.default_language)
 
         # No debug info should be present
@@ -74,8 +72,8 @@ class LanguagePluginTest(basetest.BaseLanguageTestCase):
         """
         request a not existing language
         """
-        response = self.client.get("/?language=wrong format!") # lang code is not valid
-        self.failUnlessEqual(response.status_code, 200)
+        response = self.client.get("/en/?language=wrong format!") # lang code is not valid
+        self.assertStatusCode(response, 200)
         self.assertContentLanguage(response, self.default_language)
 
         # No debug info should be present
@@ -84,14 +82,15 @@ class LanguagePluginTest(basetest.BaseLanguageTestCase):
         )
 
 
-#__test__ = {"doctest": """
-#Another way to test that 1 + 1 is equal to 2.
-#
-#>>> 1 + 1 == 2
-#True
-#"""}
-
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-    management.call_command('test', __file__, verbosity=1)
+
+    tests = __file__
+#    tests = "pylucid_plugins.language.tests.LanguagePluginTest"
+#    tests = "pylucid_plugins.language.tests.LanguagePluginTest.test_wrong_format"
+
+    management.call_command('test', tests,
+        verbosity=2,
+        failfast=True
+    )

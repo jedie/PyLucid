@@ -5,7 +5,7 @@
     PyLucid unittests
     ~~~~~~~~~~~~~~~~~
     
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -23,11 +23,11 @@ class AdminMenuTest(basetest.BaseUnittest):
         """
         Admin menu must not in the page for anonymous users.
         """
-        response = self.client.get("/")
-        self.failUnlessEqual(response.status_code, 200)
+        response = self.client.get("/en/welcome/")
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
-                '<a href="?auth=login"',
+                'Log in</a>',
             ),
             must_not_contain=("Traceback",
                 '<div class="PyLucidPlugins admin_menu" id="admin_menu_lucidTag">',
@@ -40,8 +40,8 @@ class AdminMenuTest(basetest.BaseUnittest):
         Admin menu must be in the page, if the user is logged in.
         """
         self.login(usertype="superuser")
-        response = self.client.get("/")
-        self.failUnlessEqual(response.status_code, 200)
+        response = self.client.get("/en/welcome/")
+        self.assertStatusCode(response, 200)
         self.assertResponse(response,
             must_contain=(
                 '<div class="PyLucidPlugins admin_menu" id="admin_menu_lucidTag">',

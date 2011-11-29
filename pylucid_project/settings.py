@@ -102,12 +102,12 @@ MIDDLEWARE_CLASSES = (
 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 
     'pylucid_project.middlewares.cache.PyLucidFetchFromCacheMiddleware',
     'pylucid_project.middlewares.cache.PyLucidUpdateCacheMiddleware',
 
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 

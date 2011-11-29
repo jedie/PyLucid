@@ -97,6 +97,9 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
 
     request.PYLUCID.pagemeta = pagemeta
 
+    # Changeable by plugin/get view or will be removed with PageContent instance
+    request.PYLUCID.updateinfo_object = pagemeta
+
     # object2comment - The Object used to attach a pylucid_comment
     # should be changed in plugins, e.g.: details views in blog, lexicon plugins
     request.PYLUCID.object2comment = pagemeta
@@ -128,64 +131,56 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Get all plugin context middlewares from the template and add them to the context
     pylucid_plugin.context_middleware_request(request)
 
+    context["page_content"] = None # it will be filled either by plugin or by PageContent 
+
+
     # call a pylucid plugin "html get view", if exist
-    get_view_replace_content = False
     get_view_response = PYLUCID_PLUGINS.call_get_views(request)
-    if get_view_response is not None: # Use plugin response
-        assert isinstance(get_view_response, http.HttpResponse), (
-            "Plugin get view must return None or HttpResponse! (returned: %r)"
+    if isinstance(get_view_response, http.HttpResponse):
+        # Plugin would be build the complete html page
+        response = _apply_context_middleware(request, get_view_response)
+        return response
+    elif isinstance(get_view_response, basestring):
+        # Plugin replace the page content
+        context["page_content"] = get_view_response
+    elif get_view_response is not None: # Use plugin response
+        raise TypeError(
+            "Plugin view must return None or basestring or HttpResponse! (returned: %r)"
         ) % type(get_view_response)
 
-        if getattr(get_view_response, "replace_main_content", False):
-            # Plugin replace the page content
-            context["page_content"] = get_view_response.content
-            get_view_replace_content = True
-        else:
-            # Plugin would be build the complete html page
-            response = _apply_context_middleware(request, get_view_response)
-            return response
 
-    # call page plugin, if current page is a plugin page
+    # call page plugin, if current page is a plugin page and no get view has filled the page content
     page_plugin_response = None
-    if get_view_replace_content == False and is_plugin_page:
-        # The current PageTree entry is a plugin page
-
-        request.PYLUCID.updateinfo_object = pagemeta #Changeable by plugin
-
+    if is_plugin_page and context["page_content"] is None:
         # Add to global pylucid objects. Use e.g. in admin_menu plugin
         pluginpage = PluginPage.objects.get(pagetree=pagetree)
         request.PYLUCID.pluginpage = pluginpage
 
         page_plugin_response = pylucid_plugin.call_plugin(request, url_lang_code, prefix_url, rest_url)
-
         if isinstance(page_plugin_response, http.HttpResponse):
             # Plugin would be build the complete html page
             response = _apply_context_middleware(request, page_plugin_response)
-            context["page_content"] = response.content
             return response
-        elif page_plugin_response == None:
-            raise RuntimeError(
-                "PagePlugin has return None, but it must return a HttpResponse object or a basestring!"
-            )
-        # Plugin replace the page content
-        context["page_content"] = page_plugin_response
-    else:
-        # No PluginPage
+        elif isinstance(page_plugin_response, basestring):
+            # Plugin replace the page content
+            context["page_content"] = page_plugin_response
+        elif page_plugin_response is not None: # Use plugin response
+            raise TypeError(
+                "Plugin view must return None or basestring or HttpResponse! (returned: %r)"
+            ) % type(page_plugin_response)
+
+
+    if context["page_content"] is None:
+        # Plugin has not filled the page content
         pagecontent_instance = _get_page_content(request)
-        request.PYLUCID.updateinfo_object = pagecontent_instance
-        request.PYLUCID.pagecontent = pagecontent_instance
-        if get_view_replace_content == False:
-            # Use only PageContent if no get view will replace the content
-            context["page_content"] = pagecontent_instance.content
-
-    for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
-        context["page_%s" % itemname] = getattr(request.PYLUCID.updateinfo_object, itemname, None)
-
-    if page_plugin_response == None and get_view_response == None:
-        # No Plugin has changed the PageContent -> apply markup on PageContent
+        request.PYLUCID.pagecontent = request.PYLUCID.updateinfo_object = pagecontent_instance
         context["page_content"] = apply_markup(
             pagecontent_instance.content, pagecontent_instance.markup, request
         )
+
+    # put update information into context
+    for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
+        context["page_%s" % itemname] = getattr(request.PYLUCID.updateinfo_object, itemname, None)
 
     # Render django tags in PageContent with the global context
     context["page_content"] = render.render_string_template(context["page_content"], context)
@@ -267,8 +262,7 @@ def _prepage_request(request, lang_entry):
 #_____________________________________________________________________________
 # root_page + lang_root_page views:
 
-def _render_root_page(request, url_lang_code=None):
-    """ render the root page, used in root_page and lang_root_page views """
+def _get_root_page(request):
     user = request.user
     try:
         pagetree = PageTree.objects.get_root_page(user) # Get the first PageTree entry
@@ -281,17 +275,26 @@ def _render_root_page(request, url_lang_code=None):
         ) % err
         messages.error(request, msg)
         return http.HttpResponseRedirect(reverse("admin:index"))
-
-    return _render_page(request, pagetree, url_lang_code)
+    return pagetree
 
 
 @csrf_view_exempt
 def root_page(request):
-    """ render the first root page in system default language """
+    """
+    redirect to a url with language code
+    We can't serve the root page here, because it will be cached in current
+    language with "/" as key. So a other client with other language will see
+    the page always in the cached language and not in his preferred language
+    """
     # activate language via auto detection
     i18n.activate_auto_language(request)
 
-    return _render_root_page(request)
+    pagetree = _get_root_page(request)
+    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
+    url = pagemeta.get_absolute_url()
+
+    return http.HttpResponseRedirect(url)
+
 
 def _lang_code_is_pagetree(request, url_lang_code):
     """
@@ -323,7 +326,9 @@ def lang_root_page(request, url_lang_code):
     # activate i18n
     i18n.activate_auto_language(request)
 
-    return _render_root_page(request, url_lang_code)
+    pagetree = _get_root_page(request)
+
+    return _render_page(request, pagetree, url_lang_code)
 
 #-----------------------------------------------------------------------------
 
@@ -374,9 +379,6 @@ def resolve_url(request, url_lang_code, url_path):
         # url_lang_code doesn't contain a language code, it's a pagetree slug
         new_url = "%s/%s" % (url_lang_code, url_path)
         return _i18n_redirect(request, url_path=new_url)
-
-    # Put the language from the url to first, if exists.
-    i18n.resort_languages(request, url_lang_code)
 
     # activate language via auto detection
     i18n.activate_auto_language(request)

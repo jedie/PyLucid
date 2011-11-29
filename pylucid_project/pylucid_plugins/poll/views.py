@@ -292,7 +292,7 @@ def http_get_view(request):
         return _vote(request)
     else:
         debug_msg = "Wrong get view parameter!"
-        return bad_request(debug_msg) # Returns a HttpResponseBadRequest
+        return bad_request("pylucid_plugin.poll", "error", debug_msg) # Returns a HttpResponseBadRequest
 
 
 

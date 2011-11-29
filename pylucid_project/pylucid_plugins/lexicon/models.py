@@ -25,13 +25,13 @@ from django_tools.middlewares.ThreadLocal import get_current_request
 from django_tools.tagging_addon.fields import jQueryTagModelField
 from django_tools.template import render
 from django_tools.utils.messages import failsafe_message
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import Language
 from pylucid_project.base_models.base_markup_model import MarkupBaseModel
 from pylucid_project.base_models.base_models import BaseModelManager
 from pylucid_project.base_models.many2many import AutoSiteM2M
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.pylucid_plugins import update_journal
 

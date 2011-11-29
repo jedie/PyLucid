@@ -14,9 +14,10 @@ from django.db.models import aggregates
 from django.utils.translation import ugettext_lazy as _
 
 from django_tools import limit_to_usergroups
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.base_models.many2many import AutoSiteM2M
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
+
 
 
 class Poll(AutoSiteM2M, UpdateInfoBaseModel):

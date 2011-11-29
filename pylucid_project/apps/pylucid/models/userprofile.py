@@ -4,7 +4,7 @@
     pylucid.models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -12,10 +12,11 @@ from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User
 
+# http://code.google.com/p/django-tools/
 from django_tools.utils.messages import failsafe_message
+from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.utils import crypt
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.base_models.many2many import AutoSiteM2M
 
 
