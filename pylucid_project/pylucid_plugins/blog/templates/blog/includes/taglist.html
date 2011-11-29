@@ -7,7 +7,7 @@
     {% if tag.name in used_tags %}
         <strong>{{ tag.name }}</strong>
     {% else %}
-        <a href="{% url Blog-tag_view tags=tag.name %}">{{ tag.name }}</a>
+        <a href="{% url Blog-tag_view tags=tag.name %}" rel="nofollow">{{ tag.name }}</a>
     {% endif %}
     {% if add_tag_filter_link %}
         {% include "blog/includes/add_tag_filter.html" %}
