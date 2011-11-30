@@ -3,7 +3,7 @@
 {% block plugin_content %}
 <ul>
 {% for page in sub_pages %}
-  <li><a href="{{ page.get_absolute_url }}" hreflang="{{ page.language.code }}" title="{{ page.get_title }}">{{ page.get_name }}</a></li>
+  <li><a href="{{ page.get_absolute_url }}" hreflang="{{ page.language.code }}"{% if use_title %}>{{ page.get_title }}{% else %} title="{{ page.get_title }}">{{ page.get_name }}{% endif %}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}

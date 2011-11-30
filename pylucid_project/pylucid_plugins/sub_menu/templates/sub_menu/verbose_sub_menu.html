@@ -1,0 +1,30 @@
+{% extends "pylucid/css_anchor_div.html" %}
+
+{% block plugin_content %}
+{% extrahead %}
+<!-- verbose_sub_menu.html extrahead START -->
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    // Make <dd> Area clickable, too:
+    $("div .sub_menu").each(function() {
+        $(this).find("dt").each(function() {
+            var href = $(this).find("a").attr("href");
+            var title = $(this).find("a").text();
+            $(this).nextUntil("dt").each(function() {
+                $(this).wrapInner('<a href="'+href+'" title="'+title+'" />');
+            });
+        });
+    });
+});
+</script>
+<!-- verbose_sub_menu.html extrahead END -->
+{% endextrahead %}
+<dl>
+{% for page in sub_pages %}
+    <dt>
+        <a href="{{ page.get_absolute_url }}" hreflang="{{ page.language.code }}">{{ page.get_title }}</a>
+    </dt>
+    <dd>{{ page.description }}</dd>
+{% endfor %}
+</dl>
+{% endblock %}
