@@ -24,6 +24,9 @@ from django.template.defaultfilters import slugify
 
 
 class Migration(SchemaMigration):
+
+    no_dry_run = True # Data migrations shouldn't be dry-run
+
     def forwards(self, orm):
         # Adding model 'BlogEntryContent'
         db.create_table('blog_blogentrycontent', (
