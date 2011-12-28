@@ -35,6 +35,8 @@ class BaseAdmin(admin.ModelAdmin):
             if url in ('../', '../../../'):
                 # Don't got to admin index or change-list page -> goto changed object
                 try:
+                    # FIXME: We should check if the obj is on the current site!
+                    # See: https://github.com/jedie/PyLucid/issues/60
                     url = obj.get_absolute_url()
                 except Exception, err:
                     if settings.DEBUG or request.user.is_staff:

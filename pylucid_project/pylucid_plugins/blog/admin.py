@@ -67,6 +67,7 @@ class BlogEntryAdmin(BlogBaseAdmin):
 
         count = obj.sites.filter(id=current_site.id).count()
         if count == 0:
+            # TODO: Create a link with the domain of the first site
             return u"<i>[not on current site]</i>"
 
         request = ThreadLocal.get_current_request()
