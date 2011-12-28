@@ -204,9 +204,8 @@ class BlogEntryContentManager(models.Manager):
             return paginator.page(paginator.num_pages)
 
     def paginator_by_queryset(self, request, queryset, max_count):
-        # To get allways the same paginate count, we create first a list of
-        # all BlogEntry ids
-        all_entry_ids = tuple(set(queryset.values_list("entry", flat=True)))
+        # To get allways the same paginate count, we create first a list of all BlogEntry ids
+        all_entry_ids = tuple(queryset.values_list("entry", flat=True))
         # print "all_entry_ids:", all_entry_ids
 
         paginator = self.paginate(request, all_entry_ids, max_count)
