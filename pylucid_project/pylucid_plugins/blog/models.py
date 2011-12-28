@@ -25,6 +25,7 @@ from tagging.utils import calculate_cloud, LOGARITHMIC
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares.ThreadLocal import get_current_request
+from django_tools.models import UpdateInfoBaseModel
 from django_tools.tagging_addon.fields import jQueryTagModelField
 from django_tools.template import render
 from django_tools.utils.messages import failsafe_message
@@ -36,7 +37,6 @@ from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.base_models.base_markup_model import MarkupBaseModel
 from pylucid_project.base_models.many2many import SiteM2M
-from pylucid_project.base_models.update_info import UpdateInfoBaseModel
 from pylucid_project.pylucid_plugins import update_journal
 from pylucid_project.utils.i18n_utils import filter_by_language
 
