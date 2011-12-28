@@ -6,26 +6,32 @@
 
     Generates a link list of all sub pages.
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2005-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2005-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-__version__ = "$Rev$"
 
 
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, Language
 from pylucid_project.apps.pylucid.decorators import render_to
 
 
-@render_to("sub_menu/sub_menu.html")
-def lucidTag(request):
-    """ build the sub menu with all existing sub pages"""
+@render_to()
+def lucidTag(request, use_title=False, template_name="sub_menu/sub_menu.html"):
+    """
+    build the sub menu with all existing sub pages.
+    
+    Used the page name as link text as default.
+    Set **use_title=True** to use the page title.
+    
+    Set with **template_name** a own template.
+    There exist a second template: **sub_menu/verbose_sub_menu.html**
+    
+    example:
+        {% lucidTag sub_menu %}
+        {% lucidTag sub_menu use_title=True %}
+        {% lucidTag sub_menu template_name="sub_menu/verbose_sub_menu.html" %}
+    """
     pagetree = request.PYLUCID.pagetree # current models.PageContent instance
     current_lang = request.PYLUCID.current_language # Client prefered language
     default_lang = Language.objects.get_or_create_default(request) # System default language
@@ -66,7 +72,12 @@ def lucidTag(request):
     # sort by PageTree positions 
     sub_pages.sort(cmp=lambda x, y: cmp(x.pagetree.position, y.pagetree.position))
 
-    return {"sub_pages": sub_pages}
+    context = {
+        "sub_pages": sub_pages,
+        "use_title": use_title,
+        "template_name": template_name,
+    }
+    return context
 
 
 
