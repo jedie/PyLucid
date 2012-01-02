@@ -257,7 +257,6 @@ def gallery(request, rest_url=""):
             messages.info(request,
                 _("Gallery entry for page: %s doesn't exist, please create it.") % pagetree.get_absolute_url()
             )
-            # TODO: Don't redirect to admin panel -> Display a own create view!
             return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))
         else:
             messages.warning(request, _("Gallery is deactivated, yet. Come back later."))
@@ -271,7 +270,7 @@ def gallery(request, rest_url=""):
         gallery = Gallery(request, config, rest_url)
     except GalleryError, err:
         messages.error(request, "Gallery error: %s" % err)
-        return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))
+        return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_change", args=(config.id,)))
 
     if not request.is_ajax():
         # FIXME: In Ajax request, only the page_content would be replaced, not the
