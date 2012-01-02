@@ -93,6 +93,11 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         help_text=_("Set django message level for superusers to set the minimum message that will be displayed.")
     )
 
+    max_log_entries = forms.IntegerField(
+        initial=1000, min_value=1,
+        help_text=_("The maximal numbers of log entries. After this the oldest log entries would be automatically deleted to protect against overloading."),
+    )
+
     def __init__(self, *args, **kwargs):
         super(SystemPreferencesForm, self).__init__(*args, **kwargs)
         existing_designs = Design.on_site.all().values_list("id", "name")

@@ -36,8 +36,6 @@ META_KEYS = (
 
 
 class LogEntryManager(models.Manager):
-
-
     def get_same_remote_addr(self, request):
         """
         return a QuerySet with all entries from the current remote Address.
@@ -121,6 +119,15 @@ class LogEntryManager(models.Manager):
 
         new_entry = self.model(**kwargs)
         new_entry.save()
+
+        # Auto cleanup Log Table to protect against overloading.
+        preferences = request.PYLUCID.preferences # Get SystemPreferences       
+        max_count = preferences.get("max_log_entries", 1000)
+        queryset = LogEntry.objects.order_by('-createtime')
+        ids = tuple(queryset[max_count:].values_list('id', flat=True))
+        if ids:
+            queryset.filter(id__in=ids).delete()
+
         return new_entry
 
 
