@@ -72,6 +72,14 @@ def _split_suffix(filename, suffix_list):
 #------------------------------------------------------------------------------
 
 
+class GalleryError(Exception):
+    """
+    for errors with a message to staff/admin users.
+    e.g.: Gallery filesystem path doesn't exist anymore.
+    """
+    pass
+
+
 class Gallery(object):
     def __init__(self, request, config, rest_url):
         self.request = request
@@ -89,12 +97,15 @@ class Gallery(object):
         is_in_root = self.abs_path.startswith(settings.MEDIA_ROOT)
         if not is_dir or not is_in_root:
             msg = _("Wrong path.")
-            if settings.DEBUG or request.user.is_staff:
+            has_change_perm = request.user.has_perm("gallery.change_gallerymodel")
+            if settings.DEBUG or has_change_perm:
                 msg += " - path %r" % self.abs_path
                 if not is_dir:
                     msg += " is not a directory."
                 if not is_in_root:
                     msg += " is not in media root."
+                if has_change_perm: # raise 404 in debug
+                    raise GalleryError(msg)
             raise Http404(msg)
 
         self.abs_base_url = posixpath.normpath(posixpath.join(settings.MEDIA_URL, self.rel_base_path, self.rel_path))
@@ -242,13 +253,25 @@ def gallery(request, rest_url=""):
     try:
         config = GalleryModel.objects.get(pagetree=pagetree)
     except GalleryModel.DoesNotExist, err:
-        # TODO: Don't redirect to admin panel -> Display a own create view!
-        messages.info(request,
-             _("Gallery entry for page: %s doesn't exist, please create it.") % pagetree.get_absolute_url()
-        )
-        return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))
+        if request.user.has_perm("gallery.change_gallerymodel"):
+            messages.info(request,
+                _("Gallery entry for page: %s doesn't exist, please create it.") % pagetree.get_absolute_url()
+            )
+            # TODO: Don't redirect to admin panel -> Display a own create view!
+            return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))
+        else:
+            messages.warning(request, _("Gallery is deactivated, yet. Come back later."))
+            if not pagetree.parent:
+                parent_url = "/"
+            else:
+                parent_url = pagetree.parent.get_absolute_url()
+            return HttpResponseRedirect(parent_url)
 
-    gallery = Gallery(request, config, rest_url)
+    try:
+        gallery = Gallery(request, config, rest_url)
+    except GalleryError, err:
+        messages.error(request, "Gallery error: %s" % err)
+        return HttpResponseRedirect(reverse("admin:gallery_gallerymodel_add"))
 
     if not request.is_ajax():
         # FIXME: In Ajax request, only the page_content would be replaced, not the
