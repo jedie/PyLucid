@@ -45,7 +45,7 @@ ADD_PERMISSION = "blog.add_blogentry"
 BLOG_UNITTEST_FIXTURES = os.path.join(settings.PYLUCID_BASE_PATH, "pylucid_plugins", "blog", "test_fixtures.json")
 
 TODAY_URL_PART = datetime.date.today().strftime("%Y/%m/%d")
-TEST_DATE = "2000/12/24" # Date in test fixtures
+TEST_DATE = "2000/01/24" # Date in test fixtures
 
 
 class BlogPluginTestCase(basetest.BaseLanguageTestCase):
@@ -664,7 +664,6 @@ class BlogPluginCsrfTest(BlogPluginTestCase):
 #        debug_response(response)
         blog_article_url = "http://testserver/en/blog/%s/the-blog-headline/" % TODAY_URL_PART
         self.assertRedirect(response, url=blog_article_url, status_code=302)
-
 
 
 

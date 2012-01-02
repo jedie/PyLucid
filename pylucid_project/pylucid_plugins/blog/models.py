@@ -163,7 +163,7 @@ class BlogEntryContentManager(models.Manager):
         filters = self.get_filters(request, filter_language=True)
 
         if tags is not None:
-            # filter by tags 
+            # filter by tags
             queryset = TaggedItem.objects.get_by_model(self.model, tags)
         else:
             queryset = self.model.objects.all()
@@ -331,8 +331,8 @@ class BlogEntryContent(MarkupBaseModel, UpdateInfoBaseModel):
 
         reverse_kwargs = {
             "year": self.createtime.year,
-            "month": self.createtime.month,
-            "day": self.createtime.day,
+            "month": "%02i" % self.createtime.month,
+            "day": "%02i" % self.createtime.day,
             "slug": self.slug
         }
         try:
