@@ -104,8 +104,9 @@ MIDDLEWARE_CLASSES = (
     # make the request object everywhere available with a thread local storage:
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
 
-    # Experimental: Set SITE_ID dynamically base on the current domain name: 
-    #'django_tools.middlewares.DynamicSite.DynamicSiteMiddleware',
+    # Set SITE_ID dynamically base on the current domain name **Experimental** :
+    # To activate set "USE_DYNAMIC_SITE_MIDDLEWARE = True" in your local_settings.py
+    'django_tools.middlewares.DynamicSite.DynamicSiteMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
