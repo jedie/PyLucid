@@ -89,21 +89,29 @@ SITE_ID = 1 # Can be changed in local_settings
 ROOT_URLCONF = 'pylucid_project.urls'
 
 MIDDLEWARE_CLASSES = (
+    # Save process informations. More info: https://github.com/jedie/django-processinfo
     'django_processinfo.middlewares.django_processinfo.ProcessInfoMiddleware',
+
+    # Block banned IP addresses and delete old pylucid.models.BanEntry items:
     'pylucid_project.middlewares.ip_ban.IPBanMiddleware',
 
     # Insert a statistic line into the generated page:
     'pylucid_project.middlewares.pagestats.PageStatsMiddleware',
 
+    # Calls check_state() for every "Local sync cache" to reset out-dated caches
     'django_tools.local_sync_cache.LocalSyncCacheMiddleware.LocalSyncCacheMiddleware',
 
-    # From http://code.google.com/p/django-tools/
+    # make the request object everywhere available with a thread local storage:
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
+
+    # Experimental: Set SITE_ID dynamically base on the current domain name: 
+    #'django_tools.middlewares.DynamicSite.DynamicSiteMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
+    # Own simple cache implementation similar to https://docs.djangoproject.com/en/1.3/topics/cache/#the-per-site-cache
     'pylucid_project.middlewares.cache.PyLucidFetchFromCacheMiddleware',
     'pylucid_project.middlewares.cache.PyLucidUpdateCacheMiddleware',
 
@@ -111,8 +119,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 
+    # Create request.user_settings at process_request() and save it on process_response():
     'dbpreferences.middleware.DBPreferencesMiddleware',
 
+    # Create request.PYLUCID and log process_exception(): 
     'pylucid_project.middlewares.pylucid_objects.PyLucidMiddleware',
 
     # slow down the django developer server
