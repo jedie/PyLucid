@@ -44,6 +44,11 @@ class BlogPrefForm(SitePreselectPreference, DBPreferencesBaseForm):
         initial=30, min_value=1,
         help_text=_("The maximal numbers of blog articles in RSS/Atom feed."),
     )
+
+    max_tag_count = forms.IntegerField(
+        initial=5, min_value=1,
+        help_text=_("The maximal numbers of tags to filter articles."),
+    )
     class Meta:
         app_label = 'blog'
 

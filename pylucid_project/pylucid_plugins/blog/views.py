@@ -11,7 +11,7 @@
     TODO:
         * Detail view, use BlogEntry.get_absolute_url()
 
-    :copyleft: 2008-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -21,6 +21,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.syndication.views import Feed
 from django.core import urlresolvers
+from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
@@ -32,6 +33,7 @@ from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
+from blog.preference_forms import get_preferences
 from blog.models import BlogEntry, BlogEntryContent
 from blog.preference_forms import BlogPrefForm
 
@@ -51,9 +53,23 @@ def _add_breadcrumb(request, *args, **kwargs):
     breadcrumb_context_middlewares.add_link(*args, **kwargs)
 
 
+def _get_max_tag_count():
+    preferences = get_preferences()
+    max_count = preferences.get("max_tag_count", 5)
+    return max_count
+
+
 def _split_tags(raw_tags):
     "simple split tags from url"
     tags = raw_tags.strip("/").split("/")
+
+    max_count = _get_max_tag_count()
+    if len(tags) >= max_count:
+        # The maximum number of tag filters is exceeded.
+        # This can't not happen by accident, because we didn't insert
+        # more tag filter links than allowed.
+        raise SuspiciousOperation(_("Too much tags given"))
+
     return tags
 
 
@@ -180,6 +196,13 @@ def tag_view(request, tags):
         # No blog entries created, yet.
         pass
 
+    # Don't add links to tags, if the maximum tag filter count is reached:
+    max_count = _get_max_tag_count()
+    if len(tags) >= (max_count - 1):
+        dont_link_tags = True
+    else:
+        dont_link_tags = False
+
     context = {
         "entries": paginator,
         "tag_cloud": tag_cloud,
@@ -187,6 +210,7 @@ def tag_view(request, tags):
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
         "used_tags": tags,
         "tags": "/".join(tags),
+        "dont_link_tags": dont_link_tags,
         "filenames": FEED_FILENAMES,
     }
     return context
