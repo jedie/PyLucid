@@ -173,8 +173,6 @@ def summary(request):
 def tag_view(request, tags):
     """
     Display summary list with blog entries filtered by the given tags.
-    
-    TODO: Set http robots ==> "noindex,follow"
     """
     tags = _split_tags(tags)
 
@@ -219,6 +217,7 @@ def tag_view(request, tags):
         "tags": "/".join(tags),
         "dont_link_tags": dont_link_tags,
         "filenames": FEED_FILENAMES,
+        "page_robots": "noindex,nofollow",
     }
     return context
 

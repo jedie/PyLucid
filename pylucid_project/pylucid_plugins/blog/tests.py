@@ -28,7 +28,6 @@ from django.test.client import Client
 
 from django_tools.unittest_utils.BrowserDebug import debug_response
 
-from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE
 
@@ -37,6 +36,7 @@ from blog.preference_forms import BlogPrefForm
 
 
 SUMMARY_URL = "/%s/blog/"
+TAG_URL = "/%s/blog/tags/%s/"
 CREATE_URL = "/pylucid_admin/plugins/blog/new_blog_entry/"
 EDIT_URL = "/pylucid_admin/plugins/blog/edit/%i/"
 TRANSLATE_URL = "/pylucid_admin/plugins/blog/translate/%i/"
@@ -158,6 +158,7 @@ class BlogPluginAnonymousTest(BlogPluginTestCase):
     def setUp(self):
         cache.clear()
 
+        from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
         system_preferences = SystemPreferencesForm()
         system_preferences["message_level_anonymous"] = message_constants.DEBUG
         system_preferences.save()
@@ -192,6 +193,30 @@ class BlogPluginAnonymousTest(BlogPluginTestCase):
         self.assertBlogPage(response, self.default_language,
             must_contain=self.SUMMARY_EN_CONTAINS + self.FIRST_ENTRY + self.SECOND_ENTRY,
             must_not_contain=self.SUMMARY_DE_CONTAINS + self.ERSTER_EINTRAG + self.DRITTER_EINTRAG,
+        )
+
+    def test_summary_robots(self):
+        self._set_language_filter(BlogPrefForm.ALL_LANGUAGES)
+
+        response = self.client.get(
+            SUMMARY_URL % self.default_language.code,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.assertBlogPage(response, self.default_language,
+            must_contain=('<meta name="robots" content="index,follow" />',),
+            must_not_contain=('<meta name="robots" content="noindex,nofollow" />',)
+        )
+
+    def test_tag_view_robots(self):
+        self._set_language_filter(BlogPrefForm.ALL_LANGUAGES)
+
+        url = TAG_URL = "/%s/blog/tags/%s/" % (self.default_language.code, "deutsch-tag")
+        response = self.client.get(url,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.assertBlogPage(response, self.default_language,
+            must_contain=('<meta name="robots" content="noindex,nofollow" />',),
+            must_not_contain=('<meta name="robots" content="index,follow" />',)
         )
 
 #    def test_summary_en_prefered_languages(self):
