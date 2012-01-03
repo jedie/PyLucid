@@ -35,6 +35,8 @@ from django_tools.models import UpdateInfoBaseModel
 # http://code.google.com/p/django-dbpreferences/
 from dbpreferences.fields import DictField
 
+from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
+
 
 META_KEYS = (
     "REMOTE_ADDR", "REMOTE_USER", "REQUEST_METHOD", "QUERY_STRING",
@@ -117,6 +119,10 @@ class LogEntryManager(models.Manager):
 
         if hasattr(request, "PYLUCID"):
             kwargs["used_language"] = request.PYLUCID.current_language
+            preferences = request.PYLUCID.preferences # Get SystemPreferences
+        else:
+            preferences_form = SystemPreferencesForm()
+            preferences = preferences_form.get_preferences()
 
         for key in META_KEYS:
             value = request.META.get(key)
@@ -127,8 +133,7 @@ class LogEntryManager(models.Manager):
         new_entry = self.model(**kwargs)
         new_entry.save()
 
-        # Auto cleanup Log Table to protect against overloading.
-        preferences = request.PYLUCID.preferences # Get SystemPreferences       
+        # Auto cleanup Log Table to protect against overloading.                 
         max_count = preferences.get("max_log_entries", 1000)
         queryset = LogEntry.objects.order_by('-createtime')
         ids = tuple(queryset[max_count:].values_list('id', flat=True))
