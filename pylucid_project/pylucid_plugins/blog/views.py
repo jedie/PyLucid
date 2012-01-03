@@ -22,7 +22,8 @@ from django.contrib import messages
 from django.contrib.syndication.views import Feed
 from django.core import urlresolvers
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
+from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect, \
+    Http404
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
@@ -180,8 +181,14 @@ def tag_view(request, tags):
     # Get all blog entries, that the current user can see
     paginator = BlogEntryContent.objects.get_filtered_queryset(request, tags=tags, filter_language=True)
 
-    # Calculate the tag cloud from the current used queryset
     queryset = paginator.object_list
+    if len(queryset) == 0:
+        # There exist no blog entries for the given tags.
+        # This can't happen by accident, because we didn't insert
+        # tag filters without existing articles.
+        raise Http404("No articles for the given tag filters")
+
+    # Calculate the tag cloud from the current used queryset
     tag_cloud = BlogEntryContent.objects.cloud_for_queryset(queryset)
 
     # Add link to the breadcrumbs ;)
