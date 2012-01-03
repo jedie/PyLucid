@@ -4,7 +4,7 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -59,17 +59,6 @@ def _get_page_content(request):
         )
 
     return pagecontent
-
-
-
-
-def _apply_context_middleware(request, response):
-    """
-    Before we "send" the response back to the client, we replace all existing
-    context_middleware tags.
-    """
-    response = pylucid_plugin.context_middleware_response(request, response)
-    return response
 
 
 def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=None):
@@ -128,8 +117,6 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     page_template, origin = loader.find_template(template_name)
     request.PYLUCID.page_template = page_template
 
-    # Get all plugin context middlewares from the template and add them to the context
-    pylucid_plugin.context_middleware_request(request)
 
     context["page_content"] = None # it will be filled either by plugin or by PageContent 
 
@@ -138,8 +125,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     get_view_response = PYLUCID_PLUGINS.call_get_views(request)
     if isinstance(get_view_response, http.HttpResponse):
         # Plugin would be build the complete html page
-        response = _apply_context_middleware(request, get_view_response)
-        return response
+        return get_view_response
     elif isinstance(get_view_response, basestring):
         # Plugin replace the page content
         context["page_content"] = get_view_response
@@ -159,8 +145,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         page_plugin_response = pylucid_plugin.call_plugin(request, url_lang_code, prefix_url, rest_url)
         if isinstance(page_plugin_response, http.HttpResponse):
             # Plugin would be build the complete html page
-            response = _apply_context_middleware(request, page_plugin_response)
-            return response
+            return page_plugin_response
         elif isinstance(page_plugin_response, basestring):
             # Plugin replace the page content
             context["page_content"] = page_plugin_response
@@ -194,8 +179,6 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     response = http.HttpResponse(complete_page, mimetype="text/html")
     response["content-language"] = context["page_language"]
 
-    # replace/render pylucid plugin context middlewares
-    response = _apply_context_middleware(request, response)
     return response
 
 

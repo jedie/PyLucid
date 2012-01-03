@@ -26,7 +26,7 @@ from django.conf import settings
 
 class ContextMiddleware(object):
     """ replace <!-- ContextMiddleware extrahead --> in the global page template """
-    def __init__(self, request, context):
+    def __init__(self, request):
         self.request = request
         self.extrahead = request.PYLUCID.extrahead # pylucid.system.extrahead
 

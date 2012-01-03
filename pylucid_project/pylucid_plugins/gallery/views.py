@@ -277,7 +277,7 @@ def gallery(request, rest_url=""):
         # breadcrumb links :(
         context = request.PYLUCID.context
         try:
-            breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+            breadcrumb_context_middlewares = request.PYLUCID.context_middlewares["breadcrumb"]
         except KeyError:
             # e.g.: no breadcrumbs in template
             pass

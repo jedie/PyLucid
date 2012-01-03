@@ -2,9 +2,9 @@
 
 """
     PyLucid plugins
-    ~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
@@ -72,11 +72,12 @@ class PyLucidPlugin(object):
         return a object from this plugin
         argument e.g.: ("admin_urls", "urlpatterns")
         """
+#        print "get_plugin_object(%r, %r)" % (mod_name, obj_name)
         mod_pkg = ".".join([self.pkg_string, mod_name])
 
         cache_key = mod_pkg + "." + obj_name
         if cache_key in _PLUGIN_OBJ_CACHE:
-            #print "use _PLUGIN_OBJ_CACHE[%r]" % cache_key
+#            print "use _PLUGIN_OBJ_CACHE[%r]" % cache_key
             return _PLUGIN_OBJ_CACHE[cache_key]
 
         try:
@@ -98,7 +99,7 @@ class PyLucidPlugin(object):
         except AttributeError, err:
             raise self.ObjectNotFound(err)
 
-        #print "put in _PLUGIN_OBJ_CACHE[%r]" % cache_key
+#        print "put in _PLUGIN_OBJ_CACHE[%r]" % cache_key
         _PLUGIN_OBJ_CACHE[cache_key] = object
 
         return object
@@ -210,12 +211,18 @@ class PyLucidPlugins(dict):
     def __getattr__(self, name):
         if not self.__initialized:
             self._setup()
+        assert name != "ObjectNotFound", "Don't use PYLUCID_PLUGINS.ObjectNotFound, use plugin_instance.ObjectNotFound!"
         return getattr(self, name)
 
     def __getitem__(self, key):
         if not self.__initialized:
             self._setup()
         return dict.__getitem__(self, key)
+
+    def items(self, *args, **kwargs):
+        if not self.__initialized:
+            self._setup()
+        return dict.items(self, *args, **kwargs)
 
     def _setup(self):
 #        print " *** init PyLucidPlugins():", settings.PYLUCID_PLUGIN_SETUP_INFO.keys()
