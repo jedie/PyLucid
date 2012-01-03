@@ -1,5 +1,18 @@
 # coding: utf-8
 
+"""
+    IPBanMiddleware
+    ~~~~~~~~~~~~~~~
+    
+    Block banned IP addresses and delete old pylucid.models.BanEntry items:
+    
+    TODO: Move IP-Ban + Log stuff into a separate app
+    
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
+
 import time
 import datetime
 

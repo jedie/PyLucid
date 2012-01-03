@@ -1,5 +1,12 @@
 # coding: utf-8
 
+"""
+    PyLucid system preferences
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
 
 import warnings
 
@@ -96,6 +103,15 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
     max_log_entries = forms.IntegerField(
         initial=1000, min_value=1,
         help_text=_("The maximal numbers of log entries. After this the oldest log entries would be automatically deleted to protect against overloading."),
+    )
+
+    ban_count = forms.IntegerField(
+        help_text=_("Numbers of exceptions from one IP within 'ban_time' Sec. after IP would be banned. (Used 'REMOTE_ADDR')"),
+        initial=10, min_value=1, max_value=100
+    )
+    ban_time = forms.IntegerField(
+        help_text=_("Time period for count exceptions log messages from the same IP. (Used 'REMOTE_ADDR')"),
+        initial=30, min_value=1, max_value=600
     )
 
     def __init__(self, *args, **kwargs):

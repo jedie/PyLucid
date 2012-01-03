@@ -5,6 +5,8 @@
     ~~~~~~~~~~~~~~~~~~~~
     
     A simple model witch contains IP addresses with a timestamp.
+    
+    TODO: Move IP-Ban + Log stuff into a separate app
         
     e.g. usage in plugins:
     --------------------------------------------------------------------------
@@ -14,13 +16,7 @@
     BanEntry.objects.add(request) # raised Http404!
     --------------------------------------------------------------------------
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -60,7 +56,8 @@ class BanEntryManager(models.Manager):
         """
         remote_addr = request.META["REMOTE_ADDR"]
         self.model(ip_address=remote_addr).save()
-        raise Http404("Add IP to ban list.")
+        LogEntry.objects.log_action(app_label="pylucid", action="Add %s to ban list." % remote_addr)
+        raise Http404("You are now banned.")
 
 
 class BanEntry(models.Model):

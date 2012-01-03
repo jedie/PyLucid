@@ -1,10 +1,17 @@
 # coding: utf-8
 
 """
+    Log model
+    ~~~~~~~~~
+    
     TODO:
+    * Move IP-Ban + Log stuff into a separate app
     * handel proxy's 'HTTP_X_FORWARDED_FOR' values.
         See notes here:
         http://docs.djangoproject.com/en/1.0/ref/middleware/#reverse-proxy-middleware
+    
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import datetime
