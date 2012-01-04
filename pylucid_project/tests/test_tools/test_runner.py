@@ -34,6 +34,11 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS, PyLucidPlugi
 
 #-----------------------------------------------------------------------------
 
+# Disable dynamic site, if used:
+if getattr(settings, "USE_DYNAMIC_SITE_MIDDLEWARE", False):
+    settings.USE_DYNAMIC_SITE_MIDDLEWARE = False
+    settings.SITE_ID = 1
+
 PYLUCID_PROJECT_ROOT = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 UNITTEST_PLUGIN_SRC_PATH = os.path.join(PYLUCID_PROJECT_ROOT, "tests", "unittest_plugin")
 UNITTEST_PLUGIN_DST_PATH = os.path.join(PYLUCID_PROJECT_ROOT, "pylucid_plugins", "unittest_plugin")
