@@ -155,7 +155,6 @@ def test_PyLucid_api(request):
     context_middlewares.sort()
     output.append("context_middlewares: %s" % context_middlewares)
     output.append("lang_entry: %r" % request.PYLUCID.current_language)
-    output.append("page_template: %r" % request.PYLUCID.page_template)
     output.append("pagetree: %r" % request.PYLUCID.pagetree)
     output.append("pagemeta: %r" % request.PYLUCID.pagemeta)
 

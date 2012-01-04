@@ -111,15 +111,8 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Create initial context object
     request.PYLUCID.context = context = RequestContext(request)
 
-    # Add the page template content to the pylucid objects
-    # Used to find context middleware plugins and in _render_template()
-    template_name = context["template_name"] # Added in pylucid.context_processors
-    page_template, origin = loader.find_template(template_name)
-    request.PYLUCID.page_template = page_template
-
-
-    context["page_content"] = None # it will be filled either by plugin or by PageContent 
-
+    # it will be filled either by plugin or by PageContent:
+    context["page_content"] = None
 
     # call a pylucid plugin "html get view", if exist
     get_view_response = PYLUCID_PLUGINS.call_get_views(request)
@@ -170,6 +163,8 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Render django tags in PageContent with the global context
     context["page_content"] = render.render_string_template(context["page_content"], context)
 
+    template_name = context["template_name"] # Added in pylucid.context_processors
+    page_template, origin = loader.find_template(template_name)
     pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
     # Render django tags in global template with global context
@@ -237,7 +232,7 @@ def send_head_file(request, filepath):
 def _prepage_request(request, lang_entry):
     """
     shared function for serval views.
-    * 
+    *
     """
     # setup i18n language settings
     i18n.setup_language(request, lang_entry)
@@ -290,7 +285,7 @@ def _lang_code_is_pagetree(request, url_lang_code):
         # It's a valid language code
         return False
 
-    # Check if url language code is a pagetree slug        
+    # Check if url language code is a pagetree slug
     exist = PageTree.on_site.filter(slug=url_lang_code).count()
     if exist > 0:
         return True
