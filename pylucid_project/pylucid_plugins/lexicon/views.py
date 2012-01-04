@@ -24,7 +24,7 @@ from lexicon.models import LexiconEntry
 def _add_breadcrumb(request, title, url):
     """ shortcut for add breadcrumb link """
     context = request.PYLUCID.context
-    breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+    breadcrumb_context_middlewares = request.PYLUCID.context_middlewares["breadcrumb"]
     # Blog entries have only a headline, use it for name and title
     breadcrumb_context_middlewares.add_link(title, title, url)
 

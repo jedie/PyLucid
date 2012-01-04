@@ -35,7 +35,7 @@ def http_get_view(request):
 
     # add breadcrumb link
     context = request.PYLUCID.context
-    breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+    breadcrumb_context_middlewares = request.PYLUCID.context_middlewares["breadcrumb"]
     title = _("All '%s' tagged items" % tags)
     breadcrumb_context_middlewares.add_link(title, title, url=request.get_full_path())
 

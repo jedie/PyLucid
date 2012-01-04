@@ -140,6 +140,9 @@ MIDDLEWARE_CLASSES = (
 
     # Set django message level by user type and system preferences:
     'pylucid_project.middlewares.message_level.MessageLevelMiddleware',
+
+    # For PyLucid context middlewares API, see: http://www.pylucid.org/permalink/134/new-v09-plugin-api#context-middleware
+    "pylucid_project.middlewares.context_middlewares.PyLucidContextMiddlewares",
 )
 
 # Add stack information to every messages, but only if..

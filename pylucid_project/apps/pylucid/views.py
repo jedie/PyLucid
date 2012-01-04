@@ -4,7 +4,7 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -61,17 +61,6 @@ def _get_page_content(request):
     return pagecontent
 
 
-
-
-def _apply_context_middleware(request, response):
-    """
-    Before we "send" the response back to the client, we replace all existing
-    context_middleware tags.
-    """
-    response = pylucid_plugin.context_middleware_response(request, response)
-    return response
-
-
 def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=None):
     """ render a cms page """
     request.PYLUCID.pagetree = pagetree
@@ -122,24 +111,14 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Create initial context object
     request.PYLUCID.context = context = RequestContext(request)
 
-    # Add the page template content to the pylucid objects
-    # Used to find context middleware plugins and in _render_template()
-    template_name = context["template_name"] # Added in pylucid.context_processors
-    page_template, origin = loader.find_template(template_name)
-    request.PYLUCID.page_template = page_template
-
-    # Get all plugin context middlewares from the template and add them to the context
-    pylucid_plugin.context_middleware_request(request)
-
-    context["page_content"] = None # it will be filled either by plugin or by PageContent 
-
+    # it will be filled either by plugin or by PageContent:
+    context["page_content"] = None
 
     # call a pylucid plugin "html get view", if exist
     get_view_response = PYLUCID_PLUGINS.call_get_views(request)
     if isinstance(get_view_response, http.HttpResponse):
         # Plugin would be build the complete html page
-        response = _apply_context_middleware(request, get_view_response)
-        return response
+        return get_view_response
     elif isinstance(get_view_response, basestring):
         # Plugin replace the page content
         context["page_content"] = get_view_response
@@ -159,8 +138,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         page_plugin_response = pylucid_plugin.call_plugin(request, url_lang_code, prefix_url, rest_url)
         if isinstance(page_plugin_response, http.HttpResponse):
             # Plugin would be build the complete html page
-            response = _apply_context_middleware(request, page_plugin_response)
-            return response
+            return page_plugin_response
         elif isinstance(page_plugin_response, basestring):
             # Plugin replace the page content
             context["page_content"] = page_plugin_response
@@ -185,6 +163,8 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Render django tags in PageContent with the global context
     context["page_content"] = render.render_string_template(context["page_content"], context)
 
+    template_name = context["template_name"] # Added in pylucid.context_processors
+    page_template, origin = loader.find_template(template_name)
     pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
     # Render django tags in global template with global context
@@ -194,8 +174,6 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     response = http.HttpResponse(complete_page, mimetype="text/html")
     response["content-language"] = context["page_language"]
 
-    # replace/render pylucid plugin context middlewares
-    response = _apply_context_middleware(request, response)
     return response
 
 
@@ -254,7 +232,7 @@ def send_head_file(request, filepath):
 def _prepage_request(request, lang_entry):
     """
     shared function for serval views.
-    * 
+    *
     """
     # setup i18n language settings
     i18n.setup_language(request, lang_entry)
@@ -307,7 +285,7 @@ def _lang_code_is_pagetree(request, url_lang_code):
         # It's a valid language code
         return False
 
-    # Check if url language code is a pagetree slug        
+    # Check if url language code is a pagetree slug
     exist = PageTree.on_site.filter(slug=url_lang_code).count()
     if exist > 0:
         return True

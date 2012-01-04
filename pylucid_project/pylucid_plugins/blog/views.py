@@ -45,11 +45,10 @@ from tagging.models import Tag, TaggedItem
 
 def _add_breadcrumb(request, *args, **kwargs):
     """ shortcut for add breadcrumb link """
-    context = request.PYLUCID.context
     try:
-        breadcrumb_context_middlewares = context["context_middlewares"]["breadcrumb"]
+        breadcrumb_context_middlewares = request.PYLUCID.context_middlewares["breadcrumb"]
     except KeyError:
-        # No breadcrumbs used in current template
+        # No breadcrumbs plugin installed?
         return
     breadcrumb_context_middlewares.add_link(*args, **kwargs)
 

@@ -111,6 +111,7 @@ def pylucid(request):
                     del(request.session["design_switch_pk"])
 
             template_name = pagetree.design.template
+            # Used e.g.: in plugin templates: {% extends template_name %}
             context["template_name"] = template_name
 
             # Add the dbtemplates entry.

@@ -4,20 +4,15 @@
     PyLucid plugin tools
     ~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
 
 
-import re
-
-from django import http
-from django.conf import settings
 from django.contrib import messages
 from django.core import urlresolvers
 from django.http import HttpResponse
-from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_protect
 
 from dbpreferences.forms import DBPreferencesBaseForm
@@ -120,113 +115,5 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
     # restore the patched function
     urlresolvers.get_resolver = old_get_resolver
 
-    return response
-
-
-#______________________________________________________________________________
-# ContextMiddleware functions
-
-# TODO: Should we use TemplateResponse?
-# https://docs.djangoproject.com/en/dev/ref/template-response/ 
-
-TAG_RE = re.compile("<!-- ContextMiddleware (.*?) -->", re.UNICODE)
-from django.utils.importlib import import_module
-from django.utils.functional import memoize
-
-_middleware_class_cache = {}
-
-def _get_middleware_class(plugin_name):
-    plugin_name = plugin_name.encode('ascii') # check non-ASCII strings
-
-    mod_name = "pylucid_plugins.%s.context_middleware" % plugin_name
-    module = import_module(mod_name)
-    middleware_class = getattr(module, "ContextMiddleware")
-    return middleware_class
-_get_middleware_class = memoize(_get_middleware_class, _middleware_class_cache, 1)
-
-
-def context_middleware_request(request):
-    """
-    get from the template all context middleware plugins and call the request method.
-    """
-    context = request.PYLUCID.context
-    context["context_middlewares"] = {}
-
-    page_template = request.PYLUCID.page_template # page template content
-
-    # FIXME:
-    # We render the page here completely, only to get the ContextMiddlewares
-    # This seems to be not the best way.
-    #
-    request._dont_call_lucid_tags = True # Don't render any lucidTags here
-    content = page_template.render(context)
-    request._dont_call_lucid_tags = False
-
-    plugin_names = TAG_RE.findall(content)
-
-#    messages.debug(request, "Found ContextMiddlewares in content via RE: %r" % plugin_names)
-
-    for plugin_name in plugin_names:
-        # Get the middleware class from the plugin
-        try:
-            middleware_class = _get_middleware_class(plugin_name)
-        except ImportError, err:
-            messages.error(request, "Can't import context middleware '%s': %s" % (plugin_name, err))
-            continue
-
-        # make a instance 
-        instance = middleware_class(request, context)
-        # Add it to the context
-        context["context_middlewares"][plugin_name] = instance
-#        messages.debug(request, "Init ContextMiddleware %r" % plugin_name)
-
-
-def context_middleware_response(request, response):
-    """
-    replace the context middleware tags in the response, with the plugin render output
-    """
-    context = request.PYLUCID.context
-    context_middlewares = context["context_middlewares"]
-    def replace(match):
-        plugin_name = match.group(1)
-        try:
-            middleware_class_instance = context_middlewares[plugin_name]
-        except KeyError, err:
-            return "[Error: context middleware %r doesn't exist! Existing middlewares are: %r]" % (
-                plugin_name, context_middlewares.keys()
-            )
-
-        # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
-        request.plugin_name = plugin_name
-        request.method_name = "ContextMiddleware"
-
-        middleware_response = middleware_class_instance.render()
-
-        request.plugin_name = None
-        request.method_name = None
-
-        if middleware_response == None:
-            return ""
-        elif isinstance(middleware_response, unicode):
-            return smart_str(middleware_response, encoding=settings.DEFAULT_CHARSET)
-        elif isinstance(middleware_response, str):
-            return middleware_response
-        elif isinstance(middleware_response, http.HttpResponse):
-            return middleware_response.content
-        else:
-            raise RuntimeError(
-                "plugin context middleware render() must return"
-                " http.HttpResponse instance or a basestring or None!"
-            )
-
-    # FIXME: A HttpResponse allways convert unicode into string. So we need to do that here:
-    # Or we say, context render should not return a HttpResponse?
-#    from django.utils.encoding import smart_str
-#    complete_page = smart_str(complete_page)
-
-    source_content = response.content
-
-    new_content = TAG_RE.sub(replace, source_content)
-    response.content = new_content
     return response
 

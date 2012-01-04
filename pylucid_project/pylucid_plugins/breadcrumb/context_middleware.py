@@ -27,16 +27,10 @@ from breadcrumb.preference_forms import BreadcumbPrefForm
 
 
 class ContextMiddleware(object):
-    def __init__(self, request, context):
+    def __init__(self, request):
         self.request = request
-        self.context = context
 
-        # Get preferences
-        pref_form = BreadcumbPrefForm()
-        self.pref_data = pref_form.get_preferences()
-
-        # Get all pages back to the root page as a list
-        self.linklist = PageTree.objects.get_backlist(request)
+        self.linklist = []
 
     def add_link(self, name, title="", url=None):
         """
@@ -47,9 +41,17 @@ class ContextMiddleware(object):
         self.linklist.append({"name": name, "title": title, "url": url})
 
     def render(self):
+        # Get preferences
+        pref_form = BreadcumbPrefForm()
+        pref_data = pref_form.get_preferences()
+
+        # Get all pages back to the root page as a list
+        linklist = PageTree.objects.get_backlist(self.request)
+        linklist += self.linklist
+
         context = {
-            "preferences": self.pref_data,
-            "linklist": self.linklist,
+            "preferences": pref_data,
+            "linklist": linklist,
         }
         return render_to_response('breadcrumb/breadcrumb.html', context,
             context_instance=RequestContext(self.request)
