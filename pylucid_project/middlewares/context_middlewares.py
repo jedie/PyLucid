@@ -39,7 +39,7 @@ class PyLucidContextMiddlewares(object):
                 pass
             else:
                 self._MIDDLEWARES[plugin_name] = middleware_class
-        print "***", self._MIDDLEWARES
+#        print "***", self._MIDDLEWARES
 
     def process_request(self, request):
         """ initialize all existing context middleware classes """
