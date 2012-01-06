@@ -42,7 +42,7 @@ class BanEntryManager(models.Manager):
         queryset = self.all().filter(createtime__lte=point_in_time)
         for entry in queryset:
             if entry.createtime is None:
-                # Work-a-round if createtime is None, see below.
+                # Work-a-round if createtime is None
                 entry.createtime = now
                 entry.save()
                 LogEntry.objects.log_action(
@@ -67,7 +67,7 @@ class BanEntryManager(models.Manager):
         Note: raised 404 after adding the current client to the ban list!
         """
         remote_addr = request.META["REMOTE_ADDR"]
-        self.model(ip_address=remote_addr, createtime=datetime.datetime.now()).save()
+        self.model(ip_address=remote_addr).save()
         LogEntry.objects.log_action(app_label="pylucid", action="Add %s to ban list." % remote_addr)
         raise Http404("You are now banned.")
 
@@ -83,8 +83,14 @@ class BanEntry(models.Model):
     ip_address = models.IPAddressField(_('Remote IP Address'),
         primary_key=True, help_text="This IP address will be banned."
     )
-    # FIXME: auto_now_add seems not to work in every case, why?
-    createtime = models.DateTimeField(auto_now_add=True, help_text="Create time")
+    createtime = models.DateTimeField(help_text="Create time")
+
+    def save(self, *args, **kwargs):
+        if self.createtime is None:
+            # New entry
+            now = datetime.datetime.now()
+            self.createtime = now
+        return super(BanEntry, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u"BanEntry %s %s" % (self.ip_address, self.createtime)
