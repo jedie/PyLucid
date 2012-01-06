@@ -252,7 +252,7 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
             elif no == ban_limit:
                 # The limit has been reached
                 tested_limit_reached = True
-                self.assertResponse(response, must_contain=('Add IP to ban list.',))
+                self.assertResponse(response, must_contain=('You are now banned.',))
                 comment_count = Comment.objects.count()
                 self.failUnless(comment_count == ban_limit - 1)
             else:

@@ -155,7 +155,7 @@ class LoginTest(basetest.BaseUnittest):
             elif no == ban_limit + 1:
                 # The limit has been reached
                 tested_banned = True
-                self.assertResponse(response2, must_contain=('Add IP to ban list.',))
+                self.assertResponse(response2, must_contain=('You are now banned.',))
                 self.assertStatusCode(response2, 404)
                 self.failUnless(len(response1.content) == 5) # the salt
             elif no > ban_limit:
