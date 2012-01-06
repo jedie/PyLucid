@@ -68,7 +68,10 @@ class BanEntryManager(models.Manager):
         """
         remote_addr = request.META["REMOTE_ADDR"]
         self.model(ip_address=remote_addr).save()
-        LogEntry.objects.log_action(app_label="pylucid", action="Add %s to ban list." % remote_addr)
+        LogEntry.objects.log_action(
+            app_label="pylucid", action="add ip ban",
+            message="Add %s to ban list." % remote_addr
+        )
         raise Http404("You are now banned.")
 
 
