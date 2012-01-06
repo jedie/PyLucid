@@ -7,7 +7,7 @@
     TODO:
      * Update existing unittest (e.g. blog, lexicon)
 
-    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
@@ -28,6 +28,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 from django_tools.decorators import render_to
 from django_tools.utils.client_storage import ClientCookieStorage, InvalidCookieData
@@ -133,18 +134,18 @@ comment_will_be_posted.connect(comment_will_be_posted_handler)
 comment_was_posted.connect(comment_was_posted_handler)
 
 
-@check_request(APP_LABEL, "_get_form() error", must_post=True, must_ajax=True)
+@check_request(APP_LABEL, "_get_form() error", must_post=False, must_ajax=True)
 @render_to("pylucid_comments/comment_form.html")
 def _get_form(request):
     """ Send the comment form to via AJAX request """
     try:
-        ctype = request.POST["content_type"].split(".", 1)
+        ctype = request.GET["content_type"].split(".", 1)
         model = models.get_model(*ctype)
     except Exception, err:
         return bad_request(APP_LABEL, "error", "Wrong content type: %s" % err)
 
     try:
-        object_pk = request.POST["object_pk"]
+        object_pk = request.GET["object_pk"]
         target = model._default_manager.using(None).get(pk=object_pk)
     except Exception, err:
         return bad_request(APP_LABEL, "error", "Wrong object_pk: %s" % err)
@@ -173,9 +174,17 @@ def _get_form(request):
 
     form = comments.get_form()(target, initial=data)
 
+    # IMPORTANT: We must do the following, so that the
+    # CsrfViewMiddleware.process_response() would set the CSRF_COOKIE
+    # see also # https://github.com/jedie/PyLucid/issues/61
+    # XXX in Django => 1.4 we can use @ensure_csrf_cookie
+    # https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#django.views.decorators.csrf.ensure_csrf_cookie
+    request.META["CSRF_COOKIE_USED"] = True
+
     return {"form":form}
 
 
+@csrf_protect
 @check_request(APP_LABEL, "_form_submission() error", must_ajax=True)
 def _form_submission(request):
     """ Handle a AJAX comment form submission """

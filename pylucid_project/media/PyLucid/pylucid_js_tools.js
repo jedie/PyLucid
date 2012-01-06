@@ -356,7 +356,8 @@ function get_pylucid_comments_form() {
     log("post_data:"+post_data);
 
     $.ajax({
-        type: "POST",
+        async: false,
+        type: "GET",
         url: "?pylucid_comments=get_form",
         data: post_data,
         dataType: "html",

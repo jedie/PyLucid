@@ -9,7 +9,7 @@
         - PyLucid initial data contains english and german pages.
         - There exist only "PyLucid CMS" blog entry in english and german
     
-    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -46,35 +46,37 @@ class PyLucidCommentsTestCase(basetest.BaseUnittest):
         return d
 
 
-class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
-
+class PyLucidCommentsPageMetaTestCase(PyLucidCommentsTestCase):
+    """
+    Base for all PageMeta tests.
+    """
     def _pre_setup(self, *args, **kwargs):
-        super(PyLucidCommentsPageMetaTest, self)._pre_setup(*args, **kwargs)
+        super(PyLucidCommentsTestCase, self)._pre_setup(*args, **kwargs)
         self.pagemeta = PageMeta.on_site.all()[0]
         self.absolute_url = self.pagemeta.get_absolute_url()
+        self.get_form_url = self.absolute_url + "?pylucid_comments=get_form"
+        self.submit_url = self.absolute_url + "?pylucid_comments=submit"
 
     def setUp(self):
         Comment.objects.all().delete()
         self._old_ADMINS = settings.ADMINS
         settings.ADMINS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
-        super(PyLucidCommentsPageMetaTest, self).setUp()
+        super(PyLucidCommentsTestCase, self).setUp()
 
     def tearDown(self):
-        super(PyLucidCommentsPageMetaTest, self).tearDown()
+        super(PyLucidCommentsTestCase, self).tearDown()
         settings.ADMINS = self._old_ADMINS
 
     def _get_form(self):
-        url = self.absolute_url + "?pylucid_comments=get_form"
         data = self.getValidData(self.pagemeta)
-        response = self.client.post(url,
-            {
-                "content_type": data["content_type"],
-                "object_pk": data["object_pk"]
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
-        )
+        url = self.get_form_url
+        url += "&content_type=%s" % data["content_type"]
+        url += "&object_pk=%s" % data["object_pk"]
+        response = self.client.get(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         return response
 
+
+class PyLucidCommentsPageMetaTest(PyLucidCommentsPageMetaTestCase):
     def test_get_form(self):
         """ get the comment form via AJAX """
         response = self._get_form()
@@ -99,11 +101,10 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
         settings.DEBUG = True # Display a comment error page
         self.failUnless(Comment.objects.count() == 0)
         self.failUnless(len(mail.outbox) == 0, len(mail.outbox))
-        url = self.absolute_url + "?pylucid_comments=submit"
 
         # submit a valid comments form
         data = self.getValidData(self.pagemeta, comment="from test_submit_comment()")
-        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.post(self.submit_url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         # Check if comment created
         self.failUnless(Comment.objects.count() == 1)
@@ -188,11 +189,10 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
     def test_submit_spam(self):
         settings.DEBUG = True # Display a comment error page
         self.failUnless(Comment.objects.count() == 0)
-        url = self.absolute_url + "?pylucid_comments=submit"
         data = self.getValidData(self.pagemeta,
             comment="Penis enlargement pills: http://en.wikipedia.org/wiki/Penis_enlargement ;)"
         )
-        response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.post(self.submit_url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         # Check if page should reload (JavaScript do this)
         self.failUnlessEqual(response.content, 'reload')
@@ -274,12 +274,50 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsTestCase):
         self.failUnless(tested_banned == True)
 
 
+class PyLucidCommentsCsrfPageMetaTest(PyLucidCommentsPageMetaTestCase):
+    """
+    Test the Cross Site Request Forgery protection in comments.
+    """
+    def setUp(self):
+        super(PyLucidCommentsPageMetaTestCase, self).setUp()
+        settings.DEBUG = True
+        self.client = Client(enforce_csrf_checks=True)
+
+    def tearDown(self):
+        super(PyLucidCommentsPageMetaTestCase, self).tearDown()
+        settings.DEBUG = False
+
+    def test_submit_form_without_token(self):
+        # submit a valid comments form, but without csrf token 
+        data = self.getValidData(self.pagemeta, comment="from test_submit_comment()")
+        response = self.client.post(self.submit_url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertResponse(response, must_contain=("Forbidden", "No CSRF or session cookie."))
+
+    def test_submit_form_with_token(self):
+        # get the current csrf token
+        response = self._get_form()
+        self.assertIn(settings.CSRF_COOKIE_NAME, response.cookies)
+        csrf_token = response.cookies[settings.CSRF_COOKIE_NAME].value
+
+        self.failUnless(Comment.objects.count() == 0)
+
+        data = self.getValidData(self.pagemeta, comment="from test_submit_comment()")
+        data["csrfmiddlewaretoken"] = csrf_token
+        response = self.client.post(self.submit_url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        # Check if comment created
+        self.failUnless(Comment.objects.count() == 1)
+
+        # Check if page should reload (JavaScript do this)
+        self.failUnlessEqual(response.content, 'reload')
+
 
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
 
     tests = __file__
+#    tests = "pylucid_plugins.pylucid_comments.tests.PyLucidCommentsCsrfPageMetaTest"
 
     management.call_command('test', tests,
         verbosity=1,
