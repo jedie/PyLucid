@@ -95,6 +95,10 @@ class BaseModelManager(models.Manager):
             else:
                 break
 
+        if item is None:
+            # Fallback and used the first found item
+            item = queryset[0]
+
         if show_lang_errors:
             current_language = request.PYLUCID.current_language
             if item.language != current_language:
