@@ -44,7 +44,7 @@ urlpatterns = patterns('',
 
 # Default robots.txt content. If you want to use your own robots.txt, look into .htaccess
 # more information: http://www.pylucid.org/permalink/390/robots-txt
-if settings.DEBUG:
+if settings.DEBUG and not settings.RUN_WITH_DEV_SERVER:
     # Disallow access to all pages in DEBUG mode. 
     urlpatterns += patterns("",
         url(
