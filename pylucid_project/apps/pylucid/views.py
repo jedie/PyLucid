@@ -251,8 +251,7 @@ def _get_root_page(request):
             " At least there must exists one page!"
             " (original error was: %s)"
         ) % err
-        messages.error(request, msg)
-        return http.HttpResponseRedirect(reverse("admin:index"))
+        raise http.Http404(msg)
     return pagetree
 
 
@@ -268,6 +267,7 @@ def root_page(request):
     i18n.activate_auto_language(request)
 
     pagetree = _get_root_page(request)
+
     pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
     url = pagemeta.get_absolute_url()
 
