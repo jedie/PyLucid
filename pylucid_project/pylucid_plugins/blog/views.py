@@ -335,12 +335,11 @@ def redirect_old_urls(request, id, title):
 
 #------------------------------------------------------------------------------
 
+# FIXME: Disallow empty archive pages in all archive views:
 
 def year_archive(request, year):
     """
     Display year archive
-    
-    TODO: Set http robots ==> "noindex,follow"
     """
     year = int(year)
 
@@ -349,6 +348,7 @@ def year_archive(request, year):
 
     context = {
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        "page_robots": "noindex,nofollow",
     }
 
     # Get next year
@@ -386,7 +386,6 @@ def year_archive(request, year):
 def month_archive(request, year, month):
     """
     TODO: Set previous-/next-month by filtering
-    TODO: Set http robots ==> "noindex,follow"
     """
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
@@ -398,6 +397,7 @@ def month_archive(request, year, month):
 
     context = {
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        "page_robots": "noindex,nofollow",
     }
     return archive_month(
         request, year, month, queryset, date_field="createtime", extra_context=context,
@@ -408,7 +408,6 @@ def month_archive(request, year, month):
 def day_archive(request, year, month, day):
     """
     TODO: Set previous-/next-day by filtering
-    TODO: Set http robots ==> "noindex,follow"
     """
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
@@ -420,6 +419,7 @@ def day_archive(request, year, month, day):
 
     context = {
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+        "page_robots": "noindex,nofollow",
     }
     return archive_day(
         request, year, month, day, queryset, date_field="createtime", extra_context=context,
