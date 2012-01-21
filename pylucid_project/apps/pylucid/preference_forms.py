@@ -35,11 +35,11 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
 
     # We can't use ModelChoiceField here, is not supported in DBpreferences, yet.
     # see: http://code.google.com/p/django-dbpreferences/issues/detail?id=4
-    pylucid_admin_design = forms.ChoiceField(
-        # choices= Set in __init__, so the Queryset would not execute at startup
-        initial=None,
-        help_text=_("ID of the PyLucid Admin Design. (Not used yet!)")
-    )
+#    pylucid_admin_design = forms.ChoiceField(
+#        # choices= Set in __init__, so the Queryset would not execute at startup
+#        initial=None,
+#        help_text=_("ID of the PyLucid Admin Design. (Not used yet!)")
+#    )
 
     PERMALINK_USE_NONE = "nothing"
     PERMALINK_USE_SLUG = "slug"
@@ -114,21 +114,21 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         initial=30, min_value=1, max_value=600
     )
 
-    def __init__(self, *args, **kwargs):
-        super(SystemPreferencesForm, self).__init__(*args, **kwargs)
-        existing_designs = Design.on_site.all().values_list("id", "name")
-
-        self.fields['pylucid_admin_design'].choices = existing_designs
-        self.base_fields['pylucid_admin_design'].choices = existing_designs
-
-        # Fallback if admin design not set
-        initial = existing_designs[0][0]
-        for id, name in existing_designs:
-            if name == "PyLucid Admin":
-                initial = id
-                break
-
-        self.base_fields['pylucid_admin_design'].initial = initial
+#    def __init__(self, *args, **kwargs):
+#        super(SystemPreferencesForm, self).__init__(*args, **kwargs)
+#        existing_designs = Design.on_site.all().values_list("id", "name")
+#
+#        self.fields['pylucid_admin_design'].choices = existing_designs
+#        self.base_fields['pylucid_admin_design'].choices = existing_designs
+#
+#        # Fallback if admin design not set
+#        initial = existing_designs[0][0]
+#        for id, name in existing_designs:
+#            if name == "PyLucid Admin":
+#                initial = id
+#                break
+#
+#        self.base_fields['pylucid_admin_design'].initial = initial
 
     def get_preferences(self):
         """
