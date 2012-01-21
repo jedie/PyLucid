@@ -231,6 +231,8 @@ def detail_view(request, year, month, day, slug):
     prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     try:
+        # FIXME: MultipleObjectsReturned: get() returned more than one BlogEntryContent -- it returned 2!
+        # This happens if slug in more than two languages are the same!
         content_entry = prefiltered_queryset.get(createtime__year=year, createtime__month=month, createtime__day=day, slug=slug)
     except BlogEntryContent.DoesNotExist:
         # XXX: redirect to day_archive() ?
