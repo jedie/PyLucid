@@ -5,12 +5,13 @@
     PyLucid base models
     ~~~~~~~~~~~~~~~~~~~
     
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.contrib import messages
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.middlewares import ThreadLocal
