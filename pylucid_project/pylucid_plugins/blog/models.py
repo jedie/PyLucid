@@ -6,7 +6,7 @@
 
     Database models for the blog.
 
-    :copyleft: 2008-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -24,14 +24,9 @@ from tagging.models import Tag, TaggedItem
 from tagging.utils import calculate_cloud, LOGARITHMIC
 
 # http://code.google.com/p/django-tools/
-from django_tools.middlewares.ThreadLocal import get_current_request
 from django_tools.models import UpdateInfoBaseModel
 from django_tools.tagging_addon.fields import jQueryTagModelField
-from django_tools.template import render
-from django_tools.utils.messages import failsafe_message
 
-from pylucid_project.apps.pylucid.fields import MarkupModelField, MarkupContentModelField
-from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import Language, PluginPage
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
@@ -160,14 +155,13 @@ class BlogEntryContentManager(models.Manager):
         return filters
 
     def get_prefiltered_queryset(self, request, tags=None, filter_language=True):
-        filters = self.get_filters(request, filter_language=True)
-
         if tags is not None:
             # filter by tags
             queryset = TaggedItem.objects.get_by_model(self.model, tags)
         else:
             queryset = self.model.objects.all()
 
+        filters = self.get_filters(request, filter_language=True)
         queryset = queryset.filter(**filters)
         return queryset
 

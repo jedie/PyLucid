@@ -31,6 +31,52 @@
     }, 
     {
         "pk": 4, 
+        "model": "blog.blogentry", 
+        "fields": {
+            "is_public": true, 
+            "sites": [
+                1
+            ]
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "blog.blogentrycontent", 
+        "fields": {
+            "createby": 1, 
+            "language": 1, 
+            "lastupdatetime": "2000-01-24 12:00:00", 
+            "tags": "sharedtag, english-tag", 
+            "headline": "Same headline in german and english", 
+            "markup": 6, 
+            "slug": "same-slug", 
+            "content": "4. **blog article** in //english//!", 
+            "is_public": true, 
+            "entry": 4, 
+            "lastupdateby": 1, 
+            "createtime": "2000-01-24 12:00:00"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "blog.blogentrycontent", 
+        "fields": {
+            "createby": 1, 
+            "language": 2, 
+            "lastupdatetime": "2000-01-24 12:00:00", 
+            "tags": "sharedtag, deutsch-tag", 
+            "headline": "Same headline in german and english", 
+            "markup": 6, 
+            "slug": "same-slug", 
+            "content": "4. **Blog Artikel** in //deutsch//!", 
+            "is_public": true, 
+            "entry": 4, 
+            "lastupdateby": 1, 
+            "createtime": "2000-01-24 12:00:00"
+        }
+    }, 
+    {
+        "pk": 4, 
         "model": "blog.blogentrycontent", 
         "fields": {
             "createby": 1, 

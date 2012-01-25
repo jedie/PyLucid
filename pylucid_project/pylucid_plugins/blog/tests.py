@@ -219,6 +219,42 @@ class BlogPluginAnonymousTest(BlogPluginTestCase):
             must_not_contain=('<meta name="robots" content="index,follow" />',)
         )
 
+    def test_same_slug_en(self):
+        self._set_language_filter(BlogPrefForm.ALL_LANGUAGES)
+
+        lang_code = self.default_language.code
+        url = "%s%s/same-slug/" % (SUMMARY_URL % lang_code, TEST_DATE)
+
+        response = self.client.get(url,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.assertBlogPage(response, self.default_language,
+            must_contain=(
+                '<html lang="en">',
+                "Same headline in german and english",
+                "<p>4. <strong>blog article</strong> in <i>english</i>!</p>",
+            ),
+            must_not_contain=("Traceback",),
+        )
+
+    def test_same_slug_de(self):
+        self._set_language_filter(BlogPrefForm.ALL_LANGUAGES)
+
+        lang_code = self.other_language.code
+        url = "%s%s/same-slug/" % (SUMMARY_URL % lang_code, TEST_DATE)
+
+        response = self.client.get(url,
+            HTTP_ACCEPT_LANGUAGE=self.other_language.code,
+        )
+        self.assertBlogPage(response, self.other_language,
+            must_contain=(
+                '<html lang="de">',
+                "Same headline in german and english",
+                "<p>4. <strong>Blog Artikel</strong> in <i>deutsch</i>!</p>",
+            ),
+            must_not_contain=("Traceback",),
+        )
+
 #    def test_summary_en_prefered_languages(self):
 #        self._set_language_filter(BlogPrefForm.PREFERED_LANGUAGES)
 #

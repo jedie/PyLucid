@@ -228,43 +228,23 @@ def detail_view(request, year, month, day, slug):
     Display one blog entry with a comment form.
     """
     # Get all blog entries, that the current user can see
-    prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
+    filter_kwargs = {
+        "createtime__year":year,
+        "createtime__month":month,
+        "createtime__day":day,
+        "slug":slug,
+    }
+    current_language = request.PYLUCID.current_language
     try:
-        # FIXME: MultipleObjectsReturned: get() returned more than one BlogEntryContent -- it returned 2!
-        # This happens if slug in more than two languages are the same!
-        content_entry = prefiltered_queryset.get(createtime__year=year, createtime__month=month, createtime__day=day, slug=slug)
+        content_entry = queryset.filter(**filter_kwargs).get(language=current_language)
     except BlogEntryContent.DoesNotExist:
-        # XXX: redirect to day_archive() ?
+        # TODO: Try to find a entry in other language, if not exist: redirect to day_archive() ?
         # It's possible that the user comes from a external link.
         messages.error(request, _("Entry for this url doesn't exist."))
         url = urlresolvers.reverse("Blog-summary")
         return HttpResponseRedirect(url)
-
-    client_language = request.PYLUCID.current_language
-    if content_entry.language != client_language:
-        # Look if this entry exists in the client preferred language
-        entry = content_entry.entry
-        try:
-            new_content_entry = prefiltered_queryset.get(entry=entry, language=client_language)
-        except BlogEntryContent.DoesNotExist:
-            # Doesn't exist in client preferred language
-            pass
-        else:
-            new_url = new_content_entry.get_absolute_url()
-            messages.info(request, _("You are redirected to the entry in your preferred language."))
-            return HttpResponseRedirect(new_url)
-
-    new_url = i18n.assert_language(request, content_entry.language)
-    if new_url:
-        # the current language is not the same as entry language -> redirect to right url
-        # e.g. someone followed a external link to this article, but his preferred language
-        # is a other language as this article. Activate the article language and "reload"
-        if settings.DEBUG or request.user.is_staff:
-            messages.info(request,
-                "current url %r doesn't contain right language, redirect to %r" % (request.path, new_url)
-            )
-        return HttpResponsePermanentRedirect(new_url)
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, content_entry.headline, _("Article '%s'") % content_entry.headline)
