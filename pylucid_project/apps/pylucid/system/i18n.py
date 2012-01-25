@@ -189,6 +189,8 @@ def assert_language(request, language, save_get_parameter=False, check_url_langu
     return a redirect url if the current used language is not the same as the given one.
     This is useful in plugins e.g.: in the blog detail view
     """
+    new_url = None
+
     if language != request.PYLUCID.current_language:
         if settings.PYLUCID.I18N_DEBUG:
             messages.info(request, "entry language %s is not %s" % (language, request.PYLUCID.current_language))
@@ -198,16 +200,22 @@ def assert_language(request, language, save_get_parameter=False, check_url_langu
         # change only the lang code in the url:
         new_url = change_url(request, language.code, save_get_parameter)
 
-        # redirect, so the new selected language would be used
-        return new_url
-
     if check_url_language:
         url_language = get_url_language(request)
         if url_language != language:
             # The url contins the wrong language code -> redirect to the right one
             new_url = change_url(request, language.code, save_get_parameter)
-            return new_url
 
+    if new_url:
+        if new_url != request.path:
+            # redirect, so the new selected language would be used
+            return new_url
+        else:
+            msg = "Error: Redirect loop! new url: %r" % new_url
+            if settings.DEBUG:
+                raise RuntimeError(msg)
+            if request.user.is_staff:
+                messages.error(request, msg)
 
 
 def resort_languages(request, url_lang_code):

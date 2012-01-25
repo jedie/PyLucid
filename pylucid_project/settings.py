@@ -15,7 +15,7 @@
     django documentation for a full list of all items:
         http://www.djangoproject.com/documentation/settings/
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -88,6 +88,7 @@ SITE_ID = 1 # Can be changed in local_settings
 
 ROOT_URLCONF = 'pylucid_project.urls'
 
+
 MIDDLEWARE_CLASSES = (
     # Save process informations. More info: https://github.com/jedie/django-processinfo
     'django_processinfo.middlewares.django_processinfo.ProcessInfoMiddleware',
@@ -103,11 +104,24 @@ MIDDLEWARE_CLASSES = (
 
     # make the request object everywhere available with a thread local storage:
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
+)
 
-    # Set SITE_ID dynamically base on the current domain name **Experimental** :
-    # To activate set "USE_DYNAMIC_SITE_MIDDLEWARE = True" in your local_settings.py
-    'django_tools.middlewares.DynamicSite.DynamicSiteMiddleware',
+# For backward compatible - FIXME: Remove after v0.12 release
+try:
+    from django_tools import dynamic_site
+except ImportError:
+    # Wrong django-tools version -> skip
+    _DYNAMIC_SITE = False
+else:
+    del(dynamic_site)
+    _DYNAMIC_SITE = True
+    MIDDLEWARE_CLASSES += (
+        # Set SITE_ID dynamically base on the current domain name **Experimental** :
+        # To activate set "USE_DYNAMIC_SITE_MIDDLEWARE = True" in your local_settings.py
+        'django_tools.dynamic_site.middleware.DynamicSiteMiddleware',
+    )
 
+MIDDLEWARE_CLASSES += (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -232,6 +246,13 @@ INSTALLED_APPS = (
     'south',
     'django_processinfo',
 )
+
+# For backward compatible - FIXME: Remove after v0.12 release
+if _DYNAMIC_SITE:
+    INSTALLED_APPS += ('django_tools.dynamic_site',)
+del(_DYNAMIC_SITE)
+
+
 # Add all existing PyLucid apps + plugins
 INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
 #print "settings.INSTALLED_APPS:", "\n".join(INSTALLED_APPS)
