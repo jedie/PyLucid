@@ -30,13 +30,13 @@
 {% block extrastyle %}{{ block.super }}
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block START -->{% endif %}
 {% if PyLucid_media_url %}{# stylesheets for all Django admin views #}
-    <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
-	<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"/>
+    <link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" />
+	<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}pylucid_admin.css" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" />
 {% else %}{# PyLucid_media_url doesn't exist in e.g. 500 error #}
     <!-- Error: Can't include PyLucid CSS files{% if debug %}, because PyLucid_media_url is not defined!{% endif %} -->
 {% endif %}
 {% if pygments_css %}
-<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"/>
+<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" />
 {% endif %}
 {% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block END -->{% endif %}
 {% endblock extrastyle %}

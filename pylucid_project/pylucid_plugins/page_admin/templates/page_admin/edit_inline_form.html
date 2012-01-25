@@ -22,7 +22,7 @@ textarea {
 }
 --></style>
 {% if pagecontent.markup == 1 %}{# current markup is HTML+Editor #}
-<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css" />
+<link rel="stylesheet" type="text/css" href="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.css"  onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" />
 <script type="text/javascript" src="{{ PyLucid_media_url }}jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <script type="text/javascript">
 jQuery(document).ready(function($) {
