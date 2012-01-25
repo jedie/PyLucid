@@ -7,7 +7,7 @@
 <fieldset class="taglist"><legend>tag navi</legend>
 {% for tag in tags %}
     {% if not forloop.first %}|{% endif %}
-    <a href="?tag_navi={{ tag.name }}">{{ tag.name }}</a>
+    <a href="?tag_navi={{ tag.name }}" rel="nofollow">{{ tag.name }}</a>
 {% endfor %}
 </fieldset>
 {% endif %}

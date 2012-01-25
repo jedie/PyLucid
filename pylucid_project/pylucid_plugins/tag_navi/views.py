@@ -6,17 +6,9 @@
     
     A tag based navigation.
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate: 2009-03-31 15:03:20 +0200 (Di, 31 Mrz 2009) $
-    $Rev: 1868 $
-    $Author: JensDiemer $
-
-    :copyleft: 2008-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
-
-__version__ = "$Rev: 1868 $"
 
 from django.utils.translation import ugettext as _
 
@@ -40,6 +32,7 @@ def http_get_view(request):
     breadcrumb_context_middlewares.add_link(title, title, url=request.get_full_path())
 
     context = {
+        "page_robots": "noindex,nofollow",
         "entries": entries,
         "tags": tags,
     }
