@@ -40,6 +40,7 @@ from blog.preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
+from django.core.urlresolvers import reverse
 
 
 
@@ -61,16 +62,22 @@ def _get_max_tag_count():
 
 def _split_tags(raw_tags):
     "simple split tags from url"
-    tags = raw_tags.strip("/").split("/")
+    tag_list = raw_tags.strip("/").split("/")
 
     max_count = _get_max_tag_count()
-    if len(tags) >= max_count:
+    tag_count = len(tag_list) - 1
+    if tag_count == max_count:
+        raise Http404(_("Too much tags given"))
+    elif tag_count > max_count:
         # The maximum number of tag filters is exceeded.
         # This can't not happen by accident, because we didn't insert
         # more tag filter links than allowed.
         raise SuspiciousOperation(_("Too much tags given"))
 
-    return tags
+    tag_list.sort()
+    canonical = "/".join(tag_list)
+
+    return tag_list, canonical
 
 
 class RssFeed(Feed):
@@ -86,9 +93,13 @@ class RssFeed(Feed):
         lang_entry = request.PYLUCID.current_language
         self.language = lang_entry.code
 
-        if tags is not None:
-            tags = _split_tags(tags)
-        self.tags = tags
+        if tags is None:
+            self.tags = None
+        else:
+            tags_list, canonical = _split_tags(tags)
+            if tags != canonical:
+                raise Http404("No canonical url.") # Should we redirect? How?
+            self.tags = tags_list
 
         # Get max number of feed entries from request.GET["count"]
         # Validate/Limit it with information from DBPreferences 
@@ -173,10 +184,16 @@ def tag_view(request, tags):
     """
     Display summary list with blog entries filtered by the given tags.
     """
-    tags = _split_tags(tags)
+    tag_list, canonical = _split_tags(tags)
+
+    if tags != canonical:
+        # Redirect to a canonical url
+        # FIXME: The template should create links in a canonical way and not just +tag
+        url = reverse('Blog-tag_view', kwargs={"tags":canonical})
+        return HttpResponsePermanentRedirect(url)
 
     # Get all blog entries, that the current user can see
-    paginator = BlogEntryContent.objects.get_filtered_queryset(request, tags=tags, filter_language=True)
+    paginator = BlogEntryContent.objects.get_filtered_queryset(request, tags=tag_list, filter_language=True)
 
     queryset = paginator.object_list
     if len(queryset) == 0:
@@ -189,7 +206,7 @@ def tag_view(request, tags):
     tag_cloud = BlogEntryContent.objects.cloud_for_queryset(queryset)
 
     # Add link to the breadcrumbs ;)
-    text = _("All items tagged with: %s") % ", ".join(["'%s'" % tag for tag in tags])
+    text = _("All items tagged with: %s") % ", ".join(["'%s'" % tag for tag in tag_list])
     _add_breadcrumb(request, text)
 
     # For adding page update information into context by pylucid context processor
@@ -202,19 +219,18 @@ def tag_view(request, tags):
 
     # Don't add links to tags, if the maximum tag filter count is reached:
     max_count = _get_max_tag_count()
-    if len(tags) >= (max_count - 1):
-        dont_link_tags = True
+    if len(tag_list) < max_count:
+        add_tag_filter_link = True
     else:
-        dont_link_tags = False
+        add_tag_filter_link = False
 
     context = {
         "entries": paginator,
         "tag_cloud": tag_cloud,
-        "add_tag_filter_link": True, # Add + tag filter link
+        "add_tag_filter_link": add_tag_filter_link,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-        "used_tags": tags,
-        "tags": "/".join(tags),
-        "dont_link_tags": dont_link_tags,
+        "used_tags": tag_list,
+        "tags": tags,
         "filenames": FEED_FILENAMES,
         "page_robots": "noindex,nofollow",
     }

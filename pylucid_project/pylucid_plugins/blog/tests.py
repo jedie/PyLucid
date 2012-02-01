@@ -15,6 +15,7 @@
 
 import os
 import datetime
+from django.core.exceptions import SuspiciousOperation
 
 if __name__ == "__main__":
     # run all unittest directly
@@ -147,14 +148,7 @@ class BlogPluginTestCase(basetest.BaseLanguageTestCase):
         return self.login_with_permissions(usertype="normal", permissions=(ADD_PERMISSION,))
 
 
-
-class BlogPluginAnonymousTest(BlogPluginTestCase):
-    """
-    ALL_LANGUAGES - "Don't filter by languages. Allways display all blog entries."
-    PREFERED_LANGUAGES - "Filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)"
-    CURRENT_LANGUAGE - "Display only blog entries in current language (select on the page)"
-    """
-
+class BlogPluginAnonymousTestCase(BlogPluginTestCase):
     def setUp(self):
         cache.clear()
 
@@ -165,12 +159,18 @@ class BlogPluginAnonymousTest(BlogPluginTestCase):
         DEBUG_LANG_FILTER = True
         settings.PYLUCID.I18N_DEBUG = True
 
+        self.pref_form = BlogPrefForm()
 
     def _set_language_filter(self, language_filter):
-        self.pref_form = BlogPrefForm()
         self.pref_form["language_filter"] = language_filter
         self.pref_form.save()
 
+class BlogPluginAnonymousTest(BlogPluginAnonymousTestCase):
+    """
+    ALL_LANGUAGES - "Don't filter by languages. Allways display all blog entries."
+    PREFERED_LANGUAGES - "Filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)"
+    CURRENT_LANGUAGE - "Display only blog entries in current language (select on the page)"
+    """
     def test_summary_en_all_languages(self):
         self._set_language_filter(BlogPrefForm.ALL_LANGUAGES)
 
@@ -340,6 +340,85 @@ class BlogPluginAnonymousTest(BlogPluginTestCase):
         self._test_rss_feed(self.other_language)
 '''
 
+class BlogPluginTagsTest(BlogPluginAnonymousTestCase):
+    """
+    ALL_LANGUAGES - "Don't filter by languages. Allways display all blog entries."
+    PREFERED_LANGUAGES - "Filter by client prefered languages (set in browser and send by HTTP_ACCEPT_LANGUAGE header)"
+    CURRENT_LANGUAGE - "Display only blog entries in current language (select on the page)"
+    """
+
+    def setUp(self):
+        super(BlogPluginTagsTest, self).setUp()
+
+        self.pref_form["max_tag_count"] = 2 # Allow only two tag filters
+        self.pref_form.save()
+        self._set_language_filter(BlogPrefForm.ALL_LANGUAGES)
+
+    def test_canonical_url(self):
+        url = TAG_URL = "/%s/blog/tags/%s/" % (self.default_language.code,
+            "/".join(["sharedtag", "second_tag"])
+        )
+        response = self.client.get(url,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.assertRedirect(response,
+            # and not ...estserver/en/blog/tags/sharedtag/second_tag/ ;)
+            url="http://testserver/en/blog/tags/second_tag/sharedtag/",
+            status_code=301 # permanent redirect
+        )
+
+    def test_one_tag_filter(self):
+        # With one tag filter, other tags has "add-link"
+        url = TAG_URL = "/%s/blog/tags/%s/" % (self.default_language.code, "sharedtag")
+        response = self.client.get(url,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.assertBlogPage(response, self.default_language,
+            must_contain=('Your personal weblog.',
+                '<strong style="font-size:2em;">sharedtag</strong>', # current tag filter
+                'rel="nofollow">[+]</a>', # link to add tag filter
+                'rel="nofollow">second_tag</a>', # Other tag filter
+            ),
+            must_not_contain=('Traceback',)
+        )
+
+    def test_reached_tag_filters(self):
+        # With two tags, the max number of filters is reached -> No "add-link"
+        url = TAG_URL = "/%s/blog/tags/%s/" % (self.default_language.code,
+            "/".join(["second_tag", "sharedtag"])
+        )
+        response = self.client.get(url,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.assertBlogPage(response, self.default_language,
+            must_contain=('Your personal weblog.',
+                '<strong style="font-size:1em;">second_tag</strong>', # current tag filter 1
+                '<strong style="font-size:1em;">sharedtag</strong>', # current tag filter 2
+                'rel="nofollow">english-tag</a>', # Other tag filter
+            ),
+            must_not_contain=('Traceback',
+                'rel="nofollow">[+]</a>', # link to add tag filter
+            )
+        )
+
+    def test_too_mush_tags_filters1(self):
+        # With three tags are one to murch -> raise 404
+        url = TAG_URL = "/%s/blog/tags/%s/" % (self.default_language.code,
+            "/".join(["second_tag", "sharedtag", "english-tag"])
+        )
+        response = self.client.get(url,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
+        self.failUnlessEqual(response.status_code, 404)
+
+    def test_too_mush_tags_filters2(self):
+        # With four tags are two to murch -> raise SuspiciousOperation and log this
+        url = TAG_URL = "/%s/blog/tags/%s/" % (self.default_language.code,
+            "/".join(["second_tag", "sharedtag", "english-tag", "too_mutch"])
+        )
+        self.assertRaises(SuspiciousOperation, self.client.get, url,
+            HTTP_ACCEPT_LANGUAGE=self.default_language.code,
+        )
 
 
 class BlogPluginTest(BlogPluginTestCase):
@@ -736,6 +815,7 @@ if __name__ == "__main__":
     tests = __file__
 #    tests = "pylucid_plugins.blog.tests.BlogPluginCsrfTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginAnonymousTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTagsTest"
 #    tests = "pylucid_plugins.blog.tests.BlogLanguageFilterTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
