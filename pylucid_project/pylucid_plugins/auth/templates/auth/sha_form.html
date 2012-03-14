@@ -141,12 +141,12 @@ jQuery(document).ready(function($) {
 		    sha_a2 = sha_hexdigest(challenge + sha_a);
 			if (sha_a2 == false) { return false; }
 
-		    // display SHA values
-			$("#sha_values_block").css("display", "block").slideDown();
-            $("#id_password").val(""); // 'delete' plaintext password
-			$("#password_block").slideUp();
-		    $("#id_sha_a2").val(sha_a2);
-            $("#id_sha_b").val(sha_b);
+		// display SHA values
+         	$("#password_block").slideUp(1).delay(500);
+		$("#sha_values_block").css("display", "block").slideDown();
+		$("#id_password").val(""); // 'delete' plaintext password
+		$("#id_sha_a2").val(sha_a2);
+		$("#id_sha_b").val(sha_b);
 
 			var post_data = {
 			    "username": username, "sha_a2": sha_a2, "sha_b": sha_b,
