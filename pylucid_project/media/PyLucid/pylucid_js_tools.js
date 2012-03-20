@@ -172,10 +172,15 @@ function push_state(url, title) {
     *************************************************************************/
     if (typeof(title) === 'undefined') var title = "";
     
-    try {
-        history.pushState({}, title, url);
-    } catch (e) {
-        log("Can't use history.pushState:" + e);
+    if (window.history && window.history.pushState) {
+        try {
+            history.pushState(null, title, url);
+        } catch (e) {
+            log("Can't use history.pushState:" + e);
+        }
+    } else {
+        log("No window.history.pushState :(");
+        //document.location.href = url; // <<-- would load the page as ajax and normal!!!
     }
 }
 
