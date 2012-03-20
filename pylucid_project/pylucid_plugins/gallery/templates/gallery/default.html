@@ -56,7 +56,9 @@ jQuery(document).ready(function($) {
 		close:'&#x2716; {% trans "close or Esc key" %}'
     });
 	$("fieldset.directory a").click(function(){
-	   return get_pylucid_ajax_view(this.href);
+        var url=this.href;
+	    push_state(url);
+        return get_pylucid_ajax_view(url);
 	});
     log("gallery initialized.");
 });

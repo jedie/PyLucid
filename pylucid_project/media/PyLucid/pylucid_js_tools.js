@@ -163,7 +163,21 @@ function pylucid_ajax_form_view(form_id) {
     });
 }
 
-
+function push_state(url, title) {
+    /*************************************************************************
+    try to add a history entry with HTML5
+    
+    see also:
+    https://developer.mozilla.org/en/DOM/Manipulating_the_browser_history#The_pushState%28%29.C2.A0method
+    *************************************************************************/
+    if (typeof(title) === 'undefined') var title = "";
+    
+    try {
+        history.pushState({}, title, url);
+    } catch (e) {
+        log("Can't use history.pushState:" + e);
+    }
+}
 
 function get_pylucid_ajax_view(url) {
     /*************************************************************************
@@ -193,13 +207,6 @@ function get_pylucid_ajax_view(url) {
     var url = encodeURI(url);
     log("get:" + url);
 
-    try {
-        // Add history entry with HTML5:
-        history.pushState({ path: url }, '', url);
-    } catch (e) {
-        log("Can't use history.pushState:" + e);
-    }
-        
     load_normal_link = true;
     
     $.ajax({
