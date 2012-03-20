@@ -186,7 +186,14 @@ function get_pylucid_ajax_view(url) {
 
     var url = encodeURI(url);
     log("get:" + url);
-    
+
+    try {
+        // Add history entry with HTML5:
+        history.pushState({ path: url }, '', url);
+    } catch (e) {
+        log("Can't use history.pushState:" + e);
+    }
+        
     load_normal_link = true;
     
     $.ajax({
