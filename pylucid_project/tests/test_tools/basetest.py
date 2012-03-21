@@ -182,10 +182,10 @@ class BaseLanguageTestCase(BaseUnittest):
     """
     def tearDown(self):
         super(BaseLanguageTestCase, self).tearDown()
-        if self.system_preferences is not None:
+        if self._system_preferences is not None:
             # revert changes from self.enable_i18n_debug()
-            self.system_preferences["message_level_anonymous"] = self.old_message_level
-            self.system_preferences.save()
+            self._system_preferences["message_level_anonymous"] = self.old_message_level
+            self._system_preferences.save()
         settings.DEBUG = False
         settings.PYLUCID.I18N_DEBUG = False
 
@@ -195,10 +195,10 @@ class BaseLanguageTestCase(BaseUnittest):
         """
         cache.clear()
         from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
-        self.system_preferences = SystemPreferencesForm()
-        self.old_message_level = self.system_preferences["message_level_anonymous"]
-        self.system_preferences["message_level_anonymous"] = message_constants.DEBUG
-        self.system_preferences.save()
+        self._system_preferences = SystemPreferencesForm()
+        self.old_message_level = self._system_preferences["message_level_anonymous"]
+        self._system_preferences["message_level_anonymous"] = message_constants.DEBUG
+        self._system_preferences.save()
         settings.DEBUG = True
         settings.PYLUCID.I18N_DEBUG = True
 
@@ -206,7 +206,7 @@ class BaseLanguageTestCase(BaseUnittest):
         """ create some language related attributes """
         super(BaseLanguageTestCase, self)._pre_setup(*args, **kwargs)
 
-        self.system_preferences = None # used in enable_i18n_debug() and tearDown()
+        self._system_preferences = None # used in enable_i18n_debug() and tearDown()
 
         # default language is defined with settings.LANGUAGE_CODE
         self.default_language = Language.objects._get_default_language()
