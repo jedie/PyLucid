@@ -128,9 +128,10 @@ def remote(request, url, encoding=None, markup=None, highlight=None, strip_html=
         # Get the current page url, for referer
         context = request.PYLUCID.context
         page_absolute_url = context["page_absolute_url"]
+        current_language = request.PYLUCID.current_language
+        current_language_code = current_language.code
 
         socket_timeout = preferences["socket_timeout"]
-
         user_agent = preferences["user_agent"]
 
         start_time = time.time()
@@ -139,6 +140,7 @@ def remote(request, url, encoding=None, markup=None, highlight=None, strip_html=
             r = HttpRequest(url, timeout=socket_timeout, threadunsafe_workaround=True)
             r.request.add_header("User-agent", user_agent)
             r.request.add_header("Referer", page_absolute_url)
+            r.request.add_header("Accept-Language", current_language_code)
 
             response = r.get_response()
             raw_content = r.get_unicode()
