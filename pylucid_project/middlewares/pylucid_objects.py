@@ -18,9 +18,20 @@ from django.conf import settings
 from django.contrib.redirects.models import Redirect
 from django.http import Http404
 from django.utils.encoding import smart_str
+from django.core.exceptions import SuspiciousOperation
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.system import pylucid_objects
+
+class SuspiciousOperation404(SuspiciousOperation):
+    """
+    A SuspiciousOperation that will return a normal 404 back to the client.
+    But this error would be logged and the IP would be ban if the client
+    raised to much exceptions.
+    The 404 would be returned in PyLucidMiddleware.process_exception()
+    """
+    # TODO: Move logging, ip ban and this into a seperate app
+    status_code = 404
 
 
 class PyLucidMiddleware(object):
@@ -84,3 +95,6 @@ class PyLucidMiddleware(object):
             from pylucid_project.apps.pylucid.models import BanEntry
             BanEntry.objects.add(request) # raised 404 after adding the client IP!
 
+        if isinstance(exception, SuspiciousOperation404):
+            # raise a normal 404 after SuspiciousOperation was logged.
+            raise Http404("SuspiciousOperation.")
