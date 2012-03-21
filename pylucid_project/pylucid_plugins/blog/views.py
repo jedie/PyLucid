@@ -21,7 +21,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.syndication.views import Feed
 from django.core import urlresolvers
-from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect, \
     Http404
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
@@ -30,8 +29,9 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.generic.date_based import archive_year, archive_month, \
     archive_day
 
-from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.apps.pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.system import i18n
+from pylucid_project.middlewares.pylucid_objects import SuspiciousOperation404
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
 
 from blog.preference_forms import get_preferences
@@ -41,7 +41,6 @@ from blog.preference_forms import BlogPrefForm
 # from django-tagging
 from tagging.models import Tag, TaggedItem
 from django.core.urlresolvers import reverse
-
 
 
 def _add_breadcrumb(request, *args, **kwargs):
@@ -72,7 +71,7 @@ def _split_tags(raw_tags):
         # The maximum number of tag filters is exceeded.
         # This can't not happen by accident, because we didn't insert
         # more tag filter links than allowed.
-        raise SuspiciousOperation(_("Too much tags given"))
+        raise SuspiciousOperation404(_("Too much tags given"))
 
     tag_list.sort()
     canonical = "/".join(tag_list)

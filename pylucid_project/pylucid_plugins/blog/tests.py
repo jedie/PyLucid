@@ -153,9 +153,11 @@ class BlogPluginAnonymousTestCase(BlogPluginTestCase):
         cache.clear()
 
         from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
-        system_preferences = SystemPreferencesForm()
-        system_preferences["message_level_anonymous"] = message_constants.DEBUG
-        system_preferences.save()
+        self.system_pref_form = SystemPreferencesForm()
+        self.system_preferences = self.system_pref_form.get_preferences()
+        self.system_preferences["message_level_anonymous"] = message_constants.DEBUG
+        self.system_pref_form.save()
+
         DEBUG_LANG_FILTER = True
         settings.PYLUCID.I18N_DEBUG = True
 
@@ -164,6 +166,7 @@ class BlogPluginAnonymousTestCase(BlogPluginTestCase):
     def _set_language_filter(self, language_filter):
         self.pref_form["language_filter"] = language_filter
         self.pref_form.save()
+
 
 class BlogPluginAnonymousTest(BlogPluginAnonymousTestCase):
     """
@@ -401,7 +404,7 @@ class BlogPluginTagsTest(BlogPluginAnonymousTestCase):
             )
         )
 
-    def test_too_mush_tags_filters1(self):
+    def test_too_mush_tags_filters(self):
         # With three tags are one to murch -> raise 404
         url = TAG_URL = "/%s/blog/tags/%s/" % (self.default_language.code,
             "/".join(["second_tag", "sharedtag", "english-tag"])
@@ -411,14 +414,34 @@ class BlogPluginTagsTest(BlogPluginAnonymousTestCase):
         )
         self.failUnlessEqual(response.status_code, 404)
 
-    def test_too_mush_tags_filters2(self):
-        # With four tags are two to murch -> raise SuspiciousOperation and log this
+    def _request_with_too_much_tags(self):
         url = TAG_URL = "/%s/blog/tags/%s/" % (self.default_language.code,
             "/".join(["second_tag", "sharedtag", "english-tag", "too_mutch"])
         )
-        self.assertRaises(SuspiciousOperation, self.client.get, url,
+        response = self.client.get(url,
             HTTP_ACCEPT_LANGUAGE=self.default_language.code,
         )
+        return response
+
+    def test_too_mush_tags_filters_and_ban(self):
+        ban_count = int(self.system_preferences["ban_count"])
+
+        for i in xrange(ban_count):
+            # With four tags are two to murch -> raise SuspiciousOperation and log this
+            response = self._request_with_too_much_tags()
+            self.failUnlessEqual(response.status_code, 404)
+
+        # We are banned after 'ban_count' bad requests -> Get 403 Forbidden
+        response = self._request_with_too_much_tags()
+        self.failUnlessEqual(response.status_code, 403)
+
+        # Important: We must remove "us" from ban list, otherwise other unittests
+        # will failed ;)
+        from pylucid_project.apps.pylucid.models import BanEntry
+        BanEntry.objects.all().delete()
+
+        # Test if we are not banned anymore:
+        self.test_one_tag_filter()
 
 
 class BlogPluginTest(BlogPluginTestCase):
