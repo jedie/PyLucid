@@ -8,7 +8,7 @@ from dbtemplates.models import Template as DBTemplate
 
 from pylucid_project.apps.pylucid.models import Language, PageContent, EditableHtmlHeadFile
 
-from blog.models import BlogEntry
+from blog.models import BlogEntryContent
 from lexicon.models import LexiconEntry
 
 
@@ -17,7 +17,7 @@ from find_and_replace.preference_forms import get_preferences
 
 CONTENT_TYPES = (
     (u"PageContent", PageContent),
-    (u"BlogEntry", BlogEntry),
+    (u"BlogEntryContent", BlogEntryContent),
     (u"LexiconEntry", LexiconEntry),
     (u"EditableHtmlHeadFile", EditableHtmlHeadFile),
     (u"DBTemplate", DBTemplate),

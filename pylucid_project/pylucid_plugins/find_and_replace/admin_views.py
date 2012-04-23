@@ -1,4 +1,12 @@
-# coding:utf-8
+# coding: utf-8
+
+"""
+    PyLucid find&replace
+    ~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2008-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+"""
 
 import time
 
@@ -45,6 +53,8 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
     if model_name == u"PageContent":
         queryset = queryset.filter(pagemeta__language__in=search_languages)
         queryset = queryset.filter(pagemeta__pagetree__site__in=sites)
+    elif model_name == u"BlogEntryContent":
+        queryset = queryset.filter(entry__sites__in=sites)
     elif model_name == u"EditableHtmlHeadFile":
         context["no_link"] = True
     else:
