@@ -150,8 +150,6 @@ FEED_FILENAMES = (AtomFeed.filename, RssFeed.filename)
 def summary(request):
     """
     Display summary list with all blog entries.
-    
-    TODO: Set http robots ==> "noindex,follow"
     """
     # Get all blog entries, that the current user can see
     paginator = BlogEntryContent.objects.get_filtered_queryset(request, filter_language=True)
@@ -174,6 +172,7 @@ def summary(request):
         "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
         "filenames": FEED_FILENAMES,
+        "page_robots": "noindex,follow",
     }
     return context
 
