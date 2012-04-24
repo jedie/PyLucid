@@ -151,6 +151,11 @@ def summary(request):
     """
     Display summary list with all blog entries.
     """
+    url = urlresolvers.reverse("Blog-summary")
+    if url != request.path:
+        # e.g.: request with wrong permalink: /en/blog/XXX/foobar-slug/
+        return HttpResponseRedirect(url)
+
     # Get all blog entries, that the current user can see
     paginator = BlogEntryContent.objects.get_filtered_queryset(request, filter_language=True)
 
