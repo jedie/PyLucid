@@ -316,7 +316,7 @@ def permalink_view(request, id, slug=None):
     prefiltered_queryset = prefiltered_queryset.filter(entry__id__exact=id)
     try:
         entry = prefiltered_queryset.filter(language__in=preferred_languages)[0]
-    except BlogEntry.DoesNotExist, IndexError:
+    except (BlogEntry.DoesNotExist, IndexError):
         # wrong permalink -> display summary
         msg = "Blog entry doesn't exist."
         if settings.DEBUG or request.user.is_staff:
