@@ -253,11 +253,26 @@ def detail_view(request, year, month, day, slug):
     }
     current_language = request.PYLUCID.current_language
     try:
-        content_entry = queryset.filter(**filter_kwargs).get(language=current_language)
-    except BlogEntryContent.DoesNotExist:
+        queryset = queryset.filter(**filter_kwargs)
+    except BlogEntryContent.DoesNotExist, err:
         # TODO: Try to find a entry in other language, if not exist: redirect to day_archive() ?
         # It's possible that the user comes from a external link.
-        messages.error(request, _("Entry for this url doesn't exist."))
+        msg = _("Entry for this url doesn't exist.")
+        if settings.DEBUG or request.user.is_superuser:
+            msg += " Filter kwargs: %r - error: %s" % (filter_kwargs, err)
+        messages.error(request, msg)
+        url = urlresolvers.reverse("Blog-summary")
+        return HttpResponseRedirect(url)
+
+    try:
+        content_entry, tried_languages = BlogEntryContent.objects.get_by_prefered_language(request, queryset, show_lang_errors=False)
+    except BlogEntryContent.DoesNotExist, err:
+        # TODO: Try to find a entry in other language, if not exist: redirect to day_archive() ?
+        # It's possible that the user comes from a external link.
+        msg = _("Entry for this url doesn't exist.")
+        if settings.DEBUG or request.user.is_superuser:
+            msg += " - Not found in these languages: %s - error: %s" % (",".join(tried_languages), err)
+        messages.error(request, msg)
         url = urlresolvers.reverse("Blog-summary")
         return HttpResponseRedirect(url)
 

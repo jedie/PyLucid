@@ -11,6 +11,7 @@
 """
 
 from django.conf import settings
+from django.contrib import messages
 from django.core import urlresolvers
 from django.core.cache import cache
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -31,12 +32,12 @@ from pylucid_project.apps.pylucid.models import Language, PluginPage
 from pylucid_project.apps.pylucid.system.i18n import change_url_language
 from pylucid_project.apps.pylucid.system.permalink import plugin_permalink
 from pylucid_project.base_models.base_markup_model import MarkupBaseModel
+from pylucid_project.base_models.base_models import BaseModelManager
 from pylucid_project.base_models.many2many import SiteM2M
 from pylucid_project.pylucid_plugins import update_journal
+from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm, get_preferences
 from pylucid_project.utils.i18n_utils import filter_by_language
 
-from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm, get_preferences
-from django.contrib import messages
 
 
 
@@ -119,7 +120,15 @@ class BlogEntry(SiteM2M):
         return "Blog entry %i" % self.pk
 
 
-class BlogEntryContentManager(models.Manager):
+class BlogEntryContentManager(BaseModelManager):
+    """
+    inherited from BaseModelManager:
+        get_by_prefered_language() method:
+            return a item from queryset in this way:
+             - try to get in current language
+             - if not exist: try to get in system default language
+             - if not exist: use the first found item
+    """
     def all_accessible(self, request, filter_language=False):
         """ returns a queryset of all blog entries that the current user can access. """
         filters = self.get_filters(request, filter_language=filter_language)
