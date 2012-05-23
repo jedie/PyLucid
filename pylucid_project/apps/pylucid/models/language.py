@@ -72,8 +72,11 @@ class LanguageManager(models.Manager):
         return queryset
 
     def get_cached_languages(self, user):
-        """ returns a cached *list* of all languages that the given user can access. """
-        cache_key = user
+        """
+        returns a cached *list* of all languages that the given user can access
+        on the current site.
+        """
+        cache_key = (user, settings.SITE_ID)
         if cache_key not in ACCESSIBLE_LANG_CACHE:
             languages = self.all_accessible(user)
 #            if settings.PYLUCID.I18N_DEBUG:
