@@ -50,8 +50,7 @@ CHOICES = {
     INSTALL_NORMAL:"normal_installation.txt",
     INSTALL_DEV:"developer_installation.txt",
 }
-
-
+NO_DEPENDENCIES = ("pylucid", "django-processinfo", "django-reversion-compare")
 
 
 class ColorOut(object):
@@ -166,16 +165,22 @@ def parse_requirements(filename):
     return entries
 
 
-def call_pip(options, *args):
+def call_pip(options, no_dependencies, *args):
     pip_executeable = os.path.join(locations.bin_py, "pip")
+
     cmd = [
-        pip_executeable, "install", "--upgrade", "--no-dependencies",
-        "--download-cache=%s" % options.download_cache
+        pip_executeable, "install",
+        "--download-cache=%s" % options.download_cache, "--upgrade"
     ]
+    if no_dependencies:
+        cmd.append("--no-dependencies")
+
     if options.verbose:
         cmd.append("--verbose")
+
     if options.logfile:
         cmd.append("--log=%s" % options.logfile)
+
     cmd += args
     print("_" * get_terminal_size()[0])
     print(c.colorize(" ".join(cmd), foreground="blue"))
@@ -198,7 +203,7 @@ def select_requirement(options, filename):
         print(c.colorize("Abort, ok.", foreground="blue"))
         sys.exit()
 
-    selection = [i for i in input.split(",") if i.strip()]
+    selection = [i.strip() for i in input.split(",") if i.strip()]
     if len(selection) == 0:
         print(c.colorize("Abort, ok.", foreground="blue"))
         sys.exit()
@@ -225,8 +230,30 @@ def select_requirement(options, filename):
 
 
 def do_upgrade(options, requirements):
+
+    pylucid_index = None
+    for no, requirement in enumerate(requirements):
+        if "pylucid" in requirement:
+            pylucid_index = no
+            break
+
+    if pylucid_index is not None:
+        # move pylucid to the beginning of the list
+        pylucid = requirements.pop(no)
+        requirements.insert(0, pylucid)
+
+#    print "\n".join(requirements)
+#    return
+
+    def set_dependencies(requirement):
+        for name in NO_DEPENDENCIES:
+            if name in requirement:
+                return True
+        return False
+
     for requirement in requirements:
-        call_pip(options, requirement)
+        no_dependencies = set_dependencies(requirement)
+        call_pip(options, no_dependencies, requirement)
 
 
 def main():
