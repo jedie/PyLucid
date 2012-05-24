@@ -34,7 +34,7 @@ PAGE_INSTANCE=/var/www/YourSite/
 # -----------------------------------------------------------------------------
 
 LOG_FILE=/var/log/gunicorn.log
-PID_FILE=/tmp/gunicorn.pid
+PID_FILE=/var/run/gunicorn.pid
 SOCK=/tmp/gunicorn.sock
 CALL_INFO="$0 $*"
 
