@@ -1,0 +1,15 @@
+== nginx + gunicorn
+
+Here some example scripts/config files for running PyLucid with nginx + gunicorn.
+
+* nginx [engine x] is an HTTP and reverse proxy server.
+* Gunicorn 'Green Unicorn' is a Python WSGI HTTP Server for UNIX.
+
+There exist many viariants how to "run" a django web applications. Here we startup
+the PyLucid WSGI process with gunicorn.sh and nginx will serve the static files
+and communicates with gunicorn via unix sockets. 
+
+== links
+
+* http://nginx.org/
+* http://gunicorn.org/
