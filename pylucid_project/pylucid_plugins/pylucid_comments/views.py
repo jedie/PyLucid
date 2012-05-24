@@ -31,7 +31,10 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 from django_tools.decorators import render_to
+"""
+only available with django 1.4 !
 from django_tools.utils.client_storage import ClientCookieStorage, InvalidCookieData
+"""
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.shortcuts import bad_request
@@ -151,6 +154,8 @@ def _get_form(request):
         return bad_request(APP_LABEL, "error", "Wrong object_pk: %s" % err)
 
     data = {}
+    """
+    only available with django 1.4 !
     if not request.user.is_authenticated():
         # Get user data from secure cookie, set in the past, see _form_submission()
         c = ClientCookieStorage(cookie_key=COOKIE_KEY)
@@ -171,6 +176,7 @@ def _get_form(request):
                     raise
             else:
                 data = {"name": username, "email": email, "url": url}
+    """
 
     form = comments.get_form()(target, initial=data)
 
