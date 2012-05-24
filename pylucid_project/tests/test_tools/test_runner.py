@@ -90,8 +90,7 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
         plugin_name = "pylucid_project.pylucid_plugins.unittest_plugin"
         if not plugin_name in settings.INSTALLED_APPS:
             print "unittest_plugin added to settings.INSTALLED_APPS"
-            settings.INSTALLED_APPS = list(settings.INSTALLED_APPS)
-            settings.INSTALLED_APPS.append(plugin_name)
+            settings.INSTALLED_APPS += (plugin_name,)
 
         if not "unittest_plugin" in PYLUCID_PLUGINS:
             pkg_path = os.path.join(PYLUCID_PROJECT_ROOT, "pylucid_plugins")
