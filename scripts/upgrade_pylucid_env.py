@@ -192,6 +192,9 @@ def select_requirement(options, filename):
     requirements = parse_requirements(filename)
 
     print "\nWhich package should be upgraded?\n"
+    print c.colorize("Important:", foreground="red"), "Check if there are backward incompatible changes:"
+    print "http://www.pylucid.org/en/blog/tags/backward%20incompatible/"
+    print
     for no, requirement in enumerate(requirements):
         print "(%i) %s" % (no, requirement)
 
