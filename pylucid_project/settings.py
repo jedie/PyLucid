@@ -44,9 +44,14 @@ from django_processinfo import app_settings as PROCESSINFO
 # Used by a few dynamic settings:
 RUN_WITH_DEV_SERVER = "runserver" in sys.argv
 
+def _pkg_path(obj):
+    return os.path.abspath(os.path.dirname(obj.__file__))
 
-PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+#PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+PYLUCID_BASE_PATH = _pkg_path(pylucid_project)
+DJANGO_BASE_PATH = _pkg_path(django)
 #print "PYLUCID_BASE_PATH:", PYLUCID_BASE_PATH
+#print "DJANGO_BASE_PATH:", DJANGO_BASE_PATH
 #PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
 
 #______________________________________________________________________________
@@ -75,7 +80,7 @@ SQL_DEBUG = False
 # Should allways be False. It's only for developing! 
 PYLUCID_OBJECTS_DEBUG = False
 
-# We must set a defaul DB settings here, otherwise managment commands doesn't work.
+# We must set a default DB settings here, otherwise management commands doesn't work.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -106,22 +111,13 @@ MIDDLEWARE_CLASSES = (
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
 )
 
-# For backward compatible - FIXME: Remove after v0.12 release
-try:
-    from django_tools import dynamic_site
-except ImportError:
-    # Wrong django-tools version -> skip
-    _DYNAMIC_SITE = False
-else:
-    del(dynamic_site)
-    _DYNAMIC_SITE = True
-    MIDDLEWARE_CLASSES += (
-        # Set SITE_ID dynamically base on the current domain name **Experimental** :
-        # To activate set "USE_DYNAMIC_SITE_MIDDLEWARE = True" in your local_settings.py
-        'django_tools.dynamic_site.middleware.DynamicSiteMiddleware',
-    )
+# activate django-tools DynamicSiteMiddleware:
+USE_DYNAMIC_SITE_MIDDLEWARE = True
 
 MIDDLEWARE_CLASSES += (
+    # Set SITE_ID dynamically base on the current domain name **Experimental** :
+    'django_tools.dynamic_site.middleware.DynamicSiteMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -183,11 +179,11 @@ TEMPLATE_DIRS = PYLUCID_PLUGIN_SETUP_INFO.template_dirs
 
 # Append "static" template directories:
 TEMPLATE_DIRS += (
-    os.path.join(os.path.abspath(os.path.dirname(django_tools.__file__)), "templates/"),
-    os.path.join(os.path.abspath(os.path.dirname(dbpreferences.__file__)), "templates/"),
-    os.path.join(os.path.abspath(os.path.dirname(django_processinfo.__file__)), "templates/"),
+    os.path.join(_pkg_path(django_tools), "templates/"),
+    os.path.join(_pkg_path(dbpreferences), "templates/"),
+    os.path.join(_pkg_path(django_processinfo), "templates/"),
 
-    os.path.join(os.path.abspath(os.path.dirname(django.__file__)), "contrib/admin/templates"),
+    os.path.join(_pkg_path(django), "contrib/admin/templates"),
 )
 #print "settings.TEMPLATE_DIRS:\n", "\n".join(TEMPLATE_DIRS)
 
@@ -206,6 +202,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.request",
+    "django.core.context_processors.static",
     "django.contrib.messages.context_processors.messages",
     "pylucid_project.apps.pylucid.context_processors.pylucid",
 )
@@ -237,21 +234,28 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.comments',
     'django.contrib.redirects',
+    'django.contrib.staticfiles',
+
+    # PyLucid own apps:
+    'pylucid_project.apps.pylucid',
+    'pylucid_project.apps.pylucid_admin',
+    'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
 
     # external apps shipped and used with PyLucid:
-    'dbpreferences',
-    'dbtemplates',
-    'reversion',
-    'tagging',
-    'south',
-    'django_processinfo',
+	'django_tools.dynamic_site', # https://github.com/jedie/django-tools/blob/master/django_tools/dynamic_site/README.creole
+    'dbpreferences', # http://code.google.com/p/django-dbpreferences/
+    'dbtemplates', # http://code.google.com/p/django-dbtemplates/
+    'reversion', # http://code.google.com/p/django-reversion/
+    'reversion_compare', # https://github.com/jedie/django-reversion-compare
+    'tagging', # http://code.google.com/p/django-tagging/
+    'compressor', # https://github.com/jezdez/django_compressor
+    'south', # http://south.aeracode.org/
+    'django_processinfo', # https://github.com/jedie/django-processinfo
 )
 
-# For backward compatible - FIXME: Remove after v0.12 release
-if _DYNAMIC_SITE:
-    INSTALLED_APPS += ('django_tools.dynamic_site',)
-del(_DYNAMIC_SITE)
-
+# Temp. work-a-round for https://github.com/jezdez/django-dbtemplates/pull/31
+# TODO: remove until new django-dbtemplates release exist with the bugfix.
+DATABASE_ENGINE = "XXX"
 
 # Add all existing PyLucid apps + plugins
 INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
@@ -295,41 +299,32 @@ AUTH_PROFILE_MODULE = "pylucid.UserProfile"
 
 #_____________________________________________________________________________
 # STATIC FILES
-# http://www.djangoproject.com/documentation/static_files/
+#
+# must be set in local_settings.py
+# would be checked at the end of this file
+#
+STATIC_ROOT = None
+STATIC_URL = None
+MEDIA_ROOT = None
+MEDIA_URL = None
 
-# Serve static files for the development server?
-# Using this method is inefficient and insecure.
-# Do not use this in a production setting. Use this only for development.
-if RUN_WITH_DEV_SERVER:
-    SERVE_STATIC_FILES = True
-else:
-    SERVE_STATIC_FILES = False
-
-
-# Note: Every URL/path...
-# ...must be a absolute path.
-# ...must have a trailing slash.
-
-# Absolute _local_filesystem_path_ to the directory that holds media.
-#     Example-1: "./media/" (default)
-#     Example-2: "/home/foo/htdocs/media/"
-MEDIA_ROOT = os.path.join(PYLUCID_BASE_PATH, "media") + "/"
+# https://docs.djangoproject.com/en/1.4/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
+STATICFILES_DIRS = ()
 
 # Set base path for include plugin: 
 # http://www.pylucid.org/permalink/381/about-the-include-plugin
-PYLUCID_INCLUDE_BASEPATH = MEDIA_ROOT
+PYLUCID_INCLUDE_BASEPATH = None
 
-# URL that handles the media served from MEDIA_ROOT.
-#     Example-1: "/media/" (default)
-#     Examlpe-2: "http://other_domain.net/media/"
-#     Example-3: "http://media.your_domain.net/"
-MEDIA_URL = "/media/"
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # django-compressor:
+    'compressor.finders.CompressorFinder',
+)
 
-# URL prefix for admin media -- CSS, JavaScript and images.
-#     Examples-1: "/django/contrib/admin/media/" (default)
-#     Examples-2: "http://other_domain.net/media/django/"
-#     Examples-3: "http://django.media.your_domain.net/"
-ADMIN_MEDIA_PREFIX = "/django/contrib/admin/media/"
+# Enable django-compressor even if DEBUG is on:
+COMPRESS_ENABLED = True
+
 
 ADMIN_URL_PREFIX = 'admin'
 PYLUCID_ADMIN_URL_PREFIX = 'pylucid_admin'
@@ -338,10 +333,9 @@ LOGIN_REDIRECT_URL = "/%s/" % ADMIN_URL_PREFIX
 LOGIN_URL = "/%s/" % ADMIN_URL_PREFIX
 LOGOUT_URL = "/?%s" % PYLUCID.AUTH_LOGOUT_GET_VIEW
 
-
-# TODO: must be used ;)
+# Blacklist of PageTree slugs that are not useable.
+# Would be extendet at the end of this file!
 SLUG_BLACKLIST = (
-    MEDIA_URL.strip("/").split("/", 1)[0],
     ADMIN_URL_PREFIX, PYLUCID_ADMIN_URL_PREFIX, PYLUCID.HEAD_FILES_URL_PREFIX,
 )
 
@@ -351,9 +345,6 @@ SITE_TEMPLATE_PREFIX = 'site_template'
 # Prefix in filename, used for page stylesheet
 SITE_STYLE_PREFIX = 'site_stylesheet'
 
-
-# The PyLucid install instrucion page:
-INSTALL_HELP_URL = "http://pylucid.org/_goto/186/v0-9-testing/"
 
 # Django can't handling time zone very good.
 # The Django default TIME_ZONE is 'America/Chicago' (Central Standard Time Zone, (CST), UTC-6)
@@ -377,7 +368,7 @@ USE_I18N = True
 # dbtemplates settings
 # http://packages.python.org/django-dbtemplates/overview.html#settings
 
-# Use django-reversion ?
+# dbtemplate should used django-reversion
 DBTEMPLATES_USE_REVERSION = True
 
 #_______________________________________________________________________________
@@ -412,23 +403,100 @@ CACHES = {
 # Set default cache timeout (in seconds) to 2 Days (used in own PyLucid cache middleware, too) 
 CACHE_MIDDLEWARE_SECONDS = 60 * 60 * 48
 
+
 #_______________________________________________________________________________
 
+# unittest running?
+_IN_UNITTESTS = "PYLUCID_UNITTESTS" in os.environ or "test" in sys.argv
+
+if _IN_UNITTESTS:
+    # For running unittests with sqlite and south:
+    # http://south.aeracode.org/wiki/Settings#SOUTH_TESTS_MIGRATE
+    SOUTH_TESTS_MIGRATE = False
+    
+
+# Must be set in local settings
+SECRET_KEY = None
+
+#_______________________________________________________________________________
+# overwrite values from the local settings
+
+def _error(msg):
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(msg)
+
+LOCAL_SETTINGS_MODULE = os.environ.get("LOCAL_SETTINGS_MODULE", "local_settings") 
 
 try:
-    from local_settings import *
+    # from local_settings import *    
+    _local_settings = __import__(LOCAL_SETTINGS_MODULE, globals(), locals(), ["*"])
 except ImportError, err:
-    if "create_instance" in sys.argv:
-        pass
-    elif str(err) == "No module named local_settings":
+    if str(err).startswith("No module named"):
         msg = (
-            "There is no local_settings.py file in '%s' !"
+            "There is no %s.py file in '%s' !"
             " (Original error was: %s)\n"
-        ) % (os.getcwd(), err)
-        sys.stderr.write(msg)
-        #from django.core.exceptions import ImproperlyConfigured
-        #raise ImproperlyConfigured(msg)
+        ) % (LOCAL_SETTINGS_MODULE, os.getcwd(), err)
+        _error(msg)
     else:
         raise
 
+# Only for information:
+LOCAL_SETTINGS_MODULE_PATH = _local_settings.__file__
 
+# assimilate all local settings from modul, see: http://stackoverflow.com/a/2916810/746522
+for key in dir(_local_settings):
+    if not key.startswith("_"):
+        locals()[key] = getattr(_local_settings, key)
+        
+del(_local_settings)
+
+
+#_______________________________________________________________________________
+# check some settings
+
+if not "create_instance" in sys.argv:
+    if SECRET_KEY in (None, ""):
+        _error("You must set a SECRET_KEY in your local_settings.py!")
+
+    if DEBUG or RUN_WITH_DEV_SERVER:
+        # Check all STATICFILES_DIRS
+        for dir in STATICFILES_DIRS:
+            if not os.path.isdir(dir):
+                _error("Directory in STATICFILES_DIRS doesn't exist: %r" % dir)
+
+    #__________________________________________________________________________
+    # Check STATIC_* and MEDIA_*
+
+    def _check_if_set(info, value):
+        if not value:
+            _error("%s must be set in local_settings.py !" % info)
+
+    def _check_path(info, path):
+        _check_if_set(info, path)
+        if not os.path.exists(path):
+            _error("%s %r doesn't exists!" % (info, path))
+
+    _check_path("STATIC_ROOT", STATIC_ROOT)
+    _check_path("MEDIA_ROOT", MEDIA_ROOT)
+
+    _check_if_set("STATIC_URL", STATIC_URL)
+    _check_if_set("MEDIA_URL", MEDIA_URL)
+
+    del(_check_path)
+    del(_check_if_set)
+
+    #__________________________________________________________________________
+    # expand SLUG_BLACKLIST
+
+    SLUG_BLACKLIST = list(SLUG_BLACKLIST)
+
+    if "." not in STATIC_URL:
+        # URL is not a other domain / sub domain
+        SLUG_BLACKLIST.append(STATIC_URL.strip("/").split("/", 1)[0])
+
+    if "." not in MEDIA_URL:
+        SLUG_BLACKLIST.append(MEDIA_URL.strip("/").split("/", 1)[0])
+
+    SLUG_BLACKLIST = tuple([item.lower() for item in SLUG_BLACKLIST])
+
+del(_error)

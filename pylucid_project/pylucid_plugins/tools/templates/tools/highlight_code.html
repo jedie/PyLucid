@@ -1,13 +1,5 @@
 {% extends "admin/base_site.html" %}
 
-{% if pygments_css %}
-{% block extrahead %}{{ block.super }}
-<!-- tools.highlight_code extrahead block start -->
-<link rel="stylesheet" type="text/css" href="{{ pygments_css }}" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');"/>
-<!-- tools.highlight_code extrahead block end -->
-{% endblock %}
-{% endif %}
-
 {% block content %}
 <form action="{{ form_url }}" method="post" id="lexicon_form" class="pylucid_form">
 	{% csrf_token %}

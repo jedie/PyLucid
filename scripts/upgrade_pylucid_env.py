@@ -1,15 +1,39 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+    upgrade PyLucid environment
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    upgrade a existing PyLucid virtual environment via pip.
+    Display a menu based on requirements from ./pylucid/requirements/*.txt
+    
+    Would be started from:
+     * upgrade_pylucid_dev_env.sh  with: --env_type=developer
+     * upgrade_pylucid_env.sh      with: --env_type=normal
+    
+    See also:
+    http://www.pylucid.org/permalink/71/update-a-old-pylucid-installation#by-cli-script
+    
+    
+    You can also list installed packages with version information from PyPi, e.g.:
+        ./src/pylucid/scripts/upgrade_pylucid_env.py --version-info
+    
+      
+    :copyleft: 2011-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 import os
 import sys
 import subprocess
 from optparse import OptionParser
 
+
 if __name__ == "__main__":
     # precheck if we in a activated virtualenv
     # if not, the pip import can raise a ImportError, if pip not installed
-    # in the globale python environment
+    # in the global python environment
     if not hasattr(sys, 'real_prefix'):
         print("")
         print("Error: It seems that we are not running in a activated virtualenv!")
@@ -19,10 +43,13 @@ if __name__ == "__main__":
         print("")
         sys.exit(-1)
 
+
 import pkg_resources
 
 from pip import locations
-from pip.util import get_terminal_size
+from pip.backwardcompat import xmlrpclib
+from pip.commands.search import highest_version
+from pip.util import get_terminal_size, get_installed_distributions
 import pip
 
 try:
@@ -51,6 +78,9 @@ CHOICES = {
     INSTALL_DEV:"developer_installation.txt",
 }
 NO_DEPENDENCIES = ("pylucid", "django-processinfo", "django-reversion-compare")
+
+# http://wiki.python.org/moin/PyPiXmlRpc
+INDEX_URL = "http://pypi.python.org/pypi"
 
 
 class ColorOut(object):
@@ -165,27 +195,36 @@ def parse_requirements(filename):
     return entries
 
 
-def call_pip(options, no_dependencies, *args):
+def call_pip(options, pip_args):
+    """ call pip with 'pip_args' """
     pip_executeable = os.path.join(locations.bin_py, "pip")
-
-    cmd = [
-        pip_executeable, "install",
-        "--download-cache=%s" % options.download_cache, "--upgrade"
-    ]
-    if no_dependencies:
-        cmd.append("--no-dependencies")
-
-    if options.verbose:
-        cmd.append("--verbose")
-
-    if options.logfile:
-        cmd.append("--log=%s" % options.logfile)
-
-    cmd += args
+    
+    cmd = [pip_executeable]
+    cmd += pip_args
+    
     print("_" * get_terminal_size()[0])
     print(c.colorize(" ".join(cmd), foreground="blue"))
     if not options.dryrun:
         subprocess.call(cmd)
+
+
+def call_pip_install(options, no_dependencies, *args):
+    """ install a package with pip """
+    pip_args = [
+        "install",
+        "--download-cache=%s" % options.download_cache, "--upgrade"
+    ]
+    if no_dependencies:
+        pip_args.append("--no-dependencies")
+
+    if options.verbose:
+        pip_args.append("--verbose")
+
+    if options.logfile:
+        pip_args.append("--log=%s" % options.logfile)
+
+    pip_args += args
+    call_pip(options, pip_args)
 
 
 def select_requirement(options, filename):
@@ -195,7 +234,7 @@ def select_requirement(options, filename):
     print c.colorize("Important:", foreground="red"), "Check if there are backward incompatible changes:"
     print "http://www.pylucid.org/en/blog/tags/backward%20incompatible/"
     print
-    for no, requirement in enumerate(requirements):
+    for no, requirement in enumerate(requirements,1):
         print "(%i) %s" % (no, requirement)
 
     print "(a) upgrade all packages"
@@ -217,7 +256,7 @@ def select_requirement(options, filename):
         print "Upgrade all packages."
         return requirements
 
-    req_dict = dict([(str(no), r) for no, r in enumerate(requirements)])
+    req_dict = dict([(str(no), r) for no, r in enumerate(requirements,1)])
     selected_req = []
     for item in selection:
         print "%s\t" % item,
@@ -256,7 +295,65 @@ def do_upgrade(options, requirements):
 
     for requirement in requirements:
         no_dependencies = set_dependencies(requirement)
-        call_pip(options, no_dependencies, requirement)
+        call_pip_install(options, no_dependencies, requirement)
+
+
+def do_version_info(options):
+    """
+    List all installed packages with his versions and version info from PyPi
+    """
+    local_only = True # exclude globally-installed packages in a virtualenv
+    dependency_links = []
+    for dist in pkg_resources.working_set:
+        if dist.has_metadata('dependency_links.txt'):
+            dependency_links.extend(
+                dist.get_metadata_lines('dependency_links.txt'),
+            )
+    
+    installed_info = []
+    for dist in get_installed_distributions(local_only=local_only):
+        req = dist.as_requirement() # pkg_resources.Requirement() instance
+        project_name = req.project_name
+        specs = req.specs
+        version = specs[0][1]
+        installed_info.append((project_name, version))
+        
+    max_name_len = max([len(i[0]) for i in installed_info])
+    max_ver_len = max([len(i[1]) for i in installed_info])
+    if max_name_len<20:
+        max_name_len = 20
+    if max_ver_len<20:
+        max_ver_len = 20
+    max_len_others = get_terminal_size()[0] - max_name_len - max_ver_len - 7    
+    
+    table_header = " package name".ljust(max_name_len)
+    table_header += " installed version".ljust(max_ver_len)
+    table_header += "  versions on PyPi".ljust(max_len_others)
+    print c.colorize(table_header, opts=("underscore",))
+    
+    for project_name, version in installed_info:
+        print project_name.ljust(max_name_len),
+        print version.ljust(max_ver_len),
+               
+        # http://wiki.python.org/moin/PyPiXmlRpc
+        client = xmlrpclib.ServerProxy(INDEX_URL)
+        versions = client.package_releases(project_name)
+        
+        if not versions:
+            print c.colorize("No version found at PyPi!", foreground="yellow")
+        else:
+            latest = highest_version(versions)
+            older_versions = [v for v in versions if latest!=v]
+            pypi_info = "%s" % latest
+            if older_versions:
+                pypi_info += " - %s" % ", ".join(older_versions)
+
+            if len(pypi_info)>max_len_others:
+                pypi_info = pypi_info[:max_len_others] + " ..."
+            
+            print pypi_info
+        
+
 
 
 def main():
@@ -278,10 +375,16 @@ def main():
                       action="store", dest="download_cache",
                       default=os.path.join(sys.prefix, "pypi_cache"),
                       help="Cache downloaded packages in DIR")
-
+    parser.add_option("--version-info",
+                      action="store_true", dest="version_info", default=False,
+                      help="Display version info of all packages.")
 
     options, args = parser.parse_args()
 #    print options, args
+
+    if options.version_info:
+        do_version_info(options)
+        sys.exit()
 
     if not options.env_type:
         print(c.colorize("\nError: No env type given!\n", foreground="red", opts=("bold",)))

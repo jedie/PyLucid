@@ -19,6 +19,11 @@ from django.db import models
 from django.db.models import signals
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
+try:
+    from django.utils.timezone import now
+except ImportError:
+    from datetime import datetime
+    now = datetime.now
 
 # http://code.google.com/p/django-tagging/
 from tagging.models import Tag, TaggedItem
@@ -275,17 +280,19 @@ class BlogEntryContent(MarkupBaseModel, UpdateInfoBaseModel):
 
     entry = models.ForeignKey(BlogEntry)
 
-    headline = models.CharField(_('Headline'), unique_for_date="createtime",
-        help_text=_("The blog entry headline"), max_length=255
+    language = models.ForeignKey(Language)
+    headline = models.CharField(_('Headline'), max_length=255,
+        help_text=_("The blog entry headline")
     )
-    slug = models.SlugField(max_length=255, unique_for_date="createtime", blank=True,
+    slug = models.SlugField(max_length=255, blank=True,
         help_text=_(
-            "for url (would be set automaticly from headline, if emtpy."
-            " Createtime + this slug are used for identify this blog entry)"
+            "for url (would be set automatically from headline, if emtpy.)"
         ),
     )
+    url_date = models.DateField(_('URL Date'), default=now,
+        help_text=_("Date used for building the url.")
+    )
 
-    language = models.ForeignKey(Language)
     tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
     is_public = models.BooleanField(
         default=True, help_text=_("Is entry in this language is public viewable?")
@@ -294,9 +301,6 @@ class BlogEntryContent(MarkupBaseModel, UpdateInfoBaseModel):
     def clean_fields(self, exclude=None):
         if not self.slug:
             self.slug = slugify(self.headline)
-
-        # Check if headline/slug is unique for createtime
-        self.validate_unique()
 
         super(BlogEntryContent, self).clean_fields(exclude)
 
@@ -369,6 +373,11 @@ class BlogEntryContent(MarkupBaseModel, UpdateInfoBaseModel):
         return self.headline
 
     class Meta:
+        # https://docs.djangoproject.com/en/1.4/ref/models/options/#unique-together
+        unique_together = (
+            ("language", "url_date", "slug"),
+            ("language", "url_date", "headline"),
+        )
         ordering = ('-createtime', '-lastupdatetime')
 
 

@@ -9,21 +9,42 @@
         - PyLucid initial data contains english and german pages.
         - There exist only "PyLucid CMS" blog entry in english and german
     
-    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
+
 import os
+import sys
 import datetime
-from django.core.exceptions import SuspiciousOperation
+
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+
+    tests = __file__
+#    tests = "pylucid_plugins.blog.tests.BlogPluginCsrfTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginAnonymousTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTagsTest"
+#    tests = "pylucid_plugins.blog.tests.BlogLanguageFilterTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginArticleTest"
+
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(tests,
+        verbosity=2,
+#        failfast=True,
+        failfast=False,
+    )
+    sys.exit()
+
 
 from django.conf import settings
 from django.contrib.messages import constants as message_constants
 from django.core.cache import cache
+from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
@@ -206,8 +227,11 @@ class BlogPluginAnonymousTest(BlogPluginAnonymousTestCase):
             HTTP_ACCEPT_LANGUAGE=self.default_language.code,
         )
         self.assertBlogPage(response, self.default_language,
-            must_contain=('<meta name="robots" content="index,follow" />',),
-            must_not_contain=('<meta name="robots" content="noindex,nofollow" />',)
+            must_contain=('<meta name="robots" content="noindex,follow" />',),
+            must_not_contain=(
+                '<meta name="robots" content="index,follow" />',
+                '<meta name="robots" content="noindex,nofollow" />',
+            )
         )
 
     def test_tag_view_robots(self):
@@ -503,11 +527,78 @@ class BlogPluginTest(BlogPluginTestCase):
             "markup": MARKUP_CREOLE,
             "is_public": "on",
             "language": self.default_language.id,
+            "url_date": datetime.date.today(),
             "sites": settings.SITE_ID,
             "tags": "django-tagging, tag1, tag2",
         })
         blog_article_url = "http://testserver/en/blog/%s/the-blog-headline/" % TODAY_URL_PART
         self.assertRedirect(response, url=blog_article_url, status_code=302)
+
+    def test_unique_together_slug(self):
+        self.login_with_blog_add_permissions()
+        create_data = {
+            "content": "The **blog article content** in //creole// markup!",
+            "markup": MARKUP_CREOLE,
+            "is_public": "on",
+            "sites": settings.SITE_ID,
+            
+            # Same language + url_date and slug for both entries:
+            "language": self.default_language.id,
+            "url_date": datetime.date.today(),
+            "slug": "foobar",
+        }
+        # Create first entry:
+        create_data["headline"] = "unique headline one"
+        response = self.client.post(CREATE_URL, data=create_data)
+        blog_article_url = "http://testserver/en/blog/%s/foobar/" % TODAY_URL_PART
+        self.assertRedirect(response, url=blog_article_url, status_code=302)
+        
+        # Try to create the same entry, again:
+        create_data["headline"] = "unique headline two"
+        response = self.client.post(CREATE_URL, data=create_data)
+        self.assertResponse(response,
+            must_contain=(
+                "Create a new blog entry",
+                "Form errors", 
+                "Blog entry content with this Language, URL Date and Slug already exists.",
+            ),
+            must_not_contain=("Traceback", "field is required")
+        )
+        # Stay at create page:
+        self.assertEqual(response.request["PATH_INFO"], CREATE_URL)
+
+    def test_unique_together_headline(self):
+        self.login_with_blog_add_permissions()
+        create_data = {
+            "content": "The **blog article content** in //creole// markup!",
+            "markup": MARKUP_CREOLE,
+            "is_public": "on",
+            "sites": settings.SITE_ID,
+            
+            # Same language + url_date and headline for both entries:
+            "language": self.default_language.id,
+            "url_date": datetime.date.today(),
+            "headline": "always the same",
+        }
+        # Create first entry:
+        create_data["slug"] = "unique_slug_one"
+        response = self.client.post(CREATE_URL, data=create_data)
+        blog_article_url = "http://testserver/en/blog/%s/unique_slug_one/" % TODAY_URL_PART
+        self.assertRedirect(response, url=blog_article_url, status_code=302)
+        
+        # Try to create the same entry, again:
+        create_data["slug"] = "unique_slug_two"
+        response = self.client.post(CREATE_URL, data=create_data)
+        self.assertResponse(response,
+            must_contain=(
+                "Create a new blog entry",
+                "Form errors", 
+                "Blog entry content with this Language, URL Date and Headline already exists.",
+            ),
+            must_not_contain=("Traceback", "field is required")
+        )
+        # Stay at create page:
+        self.assertEqual(response.request["PATH_INFO"], CREATE_URL)
 
     def test_creole_markup(self):
         self.login_with_blog_add_permissions()
@@ -517,6 +608,7 @@ class BlogPluginTest(BlogPluginTestCase):
             "markup": MARKUP_CREOLE,
             "is_public": "on",
             "language": self.default_language.id,
+            "url_date": datetime.date.today(),
             "sites": settings.SITE_ID,
             "tags": "django-tagging, tag1, tag2",
         })
@@ -784,6 +876,7 @@ class BlogPluginCsrfTest(BlogPluginTestCase):
             "markup": MARKUP_CREOLE,
             "is_public": "on",
             "language": self.default_language.id,
+            "url_date": datetime.date.today(),
             "sites": settings.SITE_ID,
             "tags": "django-tagging, tag1, tag2",
         })
@@ -820,6 +913,7 @@ class BlogPluginCsrfTest(BlogPluginTestCase):
             "markup": MARKUP_CREOLE,
             "is_public": "on",
             "language": self.default_language.id,
+            "url_date": datetime.date.today(),
             "sites": settings.SITE_ID,
             "tags": "django-tagging, tag1, tag2",
             "csrfmiddlewaretoken": csrf_token
@@ -831,21 +925,4 @@ class BlogPluginCsrfTest(BlogPluginTestCase):
 
 
 
-if __name__ == "__main__":
-    # Run all unittest directly
-    from django.core import management
 
-    tests = __file__
-#    tests = "pylucid_plugins.blog.tests.BlogPluginCsrfTest"
-#    tests = "pylucid_plugins.blog.tests.BlogPluginAnonymousTest"
-#    tests = "pylucid_plugins.blog.tests.BlogPluginTagsTest"
-#    tests = "pylucid_plugins.blog.tests.BlogLanguageFilterTest"
-#    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
-#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
-#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
-#    tests = "pylucid_plugins.blog.tests.BlogPluginArticleTest"
-
-    management.call_command('test', tests,
-        verbosity=2,
-        failfast=True
-    )

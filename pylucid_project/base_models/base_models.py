@@ -80,9 +80,9 @@ class BaseModelManager(models.Manager):
     def get_by_prefered_language(self, request, queryset, show_lang_errors=False):
         """
         return a item from queryset in this way:
-         - try to get in current language
-         - if not exist: try to get in system default language
-         - if not exist: use the first found item
+        - try to get in language by client prefered order
+        - if not exist: try to get in system default language
+        - if not exist: use the first found item
         """
         item = None
         tried_languages = []
@@ -97,7 +97,10 @@ class BaseModelManager(models.Manager):
 
         if item is None:
             # Fallback and used the first found item
-            item = queryset[0]
+            try:
+                item = queryset[0]
+            except IndexError, err:
+                raise self.model.DoesNotExist(err)
 
         if show_lang_errors:
             current_language = request.PYLUCID.current_language

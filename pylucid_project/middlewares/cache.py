@@ -26,7 +26,7 @@ class PyLucidCacheMiddlewareBase(object):
             # Don't cache PyLucid get views
             logger.debug("Don't cache request with GET parameter: %s" % repr(request.GET))
             return False
-        if settings.RUN_WITH_DEV_SERVER and request.path.startswith(settings.MEDIA_URL):
+        if settings.RUN_WITH_DEV_SERVER and request.path.startswith(settings.STATIC_URL):
             logger.debug("Don't cache static files in dev server")
             return False
 

@@ -211,6 +211,17 @@ class LogEntry(UpdateInfoBaseModel):
     def get_absolute_url(self):
         return self.uri
 
+    def pformat(self):
+        """ Usefull for debugging """
+        output = ""
+        for field in self._meta.fields:
+            value = repr(getattr(self, field.name))
+            if isinstance(value, basestring):
+                value = value.replace("\\n", "\\n\n")
+                value = "\n ... ".join([line for line in value.split("\n")])
+            output += "%-21s: %s\n" % (field.name, value)
+        return output
+
     def __unicode__(self):
         return u"LogEntry %s %s %s" % (self.createby, self.createtime, self.action)
 

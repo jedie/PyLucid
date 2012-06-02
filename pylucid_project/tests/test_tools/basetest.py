@@ -26,7 +26,7 @@ from django.utils.html import conditional_escape
 
 from django_tools.unittest_utils.unittest_base import BaseTestCase
 
-from pylucid_project.apps.pylucid.models import PageTree, Language
+from pylucid_project.apps.pylucid.models import PageTree, Language, EditableHtmlHeadFile
 
 
 supported_languages = dict(settings.LANGUAGES)
@@ -53,6 +53,13 @@ class BaseUnittest(BaseTestCase, TestCase):
         if PageTree.objects.count() == 0:
             raise SystemExit("PyLucid initial data fixtures not loaded!")
 
+        # Remove the real Pygments CSS content, because it contains the
+        # String "Traceback" which used in many tests.
+        # If django-compressor not work, the CSS content would be insert inline. 
+        pygments_css = EditableHtmlHeadFile.objects.get(filepath="pygments.css")
+        pygments_css.content = "Pygments CSS Content (removed by %s)" % __file__
+        pygments_css.save()
+
         # Fill PyLucid own UserProfile with SHA password data
         for usertype, data in self.TEST_USERS.iteritems():
             user = self._get_user(usertype)
@@ -73,7 +80,7 @@ class BaseUnittest(BaseTestCase, TestCase):
         """ Test if response is a PyLucid permission deny page """
         self.assertStatusCode(response, excepted_code=403)
         self.assertResponse(response,
-            must_contain=("<h1>Permission denied</h1>",),
+            must_contain=("<h1>403 Forbidden</h1>",),
             must_not_contain=("Traceback",)
         )
 

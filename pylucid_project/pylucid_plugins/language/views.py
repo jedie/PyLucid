@@ -38,7 +38,8 @@ def _can_reset():
 @render_to("language/language_selector.html")
 def lucidTag(request):
     """ insert language selector list into page """
-    existing_languages = request.PYLUCID.languages
+    existing_languages = request.PYLUCID.languages[:]
+    existing_languages.sort()
 
     if len(existing_languages) < 2:
         # Don't insert the language selector, if there only exist one language ;)

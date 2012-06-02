@@ -5,7 +5,7 @@
     PyLucid i18n tools
     ~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
@@ -177,11 +177,17 @@ def activate_language(request, lang_entry, save=False):
     request.LANGUAGE_CODE = lang_entry.code
     request.PYLUCID.current_language = lang_entry
 
-    if settings.PYLUCID.I18N_DEBUG:
-        messages.success(request, 'Activate language "%s"' % lang_entry.code)
-
     # activate django i18n:
     translation.activate(lang_entry.code)
+    request.LANGUAGE_CODE = translation.get_language()
+    if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
+        if lang_entry.code != request.LANGUAGE_CODE:
+            messages.error(
+                request, 'Language "%s" was not activated from django! Fallback to "%s"' % (
+                lang_entry.code, request.LANGUAGE_CODE)
+            )
+        elif settings.PYLUCID.I18N_DEBUG:
+            messages.success(request, 'Language "%s" activated successfuly.' % lang_entry.code)
 
 
 def assert_language(request, language, save_get_parameter=False, check_url_language=False):
@@ -203,7 +209,7 @@ def assert_language(request, language, save_get_parameter=False, check_url_langu
     if check_url_language:
         url_language = get_url_language(request)
         if url_language != language:
-            # The url contins the wrong language code -> redirect to the right one
+            # The url contains the wrong language code -> redirect to the right one
             new_url = change_url(request, language.code, save_get_parameter)
 
     if new_url:
@@ -211,10 +217,8 @@ def assert_language(request, language, save_get_parameter=False, check_url_langu
             # redirect, so the new selected language would be used
             return new_url
         else:
-            msg = "Error: Redirect loop! new url: %r" % new_url
-            if settings.DEBUG:
-                raise RuntimeError(msg)
-            if request.user.is_staff:
+            msg = "FIXME: Redirect loop! new url: %r" % new_url
+            if settings.DEBUG or request.user.is_staff:
                 messages.error(request, msg)
 
 

@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
     PyLucid models
     ~~~~~~~~~~~~~~
@@ -7,6 +8,7 @@
     :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import re
 
@@ -22,7 +24,6 @@ from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_project.apps.pylucid.fields import ColorValueField
 from pylucid_project.utils.css_color_utils import get_new_css_names
-
 
 
 TAG_INPUT_HELP_URL = \
@@ -103,15 +104,6 @@ class ColorScheme(UpdateInfoBaseModel):
         queryset = Color.objects.filter(colorscheme=self)
         color_list = queryset.values_list('name', flat=True)
         return color_list
-
-    def save(self, *args, **kwargs):
-        super(ColorScheme, self).save(*args, **kwargs)
-        from pylucid_project.apps.pylucid.models import Design # import here, against import loops
-        designs = Design.objects.all().filter(colorscheme=self)
-        for design in designs:
-            headfiles = design.headfiles.all().filter(render=True)
-            for headfile in headfiles:
-                headfile.delete_cachefile(self)
 
     def __unicode__(self):
         return self.name

@@ -28,6 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.timesince import timesince
 
 from log import LogEntry
+from django.db.utils import IntegrityError
 
 
 class BanEntryManager(models.Manager):
@@ -67,11 +68,21 @@ class BanEntryManager(models.Manager):
         Note: raised 404 after adding the current client to the ban list!
         """
         remote_addr = request.META["REMOTE_ADDR"]
-        self.model(ip_address=remote_addr).save()
-        LogEntry.objects.log_action(
-            app_label="pylucid", action="add ip ban",
-            message="Add %s to ban list." % remote_addr
-        )
+        try:
+            self.model(ip_address=remote_addr).save()
+        except IntegrityError, err:
+            # If a client does many request shortly and get banned we get e.g.:
+            # IntegrityError: (1062, "Duplicate entry '123.123.123.123' for key 'PRIMARY'")
+            LogEntry.objects.log_action(
+                app_label="pylucid", action="add ip ban",
+                message="IntegrityError on add %s to ban list: %s" % (remote_addr, err)
+            )
+        else:
+            LogEntry.objects.log_action(
+                app_label="pylucid", action="add ip ban",
+                message="Add %s to ban list." % remote_addr
+            )
+            
         raise Http404("You are now banned.")
 
 

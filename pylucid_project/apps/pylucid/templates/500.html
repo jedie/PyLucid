@@ -1,11 +1,12 @@
-{% extends "admin/base_site.html" %}
-{% load i18n %}
-
-{% block title %}PyLucid - {% trans 'Server error (500)' %}{% endblock %}
-
-{% block content %}
-<h1>{% trans 'Server Error <em>(500)</em>' %}</h1>
-<p>{% trans "There's been an error. It's been reported to the site administrators via e-mail and should be fixed shortly. Thanks for your patience." %}</p>
-<small><p>{% trans "You see not the debug error page, because debugging is off or your IP is not in settings.INTERNAL_IPS" %}</p></small>
-<a href="/" title="{% trans 'goto your PyLucid CMS page' %}">&#xAB; back to {{ request.META.HTTP_HOST }}</a>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PyLucid - Server error (500)</title>
+</head>
+<body>
+    <h1>Server Error <em>(500)</em></h1>
+    <p>{% trans "There's been an error. It's been reported to the site administrators via e-mail and should be fixed shortly. Thanks for your patience." %}</p>
+    <p><small>You see not the debug error page, because debugging is off or your IP is not in settings.INTERNAL_IPS</small></p>
+    <a href="/" title="{% trans 'goto your PyLucid CMS page' %}">&#xAB; back to {{ request.META.HTTP_HOST }}</a>
+</body>
+</html> 

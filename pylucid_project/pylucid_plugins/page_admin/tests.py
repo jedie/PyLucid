@@ -534,7 +534,7 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         )
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/static/PyLucid_cache/pygments.css"',
                 'The original markup is: <strong>tinytextile</strong>',
             ),
             must_not_contain=(

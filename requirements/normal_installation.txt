@@ -8,7 +8,7 @@
 
 # http://www.djangoproject.com/
 # http://pypi.python.org/pypi/Django
-Django>=1.3.1,<1.4
+Django>=1.4,<1.5
 
 # PyLucid own projects
 #----------------------
@@ -24,6 +24,9 @@ django-tools>=0.23,<0.24
 
 # http://pypi.python.org/pypi/django-processinfo
 django-processinfo>=0.4
+
+# http://pypi.python.org/pypi/django-reversion-compare/
+django-reversion-compare>=0.3.1
 
 # git readonly clone of PyLucid
 # http://www.pylucid.org/

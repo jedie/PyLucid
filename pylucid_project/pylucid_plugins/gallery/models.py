@@ -13,7 +13,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from django_tools.fields.media_path import MediaPathModelField
+from django_tools.fields.static_path import StaticPathModelField
 from django_tools.fields.sign_separated import SignSeparatedModelField
 from django_tools.models import UpdateInfoBaseModel
 
@@ -31,8 +31,8 @@ class GalleryModel(UpdateInfoBaseModel):
     """
     pagetree = models.ForeignKey(PageTree, unique=True)
 
-    path = MediaPathModelField(max_length=256,
-        help_text=_("Base path after MEDIA_ROOT '%s'") % settings.MEDIA_ROOT
+    path = StaticPathModelField(max_length=256,
+        help_text=_("Base path after STATIC_ROOT '%s'") % settings.STATIC_ROOT
     )
 
     template = models.CharField(max_length=256,

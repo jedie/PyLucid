@@ -85,7 +85,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/static/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
                 'Simulate only, no entry changed.',
                 '<legend class="pygments_code">Diff</legend>',
@@ -114,7 +114,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/static/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">- Welcome to your fesh PyLucid CMS installation ;)</span>',
@@ -152,7 +152,7 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/media/PyLucid_cache/pygments.css"',
+                '<link rel="stylesheet" type="text/css" href="/static/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">-    page messages</span>',

@@ -15,11 +15,22 @@
 """
 
 
-import os
+import sys
+
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+
+    tests = __file__
+#    tests = "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_error_handling"
+
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(tests,
+        verbosity=2,
+        failfast=True
+    )
+    sys.exit()
+
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -328,14 +339,3 @@ class LexiconPluginTest2(LexiconPluginTestCase, basetest.BaseMoreLanguagesTestCa
         )
 
 
-if __name__ == "__main__":
-    # Run all unittest directly
-    from django.core import management
-
-    tests = __file__
-#    tests = "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_error_handling"
-
-    management.call_command('test', tests,
-        verbosity=2,
-#        failfast=True
-    )

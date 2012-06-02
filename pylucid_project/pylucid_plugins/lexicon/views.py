@@ -61,16 +61,33 @@ def detail_view(request, term=None):
         messages.error(request, error_msg)
         return
 
-    queryset = LexiconEntry.on_site.filter(is_public=True)
-    queryset = queryset.filter(term=term)
+    entry = None
+    tried_languages = []
+    try:
+        queryset = LexiconEntry.on_site.filter(is_public=True)
+        queryset = queryset.filter(term=term)
+        entry, tried_languages = LexiconEntry.objects.get_by_prefered_language(request, queryset)
+    except LexiconEntry.DoesNotExist, err:
+        pass
 
-    entry, tried_languages = LexiconEntry.objects.get_by_prefered_language(request, queryset)
+    """
+    FIXME: This current solution is boring.
+    LexiconEntry.objects.get_by_prefered_language() with i18n.assert_language()
+    doesn't do a good job here.
+    e.g:
+        en + de exists as languages
+        user prefered de and called /en/foobar
+        foobar does only exist in en not in de
+    """
 
     if entry is None:
+        # Entry not found -> Display summary with error message as 404 page
         if settings.DEBUG or request.user.is_staff or settings.PYLUCID.I18N_DEBUG:
             error_msg += " (term: %r, tried languages: %s)" % (term, ", ".join([l.code for l in tried_languages]))
         messages.error(request, error_msg)
-        return summary(request)
+        response = summary(request)
+        response.status_code = 404 # Send as 404 page, so that search engines doesn't index this. 
+        return response
 
     new_url = i18n.assert_language(request, entry.language, check_url_language=True)
     if new_url:

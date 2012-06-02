@@ -9,8 +9,8 @@
 docutils
 
 # http://www.djangoproject.com/
-# Official clone of the Django Subversion repository (readonly clone)
--e git+git://github.com/django/django.git@stable/1.3.x#egg=django
+# Official Django git repository (readonly clone)
+-e git+git://github.com/django/django.git@stable/1.4.x#egg=django
 
 # clone PyLucid own projects with git push access
 #-------------------------------------------------
@@ -31,6 +31,11 @@ docutils
 # http://pypi.python.org/pypi/django-processinfo
 -e git+git@github.com:jedie/django-processinfo.git#egg=django-processinfo
 
+# https://github.com/jedie/django-reversion-compare
+# http://pypi.python.org/pypi/django-reversion-compare/
+-e git+git@github.com:jedie/django-reversion-compare.git#egg=django-reversion-compare
+
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid
--e git+git@github.com:jedie/PyLucid.git#egg=pylucid
+#-e git+git@github.com:jedie/PyLucid.git#egg=pylucid
+-e git+git@github.com:jedie/PyLucid.git@django1.4#egg=pylucid

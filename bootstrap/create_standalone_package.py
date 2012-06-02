@@ -323,8 +323,8 @@ class StandalonePackageMaker(object):
         )
         patch_data = [
             (
-                'MEDIA_ROOT = "/var/www/YourSite/media/"',
-                'MEDIA_ROOT = os.path.join(os.getcwd(), "media")'
+                'STATIC_ROOT = "/var/www/YourSite/static/"',
+                'STATIC_ROOT = os.path.join(os.getcwd(), "media")'
             ),
             (
                 'SECRET_KEY = "add-a-secret-key"',

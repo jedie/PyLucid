@@ -16,6 +16,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.sessions.models import Session
 from django.contrib.sites.models import Site
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
@@ -23,7 +24,7 @@ from django.utils.translation import ugettext as _
 from dbtemplates.models import Template
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.markup.hightlighter import make_html, get_pygments_css
+from pylucid_project.apps.pylucid.markup.hightlighter import make_html
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
@@ -66,6 +67,11 @@ def install(request):
         name="cleanup session table", title="Cleanup the session table",
         url_name="Tools-cleanup_session"
     )
+    admin_menu.add_menu_entry(
+        parent=menu_section_entry,
+        name="cleanup cache", title="Remove everything from the Django's cache framework.",
+        url_name="Tools-cleanup_cache"
+    )
 
     return "\n".join(output)
 
@@ -79,11 +85,6 @@ def highlight_code(request):
         "title": _("hightlight sourcecode"),
         "form_url": request.path,
     }
-
-    # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-    pygments_css_path = get_pygments_css(request)
-    context["pygments_css"] = pygments_css_path
-
     if request.method == "POST":
         form = HighlightCodeForm(request.POST)
         if form.is_valid():
@@ -184,6 +185,26 @@ def cleanup_session(request):
     return context
 
 
+@check_permissions(superuser_only=True)
+@render_to("tools/cleanup_cache.html")
+def cleanup_cache(request):
+    """ remove everything from the cache """
+    if "doit" in request.GET:
+        start_time = time.time()
+        cache.clear()
+        duration_time = time.time() - start_time
+
+        messages.success(request, _("Everything from the Django's cache framework was deleted in %(duration).2fsec") % {
+            "duration":duration_time
+        })
+        return HttpResponseRedirect(request.path)
+
+    context = {
+        "title": _("Remove everything from the Django's cache framework."),
+    }
+    return context
+
+
 #-----------------------------------------------------------------------------------------------------------
 # override template
 
@@ -267,10 +288,6 @@ def override_template(request):
                 preview_html = template.get_content_preview()
                 if preview_html:
                     context["template"] = template
-
-                    # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-                    pygments_css_path = get_pygments_css(request)
-                    context["pygments_css"] = pygments_css_path
             else:
                 # A new dbtemplate should be created
                 instance, created = template.get_or_create_dbtemplate()

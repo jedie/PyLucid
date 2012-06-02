@@ -4,9 +4,11 @@
     global url patterns
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
+import sys
 
 from django.conf import settings
 from django.conf.urls.defaults import patterns, url, include
@@ -34,6 +36,9 @@ urlpatterns = patterns('',
 
     # move it somewhere?
     url(r'^comments/', include('django.contrib.comments.urls')),
+
+    # https://docs.djangoproject.com/en/1.4/topics/i18n/translation/#module-django.views.i18n
+    url(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog'),
 
     #_____________________________________
     # DJANGO ADMIN PANEL
@@ -64,12 +69,18 @@ else:
 #-----------------------------------------------------------------------------
 
 # serve static files
-if settings.SERVE_STATIC_FILES:
-    # Should only enabled, if the django development server used.
-    print "Serve static file from MEDIA_ROOT:", settings.MEDIA_ROOT
+if settings.RUN_WITH_DEV_SERVER and "--insecure" in sys.argv and "--nostatic" in sys.argv:
+    # The automatic static serve is without index views.
+    # We add 'django.views.static.serve' here, to add show_indexes==True
+    #
+    # The developer server must be start with --insecure and --nostatic e.g.:
+    #     ./manage.py runserver --insecure --nostatic
+    #
+    # https://docs.djangoproject.com/en/1.4/ref/contrib/staticfiles/#runserver
+    print " *** Serve static files from %r at %r ***" % (settings.STATIC_ROOT, settings.STATIC_URL)
     urlpatterns += patterns('',
-        url('^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"), 'django.views.static.serve',
-            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
+        url('^%s/(?P<path>.*)$' % settings.STATIC_URL.strip("/"), 'django.views.static.serve',
+            {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
     )
 
 urlpatterns += patterns('',

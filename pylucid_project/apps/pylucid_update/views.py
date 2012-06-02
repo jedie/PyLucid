@@ -720,11 +720,11 @@ def update08templates(request):
 
         new_head_file_tag = ""
         new_head_file_tag += SCRIPT_TAG % {
-            "url": posixpath.join(settings.MEDIA_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, "jquery.js")
+            "url": posixpath.join(settings.STATIC_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, "jquery.js")
         }
         new_head_file_tag += SCRIPT_TAG % {
             "url": posixpath.join(
-                settings.MEDIA_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, "pylucid_js_tools.js"
+                settings.STATIC_URL, settings.PYLUCID.PYLUCID_MEDIA_DIR, "pylucid_js_tools.js"
             )
         }
         new_head_file_tag += '<!-- ContextMiddleware extrahead -->\n'
@@ -773,8 +773,8 @@ def update08templates(request):
         content = _replace(content, out, "{% lucidTag RSS ", "{% lucidTag rss ")
 
         # http://www.pylucid.org/permalink/81/backwards-incompatible-changes#26-05-2010-own-jquery-js-file-removed
-        content = _replace(content, out, "/media/PyLucid/jquery.js", "{{ Django_media_prefix }}js/jquery.min.js")
-        content = _replace(content, out, "/media/PyLucid/pylucid_js_tools.js", "{{ PyLucid_media_url }}pylucid_js_tools.js")
+        content = _replace(content, out, "/media/PyLucid/jquery.js", "{{ STATIC_URL }}admin/js/jquery.min.js")
+        content = _replace(content, out, "/media/PyLucid/pylucid_js_tools.js", "{{ STATIC_URL }}PyLucid/pylucid_js_tools.js")
 
         if "{% lucidTag language %}" not in content:
             # Add language plugin after breadcrumb, if not exist

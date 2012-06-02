@@ -23,8 +23,8 @@ msgstr ""
 
 #: models.py:35
 #, python-format
-msgid "Base path after MEDIA_ROOT '%s'"
-msgstr "Basispfad nach MEDIA_ROOT '%s'"
+msgid "Base path after STATIC_ROOT '%s'"
+msgstr "Basispfad nach STATIC_ROOT '%s'"
 
 #: models.py:40
 msgid "Used template for this gallery"

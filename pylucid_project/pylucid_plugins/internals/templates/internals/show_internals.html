@@ -48,9 +48,17 @@
 
 <h2>urlpatterns</h2>
 <table>
-    <tr><th>url name</th><th>url pattern</th></tr>
-{% for urlname, pattern in urlpatterns %}
-    <tr><td><strong>{{ urlname }}</strong></td><td>{{ pattern }}</td></tr>
+    <tr>
+        <th>module / function name</th>
+        <th>url name</th>
+        <th>url / regex</th>
+    </tr>
+{% for url_info in urlpatterns %}
+    <tr>
+        <td>{{ url_info.module }}.<strong>{{ url_info.func_name }}</strong>()</td>
+        <td>{{ url_info.url_name }}</td>
+        <td title="regex: '{{ url_info.regex }}'">{{ url_info.url }}</td>
+    </tr>
 {% endfor %}
 </table>
 

@@ -2,6 +2,10 @@
 
 """
     Convert PageContent markup.
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
@@ -115,10 +119,6 @@ def convert_markup(request, pagecontent_id=None):
                         context["diff_is_the_same"] = True
                     else:
                         context["pygmentize_diff"] = hightlighter.get_pygmentize_diff(orig_html2, converted_html2)
-
-                        # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-                        pygments_css_path = hightlighter.get_pygments_css(request)
-                        context["pygments_css"] = pygments_css_path
 
     context.update({
         "form": form,

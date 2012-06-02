@@ -13,12 +13,15 @@
     with:
         add_to_builtins('PyLucid.defaulttags')
 
-    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+
 from django.template import Library
 from django.templatetags.i18n import do_translate, do_block_translate
+
+from compressor.templatetags.compress import compress
 
 from pylucid_project.apps.pylucid.defaulttags import lucidTag
 from pylucid_project.apps.pylucid.defaulttags import extraheadBlock
@@ -50,4 +53,8 @@ register.filter(human_duration)
 #register.tag('get_current_language_bidi', do_get_current_language_bidi)
 register.tag('trans', do_translate)
 register.tag('blocktrans', do_block_translate)
+
+# django-compressor
+# https://github.com/jezdez/django_compressor
+register.tag('compress', compress)
 

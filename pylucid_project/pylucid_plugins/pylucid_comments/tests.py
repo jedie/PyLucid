@@ -22,7 +22,7 @@ if __name__ == "__main__":
 from django.conf import settings
 from django.contrib.comments.forms import CommentForm
 from django.contrib.comments.models import Comment
-from django.core import mail
+from django.core import mail, signing
 from django.test.client import Client
 
 from django_tools.unittest_utils.BrowserDebug import debug_response
@@ -126,8 +126,12 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsPageMetaTestCase):
 
         # Check if anonymous data saved in a cookie, for later usage
         self.failUnless("comments_data" in response.cookies)
-        comments_data = response.cookies["comments_data"].value
-        self.failUnless(comments_data.startswith("John Doe;john.doe@example.tld;"))
+        signed_comments_data = response.cookies["comments_data"].value
+        comments_data = signing.loads(signed_comments_data)
+        self.failUnlessEqual(
+            comments_data,
+            {u'url': u'', u'name': u'John Doe', u'email': u'john.doe@example.tld'}
+        )
 
         # Check if anonymous data stored in cookie would be used:
         response = self._get_form()
@@ -291,7 +295,7 @@ class PyLucidCommentsCsrfPageMetaTest(PyLucidCommentsPageMetaTestCase):
         # submit a valid comments form, but without csrf token 
         data = self.getValidData(self.pagemeta, comment="from test_submit_comment()")
         response = self.client.post(self.submit_url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertResponse(response, must_contain=("Forbidden", "No CSRF or session cookie."))
+        self.assertResponse(response, must_contain=("Forbidden", "CSRF cookie not set."))
 
     def test_submit_form_with_token(self):
         # get the current csrf token

@@ -91,7 +91,10 @@ def local_file(request, filepath, encoding="utf-8", markup=None, highlight=None,
     filepath = os.path.normpath(os.path.abspath(filepath))
 
     # include local files only, if it stored under this path:
-    basepath = getattr(settings, "PYLUCID_INCLUDE_BASEPATH", settings.MEDIA_ROOT)
+    basepath = getattr(settings, "PYLUCID_INCLUDE_BASEPATH", None)
+    if not basepath:
+        return _error(request, "Include error.", "settings.PYLUCID_INCLUDE_BASEPATH not set!")
+    
     basepath = os.path.normpath(basepath)
     if not filepath.startswith(basepath):
         return _error(request, "Include error.", "Filepath doesn't start with %r" % basepath)

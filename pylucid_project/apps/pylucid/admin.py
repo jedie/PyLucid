@@ -30,7 +30,8 @@ from django.template.loader import render_to_string
 from django.utils.timesince import timesince
 from django.utils.translation import ugettext_lazy as _
 
-from reversion.admin import VersionAdmin
+# https://github.com/jedie/django-reversion-compare
+from reversion_compare.admin import CompareVersionAdmin
 
 from dbtemplates.admin import TemplateAdmin, TemplateAdminForm
 from dbtemplates.models import Template
@@ -42,7 +43,7 @@ from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
 
 
-class PageTreeAdmin(BaseAdmin, VersionAdmin):
+class PageTreeAdmin(BaseAdmin, CompareVersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}
     list_display = (
         "id", "parent", "slug", "showlinks", "site", "view_on_site_link", "lastupdatetime", "lastupdateby"
@@ -82,7 +83,7 @@ class BanEntryAdmin(admin.ModelAdmin):
 admin.site.register(models.BanEntry, BanEntryAdmin)
 
 
-class LanguageAdmin(VersionAdmin):
+class LanguageAdmin(CompareVersionAdmin):
     list_display = ("code", "description", "site_info", "permitViewGroup")
     list_display_links = ("code", "description")
     list_filter = ("permitViewGroup",)
@@ -116,7 +117,7 @@ admin.site.register(models.LogEntry, LogEntryAdmin)
 
 
 
-class PageMetaAdmin(BaseAdmin, VersionAdmin):
+class PageMetaAdmin(BaseAdmin, CompareVersionAdmin):
     form = PageMetaForm
     list_display = ("id", "get_title", "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",)
     list_display_links = ("id", "get_title")
@@ -130,7 +131,7 @@ admin.site.register(models.PageMeta, PageMetaAdmin)
 class PageContentInline(admin.StackedInline):
     model = models.PageContent
 
-class PageContentAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
+class PageContentAdmin(BaseAdmin, MarkupPreview, CompareVersionAdmin):
     """
     inherited attributes from BaseAdmin:
         view_on_site_link -> html link with the absolute uri.
@@ -148,7 +149,7 @@ class PageContentAdmin(BaseAdmin, MarkupPreview, VersionAdmin):
 admin.site.register(models.PageContent, PageContentAdmin)
 
 
-class PluginPageAdmin(BaseAdmin, VersionAdmin):
+class PluginPageAdmin(BaseAdmin, CompareVersionAdmin):
     list_display = (
         "id", "get_plugin_name", "app_label",
         "get_site", "view_on_site_link", "lastupdatetime", "lastupdateby",
@@ -164,7 +165,7 @@ admin.site.register(models.PluginPage, PluginPageAdmin)
 #------------------------------------------------------------------------------
 
 
-class ColorAdmin(VersionAdmin):
+class ColorAdmin(CompareVersionAdmin):
     def preview(self, obj):
         return '<span style="background-color:#%s;" title="%s">&nbsp;&nbsp;&nbsp;</span>' % (
             obj.value, obj.name
@@ -188,7 +189,7 @@ class ColorInline(admin.TabularInline):
     extra = 0
 
 
-class ColorSchemeAdmin(VersionAdmin):
+class ColorSchemeAdmin(CompareVersionAdmin):
 
     def clone(self, request, object_id):
         """ Clone a color scheme """
@@ -283,7 +284,7 @@ class DesignAdminForm(forms.ModelForm):
         return cleaned_data
 
 
-class DesignAdmin(VersionAdmin):
+class DesignAdmin(CompareVersionAdmin):
     def page_count(self, obj):
         queryset = models.PageTree.objects.all().filter(design=obj)
         count = queryset.count()
@@ -372,7 +373,7 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
         model = models.EditableHtmlHeadFile
     class Media:
         js = (
-            settings.MEDIA_URL + "PyLucid/codemirror_editable_headfile.js",
+            settings.STATIC_URL + "PyLucid/codemirror_editable_headfile.js",
         )
 
     def __init__(self, *args, **kwargs):
@@ -382,7 +383,7 @@ class EditableHtmlHeadFileAdminForm(forms.ModelForm):
         self.fields["mimetype"].required = False
 
 
-class EditableHtmlHeadFileAdmin(VersionAdmin):
+class EditableHtmlHeadFileAdmin(CompareVersionAdmin):
     form = EditableHtmlHeadFileAdminForm
     change_list_template = "admin/pylucid/change_list_with_design_link.html"
     list_display = ("id", "filepath", "render", "description", "lastupdatetime", "lastupdateby")
@@ -395,7 +396,7 @@ admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 #-----------------------------------------------------------------------------
 
 
-class UserProfileAdmin(VersionAdmin):
+class UserProfileAdmin(CompareVersionAdmin):
     list_display = ("id", "user", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("user",)
     list_filter = ("sites",)
@@ -418,18 +419,18 @@ admin.site.register(Site, SiteAdmin)
 
 
 #-----------------------------------------------------------------------------
-# Use own ColorMirror editor in dbtemplates
+# Use CompareVersionAdmin and own ColorMirror editor in dbtemplates
 
 class DBTemplatesAdminAdminForm(TemplateAdminForm):
     class Media:
-        js = (settings.MEDIA_URL + "PyLucid/codemirror_dbtemplates.js",)
+        js = (settings.STATIC_URL + "PyLucid/codemirror_dbtemplates.js",)
 
 #    def __init__(self, *args, **kwargs):
 #        super(DBTemplatesAdminAdminForm, self).__init__(*args, **kwargs)
 
 
 
-class DBTemplatesAdmin(TemplateAdmin):
+class DBTemplatesAdmin(CompareVersionAdmin, TemplateAdmin):
     def _filesystem_template_path(self, template_name):
         """ return absolute filesystem path to given template name """
         for dir in settings.TEMPLATE_DIRS:

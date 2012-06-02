@@ -91,10 +91,10 @@ class Gallery(object):
         self.rel_path, self.rel_url = self.check_rest_url(rest_url)
 
         self.rel_base_path = self.config.path
-        self.abs_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, self.rel_base_path, self.rel_path))
+        self.abs_path = os.path.normpath(os.path.join(settings.STATIC_ROOT, self.rel_base_path, self.rel_path))
 
         is_dir = os.path.isdir(self.abs_path)
-        is_in_root = self.abs_path.startswith(settings.MEDIA_ROOT)
+        is_in_root = self.abs_path.startswith(settings.STATIC_ROOT)
         if not is_dir or not is_in_root:
             msg = _("Wrong path.")
             has_change_perm = request.user.has_perm("gallery.change_gallerymodel")
@@ -108,7 +108,7 @@ class Gallery(object):
                     raise GalleryError(msg)
             raise Http404(msg)
 
-        self.abs_base_url = posixpath.normpath(posixpath.join(settings.MEDIA_URL, self.rel_base_path, self.rel_path))
+        self.abs_base_url = posixpath.normpath(posixpath.join(settings.STATIC_URL, self.rel_base_path, self.rel_path))
 
         dirs, pictures, thumbs = self.read_dir(self.abs_path)
 

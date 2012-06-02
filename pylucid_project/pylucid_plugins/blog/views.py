@@ -258,27 +258,27 @@ def detail_view(request, year, month, day, slug):
     current_language = request.PYLUCID.current_language
     try:
         queryset = queryset.filter(**filter_kwargs)
+        content_entry, tried_languages = BlogEntryContent.objects.get_by_prefered_language(
+            request, queryset, show_lang_errors=False
+        )
     except BlogEntryContent.DoesNotExist, err:
-        # TODO: Try to find a entry in other language, if not exist: redirect to day_archive() ?
-        # It's possible that the user comes from a external link.
-        msg = _("Entry for this url doesn't exist.")
+        # entry not found -> Display day archive with error messages as a 404 page
+        
+        # Create error message:
+        error_msg = _("Entry for this url doesn't exist.")
         if settings.DEBUG or request.user.is_superuser:
-            msg += " Filter kwargs: %r - error: %s" % (filter_kwargs, err)
-        messages.error(request, msg)
-        url = urlresolvers.reverse("Blog-summary")
-        return HttpResponseRedirect(url)
+            error_msg += " Filter kwargs: %r - Error: %s" % (repr(filter_kwargs), err)
+        messages.error(request, error_msg)
+        
+        # response day archive
+        response = day_archive(request, year, month, day)
+        response.status_code = 404 # Send as 404 page, so that search engines doesn't index this.
+        return response
 
-    try:
-        content_entry, tried_languages = BlogEntryContent.objects.get_by_prefered_language(request, queryset, show_lang_errors=False)
-    except BlogEntryContent.DoesNotExist, err:
-        # TODO: Try to find a entry in other language, if not exist: redirect to day_archive() ?
-        # It's possible that the user comes from a external link.
-        msg = _("Entry for this url doesn't exist.")
-        if settings.DEBUG or request.user.is_superuser:
-            msg += " - Not found in these languages: %s - error: %s" % (",".join(tried_languages), err)
-        messages.error(request, msg)
-        url = urlresolvers.reverse("Blog-summary")
-        return HttpResponseRedirect(url)
+    if tried_languages and (settings.DEBUG or request.user.is_superuser):
+        messages.debug(request,
+            "Blog entry not found in these languages: %s" % ",".join([l.code for l in tried_languages])
+        )
 
     # Add link to the breadcrumbs ;)
     _add_breadcrumb(request, content_entry.headline, _("Article '%s'") % content_entry.headline)

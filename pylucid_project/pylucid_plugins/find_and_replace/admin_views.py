@@ -8,6 +8,15 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
+"""
+    PyLucid find&replace plugin
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 import time
 
 from django.contrib import messages
@@ -138,10 +147,6 @@ def find_and_replace(request):
             start_time = time.time()
             _do_find_and_replace(request, context, **form.cleaned_data)
             context["duration"] = time.time() - start_time
-
-            # get the EditableHtmlHeadFile path to pygments.css (page_msg created, if not exists)
-            pygments_css_path = hightlighter.get_pygments_css(request)
-            context["pygments_css"] = pygments_css_path
     else:
         form = FindReplaceForm()
 

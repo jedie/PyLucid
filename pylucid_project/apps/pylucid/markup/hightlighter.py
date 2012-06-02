@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+
 
 """
     PyLucid <-> Pygments
@@ -6,9 +7,10 @@
 
     hightlight sourcecode with http://pygments.org/
 
-    :copyleft: 2007-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 from django.conf import settings
 from django.contrib import messages
@@ -138,17 +140,3 @@ def get_pygmentize_diff(content1, content2):
     return diff_html
 
 
-def get_pygments_css(request):
-    """
-    Returns the EditableHtmlHeadFile path to pygments.css
-    A page_msg would be created, if css not exists.
-    """
-    # import here, because it needs a database and other parts
-    from pylucid_project.apps.pylucid.models import EditableHtmlHeadFile
-    try:
-        pygments_css = EditableHtmlHeadFile.objects.get(filepath="pygments.css")
-    except EditableHtmlHeadFile.DoesNotExist:
-        messages.error(request, "Error: No headfile with filepath 'pygments.css' found.")
-    else:
-        absolute_url = pygments_css.get_absolute_url(colorscheme=None)
-        return absolute_url

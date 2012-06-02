@@ -35,7 +35,7 @@ RewriteEngine On
 
 # All requests would be "redirected" to PyLucid.
 # Here we can exclude some directories.
-# Default: Leave out all request to /media/ 
+# Default: Leave out all request to /static/ 
 # You can add more directories if needed.
 RewriteRule ^media - [L]
 

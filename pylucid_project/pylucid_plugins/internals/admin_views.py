@@ -1,17 +1,27 @@
 # coding:utf-8
 
+"""
+    internals admin views
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 from pprint import pformat
-import inspect
 import os
 import posixpath
-import subprocess
+import re
 import sys
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admindocs.views import simplify_regex
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes import generic
 from django.core import urlresolvers
+from django.core.exceptions import ViewDoesNotExist
+from django.core.urlresolvers import RegexURLPattern, RegexURLResolver
 from django.db import connection, backend
 from django.db import models
 from django.db.models import get_apps, get_models
@@ -53,6 +63,74 @@ def install(request):
 
 #-----------------------------------------------------------------------------
 
+class UrlPatternInfo(object):
+    """
+    most parts borrowed from django-extensions:
+    https://github.com/django-extensions/django-extensions/blob/master/django_extensions/management/commands/show_urls.py
+    """
+    def get_url_info(self):
+        """
+        return a dict-list of the current used url patterns 
+        """
+        urlconf = __import__(settings.ROOT_URLCONF, {}, {}, [''])
+        
+        view_functions = self._extract_views_from_urlpatterns(urlconf.urlpatterns)
+        
+        url_info = []
+        for (func, regex, url_name) in view_functions:
+            if hasattr(func, '__name__'):
+                func_name = func.__name__
+            elif hasattr(func, '__class__'):
+                func_name = '%s()' % func.__class__.__name__
+            else:
+                func_name = re.sub(r' at 0x[0-9a-f]+', '', repr(func))
+            url = simplify_regex(regex)
+                
+            url_info.append({
+                'func_name': func_name,
+                'module': func.__module__,
+                'url_name': url_name,
+                'regex': regex,
+                'url': url
+            })
+        return url_info
+    
+    def _extract_views_from_urlpatterns(self, urlpatterns, base=''):
+        """
+        Return a list of views from a list of urlpatterns.
+        
+        Each object in the returned list is a two-tuple: (view_func, regex)
+        """
+        views = []
+        for p in urlpatterns:
+            if isinstance(p, RegexURLPattern):
+                try:
+                    views.append((p.callback, base + p.regex.pattern, p.name))
+                except ViewDoesNotExist:
+                    continue
+            elif isinstance(p, RegexURLResolver):
+                try:
+                    patterns = p.url_patterns
+                except ImportError:
+                    continue
+                views.extend(self._extract_views_from_urlpatterns(patterns, base + p.regex.pattern))
+            elif hasattr(p, '_get_callback'):
+                try:
+                    views.append((p._get_callback(), base + p.regex.pattern, p.name))
+                except ViewDoesNotExist:
+                    continue
+            elif hasattr(p, 'url_patterns') or hasattr(p, '_get_url_patterns'):
+                try:
+                    patterns = p.url_patterns
+                except ImportError:
+                    continue
+                views.extend(self._extract_views_from_urlpatterns(patterns, base + p.regex.pattern))
+            else:
+                raise TypeError, _("%s does not appear to be a urlpattern object") % p
+        return views
+
+#-----------------------------------------------------------------------------
+
 @check_permissions(superuser_only=True)
 @render_to("internals/show_internals.html")
 def show_internals(request):
@@ -68,14 +146,9 @@ def show_internals(request):
             "app_models": model_info,
         })
 
-    # from http://www.djangosnippets.org/snippets/1434/
-    # generate a list of (pattern-name, pattern) tuples
-    resolver = urlresolvers.get_resolver(None)
-    urlpatterns = sorted([
-        (key, value[0][0][0])
-        for key, value in resolver.reverse_dict.items()
-        if isinstance(key, basestring)
-    ])
+
+    # Information about the current used url patterns
+    urlpatterns = UrlPatternInfo().get_url_info()
 
     context = {
         "title": "Show internals",
@@ -240,12 +313,12 @@ def model_graph(request):
     A.layout(prog='dot') # layout with default (neato)
 
     filename = "models_graph.png"
-    f = file(os.path.join(settings.MEDIA_ROOT, filename), "wb")
+    f = file(os.path.join(settings.STATIC_ROOT, filename), "wb")
     f.write(A.draw(format='png')) # draw png
     f.close()
 
     context = {
-        "url": posixpath.join(settings.MEDIA_URL, filename),
+        "url": posixpath.join(settings.STATIC_URL, filename),
     }
     return context
 

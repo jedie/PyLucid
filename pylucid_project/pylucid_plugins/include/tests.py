@@ -45,7 +45,7 @@ class IncludeTest(basetest.BaseLanguageTestCase):
         self.pagecontent.markup = MARKUP_HTML
         self.url = self.pagecontent.get_absolute_url()
 
-        self.pylucid_js_tools_filepath = os.path.join(settings.MEDIA_ROOT, "PyLucid", "pylucid_js_tools.js")
+        self.pylucid_js_tools_filepath = os.path.join(settings.STATIC_ROOT, "PyLucid", "pylucid_js_tools.js")
 
     def setUp(self):
         self.old_DEBUG = settings.DEBUG

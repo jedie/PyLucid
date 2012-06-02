@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 """
     PyLucid models
     ~~~~~~~~~~~~~~
@@ -8,9 +9,8 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+
 import os
-import errno
-import codecs
 import mimetypes
 
 from django.conf import settings
@@ -29,21 +29,13 @@ from pylucid_project.utils.css_color_utils import unify_spelling, \
 from pylucid_project.apps.pylucid.system import headfile
 
 # other PyLucid models
-from colorscheme import ColorScheme, Color
+from colorscheme import Color
 from design import Design
+from django.template.loader import render_to_string
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
-
-
-HEADFILE_CACHE_PATH = os.path.join(
-    settings.MEDIA_ROOT, settings.PYLUCID.CACHE_DIR
-)
-HEADFILE_CACHE_URL = os.path.join(
-    settings.MEDIA_URL, settings.PYLUCID.CACHE_DIR
-)
-
 
 
 class EditableHtmlHeadFileManager(models.Manager):
@@ -59,28 +51,7 @@ class EditableHtmlHeadFileManager(models.Manager):
         returns a pylucid.system.headfile.Headfile instance
         """
         db_instance = self.get(filename=filename)
-        return headfile.HeadfileLink(filename=db_instance.filename)#, content=db_instance.content)
-
-    def clean_headfile_cache(self):
-        """ delete all cache files in cache directory """
-        removed_items = []
-        def delete_tree(path):
-            if not os.path.isdir(path):
-                return
-
-            for dir_item in os.listdir(path):
-                fullpath = os.path.join(path, dir_item)
-                if os.path.isfile(fullpath):
-                    removed_items.append(fullpath)
-                    os.remove(fullpath)
-                elif os.path.isdir(fullpath):
-                    delete_tree(fullpath)
-                    removed_items.append(fullpath)
-                    os.rmdir(fullpath)
-
-        delete_tree(HEADFILE_CACHE_PATH)
-
-        return removed_items
+        return headfile.HeadfileLink(filename=db_instance.filename)
 
 
 class EditableHtmlHeadFile(UpdateInfoBaseModel):
@@ -100,7 +71,6 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         help_text=_("MIME type for this file. (Leave empty for guess by filename)")
     )
     html_attributes = models.CharField(max_length=256, null=False, blank=True,
-        # TODO: Use this!
         help_text=_('Additional html tag attributes (CSS example: media="screen")')
     )
     render = models.BooleanField(default=False,
@@ -113,21 +83,12 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         """ returns only the filename """
         return os.path.split(self.filepath)[1]
 
-    def get_color_filepath(self, colorscheme=None):
-        """ Colorscheme + filepath """
-        if self.render and colorscheme:
-            assert isinstance(colorscheme, ColorScheme)
-            return os.path.join("ColorScheme_%s" % colorscheme.pk, self.filepath)
-        else:
-            # The Design or this file used no colorscheme
-            return self.filepath
+    def get_file_extension(self):
+        """ return the file extension, e.g.: '.css' or '.js' """
+        return os.path.splitext(self.filepath)[1].lower()
 
-    def get_cachepath(self, colorscheme):
-        """
-        Filesystem path with filename.
-        TODO: Install section should create the directories!
-        """
-        return os.path.join(HEADFILE_CACHE_PATH, self.get_color_filepath(colorscheme))
+    def get_type(self):
+        return self.get_file_extension().lstrip(".")
 
     def get_rendered(self, colorscheme):
         color_dict = colorscheme.get_color_dict()
@@ -138,48 +99,24 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         rendered_content = render.render_string_template(self.content, color_dict)
         return rendered_content
 
-    def save_cache_file(self, colorscheme):
-        """
-        Try to cache the head file into filesystem (Only worked, if python process has write rights)
-        Try to create the out path, if it's not exist.
-        """
-        cachepath = self.get_cachepath(colorscheme)
-
-        def _save_cache_file(auto_create_dir=True):
-            if colorscheme:
-                rendered_content = self.get_rendered(colorscheme)
-            else:
-                rendered_content = self.content
-            try:
-                f = codecs.open(cachepath, "w", "utf8")
-                f.write(rendered_content)
-                f.close()
-            except IOError, err:
-                if auto_create_dir and err.errno == errno.ENOENT: # No 2: No such file or directory
-                    # Try to create the out dir and save the cache file
-                    path = os.path.dirname(cachepath)
-                    if not os.path.isdir(path):
-                        # Try to create cache path and save file
-                        os.makedirs(path)
-                        msg = "Cache path %s created" % path
-#                        print msg
-                        failsafe_message(msg)
-                        _save_cache_file(auto_create_dir=False)
-                        return
-                raise
-
-        try:
-            _save_cache_file()
-        except (IOError, OSError), err:
-            msg = "Can't cache EditableHtmlHeadFile into %r: %s" % (cachepath, err)
-            msg += ''' You should set settings.PYLUCID.CACHE_DIR="", if cachen can't be used!'''
-#            print msg
-            failsafe_message(msg)
+    def get_inline_html(self, colorscheme=None):
+        if colorscheme:
+            rendered_content = self.get_rendered(colorscheme)
         else:
-            if settings.DEBUG:
-                msg = "EditableHtmlHeadFile cached successful into: %r" % cachepath
-#                print msg
-                failsafe_message(msg)
+            if self.render == True:
+                raise AssertionError("This file should be rendered, but no colorscheme given!")
+            rendered_content = self.content
+
+        file_type = self.get_type()
+        template = "pylucid/headfile_inline_%s.html" % file_type
+
+        context = {
+            "instance": self,
+            "colorscheme": colorscheme,
+            "rendered_content": rendered_content,
+        }
+        inline_html = render_to_string(template, context)
+        return inline_html
 
     def iter_colorschemes(self, skip_colorschemes=None):
         """ TODO: Optimizes this """
@@ -196,85 +133,6 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
                 if headfile == self:
                     skip_colorschemes.append(colorscheme)
                     yield colorscheme
-
-    def get_send_head_file(self, colorscheme):
-        """
-        return link to request this headfile with pylucid.views.send_head_file
-        """
-        url = reverse('PyLucid-send_head_file', kwargs={"filepath":self.filepath})
-        if colorscheme:
-            # Design used a colorscheme
-            url += "?ColorScheme=%s" % colorscheme.pk
-        return url
-
-    def get_absolute_url(self, colorscheme=None):
-        """
-        return the absolute url to the headfile.      
-        Try to cache the headfile into filesystem, if settings.PYLUCID.CACHE_DIR is not empty
-        Fallback to send view url, if we can't cache.
-        """
-        if self.render == True and colorscheme is None:
-            raise AssertionError(
-                "Headfile %s should renderes, but no colorscheme pass to get_absolute_url()!" % self
-            )
-        elif self.render == False and colorscheme is not None:
-            raise AssertionError(
-                "Headfile %s should not rendered, but the colorscheme %s was passed to get_absolute_url()!" % (self, colorscheme)
-            )
-
-        if settings.PYLUCID.CACHE_DIR != "":
-            cachepath = self.get_cachepath(colorscheme)
-
-            def get_cached_url():
-                if os.path.isfile(cachepath):
-                    # The file exist in media path -> Let the webserver send this file ;)
-                    return os.path.join(HEADFILE_CACHE_URL, self.get_color_filepath(colorscheme))
-
-            cached_url = get_cached_url()
-            if cached_url: # Cache file was created in the past
-                return cached_url
-
-            # Create cache file
-            self.save_cache_file(colorscheme)
-
-            cached_url = get_cached_url()
-            if cached_url: # Use created cache file
-                return cached_url
-
-        # Can't create cache file -> use pylucid.views.send_head_file for it
-        return self.get_send_head_file(colorscheme)
-
-    def get_headfilelink(self, colorscheme):
-        """ Get the link url to this head file. """
-        if self.render != True:
-            colorscheme = None
-
-        url = self.get_absolute_url(colorscheme)
-        return headfile.HeadfileLink(url)
-
-    def delete_cachefile(self, colorscheme=None):
-        cachepath = self.get_cachepath(colorscheme)
-        if not os.path.isfile(cachepath):
-            if settings.DEBUG:
-                failsafe_message("No need to delete cache file %s, it doesn't exist, yet." % cachepath)
-            return
-
-        try:
-            os.remove(cachepath)
-        except Exception, err:
-            failsafe_message("Can't delete '%(path)s': %(err)s" % {
-                "path": cachepath,
-                "err": err
-            })
-        else:
-            failsafe_message("Cache file %s deleted." % cachepath)
-
-    def delete_all_cachefiles(self):
-        if self.render:
-            for colorscheme in self.iter_colorschemes():
-                self.delete_cachefile(colorscheme)
-        else:
-            self.delete_cachefile()
 
     def clean_fields(self, exclude):
         message_dict = {}
@@ -335,7 +193,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
 
     def auto_mimetype(self):
         """ returns the mimetype for the current filename """
-        fileext = os.path.splitext(self.filepath)[1].lower()
+        fileext = self.get_file_extension()
         if fileext == ".css":
             return u"text/css"
         elif fileext == ".js":
@@ -474,7 +332,6 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
     def save(self, *args, **kwargs):
         self.update_colorscheme()
         super(EditableHtmlHeadFile, self).save(*args, **kwargs)
-        self.delete_all_cachefiles()
 
     def __unicode__(self):
         return self.filepath

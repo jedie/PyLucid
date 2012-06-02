@@ -146,7 +146,7 @@ class GalleryPluginTest1(basetest.BaseUnittest):
                 '<title>PyLucid CMS - gallery_test</title>',
                 'jquery.colorbox-min.js',
                 '<img src="%s/markup_help/creole_cheat_sheet.png" alt="creole cheat sheet" width="100" height="100">' % (
-                    settings.MEDIA_URL + self.base_path
+                    settings.STATIC_URL + self.base_path
                 ),
                 'Directory',
                 'Pictures',
@@ -166,7 +166,7 @@ class GalleryPluginTest1(basetest.BaseUnittest):
             must_contain=(
                 'jquery.colorbox-min.js',
                 '<img src="%s/markup_help/creole_cheat_sheet.png" alt="creole cheat sheet" width="100" height="100">' % (
-                    settings.MEDIA_URL + self.base_path
+                    settings.STATIC_URL + self.base_path
                 ),
                 'Directory',
                 'Pictures',

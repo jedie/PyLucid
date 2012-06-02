@@ -27,9 +27,12 @@ from pylucid_project.tests.test_tools import basetest
 from pylucid_project.tests.test_tools.scrapping import HTMLscrapper
 
 settings.SERVE_STATIC_FILES = True
-CACHE_DIR = settings.PYLUCID.CACHE_DIR
+#CACHE_DIR = settings.PYLUCID.CACHE_DIR
 DEBUG = settings.DEBUG
 CACHE_BACKEND = settings.CACHES["default"]["BACKEND"]
+
+COMPRESS_DIR = "/%s/" % getattr(settings, "COMPRESS_OUTPUT_DIR", "CACHE")
+
 
 
 class DesignTestCase(basetest.BaseUnittest):
@@ -38,13 +41,19 @@ class DesignTestCase(basetest.BaseUnittest):
 
     def tearDown(self):
         # Recover changed settings
-        settings.PYLUCID.CACHE_DIR = CACHE_DIR
+#        settings.PYLUCID.CACHE_DIR = CACHE_DIR
         settings.CACHES["default"]["BACKEND"] = CACHE_BACKEND
 
     def get_headlinks(self, response, url_part):
         data = HTMLscrapper().grab(response.content, tags=("link",), attrs=("href",))
 #        for url in data["href"]: print url
         return [url for url in data["href"] if url_part in url]
+
+    def get_headfile(self, url, mimetype="text/css"):
+        response = self.client.get(url)
+        self.assertStatusCode(response, 200)
+        self.assertEqual(response["content-type"], mimetype)
+        return response.content
 
     def assertHeadfiles(self, urls):
         for url in urls:
@@ -56,35 +65,16 @@ class DesignTestCase(basetest.BaseUnittest):
 
 class DesignTest(DesignTestCase):
     def test_cached_headfiles_styles(self):
-        self.assertTrue(settings.PYLUCID.CACHE_DIR != "")
-
-        url_part = "/%s/" % settings.PYLUCID.CACHE_DIR
-
         response = self.client.get("/")
 #        debug_response(response)
-        urls = self.get_headlinks(response, url_part)
+        urls = self.get_headlinks(response, COMPRESS_DIR)
         self.assertHeadfiles(urls)
-        for url in urls:
-            self.assertTrue(
-                url_part in url,
-                "url doesn't contain %r: %r" % (url_part, url)
-            )
-        self.assertTrue(len(urls) == 2)
 
-    def test_send_view(self):
-        settings.PYLUCID.CACHE_DIR = ""
+        self.failUnlessEqual(len(urls), 1)
 
-        prefix = "/%s/" % settings.PYLUCID.HEAD_FILES_URL_PREFIX
-
-        response = self.client.get("/en/")
-        urls = self.get_headlinks(response, url_part="/headfile/")
-        self.assertHeadfiles(urls)
-        for url in urls:
-            self.assertTrue(
-                url.startswith(prefix),
-                "url doesn't starts with %r: %r" % (prefix, url)
-            )
-        self.assertTrue(len(urls) == 2)
+        content = self.get_headfile(urls[0])
+        self.failUnless("headfile stylesheet 'initial_site_style/main.css'" in content)
+        self.failUnless("headfile stylesheet 'pygments.css'" in content)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 
 {% block plugin_content %}
 {# We can't use extrahead block here, because it's used in ajax view, too. #}
-<script type="text/javascript" src="{{ PyLucid_media_url }}jquery.colorbox-min.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}PyLucid/jquery.colorbox-min.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <style>
 /*
     ColorBox Core Style

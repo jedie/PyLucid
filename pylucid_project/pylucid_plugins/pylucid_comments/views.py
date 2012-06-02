@@ -28,13 +28,11 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.views.decorators.csrf import csrf_protect, csrf_exempt, \
+    ensure_csrf_cookie
 
 from django_tools.decorators import render_to
-"""
-only available with django 1.4 !
-from django_tools.utils.client_storage import ClientCookieStorage, InvalidCookieData
-"""
+from django_tools.utils.client_storage import ClientCookieStorageError, ClientCookieStorage
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.shortcuts import bad_request
@@ -137,6 +135,7 @@ comment_will_be_posted.connect(comment_will_be_posted_handler)
 comment_was_posted.connect(comment_was_posted_handler)
 
 
+@ensure_csrf_cookie
 @check_request(APP_LABEL, "_get_form() error", must_post=False, must_ajax=True)
 @render_to("pylucid_comments/comment_form.html")
 def _get_form(request):
@@ -154,39 +153,19 @@ def _get_form(request):
         return bad_request(APP_LABEL, "error", "Wrong object_pk: %s" % err)
 
     data = {}
-    """
-    only available with django 1.4 !
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated() and COOKIE_KEY in request.COOKIES:
         # Get user data from secure cookie, set in the past, see _form_submission()
         c = ClientCookieStorage(cookie_key=COOKIE_KEY)
         try:
-            raw_data = c.get_data(request)
-        except InvalidCookieData, err:
-            return bad_request(APP_LABEL, "error", "Wrong cookie data: %s" % err)
-
-        if raw_data is not None:
-            try:
-                username, email, url = raw_data.rsplit(COOKIE_DELIMITER, 2)
-            except ValueError, err:
-                debug_msg = "Error split user cookie data: %r with %r" % (raw_data, COOKIE_DELIMITER)
-                LogEntry.objects.log_action(
-                    app_label=APP_LABEL, action="error", message=debug_msg,
-                )
-                if settings.DEBUG:
-                    raise
-            else:
-                data = {"name": username, "email": email, "url": url}
-    """
+            data = c.get_data(request)
+        except ClientCookieStorageError, err:
+            LogEntry.objects.log_action(
+                app_label=APP_LABEL, action="wrong cookie data", message="%s" % err,
+            )
+            if settings.DEBUG:
+                return bad_request(APP_LABEL, "error", "Wrong cookie data: %s" % err)
 
     form = comments.get_form()(target, initial=data)
-
-    # IMPORTANT: We must do the following, so that the
-    # CsrfViewMiddleware.process_response() would set the CSRF_COOKIE
-    # see also # https://github.com/jedie/PyLucid/issues/61
-    # XXX in Django => 1.4 we can use @ensure_csrf_cookie
-    # https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#django.views.decorators.csrf.ensure_csrf_cookie
-    request.META["CSRF_COOKIE_USED"] = True
-
     return {"form":form}
 
 
@@ -202,9 +181,11 @@ def _form_submission(request):
 
         if not request.user.is_authenticated():
             # Store user data for anonymous users in a secure cookie, used in _get_form() to pre fill the form
-            comments_data = COOKIE_DELIMITER.join([
-                request.POST["name"], request.POST.get("email", ""), request.POST.get("url", "")
-            ])
+            comments_data = {
+                "name": request.POST["name"],
+                "email": request.POST.get("email", ""),
+                "url": request.POST.get("url", ""),
+            }
             # Store the user data with a security hash
             c = ClientCookieStorage(cookie_key=COOKIE_KEY)
             response = c.save_data(comments_data, response)

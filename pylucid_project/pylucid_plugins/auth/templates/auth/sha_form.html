@@ -4,8 +4,7 @@
 {% block plugin_content %}
 
 {# We can't use extrahead block here, because it's used in ajax view, too. #}
-<script type="text/javascript" src="{{ PyLucid_media_url }}sha.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
-<script type="text/javascript" src="{{ PyLucid_media_url }}shared_sha_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+{% compress css %}
 <style type="text/css">
 #login_form, #sha_values_block, #js_page_msg { display: none; }
 #js_page_msg { padding: 0.5em; }
@@ -13,213 +12,23 @@
 .page_msg_error { color: #ff0000; border: 1px solid #ff0000; }
 .page_msg_info { color: #0000ff; border: 1px solid #000000; }
 </style>
+{% endcompress %}
+
+<script type="text/javascript" src="{% url django.views.i18n.javascript_catalog packages="auth" %}"></script>
+{% compress js %}
+<script type="text/javascript" src="{{ STATIC_URL }}PyLucid/auth/sha.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}PyLucid/auth/shared_sha_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <script type="text/javascript">
-var SALT_LEN={{ salt_len }};
-var HASH_LEN={{ hash_len }};
+var SALT_LEN=parseInt("{{ salt_len }}");
+var HASH_LEN=parseInt("{{ hash_len }}");
 var challenge="{{ challenge }}"; // changed via ajax, after wrong login
 var salt=""; // get via ajax
-
-try {
-    jQuery(document);
-} catch (e) {
-    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
-}
-
-jQuery(document).ready(function($) {   
-    if (challenge.length != SALT_LEN) {
-        alert("Wrong challenge from server length:" + challenge.length + "!=" + SALT_LEN);
-        return false;
-    }
-    if (!hex_sha1) {
-        alert("sha.js not loaded.\n(hex_sha1 not defined)");
-        return false;
-    }
-    if (!sha_hexdigest) {
-        alert("Wrong shared_sha_tools.js loaded! Please update your media files\n(sha_hexdigest not defined)");
-        return false;
-    }
-
-    // unhide form
-    $("#login_form").css("display", "block").slideDown();
-	$("#load_info").slideUp();
-
-    $("#id_username").focus();
-
-	// remove old page_msg, if exist
-	$("#page_msg").slideUp();
-
-	$("#id_username").change(function() {
-		// if the username change, we must get a new salt from server.
-		$("#id_password").focus();
-        $("#js_page_msg").slideUp();
-        log("username changed, delete old salt.");
-	    salt="";
-		return false;
-	});
-
-    $("#id_password").change(function() {
-        $("#js_page_msg").slideUp(); // hide old messages
-    });
-
-	$("#login_form").submit(function() {
-		log("check login form.");
-	    try {
-			var username = $("#id_username").val();
-			log("username:" + username);
-
-	        if (username.length<2) {
-	            log("username to short, current len:" + username.length);
-				page_msg_error("{% trans 'Username is too short.' %}");
-	            $("#id_username").focus();
-	            return false;
-	        }
-
-	        var password = $("#id_password").val();
-	        log("password:" + password);
-
-	        if (password.length<8) {
-				log("password to short, current len:" + password.length);
-				page_msg_error("{% trans 'Password is too short. It must be at least eight characters long.' %}");
-	            $("#id_password").focus();
-	            return false;
-	        }
-			if (is_only_ascii(password) != true) {
-                page_msg_error("{% trans 'Only ASCII letters in password allowed!' %}");
-			    return false;
-			}
-
-			if (salt=="") {
-				page_msg_info("{% trans 'Get the hash salt value from server...' %}");
-                var post_data = {
-                    "username": username,
-                };
-                log("get user salt from server, send POST:" + $.param(post_data));
-				response = $.ajax({
-					async: false,
-					type: "POST",
-					url: "{{ get_salt_url }}",
-					data: post_data,
-					dataType: "text",
-					success: function(data, textStatus, XMLHttpRequest){
-		                log("get salt value via ajax: " + textStatus);
-					},
-		            error: ajax_error_handler // from pylucid_js_tools.js
-				});
-				salt = response.responseText;
-			    log("salt value from server:" + salt);
-			} else {
-				log("use existing salt:" + salt);
-			}
-		    if (salt.length != SALT_LEN) {
-				alert("Internal error: Wrong salt length:" + salt.length + "!=" + SALT_LEN);
-		        return false;
-		    }
-
-            log("shapass = sha_hexdigest(salt + password):");
-		    shapass = sha_hexdigest(salt + password);
-			if (shapass == false) { return false; }
-		    if (shapass.length!=HASH_LEN) {
-		        alert("Internal error: hex_sha salt error! shapass length:" + shapass.length);
-		        return false;
-		    }
-
-		    // split SHA-Passwort
-		    sha_a = shapass.substr(0, HASH_LEN/2); // sha_a never send to the server
-		    sha_b = shapass.substr(HASH_LEN/2, HASH_LEN/2);
-		    log("substr: sha_a:|"+sha_a+"| sha_b:|"+sha_b+"|");
-
-//            // Generate 'cnonce' a client side random value
-//            var cnonce = "";
-//            cnonce += new Date().getTime();
-//            cnonce += Math.random();
-//            cnonce += $(window).height();
-//            cnonce += $(window).width();
-//            log("generated cnonce:");
-//            cnonce = sha_hexdigest(cnonce);
-
-            log("sha_a2 = sha_hexdigest(challenge + sha_a):");
-		    sha_a2 = sha_hexdigest(challenge + sha_a);
-			if (sha_a2 == false) { return false; }
-
-		// display SHA values
-         	$("#password_block").slideUp(1).delay(500);
-		$("#sha_values_block").css("display", "block").slideDown();
-		$("#id_password").val(""); // 'delete' plaintext password
-		$("#id_sha_a2").val(sha_a2);
-		$("#id_sha_b").val(sha_b);
-
-			var post_data = {
-			    "username": username, "sha_a2": sha_a2, "sha_b": sha_b,
-			}
-			log("auth user, send POST:" + $.param(post_data));
-			page_msg_info("{% trans 'Send SHA-1 values to the server...' %}");
-            response = $.ajax({
-                async: false,
-                type: "POST",
-                url: "{{ sha_auth_url }}",
-                data: post_data,
-                dataType: "text",
-                success: function(data, textStatus, XMLHttpRequest){
-                    log("post request via ajax: " + textStatus);
-                },
-                error: ajax_error_handler // from pylucid_js_tools.js
-            });
-            msg = response.responseText;
-            log("responseText:" + msg);
-			if (msg=="OK") {
-			     // login was ok
-				 page_msg_success("Login ok, loading...");
-				 window.location.href = "{{ next_url }}";
-				 return false;
-			}
-			if (msg.indexOf("<"+"head>") != -1) { // 'mask' tag, so it's not found by pylucid_js_tools.js / replace_page_content ;)
-			    log("It seems we get a complete html page: replace the complete page");
-				$("html").html(msg);
-//                replace_complete_page(msg); // from pylucid_js_tools.js
-                return false
-			}
-			if (msg.indexOf(";") == -1) {
-				log("Wrong server reponse! No ';' found!");
-				return false
-			}
-
-			// we get a new challenge and a error message from server
-			challenge = msg.substr(0, msg.indexOf(";"));
-			msg = msg.substr(msg.indexOf(";")+1);
-
-			log("new challenge:" + challenge);
-			page_msg_error(msg);
-
-            $("#password_block").css("display", "block").slideDown();
-            $("#sha_values_block").slideUp("slow");
-            $("#id_sha_a2").val("");
-            $("#id_sha_b").val("");
-			$("#id_password").focus();
-
-		    return false;
-        } catch (e) {
-            log("Error:" + e);
-			alert("internal javascript error:" + e);
-			return false;
-        }
-	});
-	
-    log("test sha.js");
-    var digits="0123456789";
-    var ascii_lowercase = "abcdefghijklmnopqrstuvwxyz".toLowerCase();
-    var ascii_uppercase = ascii_lowercase.toUpperCase();
-    var test_string = " " + digits + ascii_lowercase + ascii_uppercase;
-    var test_sha = sha_hexdigest(test_string);
-	var should_be = "5b415e2e5421a30b798c9b46638fcd7b58ff4d53".toLowerCase()
-    if (test_sha != should_be) {
-		var msg = "sha.js test failed!\n'" + test_sha + "' != '" + should_be + "'";
-		log(msg);
-        alert("Internal Error:\n" + msg);
-        return false;
-    }
-	log("sha.js is ok");
-});
+var next_url="{{ next_url }}";
+var sha_auth_url="{{ sha_auth_url }}";
+var get_salt_url="{{ get_salt_url }}";
 </script>
+<script type="text/javascript" src="{{ STATIC_URL }}PyLucid/auth/sha_login.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+{% endcompress %}
 
 <fieldset>
 <legend>

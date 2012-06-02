@@ -30,16 +30,9 @@ HTTP_GET_VIEW_NAME = "http_get_view"
 
 # All PyLucid media files stored in a sub directory under the django media
 # path. Used for building filesystem path and URLs.
-# filesystem path: MEDIA_ROOT + PYLUCID_MEDIA_DIR
-# URLs: MEDIA_URL + PYLUCID_MEDIA_DIR
+# filesystem path: STATIC_ROOT + PYLUCID_MEDIA_DIR
+# URLs: STATIC_URL + PYLUCID_MEDIA_DIR
 PYLUCID_MEDIA_DIR = "PyLucid" # Without slashes at begin/end!
-
-# File cache directory used for EditableHtmlHeadFile
-# filesystem path is: MEDIA_ROOT + CACHE_DIR
-# URL if not cacheable in filesystem: /HEAD_FILES_URL_PREFIX/filepath
-# URL if written into filesystem path: MEDIA_URL + CACHE_DIR + filepath
-# Set to "" if the python process has no write access
-CACHE_DIR = "PyLucid_cache"
 
 AUTH_LOGOUT_GET_VIEW = "auth=logout"
 AUTH_GET_VIEW = "auth=login"

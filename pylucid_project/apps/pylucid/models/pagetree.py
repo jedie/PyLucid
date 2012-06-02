@@ -329,6 +329,15 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
 
         # Check if slug exist in the same sub tree:
         if "slug" not in exclude:
+            if self.parent == None: # parent is the tree root
+                if self.slug in settings.SLUG_BLACKLIST:
+                    # e.g. /media/ or /pylucid_admin/
+                    msg = (
+                        "Sorry, page slug '/<strong>%s</strong>/' is not usable!"
+                        " (Not usable slugs are: %s)"
+                    ) % (self.slug, ", ".join(settings.SLUG_BLACKLIST))
+                    message_dict["slug"] = (mark_safe(msg),)
+
             queryset = PageTree.on_site.filter(slug=self.slug, parent=self.parent)
 
             # Exclude the current object from the query if we are editing an

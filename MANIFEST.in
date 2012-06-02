@@ -4,6 +4,6 @@ recursive-include requirements *
 recursive-include scripts *
 recursive-include pylucid_project/locale *
 recursive-include pylucid_project/media *
-recursive-exclude pylucid_project/media/PyLucid/headfile_cache *
+recursive-exclude pylucid_project/static/PyLucid/headfile_cache *
 prune pylucid_project/pylucid_plugins/unittest_plugin
 recursive-exclude * *.py[co]

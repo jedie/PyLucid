@@ -90,47 +90,15 @@ def _cache_backend_test(request, out):
         if cached_content != None:
             out.write(_("\t* Error: entry not deleted!"))
 
+    if getattr(settings, "COMPRESS", False) != True:
+        out.write(_("\n\tYou should activate django-compressor with COMPRESS=True in you local_settings.py!"))
+
     out.write("\n" + _("more info:"))
     out.write(mark_safe('\t<a href="http://www.pylucid.org/permalink/139/advanced-steps">PyLucid advanced install steps</a>'))
     out.write(mark_safe(_('\t<a href="http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache">django cache documentation</a>')))
 
 #-----------------------------------------------------------------------------
 
-def _headfile_cache_test(request, out):
-    out.write(_("\tsettings.PYLUCID.CACHE_DIR is %r") % settings.PYLUCID.CACHE_DIR)
-    if settings.PYLUCID.CACHE_DIR == "":
-        out.write(_("\theadfile cache disabled, ok."))
-        return
-
-    def test_url(headfile, colorscheme):
-        url = headfile.get_absolute_url(colorscheme)
-        out.write("\t\turl: %s" % url)
-        if settings.PYLUCID.CACHE_DIR in url:
-            out.write("\tok")
-        elif url.startswith(view_prefix):
-            all_ok = False
-            out.write("\terror, fallback view used.")
-        else:
-            all_ok = False
-            out.write("\turl error?")
-
-    view_prefix = "/%s/" % settings.PYLUCID.HEAD_FILES_URL_PREFIX
-    headfiles = EditableHtmlHeadFile.objects.all()
-    all_ok = True
-    for headfile in headfiles:
-        if headfile.render:
-            for colorscheme in headfile.iter_colorschemes():
-                test_url(headfile, colorscheme)
-        else:
-            test_url(headfile, None)
-
-    if not all_ok:
-        out.write("\n" + _("more info:"))
-        out.write("\t1." + _("Check why the python process can't cachen the files."))
-        out.write("\t2." + _('Set settings.PYLUCID.CACHE_DIR="" to disable headfile cache.'))
-        out.write(mark_safe('read: <a href="http://www.pylucid.org/permalink/139/advanced-steps">PyLucid advanced install steps</a>'))
-
-#-----------------------------------------------------------------------------
 
 def _database_encoding_test(request, out):
     """
@@ -211,7 +179,7 @@ def base_check(request):
         out.write("\nsettings.SECRET_KEY, ok.")
     out.write("\n" + "- " * 40)
 
-    if settings.DATABASE_ENGINE == "mysql":
+    if "mysql" in settings.DATABASES['default']['ENGINE']:
         try:
             import MySQLdb
             out.write("MySQLdb.__version__  : %s" % repr(MySQLdb.__version__))
@@ -240,10 +208,6 @@ def base_check(request):
 
     out.write("\nTest cache backend:\n")
     _cache_backend_test(request, out)
-    out.write("\n" + "- " * 40)
-
-    out.write("\nTest headfile cache:\n")
-    _headfile_cache_test(request, out)
     out.write("\n" + "- " * 40)
 
     try:

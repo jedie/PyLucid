@@ -9,8 +9,8 @@
 <meta name="DC.Date" content="{{ entry.lastupdatetime|date:_("DATETIME_FORMAT") }}" />
 <meta name="DC.Date.created" content="{{ entry.createtime|date:_("DATETIME_FORMAT") }}" />
 <link rel="canonical" href="{{ page_permalink }}" />
-<script type="text/javascript" src="{{ Django_media_prefix }}js/jquery.min.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');" ></script>
-<script type="text/javascript" src="{{ PyLucid_media_url }}pylucid_js_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.min.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');" ></script>
+<script type="text/javascript" src="{{ STATIC_URL }}PyLucid/pylucid_js_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <style type="text/css">
 html {
     background-color: #eee; 

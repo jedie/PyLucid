@@ -6,8 +6,8 @@ local_settings.py
 /dist
 /build
 *.db3
-/pylucid_project/media/PyLucid/headfile_cache
-/pylucid_project/media/PyLucid_cache
+/pylucid_project/static/PyLucid/headfile_cache
+/pylucid_project/static/PyLucid_cache
 /pylucid_project/external_plugins/**
 .pydevproject
 /.settings

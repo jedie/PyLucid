@@ -30,8 +30,8 @@
 
 {% block extrahead %}{{ block.super }}
 <!-- admin/pylucid/colorscheme/change_form - extrahead - START -->
-<link rel="stylesheet" media="screen" type="text/css" href="{{ PyLucid_media_url }}colorpicker/css/colorpicker.css" />
-<script type="text/javascript" src="{{ PyLucid_media_url }}colorpicker/js/colorpicker.js"></script>
+<link rel="stylesheet" media="screen" type="text/css" href="{{ STATIC_URL }}PyLucid/colorpicker/css/colorpicker.css" />
+<script type="text/javascript" src="{{ STATIC_URL }}PyLucid/colorpicker/js/colorpicker.js"></script>
 <script type="text/javascript">
 var color_name_re = new RegExp(/^color\S+value$/);
 $(document).ready(function(){

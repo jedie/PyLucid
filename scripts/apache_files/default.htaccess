@@ -60,15 +60,15 @@ RewriteRule .* - [F]
 
 # All requests would be "redirected" to PyLucid.
 # Here we can exclude some directories.
-# Default: Leave out all request to /media/
+# Default: Leave out all request to /static/
 # You can add more directories if needed.
-RewriteRule ^media - [L]
+RewriteRule ^static - [L]
 
 # Enable next rule, if you would like to use a static robots.txt file.
 # more information: http://www.pylucid.org/permalink/390/robots-txt
 #RewriteRule ^robots.txt$ - [L]
 
-# Enable access to default favicon.ico file location 
+# Enable access to default favicon.ico file location
 RewriteRule ^favicon.ico$ - [L]
 
 # Forbid the directly access to some files (send 403 HTTP response)

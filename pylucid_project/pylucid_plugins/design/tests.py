@@ -224,8 +224,8 @@ class FixtureDataDesignTest(BaseTestCase, TestCase):
         self.design3 = Design.objects.get(name="inverted blue")
         self.design4 = Design.objects.get(name="inverted yellow")
 
-        self.test_css_url1 = "/media/PyLucid_cache/ColorScheme_1/test_styles.css"
-        self.test_css_url2 = "/media/PyLucid_cache/ColorScheme_2/test_styles.css"
+        self.test_css_url1 = "/static/PyLucid_cache/ColorScheme_1/test_styles.css"
+        self.test_css_url2 = "/static/PyLucid_cache/ColorScheme_2/test_styles.css"
 
     def setUp(self):
         removed_items = EditableHtmlHeadFile.objects.clean_headfile_cache()
