@@ -80,6 +80,7 @@ setup_info = dict(
     author=get_authors(),
     maintainer="Jens Diemer",
     url='http://www.pylucid.org',
+    download_url = 'http://www.pylucid.org/en/download/',
     packages=find_packages(
         exclude=[".project", ".pydevproject", "pylucid_project.external_plugins.*"]
     ),
