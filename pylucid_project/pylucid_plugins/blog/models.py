@@ -337,9 +337,9 @@ class BlogEntryContent(MarkupBaseModel, UpdateInfoBaseModel):
         viewname = "Blog-detail_view"
 
         reverse_kwargs = {
-            "year": self.createtime.year,
-            "month": "%02i" % self.createtime.month,
-            "day": "%02i" % self.createtime.day,
+            "year": self.url_date.year,
+            "month": "%02i" % self.url_date.month,
+            "day": "%02i" % self.url_date.day,
             "slug": self.slug
         }
         try:

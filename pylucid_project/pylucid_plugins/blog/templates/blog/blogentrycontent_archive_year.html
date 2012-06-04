@@ -21,7 +21,7 @@
 {% endif %}
 <ul>
 {% for entry in object_list %}
-    <li><a href="{{ entry.get_absolute_url }}" class="blog_headline" hreflang="{{ entry.language.code }}">{{ entry.createtime|date:_("DATE_FORMAT") }} - {{ entry.headline }}</a></li>
+    <li><a href="{{ entry.get_absolute_url }}" class="blog_headline" hreflang="{{ entry.language.code }}">{{ entry.url_date|date:_("DATE_FORMAT") }} - {{ entry.headline }}</a></li>
 {% endfor %}
 </ul>
 </fieldset>

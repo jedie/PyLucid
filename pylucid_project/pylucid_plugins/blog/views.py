@@ -250,9 +250,9 @@ def detail_view(request, year, month, day, slug):
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
 
     filter_kwargs = {
-        "createtime__year":year,
-        "createtime__month":month,
-        "createtime__day":day,
+        "url_date__year":year,
+        "url_date__month":month,
+        "url_date__day":day,
         "slug":slug,
     }
     current_language = request.PYLUCID.current_language
@@ -371,27 +371,27 @@ def year_archive(request, year):
         queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
         next_year = datetime.datetime(year=year, month=12, day=31)
         try:
-            entry_in_next_year = queryset.filter(createtime__gte=next_year).only("createtime").order_by("-createtime")[0]
+            entry_in_next_year = queryset.filter(url_date__gte=next_year).only("url_date").order_by("-url_date")[0]
         except IndexError:
             # no entries in next year
             pass
         else:
-            context["next_year"] = entry_in_next_year.createtime.year
+            context["next_year"] = entry_in_next_year.url_date.year
 
     # Get previous year
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
     previous_year = datetime.datetime(year=year, month=1, day=1)
     try:
-        entry_in_previous_year = queryset.filter(createtime__lte=previous_year).only("createtime").order_by("-createtime")[0]
+        entry_in_previous_year = queryset.filter(url_date__lte=previous_year).only("url_date").order_by("-url_date")[0]
     except IndexError:
         # no entries in previous year
         pass
     else:
-        context["previous_year"] = entry_in_previous_year.createtime.year
+        context["previous_year"] = entry_in_previous_year.url_date.year
 
     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
     return archive_year(
-        request, year, queryset, date_field="createtime", extra_context=context,
+        request, year, queryset, date_field="url_date", extra_context=context,
         make_object_list=True,
         allow_empty=True
     )
@@ -414,7 +414,7 @@ def month_archive(request, year, month):
         "page_robots": "noindex,nofollow",
     }
     return archive_month(
-        request, year, month, queryset, date_field="createtime", extra_context=context,
+        request, year, month, queryset, date_field="url_date", extra_context=context,
         month_format="%m", allow_empty=True
     )
 
@@ -436,7 +436,7 @@ def day_archive(request, year, month, day):
         "page_robots": "noindex,nofollow",
     }
     return archive_day(
-        request, year, month, day, queryset, date_field="createtime", extra_context=context,
+        request, year, month, day, queryset, date_field="url_date", extra_context=context,
         month_format="%m", allow_empty=True
     )
 

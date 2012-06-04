@@ -28,6 +28,7 @@ if __name__ == "__main__":
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTagsTest"
 #    tests = "pylucid_plugins.blog.tests.BlogLanguageFilterTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_url_date"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginArticleTest"
@@ -533,6 +534,39 @@ class BlogPluginTest(BlogPluginTestCase):
         })
         blog_article_url = "http://testserver/en/blog/%s/the-blog-headline/" % TODAY_URL_PART
         self.assertRedirect(response, url=blog_article_url, status_code=302)
+
+    def test_url_date(self):
+        self.login_with_blog_add_permissions()
+        response = self.client.post(CREATE_URL,
+            data={
+            "headline": "Tag der Deutschen Einheit...",
+            "content": "...war am **03. Oktober 1990**.",
+            "markup": MARKUP_CREOLE,
+            "is_public": "on",
+            "language": self.default_language.id,
+            "url_date": "1990-10-03",
+            "sites": settings.SITE_ID,
+            "tags": "django-tagging, tag1, tag2",
+        })
+        blog_article_url = "http://testserver/en/blog/1990/10/03/tag-der-deutschen-einheit/"
+        self.assertRedirect(response, url=blog_article_url, status_code=302)
+        response = self.client.get(blog_article_url)
+        self.assertDOM(response,
+            must_contain=(
+                '<li class="success">New blog entry &#39;Tag der Deutschen Einheit...&#39; saved.</li>',
+                '<p>...war am <strong>03. Oktober 1990</strong>.</p>',
+            ),
+            must_not_contain=("Traceback", "field is required")
+        )
+        self.assertResponse(response,
+            must_contain=(
+                # Archive links (complete link doesn't match with assertHTML):
+                '<a href="/en/blog/1990/"',
+                '<a href="/en/blog/1990/10/"',
+                '<a href="/en/blog/1990/10/03/"',
+            ),
+            must_not_contain=("Traceback", "field is required")
+        )
 
     def test_unique_together_slug(self):
         self.login_with_blog_add_permissions()
