@@ -6,19 +6,16 @@
 
     Register model in django admin interface.
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django import forms
+
+# https://github.com/jedie/django-reversion-compare
+from reversion_compare.admin import CompareVersionAdmin
 
 from pylucid_project.apps.pylucid.models import PageTree, PluginPage
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin, RedirectToPageAdmin
@@ -47,7 +44,7 @@ class GalleryAdminForm(forms.ModelForm):
         self.fields["pagetree"].choices = choices
 
 
-class GalleryModelAdmin(RedirectToPageAdmin, BaseAdmin):
+class GalleryModelAdmin(RedirectToPageAdmin, BaseAdmin, CompareVersionAdmin):
     form = GalleryAdminForm
     list_display = (
         "view_on_site_link", "path", "template",

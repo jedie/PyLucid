@@ -2,15 +2,10 @@
 
 """
     PyLucid StreetMap plugin
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Last commit info:
-    ~~~~~~~~~
-    $LastChangedDate:$
-    $Rev:$
-    $Author: JensDiemer $
 
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -18,13 +13,14 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from reversion.admin import VersionAdmin
+# https://github.com/jedie/django-reversion-compare
+from reversion_compare.admin import CompareVersionAdmin
 
 from StreetMap.models import MapEntry
 
 
 
-class MapEntryAdmin(VersionAdmin):
+class MapEntryAdmin(CompareVersionAdmin):
     def lucidTag_example(self, obj):
         return '{%% lucidTag StreetMap name="%s" %%}' % obj.name
     lucidTag_example.short_description = _("lucidTag example")

@@ -2,11 +2,14 @@
 
 from django.contrib import admin
 
+# https://github.com/jedie/django-reversion-compare
+from reversion_compare.admin import CompareVersionAdmin
+
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 
 from pylucid_comments.models import PyLucidComment
 
-class PyLucidCommentAdmin(BaseAdmin):
+class PyLucidCommentAdmin(BaseAdmin, CompareVersionAdmin):
     """
     TODO:
         -Add action "set to non public"

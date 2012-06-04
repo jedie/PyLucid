@@ -6,12 +6,15 @@
     
     Based on django poll tutorial
 
-    :copyleft: 2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2011-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+
+# https://github.com/jedie/django-reversion-compare
+from reversion_compare.admin import CompareVersionAdmin
 
 from poll.models import Poll, Choice, UserVotes, IPVotes
 
@@ -20,7 +23,7 @@ class ChoiceInline(admin.TabularInline):
     model = Choice
     extra = 3
 
-class PollAdmin(admin.ModelAdmin):
+class PollAdmin(CompareVersionAdmin):
     list_display = ("question", "active", "lucidTag_example", "lastupdatetime", "lastupdateby")
     list_display_links = ("question",)
     list_editable = ("active",)

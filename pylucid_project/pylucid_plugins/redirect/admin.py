@@ -6,13 +6,7 @@
 
     Register model in django admin interface.
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -21,6 +15,9 @@ from django import forms
 
 from pylucid_project.apps.pylucid.models import PluginPage
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
+
+# https://github.com/jedie/django-reversion-compare
+from reversion_compare.admin import CompareVersionAdmin
 
 from redirect.models import RedirectModel
 
@@ -45,7 +42,7 @@ class RedirectAdminForm(forms.ModelForm):
         self.fields["pagetree"].choices = choices
 
 
-class RedirectModelAdmin(BaseAdmin):
+class RedirectModelAdmin(BaseAdmin, CompareVersionAdmin):
     form = RedirectAdminForm
 
     list_display = (
