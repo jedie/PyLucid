@@ -6,31 +6,30 @@
 
     Register all PyLucid model in django admin interface.
 
-    :copyleft: 2008-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
-from django.conf.urls.defaults import patterns
 from django.contrib import admin
-from django.utils.translation import ugettext as _
-from django.template.loader import render_to_string
+from django.contrib.admin.templatetags.admin_list import _boolean_icon
 from django.contrib.sites.models import Site
-
-from reversion.admin import VersionAdmin
+from django.template.loader import render_to_string
+from django.utils.translation import ugettext as _
 
 from django_tools.middlewares import ThreadLocal
 
+# https://github.com/jedie/django-reversion-compare
+from reversion_compare.admin import CompareVersionAdmin
+
 from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
+from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 from pylucid_project.pylucid_plugins.blog.models import BlogEntry, \
     BlogEntryContent
-import traceback
-from django.contrib.admin.templatetags.admin_list import _boolean_icon
-from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 
 
-class BlogBaseAdmin(BaseAdmin, VersionAdmin):
+class BlogBaseAdmin(BaseAdmin, CompareVersionAdmin):
 
     change_list_template = "reversion/blog/change_list.html"
 
