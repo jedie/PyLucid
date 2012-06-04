@@ -1778,31 +1778,31 @@ def create_bootstrap_script(extra_text, python_version=''):
 
 
 # requirements from normal_installation.txt
-NORMAL_INSTALLATION = ['feedparser>=5.0.1,<5.1',
+NORMAL_INSTALLATION = ['feedparser>=5.1.2,<5.2',
  'Pygments>=1.5,<1.6',
  'flup>=1.0.2,<1.1',
  'django-reversion>=1.6,<1.7',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor==dev',
  'django-tagging>=0.3.1,<0.4',
- 'South>=0.7.4,<0.8',
+ 'South>=0.7.5,<0.8',
  'Django>=1.4,<1.5',
  'python-creole>=0.8.2,<1.1.0',
  'django-dbpreferences>=0.4.2,<0.5',
- 'django-tools>=0.23,<0.24',
+ 'django-tools>=0.24,<0.25',
  'django-processinfo>=0.4',
- 'django-reversion-compare>=0.3.0',
+ 'django-reversion-compare>=0.3.1',
  '--editable=git+git://github.com/jedie/PyLucid.git#egg=pylucid']
 
 # requirements from developer_installation.txt
-DEVELOPER_INSTALLATION = ['feedparser>=5.0.1,<5.1',
+DEVELOPER_INSTALLATION = ['feedparser>=5.1.2,<5.2',
  'Pygments>=1.5,<1.6',
  'flup>=1.0.2,<1.1',
  'django-reversion>=1.6,<1.7',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor==dev',
  'django-tagging>=0.3.1,<0.4',
- 'South>=0.7.4,<0.8',
+ 'South>=0.7.5,<0.8',
  'docutils',
  '--editable=git+git://github.com/django/django.git@stable/1.4.x#egg=django',
  '--editable=git+git@github.com:jedie/python-creole.git#egg=python-creole',
