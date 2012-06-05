@@ -18,7 +18,7 @@ class Migration(SchemaMigration):
         print "\tDo datamigration of blog entries:",
         for instance in orm.BlogEntryContent.objects.all():
             print instance.pk,
-            instance.url_date = instance.lastupdatetime
+            instance.url_date = instance.createtime
             instance.save()
         print
 
