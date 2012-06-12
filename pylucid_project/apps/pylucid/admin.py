@@ -503,6 +503,7 @@ class DBTemplatesAdmin(CompareVersionAdmin, TemplateAdmin):
     form = DBTemplatesAdminAdminForm
     change_list_template = "admin/pylucid/change_list_with_design_link.html"
     list_display = ('name', "usage_info", 'creation_date', 'last_changed', 'site_list')
+    ordering = ("-last_changed",)
 
 try:
     admin.site.unregister(Template)
