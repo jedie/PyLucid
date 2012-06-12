@@ -4,7 +4,7 @@
     PyLucid project unittest runner
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -160,7 +160,9 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
                         # Other error than "no tests available"
                         raise
                     if self.verbosity >= 2:
-                        print "Skip %r: %s" % (test_name, err)
+                        print "Skip %r, ok. (%s)" % (test_name, err)
+                except Exception, err:
+                    print "*** Error in %r: %s" % (test_name, err)
                 else:
                     self.print_verbose_info(tests, test_name)
                     test_suite.addTest(tests)
