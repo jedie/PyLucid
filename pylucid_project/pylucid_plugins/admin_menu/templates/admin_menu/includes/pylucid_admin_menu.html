@@ -55,6 +55,17 @@
                     </a>
                 </li>
             {% endif %}
+            {% if PYLUCID.pagecontent %}
+                {% if perms.pylucid.change_pagecontent %}
+                <li>
+                    {# how to use direct the url "pylucid_pagecontent_revision" ? #}
+                    <a href="{% url admin:pylucid_pagecontent_change PYLUCID.pagecontent.id %}history/"
+                        title="{% trans "See 'PageContent' revision history" %}">
+                        {% trans "see content history" %}
+                    </a>
+                </li>
+                {% endif %}
+            {% endif %}            
             <li>
                 <a title="{% trans "low level editing page parts in django admin panel (not recommented!)" %}">
                     {% trans "django admin" %}
