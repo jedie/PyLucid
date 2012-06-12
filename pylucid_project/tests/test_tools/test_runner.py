@@ -8,7 +8,6 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import errno
 import os
 import pprint
 import sys
@@ -16,18 +15,18 @@ import unittest
 
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(
+        verbosity=2,
+#        failfast=True,
+        failfast=False,
+    )
+    sys.exit()
 
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.db.models.loading import get_app, get_apps
-from django.forms import util
-from django.test.simple import DjangoTestSuiteRunner, build_test, build_suite, reorder_suite
-from django.test.testcases import TestCase
-from django.test.utils import setup_test_environment, teardown_test_environment
-from django.utils.html import conditional_escape
+from django.test.simple import DjangoTestSuiteRunner
 
 import pylucid_project
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS, PyLucidPlugin
@@ -178,8 +177,3 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
         os.remove(UNITTEST_PLUGIN_DST_PATH)
         super(PyLucidTestRunner, self).teardown_test_environment(*args, **kwargs)
 
-
-if __name__ == "__main__":
-    # Run all unittest directly
-    from django.core import management
-    management.call_command('test', verbosity=2)
