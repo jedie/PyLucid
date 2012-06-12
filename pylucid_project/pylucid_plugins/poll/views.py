@@ -155,7 +155,7 @@ def lucidTag(request, id=None):
     Add a poll to the page content.
     
     {% lucidTag poll %}
-        Display the newest, votable poll.
+        Display the newest, voteable poll.
         
     {% lucidTag poll id=X %}
         Display a specific poll.
