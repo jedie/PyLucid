@@ -14,10 +14,23 @@
 
 
 import os
+import sys
+
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+
+    tests = __file__
+#    tests = "pylucid_plugins.search.tests.SearchTest.test_prefered_language"
+
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(tests,
+        verbosity=2,
+#        failfast=True,
+        failfast=False,
+    )
+    sys.exit()
+
 
 from django.conf import settings
 
@@ -28,7 +41,7 @@ from pylucid_project.pylucid_plugins.search.preference_forms import SearchPrefer
 
 class SearchTest(BaseUnittest):
 
-    def test_search(self):
+    def _test_search(self):
         response = self.client.post("/en/welcome/?search=", data={"search": "PyLucid"})
         self.assertStatusCode(response, 200)
         self.assertResponse(response,
@@ -51,6 +64,22 @@ class SearchTest(BaseUnittest):
                 "comments",
             )
         )
+        return response
+
+    def test_search_anonymous(self):
+        self._test_search()
+
+    def test_search_normal_user(self):
+        self.login("normal")
+        self._test_search()
+
+    def test_search_staff_user(self):
+        self.login("staff")
+        self._test_search()
+
+    def test_search_superuser_user(self):
+        self.login("superuser")
+        self._test_search()
 
     def test_short_terms(self):
         response = self.client.post("/en/welcome/?search=", data={"search": "py foo bar"})
@@ -115,16 +144,3 @@ class SearchTest(BaseUnittest):
             )
         )
 
-
-
-if __name__ == "__main__":
-    # Run all unittest directly
-    from django.core import management
-
-    tests = __file__
-#    tests = "pylucid_plugins.search.tests.SearchTest.test_prefered_language"
-
-    management.call_command('test', tests,
-        verbosity=2,
-#        failfast=True
-    )

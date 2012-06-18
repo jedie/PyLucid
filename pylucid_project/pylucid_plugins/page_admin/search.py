@@ -21,8 +21,9 @@ def get_search_results(request, search_languages, search_strings, search_results
         queryset = queryset.filter(pagemeta__permitViewGroup=None)
         queryset = queryset.filter(pagemeta__pagetree__permitViewGroup=None)
     elif not request.user.is_superuser: # Superuser can see everything ;)
-        queryset = queryset.filter(pagemeta__permitViewGroup__in=request.user.groups)
-        queryset = queryset.filter(pagemeta__pagetree__permitViewGroup__in=request.user.groups)
+        user_groups = request.user.groups.all()
+        queryset = queryset.filter(pagemeta__permitViewGroup__in=user_groups)
+        queryset = queryset.filter(pagemeta__pagetree__permitViewGroup__in=user_groups)
 
     # Only pages in the selected search language
     queryset = queryset.filter(pagemeta__language__in=search_languages)
