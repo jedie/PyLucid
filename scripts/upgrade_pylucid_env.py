@@ -234,8 +234,8 @@ def select_requirement(options, filename):
     print c.colorize("Important:", foreground="red"), "Check if there are backward incompatible changes:"
     print "http://www.pylucid.org/en/blog/tags/backward%20incompatible/"
     print
-    for no, requirement in enumerate(requirements,1):
-        print "(%i) %s" % (no, requirement)
+    for no, requirement in enumerate(requirements): # XXX: enumerate(requirements,1) since Python 2.6!
+        print "(%i) %s" % (no+1, requirement)
 
     print "(a) upgrade all packages"
 
@@ -256,7 +256,7 @@ def select_requirement(options, filename):
         print "Upgrade all packages."
         return requirements
 
-    req_dict = dict([(str(no), r) for no, r in enumerate(requirements,1)])
+    req_dict = dict([(str(no+1), r) for no, r in enumerate(requirements)]) # XXX: enumerate(requirements,1) since Python 2.6!
     selected_req = []
     for item in selection:
         print "%s\t" % item,
