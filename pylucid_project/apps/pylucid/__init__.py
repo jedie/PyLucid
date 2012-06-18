@@ -11,7 +11,7 @@
     
     FIXME: Can it be that pkg_resources.require("pylucid") is sufficient?
        
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -50,6 +50,10 @@ def check_require(requirements):
             continue
         if DEBUG and settings.RUN_WITH_DEV_SERVER:
             print requirement
+        if requirement.endswith("==dev"):
+            if DEBUG and settings.RUN_WITH_DEV_SERVER:
+                print "Skip, because pkg_resources.require() can't handle this, ok."
+            continue
         try:
             pkg_resources.require(requirement)
         except pkg_resources.VersionConflict, err:
