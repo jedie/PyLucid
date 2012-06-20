@@ -1810,7 +1810,7 @@ DEVELOPER_INSTALLATION = ['feedparser>=5.1.2,<5.2',
  '--editable=git+git@github.com:jedie/django-tools.git#egg=django-tools',
  '--editable=git+git@github.com:jedie/django-processinfo.git#egg=django-processinfo',
  '--editable=git+git@github.com:jedie/django-reversion-compare.git#egg=django-reversion-compare',
- '--editable=git+git@github.com:jedie/PyLucid.git@django1.4#egg=pylucid']
+ '--editable=git+git@github.com:jedie/PyLucid.git#egg=pylucid']
 
 # source bootstrap script: '/home/jens/PyLucid_env/src/pylucid/bootstrap/source-pylucid-boot.py'
 #-----------------------------------------------------------------------------
