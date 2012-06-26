@@ -20,7 +20,7 @@ from pylucid_project.apps.pylucid.forms.utils import TagLanguageSitesFilter
 from pylucid_project.pylucid_plugins.blog.models import BlogEntryContent
 
 
-class BlogContentForm(forms.ModelForm):
+class BlogContentForm(TagLanguageSitesFilter, forms.ModelForm):
     """
     Like a normal model form. But it protects against overwriting newer content:
     * Save the last update time in a hidden field
@@ -38,6 +38,8 @@ class BlogContentForm(forms.ModelForm):
         * User A get the form back with a form error in a new checkbox field
     User A must activate the checkbox and saves the form again, to overwrite.
     """
+    sites_filter = "entry__sites__id__in" # for TagLanguageSitesFilter
+    
     last_update = forms.DateTimeField(
         widget = forms.widgets.HiddenInput
     )
