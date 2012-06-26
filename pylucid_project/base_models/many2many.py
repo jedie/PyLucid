@@ -5,7 +5,7 @@
     PyLucid base models
     ~~~~~~~~~~~~~~~~~~~
     
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -22,8 +22,16 @@ from django_tools.utils.messages import failsafe_message
 class SiteM2M(models.Model):
     """ Base model with sites M2M and CurrentSiteManager. """
     objects = models.Manager()
-    sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
+    sites = models.ManyToManyField(Site)
     on_site = CurrentSiteManager('sites')
+
+    def __init__(self, *args, **kwargs):
+        super(SiteM2M, self).__init__(*args, **kwargs)
+        
+        # default=[settings.SITE_ID] would be set at startup
+        # This is not right if dynamic SITE_ID used
+        sites_field = self._meta.get_field_by_name("sites")[0]
+        sites_field.default = [settings.SITE_ID]
 
     def site_info(self):
         """ for admin.ModelAdmin list_display """
