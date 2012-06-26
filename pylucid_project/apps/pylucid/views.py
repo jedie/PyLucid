@@ -164,7 +164,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     context["page_content"] = render.render_string_template(context["page_content"], context)
 
     template_name = context["template_name"] # Added in pylucid.context_processors
-    page_template, origin = loader.find_template(template_name)
+    page_template= loader.get_template(template_name)
     pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
     # Render django tags in global template with global context
