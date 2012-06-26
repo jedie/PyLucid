@@ -82,7 +82,7 @@ class BlogForm(TagLanguageSitesFilter, forms.ModelForm):
     """
     Form for create/edit a blog entry.
     """
-    sites_filter = "entry__sites__id__in"
+    sites_filter = "entry__sites__id__in" # for TagLanguageSitesFilter
     sites = forms.MultipleChoiceField(
         # choices= Set in __init__, so the Queryset would not execute at startup
         help_text=_("On which site should this entry exists?")
@@ -91,6 +91,7 @@ class BlogForm(TagLanguageSitesFilter, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BlogForm, self).__init__(*args, **kwargs)
         self.fields["sites"].choices = Site.objects.all().values_list("id", "name")
+        self.fields["sites"].initial = settings.SITE_ID
 
     class Meta:
         model = BlogEntryContent
