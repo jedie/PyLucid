@@ -116,6 +116,7 @@ class Filemanager(BaseFilemanager):
         # sort the dir items by name but directories first
         # http://wiki.python.org/moin/HowTo/Sorting/#Operator_Module_Functions
         dir_items = sorted(dir_items, key=attrgetter('item_type', 'name'))
+        print dir_items
 
         return dir_items
 
