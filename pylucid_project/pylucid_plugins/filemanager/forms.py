@@ -26,3 +26,6 @@ class BasePathSelect(forms.Form):
         help_text=_("The base path for the filemanager root directory."),
         initial=PATH_CHOICES[0],
     )
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField()
