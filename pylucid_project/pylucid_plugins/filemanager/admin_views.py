@@ -20,7 +20,8 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.filemanager.filemanager import BaseFilemanager
-from pylucid_project.pylucid_plugins.filemanager.forms import BasePathSelect
+from pylucid_project.pylucid_plugins.filemanager.forms import BasePathSelect, \
+    UploadFileForm
 from pylucid_project.pylucid_plugins.filemanager.preference_forms import FilemanagerPrefForm
 
 
@@ -54,8 +55,6 @@ class FilesystemObject(object):
 
         self.stat = os.stat(self.abs_path)
         self.size = self.stat[stat.ST_SIZE]
-
-        self.item_type = None
 
     def __repr__(self):
         return "%s '%s' in %s" % (self.item_type, self.name, self.base_path)
@@ -114,10 +113,22 @@ class Filemanager(BaseFilemanager):
             instance = item_class(self, item, item_abs_path, link_path)
             dir_items.append(instance)
 
+        # sort the dir items by name but directories first
         # http://wiki.python.org/moin/HowTo/Sorting/#Operator_Module_Functions
         dir_items = sorted(dir_items, key=attrgetter('item_type', 'name'))
 
         return dir_items
+
+    def handle_uploaded_file(self, f):
+        path = os.path.join(self.abs_path, f.name)
+        destination = file(path, 'wb+')
+        for chunk in f.chunks():
+            destination.write(chunk)
+        destination.close()
+
+        messages.success(self.request,
+            "File '%s' (%i Bytes) uploaded to %s" % (f.name, f.size, self.abs_path)
+        )
 
 #-----------------------------------------------------------------------------
 
@@ -144,23 +155,33 @@ def index(request):
 @render_to("filemanager/default.html")
 def filemanager(request, no, rest_url=""):
     no = int(no)
-    if request.method == "POST":
-        form = BasePathSelect(request.POST)
-        if form.is_valid():
-            base_path_no = int(form.cleaned_data["base_path"])
+
+    if request.method == "POST" and "base_path" in request.POST:
+        path_form = BasePathSelect(request.POST)
+        if path_form.is_valid():
+            base_path_no = int(path_form.cleaned_data["base_path"])
             if not base_path_no == no:
                 new_path = BasePathSelect.PATH_DICT[base_path_no]
                 messages.success(request, "Change base path to: '%s', ok." % new_path)
                 return _redirect2filemanager(base_path_no)
     else:
-        form = BasePathSelect({"base_path": no})
-        if not form.is_valid():
+        path_form = BasePathSelect({"base_path": no})
+        if not path_form.is_valid():
             raise Http404("Wrong page path no: %r!" % no)
 
     absolute_path = BasePathSelect.PATH_DICT[no]
     base_url = _reverse_filemanager_url(no)
 
     fm = Filemanager(request, absolute_path, base_url, rest_url)
+
+    if request.method == "POST" and "file" in request.FILES:
+        upload_form = UploadFileForm(request.POST, request.FILES)
+        if upload_form.is_valid():
+            fm.handle_uploaded_file(request.FILES['file'])
+            return HttpResponseRedirect(request.path)
+    else:
+        upload_form = UploadFileForm()
+
     dir_items = fm.dir_items
     breadcrumbs = fm.breadcrumbs
 
@@ -168,7 +189,7 @@ def filemanager(request, no, rest_url=""):
         "title": "Filemanager",
         "dir_items": dir_items,
         "breadcrumbs": breadcrumbs,
-        "form": form,
+        "upload_form": upload_form,
+        "path_form": path_form,
     }
-    print context
     return context
