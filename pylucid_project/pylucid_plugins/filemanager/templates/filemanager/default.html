@@ -1,0 +1,46 @@
+{% extends "pylucid_admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<!-- view_content block -->
+
+<script type="text/javascript">
+try {
+    jQuery(document);
+} catch (e) {
+    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
+}
+
+jQuery(document).ready(function($) {
+    log("filemanager initialized.");
+});
+</script>
+
+
+<fieldset class="breadcrumbs"><legend>{% trans "Path" %}</legend>
+<p>
+{% for breadcrumb in breadcrumbs %}/<a href="{{ breadcrumb.url }}" title="{{ breadcrumb.title }}">{{ breadcrumb.name }}</a>{% if forloop.last %}/{% endif %}{% endfor %}
+</p>
+</fieldset>
+
+<table>
+{% for dir_item in dir_items %}
+  <tr>
+    <td>      
+        {% if dir_item.is_dir %}
+        <a href="{{ dir_item.name }}/">{{ dir_item.name }}</a>
+        {% else %}{{ dir_item.name }}{% endif %}
+    </td>
+    <td>{% if dir_item.is_dir %}&lt;dir&gt;{% else %}{{ dir_item.size|filesizeformat }}{% endif %}</td>
+    <td>{{ dir_item.item_type }}</td>
+  </tr>
+{% endfor %}
+</table>
+
+<fieldset><legend>{% trans "base path" %}</legend>
+<form action="." method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
+</fieldset>
+{% endblock %}

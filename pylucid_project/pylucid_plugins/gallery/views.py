@@ -4,7 +4,7 @@
 """
     PyLucid gallery
     ~~~~~~~~~~~~~~~
-    
+
     :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
@@ -29,7 +29,7 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
 # TODO: Should be moved to django-tools!
-from pylucid_project.filemanager.filemanager import Filemanager, FilemanagerError
+from pylucid_project.filemanager.filemanager import BaseFilemanager, FilemanagerError
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response
@@ -45,7 +45,7 @@ def _fnmatch_list(item, filter_list):
     """
     >>> _fnmatch_list("foo.jpg", ["*.bar", "*.jpg"])
     True
-    
+
     >>> _fnmatch_list("foo.jpg", ["*.bar"])
     False
     """
@@ -59,7 +59,7 @@ def _split_suffix(filename, suffix_list):
     """
     >>> _split_suffix("picture_no.jpg", ["_foo","_bar"])
     False
-    
+
     >>> _split_suffix("picture_web.jpg", ["_web"])
     'picture'
     """
@@ -75,14 +75,14 @@ def _split_suffix(filename, suffix_list):
 #------------------------------------------------------------------------------
 
 
-class Gallery(Filemanager):
+class Gallery(BaseFilemanager):
     def __init__(self, config, *args, **kwargs):
         # use unauthorized signs from preferences
         pref_form = GalleryPrefForm()
         preferences = pref_form.get_preferences()
         unauthorized_signs = preferences["unauthorized_signs"]
         kwargs["unauthorized_signs"] = unauthorized_signs
-        
+
         super(Gallery, self).__init__(*args, **kwargs)
 
         # Galleries are only allowed in STATIC_ROOT
@@ -90,14 +90,12 @@ class Gallery(Filemanager):
 
         self.config = config
         self.static_base_url = posixpath.normpath(posixpath.join(settings.STATIC_URL, config.path, self.rel_url))
-        
+
         dirs, pictures, thumbs = self.read_dir(self.abs_path)
 
         self.dir_info = self.build_dir_info(dirs)
         self.picture_info = self.build_picture_info(pictures, thumbs)
 
-        self.breadcrumbs = self.build_breadcrumbs()
-        
     def read_dir(self, path):
         pictures = []
         thumbs = {}
@@ -167,7 +165,7 @@ class Gallery(Filemanager):
 
             picture_info.append(info)
         return picture_info
-    
+
     def render(self):
         context = {
             "a_rel_info": self.breadcrumbs[-1]["name"],
@@ -181,7 +179,7 @@ class Gallery(Filemanager):
         return render_pylucid_response(self.request, self.config.template, context,
             context_instance=RequestContext(self.request)
         )
-        
+
 
 def gallery(request, rest_url=""):
     pagetree = request.PYLUCID.pagetree
@@ -211,7 +209,7 @@ def gallery(request, rest_url=""):
         has_change_perm = request.user.has_perm("gallery.change_gallerymodel")
         if settings.DEBUG or has_change_perm:
             raise
-        
+
         LogEntry.objects.log_action(
             app_label="pylucid_plugin.gallery", action="build gallery", message="%s" % err
         )
