@@ -1,0 +1,2 @@
+
+Library to with a base class to build django application like filemanagers. 
