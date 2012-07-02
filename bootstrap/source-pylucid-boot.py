@@ -210,11 +210,21 @@ class AfterInstall(object):
         print c.colorize(info_text, foreground="green", opts=("bold", "underscore"))
 
         for pip_line in pip_lines:
-            cmd = [self.pip_cmd, "install", "--log=%s" % self.logfile]
-            if isinstance(pip_line, (list, tuple)):
-                cmd += list(pip_line)
-            else:
-                cmd.append(pip_line)
+            assert isinstance(pip_line, basestring)
+            cmd = [self.pip_cmd, "install", "--log=%s" % self.logfile, pip_line]
+            
+            if "PyLucid.git" in pip_line or "django-processinfo" in pip_line:
+                # FIXME: How to handle this better?
+                #
+                # PyLucid setup.py does contains all dependencies and it will
+                # fail on django-compressor==dev with python 2.6, see:
+                #     https://github.com/jedie/PyLucid/issues/74
+                #
+                # django-processinfo has "Django>=1.3,<1.5" which is
+                # Django v1.3.x - v1.4.x and will install django 1.3
+                #
+                cmd.append("--no-dependencies")
+                
             self.run_cmd(cmd)
 
     def install_pip(self):
@@ -227,6 +237,10 @@ class AfterInstall(object):
             self.run_cmd([self.easy_install, '--always-copy', 'pip'])
 
     def install_packages(self):
+        """
+        DEVELOPER_INSTALLATION and NORMAL_INSTALLATION would be inserted
+        via create_bootstrap_script.py
+        """
         if self.dev_install:
             install_data = DEVELOPER_INSTALLATION
         else:
