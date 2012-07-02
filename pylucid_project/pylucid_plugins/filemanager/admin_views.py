@@ -11,6 +11,13 @@
 import os
 import stat
 from operator import attrgetter
+import datetime
+
+if __name__ == "__main__":
+    # For doctest only
+    os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
+    from django.conf import global_settings
+    global_settings.SITE_ID = 1
 
 from django.conf import settings
 from django.contrib import messages
@@ -23,6 +30,7 @@ from pylucid_project.filemanager.filemanager import BaseFilemanager
 from pylucid_project.pylucid_plugins.filemanager.forms import BasePathSelect, \
     UploadFileForm
 from pylucid_project.pylucid_plugins.filemanager.preference_forms import FilemanagerPrefForm
+import pwd
 
 
 
@@ -43,6 +51,22 @@ def install(request):
 
 #-----------------------------------------------------------------------------
 
+def symbolic_notation(mode):
+    """
+    Convert os.stat().st_mode values to a symbolic representation. e.g: 
+       
+    >>> symbolic_notation(16893) # -> 040775 -> 775
+    u'rwxrwxr-x'
+    
+    >>> symbolic_notation(33204) # -> 0100664 -> 664
+    u'rw-rw-r--'
+    """
+    mode = mode & 0777 # strip "meta info"
+    chmod_symbol = u''.join(
+        mode & 0400 >> i and x or u'-' for i, x in enumerate(u'rwxrwxrwx')
+    )
+    return chmod_symbol
+
 
 class FilesystemObject(object):
     def __init__(self, fm_instance, name, abs_path, link_path=None):
@@ -55,6 +79,16 @@ class FilesystemObject(object):
 
         self.stat = os.stat(self.abs_path)
         self.size = self.stat[stat.ST_SIZE]
+        self.mode = self.stat[stat.ST_MODE]
+        self.mtime = datetime.datetime.fromtimestamp(self.stat[stat.ST_MTIME])
+        
+        self.mode_octal = oct(self.mode)
+        self.mode_symbol = symbolic_notation(self.mode)
+        
+        self.uid = self.stat[stat.ST_UID]
+        self.username = pwd.getpwuid(self.uid).pw_name
+        self.gid = self.stat[stat.ST_GID]
+        self.groupname = pwd.getpwuid(self.gid).pw_name
 
     def __repr__(self):
         return "%s '%s' in %s" % (self.item_type, self.name, self.base_path)
@@ -185,6 +219,11 @@ def filemanager(request, no, rest_url=""):
 
     dir_items = fm.dir_items
     breadcrumbs = fm.breadcrumbs
+    
+    uid = os.geteuid()
+    gid = os.getegid()
+    username = pwd.getpwuid(uid).pw_name
+    groupname = pwd.getpwuid(gid).pw_name
 
     context = {
         "title": "Filemanager",
@@ -192,5 +231,19 @@ def filemanager(request, no, rest_url=""):
         "breadcrumbs": breadcrumbs,
         "upload_form": upload_form,
         "path_form": path_form,
+        
+        "uid": uid,
+        "gid": gid,
+        "username": username,
+        "groupname": groupname,
+        
     }
     return context
+
+
+if __name__ == "__main__":
+    import doctest
+    print doctest.testmod(
+#        verbose=True
+        verbose=False
+    )
