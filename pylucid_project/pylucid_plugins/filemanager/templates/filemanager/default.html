@@ -72,6 +72,7 @@ jQuery(document).ready(function($) {
         <th class="item_uid">{% trans "user" %}</th>
         <th class="item_gid">{% trans "group" %}</th>
         <th class="item_type">{% trans "info" %}</th>
+        <th class="item_type">{% trans "url" %}</th>
     </tr>
 {% for dir_item in dir_items %}
     <tr>
@@ -99,6 +100,13 @@ jQuery(document).ready(function($) {
         </td>   
         <td class="item_type">
             <span title="{{ dir_item.item_type }}">{{ dir_item.item_type|truncatechars:50 }}</span>
+        </td>
+        <td class="item_url">
+            {% if dir_item.url %}
+                <a href="{{ dir_item.url }}">link</a>
+            {% else %}
+                -
+            {% endif %}
         </td>
     </tr>
 {% empty %}

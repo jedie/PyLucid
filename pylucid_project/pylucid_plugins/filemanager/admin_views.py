@@ -8,10 +8,11 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import os
-import stat
 from operator import attrgetter
 import datetime
+import os
+import posixpath
+import stat
 
 if __name__ == "__main__":
     # For doctest only
@@ -90,6 +91,10 @@ class FilesystemObject(object):
         self.gid = self.stat[stat.ST_GID]
         self.groupname = pwd.getpwuid(self.gid).pw_name
 
+        url_prefix = self.fm_instance.url_prefix
+        if url_prefix:
+            self.url = posixpath.join(url_prefix, self.fm_instance.rel_url, self.name)
+
     def __repr__(self):
         return "%s '%s' in %s" % (self.item_type, self.name, self.base_path)
 
@@ -97,10 +102,15 @@ class FilesystemObject(object):
 class FileItem(FilesystemObject):
     is_file = True
     item_type = "file"
+        
 
 class DirItem(FilesystemObject):
     is_dir = True
     item_type = "dir"
+    def __init__(self, *args, **kwargs):
+        super(DirItem, self).__init__(*args, **kwargs)
+        if self.fm_instance.url_prefix:
+            self.url += "/" # add slash on all directory links
 
 
 class FileLinkItem(FileItem):
@@ -115,8 +125,10 @@ class DirLinkItem(DirItem):
 
 
 class Filemanager(BaseFilemanager):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, url_prefix, *args, **kwargs):
         super(Filemanager, self).__init__(*args, **kwargs)
+
+        self.url_prefix = url_prefix
 
         pref_form = FilemanagerPrefForm()
         self.preferences = pref_form.get_preferences()
@@ -150,7 +162,6 @@ class Filemanager(BaseFilemanager):
         # sort the dir items by name but directories first
         # http://wiki.python.org/moin/HowTo/Sorting/#Operator_Module_Functions
         dir_items = sorted(dir_items, key=attrgetter('item_type', 'name'))
-        print dir_items
 
         return dir_items
 
@@ -206,8 +217,10 @@ def filemanager(request, no, rest_url=""):
 
     absolute_path = BasePathSelect.PATH_DICT[no]
     base_url = _reverse_filemanager_url(no)
+    
+    url_prefix = BasePathSelect.URL_DICT[no]
 
-    fm = Filemanager(request, absolute_path, base_url, rest_url)
+    fm = Filemanager(url_prefix, request, absolute_path, base_url, rest_url)
 
     if request.method == "POST" and "file" in request.FILES:
         upload_form = UploadFileForm(request.POST, request.FILES)
