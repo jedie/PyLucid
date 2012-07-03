@@ -105,11 +105,39 @@ class BaseFilemanager(object):
             if sign and sign in value:
                 raise DirectoryTraversalAttack("%r found in %s" % (sign, repr(value)))
 
+    def _add_slash(self, path):
+        """
+        >>> fm = BaseFilemanager(None, "/tmp", "bar", "")
+        >>> fm._add_slash("/foo")
+        '/foo/'
+        >>> fm._add_slash("/bar/")
+        '/bar/'
+        """
+        if not path.endswith(os.sep):
+            path += os.sep
+        return path        
+
     def check_path(self, base_path, path):
         """
         Simple check if the path is a sub directory of base_path.
         This must be called from external!
         """
+        # Importand: terminate both path before the compare otherwise:
+        #
+        # base_path = /foo/bar
+        # path      = /foo/barNEW
+        #
+        # path starts with base_path without slashes
+        #
+        # which add slash:
+        #
+        # base_path = /foo/bar    -> /foo/bar/
+        # path      = /foo/barNEW -> /foo/barNEW/
+        #              doesn't start with ---^
+        #
+        base_path = self._add_slash(base_path)
+        path = self._add_slash(path)
+            
         if not path.startswith(base_path):
             raise DirectoryTraversalAttack("%r doesn't start with %r" % (path, base_path))
 
