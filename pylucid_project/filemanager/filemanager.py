@@ -11,35 +11,47 @@
 
 import os
 import posixpath
+import urllib
+
+if __name__ == "__main__":
+    # For doctest only
+    os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
+    from django.conf import global_settings
+    global_settings.SITE_ID = 1
 
 from django.conf import settings
 from django.http import Http404
 from django.utils.translation import ugettext as _
 
-
-DEFAULT_UNAUTHORIZED_SIGNS = ("..", "//", "\\")
-
-
-class FilemanagerError(Exception):
-    """
-    for errors with a message to staff/admin users.
-    e.g.: Gallery filesystem path doesn't exist anymore.
-    """
-    pass
-
-
-class DirectoryTraversalAttack(FilemanagerError):
-    """
-    Some unauthorized signs are found or the path is out of the base path.
-    """
-    pass
+from pylucid_project.filemanager.utils import add_slash, clean_posixpath
+from pylucid_project.filemanager.exceptions import DirectoryTraversalAttack, FilemanagerError
 
 
 class BaseFilemanager(object):
     """
     Base class for a django app like a filemanager.
+    
+    >> fm = BaseFilemanager(None, BASE_PATH, "bar", "../etc/passwd")
+    Traceback (most recent call last):
+    ...
+    DirectoryTraversalAttack: '..' found in '../etc/passwd'
+        
+    >> fm = BaseFilemanager(None, BASE_PATH, "bar", "///etc/passwd")
+    Traceback (most recent call last):
+    ...
+    DirectoryTraversalAttack: '//' found in '///etc/passwd'
+    
+    >>> fm = BaseFilemanager(None, "/tmp/", "bar", "%c1%1c%c1%1c/etc/passwd")
+    Traceback (most recent call last):
+    ...
+    Http404: Formed path '/tmp/\\xc1\\x1c\\xc1\\x1c/etc/passwd/' doesn't exist.
+    
+    >>> fm = BaseFilemanager(None, "/tmp/", "bar", "%c0%ae%c0%ae/etc/passwd")
+    Traceback (most recent call last):
+    ...
+    Http404: Formed path '/tmp/\\xc0\\xae\\xc0\\xae/etc/passwd/' doesn't exist.
     """
-    def __init__(self, request, absolute_path, base_url, rest_url, unauthorized_signs=None):
+    def __init__(self, request, absolute_path, base_url, rest_url):
         """
         absolute_path - path in filesystem to the root directory
         base_url - url prefix of this filemanager instance
@@ -49,32 +61,31 @@ class BaseFilemanager(object):
         and 'rest_url' are a external given value from the requested user.
         """
         self.request = request
+        self.absolute_path = add_slash(absolute_path)
+        self.base_url = clean_posixpath(base_url)
+              
+        rest_url = urllib.unquote(rest_url)
+        rest_url = add_slash(rest_url)
 
-        # characters that aren't allowed in the path.
-        # To protect from: https://en.wikipedia.org/wiki/Directory_traversal_attack
-        if unauthorized_signs is None:
-            self.unauthorized_signs = DEFAULT_UNAUTHORIZED_SIGNS
-        else:
-            self.unauthorized_signs = unauthorized_signs
-        assert isinstance(self.unauthorized_signs, (list, tuple)), "'unauthorized_signs' must be a list or tuples!"
+        # To protect from directory traversal attack
+        # https://en.wikipedia.org/wiki/Directory_traversal_attack
+        clean_rest_url = clean_posixpath(rest_url)
+        if clean_rest_url != rest_url:
+            # path changed cause of "illegal" characters
+            raise DirectoryTraversalAttack(
+                "path %s is not equal to cleaned path: %s" % (repr(rest_url), repr(clean_rest_url))
+            )
+            
+        self.rel_url = rest_url.lstrip("/")
+        self.rel_path = add_slash(os.path.normpath(self.rel_url))
 
-        self.absolute_path = absolute_path
-        self.base_url = base_url
+        self.abs_path = clean_posixpath(os.path.join(self.absolute_path, self.rel_path))
+        self.check_path(self.absolute_path, self.abs_path)
 
-        self.check_unauthorized_sign(rest_url)
-        if rest_url.startswith("/"):
-            rest_url = rest_url[1:]
-        self.rel_path = os.path.normpath(rest_url)
-        self.rel_url = posixpath.normpath(self.rel_path)
-
-        self.abs_path = os.path.normpath(os.path.join(self.absolute_path, self.rel_path))
-        self.check_unauthorized_sign(self.abs_path) # not really necessary
-        self.check_path(absolute_path, self.abs_path)
-
-        self.abs_url = posixpath.normpath(posixpath.join(self.base_url, self.rel_url))
+        self.abs_url = posixpath.join(self.base_url, self.rel_url)
 
         if not os.path.isdir(self.abs_path):
-            raise FilemanagerError("Builded path %r doesn't exist." % self.abs_path)
+            raise Http404("Formed path %r doesn't exist." % self.abs_path)
 
         self.breadcrumbs = self.build_breadcrumbs()
 
@@ -95,34 +106,17 @@ class BaseFilemanager(object):
             parts += "%s/" % url_part
             breadcrumbs.append({
                 "name": url_part,
-                "title": _("goto '%s'") % parts,
+                "title": _("goto '%s'") % parts.strip("/"),
                 "url": url
             })
         return breadcrumbs
-
-    def check_unauthorized_sign(self, value):
-        for sign in self.unauthorized_signs:
-            if sign and sign in value:
-                raise DirectoryTraversalAttack("%r found in %s" % (sign, repr(value)))
-
-    def _add_slash(self, path):
-        """
-        >>> fm = BaseFilemanager(None, "/tmp", "bar", "")
-        >>> fm._add_slash("/foo")
-        '/foo/'
-        >>> fm._add_slash("/bar/")
-        '/bar/'
-        """
-        if not path.endswith(os.sep):
-            path += os.sep
-        return path        
 
     def check_path(self, base_path, path):
         """
         Simple check if the path is a sub directory of base_path.
         This must be called from external!
         """
-        # Importand: terminate both path before the compare otherwise:
+        # Important: the path must be terminated with a slash, otherwise:
         #
         # base_path = /foo/bar
         # path      = /foo/barNEW
@@ -135,10 +129,16 @@ class BaseFilemanager(object):
         # path      = /foo/barNEW -> /foo/barNEW/
         #              doesn't start with ---^
         #
-        base_path = self._add_slash(base_path)
-        path = self._add_slash(path)
+        assert base_path.endswith(os.sep), "'base_path' must ended with a slash!"
+        assert path.endswith(os.sep), "'path' must ended with a slash!"
             
         if not path.startswith(base_path):
             raise DirectoryTraversalAttack("%r doesn't start with %r" % (path, base_path))
 
 
+if __name__ == "__main__":
+    import doctest
+    print doctest.testmod(
+#        verbose=True
+        verbose=False
+    )
