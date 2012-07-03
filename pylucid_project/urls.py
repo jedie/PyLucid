@@ -82,6 +82,11 @@ if settings.RUN_WITH_DEV_SERVER and "--insecure" in sys.argv and "--nostatic" in
         url('^%s/(?P<path>.*)$' % settings.STATIC_URL.strip("/"), 'django.views.static.serve',
             {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
     )
+    print " *** Serve media files from %r at %r ***" % (settings.MEDIA_ROOT, settings.MEDIA_URL)
+    urlpatterns += patterns('',
+        url('^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"), 'django.views.static.serve',
+            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
+    )
 
 urlpatterns += patterns('',
     url('^', include('pylucid.urls')),
