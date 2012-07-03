@@ -18,22 +18,38 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 
+# The base path for the filemanager. Every path is like:
 BASE_PATHS = getattr(settings, "FILEMANAGER_BASE_PATHS",
     (
-        (settings.STATIC_ROOT, settings.STATIC_URL),
-        (settings.MEDIA_ROOT, settings.MEDIA_URL),
+        {
+            # The absolute filesystem root direcotry:
+            "abs_base_path": settings.STATIC_ROOT,
+            # The url prefix for the files, if exists:
+            "url_prefix": settings.STATIC_URL,
+            # File upload to every sub path are allowed:
+            "allow_upload": True,
+        },
+        {
+            "abs_base_path": settings.MEDIA_ROOT,
+            "url_prefix": settings.MEDIA_URL,
+            "allow_upload": True,
+        },
     )
 )
 if settings.DEBUG:
-    BASE_PATHS += (
-        (sys.prefix, None), # root directory of virtualenv
+    BASE_PATHS += (        
+        {
+            "abs_base_path": sys.prefix, # root directory of virtualenv
+            "url_prefix": None,
+            "allow_upload": False,
+        },
+        
     )
 
 
 class BasePathSelect(forms.Form):
-    PATH_CHOICES = tuple([(no, path[0]) for no, path in enumerate(BASE_PATHS)])
-    PATH_DICT = dict(PATH_CHOICES)
-    URL_DICT = dict(tuple([(no, path[1]) for no, path in enumerate(BASE_PATHS)]))
+    PATH_CHOICES = tuple([(no, path["abs_base_path"]) for no, path in enumerate(BASE_PATHS)])
+    PATH_DICT = dict(tuple([(no, path) for no, path in enumerate(BASE_PATHS)]))
 
     base_path = forms.ChoiceField(choices=PATH_CHOICES,
         help_text=_("The base path for the filemanager root directory."),

@@ -114,12 +114,14 @@ jQuery(document).ready(function($) {
 {% endfor %}
 </table>
 
+{% if upload_form %}
 <fieldset><legend>{% trans "file upload" %}</legend>
 <form enctype="multipart/form-data" method="post" action="">{% csrf_token %}
 {{ upload_form.as_p }}
 <input type="submit" value="upload" />
 </form>
 </fieldset>
+{% endif %}
 
 <fieldset><legend>{% trans "base path" %}</legend>
 <form action="" method="post">{% csrf_token %}

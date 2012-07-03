@@ -3,6 +3,9 @@
 """
     filemanager
     ~~~~~~~~~~~
+    
+    Stuff to build a app like a file manager.
+    
 
     :copyleft: 2012 by the django-tools team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
@@ -12,6 +15,11 @@
 import os
 import posixpath
 import urllib
+import stat
+import datetime
+import pwd
+from operator import attrgetter
+from pylucid_project.filemanager.exceptions import FilemanagerError
 
 if __name__ == "__main__":
     # For doctest only
@@ -19,121 +27,130 @@ if __name__ == "__main__":
     from django.conf import global_settings
     global_settings.SITE_ID = 1
 
+from django.contrib import messages
 from django.conf import settings
 from django.http import Http404
 from django.utils.translation import ugettext as _
 
-from pylucid_project.filemanager.utils import add_slash, clean_posixpath
-from pylucid_project.filemanager.exceptions import DirectoryTraversalAttack, FilemanagerError
+from pylucid_project.filemanager.filesystem_browser import BaseFilesystemBrowser
+from pylucid_project.filemanager.utils import symbolic_notation
 
 
-class BaseFilemanager(object):
-    """
-    Base class for a django app like a filemanager.
-    
-    >> fm = BaseFilemanager(None, BASE_PATH, "bar", "../etc/passwd")
-    Traceback (most recent call last):
-    ...
-    DirectoryTraversalAttack: '..' found in '../etc/passwd'
+class BaseFilesystemObject(object):
+    def __init__(self, base_path, name, abs_path, link_path=None):
+        self.base_path = base_path # path in which this item exists
+        self.name = name # The name of the directory item
+        self.abs_path = abs_path # absolute path to this dir item
+        self.link_path = link_path # Only for links: the real path of the dir item
+
+        self.stat = os.stat(self.abs_path)
+        self.size = self.stat[stat.ST_SIZE]
+        self.mode = self.stat[stat.ST_MODE]
+        self.mtime = datetime.datetime.fromtimestamp(self.stat[stat.ST_MTIME])
         
-    >> fm = BaseFilemanager(None, BASE_PATH, "bar", "///etc/passwd")
-    Traceback (most recent call last):
-    ...
-    DirectoryTraversalAttack: '//' found in '///etc/passwd'
-    
-    >>> fm = BaseFilemanager(None, "/tmp/", "bar", "%c1%1c%c1%1c/etc/passwd")
-    Traceback (most recent call last):
-    ...
-    Http404: Formed path '/tmp/\\xc1\\x1c\\xc1\\x1c/etc/passwd/' doesn't exist.
-    
-    >>> fm = BaseFilemanager(None, "/tmp/", "bar", "%c0%ae%c0%ae/etc/passwd")
-    Traceback (most recent call last):
-    ...
-    Http404: Formed path '/tmp/\\xc0\\xae\\xc0\\xae/etc/passwd/' doesn't exist.
+        self.mode_octal = oct(self.mode)
+        self.mode_symbol = symbolic_notation(self.mode)
+        
+        self.uid = self.stat[stat.ST_UID]
+        self.username = pwd.getpwuid(self.uid).pw_name
+        self.gid = self.stat[stat.ST_GID]
+        self.groupname = pwd.getpwuid(self.gid).pw_name
+
+    def __repr__(self):
+        return "%s '%s' in %s" % (self.item_type, self.name, self.base_path)
+
+
+class BaseFileItem(BaseFilesystemObject):
+    is_file = True
+    is_dir = False
+    item_type = "file"
+        
+
+class BaseDirItem(BaseFilesystemObject):
+    is_file = False
+    is_dir = True
+    item_type = "dir"
+
+
+class BaseFileLinkItem(BaseFileItem):
+    def __init__(self, *args, **kwargs):
+        super(BaseFileLinkItem, self).__init__(*args, **kwargs)
+        self.item_type = "file link to %s" % self.link_path
+
+class BaseDirLinkItem(BaseDirItem):
+    def __init__(self, *args, **kwargs):
+        super(BaseFileLinkItem, self).__init__(*args, **kwargs)
+        self.item_type = "dir link to %s" % self.link_path
+
+
+#------------------------------------------------------------------------------
+
+
+class BaseFilemanager(BaseFilesystemBrowser):
     """
-    def __init__(self, request, absolute_path, base_url, rest_url):
+    Base class for building a filemanager
+    """
+    DIR_ITEM = BaseDirItem
+    FILE_ITEM = BaseFileItem
+    DIR_LINK_ITEM = BaseDirLinkItem
+    FILE_LINK_ITEM = BaseFileLinkItem
+    
+    def __init__(self, request, absolute_path, base_url, rest_url, allow_upload=False):
+        super(BaseFilemanager, self).__init__(request, absolute_path, base_url, rest_url)
+        
+        self.allow_upload = allow_upload
+        self.dir_items = self.read_dir(self.abs_path)
+
+    def read_dir(self, path):
+        dir_items = []
+        for item in os.listdir(path):
+            item_abs_path = os.path.join(self.abs_path, item)
+            link_path = None
+            if os.path.islink(item_abs_path):
+                link_path = os.readlink(item_abs_path)
+                if os.path.isdir(link_path):
+                    item_class = self.DIR_LINK_ITEM
+                elif os.path.isfile(link_path):
+                    item_class = self.FILE_LINK_ITEM
+                else:
+                    raise NotImplemented
+            elif os.path.isdir(item_abs_path):
+                item_class = self.DIR_ITEM
+            elif os.path.isfile(item_abs_path):
+                item_class = self.FILE_ITEM
+            else:
+                messages.info(self.request, "unhandled direcory item: %r" % self.abs_path)
+                continue
+
+            instance = self.get_filesystem_item_instance(item_class, item, item_abs_path, link_path)
+            dir_items.append(instance)
+
+        # sort the dir items by name but directories first
+        # http://wiki.python.org/moin/HowTo/Sorting/#Operator_Module_Functions
+        dir_items = sorted(dir_items, key=attrgetter('item_type', 'name'))
+
+        return dir_items
+    
+    def get_filesystem_item_instance(self, item_class, item, item_abs_path, link_path):
         """
-        absolute_path - path in filesystem to the root directory
-        base_url - url prefix of this filemanager instance
-        rest_url - relative sub path of the current view
-
-        it is assumed that 'absolute_path' and 'base_url' are internal values
-        and 'rest_url' are a external given value from the requested user.
+        Good point for overwrite, to add attributes to the filesystem items.
         """
-        self.request = request
-        self.absolute_path = add_slash(absolute_path)
-        self.base_url = clean_posixpath(base_url)
-              
-        rest_url = urllib.unquote(rest_url)
-        rest_url = add_slash(rest_url)
+        instance = item_class(self.abs_path, item, item_abs_path, link_path)
+        return instance
 
-        # To protect from directory traversal attack
-        # https://en.wikipedia.org/wiki/Directory_traversal_attack
-        clean_rest_url = clean_posixpath(rest_url)
-        if clean_rest_url != rest_url:
-            # path changed cause of "illegal" characters
-            raise DirectoryTraversalAttack(
-                "path %s is not equal to cleaned path: %s" % (repr(rest_url), repr(clean_rest_url))
-            )
-            
-        self.rel_url = rest_url.lstrip("/")
-        self.rel_path = add_slash(os.path.normpath(self.rel_url))
+    def handle_uploaded_file(self, f):
+        if not self.allow_upload:
+            raise FilemanagerError("Upload not allowed here!")
+        
+        path = os.path.join(self.abs_path, f.name)
+        destination = file(path, 'wb+')
+        for chunk in f.chunks():
+            destination.write(chunk)
+        destination.close()
 
-        self.abs_path = clean_posixpath(os.path.join(self.absolute_path, self.rel_path))
-        self.check_path(self.absolute_path, self.abs_path)
-
-        self.abs_url = posixpath.join(self.base_url, self.rel_url)
-
-        if not os.path.isdir(self.abs_path):
-            raise Http404("Formed path %r doesn't exist." % self.abs_path)
-
-        self.breadcrumbs = self.build_breadcrumbs()
-
-    def build_breadcrumbs(self):
-        parts = ""
-        url = self.base_url
-        breadcrumbs = [{
-            "name": _("index"),
-            "title": _("goto 'index'"),
-            "url": url
-        }]
-        rel_url = self.rel_url.strip("/")
-        if not rel_url:
-            return breadcrumbs
-
-        for url_part in rel_url.split("/"):
-            url += "%s/" % url_part
-            parts += "%s/" % url_part
-            breadcrumbs.append({
-                "name": url_part,
-                "title": _("goto '%s'") % parts.strip("/"),
-                "url": url
-            })
-        return breadcrumbs
-
-    def check_path(self, base_path, path):
-        """
-        Simple check if the path is a sub directory of base_path.
-        This must be called from external!
-        """
-        # Important: the path must be terminated with a slash, otherwise:
-        #
-        # base_path = /foo/bar
-        # path      = /foo/barNEW
-        #
-        # path starts with base_path without slashes
-        #
-        # which add slash:
-        #
-        # base_path = /foo/bar    -> /foo/bar/
-        # path      = /foo/barNEW -> /foo/barNEW/
-        #              doesn't start with ---^
-        #
-        assert base_path.endswith(os.sep), "'base_path' must ended with a slash!"
-        assert path.endswith(os.sep), "'path' must ended with a slash!"
-            
-        if not path.startswith(base_path):
-            raise DirectoryTraversalAttack("%r doesn't start with %r" % (path, base_path))
+        messages.success(self.request,
+            "File '%s' (%i Bytes) uploaded to %s" % (f.name, f.size, self.abs_path)
+        )
 
 
 if __name__ == "__main__":

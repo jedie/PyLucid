@@ -14,7 +14,6 @@ from fnmatch import fnmatch
 from glob import glob
 import os
 import posixpath
-from pylucid_project.filemanager.utils import add_slash
 
 if __name__ == "__main__":
     # For doctest only
@@ -30,7 +29,9 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
 # TODO: Should be moved to django-tools!
-from pylucid_project.filemanager.filemanager import BaseFilemanager, FilemanagerError
+from pylucid_project.filemanager.filemanager import FilemanagerError
+from pylucid_project.filemanager.utils import add_slash
+from pylucid_project.filemanager.filesystem_browser import BaseFilesystemBrowser
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response
@@ -76,7 +77,7 @@ def _split_suffix(filename, suffix_list):
 #------------------------------------------------------------------------------
 
 
-class Gallery(BaseFilemanager):
+class Gallery(BaseFilesystemBrowser):
     def __init__(self, config, *args, **kwargs):
 #        # use unauthorized signs from preferences
 #        pref_form = GalleryPrefForm()

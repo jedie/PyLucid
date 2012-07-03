@@ -111,6 +111,23 @@ def add_slash(path):
     return path    
 
 
+def symbolic_notation(mode):
+    """
+    Convert os.stat().st_mode values to a symbolic representation. e.g: 
+       
+    >>> symbolic_notation(16893) # -> 040775 -> 775
+    u'rwxrwxr-x'
+    
+    >>> symbolic_notation(33204) # -> 0100664 -> 664
+    u'rw-rw-r--'
+    """
+    mode = mode & 0777 # strip "meta info"
+    chmod_symbol = u''.join(
+        mode & 0400 >> i and x or u'-' for i, x in enumerate(u'rwxrwxrwx')
+    )
+    return chmod_symbol
+
+
 if __name__ == "__main__":
     import doctest
     print doctest.testmod(
