@@ -180,7 +180,7 @@ class Filemanager(BaseFilemanager):
 
 def _reverse_filemanager_url(base_path_no):
     url = reverse('Filemanager-filemanager',
-        kwargs={"no": base_path_no, "rest_url":"/"}
+        kwargs={"no": base_path_no, "rest_url":""}
     )
     return url
 

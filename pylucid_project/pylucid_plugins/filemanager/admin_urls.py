@@ -14,5 +14,5 @@ from pylucid_project.pylucid_plugins.filemanager import admin_views
 
 urlpatterns = patterns('',
     url(r'^filemanager/$', admin_views.index, name='Filemanager-index'),
-    url(r'^filemanager/(?P<no>\d)(?P<rest_url>.*?)$$', admin_views.filemanager, name='Filemanager-filemanager'),
+    url(r'^filemanager/(?P<no>\d)/(?P<rest_url>.*?)$', admin_views.filemanager, name='Filemanager-filemanager'),
 )

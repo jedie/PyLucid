@@ -14,6 +14,7 @@ from fnmatch import fnmatch
 from glob import glob
 import os
 import posixpath
+from pylucid_project.filemanager.utils import add_slash
 
 if __name__ == "__main__":
     # For doctest only
@@ -77,16 +78,17 @@ def _split_suffix(filename, suffix_list):
 
 class Gallery(BaseFilemanager):
     def __init__(self, config, *args, **kwargs):
-        # use unauthorized signs from preferences
-        pref_form = GalleryPrefForm()
-        preferences = pref_form.get_preferences()
-        unauthorized_signs = preferences["unauthorized_signs"]
-        kwargs["unauthorized_signs"] = unauthorized_signs
+#        # use unauthorized signs from preferences
+#        pref_form = GalleryPrefForm()
+#        preferences = pref_form.get_preferences()
+#        unauthorized_signs = preferences["unauthorized_signs"]
+#        kwargs["unauthorized_signs"] = unauthorized_signs
 
         super(Gallery, self).__init__(*args, **kwargs)
 
         # Galleries are only allowed in STATIC_ROOT
-        self.check_path(settings.STATIC_ROOT, self.abs_path)
+        static_root = add_slash(settings.STATIC_ROOT)
+        self.check_path(static_root, self.abs_path)
 
         self.config = config
         self.static_base_url = posixpath.normpath(posixpath.join(settings.STATIC_URL, config.path, self.rel_url))
@@ -125,7 +127,7 @@ class Gallery(BaseFilemanager):
         return dirs, pictures, thumbs
 
     def build_dir_info(self, dirs):
-        if self.rel_path != "":
+        if self.rel_url not in ("", "/"):
             dirs.insert(0, "..")
 
         dir_info = []
