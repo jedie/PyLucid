@@ -200,7 +200,7 @@ def lucidTag(request, **kwargs):
     example:
     
     {% lucidTag include.local_file filepath="README.creole" markup="creole" %}
-    {% lucidTag include.remote url="/foo/bar/README.creole" markup="creole" %}
+    {% lucidTag include.remote url="http://domain.tld/foobar.py" highlight="py" %}
     """
     return _error(request, "Include error.",
         "Wrong lucidTag Syntax:"
