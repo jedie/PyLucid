@@ -1,0 +1,11 @@
+{% extends template_name %}
+
+
+{% block content %}
+<form method="post" action="{{ form_url }}" class="pylucid_form">
+    <fieldset><h2>Login Form</h2>
+        {% include "admin/pylucid/includes/pylucid_formset.html" %}
+        <input type="submit" value="login" />
+    </fieldset>
+</form>
+{% endblock content %}

@@ -5,12 +5,23 @@ from django import forms
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
+from django.forms.forms import NON_FIELD_ERRORS
 
 from pylucid_project.utils import crypt
 from pylucid_project.apps.pylucid.models import UserProfile
+from django.forms.util import ErrorDict
+
 
 class WrongUserError(Exception):
     pass
+
+
+class HoneypotForm(forms.Form):
+    username = forms.CharField(max_length=30, label=_('username'))
+    password = forms.CharField(max_length=128, label=_('password'),
+        widget=forms.PasswordInput
+    )
+    
 
 class UsernameForm(forms.Form):
     username = forms.CharField(max_length=_('30'), label=_('Username'),

@@ -16,5 +16,10 @@ class AuthPreferencesForm(DBPreferencesBaseForm):
         initial=15, min_value=1, max_value=600
     )
 
+    use_honypot = forms.BooleanField(
+        help_text=_("Enable login honypot? (A PluginPage must be created!)"),
+        initial = False, required=False
+    )
+
     class Meta:
         app_label = 'auth'
