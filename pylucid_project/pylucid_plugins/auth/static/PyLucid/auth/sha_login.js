@@ -4,19 +4,41 @@ try {
 } catch (e) {
     alert("Error, jQuery JS not loaded!\n Original error was:" + e);
 }
+function low_level_error(msg) {
+    log(msg);
+    $("#page_content").html("<"+"h2>" + msg + "<"+"/h2>");
+    alert(msg);
+    return false;
+}
 jQuery(document).ready(function($) {
     log("sha_login.js - document ready");
     
+    // Check if Cross Site Request Forgery protection cookie exists
+    if ((typeof document.cookie === 'undefined') || (document.cookie.indexOf("csrftoken") == -1)) {
+        try {
+            log("Cookies: " + document.cookie);
+        } catch (e) {
+            log("Error:" + e);
+        }
+        msg = "Error: Cookies not set. Please enable cookies in your browser!";
+        low_level_error(msg);
+        return false;
+    } else {
+        log("cookie check, ok.");
+    }
+    
     // Check variabled that set in sha_form.html by template variables:
     if (typeof challenge === 'undefined') {
-        alert("Error: 'challenge' not defined!");
+        msg = "Error: 'challenge' not defined!";
+        low_level_error(msg);
         return false;
     }
     log("challenge:" + challenge);
     log("SALT_LEN:" + SALT_LEN);
     log("HASH_LEN:" + HASH_LEN);
     if (challenge.length != SALT_LEN) {
-        alert("Wrong challenge from server length:" + challenge.length + "!=" + SALT_LEN);
+        msg = "Wrong challenge from server length:" + challenge.length + "!=" + SALT_LEN;
+        low_level_error(msg);
         return false;
     } else {
         log("salt length test, ok.");
@@ -25,8 +47,7 @@ jQuery(document).ready(function($) {
     // Check functions from shared_sha_tools.js and sha.js
     if (typeof hex_sha1 === 'undefined') {
         msg = "Error:\nsha.js not loaded.\n(hex_sha1 not defined)";
-        alert(msg);
-        $("#page_content").html("<"+"strong>" + msg + "<"+"/strong>");
+        low_level_error(msg);
         return false;
     } else {
         log("hey_sha1, ok.");
@@ -34,8 +55,7 @@ jQuery(document).ready(function($) {
 
     if (typeof sha_hexdigest === 'undefined') {
         msg = "Error:\nWrong shared_sha_tools.js loaded! Please update your static files\n(sha_hexdigest not defined)";
-        alert(msg);
-        $("#page_content").html("<"+"strong>" + msg + "<"+"/strong>");
+        low_level_error(msg);
         return false;
     } else {
         log("sha_hexdigest, ok.");
