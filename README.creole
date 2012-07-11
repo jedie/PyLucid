@@ -13,6 +13,7 @@ Some PyLucid Features are:
 * internationalization and localization support (Multilingual content)
 * Revision controlled content with [[http://github.com/etianen/django-reversion|django-reversion]] and include [[https://github.com/jedie/django-reversion-compare|django-reversion-compare]] for comparing two versions.
 * markup support: Creole, textile, markdown, ReStructuredText
+* [[http://www.pylucid.org/permalink/419/how-to-convert-the-pagecontent-markup|markup converter]]
 * expandable with plugins
 * [[/permalink/90/about-the-built-in-plugins|many built-in plugins]]:
 ** [[http://www.pylucid.org/permalink/42/secure-login-without-https|secure JS-SHA Login]] with [[http://www.pylucid.org/permalink/320/the-auth-plugin-js-sha1-login#honypot|a honypot]]
