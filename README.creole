@@ -7,23 +7,24 @@ Some PyLucid Features are:
 * Open Source (GPL v3 or later)
 * [[http://www.pylucid.org/permalink/69/customise-PyLucid/|fully customizable output]]
 ** templates/styles/JS code online editable with CodeMirror highlighting
+** compress styles/JS code via [[https://github.com/jezdez/django_compressor|Django-Compressor]]
 ** [[http://www.pylucid.org/permalink/279/how-to-change-a-plugin-template|easy overwrite templates]]
-* Multi site support (Allows a single installation to serve multiple websites.)
+* [[/permalink/343/howto-add-new-sites|Multi site support]] (Allows a single installation to serve multiple websites.)
 * internationalization and localization support (Multilingual content)
-* Revision controlled content
-* WYSIWYG html Editor / markups: Creole, textile, markdown, ReStructuredText
+* Revision controlled content with [[http://github.com/etianen/django-reversion|django-reversion]] and include [[https://github.com/jedie/django-reversion-compare|django-reversion-compare]] for comparing two versions.
+* markup support: Creole, textile, markdown, ReStructuredText
 * expandable with plugins
-* [[http://www.pylucid.org/permalink/90/about-the-built-in-plugins|many built-in plugins]]:
-** [[http://www.pylucid.org/permalink/42/secure-login-without-https|secure JS-SHA Login]]
+* [[/permalink/90/about-the-built-in-plugins|many built-in plugins]]:
+** [[http://www.pylucid.org/permalink/42/secure-login-without-https|secure JS-SHA Login]] with [[http://www.pylucid.org/permalink/320/the-auth-plugin-js-sha1-login#honypot|a honypot]]
 ** content:
 *** [[http://www.pylucid.org/permalink/141/blog|weblog]] (Complete blogging solution)
 *** [[http://www.pylucid.org/permalink/351/the-comments-plugin-also-usefull-as-guestbook|comments / guestbook]] (comments for pages, blog articles, lexicon entries)
-*** [[http://www.pylucid.org/permalink/295/the-streetmap-plugin|StreetMap]] (insert google maps or StreetMaps)
+*** [[http://www.pylucid.org/permalink/295/the-streetmap-plugin|StreetMap]] (insert OpenStreetmap / GoogleMaps)
 *** [[http://www.pylucid.org/permalink/301/the-lexicon-plugin|lexicon]] (explane words in content)
-*** [[http://www.pylucid.org/permalink/375/poll|poll]]
+*** [[/permalink/375/poll|poll]]
 *** [[http://www.pylucid.org/permalink/123/includes-rss-newsfeeds|RSS]] (include external feeds into a page)
 *** [[http://www.pylucid.org/permalink/309/highlight-source-code|source code]] (highlight source code into content)
-*** [[http://www.pylucid.org/permalink/381/about-the-include-plugin|include]] local/remote file content into page
+*** [[/permalink/381/about-the-include-plugin|include]] local/remote file content into page
 *** [[http://www.pylucid.org/permalink/340/pylucid-screenshots|simple picture gallery]]
 ** navigation:
 *** basics: main menu (split able), sub menu and sitemap
@@ -32,13 +33,15 @@ Some PyLucid Features are:
 *** [[http://www.pylucid.org/permalink/131/the-tag-navigation-plugin|page tag based navigation]]
 *** [[http://www.pylucid.org/permalink/294/the-breadcrumb-plugin|breadcrumb]]
 *** [[http://www.pylucid.org/permalink/303/table-of-contens-plugin|Table of contens]] (TOC from page headlines)
+*** [[http://www.pylucid.org/permalink/360/include-external-widgets-with-generic-plugin|Generic widgets]]
 ** content helpers:
+*** [[[http://www.pylucid.org/permalink/128/the-filemanager-plugin|A Filemanager]]
 *** [[http://www.pylucid.org/permalink/357/bulk_editor|bulk editor]]
 *** [[http://www.pylucid.org/permalink/129/the-find-and-replace-plugin|find and replace]] (replace strings different contents)
-*** translation dialogue, used google translation service (optional)	
+*** translation dialogue, used google translation service (optional)    
 * hierarchy tree page organization
 * support many database engines (PostgreSQL, MySQL, Oracle and SQLite)
-* WSGI conform: CGI, fastCGI, mod_Python and others
+* WSGI conform: [[http://www.pylucid.org/permalink/136/change-between-fastcgi-mod_wsgi-and-cgi|fastCGI, mod_WSGI and CGI (only for debugging) and others]]
 * and many more features... :)
 
 = install
