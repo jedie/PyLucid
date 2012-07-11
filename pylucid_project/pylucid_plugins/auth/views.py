@@ -7,7 +7,7 @@
     
     A secure JavaScript SHA-1 AJAX Login.
     
-    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -18,22 +18,21 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
+from django.shortcuts import render_to_response
+from django.core import urlresolvers
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
-from pylucid_project.apps.pylucid.shortcuts import bad_request, ajax_response
+from pylucid_project.apps.pylucid.decorators import check_request
 from pylucid_project.apps.pylucid.models import LogEntry
+from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
+from pylucid_project.apps.pylucid.shortcuts import bad_request, ajax_response
+from pylucid_project.pylucid_plugins.auth.forms import HoneypotForm
+from pylucid_project.pylucid_plugins.auth.models import HonypotAuth
 from pylucid_project.utils import crypt
 
 # auth own stuff
 from forms import WrongUserError, UsernameForm, ShaLoginForm
 from preference_forms import AuthPreferencesForm
-from django.views.decorators.csrf import requires_csrf_token, csrf_protect,\
-    csrf_exempt
-from pylucid_project.apps.pylucid.decorators import check_request
-from pylucid_project.pylucid_plugins.auth.forms import HoneypotForm
-from pylucid_project.pylucid_plugins.auth.models import HonypotAuth
-from django.shortcuts import render_to_response
-from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
-from django.core import urlresolvers
 
 
 APP_LABEL = "pylucid_plugin.auth"
@@ -270,14 +269,19 @@ def _get_salt(request):
 
 @csrf_protect
 def _login_view(request):
+    """
+    For better JavaScript debugging: Enable settings.DEBUG and request the page
+    via GET with: "...?auth=login"
+    """
     if DEBUG:
         print("auth debug mode is on!")
 
     if not request.is_ajax():
         # Do nothing, if it's not a ajax request.
         if settings.DEBUG:
-            messages.error(request, "Ignore login request, because it's not AJAX.")
-        return
+            messages.info(request, "Enable non AJAX login request, because DEBUG is on.")
+        else:
+            return
 
     if request.method != 'GET':
         debug_msg = "request method %r wrong, only GET allowed" % request.method
@@ -314,7 +318,13 @@ def _login_view(request):
     request.META["CSRF_COOKIE_USED"] = True
 
     # return a string for replacing the normal cms page content
-    return ajax_response(request, 'auth/sha_form.html', context, context_instance=RequestContext(request))
+    if not request.is_ajax():
+        # Only in DEBUG mode, see above.
+        response = render_to_response('auth/sha_form_debug.html', context, context_instance=RequestContext(request))
+    else:
+        response = ajax_response(request, 'auth/sha_form.html', context, context_instance=RequestContext(request))
+        
+    return response
 
 
 def _logout_view(request):
