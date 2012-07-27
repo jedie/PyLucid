@@ -152,6 +152,8 @@ class PluginTest(object):
         self.out = out
 
         for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
+            if plugin_name == "pylucid":
+                continue
             out.write("\tplugin: %r" % plugin_name)
             out.write("\t\tpath: %r" % plugin_instance.fs_path)
             self.test_objects(plugin_instance)
