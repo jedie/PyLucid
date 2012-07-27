@@ -19,6 +19,7 @@ from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.SimpleStringIO import SimpleStringIO
 from pylucid_project.utils.timezone import utc_offset
 import pprint
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 
 
@@ -141,6 +142,54 @@ def _database_encoding_test(request, out):
 
 #-----------------------------------------------------------------------------
 
+class PluginTest(object):
+    PLUGIN_MODULE_CHECK = ("urls", "models", "views", "admin_urls", "admin_views")
+    PLUGIN_OBJECT_CHECK = (
+            ("admin_urls", "urlpatterns"),
+    )
+    def __init__(self, request, out):
+        self.request = request
+        self.out = out
+
+        for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
+            out.write("\tplugin: %r" % plugin_name)
+            out.write("\t\tpath: %r" % plugin_instance.fs_path)
+            self.test_objects(plugin_instance)
+            self.test_modules(plugin_instance)
+
+    def test_module(self, plugin_instance, mod_name):
+        try:
+            plugin_instance.get_plugin_module(mod_name)
+        except plugin_instance.ObjectNotFound, err:
+            if settings.DEBUG:
+                self.out.write("\t\tDebug: Has no %r, ok." % mod_name)
+            return False
+        except Exception, err:
+            self.out.write("\t\t*** Error importing %r:\n\t\t*** %s" % (mod_name, err))
+            return False
+        else:
+            return True
+
+    def test_modules(self, plugin_instance):
+        for mod_name in self.PLUGIN_MODULE_CHECK:
+            self.test_module(plugin_instance, mod_name)
+
+    def test_objects(self, plugin_instance):
+        for mod_name, obj_name in self.PLUGIN_OBJECT_CHECK:
+            if not self.test_module(plugin_instance, mod_name):
+                # skip to get the object, if module doesn't exists
+                continue
+
+            try:
+                plugin_instance.get_plugin_object(mod_name, obj_name)
+            except plugin_instance.ObjectNotFound, err:
+                if settings.DEBUG:
+                    self.out.write("\t\tDebug: Has no %r, ok." % obj_name)
+            except Exception, err:
+                self.out.write("Error importing %r from %r: %s" % (obj_name, mod_name, err))
+
+#-----------------------------------------------------------------------------
+
 @check_permissions(superuser_only=True)
 @render_to("system/base_check.html")
 def base_check(request):
@@ -208,6 +257,10 @@ def base_check(request):
 
     out.write("\nTest cache backend:\n")
     _cache_backend_test(request, out)
+    out.write("\n" + "- " * 40)
+
+    out.write("\nTest plugins:\n")
+    PluginTest(request, out)
     out.write("\n" + "- " * 40)
 
     try:
