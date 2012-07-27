@@ -43,15 +43,11 @@ class PluginPageManager(BaseModelManager):
             http://trac.pylucid.net/ticket/333
         """
         if self._APP_CHOICES == None:
-            try:
-                root_apps = installed_apps_utils.get_filtered_apps(
-                    resolve_url="/", no_args=False, skip_fail=True
-                )
-            except TypeError:
-                # Old django-tools has no skip_fail parameter
-                root_apps = installed_apps_utils.get_filtered_apps(
-                    resolve_url="/", no_args=False
-                )
+            debug = settings.DEBUG and settings.RUN_WITH_DEV_SERVER
+
+            root_apps = installed_apps_utils.get_filtered_apps(
+                resolve_url="/", no_args=False, debug=debug, skip_fail=True
+            )
 
             self._APP_CHOICES = [("", "---------")]
             for app in root_apps:
