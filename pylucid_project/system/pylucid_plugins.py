@@ -67,18 +67,17 @@ class PyLucidPlugin(object):
     def __repr__(self):
         return "<%s>" % self.__unicode__()
 
-    def get_plugin_object(self, mod_name, obj_name):
+    def get_plugin_module(self, mod_name):
         """
-        return a object from this plugin
-        argument e.g.: ("admin_urls", "urlpatterns")
+        Get a module from this plugin.
+        argument e.g.:
+            mod_name="urls"
         """
-#        print "get_plugin_object(%r, %r)" % (mod_name, obj_name)
+#        print "get_plugin_module(%r)" % mod_name
         mod_pkg = ".".join([self.pkg_string, mod_name])
-
-        cache_key = mod_pkg + "." + obj_name
-        if cache_key in _PLUGIN_OBJ_CACHE:
-#            print "use _PLUGIN_OBJ_CACHE[%r]" % cache_key
-            return _PLUGIN_OBJ_CACHE[cache_key]
+        if mod_pkg in _PLUGIN_OBJ_CACHE:
+#            print "use _PLUGIN_OBJ_CACHE[%r]" % mod_pkg
+            return _PLUGIN_OBJ_CACHE[mod_pkg]
 
         try:
             mod = import_module(mod_pkg)
@@ -93,6 +92,22 @@ class PyLucidPlugin(object):
 #            msg += " (Syspath: %s)" % (repr(sys.path))
             evalue = etype('%s: %s' % (msg, evalue))
             raise etype, evalue, etb
+
+#        print "put in _PLUGIN_OBJ_CACHE[%r]" % mod_pkg
+        _PLUGIN_OBJ_CACHE[mod_pkg] = mod
+        return mod
+
+    def get_plugin_object(self, mod_name, obj_name):
+        """
+        return a object from this plugin
+        argument e.g.: ("admin_urls", "urlpatterns")
+        """
+        cache_key = ".".join([self.pkg_string, mod_name, obj_name])
+        if cache_key in _PLUGIN_OBJ_CACHE:
+#            print "use _PLUGIN_OBJ_CACHE[%r]" % cache_key
+            return _PLUGIN_OBJ_CACHE[cache_key]
+
+        mod = self.get_plugin_module(mod_name)
 
         try:
             object = getattr(mod, obj_name)
