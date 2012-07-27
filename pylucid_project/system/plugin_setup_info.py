@@ -38,6 +38,8 @@ class PyLucidPluginSetupInfo(dict):
         # for expand: settings.INSTALLED_APPS
         self.installed_plugins = []
 
+        self.additional_settings = []
+
         if "PYLUCID_ADD_PLUGINS_PATH" in os.environ:
             additional_path = os.environ["PYLUCID_ADD_PLUGINS_PATH"]
 
@@ -122,5 +124,13 @@ class PyLucidPluginSetupInfo(dict):
             if os.path.isdir(abs_template_path):
                 self.template_dirs.append(abs_template_path)
 
+            additional_settings_path = os.path.join(pkg_path, plugin_name, "additional_settings.py")
+            if os.path.isfile(additional_settings_path):
+                self.additional_settings.append("%s.additional_settings" % plugin_name)
+
             self[plugin_name] = (pkg_path, section, pkg_dir)
 
+    def get_additional_settings(self, locals_dict):
+        for mod_name in self.additional_settings:
+            obj = __import__(mod_name, globals(), locals(), ["add_settings"])
+            obj.add_settings(locals_dict)

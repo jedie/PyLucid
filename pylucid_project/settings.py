@@ -413,10 +413,15 @@ if _IN_UNITTESTS:
     # For running unittests with sqlite and south:
     # http://south.aeracode.org/wiki/Settings#SOUTH_TESTS_MIGRATE
     SOUTH_TESTS_MIGRATE = False
-    
+
 
 # Must be set in local settings
 SECRET_KEY = None
+
+#_______________________________________________________________________________
+# include additional_settings from plugins
+
+PYLUCID_PLUGIN_SETUP_INFO.get_additional_settings(locals())
 
 #_______________________________________________________________________________
 # overwrite values from the local settings
@@ -425,7 +430,7 @@ def _error(msg):
     from django.core.exceptions import ImproperlyConfigured
     raise ImproperlyConfigured(msg)
 
-LOCAL_SETTINGS_MODULE = os.environ.get("LOCAL_SETTINGS_MODULE", "local_settings") 
+LOCAL_SETTINGS_MODULE = os.environ.get("LOCAL_SETTINGS_MODULE", "local_settings")
 
 try:
     # from local_settings import *    
@@ -447,7 +452,7 @@ LOCAL_SETTINGS_MODULE_PATH = _local_settings.__file__
 for key in dir(_local_settings):
     if not key.startswith("_"):
         locals()[key] = getattr(_local_settings, key)
-        
+
 del(_local_settings)
 
 
