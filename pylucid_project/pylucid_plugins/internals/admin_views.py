@@ -25,6 +25,7 @@ from django.core.urlresolvers import RegexURLPattern, RegexURLResolver
 from django.db import connection, backend
 from django.db import models
 from django.db.models import get_apps, get_models
+from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.views.debug import get_safe_settings
 
@@ -73,9 +74,9 @@ class UrlPatternInfo(object):
         return a dict-list of the current used url patterns 
         """
         urlconf = __import__(settings.ROOT_URLCONF, {}, {}, [''])
-        
+
         view_functions = self._extract_views_from_urlpatterns(urlconf.urlpatterns)
-        
+
         url_info = []
         for (func, regex, url_name) in view_functions:
             if hasattr(func, '__name__'):
@@ -85,7 +86,7 @@ class UrlPatternInfo(object):
             else:
                 func_name = re.sub(r' at 0x[0-9a-f]+', '', repr(func))
             url = simplify_regex(regex)
-                
+
             url_info.append({
                 'func_name': func_name,
                 'module': func.__module__,
@@ -94,7 +95,7 @@ class UrlPatternInfo(object):
                 'url': url
             })
         return url_info
-    
+
     def _extract_views_from_urlpatterns(self, urlpatterns, base=''):
         """
         Return a list of views from a list of urlpatterns.
@@ -131,6 +132,13 @@ class UrlPatternInfo(object):
 
 #-----------------------------------------------------------------------------
 
+def hightlighted_pformat(obj):
+    return hightlighter.make_html(
+        pformat(obj, indent=4, width=120), source_type="py", django_escape=True
+    )
+
+#-----------------------------------------------------------------------------
+
 @check_permissions(superuser_only=True)
 @render_to("internals/show_internals.html")
 def show_internals(request):
@@ -150,6 +158,15 @@ def show_internals(request):
     # Information about the current used url patterns
     urlpatterns = UrlPatternInfo().get_url_info()
 
+    # Create a dict from RequestContext
+    request_context = RequestContext(request)
+    keys = set()
+    for context_dict in request_context.dicts:
+        keys = keys.union(set(context_dict.keys()))
+    request_context_info = {}
+    for key in keys:
+        request_context_info[key] = request_context[key]
+
     context = {
         "title": "Show internals",
 
@@ -159,9 +176,8 @@ def show_internals(request):
         "permissions": Permission.objects.all(),
 
         "urlpatterns": urlpatterns,
-        "settings": hightlighter.make_html(
-            pformat(get_safe_settings()), source_type="py", django_escape=True
-        ),
+        "request_context":hightlighted_pformat(request_context_info),
+        "settings": hightlighted_pformat(get_safe_settings()),
 
         "db_backend_name": backend.Database.__name__,
         "db_backend_module": backend.Database.__file__,
