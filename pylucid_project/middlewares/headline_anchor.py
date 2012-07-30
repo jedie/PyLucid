@@ -10,15 +10,12 @@
     
     If the TOC plugin used -> insert a table of contents
     
+    Note: The view must activate this by:
+        request.HeadlineAnchor = True
+    
     more info: http://pylucid.org/_goto/147/Headline-anchor/    
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: $
-    $Rev: $
-    $Author: $
-
-    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -99,6 +96,10 @@ class HeadlineAnchorMiddleware(object):
         """
         Add anchors to every html headlines.
         """
+        if not getattr(request, "HeadlineAnchor", False):
+            # insert headline anchor only if set request.HeadlineAnchor = True
+            return response
+
         # Put only the statistic into HTML pages
         if not "html" in response._headers["content-type"][1]:
             # No HTML Page -> do nothing

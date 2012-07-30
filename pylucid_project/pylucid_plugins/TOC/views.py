@@ -4,7 +4,7 @@
     PyLucid 'table of contents' plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -44,5 +44,9 @@ def lucidTag(request, min=3):
     # The real work would be done in:
     # pylucid_project.middlewares.headline_anchor.HeadlineAnchorMiddleware
     request.PYLUCID._toc_min_count = min
+
+    # Activate HeadlineAnchorMiddleware
+    request.HeadlineAnchor = True
+
     return settings.PYLUCID.TOC_PLACEHOLDER
 
