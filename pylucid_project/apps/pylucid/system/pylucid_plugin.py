@@ -97,7 +97,11 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
 
     # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
     request.plugin_name = view_func.__module__.split(".", 1)[0] # FIXME: Find a better way!
-    request.method_name = view_func.__name__
+    try:
+        request.method_name = view_func.__name__
+    except AttributeError:
+        # e.g.: it's a django.contrib.syndication.views.Feed class instance
+        request.method_name = view_func.__class__.__name__
 
     csrf_exempt = getattr(view_func, 'csrf_exempt', False)
     if not csrf_exempt:
