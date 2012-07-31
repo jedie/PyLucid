@@ -72,7 +72,7 @@ def login_honeypot(request):
         form = HoneypotForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data["username"]
-            password = form.cleaned_data["password"]            
+            password = form.cleaned_data["password"]
             HonypotAuth.objects.add(request, username, password)
             messages.error(request, _("username/password wrong."))
             form = HoneypotForm(initial={"username": username})
@@ -80,11 +80,11 @@ def login_honeypot(request):
     else:
         form = HoneypotForm()
     context = {
-        "form": form, 
+        "form": form,
         "form_url": request.path,
         "page_robots": "noindex,nofollow",
     }
-    
+
     response = render_to_response("auth/login_honeypot.html", context, context_instance=RequestContext(request))
     if faked_login_error:
         response.status_code = 401
@@ -299,6 +299,19 @@ def _login_view(request):
     # create a new challenge and add it to session
     challenge = _get_challenge(request)
 
+    try:
+        # url from django-authopenid, only available if the urls.py are included
+        reset_link = urlresolvers.reverse("auth_password_reset")
+    except urlresolvers.NoReverseMatch, err:
+        try:
+            # DjangoBB glue plugin adds the urls from django-authopenid
+            reset_link = PluginPage.objects.reverse("djangobb_plugin", "auth_password_reset")
+        except urlresolvers.NoReverseMatch, err:
+            if settings.DEBUG:
+                reset_link = "#ERROR: %s" % err
+            else:
+                reset_link = None
+
     context = {
         "challenge": challenge,
         "salt_len": crypt.SALT_LEN,
@@ -307,7 +320,7 @@ def _login_view(request):
         "sha_auth_url": request.path + "?auth=sha_auth",
         "next_url": next_url,
         "form": form,
-        "pass_reset_link": "#TODO",
+        "pass_reset_link": reset_link,
     }
 
     # IMPORTANT: We must do the following, so that the
@@ -323,7 +336,7 @@ def _login_view(request):
         response = render_to_response('auth/sha_form_debug.html', context, context_instance=RequestContext(request))
     else:
         response = ajax_response(request, 'auth/sha_form.html', context, context_instance=RequestContext(request))
-        
+
     return response
 
 

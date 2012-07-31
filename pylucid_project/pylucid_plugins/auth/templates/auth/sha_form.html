@@ -61,11 +61,8 @@ var get_salt_url="{{ get_salt_url }}";
   </p>
   <input id="submit_button" type="submit" value="{% trans 'Log in' %}" />
 </form>
-{% comment %}
-TODO: Reimplement the passwort reset
-{% if pass_reset_link %}
+{% if pass_reset_link %}{# only available if django-authopenid is installed #}
   <a href="{{ pass_reset_link }}">{% trans 'Request a password reset.' %}</a>
 {% endif %}
-{% endcomment %}
 </fieldset>
 {% endblock %}
