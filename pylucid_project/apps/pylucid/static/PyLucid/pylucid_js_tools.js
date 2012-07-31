@@ -455,11 +455,12 @@ jQuery(document).ajaxSend(function(event, xhr, settings) {
 
 /****************************************************************************/
 
-var MIN_ROWS = 1;
+var MIN_ROWS = 6;
 var MAX_ROWS = 25;
 
 function set_textarea_size(textarea) {
     rows = textarea.attr("value").split("\n").length;
+    rows += 3;
     
     if (rows > MAX_ROWS) { rows = MAX_ROWS; }
     if (rows < MIN_ROWS) { rows = MIN_ROWS; }
