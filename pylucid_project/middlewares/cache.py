@@ -18,7 +18,7 @@ logger = getLogger("PyLucidCacheMiddleware")
 
 
 class PyLucidCacheMiddlewareBase(object):
-    def use_cache(self, request):
+    def use_cache(self, request, response=None):
         if not request.method in ('GET', 'HEAD'):
             logger.debug("Don't cache %r" % request.method)
             return False
@@ -41,6 +41,11 @@ class PyLucidCacheMiddlewareBase(object):
 
             logger.debug("Don't cache page, it has this messages: %s" % raw_messages)
             #print "*** page for anonymous users has messages -> don't cache"
+            return False
+
+        if response and getattr(response, 'csrf_processing_done', False):
+            # e.g.: view use @csrf_protect decorator
+            #print "*** don't cache because response.csrf_processing_done==True"
             return False
 
         return True
@@ -98,7 +103,7 @@ class PyLucidUpdateCacheMiddleware(PyLucidCacheMiddlewareBase):
         if response.status_code != 200: # Don't cache e.g. error pages
             return response
 
-        if not self.use_cache(request):
+        if not self.use_cache(request, response):
             #print "Don't put to cache."
             return response
 
