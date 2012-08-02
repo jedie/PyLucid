@@ -4,7 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -403,17 +403,17 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
     _url_cache = LocalSyncCache(id="PageTree_absolute_url")
     def get_absolute_url(self):
         """ absolute url *without* language code (without domain/host part) """
-        if self.pk in self._url_cache:
+        try:
+            url = self._url_cache[self.pk]
             #print "PageTree url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
-            return self._url_cache[self.pk]
+        except KeyError:
+            if self.parent:
+                parent_shortcut = self.parent.get_absolute_url()
+                url = parent_shortcut + self.slug + "/"
+            else:
+                url = "/" + self.slug + "/"
 
-        if self.parent:
-            parent_shortcut = self.parent.get_absolute_url()
-            url = parent_shortcut + self.slug + "/"
-        else:
-            url = "/" + self.slug + "/"
-
-        self._url_cache[self.pk] = url
+            self._url_cache[self.pk] = url
         return url
 
     def get_absolute_uri(self):
