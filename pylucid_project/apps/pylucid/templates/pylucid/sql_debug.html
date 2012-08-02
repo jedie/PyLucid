@@ -1,5 +1,3 @@
-<h2>Debug SQL queries:</h2>
-<p>render time: {{ total_time }} - overall: {{ overall_time }} - query count: {{ query_count }}</p>
 <style>
 #sql_debug {
     border:thin solid #f00; border-spacing:1px;
@@ -34,7 +32,27 @@
     font-size:0.9em;
     background-color:#eee;
 }
+table.stats {
+    width: auto;
+}
 </style>
+<h2>Debug SQL queries:</h2>
+<p>render time: {{ total_time }} - overall: {{ overall_time }} - query count: {{ query_count }}</p>
+
+<table class="stats">
+    <tr><th>table name</th><th>count</th></tr>
+{% for table_name, count in table_count.items %}
+    <tr><td>{{ table_name }}</td><td>{{ count }}</td></tr>
+{% endfor %}
+</table>
+
+<table class="stats">
+    <tr><th>type</th><th>count</th></tr>
+{% for type, count in type_count.items %}
+    <tr><td>{{ type }}</td><td>{{ count }}</td></tr>
+{% endfor %}
+</table>
+
 <table id="sql_debug">
 {% for query in queries %}
 {% if query.pformat %}

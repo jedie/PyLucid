@@ -22,18 +22,14 @@
     Put settings for debug_sql_queries() into settings.py:
         http://trac.pylucid.net/ticket/230
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import re
 import time
 import inspect
+import collections
 
 from django.conf import settings
 from django.db import connection
@@ -57,11 +53,23 @@ FMT_DEBUG = FMT + u" - queries: %(query_count)d"
 
 STACK_LIMIT = 5
 
+FROM_REGEX = re.compile(
+    r"(FROM|UPDATE|INTO)[\s`]+(.*?)[\s`]+",
+    re.UNICODE | re.MULTILINE
+)
+
 
 class SqlLoggingList(list):
-    """ Append some infomation on every query in debug mode. """
-    def _pformat_sql(self, query):
-        sql = query["sql"]
+    """
+    Append some infomation on every query in debug mode.
+    TODO: Move this into django-tools as a seperate middleware!
+    """
+    def __init__(self, *args, **kwargs):
+        self.type_count = collections.defaultdict(int)
+        self.table_count = collections.defaultdict(int)
+        super(SqlLoggingList, self).__init__(*args, **kwargs)
+
+    def _pformat_sql(self, sql):
         sql = sql.replace('`', '')
         sql = sql.replace(' FROM ', '`FROM ')
         sql = sql.replace(' WHERE ', '`WHERE ')
@@ -69,7 +77,14 @@ class SqlLoggingList(list):
         return sql.split('`')
 
     def append(self, query):
-        query["pformat"] = self._pformat_sql(query)
+        sql = query["sql"].strip()
+        sql_type = sql.split(" ", 1)[0]
+        self.type_count[sql_type] += 1
+
+        for table_info in FROM_REGEX.findall(sql):
+            self.table_count[table_info[1]] += 1
+
+        query["pformat"] = self._pformat_sql(sql)
 
         stack_list = inspect.stack()[1:]
         for no, stack_line in enumerate(stack_list):
@@ -143,6 +158,8 @@ class PageStatsMiddleware(object):
         if settings.DEBUG and settings.SQL_DEBUG:
             # Insert all SQL queries into html page
             context["queries"] = connection.queries
+            context["type_count"] = dict(connection.queries.type_count)
+            context["table_count"] = dict(connection.queries.table_count)
             sql_info = render_to_string("pylucid/sql_debug.html", context)
             response = replace_content(response, "</body>", sql_info)
 
