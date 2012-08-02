@@ -57,7 +57,7 @@ def _filter_search_terms(request, search_string):
 
 class SearchHit(object):
     """ one hit entry in the result page """
-    def __init__(self, model_instance, search_strings, score, headline, language, url, content):
+    def __init__(self, model_instance, search_strings, score, headline, language, url, content, preferences):
         self.model_instance = model_instance
         self.search_strings = search_strings
         self.score = score
@@ -66,7 +66,6 @@ class SearchHit(object):
         self.url = url
         self.content = strip_tags(content)
 
-        preferences = get_preferences()
         self.text_cutout_len = preferences["text_cutout_len"]
         self.text_cutout_lines = preferences["text_cutout_lines"]
 
@@ -109,6 +108,8 @@ class SearchResults(object):
         self.plugin_count = None # set in self.done()
         self.start_time = time.time()
 
+        self.preferences = get_preferences()
+
     def _calc_score(self, txt, multiplier):
         score = 0
         for term in self.search_strings_lower:
@@ -142,6 +143,7 @@ class SearchResults(object):
             language=language,
             url=url,
             content=content,
+            preferences=self.preferences,
         )
 
         self.hits.append((score, search_hit))
