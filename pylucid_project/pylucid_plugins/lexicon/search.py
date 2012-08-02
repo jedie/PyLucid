@@ -14,7 +14,7 @@ from lexicon.models import LexiconEntry
 
 
 def get_search_results(request, search_languages, search_strings, search_results):
-    queryset = LexiconEntry.on_site
+    queryset = LexiconEntry.on_site.select_related()
 
     # Only public lexicon items:
     queryset = queryset.filter(is_public=True)

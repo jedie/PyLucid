@@ -6,11 +6,11 @@
 
 from django.contrib.sites.models import Site
 
-from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, PluginPage, Design, Language
+from pylucid_project.apps.pylucid.models import PageContent
 
 
 def get_search_results(request, search_languages, search_strings, search_results):
-    queryset = PageContent.objects
+    queryset = PageContent.objects.select_related()
 
     # search only all pages from this site
     queryset = queryset.filter(pagemeta__pagetree__site=Site.objects.get_current())

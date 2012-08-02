@@ -3,7 +3,7 @@
 """
     search Blog entries
     ~~~~~~~~~~~~~~~~~~~
-    
+
     :copyleft: 2008-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
@@ -20,6 +20,8 @@ def get_search_results(request, search_languages, search_strings, search_results
 
     # Only items in the selected search language
     queryset = queryset.filter(language__in=search_languages)
+
+    queryset = queryset.select_related()
 
     for term in search_strings:
         queryset = queryset.filter(
