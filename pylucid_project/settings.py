@@ -94,6 +94,9 @@ SITE_ID = 1 # Can be changed in local_settings
 ROOT_URLCONF = 'pylucid_project.urls'
 
 
+# activate django-tools DynamicSiteMiddleware:
+USE_DYNAMIC_SITE_MIDDLEWARE = True
+
 MIDDLEWARE_CLASSES = (
     # Save process informations. More info: https://github.com/jedie/django-processinfo
     'django_processinfo.middlewares.django_processinfo.ProcessInfoMiddleware',
@@ -109,13 +112,8 @@ MIDDLEWARE_CLASSES = (
 
     # make the request object everywhere available with a thread local storage:
     'django_tools.middlewares.ThreadLocal.ThreadLocalMiddleware',
-)
 
-# activate django-tools DynamicSiteMiddleware:
-USE_DYNAMIC_SITE_MIDDLEWARE = True
-
-MIDDLEWARE_CLASSES += (
-    # Set SITE_ID dynamically base on the current domain name **Experimental** :
+    # Set SITE_ID dynamically base on the current domain name:
     'django_tools.dynamic_site.middleware.DynamicSiteMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
