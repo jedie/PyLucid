@@ -24,10 +24,14 @@ from django_tools.utils.messages import failsafe_message
 from pylucid_project.apps.pylucid.fields import RootAppChoiceField
 from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 
 
 TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+
+
+_URL_RESOLVER_CACHE = LocalSyncCache(id="PluginPage_url_resolver")
 
 
 class PluginPageManager(BaseModelManager):
@@ -90,11 +94,15 @@ class PluginPageManager(BaseModelManager):
         """
         return a url resolver for the given plugin
         """
-        plugin_instance = PYLUCID_PLUGINS[plugin_name]
-        plugin_page = self.get_by_plugin_name(plugin_name)
+        try:
+            plugin_url_resolver = _URL_RESOLVER_CACHE[plugin_name]
+        except KeyError:
+            plugin_instance = PYLUCID_PLUGINS[plugin_name]
+            plugin_page = self.get_by_plugin_name(plugin_name)
 
-        url_prefix = plugin_page.get_absolute_url()
-        plugin_url_resolver = plugin_instance.get_plugin_url_resolver(url_prefix, plugin_page.urls_filename)
+            url_prefix = plugin_page.get_absolute_url()
+            plugin_url_resolver = plugin_instance.get_plugin_url_resolver(url_prefix, plugin_page.urls_filename)
+            _URL_RESOLVER_CACHE[plugin_name] = plugin_url_resolver
         return plugin_url_resolver
 
     def reverse(self, plugin_name, viewname, args=(), kwargs={}):
@@ -162,6 +170,7 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
             # FIXME: Better error with django model validation?
             raise AssertionError("Plugin can only exist on a plugin type tree entry!")
 
+        _URL_RESOLVER_CACHE.clear()
         cache.clear() # FIXME: This cleaned the complete cache for every site!
         return super(PluginPage, self).save(*args, **kwargs)
 
