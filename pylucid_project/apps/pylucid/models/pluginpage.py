@@ -64,10 +64,9 @@ class PluginPageManager(BaseModelManager):
 #            self._APP_CHOICES = [("", "---------")] + [(app, app) for app in sorted(apps)]
         return self._APP_CHOICES
 
-    def reverse(self, plugin_name, viewname, args=(), kwargs={}):
+    def get_by_plugin_name(self, plugin_name):
         """
-        reverse a plugin url.
-        Please note: this will always use the first PluginPage entry as url prefix!
+        return PluginPage instance by plugin_name
         """
         # get the app label from
         plugin_instance = PYLUCID_PLUGINS[plugin_name]
@@ -85,10 +84,27 @@ class PluginPageManager(BaseModelManager):
                 msg += " (app_label: %r)" % app_label
                 failsafe_message(msg)
             raise urlresolvers.NoReverseMatch(msg)
+        return plugin_page
+
+    def get_url_resolver(self, plugin_name):
+        """
+        return a url resolver for the given plugin
+        """
+        plugin_instance = PYLUCID_PLUGINS[plugin_name]
+        plugin_page = self.get_by_plugin_name(plugin_name)
 
         url_prefix = plugin_page.get_absolute_url()
         plugin_url_resolver = plugin_instance.get_plugin_url_resolver(url_prefix, plugin_page.urls_filename)
-        return plugin_url_resolver.reverse(viewname, *args, **kwargs)
+        return plugin_url_resolver
+
+    def reverse(self, plugin_name, viewname, args=(), kwargs={}):
+        """
+        reverse a plugin url.
+        Please note: this will always use the first PluginPage entry as url prefix!
+        """
+        plugin_url_resolver = self.get_url_resolver(plugin_name)
+        url = plugin_url_resolver.reverse(viewname, *args, **kwargs)
+        return url
 
 
 class PluginPage(BaseModel, UpdateInfoBaseModel):
