@@ -4,7 +4,7 @@
     PyLucid search plugin
     ~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v2 or above, see LICENSE for more details
 """
 
@@ -148,9 +148,12 @@ class SearchResults(object):
 
         self.hits.append((score, search_hit))
 
-    def done(self, plugin_count):
-        self.duration = time.time() - self.start_time
+    def done(self, plugin_count, use_plugin, too_much_hits):
         self.plugin_count = plugin_count
+        self.use_plugin = use_plugin
+        self.too_much_hits = too_much_hits
+
+        self.duration = time.time() - self.start_time
 
     def __iter__(self):
         for score, hit in sorted(self.hits, reverse=True):
@@ -158,8 +161,9 @@ class SearchResults(object):
 
 
 class Search(object):
-    def __init__(self, request):
+    def __init__(self, request, preferences):
         self.request = request
+        self.preferences = preferences
 
     def search(self, search_lang_codes, search_strings):
         """ collect all plugin searches and return the results """
@@ -168,37 +172,62 @@ class Search(object):
 #        search_languages = Language.objects.all_accessible().filter(code__in=search_lang_codes)
 
         # Call every plugin. The plugin adds all results into SearchResults object.
-        plugin_count = self.call_searchs(search_languages, search_strings, search_results)
+        plugin_count, use_plugin, too_much_hits = self.call_searchs(search_languages, search_strings, search_results)
 
-        search_results.done(plugin_count)
+        search_results.done(plugin_count, use_plugin, too_much_hits)
 
         return search_results
 
     def call_searchs(self, search_languages, search_strings, search_results):
         """ Call every plugin, witch has the search API. """
-        method_kwargs = {
-            "search_languages": search_languages,
-            "search_strings": search_strings,
-            "search_results": search_results
-        }
-
         filename = settings.PYLUCID.SEARCH_FILENAME
-        view_name = settings.PYLUCID.SEARCH_VIEWNAME
+        class_name = settings.PYLUCID.SEARCH_CLASSNAME
+
+        max_hits = self.preferences["max_hits"]
 
         plugin_count = 0
+        too_much_hits = 0
+        use_plugin = 0
         for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
             try:
-                plugin_instance.call_plugin_view(self.request, filename, view_name, method_kwargs)
-            except Exception, err:
-                if str(err).endswith("No module named %s" % filename):
-                    # Plugin has no search API
-                    continue
+                SearchClass = plugin_instance.get_plugin_object(filename, class_name)
+#                plugin_instance.call_plugin_view(self.request, filename, view_name, method_kwargs)
+            except plugin_instance.ObjectNotFound:
+                # Plugin has no search API
+                continue
+            except Exception:
                 if settings.DEBUG or self.request.user.is_staff:
                     messages.error(self.request, "Can't collect search results from %s." % plugin_name)
                     messages.debug(self.request, mark_safe("<pre>%s</pre>" % traceback.format_exc()))
+                continue
             else:
                 plugin_count += 1
-        return plugin_count
+
+            search_instance = SearchClass()
+            queryset = search_instance.get_queryset(self.request, search_languages, search_strings)
+            count = queryset.count()
+            if self.request.user.is_staff:
+                messages.info(self.request, "%s hits in %s" % (count, plugin_name))
+
+            if count >= max_hits:
+                too_much_hits += 1
+                messages.info(self.request, "Skip too many results from %s" % plugin_name)
+                LogEntry.objects.log_action(
+                    app_label="search", action="too mutch hits",
+                    message="Skip %s hits in %s for %s" % (count, plugin_name, repr(search_strings)),
+                    data={
+                        "search_strings": search_strings,
+                        "hits": count,
+                    }
+                )
+                continue
+
+            use_plugin += 1
+
+            if count > 0:
+                search_instance.add_search_results(self.request, queryset, search_results)
+
+        return plugin_count, use_plugin, too_much_hits
 
 
 def _search(request, cleaned_data):
@@ -218,7 +247,7 @@ def _search(request, cleaned_data):
         return
 
     search_lang_codes = cleaned_data["language"]
-    search_results = Search(request).search(search_lang_codes, search_strings)
+    search_results = Search(request, preferences).search(search_lang_codes, search_strings)
     hits_count = len(search_results.hits)
     duration = human_duration(search_results.duration)
     msg = "done in %s, %s hits for: %r" % (duration, hits_count, search_strings)

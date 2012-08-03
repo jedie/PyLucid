@@ -11,42 +11,57 @@
 
 from django.db.models import Q
 
-from blog.models import BlogEntryContent
+from pylucid_project.pylucid_plugins.blog.models import BlogEntryContent
 
 
-def get_search_results(request, search_languages, search_strings, search_results):
+class Search(object):
+    def get_queryset(self, request, search_languages, search_strings):
+        queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, tags=None, filter_language=False)
 
-    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, tags=None, filter_language=False)
+        # Only items in the selected search language
+        queryset = queryset.filter(language__in=search_languages)
 
-    # Only items in the selected search language
-    queryset = queryset.filter(language__in=search_languages)
+        queryset = queryset.select_related()
 
-    queryset = queryset.select_related()
+        for term in search_strings:
+            queryset = queryset.filter(
+                Q(content__icontains=term) | Q(tags__icontains=term) | Q(headline__icontains=term)
+            )
 
-    for term in search_strings:
-        queryset = queryset.filter(
-            Q(content__icontains=term) | Q(tags__icontains=term) | Q(headline__icontains=term)
-        )
+        return queryset
 
-    for item in queryset:
-        meta_content = item.tags
-        #print "meta: %r" % meta_content
+    def add_search_results(self, request, queryset, search_results):
+    #    plugin_url_resolver = PluginPage.objects.get_url_resolver("blog")
 
-        search_results.add(
-            model_instance=item,
+        for item in queryset:
+            meta_content = item.tags
+            #print "meta: %r" % meta_content
 
-            # displayed headline of the result hit
-            headline=item.headline,
+    #        reverse_kwargs = {
+    #            "year": item.url_date.year,
+    #            "month": "%02i" % item.url_date.month,
+    #            "day": "%02i" % item.url_date.day,
+    #            "slug": item.slug
+    #        }
+    #
+    #        url = plugin_url_resolver.reverse("Blog-detail_view", kwargs=reverse_kwargs)
 
-            # displayed in the result list
-            language=item.language,
+            search_results.add(
+                model_instance=item,
 
-            # Link to the hit
-            url=item.get_absolute_url(),
+                # displayed headline of the result hit
+                headline=item.headline,
 
-            # the main content -> result lines would be cut out from hits in this content
-            content=item.get_search_content(request),
+                # displayed in the result list
+                language=item.language,
 
-            # hits in meta content has a higher score, but the content would not displayed 
-            meta_content=meta_content,
-        )
+                # Link to the hit
+                url=item.get_absolute_url(),
+    #            url=url,
+
+                # the main content -> result lines would be cut out from hits in this content
+                content=item.get_search_content(request),
+
+                # hits in meta content has a higher score, but the content would not displayed 
+                meta_content=meta_content,
+            )

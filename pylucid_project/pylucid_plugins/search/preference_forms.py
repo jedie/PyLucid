@@ -1,5 +1,13 @@
 # coding: utf-8
 
+"""
+    PyLucid search preferences
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v2 or above, see LICENSE for more details
+"""
+
 
 from django import forms
 from django.utils.translation import ugettext as _
@@ -15,9 +23,9 @@ class SearchPreferencesForm(DBPreferencesBaseForm):
         help_text=_("Max length of a search term"),
         initial=50, min_value=1, max_value=200
     )
-    max_results = forms.IntegerField(
-        help_text=_("Number of the paged for the result page"),
-        initial=20, min_value=1, max_value=200
+    max_hits = forms.IntegerField(
+        help_text=_("Number of hits from one plugin to skip the search for them."),
+        initial=100, min_value=1, max_value=500
     )
     text_cutout_len = forms.IntegerField(
         help_text=_("The length of the text-hit-cutouts"),
