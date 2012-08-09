@@ -124,14 +124,14 @@
                             {% trans "design" %}
                         </a>
                     </li>
-                {% endif %}
-                {% if perms.pylucid.change_design %}
+                    {% if PYLUCID.pagetree.design.colorscheme %}
                     <li>
                         <a href="{% url admin:pylucid_colorscheme_change PYLUCID.pagetree.design.colorscheme.id %}"
                             title="{% trans "edit current colorscheme:" %} '{{ PYLUCID.pagetree.design.colorscheme.name }}'">
                             {% trans "colorscheme" %}
                         </a>
                     </li>
+                    {% endif %}    
                 {% endif %}
                 {% if perms.pylucid.change_editablehtmlheadfile %}
                     {% for headfile in PYLUCID.pagetree.design.headfiles.all %}
