@@ -83,8 +83,6 @@ def pylucid(request):
             "current_site": Site.objects.get_current(),
             "sites": Site.objects.all(),
 
-            "debug": settings.DEBUG,
-
             "PYLUCID": request.PYLUCID,
         }
 
