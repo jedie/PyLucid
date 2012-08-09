@@ -42,11 +42,11 @@ class GalleryModel(UpdateInfoBaseModel):
 
     filename_whitelist = SignSeparatedModelField(max_length=256,
         default="*.jpg, *.jpeg, *.png",
-        help_text=_("fnmatch rules with filename whitelist (comma separated).")
+        help_text=_("fnmatch rules with filename whitelist (comma separated, case insensitive).")
     )
     diritem_blacklist = SignSeparatedModelField(max_length=256,
         default="", null=True, blank=True,
-        help_text=_("fnmatch rules for skip directory/files (comma separated).")
+        help_text=_("fnmatch rules for skip directory/files (comma separated, case insensitive).")
     )
 
     filename_suffix_filter = SignSeparatedModelField(max_length=256,

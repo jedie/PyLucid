@@ -17,9 +17,8 @@ import posixpath
 
 if __name__ == "__main__":
     # For doctest only
-    os.environ["DJANGO_SETTINGS_MODULE"] = "django.conf.global_settings"
-    from django.conf import global_settings
-    global_settings.SITE_ID = 1
+    from pylucid_project.tests import init_test_env
+    init_test_env()
 
 from django.conf import settings
 from django.contrib import messages
@@ -45,14 +44,19 @@ from gallery.preference_forms import GalleryPrefForm
 
 def _fnmatch_list(item, filter_list):
     """
+    case insensitive fnmatch with a list.
+    
     >>> _fnmatch_list("foo.jpg", ["*.bar", "*.jpg"])
+    True
+    
+    >>> _fnmatch_list("foo.PNG", ["*.png"])
     True
 
     >>> _fnmatch_list("foo.jpg", ["*.bar"])
     False
     """
     for filter in filter_list:
-        if fnmatch(item, filter):
+        if fnmatch(item.lower(), filter.lower()):
             return True
     return False
 
@@ -244,8 +248,7 @@ def gallery(request, rest_url=""):
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod(
+    print doctest.testmod(
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
