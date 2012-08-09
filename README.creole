@@ -36,7 +36,7 @@ Some PyLucid Features are:
 *** [[http://www.pylucid.org/permalink/303/table-of-contens-plugin|Table of contens]] (TOC from page headlines)
 *** [[http://www.pylucid.org/permalink/360/include-external-widgets-with-generic-plugin|Generic widgets]]
 ** content helpers:
-*** [[[http://www.pylucid.org/permalink/128/the-filemanager-plugin|A Filemanager]]
+*** [[http://www.pylucid.org/permalink/128/the-filemanager-plugin|A Filemanager]]
 *** [[http://www.pylucid.org/permalink/357/bulk_editor|bulk editor]]
 *** [[http://www.pylucid.org/permalink/129/the-find-and-replace-plugin|find and replace]] (replace strings different contents)
 *** translation dialogue, used google translation service (optional)    
