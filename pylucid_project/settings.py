@@ -197,10 +197,11 @@ TEMPLATE_LOADERS = (
 # dictionary of items to be merged into the context.
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
+    "django.core.context_processors.debug", # Add 'debug' info in context
     "django.core.context_processors.i18n",
-    "django.core.context_processors.request",
-    "django.core.context_processors.static",
+    "django.core.context_processors.request", # Add request object to context
+    "django.core.context_processors.static", # Add STATIC_URL to context
+    "django.core.context_processors.media", # Add MEDIA_URL to context
     "django.contrib.messages.context_processors.messages",
     "pylucid_project.apps.pylucid.context_processors.pylucid",
 )
