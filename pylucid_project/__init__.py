@@ -17,7 +17,7 @@ import warnings
 import subprocess
 
 
-__version__ = (1, 2, 0)
+__version__ = (1, 2, 1)
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
