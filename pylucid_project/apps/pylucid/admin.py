@@ -41,6 +41,9 @@ from pylucid_project.apps.pylucid.base_admin import BaseAdmin
 from pylucid_project.apps.pylucid.forms.pagemeta import PageMetaForm
 from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.markup.admin import MarkupPreview
+from django.shortcuts import render_to_response
+from pylucid_project.apps.pylucid.decorators import render_to
+from django.template.context import RequestContext
 
 
 class PageTreeAdmin(BaseAdmin, CompareVersionAdmin):
@@ -397,9 +400,45 @@ admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
 
 class UserProfileAdmin(CompareVersionAdmin):
+    class SiteForm(forms.Form):
+        _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
+        sites = forms.ModelMultipleChoiceField(Site.objects)
+
+    def set_site(self, request, queryset):
+        if "cancel" in request.POST:
+            # User has clicked on the cancel form submit button
+            self.message_user(request, "Cancelled 'set site'")
+            return HttpResponseRedirect(request.get_full_path())
+
+        if "save" in request.POST:
+            form = self.SiteForm(request.POST)
+            if form.is_valid():
+                sites = form.cleaned_data["sites"]
+                count = 0
+                for userprofile in queryset:
+                    userprofile.sites = sites
+                    userprofile.save()
+                    count += 1
+                self.message_user(request, _("Saved sites to %i userprofiles." % count))
+                return HttpResponseRedirect(request.get_full_path())
+        else:
+            selected_action = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+            form = self.SiteForm(initial={"_selected_action": selected_action})
+
+        context = {
+            "queryset": queryset,
+            "form": form,
+            "abort_url": request.get_full_path(),
+            "form_url":request.get_full_path(),
+        }
+        return render_to_response("admin/set_user_sites.html", context, context_instance=RequestContext(request))
+
+    set_site.short_description = "Change the site for selected users."
+
     list_display = ("id", "user", "site_info", "lastupdatetime", "lastupdateby")
     list_display_links = ("user",)
     list_filter = ("sites",)
+    actions = ["set_site"]
 
 admin.site.register(models.UserProfile, UserProfileAdmin)
 

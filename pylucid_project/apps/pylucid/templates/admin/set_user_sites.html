@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>Set sites for users:</h1>
+<ul>
+{% for userprofile in queryset %}
+    <li>{{ userprofile }}</li>
+{% endfor %}
+</ul>
+<form method="post" action="{{ form_url }}" class="pylucid_form">
+    <input type="hidden" name="action" value="set_site" />
+    {% include "admin/pylucid/includes/default_pylucid_form2.html" %}
+</form>
+{% endblock content %}
