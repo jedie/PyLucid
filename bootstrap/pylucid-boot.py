@@ -1789,7 +1789,7 @@ NORMAL_INSTALLATION = ['feedparser>=5.1.2,<5.2',
  'Django>=1.4,<1.5',
  'python-creole>=0.8.2,<1.1.0',
  'django-dbpreferences>=0.4.2,<0.5',
- 'django-tools>=0.24,<0.25',
+ 'django-tools>=0.24.6,<0.25',
  'django-processinfo>=0.4',
  'django-reversion-compare>=0.3.1',
  '--editable=git+git://github.com/jedie/PyLucid.git#egg=pylucid']

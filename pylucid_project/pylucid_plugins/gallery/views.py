@@ -28,9 +28,9 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 
 # TODO: Should be moved to django-tools!
-from pylucid_project.filemanager.filemanager import FilemanagerError
-from pylucid_project.filemanager.utils import add_slash
-from pylucid_project.filemanager.filesystem_browser import BaseFilesystemBrowser
+from django_tools.filemanager.filemanager import FilemanagerError
+from django_tools.filemanager.utils import add_slash
+from django_tools.filemanager.filesystem_browser import BaseFilesystemBrowser
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.shortcuts import render_pylucid_response

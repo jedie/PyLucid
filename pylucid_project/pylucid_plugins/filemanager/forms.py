@@ -8,10 +8,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import os
 import sys
-
-import pylucid_project
 
 from django import forms
 from django.conf import settings
@@ -37,13 +34,13 @@ BASE_PATHS = getattr(settings, "FILEMANAGER_BASE_PATHS",
     )
 )
 if settings.DEBUG:
-    BASE_PATHS += (        
+    BASE_PATHS += (
         {
             "abs_base_path": sys.prefix, # root directory of virtualenv
             "url_prefix": None,
             "allow_upload": False,
         },
-        
+
     )
 
 

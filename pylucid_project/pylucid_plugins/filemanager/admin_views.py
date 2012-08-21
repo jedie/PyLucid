@@ -9,10 +9,9 @@
 """
 
 
-import datetime
 import os
 import posixpath
-import stat
+import pwd
 
 if __name__ == "__main__":
     # For doctest only
@@ -20,19 +19,19 @@ if __name__ == "__main__":
     from django.conf import global_settings
     global_settings.SITE_ID = 1
 
-from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, Http404
+
+from django_tools.filemanager.filemanager import BaseFilemanager
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
-from pylucid_project.filemanager.filemanager import BaseFilemanager, BaseDirItem,\
-    BaseFilesystemObject
+
+from pylucid_project.pylucid_plugins.filemanager.preference_forms import FilemanagerPrefForm
 from pylucid_project.pylucid_plugins.filemanager.forms import BasePathSelect, \
     UploadFileForm
-from pylucid_project.pylucid_plugins.filemanager.preference_forms import FilemanagerPrefForm
-import pwd
+
 
 
 
@@ -53,12 +52,12 @@ def install(request):
 
 #-----------------------------------------------------------------------------
 
-class Filemanager(BaseFilemanager):   
+class Filemanager(BaseFilemanager):
     def __init__(self, url_prefix, request, absolute_path, base_url, rest_url, allow_upload):
         self.url_prefix = url_prefix # For building links to the files
-        
+
         super(Filemanager, self).__init__(request, absolute_path, base_url, rest_url, allow_upload)
-        
+
         pref_form = FilemanagerPrefForm()
         self.preferences = pref_form.get_preferences()
 
@@ -67,7 +66,7 @@ class Filemanager(BaseFilemanager):
         Add url to this filesystem item, if url_prefix was set in base path config
         """
         instance = super(Filemanager, self).get_filesystem_item_instance(*args, **kwargs)
-        
+
         if self.url_prefix:
             instance.url = posixpath.join(self.url_prefix, self.rel_url, instance.name)
             if instance.is_dir:
@@ -116,7 +115,7 @@ def filemanager(request, no, rest_url=""):
 
     path_config = BasePathSelect.PATH_DICT[no]
     base_url = _reverse_filemanager_url(no)
-    
+
     absolute_path = path_config["abs_base_path"]
     url_prefix = path_config["url_prefix"]
     allow_upload = path_config["allow_upload"]
@@ -134,7 +133,7 @@ def filemanager(request, no, rest_url=""):
 
     dir_items = fm.dir_items
     breadcrumbs = fm.breadcrumbs
-    
+
     uid = os.geteuid()
     gid = os.getegid()
     username = pwd.getpwuid(uid).pw_name
@@ -145,16 +144,16 @@ def filemanager(request, no, rest_url=""):
         "dir_items": dir_items,
         "breadcrumbs": breadcrumbs,
         "path_form": path_form,
-        
+
         "uid": uid,
         "gid": gid,
         "username": username,
         "groupname": groupname,
-        
+
     }
     if allow_upload:
         context["upload_form"] = upload_form
-    
+
     return context
 
 
