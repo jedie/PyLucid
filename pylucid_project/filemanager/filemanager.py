@@ -47,10 +47,10 @@ class BaseFilesystemObject(object):
         self.size = self.stat[stat.ST_SIZE]
         self.mode = self.stat[stat.ST_MODE]
         self.mtime = datetime.datetime.fromtimestamp(self.stat[stat.ST_MTIME])
-        
+
         self.mode_octal = oct(self.mode)
         self.mode_symbol = symbolic_notation(self.mode)
-        
+
         self.uid = self.stat[stat.ST_UID]
         self.username = pwd.getpwuid(self.uid).pw_name
         self.gid = self.stat[stat.ST_GID]
@@ -64,7 +64,7 @@ class BaseFileItem(BaseFilesystemObject):
     is_file = True
     is_dir = False
     item_type = "file"
-        
+
 
 class BaseDirItem(BaseFilesystemObject):
     is_file = False
@@ -79,7 +79,7 @@ class BaseFileLinkItem(BaseFileItem):
 
 class BaseDirLinkItem(BaseDirItem):
     def __init__(self, *args, **kwargs):
-        super(BaseFileLinkItem, self).__init__(*args, **kwargs)
+        super(BaseDirLinkItem, self).__init__(*args, **kwargs)
         self.item_type = "dir link to %s" % self.link_path
 
 
@@ -94,10 +94,10 @@ class BaseFilemanager(BaseFilesystemBrowser):
     FILE_ITEM = BaseFileItem
     DIR_LINK_ITEM = BaseDirLinkItem
     FILE_LINK_ITEM = BaseFileLinkItem
-    
+
     def __init__(self, request, absolute_path, base_url, rest_url, allow_upload=False):
         super(BaseFilemanager, self).__init__(request, absolute_path, base_url, rest_url)
-        
+
         self.allow_upload = allow_upload
         self.dir_items = self.read_dir(self.abs_path)
 
@@ -130,7 +130,7 @@ class BaseFilemanager(BaseFilesystemBrowser):
         dir_items = sorted(dir_items, key=attrgetter('item_type', 'name'))
 
         return dir_items
-    
+
     def get_filesystem_item_instance(self, item_class, item, item_abs_path, link_path):
         """
         Good point for overwrite, to add attributes to the filesystem items.
@@ -141,7 +141,7 @@ class BaseFilemanager(BaseFilesystemBrowser):
     def handle_uploaded_file(self, f):
         if not self.allow_upload:
             raise FilemanagerError("Upload not allowed here!")
-        
+
         path = os.path.join(self.abs_path, f.name)
         destination = file(path, 'wb+')
         for chunk in f.chunks():
