@@ -19,7 +19,7 @@ flup>=1.0.2,<1.1
 
 # https://github.com/etianen/django-reversion
 # http://pypi.python.org/pypi/django-reversion
-django-reversion>=1.6,<1.7
+django-reversion>=1.6.2,<1.7
 
 # https://github.com/jezdez/django-dbtemplates
 # http://pypi.python.org/pypi/django-dbtemplates
@@ -27,7 +27,7 @@ django-dbtemplates>=1.3,<1.4
 
 # https://github.com/jezdez/django_compressor
 # http://pypi.python.org/pypi/django_compressor/
-django_compressor==dev
+django_compressor>=1.2,<1.3
 
 # http://code.google.com/p/django-tagging/
 # http://pypi.python.org/pypi/django-tagging
