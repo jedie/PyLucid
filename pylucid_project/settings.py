@@ -101,6 +101,9 @@ MIDDLEWARE_CLASSES = (
     # Save process informations. More info: https://github.com/jedie/django-processinfo
     'django_processinfo.middlewares.django_processinfo.ProcessInfoMiddleware',
 
+    # Set request.debug bool value:
+    'django_tools.debug.middlewares.SetRequestDebugMiddleware',
+
     # Block banned IP addresses and delete old pylucid.models.BanEntry items:
     'pylucid_project.middlewares.ip_ban.IPBanMiddleware',
 
@@ -197,7 +200,6 @@ TEMPLATE_LOADERS = (
 # dictionary of items to be merged into the context.
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug", # Add 'debug' info in context
     "django.core.context_processors.i18n",
     "django.core.context_processors.request", # Add request object to context
     "django.core.context_processors.static", # Add STATIC_URL to context

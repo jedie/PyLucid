@@ -1,4 +1,4 @@
-{% if debug %}<!-- pylucid plugin ./admin_menu/includes/superfish_extrahead.html START -->{% endif %}
+{% if request.debug %}<!-- pylucid plugin ./admin_menu/includes/superfish_extrahead.html START -->{% endif %}
 {% compress css %}
 <link rel="stylesheet" type="text/css" media="screen" href="{{ STATIC_URL }}PyLucid/superfish/superfish.css" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" />
 <link rel="stylesheet" type="text/css" media="screen" href="{{ STATIC_URL }}PyLucid/superfish/pylucid_superfish.css" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" />
@@ -22,4 +22,4 @@
 <script type="text/javascript" src="{{ STATIC_URL }}PyLucid/superfish/pylucid_superfish.js" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" ></script>
 {% endcompress %}
 
-{% if debug %}<!-- pylucid plugin ./admin_menu/includes/superfish_extrahead.html END -->{% endif %}
+{% if request.debug %}<!-- pylucid plugin ./admin_menu/includes/superfish_extrahead.html END -->{% endif %}

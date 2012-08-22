@@ -4,7 +4,7 @@
 {% block title %}PyLucid - {{ title }}{% endblock %}
 
 {% block extrahead %}{{ block.super }}
-{% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrahead block START -->{% endif %}
+{% if request.debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrahead block START -->{% endif %}
 {% compress js %}
 <script type="text/javascript">
     var PyLucid_media_url="{{ STATIC_URL }}PyLucid/";
@@ -14,19 +14,20 @@
 <script type="text/javascript" src="{{ STATIC_URL }}PyLucid/pylucid_js_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}PyLucid/codemirror/codemirror_min.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}PyLucid/jwysiwyg/jquery.wysiwyg.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
-{% if debug %}
+{{ debug }}
+{% if request.debug %}
    <script type="text/javascript">var debug=true;log("debug is on");</script>
 {% else %}
    <script type="text/javascript">var debug=false;</script>
 {% endif %}
 {% endcompress %}
 {% include "admin_menu/includes/superfish_extrahead.html" %}
-{% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrahead block END -->{% endif %}
+{% if request.debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrahead block END -->{% endif %}
 {% endblock extrahead %}
 
 
 {% block extrastyle %}{% compress css %}{{ block.super }}
-{% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block START -->{% endif %}
+{% if request.debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block START -->{% endif %}
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}PyLucid/jwysiwyg/jquery.wysiwyg.css" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" />
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}PyLucid/pylucid_admin.css" onerror="JavaScript:alert('Error loading file ['+this.href+'] !');" />
 <style type="text/css">
@@ -73,7 +74,7 @@
 }
 </style>
 {% lucidTag extrahead filepath="pygments.css" %}
-{% if debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block END -->{% endif %}
+{% if request.debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrastyle block END -->{% endif %}
 {% endcompress %}
 {% endblock extrastyle %}
 
