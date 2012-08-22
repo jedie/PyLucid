@@ -1,6 +1,6 @@
 {% extends "admin/base_site.html" %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrastyle %}{{ block.super }}
 <!-- page_admin.masses_editor extrahead block start -->
 <style type="text/css">
 .pylucid_form .formset label {
@@ -12,7 +12,7 @@
 }
 </style>
 <!-- page_admin.masses_editor extrahead block end -->
-{% endblock extrahead %}
+{% endblock extrastyle %}
 
 {% block content %}
 <form action="{{ form_url }}" method="post" id="masses_editor_select_form" class="pylucid_form">
