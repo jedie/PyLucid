@@ -1,5 +1,14 @@
 {% extends "admin/base_site.html" %}
 
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    // activate that the form can be submit via Ctrl-S (function defined in pylucid_js_tools.js)
+    bind_form_keypress($("#edit_page_form"), auto_title="{% trans 'save with Ctrl-S, too.' %}");
+});
+</script>
+{% endblock extrahead %}
+
 {% block content %}
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
 {% csrf_token %}
@@ -9,7 +18,7 @@
 
 {% if has_errors %}
 <fieldset><legend>{% trans 'Form errors:' %}</legend>
-{% for form in all_forms %}      
+{% for form in all_forms %}
     {% include "admin/pylucid/includes/form_errorlist.html" %}
 {% endfor %}
 </fieldset>
@@ -17,7 +26,7 @@
 
 <fieldset><legend>PluginPage</legend>
     {% include "admin/pylucid/includes/buttons_save_abort.html" %}
-    
+
     {% with pluginpage_form as form %}
         {% include "admin/pylucid/includes/pylucid_formset.html" %}
     {% endwith %}
@@ -33,6 +42,6 @@
 {% include "page_admin/includes/fieldsets_pagetree.html" %}
 
 {% include "admin/pylucid/includes/buttons_save_abort.html" %}
-     
+
 </form>
 {% endblock %}

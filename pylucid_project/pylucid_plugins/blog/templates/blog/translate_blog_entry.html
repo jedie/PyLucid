@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 
-{% block extrahead %}{{ block.super }}
-<!-- page_admin.translate extrahead block start -->
+{% block extrastyle %}{{ block.super }}
+<!-- translate_blog_entry.html extrastyle block start -->
 <style type="text/css">
 .pylucid_form .dest_float {float: right;}
 .pylucid_form .source_float {float: left;}
@@ -56,8 +56,12 @@
     margin-left: 0px;
 }
 </style>
+<!-- translate_blog_entry.html extrastyle block start -->
+{% endblock extrastyle %}
+
+{% block extrahead %}{{ block.super }}
+<!-- translate_blog_entry.html extrahead block start -->
 <script type="text/javascript">
-<!--
 $(document).ready(function(){
     log("sync textarea rows");
     var rows = $("#id_source-content").attr("rows");
@@ -68,14 +72,16 @@ $(document).ready(function(){
         $(this).css("background-color", "#ffffff");
         $(this).css("font-style", "normal");
     });
+    
+    // activate that the form can be submit via Ctrl-S (function defined in pylucid_js_tools.js)
+    bind_form_keypress($("#translate_blog_form"));
 });
-//-->
 </script>
-<!-- page_admin.translate extrahead block end -->
+<!-- translate_blog_entry.html extrahead block end -->
 {% endblock extrahead %}
 
 {% block content %}
-<form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">{% csrf_token %}
+<form action="{{ form_url }}" method="post" id="translate_blog_form" class="pylucid_form">{% csrf_token %}
 
 {% include "i18n/includes/buttons_save_abort_translate.html" %}
 

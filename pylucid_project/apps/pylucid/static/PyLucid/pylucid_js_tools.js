@@ -472,6 +472,66 @@ function set_textarea_size(textarea) {
 }
 
 /****************************************************************************/
+function get_django_submit_obj() {
+    var submit_obj = $("input[type=submit]").filter("[name=_continue]");
+    if (submit_obj.length>0) return submit_obj
+    var submit_obj = $("input[type=submit]").filter("[name=_save]");
+    if (submit_obj.length>0) return submit_obj
+    var submit_obj = $("input[type=submit].default");
+    if (submit_obj.length>0) return submit_obj
+    return $("input[type=submit]");            
+}
+function bind_form_keypress(form_obj, auto_title) {
+    /*
+     * activate that the form can be submit via Ctrl-S
+     * 
+     * usage, e.g:
+     * 
+     *    bind_form_keypress($("#my_form_id"));
+     * 
+     * FIXME: Doesn't work with IE, yet!
+     * 
+     */
+    if (form_obj.length != 1) {
+        log("ERROR: form_obj given in bind_form_keypress() is not length==1, it's:"+form_obj.length);
+        return
+    }
+    var form_obj=form_obj
+    
+    var submit_obj=get_django_submit_obj();
+    if (submit_obj.length == 0) {
+        log("ERROR: submit_obj in bind_form_keypress() not found!");
+        return
+    }
+    log("Use submit button with value: " + submit_obj.attr("value"));
+
+    if (auto_title != null) {
+        log("set title '"+auto_title+"' to all submit buttons.");
+        submit_obj.attr("title", auto_title);
+    }
+    
+    // code based on: http://stackoverflow.com/a/93836
+    //$(window).keypress(function(event) {
+    $(document).keypress(function(event) {
+        // 0 == ESC
+        // 115 == s
+        // 119 == w
+        // 19 is for cmd+s woth OS X webkit browsers 
+        log("keypress:"+event.which);
+        if ((event.which == 115 && event.ctrlKey) || (event.which == 19)) {
+            log("Ctrl-S pressed -> submit form: #"+form_obj.attr("id")+" with submit obj (value:'"+submit_obj.attr("value")+"')");
+            event.preventDefault();
+            //form_obj.submit();
+            submit_obj.click();
+            return false;            
+        }
+        log("no keypress event to capture, ok.");
+        return true;
+    });
+    log("keypress bind to form: #"+form_obj.attr("id"));
+}
+
+/****************************************************************************/
 
 
 var MAX_LENGTH = 255;

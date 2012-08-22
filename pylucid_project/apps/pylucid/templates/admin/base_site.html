@@ -22,6 +22,15 @@
 {% endif %}
 {% endcompress %}
 {% include "admin_menu/includes/superfish_extrahead.html" %}
+
+{% if opts.module_name %}
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        // activate that the form can be submit via Ctrl-S (function defined in pylucid_js_tools.js)
+        bind_form_keypress($("#{{ opts.module_name }}_form"), auto_title="{% trans 'save with Ctrl-S, too.' %}");
+    });
+    </script>
+{% endif %}
 {% if request.debug %}<!-- ./apps/pylucid/templates/admin/base_site.html extrahead block END -->{% endif %}
 {% endblock extrahead %}
 

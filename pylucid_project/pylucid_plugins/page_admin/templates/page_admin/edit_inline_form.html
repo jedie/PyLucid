@@ -29,7 +29,7 @@ jQuery(document).ready(function($) {
   log("init wysiwyg");
   $('#id_content').wysiwyg({
     controls: {
-      html         : { visible : true }
+      html: { visible : true }
     }
   });
 });
@@ -41,8 +41,8 @@ var textarea_changed = false;
 jQuery(document).ready(function($) {
     log("edit_inline_form.html ready.");
 
-	  // remove old page_msg, if exist
-	  $("#page_msg").slideUp();
+    // remove old page_msg, if exist
+    $("#page_msg").slideUp();
 
     $("#ajax_preview").show(); // unhide ajax preview button
 
@@ -101,6 +101,9 @@ jQuery(document).ready(function($) {
         {% endcomment %}
         self.location.href='{{ abort_url }}';
     });
+
+    // activate that the form can be submit via Ctrl-S (function defined in pylucid_js_tools.js)
+    bind_form_keypress($("#edit_page_form"), auto_title="{% trans 'save with Ctrl-S, too.' %}");
 });
 </script>
 {% endextrahead %}

@@ -1,5 +1,14 @@
 {% extends "admin/base_site.html" %}
 
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    // activate that the form can be submit via Ctrl-S (function defined in pylucid_js_tools.js)
+    bind_form_keypress($("#edit_page_form"), auto_title="{% trans 'save with Ctrl-S, too.' %}");
+});
+</script>
+{% endblock extrahead %}
+
 {% block content %}
 <form action="{{ form_url }}" method="post" id="edit_page_form" class="pylucid_form">
 {% csrf_token %}
@@ -17,7 +26,7 @@
 
 {% if has_errors %}
     <fieldset><legend>{% trans 'Form errors:' %}</legend>
-    {% for form in all_forms %}      
+    {% for form in all_forms %}
         {% include "admin/pylucid/includes/form_errorlist.html" %}
     {% endfor %}
     </fieldset>
@@ -27,14 +36,14 @@
     <legend>
         PluginContent - {% trans 'Language:' %} <strong>{{ default_lang_entry.description }}</strong>
     </legend>
-    
+
     {% include "admin/pylucid/includes/buttons_save_abort.html" %}
-    
+
     {% with pagecontent_form.content as field %}
     <div title="{{ field.help_text }}" class="field {{ field.html_name }}">
         <label for="{{ field.auto_id }}"{% if field.errors %} class="error"{% endif %}>
             {% if field.field.required %}<strong>{{ field.label }}</strong>{% else %}{{ field.label }}{% endif %}
-            :       
+            :
             {% if field.errors %}
                 {% for error in field.errors %}{{ error|escape }}{% endfor %}
             {% endif %}
@@ -43,7 +52,7 @@
         <div class="field_help_text">{{ field.help_text }}</div>
     </div>
     {% endwith %}
-    
+
     {% with pagecontent_form.markup as field %}
         {% include "admin/pylucid/includes/form_field.html" %}
     {% endwith %}
