@@ -1,3 +1,4 @@
+/.git
 local_settings.py
 *.py[co]
 *.log
