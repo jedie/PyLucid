@@ -10,7 +10,7 @@
         - PyLucid initial data contains english and german pages.
         - There exist only "PyLucid CMS" lexicon entry in english and german
     
-    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -22,12 +22,13 @@ if __name__ == "__main__":
     # Run all unittest directly
 
     tests = __file__
+#    tests = "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_cancel_create_new_entry"
 #    tests = "pylucid_plugins.lexicon.tests.LexiconPluginTest1.test_error_handling"
 
     from pylucid_project.tests import run_test_directly
     run_test_directly(tests,
         verbosity=2,
-        failfast=True
+#        failfast=True
     )
     sys.exit()
 
@@ -204,7 +205,7 @@ class LexiconPluginTest1(LexiconPluginTestCase):
                 "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
                 '<input id="id_term" maxlength="255" name="term" type="text" />',
                 '<textarea cols="40" id="id_content" name="content" rows="10"></textarea>',
-                '<input type="submit" name="save" value="save" />',
+                '<input type="submit" name="save" value="Save" />',
             ),
         )
         self.assertResponse(response,
@@ -236,6 +237,18 @@ class LexiconPluginTest1(LexiconPluginTestCase):
                 '<dt>Term:</dt>', '<dd>test</dd>',
                 '<dt>Short definition:</dt>', '<dd>jojo</dd>',
                 '<dt>Content:</dt>', '<p><strong>foo</strong> <i>bar</i></p>',
+            ),
+            must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
+        )
+
+    def test_cancel_create_new_entry(self):
+        self.login("superuser")
+        url = reverse("Lexicon-new_entry")
+        response = self.client.post(url, data={"cancel": "Cancel"}, follow=True)
+        self.assertResponse(response,
+            must_contain=(
+                "Create new lexicon entry aborted, ok.",
+                "<title>PyLucid CMS - The &#39;lexicon&#39; plugin page.</title>",
             ),
             must_not_contain=("Traceback", "XXX INVALID TEMPLATE STRING")
         )

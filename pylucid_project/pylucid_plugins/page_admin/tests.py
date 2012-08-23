@@ -12,11 +12,22 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import os
+import sys
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+
+    tests = __file__
+#    tests = "pylucid_plugins.page_admin.tests.BulkEditorCsrfTest"
+#    tests = "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form"
+
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(tests,
+        verbosity=2,
+#        failfast=True,
+        failfast=False,
+    )
+    sys.exit()
 
 from django.conf import settings
 from django.test.client import Client
@@ -142,7 +153,7 @@ class PageAdminTest(PageAdminTestCase):
             must_contain=(
                 '<title>PyLucid - Create a new page</title>',
                 "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
-                '<input type="submit" name="save" value="save" />',
+                '<input type="submit" name="save" value="Save" />',
                 '<textarea id="id_content" rows="10" cols="40" name="content"></textarea>',
                 '<input type="button" id="preview_submit_id_content" name="preview" value="markup preview" />',
                 '<legend>Markup preview</legend>',
@@ -329,8 +340,8 @@ class PageAdminTest(PageAdminTestCase):
             must_contain=(
                 "<title>PyLucid - Translate page &#39;welcome&#39; (English) into Deutsch.</title>",
                 "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
-                '<input type="submit" name="save" value="save" />',
-                '''<input onclick="self.location.href='/en/welcome/'" name="abort" value="abort" type="reset" />''',
+                '<input type="submit" name="save" value="Save" />',
+                '<input type="submit" name="cancel" value="Cancel" />'
             )
         )
         self.assertResponse(response,
@@ -439,7 +450,7 @@ class PageAdminInlineEditTest(PageAdminTestCase):
             must_contain=(
                 '<div id="edit_page_preview"></div>',
                 "<input type='hidden' name='csrfmiddlewaretoken' value='%s' />" % csrf_token,
-                '<input type="submit" name="save" value="save" />',
+                '<input type="submit" name="save" value="Save" />',
                 '<input type="submit" id="submit_preview" name="preview" value="markup preview" />',
                 '<button type="button" id="ajax_preview" title="markup preview">markup preview</button>',
                 '<label for="id_content"><strong>Content</strong>:</label>',
@@ -490,6 +501,15 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
 
         self.login("superuser")
 
+    def setUp(self):
+        super(ConvertMarkupTest, self).setUp()
+        self._OLD_COMPRESS = settings.COMPRESS_ENABLED
+        settings.COMPRESS_ENABLED = False
+
+    def tearDown(self):
+        super(ConvertMarkupTest, self).tearDown()
+        settings.COMPRESS_ENABLED = self._OLD_COMPRESS
+
     def test_get_convert_form(self):
         response = self.client.get(self.url)
         self.assertResponse(response,
@@ -534,7 +554,10 @@ class ConvertMarkupTest(basetest.BaseLanguageTestCase):
         )
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/static/PyLucid_cache/pygments.css"',
+                # Real pygments CSS content is removed in unittests!
+                # more info in pylucid_project/tests/test_tools/basetest.py 
+                'Pygments CSS Content',
+
                 'The original markup is: <strong>tinytextile</strong>',
             ),
             must_not_contain=(
@@ -592,15 +615,4 @@ class BulkEditorCsrfTest(PageAdminTestCase):
 
 
 
-if __name__ == "__main__":
-    # Run all unittest directly
-    from django.core import management
 
-    tests = __file__
-    tests = "pylucid_plugins.page_admin.tests.BulkEditorCsrfTest"
-#    tests = "pylucid_plugins.page_admin.tests.PageAdminTest.test_translate_form"
-
-    management.call_command('test', tests,
-        verbosity=2,
-        failfast=True
-    )

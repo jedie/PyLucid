@@ -34,7 +34,11 @@ def translate_page(request, pagemeta_id=None):
     source_pagemeta = PageMeta.objects.get(id=pagemeta_id)
     pagetree = source_pagemeta.pagetree
     source_language = source_pagemeta.language
-    absolute_url = source_pagemeta.get_absolute_url()
+    cancel_url = source_pagemeta.get_absolute_url()
+
+    if request.method == "POST" and "cancel" in request.POST:
+        messages.info(request, _("Translate page (%s) aborted, ok.") % cancel_url)
+        return http.HttpResponseRedirect(cancel_url)
 
     is_pluginpage = pagetree.page_type == PageTree.PLUGIN_TYPE
     if is_pluginpage:
@@ -45,7 +49,7 @@ def translate_page(request, pagemeta_id=None):
 
 
     # select the destination language
-    result = select_language(request, absolute_url, source_pagemeta.language, source_pagemeta.name)
+    result = select_language(request, cancel_url, source_pagemeta.language, source_pagemeta.name)
     if isinstance(result, Language):
         # Language was selected or they exit only one other language
         dest_language = result

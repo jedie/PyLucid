@@ -25,6 +25,7 @@ from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language, PluginPage
 
 from page_admin.forms import PageTreeForm, PageMetaForm, PageContentForm, PluginPageForm
+from django.shortcuts import get_object_or_404
 
 
 @check_permissions(superuser_only=False, permissions=("pylucid.change_pagecontent",))
@@ -39,6 +40,11 @@ def _edit_content_page(request, context, pagetree):
         pagemeta_form = PageMetaForm(instance=pagemeta, prefix=default_lang_entry.code)
         pagecontent_form = PageContentForm(instance=pagecontent)
     else:
+        if "cancel" in request.POST:
+            url = pagecontent.get_absolute_url()
+            messages.info(request, _("Edit content page (%s) aborted, ok.") % url)
+            return http.HttpResponseRedirect(url)
+
         pagetree_form = PageTreeForm(request.POST, instance=pagetree)
         pagemeta_form = PageMetaForm(request.POST, instance=pagemeta, prefix=default_lang_entry.code)
         pagecontent_form = PageContentForm(request.POST, instance=pagecontent)
@@ -65,7 +71,6 @@ def _edit_content_page(request, context, pagetree):
     context.update({
         "title": _("Edit a content page"),
         "template_name": "page_admin/edit_content_page.html",
-        "abort_url": pagecontent.get_absolute_url(),
         "default_lang_entry": default_lang_entry,
         "pagecontent": pagecontent,
 
@@ -86,6 +91,11 @@ def _edit_plugin_page(request, context, pagetree):
 
     pagemetas = PageMeta.objects.filter(pagetree=pagetree)
     pluginpage = PluginPage.objects.get(pagetree=pagetree)
+
+    if request.method == "POST" and "cancel" in request.POST:
+        url = pluginpage.get_absolute_url()
+        messages.info(request, _("Edit plugin page (%s) aborted, ok.") % url)
+        return http.HttpResponseRedirect(url)
 
     # Create for every language a own PageMeta model form.
     pagemeta_formset = []
@@ -130,7 +140,6 @@ def _edit_plugin_page(request, context, pagetree):
     context = {
         "title": _("Edit a plugin page"),
         "template_name": "page_admin/edit_plugin_page.html",
-        "abort_url": pluginpage.get_absolute_url(),
 
         "all_forms": all_forms, # For display the form error list from all existing forms.
         "has_errors": request.method == "POST", # At least one form has errors.
@@ -148,10 +157,7 @@ def edit_page(request, pagetree_id=None):
     """
     edit a PageContent or a PluginPage.
     """
-    if not pagetree_id:
-        raise
-
-    pagetree = PageTree.objects.get(id=pagetree_id)
+    pagetree = get_object_or_404(PageTree, id=pagetree_id)
     context = {"form_url": request.path}
 
     is_pluginpage = pagetree.page_type == PageTree.PLUGIN_TYPE

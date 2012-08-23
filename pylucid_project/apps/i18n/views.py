@@ -18,16 +18,20 @@ from pylucid_project.apps.pylucid.models.language import Language
 from pylucid_project.apps.i18n.forms import LanguageSelectForm
 
 
-def select_language(request, absolute_url, source_language, source_entry_name):
+def select_language(request, cancel_url, source_language, source_entry_name):
     """
     choose the translation destination language.
     If only one other language is available -> return it directly.
     """
+    if "cancel" in request.GET:
+        messages.info(request, _("Choose translate aborted, ok."))
+        return http.HttpResponseRedirect(cancel_url)
+
     other_languages = Language.objects.exclude(code=source_language.code)
     if len(other_languages) == 0:
         # should not happen
         messages.error(request, "Error: There exist only one Language!")
-        return http.HttpResponseRedirect(absolute_url)
+        return http.HttpResponseRedirect(cancel_url)
     elif len(other_languages) == 1:
         # Only one other language available, so the user must not choose one ;)
         return other_languages[0]
@@ -53,7 +57,6 @@ def select_language(request, absolute_url, source_language, source_entry_name):
             },
             "template_name": "i18n/select_translate_language.html",
             "form": form,
-            "abort_url": absolute_url,
             "other_languages": other_languages,
         }
         return context

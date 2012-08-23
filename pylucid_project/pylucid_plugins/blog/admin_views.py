@@ -63,17 +63,19 @@ def new_blog_entry(request):
         messages.error(request, _("There exist no blog plugin page, yet. Please create one, first."))
         return http.HttpResponseRedirect("/")
 
-    abort_url = plugin_page.get_absolute_url()
-
     context = {
         "title": _("Create a new blog entry"),
         "form_url": request.path,
-        "abort_url": abort_url,
         "tag_cloud": BlogEntryContent.objects.get_tag_cloud(request),
         "add_tag_filter_link": False, # Don't add filters in tag cloud
     }
 
     if request.method == "POST":
+        if "cancel" in request.POST:
+            messages.info(request, _("Create new blog entry aborted, ok."))
+            url = plugin_page.get_absolute_url()
+            return http.HttpResponseRedirect(url)
+
         form = BlogForm(request.POST)
         if form.is_valid():
             new_entry = BlogEntry.objects.create()
@@ -108,6 +110,11 @@ def edit_blog_entry(request, id=None):
 
     entry = BlogEntryContent.objects.get(pk=id)
     if request.method == "POST":
+        if "cancel" in request.POST:
+            messages.info(request, _("Edit blog entry aborted, ok."))
+            url = entry.get_absolute_url()
+            return http.HttpResponseRedirect(url)
+
         form = BlogContentForm(request.POST, instance=entry)
         if form.is_valid():
             instance = form.save()
@@ -118,7 +125,6 @@ def edit_blog_entry(request, id=None):
 
     return {
         "title": _("Edit a blog entry"),
-        "abort_url": entry.get_absolute_url(),
         "form": form,
     }
 

@@ -55,7 +55,7 @@ class BaseUnittest(BaseTestCase, TestCase):
 
         # Remove the real Pygments CSS content, because it contains the
         # String "Traceback" which used in many tests.
-        # If django-compressor not work, the CSS content would be insert inline. 
+        # If django-compressor not work or disabled, the CSS content would be insert inline. 
         pygments_css = EditableHtmlHeadFile.objects.get(filepath="pygments.css")
         pygments_css.content = "Pygments CSS Content (removed by %s)" % __file__
         pygments_css.save()

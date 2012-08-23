@@ -28,6 +28,7 @@ if __name__ == "__main__":
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTagsTest"
 #    tests = "pylucid_plugins.blog.tests.BlogLanguageFilterTest"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest"
+#    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_cancel_edit_entry"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_url_date"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_create_csrf_check"
 #    tests = "pylucid_plugins.blog.tests.BlogPluginTest.test_creole_markup"
@@ -283,6 +284,15 @@ class BlogPluginAnonymousTest(BlogPluginAnonymousTestCase):
             must_not_contain=("Traceback",),
         )
 
+    def test_login_before_edit(self):
+        """ Anonymous user must login, to edit a existing blog article """
+        url = EDIT_URL % 1
+        response = self.client.get(url)
+        self.assertRedirect(response,
+            url="http://testserver/?auth=login&next_url=%s" % url,
+            status_code=302
+        )
+
 #    def test_summary_en_prefered_languages(self):
 #        self._set_language_filter(BlogPrefForm.PREFERED_LANGUAGES)
 #
@@ -318,15 +328,6 @@ class BlogPluginAnonymousTest(BlogPluginAnonymousTestCase):
         response = self.client.get(CREATE_URL)
         self.assertRedirect(response,
             url="http://testserver/?auth=login&next_url=%s" % CREATE_URL,
-            status_code=302
-        )
-
-    def test_login_before_edit(self):
-        """ Anonymous user must login, to edit a existing blog article """
-        url = EDIT_URL % 1
-        response = self.client.get(url)
-        self.assertRedirect(response,
-            url="http://testserver/?auth=login&next_url=%s" % url,
             status_code=302
         )
 
@@ -500,7 +501,8 @@ class BlogPluginTest(BlogPluginTestCase):
                 '<title>PyLucid - Create a new blog entry</title>',
                 'form action="%s"' % CREATE_URL,
                 "<input type='hidden' name='csrfmiddlewaretoken' value='",
-                'input type="submit" name="save" value="save"',
+                'input type="submit" name="save" value="Save"',
+                'input type="submit" name="cancel"',
                 '<textarea id="id_content" rows="10" cols="40" name="content"></textarea>',
             ),
             must_not_contain=("Traceback", "Form errors", "field is required")
@@ -517,6 +519,28 @@ class BlogPluginTest(BlogPluginTestCase):
             must_not_contain=("Traceback", "Form errors", "field is required",
 
             )
+        )
+
+    def test_cancel_create_entry(self):
+        self.login_with_blog_add_permissions()
+        response = self.client.post(CREATE_URL, data={"cancel": "Cancel"}, follow=True)
+        self.assertResponse(response,
+            must_contain=(
+                "Create new blog entry aborted, ok.",
+                '<h2 id="page_title">Your personal weblog.</h2>',
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required")
+        )
+
+    def test_cancel_edit_entry(self):
+        self.login("superuser")
+        response = self.client.post(EDIT_URL % 1, data={"cancel": "Cancel"}, follow=True)
+        self.assertResponse(response,
+            must_contain=(
+                "Edit blog entry aborted, ok.",
+                '<h2 id="page_title">First entry in english</h2>'
+            ),
+            must_not_contain=("Traceback", "Form errors", "field is required")
         )
 
     def test_create_entry(self):
@@ -575,7 +599,7 @@ class BlogPluginTest(BlogPluginTestCase):
             "markup": MARKUP_CREOLE,
             "is_public": "on",
             "sites": settings.SITE_ID,
-            
+
             # Same language + url_date and slug for both entries:
             "language": self.default_language.id,
             "url_date": datetime.date.today(),
@@ -586,14 +610,14 @@ class BlogPluginTest(BlogPluginTestCase):
         response = self.client.post(CREATE_URL, data=create_data)
         blog_article_url = "http://testserver/en/blog/%s/foobar/" % TODAY_URL_PART
         self.assertRedirect(response, url=blog_article_url, status_code=302)
-        
+
         # Try to create the same entry, again:
         create_data["headline"] = "unique headline two"
         response = self.client.post(CREATE_URL, data=create_data)
         self.assertResponse(response,
             must_contain=(
                 "Create a new blog entry",
-                "Form errors", 
+                "Form errors",
                 "Blog entry content with this Language, URL Date and Slug already exists.",
             ),
             must_not_contain=("Traceback", "field is required")
@@ -608,7 +632,7 @@ class BlogPluginTest(BlogPluginTestCase):
             "markup": MARKUP_CREOLE,
             "is_public": "on",
             "sites": settings.SITE_ID,
-            
+
             # Same language + url_date and headline for both entries:
             "language": self.default_language.id,
             "url_date": datetime.date.today(),
@@ -619,14 +643,14 @@ class BlogPluginTest(BlogPluginTestCase):
         response = self.client.post(CREATE_URL, data=create_data)
         blog_article_url = "http://testserver/en/blog/%s/unique_slug_one/" % TODAY_URL_PART
         self.assertRedirect(response, url=blog_article_url, status_code=302)
-        
+
         # Try to create the same entry, again:
         create_data["slug"] = "unique_slug_two"
         response = self.client.post(CREATE_URL, data=create_data)
         self.assertResponse(response,
             must_contain=(
                 "Create a new blog entry",
-                "Form errors", 
+                "Form errors",
                 "Blog entry content with this Language, URL Date and Headline already exists.",
             ),
             must_not_contain=("Traceback", "field is required")

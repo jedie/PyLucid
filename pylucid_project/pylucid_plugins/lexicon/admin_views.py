@@ -1,13 +1,23 @@
 # coding:utf-8
 
+
+"""
+    Lexicon admin views
+    ~~~~~~~~~~~~~~~~~~~
+    
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 from django import http
 from django.conf import settings
 from django.contrib import messages
+from django.core import urlresolvers
 from django.utils.translation import ugettext_lazy as _
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
-from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import PageMeta
+from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.site_utils import get_site_preselection
 
@@ -67,12 +77,20 @@ def new_entry(request):
     context = {
         "title": _("Create a new lexicon entry"),
         "form_url": request.path,
-        "abort_url": "/",
     }
 
     context = _extend_form_url(request, context)
 
     if request.method == "POST":
+        if "cancel" in request.POST:
+            messages.info(request, _("Create new lexicon entry aborted, ok."))
+            try:
+                url = PluginPage.objects.reverse("lexicon", viewname="Lexicon-summary")
+            except urlresolvers.NoReverseMatch:
+                messages.warning(request, _("Lexicon plugin page doesn't exists, yet. Please create."))
+                url = "/"
+            return http.HttpResponseRedirect(url)
+
         form = LexiconEntryForm(request.POST)
         if form.is_valid():
             instance = form.save()
