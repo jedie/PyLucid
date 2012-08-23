@@ -37,6 +37,11 @@ _PLUGIN_OBJ_CACHE = {} # cache for PyLucidPlugin.get_plugin_object()
 _PLUGIN_URL_CACHE = {} # cache for PyLucidPlugin.get_prefix_urlpatterns()
 
 
+class PluginNotOnSite(Exception):
+    """ PluginPage doesn't exist on current page. """
+    pass
+
+
 class PyLucidPlugin(object):
     """ represents one PyLucid plugins """
 

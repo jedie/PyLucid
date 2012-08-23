@@ -27,7 +27,8 @@ from django_tools.template.filters import human_duration
 from pylucid_project.apps.pylucid.context_processors import NowUpdateInfo
 from pylucid_project.apps.pylucid.decorators import render_to
 from pylucid_project.apps.pylucid.models import Language, LogEntry
-from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
+from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS, \
+    PluginNotOnSite
 from pylucid_project.utils.python_tools import cutout
 
 from pylucid_project.pylucid_plugins.search.preference_forms import get_preferences
@@ -196,14 +197,21 @@ class Search(object):
                 # Plugin has no search API
                 continue
             except Exception:
-                if settings.DEBUG or self.request.user.is_staff:
+                if self.request.debug or self.request.user.is_staff:
                     messages.error(self.request, "Can't collect search results from %s." % plugin_name)
                     messages.debug(self.request, mark_safe("<pre>%s</pre>" % traceback.format_exc()))
+                continue
+
+            try:
+                search_instance = SearchClass()
+            except PluginNotOnSite, err:
+                # Plugin is not used on this SITE
+                if self.request.debug or self.request.user.is_staff:
+                    messages.debug(self.request, "Skip %s: %s" % (plugin_name, err))
                 continue
             else:
                 plugin_count += 1
 
-            search_instance = SearchClass()
             queryset = search_instance.get_queryset(self.request, search_languages, search_strings)
             count = queryset.count()
             if self.request.user.is_staff:

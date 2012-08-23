@@ -12,9 +12,16 @@
 from django.db.models import Q
 
 from pylucid_project.pylucid_plugins.blog.models import BlogEntryContent
+from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
+from pylucid_project.system.pylucid_plugins import PluginNotOnSite
 
 
 class Search(object):
+    def __init__(self):
+        queryset = PluginPage.objects.queryset_by_plugin_name("blog")
+        if not queryset.exists():
+            raise PluginNotOnSite("blog not used on current site!")
+
     def get_queryset(self, request, search_languages, search_strings):
         queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, tags=None, filter_language=False)
 

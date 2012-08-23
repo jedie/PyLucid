@@ -68,19 +68,40 @@ class PluginPageManager(BaseModelManager):
 #            self._APP_CHOICES = [("", "---------")] + [(app, app) for app in sorted(apps)]
         return self._APP_CHOICES
 
+    def queryset_by_app_label(self, app_label, site=None):
+        """
+        queryset to get PluginPages on current a site by app_label
+        """
+        if site is None:
+            site = Site.objects.get_current()
+
+        queryset = PluginPage.objects.all()
+        queryset = queryset.filter(pagetree__site=site)
+        queryset = queryset.filter(app_label=app_label)
+        return queryset
+
+    def queryset_by_plugin_name(self, plugin_name, site=None):
+        """
+        queryset to get PluginPages on current a site by app_label
+        
+        usage, e.g:
+        queryset = PluginPage.objects.queryset_by_plugin_name("blog")
+        """
+        plugin_instance = PYLUCID_PLUGINS[plugin_name]
+        app_label = plugin_instance.installed_apps_string
+        queryset = self.queryset_by_app_label(app_label)
+        return queryset
+
     def get_by_plugin_name(self, plugin_name):
         """
         return PluginPage instance by plugin_name
         """
-        # get the app label from
         plugin_instance = PYLUCID_PLUGINS[plugin_name]
         app_label = plugin_instance.installed_apps_string
 
-        # Get the first PluginPage entry for this plugin
-        queryset = PluginPage.objects.all()
-        queryset = queryset.filter(pagetree__site=Site.objects.get_current())
-        queryset = queryset.filter(app_label=app_label)
+        queryset = self.queryset_by_app_label(app_label)
         try:
+            # Get the first PluginPage entry for this plugin
             plugin_page = queryset[0]
         except (IndexError, KeyError):
             msg = "Can't get a PluginPage for plugin %r, please create one." % plugin_name
