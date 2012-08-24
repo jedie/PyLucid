@@ -20,6 +20,7 @@ from django.contrib.admindocs.views import simplify_regex
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes import generic
 from django.core import urlresolvers
+from django.core.cache import cache
 from django.core.exceptions import ViewDoesNotExist
 from django.core.urlresolvers import RegexURLPattern, RegexURLResolver
 from django.db import connection, backend
@@ -30,10 +31,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.debug import get_safe_settings
 
 from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
+from django_tools.cache.site_cache_middleware import LOCAL_CACHE_INFO, \
+    CACHE_REQUESTS, CACHE_REQUEST_HITS, CACHE_RESPONSES, CACHE_RESPONSE_HITS
 
 from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
+
 
 
 
@@ -198,6 +202,19 @@ def show_internals(request):
 
         "sys_path": sys.path,
         "os_environ": os.environ,
+
+        # Information of the cache usage
+        # from FetchFromCacheMiddleware (if settings.COUNT_FETCH_FROM_CACHE != True: all values are None):
+        "local_cache_requests": LOCAL_CACHE_INFO["requests"],
+        "local_cache_request_hits": LOCAL_CACHE_INFO["request hits"],
+        "global_cache_requests": cache.get(CACHE_REQUESTS),
+        "global_cache_request_hits":  cache.get(CACHE_REQUEST_HITS),
+
+        # from UpdateCacheMiddleware (if settings.COUNT_UPDATE_CACHE != True: all values are None):
+        "local_cache_responses": LOCAL_CACHE_INFO["responses"],
+        "local_cache_response_hits": LOCAL_CACHE_INFO["response hits"],
+        "global_cache_responses": cache.get(CACHE_RESPONSES),
+        "global_cache_response_hits":  cache.get(CACHE_RESPONSE_HITS),
     }
     return context
 

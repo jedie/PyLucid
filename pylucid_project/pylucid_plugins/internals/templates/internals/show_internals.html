@@ -44,6 +44,38 @@
     </tr>
 {% endfor %}
 </table>
+<table>
+    <tr>
+        <th colspan="4">FetchFromCacheMiddleware</th>
+    </tr>
+    <tr>
+        <th>local request count</th>
+        <th>local cache hit count</th>
+        <th>global request count</th>
+        <th>global cache hit count</th>
+    </tr>
+    <tr>
+        <td>{{ local_cache_requests }}</td>
+        <td>{{ local_cache_request_hits }}</td>
+        <td>{{ global_cache_requests }}</td>
+        <td>{{ global_cache_request_hits }}</td>
+    </tr>
+    <tr>
+        <th colspan="4">UpdateCacheMiddleware</th>
+    </tr>
+    <tr>
+        <th>local response count</th>
+        <th>local cache hit count</th>
+        <th>global response count</th>
+        <th>global cache hit count</th>
+    </tr>
+    <tr>
+        <td>{{ local_cache_responses }}</td>
+        <td>{{ local_cache_response_hits }}</td>
+        <td>{{ global_cache_responses }}</td>
+        <td>{{ global_cache_response_hits }}</td>
+    </tr>
+</table>
 
 
 <h2>urlpatterns</h2>

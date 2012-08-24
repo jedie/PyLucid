@@ -123,9 +123,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
-    # Own simple cache implementation similar to https://docs.djangoproject.com/en/1.3/topics/cache/#the-per-site-cache
-    'pylucid_project.middlewares.cache.PyLucidFetchFromCacheMiddleware',
-    'pylucid_project.middlewares.cache.PyLucidUpdateCacheMiddleware',
+    # https://github.com/jedie/django-tools/blob/master/django_tools/cache/README.creole
+    'django_tools.cache.site_cache_middleware.UpdateCacheMiddleware',
+    'django_tools.cache.site_cache_middleware.FetchFromCacheMiddleware',
 
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -155,6 +155,10 @@ MIDDLEWARE_CLASSES = (
     # For PyLucid context middlewares API, see: http://www.pylucid.org/permalink/134/new-v09-plugin-api#context-middleware
     "pylucid_project.middlewares.context_middlewares.PyLucidContextMiddlewares",
 )
+
+# For django_tools.cache.site_cache_middleware
+# https://github.com/jedie/django-tools/blob/master/django_tools/cache/README.creole
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True # Don't use cache for authenticated users
 
 # Add stack information to every messages, but only if..
 #     ...settings.DEBUG == True
