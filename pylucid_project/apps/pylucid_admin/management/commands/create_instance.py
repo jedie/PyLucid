@@ -185,10 +185,6 @@ class Command(BaseCommand):
                 'SECRET_KEY = "add-a-secret-key"',
                 'SECRET_KEY = "%s"' % secret_key
             ),
-            (
-                '_CACHE_PATH_PREFIX = os.environ.get("USERNAME", "PyLucid")',
-                '_CACHE_PATH_PREFIX = "%s"' % os.environ.get("USERNAME", "PyLucid")
-            )
         ]
 
         self._patch_file("local_settings.py", patch_data)
@@ -206,7 +202,7 @@ class Command(BaseCommand):
 
         self.stdout.write("\nPyLucid page instance created in:\n\t%s\n" % self.destination)
         self.stdout.write("\nPlease edit the files for your needs ;)\n")
-        self.stdout.write("\nInstruction for next Step can you find here:\n") 
+        self.stdout.write("\nInstruction for next Step can you find here:\n")
         self.stdout.write("http://www.pylucid.org/permalink/356/create-database-tables-and-insert-initial-data")
 
     def create_dir(self, info, path):

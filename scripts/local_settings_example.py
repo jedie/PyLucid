@@ -42,6 +42,11 @@ DEBUG = False
 SQL_DEBUG = False
 TEMPLATE_DEBUG = False
 
+# Enable debug for one/some IP(s):
+# https://docs.djangoproject.com/en/1.4/ref/settings/#internal-ips
+INTERNAL_IPS = (
+    # "123.456.789.012",
+)
 
 # Database connection info.
 # http://docs.djangoproject.com/en/dev/intro/tutorial01/#database-setup
@@ -63,58 +68,30 @@ LANGUAGE_CODE = "en"
 SECRET_KEY = "add-a-secret-key"
 
 
-# Set the Django cache system.
-# The LocMemCache isn't memory-efficient. Should be changed!
-# see: http://docs.djangoproject.com/en/dev/topics/cache/#setting-up-the-cache
+# more info about CACHES setup here:
+# http://www.pylucid.org/permalink/332/a-complete-local_settingspy-example#CACHES
 #
-# You can test if cache works, with:
-#     PyLucid admin menu / system / base check
+#CACHE_MIDDLEWARE_SECONDS = 3600 # 1h
 #
-_CACHE_PATH_PREFIX = os.environ.get("USERNAME", "PyLucid")
-# Change it with e.g. your username to make this cache "unique" on the server.
-# This can be usefull on shared webhosting.
-#
-_CACHE_PATH_SUFFIX = str(SITE_ID)
-# Must not changed.
-#
-_CACHE_PATH_MODE = 0700
-# Default mode for cache directory is 0700 -> Useable only for current user.
-# Change to 0777 if web process runs e.g. with nobody!
-#
-def _get_and_create_tempdir_location(entry):
-    """
-    Little helper for easy setup a cache filesystem path in temp.
-    Try global temp directory, "tmp" in users's home or "tmp" in current working dir
-    """
-    possible_paths = (tempfile.gettempdir(), os.path.expanduser("~/tmp"), "tmp")
-    sub_dir = "%s_%s_%s" % (_CACHE_PATH_PREFIX, entry, _CACHE_PATH_SUFFIX)
-    for path in possible_paths:
-        path = os.path.join(path, sub_dir)
-        try:
-            if not os.path.exists(path):
-                os.makedirs(path, _CACHE_PATH_MODE)
-            else:
-                os.chmod(path, _CACHE_PATH_MODE)
-        except:
-            continue
-        else:
-            return path
-    raise SystemError("Can't get a temp directory, tried: %s" % repr(possible_paths))
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': _get_and_create_tempdir_location("default_cache"),
-    },
-    'dbtemplates': { # http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': _get_and_create_tempdir_location("dbtemplates_cache"),
-    },
-    'local_sync_cache': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': _get_and_create_tempdir_location("local_sync_cache"),
-    }
-}
+#_BACKEND = "django_tools.cache.smooth_cache_backends.FileBasedCache"
+#_LOCATION_PREFIX = "/var/tmp/PyLucid_"
+#CACHES = {
+#    'default': {
+#        'BACKEND': _BACKEND,
+#        'LOCATION': _LOCATION_PREFIX + 'default-cache',
+#        'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
+#    },
+#    'dbtemplates': {
+#        'BACKEND': _BACKEND,
+#        'LOCATION': _LOCATION_PREFIX + 'dbtemplates-cache',
+#        'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
+#    },
+#    LOCAL_SYNC_CACHE_BACKEND: {
+#        'BACKEND': _BACKEND,
+#        'LOCATION': _LOCATION_PREFIX + 'local_sync-cache',
+#        'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
+#    },
+#}
 
 
 # Please change email-/SMTP-Settings:
