@@ -55,10 +55,10 @@
         <th>global cache hit count</th>
     </tr>
     <tr>
-        <td>{{ local_cache_requests }}</td>
-        <td>{{ local_cache_request_hits }}</td>
-        <td>{{ global_cache_requests }}</td>
-        <td>{{ global_cache_request_hits }}</td>
+        <td>{{ local_cache_requests|default_if_none:"deactivated" }}</td>
+        <td>{{ local_cache_request_hits|default_if_none:"deactivated" }}</td>
+        <td>{{ global_cache_requests|default_if_none:"deactivated" }}</td>
+        <td>{{ global_cache_request_hits|default_if_none:"deactivated" }}</td>
     </tr>
     <tr>
         <th colspan="4">UpdateCacheMiddleware</th>
@@ -70,10 +70,10 @@
         <th>global cache hit count</th>
     </tr>
     <tr>
-        <td>{{ local_cache_responses }}</td>
-        <td>{{ local_cache_response_hits }}</td>
-        <td>{{ global_cache_responses }}</td>
-        <td>{{ global_cache_response_hits }}</td>
+        <td>{{ local_cache_responses|default_if_none:"deactivated" }}</td>
+        <td>{{ local_cache_response_hits|default_if_none:"deactivated" }}</td>
+        <td>{{ global_cache_responses|default_if_none:"deactivated" }}</td>
+        <td>{{ global_cache_response_hits|default_if_none:"deactivated" }}</td>
     </tr>
 </table>
 
