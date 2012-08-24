@@ -20,17 +20,17 @@ from django.contrib import messages
 from django.contrib.comments.signals import comment_will_be_posted, comment_was_posted
 from django.contrib.comments.views.comments import post_comment
 from django.contrib.sites.models import Site
+from django.core.cache import cache
 from django.core.mail import mail_admins
 from django.db import models
-from django.http import HttpResponse, HttpResponseBadRequest, \
-    HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_protect, csrf_exempt, \
-    ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
+from django_tools.cache.site_cache_middleware import delete_cache_item
 from django_tools.decorators import render_to
 from django_tools.utils.client_storage import ClientCookieStorageError, ClientCookieStorage
 
@@ -98,6 +98,13 @@ def comment_was_posted_handler(sender, **kwargs):
     comment = kwargs["comment"]
     content_object = comment.content_object
 
+    try:
+        site = content_object.site
+    except AttributeError:
+        site = Site.objects.get_current()
+
+    absolute_url = content_object.get_absolute_url()
+
     # Gives the user a feedback
     if comment.is_public:
         messages.success(request, _("Your comment has been saved."))
@@ -119,8 +126,7 @@ def comment_was_posted_handler(sender, **kwargs):
         }
         emailtext = render_to_string("pylucid_comments/admins_notification_email.txt", email_context)
 
-        site_name = Site.objects.get_current().name
-        absolute_url = content_object.get_absolute_url()
+        site_name = site.name
         subject = '[%s] New comment posted on "%s"' % (site_name, absolute_url)
 
         try:
@@ -129,6 +135,13 @@ def comment_was_posted_handler(sender, **kwargs):
             LogEntry.objects.log_action(
                 app_label=APP_LABEL, action="mail error", message="Admin mail, can't send: %s" % err,
             )
+
+    # delete the item from cache
+    absolute_url = content_object.get_absolute_url()
+    language_code = content_object.language.code
+    delete_cache_item(absolute_url, language_code, site.id)
+    # update the complete cache
+    cache.clear()
 
 
 comment_will_be_posted.connect(comment_will_be_posted_handler)
