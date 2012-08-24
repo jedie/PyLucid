@@ -387,27 +387,29 @@ else:
 LOCAL_SYNC_CACHE_BACKEND = "local_sync_cache"
 
 #_______________________________________________________________________________
-
 # Set the Django cache system.
+
+CACHE_MIDDLEWARE_SECONDS = 3600 # 1h
+
 # The LocMemCache isn't memory-efficient. Should be changed in local_settings.py !
+_BACKEND = "django_tools.cache.smooth_cache_backends.SmoothLocMemCache"
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': _BACKEND,
         'LOCATION': 'PyLucid-default-cache',
+        'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
     },
     'dbtemplates': { # http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': _BACKEND,
         'LOCATION': 'PyLucid-dbtemplates-cache',
+        'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
     },
     LOCAL_SYNC_CACHE_BACKEND: { # https://github.com/jedie/django-tools/blob/master/django_tools/local_sync_cache/local_sync_cache.py
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': _BACKEND,
         'LOCATION': 'PyLucid-local_sync-cache',
+        'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
     },
 }
-
-# Set default cache timeout (in seconds) to 2 Days (used in own PyLucid cache middleware, too) 
-CACHE_MIDDLEWARE_SECONDS = 60 * 60 * 48
-
 
 #_______________________________________________________________________________
 
