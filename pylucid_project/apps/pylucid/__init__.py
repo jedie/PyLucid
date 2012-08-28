@@ -93,5 +93,5 @@ except Exception, e:
     if (DEBUG or settings.DEBUG) and settings.RUN_WITH_DEV_SERVER:
         raise
 
-    sys.stderr.write("Can't check requirements:")
+    sys.stderr.write("Error while check requirements:")
     sys.stderr.write(traceback.format_exc())
