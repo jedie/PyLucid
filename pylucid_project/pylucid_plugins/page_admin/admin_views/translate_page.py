@@ -66,7 +66,6 @@ def translate_page(request, pagemeta_id=None):
     context = {
         "title": _("Translate page '%(name)s' (%(source_lang)s) into %(dest_lang)s.") % {
             "name": source_pagemeta.name,
-            "abort_url": absolute_url,
             "source_lang": source_pagemeta.language.description,
             "dest_lang": dest_language.description,
         },
