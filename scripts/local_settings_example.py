@@ -73,7 +73,7 @@ SECRET_KEY = "add-a-secret-key"
 #
 #CACHE_MIDDLEWARE_SECONDS = 3600 # 1h
 #
-#_BACKEND = "django_tools.cache.smooth_cache_backends.FileBasedCache"
+#_BACKEND = "django_tools.cache.smooth_cache_backends.SmoothFileBasedCache"
 #_LOCATION_PREFIX = "/var/tmp/PyLucid_"
 #CACHES = {
 #    'default': {
