@@ -302,15 +302,16 @@ def _login_view(request):
     try:
         # url from django-authopenid, only available if the urls.py are included
         reset_link = urlresolvers.reverse("auth_password_reset")
-    except urlresolvers.NoReverseMatch, err:
+    except urlresolvers.NoReverseMatch:
         try:
             # DjangoBB glue plugin adds the urls from django-authopenid
             reset_link = PluginPage.objects.reverse("djangobb_plugin", "auth_password_reset")
-        except urlresolvers.NoReverseMatch, err:
-            if settings.DEBUG:
-                reset_link = "#ERROR: %s" % err
-            else:
-                reset_link = None
+        except KeyError:
+            # plugin is not installed
+            reset_link = None
+        except urlresolvers.NoReverseMatch:
+            # plugin is installed, but not in used (no PluginPage created)
+            reset_link = None
 
     context = {
         "challenge": challenge,
