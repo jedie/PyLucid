@@ -7,17 +7,31 @@
     
     A secure JavaScript SHA-1 Login and a plaintext fallback login.
     
-    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
+    TODO: Update tests with honypot changes!
+    
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
 
 import os
-
+import sys
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+
+    tests = __file__
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_login_ajax_form"
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_with_wrong_csrf_token"
+
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(tests,
+        verbosity=2,
+#        failfast=True,
+        failfast=False,
+    )
+    sys.exit()
 
 from django.core.cache import cache
 from django.conf import settings
@@ -296,18 +310,3 @@ class LoginTest(basetest.BaseUnittest):
 
 
 
-if __name__ == "__main__":
-    # Run this unittest directly
-    from django.core import management
-
-    tests = __file__
-#    tests = "pylucid_plugins.auth.tests.LoginTest.test_login_ajax_form"
-#    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
-#    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_with_wrong_csrf_token"
-
-    management.call_command('test', tests,
-#        verbosity=0,
-#        verbosity=1,
-        verbosity=2,
-#        failfast=True
-    )

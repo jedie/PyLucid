@@ -9,7 +9,7 @@
         - PyLucid initial data contains english and german pages.
         - related test in pylucid_plugins/language/tests.py
     
-    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -18,8 +18,18 @@ from django.utils.log import getLogger
 import logging
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+
+    tests = __file__
+#    tests = "pylucid.tests.test_i18n.TestI18n.test_other_language_in_url"
+
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(tests,
+        verbosity=2,
+#        failfast=True,
+        failfast=False,
+    )
+    sys.exit()
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -349,16 +359,3 @@ class TestI18nMoreLanguages(basetest.BaseMoreLanguagesTestCase):
         )
 
 
-
-
-if __name__ == "__main__":
-    # Run all unittest directly
-    from django.core import management
-
-    tests = __file__
-#    tests = "pylucid.tests.test_i18n.TestI18n.test_other_language_in_url"
-
-    management.call_command('test', tests,
-        verbosity=2,
-        failfast=True
-    )
