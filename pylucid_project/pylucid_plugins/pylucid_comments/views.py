@@ -141,7 +141,7 @@ def comment_was_posted_handler(sender, **kwargs):
     language_code = content_object.language.code
     delete_cache_item(absolute_url, language_code, site.id)
     # update the complete cache
-    cache.clear()
+    cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
 
 
 comment_will_be_posted.connect(comment_will_be_posted_handler)

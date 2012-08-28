@@ -191,7 +191,7 @@ def cleanup_cache(request):
     """ remove everything from the cache """
     if "doit" in request.GET:
         start_time = time.time()
-        cache.clear()
+        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
         duration_time = time.time() - start_time
 
         messages.success(request, _("Everything from the Django's cache framework was deleted in %(duration).2fsec") % {

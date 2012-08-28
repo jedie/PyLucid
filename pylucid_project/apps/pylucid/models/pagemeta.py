@@ -4,7 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -244,7 +244,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         self.pagetree._url_cache.clear()
 
         # FIXME: We must clean the page cache, but this cleans it for every sites!
-        cache.clear()
+        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
 
         return super(PageMeta, self).save(*args, **kwargs)
 

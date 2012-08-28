@@ -4,7 +4,7 @@
     PyLucid lexicon models
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -140,7 +140,7 @@ class LexiconEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
         """
         super(LexiconEntry, self).save(*args, **kwargs)
 
-        cache.clear() # FIXME: This cleaned the complete cache for every site!
+        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
 
     def get_name(self):
         """ e.g. for pylucid comment """

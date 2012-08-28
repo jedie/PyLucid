@@ -431,7 +431,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
         PageMeta._url_cache.clear()
 
         # FIXME: We must clean the page cache, but this cleans it for every sites!
-        cache.clear()
+        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
 
         return super(PageTree, self).save(*args, **kwargs)
 

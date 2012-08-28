@@ -4,7 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -91,7 +91,7 @@ class PageContent(BaseModel, MarkupBaseModel, UpdateInfoBaseModel):
         if self.pagemeta.pagetree.page_type != self.pagemeta.pagetree.PAGE_TYPE:
             # FIXME: Better error with django model validation?
             raise AssertionError("PageContent can only exist on a page type tree entry!")
-        cache.clear() # FIXME: This cleaned the complete cache for every site!
+        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
         return super(PageContent, self).save(*args, **kwargs)
 
     def __unicode__(self):
