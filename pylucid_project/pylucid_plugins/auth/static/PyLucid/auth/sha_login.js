@@ -44,6 +44,12 @@ jQuery(document).ready(function($) {
         log("salt length test, ok.");
     }
 
+    log("LOOP_COUNT:" + LOOP_COUNT);
+    if (isNaN(LOOP_COUNT)) {
+        low_level_error("Wrong LOOP_COUNT from server!");
+        return false;
+    }
+
     // Check functions from shared_sha_tools.js and sha.js
     if (typeof hex_sha1 === 'undefined') {
         msg = "Error:\nsha.js not loaded.\n(hex_sha1 not defined)";
@@ -148,30 +154,38 @@ jQuery(document).ready(function($) {
             // split SHA-Passwort
             sha_a = shapass.substr(0, HASH_LEN/2); // sha_a never send to the server
             sha_b = shapass.substr(HASH_LEN/2, HASH_LEN/2);
-            log("substr: sha_a:|"+sha_a+"| sha_b:|"+sha_b+"|");
+            log("substr: sha_a:|"+sha_a+"| sha_b:|"+sha_b+"|");   
 
-//            // Generate 'cnonce' a client side random value
-//            var cnonce = "";
-//            cnonce += new Date().getTime();
-//            cnonce += Math.random();
-//            cnonce += $(window).height();
-//            cnonce += $(window).width();
-//            log("generated cnonce:");
-//            cnonce = sha_hexdigest(cnonce);
+            // Generate new 'cnonce' a client side random value
+            var cnonce = "";
+            cnonce += new Date().getTime();
+            cnonce += Math.random();
+            cnonce += $(window).height();
+            cnonce += $(window).width();
+            //cnonce = "Always the same, test.";
+            log("generated cnonce from:" + cnonce);
+            cnonce = sha_hexdigest(cnonce);
+            log("SHA cnonce:" + cnonce);
 
-            log("sha_a2 = sha_hexdigest(challenge + sha_a):");
-            sha_a2 = sha_hexdigest(challenge + sha_a);
-            if (sha_a2 == false) { return false; }
+            log("Build "+LOOP_COUNT+"x SHA1 from: sha_a + i + challenge + cnonce");
+            for (i=0; i<LOOP_COUNT; i++)
+            {
+                //log("sha1 round: " + i);
+                sha_a = sha_hexdigest(sha_a + i + challenge + cnonce);
+                if (sha_a == false) { return false; }
+            }
 
             // display SHA values
             $("#password_block").slideUp(1).delay(500);
             $("#sha_values_block").css("display", "block").slideDown();
             $("#id_password").val(""); // 'delete' plaintext password
-            $("#id_sha_a2").val(sha_a2);
+            $("#id_sha_a").val(sha_a);
             $("#id_sha_b").val(sha_b);
 
             var post_data = {
-                "username": username, "sha_a2": sha_a2, "sha_b": sha_b
+                "username": username,
+                "sha_a": sha_a, "sha_b": sha_b,
+                "cnonce": cnonce
             }
             log("auth user, send POST:" + $.param(post_data));
             page_msg_info(gettext("Send SHA-1 values to the server..."));
@@ -203,7 +217,7 @@ jQuery(document).ready(function($) {
             if (msg.indexOf(";") == -1) {
                 log("Wrong server reponse! No ';' found!");
                 return false;
-            }
+            }         
 
             // we get a new challenge and a error message from server
             challenge = msg.substr(0, msg.indexOf(";"));
@@ -214,7 +228,7 @@ jQuery(document).ready(function($) {
 
             $("#password_block").css("display", "block").slideDown();
             $("#sha_values_block").slideUp("slow");
-            $("#id_sha_a2").val("");
+            $("#id_sha_a").val("");
             $("#id_sha_b").val("");
             $("#id_password").focus();
 

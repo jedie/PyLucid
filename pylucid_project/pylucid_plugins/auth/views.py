@@ -27,7 +27,8 @@ from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 from pylucid_project.apps.pylucid.shortcuts import bad_request, ajax_response
 from pylucid_project.pylucid_plugins.auth.forms import HoneypotForm
-from pylucid_project.pylucid_plugins.auth.models import HonypotAuth
+from pylucid_project.pylucid_plugins.auth.models import HonypotAuth, \
+    CNONCE_CACHE
 from pylucid_project.utils import crypt
 
 # auth own stuff
@@ -35,7 +36,7 @@ from forms import WrongUserError, UsernameForm, ShaLoginForm
 from preference_forms import AuthPreferencesForm
 
 
-APP_LABEL = "pylucid_plugin.auth"
+APP_LABEL = "pylucid_plugin.auth" # used for creating LogEntry entries
 
 
 # DEBUG is usefull for debugging. It send always the same challenge "12345" 
@@ -60,6 +61,12 @@ def _get_challenge(request):
     request.session["challenge"] = challenge
 
     return challenge
+
+def _get_loop_count():
+    pref_form = AuthPreferencesForm()
+    preferences = pref_form.get_preferences()
+    loop_count = preferences["loop_count"]
+    return loop_count
 
 
 @csrf_exempt
@@ -164,22 +171,25 @@ def _wrong_login(request, debug_msg, user=None):
     return HttpResponse(response, content_type="text/plain")
 
 
+
 @check_request(app_label="pylucid_plugin.auth", action="_sha_auth() error", must_post=True, must_ajax=True)
 @csrf_protect
 def _sha_auth(request):
     """
     login the user with username and sha values.
     """
+    _NORMAL_ERROR_MSG = "_sha_auth() error"
+
     form = ShaLoginForm(request.POST)
     if not form.is_valid():
-        debug_msg = "ShaLoginForm is not valid: %r" % form.errors
-        return bad_request(APP_LABEL, "_sha_auth() error", debug_msg)
+        debug_msg = "ShaLoginForm is not valid: %s" % repr(form.errors)
+        return bad_request(APP_LABEL, _NORMAL_ERROR_MSG, debug_msg)
 
     try:
         challenge = request.session.pop("challenge")
     except KeyError, err:
         debug_msg = "Can't get 'challenge' from session: %s" % err
-        return bad_request(APP_LABEL, "_sha_auth() error", debug_msg)
+        return bad_request(APP_LABEL, _NORMAL_ERROR_MSG, debug_msg)
 
     try:
         user1, user_profile = form.get_user_and_profile()
@@ -187,14 +197,26 @@ def _sha_auth(request):
         debug_msg = "Can't get user and user profile: %s" % err
         return _wrong_login(request, debug_msg)
 
+    loop_count = _get_loop_count() # get "loop_count" from AuthPreferencesForm
+
     sha_checksum = user_profile.sha_login_checksum
-    sha_a2 = form.cleaned_data["sha_a2"]
+    sha_a = form.cleaned_data["sha_a"]
     sha_b = form.cleaned_data["sha_b"]
+    cnonce = form.cleaned_data["cnonce"]
+
+    # Simple check if 'nonce' from client used in the past.
+    # Limitations:
+    #  - Works only when run in a long-term server process, so not in CGI ;)
+    #  - dict vary if more than one server process runs (one dict in one process)
+    if cnonce in CNONCE_CACHE:
+        debug_msg = "Client-nonce '%s' used in the past!" % cnonce
+        return bad_request(APP_LABEL, _NORMAL_ERROR_MSG, debug_msg)
+    CNONCE_CACHE[cnonce] = None
 
     if DEBUG:
         print(
-            "authenticate %r with: challenge: %r, sha_checksum: %r, sha_a2: %r, sha_b: %r" % (
-                user1, challenge, sha_checksum, sha_a2, sha_b
+            "authenticate %r with: challenge: %r, sha_checksum: %r, sha_a: %r, sha_b: %r, cnonce: %r" % (
+                user1, challenge, sha_checksum, sha_a, sha_b, cnonce
             )
         )
 
@@ -203,8 +225,9 @@ def _sha_auth(request):
         # pylucid.system.auth_backends.SiteSHALoginAuthBackend
         user2 = auth.authenticate(
             user=user1, challenge=challenge,
-            sha_a2=sha_a2, sha_b=sha_b,
-            sha_checksum=sha_checksum
+            sha_a=sha_a, sha_b=sha_b,
+            sha_checksum=sha_checksum,
+            loop_count=loop_count, cnonce=cnonce
         )
     except Exception, err: # e.g. low level error from crypt
         debug_msg = "auth.authenticate() failed: %s" % err
@@ -313,10 +336,13 @@ def _login_view(request):
             # plugin is installed, but not in used (no PluginPage created)
             reset_link = None
 
+    loop_count = _get_loop_count() # get "loop_count" from AuthPreferencesForm
+
     context = {
         "challenge": challenge,
         "salt_len": crypt.SALT_LEN,
         "hash_len": crypt.HASH_LEN,
+        "loop_count": loop_count,
         "get_salt_url": request.path + "?auth=get_salt",
         "sha_auth_url": request.path + "?auth=sha_auth",
         "next_url": next_url,

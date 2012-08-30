@@ -243,7 +243,7 @@ def crypt(txt, key):
     >>> crypt("1234", "ABCD")
     u'pppp'
     """
-    assert len(txt) == len(key), "Error: txt and key must have the same length!"
+    assert len(txt) == len(key), "XOR cipher error: %r and %r must have the same length!" % (txt, key)
 
     crypted = [unichr(ord(t) ^ ord(k)) for t, k in zip(txt, key)]
     return u"".join(crypted)
@@ -282,7 +282,7 @@ def decrypt(crypted, key, use_base64=True, can_debug=True):
     1. Decrypt a XOR crypted String.
     2. Compare the inserted sSHA salt-hash checksum.
 
-    >>> decrypt(u'crypt 1234 with ABCD', u"ABCD") # DEBUG is True in DocTest!
+    >>> decrypt('crypt 1234 with ABCD', "ABCD") # DEBUG is True in DocTest!
     u'1234'
 
     >>> crypted = encrypt(u"1234", u"ABCD", can_debug=False)
@@ -295,8 +295,8 @@ def decrypt(crypted, key, use_base64=True, can_debug=True):
     >>> decrypt(crypted, u"ABCD", use_base64=False, can_debug=False)
     u'1234'
     """
-    if not (isinstance(crypted, unicode) and isinstance(key, unicode)):
-        raise UnicodeError("Only unicode allowed!")
+    crypted = unicode(crypted)
+    key = unicode(key)
 
     if can_debug and DEBUG:
         txt, _, key2 = crypted.split(" ", 3)[1:]
@@ -373,12 +373,14 @@ def make_sha_checksum(hash_value):
     return sha_checksum
 
 
-def check_js_sha_checksum(challenge, sha_a2, sha_b, sha_checksum):
+def check_js_sha_checksum(challenge, sha_a, sha_b, sha_checksum, loop_count, cnonce):
     """
     Check a PyLucid JS-SHA-Login
 
     >>> salt1 = "a salt value"
     >>> challenge = "debug"
+    >>> loop_count = 5
+    >>> cnonce = "0123456789abcdef0123456789abcdef01234567"
     >>> password = "test"
     >>>
     >>> hash_value = make_hash(password, salt1)
@@ -394,21 +396,30 @@ def check_js_sha_checksum(challenge, sha_a2, sha_b, sha_checksum):
     >>> sha_b = hash_value[(HASH_LEN/2):]
     >>> sha_b
     '2161b6bc2ccac955e014'
-    >>> sha_a2 = make_hash(sha_a, challenge)
-    >>> sha_a2
-    '0d96f2fdda9c6f633ba0f5c2619aa7706abc492d'
-    >>>
-    >>> check_js_sha_checksum(challenge, sha_a2, sha_b, sha_checksum)
+    >>> for i in range(loop_count):
+    ...    sha_a
+    ...    sha_a = hashlib.sha1("%s%s%s%s" % (sha_a, i, challenge, cnonce)).hexdigest()
+    'f893fc3ebdfd88683682'
+    '7416451ba99917ccd09cfb5168678308933ed82c'
+    'ec569defb31299e6134ad8e0c03ff40ab37972da'
+    'c8036fe582d777da7090a941e8405982b39a5a71'
+    'a0a793881a87782364816ab3e433d02f4527acbb'
+    >>> sha_a
+    'fa5746d279f5be31fa031100837a6a6b0233467c'
+    >>> check_js_sha_checksum(challenge, sha_a, sha_b, sha_checksum, loop_count, cnonce)
     True
     """
-    sha_checksum = unicode(sha_checksum)
-    sha_b = unicode(sha_b)
+    local_sha_a = decrypt(sha_checksum, sha_b)
 
-    encrypted_checksum = decrypt(sha_checksum, sha_b)
-    client_checksum = make_hash(encrypted_checksum, challenge)
+    for i in range(loop_count):
+        local_sha_a = hashlib.sha1(
+            "%s%s%s%s" % (local_sha_a, i, challenge, cnonce)
+        ).hexdigest()
 
-    if client_checksum == sha_a2:
+    if local_sha_a == sha_a:
         return True
+    elif DEBUG:
+        return "%r != %r" % (local_sha_a, sha_a)
 
     return False
 

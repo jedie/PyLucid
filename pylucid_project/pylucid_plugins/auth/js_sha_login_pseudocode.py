@@ -54,7 +54,7 @@ print "# encrypt(sha1_a, key=sha1_b):",
 sha1checksum = encrypt(sha1_a, key=sha1_b)
 print "'//%s//'" % sha1checksum
 
-print "# Save only encrypted **checksum** + **user salt**\n"
+print "# Save only the **encrypted string** + **user salt**\n"
 
 
 

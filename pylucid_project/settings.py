@@ -294,10 +294,9 @@ except Exception, e:
 
 # http://www.djangoproject.com/documentation/authentication/#other-authentication-sources
 AUTHENTICATION_BACKENDS = (
-    "pylucid.system.auth_backends.SiteAuthBackend",
-    "pylucid.system.auth_backends.SiteSHALoginAuthBackend",
+    "pylucid_project.pylucid_plugins.auth.auth_backends.SiteAuthBackend",
+    "pylucid_project.pylucid_plugins.auth.auth_backends.SiteSHALoginAuthBackend",
 #    "django.contrib.auth.backends.ModelBackend",
-#    "pylucid_project.pylucid_plugins.auth.auth_backend.JS_SHA_Backend",
 )
 # http://docs.djangoproject.com/en/dev/topics/auth/#storing-additional-information-about-users
 AUTH_PROFILE_MODULE = "pylucid.UserProfile"

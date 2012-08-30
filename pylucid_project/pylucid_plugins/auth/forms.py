@@ -1,5 +1,15 @@
 # coding: utf-8
 
+"""
+    PyLucid JS-SHA-Login forms
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    A secure JavaScript SHA-1 AJAX Login.
+    
+    :copyleft: 2007-2012 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+"""
+
 
 from django import forms
 from django.contrib import auth
@@ -21,7 +31,7 @@ class HoneypotForm(forms.Form):
     password = forms.CharField(max_length=128, label=_('password'),
         widget=forms.PasswordInput
     )
-    
+
 
 class UsernameForm(forms.Form):
     username = forms.CharField(max_length=_('30'), label=_('Username'),
@@ -58,15 +68,23 @@ class ShaLoginForm(UsernameForm):
     """
     Form for the SHA1-JavaScript-Login.
     """
-    sha_a2 = forms.CharField(min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN)
+    sha_a = forms.CharField(min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN)
     sha_b = forms.CharField(min_length=crypt.HASH_LEN / 2, max_length=crypt.HASH_LEN / 2)
+    cnonce = forms.CharField(min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN)
 
-    def clean_sha_a2(self):
-        sha_a2 = self.cleaned_data["sha_a2"]
-        if crypt.validate_sha_value(sha_a2) != True:
-            raise forms.ValidationError(u"sha_a2 is not valid SHA value.")
+    def _sha_validate1(self, sha_value, key):
+        if crypt.validate_sha_value(sha_value) != True:
+            raise forms.ValidationError(u"%s is not valid SHA value." % key)
+        return sha_value
 
-        return sha_a2
+    def _sha_validate2(self, key):
+        sha_value = self.cleaned_data[key]
+        return self._sha_validate1(sha_value, key)
+
+    def clean_sha_a(self):
+        return self._sha_validate2("sha_a")
+    def clean_cnonce(self):
+        return self._sha_validate2("cnonce")
 
     def clean_sha_b(self):
         """
@@ -78,11 +96,10 @@ class ShaLoginForm(UsernameForm):
         # Fill with null, to match the full SHA1 hexdigest length.
         fill_len = crypt.HASH_LEN - (crypt.HASH_LEN / 2)
         temp_value = ("0" * fill_len) + sha_b
-
-        if crypt.validate_sha_value(temp_value) != True:
-            raise forms.ValidationError(u"sha_b is not a valid SHA value.")
+        self._sha_validate1(temp_value, "sha_b")
 
         return sha_b
+
 
 #
 #class NewPasswordForm(forms.Form):

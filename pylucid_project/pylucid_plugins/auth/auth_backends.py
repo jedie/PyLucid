@@ -11,8 +11,10 @@
         
     SiteSHALoginAuthBackend:
         for JS-SHA1-Login
+        
+    TODO: move SiteAuthBackend to django-tools
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -112,12 +114,12 @@ class SiteSHALoginAuthBackend(ModelBackend):
     Used for PyLucid JS-SHA-Login.
     Check challenge and limit access to sites.
     """
-    def authenticate(self, user=None, challenge=None, sha_a2=None, sha_b=None, sha_checksum=None):
+    def authenticate(self, user=None, challenge=None, sha_a=None, sha_b=None, sha_checksum=None, loop_count=None, cnonce=None):
         if user == None: # Nothing to do: Normal auth?
             return
 
         try:
-            check = crypt.check_js_sha_checksum(challenge, sha_a2, sha_b, sha_checksum)
+            check = crypt.check_js_sha_checksum(challenge, sha_a, sha_b, sha_checksum, loop_count, cnonce)
         except crypt.SaltHashError, err:
             # Wrong password
             LogEntry.objects.log_action(

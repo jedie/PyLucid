@@ -7,7 +7,7 @@
     
     A secure JavaScript SHA-1 Login and a plaintext fallback login.
     
-    TODO: Add test for honypot, too.
+    TODO: Add tests for honypot, too.
     
     :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
@@ -26,6 +26,7 @@ if __name__ == "__main__":
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_with_wrong_csrf_token"
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_complete_login"
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_without_get_challenge"
 
     from pylucid_project.tests import run_test_directly
     run_test_directly(tests,
@@ -42,15 +43,18 @@ from django.test.client import Client
 from pylucid_project.tests.test_tools import basetest
 from pylucid_project.utils import crypt
 
+from pylucid_project.pylucid_plugins.auth.models import CNONCE_CACHE
 from preference_forms import AuthPreferencesForm
 
 
 LOGIN_URL = "/en/welcome/?auth=login"
 
 
+
 class LoginTest(basetest.BaseUnittest):
     def setUp(self):
         settings.DEBUG = False
+        CNONCE_CACHE.clear() # delete all used client-nonce values 
         self.client = Client() # start a new session
 
     def test_login_link(self):
@@ -127,6 +131,91 @@ class LoginTest(basetest.BaseUnittest):
             ),
         )
 
+    def test_wrong_form(self):
+        settings.DEBUG = True
+
+        response = self.client.post(
+            "/en/welcome/?auth=sha_auth",
+            {
+                "username": "a",
+                "sha_a": "not a SHA1 value 1",
+                "sha_b": "not a SHA1 value 2",
+                "cnonce": "not a SHA1 value 3",
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertResponse(response,
+            must_contain=('ShaLoginForm is not valid:',),
+            must_not_contain=("Traceback", "<!DOCTYPE", "<body", "</html>")
+        )
+
+    def test_without_get_challenge(self):
+        settings.DEBUG = True
+
+        userdata = self._get_userdata("normal")
+        username = userdata["username"]
+
+        # start a session
+        self.client.get("/en/welcome/")
+
+        # send a login, before a challenge put into session,
+        # because the login form was not requested in the past
+        response = self.client.post(
+            "/en/welcome/?auth=sha_auth",
+            {
+                "username": username,
+                "sha_a": "0123456789abcdef0123456789abcdef01234567",
+                "sha_b": "0123456789abcdef0123",
+                "cnonce": "0123456789abcdef0123456789abcdef01234567",
+            },
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertResponse(response,
+            must_contain=("Can't get 'challenge' from session:",),
+            must_not_contain=("Traceback", "<!DOCTYPE", "<body", "</html>")
+        )
+
+    def test_double_use_cnounce(self):
+        settings.DEBUG = True
+
+        userdata = self._get_userdata("normal")
+        username = userdata["username"]
+
+        for no in xrange(2):
+            # Get the login form: The challenge value would be stored into session
+            self.client.get("/en/welcome/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            self.failUnless("challenge" in self.client.session)
+
+            # get the salt
+            response = self.client.post(
+                "/en/welcome/?auth=get_salt", {"username": username}, HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            )
+            self.assertStatusCode(response, 200)
+
+            response = self.client.post(
+                "/en/welcome/?auth=sha_auth",
+                {
+                    "username": username,
+                    "sha_a": "0123456789abcdef0123456789abcdef01234567",
+                    "sha_b": "0123456789abcdef0123",
+                    "cnonce": "0123456789abcdef0123456789abcdef01234567",
+                },
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            )
+            if no == 0:
+                self.assertResponse(response,
+                    must_contain=(
+                        'auth.authenticate() failed.',
+                        'must be a wrong password',
+                    ),
+                    must_not_contain=("Traceback", "<!DOCTYPE", "<body", "</html>")
+                )
+            elif no == 1:
+                self.assertResponse(response,
+                    must_contain=("Client-nonce '0123456789abcdef0123456789abcdef01234567' used in the past!",),
+                    must_not_contain=("Traceback", "<!DOCTYPE", "<body", "</html>")
+                )
+
     def test_DOS_attack(self):
         settings.DEBUG = True
 
@@ -156,12 +245,17 @@ class LoginTest(basetest.BaseUnittest):
                 "/en/welcome/?auth=get_salt", {"username": username}, HTTP_X_REQUESTED_WITH='XMLHttpRequest'
             )
 
+            # every request must have a unique client-nonce
+            cnonce = "%s0123456789abcdef0123456789abcdef01234567" % no
+            cnonce = cnonce[:40]
+
             response2 = client.post(
                 "/en/welcome/?auth=sha_auth",
                 {
                     "username": username,
-                    "sha_a2": "0123456789abcdef0123456789abcdef01234567",
+                    "sha_a": "0123456789abcdef0123456789abcdef01234567",
                     "sha_b": "0123456789abcdef0123",
+                    "cnonce": cnonce,
                 },
                 HTTP_X_REQUESTED_WITH='XMLHttpRequest'
             )
@@ -169,9 +263,6 @@ class LoginTest(basetest.BaseUnittest):
             if no == 1:
                 # first request, normal failed
                 self.assertStatusCode(response1, 200)
-                self.assertStatusCode(response2, 200)
-                tested_first_login = True
-                self.failUnless(len(response1.content) == 5) # the salt          
                 self.assertResponse(response2,
                     must_contain=(
                         'auth.authenticate() failed.',
@@ -182,6 +273,10 @@ class LoginTest(basetest.BaseUnittest):
                         "<!DOCTYPE", "<body", "</html>",
                     )
                 )
+                self.assertStatusCode(response2, 200)
+                tested_first_login = True
+                self.failUnless(len(response1.content) == 5) # the salt          
+
             elif no == ban_limit + 1:
                 # The limit has been reached
                 tested_banned = True
@@ -333,7 +428,6 @@ class LoginTest(basetest.BaseUnittest):
         user = self._get_user("normal")
         username = user.username
 
-
         csrf_client = Client(enforce_csrf_checks=True)
 
         response = csrf_client.get("/en/welcome/") # Put page into cache
@@ -363,8 +457,17 @@ class LoginTest(basetest.BaseUnittest):
         # Build the response:
         shapass = hashlib.sha1(salt + userpass).hexdigest()
         sha_a = shapass[:20]
-        sha_a2 = hashlib.sha1(challenge + sha_a).hexdigest()
         sha_b = shapass[20:]
+
+        pref_form = AuthPreferencesForm()
+        preferences = pref_form.get_preferences()
+        loop_count = preferences["loop_count"]
+        cnonce = "0123456789abcdef0123456789abcdef01234567"
+
+        for i in range(loop_count):
+            sha_a = hashlib.sha1(
+                "%s%s%s%s" % (sha_a, i, challenge, cnonce)
+            ).hexdigest()
 
         # Login with calculated sha pass
         response = csrf_client.post("/en/welcome/?auth=sha_auth",
@@ -372,14 +475,12 @@ class LoginTest(basetest.BaseUnittest):
             HTTP_X_CSRFTOKEN=csrf_token,
             data={
                 "username": username,
-                "sha_a2": sha_a2,
+                "sha_a": sha_a,
                 "sha_b": sha_b,
+                "cnonce": cnonce,
             }
         )
         self.assertStatusCode(response, 200)
-        self.assertResponse(response,
-            must_contain=('OK',), must_not_contain=("Traceback", "error")
-        )
         self.assertEqual(response.content, "OK")
 
         # Check if we are really login:

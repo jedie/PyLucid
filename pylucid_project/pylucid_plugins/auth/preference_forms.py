@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 
 from dbpreferences.forms import DBPreferencesBaseForm
 
+
 class AuthPreferencesForm(DBPreferencesBaseForm):
     ban_limit = forms.IntegerField(
         help_text=_("Numbers login log messages after IP would be banned."),
@@ -18,7 +19,16 @@ class AuthPreferencesForm(DBPreferencesBaseForm):
 
     use_honypot = forms.BooleanField(
         help_text=_("Enable login honypot? (A PluginPage must be created!)"),
-        initial = False, required=False
+        initial=False, required=False
+    )
+
+    loop_count = forms.IntegerField(
+        help_text=_(
+            "Number of loops in the JS-SHA1-Process for repeatedly apply"
+            " the client-nonce for hash based key stretching."
+            " (Note: Higher count increase the security, but causes more CPU load on client and server.)"
+        ),
+        initial=15, min_value=1, max_value=600
     )
 
     class Meta:

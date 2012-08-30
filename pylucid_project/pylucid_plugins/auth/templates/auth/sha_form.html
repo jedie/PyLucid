@@ -25,6 +25,7 @@ var next_url="{{ next_url }}";
 <script type="text/javascript">
 var SALT_LEN=parseInt("{{ salt_len }}");
 var HASH_LEN=parseInt("{{ hash_len }}");
+var LOOP_COUNT=parseInt("{{ loop_count }}");
 var salt=""; {# get via ajax #}
 var sha_auth_url="{{ sha_auth_url }}";
 var get_salt_url="{{ get_salt_url }}";
@@ -56,11 +57,11 @@ var get_salt_url="{{ get_salt_url }}";
   	<label for="id_password">{% trans "Password" %}:</label>
 	<input id="id_password" type="password" name="password" maxlength="128" required="required" autocomplete="off" />
   </p>
-  <p id="sha_values_block">
-  	<label>SHA values:</label>
-    <input readonly="readonly" name="sha_a2" maxlength="40" type="text" id="id_sha_a2" size="40" autocomplete="off" />
-    <input readonly="readonly" name="sha_b" maxlength="20" type="text" id="id_sha_b" size="20" autocomplete="off" />
-  </p>
+  <ul id="sha_values_block">
+    <label>JS-SHA-Login values:</label>
+      <li>SHA A: <input readonly="readonly" name="sha_a" maxlength="40" type="text" id="id_sha_a" size="40" autocomplete="off" /></li>
+      <li>SHA B: <input readonly="readonly" name="sha_b" maxlength="20" type="text" id="id_sha_b" size="20" autocomplete="off" /></li>
+  </ul>
   <input id="submit_button" type="submit" value="{% trans 'Log in' %}" />
 </form>
 {% if pass_reset_link %}{# only available if django-authopenid is installed #}

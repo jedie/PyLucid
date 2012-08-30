@@ -4,33 +4,20 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from django_tools.models import UpdateTimeBaseModel # New in django-tools v0.24.2
 
-try:
-    from django_tools.models import UpdateTimeBaseModel
-except ImportError:
-    # New in django-tools v0.24.2
-    # TODO: Remove this in next release:
-    try:
-        from django.utils.timezone import now
-    except ImportError:
-        from datetime import datetime
-        now = datetime.now
-        
-    class UpdateTimeBaseModel(models.Model):
-        createtime = models.DateTimeField(default=now, editable=False, help_text="Create time")
-        lastupdatetime = models.DateTimeField(default=now, editable=False, help_text="Time of the last change.")   
-        def save(self, *args, **kwargs):
-            self.lastupdatetime = now()
-            return super(UpdateTimeBaseModel, self).save(*args, **kwargs)
-        class Meta:
-            abstract = True
+
+# used in auth views for simple check if client-nonce used in the past
+# Exist here in models, because it's accessible in other modules, too.
+# This doesn't work if its defined in views.py
+CNONCE_CACHE = {}
 
 
 class CountManager(models.Manager):
     def __init__(self, attr_name, *args, **kwargs):
         self.attr_name = attr_name
         super(CountManager, self).__init__(*args, **kwargs)
-        
+
     def increase_or_add(self, value):
         kwargs = {
             "%s__exact" % self.attr_name: value,
@@ -85,7 +72,7 @@ class HonypotAuthManager(models.Manager):
         ip_address_obj = HonypotIP.objects.increase_or_add(ip_address)
         username_obj = HonypotUsername.objects.increase_or_add(username)
         password_obj = HonypotPassword.objects.increase_or_add(password)
-        
+
         obj, created = self.get_or_create(
             username__exact=username_obj,
             password__exact=password_obj,
@@ -109,14 +96,14 @@ class HonypotAuth(UpdateTimeBaseModel):
         lastupdatetime -> datetime of the last change
     """
     objects = HonypotAuthManager()
-    
+
     username = models.ForeignKey(HonypotUsername)
     password = models.ForeignKey(HonypotPassword)
     ip_address = models.ForeignKey(HonypotIP)
     count = models.PositiveIntegerField(default=1,
         help_text=_("Number of usage this username/password from the same remote IP address.")
     )
-    
+
     def __unicode__(self):
         return u"honypot login from %s [%s/%s] (count: %i)" % (
             self.ip_address, self.username, self.password, self.count
