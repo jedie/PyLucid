@@ -7,7 +7,7 @@
     
     A secure JavaScript SHA-1 Login and a plaintext fallback login.
     
-    TODO: Update tests with honypot changes!
+    TODO: Add test for honypot, too.
     
     :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
@@ -71,14 +71,26 @@ class LoginTest(basetest.BaseUnittest):
         response = self.client.get("/pylucid_admin/menu/", HTTP_ACCEPT_LANGUAGE="en")
         self.assertRedirect(response, "http://testserver/admin/?next=/pylucid_admin/menu/")
 
-    def test_non_ajax_request(self):
+    def test_non_ajax_request_with_debug(self):
         settings.DEBUG = True
         cache.clear()
         response = self.client.get(LOGIN_URL)
         self.assertResponse(response,
             must_contain=(
                 "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- a complete page
-                "Ignore login request, because it&#39;s not AJAX.", # debug page messages
+                "Enable non AJAX login request, because DEBUG is on.", # debug page messages
+                "JS-SHA-LogIn", "username", "var challenge=",
+            ),
+            must_not_contain=("Traceback", 'Permission denied')
+        )
+
+    def test_non_ajax_request_without_debug(self):
+        settings.DEBUG = False
+        cache.clear()
+        response = self.client.get(LOGIN_URL)
+        self.assertResponse(response,
+            must_contain=(
+                "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- a complete page
             ),
             must_not_contain=(
                 "Traceback", 'Permission denied',
@@ -86,7 +98,6 @@ class LoginTest(basetest.BaseUnittest):
                 "JS-SHA-LogIn", "username", "var challenge=",
             ),
         )
-        settings.DEBUG = False
 
     def test_login_ajax_form(self):
         """ Check if we get the login form via AJAX
@@ -103,7 +114,9 @@ class LoginTest(basetest.BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 '<div class="PyLucidPlugins auth" id="auth_http_get_view">',
-                "JS-SHA-LogIn", "username", "var challenge=",
+                "JS-SHA-LogIn", "username",
+                # outside from django-compressor section:
+                "var challenge=", "var next_url=",
             ),
             must_not_contain=(
                 "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- not a complete page
