@@ -37,6 +37,7 @@ from django_tools.cache.site_cache_middleware import LOCAL_CACHE_INFO, \
 from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
+from pylucid_project.pylucid_plugins.auth.models import CNONCE_CACHE
 
 
 
@@ -171,6 +172,11 @@ def show_internals(request):
     for key in keys:
         request_context_info[key] = request_context[key]
 
+    try:
+        cnonce_size = sys.getsizeof(CNONCE_CACHE) # New in version 2.6
+    except (AttributeError, TypeError): # PyPy raised a TypeError
+        cnonce_size = None
+
     context = {
         "title": "Show internals",
 
@@ -215,6 +221,11 @@ def show_internals(request):
         "local_cache_response_hits": LOCAL_CACHE_INFO["response hits"],
         "global_cache_responses": cache.get(CACHE_RESPONSES),
         "global_cache_response_hits":  cache.get(CACHE_RESPONSE_HITS),
+
+        # Information about auth cnonce usage:
+        "cnonce_count": len(CNONCE_CACHE),
+        "cnonce_size": cnonce_size,
+        "used_cnonces": tuple(sorted(CNONCE_CACHE.keys())),
     }
     return context
 
