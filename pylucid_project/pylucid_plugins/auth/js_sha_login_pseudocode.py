@@ -8,13 +8,11 @@
     http://www.pylucid.org/permalink/42/secure-login-without-https
 """
 
-try:
-    from hashlib import sha1 as sha_constructor
-except ImportError:
-    from sha import new as sha_constructor
+import hashlib
+
 
 def sha1(txt):
-    return sha_constructor(txt).hexdigest()
+    return hashlib.sha1(txt).hexdigest()
 
 def encrypt(txt, key): # Pseudo encrypt
     return "encrypted %s with %s" % (txt, key)
@@ -24,6 +22,7 @@ def decrypt(txt, key): # Pseudo decrypt
     assert key == key2
     return txt
 
+LOOP_COUNT = 2
 
 
 print "\n\n=== 1. Create a new User ===\n"
@@ -50,7 +49,7 @@ sha1_a = sha1sum[:16]
 sha1_b = sha1sum[16:]
 print "**sha1_a**: '//%s//' **sha1_b**: '//%s//'" % (sha1_a, sha1_b)
 
-print "# encrypt(sha1_a, key=sha1_b):",
+print "# {{{encrypt(sha1_a, key=sha1_b)}}}:",
 sha1checksum = encrypt(sha1_a, key=sha1_b)
 print "'//%s//'" % sha1checksum
 
@@ -72,7 +71,7 @@ print "# User enters username and password: '//%s//'" % password
 
 print "# Client send username and get's **user salt** from server via AJAX: '//%s//'" % salt
 
-print "# on the client: sha1(password + salt):",
+print "# on the client: {{{sha1(password + salt)}}}:",
 sha1sum = sha1(password + salt)
 print "'//%s//'" % sha1sum
 
@@ -81,11 +80,15 @@ sha1_a = sha1sum[:16]
 sha1_b = sha1sum[16:]
 print "**sha1_a**: '//%s//' **sha1_b**: '//%s//'" % (sha1_a, sha1_b)
 
-print "# on the client: **sha1_a2** = sha1(sha1_a + challenge):",
-sha1_a2 = sha1(sha1_a + challenge)
-print "'//%s//'" % sha1_a2
+print "# client generate a **cnonce** e.g.: {{{cnonce = sha_hexdigest(new Date().getTime() + Math.random() + ...)}}}"
+cnonce = "client_SHA1_nonce"
 
-print "# Client send username, **sha1_a2** and **sha1_b** to the server."
+print "# client generate **sha1_a** with e.g.: {{{sha1(sha_a, i, challenge, cnonce) x loop count}}}: \\\\",
+for i in range(LOOP_COUNT):
+    sha1_a = hashlib.sha1("%s%s%s%s" % (sha1_a, i, challenge, cnonce)).hexdigest()
+print "'//%s//'" % sha1_a
+
+print "# Client send **username**, **sha1_a2**, **sha1_b** and **cnonce** to the server."
 
 
 
@@ -93,12 +96,14 @@ print "\n\n==== 4. validation on the server ====\n"
 
 print "# get encrypted **checksum** for user: '//%s//'" % sha1checksum
 
-print "# decrypt(sha1checksum, key=sha1_b):",
+print "# {{{decrypt(sha1checksum, key=sha1_b)}}}:",
 sha1checksum = decrypt(sha1checksum, key=sha1_b)
 print "'//%s//'" % sha1checksum
 
-print "# sha1(sha1checksum + challenge):",
-sha1check = sha1(sha1checksum + challenge)
-print "'//%s//'" % sha1check
+print "# server-site {{{sha1(sha1checksum, i, challenge, cnonce) x loop count}}}:",
+for i in range(LOOP_COUNT):
+    sha1checksum = hashlib.sha1("%s%s%s%s" % (sha1checksum, i, challenge, cnonce)).hexdigest()
+print "'//%s//'" % sha1checksum
 
-print "# compare: //%s// == //%s//" % (sha1check, sha1_a2)
+print "# compare **client site generated** SHA1 with the **server site generated**: \\\\",
+print "//%s// == //%s//" % (sha1checksum, sha1_a)
