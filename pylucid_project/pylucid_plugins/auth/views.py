@@ -54,7 +54,7 @@ def _get_challenge(request):
         print("use DEBUG challenge: %r" % challenge)
     else:
         # Create a new random salt value for the password challenge:
-        challenge = crypt.get_new_salt()
+        challenge = crypt.get_new_seed()
 
     # For later comparing with form data
     request.session["challenge"] = challenge

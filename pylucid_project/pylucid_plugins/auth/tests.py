@@ -16,6 +16,7 @@
 
 import os
 import sys
+import hashlib
 
 if __name__ == "__main__":
     # Run all unittest directly
@@ -24,6 +25,7 @@ if __name__ == "__main__":
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_login_ajax_form"
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_with_wrong_csrf_token"
+#    tests = "pylucid_plugins.auth.tests.LoginTest.test_complete_login"
 
     from pylucid_project.tests import run_test_directly
     run_test_directly(tests,
@@ -38,6 +40,7 @@ from django.conf import settings
 from django.test.client import Client
 
 from pylucid_project.tests.test_tools import basetest
+from pylucid_project.utils import crypt
 
 from preference_forms import AuthPreferencesForm
 
@@ -287,7 +290,7 @@ class LoginTest(basetest.BaseUnittest):
             )
         )
 
-        # Check if we get the salt, insted of a CSRF error
+        # Check if we get the salt, instead of a CSRF error
         response = csrf_client.post(
             "/en/welcome/?auth=get_salt",
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
@@ -321,5 +324,76 @@ class LoginTest(basetest.BaseUnittest):
             )
         )
 
+    def test_complete_login(self):
+        cache.clear()
+
+        test_userdata = self._get_userdata("normal")
+        userpass = test_userdata["password"]
+
+        user = self._get_user("normal")
+        username = user.username
+
+
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        response = csrf_client.get("/en/welcome/") # Put page into cache
+        self.assertStatusCode(response, 200)
+
+        # Get the CSRF token
+        response = csrf_client.get(LOGIN_URL, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        csrf_cookie = response.cookies[settings.CSRF_COOKIE_NAME]
+        csrf_token = csrf_cookie.value
+
+        challenge = csrf_client.session["challenge"]
+        self.assertResponse(response,
+            must_contain=('var challenge="%s";' % challenge),
+            must_not_contain=("Traceback", 'Permission denied'),
+        )
+        self.assertEqual(len(challenge), crypt.HASH_LEN)
+
+        # Get the salt via AJAX
+        response = csrf_client.post("/en/welcome/?auth=get_salt",
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            HTTP_X_CSRFTOKEN=csrf_token,
+            data={"username": username}
+        )
+        salt = response.content
+        self.assertEqual(len(salt), crypt.SALT_LEN)
+
+        # Build the response:
+        shapass = hashlib.sha1(salt + userpass).hexdigest()
+        sha_a = shapass[:20]
+        sha_a2 = hashlib.sha1(challenge + sha_a).hexdigest()
+        sha_b = shapass[20:]
+
+        # Login with calculated sha pass
+        response = csrf_client.post("/en/welcome/?auth=sha_auth",
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            HTTP_X_CSRFTOKEN=csrf_token,
+            data={
+                "username": username,
+                "sha_a2": sha_a2,
+                "sha_b": sha_b,
+            }
+        )
+        self.assertStatusCode(response, 200)
+        self.assertResponse(response,
+            must_contain=('OK',), must_not_contain=("Traceback", "error")
+        )
+        self.assertEqual(response.content, "OK")
+
+        # Check if we are really login:
+        response = csrf_client.get("/en/welcome/")
+        self.assertResponse(response,
+            must_contain=(
+                "You are logged in. Last login was:",
+                '<a href="?auth=logout">Log out [%s]</a>' % username
+            ),
+            must_not_contain=(
+                'Forbidden', 'CSRF verification failed.',
+                'CSRF cookie not set.',
+                "Traceback", "Form errors", "field is required",
+            )
+        )
 
 

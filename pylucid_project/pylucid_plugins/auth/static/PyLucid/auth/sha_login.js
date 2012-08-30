@@ -36,8 +36,8 @@ jQuery(document).ready(function($) {
     log("challenge:" + challenge);
     log("SALT_LEN:" + SALT_LEN);
     log("HASH_LEN:" + HASH_LEN);
-    if (challenge.length != SALT_LEN) {
-        msg = "Wrong challenge from server length:" + challenge.length + "!=" + SALT_LEN;
+    if (challenge.length != HASH_LEN) {
+        msg = "Wrong challenge from server length:" + challenge.length + "!=" + HASH_LEN;
         low_level_error(msg);
         return false;
     } else {

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
     PyLucid.tools.crypt
@@ -9,24 +9,18 @@
 
     unittest: ./dev_scripts/unittests/unittest_crypt.py
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author$
-
-    :copyleft: 2007-2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
-import os, sys, time, random, base64, re
-try:
-    import hashlib
-    sha_constructor = hashlib.sha1
-except ImportError:
-    import sha
-    sha_constructor = sha.new
+import base64
+import hashlib
+import os
+import random
+import re
+import sys
+import time
 
 if __name__ == "__main__":
     print "Local DocTest..."
@@ -116,7 +110,7 @@ def get_new_seed(can_debug=True):
             random.randint(0, sys.maxint - 1), os.getpid(), time.time(),
             settings.SECRET_KEY
         )
-        seed = sha_constructor(raw_seed).hexdigest()
+        seed = hashlib.sha1(raw_seed).hexdigest()
 
     return seed
 
@@ -139,7 +133,7 @@ def get_pseudo_salt(*args):
     generate a pseudo salt (used, if user is wrong)
     """
     temp = "".join([repr(arg) for arg in args])
-    return sha_constructor(temp).hexdigest()[:SALT_LEN]
+    return hashlib.sha1(temp).hexdigest()[:SALT_LEN]
 
 
 def make_hash(txt, salt):
@@ -152,7 +146,7 @@ def make_hash(txt, salt):
     >>> make_hash(txt="test", salt='DEBUG')
     '790f2ebcb902c966fb0e232515ec1319dc9118af'
     """
-    hash = sha_constructor(salt + smart_str(txt)).hexdigest()
+    hash = hashlib.sha1(salt + smart_str(txt)).hexdigest()
     return hash
 
 
@@ -420,15 +414,10 @@ def check_js_sha_checksum(challenge, sha_a2, sha_b, sha_checksum):
 
 
 
-
-def _doc_test(verbose):
-    global DEBUG
+if __name__ == "__main__":
     DEBUG = True
 
     import doctest
-    doctest.testmod(verbose=verbose)
-
-if __name__ == "__main__":
-    _doc_test(verbose=False)
-#    _doc_test(verbose=True)
-    print "DocTest end."
+    print doctest.testmod(
+        verbose=False
+    )
