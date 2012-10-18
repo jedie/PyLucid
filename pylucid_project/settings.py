@@ -130,6 +130,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # Create request.user_settings at process_request() and save it on process_response():
     'dbpreferences.middleware.DBPreferencesMiddleware',
