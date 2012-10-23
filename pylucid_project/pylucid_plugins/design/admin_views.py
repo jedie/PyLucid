@@ -158,6 +158,9 @@ def _clone_colorscheme(design, new_name, sites):
     Clone the colorscheme and all colors.
     """
     colorscheme = design.colorscheme
+    if colorscheme is None:
+        # design used no colorscheme
+        return
 
     colors = Color.objects.filter(colorscheme=colorscheme)
 

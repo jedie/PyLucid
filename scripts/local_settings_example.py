@@ -86,7 +86,7 @@ SECRET_KEY = "add-a-secret-key"
 #        'LOCATION': _LOCATION_PREFIX + 'dbtemplates-cache',
 #        'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
 #    },
-#    LOCAL_SYNC_CACHE_BACKEND: {
+#    'LOCAL_SYNC_CACHE_BACKEND': {
 #        'BACKEND': _BACKEND,
 #        'LOCATION': _LOCATION_PREFIX + 'local_sync-cache',
 #        'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
