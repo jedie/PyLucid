@@ -243,8 +243,12 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         self._permalink_cache.clear()
         self.pagetree._url_cache.clear()
 
-        # FIXME: We must clean the page cache, but this cleans it for every sites!
-        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        # FIXME: We must only update the cache for the current SITE not for all sites.
+        try:
+            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        except AttributeError:
+            # No SmoothCacheBackend used -> clean the complete cache
+            cache.clear()
 
         return super(PageMeta, self).save(*args, **kwargs)
 

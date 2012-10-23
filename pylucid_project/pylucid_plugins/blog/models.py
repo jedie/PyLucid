@@ -80,7 +80,11 @@ class BlogEntry(SiteM2M):
         """
         super(BlogEntry, self).save(*args, **kwargs)
 
-        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        try:
+            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        except AttributeError:
+            # No SmoothCacheBackend used -> clean the complete cache
+            cache.clear()
 
     def get_permalink(self, request, slug=None):
         """
@@ -315,7 +319,11 @@ class BlogEntryContent(MarkupBaseModel, UpdateInfoBaseModel):
 
         super(BlogEntryContent, self).save(*args, **kwargs)
 
-        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        try:
+            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        except AttributeError:
+            # No SmoothCacheBackend used -> clean the complete cache
+            cache.clear()
 
     def get_name(self):
         return self.headline

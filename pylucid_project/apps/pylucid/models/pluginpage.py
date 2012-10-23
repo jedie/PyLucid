@@ -192,7 +192,14 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
             raise AssertionError("Plugin can only exist on a plugin type tree entry!")
 
         _URL_RESOLVER_CACHE.clear()
-        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+
+        # FIXME: We must only update the cache for the current SITE not for all sites.
+        try:
+            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        except AttributeError:
+            # No SmoothCacheBackend used -> clean the complete cache
+            cache.clear()
+
         return super(PluginPage, self).save(*args, **kwargs)
 
     def __unicode__(self):

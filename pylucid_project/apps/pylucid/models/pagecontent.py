@@ -89,9 +89,15 @@ class PageContent(BaseModel, MarkupBaseModel, UpdateInfoBaseModel):
 
     def save(self, *args, **kwargs):
         if self.pagemeta.pagetree.page_type != self.pagemeta.pagetree.PAGE_TYPE:
-            # FIXME: Better error with django model validation?
+            # TODO: move to django model validation
             raise AssertionError("PageContent can only exist on a page type tree entry!")
-        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+
+        try:
+            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        except AttributeError:
+            # No SmoothCacheBackend used -> clean the complete cache
+            cache.clear()
+
         return super(PageContent, self).save(*args, **kwargs)
 
     def __unicode__(self):

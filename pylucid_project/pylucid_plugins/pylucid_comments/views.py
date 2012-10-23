@@ -91,7 +91,6 @@ def comment_will_be_posted_handler(sender, **kwargs):
 def comment_was_posted_handler(sender, **kwargs):
     """
     actions after a new comment saved
-    TODO: Clean page cache witch contains the comment!
     """
 #    print "comment_was_posted_handler", kwargs.keys()
     request = kwargs["request"]
@@ -140,8 +139,13 @@ def comment_was_posted_handler(sender, **kwargs):
     absolute_url = content_object.get_absolute_url()
     language_code = content_object.language.code
     delete_cache_item(absolute_url, language_code, site.id)
-    # update the complete cache
-    cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+
+    # FIXME: We must only update the cache for the current SITE not for all sites.
+    try:
+        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+    except AttributeError:
+        # No SmoothCacheBackend used -> clean the complete cache
+        cache.clear()
 
 
 comment_will_be_posted.connect(comment_will_be_posted_handler)

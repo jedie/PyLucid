@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 """
     PyLucid lexicon models
@@ -133,14 +133,15 @@ class LexiconEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
 
     def save(self, *args, **kwargs):
         """
-        Clean the complete cache.
-        
-        FIXME: clean only the blog summary and detail page:
-            http://www.python-forum.de/topic-22739.html (de)
+        Save and update the cache
         """
         super(LexiconEntry, self).save(*args, **kwargs)
 
-        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        try:
+            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+        except AttributeError:
+            # No SmoothCacheBackend used -> clean the complete cache
+            cache.clear()
 
     def get_name(self):
         """ e.g. for pylucid comment """
