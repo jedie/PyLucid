@@ -28,7 +28,7 @@ from pylucid_project.apps.pylucid.markup.hightlighter import make_html
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 
-from tools.forms import HighlightCodeForm, CleanupLogForm, SelectTemplateForm
+from .forms import HighlightCodeForm, CleanupLogForm, SelectTemplateForm, CleanCacheForm
 
 
 MYSQL_ENCODING_VARS = (
@@ -189,18 +189,32 @@ def cleanup_session(request):
 @render_to("tools/cleanup_cache.html")
 def cleanup_cache(request):
     """ remove everything from the cache """
-    if "doit" in request.GET:
-        start_time = time.time()
-        cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
-        duration_time = time.time() - start_time
-
-        messages.success(request, _("Everything from the Django's cache framework was deleted in %(duration).2fsec") % {
-            "duration":duration_time
-        })
-        return HttpResponseRedirect(request.path)
+    if request.method != "POST":
+        form = CleanCacheForm()
+    else:
+        form = CleanCacheForm(request.POST)
+        if form.is_valid():
+            update_type = form.cleaned_data["update_type"]
+            start_time = time.time()
+            if update_type == CleanCacheForm.SMOOTH:
+                try:
+                    cache.smooth_update()
+                except AttributeError, err:
+                    messages.error(request, _("Error: %s (django-tools SmoothCacheBackend not used?") % err)
+                    return HttpResponseRedirect(request.path)
+            elif update_type == CleanCacheForm.CLEAR:
+                cache.clear()
+            else:
+                raise # Should never happen
+            duration_time = time.time() - start_time
+            messages.success(request, _("Everything from the Django's cache framework was deleted in %(duration).2fsec") % {
+                "duration":duration_time
+            })
+            return HttpResponseRedirect(request.path)
 
     context = {
         "title": _("Remove everything from the Django's cache framework."),
+        "form": form,
     }
     return context
 

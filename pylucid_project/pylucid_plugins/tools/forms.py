@@ -40,6 +40,17 @@ class CleanupLogForm(forms.Form):
 
 
 #-----------------------------------------------------------------------------------------------------------
+
+
+class CleanCacheForm(forms.Form):
+    SMOOTH = "smooth"
+    CLEAR = "clear"
+    update_type = forms.ChoiceField(choices=(
+        (SMOOTH, "cache.smooth_update() from django-tools"),
+        (CLEAR, "cache.clear()")
+    ))
+
+#-----------------------------------------------------------------------------------------------------------
 # override template
 
 
