@@ -4,16 +4,18 @@
     PyLucid admin views
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import posixpath
 
 from django import http
+from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.template.loader import find_template
+from django.template.base import TemplateDoesNotExist
+from django.template.loader import find_template_loader
 from django.utils.translation import ugettext as _
 
 from dbtemplates.models import Template as DBTemplateModel
@@ -23,7 +25,7 @@ from pylucid_project.apps.pylucid.models import Design, Color, ColorScheme
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.utils.css_color_utils import unique_color_name
 
-from design.forms import SwitchDesignForm, CloneDesignForm
+from .forms import SwitchDesignForm, CloneDesignForm
 
 
 def install(request):
@@ -98,13 +100,31 @@ def switch(request):
 # clone design
 
 
+def get_template_source(template_name):
+    """
+    Return the source code of a template (not a compiled version)
+    FIXME: Is there no django API for this?
+    """
+    for loader_name in settings.TEMPLATE_LOADERS:
+        loader = find_template_loader(loader_name)
+        if loader is None:
+            continue
+        try:
+            template_source = loader.load_template_source(template_name)[0]
+        except TemplateDoesNotExist:
+            continue
+        else:
+            return template_source
+    raise TemplateDoesNotExist(template_name)
+
+
 def _clone_template(design, new_template_name, sites):
     """
     create a new DB-Template entry with the content from
     the design template
     """
     template_path = design.template
-    source, origin = find_template(template_path)
+    source = get_template_source(template_path)
     new_template = DBTemplateModel(name=new_template_name, content=source)
     new_template.save(force_insert=True)
     new_template.sites = sites
