@@ -37,7 +37,12 @@
 }
 #pictures li {
     list-style:none;
-    display: inline;
+    float:left;
+    width: 50%;
+    height: 390px;
+}
+#pictures {
+    clear:both;
 }
 </style>
 <script type="text/javascript">
@@ -109,9 +114,12 @@ jQuery(document).ready(function($) {
     <ul id="pictures">
     {% for picture in data.items %}
         <li>
-            <a href="{{ picture.media.c }}" rel="flickr" title="{{ picture.title }}{% if picture.desc_text %} - {{ picture.desc_text|striptags }}{% endif %}">
-                <img src="{{ picture.media.q }}" />
+            <h3 class="noanchor">{{ picture.title }}</h3>
+            <p class="taken_datetime" title="{% trans "Picture taken" %}"><small>{{ picture.datetime|date:_("DATETIME_FORMAT") }}</small></p>
+            <a href="{{ picture.media.c }}" rel="flickr" title="{{ picture.title }}">
+                <img src="{{ picture.media.m }}" />
             </a>
+            {{ picture.desc_text|safe }}
         </li>
     {% empty %}
         <li><i>{% trans "No pictures found." %}</i></li>

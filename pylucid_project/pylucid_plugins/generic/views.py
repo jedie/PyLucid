@@ -10,6 +10,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
+import datetime
 import sys
 import time
 import traceback
@@ -100,6 +101,21 @@ def get_json_remote(request, url, cache_time, timeout, encoding=None):
                 for char in (u"s", u"q", u"t", u"n", u"z", u"c", u"b"):
                     if not char in pic["media"]:
                         pic["media"][char] = url.replace(u"_m.jpg", u"_%s.jpg" % char)
+
+            # separate description text
+            for pic in data["items"]:
+                raw_desc = pic["description"]
+                desc = raw_desc.rsplit(u"</a></p>", 1)[1].strip()
+                # Cleanup:
+                desc = "<br />".join([txt.strip() for txt in desc.split("<br />") if txt.strip()])
+                pic["desc_text"] = desc
+
+            # Parse the 'date_taken' time without local information
+            for pic in data["items"]:
+                raw_date = pic["date_taken"]
+                dt = raw_date.rsplit("-", 1)[0]
+                dt = datetime.datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+                pic["datetime"] = dt
 
         context = {
             "url": url,
