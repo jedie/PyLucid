@@ -15,9 +15,24 @@ from django.utils.translation import ugettext_lazy as _
 from pygments.lexers._mapping import LEXERS
 
 
+SOURCE_CHOICES = []
+for lexer in LEXERS.itervalues():
+    name = lexer[1]
+    aliases = lexer[2]
+    try:
+        alias = aliases[0]
+    except IndexError:
+        # Bug in Pygments v1.6rc1
+        # Fixed in https://bitbucket.org/birkenfeld/pygments-main/issue/837/windows-registry-lexer-does-not-include
+        # XXX remove if new bugfixed version on Pygments was released!
+        continue
+    SOURCE_CHOICES.append((alias, name))
+SOURCE_CHOICES.sort()
+
+
 class HighlightCodeForm(forms.Form):
     sourcecode = forms.CharField(widget=forms.Textarea)
-    source_type = forms.ChoiceField(choices=sorted([(aliases[0], name) for _, name, aliases, _, _ in LEXERS.itervalues()]))
+    source_type = forms.ChoiceField(choices=SOURCE_CHOICES)
 
 
 class CleanupLogForm(forms.Form):
