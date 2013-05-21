@@ -1,5 +1,13 @@
 # coding:utf-8
 
+"""
+    PyLucid admin menu models
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+"""
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User, Group, Permission
