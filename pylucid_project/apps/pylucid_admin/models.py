@@ -23,7 +23,8 @@ class PyLucidAdminManager(TreeManager):
         tree = TreeGenerator(filtered_items)
         #tree.debug()
 
-        # Hide categories, if they has sub entry links        
+        # Hide categories, if they has no sub entry links
+        # (e.g. user has no right to use any sub entry views)        
         for node in tree.iter_flat_list():
             if not node.data["absolute_url"] and not node.subnodes:
                 node.visible = False
