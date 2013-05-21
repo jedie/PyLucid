@@ -1,0 +1,26 @@
+{% extends "pylucid_admin/base_site.html" %}
+{% load i18n %}
+
+
+{% block content %}
+<h3>User data</h3>
+<dl>
+  <dt>Username:</dt>
+  <dd>{{ request.user.username }}</dd> 
+  <dt>date joined:</dt>
+  <dd>{{ request.user.date_joined }}</dd> 
+  <dt>Last Login:</dt>
+  <dd>{{ request.user.last_login }}</dd> 
+</dl>
+
+<h3>Password</h3>
+<!-- TODO:
+<p>JavaScript enhanced password change:
+<a href="{% url Auth-JS_password_change %}">{% trans "Change password" %}</a>
+(More secure, plaintext password would be hashed in browser before send to server)
+</p>
+-->
+<p>Plaintext password change:
+<a href="{% url Auth-plaintext_password_change %}">{% trans "Change password" %}</a>
+</p>
+{% endblock %}
