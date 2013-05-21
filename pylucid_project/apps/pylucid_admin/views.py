@@ -4,7 +4,7 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -152,7 +152,7 @@ def install_plugins(request):
                     output.append("Skip plugin %r, because it has no install view (%s)" % (plugin_name, err))
                 continue
 
-            messages.error(request, "failed call %s.%s" % (plugin_name, view_name))
+            messages.error(request, "failed call %s.%s: %s" % (plugin_name, view_name, err))
             continue
 
         output.append("_" * 79)
