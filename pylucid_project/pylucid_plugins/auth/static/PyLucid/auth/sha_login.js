@@ -1,3 +1,13 @@
+/*
+    PyLucid sha_login.js
+    ~~~~~~~~~~~~~~~~~~~~
+    
+    A secure JavaScript SHA-1 AJAX Login.
+    
+    :copyleft: 2007-2013 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+*/
+
 try {
     jQuery(document);
     log("jQuery loaded, ok.");
@@ -9,6 +19,15 @@ function low_level_error(msg) {
     $("#page_content").html("<"+"h2>" + msg + "<"+"/h2>");
     alert(msg);
     return false;
+}
+function assert_is_number(value, name) {
+    log("name:" + value);
+    if(value=="") {
+        throw "Variable '"+name+"' from server is a empty string!";
+    }
+    if(isNaN(value)) {
+        throw "Variable '"+name+"' from server is not a number! It's: ["+value+"]"
+    }
 }
 jQuery(document).ready(function($) {
     log("sha_login.js - document ready");
@@ -26,28 +45,30 @@ jQuery(document).ready(function($) {
     } else {
         log("cookie check, ok.");
     }
-    
+        
     // Check variabled that set in sha_form.html by template variables:
     if (typeof challenge === 'undefined') {
         msg = "Error: 'challenge' not defined!";
         low_level_error(msg);
         return false;
     }
-    log("challenge:" + challenge);
-    log("SALT_LEN:" + SALT_LEN);
-    log("HASH_LEN:" + HASH_LEN);
+    
+    try {
+        assert_is_number(challenge, "challenge");
+        assert_is_number(SALT_LEN, "SALT_LEN");
+        assert_is_number(HASH_LEN, "HASH_LEN");
+        assert_is_number(LOOP_COUNT, "LOOP_COUNT");
+    } catch (e) {
+        low_level_error(e);
+        return false;
+    }
+    
     if (challenge.length != HASH_LEN) {
         msg = "Wrong challenge from server length:" + challenge.length + "!=" + HASH_LEN;
         low_level_error(msg);
         return false;
     } else {
         log("salt length test, ok.");
-    }
-
-    log("LOOP_COUNT:" + LOOP_COUNT);
-    if (isNaN(LOOP_COUNT)) {
-        low_level_error("Wrong LOOP_COUNT from server!");
-        return false;
     }
 
     // Check functions from shared_sha_tools.js and sha.js
