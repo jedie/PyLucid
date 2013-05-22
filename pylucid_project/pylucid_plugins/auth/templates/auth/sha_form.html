@@ -29,8 +29,10 @@ var LOOP_COUNT=parseInt("{{ loop_count }}");
 var salt=""; {# get via ajax #}
 var sha_auth_url="{{ sha_auth_url }}";
 var get_salt_url="{{ get_salt_url }}";
+jQuery(document).ready(function($) {
+    init_pylucid_sha_login();
+});
 </script>
-<script type="text/javascript" src="{{ STATIC_URL }}PyLucid/auth/sha_login.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 {% endcompress %}
 
 <fieldset>
@@ -61,6 +63,7 @@ var get_salt_url="{{ get_salt_url }}";
     <label>JS-SHA-Login values:</label>
       <li>SHA A: <input readonly="readonly" name="sha_a" maxlength="40" type="text" id="id_sha_a" size="40" autocomplete="off" /></li>
       <li>SHA B: <input readonly="readonly" name="sha_b" maxlength="20" type="text" id="id_sha_b" size="20" autocomplete="off" /></li>
+      <li>client nonce: <input readonly="readonly" name="cnonce" maxlength="40" type="text" id="id_cnonce" size="40" autocomplete="off" /></li>
   </ul>
   <input id="submit_button" type="submit" value="{% trans 'Log in' %}" />
 </form>
