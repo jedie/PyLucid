@@ -6,7 +6,7 @@
     
     A secure JavaScript SHA-1 AJAX Login.
     
-    :copyleft: 2007-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -34,7 +34,7 @@ class HoneypotForm(forms.Form):
 
 
 class UsernameForm(forms.Form):
-    username = forms.CharField(max_length=_('30'), label=_('Username'),
+    username = forms.CharField(max_length=30, label=_('Username'),
         help_text=_('Required. 30 characters or fewer. Alphanumeric characters only (letters, digits and underscores).')
     )
 
@@ -64,42 +64,76 @@ class UsernameForm(forms.Form):
         return user, user_profile
 
 
-class ShaLoginForm(UsernameForm):
-    """
-    Form for the SHA1-JavaScript-Login.
-    """
+class Sha1BaseForm(forms.Form):
     sha_a = forms.CharField(min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN)
     sha_b = forms.CharField(min_length=crypt.HASH_LEN / 2, max_length=crypt.HASH_LEN / 2)
     cnonce = forms.CharField(min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN)
 
-    def _sha_validate1(self, sha_value, key):
+    def _validate_sha1(self, sha_value, key):
         if crypt.validate_sha_value(sha_value) != True:
             raise forms.ValidationError(u"%s is not valid SHA value." % key)
         return sha_value
 
-    def _sha_validate2(self, key):
+    def _validate_sha1_by_key(self, key):
         sha_value = self.cleaned_data[key]
-        return self._sha_validate1(sha_value, key)
+        return self._validate_sha1(sha_value, key)
+
+    def _validate_filled_sha1_by_key(self, key):
+        # Fill with null, to match the full SHA1 hexdigest length.
+        value = self.cleaned_data[key]
+
+#        fill_len = crypt.HASH_LEN - len(value)
+#        temp_value = ("0" * fill_len) + value
+
+        temp_value = value.ljust(crypt.HASH_LEN, "0")
+        self._validate_sha1(temp_value, key)
+
+        return value
 
     def clean_sha_a(self):
-        return self._sha_validate2("sha_a")
+        return self._validate_sha1_by_key("sha_a")
     def clean_cnonce(self):
-        return self._sha_validate2("cnonce")
+        return self._validate_sha1_by_key("cnonce")
 
     def clean_sha_b(self):
         """
         The sha_b value is only a part of a SHA1 hexdigest. So we need to add
-        some characers to use the rypt.validate_sha_value() method.
+        some characers to use the crypt.validate_sha_value() method.
         """
-        sha_b = self.cleaned_data["sha_b"]
+        return self._validate_filled_sha1_by_key("sha_b")
 
-        # Fill with null, to match the full SHA1 hexdigest length.
-        fill_len = crypt.HASH_LEN - (crypt.HASH_LEN / 2)
-        temp_value = ("0" * fill_len) + sha_b
-        self._sha_validate1(temp_value, "sha_b")
 
-        return sha_b
+class ShaLoginForm(Sha1BaseForm, UsernameForm):
+    """
+    Form for the SHA1-JavaScript-Login.
 
+    inherited form Sha1BaseForm() this form fields:
+        sha_a
+        sha_b
+        cnonce
+    inherited form UsernameForm() this form fields:
+        username
+    """
+    pass
+
+
+class JSPasswordChangeForm(Sha1BaseForm):
+    """
+    Form for changing the password with Client side JS encryption.
+
+    inherited form Sha1BaseForm() this form fields:
+        sha_a
+        sha_b
+        cnonce
+    for pre-verification with old password "JS-SHA1" values
+    """
+    # new password as salted SHA1 hash:
+    salt = forms.CharField(min_length=crypt.SALT_LEN, max_length=crypt.SALT_LEN)
+    sha1hash = forms.CharField(min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN)
+    def clean_salt(self):
+        return self._validate_filled_sha1_by_key("salt")
+    def clean_sha1(self):
+        return self._validate_sha1_by_key("sha1hash")
 
 #
 #class NewPasswordForm(forms.Form):

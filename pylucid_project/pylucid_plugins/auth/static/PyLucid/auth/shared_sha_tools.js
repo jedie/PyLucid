@@ -108,6 +108,19 @@ function assert_min_length(value, min_length, name) {
 
 //-----------------------------------------------------------------------------
 
+function generate_nonce(start_value) {
+    // Generate new 'cnonce' a client side random value
+    var cnonce = start_value;
+    cnonce += new Date().getTime();
+    cnonce += Math.random();
+    cnonce += $(window).height();
+    cnonce += $(window).width();
+    //cnonce = "Always the same, test.";
+    log("generated cnonce from:" + cnonce);
+    cnonce = sha_hexdigest(cnonce);
+    log("SHA cnonce:" + cnonce);
+    return cnonce
+}
 
 function sha_hexdigest(txt) {
     /*
@@ -137,16 +150,7 @@ function calculate_hashes(password, salt, challenge) {
     sha_b = shapass.substr(HASH_LEN/2, HASH_LEN/2);
     log("substr: sha_a:|"+sha_a+"| sha_b:|"+sha_b+"|");   
 
-    // Generate new 'cnonce' a client side random value
-    var cnonce = "";
-    cnonce += new Date().getTime();
-    cnonce += Math.random();
-    cnonce += $(window).height();
-    cnonce += $(window).width();
-    //cnonce = "Always the same, test.";
-    log("generated cnonce from:" + cnonce);
-    cnonce = sha_hexdigest(cnonce);
-    log("SHA cnonce:" + cnonce);
+    var cnonce = generate_nonce("PyLucid JS-SHA-Login");
 
     log("Build "+LOOP_COUNT+"x SHA1 from: sha_a + i + challenge + cnonce");
     for (i=0; i<LOOP_COUNT; i++)
@@ -159,6 +163,30 @@ function calculate_hashes(password, salt, challenge) {
         "sha_a": sha_a,
         "sha_b": sha_b,
         "cnonce": cnonce,
+    }
+}
+
+function calculate_salted_sha1(password) {
+    /*
+        Generate the Django password hash
+        currently we only generated the salted SHA1 hash
+        see: hashers.SHA1PasswordHasher()
+        
+        TODO:
+        Use http://code.google.com/p/crypto-js/
+        to support hashers.PBKDF2PasswordHasher() in JS Code
+    */
+    var cnonce = generate_nonce("django hash");
+    var salt = cnonce.substr(0, SALT_LEN);
+    log("salt to use: ["+salt+"] (length:"+salt.length+")");
+    assert_length(salt, SALT_LEN, "salt");
+    
+    var sha1hash = sha_hexdigest(salt + password);
+    log("salted SHA1 hash: ["+sha1hash+"] (length:"+sha1hash.length+")");
+    assert_length(sha1hash, HASH_LEN, "sha1hash");
+    return {
+        "salt": salt,
+        "sha1hash": sha1hash,
     }
 }
 
@@ -343,6 +371,7 @@ function init_pylucid_sha_login() {
             if (msg=="OK") {
                  // login was ok
                  page_msg_success(gettext("Login ok, loading..."));
+                 $("#id_password").remove();
                  window.location.href = next_url;
                  return false;
             }
@@ -414,7 +443,6 @@ function init_JS_password_change() {
         var new_password2 = $("#id_new_password2").val();
         log("new_password2:" + new_password2);
         
-        /*
         try {
             assert_min_length(old_password, 8, "old password");
         } catch (e) {
@@ -438,7 +466,17 @@ function init_JS_password_change() {
             $("#id_new_password2").focus();
             return false;
         }
-        */
+        
+        if (new_password1 == old_password) {
+            var result=confirm("The new password is the same as the old password.");
+            if (result != true) {
+                return false
+            }
+        }
+        
+        // display SHA values
+        $("#password_block").slideUp(1).delay(500);
+        $("#sha_values_block").css("display", "block").slideDown();
         
         try {
             var results=calculate_hashes(old_password, salt, challenge);
@@ -452,17 +490,33 @@ function init_JS_password_change() {
         log("sha_a:"+sha_a);
         log("sha_b:"+sha_b);
         log("cnonce:"+cnonce);
-        
-        // display SHA values
-        $("#password_block").slideUp(1).delay(500);
-        $("#sha_values_block").css("display", "block").slideDown();
-        $("#id_password").val(""); // 'delete' plaintext password
+       
+        // old password "JS-SHA1" values for pre-verification
         $("#id_sha_a").val(sha_a);
         $("#id_sha_b").val(sha_b);
+        $("#id_cnonce").val(cnonce);
+                
+        $("#id_old_password").val(""); // 'delete' plaintext password
+        $("#id_old_password").remove();
         
-        return false;
+        var salted_hash=calculate_salted_sha1(new_password1);
+        var salt=salted_hash.salt;
+        var sha1hash=salted_hash.sha1hash;
+        log("new salted hash:");
+        log("salt: "+salt+" (length:"+salt.length+")");
+        log("sha1hash: "+sha1hash+" (length:"+sha1hash.length+")");
+       
+        // new password as salted SHA1 hash:
+        $("#id_salt").val(salt);
+        $("#id_sha1hash").val(sha1hash);
+
+        $("#id_new_password1").val(""); // 'delete' plaintext password
+        $("#id_new_password1").remove();
+        $("#id_new_password2").val(""); // 'delete' plaintext password
+        $("#id_new_password2").remove();
+        
+        return confirm("Send?");
     });
-    
     $("#load_info").slideUp();
 }
 
