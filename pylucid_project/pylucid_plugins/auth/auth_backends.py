@@ -14,11 +14,12 @@
         
     TODO: move SiteAuthBackend to django-tools
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -129,7 +130,7 @@ class SiteSHALoginAuthBackend(ModelBackend):
             if LOCAL_DEBUG:
                 raise
             if settings.DEBUG:
-                failsafe_message(err)
+                failsafe_message(err, level=messages.ERROR)
             return None
 
         if check != True:
