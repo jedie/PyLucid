@@ -3,9 +3,9 @@
 """
     PyLucid JS-SHA-Login forms
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     A secure JavaScript SHA-1 AJAX Login.
-    
+
     :copyleft: 2007-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
@@ -79,15 +79,10 @@ class Sha1BaseForm(forms.Form):
         return self._validate_sha1(sha_value, key)
 
     def _validate_filled_sha1_by_key(self, key):
-        # Fill with null, to match the full SHA1 hexdigest length.
         value = self.cleaned_data[key]
-
-#        fill_len = crypt.HASH_LEN - len(value)
-#        temp_value = ("0" * fill_len) + value
-
+        # Fill with null, to match the full SHA1 hexdigest length.
         temp_value = value.ljust(crypt.HASH_LEN, "0")
         self._validate_sha1(temp_value, key)
-
         return value
 
     def clean_sha_a(self):
@@ -135,128 +130,3 @@ class JSPasswordChangeForm(Sha1BaseForm):
     def clean_sha1(self):
         return self._validate_sha1_by_key("sha1hash")
 
-#
-#class NewPasswordForm(forms.Form):
-#    username = forms.CharField(
-#        help_text="(required)", min_length=3, max_length=30
-#    )
-#
-#    # Should normaly never be send back!
-#    raw_password = forms.CharField(
-#        help_text="(required)", required=False, widget=forms.PasswordInput()
-#    )
-#
-#    sha_1 = forms.CharField(
-#        label="SHA1 for django",
-#        help_text="(automatic generated with JavaScript.)",
-#        widget=forms.TextInput(attrs={"readonly":"readonly", "size":"40"}),
-#        min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN
-#    )
-#    sha_2 = forms.CharField(
-#        label="SHA1 for PyLucid",
-#        help_text="(automatic generated with JavaScript.)",
-#        widget=forms.TextInput(attrs={"readonly":"readonly", "size":"40"}),
-#        min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN
-#    )
-#
-#    #__________________________________________________________________________
-#    # Validate the SHA1 hexdigest values:
-#
-#    def clean_sha_1(self):
-#        return validate_sha1("sha_1", self.cleaned_data)
-#
-#    def clean_sha_2(self):
-#        return validate_sha1("sha_2", self.cleaned_data)
-#
-#
-##______________________________________________________________________________
-## FORMS
-#
-##class BaseModelForm(forms.ModelForm):
-##    """
-##    A model form witch don't validate unique fields.
-##
-##    This ModelForm is only for generating the forms and not for create/update
-##    any database data. So a field unique Test would like generate Errors like:
-##        User with this Username already exists.
-##
-##    see also:
-##    http://www.jensdiemer.de/_command/118/blog/detail/30/ (de)
-##    http://www.python-forum.de/topic-16000.html (de)
-##    """
-##    def __init__(self, *args, **kwargs):
-##        """ Change field meta in a DRY way """
-##        super(BaseModelForm, self).__init__(*args, **kwargs)
-##
-##        self.model.full_validate = self._skip
-##
-##    def _skip(self, *args, **kwargs):
-##        pass
-##
-##    def validate_unique(self):
-##        pass
-#
-#class UsernameForm(forms.Form):
-#    """
-#    form for input the username, used in auth.login()
-#    
-#    FIXME: This is not DRY.
-#    """
-#
-#
-##    class Meta:
-##        model = User
-##        fields = ("username",)
-#
-#
-#class PasswordForm(forms.Form):
-#    """
-#    form for input the username, used in auth._sha_login()
-#    
-#    FIXME: This is not DRY.
-#    """
-#    password = forms.CharField(max_length=_('128'), label=_('Password'), widget=forms.PasswordInput()
-#    )
-#
-##    def __init__(self, *args, **kwargs):
-##        """ Change field meta in a DRY way """
-##        super(PasswordForm, self).__init__(*args, **kwargs)
-##
-##        self.fields['password'].widget = forms.PasswordInput()
-##        self.fields['password'].help_text = ""
-#
-#    def is_valid(self, username):
-#        is_valid = super(PasswordForm, self).is_valid()
-#        if not is_valid:
-#            return False
-#
-#        password = self.cleaned_data["password"]
-#        self.user = auth.authenticate(username=username, password=password)
-#        if not self.user:
-#            self._errors["password"] = ("Wrong password!",)
-#            return False
-#
-#        return True
-#
-##    class Meta:
-##        model = User
-##        fields = ("password",)
-#
-#
-#class ResetForm(forms.Form):
-#    """
-#    from for input username and email, used in auth.pass_reset()
-#    """
-#    username = forms.CharField(max_length=_('30'), label=_('Username'),
-#        help_text=_('Required. 30 characters or fewer. Alphanumeric characters only (letters, digits and underscores).')
-#    )
-#    email = forms.EmailField(max_length=_('75'), label=_('E-mail address'))
-#
-##    def __init__(self, *args, **kwargs):
-##        super(ResetForm, self).__init__(*args, **kwargs)
-##        # User.email is normaly a not required field, here it's required!
-##        self.fields['email'].required = True
-#
-##    class Meta:
-##        model = User
-##        fields = ("username", "email")
