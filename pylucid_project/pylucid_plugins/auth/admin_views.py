@@ -68,7 +68,7 @@ def _wrong_old_password(request, debug_msg, user=None):
     if settings.DEBUG:
         error_msg = debug_msg
     else:
-        error_msg = _("Wrong old password.")
+        error_msg = _("Wrong old password. Try again.")
 
     messages.error(request, error_msg)
 
@@ -79,7 +79,7 @@ def _wrong_old_password(request, debug_msg, user=None):
     ban_limit = preferences["ban_limit"]
     try:
         LogEntry.objects.request_limit(
-            request, min_pause, ban_limit, app_label="pylucid_plugin.auth", action="login error", no_page_msg=True
+            request, min_pause, ban_limit, app_label="pylucid_plugin.auth", action="old password error", no_page_msg=True
         )
     except LogEntry.RequestTooFast, err:
         # min_pause is not observed
@@ -91,7 +91,7 @@ def _wrong_old_password(request, debug_msg, user=None):
     else:
         data = None
     LogEntry.objects.log_action(
-        app_label="pylucid_plugin.auth", action="login error", message=debug_msg, data=data
+        app_label="pylucid_plugin.auth", action="old password error", message=debug_msg, data=data
     )
 
     url = reverse("Auth-JS_password_change")
@@ -180,6 +180,7 @@ def JS_password_change(request):
         context.update({
             "challenge": challenge,
             "sha_login_salt": sha_login_salt,
+            "old_salt_len": crypt.OLD_SALT_LEN,
             "salt_len": crypt.SALT_LEN,
             "hash_len": crypt.HASH_LEN,
             "loop_count": loop_count,

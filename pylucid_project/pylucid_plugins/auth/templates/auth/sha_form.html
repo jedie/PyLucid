@@ -23,6 +23,7 @@ var next_url="{{ next_url }}";
 <script type="text/javascript" src="{{ STATIC_URL }}PyLucid/auth/sha.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}PyLucid/auth/shared_sha_tools.js" onerror="JavaScript:alert('Error loading file ['+this.src+'] !');"></script>
 <script type="text/javascript">
+var OLD_SALT_LEN=parseInt("{{ old_salt_len }}");
 var SALT_LEN=parseInt("{{ salt_len }}");
 var HASH_LEN=parseInt("{{ hash_len }}");
 var LOOP_COUNT=parseInt("{{ loop_count }}");

@@ -4,12 +4,13 @@
     PyLucid.tools.crypt
     ~~~~~~~~~~~~~~~~~~~
 
-    -Two usefull salt hash functions. (Used in the _install section for login.)
-    -A one-time-pad XOR crypter. (Used for the SHA-JS-Login)
+    Routines for the PyLucid SHA-JS-Login.
+    more info:
+        http://www.pylucid.org/permalink/42/secure-login-without-https
 
     unittest: ./dev_scripts/unittests/unittest_crypt.py
 
-    :copyleft: 2007-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -41,11 +42,17 @@ if DEBUG:
 
 HASH_TYP = "sha1"
 
-SALT_LEN = 5 # length of the random salt value
+OLD_SALT_LEN = 5 # old length of the random salt value
+
+# Django used 12 as default in hashers.SHA1PasswordHasher()
+# number comes from django.utils.crypto.get_random_string()
+SALT_LEN = 12 # new length of the random salt value
+
 HASH_LEN = 40 # length of a SHA-1 hexdigest
 
 # SHA-1 hexdigest + "sha1" + (2x "$") + salt length
 SALT_HASH_LEN = HASH_LEN + 4 + 2 + SALT_LEN
+OLD_SALT_HASH_LEN = HASH_LEN + 4 + 2 + OLD_SALT_LEN
 
 
 class SaltHashError(Exception):
@@ -120,7 +127,7 @@ def get_new_salt(can_debug=True):
     Generate a new, random salt value.
 
     >>> get_new_salt() # DEBUG is True in DocTest!
-    'DEBUG'
+    'DEBUG_123456'
     >>> salt = get_new_salt(can_debug=False)
     >>> assert salt != 'DEBUG_1234567890', "salt is: %s" % salt
     >>> assert len(salt) == SALT_LEN, "Wrong length: %s" % len(salt)
@@ -156,7 +163,7 @@ def get_salt_and_hash(txt):
     returned salt and sha1hash as a tuple
 
     >>> get_salt_and_hash("test")
-    ('sha1', 'DEBUG', '790f2ebcb902c966fb0e232515ec1319dc9118af')
+    ('sha1', 'DEBUG_123456', '9f5ee85f5c91adb5741d8f93483386989d5d49ae')
     """
     if not isinstance(txt, str):
         raise SaltHashError("Only string allowed!")
@@ -173,7 +180,7 @@ def make_salt_hash(txt):
     returned one string back
 
     >>> make_salt_hash("test")
-    'sha1$DEBUG$790f2ebcb902c966fb0e232515ec1319dc9118af'
+    'sha1$DEBUG_123456$9f5ee85f5c91adb5741d8f93483386989d5d49ae'
     """
     salt_hash = "$".join(get_salt_and_hash(txt))
     return salt_hash
@@ -188,14 +195,14 @@ def check_salt_hash(txt, salt_hash):
 
     >>> salt_hash = make_salt_hash("test")
     >>> salt_hash
-    'sha1$DEBUG$790f2ebcb902c966fb0e232515ec1319dc9118af'
+    'sha1$DEBUG_123456$9f5ee85f5c91adb5741d8f93483386989d5d49ae'
     >>> check_salt_hash("test", salt_hash)
     True
     """
 #    if not (isinstance(txt, str) and isinstance(salt_hash, str)):
 #        raise SaltHashError("Only string allowed!")
 
-    if len(salt_hash) != SALT_HASH_LEN:
+    if len(salt_hash) not in (SALT_HASH_LEN, OLD_SALT_HASH_LEN):
         raise SaltHashError("Wrong salt-sha1hash length.")
 
     try:
@@ -235,6 +242,9 @@ def salt_hash_to_dict(salt_hash):
 
 #______________________________________________________________________________
 
+class CryptLengthError(AssertionError):
+    pass
+
 
 def crypt(txt, key):
     """
@@ -244,7 +254,8 @@ def crypt(txt, key):
     >>> crypt("1234", "ABCD")
     u'pppp'
     """
-    assert len(txt) == len(key), "XOR cipher error: %r and %r must have the same length!" % (txt, key)
+    if len(txt) != len(key):
+        raise CryptLengthError("XOR cipher error: %r and %r must have the same length!" % (txt, key))
 
     crypted = [unichr(ord(t) ^ ord(k)) for t, k in zip(txt, key)]
     return u"".join(crypted)
@@ -258,10 +269,10 @@ def encrypt(txt, key, use_base64=True, can_debug=True):
     u'crypt 1234 with ABCD'
 
     >>> encrypt(u"1234", u"ABCD", can_debug=False)
-    u'sha1$DEBUG$b323f546665b1f034742630133d1b489480a24e2cHBwcA=='
+    u'sha1$DEBUG_123456$91ca222581d9b8f61934d7bf25fb3625141cda91cHBwcA=='
 
     >>> encrypt(u"1234", u"ABCD", use_base64=False, can_debug=False)
-    u'sha1$DEBUG$b323f546665b1f034742630133d1b489480a24e2pppp'
+    u'sha1$DEBUG_123456$91ca222581d9b8f61934d7bf25fb3625141cda91pppp'
     """
     if not (isinstance(txt, unicode) and isinstance(key, unicode)):
         raise UnicodeError("Only unicode allowed!")
@@ -288,8 +299,11 @@ def decrypt(crypted, key, use_base64=True, can_debug=True):
 
     >>> crypted = encrypt(u"1234", u"ABCD", can_debug=False)
     >>> crypted
-    u'sha1$DEBUG$b323f546665b1f034742630133d1b489480a24e2cHBwcA=='
+    u'sha1$DEBUG_123456$91ca222581d9b8f61934d7bf25fb3625141cda91cHBwcA=='
     >>> decrypt(crypted, u"ABCD", can_debug=False)
+    u'1234'
+
+    >>> decrypt(u'sha1$DEBUG$b323f546665b1f034742630133d1b489480a24e2cHBwcA==', u"ABCD", can_debug=False)
     u'1234'
 
     >>> crypted = encrypt(u"1234", u"ABCD", use_base64=False, can_debug=False)
@@ -305,12 +319,21 @@ def decrypt(crypted, key, use_base64=True, can_debug=True):
         return txt
 
     salt_hash = str(crypted[:SALT_HASH_LEN])
-    crypted = crypted[SALT_HASH_LEN:]
+    crypted1 = crypted[SALT_HASH_LEN:]
     if use_base64 == True:
-        crypted = base64.b64decode(crypted)
-        crypted = unicode(crypted)
+        crypted1 = base64.b64decode(crypted1)
+        crypted1 = unicode(crypted1)
 
-    decrypted = crypt(crypted, key)
+    try:
+        decrypted = crypt(crypted1, key)
+    except CryptLengthError:
+        # Try with the OLD_SALT_HASH_LEN
+        salt_hash = str(crypted[:OLD_SALT_HASH_LEN])
+        crypted2 = crypted[OLD_SALT_HASH_LEN:]
+        if use_base64 == True:
+            crypted2 = base64.b64decode(crypted2)
+            crypted2 = unicode(crypted2)
+        decrypted = crypt(crypted2, key)
 
     # raised a SaltHashError() if the checksum is wrong:
     check_salt_hash(repr(decrypted), salt_hash)
@@ -351,7 +374,7 @@ def make_sha_checksum2(raw_password):
     Create a SHA1-JS-Login checksum from a plaintext password.
 
     >>> make_sha_checksum2("test")
-    ('DEBUG', u'crypt 790f2ebcb902c966fb0e with 232515ec1319dc9118af')
+    ('DEBUG_123456', u'crypt 9f5ee85f5c91adb5741d with 8f93483386989d5d49ae')
     """
     _, salt, hash_value = get_salt_and_hash(raw_password)
 

@@ -5,9 +5,11 @@
     PyLucid JS-SHA-Login
     ~~~~~~~~~~~~~~~~~~~~
     
-    A secure JavaScript SHA-1 AJAX Login.
+    secure JavaScript SHA-1 AJAX Login
+    more info:
+        http://www.pylucid.org/permalink/42/secure-login-without-https
     
-    :copyleft: 2007-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -274,7 +276,7 @@ def _get_salt(request):
         salt = crypt.get_pseudo_salt(username)
     else:
         salt = user_profile.sha_login_salt
-        if len(salt) != crypt.SALT_LEN:
+        if len(salt) not in (crypt.SALT_LEN, crypt.OLD_SALT_LEN):
             # Old profile, e.g. after PyLucid v0.8 update?
             username = request.POST["username"]
             msg = "Salt for user %r has wrong length: %r" % (username, salt)
@@ -340,6 +342,7 @@ def _login_view(request):
 
     context = {
         "challenge": challenge,
+        "old_salt_len": crypt.OLD_SALT_LEN,
         "salt_len": crypt.SALT_LEN,
         "hash_len": crypt.HASH_LEN,
         "loop_count": loop_count,

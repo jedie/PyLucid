@@ -18,7 +18,7 @@ try {
 
 
 function _page_msg(msg){
-    $("#js_page_msg").html(msg).css("display", "block").slideDown();
+    $("#js_page_msg").html(msg).slideDown().css("display", "block");
 }
 function page_msg_error(msg) {
     $("#js_page_msg").removeClass("page_msg_info page_msg_success").addClass("page_msg_error");
@@ -92,7 +92,7 @@ function assert_length(value, must_length, name) {
         throw "Error: '"+name+"' has wrong length:" + value.length + "!=" + must_length;
     } else {
         log("assert length of '"+name+"', ok (length == "+value.length+")");
-    }    
+    }
 }
 
 function assert_min_length(value, min_length, name) {
@@ -105,6 +105,18 @@ function assert_min_length(value, min_length, name) {
     }    
 }
 
+function assert_salt_length(value) {
+    var salt_length = value.length 
+    if (salt_length == OLD_SALT_LEN) {
+        log("WARNING: Salt '"+value+"' has old "+salt_length+" length.");
+        return
+    }
+    if (salt_length != SALT_LEN) {
+        throw "Error: Salt '"+value+"' has wrong length:" + salt_length;
+    } else {
+        log("assert length of salt '"+value+"', ok (length == "+salt_length+")");
+    }
+}
 
 //-----------------------------------------------------------------------------
 
@@ -137,7 +149,7 @@ function sha_hexdigest(txt) {
 function calculate_hashes(password, salt, challenge) {
     log("calculate_hashes with salt '"+salt+"' (length:"+salt.length+") and challenge '"+challenge+"' (length:"+challenge.length+")");
     
-    assert_length(salt, SALT_LEN, "salt");
+    assert_salt_length(salt);
     assert_length(challenge, HASH_LEN, "challenge");
     
     log("shapass = sha_hexdigest(salt + password):");
@@ -169,7 +181,7 @@ function calculate_hashes(password, salt, challenge) {
     }
 }
 
-function calculate_salted_sha1(password, salt_length) {
+function calculate_salted_sha1(password) {
     /*
         Generate the Django password hash
         currently we only generated the salted SHA1 hash
@@ -180,14 +192,13 @@ function calculate_salted_sha1(password, salt_length) {
         to support hashers.PBKDF2PasswordHasher() in JS Code
     */
     log("calculate_salted_sha1():");
-    if (typeof salt_length == 'undefined') {salt_length = 12};
    
-    log("Generate salt with a length of:"+salt_length);
+    log("Generate salt with a length of:"+SALT_LEN);
    
     var cnonce = generate_nonce("django hash");
-    var salt = cnonce.substr(0, salt_length);
+    var salt = cnonce.substr(0, SALT_LEN);
     log("salt to use: ["+salt+"] (length:"+salt.length+")");
-    assert_length(salt, salt_length, "salt");
+    assert_length(salt, SALT_LEN, "salt");
     
     var sha1hash = sha_hexdigest(salt + password);
     log("salted SHA1 hash: ["+sha1hash+"] (length:"+sha1hash.length+")");
@@ -232,6 +243,7 @@ function precheck_sha_login() {
     assert_csrf_cookie() // Check if Cross Site Request Forgery protection cookie exists
     assert_challenge() // Check variable that set in sha_form.html by template variables
         
+    assert_is_number(OLD_SALT_LEN, "OLD_SALT_LEN");
     assert_is_number(SALT_LEN, "SALT_LEN");
     assert_is_number(HASH_LEN, "HASH_LEN");
     assert_is_number(LOOP_COUNT, "LOOP_COUNT");
@@ -276,11 +288,13 @@ function init_pylucid_sha_login() {
         return false;
     });
 
-    $("#id_password").change(function() {
-        $("#js_page_msg").slideUp(); // hide old messages
+    $("input").change(function() {
+        // hide old JS messages, if a input field changed
+        $("#js_page_msg").slideUp(50);
     });
 
     $("#login_form").submit(function() {
+        $("#js_page_msg").slideUp(50); // hide old JS messages
         log("check login form.");
         try {
             var username = $("#id_username").val();
@@ -336,7 +350,10 @@ function init_pylucid_sha_login() {
             } else {
                 log("use existing salt:" + salt);
             }
-            if (salt.length != SALT_LEN) {
+            try {
+                assert_salt_length(salt);
+            } catch (e) {
+                log(e);
                 alert("Internal error: Wrong salt length:" + salt.length + "!=" + SALT_LEN);
                 return false;
             }
@@ -542,16 +559,11 @@ function init_JS_password_change() {
     */
     log("shared_sha_login.js - init_JS_password_change()");
     
-    // for debugging:
-    $("#id_old_password").val("12345678");
-    $("#id_new_password1").val("12345678");
-    $("#id_new_password2").val("12345678"); 
-    
     try {
         precheck_sha_login();
         
         // unlike normal login, we have the salt directly, set in template
-        assert_length(sha_login_salt, SALT_LEN, "salt");
+        assert_salt_length(sha_login_salt)
     } catch (e) {
         log(e);
         alert("Error:" + e);
@@ -560,15 +572,21 @@ function init_JS_password_change() {
     
     $("#id_old_password").focus();
     
+    $("input").change(function() {
+        // hide old JS messages, if a input field changed
+        $("#js_page_msg").slideUp(50);
+    });
+    
     $("#change_password_form").submit(function() {
+        $("#js_page_msg").slideUp(50); // hide old JS messages
         try {
-            change_password_submit()
+            return change_password_submit();
         } catch (e) {
             log(e);
             alert("Error:" + e);
             return false;
         }
-        return confirm("Send?");
+        //return confirm("Send?");
     });
     $("#load_info").slideUp();
 }

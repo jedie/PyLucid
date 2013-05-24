@@ -9,7 +9,7 @@
     
     TODO: Add tests for honypot, too.
     
-    :copyleft: 2010-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -275,14 +275,14 @@ class LoginTest(basetest.BaseUnittest):
                 )
                 self.assertStatusCode(response2, 200)
                 tested_first_login = True
-                self.failUnless(len(response1.content) == 5) # the salt          
+                self.failUnless(len(response1.content) == 12) # the salt
 
             elif no == ban_limit + 1:
                 # The limit has been reached
                 tested_banned = True
                 self.assertResponse(response2, must_contain=('You are now banned.',))
                 self.assertStatusCode(response2, 404)
-                self.failUnless(len(response1.content) == 5) # the salt
+                self.failUnless(len(response1.content) == 12) # the salt
             elif no > ban_limit:
                 # IP is on the ban list
                 tested_limit_reached = True
@@ -293,7 +293,7 @@ class LoginTest(basetest.BaseUnittest):
                 tested_under_limit = True
                 self.assertStatusCode(response1, 200)
                 self.assertStatusCode(response2, 200)
-                self.failUnless(len(response1.content) == 5) # the salt
+                self.failUnless(len(response1.content) == 12) # the salt
                 self.assertResponse(response2,
                     must_contain=(
                         'Request too fast!',
