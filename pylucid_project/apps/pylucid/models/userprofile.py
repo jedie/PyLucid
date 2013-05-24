@@ -4,7 +4,7 @@
     pylucid.models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -46,7 +46,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     sha_login_checksum = models.CharField(max_length=192,
         help_text="Checksum for PyLucid JS-SHA-Login"
     )
-    sha_login_salt = models.CharField(max_length=5,
+    sha_login_salt = models.CharField(max_length=crypt.SALT_LEN,
         help_text="Salt value for PyLucid JS-SHA-Login"
     )
 
