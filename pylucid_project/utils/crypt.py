@@ -146,14 +146,14 @@ def make_hash(txt, salt):
     >>> make_hash(txt="test", salt='DEBUG')
     '790f2ebcb902c966fb0e232515ec1319dc9118af'
     """
-    hash = hashlib.sha1(salt + smart_str(txt)).hexdigest()
-    return hash
+    sha1hash = hashlib.sha1(salt + smart_str(txt)).hexdigest()
+    return sha1hash
 
 
 def get_salt_and_hash(txt):
     """
     Generate a hast value with a random salt
-    returned salt and hash as a tuple
+    returned salt and sha1hash as a tuple
 
     >>> get_salt_and_hash("test")
     ('sha1', 'DEBUG', '790f2ebcb902c966fb0e232515ec1319dc9118af')
@@ -162,9 +162,9 @@ def get_salt_and_hash(txt):
         raise SaltHashError("Only string allowed!")
 
     salt = get_new_salt()
-    hash = make_hash(txt, salt)
+    sha1hash = make_hash(txt, salt)
 
-    return (HASH_TYP, salt, hash)
+    return (HASH_TYP, salt, sha1hash)
 
 
 def make_salt_hash(txt):
@@ -181,7 +181,7 @@ def make_salt_hash(txt):
 
 def check_salt_hash(txt, salt_hash):
     """
-    compare txt with the salt-hash.
+    compare txt with the salt-sha1hash.
 
     TODO: Should we used the django function for this?
         Look at: django.contrib.auth.models.check_password
@@ -196,23 +196,23 @@ def check_salt_hash(txt, salt_hash):
 #        raise SaltHashError("Only string allowed!")
 
     if len(salt_hash) != SALT_HASH_LEN:
-        raise SaltHashError("Wrong salt-hash length.")
+        raise SaltHashError("Wrong salt-sha1hash length.")
 
     try:
-        type, salt, hash = salt_hash.split("$")
+        hash_type, salt, sha1hash = salt_hash.split("$")
     except ValueError:
-        raise SaltHashError("Wrong salt-hash format.")
+        raise SaltHashError("Wrong salt-sha1hash format.")
 
-    if type != "sha1":
-        raise SaltHashError("Unsupported hash method.")
+    if hash_type != "sha1":
+        raise SaltHashError("Unsupported sha1hash method.")
 
     test_hash = make_hash(txt, salt)
 #    raise
-    if hash != test_hash:
-        msg = "salt-hash compare failed."
+    if sha1hash != test_hash:
+        msg = "salt-sha1hash compare failed."
         if DEBUG:
-            msg += " (txt: '%s', salt: '%s', hash: '%s', test_hash: '%s')" % (
-                txt, salt, hash, test_hash
+            msg += " (txt: '%s', salt: '%s', sha1hash: '%s', test_hash: '%s')" % (
+                txt, salt, sha1hash, test_hash
             )
         raise SaltHashError(msg)
 
@@ -221,14 +221,15 @@ def check_salt_hash(txt, salt_hash):
 
 def salt_hash_to_dict(salt_hash):
     """
-    >>> salt_hash_to_dict("sha$salt_value$the_SHA_value")
-    {'salt': 'salt_value', 'type': 'sha', 'hash': 'the_SHA_value'}
+    >>> result = salt_hash_to_dict("sha$salt_value$the_SHA_value")
+    >>> result == {'salt': 'salt_value', 'hash_type': 'sha', 'hash_value': 'the_SHA_value'}
+    True
     """
-    type, salt, hash = salt_hash.split("$")
+    hash_type, salt, hash_value = salt_hash.split("$")
     return {
-        "type": type,
+        "hash_type": hash_type,
         "salt": salt,
-        "hash": hash
+        "hash_value": hash_value
     }
 
 
@@ -331,13 +332,13 @@ def django_to_sha_checksum(django_salt_hash):
     >>> django_to_sha_checksum("sha1$DEBUG$50b412a7ef09f4035f2daca882a1f8bfbe263b62")
     ('DEBUG', u'crypt 50b412a7ef09f4035f2d with aca882a1f8bfbe263b62')
     """
-    hash_typ, salt, hash = django_salt_hash.split("$")
-    assert hash_typ == "sha1", "hash typ not supported!"
-    assert len(hash) == HASH_LEN, "Wrong hash length! (Not a SHA1 hash?)"
+    hash_typ, salt, hash_value = django_salt_hash.split("$")
+    assert hash_typ == "sha1", "hash_value typ not supported!"
+    assert len(hash_value) == HASH_LEN, "Wrong hash_value length! (Not a SHA1 hash_value?)"
 
     # Split the SHA1-Hash in two pieces
-    sha_a = hash[:(HASH_LEN / 2)]
-    sha_b = hash[(HASH_LEN / 2):]
+    sha_a = hash_value[:(HASH_LEN / 2)]
+    sha_b = hash_value[(HASH_LEN / 2):]
 
     sha_a = unicode(sha_a)
     sha_b = unicode(sha_b)
