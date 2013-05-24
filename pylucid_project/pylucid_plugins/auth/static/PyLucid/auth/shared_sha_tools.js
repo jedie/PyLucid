@@ -17,17 +17,6 @@ try {
 }
 
 
-function is_only_ascii(data) {
-    // Check if the given string contains only ASCII characters
-    for (var i = 1; i <= data.length; i++) {
-       if (data.charCodeAt(i) > 127) {
-            return false;
-       }
-    }
-    return true;
-}
-
-
 function _page_msg(msg){
     $("#js_page_msg").html(msg).css("display", "block").slideDown();
 }
@@ -61,6 +50,17 @@ function assert_is_number(value, name) {
         throw "Variable '"+name+"' from server is not a number! It's: ["+value+"]";
     }
     log("assert_is_number for '"+name+"', ok (value="+value+")");
+}
+
+
+function assert_only_ascii(data) {
+    // Check if the given string contains only ASCII characters
+    for (var i = 1; i <= data.length; i++) {
+        var char_code=data.charCodeAt(i)
+        if (char_code > 127) {
+            throw "Error: non ASCII caracter '"+data.substr(i,1)+"' (unicode no. "+char_code+") in '"+data+"'!";
+        }
+    }
 }
 
 
@@ -135,7 +135,10 @@ function sha_hexdigest(txt) {
 
 
 function calculate_hashes(password, salt, challenge) {
-    log("calculate_hashes...");
+    log("calculate_hashes with salt '"+salt+"' (length:"+salt.length+") and challenge '"+challenge+"' (length:"+challenge.length+")");
+    
+    assert_length(salt, SALT_LEN, "salt");
+    assert_length(challenge, HASH_LEN, "challenge");
     
     log("shapass = sha_hexdigest(salt + password):");
     var shapass = sha_hexdigest(salt + password);
@@ -166,7 +169,7 @@ function calculate_hashes(password, salt, challenge) {
     }
 }
 
-function calculate_salted_sha1(password) {
+function calculate_salted_sha1(password, salt_length) {
     /*
         Generate the Django password hash
         currently we only generated the salted SHA1 hash
@@ -176,14 +179,20 @@ function calculate_salted_sha1(password) {
         Use http://code.google.com/p/crypto-js/
         to support hashers.PBKDF2PasswordHasher() in JS Code
     */
+    log("calculate_salted_sha1():");
+    if (typeof salt_length == 'undefined') {salt_length = 12};
+   
+    log("Generate salt with a length of:"+salt_length);
+   
     var cnonce = generate_nonce("django hash");
-    var salt = cnonce.substr(0, SALT_LEN);
+    var salt = cnonce.substr(0, salt_length);
     log("salt to use: ["+salt+"] (length:"+salt.length+")");
-    assert_length(salt, SALT_LEN, "salt");
+    assert_length(salt, salt_length, "salt");
     
     var sha1hash = sha_hexdigest(salt + password);
     log("salted SHA1 hash: ["+sha1hash+"] (length:"+sha1hash.length+")");
     assert_length(sha1hash, HASH_LEN, "sha1hash");
+
     return {
         "salt": salt,
         "sha1hash": sha1hash,
@@ -290,12 +299,18 @@ function init_pylucid_sha_login() {
             try {
                 assert_min_length(password, 8, "password");
             } catch (e) {
+                log(e);
                 page_msg_error(gettext("Password is too short. It must be at least eight characters long."));
                 $("#id_password").focus();
                 return false;
             }
-            if (is_only_ascii(password) != true) {
+            
+            try {
+                assert_only_ascii(password)
+            } catch (e) {
+                log(e);
                 page_msg_error(gettext("Only ASCII letters in password allowed!"));
+                $("#id_password").focus();
                 return false;
             }
 
@@ -411,6 +426,114 @@ function init_pylucid_sha_login() {
 
 //-----------------------------------------------------------------------------
 
+function change_password_submit() {
+    /*
+    calculate the hashes from the passwords and insert only them into
+    the form and remove the plaintext passwords.
+    */
+    log("check change password form.");
+    
+    var old_password = $("#id_old_password").val();
+    log("old_password:" + old_password);
+    
+    var new_password1 = $("#id_new_password1").val();
+    log("new_password1:" + new_password1);
+    
+    var new_password2 = $("#id_new_password2").val();
+    log("new_password2:" + new_password2);
+    
+    try {
+        assert_min_length(old_password, 8, "old password");
+    } catch (e) {
+        page_msg_error(e);
+        $("#id_old_password").focus();
+        return false;
+    }
+    
+    try {
+        assert_min_length(new_password1, 8, "new password");
+    } catch (e) {
+        page_msg_error(e);
+        $("#id_new_password1").focus();
+        return false;
+    }
+    
+    try {
+        assert_only_ascii(old_password)
+    } catch (e) {
+        log(e);
+        page_msg_error(gettext("Error: Old password contains non ASCII letters!"));
+        $("#id_old_password").focus();
+        return false;
+    }
+    
+    try {
+        assert_only_ascii(new_password1)
+    } catch (e) {
+        log(e);
+        page_msg_error(gettext("Error: New password contains non ASCII letters!"));
+        $("#id_new_password2").val("");
+        $("#id_new_password1").focus();
+        return false;
+    }
+    
+    if (new_password1 != new_password2) {
+        msg = gettext("The two password fields didn't match.")
+        log(msg + " -> " + new_password1 + " != " + new_password2);
+        page_msg_error(msg);
+        $("#id_new_password2").focus();
+        return false;
+    }
+    
+    if (new_password1 == old_password) {
+        var result=confirm("The new password is the same as the old password.");
+        if (result != true) {
+            return false
+        }
+    }
+    
+    // display SHA values
+    $("#password_block").slideUp(1).delay(500);
+    $("#sha_values_block").css("display", "block").slideDown();
+    
+    try {
+        var results=calculate_hashes(old_password, sha_login_salt, challenge);
+    } catch (e) {
+        alert(e);
+        return false;
+    }
+    var sha_a=results.sha_a;
+    var sha_b=results.sha_b;
+    var cnonce=results.cnonce;
+    log("sha_a:"+sha_a);
+    log("sha_b:"+sha_b);
+    log("cnonce:"+cnonce);
+   
+    // old password "JS-SHA1" values for pre-verification
+    $("#id_sha_a").val(sha_a);
+    $("#id_sha_b").val(sha_b);
+    $("#id_cnonce").val(cnonce);
+            
+    $("#id_old_password").val(""); // 'delete' plaintext password
+    $("#id_old_password").remove();
+    
+    var salted_hash=calculate_salted_sha1(new_password1);
+    var salt=salted_hash.salt;
+    var sha1hash=salted_hash.sha1hash;
+    log("new salted hash:");
+    log("salt: "+salt+" (length:"+salt.length+")");
+    log("sha1hash: "+sha1hash+" (length:"+sha1hash.length+")");
+   
+    // new password as salted SHA1 hash:
+    $("#id_salt").val(salt);
+    $("#id_sha1hash").val(sha1hash);
+
+    $("#id_new_password1").val(""); // 'delete' plaintext password
+    $("#id_new_password1").remove();
+    $("#id_new_password2").val(""); // 'delete' plaintext password
+    $("#id_new_password2").remove();
+
+}
 
 function init_JS_password_change() {
     /*
@@ -419,104 +542,33 @@ function init_JS_password_change() {
     */
     log("shared_sha_login.js - init_JS_password_change()");
     
+    // for debugging:
+    $("#id_old_password").val("12345678");
+    $("#id_new_password1").val("12345678");
+    $("#id_new_password2").val("12345678"); 
+    
     try {
         precheck_sha_login();
         
         // unlike normal login, we have the salt directly, set in template
-        assert_length(salt, SALT_LEN, "salt");
+        assert_length(sha_login_salt, SALT_LEN, "salt");
     } catch (e) {
-        low_level_error(e);
+        log(e);
+        alert("Error:" + e);
         return false;
     }
     
     $("#id_old_password").focus();
     
     $("#change_password_form").submit(function() {
-        log("check change password form.");
-        
-        var old_password = $("#id_old_password").val();
-        log("old_password:" + old_password);
-        
-        var new_password1 = $("#id_new_password1").val();
-        log("new_password1:" + new_password1);
-        
-        var new_password2 = $("#id_new_password2").val();
-        log("new_password2:" + new_password2);
-        
         try {
-            assert_min_length(old_password, 8, "old password");
+            change_password_submit()
         } catch (e) {
-            page_msg_error(e);
-            $("#id_old_password").focus();
+            log(e);
+            alert("Error:" + e);
             return false;
         }
-        
-        try {
-            assert_min_length(new_password1, 8, "new password");
-        } catch (e) {
-            page_msg_error(e);
-            $("#id_new_password1").focus();
-            return false;
-        }
-        
-        if (new_password1 != new_password2) {
-            msg = gettext("The two password fields didn't match.")
-            log(msg + " -> " + new_password1 + " != " + new_password2);
-            page_msg_error(msg);
-            $("#id_new_password2").focus();
-            return false;
-        }
-        
-        if (new_password1 == old_password) {
-            var result=confirm("The new password is the same as the old password.");
-            if (result != true) {
-                return false
-            }
-        }
-        
-        // display SHA values
-        $("#password_block").slideUp(1).delay(500);
-        $("#sha_values_block").css("display", "block").slideDown();
-        
-        try {
-            var results=calculate_hashes(old_password, salt, challenge);
-        } catch (e) {
-            alert(e);
-            return false;
-        }
-        var sha_a=results.sha_a;
-        var sha_b=results.sha_b;
-        var cnonce=results.cnonce;
-        log("sha_a:"+sha_a);
-        log("sha_b:"+sha_b);
-        log("cnonce:"+cnonce);
-       
-        // old password "JS-SHA1" values for pre-verification
-        $("#id_sha_a").val(sha_a);
-        $("#id_sha_b").val(sha_b);
-        $("#id_cnonce").val(cnonce);
-                
-        $("#id_old_password").val(""); // 'delete' plaintext password
-        $("#id_old_password").remove();
-        
-        var salted_hash=calculate_salted_sha1(new_password1);
-        var salt=salted_hash.salt;
-        var sha1hash=salted_hash.sha1hash;
-        log("new salted hash:");
-        log("salt: "+salt+" (length:"+salt.length+")");
-        log("sha1hash: "+sha1hash+" (length:"+sha1hash.length+")");
-       
-        // new password as salted SHA1 hash:
-        $("#id_salt").val(salt);
-        $("#id_sha1hash").val(sha1hash);
-
-        $("#id_new_password1").val(""); // 'delete' plaintext password
-        $("#id_new_password1").remove();
-        $("#id_new_password2").val(""); // 'delete' plaintext password
-        $("#id_new_password2").remove();
-        
         return confirm("Send?");
     });
     $("#load_info").slideUp();
 }
-

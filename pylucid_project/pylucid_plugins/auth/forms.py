@@ -123,7 +123,7 @@ class JSPasswordChangeForm(Sha1BaseForm):
     for pre-verification with old password "JS-SHA1" values
     """
     # new password as salted SHA1 hash:
-    salt = forms.CharField(min_length=crypt.SALT_LEN, max_length=crypt.SALT_LEN)
+    salt = forms.CharField(min_length=12, max_length=12) # length see: hashers.SHA1PasswordHasher() and django.utils.crypto.get_random_string()
     sha1hash = forms.CharField(min_length=crypt.HASH_LEN, max_length=crypt.HASH_LEN)
     def clean_salt(self):
         return self._validate_filled_sha1_by_key("salt")
