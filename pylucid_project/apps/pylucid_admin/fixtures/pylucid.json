@@ -2898,7 +2898,7 @@
             "createby": 1,
             "lastupdatetime": "2011-05-16T12:02:02",
             "markup": 6,
-            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://github.com/jedie/PyLucid/issues|GitHub Bug Tracker]].\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}",
+            "content": "Willkommen auf deiner frisch installierem PyLucid CMS Seiten ;)\r\n(Nur diese Seite existiert in deutsch.)\r\n\r\nAls ersten Schritt solltest du die \"site domain\" auf deinen Domain Namen ändern.\r\nDu kannst dafür diesen Link benutzten: [[{% url 'admin:sites_site_change' 1 %}]]\r\n\r\nFallst du die Plugins noch nicht instaliert hast, gehe einmal auf:\r\n * //PyLucid Admin Menü / PyLucid / **Plugins installieren**//\r\n\r\nDanach wäre es gut, wenn du die Ausgaben des Selbsttest genau studieren würdest, unter: \r\n * //PyLucid Admin Menü / system / **base check**//\r\n\r\nBei Fragen: [[http://www.pylucid.org/permalink/29/kontakt-contact|Kontakiere uns]]!\r\nWenn du Fehler gefunden hast, schreibe ein Ticket (wenn dies noch nicht existiert) in unserem [[http://github.com/jedie/PyLucid/issues|GitHub Bug Tracker]].\r\n\r\n\r\n=== Liste der letzten Änderungen\r\n\r\n{% lucidTag update_journal %}",
             "pagemeta": 20,
             "lastupdateby": 1,
             "createtime": "2010-01-29T08:27:45"
@@ -2989,7 +2989,7 @@
             "createby": 1,
             "lastupdatetime": "2010-09-24T09:34:31",
             "markup": 6,
-            "content": "This is PyLucid default design \"main yellow pop\" witch used the same CSS files than \"main yellow\" and \"main green\" but with a pop color scheme ;)\r\n\r\nYou should test <<html>><a href=\"{% url Design-switch %}\">Switch Design</a><</html>>, too ;)",
+            "content": "This is PyLucid default design \"main yellow pop\" witch used the same CSS files than \"main yellow\" and \"main green\" but with a pop color scheme ;)\r\n\r\nYou should test <<html>><a href=\"{% url 'Design-switch' %}\">Switch Design</a><</html>>, too ;)",
             "pagemeta": 28,
             "lastupdateby": 1,
             "createtime": "2010-09-24T09:34:31"
@@ -3002,7 +3002,7 @@
             "createby": 1,
             "lastupdatetime": "2010-09-24T09:23:21",
             "markup": 6,
-            "content": "This is PyLucid default design \"main green\" witch used the same CSS files than \"main yellow\" and \"main blue\" but with a green color scheme...\r\n\r\nYou should test <<html>><a href=\"{% url Design-switch %}\">Switch Design</a><</html>>, too ;)",
+            "content": "This is PyLucid default design \"main green\" witch used the same CSS files than \"main yellow\" and \"main blue\" but with a green color scheme...\r\n\r\nYou should test <<html>><a href=\"{% url 'Design-switch' %}\">Switch Design</a><</html>>, too ;)",
             "pagemeta": 27,
             "lastupdateby": 1,
             "createtime": "2010-09-14T07:30:40"
@@ -3015,7 +3015,7 @@
             "createby": 1,
             "lastupdatetime": "2010-09-24T09:23:13",
             "markup": 6,
-            "content": "This is PyLucid default design \"main blue\" witch used the same CSS files than \"main yellow\" and \"main green\" but with a blue color scheme...\r\n\r\nYou should test <<html>><a href=\"{% url Design-switch %}\">Switch Design</a><</html>>, too ;)",
+            "content": "This is PyLucid default design \"main blue\" witch used the same CSS files than \"main yellow\" and \"main green\" but with a blue color scheme...\r\n\r\nYou should test <<html>><a href=\"{% url 'Design-switch' %}\">Switch Design</a><</html>>, too ;)",
             "pagemeta": 26,
             "lastupdateby": 1,
             "createtime": "2010-08-31T14:21:03"
@@ -3028,7 +3028,7 @@
             "createby": 1,
             "lastupdatetime": "2010-08-27T06:56:55",
             "markup": 6,
-            "content": "Welcome to your fesh PyLucid CMS installation ;)\r\n\r\nYou should first change the \"site domain\" to your domain name.\r\nYou can use this link: [[{% url admin:sites_site_change 1 %}]]\r\n\r\nIf you didn't installed the PyLucid plugins, please do it here:\r\n * //PyLucid admin menu / PyLucid / **install plugins**//\r\n\r\nThen it would be good if you would carefully study the output of the self test, here:\r\n * //PyLucid admin menu / system / **base check**//\r\n\r\nPlease [[http://www.pylucid.org/permalink/29/kontakt-contact|contact us]], if you have any question.\r\n\r\nIf you find errors, write a ticket (if it does not exist) in our [[http://github.com/jedie/PyLucid/issues|GitHub bug tracker]].\r\n\r\n=== list of last updates\r\n\r\n{% lucidTag update_journal %}",
+            "content": "Welcome to your fesh PyLucid CMS installation ;)\r\n\r\nYou should first change the \"site domain\" to your domain name.\r\nYou can use this link: [[{% url 'admin:sites_site_change' 1 %}]]\r\n\r\nIf you didn't installed the PyLucid plugins, please do it here:\r\n * //PyLucid admin menu / PyLucid / **install plugins**//\r\n\r\nThen it would be good if you would carefully study the output of the self test, here:\r\n * //PyLucid admin menu / system / **base check**//\r\n\r\nPlease [[http://www.pylucid.org/permalink/29/kontakt-contact|contact us]], if you have any question.\r\n\r\nIf you find errors, write a ticket (if it does not exist) in our [[http://github.com/jedie/PyLucid/issues|GitHub bug tracker]].\r\n\r\n=== list of last updates\r\n\r\n{% lucidTag update_journal %}",
             "pagemeta": 1,
             "lastupdateby": 1,
             "createtime": "2009-11-03T03:37:10"
