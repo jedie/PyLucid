@@ -17,12 +17,12 @@ import warnings
 import subprocess
 
 
-__version__ = (1, 5, 0)
+__version__ = (1, 6, 0, "dev")
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
 
-#VERBOSE = True
+# VERBOSE = True
 VERBOSE = False
 
 def _error(msg):
@@ -36,7 +36,7 @@ def get_commit_timestamp(path=None):
 
     try:
         process = subprocess.Popen(
-            # %ct: committer date, UNIX timestamp  
+            # %ct: committer date, UNIX timestamp
             ["/usr/bin/git", "log", "--pretty=format:%ct", "-1", "HEAD"],
             shell=False, cwd=path,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
