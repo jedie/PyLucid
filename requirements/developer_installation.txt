@@ -10,7 +10,7 @@ docutils
 
 # http://www.djangoproject.com/
 # Official Django git repository (readonly clone)
--e git+git://github.com/django/django.git@stable/1.4.x#egg=django
+-e git+git://github.com/django/django.git@stable/1.5.x#egg=django
 
 # clone PyLucid own projects with git push access
 #-------------------------------------------------
@@ -37,4 +37,5 @@ docutils
 
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid
--e git+git@github.com:jedie/PyLucid.git#egg=pylucid
+#-e git+git@github.com:jedie/PyLucid.git#egg=pylucid
+-e git+git@github.com:jedie/PyLucid.git@django1.5#egg=pylucid
