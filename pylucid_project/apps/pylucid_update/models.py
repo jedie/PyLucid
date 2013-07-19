@@ -6,13 +6,7 @@
 
     Old PyLucid v0.8 models, used for migrating data into the new v0.9 models.
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate: 2009-02-20 09:22:34 +0100 (Fr, 20 Feb 2009) $
-    $Rev: 1831 $
-    $Author: JensDiemer $
-
-    :copyleft: 2007-2008 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -28,7 +22,7 @@ class PageManager(models.Manager):
     """
     pass
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 class Page08(models.Model):
     """
@@ -96,7 +90,7 @@ class Page08(models.Model):
         "Style08", to_field="id", help_text="the used stylesheet for this page"
     )
     markup = models.IntegerField(
-        db_column="markup_id", # Use the old column name.
+        db_column="markup_id",  # Use the old column name.
         max_length=1, choices=MARKUP_CHOICES,
         help_text="the used markup language for this page",
     )
@@ -150,7 +144,7 @@ class Page08(models.Model):
     def get_absolute_url(self):
         """ absolute url *without* language code (without domain/host part) """
         if self.pk in self._url_cache:
-            #print "Page08 url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
+            # print "Page08 url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
             return self._url_cache[self.pk]
 
         if self.parent:
@@ -239,7 +233,7 @@ class JS_LoginData08(models.Model):
 
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Models from old Blog plugin
 
 
@@ -260,7 +254,7 @@ class BlogComment08(models.Model):
     )
     homepage = models.URLField(
         _("homepage"), help_text=_("Your homepage (optional)"),
-        verify_exists=False, max_length=200,
+        max_length=200,
         null=True, blank=True
     )
 
@@ -314,7 +308,7 @@ class BlogTagManager(models.Manager):
         (e.g. via url)
         TODO: Exist there a better way to verify the tag slug?
         """
-        slug = slug.strip("/") # If it comes from url args
+        slug = slug.strip("/")  # If it comes from url args
         for char in BAD_TAG_SLUG_CHARS:
             if char in slug:
                 raise self.model.DoesNotExist("Not allowed character in tag name!")
@@ -392,7 +386,7 @@ class BlogTag(models.Model):
 
     class Meta:
         db_table = 'PyLucidPlugins_blogtag'
-        #db_table = 'PyLucidPlugins_blogentry_tags'
+        # db_table = 'PyLucidPlugins_blogentry_tags'
         app_label = 'PyLucid_Update'
         ordering = ('name',)
 
@@ -406,7 +400,7 @@ class BlogEntry(models.Model):
     )
     content = models.TextField(_('Content'))
     markup = models.IntegerField(
-        max_length=1, #choices=Page.MARKUP_CHOICES,
+        max_length=1,  # choices=Page.MARKUP_CHOICES,
         help_text="the used markup language for this entry",
     )
 
