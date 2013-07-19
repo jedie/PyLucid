@@ -3,10 +3,10 @@
     <dt>admin actions:</dt>
     <dd>
         {% if perms.update_journal.change_updatejournal %}
-            <a href="{% url admin:update_journal_updatejournal_change obj.id %}" title="edit '{{ obj.title|escape }}'">edit</a>
+            <a href="{% url 'admin:update_journal_updatejournal_change' obj.id %}" title="edit '{{ obj.title|escape }}'">edit</a>
         {% endif %}
         {% if perms.update_journal.delete_updatejournal %}
-            <a href="{% url admin:update_journal_updatejournal_delete obj.id %}" title="Delete '{{ obj.title|escape }}' from the list">delete</a>
+            <a href="{% url 'admin:update_journal_updatejournal_delete' obj.id %}" title="Delete '{{ obj.title|escape }}' from the list">delete</a>
         {% endif %}
     </dd>
     {% endif %}

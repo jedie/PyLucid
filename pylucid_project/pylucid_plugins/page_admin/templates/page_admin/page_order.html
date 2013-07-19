@@ -5,7 +5,7 @@
 
 <p>Change the page level:</br> 
 {% if previous_level %}
-<a href="{% url PageAdmin-page_order previous_level.id %}" title="Go to *previous* page level: '{{ previous_level.get_absolute_url }}'">{{ previous_level.slug }}</a>
+<a href="{% url 'PageAdmin-page_order' previous_level.id %}" title="Go to *previous* page level: '{{ previous_level.get_absolute_url }}'">{{ previous_level.slug }}</a>
 &#xAB;
 {% endif %}
 
@@ -13,7 +13,7 @@
 
 {% if next_level %}
 &#xBB;
-<a href="{% url PageAdmin-page_order next_level.id %}" title="Go to *next* page level: '{{ next_level.get_absolute_url }}'">{{ next_level.slug }}</a>
+<a href="{% url 'PageAdmin-page_order' next_level.id %}" title="Go to *next* page level: '{{ next_level.get_absolute_url }}'">{{ next_level.slug }}</a>
 {% endif %}
 </p>
 

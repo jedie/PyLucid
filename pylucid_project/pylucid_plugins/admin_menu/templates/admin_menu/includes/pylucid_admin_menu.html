@@ -49,7 +49,7 @@
         <ul>
             {% if perms.pylucid.change_pagetree %}
                 <li>
-                    <a href="{% url PageAdmin-edit_page PYLUCID.pagetree.id %}"
+                    <a href="{% url 'PageAdmin-edit_page' PYLUCID.pagetree.id %}"
                         title="{% trans "edit all page attributes in a seperated view" %}">
                         {% trans "edit all" %}
                     </a>
@@ -59,7 +59,7 @@
                 {% if perms.pylucid.change_pagecontent %}
                 <li>
                     {# how to use direct the url "pylucid_pagecontent_revision" ? #}
-                    <a href="{% url admin:pylucid_pagecontent_change PYLUCID.pagecontent.id %}history/"
+                    <a href="{% url 'admin:pylucid_pagecontent_change' PYLUCID.pagecontent.id %}history/"
                         title="{% trans "See 'PageContent' revision history" %}">
                         {% trans "see content history" %}
                     </a>
@@ -74,7 +74,7 @@
                 {% if PYLUCID.pluginpage %}
                     {% if perms.pylucid.change_pluginpage %}
                     <li>
-                        <a href="{% url admin:pylucid_pluginpage_change PYLUCID.pluginpage.id %}"
+                        <a href="{% url 'admin:pylucid_pluginpage_change' PYLUCID.pluginpage.id %}"
                             title="{% trans "edit only 'plugin page' entry in with django admin panel" %}">
                             {% trans "edit plugin page" %}
                         </a>
@@ -84,7 +84,7 @@
                 {% if PYLUCID.pagecontent %}
                     {% if perms.pylucid.change_pagecontent %}
                     <li>
-                        <a href="{% url admin:pylucid_pagecontent_change PYLUCID.pagecontent.id %}"
+                        <a href="{% url 'admin:pylucid_pagecontent_change' PYLUCID.pagecontent.id %}"
                             title="{% trans "edit only 'PageContent' part in django admin panel" %}">
                             {% trans "edit page content" %}
                         </a>
@@ -94,7 +94,7 @@
                 
                 {% if perms.pylucid.change_pagetree %}
                     <li>
-                        <a href="{% url admin:pylucid_pagetree_change PYLUCID.pagetree.id %}"
+                        <a href="{% url 'admin:pylucid_pagetree_change' PYLUCID.pagetree.id %}"
                             title="{% trans "edit only 'PageTree' part in django admin panel" %}">
                             {% trans "edit page tree" %}
                         </a>
@@ -102,7 +102,7 @@
                 {% endif %}
                 {% if perms.pylucid.change_pagemeta %}
                     <li>
-                        <a href="{% url admin:pylucid_pagemeta_change PYLUCID.pagemeta.id %}"
+                        <a href="{% url 'admin:pylucid_pagemeta_change' PYLUCID.pagemeta.id %}"
                             title="{% trans "edit only 'PageMeta' part in django admin panel" %}">
                             {% trans "edit page meta" %}
                         </a>
@@ -113,20 +113,20 @@
             
             {% if perms.pylucid.change_design %}
             <li>
-                <a title="{% trans "edit current style/template in django admin panel" %}" href="{% url admin:pylucid_design_changelist %}">
+                <a title="{% trans "edit current style/template in django admin panel" %}" href="{% url 'admin:pylucid_design_changelist' %}">
                     {% trans "edit current look" %}
                 </a>
                 <ul>
                 {% if perms.pylucid.change_design %}
                     <li>
-                        <a href="{% url admin:pylucid_design_change PYLUCID.pagetree.design.id %}"
+                        <a href="{% url 'admin:pylucid_design_change' PYLUCID.pagetree.design.id %}"
                             title="{% trans "edit current design:" %} '{{ PYLUCID.pagetree.design.name }}'">
                             {% trans "design" %}
                         </a>
                     </li>
                     {% if PYLUCID.pagetree.design.colorscheme %}
                     <li>
-                        <a href="{% url admin:pylucid_colorscheme_change PYLUCID.pagetree.design.colorscheme.id %}"
+                        <a href="{% url 'admin:pylucid_colorscheme_change' PYLUCID.pagetree.design.colorscheme.id %}"
                             title="{% trans "edit current colorscheme:" %} '{{ PYLUCID.pagetree.design.colorscheme.name }}'">
                             {% trans "colorscheme" %}
                         </a>
@@ -136,7 +136,7 @@
                 {% if perms.pylucid.change_editablehtmlheadfile %}
                     {% for headfile in PYLUCID.pagetree.design.headfiles.all %}
                         <li>
-                            <a href="{% url admin:pylucid_editablehtmlheadfile_change headfile.id %}"
+                            <a href="{% url 'admin:pylucid_editablehtmlheadfile_change' headfile.id %}"
                                 title="{% trans "edit headfile:" %} '{{ headfile.filepath }}'">
                                 {{ headfile.get_filename }}
                             </a>
@@ -145,7 +145,7 @@
                 {% endif %}
                 {% if perms.dbtemplates.change_template and template %}
                     <li>
-                        <a href="{% url admin:dbtemplates_template_change template.id %}"
+                        <a href="{% url 'admin:dbtemplates_template_change' template.id %}"
                             title="{% trans "edit page template:" %} '{{ PYLUCID.pagetree.design.template }}'">
                             {% trans "page template" %}
                         </a>
@@ -159,7 +159,7 @@
                 {% if add_translate %}
     	            {% if perms.pylucid.add_pagecontent and perms.pylucid.add_pagemeta and perms.pylucid.add_pluginpage %}
     	               <li>
-                            <a href="{% url PageAdmin-translate PYLUCID.pagemeta.id %}"
+                            <a href="{% url 'PageAdmin-translate' PYLUCID.pagemeta.id %}"
                                 title="{% trans "translate page into a other language" %}">
                                 {% trans "translate content" %}
                             </a>
@@ -169,7 +169,7 @@
 
 	            {% if perms.pylucid.change_pagecontent %}
                     <li>
-                        <a href="{% url PageAdmin-convert_markup PYLUCID.pagecontent.id %}"
+                        <a href="{% url 'PageAdmin-convert_markup' PYLUCID.pagecontent.id %}"
                             title="{% trans "Convert page content markup" %}">
                             {% trans "convert markup" %}
                         </a>
@@ -179,7 +179,7 @@
 
             {% if perms.pylucid.change_pagetree %}
                 <li>
-                    <a href="{% url PageAdmin-page_order PYLUCID.pagetree.id %}"
+                    <a href="{% url 'PageAdmin-page_order' PYLUCID.pagetree.id %}"
                         title="{% trans "change the link oder of the current menu level" %}">
                         {% trans "change page order" %}
                     </a>
@@ -188,7 +188,7 @@
 
             {% if perms.pylucid.delete_pageplugin and perms.pylucid.delete_pagecontent and perms.pylucid.delete_pagemeta and perms.pylucid.delete_pagetree %}
                 <li>
-                    <a href="{% url admin:pylucid_pagetree_delete PYLUCID.pagetree.id %}"
+                    <a href="{% url 'admin:pylucid_pagetree_delete' PYLUCID.pagetree.id %}"
                         title="{% trans "delete current page" %}">
                         {% trans "delete page" %}
                     </a>
@@ -202,7 +202,7 @@
 
 {% if user.is_staff %}
 <li>
-    <a href="{% url admin:index %}"
+    <a href="{% url 'admin:index' %}"
         title="{% trans "Go into Django Admin site index" %}">
         {% trans "Django admin site" %}
     </a>
@@ -226,7 +226,7 @@
 {% endif %}
 
 <li>
-    <a href="{% url PyLucidAdmin-menu %}">
+    <a href="{% url 'PyLucidAdmin-menu' %}">
         {% trans "PyLucid admin menu" %}
     </a>
     <ul>
@@ -235,13 +235,13 @@
             <a>PyLucid</a>
             <ul>
                 <li>
-                    <a href="{% url PyLucidAdmin-install_pylucid %}">{% trans "install PyLucid" %}</a>
+                    <a href="{% url 'PyLucidAdmin-install_pylucid' %}">{% trans "install PyLucid" %}</a>
                 </li>
                 <li>
-                    <a href="{% url PyLucidAdmin-install_plugins %}">{% trans "install plugins" %}</a>
+                    <a href="{% url 'PyLucidAdmin-install_plugins' %}">{% trans "install plugins" %}</a>
                 </li>
                 <li>
-                    <a href="{% url PyLucidUpdate-menu %}">{% trans "update section" %}</a>
+                    <a href="{% url 'PyLucidUpdate-menu' %}">{% trans "update section" %}</a>
                 </li>
             </ul>
         </li>
