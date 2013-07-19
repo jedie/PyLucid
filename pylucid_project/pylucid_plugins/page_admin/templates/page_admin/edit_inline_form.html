@@ -126,14 +126,14 @@ jQuery(document).ready(function($) {
          {% trans 'markup preview' %}
      </button>
      <input type="button" id="abort_button" name="abort" value="{% trans 'abort' %}" />
-     <a href="{% url PageAdmin-page_list %}?markup_id={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
+     <a href="{% url 'PageAdmin-page_list' %}?markup_id={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'List of all pages for creating links' %}">
          <button type="button" class="button">{% trans 'page list' %}</button>
      </a>
-     <a href="{% url PageAdmin-tag_list %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
+     <a href="{% url 'PageAdmin-tag_list' %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
          <button type="button" class="button">{% trans 'tag list' %}</button>
      </a>
 
-     <a href="{% url PageAdmin-markup_help %}?markup_id={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'Markup help' %}">
+     <a href="{% url 'PageAdmin-markup_help' %}?markup_id={{ pagecontent.markup }}" class="openinwindow" title="{% trans 'Markup help' %}">
          <button type="button" class="button">{% trans 'markup help' %}</button>
      </a>
  </div>

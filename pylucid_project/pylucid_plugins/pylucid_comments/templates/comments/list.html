@@ -23,10 +23,10 @@
     {% if perms.pylucid_comments.change_pylucidcomment or perms.pylucid_comments.delete_pylucidcomment %}
     <div class="admin_links">
         {% if perms.pylucid_comments.change_pylucidcomment %}
-            <a href="{% url admin:pylucid_comments_pylucidcomment_change comment.id %}" title="{% trans 'edit this comment entry' %}">{% trans 'edit' %}</a>
+            <a href="{% url 'admin:pylucid_comments_pylucidcomment_change' comment.id %}" title="{% trans 'edit this comment entry' %}">{% trans 'edit' %}</a>
         {% endif %}
         {% if perms.pylucid_comments.delete_pylucidcomment %}
-            <a href="{% url admin:pylucid_comments_pylucidcomment_delete comment.id %}" title="{% trans 'delete this comment entry' %}">{% trans 'delete' %}</a>
+            <a href="{% url 'admin:pylucid_comments_pylucidcomment_delete' comment.id %}" title="{% trans 'delete this comment entry' %}">{% trans 'delete' %}</a>
         {% endif %}
     </div>
     {% endif %}

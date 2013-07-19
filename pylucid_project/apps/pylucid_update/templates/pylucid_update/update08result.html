@@ -3,11 +3,11 @@
 
 {% block content %}
 <!-- view_content block -->
-<p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
+<p><a href="{% url 'PyLucidUpdate-menu' %}">&lt; back to update <strong>menu</strong></a></p>
 <fieldset><legend>result output</legend>
 <pre>{% for line in results %}{{ line }}
 {% endfor %}</pre>
 </fieldset>
-<p><a href="{% url PyLucidUpdate-menu %}">&lt; back to update <strong>menu</strong></a></p>
+<p><a href="{% url 'PyLucidUpdate-menu' %}">&lt; back to update <strong>menu</strong></a></p>
 <!-- view_content block end -->
 {% endblock %}

@@ -9,8 +9,8 @@ A new comment for '{{ content_object.get_name }}' was saved:
 
 The comment is {% if not comment.is_public %}not {% endif %}public.
 
- * edit: {{ uri_prefix }}{% url admin:pylucid_comments_pylucidcomment_change comment.id %}
- * delete: {{ uri_prefix }}{% url admin:pylucid_comments_pylucidcomment_delete comment.id %} 
+ * edit: {{ uri_prefix }}{% url 'admin:pylucid_comments_pylucidcomment_change' comment.id %}
+ * delete: {{ uri_prefix }}{% url 'admin:pylucid_comments_pylucidcomment_delete' comment.id %} 
 
 content:
 ---------------------------------------------------------------------
