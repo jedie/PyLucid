@@ -21,19 +21,19 @@ docutils
 
 # http://code.google.com/p/django-dbpreferences/
 # http://pypi.python.org/pypi/django-dbpreferences
--e git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences
+-e git+git@github.com:jedie/django-dbpreferences.git@django1.5#egg=django-dbpreferences
 
 # http://code.google.com/p/django-tools/
 # http://pypi.python.org/pypi/django-tools
--e git+git@github.com:jedie/django-tools.git#egg=django-tools
+-e git+git@github.com:jedie/django-tools.git@django1.5#egg=django-tools
 
 # https://github.com/jedie/django-processinfo
 # http://pypi.python.org/pypi/django-processinfo
--e git+git@github.com:jedie/django-processinfo.git#egg=django-processinfo
+-e git+git@github.com:jedie/django-processinfo.git@django1.5#egg=django-processinfo
 
 # https://github.com/jedie/django-reversion-compare
 # http://pypi.python.org/pypi/django-reversion-compare/
--e git+git@github.com:jedie/django-reversion-compare.git#egg=django-reversion-compare
+-e git+git@github.com:jedie/django-reversion-compare.git@django1.5#egg=django-reversion-compare
 
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid
