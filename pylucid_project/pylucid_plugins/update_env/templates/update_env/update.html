@@ -7,7 +7,7 @@
     Package path: <strong>{{ package.path }}</strong>.
 </p>
 <p>
-    <a href="{% url Update-status %}">&lt;&lt; {% trans "back to status page" %}</a>
+    <a href="{% url 'Update-status' %}">&lt;&lt; {% trans "back to status page" %}</a>
 </p>
 <fieldset><legend>update the package '<strong>{{ package.name }}</strong>':</legend>
 <pre>{{ package.output }}</pre>
@@ -17,6 +17,6 @@
 </p>
 {% endif %}
 <p>
-    <a href="{% url Update-status %}">&lt;&lt; {% trans "back to status page" %}</a>
+    <a href="{% url 'Update-status' %}">&lt;&lt; {% trans "back to status page" %}</a>
 </p>
 {% endblock %}

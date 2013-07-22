@@ -15,11 +15,11 @@
 
 <h3>Password</h3>
 <p>JavaScript enhanced password change:
-<a href="{% url Auth-JS_password_change %}">{% trans "Change password" %}</a>
+<a href="{% url 'Auth-JS_password_change' %}">{% trans "Change password" %}</a>
 (More secure, plaintext password would be hashed in browser before send to server)
 </p>
 
 <p>Plaintext password change:
-<a href="{% url Auth-plaintext_password_change %}">{% trans "Change password" %}</a>
+<a href="{% url 'Auth-plaintext_password_change' %}">{% trans "Change password" %}</a>
 </p>
 {% endblock %}

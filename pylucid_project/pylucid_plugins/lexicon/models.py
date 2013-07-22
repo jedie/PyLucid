@@ -4,7 +4,7 @@
     PyLucid lexicon models
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -41,8 +41,8 @@ TAG_INPUT_HELP_URL = \
 "http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
 
 
-#class Links(UpdateInfoBaseModel):
-#    url = models.URLField(verify_exists=True, max_length=255)
+# class Links(UpdateInfoBaseModel):
+#    url = models.URLField(max_length=255)
 #    title = models.CharField(_('Title'), help_text=_("Url title"), max_length=255)
 #    entrie = models.ForeignKey("LexiconEntry")
 
@@ -67,7 +67,7 @@ class LexiconEntryManager(BaseModelManager):
         """
         error_msg = _("Unknown lexicon term.")
 
-        if term in ("", None): # e.g.: term not in url or GET parameter 'empty'
+        if term in ("", None):  # e.g.: term not in url or GET parameter 'empty'
             if request.user.is_staff:
                 error_msg += " (No term given.)"
             messages.error(request, error_msg)
@@ -115,7 +115,7 @@ class LexiconEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
             ' title="Information about tag splitting.">tag format help</a>') % TAG_INPUT_HELP_URL
         )
     )
-    tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
+    tags = jQueryTagModelField()  # a django-tagging model field modified by django-tools
     short_definition = models.CharField(_('Short definition'),
         help_text=_("A short explain."), max_length=255
     )
@@ -138,7 +138,7 @@ class LexiconEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
         super(LexiconEntry, self).save(*args, **kwargs)
 
         try:
-            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
+            cache.smooth_update()  # Save "last change" timestamp in django-tools SmoothCacheBackend
         except AttributeError:
             # No SmoothCacheBackend used -> clean the complete cache
             cache.clear()
@@ -149,7 +149,7 @@ class LexiconEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
 
     def get_update_info(self):
         """ update info for update_journal.models.UpdateJournal used by update_journal.save_receiver """
-        if not self.is_public: # Don't list non public articles
+        if not self.is_public:  # Don't list non public articles
             return
 
         return {
@@ -162,13 +162,13 @@ class LexiconEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
 
     def get_absolute_url(self):
         viewname = "Lexicon-detail_view"
-        reverse_kwargs = {"term":self.term} #slugify(self.term)
+        reverse_kwargs = {"term":self.term}  # slugify(self.term)
         try:
             # This only worked inner lucidTag
             return urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
         except urlresolvers.NoReverseMatch:
             # Use the first PluginPage instance
-            from pylucid_project.apps.pylucid.models import PluginPage # import here, against import loops
+            from pylucid_project.apps.pylucid.models import PluginPage  # import here, against import loops
             try:
                 return PluginPage.objects.reverse("lexicon", viewname, kwargs=reverse_kwargs)
             except urlresolvers.NoReverseMatch:
@@ -176,7 +176,7 @@ class LexiconEntry(AutoSiteM2M, MarkupBaseModel, UpdateInfoBaseModel):
 
     def get_permalink(self, request):
         """ permalink to this entry detail view """
-        absolute_url = self.get_absolute_url() # Absolute url to this entry
+        absolute_url = self.get_absolute_url()  # Absolute url to this entry
         permalink = plugin_permalink(request, absolute_url)
         return permalink
 
@@ -192,7 +192,7 @@ signals.post_save.connect(receiver=update_journal.save_receiver, sender=LexiconE
 
 # Bug in django tagging?
 # http://code.google.com/p/django-tagging/issues/detail?id=151#c2
-#try:
+# try:
 #    tagging.register(BlogEntry)
-#except tagging.AlreadyRegistered: # FIXME
+# except tagging.AlreadyRegistered: # FIXME
 #    pass
