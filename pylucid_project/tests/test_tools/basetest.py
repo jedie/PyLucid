@@ -99,7 +99,7 @@ class BaseUnittest(BaseTestCase, TestCase):
         )
         self.assertDOM(response,
             must_contain=(
-                '<input id="id_username" maxlength="30" name="username" type="text" />',
+                '<input id="id_username" maxlength="254" name="username" type="text" />',
                 '<input id="id_password" name="password" type="password" />',
                 '<input type="submit" value="Log in" />',
             )
