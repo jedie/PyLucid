@@ -26,11 +26,11 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-    #_____________________________________
+    # _____________________________________
     # PYLUCID UPDATE SECTION
     url('^%s/update/' % settings.ADMIN_URL_PREFIX, include('pylucid_update.urls')),
 
-    #_____________________________________
+    # _____________________________________
     # PYLUCID ADMIN
     url(r'^%s/' % settings.PYLUCID_ADMIN_URL_PREFIX, include('pylucid_admin.urls')),
 
@@ -40,7 +40,7 @@ urlpatterns = patterns('',
     # https://docs.djangoproject.com/en/1.4/topics/i18n/translation/#module-django.views.i18n
     url(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog'),
 
-    #_____________________________________
+    # _____________________________________
     # DJANGO ADMIN PANEL
     url(r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
 )
@@ -50,7 +50,7 @@ urlpatterns = patterns('',
 # Default robots.txt content. If you want to use your own robots.txt, look into .htaccess
 # more information: http://www.pylucid.org/permalink/390/robots-txt
 if settings.DEBUG and not settings.RUN_WITH_DEV_SERVER:
-    # Disallow access to all pages in DEBUG mode. 
+    # Disallow access to all pages in DEBUG mode.
     urlpatterns += patterns("",
         url(
             "^robots.txt$",
@@ -92,8 +92,8 @@ urlpatterns += patterns('',
     url('^', include('pylucid.urls')),
 )
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # use the undocumented django function to add the "lucidTag" to the tag library.
-# 
+#
 from django.template import add_to_builtins
 add_to_builtins('pylucid_project.apps.pylucid.defaulttags')
