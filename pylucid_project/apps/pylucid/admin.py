@@ -19,7 +19,7 @@ import os
 
 from django import forms
 from django.conf import settings
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.contrib import admin, messages
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.util import unquote

@@ -16,7 +16,7 @@ import pprint
 import sys
 
 from django.conf import settings
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls import patterns, include
 from django.core import urlresolvers
 from django.http import HttpResponse
 from django.utils.importlib import import_module

@@ -14,7 +14,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 # XXX: why doesn't this work: from system.admin_views import base_check, timezone
 from admin_views import base_check, timezone

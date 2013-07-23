@@ -8,7 +8,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 from update_env import admin_views
 

@@ -9,7 +9,7 @@
 """
 
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
 from pylucid_project.apps.pylucid.markup.views import markup_preview
 
