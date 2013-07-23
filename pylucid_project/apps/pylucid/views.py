@@ -30,7 +30,7 @@ from django.template.loader import render_to_string
 
 
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # helper functions
 
 def _get_page_content(request):
@@ -40,8 +40,8 @@ def _get_page_content(request):
     ...try in default language set in the system preferences, if not exist...
     ...raise http.Http404()
     """
-    pagetree = request.PYLUCID.pagetree # current PageTree instance
-    pagemeta = request.PYLUCID.pagemeta # current PageMeta instance
+    pagetree = request.PYLUCID.pagetree  # current PageTree instance
+    pagemeta = request.PYLUCID.pagemeta  # current PageMeta instance
 
     # client favored Language instance:
     lang_entry = request.PYLUCID.current_language
@@ -122,7 +122,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     elif isinstance(get_view_response, basestring):
         # Plugin replace the page content
         context["page_content"] = get_view_response
-    elif get_view_response is not None: # Use plugin response
+    elif get_view_response is not None:  # Use plugin response
         raise TypeError(
             "Plugin view must return None or basestring or HttpResponse! (returned: %r)"
         ) % type(get_view_response)
@@ -142,7 +142,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         elif isinstance(page_plugin_response, basestring):
             # Plugin replace the page content
             context["page_content"] = page_plugin_response
-        elif page_plugin_response is not None: # Use plugin response
+        elif page_plugin_response is not None:  # Use plugin response
             raise TypeError(
                 "Plugin view must return None or basestring or HttpResponse! (returned: %r)"
             ) % type(page_plugin_response)
@@ -163,8 +163,8 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Render django tags in PageContent with the global context
     context["page_content"] = render.render_string_template(context["page_content"], context)
 
-    template_name = context["template_name"] # Added in pylucid.context_processors
-    page_template= loader.get_template(template_name)
+    template_name = context["template_name"]  # Added in pylucid.context_processors
+    page_template = loader.get_template(template_name)
     pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
     # Render django tags in global template with global context
@@ -183,7 +183,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
 
 
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # view functions
 
 def send_head_file(request, filepath):
@@ -237,13 +237,13 @@ def _prepage_request(request, lang_entry):
     # setup i18n language settings
     i18n.setup_language(request, lang_entry)
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # root_page + lang_root_page views:
 
 def _get_root_page(request):
     user = request.user
     try:
-        pagetree = PageTree.objects.get_root_page(user) # Get the first PageTree entry
+        pagetree = PageTree.objects.get_root_page(user)  # Get the first PageTree entry
     except PageTree.DoesNotExist, err:
         msg = _(
             "There exist no pages!"
