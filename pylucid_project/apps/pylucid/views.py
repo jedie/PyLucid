@@ -4,7 +4,7 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.template import loader, RequestContext
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_view_exempt, csrf_exempt
+from django.views.decorators.csrf import csrf_exempt
 
 from django_tools.template import render
 
@@ -255,7 +255,7 @@ def _get_root_page(request):
     return pagetree
 
 
-@csrf_view_exempt
+@csrf_exempt
 def root_page(request):
     """
     redirect to a url with language code
@@ -293,7 +293,7 @@ def _lang_code_is_pagetree(request, url_lang_code):
     return False
 
 
-@csrf_view_exempt
+@csrf_exempt
 def lang_root_page(request, url_lang_code):
     """ url with lang code but no page slug """
 
@@ -350,7 +350,7 @@ def _get_pagetree(request, url_path):
 # pylucid_project.apps.pylucid.system.pylucid_plugin.call_plugin()
 # pylucid_project.system.pylucid_plugins.PyLucidPlugin.call_plugin_view()
 # see also: https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#view-needs-protection-for-one-path
-@csrf_view_exempt
+@csrf_exempt
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
     if _lang_code_is_pagetree(request, url_lang_code):
