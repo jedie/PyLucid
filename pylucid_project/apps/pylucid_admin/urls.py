@@ -14,7 +14,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 from django.conf import settings
-from django.conf.urls.defaults import patterns, url, include
+from django.conf.urls import patterns, url, include
 
 from pylucid_project.apps.pylucid_admin import views
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
