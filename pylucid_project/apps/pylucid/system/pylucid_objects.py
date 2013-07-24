@@ -21,6 +21,7 @@ from django_tools.utils.messages import failsafe_message
 from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.system import extrahead
 from pylucid_project.utils.escape import escape
+import sys
 
 
 # max value length in debug __setattr__
@@ -63,19 +64,28 @@ class PyLucidRequestObjects(object):
         self.extrahead = extrahead.ExtraHead()
 
         # objects witch will be set later:
-        #self.object2comment - Object to comment
-        #self.pagetree - The current PageTree model instance
-        #self.pagemeta - The current PageMeta model instance
+        # self.object2comment - Object to comment
+        # self.pagetree - The current PageTree model instance
+        # self.pagemeta - The current PageMeta model instance
         #
         # if current page == PageTree.PAGE_TYPE: # a normal content page
         #     self.pagecontent - PageContent instance, attached at pylucid.views._render_page()
         # elif  current page == PageTree.PLUGIN_TYPE: # a plugin page
         #     self.pluginpage - PluginPage instance, attached at pylucid.system.pylucid_plugin.call_plugin()
         #
-        #self.page_template - The global page template as a string
-        #self.context - The global context
+        # self.page_template - The global page template as a string
+        # self.context - The global context
 
         self._check_setattr = settings.DEBUG
+
+    def __getattr__(self, name):
+        try:
+            return super(PyLucidRequestObjects, self).__getattr__(name)
+        except:  # AttributeError:
+            # insert more information into the traceback and re-raise the original error
+            etype, evalue, etb = sys.exc_info()
+            evalue = etype("%s (Forget to use '@pylucid_objects' decorator?)" % evalue)
+            raise etype, evalue, etb
 
     def _setattr_debug(self, name, value):
         """

@@ -1,4 +1,4 @@
-{% extends template_name %}
+{% extends base_template_name %}
 {% load comments %}
 
 {% block content %}
@@ -9,7 +9,7 @@
 {% if previous_year or next_year %}
     <p>
         {% if previous_year %}<!-- FIXME: exist if no entry in revious year -->
-            <a href="{% url 'Blog-year_archive' previous_year %}" title="{% trans "goto previous year" %}">&lt;&lt; {{ previous_year }}</a>
+            <a href="{% url 'Blog-year_archive' year=previous_year %}" title="{% trans "goto previous year" %}">&lt;&lt; {{ previous_year }}</a>
             |
         {% endif %}
             <strong><a href=""><span title="{% trans "current year" %}">{{ year }}</span></a></strong>
