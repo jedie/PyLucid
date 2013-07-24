@@ -8,19 +8,16 @@
     See also:
         django.utils.translation.trans_real.accept_language_re
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author:$
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
+
 from django.conf import settings
 from django.conf.urls import patterns, url
 
 from pylucid_project.apps.pylucid import views
+
 
 urlpatterns = patterns('',
     url(r'^$', views.root_page, name='PyLucid-root_page'),
