@@ -17,15 +17,14 @@ import sys
 from django.conf import settings
 from django.conf.urls import patterns, include
 from django.core import urlresolvers
+from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import RegexURLPattern
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils.importlib import import_module
 from django.utils.log import getLogger
 from django.views.decorators.csrf import csrf_protect
 
 from pylucid_project.utils.python_tools import has_init_file
-import re
-from django.core.urlresolvers import RegexURLPattern
-from django.core.exceptions import ImproperlyConfigured
 from pylucid_project.utils.url_debug import log_urls
 
 
@@ -103,6 +102,14 @@ class PluginURLs(object):
         self.root_urlconf.urlpatterns[self.plugin_url_index] = plugin_patterns
 #         log_urls()
 
+    def renew_plugin_urls(self):
+        """
+        FIXME: This would only recreate the urls from this thread!
+        """
+        log.debug("renew_plugin_urls()")
+        _PLUGIN_URL_CACHE.clear()
+        self.update_plugin_urls()
+
     def insert_plugin_urls(self):
         if self._URL_INSERTED:
             return
@@ -111,10 +118,8 @@ class PluginURLs(object):
         self.update_plugin_urls()
 
 
-
 pylucid_plugin_urls = PluginURLs()
-#     print "XXX", pkg_path, section, pkg_dir, plugin_name
-#
+
 
 
 class PyLucidPlugin(object):
