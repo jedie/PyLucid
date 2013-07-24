@@ -4,25 +4,20 @@
     internals admin views
     ~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from pprint import pformat
 import os
 import posixpath
-import re
 import sys
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.admindocs.views import simplify_regex
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes import generic
-from django.core import urlresolvers
 from django.core.cache import cache
-from django.core.exceptions import ViewDoesNotExist
-from django.core.urlresolvers import RegexURLPattern, RegexURLResolver
 from django.db import connection, backend
 from django.db import models
 from django.db.models import get_apps, get_models
@@ -38,6 +33,7 @@ from pylucid_project.apps.pylucid.markup import hightlighter
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid_admin.admin_menu import AdminMenu
 from pylucid_project.pylucid_plugins.auth.models import CNONCE_CACHE
+from pylucid_project.utils.url_debug import UrlPatternInfo
 
 
 
@@ -67,73 +63,7 @@ def install(request):
 
     return "\n".join(output)
 
-#-----------------------------------------------------------------------------
 
-class UrlPatternInfo(object):
-    """
-    most parts borrowed from django-extensions:
-    https://github.com/django-extensions/django-extensions/blob/master/django_extensions/management/commands/show_urls.py
-    """
-    def get_url_info(self):
-        """
-        return a dict-list of the current used url patterns 
-        """
-        urlconf = __import__(settings.ROOT_URLCONF, {}, {}, [''])
-
-        view_functions = self._extract_views_from_urlpatterns(urlconf.urlpatterns)
-
-        url_info = []
-        for (func, regex, url_name) in view_functions:
-            if hasattr(func, '__name__'):
-                func_name = func.__name__
-            elif hasattr(func, '__class__'):
-                func_name = '%s()' % func.__class__.__name__
-            else:
-                func_name = re.sub(r' at 0x[0-9a-f]+', '', repr(func))
-            url = simplify_regex(regex)
-
-            url_info.append({
-                'func_name': func_name,
-                'module': func.__module__,
-                'url_name': url_name,
-                'regex': regex,
-                'url': url
-            })
-        return url_info
-
-    def _extract_views_from_urlpatterns(self, urlpatterns, base=''):
-        """
-        Return a list of views from a list of urlpatterns.
-        
-        Each object in the returned list is a two-tuple: (view_func, regex)
-        """
-        views = []
-        for p in urlpatterns:
-            if isinstance(p, RegexURLPattern):
-                try:
-                    views.append((p.callback, base + p.regex.pattern, p.name))
-                except ViewDoesNotExist:
-                    continue
-            elif isinstance(p, RegexURLResolver):
-                try:
-                    patterns = p.url_patterns
-                except ImportError:
-                    continue
-                views.extend(self._extract_views_from_urlpatterns(patterns, base + p.regex.pattern))
-            elif hasattr(p, '_get_callback'):
-                try:
-                    views.append((p._get_callback(), base + p.regex.pattern, p.name))
-                except ViewDoesNotExist:
-                    continue
-            elif hasattr(p, 'url_patterns') or hasattr(p, '_get_url_patterns'):
-                try:
-                    patterns = p.url_patterns
-                except ImportError:
-                    continue
-                views.extend(self._extract_views_from_urlpatterns(patterns, base + p.regex.pattern))
-            else:
-                raise TypeError, _("%s does not appear to be a urlpattern object") % p
-        return views
 
 #-----------------------------------------------------------------------------
 
@@ -173,8 +103,8 @@ def show_internals(request):
         request_context_info[key] = request_context[key]
 
     try:
-        cnonce_size = sys.getsizeof(CNONCE_CACHE) # New in version 2.6
-    except (AttributeError, TypeError): # PyPy raised a TypeError
+        cnonce_size = sys.getsizeof(CNONCE_CACHE)  # New in version 2.6
+    except (AttributeError, TypeError):  # PyPy raised a TypeError
         cnonce_size = None
 
     context = {
@@ -256,7 +186,7 @@ def _textform_for_model(model, request, debug=False):
                         # Don't add default key/value combinations into form
                         continue
 
-                    if a in ("label", "help_text"): # "translate" lazy text
+                    if a in ("label", "help_text"):  # "translate" lazy text
                         attr = unicode(attr)
 
                     if a == 'queryset':
@@ -287,7 +217,7 @@ def form_generator(request, model_no=None):
 
     if model_no:
         model = models_dict[int(model_no)]
-        sourcecode = _textform_for_model(model, request)#, debug=True)
+        sourcecode = _textform_for_model(model, request)  # , debug=True)
 
         output = hightlighter.make_html(sourcecode, source_type="py")
     else:
@@ -317,7 +247,7 @@ def model_graph(request):
         messages.error(request, msg)
         return {"error": msg}
 
-    A = P.AGraph() # init empty graph
+    A = P.AGraph()  # init empty graph
 
     collapse_relation = ("lastupdateby", "createby")
 
@@ -354,11 +284,11 @@ def model_graph(request):
                     if isinstance(field, (models.ManyToManyField, generic.GenericRelation)):
                         add_relation(field)
 
-    A.layout(prog='dot') # layout with default (neato)
+    A.layout(prog='dot')  # layout with default (neato)
 
     filename = "models_graph.png"
     f = file(os.path.join(settings.STATIC_ROOT, filename), "wb")
-    f.write(A.draw(format='png')) # draw png
+    f.write(A.draw(format='png'))  # draw png
     f.close()
 
     context = {

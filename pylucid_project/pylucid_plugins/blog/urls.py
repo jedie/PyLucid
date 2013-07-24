@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     url(r'^tags/(?P<tags>.+?)/$', views.tag_view, name='Blog-tag_view'),
 
     url(r'^(?P<year>\d{4})/$',
-        views.year_archive, name='Blog-year_archive'
+        views.BlogYearArchiveView.as_view(), name='Blog-year_archive'
     ),
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/$',
         views.month_archive, name='Blog-month_archive'

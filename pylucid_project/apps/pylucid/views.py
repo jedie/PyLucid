@@ -26,6 +26,7 @@ from pylucid_project.apps.pylucid.signals import pre_render_global_template
 from pylucid_project.apps.pylucid.system import pylucid_plugin, i18n
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from django.template.loader import render_to_string
+from pylucid_project.apps.pylucid.decorators import pylucid_objects
 
 
 
@@ -61,55 +62,22 @@ def _get_page_content(request):
     return pagecontent
 
 
-def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=None):
+def _render_page(request):
     """ render a cms page """
-    request.PYLUCID.pagetree = pagetree
+    path_info = request.PYLUCID.path_info
+    url_lang_code = path_info.url_lang_code
+    prefix_url = path_info.prefix_url
+    rest_url = path_info.rest_url
+
+    pagetree = request.PYLUCID.pagetree
+    pagemeta = request.PYLUCID.pagemeta
 
     is_plugin_page = pagetree.page_type == PageTree.PLUGIN_TYPE
-
-    # Get the pagemeta instance for the current pagetree and language
-    try:
-        pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=True)
-    except PageMeta.DoesNotExist, err:
-        # Note: This should normaly never happen. Because all PageMeta must exist at least in system
-        # default language. Also: The main_manu doesn't show links to not existing PageMeta entries!
-        if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
-            raise
-            msg = (
-                "PageMeta for %r doesn't exist in system default language: %r! Please create it!"
-                " (Original error was: %r)"
-            ) % (pagetree, Language.objects.get_or_create_default(request), err)
-            messages.error(request, msg)
-        else:
-            msg = ""
-        raise http.Http404("<h1>Page not found</h1><h2>%s</h2>" % msg)
-
-    request.PYLUCID.pagemeta = pagemeta
-
-    # Changeable by plugin/get view or will be removed with PageContent instance
-    request.PYLUCID.updateinfo_object = pagemeta
-
-    # object2comment - The Object used to attach a pylucid_comment
-    # should be changed in plugins, e.g.: details views in blog, lexicon plugins
-    request.PYLUCID.object2comment = pagemeta
-
-    # Check the language code in the url, if exist
-    if url_lang_code and (not is_plugin_page) and (url_lang_code.lower() != pagemeta.language.code.lower()):
-        # The language code in the url is wrong. e.g.: The client followed a external url with was wrong.
-        # Note: The main_manu doesn't show links to not existing PageMeta entries!
-
-        # change only the lang code in the url:
-        new_url = i18n.change_url(request, new_lang_code=pagemeta.language.code)
-
-        if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
-            messages.error(request,
-                "Language code in url %r is wrong! Redirect to %r." % (url_lang_code, new_url)
-            )
-        # redirect the client to the right url
-        return http.HttpResponsePermanentRedirect(new_url)
+    if is_plugin_page:
+        print "is plugin page:", url_lang_code, prefix_url, rest_url
 
     # Create initial context object
-    request.PYLUCID.context = context = RequestContext(request)
+    context = request.PYLUCID.context = RequestContext(request)
 
     # it will be filled either by plugin or by PageContent:
     context["page_content"] = None
@@ -127,27 +95,6 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
             "Plugin view must return None or basestring or HttpResponse! (returned: %r)"
         ) % type(get_view_response)
 
-
-    # call page plugin, if current page is a plugin page and no get view has filled the page content
-    page_plugin_response = None
-    if is_plugin_page and context["page_content"] is None:
-        # Add to global pylucid objects. Use e.g. in admin_menu plugin
-        pluginpage = PluginPage.objects.get(pagetree=pagetree)
-        request.PYLUCID.pluginpage = pluginpage
-
-        page_plugin_response = pylucid_plugin.call_plugin(request, url_lang_code, prefix_url, rest_url)
-        if isinstance(page_plugin_response, http.HttpResponse):
-            # Plugin would be build the complete html page
-            return page_plugin_response
-        elif isinstance(page_plugin_response, basestring):
-            # Plugin replace the page content
-            context["page_content"] = page_plugin_response
-        elif page_plugin_response is not None:  # Use plugin response
-            raise TypeError(
-                "Plugin view must return None or basestring or HttpResponse! (returned: %r)"
-            ) % type(page_plugin_response)
-
-
     if context["page_content"] is None:
         # Plugin has not filled the page content
         pagecontent_instance = _get_page_content(request)
@@ -163,7 +110,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Render django tags in PageContent with the global context
     context["page_content"] = render.render_string_template(context["page_content"], context)
 
-    template_name = context["template_name"]  # Added in pylucid.context_processors
+    template_name = context["base_template_name"]  # Added in pylucid.context_processors
     page_template = loader.get_template(template_name)
     pre_render_global_template.send(sender=None, request=request, page_template=page_template)
 
@@ -336,20 +283,21 @@ def _i18n_redirect(request, url_path):
     return http.HttpResponseRedirect(url)
 
 
-def _get_pagetree(request, url_path):
-    try:
-        return PageTree.objects.get_page_from_url(request, url_path)
-    except PageTree.DoesNotExist, err:
-        msg = _("Page not found")
-        if settings.DEBUG or request.user.is_staff:
-            msg += " url path: %r (%s)" % (url_path, err)
-        raise http.Http404(msg)
+# def _get_pagetree(request, url_path):
+#     try:
+#         return PageTree.objects.get_page_from_url(request, url_path)
+#     except PageTree.DoesNotExist, err:
+#         msg = _("Page not found")
+#         if settings.DEBUG or request.user.is_staff:
+#             msg += " url path: %r (%s)" % (url_path, err)
+#         raise http.Http404(msg)
 
 
 # We must exempt csrf test here, but we use csrf_protect() later in:
 # pylucid_project.apps.pylucid.system.pylucid_plugin.call_plugin()
 # pylucid_project.system.pylucid_plugins.PyLucidPlugin.call_plugin_view()
 # see also: https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#view-needs-protection-for-one-path
+@pylucid_objects  # create request.PYLUCID
 @csrf_exempt
 def resolve_url(request, url_lang_code, url_path):
     """ url with lang_code and sub page path """
@@ -361,9 +309,8 @@ def resolve_url(request, url_lang_code, url_path):
     # activate language via auto detection
     i18n.activate_auto_language(request)
 
-    pagetree, prefix_url, rest_url = _get_pagetree(request, url_path)
-
-    return _render_page(request, pagetree, url_lang_code, prefix_url, rest_url)
+    request.PYLUCID.path_info.url_lang_code = url_lang_code
+    return _render_page(request)
 
 
 def page_without_lang(request, url_path):

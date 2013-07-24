@@ -4,7 +4,7 @@
     PyLucid lexicon plugin
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2008-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 
-from pylucid_project.apps.pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.decorators import render_to, pylucid_objects
 from pylucid_project.apps.pylucid.models import PluginPage
 from pylucid_project.apps.pylucid.system import i18n
 
@@ -29,6 +29,7 @@ def _add_breadcrumb(request, title, url):
     breadcrumb_context_middlewares.add_link(title, title, url)
 
 
+@pylucid_objects  # create request.PYLUCID
 @render_to("lexicon/summary.html")
 def summary(request):
     _add_breadcrumb(request, title="Lexicon summary", url=request.path)
@@ -49,13 +50,14 @@ def summary(request):
     return context
 
 
+@pylucid_objects  # create request.PYLUCID
 @csrf_protect
 @render_to("lexicon/detail_view.html")
 def detail_view(request, term=None):
 
     error_msg = _("Unknown lexicon term.")
 
-    if term in ("", None): # e.g.: term not in url or GET parameter 'empty'
+    if term in ("", None):  # e.g.: term not in url or GET parameter 'empty'
         if settings.DEBUG or request.user.is_staff:
             error_msg += " (No term given.)"
         messages.error(request, error_msg)
@@ -86,7 +88,7 @@ def detail_view(request, term=None):
             error_msg += " (term: %r, tried languages: %s)" % (term, ", ".join([l.code for l in tried_languages]))
         messages.error(request, error_msg)
         response = summary(request)
-        response.status_code = 404 # Send as 404 page, so that search engines doesn't index this. 
+        response.status_code = 404  # Send as 404 page, so that search engines doesn't index this.
         return response
 
     new_url = i18n.assert_language(request, entry.language, check_url_language=True)
@@ -114,7 +116,7 @@ def detail_view(request, term=None):
 
     # Change permalink from the blog root page to this entry detail view
     permalink = entry.get_permalink(request)
-    request.PYLUCID.context["page_permalink"] = permalink # for e.g. the HeadlineAnchor
+    request.PYLUCID.context["page_permalink"] = permalink  # for e.g. the HeadlineAnchor
 
     # Add comments in this view to the current lexicon entry and not to PageMeta
     request.PYLUCID.object2comment = entry
@@ -124,11 +126,12 @@ def detail_view(request, term=None):
 
     context = {
         "entry": entry,
-        "page_permalink": permalink, # Change the permalink in the global page template
+        "page_permalink": permalink,  # Change the permalink in the global page template
     }
     return context
 
 
+@pylucid_objects  # create request.PYLUCID
 @render_to("lexicon/detail_popup.html")
 def http_get_view(request):
     term = request.GET["lexicon"]

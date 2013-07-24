@@ -11,7 +11,7 @@
     TODO:
         * Detail view, use BlogEntry.get_absolute_url()
 
-    :copyleft: 2008-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -26,10 +26,8 @@ from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect, \
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
-from django.views.generic.date_based import archive_year, archive_month, \
-    archive_day
 
-from pylucid_project.apps.pylucid.decorators import render_to
+from pylucid_project.apps.pylucid.decorators import render_to, pylucid_objects
 from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.middlewares.pylucid_objects import SuspiciousOperation404
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
@@ -41,6 +39,10 @@ from blog.preference_forms import BlogPrefForm
 # from django-tagging
 from tagging.models import Tag, TaggedItem
 from django.core.urlresolvers import reverse
+from django.views.generic.dates import YearArchiveView
+from django.views.generic.date_based import archive_month, archive_day
+from pylucid_project.pylucid_plugins.internals.admin_views import UrlPatternInfo
+from pylucid_project.utils.url_debug import log_urls
 
 
 def _add_breadcrumb(request, *args, **kwargs):
@@ -97,11 +99,11 @@ class RssFeed(Feed):
         else:
             tags_list, canonical = _split_tags(tags)
             if tags != canonical:
-                raise Http404("No canonical url.") # Should we redirect? How?
+                raise Http404("No canonical url.")  # Should we redirect? How?
             self.tags = tags_list
 
         # Get max number of feed entries from request.GET["count"]
-        # Validate/Limit it with information from DBPreferences 
+        # Validate/Limit it with information from DBPreferences
         self.count, error = safe_pref_get_integer(
             request, "count", BlogPrefForm,
             default_key="initial_feed_count", default_fallback=5,
@@ -145,12 +147,14 @@ FEEDS = (AtomFeed, RssFeed)
 FEED_FILENAMES = (AtomFeed.filename, RssFeed.filename)
 
 
-
+@pylucid_objects  # create request.PYLUCID
 @render_to("blog/summary.html")
 def summary(request):
     """
     Display summary list with all blog entries.
     """
+    log_urls(only=("blog",), hide=("/admin/", "/pylucid_admin/"))
+
     url = urlresolvers.reverse("Blog-summary")
     if url != request.path:
         # e.g.: request with wrong permalink: /en/blog/XXX/foobar-slug/
@@ -182,6 +186,7 @@ def summary(request):
     return context
 
 
+@pylucid_objects  # create request.PYLUCID
 @render_to("blog/summary.html")
 def tag_view(request, tags):
     """
@@ -241,6 +246,7 @@ def tag_view(request, tags):
 
 
 @csrf_protect
+@pylucid_objects  # create request.PYLUCID
 @render_to("blog/detail_view.html")
 def detail_view(request, year, month, day, slug):
     """
@@ -263,16 +269,16 @@ def detail_view(request, year, month, day, slug):
         )
     except BlogEntryContent.DoesNotExist, err:
         # entry not found -> Display day archive with error messages as a 404 page
-        
+
         # Create error message:
         error_msg = _("Entry for this url doesn't exist.")
         if settings.DEBUG or request.user.is_superuser:
             error_msg += " Filter kwargs: %r - Error: %s" % (repr(filter_kwargs), err)
         messages.error(request, error_msg)
-        
+
         # response day archive
         response = day_archive(request, year, month, day)
-        response.status_code = 404 # Send as 404 page, so that search engines doesn't index this.
+        response.status_code = 404  # Send as 404 page, so that search engines doesn't index this.
         return response
 
     if tried_languages and (settings.DEBUG or request.user.is_superuser):
@@ -288,7 +294,7 @@ def detail_view(request, year, month, day, slug):
 
     # Change permalink from the blog root page to this entry detail view
     permalink = content_entry.get_permalink(request)
-    request.PYLUCID.context["page_permalink"] = permalink # for e.g. the HeadlineAnchor
+    request.PYLUCID.context["page_permalink"] = permalink  # for e.g. the HeadlineAnchor
 
     # Add comments in this view to the current blog entry and not to PageMeta
     request.PYLUCID.object2comment = content_entry
@@ -297,16 +303,17 @@ def detail_view(request, year, month, day, slug):
     request.PYLUCID.updateinfo_object = content_entry
 
     context = {
-        "page_title": content_entry.headline, # Change the global title with blog headline
+        "page_title": content_entry.headline,  # Change the global title with blog headline
         "entry": content_entry,
         "tag_cloud": tag_cloud,
         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-        "page_permalink": permalink, # Change the permalink in the global page template
+        "page_permalink": permalink,  # Change the permalink in the global page template
     }
     return context
 
 #------------------------------------------------------------------------------
 
+@pylucid_objects  # create request.PYLUCID
 def permalink_view(request, id, slug=None):
     """ redirect to language depent blog entry """
     prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
@@ -329,6 +336,7 @@ def permalink_view(request, id, slug=None):
 
 #------------------------------------------------------------------------------
 
+@pylucid_objects  # create request.PYLUCID
 def redirect_old_urls(request, id, title):
     """ permanent redirect old url's to new url scheme """
     prefiltered_queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
@@ -351,50 +359,80 @@ def redirect_old_urls(request, id, title):
 
 # FIXME: Disallow empty archive pages in all archive views:
 
-def year_archive(request, year):
-    """
-    Display year archive
-    """
-    year = int(year)
+class BlogYearArchiveView(YearArchiveView):
+    date_field = "url_date"
+#     allow_empty = True
+    make_object_list = True
 
-    # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request, _("%s archive") % year, _("All article from year %s") % year)
+#     def get(self, request, *args, **kwargs):
+#         response = super(BlogYearArchiveView, self).get(request, *args, **kwargs)
+#         return response
 
-    context = {
-        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-        "page_robots": "noindex,nofollow",
-    }
+    def get_context_data(self, **kwargs):
+        kwargs.update({
+            "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+            "page_robots": "noindex,nofollow",
+        })
+        return super(BlogYearArchiveView, self).get_context_data(**kwargs)
 
-    # Get next year
-    now = datetime.datetime.now()
-    if year < now.year:
-        queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
-        next_year = datetime.datetime(year=year, month=12, day=31)
-        try:
-            entry_in_next_year = queryset.filter(url_date__gte=next_year).only("url_date").order_by("-url_date")[0]
-        except IndexError:
-            # no entries in next year
-            pass
-        else:
-            context["next_year"] = entry_in_next_year.url_date.year
+    def get_queryset(self):
+        queryset = BlogEntryContent.objects.get_prefiltered_queryset(self.request, filter_language=False)
+        return queryset
 
-    # Get previous year
-    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
-    previous_year = datetime.datetime(year=year, month=1, day=1)
-    try:
-        entry_in_previous_year = queryset.filter(url_date__lte=previous_year).only("url_date").order_by("-url_date")[0]
-    except IndexError:
-        # no entries in previous year
-        pass
-    else:
-        context["previous_year"] = entry_in_previous_year.url_date.year
+    def _get_year_as_int(self, date):
+        if date is not None:
+            return date.year
 
-    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
-    return archive_year(
-        request, year, queryset, date_field="url_date", extra_context=context,
-        make_object_list=True,
-        allow_empty=True
-    )
+    def get_next_year(self, date):
+        date = super(BlogYearArchiveView, self).get_next_year(date)
+        year = self._get_year_as_int(date)
+        return year
+
+
+    def get_previous_year(self, date):
+        date = super(BlogYearArchiveView, self).get_previous_year(date)
+        year = self._get_year_as_int(date)
+        return year
+
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Display year archive
+        """
+        year = self.get_year()
+        year = int(year)
+
+        # Add link to the breadcrumbs ;)
+        _add_breadcrumb(self.request, _("%s archive") % year, _("All article from year %s") % year)
+
+#         # Get next year
+#         now = datetime.datetime.now()
+#         if year < now.year:
+#             queryset = BlogEntryContent.objects.get_prefiltered_queryset(self.request, filter_language=False)
+#             next_year = datetime.datetime(year=year, month=12, day=31)
+#             try:
+#                 entry_in_next_year = queryset.filter(url_date__gte=next_year).only("url_date").order_by("-url_date")[0]
+#             except IndexError:
+#                 # no entries in next year
+#                 pass
+#             else:
+#                 context["next_year"] = entry_in_next_year.url_date.year
+#
+#         # Get previous year
+#         queryset = BlogEntryContent.objects.get_prefiltered_queryset(self.request, filter_language=False)
+#         previous_year = datetime.datetime(year=year, month=1, day=1)
+#         try:
+#             entry_in_previous_year = queryset.filter(url_date__lte=previous_year).only("url_date").order_by("-url_date")[0]
+#         except IndexError:
+#             # no entries in previous year
+#             pass
+#         else:
+#             context["previous_year"] = entry_in_previous_year.url_date.year
+
+
+        return super(BlogYearArchiveView, self).render_to_response(
+            context,
+            **response_kwargs
+        )
 
 
 def month_archive(request, year, month):

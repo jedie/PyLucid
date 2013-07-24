@@ -1,16 +1,15 @@
 # coding: utf-8
 
+
 """
     PyLucid plugins
     ~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v3 or above, see LICENSE for more details.p
-
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
-import logging
 import os
 import pprint
 import sys
@@ -18,28 +17,104 @@ import sys
 from django.conf import settings
 from django.conf.urls import patterns, include
 from django.core import urlresolvers
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError
 from django.utils.importlib import import_module
 from django.utils.log import getLogger
 from django.views.decorators.csrf import csrf_protect
 
 from pylucid_project.utils.python_tools import has_init_file
+import re
+from django.core.urlresolvers import RegexURLPattern
+from django.core.exceptions import ImproperlyConfigured
+from pylucid_project.utils.url_debug import log_urls
 
 
-logger = getLogger("pylucid.pylucid_plugins")
-#logger.setLevel(logging.DEBUG)
-#logger.addHandler(logging.StreamHandler())
+# see: http://www.pylucid.org/permalink/443/how-to-display-debug-information
+log = getLogger("pylucid.pylucid_plugins")
 
 
-#PYLUCID_PLUGINS = None
+# PYLUCID_PLUGINS = None
 
-_PLUGIN_OBJ_CACHE = {} # cache for PyLucidPlugin.get_plugin_object()
-_PLUGIN_URL_CACHE = {} # cache for PyLucidPlugin.get_prefix_urlpatterns()
+_PLUGIN_OBJ_CACHE = {}  # cache for PyLucidPlugin.get_plugin_object()
+_PLUGIN_URL_CACHE = {}  # cache for PyLucidPlugin.get_prefix_urlpatterns()
 
 
 class PluginNotOnSite(Exception):
     """ PluginPage doesn't exist on current page. """
     pass
+
+
+class PluginURLPattern(RegexURLPattern):
+    def _placeholder_view(self, *args, **kwargs):
+        raise HttpResponseServerError("plugin url placeholder view called?")
+
+    def __init__(self):
+        super(PluginURLPattern, self).__init__(
+            regex="^ / / placeholder / / $",  # FIXME: should never match
+            callback=self._placeholder_view,
+            name="Plugin url placeholder",
+        )
+
+    def resolve(self, path):
+        return
+
+
+
+class PluginURLs(object):
+    _URL_INSERTED = False
+    def __init__(self):
+        self.plugin_url_index = None
+        self.root_urlconf = None
+
+    def init2(self):
+        self.root_urlconf = import_module(settings.ROOT_URLCONF)
+        root_urlpatterns = self.root_urlconf.urlpatterns
+
+        for no, p in enumerate(root_urlpatterns):
+            if isinstance(p, PluginURLPattern):
+                self.plugin_url_index = no
+                break
+
+        if self.plugin_url_index is None:
+            raise ImproperlyConfigured("No PluginURLPattern found in root of urls.py!")
+
+        log.debug("PluginURLPattern found at index: %i" % self.plugin_url_index)
+
+    def update_plugin_urls(self):
+        if self.plugin_url_index is None:
+            self.init2()
+
+        from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
+
+        plugin_pages = PluginPage.objects.all()
+        pattern_list = []
+        for plugin_page in plugin_pages:
+            url_prefix = plugin_page.get_absolute_url()
+            plugin_instance = plugin_page.get_plugin()
+
+            prefixed_urlpatterns = plugin_instance.get_prefix_urlpatterns(url_prefix, plugin_page.urls_filename)
+#             log_urls(urlpatterns=prefixed_urlpatterns)
+            pattern_list += prefixed_urlpatterns
+
+        log_urls(urlpatterns=pattern_list)
+        plugin_patterns = urlresolvers.RegexURLResolver(r'', pattern_list)
+
+        log.debug("insert %i plugin urls at index %i" % (len(pattern_list), self.plugin_url_index))
+        self.root_urlconf.urlpatterns[self.plugin_url_index] = plugin_patterns
+#         log_urls()
+
+    def insert_plugin_urls(self):
+        if self._URL_INSERTED:
+            return
+        self._URL_INSERTED = True
+        log.debug("insert_plugin_urls() called.")
+        self.update_plugin_urls()
+
+
+
+pylucid_plugin_urls = PluginURLs()
+#     print "XXX", pkg_path, section, pkg_dir, plugin_name
+#
 
 
 class PyLucidPlugin(object):
@@ -65,6 +140,8 @@ class PyLucidPlugin(object):
             self.template_dir = template_dir
         else:
             self.template_dir = None
+
+        pylucid_plugin_urls.insert_plugin_urls()
 
     def __unicode__(self):
         return u"PyLucid plugin %r (%r)" % (self.name, self.installed_apps_string)
@@ -115,26 +192,26 @@ class PyLucidPlugin(object):
         mod = self.get_plugin_module(mod_name)
 
         try:
-            object = getattr(mod, obj_name)
+            plugin_object = getattr(mod, obj_name)
         except AttributeError, err:
             raise self.ObjectNotFound(err)
 
 #        print "put in _PLUGIN_OBJ_CACHE[%r]" % cache_key
-        _PLUGIN_OBJ_CACHE[cache_key] = object
+        _PLUGIN_OBJ_CACHE[cache_key] = plugin_object
 
-        return object
+        return plugin_object
 
     def get_callable(self, mod_name, func_name):
         """ returns the callable function. """
-        callable = self.get_plugin_object(mod_name, obj_name=func_name)
-        return callable
+        plugin_callable = self.get_plugin_object(mod_name, obj_name=func_name)
+        return plugin_callable
 
     def call_plugin_view(self, request, mod_name, func_name, method_kwargs):
         """
         Call a plugin view
         used for pylucid-get-views and lucidTag calls 
         """
-        callable = self.get_callable(mod_name, func_name)
+        plugin_callable = self.get_callable(mod_name, func_name)
 
         # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
         request.plugin_name = self.name
@@ -143,10 +220,10 @@ class PyLucidPlugin(object):
         csrf_exempt = getattr(callable, 'csrf_exempt', False)
         if func_name == "http_get_view" and not csrf_exempt:
             # Use csrf_protect only in pylucid get views and not für lucidTag calls
-            callable = csrf_protect(callable)
+            plugin_callable = csrf_protect(callable)
 
         # call the plugin view method
-        response = callable(request, **method_kwargs)
+        response = plugin_callable(request, **method_kwargs)
 
         if csrf_exempt and isinstance(response, HttpResponse):
             response.csrf_exempt = True
@@ -166,14 +243,16 @@ class PyLucidPlugin(object):
         raw_plugin_urlpatterns = self.get_plugin_object(mod_name=urls_filename, obj_name="urlpatterns")
         return raw_plugin_urlpatterns
 
-
     def get_prefix_urlpatterns(self, url_prefix, urls_filename):
         """ include the plugin urlpatterns with the url prefix """
-        url_prefix = url_prefix.rstrip("/") + "/"
+#         url_prefix = url_prefix.rstrip("/") + "/"
+        url_prefix = url_prefix.strip("/")
+        url_prefix = url_prefix + "/"
+
 
         cache_key = self.pkg_string + url_prefix
         if cache_key in _PLUGIN_URL_CACHE:
-            logger.debug("use _PLUGIN_URL_CACHE[%r]" % cache_key)
+            log.debug("use _PLUGIN_URL_CACHE[%r]" % cache_key)
             return _PLUGIN_URL_CACHE[cache_key]
 
         raw_plugin_urlpatterns = self.get_urlpatterns(urls_filename)
@@ -182,9 +261,9 @@ class PyLucidPlugin(object):
             (url_prefix, include(raw_plugin_urlpatterns)),
         )
 
-        logger.debug("url prefix: %r" % url_prefix)
-        logger.debug("raw_plugin_urlpatterns: %r" % raw_plugin_urlpatterns)
-        logger.debug("put in _PLUGIN_URL_CACHE[%r]" % cache_key)
+        log.debug("url prefix: %r" % url_prefix)
+        log.debug("raw_plugin_urlpatterns: %r" % raw_plugin_urlpatterns)
+        log.debug("put in _PLUGIN_URL_CACHE[%r]" % cache_key)
 
         _PLUGIN_URL_CACHE[cache_key] = plugin_urlpatterns
 
@@ -194,11 +273,11 @@ class PyLucidPlugin(object):
     def get_plugin_url_resolver(self, url_prefix, urls_filename="urls"):
         prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
 
-        logger.debug("prefix_urlpatterns: %r" % prefix_urlpatterns)
+        log.debug("prefix_urlpatterns: %r" % prefix_urlpatterns)
 
         plugin_url_resolver = urlresolvers.RegexURLResolver(r'^/', prefix_urlpatterns)
 
-        logger.debug("reverse_dict: %s" % pprint.pformat(plugin_url_resolver.reverse_dict))
+        log.debug("reverse_dict: %s" % pprint.pformat(plugin_url_resolver.reverse_dict))
 
         return plugin_url_resolver
 
@@ -210,8 +289,8 @@ class PyLucidPlugin(object):
         merged_urlpatterns = ROOT_URLCONF_PATTERNS + prefix_urlpatterns
 
         # Make a own url resolver
-#        merged_url_resolver = urlresolvers.RegexURLResolver(r'^/', merged_urlpatterns)
         merged_url_resolver = urlresolvers.RegexURLResolver(r'^/', merged_urlpatterns)
+        log.debug("merged_url_resolver: %r" % merged_url_resolver)
         return merged_url_resolver
 
 
@@ -265,11 +344,12 @@ class PyLucidPlugins(dict):
                     mod_name="admin_urls", obj_name="urlpatterns"
                 )
             except plugin_instance.ObjectNotFound, err:
-                continue
-
-            urls += patterns('',
-                (r"^%s/" % plugin_name, include(admin_urls)),
-            )
+                log.debug("plugin '%s' has no admin_urls: %s" % (plugin_name, err))
+            else:
+                urls += patterns('',
+                    (r"^%s/" % plugin_name, include(admin_urls)),
+                )
+                log.debug("Add admin_urls for plugin '%s'" % (plugin_name))
 
         return urls
 
@@ -293,16 +373,18 @@ class PyLucidPlugins(dict):
                     request, mod_name="views", func_name=method_name, method_kwargs={}
                 )
             except plugin_instance.ObjectNotFound, err:
-                # plugin or view doesn't exist
+                log.debug("plugin or view doesn't exist: %s" % err)
                 if settings.DEBUG:
-                    raise # Give a developer the full traceback page ;)
+                    raise  # Give a developer the full traceback page ;)
                 else:
                     # ignore the get parameter
                     continue
             except:
                 # insert more information into the traceback
                 etype, evalue, etb = sys.exc_info()
-                evalue = etype('Error rendering plugin view "%s.%s": %s' % (plugin_name, method_name, evalue))
+                msg = 'Error rendering plugin view "%s.%s": %s' % (plugin_name, method_name, evalue)
+                log.error(msg)
+                evalue = etype(msg)
                 raise etype, evalue, etb
 
             return response
