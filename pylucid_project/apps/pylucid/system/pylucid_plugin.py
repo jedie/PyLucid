@@ -70,7 +70,7 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
     plugin_url_resolver = plugin_instance.get_plugin_url_resolver(
         url_prefix, urls_filename=pluginpage.urls_filename,
     )
-    #for key, value in plugin_url_resolver.reverse_dict.items(): print key, value
+    # for key, value in plugin_url_resolver.reverse_dict.items(): print key, value
 
     # get the plugin view from the complete url
     resolve_url = request.path_info
@@ -96,7 +96,7 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
     urlresolvers.get_resolver = PluginGetResolver(merged_url_resolver)
 
     # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
-    request.plugin_name = view_func.__module__.split(".", 1)[0] # FIXME: Find a better way!
+    request.plugin_name = view_func.__module__.split(".", 1)[0]  # FIXME: Find a better way!
     try:
         request.method_name = view_func.__name__
     except AttributeError:
