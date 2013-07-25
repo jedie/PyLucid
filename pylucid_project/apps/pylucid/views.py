@@ -248,12 +248,8 @@ def lang_root_page(request, url_lang_code):
         # The url doesn't contain a language code, it's a pagetree slug
         return _i18n_redirect(request, url_path=url_lang_code)
 
-    # activate i18n
-    i18n.activate_auto_language(request)
+    return root_page(request)
 
-    pagetree = _get_root_page(request)
-
-    return _render_page(request, pagetree, url_lang_code)
 
 #-----------------------------------------------------------------------------
 
@@ -264,7 +260,13 @@ def _i18n_redirect(request, url_path):
 
     # Check only, if url_path is right (if there exist a pagetree object)
     # otherwise -> 404 would be raised
-    _get_pagetree(request, url_path)
+    try:
+        PageTree.objects.get_page_from_url(request, url_path)
+    except PageTree.DoesNotExist, err:
+        msg = _("Page not found")
+        if settings.DEBUG or request.user.is_staff:
+            msg += " url path: %r (%s)" % (url_path, err)
+        raise http.Http404(msg)
 
     lang_code = request.LANGUAGE_CODE
     url = reverse('PyLucid-resolve_url', kwargs={'url_lang_code': lang_code, 'url_path': url_path})
@@ -283,14 +285,6 @@ def _i18n_redirect(request, url_path):
     return http.HttpResponseRedirect(url)
 
 
-# def _get_pagetree(request, url_path):
-#     try:
-#         return PageTree.objects.get_page_from_url(request, url_path)
-#     except PageTree.DoesNotExist, err:
-#         msg = _("Page not found")
-#         if settings.DEBUG or request.user.is_staff:
-#             msg += " url path: %r (%s)" % (url_path, err)
-#         raise http.Http404(msg)
 
 
 # We must exempt csrf test here, but we use csrf_protect() later in:
