@@ -41,7 +41,6 @@ from tagging.models import Tag, TaggedItem
 from django.core.urlresolvers import reverse
 from django.views.generic.dates import YearArchiveView
 from django.views.generic.date_based import archive_month, archive_day
-from pylucid_project.pylucid_plugins.internals.admin_views import UrlPatternInfo
 from pylucid_project.utils.url_debug import log_urls
 
 
