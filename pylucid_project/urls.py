@@ -16,6 +16,7 @@ from django.conf.urls import patterns, url, include
 from django.contrib import admin
 from django.http import HttpResponse
 from django.views.defaults import server_error, page_not_found
+
 from pylucid_project.system.pylucid_plugins import PluginURLPattern
 
 
@@ -91,7 +92,7 @@ if settings.RUN_WITH_DEV_SERVER and "--insecure" in sys.argv and "--nostatic" in
     )
 
 urlpatterns += patterns('',
-    # Placehoder for urls from plugins. Would be dynamicly changed with information from database
+    # All PyLucid plugin urls. Would be dynamicly changed with information from database
     PluginURLPattern(),
 
     url('^', include('pylucid.urls')),
