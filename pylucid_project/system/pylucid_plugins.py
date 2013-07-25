@@ -17,15 +17,17 @@ import sys
 from django.conf import settings
 from django.conf.urls import patterns, include
 from django.core import urlresolvers
-from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import RegexURLPattern
-from django.http import HttpResponse, HttpResponseServerError
+from django.core.urlresolvers import RegexURLResolver, \
+    _resolver_cache, _ns_resolver_cache, _callable_cache
+from django.http import HttpResponse
 from django.utils.importlib import import_module
 from django.utils.log import getLogger
 from django.views.decorators.csrf import csrf_protect
 
+from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
+
 from pylucid_project.utils.python_tools import has_init_file
-from pylucid_project.utils.url_debug import log_urls
+from pylucid_project.utils.url_debug import log_urls, debug_log_urls
 
 
 # see: http://www.pylucid.org/permalink/443/how-to-display-debug-information
@@ -35,7 +37,8 @@ log = getLogger("pylucid.pylucid_plugins")
 # PYLUCID_PLUGINS = None
 
 _PLUGIN_OBJ_CACHE = {}  # cache for PyLucidPlugin.get_plugin_object()
-_PLUGIN_URL_CACHE = {}  # cache for PyLucidPlugin.get_prefix_urlpatterns()
+_PLUGIN_URL_CACHE = LocalSyncCache(id="plugin_url_cache")  # cache for PyLucidPlugin.get_prefix_urlpatterns()
+
 
 
 class PluginNotOnSite(Exception):
@@ -43,46 +46,23 @@ class PluginNotOnSite(Exception):
     pass
 
 
-class PluginURLPattern(RegexURLPattern):
-    def _placeholder_view(self, *args, **kwargs):
-        raise HttpResponseServerError("plugin url placeholder view called?")
+# Use django-tools local sync cache for sync the plugin urls in
+# a multi-threaded environment.
+PLUGIN_URLS_SYNC_DICT = LocalSyncCache(id="plugin url patterns")
 
+
+class PluginURLPattern(RegexURLResolver):
+    """
+    Handle all url patterns from PyLucid plugins.
+    
+    All urls are in the current PageTree. It would be renew after a the
+    page tree would be changed by user. e.g.: Create/move a PluginPage.
+    """
     def __init__(self):
-        super(PluginURLPattern, self).__init__(
-            regex="^ / / placeholder / / $",  # FIXME: should never match
-            callback=self._placeholder_view,
-            name="Plugin url placeholder",
-        )
+        pass
 
-    def resolve(self, path):
-        return
-
-
-
-class PluginURLs(object):
-    _URL_INSERTED = False
-    def __init__(self):
-        self.plugin_url_index = None
-        self.root_urlconf = None
-
-    def init2(self):
-        self.root_urlconf = import_module(settings.ROOT_URLCONF)
-        root_urlpatterns = self.root_urlconf.urlpatterns
-
-        for no, p in enumerate(root_urlpatterns):
-            if isinstance(p, PluginURLPattern):
-                self.plugin_url_index = no
-                break
-
-        if self.plugin_url_index is None:
-            raise ImproperlyConfigured("No PluginURLPattern found in root of urls.py!")
-
-        log.debug("PluginURLPattern found at index: %i" % self.plugin_url_index)
-
-    def update_plugin_urls(self):
-        if self.plugin_url_index is None:
-            self.init2()
-
+    def _get_plugin_patterns(self):
+        log.debug("PluginURLPattern._get_plugin_patterns")
         from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 
         plugin_pages = PluginPage.objects.all()
@@ -92,34 +72,46 @@ class PluginURLs(object):
             plugin_instance = plugin_page.get_plugin()
 
             prefixed_urlpatterns = plugin_instance.get_prefix_urlpatterns(url_prefix, plugin_page.urls_filename)
-#             log_urls(urlpatterns=prefixed_urlpatterns)
+            log_urls(urlpatterns=prefixed_urlpatterns)
             pattern_list += prefixed_urlpatterns
 
+        debug_log_urls(pattern_list)
         log_urls(urlpatterns=pattern_list)
-        plugin_patterns = urlresolvers.RegexURLResolver(r'', pattern_list)
+        plugin_patterns = RegexURLResolver(r'', pattern_list)
+        return plugin_patterns
 
-        log.debug("insert %i plugin urls at index %i" % (len(pattern_list), self.plugin_url_index))
-        self.root_urlconf.urlpatterns[self.plugin_url_index] = plugin_patterns
-#         log_urls()
+    def __getattr__(self, name):
+        try:
+            plugin_patterns = PLUGIN_URLS_SYNC_DICT["plugin_patterns"]
+        except KeyError:
+            # First time started or django-tools local sync cache was cleared
+            # in this thread or in a other thread.
 
-    def renew_plugin_urls(self):
-        """
-        FIXME: This would only recreate the urls from this thread!
-        """
-        log.debug("renew_plugin_urls()")
-        _PLUGIN_URL_CACHE.clear()
-        self.update_plugin_urls()
+            log.debug("Clear django.core.urlresolvers cache")
+            _resolver_cache.clear()  # Maps URLconf modules to RegexURLResolver instances.
+            _ns_resolver_cache.clear()  # Maps namespaces to RegexURLResolver instances.
+            _callable_cache.clear()  # Maps view and url pattern names to their view functions.
 
-    def insert_plugin_urls(self):
-        if self._URL_INSERTED:
-            return
-        self._URL_INSERTED = True
-        log.debug("insert_plugin_urls() called.")
-        self.update_plugin_urls()
+            # get the plugin url patterns fresh
+            plugin_patterns = self._get_plugin_patterns()
+            PLUGIN_URLS_SYNC_DICT["plugin_patterns"] = plugin_patterns
+
+        return getattr(plugin_patterns, name)
 
 
-pylucid_plugin_urls = PluginURLs()
+def clear_plugin_url_caches(sender, **kwargs):
+    """
+    signal handler for clear the plugin url caches.
+    
+    connected in:
+        pylucid_project.apps.pylucid.signals.update_plugin_urls
+    """
+    # clear the django-tools local sync cache, that will be clear all
+    # caches for every thread in a multi-threaded environment
+    PLUGIN_URLS_SYNC_DICT.clear()
 
+
+#-------------------------------------------------------------------------------
 
 
 class PyLucidPlugin(object):
@@ -145,8 +137,6 @@ class PyLucidPlugin(object):
             self.template_dir = template_dir
         else:
             self.template_dir = None
-
-        pylucid_plugin_urls.insert_plugin_urls()
 
     def __unicode__(self):
         return u"PyLucid plugin %r (%r)" % (self.name, self.installed_apps_string)

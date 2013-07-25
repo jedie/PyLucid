@@ -31,9 +31,6 @@ pre_render_global_template = django.dispatch.Signal(providing_args=["request", "
 @receiver(post_save, sender=PluginPage)
 @receiver(post_delete, sender=PluginPage)
 def update_plugin_urls(sender, **kwargs):
-    """
-    FIXME: This signal would only recreate the urls from the current thread!
-    """
-    log.debug("update_plugin_urls called with: %s" % repr(kwargs))
-    from pylucid_project.system.pylucid_plugins import pylucid_plugin_urls
-    pylucid_plugin_urls.renew_plugin_urls()
+    # import and connect signal here agains import loops
+    from pylucid_project.system.pylucid_plugins import clear_plugin_url_caches
+    clear_plugin_url_caches(sender, **kwargs)

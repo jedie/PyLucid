@@ -123,6 +123,40 @@ class UrlPatternInfo(object):
         return views
 
 
+
+class DebugResolve(object):
+    def __init__(self, instance):
+        self.instance = instance
+        self.origin_resolve = instance.resolve
+
+    def __call__(self, path):
+        result = self.origin_resolve(path)
+        log.debug(
+            "resolve %s with %r -> %s" % (
+                repr(path), self.instance.regex.pattern, repr(result)
+            )
+        )
+        return result
+
+
+def debug_log_urls(urlpatterns, base=''):
+    """
+    add log output to every url resolve call.
+    """
+    for p in urlpatterns:
+        if isinstance(p, RegexURLPattern):
+            log.debug("add debug to RegexURLPattern: %s" % repr(p))
+            p.resolve = DebugResolve(p)
+        elif isinstance(p, RegexURLResolver):
+            try:
+                patterns = p.url_patterns
+            except ImportError:
+                continue
+            debug_log_urls(patterns, base + p.regex.pattern)
+        else:
+            log.debug("Do nothing with", p)
+
+
 def log_urls(urlpatterns=None, hide=None, only=None):
     """
     e.g.:
