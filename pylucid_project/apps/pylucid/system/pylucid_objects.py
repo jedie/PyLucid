@@ -8,7 +8,7 @@
     
     see also: http://www.pylucid.org/_goto/187/PyLucid-objects/
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
