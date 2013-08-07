@@ -203,7 +203,7 @@ def render_to(template_name=None, debug=False):
 
 class PathInfo(object):
     def __init__(self, request):
-        self.raw_path = request.get_full_path()
+        self.raw_path = request.path
         self.lang, self.path = self.raw_path.lstrip("/").split("/", 1)
 
         # added later:
