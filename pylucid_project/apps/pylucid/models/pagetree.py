@@ -205,6 +205,8 @@ class PageTreeManager(BaseModelManager):
         if not request.user.is_superuser:
             user_groups = request.user.groups.all()
 
+        assert "?" not in url_path
+
         path = url_path.strip("/").split("/")
         page = None
         for no, page_slug in enumerate(path):
