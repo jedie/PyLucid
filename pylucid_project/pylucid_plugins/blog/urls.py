@@ -12,12 +12,12 @@ urlpatterns = patterns('',
     url(r'^(?P<year>\d{4})/$',
         views.BlogYearArchiveView.as_view(), name='Blog-year_archive'
     ),
-    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/$',
-        views.month_archive, name='Blog-month_archive'
-    ),
-    url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$',
-        views.day_archive, name='Blog-day_archive'
-    ),
+#     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/$',
+#         views.month_archive, name='Blog-month_archive'
+#     ),
+#     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$',
+#         views.day_archive, name='Blog-day_archive'
+#     ),
 
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<slug>[-\w]+)/$',
         views.detail_view, name='Blog-detail_view'
