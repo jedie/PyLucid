@@ -26,22 +26,23 @@ from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect, \
 from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
+from django.core.urlresolvers import reverse
+from django.views.generic.dates import YearArchiveView
+# from django.views.generic.date_based import archive_month, archive_day
 
 from pylucid_project.apps.pylucid.decorators import render_to, pylucid_objects
 from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.middlewares.pylucid_objects import SuspiciousOperation404
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
+from pylucid_project.utils.url_debug import log_urls
 
-from blog.preference_forms import get_preferences
-from blog.models import BlogEntry, BlogEntryContent
-from blog.preference_forms import BlogPrefForm
+from .preference_forms import get_preferences
+from .models import BlogEntry, BlogEntryContent
+from .preference_forms import BlogPrefForm
 
 # from django-tagging
 from tagging.models import Tag, TaggedItem
-from django.core.urlresolvers import reverse
-from django.views.generic.dates import YearArchiveView
-from django.views.generic.date_based import archive_month, archive_day
-from pylucid_project.utils.url_debug import log_urls
+
 
 
 def _add_breadcrumb(request, *args, **kwargs):
@@ -434,48 +435,48 @@ class BlogYearArchiveView(YearArchiveView):
         )
 
 
-def month_archive(request, year, month):
-    """
-    TODO: Set previous-/next-month by filtering
-    """
-    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
-
-    # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request,
-        _("%(month)s-%(year)s archive") % {"year":year, "month":month},
-        _("All article from %(month)s.%(year)s") % {"year":year, "month":month}
-    )
-
-    context = {
-        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-        "page_robots": "noindex,nofollow",
-    }
-    return archive_month(
-        request, year, month, queryset, date_field="url_date", extra_context=context,
-        month_format="%m", allow_empty=True
-    )
-
-
-def day_archive(request, year, month, day):
-    """
-    TODO: Set previous-/next-day by filtering
-    """
-    queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
-
-    # Add link to the breadcrumbs ;)
-    _add_breadcrumb(request,
-        _("%(day)s-%(month)s-%(year)s archive") % {"year":year, "month":month, "day":day},
-        _("All article from %(day)s-%(month)s-%(year)s") % {"year":year, "month":month, "day":day}
-    )
-
-    context = {
-        "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-        "page_robots": "noindex,nofollow",
-    }
-    return archive_day(
-        request, year, month, day, queryset, date_field="url_date", extra_context=context,
-        month_format="%m", allow_empty=True
-    )
+# def month_archive(request, year, month):
+#     """
+#     TODO: Set previous-/next-month by filtering
+#     """
+#     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+#
+#     # Add link to the breadcrumbs ;)
+#     _add_breadcrumb(request,
+#         _("%(month)s-%(year)s archive") % {"year":year, "month":month},
+#         _("All article from %(month)s.%(year)s") % {"year":year, "month":month}
+#     )
+#
+#     context = {
+#         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+#         "page_robots": "noindex,nofollow",
+#     }
+#     return archive_month(
+#         request, year, month, queryset, date_field="url_date", extra_context=context,
+#         month_format="%m", allow_empty=True
+#     )
+#
+#
+# def day_archive(request, year, month, day):
+#     """
+#     TODO: Set previous-/next-day by filtering
+#     """
+#     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
+#
+#     # Add link to the breadcrumbs ;)
+#     _add_breadcrumb(request,
+#         _("%(day)s-%(month)s-%(year)s archive") % {"year":year, "month":month, "day":day},
+#         _("All article from %(day)s-%(month)s-%(year)s") % {"year":year, "month":month, "day":day}
+#     )
+#
+#     context = {
+#         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
+#         "page_robots": "noindex,nofollow",
+#     }
+#     return archive_day(
+#         request, year, month, day, queryset, date_field="url_date", extra_context=context,
+#         month_format="%m", allow_empty=True
+#     )
 
 
 #------------------------------------------------------------------------------
