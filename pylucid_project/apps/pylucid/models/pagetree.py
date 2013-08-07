@@ -197,17 +197,17 @@ class PageTreeManager(BaseModelManager):
         # The user is anonymous or is authenticated but is not in the right user group
         raise PermissionDenied
 
-    def get_page_from_url(self, request, url_path):
+    def get_page_from_url(self, request, url_slugs):
         """
-        returns a tuple the page tree instance from the given url_path
+        returns a tuple the page tree instance from the given url_slugs
         XXX: move it out from model?
         """
         if not request.user.is_superuser:
             user_groups = request.user.groups.all()
 
-        assert "?" not in url_path
+        assert "?" not in url_slugs
 
-        path = url_path.strip("/").split("/")
+        path = url_slugs.strip("/").split("/")
         page = None
         for no, page_slug in enumerate(path):
             if slugify(page_slug) != page_slug.lower():

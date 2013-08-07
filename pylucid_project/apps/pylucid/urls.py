@@ -30,15 +30,7 @@ urlpatterns = patterns('',
         name='PyLucid-send_head_file'
     ),
 
-    url(r'^(?P<url_lang_code>[A-Za-z]{1,8}(?:-[A-Za-z]{1,8})*)/$',
-        views.lang_root_page, name='PyLucid-lang_root_page'
-    ),
-
-    url(r'^(?P<url_lang_code>[A-Za-z]{1,8}(?:-[A-Za-z]{1,8})*)/(?P<url_path>.+?)$',
-        views.resolve_url, name='PyLucid-resolve_url'
-    ),
-
     url(r'^(?P<url_path>.+?)/$',
-        views.page_without_lang, name='PyLucid-page_without_lang'
+        views.resolve_url, name='PyLucid-resolve_url'
     ),
 )

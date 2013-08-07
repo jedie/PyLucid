@@ -12,20 +12,56 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import sys
+
 from django.conf import settings
 from django.contrib import messages
 from django.utils.safestring import mark_safe
+from django.utils.log import getLogger
 
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.preference_forms import SystemPreferencesForm
 from pylucid_project.apps.pylucid.system import extrahead
 from pylucid_project.utils.escape import escape
-import sys
 
+
+# see: http://www.pylucid.org/permalink/443/how-to-display-debug-information
+log = getLogger("pylucid-objects")
 
 # max value length in debug __setattr__
 MAX_VALUE_LENGTH = 150
+
+
+class PathInfo(object):
+    def __init__(self, request):
+        self.raw_path = request.path
+
+    def set_url_lang_info(self, url_lang_code, url_slugs):
+        """
+        set information fom the requested url.
+        e.g.:
+            /en/page/sub-page/
+        ->
+            url_lang_code = "en"
+            url_slugs = "page/sub-page"
+        """
+        log.debug("set_url_lang_info: url_lang_code = %s | url_slugs = %s" % (url_lang_code, url_slugs))
+        self.url_lang_code = url_lang_code
+        self.url_slugs = url_slugs
+
+    def set_plugin_url_info(self, prefix_url, rest_url):
+        """
+        set splitted url splugs for PluginPage.
+        e.g.:
+            /en/Blog/2013/07/25/django-15-support-in-pylucid/
+        ->
+            prefix_url = "Blog"
+            rest_url = "2013/07/25/django-15-support-in-pylucid"
+        """
+        log.debug("sset_plugin_url_info: prefix_url = %s | rest_url = %s" % (prefix_url, rest_url))
+        self.prefix_url = prefix_url
+        self.rest_url = rest_url
 
 
 class PyLucidRequestObjects(object):
@@ -33,6 +69,8 @@ class PyLucidRequestObjects(object):
     _check_setattr = False
     def __init__(self, request):
         self.request = request
+
+        self.path_info = PathInfo(request)
 
         self.preferences_form = SystemPreferencesForm()
         self.preferences = self.preferences_form.get_preferences()
