@@ -219,6 +219,11 @@ class PyLucidPlugin(object):
 
         # call the plugin view method
         response = plugin_callable(request, **method_kwargs)
+        if not (isinstance(response, (HttpResponse, basestring)) or response is None):
+            msg = "Plugin view '%s.%s.%s' must return None or basestring or HttpResponse! (returned: %r)" % (
+                self.pkg_string, mod_name, func_name, type(response)
+            )
+            raise TypeError(msg)
 
         if csrf_exempt and isinstance(response, HttpResponse):
             response.csrf_exempt = True
@@ -382,17 +387,7 @@ class PyLucidPlugins(dict):
                 evalue = etype(msg)
                 raise etype, evalue, etb
 
-
-            if isinstance(response, (HttpResponse, basestring)) or response is None:
-                return response
-
-            msg = (
-                "Plugin GET view '%s.%s' must return None or basestring or HttpResponse! (returned: %r)"
-            ) % (
-                plugin_instance.pkg_string, method_name,
-                type(response)
-            )
-            raise TypeError(msg)
+            return response
 
 
 
