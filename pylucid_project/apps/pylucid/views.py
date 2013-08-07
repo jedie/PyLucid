@@ -91,9 +91,10 @@ def _render_page(request):
         # Plugin replace the page content
         context["page_content"] = get_view_response
     elif get_view_response is not None:  # Use plugin response
-        raise TypeError(
+        msg = (
             "Plugin view must return None or basestring or HttpResponse! (returned: %r)"
         ) % type(get_view_response)
+        raise TypeError(msg)
 
     if context["page_content"] is None:
         # Plugin has not filled the page content
