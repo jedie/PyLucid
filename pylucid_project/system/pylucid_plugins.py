@@ -382,7 +382,17 @@ class PyLucidPlugins(dict):
                 evalue = etype(msg)
                 raise etype, evalue, etb
 
-            return response
+
+            if isinstance(response, (HttpResponse, basestring)) or response is None:
+                return response
+
+            msg = (
+                "Plugin GET view '%s.%s' must return None or basestring or HttpResponse! (returned: %r)"
+            ) % (
+                plugin_instance.pkg_string, method_name,
+                type(response)
+            )
+            raise TypeError(msg)
 
 
 

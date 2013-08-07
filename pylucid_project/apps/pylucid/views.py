@@ -91,10 +91,7 @@ def _render_page(request):
         # Plugin replace the page content
         context["page_content"] = get_view_response
     elif get_view_response is not None:  # Use plugin response
-        msg = (
-            "Plugin view must return None or basestring or HttpResponse! (returned: %r)"
-        ) % type(get_view_response)
-        raise TypeError(msg)
+        raise # Should never happen here, because PYLUCID_PLUGINS.call_get_views() should raise before
 
     if context["page_content"] is None:
         # Plugin has not filled the page content
