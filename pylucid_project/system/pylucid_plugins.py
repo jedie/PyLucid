@@ -212,10 +212,10 @@ class PyLucidPlugin(object):
         request.plugin_name = self.name
         request.method_name = func_name
 
-        csrf_exempt = getattr(callable, 'csrf_exempt', False)
+        csrf_exempt = getattr(plugin_callable, 'csrf_exempt', False)
         if func_name == "http_get_view" and not csrf_exempt:
             # Use csrf_protect only in pylucid get views and not für lucidTag calls
-            plugin_callable = csrf_protect(callable)
+            plugin_callable = csrf_protect(plugin_callable)
 
         # call the plugin view method
         response = plugin_callable(request, **method_kwargs)
