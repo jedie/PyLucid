@@ -62,64 +62,6 @@ def _get_page_content(request):
     return pagecontent
 
 
-def _render_page(request):
-    """ render a cms page """
-    path_info = request.PYLUCID.path_info
-    url_lang_code = path_info.url_lang_code
-    prefix_url = path_info.prefix_url
-    rest_url = path_info.rest_url
-
-    pagetree = request.PYLUCID.pagetree
-    pagemeta = request.PYLUCID.pagemeta
-
-    is_plugin_page = pagetree.page_type == PageTree.PLUGIN_TYPE
-    if is_plugin_page:
-        print "is plugin page:", url_lang_code, prefix_url, rest_url
-
-    # Create initial context object
-    context = request.PYLUCID.context = RequestContext(request)
-
-    # it will be filled either by plugin or by PageContent:
-    context["page_content"] = None
-
-    # call a pylucid plugin "html get view", if exist
-    get_view_response = PYLUCID_PLUGINS.call_get_views(request)
-    if isinstance(get_view_response, http.HttpResponse):
-        # Plugin would be build the complete html page
-        return get_view_response
-    elif isinstance(get_view_response, basestring):
-        # Plugin replace the page content
-        context["page_content"] = get_view_response
-    elif get_view_response is not None:  # Use plugin response
-        raise # Should never happen here, because PYLUCID_PLUGINS.call_get_views() should raise before
-
-    if context["page_content"] is None:
-        # Plugin has not filled the page content
-        pagecontent_instance = _get_page_content(request)
-        request.PYLUCID.pagecontent = request.PYLUCID.updateinfo_object = pagecontent_instance
-        context["page_content"] = apply_markup(
-            pagecontent_instance.content, pagecontent_instance.markup, request
-        )
-
-    # put update information into context
-    for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
-        context["page_%s" % itemname] = getattr(request.PYLUCID.updateinfo_object, itemname, None)
-
-    # Render django tags in PageContent with the global context
-    context["page_content"] = render.render_string_template(context["page_content"], context)
-
-    template_name = context["base_template_name"]  # Added in pylucid.context_processors
-    page_template = loader.get_template(template_name)
-    pre_render_global_template.send(sender=None, request=request, page_template=page_template)
-
-    # Render django tags in global template with global context
-    complete_page = page_template.render(context)
-
-    # create response object
-    response = http.HttpResponse(complete_page, mimetype="text/html")
-    response["content-language"] = context["page_language"]
-
-    return response
 
 
 
@@ -200,25 +142,6 @@ def _get_root_page(request):
     return pagetree
 
 
-@csrf_exempt
-def root_page(request):
-    """
-    redirect to a url with language code
-    We can't serve the root page here, because it will be cached in current
-    language with "/" as key. So a other client with other language will see
-    the page always in the cached language and not in his preferred language
-    """
-    # activate language via auto detection
-    i18n.activate_auto_language(request)
-
-    pagetree = _get_root_page(request)
-
-    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
-    url = pagemeta.get_absolute_url()
-
-    return http.HttpResponseRedirect(url)
-
-
 def _lang_code_is_pagetree(request, url_lang_code):
     """
     return True, if language code...
@@ -236,17 +159,6 @@ def _lang_code_is_pagetree(request, url_lang_code):
         return True
 
     return False
-
-
-@csrf_exempt
-def lang_root_page(request, url_lang_code):
-    """ url with lang code but no page slug """
-
-    if _lang_code_is_pagetree(request, url_lang_code):
-        # The url doesn't contain a language code, it's a pagetree slug
-        return _i18n_redirect(request, url_path=url_lang_code)
-
-    return root_page(request)
 
 
 #-----------------------------------------------------------------------------
@@ -267,6 +179,7 @@ def _i18n_redirect(request, url_path):
         raise http.Http404(msg)
 
     lang_code = request.LANGUAGE_CODE
+    FIXME:
     url = reverse('PyLucid-resolve_url', kwargs={'url_lang_code': lang_code, 'url_path': url_path})
 
     if not url.endswith("/"):
@@ -282,36 +195,127 @@ def _i18n_redirect(request, url_path):
     # redirect to url with lang_code
     return http.HttpResponseRedirect(url)
 
+#-----------------------------------------------------------------------------
 
+
+# @csrf_exempt
+# def lang_root_page(request, url_lang_code):
+#     """ url with lang code but no page slug """
+#
+#     if _lang_code_is_pagetree(request, url_lang_code):
+#         # The url doesn't contain a language code, it's a pagetree slug
+#         return _i18n_redirect(request, url_path=url_lang_code)
+#
+#     return root_page(request)
+
+@csrf_exempt
+def root_page(request):
+    """
+    redirect to a url with language code
+    We can't serve the root page here, because it will be cached in current
+    language with "/" as key. So a other client with other language will see
+    the page always in the cached language and not in his preferred language
+    """
+    # activate language via auto detection
+    i18n.activate_auto_language(request)
+
+    pagetree = _get_root_page(request)
+
+    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
+    url = pagemeta.get_absolute_url()
+
+    return http.HttpResponseRedirect(url)
 
 
 # We must exempt csrf test here, but we use csrf_protect() later in:
 # pylucid_project.apps.pylucid.system.pylucid_plugin.call_plugin()
 # pylucid_project.system.pylucid_plugins.PyLucidPlugin.call_plugin_view()
 # see also: https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#view-needs-protection-for-one-path
-@pylucid_objects  # create request.PYLUCID
 @csrf_exempt
-def resolve_url(request, url_lang_code, url_path):
+def resolve_url(request, url_path):
     """ url with lang_code and sub page path """
-    if _lang_code_is_pagetree(request, url_lang_code):
-        # url_lang_code doesn't contain a language code, it's a pagetree slug
-        new_url = "%s/%s" % (url_lang_code, url_path)
-        return _i18n_redirect(request, url_path=new_url)
+    print url_path
+
+    if not "/" in url_path:
+        # url with sub page path, but without a lang_code part
+        # We redirect to a url with language code.
+
+        # redirect to a url with the default language code.
+        return _i18n_redirect(request, url_path)
+    else:
+        url_lang_code, url_slugs = url_path.split("/", 1)
+        if _lang_code_is_pagetree(request, url_lang_code):
+            # url_lang_code doesn't contain a language code, it's a pagetree slug
+            new_url = "%s/%s" % (url_lang_code, url_path)
+            return _i18n_redirect(request, url_path=new_url)
 
     # activate language via auto detection
     i18n.activate_auto_language(request)
-
-    request.PYLUCID.path_info.url_lang_code = url_lang_code
+    
+    FIXME: this must be also done for plugin urls!
+    request.PYLUCID.path_info.set_url_lang_info(url_lang_code, url_slugs)
     return _render_page(request)
 
 
-def page_without_lang(request, url_path):
-    """
-    url with sub page path, but without a lang_code part
-    We redirect to a url with language code.
-    """
-    # redirect to a url with the default language code.
-    return _i18n_redirect(request, url_path)
+@pylucid_objects # create request.PYLUCID
+def _render_page(request):
+    """ render a cms page """
+    path_info = request.PYLUCID.path_info
+    url_lang_code = path_info.url_lang_code
+    prefix_url = path_info.prefix_url
+    rest_url = path_info.rest_url
+
+    pagetree = request.PYLUCID.pagetree
+    pagemeta = request.PYLUCID.pagemeta
+
+    is_plugin_page = pagetree.page_type == PageTree.PLUGIN_TYPE
+    if is_plugin_page:
+        print "is plugin page:", url_lang_code, prefix_url, rest_url
+
+    # Create initial context object
+    context = request.PYLUCID.context = RequestContext(request)
+
+    # it will be filled either by plugin or by PageContent:
+    context["page_content"] = None
+
+    # call a pylucid plugin "html get view", if exist
+    get_view_response = PYLUCID_PLUGINS.call_get_views(request)
+    if isinstance(get_view_response, http.HttpResponse):
+        # Plugin would be build the complete html page
+        return get_view_response
+    elif isinstance(get_view_response, basestring):
+        # Plugin replace the page content
+        context["page_content"] = get_view_response
+    elif get_view_response is not None: # Use plugin response
+        raise # Should never happen here, because PYLUCID_PLUGINS.call_get_views() should raise before
+
+    if context["page_content"] is None:
+        # Plugin has not filled the page content
+        pagecontent_instance = _get_page_content(request)
+        request.PYLUCID.pagecontent = request.PYLUCID.updateinfo_object = pagecontent_instance
+        context["page_content"] = apply_markup(
+            pagecontent_instance.content, pagecontent_instance.markup, request
+        )
+
+    # put update information into context
+    for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
+        context["page_%s" % itemname] = getattr(request.PYLUCID.updateinfo_object, itemname, None)
+
+    # Render django tags in PageContent with the global context
+    context["page_content"] = render.render_string_template(context["page_content"], context)
+
+    template_name = context["base_template_name"] # Added in pylucid.context_processors
+    page_template = loader.get_template(template_name)
+    pre_render_global_template.send(sender=None, request=request, page_template=page_template)
+
+    # Render django tags in global template with global context
+    complete_page = page_template.render(context)
+
+    # create response object
+    response = http.HttpResponse(complete_page, mimetype="text/html")
+    response["content-language"] = context["page_language"]
+
+    return response
 
 
 @csrf_exempt

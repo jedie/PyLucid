@@ -201,15 +201,6 @@ def render_to(template_name=None, debug=False):
 
 
 
-class PathInfo(object):
-    def __init__(self, request):
-        self.raw_path = request.path
-        self.lang, self.path = self.raw_path.lstrip("/").split("/", 1)
-
-        # added later:
-        self.prefix_url = None
-        self.rest_url = None
-        self.is_plugin_page = None
 
 
 def pylucid_objects(view_function):
@@ -229,10 +220,12 @@ def pylucid_objects(view_function):
     """
     @wraps(view_function)
     def _inner(request, *args, **kwargs):
-        request.PYLUCID.path_info = path_info = PathInfo(request)
-        log.debug("get PageTree for %s" % path_info.raw_path)
+        FIXME: here we must split the languange code from url, too. 
+        path_info = request.PYLUCID.path_info
+        url_slugs = path_info.url_slugs
+        log.debug("get PageTree for %s" % url_slugs)
         try:
-            pagetree, prefix_url, rest_url = PageTree.objects.get_page_from_url(request, path_info.path)
+            pagetree, prefix_url, rest_url = PageTree.objects.get_page_from_url(request, url_slugs)
         except PageTree.DoesNotExist, err:
             msg = _("Page not found")
             if settings.DEBUG or request.user.is_staff:
@@ -240,8 +233,7 @@ def pylucid_objects(view_function):
             log.error(msg)
             raise Http404(msg)
 
-        path_info.prefix_url = prefix_url
-        path_info.rest_url = rest_url
+        request.PYLUCID.path_info.set_plugin_url_info(prefix_url, rest_url)
 
         log.debug("Add request.PYLUCID.pagetree with %s" % pagetree)
         request.PYLUCID.pagetree = pagetree
