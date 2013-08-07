@@ -22,11 +22,11 @@ from django_tools.template import render
 from pylucid_project.apps.pylucid.markup.converter import apply_markup
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, \
         PageContent, PluginPage, ColorScheme, EditableHtmlHeadFile, Language
-from pylucid_project.apps.pylucid.signals import pre_render_global_template
 from pylucid_project.apps.pylucid.system import pylucid_plugin, i18n
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from django.template.loader import render_to_string
 from pylucid_project.apps.pylucid.decorators import pylucid_objects
+from pylucid_project.apps.pylucid.signals_handlers import pre_render_global_template
 
 
 
