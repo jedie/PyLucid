@@ -1,12 +1,14 @@
 # coding: utf-8
 
+
 """
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import sys
 from xml.sax.saxutils import escape
@@ -19,6 +21,7 @@ from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
+from django.db.models.signals import post_save, post_delete
 from django.http import Http404
 from django.template.defaultfilters import slugify
 from django.utils.safestring import mark_safe
@@ -33,6 +36,7 @@ from django_tools.models import UpdateInfoBaseModel
 from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
 from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
 from pylucid_project.base_models.permissions import PermissionsBase
+from pylucid_project.apps.pylucid.signals_handlers import update_plugin_urls
 
 
 TAG_INPUT_HELP_URL = \
@@ -461,4 +465,5 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PageTree)
 
-
+post_save.connect(update_plugin_urls, sender=PageTree)
+post_delete.connect(update_plugin_urls, sender=PageTree)
