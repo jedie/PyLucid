@@ -59,6 +59,7 @@ class PluginURLPattern(RegexURLResolver):
     page tree would be changed by user. e.g.: Create/move a PluginPage.
     """
     def __init__(self):
+        # define __init__ because RegexURLResolver.__init__ takes arguments ;)
         pass
 
     def _get_plugin_patterns(self):
@@ -66,14 +67,20 @@ class PluginURLPattern(RegexURLResolver):
         from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 
         plugin_pages = PluginPage.objects.all()
+        all_page_metas = PageMeta.objects.filter(pagetree__page_type=PageTree.PLUGIN_TYPE)
+
         pattern_list = []
         for plugin_page in plugin_pages:
-            url_prefix = plugin_page.get_absolute_url()
             plugin_instance = plugin_page.get_plugin()
 
-            prefixed_urlpatterns = plugin_instance.get_prefix_urlpatterns(url_prefix, plugin_page.urls_filename)
-            log_urls(urlpatterns=prefixed_urlpatterns)
-            pattern_list += prefixed_urlpatterns
+            page_metas = all_page_metas.filter(pagetree=plugin_page.pagetree)
+            for page_meta in page_metas:
+                url_prefix = page_meta.get_absolute_url()
+                log.debug("add patterns for url prefix: %r" % url_prefix)
+
+                prefixed_urlpatterns = plugin_instance.get_prefix_urlpatterns(url_prefix, plugin_page.urls_filename)
+                log_urls(urlpatterns=prefixed_urlpatterns)
+                pattern_list += prefixed_urlpatterns
 
         debug_log_urls(pattern_list)
         log_urls(urlpatterns=pattern_list)
