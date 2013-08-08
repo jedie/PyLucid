@@ -210,7 +210,9 @@ def pylucid_objects(view_function):
     """
     @wraps(view_function)
     def _inner(request, *args, **kwargs):
-        resolve_pagetree_url(request)
+        response = resolve_pagetree_url(request)
+        if response:
+            return response
 
         # Create initial context object
         request.PYLUCID.context = RequestContext(request)

@@ -116,14 +116,14 @@ class PyLucidRequestObjects(object):
 
         self._check_setattr = settings.DEBUG
 
-    def __getattr__(self, name):
-        try:
-            return super(PyLucidRequestObjects, self).__getattr__(name)
-        except:  # AttributeError:
-            # insert more information into the traceback and re-raise the original error
-            etype, evalue, etb = sys.exc_info()
-            evalue = etype("%s (Forget to use '@pylucid_objects' decorator?)" % evalue)
-            raise etype, evalue, etb
+#     def __getattr__(self, name):
+#         try:
+#             return super(PyLucidRequestObjects, self).__getattr__(name)
+#         except:  # AttributeError:
+#             # insert more information into the traceback and re-raise the original error
+#             etype, evalue, etb = sys.exc_info()
+#             evalue = etype("%s (Forget to use '@pylucid_objects' decorator?)" % evalue)
+#             raise etype, evalue, etb
 
     def _setattr_debug(self, name, value):
         """
