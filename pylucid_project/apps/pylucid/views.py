@@ -253,18 +253,31 @@ def redirect_to_lang_url(request, url_slugs):
 @pylucid_objects
 @csrf_exempt
 def render_page(request, url_lang_code, url_path):
-    """ render a cms page """
+    """ render a PageContent page """
     path_info = request.PYLUCID.path_info
-    url_lang_code = path_info.url_lang_code
-    prefix_url = path_info.prefix_url
-    rest_url = path_info.rest_url
-
     pagetree = request.PYLUCID.pagetree
     pagemeta = request.PYLUCID.pagemeta
 
-    is_plugin_page = pagetree.page_type == PageTree.PLUGIN_TYPE
-    if is_plugin_page:
-        print "is plugin page:", url_lang_code, prefix_url, rest_url
+    # Should never happen, because all Plugin Pages should be catched
+    # in url.py before
+    assert pagetree.page_type == PageTree.PAGE_TYPE
+
+    url_lang_code = path_info.url_lang_code
+
+    # Check the language code in the url, if exist
+    if url_lang_code.lower() != pagemeta.language.code.lower():
+        # The language code in the url is wrong. e.g.: The client followed a external url with was wrong.
+        # Note: The main_manu doesn't show links to not existing PageMeta entries!
+
+        # change only the lang code in the url:
+        new_url = i18n.change_url(request, new_lang_code=pagemeta.language.code)
+
+        if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
+            messages.error(request,
+                "Language code in url %r is wrong! Redirect to %r." % (url_lang_code, new_url)
+            )
+        # redirect the client to the right url
+        return http.HttpResponsePermanentRedirect(new_url)
 
     # Create initial context object
     context = request.PYLUCID.context = RequestContext(request)
