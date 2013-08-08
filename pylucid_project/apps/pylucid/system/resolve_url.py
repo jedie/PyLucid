@@ -13,8 +13,8 @@
 from xml.sax.saxutils import escape
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.http import Http404, HttpResponsePermanentRedirect
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext as _
 
@@ -33,7 +33,6 @@ def get_page_from_url(request, url_slugs):
     assert "?" not in url_slugs
 
     def _raise404(debug_msg):
-        raise
         msg = _("Page not found")
         if settings.DEBUG or request.user.is_staff:
             msg += " url path: %r (%s)" % (url_slugs, debug_msg)
@@ -113,7 +112,22 @@ def resolve_pagetree_url(request):
 
     if Language.objects.is_language_code(url_lang_code) != True:
         # It's not a valid language code -> redirect with added language code
-        raise TODO
+        # e.g.:
+        # lang code is a page slug
+        # lang code is wrong or not existing
+        try:
+            # Try if lang code is a page slug
+            pagetree, prefix_url, rest_url = get_page_from_url(request, raw_path)
+        except Http404, err:
+            # Maybe lang code is wrong or not existing -> try the rest slugs
+            pagetree, prefix_url, rest_url = get_page_from_url(request, url_slugs)
+
+        pagemeta = PageTree.objects.get_pagemeta(request, pagetree,
+#             show_lang_errors=True
+            show_lang_errors=False
+        )
+        new_url = pagemeta.get_absolute_url()
+        return HttpResponsePermanentRedirect(new_url)
 #         if _lang_code_is_pagetree(request, url_lang_code):
 #             # url_lang_code doesn't contain a language code, it's a pagetree slug
 #             new_url = "%s/%s" % (url_lang_code, url_path)
