@@ -30,7 +30,11 @@ urlpatterns = patterns('',
         name='PyLucid-send_head_file'
     ),
 
-    url(r'^(?P<url_path>.+?)/$',
-        views.resolve_url, name='PyLucid-resolve_url'
+    # url_lang_code must match to all variantes of django.conf.global_settings.LANGUAGES
+    url(r'^(?P<url_lang_code>[A-Za-z]{2}(?:-[A-Za-z]{2,4})*)/(?P<url_path>.+?)$',
+        views.render_page, name='PyLucid-render_page'
+    ),
+    url(r'^(?P<url_slugs>.+?)/$',
+        views.redirect_to_lang_url, name='PyLucid-redirect_to_lang_url'
     ),
 )
