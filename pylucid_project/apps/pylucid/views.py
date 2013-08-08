@@ -27,6 +27,7 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 from django.template.loader import render_to_string
 from pylucid_project.apps.pylucid.decorators import pylucid_objects
 from pylucid_project.apps.pylucid.signals_handlers import pre_render_global_template
+from pylucid_project.apps.pylucid.system.resolve_url import get_page_from_url
 
 
 
@@ -170,17 +171,17 @@ def _i18n_redirect(request, url_path):
 
     # Check only, if url_path is right (if there exist a pagetree object)
     # otherwise -> 404 would be raised
-    try:
-        PageTree.objects.get_page_from_url(request, url_path)
-    except PageTree.DoesNotExist, err:
-        msg = _("Page not found")
-        if settings.DEBUG or request.user.is_staff:
-            msg += " url path: %r (%s)" % (url_path, err)
-        raise http.Http404(msg)
+#     try:
+#         PageTree.objects.get_page_from_url(request, url_path)
+#     except PageTree.DoesNotExist, err:
+#         msg = _("Page not found")
+#         if settings.DEBUG or request.user.is_staff:
+#             msg += " url path: %r (%s)" % (url_path, err)
+#         raise http.Http404(msg)
 
     lang_code = request.LANGUAGE_CODE
-    FIXME:
-    url = reverse('PyLucid-resolve_url', kwargs={'url_lang_code': lang_code, 'url_path': url_path})
+#     FIXME:
+    url = reverse('PyLucid-render_page', kwargs={'url_lang_code': lang_code, 'url_path': url_path})
 
     if not url.endswith("/"):
         url += "/"
@@ -208,6 +209,14 @@ def _i18n_redirect(request, url_path):
 #
 #     return root_page(request)
 
+
+def _redirect(request, pagetree):
+    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
+    url = pagemeta.get_absolute_url()
+
+    return http.HttpResponseRedirect(url)
+
+
 @csrf_exempt
 def root_page(request):
     """
@@ -220,45 +229,30 @@ def root_page(request):
     i18n.activate_auto_language(request)
 
     pagetree = _get_root_page(request)
+    return _redirect(request, pagetree)
 
-    pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=False)
-    url = pagemeta.get_absolute_url()
 
-    return http.HttpResponseRedirect(url)
+@csrf_exempt
+def redirect_to_lang_url(request, url_slugs):
+    if Language.objects.is_language_code(url_slugs):
+        # url_splug is a language code and not a page tree slug
+        return root_page(request)
+
+    # activate language via auto detection
+    i18n.activate_auto_language(request)
+
+    pagetree, prefix_url, rest_url = get_page_from_url(request, url_slugs)
+    return _redirect(request, pagetree)
+    
 
 
 # We must exempt csrf test here, but we use csrf_protect() later in:
 # pylucid_project.apps.pylucid.system.pylucid_plugin.call_plugin()
 # pylucid_project.system.pylucid_plugins.PyLucidPlugin.call_plugin_view()
 # see also: https://docs.djangoproject.com/en/dev/ref/contrib/csrf/#view-needs-protection-for-one-path
+@pylucid_objects
 @csrf_exempt
-def resolve_url(request, url_path):
-    """ url with lang_code and sub page path """
-    print url_path
-
-    if not "/" in url_path:
-        # url with sub page path, but without a lang_code part
-        # We redirect to a url with language code.
-
-        # redirect to a url with the default language code.
-        return _i18n_redirect(request, url_path)
-    else:
-        url_lang_code, url_slugs = url_path.split("/", 1)
-        if _lang_code_is_pagetree(request, url_lang_code):
-            # url_lang_code doesn't contain a language code, it's a pagetree slug
-            new_url = "%s/%s" % (url_lang_code, url_path)
-            return _i18n_redirect(request, url_path=new_url)
-
-    # activate language via auto detection
-    i18n.activate_auto_language(request)
-    
-    FIXME: this must be also done for plugin urls!
-    request.PYLUCID.path_info.set_url_lang_info(url_lang_code, url_slugs)
-    return _render_page(request)
-
-
-@pylucid_objects # create request.PYLUCID
-def _render_page(request):
+def render_page(request, url_lang_code, url_path):
     """ render a cms page """
     path_info = request.PYLUCID.path_info
     url_lang_code = path_info.url_lang_code

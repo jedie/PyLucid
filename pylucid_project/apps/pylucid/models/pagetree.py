@@ -11,7 +11,7 @@
 
 
 import sys
-from xml.sax.saxutils import escape
+
 
 from django.conf import settings
 from django.contrib import messages
@@ -23,7 +23,6 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.http import Http404
-from django.template.defaultfilters import slugify
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -148,7 +147,7 @@ class PageTreeManager(BaseModelManager):
         If show_lang_errors==True:
             create a page_msg if PageMeta doesn't exist in client favored language.
         """
-        from pylucid_project.apps.pylucid.models import PageMeta  # against import loops.      
+        from pylucid_project.apps.pylucid.models import PageMeta # against import loops.
 
         # client favored Language instance:
         lang_entry = request.PYLUCID.current_language
@@ -196,58 +195,6 @@ class PageTreeManager(BaseModelManager):
 
         # The user is anonymous or is authenticated but is not in the right user group
         raise PermissionDenied
-
-    def get_page_from_url(self, request, url_slugs):
-        """
-        returns a tuple the page tree instance from the given url_slugs
-        XXX: move it out from model?
-        """
-        if not request.user.is_superuser:
-            user_groups = request.user.groups.all()
-
-        assert "?" not in url_slugs
-
-        path = url_slugs.strip("/").split("/")
-        page = None
-        for no, page_slug in enumerate(path):
-            if slugify(page_slug) != page_slug.lower():
-                raise PageTree.DoesNotExist("url part %r is not slugify" % page_slug)
-
-            try:
-                page = PageTree.on_site.get(parent=page, slug=page_slug)
-            except PageTree.DoesNotExist:
-                etype, evalue, etb = sys.exc_info()
-                evalue = etype("Wrong url %r: %s" % (page_slug, evalue))
-                raise etype, evalue, etb
-
-            page_view_group = page.permitViewGroup
-
-            # Check permissions only for PageTree
-            # Note: PageMeta.permitViewGroup would be checked in self.get_pagemeta()
-            # TODO: Check this in unittests!
-            if request.user.is_anonymous():
-                # Anonymous user are in no user group
-                if page_view_group != None:
-                    msg = "Permission deny"
-                    if settings.DEBUG:
-                        msg += " (url part: %s)" % escape(page_slug)
-                    raise PermissionDenied(msg)
-            elif not request.user.is_superuser: # Superuser can see everything ;)
-                if (page_view_group != None) and (page_view_group not in user_groups):
-                    msg = "Permission deny"
-                    if settings.DEBUG:
-                        msg += " (not in view group %r, url part: %r)" % (page_view_group, escape(page_slug))
-                    raise PermissionDenied(msg)
-
-            if page.page_type == PageTree.PLUGIN_TYPE:
-                # It's a plugin
-                prefix_url = "/".join(path[:no + 1])
-                rest_url = "/".join(path[no + 1:])
-#                if not rest_url.endswith("/"):
-#                    rest_url += "/"
-                return (page, prefix_url, rest_url)
-
-        return (page, None, None)
 
     def get_backlist(self, request, pagetree=None):
         """
@@ -411,7 +358,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
         """ absolute url *without* language code (without domain/host part) """
         try:
             url = self._url_cache[self.pk]
-            #print "PageTree url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
+            # print "PageTree url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
         except KeyError:
             if self.parent:
                 parent_shortcut = self.parent.get_absolute_url()

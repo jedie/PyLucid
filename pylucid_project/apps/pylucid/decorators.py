@@ -25,6 +25,7 @@ from pylucid_project.apps.pylucid.shortcuts import bad_request
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.models.pagetree import PageTree
 from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
+from pylucid_project.apps.pylucid.system.resolve_url import resolve_pagetree_url
 
 
 # see: http://www.pylucid.org/permalink/443/how-to-display-debug-information
@@ -206,56 +207,10 @@ def render_to(template_name=None, debug=False):
 def pylucid_objects(view_function):
     """
     Add PyLucid objects to the request object
-    
-    Note:
-        request.PYLUCID created in PyLucidMiddleware
-        
-    expose theses Objects:
-        request.PYLUCID.pagetree - PageTree instance
-        request.PYLUCID.path_info - hold some path information
-        request.PYLUCID.pagemeta
-        request.PYLUCID.pluginpage - PluginPage instance, but only if current page is a PluginPage
-        request.PYLUCID.updateinfo_object
-        request.PYLUCID.object2comment - The Object used to attach a pylucid_comment
     """
     @wraps(view_function)
     def _inner(request, *args, **kwargs):
-        FIXME: here we must split the languange code from url, too. 
-        path_info = request.PYLUCID.path_info
-        url_slugs = path_info.url_slugs
-        log.debug("get PageTree for %s" % url_slugs)
-        try:
-            pagetree, prefix_url, rest_url = PageTree.objects.get_page_from_url(request, url_slugs)
-        except PageTree.DoesNotExist, err:
-            msg = _("Page not found")
-            if settings.DEBUG or request.user.is_staff:
-                msg += " url path: %r (%s)" % (path_info.path, err)
-            log.error(msg)
-            raise Http404(msg)
-
-        request.PYLUCID.path_info.set_plugin_url_info(prefix_url, rest_url)
-
-        log.debug("Add request.PYLUCID.pagetree with %s" % pagetree)
-        request.PYLUCID.pagetree = pagetree
-
-        is_plugin_page = path_info.is_plugin_page = pagetree.page_type == PageTree.PLUGIN_TYPE
-
-        pagemeta = PageTree.objects.get_pagemeta(request, pagetree,
-            show_lang_errors=True
-#             show_lang_errors=False
-        )
-        request.PYLUCID.pagemeta = pagemeta
-
-        # Changeable by plugin/get view or will be removed with PageContent instance
-        request.PYLUCID.updateinfo_object = pagemeta
-
-        # should be changed in plugins, e.g.: details views in blog, lexicon plugins
-        request.PYLUCID.object2comment = pagemeta
-
-        if pagetree.page_type == PageTree.PLUGIN_TYPE:
-            # Current page is a PluginPage
-            pluginpage = PluginPage.objects.get(pagetree=pagetree)
-            request.PYLUCID.pluginpage = pluginpage
+        resolve_pagetree_url(request)
 
         # Create initial context object
         request.PYLUCID.context = RequestContext(request)

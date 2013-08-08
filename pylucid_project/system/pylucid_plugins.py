@@ -26,6 +26,8 @@ from django.views.decorators.csrf import csrf_protect
 
 from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 
+from pylucid_project.apps.pylucid.models.pagemeta import PageMeta
+from pylucid_project.apps.pylucid.models.pagetree import PageTree
 from pylucid_project.utils.python_tools import has_init_file
 from pylucid_project.utils.url_debug import log_urls, debug_log_urls
 
