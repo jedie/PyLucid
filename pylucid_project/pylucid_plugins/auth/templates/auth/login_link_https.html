@@ -1,0 +1,5 @@
+{% extends "pylucid/css_anchor_span.html" %}
+
+{% block plugin_content %}
+<a href="{{ honypot_url }}" id="login_link" rel="nofollow" onclick="window.location.href = '{{ url }}'; return false;">{% trans 'Log in' %}</a>
+{% endblock %}

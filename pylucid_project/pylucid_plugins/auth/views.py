@@ -118,8 +118,6 @@ def lucidTag(request):
             url = "/"
         url += "?auth=logout"
     else:
-        template_name = "auth/login_link.html"
-        url = "?auth=login"
         pref_form = AuthPreferencesForm()
         preferences = pref_form.get_preferences()
         use_honypot = preferences["use_honypot"]
@@ -131,6 +129,17 @@ def lucidTag(request):
                     print "*** Can't get 'Auth-login_honeypot' url: %s" % err
             else:
                 context["honypot_url"] = honypot_url
+
+        https_urls = preferences["https_urls"]
+        if not https_urls:
+            template_name = "auth/login_link.html"
+            url = ""
+        else:
+            # Use https for login
+            template_name = "auth/login_link_https.html"
+            url = "https://%s%s" % (request.get_host(), request.path)
+
+        url += "?auth=login"
 
     context["url"] = url
 

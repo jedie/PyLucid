@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # Run all unittest directly
 
     tests = __file__
-#    tests = "pylucid_plugins.auth.tests.LoginTest.test_login_ajax_form"
+#     tests = "pylucid_plugins.auth.tests.LoginTest.test_login_ajax_form"
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_csrf"
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_get_salt_with_wrong_csrf_token"
 #    tests = "pylucid_plugins.auth.tests.LoginTest.test_complete_login"
@@ -54,6 +54,7 @@ LOGIN_URL = "/en/welcome/?auth=login"
 class LoginTest(basetest.BaseUnittest):
     def setUp(self):
         settings.DEBUG = False
+        cache.clear()
         CNONCE_CACHE.clear() # delete all used client-nonce values 
         self.client = Client() # start a new session
 
@@ -62,6 +63,22 @@ class LoginTest(basetest.BaseUnittest):
         self.assertDOM(response,
             must_contain=(
                 '''<a href="#top" id="login_link" rel="nofollow" onclick="return get_pylucid_ajax_view('?auth=login');">Log in</a>''',
+            )
+        )
+
+    def test_https_login_link(self):
+        pref_form = AuthPreferencesForm()
+        pref_form["https_urls"] = True
+        pref_form.save()
+
+        pref_form = AuthPreferencesForm()
+        preferences = pref_form.get_preferences()
+        self.assertTrue(preferences["https_urls"])
+
+        response = self.client.get("/en/welcome/")
+        self.assertDOM(response,
+            must_contain=(
+                '''<a href="#top" id="login_link" rel="nofollow" onclick="window.location.href = 'https://testserver/en/welcome/?auth=login'; return false;">Log in</a>''',
             )
         )
 
@@ -78,32 +95,14 @@ class LoginTest(basetest.BaseUnittest):
         response = self.client.get("/pylucid_admin/menu/", HTTP_ACCEPT_LANGUAGE="en")
         self.assertRedirect(response, "http://testserver/admin/?next=/pylucid_admin/menu/")
 
-    def test_non_ajax_request_with_debug(self):
-        settings.DEBUG = True
-        cache.clear()
+    def test_non_ajax_request(self):
         response = self.client.get(LOGIN_URL)
         self.assertResponse(response,
             must_contain=(
                 "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- a complete page
-                "Enable non AJAX login request, because DEBUG is on.", # debug page messages
                 "JS-SHA-LogIn", "username", "var challenge=",
             ),
             must_not_contain=("Traceback", 'Permission denied')
-        )
-
-    def test_non_ajax_request_without_debug(self):
-        settings.DEBUG = False
-        cache.clear()
-        response = self.client.get(LOGIN_URL)
-        self.assertResponse(response,
-            must_contain=(
-                "<!DOCTYPE", "<title>PyLucid CMS", "<body", "<head>", # <- a complete page
-            ),
-            must_not_contain=(
-                "Traceback", 'Permission denied',
-                '<div class="PyLucidPlugins auth" id="auth_http_get_view">',
-                "JS-SHA-LogIn", "username", "var challenge=",
-            ),
         )
 
     def test_login_ajax_form(self):

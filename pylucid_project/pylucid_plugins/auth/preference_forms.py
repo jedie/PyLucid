@@ -31,5 +31,10 @@ class AuthPreferencesForm(DBPreferencesBaseForm):
         initial=15, min_value=1, max_value=600
     )
 
+    https_urls = forms.BooleanField(
+        help_text=_("Use https (secure http) for login forms?"),
+        initial=False, required=False
+    )
+
     class Meta:
         app_label = 'auth'
