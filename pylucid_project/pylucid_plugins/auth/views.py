@@ -4,11 +4,11 @@
 """
     PyLucid JS-SHA-Login
     ~~~~~~~~~~~~~~~~~~~~
-    
+
     secure JavaScript SHA-1 AJAX Login
     more info:
         http://www.pylucid.org/permalink/42/secure-login-without-https
-    
+
     :copyleft: 2007-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
@@ -41,8 +41,8 @@ from preference_forms import AuthPreferencesForm
 APP_LABEL = "pylucid_plugin.auth" # used for creating LogEntry entries
 
 
-# DEBUG is usefull for debugging. It send always the same challenge "12345" 
-#DEBUG = True
+# DEBUG is usefull for debugging. It send always the same challenge "12345"
+# DEBUG = True
 DEBUG = False
 # IMPORTANT: Should really only use for debugging!!!
 if DEBUG:
