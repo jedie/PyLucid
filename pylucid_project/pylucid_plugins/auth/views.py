@@ -301,13 +301,6 @@ def _login_view(request):
     if DEBUG:
         print("auth debug mode is on!")
 
-    if not request.is_ajax():
-        # Do nothing, if it's not a ajax request.
-        if settings.DEBUG:
-            messages.info(request, "Enable non AJAX login request, because DEBUG is on.")
-        else:
-            return
-
     if request.method != 'GET':
         debug_msg = "request method %r wrong, only GET allowed" % request.method
         return bad_request(APP_LABEL, "_login_view() error", debug_msg) # Return HttpResponseBadRequest
@@ -362,7 +355,6 @@ def _login_view(request):
 
     # return a string for replacing the normal cms page content
     if not request.is_ajax():
-        # Only in DEBUG mode, see above.
         response = render_to_response('auth/sha_form_debug.html', context, context_instance=RequestContext(request))
     else:
         response = ajax_response(request, 'auth/sha_form.html', context, context_instance=RequestContext(request))
