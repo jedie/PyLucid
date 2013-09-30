@@ -1,8 +1,23 @@
 {% extends template_name %}
 
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+try {
+    jQuery(document);
+} catch (e) {
+    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
+}
+jQuery(document).ready(function($) { 
+    $("#login_form").submit(function () {    
+        return confirm("{% trans 'Do really want to submit your password here?' %}");
+    });
+    $("#login_form input[type=submit]").slideUp(5000);
+});
+</script>
+{% endblock %}
 
 {% block content %}
-<form method="post" action="{{ form_url }}" class="pylucid_form">
+<form method="post" action="{{ form_url }}" class="pylucid_form" id="login_form">
     <fieldset><h2>Login Form</h2>
         {% include "admin/pylucid/includes/pylucid_formset.html" %}
         <input type="submit" value="login" />
