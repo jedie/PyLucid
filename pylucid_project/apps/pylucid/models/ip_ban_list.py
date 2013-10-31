@@ -53,13 +53,22 @@ class BanEntryManager(models.Manager):
                 )
                 return
 
-            how_old_txt = timesince(entry.createtime, now=datetime.datetime.now())
-            LogEntry.objects.log_action(
-                app_label="pylucid", action="release ip ban",
-                request=request,
-                message="Entry for %s was %s old" % (entry.ip_address, how_old_txt),
-                data={"ip_address": entry.ip_address, "createtime": entry.createtime},
-            )
+            try:
+                how_old_txt = timesince(entry.createtime, now=datetime.datetime.now())
+            except Exception, err:
+                # FIXME: e.g.:
+                # TypeError: can't subtract offset-naive and offset-aware datetimes
+                LogEntry.objects.log_action(
+                    app_label="pylucid", action="release ip ban",
+                    request=request, message="FIXME: %s" % err,
+                )
+            else:
+                LogEntry.objects.log_action(
+                    app_label="pylucid", action="release ip ban",
+                    request=request,
+                    message="Entry for %s was %s old" % (entry.ip_address, how_old_txt),
+                    data={"ip_address": entry.ip_address, "createtime": entry.createtime},
+                )
             entry.delete()
 
     def add(self, request):
