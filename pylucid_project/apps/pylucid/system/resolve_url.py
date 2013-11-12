@@ -81,7 +81,7 @@ def get_page_from_url(request, url_slugs):
 
 def resolve_pagetree_url(request):
     """
-    resulve the request.path and add PyLucid objects to the request object
+    resolve the request.path and add PyLucid objects to the request object
     
     Note:
         request.PYLUCID created in PyLucidMiddleware

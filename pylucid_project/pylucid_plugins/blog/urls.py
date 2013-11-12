@@ -5,11 +5,6 @@ from django.conf.urls import patterns, url
 
 from pylucid_project.pylucid_plugins.blog import views
 
-def month_archive(*args):
-    raise RuntimeError("TODO")
-def day_archive(*args):
-    raise RuntimeError("TODO")
-
 urlpatterns = patterns('',
     url(r'^tags/(?P<tags>.+?)/$', views.tag_view, name='Blog-tag_view'),
 
@@ -17,14 +12,10 @@ urlpatterns = patterns('',
         views.BlogYearArchiveView.as_view(), name='Blog-year_archive'
     ),
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/$',
-#         views.month_archive,
-        month_archive,
-        name='Blog-month_archive'
+        views.BlogMonthArchiveView.as_view(), name='Blog-month_archive'
     ),
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$',
-#         views.day_archive,
-        day_archive,
-        name='Blog-day_archive'
+        views.BlogDayArchiveView.as_view(), name='Blog-day_archive'
     ),
 
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<slug>[-\w]+)/$',

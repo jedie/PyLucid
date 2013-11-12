@@ -7,7 +7,7 @@
     A simple blog system.
 
     http://feedvalidator.org/
-    
+
     TODO:
         * Detail view, use BlogEntry.get_absolute_url()
 
@@ -27,10 +27,10 @@ from django.utils.feedgenerator import Rss201rev2Feed, Atom1Feed
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_protect
 from django.core.urlresolvers import reverse
-from django.views.generic.dates import YearArchiveView
-# from django.views.generic.date_based import archive_month, archive_day
+from django.views.generic.dates import YearArchiveView, MonthArchiveView, DayArchiveView
+from django.utils.log import getLogger
 
-from pylucid_project.apps.pylucid.decorators import render_to, pylucid_objects
+from pylucid_project.apps.pylucid.decorators import render_to, pylucid_objects, class_based_pylucid_objects
 from pylucid_project.apps.pylucid.system import i18n
 from pylucid_project.middlewares.pylucid_objects import SuspiciousOperation404
 from pylucid_project.utils.safe_obtain import safe_pref_get_integer
@@ -43,6 +43,8 @@ from .preference_forms import BlogPrefForm
 # from django-tagging
 from tagging.models import Tag, TaggedItem
 
+# see: http://www.pylucid.org/permalink/443/how-to-display-debug-information
+log = getLogger("pylucid.blog.views")
 
 
 def _add_breadcrumb(request, *args, **kwargs):
@@ -276,10 +278,15 @@ def detail_view(request, year, month, day, slug):
             error_msg += " Filter kwargs: %r - Error: %s" % (repr(filter_kwargs), err)
         messages.error(request, error_msg)
 
-        # response day archive
-        response = day_archive(request, year, month, day)
-        response.status_code = 404  # Send as 404 page, so that search engines doesn't index this.
-        return response
+        queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=True)
+        queryset = queryset.filter(url_date__year=year, url_date__month=month, url_date__day=day)
+        if queryset.exists():
+            # go to day archive
+            url = urlresolvers.reverse("Blog-day_archive", kwargs={"year":year, "month":month, "day":day})
+        else:
+            # go to summary
+            url = urlresolvers.reverse("Blog-summary")
+        return HttpResponsePermanentRedirect(url)
 
     if tried_languages and (settings.DEBUG or request.user.is_superuser):
         messages.debug(request,
@@ -359,124 +366,67 @@ def redirect_old_urls(request, id, title):
 
 # FIXME: Disallow empty archive pages in all archive views:
 
-class BlogYearArchiveView(YearArchiveView):
+class BaseBlogArchiveView(object):
     date_field = "url_date"
 #     allow_empty = True
     make_object_list = True
 
-#     def get(self, request, *args, **kwargs):
-#         response = super(BlogYearArchiveView, self).get(request, *args, **kwargs)
-#         return response
+    month_format = '%m'
+
+    # XXX: rename decorator?
+    @class_based_pylucid_objects  # create request.PYLUCID
+    def get(self, request, *args, **kwargs):
+        response = super(BaseBlogArchiveView, self).get(request, *args, **kwargs)
+        return response
 
     def get_context_data(self, **kwargs):
         kwargs.update({
             "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
             "page_robots": "noindex,nofollow",
         })
-        return super(BlogYearArchiveView, self).get_context_data(**kwargs)
+        context = super(BaseBlogArchiveView, self).get_context_data(**kwargs)
+        return context
 
     def get_queryset(self):
         queryset = BlogEntryContent.objects.get_prefiltered_queryset(self.request, filter_language=False)
         return queryset
 
-    def _get_year_as_int(self, date):
-        if date is not None:
-            return date.year
-
-    def get_next_year(self, date):
-        date = super(BlogYearArchiveView, self).get_next_year(date)
-        year = self._get_year_as_int(date)
-        return year
 
 
-    def get_previous_year(self, date):
-        date = super(BlogYearArchiveView, self).get_previous_year(date)
-        year = self._get_year_as_int(date)
-        return year
-
-    def render_to_response(self, context, **response_kwargs):
-        """
-        Display year archive
-        """
-        year = self.get_year()
-        year = int(year)
+class BlogYearArchiveView(BaseBlogArchiveView, YearArchiveView):
+    def get_year(self):
+        year = super(BlogYearArchiveView, self).get_year()
 
         # Add link to the breadcrumbs ;)
         _add_breadcrumb(self.request, _("%s archive") % year, _("All article from year %s") % year)
-
-#         # Get next year
-#         now = datetime.datetime.now()
-#         if year < now.year:
-#             queryset = BlogEntryContent.objects.get_prefiltered_queryset(self.request, filter_language=False)
-#             next_year = datetime.datetime(year=year, month=12, day=31)
-#             try:
-#                 entry_in_next_year = queryset.filter(url_date__gte=next_year).only("url_date").order_by("-url_date")[0]
-#             except IndexError:
-#                 # no entries in next year
-#                 pass
-#             else:
-#                 context["next_year"] = entry_in_next_year.url_date.year
-#
-#         # Get previous year
-#         queryset = BlogEntryContent.objects.get_prefiltered_queryset(self.request, filter_language=False)
-#         previous_year = datetime.datetime(year=year, month=1, day=1)
-#         try:
-#             entry_in_previous_year = queryset.filter(url_date__lte=previous_year).only("url_date").order_by("-url_date")[0]
-#         except IndexError:
-#             # no entries in previous year
-#             pass
-#         else:
-#             context["previous_year"] = entry_in_previous_year.url_date.year
+        return year
 
 
-        return super(BlogYearArchiveView, self).render_to_response(
-            context,
-            **response_kwargs
+class BlogMonthArchiveView(BaseBlogArchiveView, MonthArchiveView):
+    def get_month(self):
+        year = self.get_year()
+        month = super(BlogMonthArchiveView, self).get_month()
+
+        # Add link to the breadcrumbs ;)
+        _add_breadcrumb(self.request,
+            _("%(month)s-%(year)s archive") % {"year":year, "month":month},
+            _("All article from %(month)s.%(year)s") % {"year":year, "month":month}
         )
+        return month
 
 
-# def month_archive(request, year, month):
-#     """
-#     TODO: Set previous-/next-month by filtering
-#     """
-#     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
-#
-#     # Add link to the breadcrumbs ;)
-#     _add_breadcrumb(request,
-#         _("%(month)s-%(year)s archive") % {"year":year, "month":month},
-#         _("All article from %(month)s.%(year)s") % {"year":year, "month":month}
-#     )
-#
-#     context = {
-#         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-#         "page_robots": "noindex,nofollow",
-#     }
-#     return archive_month(
-#         request, year, month, queryset, date_field="url_date", extra_context=context,
-#         month_format="%m", allow_empty=True
-#     )
-#
-#
-# def day_archive(request, year, month, day):
-#     """
-#     TODO: Set previous-/next-day by filtering
-#     """
-#     queryset = BlogEntryContent.objects.get_prefiltered_queryset(request, filter_language=False)
-#
-#     # Add link to the breadcrumbs ;)
-#     _add_breadcrumb(request,
-#         _("%(day)s-%(month)s-%(year)s archive") % {"year":year, "month":month, "day":day},
-#         _("All article from %(day)s-%(month)s-%(year)s") % {"year":year, "month":month, "day":day}
-#     )
-#
-#     context = {
-#         "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
-#         "page_robots": "noindex,nofollow",
-#     }
-#     return archive_day(
-#         request, year, month, day, queryset, date_field="url_date", extra_context=context,
-#         month_format="%m", allow_empty=True
-#     )
+class BlogDayArchiveView(BaseBlogArchiveView, DayArchiveView):
+    def get_day(self):
+        year = self.get_year()
+        month = self.get_month()
+        day = super(BlogDayArchiveView, self).get_day()
+
+        # Add link to the breadcrumbs ;)
+        _add_breadcrumb(self.request,
+            _("%(day)s-%(month)s-%(year)s archive") % {"year":year, "month":month, "day":day},
+            _("All article from %(day)s-%(month)s-%(year)s") % {"year":year, "month":month, "day":day}
+        )
+        return day
 
 
 #------------------------------------------------------------------------------
@@ -494,7 +444,7 @@ def select_feed(request):
 
 def feed(request, filename, tags=None):
     """
-    return RSS/Atom feed for all blog entries and filtered by tags. 
+    return RSS/Atom feed for all blog entries and filtered by tags.
     Feed format is selected by filename.
     """
     for feed_class in FEEDS:

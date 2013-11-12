@@ -204,9 +204,11 @@ def render_to(template_name=None, debug=False):
 
 
 
+
 def pylucid_objects(view_function):
     """
     Add PyLucid objects to the request object
+    FIXME: merge / rename ???
     """
     @wraps(view_function)
     def _inner(request, *args, **kwargs):
@@ -219,6 +221,27 @@ def pylucid_objects(view_function):
 
         return view_function(request, *args, **kwargs)
     return _inner
+
+
+def class_based_pylucid_objects(view_function):
+    """
+    Add PyLucid objects to the request object
+    FIXME: merge / rename ???
+    """
+    @wraps(view_function)
+    def _inner(cls, request, *args, **kwargs):
+        response = resolve_pagetree_url(request)
+        if response:
+            return response
+
+        # Create initial context object
+        request.PYLUCID.context = RequestContext(request)
+
+        return view_function(cls, request, *args, **kwargs)
+    return _inner
+
+
+
 
 
 
