@@ -144,7 +144,6 @@ MIDDLEWARE_CLASSES = (
 
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
 
-    'django.middleware.transaction.TransactionMiddleware',
     'reversion.middleware.RevisionMiddleware',
 
     # Insert a html link anchor to all headlines:

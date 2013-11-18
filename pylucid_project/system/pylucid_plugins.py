@@ -54,7 +54,7 @@ PLUGIN_URLS_SYNC_DICT = LocalSyncCache(id="plugin url patterns")
 class PluginURLPattern(RegexURLResolver):
     """
     Handle all url patterns from PyLucid plugins.
-    
+
     All urls are in the current PageTree. It would be renew after a the
     page tree would be changed by user. e.g.: Create/move a PluginPage.
     """
@@ -111,7 +111,7 @@ class PluginURLPattern(RegexURLResolver):
 def clear_plugin_url_caches(sender, **kwargs):
     """
     signal handler for clear the plugin url caches.
-    
+
     connected in:
         pylucid_project.apps.pylucid.signals.update_plugin_urls
     """
@@ -213,7 +213,7 @@ class PyLucidPlugin(object):
     def call_plugin_view(self, request, mod_name, func_name, method_kwargs):
         """
         Call a plugin view
-        used for pylucid-get-views and lucidTag calls 
+        used for pylucid-get-views and lucidTag calls
         """
         plugin_callable = self.get_callable(mod_name, func_name)
 
@@ -354,6 +354,8 @@ class PyLucidPlugins(dict):
                 )
             except plugin_instance.ObjectNotFound, err:
                 log.debug("plugin '%s' has no admin_urls: %s" % (plugin_name, err))
+                if "No module named admin_urls" not in err.message:
+                    raise
             else:
                 urls += patterns('',
                     (r"^%s/" % plugin_name, include(admin_urls)),

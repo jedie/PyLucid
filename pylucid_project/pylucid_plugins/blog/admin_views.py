@@ -25,7 +25,7 @@ from pylucid_project.pylucid_plugins.blog.forms import BlogForm, BlogContentForm
 from pylucid_project.pylucid_plugins.blog.preference_forms import BlogPrefForm
 from pylucid_project.apps.pylucid.models.language import Language
 from pylucid_project.apps.i18n.views import select_language
-from pylucid_project.apps.i18n.utils.translate import prefill
+# from pylucid_project.apps.i18n.utils.translate import prefill
 from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
 
 
@@ -67,7 +67,7 @@ def new_blog_entry(request):
         "title": _("Create a new blog entry"),
         "form_url": request.path,
         "tag_cloud": BlogEntryContent.objects.get_tag_cloud(request),
-        "add_tag_filter_link": False, # Don't add filters in tag cloud
+        "add_tag_filter_link": False,  # Don't add filters in tag cloud
     }
 
     if request.method == "POST":
@@ -93,8 +93,8 @@ def new_blog_entry(request):
         pref_form = BlogPrefForm()
 
         initial = {
-            "sites": get_site_preselection(pref_form, request), # preselect sites field
-            "language": request.PYLUCID.current_language.pk, # preselect current language
+            "sites": get_site_preselection(pref_form, request),  # preselect sites field
+            "language": request.PYLUCID.current_language.pk,  # preselect current language
         }
         form = BlogForm(initial=initial)
 
@@ -150,7 +150,7 @@ def translate_blog_entry(request, id=None):
         # e.g. error
         return result
     else:
-        raise RuntimeError() # Should never happen
+        raise RuntimeError()  # Should never happen
 
 
     context = {
@@ -179,20 +179,21 @@ def translate_blog_entry(request, id=None):
             dest_form = BlogContentForm(request.POST, prefix="dest", instance=dest_entry)
 
         if "autotranslate" in request.POST:
-            if source_form.is_valid():
-                dest_form, filled_fields, errors = prefill(
-                    source_form, dest_form,
-                    source_entry.language, dest_language,
-                    only_fields=("headline", "content"),
-                    #debug=True,
-                )
-                if filled_fields:
-                    messages.success(request, "These fields are translated with google: %s" % ", ".join(filled_fields))
-                else:
-                    messages.info(request, "No fields translated with google, because all fields have been a translation.")
-                if errors:
-                    for error in errors:
-                        messages.error(request, error)
+            raise NotImplementedError("TODO: Must be reimplemented!")
+#             if source_form.is_valid():
+#                 dest_form, filled_fields, errors = prefill(
+#                     source_form, dest_form,
+#                     source_entry.language, dest_language,
+#                     only_fields=("headline", "content"),
+#                     #debug=True,
+#                 )
+#                 if filled_fields:
+#                     messages.success(request, "These fields are translated with google: %s" % ", ".join(filled_fields))
+#                 else:
+#                     messages.info(request, "No fields translated with google, because all fields have been a translation.")
+#                 if errors:
+#                     for error in errors:
+#                         messages.error(request, error)
         else:
             if source_form.is_valid() and dest_form.is_valid():
                 # All forms are valid -> Save all.

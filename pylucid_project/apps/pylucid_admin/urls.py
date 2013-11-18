@@ -21,7 +21,14 @@ from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
 
 from pylucid_project.apps.pylucid.decorators import superuser_only
 
+
 plugin_admin_urls = PYLUCID_PLUGINS.get_admin_urls()
+
+
+from pylucid_project.utils.url_debug import UrlPatternInfo
+for url_dict in UrlPatternInfo().get_url_info(plugin_admin_urls[:]):
+    print "*", url_dict.get("url", "-")
+
 
 urlpatterns = patterns('',
     url(r'^menu/$', views.menu, name='PyLucidAdmin-menu'),

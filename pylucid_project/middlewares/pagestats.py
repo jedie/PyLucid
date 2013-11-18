@@ -1,4 +1,4 @@
- # coding: utf-8
+# coding: utf-8
 
 """
     PyLucid page statistics
@@ -22,7 +22,7 @@
     Put settings for debug_sql_queries() into settings.py:
         http://trac.pylucid.net/ticket/230
 
-    :copyleft: 2007-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -34,6 +34,7 @@ import collections
 from django.conf import settings
 from django.db import connection
 from django.template.loader import render_to_string
+from django.http import HttpResponse
 
 # http://code.google.com/p/django-tools/
 from django_tools.template.filters import human_duration
@@ -128,7 +129,9 @@ class PageStatsMiddleware(object):
         calculate the statistic and replace it into the html page.
         """
         # Put only the statistic into HTML pages
-        if not "html" in response._headers["content-type"][1]:
+        if (response.status_code != 200
+            or not isinstance(response, HttpResponse)
+            or "html" not in response["content-type"]):
             # No HTML Page -> do nothing
             return response
 

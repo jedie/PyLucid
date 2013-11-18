@@ -23,6 +23,7 @@ from admin_views.page_list import page_list
 from admin_views.markup_help import markup_help
 from admin_views.translate_page import translate_page
 
+print "JOOOOO"
 
 urlpatterns = patterns('',
     url(r'^new_content_page/$', new_content_page, name='PageAdmin-new_content_page'),

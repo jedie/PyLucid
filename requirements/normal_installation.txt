@@ -8,13 +8,13 @@
 
 # http://www.djangoproject.com/
 # http://pypi.python.org/pypi/Django
-Django>=1.5,<1.6
+Django>=1.6,<1.7
 
 # PyLucid own projects
 #----------------------
 
 # http://pypi.python.org/pypi/python-creole
-python-creole>=1.0.6
+python-creole>=1.1.1
 
 # http://pypi.python.org/pypi/django-dbpreferences
 django-dbpreferences>=0.4.5
@@ -31,4 +31,5 @@ django-reversion-compare>=0.3.5
 # git readonly clone of PyLucid
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid
--e git+git://github.com/jedie/PyLucid.git#egg=pylucid
+#-e git+git://github.com/jedie/PyLucid.git#egg=pylucid
+-e git+git@github.com:jedie/PyLucid.git@django1.6#egg=pylucid

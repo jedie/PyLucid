@@ -1817,36 +1817,36 @@ def create_bootstrap_script(extra_text, python_version=''):
 NORMAL_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  'Pygments>=1.6,<1.7',
  'flup>1.0.2,<1.1',
- 'django-reversion>=1.7.1,<1.8',
+ 'django-reversion>=1.8,<1.9',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor>=1.3,<1.4',
  'django-tagging>=0.3.1,<0.4',
- 'South>=0.8.1,<0.9',
- 'Django>=1.5,<1.6',
- 'python-creole>=1.0.6',
+ 'South>=0.8.3,<0.9',
+ 'Django>=1.6,<1.7',
+ 'python-creole>=1.1.1',
  'django-dbpreferences>=0.4.5',
  'django-tools>=0.25',
  'django-processinfo>=0.6.4',
  'django-reversion-compare>=0.3.5',
- '--editable=git+git://github.com/jedie/PyLucid.git#egg=pylucid']
+ '--editable=git+git@github.com:jedie/PyLucid.git@django1.6#egg=pylucid']
 
 # requirements from developer_installation.txt
 DEVELOPER_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  'Pygments>=1.6,<1.7',
  'flup>1.0.2,<1.1',
- 'django-reversion>=1.7.1,<1.8',
+ 'django-reversion>=1.8,<1.9',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor>=1.3,<1.4',
  'django-tagging>=0.3.1,<0.4',
- 'South>=0.8.1,<0.9',
+ 'South>=0.8.3,<0.9',
  'docutils',
- '--editable=git+git://github.com/django/django.git@stable/1.5.x#egg=django',
+ '--editable=git+git://github.com/django/django.git@stable/1.6.x#egg=django',
  '--editable=git+git@github.com:jedie/python-creole.git#egg=python-creole',
  '--editable=git+git@github.com:jedie/django-dbpreferences.git@django1.5#egg=django-dbpreferences',
  '--editable=git+git@github.com:jedie/django-tools.git@django1.5#egg=django-tools',
  '--editable=git+git@github.com:jedie/django-processinfo.git@django1.5#egg=django-processinfo',
  '--editable=git+git@github.com:jedie/django-reversion-compare.git@django1.5#egg=django-reversion-compare',
- '--editable=git+git@github.com:jedie/PyLucid.git@django1.5#egg=pylucid']
+ '--editable=git+git@github.com:jedie/PyLucid.git@django1.6#egg=pylucid']
 
 # source bootstrap script: '/home/jens/PyLucid_env/src/pylucid/bootstrap/source-pylucid-boot.py'
 #-----------------------------------------------------------------------------
