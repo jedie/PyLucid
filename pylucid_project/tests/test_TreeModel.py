@@ -2,7 +2,7 @@
 
 from pprint import pprint
 
-import test_tools # before django imports!
+from . import test_tools # before django imports!
 
 from django.conf import settings
 
@@ -42,15 +42,15 @@ class TreeModelTest(basetest.BaseUnittest):
         #self._print_flat_tree(tree)
 
         self.assertTree(tree, should_data=
-            [u'*   /1-rootpage/',
-             u'**  /1-rootpage/1-1-subpage/',
-             u'**  /1-rootpage/1-2-subpage/',
-             u'*   /2-rootpage/',
-             u'**  /2-rootpage/2-1-subpage/',
-             u'**  /2-rootpage/2-2-subpage/',
-             u'*** /2-rootpage/2-2-subpage/2-2-1-subpage/',
-             u'*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
-             u'*   /3-pluginpage/']
+            ['*   /1-rootpage/',
+             '**  /1-rootpage/1-1-subpage/',
+             '**  /1-rootpage/1-2-subpage/',
+             '*   /2-rootpage/',
+             '**  /2-rootpage/2-1-subpage/',
+             '**  /2-rootpage/2-2-subpage/',
+             '*** /2-rootpage/2-2-subpage/2-2-1-subpage/',
+             '*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
+             '*   /3-pluginpage/']
         )
 
     def test_permitViewGroup1(self):
@@ -80,15 +80,15 @@ class TreeModelTest(basetest.BaseUnittest):
         #tree.debug()
         #self._print_flat_tree(tree)
         self.assertTree(tree, should_data=
-            [u'*   /1-rootpage/',
-             u'**  /1-rootpage/1-1-subpage/',
-             u'**  /1-rootpage/1-2-subpage/',
-             u'*   /2-rootpage/',
-             u'**  /2-rootpage/2-1-subpage/',
+            ['*   /1-rootpage/',
+             '**  /1-rootpage/1-1-subpage/',
+             '**  /1-rootpage/1-2-subpage/',
+             '*   /2-rootpage/',
+             '**  /2-rootpage/2-1-subpage/',
              #u'**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
              #u'*** /2-rootpage/2-2-subpage/2-2-1-subpage/', # permitViewGroup == test_group2 
              #u'*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
-             u'*   /3-pluginpage/']
+             '*   /3-pluginpage/']
         )
 
         # --------------------------------------------------------------------
@@ -100,15 +100,15 @@ class TreeModelTest(basetest.BaseUnittest):
         #tree.debug()
         #self._print_flat_tree(tree)
         self.assertTree(tree, should_data=
-            [u'*   /1-rootpage/',
-             u'**  /1-rootpage/1-1-subpage/',
-             u'**  /1-rootpage/1-2-subpage/',
-             u'*   /2-rootpage/',
-             u'**  /2-rootpage/2-1-subpage/',
-             u'**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
-             u'*** /2-rootpage/2-2-subpage/2-2-1-subpage/', # permitViewGroup == test_group2 
-             u'*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
-             u'*   /3-pluginpage/']
+            ['*   /1-rootpage/',
+             '**  /1-rootpage/1-1-subpage/',
+             '**  /1-rootpage/1-2-subpage/',
+             '*   /2-rootpage/',
+             '**  /2-rootpage/2-1-subpage/',
+             '**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
+             '*** /2-rootpage/2-2-subpage/2-2-1-subpage/', # permitViewGroup == test_group2 
+             '*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
+             '*   /3-pluginpage/']
         )
 
         # --------------------------------------------------------------------
@@ -121,15 +121,15 @@ class TreeModelTest(basetest.BaseUnittest):
         #tree.debug()
         #self._print_flat_tree(tree)
         self.assertTree(tree, should_data=
-            [u'*   /1-rootpage/',
-             u'**  /1-rootpage/1-1-subpage/',
-             u'**  /1-rootpage/1-2-subpage/',
-             u'*   /2-rootpage/',
-             u'**  /2-rootpage/2-1-subpage/',
+            ['*   /1-rootpage/',
+             '**  /1-rootpage/1-1-subpage/',
+             '**  /1-rootpage/1-2-subpage/',
+             '*   /2-rootpage/',
+             '**  /2-rootpage/2-1-subpage/',
              #u'**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
              #u'*** /2-rootpage/2-2-subpage/2-2-1-subpage/', # permitViewGroup == test_group2 
              #u'*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
-             u'*   /3-pluginpage/']
+             '*   /3-pluginpage/']
         )
 
         # Add user to "test group1"
@@ -138,15 +138,15 @@ class TreeModelTest(basetest.BaseUnittest):
         #tree.debug()
         #self._print_flat_tree(tree)
         self.assertTree(tree, should_data=
-            [u'*   /1-rootpage/',
-             u'**  /1-rootpage/1-1-subpage/',
-             u'**  /1-rootpage/1-2-subpage/',
-             u'*   /2-rootpage/',
-             u'**  /2-rootpage/2-1-subpage/',
-             u'**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
+            ['*   /1-rootpage/',
+             '**  /1-rootpage/1-1-subpage/',
+             '**  /1-rootpage/1-2-subpage/',
+             '*   /2-rootpage/',
+             '**  /2-rootpage/2-1-subpage/',
+             '**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
              #u'*** /2-rootpage/2-2-subpage/2-2-1-subpage/', # permitViewGroup == test_group2 
-             u'*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
-             u'*   /3-pluginpage/']
+             '*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
+             '*   /3-pluginpage/']
         )
 
         # Add user to "test group2", too.
@@ -155,15 +155,15 @@ class TreeModelTest(basetest.BaseUnittest):
         #tree.debug()
         #self._print_flat_tree(tree)
         self.assertTree(tree, should_data=
-            [u'*   /1-rootpage/',
-             u'**  /1-rootpage/1-1-subpage/',
-             u'**  /1-rootpage/1-2-subpage/',
-             u'*   /2-rootpage/',
-             u'**  /2-rootpage/2-1-subpage/',
-             u'**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
-             u'*** /2-rootpage/2-2-subpage/2-2-1-subpage/', # permitViewGroup == test_group2 
-             u'*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
-             u'*   /3-pluginpage/']
+            ['*   /1-rootpage/',
+             '**  /1-rootpage/1-1-subpage/',
+             '**  /1-rootpage/1-2-subpage/',
+             '*   /2-rootpage/',
+             '**  /2-rootpage/2-1-subpage/',
+             '**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
+             '*** /2-rootpage/2-2-subpage/2-2-1-subpage/', # permitViewGroup == test_group2 
+             '*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
+             '*   /3-pluginpage/']
         )
 
         # Put user *only* in "test group2"
@@ -172,15 +172,15 @@ class TreeModelTest(basetest.BaseUnittest):
         #tree.debug()
         #self._print_flat_tree(tree)
         self.assertTree(tree, should_data=
-            [u'*   /1-rootpage/',
-             u'**  /1-rootpage/1-1-subpage/',
-             u'**  /1-rootpage/1-2-subpage/',
-             u'*   /2-rootpage/',
-             u'**  /2-rootpage/2-1-subpage/',
+            ['*   /1-rootpage/',
+             '**  /1-rootpage/1-1-subpage/',
+             '**  /1-rootpage/1-2-subpage/',
+             '*   /2-rootpage/',
+             '**  /2-rootpage/2-1-subpage/',
              #u'**  /2-rootpage/2-2-subpage/', # permitViewGroup == test_group1
              #u'*** /2-rootpage/2-2-subpage/2-2-1-subpage/', # permitViewGroup == test_group2 
              #u'*** /2-rootpage/2-2-subpage/2-2-2-subpage/',
-             u'*   /3-pluginpage/']
+             '*   /3-pluginpage/']
         )
 
 

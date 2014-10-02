@@ -18,7 +18,7 @@ import time
 if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
     virtualenv_file = "../../../../../bin/activate_this.py"
-    execfile(virtualenv_file, dict(__file__=virtualenv_file))
+    exec(compile(open(virtualenv_file).read(), virtualenv_file, 'exec'), dict(__file__=virtualenv_file))
 
 import pkg_resources
 
@@ -127,14 +127,14 @@ class PackageInfo(dict):
         """
         for attr_name in PKG_DIST_ATTRS:
             dist_value = getattr(self.pkg_dist, attr_name)
-            dist_value = unicode(dist_value, encoding="utf-8", errors="replace")
+            dist_value = str(dist_value, encoding="utf-8", errors="replace")
             existing_value = dict.get(self, attr_name, None)
             if not existing_value:
                 dict.__setitem__(self, attr_name, dist_value)
             elif DEBUG:
-                print "*** Do not overwrite PKG_DIST_ATTRS %r:" % attr_name
-                print "static: %r" % existing_value
-                print "dist. value: %r" % dist_value
+                print("*** Do not overwrite PKG_DIST_ATTRS %r:" % attr_name)
+                print("static: %r" % existing_value)
+                print("dist. value: %r" % dist_value)
 
     def _fill_with_pkg_info(self):
         """
@@ -147,34 +147,34 @@ class PackageInfo(dict):
         """
         try:
             metadata_lines = self.pkg_dist.get_metadata_lines("PKG-INFO")
-        except IOError, err:
+        except IOError as err:
             if DEBUG:
-                print "Can't get PKG-INFO:", err
+                print("Can't get PKG-INFO:", err)
             return
 
         for line in metadata_lines:
             if ":" not in line:
                 continue
 
-            line = unicode(line, encoding="utf-8", errors="replace")
+            line = str(line, encoding="utf-8", errors="replace")
             key, pkg_info_value = line.split(":", 1)
 
             if key not in PKG_INFO_KEYS:
                 if DEBUG > 1:
-                    print "Skip PKG-INFO %r (not in PKG_INFO_KEYS)" % key
+                    print("Skip PKG-INFO %r (not in PKG_INFO_KEYS)" % key)
                 continue
 
             dict_key = key.lower().replace("-", "_")
             if DEBUG > 1 and key != dict_key:
-                print "convert %r to %r" % (key, dict_key)
+                print("convert %r to %r" % (key, dict_key))
 
             pkg_info_value = pkg_info_value.strip()
 
             if dict.__contains__(self, dict_key):
                 if DEBUG:
-                    print "*** Do not overwrite PKG-INFO %r:" % dict_key
-                    print "static: %r" % dict.__getitem__(self, dict_key)
-                    print "PKG-INFO: %r" % pkg_info_value
+                    print("*** Do not overwrite PKG-INFO %r:" % dict_key)
+                    print("static: %r" % dict.__getitem__(self, dict_key))
+                    print("PKG-INFO: %r" % pkg_info_value)
                 continue
 
             dict.__setitem__(self, dict_key, pkg_info_value)
@@ -216,7 +216,7 @@ class PackageInfo(dict):
                         " ".join(cmd), evalue
                     )
                 )
-                raise etype, evalue, etb
+                raise etype(evalue).with_traceback(etb)
             return
 
         process.wait()
@@ -244,7 +244,7 @@ class PackageInfo(dict):
                         output, error, evalue
                     )
                 )
-                raise etype, evalue, etb
+                raise etype(evalue).with_traceback(etb)
             return
 
         try:
@@ -258,7 +258,7 @@ class PackageInfo(dict):
                         repr(timestamp), evalue
                     )
                 )
-                raise etype, evalue, etb
+                raise etype(evalue).with_traceback(etb)
             return
 
 
@@ -282,8 +282,8 @@ class EnvironmetInfo(dict):
     def existing_keys(self):
         """ returns a list of all existing package info keys """
         existing_keys = set()
-        for pkg_info_dict in package_info.values():
-            keys = pkg_info_dict.keys()
+        for pkg_info_dict in list(package_info.values()):
+            keys = list(pkg_info_dict.keys())
             existing_keys = existing_keys.union(set(keys))
         return list(existing_keys)
 
@@ -318,7 +318,7 @@ def lucidTag(request, all_packages=False, display_version=False, display_locatio
         {% lucidTag package_info display_location=True %}
         {% lucidTag package_info debug=True %}
     """
-    package_info_list = package_info.values()
+    package_info_list = list(package_info.values())
     package_info_list.sort(
         cmp=lambda x, y: cmp(x["project_name"].lower(), y["project_name"].lower())
     )
@@ -345,6 +345,6 @@ def lucidTag(request, all_packages=False, display_version=False, display_locatio
 if __name__ == "__main__":
     from pprint import pprint
 
-    print package_info.existing_keys()
+    print(package_info.existing_keys())
     pprint(package_info)
 

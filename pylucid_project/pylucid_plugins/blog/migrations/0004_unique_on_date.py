@@ -15,14 +15,14 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.DateField')(default=datetime.datetime.now),
                       keep_default=False)
 
-        print "\tDo datamigration of blog entries:",
+        print("\tDo datamigration of blog entries:", end=' ')
         for instance in orm.BlogEntryContent.objects.all():
-            print instance.pk,
+            print(instance.pk, end=' ')
             instance.url_date = instance.createtime
             instance.save()
-        print
+        print()
 
-        print "\tMake all blog entries unique:"
+        print("\tMake all blog entries unique:")
         pks = orm.BlogEntryContent.objects.all().order_by('createtime', 'lastupdatetime').values_list("pk", flat=True)
         for pk in pks:
             instance = orm.BlogEntryContent.objects.get(pk=pk)
@@ -34,13 +34,13 @@ class Migration(SchemaMigration):
             )
             queryset = queryset.exclude(pk=instance.pk)
             for no, instance2 in enumerate(queryset, 2):
-                print "\t old:", instance2.pk, instance2.slug, instance2.headline
+                print("\t old:", instance2.pk, instance2.slug, instance2.headline)
                 suffix = "%s" % no
                 instance2.slug += suffix
                 instance2.headline += suffix
                 instance2.save()
-                print "\t new:", instance2.pk, instance2.slug, instance2.headline
-        print
+                print("\t new:", instance2.pk, instance2.slug, instance2.headline)
+        print()
 
         # Adding unique constraint on 'BlogEntryContent', fields ['url_date', 'headline', 'language']
         db.create_unique('blog_blogentrycontent', ['url_date', 'slug', 'language_id'])

@@ -496,7 +496,7 @@ class DBTemplatesAdmin(CompareVersionAdmin, TemplateAdmin):
 
         try:
             dbtemplate_obj = Template.objects.only("name").get(id=object_id)
-        except Template.DoesNotExist, err:
+        except Template.DoesNotExist as err:
             msg = "Template with ID %r doesn't exist!" % object_id
             return HttpResponse(msg)
 
@@ -509,7 +509,7 @@ class DBTemplatesAdmin(CompareVersionAdmin, TemplateAdmin):
 
         try:
             filesystem_template = self._get_filesystem_template(template_path)
-        except Exception, err:
+        except Exception as err:
             msg = "Error: Can't read %r: %s" % (template_path, err)
             return HttpResponse(msg)
 
@@ -546,6 +546,6 @@ class DBTemplatesAdmin(CompareVersionAdmin, TemplateAdmin):
 
 try:
     admin.site.unregister(Template)
-except NotRegistered, err:
+except NotRegistered as err:
     pass
 admin.site.register(Template, DBTemplatesAdmin)

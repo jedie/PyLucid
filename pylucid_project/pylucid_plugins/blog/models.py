@@ -105,15 +105,15 @@ class BlogEntry(SiteM2M):
         try:
             # This only worked inner lucidTag
             url = urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
-        except urlresolvers.NoReverseMatch, err:
+        except urlresolvers.NoReverseMatch as err:
             if settings.RUN_WITH_DEV_SERVER:
-                print "*** Blog entry url reverse error 1: %s" % err
+                print("*** Blog entry url reverse error 1: %s" % err)
             # Use the first PluginPage instance
             try:
                 url = PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
-            except urlresolvers.NoReverseMatch, err:
+            except urlresolvers.NoReverseMatch as err:
                 if settings.RUN_WITH_DEV_SERVER:
-                    print "*** Blog entry url reverse error 2: %s" % err
+                    print("*** Blog entry url reverse error 2: %s" % err)
                 return "#No-Blog-PagePlugin-exists"
 
         if hasattr(request.PYLUCID, "pagemeta"):
@@ -353,15 +353,15 @@ class BlogEntryContent(MarkupBaseModel, UpdateInfoBaseModel):
         try:
             # This only worked inner lucidTag
             url = urlresolvers.reverse(viewname, kwargs=reverse_kwargs)
-        except urlresolvers.NoReverseMatch, err:
+        except urlresolvers.NoReverseMatch as err:
             if settings.RUN_WITH_DEV_SERVER:
-                print "*** Blog url reverse error 1: %s" % err
+                print("*** Blog url reverse error 1: %s" % err)
             # Use the first PluginPage instance
             try:
                 url = PluginPage.objects.reverse("blog", viewname, kwargs=reverse_kwargs)
-            except urlresolvers.NoReverseMatch, err:
+            except urlresolvers.NoReverseMatch as err:
                 if settings.RUN_WITH_DEV_SERVER:
-                    print "*** Blog url reverse error 2: %s" % err
+                    print("*** Blog url reverse error 2: %s" % err)
                 return "#No-Blog-PagePlugin-exists"
 
         if not url.startswith("/%s/" % self.language.code):

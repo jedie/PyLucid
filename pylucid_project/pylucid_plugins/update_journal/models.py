@@ -52,7 +52,7 @@ class UpdateJournal(BaseModel):
         return self.object_url
 
     def __unicode__(self):
-        return u"Update Journal entry %r (id: %i, site: %s)" % (
+        return "Update Journal entry %r (id: %i, site: %s)" % (
             self.object_url, self.id, self.site.domain
         )
 

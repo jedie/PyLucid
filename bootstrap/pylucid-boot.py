@@ -30,7 +30,7 @@ import struct
 import subprocess
 
 if sys.version_info < (2, 5):
-    print('ERROR: %s' % sys.exc_info()[1])
+    print(('ERROR: %s' % sys.exc_info()[1]))
     print('ERROR: this script requires Python 2.5 or greater.')
     sys.exit(101)
 
@@ -39,12 +39,12 @@ try:
 except NameError:
     from sets import Set as set
 try:
-    basestring
+    str
 except NameError:
-    basestring = str
+    str = str
 
 try:
-    import ConfigParser
+    import configparser
 except ImportError:
     import configparser as ConfigParser
 
@@ -712,7 +712,7 @@ class ConfigOptionParser(optparse.OptionParser):
     configuration files and environmental variables
     """
     def __init__(self, *args, **kwargs):
-        self.config = ConfigParser.RawConfigParser()
+        self.config = configparser.RawConfigParser()
         self.files = self.get_config_files()
         self.config.read(self.files)
         optparse.OptionParser.__init__(self, *args, **kwargs)
@@ -736,7 +736,7 @@ class ConfigOptionParser(optparse.OptionParser):
         # 2. environmental variables
         config.update(dict(self.get_environ_vars()))
         # Then set the options with those values
-        for key, val in config.items():
+        for key, val in list(config.items()):
             key = key.replace('_', '-')
             if not key.startswith('--'):
                 key = '--%s' % key  # only prefer long opts
@@ -758,7 +758,7 @@ class ConfigOptionParser(optparse.OptionParser):
                     val = option.convert_value(key, val)
                 except optparse.OptionValueError:
                     e = sys.exc_info()[1]
-                    print("An error occured during configuration: %s" % e)
+                    print(("An error occured during configuration: %s" % e))
                     sys.exit(3)
                 defaults[option.dest] = val
         return defaults
@@ -775,7 +775,7 @@ class ConfigOptionParser(optparse.OptionParser):
         """
         Returns a generator with all environmental vars with prefix VIRTUALENV
         """
-        for key, val in os.environ.items():
+        for key, val in list(os.environ.items()):
             if key.startswith(prefix):
                 yield (key.replace(prefix, '').lower(), val)
 
@@ -791,7 +791,7 @@ class ConfigOptionParser(optparse.OptionParser):
         defaults = self.update_defaults(self.defaults.copy())  # ours
         for option in self._get_all_options():
             default = defaults.get(option.dest)
-            if isinstance(default, basestring):
+            if isinstance(default, str):
                 opt_str = option.get_opt_string()
                 defaults[option.dest] = option.check_value(opt_str, default)
         return optparse.Values(defaults)
@@ -952,8 +952,8 @@ def main():
         parser.print_help()
         sys.exit(2)
     if len(args) > 1:
-        print('There must be only one argument: DEST_DIR (you gave %s)' % (
-            ' '.join(args)))
+        print(('There must be only one argument: DEST_DIR (you gave %s)' % (
+            ' '.join(args))))
         parser.print_help()
         sys.exit(2)
 
@@ -1119,12 +1119,12 @@ def path_locations(home_dir):
             size = max(len(home_dir)+1, 256)
             buf = ctypes.create_unicode_buffer(size)
             try:
-                u = unicode
+                u = str
             except NameError:
                 u = str
             ret = GetShortPathName(u(home_dir), buf, size)
             if not ret:
-                print('Error: the path "%s" has a space in it' % home_dir)
+                print(('Error: the path "%s" has a space in it' % home_dir))
                 print('We could not determine the short pathname for it.')
                 print('Exiting.')
                 sys.exit(3)
@@ -1596,7 +1596,7 @@ def install_activate(home_dir, bin_dir, prompt=None):
     if hasattr(home_dir, 'decode'):
         home_dir = home_dir.decode(sys.getfilesystemencoding())
     vname = os.path.basename(home_dir)
-    for name, content in files.items():
+    for name, content in list(files.items()):
         content = content.replace('__VIRTUAL_PROMPT__', prompt or '')
         content = content.replace('__VIRTUAL_WINPROMPT__', prompt or '(%s)' % vname)
         content = content.replace('__VIRTUAL_ENV__', home_dir)
@@ -1641,8 +1641,8 @@ def fix_lib64(lib_dir):
     instead of lib/pythonX.Y.  If this is such a platform we'll just create a
     symlink so lib64 points to lib
     """
-    if [p for p in distutils.sysconfig.get_config_vars().values()
-        if isinstance(p, basestring) and 'lib64' in p]:
+    if [p for p in list(distutils.sysconfig.get_config_vars().values())
+        if isinstance(p, str) and 'lib64' in p]:
         logger.debug('This system uses lib64; symlinking lib64 to lib')
         assert os.path.basename(lib_dir) == 'python%s' % sys.version[:3], (
             "Unexpected python lib dir: %r" % lib_dir)
@@ -2051,18 +2051,18 @@ def get_requirement_choice():
     """
     Display menu and select a number.
     """
-    choice_keys = CHOICES.keys()
+    choice_keys = list(CHOICES.keys())
     input_msg = "%s (%s) (default: %s) " % (
         c.colorize("Please select:", opts=("bold",)),
         "/".join(choice_keys),
         DEFAULT_MENU_CHOICE
     )
 
-    print MENU_TXT
+    print(MENU_TXT)
     try:
-        input = raw_input(input_msg)
+        input = input(input_msg)
     except KeyboardInterrupt:
-        print(c.colorize("Abort, ok.", foreground="blue"))
+        print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
 
     if input == "":
@@ -2071,9 +2071,9 @@ def get_requirement_choice():
     try:
         return CHOICES[input]
     except KeyError:
-        print c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
+        print(c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
             c.colorize(number, opts=("bold",))
-        )
+        ))
         sys.exit(-1)
 
 
@@ -2083,7 +2083,7 @@ def extend_parser(parser):
     """
     parser.add_option("-t", "--type", type="string",
         dest="pip_type", default=None,
-        help="pip install type: %s" % ", ".join(CHOICES.values())
+        help="pip install type: %s" % ", ".join(list(CHOICES.values()))
     )
 
 
@@ -2092,30 +2092,30 @@ def adjust_options(options, args):
     """
     Display MENU_TXT
     """
-    print c.colorize("PyLucid virtual environment bootstrap", opts=("bold", "underscore"))
-    print
+    print(c.colorize("PyLucid virtual environment bootstrap", opts=("bold", "underscore")))
+    print()
 
     try:
         home_dir = args[0]
     except IndexError:
         return # Error message would be created later
 
-    print "Create PyLucid environment in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
-    print
+    print("Create PyLucid environment in:", c.colorize(home_dir, foreground="blue", opts=("bold",)))
+    print()
 
     p = SysPath()
 
     git_path = p.find("git")
     if git_path:
-        print "git found in:", c.colorize(git_path, opts=("bold",))
+        print("git found in:", c.colorize(git_path, opts=("bold",)))
     else:
-        print c.colorize("ERROR:", foreground="red", opts=("underscore",)),
-        print "git not found in path!"
+        print(c.colorize("ERROR:", foreground="red", opts=("underscore",)), end=' ')
+        print("git not found in path!")
 
     if options.pip_type == None:
         options.pip_type = get_requirement_choice()
-    elif options.pip_type not in CHOICES.values():
-        print "pip type wrong!"
+    elif options.pip_type not in list(CHOICES.values()):
+        print("pip type wrong!")
         sys.exit(-1)
 
 
@@ -2146,22 +2146,22 @@ class AfterInstall(object):
             raise ValueError
 
     def run_cmd(self, cmd):
-        print "_" * 79
+        print("_" * 79)
         for part in cmd:
             if part.startswith("/") or part.startswith("-"):
-                print c.colorize(part, foreground="blue"),
+                print(c.colorize(part, foreground="blue"), end=' ')
             else:
-                print c.colorize(part, foreground="blue", opts=("bold",)),
-        print
+                print(c.colorize(part, foreground="blue", opts=("bold",)), end=' ')
+        print()
         subprocess.call(cmd, **self.subprocess_defaults)
-        print
+        print()
 
     def run_pip(self, info_text, pip_lines):
-        print
-        print c.colorize(info_text, foreground="green", opts=("bold", "underscore"))
+        print()
+        print(c.colorize(info_text, foreground="green", opts=("bold", "underscore")))
 
         for pip_line in pip_lines:
-            assert isinstance(pip_line, basestring)
+            assert isinstance(pip_line, str)
             cmd = [self.pip_cmd, "install", "--log=%s" % self.logfile, pip_line]
             
             if "PyLucid.git" in pip_line or "django-processinfo" in pip_line:
@@ -2179,12 +2179,12 @@ class AfterInstall(object):
             self.run_cmd(cmd)
 
     def install_pip(self):
-        print
+        print()
         if os.path.isfile(self.pip_cmd):
-            print c.colorize("update existing pip", foreground="green", opts=("bold", "underscore"))
+            print(c.colorize("update existing pip", foreground="green", opts=("bold", "underscore")))
             self.run_cmd([self.pip_cmd, 'install', "--upgrade", 'pip'])
         else:
-            print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
+            print(c.colorize("install pip", foreground="green", opts=("bold", "underscore")))
             self.run_cmd([self.easy_install, '--always-copy', 'pip'])
 
     def install_packages(self):
@@ -2200,13 +2200,13 @@ class AfterInstall(object):
         self.run_pip("install PyLucid projects", install_data)
 
     def verbose_symlink(self, source_path, dst_path):
-        print("\nsymlink: %s\nto: %s\n" % (
+        print(("\nsymlink: %s\nto: %s\n" % (
             c.colorize(source_path, opts=("bold",)),
             c.colorize(dst_path, opts=("bold",)))
-        )
+        ))
         try:
             os.symlink(source_path, dst_path)
-        except Exception, e:
+        except Exception as e:
             import traceback
             sys.stderr.write(traceback.format_exc())
 
@@ -2243,12 +2243,12 @@ def after_install(options, home_dir):
     a.install_packages()
     a.symlink_scripts()
 
-    print
-    print "PyLucid environment created in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
-    print
-    print "Now you can create a new page instance, more info:"
-    print "http://www.pylucid.org/permalink/355/create-a-new-page-instance"
-    print
+    print()
+    print("PyLucid environment created in:", c.colorize(home_dir, foreground="blue", opts=("bold",)))
+    print()
+    print("Now you can create a new page instance, more info:")
+    print("http://www.pylucid.org/permalink/355/create-a-new-page-instance")
+    print()
 
 # PyLucid bootstrap script END
 #-----------------------------------------------------------------------------

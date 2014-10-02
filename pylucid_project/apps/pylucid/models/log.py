@@ -216,14 +216,14 @@ class LogEntry(UpdateInfoBaseModel):
         output = ""
         for field in self._meta.fields:
             value = repr(getattr(self, field.name))
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 value = value.replace("\\n", "\\n\n")
                 value = "\n ... ".join([line for line in value.split("\n")])
             output += "%-21s: %s\n" % (field.name, value)
         return output
 
     def __unicode__(self):
-        return u"LogEntry %s %s %s" % (self.createby, self.createtime, self.action)
+        return "LogEntry %s %s %s" % (self.createby, self.createtime, self.action)
 
     class Meta:
         app_label = 'pylucid'

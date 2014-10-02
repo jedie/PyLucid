@@ -79,7 +79,7 @@ def get_json_remote(request, url, cache_time, timeout, encoding=None):
 
             response = r.get_response()
             raw_content = r.get_unicode()
-        except Exception, err:
+        except Exception as err:
             return _error(request, "Remote error.", "Can't get %r: %s" % (url, err))
 
         duration = time.time() - start_time
@@ -91,21 +91,21 @@ def get_json_remote(request, url, cache_time, timeout, encoding=None):
         raw_json = raw_content[len("jsonFlickrFeed("):-1]
         try:
             data = json.loads(raw_json)
-        except Exception, err:
+        except Exception as err:
             _error(request, "Remote error.", "Can't load json %r: %s" % (url, err))
             data = None
         else:
             # Insert alternate picture sizes
             for pic in data["items"]:
-                url = pic["media"][u"m"]
-                for char in (u"s", u"q", u"t", u"n", u"z", u"c", u"b"):
+                url = pic["media"]["m"]
+                for char in ("s", "q", "t", "n", "z", "c", "b"):
                     if not char in pic["media"]:
-                        pic["media"][char] = url.replace(u"_m.jpg", u"_%s.jpg" % char)
+                        pic["media"][char] = url.replace("_m.jpg", "_%s.jpg" % char)
 
             # separate description text
             for pic in data["items"]:
                 raw_desc = pic["description"]
-                desc = raw_desc.rsplit(u"</a></p>", 1)[1].strip()
+                desc = raw_desc.rsplit("</a></p>", 1)[1].strip()
                 # Cleanup:
                 desc = "<br />".join([txt.strip() for txt in desc.split("<br />") if txt.strip()])
                 pic["desc_text"] = desc
@@ -144,7 +144,7 @@ def flickr_rss(request, id=None, template_name="generic/flickr_colorbox.html", m
     url += "&lang=%(l)s-%(l)s" % {"l":current_language_code}
 
     context = get_json_remote(request, url, cache_time, timeout)
-    if isinstance(context, basestring):
+    if isinstance(context, str):
         # Error message
         return context
 

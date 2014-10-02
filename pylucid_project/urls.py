@@ -77,12 +77,12 @@ if settings.RUN_WITH_DEV_SERVER and "--insecure" in sys.argv and "--nostatic" in
     #     ./manage.py runserver --insecure --nostatic
     #
     # https://docs.djangoproject.com/en/1.4/ref/contrib/staticfiles/#runserver
-    print " *** Serve static files from %r at %r ***" % (settings.STATIC_ROOT, settings.STATIC_URL)
+    print(" *** Serve static files from %r at %r ***" % (settings.STATIC_ROOT, settings.STATIC_URL))
     urlpatterns += patterns('',
         url('^%s/(?P<path>.*)$' % settings.STATIC_URL.strip("/"), 'django.views.static.serve',
             {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
     )
-    print " *** Serve media files from %r at %r ***" % (settings.MEDIA_ROOT, settings.MEDIA_URL)
+    print(" *** Serve media files from %r at %r ***" % (settings.MEDIA_ROOT, settings.MEDIA_URL))
     urlpatterns += patterns('',
         url('^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip("/"), 'django.views.static.serve',
             {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),

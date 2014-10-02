@@ -41,7 +41,7 @@ def get_commit_timestamp(path=None):
             shell=False, cwd=path,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         )
-    except Exception, err:
+    except Exception as err:
         return _error("Can't get git hash: %s" % err)
 
     process.wait()
@@ -57,16 +57,16 @@ def get_commit_timestamp(path=None):
     output = process.stdout.readline().strip()
     try:
         timestamp = int(output)
-    except Exception, err:
+    except Exception as err:
         return _error("git log output is not a number, output was: %r" % output)
 
     try:
         return time.strftime(".%m%d", time.gmtime(timestamp))
-    except Exception, err:
+    except Exception as err:
         return _error("can't convert %r to time string: %s" % (timestamp, err))
 
 
 VERSION_STRING += get_commit_timestamp()
 
 if __name__ == "__main__":
-    print VERSION_STRING
+    print(VERSION_STRING)

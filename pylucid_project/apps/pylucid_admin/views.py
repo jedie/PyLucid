@@ -142,10 +142,10 @@ def install_plugins(request):
     filename = settings.ADMIN.VIEW_FILENAME
     view_name = settings.ADMIN.PLUGIN_INSTALL_VIEW_NAME
 
-    for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
+    for plugin_name, plugin_instance in PYLUCID_PLUGINS.items():
         try:
             response = plugin_instance.call_plugin_view(request, filename, view_name, method_kwargs={})
-        except Exception, err:
+        except Exception as err:
             if str(err).endswith("No module named %s" % filename):
                 # Plugin has no install API
                 if settings.DEBUG:
@@ -157,7 +157,7 @@ def install_plugins(request):
 
         output.append("_" * 79)
         output.append(" *** install plugin %r ***" % plugin_name)
-        assert isinstance(response, basestring) == True, "Plugin install view must return a basestring!"
+        assert isinstance(response, str) == True, "Plugin install view must return a basestring!"
         output.append(response)
 
         output.append(" --- %s END ---" % plugin_name)

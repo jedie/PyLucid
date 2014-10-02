@@ -15,7 +15,7 @@
 
 import sys
 import traceback
-import HTMLParser
+import html.parser
 from xml.sax.saxutils import escape
 
 from django.conf import settings
@@ -30,7 +30,7 @@ from tagging.utils import parse_tag_input
 from lexicon.sub_html import SubHtml
 
 
-WORD_TAG = u"<!-- word -->"
+WORD_TAG = "<!-- word -->"
 
 
 class LexiconData(dict):
@@ -105,7 +105,7 @@ def pre_render_global_template_handler(**kwargs):
 
     try:
         s.feed(page_content)
-    except HTMLParser.HTMLParseError, err:
+    except html.parser.HTMLParseError as err:
         # HTMLParser can only parse valid HTML code.
 
         msg = _("Wrong HTML code")
@@ -115,7 +115,7 @@ def pre_render_global_template_handler(**kwargs):
             marker = "-" * err.offset + "^"
 
             msg += (
-                u" (%(err)s)\n"
+                " (%(err)s)\n"
                 "<pre>%(line)s\n%(marker)s</pre>"
             ) % {
                 "err": escape(str(err)),
@@ -128,7 +128,7 @@ def pre_render_global_template_handler(**kwargs):
             # insert more information into the traceback and re-raise the original error
             etype, evalue, etb = sys.exc_info()
             evalue = etype('%s: %s' % (msg, err))
-            raise etype, evalue, etb
+            raise etype(evalue).with_traceback(etb)
 
         if request.user.is_superuser:
             # put the full traceback into page_msg, but only for superusers

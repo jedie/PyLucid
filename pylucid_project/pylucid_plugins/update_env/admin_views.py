@@ -78,7 +78,7 @@ class Package(object):
     def __init__(self, path):
         self.path = path
         self.name = os.path.basename(path)
-        self.output = u"Not collected yet."
+        self.output = "Not collected yet."
 
         if os.path.isdir(os.path.join(path, ".svn")):
             self.type = self.SVN
@@ -150,7 +150,7 @@ class VCS_info(object):
         """
         Collect 'SVN info' or 'git log' for all packages.
         """
-        for package in self.package_info.values():
+        for package in list(self.package_info.values()):
             package.collect_status()
 
 

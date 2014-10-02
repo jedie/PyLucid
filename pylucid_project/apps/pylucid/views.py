@@ -50,7 +50,7 @@ def _get_page_content(request):
 
     try:
         pagecontent = PageContent.objects.get(pagemeta=pagemeta)
-    except PageContent.DoesNotExist, err:
+    except PageContent.DoesNotExist as err:
         raise http.Http404(
             "Page '%s' does not exist in default language '%s'.\n"
             "Original error was: %s" % (
@@ -70,7 +70,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     # Get the pagemeta instance for the current pagetree and language
     try:
         pagemeta = PageTree.objects.get_pagemeta(request, pagetree, show_lang_errors=True)
-    except PageMeta.DoesNotExist, err:
+    except PageMeta.DoesNotExist as err:
         # Note: This should normaly never happen. Because all PageMeta must exist at least in system
         # default language. Also: The main_manu doesn't show links to not existing PageMeta entries!
         if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
@@ -119,7 +119,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
     if isinstance(get_view_response, http.HttpResponse):
         # Plugin would be build the complete html page
         return get_view_response
-    elif isinstance(get_view_response, basestring):
+    elif isinstance(get_view_response, str):
         # Plugin replace the page content
         context["page_content"] = get_view_response
     elif get_view_response is not None: # Use plugin response
@@ -139,7 +139,7 @@ def _render_page(request, pagetree, url_lang_code, prefix_url=None, rest_url=Non
         if isinstance(page_plugin_response, http.HttpResponse):
             # Plugin would be build the complete html page
             return page_plugin_response
-        elif isinstance(page_plugin_response, basestring):
+        elif isinstance(page_plugin_response, str):
             # Plugin replace the page content
             context["page_content"] = page_plugin_response
         elif page_plugin_response is not None: # Use plugin response
@@ -244,7 +244,7 @@ def _get_root_page(request):
     user = request.user
     try:
         pagetree = PageTree.objects.get_root_page(user) # Get the first PageTree entry
-    except PageTree.DoesNotExist, err:
+    except PageTree.DoesNotExist as err:
         msg = _(
             "There exist no pages!"
             " Have you load the initial pylucid.json data file?"
@@ -339,7 +339,7 @@ def _i18n_redirect(request, url_path):
 def _get_pagetree(request, url_path):
     try:
         return PageTree.objects.get_page_from_url(request, url_path)
-    except PageTree.DoesNotExist, err:
+    except PageTree.DoesNotExist as err:
         msg = _("Page not found")
         if settings.DEBUG or request.user.is_staff:
             msg += " url path: %r (%s)" % (url_path, err)
@@ -383,7 +383,7 @@ def permalink(request, page_id, url_rest=""):
 
     try:
         pagetree = PageTree.on_site.get(id=page_id)
-    except PageTree.DoesNotExist, err:
+    except PageTree.DoesNotExist as err:
         # TODO: Try to search with the additional url data (url_rest)
         msg = "Page not found"
         if settings.DEBUG:

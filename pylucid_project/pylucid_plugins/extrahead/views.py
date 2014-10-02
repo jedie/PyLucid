@@ -23,10 +23,10 @@ def lucidTag(request, filepath):
     """
     try:
         headfile = EditableHtmlHeadFile.objects.get(filepath=filepath)
-    except EditableHtmlHeadFile.DoesNotExist, e:
-        msg = u"Wrong headfile path."
+    except EditableHtmlHeadFile.DoesNotExist as e:
+        msg = "Wrong headfile path."
         if request.user.is_staff:
-            msg += u" (filepath: %r)" % filepath
+            msg += " (filepath: %r)" % filepath
             messages.error(request, "Headfile with filepath %r doesn't exist: %s" % (filepath, e))
         return "[%s]" % msg
 
@@ -38,7 +38,7 @@ def lucidTag(request, filepath):
             pagetree = request.PYLUCID.pagetree
             design = pagetree.design
             colorscheme = design.colorscheme
-        except AttributeError, e:
+        except AttributeError as e:
             msg = (
                 "The headfile %r should be rendered with a colorscheme,"
                 " but i can't get one: %s"

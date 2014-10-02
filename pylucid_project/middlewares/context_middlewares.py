@@ -32,10 +32,10 @@ class PyLucidContextMiddlewares(object):
         """
         Collect all context_middleware class objects from all existing pylucid plugins
         """
-        for plugin_name, plugin_instance in PYLUCID_PLUGINS.items():
+        for plugin_name, plugin_instance in list(PYLUCID_PLUGINS.items()):
             try:
                 middleware_class = plugin_instance.get_plugin_object("context_middleware", "ContextMiddleware")
-            except plugin_instance.ObjectNotFound, err:
+            except plugin_instance.ObjectNotFound as err:
                 pass
             else:
                 self._MIDDLEWARES[plugin_name] = middleware_class
@@ -45,7 +45,7 @@ class PyLucidContextMiddlewares(object):
         """ initialize all existing context middleware classes """
         request.PYLUCID.context_middlewares = {}
 
-        for plugin_name, middleware_class in self._MIDDLEWARES.items():
+        for plugin_name, middleware_class in list(self._MIDDLEWARES.items()):
             # make ContextMiddleware instance
             instance = middleware_class(request)
             # Make instance accessible via request object 
@@ -82,9 +82,9 @@ class PyLucidContextMiddlewares(object):
         plugin_name = match.group(1)
         try:
             middleware_class_instance = context_middlewares[plugin_name]
-        except KeyError, err:
+        except KeyError as err:
             return "[Error: context middleware %r doesn't exist! Existing middlewares are: %r]" % (
-                plugin_name, context_middlewares.keys()
+                plugin_name, list(context_middlewares.keys())
             )
 
         # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
@@ -98,7 +98,7 @@ class PyLucidContextMiddlewares(object):
 
         if middleware_response == None:
             return ""
-        elif isinstance(middleware_response, unicode):
+        elif isinstance(middleware_response, str):
             return smart_str(middleware_response, encoding=settings.DEFAULT_CHARSET)
         elif isinstance(middleware_response, str):
             return middleware_response

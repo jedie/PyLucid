@@ -32,7 +32,7 @@ def replace_content(response, old, new):
     # replace
     try:
         response.content = response.content.replace(old, new)
-    except UnicodeError, err:
+    except UnicodeError as err:
         pass
 
     return response

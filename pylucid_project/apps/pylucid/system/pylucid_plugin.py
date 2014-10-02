@@ -26,7 +26,7 @@ class PyLucidDBPreferencesBaseForm(DBPreferencesBaseForm):
         """
         preferences = super(PyLucidDBPreferencesBaseForm, self).get_preferences()
         if request.user.is_staff:
-            for key in lucidtag_kwargs.keys():
+            for key in list(lucidtag_kwargs.keys()):
                 if key not in preferences:
                     messages.info(request,
                         "Keyword argument %r is invalid for lucidTag %r !" % (key, self.Meta.app_label)
@@ -43,12 +43,12 @@ class PluginGetResolver(object):
 
 
 def _raise_resolve_error(plugin_url_resolver, rest_url):
-    tried = [i[0][0][0] for i in plugin_url_resolver.reverse_dict.values()]
+    tried = [i[0][0][0] for i in list(plugin_url_resolver.reverse_dict.values())]
 #    for key, value in plugin_url_resolver.reverse_dict.values():
 #        print key, value
 
 #    tried = [prefix + pattern.regex.pattern.lstrip("^") for pattern in plugin_urlpatterns]
-    raise urlresolvers.Resolver404, {'tried': tried, 'path': rest_url + "XXX"}
+    raise urlresolvers.Resolver404({'tried': tried, 'path': rest_url + "XXX"})
 
 
 def call_plugin(request, url_lang_code, prefix_url, rest_url):

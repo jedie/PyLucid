@@ -39,7 +39,7 @@ def slugify_colorname(value):
     """
     import unicodedata
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
-    value = unicode(re.sub('[^\w\s-]', '', value))
+    value = str(re.sub('[^\w\s-]', '', value))
     return re.sub('[-\s]+', '_', value)
 
 
@@ -141,9 +141,9 @@ class Color(UpdateInfoBaseModel):
 
     def delete(self, *args, **kwargs):
         """ Check if this color is in use somewhere """
-        from design import Design # import here, against import loops
+        from .design import Design # import here, against import loops
         designs = Design.objects.all().filter(colorscheme=self.colorscheme)
-        placeholder = u"{{ %s }}" % self.name
+        placeholder = "{{ %s }}" % self.name
         for design in designs:
             headfiles = design.headfiles.all().filter(render=True)
             for headfile in headfiles:
@@ -224,7 +224,7 @@ class Color(UpdateInfoBaseModel):
         super(Color, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"Color '%s' #%s (%s)" % (self.name, self.value, self.colorscheme)
+        return "Color '%s' #%s (%s)" % (self.name, self.value, self.colorscheme)
 
     class Meta:
         app_label = 'pylucid'

@@ -29,7 +29,7 @@ def lucidTag(request, min=3):
     """
     try:
         min = int(min)
-    except Exception, err:
+    except Exception as err:
         if settings.DEBUG or request.user.is_staff:
             messages.debug(request,
                 _("'min' parameter in lucidTag TOC must be a integer! Error: %s") % err

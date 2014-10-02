@@ -30,26 +30,26 @@ sys.path.insert(0, os.path.join(ROOT_DIR, "src/pylucid/pylucid_project"))
 
 sys.stderr = sys.stdout
 
-print "virtualenv activate...",
+print("virtualenv activate...", end=' ')
 virtualenv_file = os.path.join(ROOT_DIR, "bin/activate_this.py")
 try:
-    execfile(virtualenv_file, dict(__file__=virtualenv_file))
-except Exception, err:
-    print "Error: Can't activate the virtualenv!"
-    print
-    print "Failed to execute file %r" % virtualenv_file
-    print
-    print "-" * 79
+    exec(compile(open(virtualenv_file).read(), virtualenv_file, 'exec'), dict(__file__=virtualenv_file))
+except Exception as err:
+    print("Error: Can't activate the virtualenv!")
+    print()
+    print("Failed to execute file %r" % virtualenv_file)
+    print()
+    print("-" * 79)
     import traceback
     traceback.print_exc()
-    print "-" * 79
-    print
-    print "ROOT_DIR = %r" % ROOT_DIR
-    print "Please check ROOT_DIR in this file (%s)" % __file__
-    print
+    print("-" * 79)
+    print()
+    print("ROOT_DIR = %r" % ROOT_DIR)
+    print("Please check ROOT_DIR in this file (%s)" % __file__)
+    print()
     sys.exit(1)
 
-print "OK"
+print("OK")
 
 
 
@@ -57,23 +57,23 @@ print "OK"
 
 
 def _error(msg):
-    print "Import Error:", msg
-    print "-" * 79
+    print("Import Error:", msg)
+    print("-" * 79)
     import traceback
     traceback.print_exc()
-    print "-" * 79
-    print "Did you activate the virtualenv?"
+    print("-" * 79)
+    print("Did you activate the virtualenv?")
     sys.exit(1)
 
 try:
     from django.core.management import setup_environ, execute_from_command_line
-except ImportError, msg:
+except ImportError as msg:
     _error(msg)
 
 
 try:
     import pylucid_project
-except ImportError, msg:
+except ImportError as msg:
     _error(msg)
 
 

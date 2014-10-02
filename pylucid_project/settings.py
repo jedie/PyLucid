@@ -31,7 +31,7 @@ try:
     import django_processinfo # https://github.com/jedie/django-processinfo
     import pylucid_project
     from pylucid_project.system.plugin_setup_info import PyLucidPluginSetupInfo
-except Exception, e:
+except Exception as e:
     import traceback
     sys.stderr.write(traceback.format_exc())
     raise
@@ -287,7 +287,7 @@ if RUN_WITH_DEV_SERVER:
 try:
     from pylucid_project.apps.pylucid import app_settings as PYLUCID
     from pylucid_project.apps.pylucid_admin import app_settings as ADMIN
-except Exception, e:
+except Exception as e:
     import traceback
     sys.stderr.write(traceback.format_exc())
     raise
@@ -442,7 +442,7 @@ LOCAL_SETTINGS_MODULE = os.environ.get("LOCAL_SETTINGS_MODULE", "local_settings"
 try:
     # from local_settings import *    
     _local_settings = __import__(LOCAL_SETTINGS_MODULE, globals(), locals(), ["*"])
-except ImportError, err:
+except ImportError as err:
     if str(err).startswith("No module named"):
         msg = (
             "There is no %s.py file in '%s' !"

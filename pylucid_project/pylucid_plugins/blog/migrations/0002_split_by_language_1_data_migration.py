@@ -46,9 +46,9 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('blog', ['BlogEntryContent'])
 
-        print "\tDo datamigration of blog entries:",
+        print("\tDo datamigration of blog entries:", end=' ')
         for entry in orm.BlogEntry.objects.all():
-            print entry.pk,
+            print(entry.pk, end=' ')
             new_entry = orm.BlogEntryContent.objects.create(
                 entry=entry,
                 createby=entry.createby,
@@ -79,7 +79,7 @@ class Migration(SchemaMigration):
                     field.auto_now = True
                 elif field.name == "createtime":
                     field.auto_now_add = True
-        print "done."
+        print("done.")
 
 
     def backwards(self, orm):

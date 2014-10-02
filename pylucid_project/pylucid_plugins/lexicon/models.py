@@ -77,7 +77,7 @@ class LexiconEntryManager(BaseModelManager):
 
         try:
             entry = queryset.get(term=term)
-        except self.model.DoesNotExist, err:
+        except self.model.DoesNotExist as err:
             if settings.DEBUG or request.user.is_staff:
                 error_msg += " (term: %r, original error: %s)" % (term, err)
             messages.error(request, error_msg)

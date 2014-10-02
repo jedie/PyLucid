@@ -45,7 +45,7 @@ class SimpleStringIO(object):
         Append a new chunk.
         Encode unicode to the default charset.
         """
-        if isinstance(content, unicode):
+        if isinstance(content, str):
             content = content.encode(self._charset)
         self._container.append(content)
 
@@ -79,4 +79,4 @@ if __name__ == "__main__":
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

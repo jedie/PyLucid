@@ -16,11 +16,11 @@ from find_and_replace.preference_forms import get_preferences
 
 
 CONTENT_TYPES = (
-    (u"PageContent", PageContent),
-    (u"BlogEntryContent", BlogEntryContent),
-    (u"LexiconEntry", LexiconEntry),
-    (u"EditableHtmlHeadFile", EditableHtmlHeadFile),
-    (u"DBTemplate", DBTemplate),
+    ("PageContent", PageContent),
+    ("BlogEntryContent", BlogEntryContent),
+    ("LexiconEntry", LexiconEntry),
+    ("EditableHtmlHeadFile", EditableHtmlHeadFile),
+    ("DBTemplate", DBTemplate),
 )
 CONTENT_TYPES_CHOICES = [(no, data[0]) for no, data in enumerate(CONTENT_TYPES)]
 CONTENT_TYPES_DICT = dict([(no, data[1]) for no, data in enumerate(CONTENT_TYPES)])

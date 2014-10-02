@@ -43,4 +43,4 @@ class ExtraheadNode(template.Node):
 #            messages.info(request, "Insert extrahead:", output)
 #        else:
 #            messages.info(request, "Skip extrahead:", output)
-        return u""
+        return ""

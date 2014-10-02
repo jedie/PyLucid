@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
     virtualenv_file = "../../../../../bin/activate_this.py"
-    execfile(virtualenv_file, dict(__file__=virtualenv_file))
+    exec(compile(open(virtualenv_file).read(), virtualenv_file, 'exec'), dict(__file__=virtualenv_file))
 
 
 from django import http
@@ -77,7 +77,7 @@ def install(request):
 
 #-----------------------------------------------------------------------------
 
-@check_permissions(superuser_only=False, permissions=(u'pylucid.change_pagecontent',))
+@check_permissions(superuser_only=False, permissions=('pylucid.change_pagecontent',))
 @render_to("tools/highlight_code.html")
 def highlight_code(request):
     """ hightlight sourcecode for copy&paste """
@@ -199,7 +199,7 @@ def cleanup_cache(request):
             if update_type == CleanCacheForm.SMOOTH:
                 try:
                     cache.smooth_update()
-                except AttributeError, err:
+                except AttributeError as err:
                     messages.error(request, _("Error: %s (django-tools SmoothCacheBackend not used?") % err)
                     return HttpResponseRedirect(request.path)
             elif update_type == CleanCacheForm.CLEAR:
@@ -235,7 +235,7 @@ class TemplateFile(object):
             f = file(self.fs_path, "r")
             content = f.read()
             f.close()
-        except Exception, err:
+        except Exception as err:
             messages.error(request, "Can't read file: %s" % err)
         else:
             return content
@@ -274,7 +274,7 @@ class TemplateFile(object):
 
 @check_permissions(
     superuser_only=False,
-    permissions=(u'dbtemplates.add_template', u'dbtemplates.change_template')
+    permissions=('dbtemplates.add_template', 'dbtemplates.change_template')
 )
 @render_to("tools/override_template.html")
 def override_template(request):

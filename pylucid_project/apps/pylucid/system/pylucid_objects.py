@@ -43,7 +43,7 @@ class PyLucidRequestObjects(object):
         self.default_language = Language.objects.get_or_create_default(request)
         try:
             self.current_language = self.languages[0]
-        except IndexError, err:
+        except IndexError as err:
             messages.info(request,
                 (
                     "There exist no language on this site!"

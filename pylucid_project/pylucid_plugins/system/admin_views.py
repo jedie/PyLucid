@@ -112,13 +112,13 @@ def _database_encoding_test(request, out):
 
     def _test(range_txt, chr_range):
         out.write("\t%s test:" % range_txt)
-        TEST_STRING = u"".join([unichr(i) for i in chr_range])
+        TEST_STRING = "".join([chr(i) for i in chr_range])
         try:
             log_entry1 = LogEntry.objects.log_action(
                 "pylucid_plugin.system", "Database encoding test", request,
                 message="%s test" % range_txt, long_message=TEST_STRING
             )
-        except Warning, err:
+        except Warning as err:
             out.write("\t\tError: get a warning: %s" % err)
             return
 
@@ -132,11 +132,11 @@ def _database_encoding_test(request, out):
             log_entry2.message += " - failed"
         log_entry2.save()
 
-    _test("ASCII (32-126)", xrange(32, 126))
-    _test("latin-1 (128-254)", xrange(128, 254))
-    _test("ASCII control characters (0-31)", xrange(0, 31))
-    _test("unicode plane 1-3 (0-12286 in 16 steps)", xrange(0, 12286, 16))
-    _test("all unicode planes (0-65534 in 256 steps)", xrange(0, 65534, 256))
+    _test("ASCII (32-126)", range(32, 126))
+    _test("latin-1 (128-254)", range(128, 254))
+    _test("ASCII control characters (0-31)", range(0, 31))
+    _test("unicode plane 1-3 (0-12286 in 16 steps)", range(0, 12286, 16))
+    _test("all unicode planes (0-65534 in 256 steps)", range(0, 65534, 256))
 
 
 
@@ -151,7 +151,7 @@ class PluginTest(object):
         self.request = request
         self.out = out
 
-        for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
+        for plugin_name, plugin_instance in PYLUCID_PLUGINS.items():
             if plugin_name == "pylucid":
                 continue
             out.write("\tplugin: %r" % plugin_name)
@@ -162,11 +162,11 @@ class PluginTest(object):
     def test_module(self, plugin_instance, mod_name):
         try:
             plugin_instance.get_plugin_module(mod_name)
-        except plugin_instance.ObjectNotFound, err:
+        except plugin_instance.ObjectNotFound as err:
             if settings.DEBUG:
                 self.out.write("\t\tDebug: Has no %r, ok." % mod_name)
             return False
-        except Exception, err:
+        except Exception as err:
             self.out.write("\t\t*** Error importing %r:\n\t\t*** %s" % (mod_name, err))
             return False
         else:
@@ -184,10 +184,10 @@ class PluginTest(object):
 
             try:
                 plugin_instance.get_plugin_object(mod_name, obj_name)
-            except plugin_instance.ObjectNotFound, err:
+            except plugin_instance.ObjectNotFound as err:
                 if settings.DEBUG:
                     self.out.write("\t\tDebug: Has no %r, ok." % obj_name)
-            except Exception, err:
+            except Exception as err:
                 self.out.write("Error importing %r from %r: %s" % (obj_name, mod_name, err))
 
 #-----------------------------------------------------------------------------
@@ -235,7 +235,7 @@ def base_check(request):
             import MySQLdb
             out.write("MySQLdb.__version__  : %s" % repr(MySQLdb.__version__))
             out.write("MySQLdb.version_info : %s" % repr(MySQLdb.version_info))
-        except Exception, err:
+        except Exception as err:
             out.write("MySQLdb info error: %s" % err)
 
         cursor = connection.cursor()
@@ -246,7 +246,7 @@ def base_check(request):
             raw_result = cursor.fetchall()
             try:
                 result = raw_result[0][1]
-            except IndexError, err:
+            except IndexError as err:
                 out.write("%30s: Error: %s (raw result: %r)" % (var_name, err, raw_result))
             else:
                 out.write("%30s: %s" % (var_name, result))
@@ -267,7 +267,7 @@ def base_check(request):
 
     try:
         lang_entry = Language.objects.get(code=settings.LANGUAGE_CODE)
-    except Language.DoesNotExist, err:
+    except Language.DoesNotExist as err:
         out.write("\n*** Error: LANGUAGE_CODE %r doesn't exist!" % settings.LANGUAGE_CODE)
         languages = Language.objects.values_list("code", flat=True)
         out.write("\tExisting languages are: %r" % languages)
@@ -302,7 +302,7 @@ def base_check(request):
 
     try:
         mail_admins("Base check.", output, fail_silently=True, connection=None, html_message=None)
-    except SMTPException, err:
+    except SMTPException as err:
         output += "\nMail send error: %s" % err
     else:
         output += "\nMail send to all admins, ok"

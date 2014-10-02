@@ -67,7 +67,7 @@ def detail_view(request, term=None):
         queryset = LexiconEntry.on_site.filter(is_public=True)
         queryset = queryset.filter(term=term)
         entry, tried_languages = LexiconEntry.objects.get_by_prefered_language(request, queryset)
-    except LexiconEntry.DoesNotExist, err:
+    except LexiconEntry.DoesNotExist as err:
         pass
 
     """
@@ -140,7 +140,7 @@ def http_get_view(request):
 
     try:
         summary_url = PluginPage.objects.reverse("lexicon", "Lexicon-summary")
-    except Exception, err:
+    except Exception as err:
         if settings.DEBUG:
             messages.error(request, "Can't get summary url: %s" % err)
         summary_url = None

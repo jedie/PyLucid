@@ -119,7 +119,7 @@ class PageOderForm(forms.ModelForm):
         """ Change form field data in a DRY way """
         super(PageOderForm, self).__init__(*args, **kwargs)
         choices = [(i, i) for i in range(-10, 10)]
-        for field_name, field in self.fields.iteritems():
+        for field_name, field in self.fields.items():
             field.widget = forms.widgets.Select(choices=choices)
 
     class Meta:
@@ -160,7 +160,7 @@ class MassesEditorSelectForm(forms.Form):
 
     def hide_all_fields(self):
         """ hide all fields (assign HiddenInput widget """
-        for field_name, field in self.fields.iteritems():
+        for field_name, field in self.fields.items():
             field.widget = forms.widgets.HiddenInput()
 
     def clean_model_attr(self):

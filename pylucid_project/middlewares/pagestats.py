@@ -44,12 +44,12 @@ from pylucid_project.middlewares.utils import replace_content, cut_filename
 # Save the start time of the current running python instance
 start_overall = time.time()
 
-TAG = u"<!-- script_duration -->"
+TAG = "<!-- script_duration -->"
 
 # used if settings.DEBUG is off:
-FMT = u"render time: %(total_time)s - overall: %(overall_time)s"
+FMT = "render time: %(total_time)s - overall: %(overall_time)s"
 # used if settings.DEBUG is on:
-FMT_DEBUG = FMT + u" - queries: %(query_count)d"
+FMT_DEBUG = FMT + " - queries: %(query_count)d"
 
 STACK_LIMIT = 5
 

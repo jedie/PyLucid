@@ -60,7 +60,7 @@ def str2dict(raw_content):
     >>> str2dict(u'unicode=True')
     {'unicode': True}
     """
-    if isinstance(raw_content, unicode):
+    if isinstance(raw_content, str):
         # shlex.split doesn't work with unicode?!?
         raw_content = raw_content.encode(settings.DEFAULT_CHARSET)
 
@@ -96,7 +96,7 @@ class lucidTagNodeError(template.Node):
         self.msg = msg
 
     def render(self, context):
-        return u"[lucidTag %s.%s syntax error: %s]" % (self.plugin_name, self.method_name, self.msg)
+        return "[lucidTag %s.%s syntax error: %s]" % (self.plugin_name, self.method_name, self.msg)
 
 
 class lucidTagNode(template.Node):
@@ -120,7 +120,7 @@ class lucidTagNode(template.Node):
         if getattr(request, "_dont_call_lucid_tags", False) == True:
             # request._dont_call_lucid_tags = True was set in
             # pylucid.system.pylucid_plugin.context_middleware_request()
-            return u"Skip any lucidTags!"
+            return "Skip any lucidTags!"
 
         plugin_name = self.plugin_name
         method_name = self.method_name
@@ -129,35 +129,35 @@ class lucidTagNode(template.Node):
         try:
             plugin_instance = PYLUCID_PLUGINS[plugin_name]
         except KeyError:
-            return u"[PyLucid Plugin %s unknown]" % plugin_name
+            return "[PyLucid Plugin %s unknown]" % plugin_name
 
         try:
             response = plugin_instance.call_plugin_view(request, "views", method_name, method_kwargs)
-        except Exception, err:
+        except Exception as err:
             pkg = "%s.views.%s" % (plugin_name, method_name)
             # Base error message for all users:
-            msg = u"Error call PyLucid plugin view %s" % pkg
+            msg = "Error call PyLucid plugin view %s" % pkg
 
             if settings.DEBUG:
                 # insert more information into the traceback and re-raise the original error
                 etype, evalue, etb = sys.exc_info()
                 evalue = etype('%s (%r): %s' % (msg, self.raw_content, evalue))
-                raise etype, evalue, etb
+                raise etype(evalue).with_traceback(etb)
 
             if request.user.is_staff:
                 # add more info for staff members
-                msg += u" (%s)" % err
+                msg += " (%s)" % err
 
             if request.user.is_superuser:
                 # put the full traceback into page_msg, but only for superusers
                 messages.info(request, mark_safe("%s:<pre>%s</pre>" % (msg, traceback.format_exc())))
 
-            return u"[%s]" % msg
+            return "[%s]" % msg
 
         # FIXME: Witch error should we raised here?
         if response == None:
-            return u""
-        elif isinstance(response, basestring):
+            return ""
+        elif isinstance(response, str):
             return response
         elif isinstance(response, HttpResponse):
             status_code = response.status_code
@@ -192,7 +192,7 @@ def lucidTag(parser, token):
         raw_kwargs = content[0]
         try:
             method_kwargs = str2dict(raw_kwargs)
-        except Exception, err:
+        except Exception as err:
             if settings.DEBUG:
                 raise
             return lucidTagNodeError(plugin_name, method_name, msg="Wrong tag parameter")
@@ -209,4 +209,4 @@ if __name__ == "__main__":
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

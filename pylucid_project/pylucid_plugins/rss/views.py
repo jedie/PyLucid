@@ -16,7 +16,7 @@ from pprint import pformat
 
 try:
     import feedparser
-except ImportError, err:
+except ImportError as err:
     feedparser_available = False
     feedparser_err = err
 else:
@@ -81,7 +81,7 @@ def lucidTag(request, url, max_entries=None, debug=False, **kwargs):
                         messages.info(request, "RSS feed info:", feed["bozo_exception"])
                 else:
                     raise AssertionError("Feed error: %r" % feed["bozo_exception"])
-        except Exception, e:
+        except Exception as e:
             if request.user.is_staff:
                 messages.debug(request, mark_safe("Feed error:<pre>%s</pre>" % traceback.format_exc()))
                 return "[feedparser.parse(%r) error: %s]" % (url, e)

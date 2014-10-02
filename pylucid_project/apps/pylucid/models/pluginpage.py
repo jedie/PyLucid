@@ -203,7 +203,7 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
         return super(PluginPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"PluginPage '%s' (pagetree: %r)" % (self.app_label, self.pagetree)
+        return "PluginPage '%s' (pagetree: %r)" % (self.app_label, self.pagetree)
 
     class Meta:
         app_label = 'pylucid'

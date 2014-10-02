@@ -18,10 +18,10 @@ class RedirectModel(UpdateInfoBaseModel):
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
     TYPE_DICT = {
-        u"301": {"title": u"301 - PermanentRedirect", "class": http.HttpResponsePermanentRedirect},
-        u"302": {"title": u"302 - Redirect", "class": http.HttpResponseRedirect},
+        "301": {"title": "301 - PermanentRedirect", "class": http.HttpResponsePermanentRedirect},
+        "302": {"title": "302 - Redirect", "class": http.HttpResponseRedirect},
     }
-    TYPE_CHOICES = [(key, data["title"]) for key, data in TYPE_DICT.iteritems()]
+    TYPE_CHOICES = [(key, data["title"]) for key, data in TYPE_DICT.items()]
     #--------------------------------------------------------------------------
 
     pagetree = models.ForeignKey(PageTree)
@@ -49,4 +49,4 @@ class RedirectModel(UpdateInfoBaseModel):
         return self.pagetree.get_absolute_url()
 
     def __unicode__(self):
-        return u"%s to %s" % (self.get_response_data()["title"], self.destination_url)
+        return "%s to %s" % (self.get_response_data()["title"], self.destination_url)

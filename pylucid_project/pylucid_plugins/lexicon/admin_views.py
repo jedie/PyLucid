@@ -52,14 +52,14 @@ def _extend_form_url(request, context):
 
     try:
         pagemeta_id = int(request.GET["pagemeta"])
-    except ValueError, err:
+    except ValueError as err:
         if settings.DEBUG:
             messages.error(request, "Wrong pagemeta ID: %s" % err)
         return context
 
     try:
         pagemeta = PageMeta.objects.get(id=pagemeta_id)
-    except PageMeta.DoesNotExist, err:
+    except PageMeta.DoesNotExist as err:
         if settings.DEBUG:
             messages.error(request, "Can't get PageMeta: %s" % err)
     else:

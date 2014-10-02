@@ -8,7 +8,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-print "Using %s, ok." % __file__
+print("Using %s, ok." % __file__)
 
 import os
 import tempfile
@@ -37,5 +37,5 @@ if not os.path.isdir(STATIC_ROOT):
     os.mkdir(STATIC_ROOT)
 STATIC_URL = '/static/'
 
-print "use MEDIA_ROOT: %s" % MEDIA_ROOT
-print "use STATIC_ROOT: %s" % STATIC_ROOT
+print("use MEDIA_ROOT: %s" % MEDIA_ROOT)
+print("use STATIC_ROOT: %s" % STATIC_ROOT)

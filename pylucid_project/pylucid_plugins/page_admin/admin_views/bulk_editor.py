@@ -87,12 +87,12 @@ def bulk_editor(request):
             for formset_form in formset.forms:
                 instance = formset_form.instance
                 absolute_url = instance.get_absolute_url()
-                for field_name, field in formset_form.fields.iteritems():
+                for field_name, field in formset_form.fields.items():
                     field.label = absolute_url
 
             # Sort by absolute_url, used the label value from the first field 
             formset.forms.sort(
-                cmp=lambda x, y: cmp(x.fields.values()[0].label.lower(), y.fields.values()[0].label.lower())
+                cmp=lambda x, y: cmp(list(x.fields.values())[0].label.lower(), list(y.fields.values())[0].label.lower())
             )
 
             # Hide the MassesEditorSelectForm fields. They should not changed, yet.

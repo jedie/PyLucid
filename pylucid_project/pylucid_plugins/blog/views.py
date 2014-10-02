@@ -261,7 +261,7 @@ def detail_view(request, year, month, day, slug):
         content_entry, tried_languages = BlogEntryContent.objects.get_by_prefered_language(
             request, queryset, show_lang_errors=False
         )
-    except BlogEntryContent.DoesNotExist, err:
+    except BlogEntryContent.DoesNotExist as err:
         # entry not found -> Display day archive with error messages as a 404 page
         
         # Create error message:

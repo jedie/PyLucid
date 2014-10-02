@@ -44,7 +44,7 @@ from pylucid_project.tests.test_tools import basetest
 from pylucid_project.utils import crypt
 
 from pylucid_project.pylucid_plugins.auth.models import CNONCE_CACHE
-from preference_forms import AuthPreferencesForm
+from .preference_forms import AuthPreferencesForm
 
 
 LOGIN_URL = "/en/welcome/?auth=login"
@@ -180,7 +180,7 @@ class LoginTest(basetest.BaseUnittest):
         userdata = self._get_userdata("normal")
         username = userdata["username"]
 
-        for no in xrange(2):
+        for no in range(2):
             # Get the login form: The challenge value would be stored into session
             self.client.get("/en/welcome/?auth=login", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             self.failUnless("challenge" in self.client.session)
@@ -238,7 +238,7 @@ class LoginTest(basetest.BaseUnittest):
         tested_limit_reached = False
         tested_banned = False
 
-        for no in xrange(1, ban_limit + 3):
+        for no in range(1, ban_limit + 3):
             # get the salt
             response1 = client.post(
                 "/en/welcome/?auth=get_salt", {"username": username}, HTTP_X_REQUESTED_WITH='XMLHttpRequest'

@@ -6,5 +6,5 @@ def save_receiver(sender, **kwargs):
     connected with PageContent in: pylucid_project/apps/pylucid/models/__init__.py
     """
     model_instance = kwargs["instance"]
-    from models import PageUpdateListObjects
+    from .models import PageUpdateListObjects
     PageUpdateListObjects.objects.add_entry(model_instance)

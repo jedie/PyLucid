@@ -45,7 +45,7 @@ def get_commit_timestamp(path=None):
             shell=False, cwd=path,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         )
-    except Exception, err:
+    except Exception as err:
         return _error("Can't get git hash: %s" % err)
 
     process.wait()
@@ -61,12 +61,12 @@ def get_commit_timestamp(path=None):
     output = process.stdout.readline().strip()
     try:
         timestamp = int(output)
-    except Exception, err:
+    except Exception as err:
         return _error("git log output is not a number, output was: %r" % output)
 
     try:
         return time.strftime(".%m%d", time.gmtime(timestamp))
-    except Exception, err:
+    except Exception as err:
         return _error("can't convert %r to time string: %s" % (timestamp, err))
 
 
@@ -144,7 +144,7 @@ def copytree2(src, dst, ignore, ignore_path=None):
     if not os.path.isdir(dst):
         try:
             os.makedirs(dst)
-        except OSError, why:
+        except OSError as why:
             errors.extend((dst, str(why)))
 
     for name in names:
@@ -162,16 +162,16 @@ def copytree2(src, dst, ignore, ignore_path=None):
             else:
                 shutil.copy2(srcname, dstname)
 #                print count, srcname
-        except (IOError, os.error), why:
+        except (IOError, os.error) as why:
             errors.append((srcname, dstname, str(why)))
         # catch the Error from the recursive copytree so that we can
         # continue with other files
-        except CopyTreeError, err:
+        except CopyTreeError as err:
             errors.extend(err.args[0])
 
     try:
         shutil.copystat(src, dst)
-    except OSError, why:
+    except OSError as why:
         errors.extend((src, dst, str(why)))
 
     if errors:
@@ -197,10 +197,10 @@ class ReqInfo(object):
 
     def debug(self):
         for dist in self.dists:
-            print "_"*79
-            print dist
-            print "project_name..:", dist.project_name
-            print "location......:", dist.location
+            print("_"*79)
+            print(dist)
+            print("project_name..:", dist.project_name)
+            print("location......:", dist.location)
 
 
 class StandalonePackageMaker(object):
@@ -210,11 +210,11 @@ class StandalonePackageMaker(object):
 
         env_path = os.environ.get("VIRTUAL_ENV")
         if env_path is None:
-            print "Error: VIRTUAL_ENV not in environment!"
-            print "Have you activate the virtualenv?"
+            print("Error: VIRTUAL_ENV not in environment!")
+            print("Have you activate the virtualenv?")
             sys.exit(-1)
         if not os.path.isdir(env_path):
-            print "Error: VIRTUAL_ENV path %r doesn't exist?!?!" % env_path
+            print("Error: VIRTUAL_ENV path %r doesn't exist?!?!" % env_path)
             sys.exit(-1)
 
         self.pylucid_env_dir = env_path
@@ -222,11 +222,11 @@ class StandalonePackageMaker(object):
 
         self.precheck()
 
-        print "\nuse %r as source" % self.pylucid_env_dir
-        print "create standalone package in %r\n" % self.dest_package_dir
+        print("\nuse %r as source" % self.pylucid_env_dir)
+        print("create standalone package in %r\n" % self.dest_package_dir)
 
         self.pylucid_version = self.get_pylucid_version()
-        print "found: PyLucid v%s\n" % self.pylucid_version
+        print("found: PyLucid v%s\n" % self.pylucid_version)
 
         self.req = ReqInfo("pylucid")
 
@@ -241,11 +241,11 @@ class StandalonePackageMaker(object):
         self.hardcode_version_string()
         self.merge_static_files()
 
-        print
-        print "_" * 79
-        print "Create 7zip and zip archive files in '%s' ?" % self.dest_dir
-        print
-        raw_input("(Press any key or abort with Strg-C)")
+        print()
+        print("_" * 79)
+        print("Create 7zip and zip archive files in '%s' ?" % self.dest_dir)
+        print()
+        input("(Press any key or abort with Strg-C)")
 
         archive_file_prefix = os.path.join(self.dest_dir,
             "PyLucid_standalone_%s" % self.pylucid_version.replace(".", "-")
@@ -261,12 +261,12 @@ class StandalonePackageMaker(object):
 
     def precheck(self):
         if not os.path.isdir(self.pylucid_env_dir):
-            print "Wrong PYLUCID_ENV_DIR: %r doesn't exist." % self.pylucid_env_dir
+            print("Wrong PYLUCID_ENV_DIR: %r doesn't exist." % self.pylucid_env_dir)
             sys.exit(3)
 
         test_file = os.path.join(self.pylucid_env_dir, "bin", "activate_this.py")
         if not os.path.isfile(test_file):
-            print "Wrong PYLUCID_ENV_DIR: %r doesn't exist." % test_file
+            print("Wrong PYLUCID_ENV_DIR: %r doesn't exist." % test_file)
             sys.exit(3)
 
     def get_pylucid_version(self):
@@ -279,28 +279,28 @@ class StandalonePackageMaker(object):
 
     def check_if_dest_exist(self):
         if os.path.isdir(self.dest_package_dir):
-            print "Error: destination dir %r exist!" % self.dest_package_dir
-            if raw_input("Delete the entire directory tree? [y/n]").lower() not in ("y", "j"):
-                print "Abort!"
+            print("Error: destination dir %r exist!" % self.dest_package_dir)
+            if input("Delete the entire directory tree? [y/n]").lower() not in ("y", "j"):
+                print("Abort!")
                 sys.exit(1)
 
-            print "delete tree...",
+            print("delete tree...", end=' ')
             shutil.rmtree(self.dest_package_dir)
-            print "OK"
+            print("OK")
             if os.path.isdir(self.dest_package_dir):
-                raw_input("Path exist?!?!? continue? (Abort with Strg-C)")
+                input("Path exist?!?!? continue? (Abort with Strg-C)")
         else:
-            raw_input("continue? (Abort with Strg-C)")
+            input("continue? (Abort with Strg-C)")
 
     def _patch_file(self, filepath, patch_data):
-        print "Patch file %r..." % filepath
+        print("Patch file %r..." % filepath)
         f = codecs.open(filepath, "r", encoding="utf-8")
         content = f.read()
         f.close()
 
         for placeholder, new_value in patch_data:
             if not placeholder in content:
-                print "Warning: String %r not found in %r!" % (placeholder, filepath)
+                print("Warning: String %r not found in %r!" % (placeholder, filepath))
             else:
                 content = content.replace(placeholder, new_value)
 
@@ -309,13 +309,13 @@ class StandalonePackageMaker(object):
         f.close()
 
     def create_local_settings(self):
-        print "_"*79
-        print "Create local_settings.py file..."
+        print("_"*79)
+        print("Create local_settings.py file...")
 
         sourcepath = os.path.join(self.pylucid_dir, "scripts", "local_settings_example.py")
         destpath = os.path.join(self.dest_package_dir, "local_settings.py")
 
-        print "copy %s -> %s" % (sourcepath, destpath)
+        print("copy %s -> %s" % (sourcepath, destpath))
         shutil.copy2(sourcepath, destpath)
 
         secret_key = ''.join(
@@ -336,76 +336,76 @@ class StandalonePackageMaker(object):
 
     def copy_packages(self):
         for path in self.req.paths:
-            print "_" * 79
-            print "copy %s" % path
+            print("_" * 79)
+            print("copy %s" % path)
 
             if not os.path.isdir(path):
-                print "Error: %r doesn't exist!" % path
+                print("Error: %r doesn't exist!" % path)
                 sys.exit(3)
 
-            print "%s -> %s" % (path, self.dest_package_dir)
+            print("%s -> %s" % (path, self.dest_package_dir))
             try:
                 copytree2(
                     path, self.dest_package_dir,
                     shutil.ignore_patterns(*COPYTREE_IGNORE_FILES),
                     ignore_path=COPYTREE_IGNORE_DIRS
                 )
-            except OSError, why:
-                print "copytree2 error: %s" % why
+            except OSError as why:
+                print("copytree2 error: %s" % why)
             else:
-                print "OK"
+                print("OK")
 
     def cleanup_dest_dir(self):
-        print "_"*79
-        print "Cleanup dest dir:"
+        print("_"*79)
+        print("Cleanup dest dir:")
         for filename in os.listdir(self.dest_package_dir):
             path = os.path.join(self.dest_package_dir, filename)
             if not os.path.isfile(path):
                 continue
             if filename in KEEP_ROOT_FILES:
                 continue
-            print "remove: %r (%s)" % (filename, path)
+            print("remove: %r (%s)" % (filename, path))
             os.remove(path)
 
     def copy_standalone_script_files(self):
-        print
-        print "_" * 79
-        print "copy standalone script files"
+        print()
+        print("_" * 79)
+        print("copy standalone script files")
 
         def copy_files(scripts_sub_dir):
             src = os.path.join(self.pylucid_dir, "scripts", scripts_sub_dir)
-            print "%s -> %s" % (src, self.dest_package_dir)
+            print("%s -> %s" % (src, self.dest_package_dir))
             try:
                 copytree2(src, self.dest_package_dir, ignore=shutil.ignore_patterns(*COPYTREE_IGNORE_FILES))
-            except OSError, why:
-                print "copytree2 error: %s" % why
+            except OSError as why:
+                print("copytree2 error: %s" % why)
             else:
-                print "OK"
+                print("OK")
 
         copy_files("apache_files")
         copy_files("standalone")
 
         old = os.path.join(self.dest_package_dir, "default.htaccess")
         new = os.path.join(self.dest_package_dir, ".htaccess")
-        print "rename %r to %r" % (old, new)
+        print("rename %r to %r" % (old, new))
         os.rename(old, new)
 
     def patch_script_files(self):
-        print
-        print "_" * 79
-        print "patch script files"
+        print()
+        print("_" * 79)
+        print("patch script files")
         for filename in ("index.cgi", "index.fcgi", "index.wsgi"):
             filepath = os.path.join(self.dest_package_dir, filename)
             self._patch_file(filepath, SCRIPT_PATCH_DATA)
 
     def chmod(self):
-        print
-        print "_" * 79
-        print "make files executeable"
+        print()
+        print("_" * 79)
+        print("make files executeable")
         for filename in EXECUTEABLE_FILES:
             filepath = os.path.join(self.dest_package_dir, filename)
-            print "chmod 0755 %s" % filepath
-            os.chmod(filepath, 0755)
+            print("chmod 0755 %s" % filepath)
+            os.chmod(filepath, 0o755)
 
     def remove_pkg_check(self):
         """
@@ -413,28 +413,28 @@ class StandalonePackageMaker(object):
         and remove pkg_resources.require() check.
         Because it can't work in standalone version
         """
-        print
-        print "_" * 79
+        print()
+        print("_" * 79)
         pylucid_app = os.path.join(self.dest_package_dir, "pylucid_project", "apps", "pylucid")
         pylucid_app_init = os.path.join(pylucid_app, "__init__.py")
-        print "Remove pkg_resources.require() check, by overwrite:"
-        print pylucid_app_init
+        print("Remove pkg_resources.require() check, by overwrite:")
+        print(pylucid_app_init)
 
         f = open(pylucid_app_init, 'w')
         f.write(PKG_CHECK_CONTENT % __file__)
         f.close()
-        print "OK"
+        print("OK")
 
     def hardcode_version_string(self):
         """
         Overwrite pylucid version file pylucid_project/__init__.py
         and 'hardcode' complete version string
         """
-        print
-        print "_" * 79
+        print()
+        print("_" * 79)
         version_file = os.path.join(self.dest_package_dir, "pylucid_project", "__init__.py")
-        print "'hardcode' PyLucid version string, by overwrite:"
-        print version_file
+        print("'hardcode' PyLucid version string, by overwrite:")
+        print(version_file)
 
         version_string2 = []
         for part in self.pylucid_version.split("."):
@@ -446,37 +446,37 @@ class StandalonePackageMaker(object):
         f = open(version_file, "w")
         f.write(PROJECT_INIT_FILE % (__file__, version_string2, self.pylucid_version))
         f.close()
-        print "OK"
+        print("OK")
 
     def cleanup_external_plugins(self):
-        print
-        print "_" * 79
-        print "cleanup external_plugins directory"
+        print()
+        print("_" * 79)
+        print("cleanup external_plugins directory")
         external_plugins = os.path.join(self.dest_package_dir, "pylucid_project", "external_plugins")
         for dir_item in os.listdir(external_plugins):
             if dir_item == "__init__.py":
                 continue
             full_path = os.path.join(external_plugins, dir_item)
-            print "remove %r..." % full_path,
+            print("remove %r..." % full_path, end=' ')
             shutil.rmtree(full_path)
-            print "OK"
+            print("OK")
 
     def merge_static_files(self):
-        print "_" * 79
-        print "move PyLucid/Django static media files together"
+        print("_" * 79)
+        print("move PyLucid/Django static media files together")
         dest_media = os.path.join(self.dest_package_dir, "media")
 
         pylucid_src_media = os.path.join(self.dest_package_dir, "pylucid_project", "media")
         pylucid_dst_media = os.path.join(dest_media)
-        print "move files from %s to %s" % (pylucid_src_media, pylucid_dst_media)
+        print("move files from %s to %s" % (pylucid_src_media, pylucid_dst_media))
         shutil.move(pylucid_src_media, pylucid_dst_media)
-        print "OK"
+        print("OK")
 
         django_src_media = os.path.join(self.dest_package_dir, "django", "contrib", "admin", "media")
         django_dst_media = os.path.join(dest_media, "django")
-        print "move files from %s to %s" % (django_src_media, django_dst_media)
+        print("move files from %s to %s" % (django_src_media, django_dst_media))
         shutil.move(django_src_media, django_dst_media)
-        print "OK"
+        print("OK")
 
     def create_archive(self, archive_file, switches):
         """
@@ -493,15 +493,15 @@ class StandalonePackageMaker(object):
 
         seven_zip = "/usr/bin/7z"
         cmd = [seven_zip, "a", "-mx9"] + switches + [archive_file, self.dest_package_dir]
-        print "run:\n%s" % " ".join(cmd)
+        print("run:\n%s" % " ".join(cmd))
         try:
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        except OSError, err:
+        except OSError as err:
             import errno
             if err.errno == errno.ENOENT: # No 2: No such file or directory
-                print "Error: '%s' not found: %s" % (seven_zip, err)
-                print "Please install it."
-                print "e.g.: sudo aptitude install p7zip-full"
+                print("Error: '%s' not found: %s" % (seven_zip, err))
+                print("Please install it.")
+                print("e.g.: sudo aptitude install p7zip-full")
                 sys.exit(2)
             raise
 
@@ -515,9 +515,9 @@ class StandalonePackageMaker(object):
                 line += " " * (79 - len(line))
                 sys.stdout.write('\r' + line)
             else:
-                print line
+                print(line)
 
-        print "\n-- END --\n"
+        print("\n-- END --\n")
 
 
 
@@ -527,17 +527,17 @@ def main():
     options, args = parser.parse_args()
 
     if len(args) != 1:
-        print(
+        print((
             "You must give the destination path as command argument!"
             " (you gave %r)" % repr(args)[1:-1]
-        )
+        ))
         parser.print_help()
         sys.exit(2)
 
     dest_dir = args[0]
     StandalonePackageMaker(dest_dir)
 
-    print "\n\nPyLucid standalone package created."
+    print("\n\nPyLucid standalone package created.")
 
 
 

@@ -54,7 +54,7 @@ def can_access_site(user):
 
     try:
         user_profile = user.get_profile()
-    except Exception, err:
+    except Exception as err:
         msg = _("Error getting user profile: %s") % err
         LogEntry.objects.log_action(app_label="pylucid", action="auth_backends", message=msg)
         failsafe_message(msg)
@@ -90,7 +90,7 @@ class SiteAuthBackend(ModelBackend):
                 if settings.DEBUG or LOCAL_DEBUG:
                     failsafe_message("Wrong password!")
                 return
-        except User.DoesNotExist, err:
+        except User.DoesNotExist as err:
             msg = _("User %(username)s doesn't exist: %(err)s") % {"username": username, "err":err}
             LogEntry.objects.log_action(
                 app_label="pylucid", action="auth_backends", message=msg,
@@ -121,7 +121,7 @@ class SiteSHALoginAuthBackend(ModelBackend):
 
         try:
             check = crypt.check_js_sha_checksum(challenge, sha_a, sha_b, sha_checksum, loop_count, cnonce)
-        except crypt.SaltHashError, err:
+        except crypt.SaltHashError as err:
             # Wrong password
             LogEntry.objects.log_action(
                 app_label="pylucid", action="auth_backends",

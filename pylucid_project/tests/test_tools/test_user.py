@@ -44,12 +44,12 @@ def create_user(verbosity, username, password, email, is_staff, is_superuser):
     user.is_superuser = is_superuser
     user.save()
     if verbosity >= 2:
-        print "Test user %r created." % user
+        print("Test user %r created." % user)
     return user
 
 def create_testusers(verbosity):
     """
     Create all available testusers and UserProfiles
     """
-    for usertype, userdata in TEST_USERS.iteritems():
+    for usertype, userdata in TEST_USERS.items():
         user = create_user(verbosity, **userdata)

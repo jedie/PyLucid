@@ -60,7 +60,7 @@ def _render(request, content, path_or_url, markup, highlight, strip_html):
     if markup:
         if markup not in MARKUPS:
             return _error(request, "Include error.",
-                "Can't include: Unknown markup %r (Available: %s)" % (markup, ", ".join(MARKUPS.keys()))
+                "Can't include: Unknown markup %r (Available: %s)" % (markup, ", ".join(list(MARKUPS.keys())))
             )
         markup_no = MARKUPS[markup]
 
@@ -104,8 +104,8 @@ def local_file(request, filepath, encoding="utf-8", markup=None, highlight=None,
         content = f.read()
         f.close()
 
-        content = unicode(content, encoding)
-    except Exception, err:
+        content = str(content, encoding)
+    except Exception as err:
         return _error(request, "Include error.", "Can't read file %r: %s" % (filepath, err))
 
     return _render(request, content, filepath, markup, highlight, strip_html)
@@ -147,7 +147,7 @@ def remote(request, url, encoding=None, markup=None, highlight=None, strip_html=
 
             response = r.get_response()
             raw_content = r.get_unicode()
-        except Exception, err:
+        except Exception as err:
             return _error(request, "Include error.", "Can't get %r: %s" % (url, err))
 
         duration = time.time() - start_time

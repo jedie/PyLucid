@@ -92,7 +92,7 @@ class Command(BaseCommand):
 
     def handle(self, *app_labels, **options):
         if options.get("list_models", False):
-            print "List all installed models:"
+            print("List all installed models:")
             data = []
             for app in get_apps():
                 app_name = app.__name__.split('.')[-2] # assuming -1 is 'models' and -2 is name
@@ -106,23 +106,23 @@ class Command(BaseCommand):
 
         if options.get("test", False):
             if not os.path.isfile(file_path):
-                print "fixture file not exist: %r" % file_path
+                print("fixture file not exist: %r" % file_path)
                 return
 
             from django.utils import simplejson
             f = codecs.open(file_path, "r", encoding="utf-8")
             data = simplejson.load(f)
             f.close()
-            print "loaded %s entries from %s" % (len(data), file_path)
+            print("loaded %s entries from %s" % (len(data), file_path))
             return
 
         json_serializer = serializers.get_serializer("json")()
 
         objects = []
         for app_name, model_names in APP_MODEL_DATA:
-            print "App: %r" % app_name
+            print("App: %r" % app_name)
             for model_name in model_names:
-                print "\tModel: %r" % model_name
+                print("\tModel: %r" % model_name)
                 model = get_model(app_name, model_name)
 
                 if model_name == "PageTree":
@@ -133,22 +133,22 @@ class Command(BaseCommand):
 
                 objects.extend(data)
 
-            print " -" * 39
+            print(" -" * 39)
 
         if not os.path.isdir(FIXTURE_PATH):
-            print "Create dir %r" % FIXTURE_PATH
+            print("Create dir %r" % FIXTURE_PATH)
             os.makedirs(FIXTURE_PATH)
 
-        print "Serialize data and save it into %r..." % FIXTURE_FILENAME
+        print("Serialize data and save it into %r..." % FIXTURE_FILENAME)
         try:
             with codecs.open(file_path, "w", encoding="utf-8") as out:
                 json_serializer.serialize(objects, indent=options['indent'], stream=out,
                     ensure_ascii=False # http://docs.djangoproject.com/en/dev/topics/serialization/#notes-for-specific-serialization-formats
                 )
-        except Exception, e:
+        except Exception as e:
             if options['traceback']:
                 raise
             raise CommandError("Unable to serialize database: %s" % e)
         else:
-            print "Fixtures written in %r" % file_path
+            print("Fixtures written in %r" % file_path)
 

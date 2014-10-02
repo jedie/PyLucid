@@ -42,7 +42,7 @@ class UsernameForm(forms.Form):
         username = self.cleaned_data["username"]
         try:
             user = User.objects.get(username=username)
-        except User.DoesNotExist, e:
+        except User.DoesNotExist as e:
             raise WrongUserError("User %r doesn't exists!" % username)
 
         if not user.is_active:
@@ -55,7 +55,7 @@ class UsernameForm(forms.Form):
             user = self.get_user()
         try:
             return user.get_profile()
-        except UserProfile.DoesNotExist, err:
+        except UserProfile.DoesNotExist as err:
             raise WrongUserError("Can't get user profile: %r" % err)
 
     def get_user_and_profile(self):
@@ -71,7 +71,7 @@ class Sha1BaseForm(forms.Form):
 
     def _validate_sha1(self, sha_value, key):
         if crypt.validate_sha_value(sha_value) != True:
-            raise forms.ValidationError(u"%s is not valid SHA value." % key)
+            raise forms.ValidationError("%s is not valid SHA value." % key)
         return sha_value
 
     def _validate_sha1_by_key(self, key):

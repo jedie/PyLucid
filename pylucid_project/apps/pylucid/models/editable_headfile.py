@@ -29,8 +29,8 @@ from pylucid_project.utils.css_color_utils import unify_spelling, \
 from pylucid_project.apps.pylucid.system import headfile
 
 # other PyLucid models
-from colorscheme import Color
-from design import Design
+from .colorscheme import Color
+from .design import Design
 from django.template.loader import render_to_string
 
 
@@ -93,7 +93,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
     def get_rendered(self, colorscheme):
         color_dict = colorscheme.get_color_dict()
 
-        for name, value in color_dict.iteritems():
+        for name, value in color_dict.items():
             color_dict[name] = "#%s" % value
 
         rendered_content = render.render_string_template(self.content, color_dict)
@@ -154,7 +154,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
             try:
                 # "validate" the filepath with the url re. 
                 reverse('PyLucid-send_head_file', kwargs={"filepath": self.filepath})
-            except NoReverseMatch, err:
+            except NoReverseMatch as err:
                 message_dict["filepath"] = [_(
                     "filepath %(filepath)r contains invalid characters!"
                     " (Original error: %(err)s)" % {
@@ -195,11 +195,11 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         """ returns the mimetype for the current filename """
         fileext = self.get_file_extension()
         if fileext == ".css":
-            return u"text/css"
+            return "text/css"
         elif fileext == ".js":
-            return u"text/javascript"
+            return "text/javascript"
         else:
-            return mimetypes.guess_type(self.filepath)[0] or u"application/octet-stream"
+            return mimetypes.guess_type(self.filepath)[0] or "application/octet-stream"
 
     def rename_color(self, new_name, old_name):
         """
@@ -262,7 +262,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
                 }
             )
             best_colorscheme_dict = best_colorscheme.get_color_dict()
-            values2colors = dict([(v, k) for k, v in best_colorscheme_dict.iteritems()])
+            values2colors = dict([(v, k) for k, v in best_colorscheme_dict.items()])
             colorschemes_data = {best_colorscheme:best_colorscheme_dict}
 
         existing_color_names = set(best_colorscheme_dict.keys())
@@ -270,17 +270,17 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
             failsafe_message("Use existing colors: %r" % existing_color_names)
 
         # Check witch colors are not exist in best colorscheme, yet:
-        best_colorscheme_values = best_colorscheme_dict.values()
+        best_colorscheme_values = list(best_colorscheme_dict.values())
         new_color_values = []
         for color_value in content_colors:
             if color_value not in best_colorscheme_values:
                 new_color_values.append(color_value)
 
         # Collect color information from all other colorschemes witch used this headfile:
-        for colorscheme in self.iter_colorschemes(skip_colorschemes=colorschemes_data.keys()):
+        for colorscheme in self.iter_colorschemes(skip_colorschemes=list(colorschemes_data.keys())):
             color_dict = colorscheme.get_color_dict()
             colorschemes_data[colorscheme] = color_dict
-            for color_name, color_value in color_dict.iteritems():
+            for color_name, color_value in color_dict.items():
                 existing_color_names.add(color_name)
                 if color_value not in values2colors:
                     values2colors[color_value] = color_name
@@ -298,7 +298,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
 
         # Replace colors in content and create not existing in every colorscheme
         update_info = {}
-        for color_value, color_name in values2colors.iteritems():
+        for color_value, color_name in values2colors.items():
             # Replace colors with django template placeholders
             content = content.replace("#%s;" % color_value, "{{ %s }};" % color_name)
 
@@ -320,7 +320,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
                     update_info[colorscheme].append(color)
 
         # Create page messages
-        for colorscheme, created_colors in update_info.iteritems():
+        for colorscheme, created_colors in update_info.items():
             msg = _('Colors %(colors)s created in colorscheme "%(scheme)s"') % {
                 "colors": ", ".join(['"%s:%s"' % (c.name, c.value) for c in created_colors]),
                 "scheme": colorscheme.name,

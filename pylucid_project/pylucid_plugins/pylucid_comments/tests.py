@@ -130,7 +130,7 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsPageMetaTestCase):
         comments_data = signing.loads(signed_comments_data)
         self.failUnlessEqual(
             comments_data,
-            {u'url': u'', u'name': u'John Doe', u'email': u'john.doe@example.tld'}
+            {'url': '', 'name': 'John Doe', 'email': 'john.doe@example.tld'}
         )
 
         # Check if anonymous data stored in cookie would be used:
@@ -242,7 +242,7 @@ class PyLucidCommentsPageMetaTest(PyLucidCommentsPageMetaTestCase):
         tested_limit_reached = False
         tested_banned = False
 
-        for no in xrange(1, ban_limit + 2):
+        for no in range(1, ban_limit + 2):
             # submit a valid comments form
             data = self.getValidData(self.pagemeta, comment="test_DOS_attack() comment no %i" % no)
             response = self.client.post(url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')

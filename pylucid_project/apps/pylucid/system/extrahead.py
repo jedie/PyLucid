@@ -87,5 +87,5 @@ class ExtraHead(list):
 
             filepath = "..." + filepath.split(FILEPATH_SPLIT,1)[1]
             return "%s line %s" % (filepath, lineno)
-        except Exception, e:
+        except Exception as e:
             return "(inspect Error: %s)" % e

@@ -107,7 +107,7 @@ def makeUniqueSlug(item_name, existing_slugs=[]):
 
     # make double slug unique (add a new free sequential number)
     if item_name.lower() in existing_slugs2:
-        for i in xrange(1, 1000):
+        for i in range(1, 1000):
             testname = "%s%i" % (item_name, i)
             if testname.lower() not in existing_slugs2:
                 item_name = testname
@@ -140,4 +140,4 @@ if __name__ == "__main__":
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

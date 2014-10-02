@@ -452,7 +452,7 @@ class BlogPluginTagsTest(BlogPluginAnonymousTestCase):
     def test_too_mush_tags_filters_and_ban(self):
         ban_count = int(self.system_preferences["ban_count"])
 
-        for i in xrange(ban_count):
+        for i in range(ban_count):
             # With four tags are two to murch -> raise SuspiciousOperation and log this
             response = self._request_with_too_much_tags()
             self.failUnlessEqual(response.status_code, 404)

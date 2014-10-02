@@ -10,7 +10,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
-print "Using %s, ok." % __file__
+print("Using %s, ok." % __file__)
 
 SECRET_KEY = "i'm not secret and only used for management commands!"
 

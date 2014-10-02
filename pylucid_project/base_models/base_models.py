@@ -99,7 +99,7 @@ class BaseModelManager(models.Manager):
             # Fallback and used the first found item
             try:
                 item = queryset[0]
-            except IndexError, err:
+            except IndexError as err:
                 raise self.model.DoesNotExist(err)
 
         if show_lang_errors:

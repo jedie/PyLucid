@@ -65,30 +65,30 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
         else:
             module_name = tests.__class__.__module__
             file_name = module_name.split(".")[-1]
-            print "\t%s.%s.%s" % (file_name, tests.__class__.__name__, tests._testMethodName)
+            print("\t%s.%s.%s" % (file_name, tests.__class__.__name__, tests._testMethodName))
 
     def print_verbose_info(self, tests, test_name):
         if self.verbosity:
-            print "Add %s tests from %r" % (tests.countTestCases(), test_name)
+            print("Add %s tests from %r" % (tests.countTestCases(), test_name))
         if self.verbosity >= 2:
             self.print_test_names(tests)
 
     def _setup_unittest_plugin(self):
         if os.path.exists(UNITTEST_PLUGIN_DST_PATH):
-            print "unitest plugin already exist in: %r" % UNITTEST_PLUGIN_DST_PATH
+            print("unitest plugin already exist in: %r" % UNITTEST_PLUGIN_DST_PATH)
         else:
-            print "insert unittest plugin via symlink:"
-            print "%s -> %s" % (UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
+            print("insert unittest plugin via symlink:")
+            print("%s -> %s" % (UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH))
             os.symlink(UNITTEST_PLUGIN_SRC_PATH, UNITTEST_PLUGIN_DST_PATH)
 
         template_dir = os.path.join(UNITTEST_PLUGIN_DST_PATH, "templates")
         if not template_dir in settings.TEMPLATE_DIRS:
-            print "unittest_plugin added to settings.TEMPLATE_DIRS"
+            print("unittest_plugin added to settings.TEMPLATE_DIRS")
             settings.TEMPLATE_DIRS += (template_dir,)
 
         plugin_name = "pylucid_project.pylucid_plugins.unittest_plugin"
         if not plugin_name in settings.INSTALLED_APPS:
-            print "unittest_plugin added to settings.INSTALLED_APPS"
+            print("unittest_plugin added to settings.INSTALLED_APPS")
             settings.INSTALLED_APPS += (plugin_name,)
 
         if not "unittest_plugin" in PYLUCID_PLUGINS:
@@ -97,8 +97,8 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
                 pkg_path, section="pylucid_project",
                 pkg_dir="pylucid_plugins", plugin_name="unittest_plugin"
             )
-            print "unittest_plugin added to PYLUCID_PLUGINS"
-            print PYLUCID_PLUGINS.keys()
+            print("unittest_plugin added to PYLUCID_PLUGINS")
+            print(list(PYLUCID_PLUGINS.keys()))
 
     def build_suite(self, test_labels, extra_tests=None, **kwargs):
         """
@@ -119,8 +119,8 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
             # add only test labels
             for test_label in test_labels:
                 if "pylucid" not in test_label:
-                    print "Skip test label %r: it's not a pylucid part!" % test_label
-                    print " Use default settings.TEST_RUNNER to run this test!"
+                    print("Skip test label %r: it's not a pylucid part!" % test_label)
+                    print(" Use default settings.TEST_RUNNER to run this test!")
                     continue
 
                 if os.path.isfile(test_label):
@@ -129,21 +129,21 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
                     test_dir_splitted = raw_test_label.rsplit(os.sep, 3)
                     test_label = ".".join(test_dir_splitted[1:4])
                     if self.verbosity:
-                        print "cut __file__ path to %r" % test_label
+                        print("cut __file__ path to %r" % test_label)
 
                 try:
                     tests = unittest.defaultTestLoader.loadTestsFromName(test_label)
-                except Exception, err:
+                except Exception as err:
                     etype, evalue, etb = sys.exc_info()
                     evalue = etype("Can't get test label %r: %s" % (test_label, evalue))
-                    raise etype, evalue, etb
+                    raise etype(evalue).with_traceback(etb)
 
                 self.print_verbose_info(tests, test_label)
                 test_suite.addTest(tests)
         else:
             # Add all pylucid related apps
             if self.verbosity >= 2:
-                print "INSTALLED_APPS:"
+                print("INSTALLED_APPS:")
                 pprint.pprint(settings.INSTALLED_APPS)
             for app_name in settings.INSTALLED_APPS:
                 if "pylucid" not in app_name:
@@ -154,14 +154,14 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
 
                 try:
                     tests = unittest.defaultTestLoader.loadTestsFromName(test_name)
-                except AttributeError, err:
+                except AttributeError as err:
                     if str(err) != "'module' object has no attribute 'tests'":
                         # Other error than "no tests available"
                         raise
                     if self.verbosity >= 2:
-                        print "Skip %r, ok. (%s)" % (test_name, err)
-                except Exception, err:
-                    print "*** Error in %r: %s" % (test_name, err)
+                        print("Skip %r, ok. (%s)" % (test_name, err))
+                except Exception as err:
+                    print("*** Error in %r: %s" % (test_name, err))
                 else:
                     self.print_verbose_info(tests, test_name)
                     test_suite.addTest(tests)
@@ -173,7 +173,7 @@ class PyLucidTestRunner(DjangoTestSuiteRunner):
         super(PyLucidTestRunner, self).setup_test_environment(*args, **kwargs)
 
     def teardown_test_environment(self, *args, **kwargs):
-        print "remove unittest plugin symlink"
+        print("remove unittest plugin symlink")
         os.remove(UNITTEST_PLUGIN_DST_PATH)
         super(PyLucidTestRunner, self).teardown_test_environment(*args, **kwargs)
 

@@ -2,9 +2,9 @@
 # coding: utf-8
 
 
-import HTMLParser
+import html.parser
 
-class HTMLscrapper(HTMLParser.HTMLParser):
+class HTMLscrapper(html.parser.HTMLParser):
     """
     Simple html scrapping.
     
@@ -25,7 +25,7 @@ class HTMLscrapper(HTMLParser.HTMLParser):
             return
 
         attr_dict = dict(attrs)
-        for attr, value in attr_dict.iteritems():
+        for attr, value in attr_dict.items():
             if attr not in self.attrs:
                 continue
 
@@ -42,4 +42,4 @@ if __name__ == "__main__":
     doctest.testmod(
 #        verbose=True
     )
-    print "DocTest end."
+    print("DocTest end.")

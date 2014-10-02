@@ -57,4 +57,4 @@ BAN_RELEASE_TIME = 15
 
 # internal placeholder: The PyLucid TOC Plugin insert it and the HeadlineAnchorMiddleware
 # replaced it with the Table of contents html code.
-TOC_PLACEHOLDER = u"<!-- lucidTag TOC -->"
+TOC_PLACEHOLDER = "<!-- lucidTag TOC -->"

@@ -38,7 +38,7 @@ class BaseAdmin(admin.ModelAdmin):
                     # FIXME: We should check if the obj is on the current site!
                     # See: https://github.com/jedie/PyLucid/issues/60
                     url = obj.get_absolute_url()
-                except Exception, err:
+                except Exception as err:
                     if settings.DEBUG or request.user.is_staff:
                         messages.error(request, "Can't get_absolute_url() from object %r: %s" % (obj, err))
 

@@ -1,7 +1,7 @@
 #coding:utf-8
 
-import urls
-import views
+from . import urls
+from . import views
 
 # For building urls in unittest
 # PluginPage created in pylucid_project.tests.test_tools.pylucid_test_data

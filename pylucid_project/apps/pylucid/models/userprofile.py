@@ -68,7 +68,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
 
     def __unicode__(self):
         sites = self.sites.values_list('name', flat=True)
-        return u"UserProfile for user '%s' (on sites: %r)" % (self.user.username, sites)
+        return "UserProfile for user '%s' (on sites: %r)" % (self.user.username, sites)
 
     class Meta:
         app_label = 'pylucid'

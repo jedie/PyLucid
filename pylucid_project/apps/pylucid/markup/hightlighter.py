@@ -28,12 +28,12 @@ try:
     from pygments.formatters import HtmlFormatter
     from pygments import highlight
     PYGMENTS_AVAILABLE = True
-except ImportError, err:
+except ImportError as err:
     PYGMENTS_AVAILABLE = False
     import_error = err
 
 HTML = (
-    u'<fieldset class="pygments_code">\n'
+    '<fieldset class="pygments_code">\n'
     '<legend class="pygments_code">%(lexer_name)s</legend>'
     '%(code_html)s'
     '</fieldset>\n'
@@ -50,7 +50,7 @@ def make_html(sourcecode, source_type, django_escape=False):
     return mark_safe(code)
 
 def no_hightlight(code):
-    html = u'\n<pre><code>%s</code></pre>\n' % escape(code)
+    html = '\n<pre><code>%s</code></pre>\n' % escape(code)
     return html
 
 def get_formatter():
@@ -69,17 +69,17 @@ def get_lexer(source_type, sourcecode):
             return lexers.guess_lexer(sourcecode)
         else:
             return lexers.get_lexer_by_name(source_type)
-    except lexers.ClassNotFound, err:
+    except lexers.ClassNotFound as err:
         errors.append(err)
 
     try: # try if given source_type is a filename
         return lexers.get_lexer_for_filename(source_type, sourcecode)
-    except lexers.ClassNotFound, err:
+    except lexers.ClassNotFound as err:
         errors.append(err)
 
     try: # try if given source_type is a mimetype
         return lexers.get_lexer_for_mimetype(source_type)
-    except lexers.ClassNotFound, err:
+    except lexers.ClassNotFound as err:
         errors.append(err)
 
     raise lexers.ClassNotFound(",\n ".join([str(err) for err in errors]))
@@ -98,9 +98,9 @@ def pygmentize(sourcecode, source_type):
 
     try:
         lexer = get_lexer(source_type, sourcecode)
-    except lexers.ClassNotFound, err:
+    except lexers.ClassNotFound as err:
         info = _("unknown type")
-        lexer_name = u'<small title="%s">%s</small>' % (err, info)
+        lexer_name = '<small title="%s">%s</small>' % (err, info)
         html = no_hightlight(sourcecode)
         return html, lexer_name
 
@@ -111,7 +111,7 @@ def pygmentize(sourcecode, source_type):
     out_object = SimpleStringIO()
     try:
         highlight(sourcecode, lexer, formatter, out_object)
-    except Exception, err:
+    except Exception as err:
         if settings.DEBUG:
             raise
         html = no_hightlight(sourcecode)

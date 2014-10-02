@@ -82,9 +82,9 @@ def comment_will_be_posted_handler(sender, **kwargs):
     ban_limit = preferences["ban_limit"]
     try:
         LogEntry.objects.request_limit(request, min_pause, ban_limit, app_label=APP_LABEL, action="post")
-    except LogEntry.RequestTooFast, err:
+    except LogEntry.RequestTooFast as err:
         # min_pause is not observed
-        error_msg = unicode(err) # ugettext_lazy
+        error_msg = str(err) # ugettext_lazy
         messages.error(request, error_msg)
 
 
@@ -130,7 +130,7 @@ def comment_was_posted_handler(sender, **kwargs):
 
         try:
             mail_admins(subject, emailtext, fail_silently=False)
-        except Exception, err:
+        except Exception as err:
             LogEntry.objects.log_action(
                 app_label=APP_LABEL, action="mail error", message="Admin mail, can't send: %s" % err,
             )
@@ -160,13 +160,13 @@ def _get_form(request):
     try:
         ctype = request.GET["content_type"].split(".", 1)
         model = models.get_model(*ctype)
-    except Exception, err:
+    except Exception as err:
         return bad_request(APP_LABEL, "error", "Wrong content type: %s" % err)
 
     try:
         object_pk = request.GET["object_pk"]
         target = model._default_manager.using(None).get(pk=object_pk)
-    except Exception, err:
+    except Exception as err:
         return bad_request(APP_LABEL, "error", "Wrong object_pk: %s" % err)
 
     data = {}
@@ -175,7 +175,7 @@ def _get_form(request):
         c = ClientCookieStorage(cookie_key=COOKIE_KEY)
         try:
             data = c.get_data(request)
-        except ClientCookieStorageError, err:
+        except ClientCookieStorageError as err:
             LogEntry.objects.log_action(
                 app_label=APP_LABEL, action="wrong cookie data", message="%s" % err,
             )

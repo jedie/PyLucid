@@ -192,7 +192,7 @@ def gallery(request, rest_url=""):
     pagetree = request.PYLUCID.pagetree
     try:
         config = GalleryModel.objects.get(pagetree=pagetree)
-    except GalleryModel.DoesNotExist, err:
+    except GalleryModel.DoesNotExist as err:
         if request.user.has_perm("gallery.change_gallerymodel"):
             messages.info(request,
                 _("Gallery entry for page: %s doesn't exist, please create it.") % pagetree.get_absolute_url()
@@ -212,7 +212,7 @@ def gallery(request, rest_url=""):
 
     try:
         gallery = Gallery(config, request, absolute_path, base_url, rest_url)
-    except FilemanagerError, err:
+    except FilemanagerError as err:
         has_change_perm = request.user.has_perm("gallery.change_gallerymodel")
         if settings.DEBUG or has_change_perm:
             raise
@@ -248,7 +248,7 @@ def gallery(request, rest_url=""):
 
 if __name__ == "__main__":
     import doctest
-    print doctest.testmod(
+    print(doctest.testmod(
 #        verbose=True
         verbose=False
-    )
+    ))

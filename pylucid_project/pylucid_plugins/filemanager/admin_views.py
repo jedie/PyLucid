@@ -159,7 +159,7 @@ def filemanager(request, no, rest_url=""):
 
 if __name__ == "__main__":
     import doctest
-    print doctest.testmod(
+    print(doctest.testmod(
 #        verbose=True
         verbose=False
-    )
+    ))

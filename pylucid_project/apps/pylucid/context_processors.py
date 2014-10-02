@@ -48,7 +48,7 @@ def add_plugin_info(view_function):
             if not hasattr(request, "css_id_list"):
                 request.css_id_list = []
 
-            css_plugin_id = plugin_name + u"_" + method_name
+            css_plugin_id = plugin_name + "_" + method_name
             existing_slugs = request.css_id_list
             css_plugin_id = slug.makeUniqueSlug(css_plugin_id, existing_slugs)
 
@@ -95,7 +95,7 @@ def pylucid(request):
                 design_id = request.session["design_switch_pk"]
                 try:
                     pagetree.design = Design.on_site.get(id=design_id)
-                except Design.DoesNotExist, err:
+                except Design.DoesNotExist as err:
                     messages.error(request, "Can't switch to design with ID %i: %s" % (design_id, err))
                     del(request.session["design_switch_pk"])
 

@@ -25,7 +25,7 @@ def redirect(request, rest_url=""):
 
     try:
         redirect_info = RedirectModel.objects.get(pagetree=pagetree)#, language=lang_entry)
-    except RedirectModel.DoesNotExist, err:
+    except RedirectModel.DoesNotExist as err:
         # TODO: Don't redirect to admin panel -> Display a own create view!
         messages.info(request,
              _("Redirect entry for page: %s doesn't exist, please create.") % pagetree.get_absolute_url()

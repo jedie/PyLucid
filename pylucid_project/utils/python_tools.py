@@ -53,7 +53,7 @@ def escape_django_tags(txt):
     >>> escape_django_tags("{{ test2 }} {% test3 %}")
     '&#x7B;&#x7B; test2 &#x7D;&#x7D; &#x7B;% test3 %&#x7D;'
     """
-    for source, dest in ENTITIES.iteritems():
+    for source, dest in ENTITIES.items():
         txt = txt.replace(source, dest)
     return txt
 
@@ -81,7 +81,7 @@ def make_kwargs(raw_content, encoding="UTF-8"):
     >>> make_kwargs(u'unicode=True')
     {'unicode': True}
     """
-    if isinstance(raw_content, unicode):
+    if isinstance(raw_content, str):
         # shlex.split doesn't work with unicode?!?
         raw_content = raw_content.encode(encoding)
 
@@ -184,4 +184,4 @@ if __name__ == "__main__":
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

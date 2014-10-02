@@ -59,17 +59,17 @@ def _do_find_and_replace(request, context, find_string, replace_string, content_
             "model_name": model_name,
     })
 
-    if model_name == u"PageContent":
+    if model_name == "PageContent":
         queryset = queryset.filter(pagemeta__language__in=search_languages)
         queryset = queryset.filter(pagemeta__pagetree__site__in=sites)
-    elif model_name == u"BlogEntryContent":
+    elif model_name == "BlogEntryContent":
         queryset = queryset.filter(entry__sites__in=sites)
-    elif model_name == u"EditableHtmlHeadFile":
+    elif model_name == "EditableHtmlHeadFile":
         context["no_link"] = True
     else:
         queryset = queryset.filter(sites__in=sites)
 
-    if model_name not in (u"PageContent", u"EditableHtmlHeadFile", u"DBTemplate"):
+    if model_name not in ("PageContent", "EditableHtmlHeadFile", "DBTemplate"):
         queryset = queryset.filter(language__in=search_languages)
 
     filtered_count = queryset.count()

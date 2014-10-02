@@ -92,7 +92,7 @@ def http_get_view(request):
 
     try:
         validate_language_code(raw_lang_code)
-    except ValidationError, err:
+    except ValidationError as err:
         if debug:
             messages.error(request, "Wrong language code in url: %s" % err)
         return
@@ -106,7 +106,7 @@ def http_get_view(request):
         existing_languages = Language.objects.all_accessible(user)
         try:
             lang_entry = existing_languages.get(code=raw_lang_code)
-        except Language.DoesNotExist, err:
+        except Language.DoesNotExist as err:
             if debug:
                 messages.error(request, "Wrong lang code in get parameter: %s" % err)
             return
@@ -122,7 +122,7 @@ def http_get_view(request):
     pagetree = request.PYLUCID.pagetree
     try:
         pagemeta = PageMeta.objects.get(pagetree=pagetree, language=lang_entry)
-    except PageMeta.DoesNotExist, err:
+    except PageMeta.DoesNotExist as err:
         if debug:
             messages.info(request, "PageMeta doesn't exist in lang %r. So no redirect needed." % lang_entry)
         return

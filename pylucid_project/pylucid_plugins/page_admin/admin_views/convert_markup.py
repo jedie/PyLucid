@@ -40,12 +40,12 @@ def convert_markup(request, pagecontent_id=None):
 
     try:
         pagecontent_id = int(pagecontent_id)
-    except Exception, err:
+    except Exception as err:
         return _error(pagecontent_id, err)
 
     try:
         pagecontent = PageContent.objects.get(id=pagecontent_id)
-    except PageContent.DoesNotExist, err:
+    except PageContent.DoesNotExist as err:
         return _error(pagecontent_id, err)
 
     absolute_url = pagecontent.get_absolute_url()
@@ -73,7 +73,7 @@ def convert_markup(request, pagecontent_id=None):
                     dest_markup_no=dest_markup_no,
                     request=request
                 )
-            except Exception, err:
+            except Exception as err:
                 messages.error(request, "Convert error: %s" % err)
             else:
                 if "preview" not in request.POST:

@@ -64,7 +64,7 @@ def switch(request):
         design_id = request.session["design_switch_pk"]
         try:
             context["design_switch"] = Design.on_site.get(id=design_id)
-        except Design.DoesNotExist, err:
+        except Design.DoesNotExist as err:
             messages.error(request, _(
                     "Error: Design with ID %(id)r doesn't exist: %(err)s"
                 ) % {"id":design_id, "err": err}

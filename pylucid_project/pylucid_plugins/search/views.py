@@ -189,7 +189,7 @@ class Search(object):
         plugin_count = 0
         too_much_hits = 0
         use_plugin = 0
-        for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
+        for plugin_name, plugin_instance in PYLUCID_PLUGINS.items():
             try:
                 SearchClass = plugin_instance.get_plugin_object(filename, class_name)
 #                plugin_instance.call_plugin_view(self.request, filename, view_name, method_kwargs)
@@ -204,7 +204,7 @@ class Search(object):
 
             try:
                 search_instance = SearchClass()
-            except PluginNotOnSite, err:
+            except PluginNotOnSite as err:
                 # Plugin is not used on this SITE
                 if self.request.debug or self.request.user.is_staff:
                     messages.debug(self.request, "Skip %s: %s" % (plugin_name, err))

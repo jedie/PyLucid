@@ -54,7 +54,7 @@ def filter_by_language(values_list, prefered_languages_pk):
 
     # Create a list of content id's which the best language match
     used_ids = []
-    for existing_entries in entry_dict.values():
+    for existing_entries in list(entry_dict.values()):
         temp_content_dict = dict(existing_entries)
         for prefered in prefered_languages_pk:
             if prefered in temp_content_dict:
@@ -66,5 +66,5 @@ def filter_by_language(values_list, prefered_languages_pk):
 
 if __name__ == "__main__":
     import doctest
-    print doctest.testmod()
-    print "DocTest end."
+    print(doctest.testmod())
+    print("DocTest end.")

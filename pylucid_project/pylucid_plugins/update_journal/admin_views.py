@@ -35,7 +35,7 @@ def install(request):
 
 
 @check_permissions(superuser_only=False,
-    permissions=(u'update_journal.delete_updatejournal', u'update_journal.delete_pageupdatelistobjects')
+    permissions=('update_journal.delete_updatejournal', 'update_journal.delete_pageupdatelistobjects')
 )
 @render_to("update_journal/cleanup.html")
 def cleanup(request):
@@ -60,7 +60,7 @@ def cleanup(request):
 
                 try:
                     resolve(url)
-                except Exception, err:
+                except Exception as err:
                     entry.delete() #
                     bad_links_count += 1
                 else:

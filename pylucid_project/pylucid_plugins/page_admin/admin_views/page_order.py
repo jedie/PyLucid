@@ -21,7 +21,7 @@ def page_order(request, pagetree_id=None):
     """
     try:
         pagetree = PageTree.on_site.get(id=pagetree_id)
-    except PageTree.DoesNotExist, err:
+    except PageTree.DoesNotExist as err:
         raise PageTree.DoesNotExist(
             "PageTree with ID %r doesn't exist. (Original error: %s)" % (pagetree_id, err)
         )
@@ -47,7 +47,7 @@ def page_order(request, pagetree_id=None):
 
     # Change field label ("position") to PageTree.slug
     for form in formset.forms:
-        for field_name, field in form.fields.iteritems():
+        for field_name, field in form.fields.items():
             field.label = form.instance.slug
             field.help_text = form.instance.get_absolute_url()
 

@@ -27,7 +27,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timesince import timesince
 
-from log import LogEntry
+from .log import LogEntry
 from django.db.utils import IntegrityError
 
 
@@ -55,7 +55,7 @@ class BanEntryManager(models.Manager):
 
             try:
                 how_old_txt = timesince(entry.createtime, now=datetime.datetime.now())
-            except Exception, err:
+            except Exception as err:
                 # FIXME: e.g.:
                 # TypeError: can't subtract offset-naive and offset-aware datetimes
                 LogEntry.objects.log_action(
@@ -79,7 +79,7 @@ class BanEntryManager(models.Manager):
         remote_addr = request.META["REMOTE_ADDR"]
         try:
             self.model(ip_address=remote_addr).save()
-        except IntegrityError, err:
+        except IntegrityError as err:
             # If a client does many request shortly and get banned we get e.g.:
             # IntegrityError: (1062, "Duplicate entry '123.123.123.123' for key 'PRIMARY'")
             LogEntry.objects.log_action(
@@ -116,7 +116,7 @@ class BanEntry(models.Model):
         return super(BanEntry, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"BanEntry %s %s" % (self.ip_address, self.createtime)
+        return "BanEntry %s %s" % (self.ip_address, self.createtime)
 
     class Meta:
         app_label = 'pylucid'

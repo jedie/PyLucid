@@ -61,7 +61,7 @@ class BaseUnittest(BaseTestCase, TestCase):
         pygments_css.save()
 
         # Fill PyLucid own UserProfile with SHA password data
-        for usertype, data in self.TEST_USERS.iteritems():
+        for usertype, data in self.TEST_USERS.items():
             user = self._get_user(usertype)
             user.set_password(data["password"])
 
@@ -171,7 +171,7 @@ class BaseUnittest(BaseTestCase, TestCase):
             userprofile = UserProfile.objects.get(user=user)
 
         if not site in userprofile.sites.all():
-            print "Info: Add user to site %s" % site
+            print("Info: Add user to site %s" % site)
             userprofile.sites.add(site)
 
         return user
@@ -265,7 +265,7 @@ class MarkupTestHelper(object):
         prepare the multiline, indentation text.
         from https://github.com/jedie/python-creole/blob/master/tests/utils/utils.py
         """
-        txt = unicode(txt)
+        txt = str(txt)
         txt = txt.splitlines()
         assert txt[0] == "", "First must be empty!"
         txt = txt[1:] # Skip the first line

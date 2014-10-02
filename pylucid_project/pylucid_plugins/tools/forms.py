@@ -6,7 +6,7 @@ import posixpath
 if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
     virtualenv_file = "../../../../../bin/activate_this.py"
-    execfile(virtualenv_file, dict(__file__=virtualenv_file))
+    exec(compile(open(virtualenv_file).read(), virtualenv_file, 'exec'), dict(__file__=virtualenv_file))
 
 from django import forms
 from django.conf import settings
@@ -16,7 +16,7 @@ from pygments.lexers._mapping import LEXERS
 
 
 SOURCE_CHOICES = []
-for lexer in LEXERS.itervalues():
+for lexer in LEXERS.values():
     name = lexer[1]
     aliases = lexer[2]
     try:
@@ -94,7 +94,7 @@ class TemplateDir(object):
         self.short_path = self._build_short_path()
 
         if not os.path.isdir(self.fs_path):
-            print "Error: %r doesn't exist!!!" % self.fs_path
+            print("Error: %r doesn't exist!!!" % self.fs_path)
 
         self.templates = []
         self._get_all_files(self.fs_path)

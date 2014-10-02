@@ -72,7 +72,7 @@ class UserVotes(models.Model):
     poll = models.ForeignKey(Poll)
     user = models.ForeignKey(User)
     def __unicode__(self):
-        return u"%s - %s" % (self.user.username, self.poll.question)
+        return "%s - %s" % (self.user.username, self.poll.question)
 
 
 class IPVotes(models.Model):
@@ -80,4 +80,4 @@ class IPVotes(models.Model):
     ip = models.IPAddressField()
     count = models.IntegerField(default=1)
     def __unicode__(self):
-        return u"%s - %s" % (self.ip, self.poll.question)
+        return "%s - %s" % (self.ip, self.poll.question)

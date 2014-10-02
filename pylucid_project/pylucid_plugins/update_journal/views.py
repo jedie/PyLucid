@@ -54,7 +54,7 @@ def _get_queryset(request, count):
 def lucidTag(request, count=10):
     try:
         count = int(count)
-    except Exception, e:
+    except Exception as e:
         if request.user.is_staff:
             messages.error(request, "page_update_list error: count must be a integer (%s)" % e)
         count = 10
@@ -63,7 +63,7 @@ def lucidTag(request, count=10):
 
     try:
         select_feed_url = PluginPage.objects.reverse("update_journal", "UpdateJournal-select_feed")
-    except NoReverseMatch, err:
+    except NoReverseMatch as err:
         select_feed_url = None
         if not settings.DEBUG and request.user.is_staff:
             # PluginPage.objects.reverse creates a page_msg only in DEBUG mode.

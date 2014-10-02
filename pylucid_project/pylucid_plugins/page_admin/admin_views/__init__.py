@@ -47,7 +47,7 @@ def _get_pagetree(request):
 
     try:
         pagetree_id = int(raw_pagetree_id)
-    except Exception, err:
+    except Exception as err:
         if settings.DEBUG:
             err_msg += " (ID: %r, original error was: %r)" % (raw_pagetree_id, err)
         messages.error(request, err_msg)
@@ -55,7 +55,7 @@ def _get_pagetree(request):
 
     try:
         parent_pagetree = PageTree.on_site.get(id=pagetree_id)
-    except PageTree.DoesNotExist, err:
+    except PageTree.DoesNotExist as err:
         if settings.DEBUG:
             err_msg += " (ID: %r, original error was: %r)" % (pagetree_id, err)
         messages.error(request, err_msg)

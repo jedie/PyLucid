@@ -25,7 +25,7 @@ def list2string(l):
     assert isinstance(l, list)
     return ", ".join([i.strip() for i in l if i])
 def string2list(s):
-    assert isinstance(s, basestring)
+    assert isinstance(s, str)
     return [i.strip() for i in s.split(",") if i]
 
 
@@ -45,13 +45,12 @@ class CommaSeparatedFormField(forms.CharField):
         value = super(CommaSeparatedFormField, self).clean(value)
         try:
             return string2list(value)
-        except Exception, err:
+        except Exception as err:
             raise forms.ValidationError("Can't deserialize: %s" % err)
 
 
-class CommaSeparatedCharField(models.CharField):
+class CommaSeparatedCharField(models.CharField, metaclass=models.SubfieldBase):
     """ comma separated - model field """
-    __metaclass__ = models.SubfieldBase
 
     def to_python(self, value):
         if isinstance(value, list):

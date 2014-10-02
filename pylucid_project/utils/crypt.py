@@ -24,7 +24,7 @@ import sys
 import time
 
 if __name__ == "__main__":
-    print "Local DocTest..."
+    print("Local DocTest...")
     settings = type('Mock', (object,), {})()
     settings.SECRET_KEY = "DocTest"
     smart_str = str
@@ -79,7 +79,7 @@ def validate_sha_value(sha_value):
     >>> validate_sha_value("790f2ebcb902c966fb0e232515ec1319dc9118af")
     True
     """
-    if not isinstance(sha_value, basestring):
+    if not isinstance(sha_value, str):
         return False
 
     if SHA1_RE.match(sha_value):
@@ -114,7 +114,7 @@ def get_new_seed(can_debug=True):
         seed = "DEBUG_1234567890"
     else:
         raw_seed = "%s%s%s%s" % (
-            random.randint(0, sys.maxint - 1), os.getpid(), time.time(),
+            random.randint(0, sys.maxsize - 1), os.getpid(), time.time(),
             settings.SECRET_KEY
         )
         seed = hashlib.sha1(raw_seed).hexdigest()
@@ -257,8 +257,8 @@ def crypt(txt, key):
     if len(txt) != len(key):
         raise CryptLengthError("XOR cipher error: %r and %r must have the same length!" % (txt, key))
 
-    crypted = [unichr(ord(t) ^ ord(k)) for t, k in zip(txt, key)]
-    return u"".join(crypted)
+    crypted = [chr(ord(t) ^ ord(k)) for t, k in zip(txt, key)]
+    return "".join(crypted)
 
 
 def encrypt(txt, key, use_base64=True, can_debug=True):
@@ -274,14 +274,14 @@ def encrypt(txt, key, use_base64=True, can_debug=True):
     >>> encrypt(u"1234", u"ABCD", use_base64=False, can_debug=False)
     u'sha1$DEBUG_123456$91ca222581d9b8f61934d7bf25fb3625141cda91pppp'
     """
-    if not (isinstance(txt, unicode) and isinstance(key, unicode)):
+    if not (isinstance(txt, str) and isinstance(key, str)):
         raise UnicodeError("Only unicode allowed!")
 
     if can_debug and DEBUG:
         return "crypt %s with %s" % (txt, key)
 
     salt_hash = make_salt_hash(repr(txt))
-    salt_hash = unicode(salt_hash)
+    salt_hash = str(salt_hash)
 
     crypted = crypt(txt, key)
     if use_base64 == True:
@@ -310,8 +310,8 @@ def decrypt(crypted, key, use_base64=True, can_debug=True):
     >>> decrypt(crypted, u"ABCD", use_base64=False, can_debug=False)
     u'1234'
     """
-    crypted = unicode(crypted)
-    key = unicode(key)
+    crypted = str(crypted)
+    key = str(key)
 
     if can_debug and DEBUG:
         txt, _, key2 = crypted.split(" ", 3)[1:]
@@ -322,7 +322,7 @@ def decrypt(crypted, key, use_base64=True, can_debug=True):
     crypted1 = crypted[SALT_HASH_LEN:]
     if use_base64 == True:
         crypted1 = base64.b64decode(crypted1)
-        crypted1 = unicode(crypted1)
+        crypted1 = str(crypted1)
 
     try:
         decrypted = crypt(crypted1, key)
@@ -332,7 +332,7 @@ def decrypt(crypted, key, use_base64=True, can_debug=True):
         crypted2 = crypted[OLD_SALT_HASH_LEN:]
         if use_base64 == True:
             crypted2 = base64.b64decode(crypted2)
-            crypted2 = unicode(crypted2)
+            crypted2 = str(crypted2)
         decrypted = crypt(crypted2, key)
 
     # raised a SaltHashError() if the checksum is wrong:
@@ -363,8 +363,8 @@ def django_to_sha_checksum(django_salt_hash):
     sha_a = hash_value[:(HASH_LEN / 2)]
     sha_b = hash_value[(HASH_LEN / 2):]
 
-    sha_a = unicode(sha_a)
-    sha_b = unicode(sha_b)
+    sha_a = str(sha_a)
+    sha_b = str(sha_b)
     sha_checksum = encrypt(txt=sha_a, key=sha_b)
 
     return salt, sha_checksum
@@ -391,8 +391,8 @@ def make_sha_checksum(hash_value):
     sha_a = hash_value[:(HASH_LEN / 2)]
     sha_b = hash_value[(HASH_LEN / 2):]
 
-    sha_a = unicode(sha_a)
-    sha_b = unicode(sha_b)
+    sha_a = str(sha_a)
+    sha_b = str(sha_b)
     sha_checksum = encrypt(txt=sha_a, key=sha_b)
     return sha_checksum
 
@@ -453,6 +453,6 @@ if __name__ == "__main__":
     DEBUG = True
 
     import doctest
-    print doctest.testmod(
+    print(doctest.testmod(
         verbose=False
-    )
+    ))

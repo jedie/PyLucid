@@ -54,11 +54,11 @@ import pip
 
 try:
     import pylucid_project
-except ImportError, err:
-    print "Import error:", err
-    print
-    print "Not running in activated virtualenv?"
-    print
+except ImportError as err:
+    print("Import error:", err)
+    print()
+    print("Not running in activated virtualenv?")
+    print()
     sys.exit(-1)
 
 PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
@@ -66,7 +66,7 @@ PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 def get_req_path(filename):
     filepath = os.path.join(PYLUCID_BASE_PATH, "../requirements", filename)
     if not os.path.exists(filepath):
-        print "ERROR: file %r doesn't exists!" % filepath
+        print("ERROR: file %r doesn't exists!" % filepath)
         sys.exit(-1)
     return filepath
 
@@ -143,18 +143,18 @@ c = ColorOut()
 
 def check_activation():
     print("")
-    print("sys.real_prefix: %s" % c.colorize(sys.real_prefix, foreground="magenta"))
-    print("sys.prefix: %s" % c.colorize(sys.prefix, foreground="green", opts=("bold",)))
-    print("use pip from: %s" % c.colorize(os.path.dirname(pip.__file__), foreground="blue", opts=("bold",)))
+    print(("sys.real_prefix: %s" % c.colorize(sys.real_prefix, foreground="magenta")))
+    print(("sys.prefix: %s" % c.colorize(sys.prefix, foreground="green", opts=("bold",))))
+    print(("use pip from: %s" % c.colorize(os.path.dirname(pip.__file__), foreground="blue", opts=("bold",))))
     print("")
 
 
 def check_pip_version():
     try:
         pkg_resources.require("pip >= 1.0.1")
-    except pkg_resources.VersionConflict, err:
-        print(c.colorize("Error: outdated pip version!", foreground="red"))
-        print("Original error: %s" % err)
+    except pkg_resources.VersionConflict as err:
+        print((c.colorize("Error: outdated pip version!", foreground="red")))
+        print(("Original error: %s" % err))
         print("")
         print("You should upgrade pip, e.g.:")
         print("\tpip install --upgrade pip")
@@ -169,9 +169,9 @@ def print_options(options):
         output.append("pip verbose mode is on")
     output.append("log saved in '%s'" % options.logfile)
 
-    print(c.colorize("used options:", opts=("underscore",)))
+    print((c.colorize("used options:", opts=("underscore",))))
     for line in output:
-        print(c.colorize("\t* %s" % line, foreground="magenta"))
+        print((c.colorize("\t* %s" % line, foreground="magenta")))
 
 
 def parse_requirements(filename):
@@ -202,8 +202,8 @@ def call_pip(options, pip_args):
     cmd = [pip_executeable]
     cmd += pip_args
     
-    print("_" * get_terminal_size()[0])
-    print(c.colorize(" ".join(cmd), foreground="blue"))
+    print(("_" * get_terminal_size()[0]))
+    print((c.colorize(" ".join(cmd), foreground="blue")))
     if not options.dryrun:
         subprocess.call(cmd)
 
@@ -230,42 +230,42 @@ def call_pip_install(options, no_dependencies, *args):
 def select_requirement(options, filename):
     requirements = parse_requirements(filename)
 
-    print "\nWhich package should be upgraded?\n"
-    print c.colorize("Important:", foreground="red"), "Check if there are backward incompatible changes:"
-    print "http://www.pylucid.org/en/blog/tags/backward%20incompatible/"
-    print
+    print("\nWhich package should be upgraded?\n")
+    print(c.colorize("Important:", foreground="red"), "Check if there are backward incompatible changes:")
+    print("http://www.pylucid.org/en/blog/tags/backward%20incompatible/")
+    print()
     for no, requirement in enumerate(requirements): # XXX: enumerate(requirements,1) since Python 2.6!
-        print "(%i) %s" % (no+1, requirement)
+        print("(%i) %s" % (no+1, requirement))
 
-    print "(a) upgrade all packages"
+    print("(a) upgrade all packages")
 
     try:
-        input = raw_input("\nPlease select (one entry or comma seperated):")
+        input = input("\nPlease select (one entry or comma seperated):")
     except KeyboardInterrupt:
-        print(c.colorize("Abort, ok.", foreground="blue"))
+        print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
 
     selection = [i.strip() for i in input.split(",") if i.strip()]
     if len(selection) == 0:
-        print(c.colorize("Abort, ok.", foreground="blue"))
+        print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
 
-    print "Your selection:", repr(selection)
+    print("Your selection:", repr(selection))
 
     if "a" in selection:
-        print "Upgrade all packages."
+        print("Upgrade all packages.")
         return requirements
 
     req_dict = dict([(str(no+1), r) for no, r in enumerate(requirements)]) # XXX: enumerate(requirements,1) since Python 2.6!
     selected_req = []
     for item in selection:
-        print "%s\t" % item,
+        print("%s\t" % item, end=' ')
         try:
             req = req_dict[item]
         except KeyError:
-            print "(Invalid, skip.)"
+            print("(Invalid, skip.)")
         else:
-            print req
+            print(req)
             selected_req.append(req)
 
     return selected_req
@@ -329,18 +329,18 @@ def do_version_info(options):
     table_header = " package name".ljust(max_name_len)
     table_header += " installed version".ljust(max_ver_len)
     table_header += "  versions on PyPi".ljust(max_len_others)
-    print c.colorize(table_header, opts=("underscore",))
+    print(c.colorize(table_header, opts=("underscore",)))
     
     for project_name, version in installed_info:
-        print project_name.ljust(max_name_len),
-        print version.ljust(max_ver_len),
+        print(project_name.ljust(max_name_len), end=' ')
+        print(version.ljust(max_ver_len), end=' ')
                
         # http://wiki.python.org/moin/PyPiXmlRpc
         client = xmlrpclib.ServerProxy(INDEX_URL)
         versions = client.package_releases(project_name)
         
         if not versions:
-            print c.colorize("No version found at PyPi!", foreground="yellow")
+            print(c.colorize("No version found at PyPi!", foreground="yellow"))
         else:
             latest = highest_version(versions)
             older_versions = [v for v in versions if latest!=v]
@@ -351,7 +351,7 @@ def do_version_info(options):
             if len(pypi_info)>max_len_others:
                 pypi_info = pypi_info[:max_len_others] + " ..."
             
-            print pypi_info
+            print(pypi_info)
         
 
 
@@ -360,7 +360,7 @@ def main():
     parser = OptionParser()
     parser.add_option("-t", "--env_type", type="string",
         dest="env_type", default=None,
-        help="PyLucid env install type: %s" % ", ".join(CHOICES.keys())
+        help="PyLucid env install type: %s" % ", ".join(list(CHOICES.keys()))
     )
     parser.add_option("--dry-run",
                       action="store_true", dest="dryrun", default=False,
@@ -387,14 +387,14 @@ def main():
         sys.exit()
 
     if not options.env_type:
-        print(c.colorize("\nError: No env type given!\n", foreground="red", opts=("bold",)))
+        print((c.colorize("\nError: No env type given!\n", foreground="red", opts=("bold",))))
         parser.print_help()
         sys.exit(-1)
 
     try:
         filename = CHOICES[options.env_type]
     except KeyError:
-        print(c.colorize("\nError: Wrong env type!\n", foreground="red", opts=("bold",)))
+        print((c.colorize("\nError: Wrong env type!\n", foreground="red", opts=("bold",))))
         parser.print_help()
         sys.exit(-1)
 
@@ -405,28 +405,28 @@ def main():
 
     requirements = select_requirement(options, filename)
     if len(requirements) == 0:
-        print "Nothing to upgrade, abort."
+        print("Nothing to upgrade, abort.")
         sys.exit()
 
     try:
-        input = raw_input("\nStart upgrade (y/n) ?")
+        input = input("\nStart upgrade (y/n) ?")
     except KeyboardInterrupt:
-        print(c.colorize("Abort, ok.", foreground="blue"))
+        print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
     if input.lower() not in ("y", "j"):
-        print(c.colorize("Abort, ok.", foreground="blue"))
+        print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
 
     do_upgrade(options, requirements)
 
-    print("-"*get_terminal_size()[0])
+    print(("-"*get_terminal_size()[0]))
 
     print("")
-    print(c.colorize("PyLucid virtual environment updated.", foreground="blue"))
+    print((c.colorize("PyLucid virtual environment updated.", foreground="blue")))
     if options.dryrun:
         print("dry-run: nothing changes.")
     else:
-        print("Look into %s for more information." % options.logfile)
+        print(("Look into %s for more information." % options.logfile))
     print("")
 
 

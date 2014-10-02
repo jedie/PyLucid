@@ -67,7 +67,7 @@ class PyLucidPlugin(object):
             self.template_dir = None
 
     def __unicode__(self):
-        return u"PyLucid plugin %r (%r)" % (self.name, self.installed_apps_string)
+        return "PyLucid plugin %r (%r)" % (self.name, self.installed_apps_string)
 
     def __repr__(self):
         return "<%s>" % self.__unicode__()
@@ -86,8 +86,8 @@ class PyLucidPlugin(object):
 
         try:
             mod = import_module(mod_pkg)
-        except Exception, err:
-            msg = u"Error importing %r from plugin %r" % (mod_pkg, self.name)
+        except Exception as err:
+            msg = "Error importing %r from plugin %r" % (mod_pkg, self.name)
 
             if str(err).startswith("No module named "):
                 raise self.ObjectNotFound("%s: %s" % (msg, err))
@@ -96,7 +96,7 @@ class PyLucidPlugin(object):
             etype, evalue, etb = sys.exc_info()
 #            msg += " (Syspath: %s)" % (repr(sys.path))
             evalue = etype('%s: %s' % (msg, evalue))
-            raise etype, evalue, etb
+            raise etype(evalue).with_traceback(etb)
 
 #        print "put in _PLUGIN_OBJ_CACHE[%r]" % mod_pkg
         _PLUGIN_OBJ_CACHE[mod_pkg] = mod
@@ -116,7 +116,7 @@ class PyLucidPlugin(object):
 
         try:
             object = getattr(mod, obj_name)
-        except AttributeError, err:
+        except AttributeError as err:
             raise self.ObjectNotFound(err)
 
 #        print "put in _PLUGIN_OBJ_CACHE[%r]" % cache_key
@@ -246,7 +246,7 @@ class PyLucidPlugins(dict):
 
     def _setup(self):
 #        print " *** init PyLucidPlugins():", settings.PYLUCID_PLUGIN_SETUP_INFO.keys()
-        for plugin_name, data in settings.PYLUCID_PLUGIN_SETUP_INFO.iteritems():
+        for plugin_name, data in settings.PYLUCID_PLUGIN_SETUP_INFO.items():
             pkg_path, section, pkg_dir = data
             self[plugin_name] = PyLucidPlugin(pkg_path, section, pkg_dir, plugin_name)
         self.__initialized = True
@@ -259,12 +259,12 @@ class PyLucidPlugins(dict):
         if not self.__initialized:
             self._setup()
         urls = []
-        for plugin_name, plugin_instance in self.iteritems():
+        for plugin_name, plugin_instance in self.items():
             try:
                 admin_urls = plugin_instance.get_plugin_object(
                     mod_name="admin_urls", obj_name="urlpatterns"
                 )
-            except plugin_instance.ObjectNotFound, err:
+            except plugin_instance.ObjectNotFound as err:
                 continue
 
             urls += patterns('',
@@ -278,7 +278,7 @@ class PyLucidPlugins(dict):
         if not self.__initialized:
             self._setup()
         method_name = settings.PYLUCID.HTTP_GET_VIEW_NAME
-        for plugin_name in request.GET.keys():
+        for plugin_name in list(request.GET.keys()):
             if plugin_name not in self:
                 # get parameter is not a plugin or unknown plugin
                 continue
@@ -292,7 +292,7 @@ class PyLucidPlugins(dict):
                 response = plugin_instance.call_plugin_view(
                     request, mod_name="views", func_name=method_name, method_kwargs={}
                 )
-            except plugin_instance.ObjectNotFound, err:
+            except plugin_instance.ObjectNotFound as err:
                 # plugin or view doesn't exist
                 if settings.DEBUG:
                     raise # Give a developer the full traceback page ;)
@@ -303,7 +303,7 @@ class PyLucidPlugins(dict):
                 # insert more information into the traceback
                 etype, evalue, etb = sys.exc_info()
                 evalue = etype('Error rendering plugin view "%s.%s": %s' % (plugin_name, method_name, evalue))
-                raise etype, evalue, etb
+                raise etype(evalue).with_traceback(etb)
 
             return response
 

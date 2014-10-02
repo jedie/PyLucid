@@ -18,7 +18,7 @@ import json # New in Python v2.6
 import os
 import pprint
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 
 class ClosureCompiler(object):
@@ -36,38 +36,38 @@ class ClosureCompiler(object):
         self.out_dir = out_dir
 
     def get_and_save(self, filename, urls):
-        print "_" * 79
-        print " *** %r ***" % filename
-        print "urls:"
-        print "\n".join(urls)
+        print("_" * 79)
+        print(" *** %r ***" % filename)
+        print("urls:")
+        print("\n".join(urls))
 
         post_data = self.compile_defaults.copy()
         post_data["code_url"] = urls
     #    print post_data
-        params = urllib.urlencode(post_data, doseq=True)
+        params = urllib.parse.urlencode(post_data, doseq=True)
     #    print params
 
-        print "request %s..." % self.compile_url,
+        print("request %s..." % self.compile_url, end=' ')
         start_time = time.time()
-        f = urllib.urlopen(self.compile_url, params)
+        f = urllib.request.urlopen(self.compile_url, params)
         payload = f.read()
-        print "get response in %.2fsec" % (time.time() - start_time)
+        print("get response in %.2fsec" % (time.time() - start_time))
 
         response_data = json.loads(payload)
 #        pprint.pprint(response_data)
         if not "compiledCode" in response_data:
-            print "Response error, response data:"
+            print("Response error, response data:")
             pprint.pprint(response_data)
         else:
             code = response_data["compiledCode"]
 
             statistics = response_data["statistics"]
-            print "original size....:", statistics["originalSize"]
-            print "compressed size..:", statistics["compressedSize"]
-            print "compile time:", statistics["compileTime"]
+            print("original size....:", statistics["originalSize"])
+            print("compressed size..:", statistics["compressedSize"])
+            print("compile time:", statistics["compileTime"])
 
             out_path = os.path.join(self.out_dir, filename)
-            print "Write file %r..." % out_path,
+            print("Write file %r..." % out_path, end=' ')
             f = file(out_path, "w")
             f.write("/* content from:\n")
             for url in urls:
@@ -75,6 +75,6 @@ class ClosureCompiler(object):
             f.write(" * closure compiled %s */\n" % datetime.date.today().isoformat())
             f.write(code)
             f.close()
-            print "OK"
+            print("OK")
 
-        print "-" * 79
+        print("-" * 79)

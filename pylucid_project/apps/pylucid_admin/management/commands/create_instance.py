@@ -43,7 +43,7 @@ class Command(BaseCommand):
             assert os.path.isfile(filepath)
             if self.verbosity:
                 self.stdout.write("set chmod 0755 to: %r\n" % filepath)
-            os.chmod(filepath, 0755)
+            os.chmod(filepath, 0o755)
         if self.verbosity:
                 self.stdout.write("\n")
 
@@ -58,7 +58,7 @@ class Command(BaseCommand):
             self.stdout.flush()
         try:
             function(src, dst)
-        except Exception, err:
+        except Exception as err:
             self.stderr.write(self.style.ERROR("Error: %s\n" % err))
         else:
             if self.verbosity:
@@ -126,13 +126,13 @@ class Command(BaseCommand):
 
         if os.path.exists(self.destination):
             self.stderr.write(self.style.NOTICE("destination %r exist! Continue (y/n) ?" % self.destination))
-            input = raw_input()
+            input = input()
             if input.lower() not in ("y", "j"):
                 self.stderr.write("Abort.\n")
                 return
         else:
             self.stderr.write(self.style.SQL_COLTYPE("Is destination path ok (y/n) ?"))
-            input = raw_input()
+            input = input()
             if input.lower() not in ("y", "j"):
                 self.stderr.write("Abort.\n")
                 return
@@ -169,7 +169,7 @@ class Command(BaseCommand):
         media_dest = os.path.join(self.destination, "media")
 
         secret_key = ''.join(
-            [random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in xrange(50)]
+            [random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]
         )
 
         patch_data = [

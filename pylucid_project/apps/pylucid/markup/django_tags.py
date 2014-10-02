@@ -46,7 +46,7 @@ CUT_OUT_KEYS = ("block", "tag", "variable")
 ALL_KEYS = LEAVE_KEYS + CUT_OUT_KEYS
 
 ESCAPE = ("Tag", "TagTag") # For mask existing placeholder
-PLACEHOLDER_CUT_OUT = u"DjangoTag%iAssembly"
+PLACEHOLDER_CUT_OUT = "DjangoTag%iAssembly"
 
 
 class DjangoTagAssembler(object):
@@ -73,7 +73,7 @@ class DjangoTagAssembler(object):
         return text, cut_data
 
     def reassembly(self, text, cut_data):
-        for no in xrange(len(cut_data) - 1, -1, -1):
+        for no in range(len(cut_data) - 1, -1, -1):
             data = cut_data[no]
             placeholder = PLACEHOLDER_CUT_OUT % no
             text = text.replace(placeholder, data)

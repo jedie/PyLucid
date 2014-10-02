@@ -20,18 +20,18 @@
 
 import os
 import re
-import HTMLParser
+import html.parser
 from xml.sax.saxutils import quoteattr
 
 
 if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
     virtualenv_file = "../../../../../bin/activate_this.py"
-    execfile(virtualenv_file, dict(__file__=virtualenv_file))
+    exec(compile(open(virtualenv_file).read(), virtualenv_file, 'exec'), dict(__file__=virtualenv_file))
 
 
 
-class NoneHTMLParser(object, HTMLParser.HTMLParser):
+class NoneHTMLParser(object, html.parser.HTMLParser):
     """
     Parse the html code with HTMLParser and rebuilt it in self.html
     FIXME: Changes from original html to regenerated:
@@ -112,7 +112,7 @@ class NoneHTMLParser(object, HTMLParser.HTMLParser):
         self.html += "<!%s>" % decl
 
     def handle_pi(self, data):
-        print "handle processing instruction:", data
+        print("handle processing instruction:", data)
 
     def unknown_decl(self, data):
         self.error("unknown declaration: %r" % (data,))
@@ -136,7 +136,7 @@ class SubHtml(NoneHTMLParser):
         self.in_skip_tag = None # Storage if we are in a skip_tags
 
     def _build_regex(self):
-        keys = self.lexicon_data.keys()
+        keys = list(self.lexicon_data.keys())
 
         # Sort longest to shortest
         keys.sort(cmp=lambda x, y: cmp(len(y), len(x)))
@@ -174,7 +174,7 @@ class SubHtml(NoneHTMLParser):
 
 
 if __name__ == "__main__":
-    import urllib2, time
+    import urllib.request, urllib.error, urllib.parse, time
     from pylucid_project.utils.diff import diff_lines
 
 #    import doctest
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     class LexiconData(dict):
         def __call__(self, matchobject):
             word = matchobject.group(0)
-            print "LexiconData.__call__: %r" % word
+            print("LexiconData.__call__: %r" % word)
             term = self[word.lower()]
             return term + word + term
 
@@ -217,8 +217,8 @@ Here not: Fooo or XbarX
     s = SubHtml(lexicon_data, skip_tags=["a"])
     s.feed(html)
     s.close()
-    print "+++ duration: %.3fsec" % (time.time() - start_time)
-    print diff_lines(html, s.html)
+    print("+++ duration: %.3fsec" % (time.time() - start_time))
+    print(diff_lines(html, s.html))
 
 #    print "-" * 79
 #    print html

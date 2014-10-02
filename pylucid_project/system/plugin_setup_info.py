@@ -47,7 +47,7 @@ class PyLucidPluginSetupInfo(dict):
 
             for path in additional_path.split(";"):
                 if self.verbose:
-                    print "Add additional plugin path: %s" % path
+                    print("Add additional plugin path: %s" % path)
 
                 base_path, pkg_dir = os.path.split(path)
                 section = os.path.split(base_path)[1]
@@ -59,7 +59,7 @@ class PyLucidPluginSetupInfo(dict):
             plugin_package_list = tuple(plugin_package_list)
 
             if self.verbose:
-                print "Use this paths: %s" % repr(plugin_package_list)
+                print("Use this paths: %s" % repr(plugin_package_list))
 
 
         for base_path, section, pkg_dir in plugin_package_list:
@@ -116,7 +116,7 @@ class PyLucidPluginSetupInfo(dict):
                 continue
 
             if self.verbose:
-                print "add plugin %r" % plugin_pkg
+                print("add plugin %r" % plugin_pkg)
 
             self.installed_plugins.append(plugin_pkg)
 

@@ -84,7 +84,7 @@ class Test_low_level_DjangoTagAssembler(unittest.TestCase, basetest.MarkupTestHe
         self.failUnlessEqual(test_text, text)
 
     def test_multilinepre(self):
-        test_text = u'start paragraph\n{{{\none\ntwo\n}}}\nthe end...'
+        test_text = 'start paragraph\n{{{\none\ntwo\n}}}\nthe end...'
         text2, cut_data = self.assembler.cut_out(test_text)
 #        pprint(cut_data)
 #        print text2
@@ -92,13 +92,13 @@ class Test_low_level_DjangoTagAssembler(unittest.TestCase, basetest.MarkupTestHe
         self.failUnlessEqual(text2, test_text)
 
     def test_creole_image(self):
-        test_text = u'a {{/image.jpg}} {{image.jpeg|text}}...'
+        test_text = 'a {{/image.jpg}} {{image.jpeg|text}}...'
         text2, cut_data = self.assembler.cut_out(test_text)
         self.failUnlessEqual(cut_data, [])
         self.failUnlessEqual(text2, test_text)
 
     def test_creole_image_upcase(self):
-        test_text = u'a {{/IMAGE.PNG}}...'
+        test_text = 'a {{/IMAGE.PNG}}...'
         text2, cut_data = self.assembler.cut_out(test_text)
 #        pprint(cut_data)
 #        print text2
@@ -106,16 +106,16 @@ class Test_low_level_DjangoTagAssembler(unittest.TestCase, basetest.MarkupTestHe
         self.failUnlessEqual(text2, test_text)
 
     def test_not_a_creole_image(self):
-        test_text = u'a {{ variable|filter:"/" }}...'
+        test_text = 'a {{ variable|filter:"/" }}...'
         text2, cut_data = self.assembler.cut_out(test_text)
-        self.failUnlessEqual(cut_data, [u'{{ variable|filter:"/" }}'])
-        self.failUnlessEqual(text2, u"a DjangoTag0Assembly...")
+        self.failUnlessEqual(cut_data, ['{{ variable|filter:"/" }}'])
+        self.failUnlessEqual(text2, "a DjangoTag0Assembly...")
 
     def test_unicode(self):
-        input_text = u"äöü {{ test }} äöü"
+        input_text = "äöü {{ test }} äöü"
         text2, cut_data = self.assembler.cut_out(input_text)
-        self.failUnlessEqual(cut_data, [u'{{ test }}'])
-        self.failUnlessEqual(text2, u"äöü DjangoTag0Assembly äöü")
+        self.failUnlessEqual(cut_data, ['{{ test }}'])
+        self.failUnlessEqual(text2, "äöü DjangoTag0Assembly äöü")
 
         text3 = self.assembler.reassembly(text2, cut_data)
         self.failUnlessEqual(text3, input_text)
@@ -137,15 +137,15 @@ class Test_low_level_DjangoTagAssembler(unittest.TestCase, basetest.MarkupTestHe
 
 
     def test_more_than_ten(self):
-        test_text = "\n".join(["{{ %i }}" % no for no in xrange(12)])
+        test_text = "\n".join(["{{ %i }}" % no for no in range(12)])
 
         text2, cut_data = self.assembler.cut_out(test_text)
 #        pprint(cut_data)
 #        print text2
 
-        self.failUnlessEqual(cut_data, ["{{ %i }}" % no for no in xrange(12)])
+        self.failUnlessEqual(cut_data, ["{{ %i }}" % no for no in range(12)])
         self.failUnlessEqual(text2,
-            "\n".join(["DjangoTag%iAssembly" % no for no in xrange(12)])
+            "\n".join(["DjangoTag%iAssembly" % no for no in range(12)])
         )
 
         text = self.assembler.reassembly(text2, cut_data)

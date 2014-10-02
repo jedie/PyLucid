@@ -36,13 +36,13 @@ if __name__ == "__main__":
     for filename, urls in SOURCE_URLS:
         cc.get_and_save(filename, urls)
 
-    print "update via wget:"
+    print("update via wget:")
     for url in WGET_URLS:
         cmd = WGET_BASE + (url,)
-        print "_" * 79
-        print "run:", cmd
+        print("_" * 79)
+        print("run:", cmd)
         subprocess.Popen(cmd).wait()
-        print "-" * 79
+        print("-" * 79)
 
 
 

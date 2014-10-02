@@ -11,10 +11,10 @@ class Migration(DataMigration):
         "Write your forwards methods here."
         for template in orm['dbtemplates.template'].objects.all():
             content = template.content
-            content = content.replace(u"{{ Django_media_prefix }}", u"{{ STATIC_URL }}admin/")
-            content = content.replace(u"{{ PyLucid_media_url }}", u"{{ STATIC_URL }}PyLucid/")
+            content = content.replace("{{ Django_media_prefix }}", "{{ STATIC_URL }}admin/")
+            content = content.replace("{{ PyLucid_media_url }}", "{{ STATIC_URL }}PyLucid/")
             if content != template.content:
-                print " * Update template: %r" % template.name
+                print(" * Update template: %r" % template.name)
                 template.content = content
                 template.save()
 
@@ -22,10 +22,10 @@ class Migration(DataMigration):
         "Write your backwards methods here."
         for template in orm['dbtemplates.template'].objects.all():
             content = template.content
-            content = content.replace(u"{{ STATIC_URL }}admin/", u"{{ Django_media_prefix }}")
-            content = content.replace(u"{{ STATIC_URL }}PyLucid/", u"{{ PyLucid_media_url }}")
+            content = content.replace("{{ STATIC_URL }}admin/", "{{ Django_media_prefix }}")
+            content = content.replace("{{ STATIC_URL }}PyLucid/", "{{ PyLucid_media_url }}")
             if content != template.content:
-                print " * Revered template: %r" % template.name
+                print(" * Revered template: %r" % template.name)
                 template.save()
 
     models = {

@@ -34,8 +34,8 @@ from pylucid_project.pylucid_plugins.auth.models import HonypotAuth, \
 from pylucid_project.utils import crypt
 
 # auth own stuff
-from forms import WrongUserError, UsernameForm, ShaLoginForm
-from preference_forms import AuthPreferencesForm
+from .forms import WrongUserError, UsernameForm, ShaLoginForm
+from .preference_forms import AuthPreferencesForm
 
 
 APP_LABEL = "pylucid_plugin.auth" # used for creating LogEntry entries
@@ -54,7 +54,7 @@ def _get_challenge(request):
     """ create a new challenge, add it to session and return it"""
     if DEBUG:
         challenge = "12345"
-        print("use DEBUG challenge: %r" % challenge)
+        print(("use DEBUG challenge: %r" % challenge))
     else:
         # Create a new random salt value for the password challenge:
         challenge = crypt.get_new_seed()
@@ -124,9 +124,9 @@ def lucidTag(request):
         if use_honypot:
             try: # Use the first PluginPage instance
                 honypot_url = PluginPage.objects.reverse("auth", 'Auth-login_honeypot')
-            except urlresolvers.NoReverseMatch, err:
+            except urlresolvers.NoReverseMatch as err:
                 if settings.RUN_WITH_DEV_SERVER:
-                    print "*** Can't get 'Auth-login_honeypot' url: %s" % err
+                    print("*** Can't get 'Auth-login_honeypot' url: %s" % err)
             else:
                 context["honypot_url"] = honypot_url
 
@@ -162,9 +162,9 @@ def _wrong_login(request, debug_msg, user=None):
         LogEntry.objects.request_limit(
             request, min_pause, ban_limit, app_label="pylucid_plugin.auth", action="login error", no_page_msg=True
         )
-    except LogEntry.RequestTooFast, err:
+    except LogEntry.RequestTooFast as err:
         # min_pause is not observed
-        error_msg = unicode(err) # ugettext_lazy
+        error_msg = str(err) # ugettext_lazy
 
     # Log this error (Important: must be logged after LogEntry.objects.request_limit() stuff!
     if user is not None:
@@ -198,13 +198,13 @@ def _sha_auth(request):
 
     try:
         challenge = request.session.pop("challenge")
-    except KeyError, err:
+    except KeyError as err:
         debug_msg = "Can't get 'challenge' from session: %s" % err
         return bad_request(APP_LABEL, _NORMAL_ERROR_MSG, debug_msg)
 
     try:
         user1, user_profile = form.get_user_and_profile()
-    except WrongUserError, err:
+    except WrongUserError as err:
         debug_msg = "Can't get user and user profile: %s" % err
         return _wrong_login(request, debug_msg)
 
@@ -225,11 +225,11 @@ def _sha_auth(request):
     CNONCE_CACHE[cnonce] = None
 
     if DEBUG:
-        print(
+        print((
             "authenticate %r with: challenge: %r, sha_checksum: %r, sha_a: %r, sha_b: %r, cnonce: %r" % (
                 user1, challenge, sha_checksum, sha_a, sha_b, cnonce
             )
-        )
+        ))
 
     try:
         # authenticate with:
@@ -240,7 +240,7 @@ def _sha_auth(request):
             sha_checksum=sha_checksum,
             loop_count=loop_count, cnonce=cnonce
         )
-    except Exception, err: # e.g. low level error from crypt
+    except Exception as err: # e.g. low level error from crypt
         debug_msg = "auth.authenticate() failed: %s" % err
         return _wrong_login(request, debug_msg, user1)
 
@@ -268,7 +268,7 @@ def _get_salt(request):
     if form.is_valid():
         try:
             user_profile = form.get_user_profile()
-        except WrongUserError, err:
+        except WrongUserError as err:
             msg = "can't get userprofile: %s" % err
             if DEBUG:
                 print(msg)
@@ -296,7 +296,7 @@ def _get_salt(request):
             salt = crypt.get_pseudo_salt(username)
 
     if DEBUG:
-        print("send salt %r to client." % salt)
+        print(("send salt %r to client." % salt))
 
     return HttpResponse(salt, content_type="text/plain")
 

@@ -269,7 +269,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         return self.name or self.pagetree.slug
 
     def __unicode__(self):
-        return u"PageMeta for page: %r (lang: %s, site: %s)" % (
+        return "PageMeta for page: %r (lang: %s, site: %s)" % (
             self.pagetree.slug, self.language.code, self.get_site().domain
         )
 

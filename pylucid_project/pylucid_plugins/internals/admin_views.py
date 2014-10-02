@@ -132,7 +132,7 @@ class UrlPatternInfo(object):
                     continue
                 views.extend(self._extract_views_from_urlpatterns(patterns, base + p.regex.pattern))
             else:
-                raise TypeError, _("%s does not appear to be a urlpattern object") % p
+                raise TypeError(_("%s does not appear to be a urlpattern object") % p)
         return views
 
 #-----------------------------------------------------------------------------
@@ -257,7 +257,7 @@ def _textform_for_model(model, request, debug=False):
                         continue
 
                     if a in ("label", "help_text"): # "translate" lazy text
-                        attr = unicode(attr)
+                        attr = str(attr)
 
                     if a == 'queryset':
                         kw.append("%s=%s" % (a, "%s.objects.all()" % attr.model.__name__))
@@ -308,7 +308,7 @@ def form_generator(request, model_no=None):
 def model_graph(request):
     try:
         import pygraphviz as P
-    except ImportError, err:
+    except ImportError as err:
         msg = (
             "Error: PyGraphviz can't import!"
             " (Original Error was: %s "

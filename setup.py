@@ -33,7 +33,7 @@ except ImportError:
     if "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
         etype, evalue, etb = sys.exc_info()
         evalue = etype("%s - Please install python-creole >= v0.8 -  e.g.: pip install python-creole" % evalue)
-        raise etype, evalue, etb
+        raise etype(evalue).with_traceback(etb)
     long_description = None
 else:
     long_description = get_long_description(PACKAGE_ROOT)
@@ -44,7 +44,7 @@ def get_authors():
         f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
         authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
         f.close()
-    except Exception, err:
+    except Exception as err:
         authors = "[Error: %s]" % err
     return authors
 

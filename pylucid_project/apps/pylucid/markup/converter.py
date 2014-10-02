@@ -185,7 +185,7 @@ def apply_markup(raw_content, markup_no, request, escape_django_tags=False):
 
     if assemble_tags:
         # reassembly cut out django tags into text
-        if not isinstance(html_content, unicode):
+        if not isinstance(html_content, str):
             if settings.DEBUG:
                 markup_name = MARKUP_DICT[markup_no]
                 page_msg("Info: Markup converter %r doesn't return unicode!" % markup_name)
@@ -249,4 +249,4 @@ if __name__ == "__main__":
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

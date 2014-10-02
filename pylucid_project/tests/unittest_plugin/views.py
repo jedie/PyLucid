@@ -151,7 +151,7 @@ def test_PyLucid_api(request):
 
     context = request.PYLUCID.context
     output = []
-    context_middlewares = request.PYLUCID.context_middlewares.keys()
+    context_middlewares = list(request.PYLUCID.context_middlewares.keys())
     context_middlewares.sort()
     output.append("context_middlewares: %s" % context_middlewares)
     output.append("lang_entry: %r" % request.PYLUCID.current_language)

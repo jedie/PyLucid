@@ -139,7 +139,7 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         """
         try:
             url = urlresolvers.reverse(self.url_name)
-        except urlresolvers.NoReverseMatch, err:
+        except urlresolvers.NoReverseMatch as err:
             msg = (
                 "Can't resolve url %r for plugin %r: %s"
                 " - (To fix this: run 'install plugins' again.)"
@@ -167,7 +167,7 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         # get the rights from pylucid_project.apps.pylucid.decorators.check_permissions
         try:
             access_permissions = view_func.access_permissions
-        except AttributeError, err:
+        except AttributeError as err:
             # If no permissions available, fallback to superuser only
             request = ThreadLocal.get_current_request()
             if settings.DEBUG or request.user.is_staff:
@@ -192,7 +192,7 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
 #        return super(PyLucidAdminPage, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return u"PyLucidAdminPage %r (%r)" % (self.name, self.get_absolute_url())
+        return "PyLucidAdminPage %r (%r)" % (self.name, self.get_absolute_url())
 
     def get_absolute_url(self):
         """
@@ -221,7 +221,7 @@ class PyLucidAdminPage(BaseTreeModel, UpdateInfoBaseModel):
         if get_data:
             # FIXME: There must be a better was to to this.
             # TODO: escape it.
-            url += "?" + "&".join(["%s=%s" % (key, value) for key, value in get_data.items()])
+            url += "?" + "&".join(["%s=%s" % (key, value) for key, value in list(get_data.items())])
 
         return url
 

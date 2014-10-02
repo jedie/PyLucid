@@ -51,7 +51,7 @@ def escape_django_tags(txt):
     >>> escape_django_tags("{{ test2 }} {% test3 %}")
     '&#x7B;&#x7B; test2 &#x7D;&#x7D; &#x7B;% test3 %&#x7D;'
     """
-    for source, dest in ENTITIES.iteritems():
+    for source, dest in ENTITIES.items():
         txt = txt.replace(source, dest)
     return txt
 
@@ -62,4 +62,4 @@ if __name__ == "__main__":
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

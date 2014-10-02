@@ -121,7 +121,7 @@ class PageTreeManager(BaseModelManager):
 
         try:
             return queryset[0]
-        except IndexError, err:
+        except IndexError as err:
             if self.model.on_site.count() == 0:
                 raise PageTree.DoesNotExist("There exist no PageTree items!")
             elif filter_parent == True:
@@ -212,7 +212,7 @@ class PageTreeManager(BaseModelManager):
             except PageTree.DoesNotExist:
                 etype, evalue, etb = sys.exc_info()
                 evalue = etype("Wrong url %r: %s" % (page_slug, evalue))
-                raise etype, evalue, etb
+                raise etype(evalue).with_traceback(etb)
 
             page_view_group = page.permitViewGroup
 
@@ -424,7 +424,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
 
     def save(self, *args, **kwargs):
         """ reset PageMeta and PageTree url cache """
-        from pagemeta import PageMeta # against import loops.
+        from .pagemeta import PageMeta # against import loops.
 
         # Clean the local url cache dict
         self._url_cache.clear()
@@ -444,7 +444,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
         return self.site
 
     def __unicode__(self):
-        return u"PageTree %r (id: %i, site: %s, type: %s)" % (
+        return "PageTree %r (id: %i, site: %s, type: %s)" % (
             self.slug, self.id, self.site.domain, self.TYPE_DICT.get(self.page_type)
         )
 

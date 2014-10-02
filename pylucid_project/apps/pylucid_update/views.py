@@ -74,7 +74,7 @@ def fix_old_user(out, obj, attrnames, alternative_user):
     for attrname in attrnames:
         try:
             user_id = getattr(obj, attrname).id
-        except User.DoesNotExist, err:
+        except User.DoesNotExist as err:
             out.write("Old %s user doesn't exist. Use current user %r." % (attrname, alternative_user))
             setattr(obj, attrname, alternative_user)
 
@@ -97,7 +97,7 @@ def wipe_site(request):
             try:
                 Preference.objects.all().filter(site=current_site).delete()
                 PageTree.on_site.all().delete()
-            except Exception, err:
+            except Exception as err:
                 transaction.savepoint_rollback(sid)
                 LogEntry.objects.log_action("pylucid_update", title, request, "Error: %s" % err,
                     long_message=traceback.format_exc())
@@ -152,7 +152,7 @@ def update08migrate_stj(request):
     for old_entry in JS_LoginData08.objects.all():
         try:
             user = old_entry.user
-        except User.DoesNotExist, err:
+        except User.DoesNotExist as err:
             out.write("Old JS_LoginData08 User doesn't exist. Skip updating UserProfile.")
             continue
 
@@ -299,7 +299,7 @@ def _update08migrate_pages(request, language):
             old_parent_id = old_page.parent.id
             try:
                 parent = page_dict[old_parent_id]
-            except KeyError, err:
+            except KeyError as err:
                 page_parent_exist = False
                 msg = (
                     " *** Error: parent id %r not found!"
@@ -428,7 +428,7 @@ def _select_lang(request, context, call_func):
             sid = transaction.savepoint()
             try:
                 response = call_func(request, language)
-            except Exception, err:
+            except Exception as err:
                 transaction.savepoint_rollback(sid)
                 LogEntry.objects.log_action("pylucid_update", context["title"], request, "Error: %s" % err,
                     long_message=traceback.format_exc())
@@ -671,7 +671,7 @@ def update08pagesRedirect(request):
 
     new_page_id_data = _get_page_id_data(site)
 
-    for (old_page_id, tree_entry_id) in new_page_id_data.iteritems():
+    for (old_page_id, tree_entry_id) in new_page_id_data.items():
         old_page = Page08.objects.only("id", "shortcut").get(id=old_page_id)
 
         old_path = "/%s/%i/%s/" % (settings.PYLUCID.OLD_PERMALINK_PREFIX, old_page.id, old_page.shortcut)
@@ -884,10 +884,10 @@ def _update08plugins(request, language):
     filename = settings.PYLUCID.UPDATE08_PLUGIN_FILENAME
     view_name = settings.PYLUCID.UPDATE08_PLUGIN_VIEWNAME
 
-    for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
+    for plugin_name, plugin_instance in PYLUCID_PLUGINS.items():
         try:
             plugin_instance.call_plugin_view(request, filename, view_name, method_kwargs)
-        except Exception, err:
+        except Exception as err:
             if str(err).endswith("No module named %s" % filename):
                 # Plugin has no update API
                 continue

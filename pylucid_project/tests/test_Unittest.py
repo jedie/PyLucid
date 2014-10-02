@@ -26,7 +26,7 @@ class FlatattPatchTest(basetest.BaseUnittest):
 
     def test_function(self):
         output = flatatt(self.TEST_ATTRS)
-        self.failUnlessEqual(u' 1="1" 2="2" a="1" b="2" c="3" m="5" z="8"', output)
+        self.failUnlessEqual(' 1="1" 2="2" a="1" b="2" c="3" m="5" z="8"', output)
 
     def test_widget_patch(self):
         test_widget = forms.TextInput()

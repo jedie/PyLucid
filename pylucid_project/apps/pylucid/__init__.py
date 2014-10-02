@@ -27,7 +27,7 @@ DEBUG = False
 
 try:
     import pkg_resources
-except ImportError, e:
+except ImportError as e:
     etype, evalue, etb = sys.exc_info()
     evalue = etype(
         (
@@ -36,7 +36,7 @@ except ImportError, e:
             " - Or is the virtualenv not activated?"
         ) % evalue
     )
-    raise etype, evalue, etb
+    raise etype(evalue).with_traceback(etb)
 
 
 def check_require(requirements):
@@ -49,16 +49,16 @@ def check_require(requirements):
             # Skip, because pkg_resources.require() would check all requirement from pylucid, too.
             continue
         if DEBUG and settings.RUN_WITH_DEV_SERVER:
-            print requirement
+            print(requirement)
         if requirement.endswith("==dev"):
             if DEBUG and settings.RUN_WITH_DEV_SERVER:
-                print "Skip, because pkg_resources.require() can't handle this, ok."
+                print("Skip, because pkg_resources.require() can't handle this, ok.")
             continue
         try:
             pkg_resources.require(requirement)
-        except pkg_resources.VersionConflict, err:
+        except pkg_resources.VersionConflict as err:
             warnings.warn("Version conflict: %s" % err)
-        except pkg_resources.DistributionNotFound, err:
+        except pkg_resources.DistributionNotFound as err:
             warnings.warn("Distribution not found: %s" % err)
 
 
@@ -66,7 +66,7 @@ def get_requirements():
     def parse_requirements(filename):
         filepath = os.path.normpath(os.path.join(settings.PYLUCID_BASE_PATH, "../requirements", filename))
         if DEBUG and settings.RUN_WITH_DEV_SERVER:
-            print "Use %r" % filepath
+            print("Use %r" % filepath)
         f = file(filepath, "r")
         entries = []
         for line in f:
@@ -76,7 +76,7 @@ def get_requirements():
             if line.startswith("-e "):
                 line = line.split("#egg=")[1]
             if DEBUG and settings.RUN_WITH_DEV_SERVER:
-                print line
+                print(line)
             entries.append(line)
         f.close()
         return entries
@@ -89,7 +89,7 @@ def get_requirements():
 try:
     requirements = get_requirements()
     check_require(requirements)
-except Exception, e:
+except Exception as e:
     if (DEBUG or settings.DEBUG) and settings.RUN_WITH_DEV_SERVER:
         raise
 

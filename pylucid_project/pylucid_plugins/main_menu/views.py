@@ -60,7 +60,7 @@ def lucidTag(request, min=1, max=0):
     first_showlink_id = get_first_showlink(current_pagetree)
     try:
         tree.set_current_node(first_showlink_id)
-    except KeyError, err:
+    except KeyError as err:
         tree.set_current_node(None) # Root node
         if settings.DEBUG:
             messages.error(request, "Can't activate menu item %r KeyError: %s" % (current_pagetree, err))

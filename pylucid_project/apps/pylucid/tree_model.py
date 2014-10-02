@@ -166,11 +166,11 @@ class TreeGenerator(object):
         def debug1(nodes):
             for node in nodes:
                 indent = "   " * (node.level - 1)
-                print indent, node.id, "v:", node.visible, node
+                print(indent, node.id, "v:", node.visible, node)
 
                 for related_object_name in self.related_objects:
                     if hasattr(node, related_object_name):
-                        print indent, "   * %r: %r" % (related_object_name, getattr(node, related_object_name))
+                        print(indent, "   * %r: %r" % (related_object_name, getattr(node, related_object_name)))
 
                 if node.subnodes:
                     debug1(node.subnodes)
@@ -179,20 +179,20 @@ class TreeGenerator(object):
             for node in nodes:
                 if node.visible:
                     indent = "   " * (node.level - 1)
-                    print indent, node.id, "a:", node.active, node
+                    print(indent, node.id, "a:", node.active, node)
                 if node.subnodes:
                     debug2(node.subnodes)
 
         if nodes == None:
             nodes = self.root.subnodes
 
-        print "_" * 79
-        print "Tree model debug:"
+        print("_" * 79)
+        print("Tree model debug:")
         debug1(nodes)
-        print "-" * 79
-        print "Only visible nodes:"
+        print("-" * 79)
+        print("Only visible nodes:")
         debug2(nodes)
-        print "-" * 79
+        print("-" * 79)
 
     def add_related(self, queryset, ids, field, attrname):
         """ Attach related objects from a queryset """
@@ -216,7 +216,7 @@ class TreeGenerator(object):
         """ Adding related object items, if not all attached. """
         # Generate a id list of all menu entries witch has no related object
         ids = [
-            id for id, node in self.nodes.items()
+            id for id, node in list(self.nodes.items())
             if node.visible and id != None and not hasattr(node, attrname)
         ]
         if not ids: # All menu items has related objects entries
@@ -236,7 +236,7 @@ class TreeGenerator(object):
         default_lang = Language.objects.get_or_create_default(request)
 
         # Generate a id list of all visible nodes 
-        ids = [id for id, node in self.nodes.items() if node.visible and id != None]
+        ids = [id for id, node in list(self.nodes.items()) if node.visible and id != None]
         #print "Get pagemeta for: %r" % ids
         queryset = PageMeta.objects.filter(language=current_lang)
 
@@ -318,14 +318,14 @@ class TreeGenerator(object):
         """
         make all nodes visible (for a sitemap)
         """
-        for node in self.nodes.itervalues():
+        for node in self.nodes.values():
             node.visible = True
 
     def deactivate_all(self):
         """
         makes all nodes invisible.
         """
-        for node in self.nodes.itervalues():
+        for node in self.nodes.values():
             node.visible = False
 
     def iter_flat_list(self, nodes=None):

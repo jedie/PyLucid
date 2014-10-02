@@ -25,28 +25,28 @@ def _error(msg, err):
 
 try:
     from django.core.management import setup_environ, execute_from_command_line
-except ImportError, err:
+except ImportError as err:
     _error("Can't import stuff from django", err)
 
 try:
     import pylucid_project
-except ImportError, err:
+except ImportError as err:
     _error("Can't import PyLucid", err)
 
 try:
-    import settings as settings_mod # Assumed to be in the same directory.
-except ImportError, err:
+    from . import settings as settings_mod # Assumed to be in the same directory.
+except ImportError as err:
     _error("Can't import 'settings.py'", err)
 
 try:
     # setup the environment before we start accessing things in the settings.
     setup_environ(settings_mod)
-except Exception, err:
+except Exception as err:
     _error("Can't setup the environment", err)
 
 if __name__ == "__main__":
     try:
         execute_from_command_line()
-    except Exception, err:
+    except Exception as err:
         _error("Error execute command", err)
 

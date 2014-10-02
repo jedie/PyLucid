@@ -102,8 +102,8 @@ class Command(BaseCommand):
             app_names = pylucid_app_names
 
         for app_name in app_names:
-            print "_"*79
-            print "%s: %s" % (cmd_type, app_name)
+            print("_"*79)
+            print("%s: %s" % (cmd_type, app_name))
             app_module = import_module(app_name)
             app_path = os.path.dirname(app_module.__file__)
 
@@ -113,7 +113,7 @@ class Command(BaseCommand):
                 try:
                     compile_messages(self.stderr)
                 except Exception:
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
             elif cmd_type == MAKE_MESSAGES:
                 try:
                     make_messages(
@@ -128,7 +128,7 @@ class Command(BaseCommand):
                         no_obsolete=True,
                     )
                 except Exception:
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
             else:
                 raise
 

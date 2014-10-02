@@ -8,7 +8,7 @@ from dbpreferences.forms import DBPreferencesBaseForm
 
 class BreadcumbPrefForm(DBPreferencesBaseForm):
     separator = forms.CharField(
-        initial = _(u" \u00BB "),
+        initial = _(" \u00BB "),
         help_text = _('Seperator between every breadcrumb link'),
     )
     print_last_page = forms.BooleanField(

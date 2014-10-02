@@ -126,7 +126,7 @@ class MapEntry(AutoSiteM2M, UpdateInfoBaseModel):
         if "template_name" not in exclude and self.template_name:
             try:
                 find_template(self.template_name)
-            except TemplateDoesNotExist, err:
+            except TemplateDoesNotExist as err:
                 message_dict["template_name"] = [_("Template doesn't exist.")]
 
         if message_dict:

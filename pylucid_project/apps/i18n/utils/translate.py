@@ -9,13 +9,13 @@
         Google Translate API v1 will be shut off completely on (December 1, 2011)
 """
 
-import re, urllib
+import re, urllib.request, urllib.parse, urllib.error
 
 from django.utils import simplejson
 from pylucid_project import VERSION_STRING
 
 
-class UrlOpener(urllib.FancyURLopener):
+class UrlOpener(urllib.request.FancyURLopener):
     version = "pylucid/%s" % VERSION_STRING
 
 
@@ -31,17 +31,17 @@ def translate(phrase, src="uk", to="en", debug=False):
     """
     phrase = phrase.replace("\r\n", "<br />").replace("\r", "<br />").replace("\n", "<br />")
 
-    data = urllib.urlencode({'v': '1.0', 'langpair': '%s|%s' % (src, to), 'q': phrase.encode('utf-8')})
+    data = urllib.parse.urlencode({'v': '1.0', 'langpair': '%s|%s' % (src, to), 'q': phrase.encode('utf-8')})
 
     url_opener = UrlOpener()
     url = '%s?%s' % (BASE_URL, data)
     if debug:
-        print "Request %r" % url
+        print("Request %r" % url)
     f = url_opener.open(url)
     resp = simplejson.load(f)
 
     if debug:
-        print "Response: %s" % repr(resp)
+        print("Response: %s" % repr(resp))
 
     content = ""
     error = None
@@ -51,7 +51,7 @@ def translate(phrase, src="uk", to="en", debug=False):
     else:
         try:
             content = resp['responseData']['translatedText']
-        except KeyError, err:
+        except KeyError as err:
             error = str(err)
         else:
             content = content.replace("<br />", "\n")
@@ -65,13 +65,13 @@ def prefill(source_form, dest_form, source_language, dest_language, only_fields=
 
     filled_fields = []
     errors = []
-    for field_name, source_value in source_form.cleaned_data.items():
+    for field_name, source_value in list(source_form.cleaned_data.items()):
         if only_fields is not None and field_name not in only_fields:
             continue
         if field_name in exclude_fields:
             continue
 
-        if not isinstance(source_value, basestring):
+        if not isinstance(source_value, str):
             errors.append(
                 "Can't translate '%(field_name)s', it's not a string. (value: %(value)s)" % {
                     "field_name":field_name, "value":repr(source_value)
@@ -93,7 +93,7 @@ def prefill(source_form, dest_form, source_language, dest_language, only_fields=
             dest_value, error = translate(
                 source_value, src=source_language.code, to=dest_language.code, debug=debug
             )
-        except ValueError, err:
+        except ValueError as err:
             errors.append(
                 "Can't translate %(field_name)s with google: %(err)s" % {
                     "field_name":field_name, "err":err
@@ -103,7 +103,7 @@ def prefill(source_form, dest_form, source_language, dest_language, only_fields=
             if error is not None:
                 errors.append(error)
             if debug:
-                print "%r translated to %r" % (source_value, dest_value)
+                print("%r translated to %r" % (source_value, dest_value))
             filled_fields.append(field_name)
             dest_form.data._mutable = True
             dest_form.data[dest_key] = dest_value
@@ -115,4 +115,4 @@ def prefill(source_form, dest_form, source_language, dest_language, only_fields=
 
 
 if __name__ == "__main__":
-    print translate(phrase=u"Der Übersetzungsdienst von google...\n...ist das toll.", src="de", to="en")
+    print(translate(phrase="Der Übersetzungsdienst von google...\n...ist das toll.", src="de", to="en"))

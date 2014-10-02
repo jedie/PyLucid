@@ -33,14 +33,14 @@ from pylucid_project.apps.pylucid.markup import MARKUP_CREOLE
 def tag_list(request):
     """ Create a list of all existing lucidTag plugin views. """
     lucid_tags = []
-    for plugin_name, plugin_instance in PYLUCID_PLUGINS.iteritems():
+    for plugin_name, plugin_instance in PYLUCID_PLUGINS.items():
         try:
             lucidtag_view = plugin_instance.get_plugin_object(
                 mod_name="views", obj_name="lucidTag"
             )
-        except plugin_instance.ObjectNotFound, err:
+        except plugin_instance.ObjectNotFound as err:
             continue
-        except Exception, err:
+        except Exception as err:
             if settings.DEBUG:
                 raise
             messages.error(request, "Can't get plugin view: %s" % err)
@@ -76,7 +76,7 @@ def tag_list(request):
 
                 lucidtag_doc = lucidtag_doc.split("example:", 1)[0].strip()
 
-            lucidtag_doc = unicode(lucidtag_doc)
+            lucidtag_doc = str(lucidtag_doc)
             doc = apply_markup(lucidtag_doc,
                 markup_no=MARKUP_CREOLE, request=request,
                 escape_django_tags=True

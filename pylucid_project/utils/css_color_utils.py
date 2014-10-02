@@ -15,6 +15,7 @@
 
 import re
 import math
+from functools import reduce
 
 
 CSS_RE = re.compile(r'#([a-f0-9]{6})[\s;]', re.IGNORECASE)
@@ -213,7 +214,7 @@ def hex2color_names(hex_string):
     """
     sourcecolor = hex_string2colorvector(hex_string)
     result = []
-    for color_name, colorvector in COLOR_NAMES.iteritems():
+    for color_name, colorvector in COLOR_NAMES.items():
         distance = calc_distance(sourcecolor, colorvector)
         result.append((distance, color_name))
     return result
@@ -231,7 +232,7 @@ def hex2color_name(hex_string):
     sourcecolor = hex_string2colorvector(hex_string)
     best_distance = 256
     best_name = "unknown"
-    for color_name, colorvector in COLOR_NAMES.iteritems():
+    for color_name, colorvector in COLOR_NAMES.items():
         distance = calc_distance(sourcecolor, colorvector)
         if distance < best_distance:
             best_distance = distance
@@ -308,7 +309,7 @@ def unique_color_name(existing_colors, hex_string):
 
     if color_name in existing_colors:
         # name exist -> make unique by adding a number
-        for no in xrange(2, 1000):
+        for no in range(2, 1000):
             # get a new color name, witch not exist yet.
             test_name = "%s_%s" % (color_name, no)
             if test_name not in existing_colors:
@@ -390,7 +391,7 @@ def extract_colors(content, existing_color_dict=None):
 
     if existing_color_dict:
         color_dict = existing_color_dict.copy()
-        exist_color = dict([(v, k) for k, v in existing_color_dict.iteritems()])
+        exist_color = dict([(v, k) for k, v in existing_color_dict.items()])
     else:
         color_dict = {}
         exist_color = {}
@@ -452,4 +453,4 @@ if __name__ == "__main__":
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

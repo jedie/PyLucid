@@ -37,7 +37,7 @@ class HonypotUsername(models.Model):
     )
     objects = CountManager("username")
     def __unicode__(self):
-        return u"%s (count: %i)" % (self.username, self.count)
+        return "%s (count: %i)" % (self.username, self.count)
     class Meta:
         ordering = ('-count',)
 
@@ -49,7 +49,7 @@ class HonypotPassword(models.Model):
     )
     objects = CountManager("password")
     def __unicode__(self):
-        return u"%s (count: %i)" % (self.password, self.count)
+        return "%s (count: %i)" % (self.password, self.count)
     class Meta:
         ordering = ('-count',)
 
@@ -61,7 +61,7 @@ class HonypotIP(models.Model):
     )
     objects = CountManager("ip_address")
     def __unicode__(self):
-        return u"%s (count: %i)" % (self.ip_address, self.count)
+        return "%s (count: %i)" % (self.ip_address, self.count)
     class Meta:
         ordering = ('-count',)
 
@@ -105,7 +105,7 @@ class HonypotAuth(UpdateTimeBaseModel):
     )
 
     def __unicode__(self):
-        return u"honypot login from %s [%s/%s] (count: %i)" % (
+        return "honypot login from %s [%s/%s] (count: %i)" % (
             self.ip_address, self.username, self.password, self.count
         )
 

@@ -21,7 +21,7 @@ from django_tools.models import UpdateInfoBaseModel
 from pylucid_project.base_models.many2many import SiteM2M
 
 # other PyLucid models
-from colorscheme import ColorScheme
+from .colorscheme import ColorScheme
 
 
 TAG_INPUT_HELP_URL = \
@@ -61,7 +61,7 @@ class Design(SiteM2M, UpdateInfoBaseModel):
         if "template" not in exclude:
             try:
                 find_template(self.template)
-            except TemplateDoesNotExist, err:
+            except TemplateDoesNotExist as err:
                 message_dict["template"] = [_("Template doesn't exist.")]
 
         if message_dict:
@@ -99,7 +99,7 @@ class Design(SiteM2M, UpdateInfoBaseModel):
 
     def __unicode__(self):
         sites = self.sites.values_list('name', flat=True)
-        return u"Page design '%s' (on sites: %r)" % (self.name, sites)
+        return "Page design '%s' (on sites: %r)" % (self.name, sites)
 
     class Meta:
         app_label = 'pylucid'

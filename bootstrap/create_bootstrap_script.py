@@ -12,23 +12,23 @@ import pprint
 
 try:
     import virtualenv
-except ImportError, err:
-    print "Import error:", err
-    print
-    print "Please install virtualenv!"
-    print "e.g.: easy_install virtualenv"
-    print "More info:"
-    print "http://pypi.python.org/pypi/virtualenv"
-    print
+except ImportError as err:
+    print("Import error:", err)
+    print()
+    print("Please install virtualenv!")
+    print("e.g.: easy_install virtualenv")
+    print("More info:")
+    print("http://pypi.python.org/pypi/virtualenv")
+    print()
     sys.exit(-1)
 
 try:
     import pylucid_project
-except ImportError, err:
-    print "Import error:", err
-    print
-    print "Not running in activated virtualenv?"
-    print
+except ImportError as err:
+    print("Import error:", err)
+    print()
+    print("Not running in activated virtualenv?")
+    print()
     sys.exit(-1)
 
 
@@ -79,13 +79,13 @@ def create_bootstrap_script():
     content += requirements_definitions()
 
     info = "source bootstrap script: %r" % BOOTSTRAP_SOURCE
-    print "read", info
+    print("read", info)
     content += "\n\n# %s\n" % info
     f = file(BOOTSTRAP_SOURCE, "r")
     content += f.read()
     f.close()
 
-    print "Create/Update %r" % BOOTSTRAP_SCRIPT
+    print("Create/Update %r" % BOOTSTRAP_SCRIPT)
 
     output = virtualenv.create_bootstrap_script(content)
 
@@ -105,4 +105,4 @@ def create_bootstrap_script():
 
 if __name__ == "__main__":
     create_bootstrap_script()
-    print " -- END -- "
+    print(" -- END -- ")

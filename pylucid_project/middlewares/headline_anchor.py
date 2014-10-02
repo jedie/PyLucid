@@ -40,7 +40,7 @@ class HeadlineAnchor(object):
         self._anchor_list = [] # For makeUniqueSlug
 
     def insert_links(self, content):
-        assert isinstance(content, unicode), "content must be unicode!"
+        assert isinstance(content, str), "content must be unicode!"
 
         # add the anchor with re.sub
         new_content = self.HEADLINE_RE.sub(self.add_anchor, content)
@@ -79,7 +79,7 @@ class HeadlineAnchor(object):
         Build the HTML code of the TOC
         """
         if len(self.toc_list) < toc_min_count:
-            return u""
+            return ""
 
         context = {"toc_list": self.toc_list}
 
@@ -112,7 +112,7 @@ class HeadlineAnchorMiddleware(object):
         try:
             # Get the permalink to the current page
             permalink = request.PYLUCID.context["page_permalink"]
-        except AttributeError, KeyError:
+        except AttributeError as KeyError:
             # We are not on a cms page -> e.g.: in the admin pandel
             # No cms page request -> do nothing
             #print "*** No request.PYLUCID.pagemeta!", response._headers["content-type"]

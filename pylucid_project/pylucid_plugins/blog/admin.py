@@ -67,12 +67,12 @@ class BlogEntryAdmin(BlogBaseAdmin):
         count = obj.sites.filter(id=current_site.id).count()
         if count == 0:
             # TODO: Create a link with the domain of the first site
-            return u"<i>[not on current site]</i>"
+            return "<i>[not on current site]</i>"
 
         request = ThreadLocal.get_current_request()
         permalink = obj.get_permalink(request)
         if permalink is None:
-            return u"<i>[no permalink available]</i>"
+            return "<i>[no permalink available]</i>"
 
         context = {"permalink": permalink}
         html = render_to_string('admin/blog/permalink.html', context)

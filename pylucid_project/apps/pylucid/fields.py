@@ -46,7 +46,7 @@ def validate_css_color_value(value):
     ...
     ValidationError: Error: 'Maroon' is not a CSS hex color value
     """
-    if not isinstance(value, basestring):
+    if not isinstance(value, str):
         raise exceptions.ValidationError(_("CSS color value is not a basestring!"))
 
     if len(value) != 6:
@@ -176,4 +176,4 @@ if __name__ == "__main__":
 #        verbose=True
         verbose=False
     )
-    print "DocTest end."
+    print("DocTest end.")

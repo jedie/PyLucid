@@ -48,13 +48,13 @@ class Page08(models.Model):
     MARKUP_REST = 5
 
     MARKUP_CHOICES = (
-        (MARKUP_CREOLE      , u'Creole wiki markup'),
-        (MARKUP_HTML        , u'html'),
-        (MARKUP_HTML_EDITOR , u'html + JS-Editor'),
-        (MARKUP_TINYTEXTILE , u'textile'),
-        (MARKUP_TEXTILE     , u'Textile (original)'),
-        (MARKUP_MARKDOWN    , u'Markdown'),
-        (MARKUP_REST        , u'ReStructuredText'),
+        (MARKUP_CREOLE      , 'Creole wiki markup'),
+        (MARKUP_HTML        , 'html'),
+        (MARKUP_HTML_EDITOR , 'html + JS-Editor'),
+        (MARKUP_TINYTEXTILE , 'textile'),
+        (MARKUP_TEXTILE     , 'Textile (original)'),
+        (MARKUP_MARKDOWN    , 'Markdown'),
+        (MARKUP_REST        , 'ReStructuredText'),
     )
     MARKUP_DICT = dict(MARKUP_CHOICES)
     #--------------------------------------------------------------------------
@@ -163,7 +163,7 @@ class Page08(models.Model):
         return url
 
     def __unicode__(self):
-        return u"old page model %r" % self.shortcut
+        return "old page model %r" % self.shortcut
 
 
 
@@ -184,7 +184,7 @@ class Template08(models.Model):
     content = models.TextField()
 
     def __unicode__(self):
-        return u"old page template %r" % self.name
+        return "old page template %r" % self.name
 
     class Meta:
         db_table = 'PyLucid_template'
@@ -210,7 +210,7 @@ class Style08(models.Model):
     content = models.TextField()
 
     def __unicode__(self):
-        return u"old page stylesheet %r" % self.name
+        return "old page stylesheet %r" % self.name
 
     class Meta:
         db_table = 'PyLucid_style'

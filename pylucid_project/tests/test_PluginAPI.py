@@ -18,7 +18,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-import test_tools # before django imports!
+from . import test_tools # before django imports!
 
 from django.conf import settings
 
@@ -184,7 +184,7 @@ class PluginPageTest(basetest.BaseUnittest):
                 "UnittestPlugin-test_HttpResponse": "%s/test_HttpResponse/" % url_prefix,
             }
 
-            for url_name, sould_url in url_data.iteritems():
+            for url_name, sould_url in url_data.items():
                 url = "%s/test_url_reverse/%s/" % (url_prefix, url_name)
                 response = self.client.get(url, HTTP_ACCEPT_LANGUAGE=language.code)
                 self.assertStatusCode(response, 200)

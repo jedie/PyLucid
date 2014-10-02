@@ -61,7 +61,7 @@ class CloneDesignForm(SelectDesignBaseForm):
 
         try: # "validate" with the url re FIXME: Do it better ;) 
             reverse('PyLucid-send_head_file', kwargs={"filepath": new_name})
-        except NoReverseMatch, err:
+        except NoReverseMatch as err:
             raise forms.ValidationError(_(
                 "new name contains invalid characters!"
                 " (Original error: %s)" % err,
@@ -79,7 +79,7 @@ class CloneDesignForm(SelectDesignBaseForm):
         template_name = self.get_new_template_name()
         try:
             find_template(template_name)
-        except TemplateDoesNotExist, err:
+        except TemplateDoesNotExist as err:
             pass
         else:
             raise forms.ValidationError(_("A template named '%s' exist already") % template_name)

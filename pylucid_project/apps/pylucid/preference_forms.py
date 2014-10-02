@@ -137,7 +137,7 @@ class SystemPreferencesForm(DBPreferencesBaseForm):
         """
         try:
             return super(SystemPreferencesForm, self).get_preferences()
-        except ValidationError, e:
+        except ValidationError as e:
             self.data = self.save_form_init()
 
             msg = 'Reset system preferences cause: %s' % e
