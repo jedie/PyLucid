@@ -29,9 +29,8 @@ import sys
 try:
     #from django_tools.utils import info_print;info_print.redirect_stdout()
     import django
-    import dbpreferences # http://code.google.com/p/django-dbpreferences/
     import django_tools # http://code.google.com/p/django-tools/
-    import django_processinfo # https://github.com/jedie/django-processinfo
+    #import django_processinfo # https://github.com/jedie/django-processinfo
     import pylucid_project
     from pylucid_project.system.plugin_setup_info import PyLucidPluginSetupInfo
 except Exception as e:
@@ -41,7 +40,7 @@ except Exception as e:
 
 
 # include app settings from ./django_processinfo/app_settings.py
-from django_processinfo import app_settings as PROCESSINFO
+#from django_processinfo import app_settings as PROCESSINFO
 
 
 # Used by a few dynamic settings:
@@ -189,8 +188,8 @@ TEMPLATE_DIRS = PYLUCID_PLUGIN_SETUP_INFO.template_dirs
 # Append "static" template directories:
 TEMPLATE_DIRS += (
     os.path.join(_pkg_path(django_tools), "templates/"),
-    os.path.join(_pkg_path(dbpreferences), "templates/"),
-    os.path.join(_pkg_path(django_processinfo), "templates/"),
+    #os.path.join(_pkg_path(dbpreferences), "templates/"),
+    #os.path.join(_pkg_path(django_processinfo), "templates/"),
 
     os.path.join(_pkg_path(django), "contrib/admin/templates"),
 )
@@ -252,14 +251,14 @@ INSTALLED_APPS = (
 
     # external apps shipped and used with PyLucid:
 	'django_tools.dynamic_site', # https://github.com/jedie/django-tools/blob/master/django_tools/dynamic_site/README.creole
-    'dbpreferences', # http://code.google.com/p/django-dbpreferences/
-    'dbtemplates', # http://code.google.com/p/django-dbtemplates/
+    #'dbpreferences', # http://code.google.com/p/django-dbpreferences/
+    #'dbtemplates', # http://code.google.com/p/django-dbtemplates/
     'reversion', # http://code.google.com/p/django-reversion/
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
-    'tagging', # http://code.google.com/p/django-tagging/
+    #'tagging', # http://code.google.com/p/django-tagging/
     'compressor', # https://github.com/jezdez/django_compressor
     'south', # http://south.aeracode.org/
-    'django_processinfo', # https://github.com/jedie/django-processinfo
+    #'django_processinfo', # https://github.com/jedie/django-processinfo
 )
 
 # Temp. work-a-round for https://github.com/jezdez/django-dbtemplates/pull/31

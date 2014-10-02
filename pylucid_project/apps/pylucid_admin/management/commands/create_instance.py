@@ -22,21 +22,21 @@ from django.contrib import admin
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 import random
+from django.core.management.templates import TemplateCommand
 
 
 ENV_PATH_PLACEHOLDER = '"/please/insert/path/to/PyLucid_env/'
 
 
-class Command(BaseCommand):
+class Command(TemplateCommand):
     verbosity = True
-
     help = (
         "Create a PyLucid page instance\n"
         "destination should be the absolute path for the new page instance."
     )
     args = 'destination'
 
-    option_list = BaseCommand.option_list
+#    option_list = BaseCommand.option_list
 
     def _set_file_rights(self, *files):
         if self.verbosity:

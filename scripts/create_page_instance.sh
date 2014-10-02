@@ -14,8 +14,8 @@ echo _____________________________________________________________________
 echo activate the virtual environment:
 verbose_eval source bin/activate
 
-export DJANGO_SETTINGS_MODULE=pylucid_project.settings
-export LOCAL_SETTINGS_MODULE=pylucid_project.management_command_settings
+#export DJANGO_SETTINGS_MODULE=pylucid_project.settings
+#export LOCAL_SETTINGS_MODULE=pylucid_project.management_command_settings
 
 echo _____________________________________________________________________
 echo execute manage.py
