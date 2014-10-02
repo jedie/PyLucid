@@ -32,11 +32,9 @@ PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
 # https://code.google.com/p/python-creole/wiki/UseInSetup
 try:
     from creole.setup_utils import get_long_description
-except ImportError:
-    if "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
-        etype, evalue, etb = sys.exc_info()
-        evalue = etype("%s - Please install python-creole >= v0.8 -  e.g.: pip install python-creole" % evalue)
-        raise etype(evalue).with_traceback(etb)
+except ImportError as err:
+    if "check" in sys.argv or "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
+        raise ImportError("%s - Please install python-creole >= v0.8 - e.g.: pip install python-creole" % err)
     long_description = None
 else:
     long_description = get_long_description(PACKAGE_ROOT)
@@ -44,9 +42,8 @@ else:
 
 def get_authors():
     try:
-        f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
-        authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
-        f.close()
+        with open(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r") as f:
+            authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
     except Exception as err:
         authors = "[Error: %s]" % err
     return authors
@@ -55,18 +52,18 @@ def get_authors():
 def get_install_requires():
     def parse_requirements(filename):
         filepath = os.path.join(PACKAGE_ROOT, "requirements", filename)
-        f = file(filepath, "r")
-        entries = []
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#") or line.startswith("-r"):
-                continue
-            if line.startswith("-e "):
-                line = line.split("#egg=")[1]
-            if line.lower() == "pylucid":
-                continue
-            entries.append(line)
-        f.close()
+        with open(filepath, "r") as f:
+            entries = []
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or line.startswith("-r"):
+                    continue
+                if line.startswith("-e "):
+                    line = line.split("#egg=")[1]
+                if line.lower() == "pylucid":
+                    continue
+                entries.append(line)
+
         return entries
 
     requirements = []
