@@ -43,22 +43,22 @@ BOOTSTRAP_SOURCE = os.path.join(ROOT, "source-pylucid-boot.py")
 
 def parse_requirements(filename):
     filepath = os.path.join(PYLUCID_BASE_PATH, "../requirements", filename)
-    f = file(filepath, "r")
-    entries = []
-    for line in f:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("-r"):
-            recursive_filename = line.split("-r ")[1]
-            entries += parse_requirements(recursive_filename)
-            continue
-        if line.startswith("-e"):
-            url = line.split("-e ")[1]
-            entries.append("--editable=%s" % url)
-        else:
-            entries.append(line)
-    f.close()
+    with open(filepath, "r") as f:
+        entries = []
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("-r"):
+                recursive_filename = line.split("-r ")[1]
+                entries += parse_requirements(recursive_filename)
+                continue
+            if line.startswith("-e"):
+                url = line.split("-e ")[1]
+                entries.append("--editable=%s" % url)
+            else:
+                entries.append(line)
+
     return entries
 
 def requirements_definitions():
@@ -83,26 +83,37 @@ def create_bootstrap_script():
     info = "source bootstrap script: %r" % BOOTSTRAP_SOURCE
     print("read", info)
     content += "\n\n# %s\n" % info
-    f = file(BOOTSTRAP_SOURCE, "r")
-    content += f.read()
-    f.close()
+    with open(BOOTSTRAP_SOURCE, "r") as f:
+        content += f.read()
 
     print("Create/Update %r" % BOOTSTRAP_SCRIPT)
 
     output = virtualenv.create_bootstrap_script(content)
 
     # Add info lines
-    output_lines = output.splitlines()
-    generator_filepath = "/PyLucid_env/" + __file__.split("/PyLucid_env/")[1]
-    output_lines.insert(2, "## Generated with %r" % generator_filepath)
-    output_lines.insert(2, "## using: %r v%s" % (virtualenv.__file__, virtualenv.virtualenv_version))
-    output_lines.insert(2, "## python v%s" % sys.version.replace("\n", " "))
-    output = "\n".join(output_lines)
-    #print output
+    shebang, code = output.split("\n",1)
 
-    f = file(BOOTSTRAP_SCRIPT, 'w')
-    f.write(output)
-    f.close()
+    generator_filepath = os.path.abspath(__file__)
+    pos = generator_filepath.index(os.sep + "PyLucid" + os.sep)
+    generator_filepath=generator_filepath[pos:]
+
+    info_line = "\n".join([
+        "## Generated with %r" % generator_filepath,
+        "## using: %r v%s" % (virtualenv.__file__, virtualenv.virtualenv_version),
+        "## python v%s" % sys.version.replace("\n", " "),
+    ])
+
+
+    output = "\n\n".join([
+        shebang,
+        info_line,
+        "from __future__ import absolute_import, division, print_function",
+        code,
+    ])
+    # print(output)
+
+    with open(BOOTSTRAP_SCRIPT, 'w') as f:
+        f.write(output)
 
 
 if __name__ == "__main__":

@@ -9,8 +9,9 @@
     script create_bootstrap_script.py
 """
 
-from __future__ import absolute_import, division, print_function
-
+PY2 = sys.version_info[0] == 2
+if PY2:
+    input=raw_input
 
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
@@ -56,12 +57,13 @@ class ColorOut(object):
     >>> c.colorize("colors!", foreground="red", background="blue", opts=("bold", "blink"))
     '\\x1b[31;44;1;5mcolors!\\x1b[0m'
     """
-    color_names = ('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white')
-    foreground_colors = dict([(color_names[x], '3%s' % x) for x in range(8)])
-    background_colors = dict([(color_names[x], '4%s' % x) for x in range(8)])
-    opt_dict = {'bold': '1', 'underscore': '4', 'blink': '5', 'reverse': '7', 'conceal': '8'}
-
     def __init__(self):
+        color_names = ('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white')
+
+        self.foreground_colors = dict([(color_names[x], '3%s' % x) for x in range(8)])
+        self.background_colors = dict([(color_names[x], '4%s' % x) for x in range(8)])
+        self.opt_dict = {'bold': '1', 'underscore': '4', 'blink': '5', 'reverse': '7', 'conceal': '8'}
+
         self.color_support = self.supports_colors()
 
     def supports_colors(self):
@@ -111,16 +113,16 @@ def get_requirement_choice():
 
     print(MENU_TXT)
     try:
-        input = input(input_msg)
+        inkey = input(input_msg)
     except KeyboardInterrupt:
         print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
 
-    if input == "":
+    if inkey == "":
         return DEFAULT_MENU_CHOICE
 
     try:
-        return CHOICES[input]
+        return CHOICES[inkey]
     except KeyError:
         print(c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
             c.colorize(number, opts=("bold",))
