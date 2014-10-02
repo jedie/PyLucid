@@ -1847,39 +1847,30 @@ def create_bootstrap_script(extra_text, python_version=''):
 
 
 # requirements from normal_installation.txt
-NORMAL_INSTALLATION = ['feedparser>=5.1.2,<5.2',
- 'Pygments>=1.5,<1.6',
- 'flup>=1.0.2,<1.1',
- 'django-reversion>=1.6.2,<1.7',
- 'django-dbtemplates>=1.3,<1.4',
- 'django_compressor>=1.2,<1.3',
- 'django-tagging>=0.3.1,<0.4',
- 'South>=0.7.5,<0.8',
- 'Django>=1.4,<1.5',
- 'python-creole>=0.8.2,<1.1.0',
- 'django-dbpreferences>=0.4.2,<0.5',
+NORMAL_INSTALLATION = ['pillow',
+ 'Pygments>=1.6,<1.7',
+ 'Django>=1.7,<1.8',
+ 'django-cms>=3.0.5,<3.1',
+ 'django-reversion>=1.8.4,<1.9',
+ 'South>=1.0.0,<1.1.0',
+ 'python-creole>=1.2.1,<1.3.0',
  'django-tools>=0.25,<0.26',
- 'django-processinfo>=0.4',
- 'django-reversion-compare>=0.3.1',
- '--editable=git+git://github.com/jedie/PyLucid.git#egg=pylucid']
+ 'django-processinfo>=0.7.0,<0.8',
+ 'django-reversion-compare>=0.3.5,<0.4',
+ '--editable=git+git://github.com/jedie/PyLucid.git@django-cms#egg=pylucid']
 
 # requirements from developer_installation.txt
-DEVELOPER_INSTALLATION = ['feedparser>=5.1.2,<5.2',
- 'Pygments>=1.5,<1.6',
- 'flup>=1.0.2,<1.1',
- 'django-reversion>=1.6.2,<1.7',
- 'django-dbtemplates>=1.3,<1.4',
- 'django_compressor>=1.2,<1.3',
- 'django-tagging>=0.3.1,<0.4',
- 'South>=0.7.5,<0.8',
+DEVELOPER_INSTALLATION = ['pillow',
+ 'Pygments>=1.6,<1.7',
+ 'Django>=1.7,<1.8',
+ 'django-cms>=3.0.5,<3.1',
+ 'django-reversion>=1.8.4,<1.9',
+ 'South>=1.0.0,<1.1.0',
  'docutils',
- '--editable=git+git://github.com/django/django.git@stable/1.4.x#egg=django',
  '--editable=git+git@github.com:jedie/python-creole.git#egg=python-creole',
- '--editable=git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences',
- '--editable=git+git@github.com:jedie/django-tools.git#egg=django-tools',
- '--editable=git+git@github.com:jedie/django-processinfo.git#egg=django-processinfo',
- '--editable=git+git@github.com:jedie/django-reversion-compare.git#egg=django-reversion-compare',
- '--editable=git+git@github.com:jedie/PyLucid.git#egg=pylucid']
+ '--editable=git+git@github.com:jedie/django-tools.git@develope#egg=django-tools',
+ '--editable=git+git@github.com:jedie/django-reversion-compare.git@develope#egg=django-reversion-compare',
+ '--editable=git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid']
 
 # source bootstrap script: '/home/jens/workspace/PyLucid/bootstrap/source-pylucid-boot.py'
 #-----------------------------------------------------------------------------
