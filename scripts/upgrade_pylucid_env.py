@@ -20,12 +20,13 @@
         ./src/pylucid/scripts/upgrade_pylucid_env.py --version-info
     
       
-    :copyleft: 2011-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2011-2014 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from __future__ import absolute_import, division, print_function
 
+from django.utils.six.moves import input
 
 import os
 import sys
@@ -102,12 +103,13 @@ class ColorOut(object):
     >>> c.colorize("colors!", foreground="red", background="blue", opts=("bold", "blink"))
     '\\x1b[31;44;1;5mcolors!\\x1b[0m'
     """
-    color_names = ('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white')
-    foreground_colors = dict([(color_names[x], '3%s' % x) for x in range(8)])
-    background_colors = dict([(color_names[x], '4%s' % x) for x in range(8)])
-    opt_dict = {'bold': '1', 'underscore': '4', 'blink': '5', 'reverse': '7', 'conceal': '8'}
-
     def __init__(self):
+        color_names = ('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white')
+
+        self.foreground_colors = dict([(color_names[x], '3%s' % x) for x in range(8)])
+        self.background_colors = dict([(color_names[x], '4%s' % x) for x in range(8)])
+        self.opt_dict = {'bold': '1', 'underscore': '4', 'blink': '5', 'reverse': '7', 'conceal': '8'}
+
         self.color_support = self.supports_colors()
 
     def supports_colors(self):
@@ -179,22 +181,22 @@ def print_options(options):
 
 def parse_requirements(filename):
     filepath = get_req_path(filename)
-    f = file(filepath, "r")
-    entries = []
-    for line in f:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("-r"):
-            recursive_filename = line.split("-r ")[1]
-            entries += parse_requirements(recursive_filename)
-            continue
-        if line.startswith("-e"):
-            url = line.split("-e ")[1]
-            entries.append("--editable=%s" % url)
-        else:
-            entries.append(line)
-    f.close()
+    with open(filepath, "r") as f:
+        entries = []
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("-r"):
+                recursive_filename = line.split("-r ")[1]
+                entries += parse_requirements(recursive_filename)
+                continue
+            if line.startswith("-e"):
+                url = line.split("-e ")[1]
+                entries.append("--editable=%s" % url)
+            else:
+                entries.append(line)
+
     return entries
 
 
@@ -243,12 +245,12 @@ def select_requirement(options, filename):
     print("(a) upgrade all packages")
 
     try:
-        input = input("\nPlease select (one entry or comma seperated):")
+        inkeys = input("\nPlease select (one entry or comma seperated):")
     except KeyboardInterrupt:
         print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
 
-    selection = [i.strip() for i in input.split(",") if i.strip()]
+    selection = [i.strip() for i in inkeys.split(",") if i.strip()]
     if len(selection) == 0:
         print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
@@ -412,11 +414,11 @@ def main():
         sys.exit()
 
     try:
-        input = input("\nStart upgrade (y/n) ?")
+        inkey = input("\nStart upgrade (y/n) ?")
     except KeyboardInterrupt:
         print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
-    if input.lower() not in ("y", "j"):
+    if inkey.lower() not in ("y", "j"):
         print((c.colorize("Abort, ok.", foreground="blue")))
         sys.exit()
 
