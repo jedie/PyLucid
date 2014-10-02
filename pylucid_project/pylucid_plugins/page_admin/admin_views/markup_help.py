@@ -10,6 +10,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from __future__ import absolute_import, division, print_function
+
+
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
 from pylucid_project.apps.pylucid.markup import MARKUP_SHORT_DICT

@@ -6,6 +6,8 @@
     the BOOTSTRAP_SOURCE file.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import sys
 import pprint

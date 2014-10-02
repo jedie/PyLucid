@@ -11,6 +11,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from __future__ import absolute_import, division, print_function
+
+
 
 # Every Plugin output gets a html DIV or SPAN tag around.
 # Here you can defined witch CSS class name the tag should used:

@@ -9,6 +9,8 @@
     script create_bootstrap_script.py
 """
 
+from __future__ import absolute_import, division, print_function
+
 
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:

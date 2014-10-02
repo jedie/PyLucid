@@ -12,6 +12,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from __future__ import absolute_import, division, print_function
+
+
 
 from django.contrib.messages import constants as message_constants
 from django.contrib import messages

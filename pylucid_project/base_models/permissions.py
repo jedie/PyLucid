@@ -9,6 +9,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from __future__ import absolute_import, division, print_function
+
+
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _

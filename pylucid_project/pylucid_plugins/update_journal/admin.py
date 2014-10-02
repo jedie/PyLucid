@@ -16,6 +16,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from __future__ import absolute_import, division, print_function
+
+
 from django.contrib import admin
 from django.conf import settings
 from django.contrib.auth.models import User, Permission

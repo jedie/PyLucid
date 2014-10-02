@@ -8,6 +8,9 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from __future__ import absolute_import, division, print_function
+
+
 from django.conf.urls.defaults import patterns, url
 
 from find_and_replace import admin_views
