@@ -151,6 +151,18 @@ def adjust_options(options, args):
 
     print "Create PyLucid environment in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
     print
+    # Check if pip and setuptools are available. See also:
+    # https://github.com/pypa/packaging-problems/issues/55
+    try:
+        import pip, setuptools
+    except ImportError as err:
+        sys.stderr.write("ERROR: You must install 'pip' first, before execute this bootstrap script!\n")
+        sys.stderr.write("e.g.:\n")
+        sys.stderr.write("  ~$ wget https://bootstrap.pypa.io/get-pip.py -O - | python - --user\n")
+        sys.stderr.write("See also:\n")
+        sys.stderr.write("  https://pip.readthedocs.org/en/latest/installing.html\n")
+        sys.stderr.write("\n(Origin error was: %s)\n" % err)
+        sys.exit(-1)
 
     p = SysPath()
 
