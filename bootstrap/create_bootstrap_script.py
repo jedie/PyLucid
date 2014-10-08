@@ -6,11 +6,11 @@
     the BOOTSTRAP_SOURCE file.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import sys
 import pprint
+import tempfile
+import urllib2
 
 try:
     import virtualenv
@@ -74,46 +74,59 @@ def requirements_definitions():
 
     return "\n".join(content)
 
+def get_pip():
+    get_pip_temp = os.path.join(tempfile.gettempdir(), "get-pip.py")
+    if os.path.isfile(get_pip_temp):
+        print("Use %r" % get_pip_temp)
+        with open(get_pip_temp, "r") as f:
+            get_pip = f.read()
+    else:
+        url="https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py"
+        print("Request: %r..." % url)
+        with open(get_pip_temp, "w") as out_file:
+            # Warning: HTTPS requests do not do any verification of the server’s certificate.
+            f = urllib2.urlopen(url)
+            get_pip = f.read()
+            out_file.write(get_pip)
+
+    get_pip_sha = hashlib.sha256(get_pip).hexdigest()
+    assert get_pip_sha=="d43dc33a5670d69dd14a9be1f2b2fa27ebf124ec1b212a47425331040f742a9b", \
+        "Requested get-pip.py sha256 value is wrong! Hash: %r" % get_pip_sha
+
+    split_index = get_pip.index('if __name__ == "__main__":')
+    get_pip = get_pip[:split_index]
+    get_pip = get_pip.replace("def main():", "def get_pip():")
+
+    get_pip = "\n# get_pip.py\n" + "\n".join([line for line in get_pip.splitlines() if not line.startswith("#")])
+
+    # print(get_pip)
+    return get_pip
+
 
 def create_bootstrap_script():
-    content = ""
+    content = "#" * 79
+
+    content += get_pip()
 
     content += requirements_definitions()
 
     info = "source bootstrap script: %r" % BOOTSTRAP_SOURCE
     print("read", info)
     content += "\n\n# %s\n" % info
-    with open(BOOTSTRAP_SOURCE, "r") as f:
-        content += f.read()
+    f = file(BOOTSTRAP_SOURCE, "r")
+    content += f.read()
+    f.close()
 
-    print("Create/Update %r" % BOOTSTRAP_SCRIPT)
+    print "Create/Update %r" % BOOTSTRAP_SCRIPT
 
     output = virtualenv.create_bootstrap_script(content)
 
     # Add info lines
     shebang, code = output.split("\n",1)
 
-    generator_filepath = os.path.abspath(__file__)
-    pos = generator_filepath.index(os.sep + "PyLucid" + os.sep)
-    generator_filepath=generator_filepath[pos:]
-
-    info_line = "\n".join([
-        "## Generated with %r" % generator_filepath,
-        "## using: %r v%s" % (virtualenv.__file__, virtualenv.virtualenv_version),
-        "## python v%s" % sys.version.replace("\n", " "),
-    ])
-
-
-    output = "\n\n".join([
-        shebang,
-        info_line,
-        "from __future__ import absolute_import, division, print_function",
-        code,
-    ])
-    # print(output)
-
-    with open(BOOTSTRAP_SCRIPT, 'w') as f:
-        f.write(output)
+    f = file(BOOTSTRAP_SCRIPT, 'w')
+    f.write(output)
+    f.close()
 
 
 if __name__ == "__main__":

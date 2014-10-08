@@ -111,11 +111,11 @@ def get_requirement_choice():
         DEFAULT_MENU_CHOICE
     )
 
-    print(MENU_TXT)
+    print MENU_TXT
     try:
         inkey = input(input_msg)
     except KeyboardInterrupt:
-        print((c.colorize("Abort, ok.", foreground="blue")))
+        print(c.colorize("Abort, ok.", foreground="blue"))
         sys.exit()
 
     if inkey == "":
@@ -124,7 +124,7 @@ def get_requirement_choice():
     try:
         return CHOICES[inkey]
     except KeyError:
-        print(c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
+        print c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
             c.colorize(number, opts=("bold",))
         ))
         sys.exit(-1)
@@ -138,6 +138,7 @@ def extend_parser(parser):
         dest="pip_type", default=None,
         help="pip install type: %s" % ", ".join(list(CHOICES.values()))
     )
+    # TODO: Add "call get_pip()" here
 
 
 
@@ -145,31 +146,49 @@ def adjust_options(options, args):
     """
     Display MENU_TXT
     """
-    print(c.colorize("PyLucid virtual environment bootstrap", opts=("bold", "underscore")))
-    print()
+    print c.colorize("PyLucid virtual environment bootstrap", opts=("bold", "underscore"))
+    print
 
     try:
         home_dir = args[0]
     except IndexError:
-        return # Error message would be created later
+        return # caller will raise error
 
-    print("Create PyLucid environment in:", c.colorize(home_dir, foreground="blue", opts=("bold",)))
-    print()
+    print "Create PyLucid environment in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
+    print
+    # Check if pip and setuptools are available. See also:
+    # https://github.com/pypa/packaging-problems/issues/55
+    try:
+        import pip, setuptools
+    except ImportError as err:
+        sys.stderr.write("ERROR: You must install 'pip' first, before execute this bootstrap script!\n")
+        sys.stderr.write("e.g.:\n")
+        sys.stderr.write("  ~$ wget https://bootstrap.pypa.io/get-pip.py -O - | python - --user\n")
+        sys.stderr.write("See also:\n")
+        sys.stderr.write("  https://pip.readthedocs.org/en/latest/installing.html\n")
+        sys.stderr.write("\n(Origin error was: %s)\n" % err)
+        sys.exit(-1)
+
+    sys.stdout.write("Create PyLucid environment in: %r" % c.colorize(home_dir, foreground="blue", opts=("bold",)))
+    sys.stdout.write("\n\n")
 
     p = SysPath()
 
     git_path = p.find("git")
     if git_path:
-        print("git found in:", c.colorize(git_path, opts=("bold",)))
+        print "git found in:", c.colorize(git_path, opts=("bold",))
     else:
-        print(c.colorize("ERROR:", foreground="red", opts=("underscore",)), end=' ')
-        print("git not found in path!")
+        print c.colorize("ERROR:", foreground="red", opts=("underscore",)),
+        print "git not found in path!"
 
     if options.pip_type == None:
         options.pip_type = get_requirement_choice()
-    elif options.pip_type not in list(CHOICES.values()):
-        print("pip type wrong!")
+    elif options.pip_type not in CHOICES.values():
+        print "pip type wrong!"
         sys.exit(-1)
+
+    # sys.stdout.write("options: %s\n" % repr(options))
+    # sys.stdout.write("args: %s\n" % repr(args))
 
 
 class AfterInstall(object):
@@ -179,7 +198,7 @@ class AfterInstall(object):
         self.abs_home_dir = os.path.abspath(home_dir)
         self.logfile = os.path.join(self.abs_home_dir, "PyLucid_pip.log")
         bin_dir = os.path.join(self.abs_home_dir, "bin")
-        self.easy_install = os.path.join(bin_dir, "easy_install")
+        self.python_cmd = os.path.join(bin_dir, "python")
         self.pip_cmd = os.path.join(bin_dir, "pip")
 
         self.subprocess_defaults = {
@@ -199,19 +218,19 @@ class AfterInstall(object):
             raise ValueError
 
     def run_cmd(self, cmd):
-        print("_" * 79)
+        print "_" * 79
         for part in cmd:
             if part.startswith("/") or part.startswith("-"):
-                print(c.colorize(part, foreground="blue"), end=' ')
+                print c.colorize(part, foreground="blue"),
             else:
-                print(c.colorize(part, foreground="blue", opts=("bold",)), end=' ')
-        print()
+                print c.colorize(part, foreground="blue", opts=("bold",)),
+        print
         subprocess.call(cmd, **self.subprocess_defaults)
-        print()
+        print
 
     def run_pip(self, info_text, pip_lines):
-        print()
-        print(c.colorize(info_text, foreground="green", opts=("bold", "underscore")))
+        print
+        print c.colorize(info_text, foreground="green", opts=("bold", "underscore"))
 
         for pip_line in pip_lines:
             assert isinstance(pip_line, str)
@@ -232,12 +251,12 @@ class AfterInstall(object):
             self.run_cmd(cmd)
 
     def install_pip(self):
-        print()
+        print
         if os.path.isfile(self.pip_cmd):
-            print(c.colorize("update existing pip", foreground="green", opts=("bold", "underscore")))
+            print c.colorize("update existing pip", foreground="green", opts=("bold", "underscore"))
             self.run_cmd([self.pip_cmd, 'install', "--upgrade", 'pip'])
         else:
-            print(c.colorize("install pip", foreground="green", opts=("bold", "underscore")))
+            print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
             self.run_cmd([self.easy_install, '--always-copy', 'pip'])
 
     def install_packages(self):
@@ -253,7 +272,7 @@ class AfterInstall(object):
         self.run_pip("install PyLucid projects", install_data)
 
     def verbose_symlink(self, source_path, dst_path):
-        print(("\nsymlink: %s\nto: %s\n" % (
+        print("\nsymlink: %s\nto: %s\n" % (
             c.colorize(source_path, opts=("bold",)),
             c.colorize(dst_path, opts=("bold",)))
         ))
@@ -285,7 +304,6 @@ class AfterInstall(object):
 #        self.verbose_symlink(source_path, dst_path)
 
 
-
 def after_install(options, home_dir):
     """
     called after virtualenv was created and setuptools installed.
@@ -296,12 +314,12 @@ def after_install(options, home_dir):
     a.install_packages()
     a.symlink_scripts()
 
-    print()
-    print("PyLucid environment created in:", c.colorize(home_dir, foreground="blue", opts=("bold",)))
-    print()
-    print("Now you can create a new page instance, more info:")
-    print("http://www.pylucid.org/permalink/355/create-a-new-page-instance")
-    print()
+    print
+    print "PyLucid environment created in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
+    print
+    print "Now you can create a new page instance, more info:"
+    print "http://www.pylucid.org/permalink/355/create-a-new-page-instance"
+    print
 
 # PyLucid bootstrap script END
 #-----------------------------------------------------------------------------
