@@ -2,7 +2,7 @@
 
 # imports not really needed and just for the editor warning ;)
 import sys
-from bootstrap.source_prefix_code import c, SysPath, get_requirement_choice, CHOICES
+from bootstrap.sources.prefix_code import c, SysPath, get_requirement_choice, CHOICES
 
 
 def adjust_options(options, args):

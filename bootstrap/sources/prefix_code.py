@@ -1,13 +1,16 @@
 # coding: utf-8
 
+
 # imports not really needed and just for the editor warning ;)
 import os
 import sys
 import subprocess
 
+
 # Will be inserted in real bootstrap file ;)
 DEVELOPER_INSTALLATION=None
 NORMAL_INSTALLATION=None
+
 
 # --- CUT here ---
 
@@ -17,11 +20,14 @@ Please select how the pylucid own projects should be checkout:
 
 (1) normal installation
 (2) developer installation
+
 """
+
 INSTALL_NORMAL = "normal"
 INSTALL_DEV = "developer"
 CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_DEV}
 DEFAULT_MENU_CHOICE = CHOICES["1"]
+
 
 PY2 = sys.version_info[0] == 2
 if PY2:

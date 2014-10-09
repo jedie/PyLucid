@@ -9,7 +9,6 @@
 import os
 import sys
 import pprint
-import io
 
 try:
     import virtualenv
@@ -42,11 +41,13 @@ PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 ROOT = os.path.dirname(os.path.abspath(__file__))
 BOOTSTRAP_SCRIPT = os.path.join(ROOT, "pylucid-boot.py")
 
-PREFIX_SCRIPT = os.path.join(ROOT, "source_prefix_code.py")
+SOURCE_PATH=os.path.join(ROOT, "sources")
 
-EXTEND_PARSER_SCRIPT = os.path.join(ROOT, "source_extend_parser.py")
-ADJUST_OPTIONS_SCRIPT = os.path.join(ROOT, "source_adjust_options.py")
-AFTER_INSTALL_SCRIPT = os.path.join(ROOT, "source_after_install.py")
+PREFIX_SCRIPT = os.path.join(SOURCE_PATH, "prefix_code.py")
+
+EXTEND_PARSER_SCRIPT = os.path.join(SOURCE_PATH, "extend_parser.py")
+ADJUST_OPTIONS_SCRIPT = os.path.join(SOURCE_PATH, "adjust_options.py")
+AFTER_INSTALL_SCRIPT = os.path.join(SOURCE_PATH, "after_install.py")
 
 
 

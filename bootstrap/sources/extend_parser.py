@@ -2,7 +2,7 @@
 
 # imports not really needed and just for the editor warning ;)
 import sys
-from bootstrap.source_prefix_code import CHOICES
+from bootstrap.sources.prefix_code import CHOICES
 
 
 def extend_parser(parser):

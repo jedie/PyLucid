@@ -1869,17 +1869,20 @@ DEVELOPER_INSTALLATION = ['pillow',
  '--editable=git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid',
  '--editable=git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env']
 ###############################################################################
-## '/home/jens/workspace/PyLucid/bootstrap/source_prefix_code.py' START
+## '/home/jens/workspace/PyLucid/bootstrap/sources/prefix_code.py' START
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
 (1) normal installation
 (2) developer installation
+
 """
+
 INSTALL_NORMAL = "normal"
 INSTALL_DEV = "developer"
 CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_DEV}
 DEFAULT_MENU_CHOICE = CHOICES["1"]
+
 
 PY2 = sys.version_info[0] == 2
 if PY2:
@@ -2097,7 +2100,7 @@ class AfterInstall(object):
 #        source_path = os.path.join(self.abs_home_dir, "src", "django-tools", "django_tools", filename)
 #        dst_path = os.path.join(self.abs_home_dir, filename)
 #        self.verbose_symlink(source_path, dst_path)
-## '/home/jens/workspace/PyLucid/bootstrap/source_prefix_code.py' END
+## '/home/jens/workspace/PyLucid/bootstrap/sources/prefix_code.py' END
 ###############################################################################
 ## 'prefix code' END
 ###############################################################################
@@ -2117,12 +2120,12 @@ def extend_parser(parser):
 
 
     ###############################################################################
-    ## '/home/jens/workspace/PyLucid/bootstrap/source_extend_parser.py' START
+    ## '/home/jens/workspace/PyLucid/bootstrap/sources/extend_parser.py' START
     parser.add_option("-t", "--type", type="string",
         dest="install_type", default=None,
         help="PyLucid install type: %s (Choose via menu!)" % ", ".join(list(CHOICES.values()))
     )
-    ## '/home/jens/workspace/PyLucid/bootstrap/source_extend_parser.py' END
+    ## '/home/jens/workspace/PyLucid/bootstrap/sources/extend_parser.py' END
     ###############################################################################
 
 
@@ -2140,7 +2143,7 @@ def adjust_options(options, args):
 
 
     ###############################################################################
-    ## '/home/jens/workspace/PyLucid/bootstrap/source_adjust_options.py' START
+    ## '/home/jens/workspace/PyLucid/bootstrap/sources/adjust_options.py' START
     """
     Display MENU_TXT
     """
@@ -2184,7 +2187,7 @@ def adjust_options(options, args):
 
     # sys.stdout.write("options: %s\n" % repr(options))
     # sys.stdout.write("args: %s\n" % repr(args))
-    ## '/home/jens/workspace/PyLucid/bootstrap/source_adjust_options.py' END
+    ## '/home/jens/workspace/PyLucid/bootstrap/sources/adjust_options.py' END
     ###############################################################################
 
 
@@ -2193,7 +2196,7 @@ def after_install(options, home_dir):
 
 
     ###############################################################################
-    ## '/home/jens/workspace/PyLucid/bootstrap/source_after_install.py' START
+    ## '/home/jens/workspace/PyLucid/bootstrap/sources/after_install.py' START
     """
     called after virtualenv was created and setuptools installed.
     Now we installed PyLucid and used libs/packages.
@@ -2208,7 +2211,7 @@ def after_install(options, home_dir):
     sys.stdout.write("Now you can create a new page instance, more info:\n")
     sys.stdout.write("http://www.pylucid.org/permalink/355/create-a-new-page-instance\n")
     sys.stdout.write("\n")
-    ## '/home/jens/workspace/PyLucid/bootstrap/source_after_install.py' END
+    ## '/home/jens/workspace/PyLucid/bootstrap/sources/after_install.py' END
     ###############################################################################
 
 

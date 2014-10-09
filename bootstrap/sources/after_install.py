@@ -2,7 +2,7 @@
 
 # imports not really needed and just for the editor warning ;)
 import sys
-from bootstrap.source_prefix_code import AfterInstall
+from bootstrap.sources.prefix_code import AfterInstall
 
 
 def after_install(options, home_dir):
