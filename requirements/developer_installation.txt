@@ -8,6 +8,9 @@
 # For rest2html from python-creole in setup.py
 docutils
 
+# For generating the bootstrap script
+virtualenv
+
 # clone PyLucid own projects with git push access
 #-------------------------------------------------
 
