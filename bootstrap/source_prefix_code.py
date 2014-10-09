@@ -1,17 +1,16 @@
-#-----------------------------------------------------------------------------
-# PyLucid bootstrap script START
+# coding: utf-8
 
-"""
-    PyLucid virtual environment bootstrap
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# imports not really needed and just for the editor warning ;)
+import os
+import sys
+import subprocess
 
-    This file would be merged into pylucid-boot.py with the
-    script create_bootstrap_script.py
-"""
+# Will be inserted in real bootstrap file ;)
+DEVELOPER_INSTALLATION=None
+NORMAL_INSTALLATION=None
 
-PY2 = sys.version_info[0] == 2
-if PY2:
-    input=raw_input
+# --- CUT here ---
+
 
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
@@ -23,6 +22,10 @@ INSTALL_NORMAL = "normal"
 INSTALL_DEV = "developer"
 CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_DEV}
 DEFAULT_MENU_CHOICE = CHOICES["1"]
+
+PY2 = sys.version_info[0] == 2
+if PY2:
+    input=raw_input
 
 
 class SysPath(object):
@@ -45,7 +48,7 @@ class ColorOut(object):
     """
     Borrowed from Django:
     http://code.djangoproject.com/browser/django/trunk/django/utils/termcolors.py
-    
+
     >>> c = ColorOut()
     >>> c.supports_colors()
     True
@@ -111,11 +114,11 @@ def get_requirement_choice():
         DEFAULT_MENU_CHOICE
     )
 
-    print MENU_TXT
+    sys.stderr.write(MENU_TXT)
     try:
         inkey = input(input_msg)
     except KeyboardInterrupt:
-        print(c.colorize("Abort, ok.", foreground="blue"))
+        sys.stderr.write(c.colorize("Abort, ok.", foreground="blue"))
         sys.exit()
 
     if inkey == "":
@@ -124,71 +127,9 @@ def get_requirement_choice():
     try:
         return CHOICES[inkey]
     except KeyError:
-        print c.colorize("Error:", foreground="red"), "%r is not a valid choice!" % (
-            c.colorize(number, opts=("bold",))
-        ))
+        sys.stderr.write(c.colorize("Error:", foreground="red"))
+        sys.stderr.write("%s is not a valid choice!\n" % c.colorize(inkey, opts=("bold",)))
         sys.exit(-1)
-
-
-def extend_parser(parser):
-    """
-    extend optparse options.
-    """
-    parser.add_option("-t", "--type", type="string",
-        dest="pip_type", default=None,
-        help="pip install type: %s" % ", ".join(list(CHOICES.values()))
-    )
-    # TODO: Add "call get_pip()" here
-
-
-
-def adjust_options(options, args):
-    """
-    Display MENU_TXT
-    """
-    print c.colorize("PyLucid virtual environment bootstrap", opts=("bold", "underscore"))
-    print
-
-    try:
-        home_dir = args[0]
-    except IndexError:
-        return # caller will raise error
-
-    print "Create PyLucid environment in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
-    print
-    # Check if pip and setuptools are available. See also:
-    # https://github.com/pypa/packaging-problems/issues/55
-    try:
-        import pip, setuptools
-    except ImportError as err:
-        sys.stderr.write("ERROR: You must install 'pip' first, before execute this bootstrap script!\n")
-        sys.stderr.write("e.g.:\n")
-        sys.stderr.write("  ~$ wget https://bootstrap.pypa.io/get-pip.py -O - | python - --user\n")
-        sys.stderr.write("See also:\n")
-        sys.stderr.write("  https://pip.readthedocs.org/en/latest/installing.html\n")
-        sys.stderr.write("\n(Origin error was: %s)\n" % err)
-        sys.exit(-1)
-
-    sys.stdout.write("Create PyLucid environment in: %r" % c.colorize(home_dir, foreground="blue", opts=("bold",)))
-    sys.stdout.write("\n\n")
-
-    p = SysPath()
-
-    git_path = p.find("git")
-    if git_path:
-        print "git found in:", c.colorize(git_path, opts=("bold",))
-    else:
-        print c.colorize("ERROR:", foreground="red", opts=("underscore",)),
-        print "git not found in path!"
-
-    if options.pip_type == None:
-        options.pip_type = get_requirement_choice()
-    elif options.pip_type not in CHOICES.values():
-        print "pip type wrong!"
-        sys.exit(-1)
-
-    # sys.stdout.write("options: %s\n" % repr(options))
-    # sys.stdout.write("args: %s\n" % repr(args))
 
 
 class AfterInstall(object):
@@ -210,32 +151,37 @@ class AfterInstall(object):
         }
 
         # NORMAL_INSTALLATION and DEVELOPER_INSTALLATION added by create_bootstrap_script.py!
-        if self.options.pip_type == INSTALL_NORMAL:
+        if self.options.install_type == INSTALL_NORMAL:
             self.dev_install = False
-        elif self.options.pip_type == INSTALL_DEV:
+        elif self.options.install_type == INSTALL_DEV:
             self.dev_install = True
         else:
             raise ValueError
 
     def run_cmd(self, cmd):
-        print "_" * 79
+        sys.stderr.write("\n")
+        sys.stderr.write("_" * 79)
+        sys.stderr.write("\n")
         for part in cmd:
             if part.startswith("/") or part.startswith("-"):
-                print c.colorize(part, foreground="blue"),
+                sys.stderr.write(c.colorize(part, foreground="blue"))
+                sys.stderr.write(" ")
             else:
-                print c.colorize(part, foreground="blue", opts=("bold",)),
-        print
+                sys.stderr.write(c.colorize(part, foreground="blue", opts=("bold",)))
+                sys.stderr.write(" ")
+        sys.stderr.write("\n")
         subprocess.call(cmd, **self.subprocess_defaults)
-        print
+        sys.stderr.write("\n")
 
     def run_pip(self, info_text, pip_lines):
-        print
-        print c.colorize(info_text, foreground="green", opts=("bold", "underscore"))
+        sys.stderr.write("\n")
+        sys.stderr.write(c.colorize(info_text, foreground="green", opts=("bold", "underscore")))
+        sys.stderr.write("\n")
 
         for pip_line in pip_lines:
             assert isinstance(pip_line, str)
             cmd = [self.pip_cmd, "install", "--log=%s" % self.logfile, pip_line]
-            
+
             if "PyLucid.git" in pip_line or "django-processinfo" in pip_line:
                 # FIXME: How to handle this better?
                 #
@@ -247,17 +193,8 @@ class AfterInstall(object):
                 # Django v1.3.x - v1.4.x and will install django 1.3
                 #
                 cmd.append("--no-dependencies")
-                
-            self.run_cmd(cmd)
 
-    def install_pip(self):
-        print
-        if os.path.isfile(self.pip_cmd):
-            print c.colorize("update existing pip", foreground="green", opts=("bold", "underscore"))
-            self.run_cmd([self.pip_cmd, 'install', "--upgrade", 'pip'])
-        else:
-            print c.colorize("install pip", foreground="green", opts=("bold", "underscore"))
-            self.run_cmd([self.easy_install, '--always-copy', 'pip'])
+            self.run_cmd(cmd)
 
     def install_packages(self):
         """
@@ -272,10 +209,10 @@ class AfterInstall(object):
         self.run_pip("install PyLucid projects", install_data)
 
     def verbose_symlink(self, source_path, dst_path):
-        print("\nsymlink: %s\nto: %s\n" % (
-            c.colorize(source_path, opts=("bold",)),
-            c.colorize(dst_path, opts=("bold",)))
-        ))
+        sys.stderr.write("\n")
+        sys.stderr.write("symlink: %s\n" % c.colorize(source_path, opts=("bold",)))
+        sys.stderr.write("to: %s\n" % c.colorize(dst_path, opts=("bold",)))
+
         try:
             os.symlink(source_path, dst_path)
         except Exception as e:
@@ -302,24 +239,3 @@ class AfterInstall(object):
 #        source_path = os.path.join(self.abs_home_dir, "src", "django-tools", "django_tools", filename)
 #        dst_path = os.path.join(self.abs_home_dir, filename)
 #        self.verbose_symlink(source_path, dst_path)
-
-
-def after_install(options, home_dir):
-    """
-    called after virtualenv was created and setuptools installed.
-    Now we installed PyLucid and used libs/packages.
-    """
-    a = AfterInstall(options, home_dir)
-    a.install_pip()
-    a.install_packages()
-    a.symlink_scripts()
-
-    print
-    print "PyLucid environment created in:", c.colorize(home_dir, foreground="blue", opts=("bold",))
-    print
-    print "Now you can create a new page instance, more info:"
-    print "http://www.pylucid.org/permalink/355/create-a-new-page-instance"
-    print
-
-# PyLucid bootstrap script END
-#-----------------------------------------------------------------------------

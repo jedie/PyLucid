@@ -9,8 +9,7 @@
 import os
 import sys
 import pprint
-import tempfile
-import urllib2
+import io
 
 try:
     import virtualenv
@@ -24,6 +23,8 @@ except ImportError as err:
     print()
     sys.exit(-1)
 
+from bootstrap_env import create_bootstrap # https://github.com/jedie/bootstrap_env
+
 try:
     import pylucid_project
 except ImportError as err:
@@ -34,11 +35,19 @@ except ImportError as err:
     sys.exit(-1)
 
 
+CUT_MARK="# --- CUT here ---"
+
 PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 BOOTSTRAP_SCRIPT = os.path.join(ROOT, "pylucid-boot.py")
-BOOTSTRAP_SOURCE = os.path.join(ROOT, "source-pylucid-boot.py")
+
+PREFIX_SCRIPT = os.path.join(ROOT, "source_prefix_code.py")
+
+EXTEND_PARSER_SCRIPT = os.path.join(ROOT, "source_extend_parser.py")
+ADJUST_OPTIONS_SCRIPT = os.path.join(ROOT, "source_adjust_options.py")
+AFTER_INSTALL_SCRIPT = os.path.join(ROOT, "source_after_install.py")
+
 
 
 def parse_requirements(filename):
@@ -74,61 +83,21 @@ def requirements_definitions():
 
     return "\n".join(content)
 
-def get_pip():
-    get_pip_temp = os.path.join(tempfile.gettempdir(), "get-pip.py")
-    if os.path.isfile(get_pip_temp):
-        print("Use %r" % get_pip_temp)
-        with open(get_pip_temp, "r") as f:
-            get_pip = f.read()
-    else:
-        url="https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py"
-        print("Request: %r..." % url)
-        with open(get_pip_temp, "w") as out_file:
-            # Warning: HTTPS requests do not do any verification of the server’s certificate.
-            f = urllib2.urlopen(url)
-            get_pip = f.read()
-            out_file.write(get_pip)
 
-    get_pip_sha = hashlib.sha256(get_pip).hexdigest()
-    assert get_pip_sha=="d43dc33a5670d69dd14a9be1f2b2fa27ebf124ec1b212a47425331040f742a9b", \
-        "Requested get-pip.py sha256 value is wrong! Hash: %r" % get_pip_sha
+if __name__ == '__main__':
+    prefix_code = "\n".join([
+        requirements_definitions(),
+        create_bootstrap.get_code(PREFIX_SCRIPT, CUT_MARK),
+    ])
 
-    split_index = get_pip.index('if __name__ == "__main__":')
-    get_pip = get_pip[:split_index]
-    get_pip = get_pip.replace("def main():", "def get_pip():")
+    # print(additional_code)
 
-    get_pip = "\n# get_pip.py\n" + "\n".join([line for line in get_pip.splitlines() if not line.startswith("#")])
-
-    # print(get_pip)
-    return get_pip
-
-
-def create_bootstrap_script():
-    content = "#" * 79
-
-    content += get_pip()
-
-    content += requirements_definitions()
-
-    info = "source bootstrap script: %r" % BOOTSTRAP_SOURCE
-    print("read", info)
-    content += "\n\n# %s\n" % info
-    f = file(BOOTSTRAP_SOURCE, "r")
-    content += f.read()
-    f.close()
-
-    print "Create/Update %r" % BOOTSTRAP_SCRIPT
-
-    output = virtualenv.create_bootstrap_script(content)
-
-    # Add info lines
-    shebang, code = output.split("\n",1)
-
-    f = file(BOOTSTRAP_SCRIPT, 'w')
-    f.write(output)
-    f.close()
-
-
-if __name__ == "__main__":
-    create_bootstrap_script()
-    print(" -- END -- ")
+    create_bootstrap.generate_bootstrip(
+        out_filename=BOOTSTRAP_SCRIPT,
+        add_extend_parser=EXTEND_PARSER_SCRIPT,
+        add_adjust_options=ADJUST_OPTIONS_SCRIPT,
+        add_after_install=AFTER_INSTALL_SCRIPT,
+        cut_mark=CUT_MARK,
+        prefix=prefix_code,
+        suffix=None,
+    )
