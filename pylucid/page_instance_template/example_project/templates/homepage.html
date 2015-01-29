@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load cms_tags %}
+
+{% block breadcrumb %}{% endblock %}
+
+{% block content %}
+
+    <div class="jumbotron">
+        {% placeholder jumbotron %}
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+          {% placeholder col_1 %}
+        </div>
+        <div class="col-lg-4">
+          {% placeholder col_2 %}
+       </div>
+        <div class="col-lg-4">
+          {% placeholder col_3 %}
+        </div>
+    </div>
+
+{% endblock %}

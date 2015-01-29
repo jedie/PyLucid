@@ -22,7 +22,7 @@ import sys
 
 from setuptools import setup, find_packages
 
-from pylucid_project import VERSION_STRING
+from pylucid import VERSION_STRING
 
 
 PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -49,50 +49,32 @@ def get_authors():
     return authors
 
 
-def get_install_requires():
-    def parse_requirements(filename):
-        filepath = os.path.join(PACKAGE_ROOT, "requirements", filename)
-        with open(filepath, "r") as f:
-            entries = []
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#") or line.startswith("-r"):
-                    continue
-                if line.startswith("-e "):
-                    line = line.split("#egg=")[1]
-                if line.lower() == "pylucid":
-                    continue
-                entries.append(line)
-
-        return entries
-
-    requirements = []
-    requirements += parse_requirements("basic_requirements.txt")
-    requirements += parse_requirements("normal_installation.txt")
-    return requirements
-
 
 setup_info = dict(
     name='PyLucid',
     version=VERSION_STRING,
-    description='PyLucid is an open-source web content management system (CMS) using django.',
+    description='PyLucid CMS',
     long_description=long_description,
     author=get_authors(),
     maintainer="Jens Diemer",
     url='http://www.pylucid.org',
     download_url = 'http://www.pylucid.org/en/download/',
     packages=find_packages(
-        exclude=[".project", ".pydevproject", "pylucid_project.external_plugins.*"]
+        #exclude=[".project", ".pydevproject", "pylucid_project.external_plugins.*"]
     ),
     include_package_data=True, # include package data under version control
-    install_requires=get_install_requires(),
+    entry_points='''
+        [console_scripts]
+        pylucid_installer=pylucid.pylucid_installer:cli
+    ''',
+    install_requires=["Click",],
     zip_safe=False,
     classifiers=[
-#        'Development Status :: 1 - Planning',
+       'Development Status :: 1 - Planning',
 #        'Development Status :: 2 - Pre-Alpha',
 #        'Development Status :: 3 - Alpha',
-        "Development Status :: 4 - Beta",
-        "Development Status :: 5 - Production/Stable",
+#         "Development Status :: 4 - Beta",
+#         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
 #        "Intended Audience :: Education",

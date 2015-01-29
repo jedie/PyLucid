@@ -1,9 +1,0 @@
-<div class="admin_links">
-    {% if perms.blog.change_blogentry %}
-        <a href="{% url Blog-edit_blog_entry entry.id %}" title="edit this blog entry">{% trans 'edit' %}</a>
-        <a href="{% url Blog-translate entry.id %}" title="translate this blog entry">{% trans 'translate' %}</a>
-    {% endif %}
-    {% if perms.blog.delete_blogentry %}
-        <a href="{% url admin:blog_blogentrycontent_delete entry.id %}" title="delete this blog entry">{% trans 'delete' %}</a>
-    {% endif %}
-</div>

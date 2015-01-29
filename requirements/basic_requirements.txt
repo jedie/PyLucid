@@ -1,6 +1,9 @@
 # Python packages
 #-----------------
 
+# https://pypi.python.org/pypi/click/
+click>=3.3,<4.0
+
 # http://python-pillow.github.io/
 # https://pypi.python.org/pypi/Pillow/
 pillow

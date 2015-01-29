@@ -1,6 +1,0 @@
-/* content from:
- * https://github.com/marijnh/CodeMirror/raw/master/js/parsehtmlmixed.js
- * closure compiled 2011-05-17 */
-var HTMLMixedParser=Editor.Parser=function(){function l(){var a=["XMLParser"],f;for(f in e)a.push(e[f]);for(var d in a)if(!window[a[d]])throw Error(a[d]+" parser must be loaded for HTML mixed mode to work.");XMLParser.configure({useHTMLKludges:!0})}var e={script:"JSParser",style:"CSSParser"};return{make:function(a){function f(){var a=g.next();if(a.content=="<")b=!0;else if(a.style=="xml-tagname"&&b===!0)b=a.content.toLowerCase();else if(a.content==">"){if(e[b])h.next=d(window[e[b]],"</"+b);b=!1}return a}
-function d(b,j){var e=g.indentation();i=b.make(a,e+indentUnit);return function(){if(a.lookAhead(j,!1,!1,!0))return i=null,h.next=f,f();var c=i.next(),b=c.value.lastIndexOf("<"),d=Math.min(c.value.length-b,j.length);if(b!=-1&&c.value.slice(b,b+d).toLowerCase()==j.slice(0,d)&&a.lookAhead(j.slice(d),!1,!1,!0))a.push(c.value.slice(b)),c.value=c.value.slice(0,b);if(c.indentation){var g=c.indentation;c.indentation=function(a){return a=="</"?e:g(a)}}return c}}l();var g=XMLParser.make(a),i=null,b=!1,h={next:f,
-copy:function(){var e=g.copy(),d=i&&i.copy(),f=h.next,c=b;return function(k){a=k;g=e(k);i=d&&d(k);h.next=f;b=c;return h}}};return h},electricChars:"{}/:",configure:function(a){if(a.triggers)e=a.triggers}}}();

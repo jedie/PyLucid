@@ -1,3 +1,0 @@
-{% for design in designs %}
-    <a href="{% url admin:pylucid_design_change design.pk %}" class="add_openinwindow" title="{% trans "edit design" %}">{{ design.name }}</a><br />
-{% endfor %}

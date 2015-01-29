@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load cms_tags menu_tags %}
+
+{% block container %}
+    <div class="row">
+        <div class="col-md-3">
+            {% block subnav %}
+                <ul class="nav nav-pills nav-stacked">
+                    {% show_menu 1 5 0 1 "includes/menu/navigation.html" %}
+                </ul>
+            {% endblock %}
+            {% block sidebar %}
+                {% placeholder sidebar %}
+            {% endblock %}
+        </div>
+        <div class="col-md-9">
+            {% block content %}
+                {% placeholder content %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

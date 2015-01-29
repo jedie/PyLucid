@@ -1,1 +1,0 @@
-# for external plugins, see: http://www.pylucid.org/permalink/345/howto-use-external-pylucid-plugins-or-other-django-projects
