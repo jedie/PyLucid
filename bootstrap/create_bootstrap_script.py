@@ -39,7 +39,7 @@ CUT_MARK="# --- CUT here ---"
 PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-BOOTSTRAP_SCRIPT = os.path.join(ROOT, "pylucid-boot.py")
+BOOTSTRAP_SCRIPT = os.path.normpath(os.path.join(ROOT, "..", "pylucid-boot.py"))
 
 SOURCE_PATH=os.path.join(ROOT, "sources")
 
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     # print(additional_code)
 
-    create_bootstrap.generate_bootstrip(
+    create_bootstrap.generate_bootstrap(
         out_filename=BOOTSTRAP_SCRIPT,
         add_extend_parser=EXTEND_PARSER_SCRIPT,
         add_adjust_options=ADJUST_OPTIONS_SCRIPT,

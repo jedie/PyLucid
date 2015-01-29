@@ -11,7 +11,7 @@ pillow
 
 # http://pygments.org/
 # http://pypi.python.org/pypi/Pygments
-Pygments>=1.6,<1.7
+Pygments>=2.0,<2.1
 
 # Flup is not Python 3 compatible.
 # http://trac.saddi.com/flup
@@ -53,4 +53,4 @@ django-reversion>=1.8.4,<1.9
 
 # http://south.aeracode.org/
 # http://pypi.python.org/pypi/South
-South>=1.0.0,<1.1.0
+#South>=1.0.0,<1.1.0

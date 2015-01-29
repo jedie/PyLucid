@@ -14,6 +14,10 @@ virtualenv
 # clone PyLucid own projects with git push access
 #-------------------------------------------------
 
+# https://github.com/jedie/bootstrap_env
+# https://pypi.python.org/pypi/bootstrap_env/
+-e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
+
 # https://code.google.com/p/python-creole/
 # https://pypi.python.org/pypi/python-creole
 -e git+git@github.com:jedie/python-creole.git#egg=python-creole
