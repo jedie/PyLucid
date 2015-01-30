@@ -1,0 +1,55 @@
+= about PyLucid
+
+PyLucid is an Open Source web content management system written in Python.
+
+This [[https://github.com/jedie/PyLucid/tree/django-cms|django-cms branch]] is a completely rewrite.
+
+The current state of the Django-CMS branch is not useable :(
+
+Fork and contribute! ;)
+
+== install
+
+{{{
+# download bootstrap file:
+/home/FooBar$ wget https://github.com/jedie/PyLucid/raw/django-cms/pylucid-boot.py
+
+# Create virtualenv with all needed packages:
+/home/FooBar$ python3 pylucid-boot.py ~/PyLucid_env
+
+# Go into created virtualenv:
+/home/FooBar$ cd ~/PyLucid_env
+
+# activate the env:
+~/PyLucid_env $ source bin/activate
+
+# Create a page instance:
+(PyLucid_env) ~/PyLucid_env $ pylucid_installer --dest=~/page_instance --name=MyCoolSite
+
+# Go into created page instance
+(PyLucid_env) ~/PyLucid_env $ cd ~/page_instance/
+
+# init django
+(PyLucid_env) ~/page_instance $ ./manage.py syncdb
+}}}
+
+
+
+= donation
+
+* [[https://flattr.com/thing/54709/PyLucid-CMS|Flattr this!]]
+* Send [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F|1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F]]
+* [[Paypal over SourceForge.net|http://sourceforge.net/donate/index.php?group_id=146328]]
+* [[Paypal over Pledgie|https://pledgie.com/campaigns/10140]]
+
+
+= links
+
+| Homepage            | [[http://www.pylucid.org]]
+| Development history | [[http://www.pylucid.org/blog/tags/development/|visible / backward-incompatible changes]]
+| Forum               | [[http://forum.pylucid.org/]]
+| IRC                 | [[http://www.pylucid.org/permalink/304/irc-channel|#pylucid on freenode.net]]
+| Github              | [[http://github.com/jedie/PyLucid]]
+| Sourceforge         | [[http://sourceforge.net/projects/pylucid/]]
+| Google code         | [[http://code.google.com/p/pylucid/]]
+
