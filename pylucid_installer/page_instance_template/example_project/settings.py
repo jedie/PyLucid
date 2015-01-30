@@ -134,18 +134,19 @@ INSTALLED_APPS = (
     'mptt',
     # 'djangocms_style',
     # 'djangocms_column',
-    # 'djangocms_file',
+    'djangocms_file',
     # 'djangocms_flash',
     # 'djangocms_googlemap',
     # 'djangocms_inherit',
-    # 'djangocms_link',
-    # 'djangocms_picture',
+    'djangocms_link',
+    'djangocms_picture',
     # 'djangocms_teaser',
-    # 'djangocms_video',
+    'djangocms_video',
 
     'reversion', # https://github.com/etianen/django-reversion
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
-    'compressor',
+    'compressor', # https://github.com/django-compressor/django-compressor
+    'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
 
     'example_project'
 )
@@ -197,14 +198,14 @@ MIGRATION_MODULES = {
     'cms': 'cms.migrations_django',
     'menus': 'menus.migrations_django',
     'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations_django',
-    'djangocms_column': 'djangocms_column.migrations_django',
-    'djangocms_flash': 'djangocms_flash.migrations_django',
-    'djangocms_googlemap': 'djangocms_googlemap.migrations_django',
-    'djangocms_inherit': 'djangocms_inherit.migrations_django',
-    'djangocms_style': 'djangocms_style.migrations_django',
+    # 'djangocms_column': 'djangocms_column.migrations_django',
+    # 'djangocms_flash': 'djangocms_flash.migrations_django',
+    # 'djangocms_googlemap': 'djangocms_googlemap.migrations_django',
+    # 'djangocms_inherit': 'djangocms_inherit.migrations_django',
+    # 'djangocms_style': 'djangocms_style.migrations_django',
     'djangocms_file': 'djangocms_file.migrations_django',
     'djangocms_link': 'djangocms_link.migrations_django',
     'djangocms_picture': 'djangocms_picture.migrations_django',
-    'djangocms_teaser': 'djangocms_teaser.migrations_django',
+    # 'djangocms_teaser': 'djangocms_teaser.migrations_django',
     'djangocms_video': 'djangocms_video.migrations_django'
 }

@@ -60,6 +60,9 @@ django-filer
 # https://github.com/stefanfoulis/cmsplugin-filer
 cmsplugin-filer
 
+# https://github.com/divio/djangocms-file
+djangocms-file
+
 # https://github.com/divio/djangocms-link
 djangocms-link
 
