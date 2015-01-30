@@ -31,9 +31,16 @@ Fork and contribute! ;)
 
 # init django
 (PyLucid_env) ~/page_instance $ ./manage.py syncdb
+
+# run dev. server:
+(PyLucid_env) ~/page_instance $ ./manage.py runserver
 }}}
 
+=== dev info
 
+Currently the base files are a mix of:
+* https://github.com/nephila/djangocms-installer
+* https://github.com/bogdal/djangocms-example
 
 = donation
 
