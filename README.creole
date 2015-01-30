@@ -10,6 +10,18 @@ Fork and contribute! ;)
 
 == install
 
+=== prepare
+
+The [[https://pypi.python.org/pypi/Pillow/|Pillow (PIL fork)]] doesn't provide binaries for Linux.
+Make sure you have Python’s development libraries installed.
+e.g.:
+{{{
+$ sudo apt-get install python3-dev libjpeg8-dev libfreetype6-dev
+}}}
+more info here: https://pillow.readthedocs.org/en/latest/installation.html
+
+=== bootstrap PyLucid
+
 {{{
 # download bootstrap file:
 /home/FooBar$ wget https://github.com/jedie/PyLucid/raw/django-cms/pylucid-boot.py
@@ -30,12 +42,12 @@ Fork and contribute! ;)
 (PyLucid_env) ~/PyLucid_env $ cd ~/page_instance/
 
 # init django
-(PyLucid_env) ~/page_instance $ ./manage.py syncdb --all
-(PyLucid_env) ~/page_instance $ ./manage.py migrate --fake
+(PyLucid_env) ~/page_instance $ ./manage.py syncdb
 
 # run dev. server:
 (PyLucid_env) ~/page_instance $ ./manage.py runserver
 }}}
+
 
 === dev info
 
