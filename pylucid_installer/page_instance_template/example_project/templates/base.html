@@ -1,4 +1,4 @@
-{% load cms_tags sekizai_tags static menu_tags compress cache %}
+{% load cms_tags sekizai_tags static menu_tags compress %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
   <head>
@@ -53,11 +53,9 @@
           </ol>
       {% endblock breadcrumb %}
 
-      {% cache CACHE_TIMEOUT container request.path request.user.is_superuser %}
-          {% block container %}
-              {% block content %}{% endblock %}
-          {% endblock %}
-      {% endcache %}
+      {% block container %}
+          {% block content %}{% endblock %}
+      {% endblock %}
 
       <hr>
       <footer>
