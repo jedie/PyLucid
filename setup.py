@@ -10,7 +10,7 @@
     
     http://www.python-forum.de/viewtopic.php?f=21&t=26895 (de)
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -65,7 +65,7 @@ setup_info = dict(
     include_package_data=True, # include package data under version control
     entry_points='''
         [console_scripts]
-        pylucid_installer=pylucid.pylucid_installer:cli
+        pylucid_installer=pylucid_installer.pylucid_installer:cli
     ''',
     install_requires=["Click",],
     zip_safe=False,

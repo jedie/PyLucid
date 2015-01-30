@@ -1,9 +1,24 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+"""
+    PyLucid installer
+    ~~~~~~~~~~~~~~~~~
+
+    CLI to create a page instance
+
+    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 import os
 import sys
 import shutil
-
-import click
 import random
+import string
+
+# https://pypi.python.org/pypi/click/
+import click
 
 
 SRC_PROJECT_NAME="example_project"
@@ -25,7 +40,7 @@ def _check_activated_virtualenv():
 
 def _check_destination(dest, remove):
     if not dest:
-        raise click.BadParameter("Path needed!", err=True)
+        raise click.BadParameter("Path needed!")
 
     dest = os.path.normpath(os.path.abspath(os.path.expanduser(dest)))
 
@@ -35,7 +50,7 @@ def _check_destination(dest, remove):
             click.echo("remove tree %r" % dest)
             shutil.rmtree(dest)
         else:
-            raise click.BadParameter("ERROR: Destination %r exist!" % dest, err=True)
+            raise click.BadParameter("ERROR: Destination %r exist!" % dest)
 
     return dest
 
@@ -105,6 +120,9 @@ def _rename_project(dest, name):
     help="Delete **all** existing files in destination before copy?",
 )
 def cli(dest, name, remove):
+    """
+    CLI to create a page instance.
+    """
     _check_activated_virtualenv()
 
     click.echo("Create page instance here: %r" % dest)
@@ -126,7 +144,7 @@ def cli(dest, name, remove):
     )
 
     secret_key = ''.join(
-        [random.choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(64)]
+        [random.choice(string.ascii_letters+string.digits+"!@#$%^&*(-_=+)") for i in range(64)]
     )
     _mass_replace(
         {

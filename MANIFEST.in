@@ -2,8 +2,6 @@ include AUTHORS README.creole MANIFEST.in
 recursive-include * *.html *.css *.js
 recursive-include requirements *
 recursive-include scripts *
-recursive-include pylucid_project/locale *
-recursive-include pylucid_project/media *
-recursive-exclude pylucid_project/static/PyLucid/headfile_cache *
+recursive-include pylucid_installer *
 prune pylucid_project/pylucid_plugins/unittest_plugin
 recursive-exclude * *.py[co]
