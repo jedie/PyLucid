@@ -30,7 +30,8 @@ Fork and contribute! ;)
 (PyLucid_env) ~/PyLucid_env $ cd ~/page_instance/
 
 # init django
-(PyLucid_env) ~/page_instance $ ./manage.py syncdb
+(PyLucid_env) ~/page_instance $ ./manage.py syncdb --all
+(PyLucid_env) ~/page_instance $ ./manage.py migrate --fake
 
 # run dev. server:
 (PyLucid_env) ~/page_instance $ ./manage.py runserver
