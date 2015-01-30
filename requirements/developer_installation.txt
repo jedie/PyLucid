@@ -41,7 +41,3 @@ virtualenv
 # http://www.pylucid.org/
 # https://pypi.python.org/pypi/PyLucid
 -e git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid
-
-# https://github.com/jedie/bootstrap_env
-# https://pypi.python.org/pypi/bootstrap_env/
--e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
