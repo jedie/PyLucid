@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 """
-    WARNING: This file is generated with: bootstrap_env v0.4.0
+    WARNING: This file is generated with: bootstrap_env v0.4.1
     https://pypi.python.org/pypi/bootstrap_env/
-    script file: 'create_bootstrap.py'
-    used '/home/jens/PyLucid_env/lib/python3.4/site-packages/virtualenv.py' v12.0.6
-    Python v3.4.0 (default, Apr 11 2014, 13:05:18)  [GCC 4.8.2]
+    script file: 'create_bootstrap.pyc'
+    used '/home/jens/PyLucid2_env/local/lib/python2.7/site-packages/virtualenv.pyc' v12.0.6
+    Python v2.7.6 (default, Mar 22 2014, 22:59:38)  [GCC 4.8.2]
 """
 
 __version__ = "12.0.6"
@@ -1859,7 +1859,8 @@ def create_bootstrap_script(extra_text, python_version=''):
 ###############################################################################
 ## 'prefix code' START
 # requirements from normal_installation.txt
-NORMAL_INSTALLATION = ['pillow',
+NORMAL_INSTALLATION = ['click>=3.3,<4.0',
+ 'pillow',
  'Pygments>=2.0,<2.1',
  'Django>=1.7,<1.8',
  'django-cms>=3.0.5,<3.1',
@@ -1867,11 +1868,12 @@ NORMAL_INSTALLATION = ['pillow',
  'python-creole>=1.2.1,<1.3.0',
  'django-tools>=0.25,<0.26',
  'django-processinfo>=0.7.0,<0.8',
- 'django-reversion-compare>=0.3.5,<0.4',
+ 'django-reversion-compare>=0.4,<0.5',
  '--editable=git+git://github.com/jedie/PyLucid.git@django-cms#egg=pylucid']
 
 # requirements from developer_installation.txt
-DEVELOPER_INSTALLATION = ['pillow',
+DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
+ 'pillow',
  'Pygments>=2.0,<2.1',
  'Django>=1.7,<1.8',
  'django-cms>=3.0.5,<3.1',
@@ -2121,7 +2123,7 @@ class AfterInstall(object):
 ## 'prefix code' END
 ###############################################################################
 ###############################################################################
-## '/home/jens/PyLucid_env/lib/python3.4/site-packages/bootstrap_env-0.4.0-py3.4.egg/bootstrap_env/bootstrap_install_pip.py' START
+## '/home/jens/PyLucid2_env/src/bootstrap-env/bootstrap_env/bootstrap_install_pip.py' START
 INSTALL_PIP_OPTION="--install-pip"
 
 
@@ -2245,7 +2247,7 @@ def adjust_options(options, args):
 
 def after_install(options, home_dir):
     _install_pip(options, home_dir)
-## '/home/jens/PyLucid_env/lib/python3.4/site-packages/bootstrap_env-0.4.0-py3.4.egg/bootstrap_env/bootstrap_install_pip.py' END
+## '/home/jens/PyLucid2_env/src/bootstrap-env/bootstrap_env/bootstrap_install_pip.py' END
 ###############################################################################
     ###############################################################################
     ## '/home/jens/workspace/pylucid/bootstrap/sources/after_install.py' START

@@ -6,6 +6,8 @@
     the BOOTSTRAP_SOURCE file.
 """
 
+from __future__ import absolute_import, print_function
+
 import os
 import sys
 import pprint
@@ -13,30 +15,28 @@ import pprint
 try:
     import virtualenv
 except ImportError as err:
-    print("Import error:", err)
-    print()
+    print("Import error: %s\n" % err)
     print("Please install virtualenv!")
     print("e.g.: easy_install virtualenv")
     print("More info:")
-    print("http://pypi.python.org/pypi/virtualenv")
-    print()
+    print("\thttp://pypi.python.org/pypi/virtualenv\n")
     sys.exit(-1)
 
-from bootstrap_env import create_bootstrap # https://github.com/jedie/bootstrap_env
+# https://github.com/jedie/bootstrap_env
+from bootstrap_env import create_bootstrap
 
 try:
-    import pylucid_project
+    import pylucid
 except ImportError as err:
-    print("Import error:", err)
-    print()
-    print("Not running in activated virtualenv?")
-    print()
+    print("Import error: %s\n" % err)
+    print("Maybe, not running in activated virtualenv?\n")
     sys.exit(-1)
 
 
 CUT_MARK="# --- CUT here ---"
 
-PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid.__file__))
+print("PyLucid base path: %r" % PYLUCID_BASE_PATH)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 BOOTSTRAP_SCRIPT = os.path.normpath(os.path.join(ROOT, "..", "pylucid-boot.py"))
