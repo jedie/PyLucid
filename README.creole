@@ -1,3 +1,6 @@
+**Note:** Current development is on [[https://github.com/jedie/PyLucid/tree/django-cms|django-cms branch]]!
+
+
 = about PyLucid
 
 PyLucid is an Open Source web content management system written in Python using [[http://www.pylucid.org/permalink/41/dependencies-and-copyrights|Django, jQuery and many more external software...]]
