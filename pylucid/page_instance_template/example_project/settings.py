@@ -132,17 +132,21 @@ INSTALLED_APPS = (
     'menus',
     'sekizai',
     'mptt',
-    'djangocms_style',
-    'djangocms_column',
-    'djangocms_file',
-    'djangocms_flash',
-    'djangocms_googlemap',
-    'djangocms_inherit',
-    'djangocms_link',
-    'djangocms_picture',
-    'djangocms_teaser',
-    'djangocms_video',
-    'reversion',
+    # 'djangocms_style',
+    # 'djangocms_column',
+    # 'djangocms_file',
+    # 'djangocms_flash',
+    # 'djangocms_googlemap',
+    # 'djangocms_inherit',
+    # 'djangocms_link',
+    # 'djangocms_picture',
+    # 'djangocms_teaser',
+    # 'djangocms_video',
+
+    'reversion', # https://github.com/etianen/django-reversion
+    'reversion_compare', # https://github.com/jedie/django-reversion-compare
+    'compressor',
+
     'example_project'
 )
 
@@ -178,9 +182,9 @@ CMS_LANGUAGES = {
 }
 
 CMS_TEMPLATES = (
-    ## Customize this
-    ('page.html', 'Page'),
-    ('feature.html', 'Page with Feature')
+    ('fullwidth.html', 'Full-width template'),
+    ('sidebar_left.html', 'Sidebar left template'),
+    ('homepage.html', 'Homepage template'),
 )
 
 CMS_PERMISSION = True
