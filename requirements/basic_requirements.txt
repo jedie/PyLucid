@@ -48,7 +48,7 @@ django-reversion>=1.8.4,<1.9
 
 # https://github.com/jezdez/django_compressor
 # http://pypi.python.org/pypi/django_compressor/
-#django_compressor>=1.2,<1.3
+django_compressor>=1.4,<1.5
 
 # http://code.google.com/p/django-tagging/
 # http://pypi.python.org/pypi/django-tagging

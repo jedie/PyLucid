@@ -3,9 +3,9 @@
 """
     WARNING: This file is generated with: bootstrap_env v0.4.1
     https://pypi.python.org/pypi/bootstrap_env/
-    script file: 'create_bootstrap.pyc'
-    used '/home/jens/PyLucid2_env/local/lib/python2.7/site-packages/virtualenv.pyc' v12.0.6
-    Python v2.7.6 (default, Mar 22 2014, 22:59:38)  [GCC 4.8.2]
+    script file: 'create_bootstrap.py'
+    used '/home/jens/PyLucid2_env_Py3/lib/python3.4/site-packages/virtualenv.py' v12.0.6
+    Python v3.4.0 (default, Apr 11 2014, 13:05:18)  [GCC 4.8.2]
 """
 
 __version__ = "12.0.6"
@@ -1865,6 +1865,7 @@ NORMAL_INSTALLATION = ['click>=3.3,<4.0',
  'Django>=1.7,<1.8',
  'django-cms>=3.0.5,<3.1',
  'django-reversion>=1.8.4,<1.9',
+ 'django_compressor>=1.4,<1.5',
  'python-creole>=1.2.1,<1.3.0',
  'django-tools>=0.25,<0.26',
  'django-processinfo>=0.7.0,<0.8',
@@ -1878,6 +1879,7 @@ DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
  'Django>=1.7,<1.8',
  'django-cms>=3.0.5,<3.1',
  'django-reversion>=1.8.4,<1.9',
+ 'django_compressor>=1.4,<1.5',
  'docutils',
  'virtualenv',
  '--editable=git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env',
@@ -1887,7 +1889,7 @@ DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
  '--editable=git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid',
  '--editable=git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env']
 ###############################################################################
-## '/home/jens/workspace/pylucid/bootstrap/sources/prefix_code.py' START
+## '/media/servershare/workspace/pylucid/bootstrap/sources/prefix_code.py' START
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
@@ -2118,12 +2120,12 @@ class AfterInstall(object):
 #        source_path = os.path.join(self.abs_home_dir, "src", "django-tools", "django_tools", filename)
 #        dst_path = os.path.join(self.abs_home_dir, filename)
 #        self.verbose_symlink(source_path, dst_path)
-## '/home/jens/workspace/pylucid/bootstrap/sources/prefix_code.py' END
+## '/media/servershare/workspace/pylucid/bootstrap/sources/prefix_code.py' END
 ###############################################################################
 ## 'prefix code' END
 ###############################################################################
 ###############################################################################
-## '/home/jens/PyLucid2_env/src/bootstrap-env/bootstrap_env/bootstrap_install_pip.py' START
+## '/home/jens/PyLucid2_env_Py3/lib/python3.4/site-packages/bootstrap_env-0.4.1-py3.4.egg/bootstrap_env/bootstrap_install_pip.py' START
 INSTALL_PIP_OPTION="--install-pip"
 
 
@@ -2187,12 +2189,12 @@ def extend_parser(parser):
 
 
     ###############################################################################
-    ## '/home/jens/workspace/pylucid/bootstrap/sources/extend_parser.py' START
+    ## '/media/servershare/workspace/pylucid/bootstrap/sources/extend_parser.py' START
     parser.add_option("-t", "--type", type="string",
         dest="install_type", default=None,
         help="PyLucid install type: %s (Choose via menu!)" % ", ".join(list(CHOICES.values()))
     )
-    ## '/home/jens/workspace/pylucid/bootstrap/sources/extend_parser.py' END
+    ## '/media/servershare/workspace/pylucid/bootstrap/sources/extend_parser.py' END
     ###############################################################################
 
 
@@ -2210,7 +2212,7 @@ def adjust_options(options, args):
 
 
     ###############################################################################
-    ## '/home/jens/workspace/pylucid/bootstrap/sources/adjust_options.py' START
+    ## '/media/servershare/workspace/pylucid/bootstrap/sources/adjust_options.py' START
     """
     Display MENU_TXT
     """
@@ -2241,16 +2243,16 @@ def adjust_options(options, args):
 
     # sys.stdout.write("options: %s\n" % repr(options))
     # sys.stdout.write("args: %s\n" % repr(args))
-    ## '/home/jens/workspace/pylucid/bootstrap/sources/adjust_options.py' END
+    ## '/media/servershare/workspace/pylucid/bootstrap/sources/adjust_options.py' END
     ###############################################################################
 
 
 def after_install(options, home_dir):
     _install_pip(options, home_dir)
-## '/home/jens/PyLucid2_env/src/bootstrap-env/bootstrap_env/bootstrap_install_pip.py' END
+## '/home/jens/PyLucid2_env_Py3/lib/python3.4/site-packages/bootstrap_env-0.4.1-py3.4.egg/bootstrap_env/bootstrap_install_pip.py' END
 ###############################################################################
     ###############################################################################
-    ## '/home/jens/workspace/pylucid/bootstrap/sources/after_install.py' START
+    ## '/media/servershare/workspace/pylucid/bootstrap/sources/after_install.py' START
     """
     called after virtualenv was created and setuptools installed.
     Now we installed PyLucid and used libs/packages.
@@ -2265,7 +2267,7 @@ def after_install(options, home_dir):
     sys.stdout.write("Now you can create a new page instance, more info:\n")
     sys.stdout.write("http://www.pylucid.org/permalink/355/create-a-new-page-instance\n")
     sys.stdout.write("\n")
-    ## '/home/jens/workspace/pylucid/bootstrap/sources/after_install.py' END
+    ## '/media/servershare/workspace/pylucid/bootstrap/sources/after_install.py' END
     ###############################################################################
 
 
