@@ -16,7 +16,7 @@ The [[https://pypi.python.org/pypi/Pillow/|Pillow (PIL fork)]] doesn't provide b
 Make sure you have Python’s development libraries installed.
 e.g.:
 {{{
-$ sudo apt-get install python3-dev libjpeg8-dev libfreetype6-dev
+$ sudo apt-get install python3-dev libjpeg-dev libfreetype6-dev
 }}}
 more info here: https://pillow.readthedocs.org/en/latest/installation.html
 
