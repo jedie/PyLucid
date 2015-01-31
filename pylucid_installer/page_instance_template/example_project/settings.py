@@ -148,6 +148,8 @@ INSTALLED_APPS = (
     'compressor', # https://github.com/django-compressor/django-compressor
     'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
 
+    'pylucid',
+
     'example_project'
 )
 
