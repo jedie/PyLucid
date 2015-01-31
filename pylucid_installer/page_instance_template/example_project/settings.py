@@ -211,3 +211,7 @@ MIGRATION_MODULES = {
     # 'djangocms_teaser': 'djangocms_teaser.migrations_django',
     'djangocms_video': 'djangocms_video.migrations_django'
 }
+
+
+# django-reversion-compare settings:
+ADD_REVERSION_ADMIN=True # Add the reversion modes to admin interface
