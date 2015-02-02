@@ -12,6 +12,9 @@ pillow
 # http://pypi.python.org/pypi/Pygments
 Pygments
 
+# http://pypi.python.org/pypi/pytz
+pytz
+
 # Flup is not Python 3 compatible.
 # http://trac.saddi.com/flup
 # http://pypi.python.org/pypi/flup
