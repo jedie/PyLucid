@@ -149,7 +149,7 @@ def cli(dest, name, remove):
     _mass_replace(
         {
             SRC_PROJECT_NAME: name,
-            'SECRET_KEY = ""': 'SECRET_KEY = "%s"' % secret_key,
+            'SECRET_KEY = "CHANGE ME!!!"': 'SECRET_KEY = "%s"' % secret_key,
         },
         [
             os.path.join(dest, name, "settings.py"),
