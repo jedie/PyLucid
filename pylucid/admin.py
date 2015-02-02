@@ -8,6 +8,8 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import logging
+
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import Permission
@@ -22,6 +24,7 @@ from cms.models.pagemodel import Page
 
 from reversion_compare.helpers import patch_admin
 
+logger = logging.getLogger(__name__)
 
 # Patch django-cms Page Model to add reversion-compare functionality:
 patch_admin(Page)
@@ -40,6 +43,32 @@ def export_as_json(modeladmin, request, queryset):
 # Make export actions available site-wide
 admin.site.add_action(export_as_json, 'export_selected_as_json')
 
+from django.db.models.loading import get_app, get_apps, get_models
+from django.contrib import admin
+from django.contrib.admin.sites import AlreadyRegistered
+
+
+def auto_register_all():
+    """
+    register all models with the admin interface.
+    (Skip already registered models.)
+    """
+    for app in get_apps():
+        for model in get_models(app):
+            try:
+                admin.site.register(model)
+            except AlreadyRegistered:
+                pass
+
+
+def auto_patch_all():
+    for app in get_apps():
+        for model in get_models(app):
+            try:
+                patch_admin(model, skip_non_revision=True)
+            except Exception as err:
+                logging.warning("Can't patch admin for model %r: %s" % (model, err))
+
 
 if settings.DEBUG:
     class PermissionAdmin(admin.ModelAdmin):
@@ -54,4 +83,8 @@ if settings.DEBUG:
         list_display = list_display_links = ("id", "app_label", "name", "model")
         list_filter = ("app_label",)
     admin.site.register(ContentType, ContentTypeAdmin)
+
+    auto_register_all()
+
+    auto_patch_all()
 
