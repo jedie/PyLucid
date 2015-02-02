@@ -187,5 +187,6 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.redirects.RedirectsPanel',
 
     'django_info_panel.panels.database.DatabaseInfo',
+    'django_info_panel.panels.urlpatterns.UrlPatternsInfo',
 ]
 
