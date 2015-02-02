@@ -36,7 +36,7 @@ virtualenv
 
 # https://github.com/jedie/django-reversion-compare
 # https://pypi.python.org/pypi/django-reversion-compare/
--e git+git@github.com:jedie/django-reversion-compare.git@develope#egg=django-reversion-compare
+-e git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare
 
 # http://www.pylucid.org/
 # https://pypi.python.org/pypi/PyLucid
