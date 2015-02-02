@@ -5,7 +5,7 @@
     https://pypi.python.org/pypi/bootstrap_env/
     script file: 'create_bootstrap.py'
     used '/home/jens/PyLucid_env/lib/python3.4/site-packages/virtualenv.py' v12.0.6
-    Python v3.4.0 (default, Apr 11 2014, 13:05:11)  [GCC 4.8.2]
+    Python v3.4.0 (default, Apr 11 2014, 13:05:18)  [GCC 4.8.2]
 """
 
 __version__ = "12.0.6"
@@ -1861,11 +1861,21 @@ def create_bootstrap_script(extra_text, python_version=''):
 # requirements from normal_installation.txt
 NORMAL_INSTALLATION = ['click>=3.3,<4.0',
  'pillow',
- 'Pygments>=2.0,<2.1',
+ 'Pygments',
  'Django>=1.7,<1.8',
- 'django-cms>=3.0.5,<3.1',
+ 'django-debug-toolbar',
+ 'django-robots',
+ 'django-compressor',
  'django-reversion>=1.8.4,<1.9',
- 'django_compressor>=1.4,<1.5',
+ 'django-cms>=3.0.5,<3.1',
+ 'easy-thumbnails',
+ 'django-filer',
+ 'cmsplugin-filer',
+ 'djangocms-file',
+ 'djangocms-link',
+ 'djangocms-text-ckeditor',
+ 'djangocms-picture',
+ 'djangocms_video',
  'python-creole>=1.2.1,<1.3.0',
  'django-tools>=0.25,<0.26',
  'django-processinfo>=0.7.0,<0.8',
@@ -1875,11 +1885,21 @@ NORMAL_INSTALLATION = ['click>=3.3,<4.0',
 # requirements from developer_installation.txt
 DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
  'pillow',
- 'Pygments>=2.0,<2.1',
+ 'Pygments',
  'Django>=1.7,<1.8',
- 'django-cms>=3.0.5,<3.1',
+ 'django-debug-toolbar',
+ 'django-robots',
+ 'django-compressor',
  'django-reversion>=1.8.4,<1.9',
- 'django_compressor>=1.4,<1.5',
+ 'django-cms>=3.0.5,<3.1',
+ 'easy-thumbnails',
+ 'django-filer',
+ 'cmsplugin-filer',
+ 'djangocms-file',
+ 'djangocms-link',
+ 'djangocms-text-ckeditor',
+ 'djangocms-picture',
+ 'djangocms_video',
  'docutils',
  'virtualenv',
  '--editable=git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env',
@@ -2098,27 +2118,6 @@ class AfterInstall(object):
         except Exception as e:
             import traceback
             sys.stderr.write(traceback.format_exc())
-
-    def symlink_scripts(self):
-        """ symlink needfull scripts into env root directory """
-        def symlink_pylucid_script(filename):
-            source_path = os.path.join(self.abs_home_dir, "src", "pylucid", "scripts", filename)
-            dst_path = os.path.join(self.abs_home_dir, filename)
-            self.verbose_symlink(source_path, dst_path)
-
-        # symlink some PyLucid scripts from pylucid/scripts/ into virtualenv root
-        symlink_pylucid_script("create_page_instance.sh")
-
-        if self.dev_install:
-            symlink_pylucid_script("upgrade_pylucid_dev_env.sh")
-        else:
-            symlink_pylucid_script("upgrade_pylucid_env.sh")
-
-#        # symlink "upgrade_virtualenv.py" from django-tools into  virtualenv root
-#        filename = "upgrade_virtualenv.py"
-#        source_path = os.path.join(self.abs_home_dir, "src", "django-tools", "django_tools", filename)
-#        dst_path = os.path.join(self.abs_home_dir, filename)
-#        self.verbose_symlink(source_path, dst_path)
 ## '/home/jens/PyLucid_env/src/pylucid/bootstrap/sources/prefix_code.py' END
 ###############################################################################
 ## 'prefix code' END
@@ -2258,7 +2257,6 @@ def after_install(options, home_dir):
     """
     a = AfterInstall(options, home_dir)
     a.install_packages()
-    a.symlink_scripts()
 
     sys.stdout.write("\n")
     sys.stdout.write("PyLucid environment created in: %s\n" % c.colorize(home_dir, foreground="blue", opts=("bold",)))

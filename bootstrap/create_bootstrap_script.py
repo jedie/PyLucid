@@ -2,8 +2,14 @@
 # coding: utf-8
 
 """
+    PyLucid bootstrap creation
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     Create/update the virtualenv bootstrap script BOOTSTRAP_SCRIPT from
     the BOOTSTRAP_SOURCE file.
+
+    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 from __future__ import absolute_import, print_function
