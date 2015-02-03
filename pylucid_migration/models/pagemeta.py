@@ -26,19 +26,6 @@ from pylucid_migration.base_models.base_models import BaseModel
 from pylucid_migration.base_models.permissions import PermissionsBase
 
 
-
-class CurrentSiteManager(models.Manager):
-    """
-    Use this to limit objects to those associated with the current site.
-    Based on django.contrib.sites.managers.CurrentSiteManager()
-    """
-    def get_query_set(self):
-        queryset = super(CurrentSiteManager, self).get_query_set()
-        return queryset.filter(pagetree__site__id__exact=settings.SITE_ID)
-
-
-
-
 class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
     """
     Meta data for PageContent or PluginPage
@@ -53,8 +40,6 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         validate_permit_group()
         check_sub_page_permissions()
     """
-    on_site = CurrentSiteManager()
-
     pagetree = models.ForeignKey("pylucid_migration.PageTree") # Should we add null=True, blank=True here? see clean_fields() below
     language = models.ForeignKey("pylucid_migration.Language")
 
