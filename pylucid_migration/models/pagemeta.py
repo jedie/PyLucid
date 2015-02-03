@@ -4,7 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -16,22 +16,14 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
-from django_tools import model_utils
-from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.middlewares import ThreadLocal
-from django_tools.tagging_addon.fields import jQueryTagModelField
 from django_tools.models import UpdateInfoBaseModel
 
-from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
-from pylucid_project.base_models.permissions import PermissionsBase
-
-
-TAG_INPUT_HELP_URL = \
-"http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+from pylucid_migration.base_models.base_models import BaseModel
+from pylucid_migration.base_models.permissions import PermissionsBase
 
 
 
@@ -45,33 +37,6 @@ class CurrentSiteManager(models.Manager):
         return queryset.filter(pagetree__site__id__exact=settings.SITE_ID)
 
 
-class PageMetaManager(BaseModelManager):
-    """
-    inherited from BaseModelManager:
-        easy_create()
-    """
-    def verbose_get_or_create(self, request, pagetree, lang_entry, show_lang_errors=True):
-        """
-        returns PageMeta, create it if not exist.
-        
-        If show_lang_errors==True:
-            create a page_msg if PageMeta doesn't exist in client favored language.
-        """
-        if settings.DEBUG:
-            assert pagetree.page_type == pagetree.PLUGIN_TYPE, "should only used for PluginPages!"
-
-        pagemeta, created = self.model.on_site.get_or_create(pagetree=pagetree, language=lang_entry)
-        if created:
-            msg = "auto create %s" % pagemeta
-
-            from pylucid_project.apps.pylucid.models import LogEntry # against import loops.
-            LogEntry.objects.log_action(
-                app_label="pylucid", action="auto create PageMeta", request=request, message=msg
-            )
-            if show_lang_errors or settings.DEBUG or request.user.is_superuser:
-                messages.info(request, msg)
-
-        return pagemeta
 
 
 class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
@@ -88,11 +53,10 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         validate_permit_group()
         check_sub_page_permissions()
     """
-    objects = PageMetaManager()
     on_site = CurrentSiteManager()
 
-    pagetree = models.ForeignKey("pylucid.PageTree") # Should we add null=True, blank=True here? see clean_fields() below
-    language = models.ForeignKey("pylucid.Language")
+    pagetree = models.ForeignKey("pylucid_migration.PageTree") # Should we add null=True, blank=True here? see clean_fields() below
+    language = models.ForeignKey("pylucid_migration.Language")
 
     name = models.CharField(blank=True, max_length=150,
         help_text="Sort page name (for link text in e.g. menu)"
@@ -101,7 +65,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         help_text="A long page title (for e.g. page title or link title text)"
     )
 
-    tags = jQueryTagModelField() # a django-tagging model field modified by django-tools
+    tags = models.CharField(max_length=765) # a django-tagging model field modified by django-tools
 
     keywords = models.CharField(blank=True, max_length=255,
         help_text="Keywords for the html header. (separated by commas)"
@@ -120,95 +84,17 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
     # e.g.: allow only usergroup X to edit this page in language Y
     # https://github.com/jedie/PyLucid/issues/57
 
-    def clean_fields(self, exclude):
-        super(PageMeta, self).clean_fields(exclude)
-
-        message_dict = {}
-
-        try:
-            # We can only check the sub pages, if exists ;)
-            pagetree = self.pagetree
-        except ObjectDoesNotExist:
-            # FIXME: Should self.pagetree() field has null=True, blank=True ?
-            return
-
-        # Prevents that a unprotected page created below a protected page.
-        # TODO: Check this in unittests
-        # validate_permit_group() method inherited from PermissionsBase
-        self.validate_permit_group("permitViewGroup", exclude, message_dict)
-
-        # Warn user if PageMeta permissions mismatch with sub pages
-        # TODO: Check this in unittests
-        queryset = PageMeta.objects.filter(pagetree__parent=self.pagetree)
-        self.check_sub_page_permissions(# method inherited from PermissionsBase
-            ("permitViewGroup",), # TODO: permitEditGroup, read above
-            exclude, message_dict, queryset
-        )
-
-        if message_dict:
-            raise ValidationError(message_dict)
-
-    def recusive_attribute(self, attribute):
-        """
-        Goes the pagetree back to root and return the first match of attribute if not None.
-        
-        used e.g.
-            with permitViewGroup and permitEditGroup
-            from self.validate_permit_group() and self.check_sub_page_permissions()
-        """
-        parent_pagetree = self.pagetree.parent
-        if parent_pagetree is None: # parent is the tree root
-            return None
-
-        request = ThreadLocal.get_current_request()
-        if request is None:
-            # Check only if we are in a request
-            return
-
-        queryset = PageMeta.objects.filter(pagetree=parent_pagetree)
-        parent_pagemeta = None
-        languages = request.PYLUCID.languages # languages are in client prefered order
-        for language in languages:
-            try:
-                parent_pagemeta = queryset.get(language=language)
-            except PageMeta.DoesNotExist:
-                continue
-            else:
-                break
-
-        if parent_pagemeta is None:
-            return
-
-        if getattr(parent_pagemeta, attribute) is not None:
-            # the attribute was set by parent page
-            return parent_pagemeta
-        else:
-            # go down to root
-            return parent_pagemeta.recusive_attribute(attribute)
-
-    _url_cache = LocalSyncCache(id="PageMeta_absolute_url")
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
-        if self.pk in self._url_cache:
-            #print "PageMeta url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
-            return self._url_cache[self.pk]
-
         lang_code = self.language.code
         page_url = self.pagetree.get_absolute_url()
         url = "/" + lang_code + page_url
-
-        self._url_cache[self.pk] = url
         return url
 
-    _permalink_cache = LocalSyncCache(id="PageMeta_permalink")
     def get_permalink(self):
         """
         return a permalink. Use page slug/name/title or nothing as additional text.
         """
-        if self.pk in self._permalink_cache:
-            #print "PageMeta permalink_cache len: %s, pk: %s" % (len(self._permalink_cache), self.pk)
-            return self._permalink_cache[self.pk]
-
         # Get the system preferences
         request = ThreadLocal.get_current_request()
         sys_pref = request.PYLUCID.preferences
@@ -233,24 +119,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
             addition_txt = slugify(addition_txt)
 
         url = reverse('PyLucid-permalink', kwargs={'page_id': self.pagetree.id, 'url_rest': addition_txt})
-        self._permalink_cache[self.pk] = url
         return url
-
-    def save(self, *args, **kwargs):
-        """ reset PageMeta and PageTree url cache """
-        # Clean the local url cache dict
-        self._url_cache.clear()
-        self._permalink_cache.clear()
-        self.pagetree._url_cache.clear()
-
-        # FIXME: We must only update the cache for the current SITE not for all sites.
-        try:
-            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
-        except AttributeError:
-            # No SmoothCacheBackend used -> clean the complete cache
-            cache.clear()
-
-        return super(PageMeta, self).save(*args, **kwargs)
 
     def get_site(self):
         """ used e.g. for self.get_absolute_uri() and the admin page """
@@ -274,11 +143,10 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         )
 
     class Meta:
-        app_label = 'pylucid'
+        app_label = u'pylucid_migration'
+        db_table = u'pylucid_pagemeta'
         verbose_name_plural = verbose_name = "PageMeta"
         unique_together = (("pagetree", "language"),)
         ordering = ("-lastupdatetime",)
 #        ordering = ("pagetree", "language")
 
-# Check Meta.unique_together manually
-model_utils.auto_add_check_unique_together(PageMeta)

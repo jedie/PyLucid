@@ -47,6 +47,12 @@ ROOT_URLCONF = 'example_project.urls'
 WSGI_APPLICATION = 'example_project.wsgi.application'
 
 
+# Activate for PyLucid v1.x migration
+# INSTALLED_APPS += (
+#     "pylucid_migration",
+# )
+
+
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 DATABASES = {

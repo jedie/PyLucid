@@ -16,12 +16,7 @@ from django.contrib.auth.models import User
 from django_tools.utils.messages import failsafe_message
 from django_tools.models import UpdateInfoBaseModel
 
-from pylucid_project.utils import crypt
-from pylucid_project.base_models.many2many import AutoSiteM2M
-
-
-TAG_INPUT_HELP_URL = \
-"http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
+from pylucid_migration.base_models.many2many import AutoSiteM2M
 
 
 class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
@@ -46,7 +41,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
     sha_login_checksum = models.CharField(max_length=192,
         help_text="Checksum for PyLucid JS-SHA-Login"
     )
-    sha_login_salt = models.CharField(max_length=crypt.SALT_LEN,
+    sha_login_salt = models.CharField(max_length=36,
         help_text="Salt value for PyLucid JS-SHA-Login"
     )
 
@@ -71,57 +66,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
         return u"UserProfile for user '%s' (on sites: %r)" % (self.user.username, sites)
 
     class Meta:
-        app_label = 'pylucid'
+        app_label = u'pylucid_migration'
+        db_table = u'pylucid_userprofile'
         ordering = ("user",)
 
-#______________________________________________________________________________
-# Create user profile via signals
-
-def create_user_profile(sender, **kwargs):
-    """ signal handler: creating user profile, after a new user created. """
-    user = kwargs["instance"]
-
-    userprofile, created = UserProfile.objects.get_or_create(user=user)
-    if created:
-        failsafe_message("UserProfile entry for user '%s' created." % user)
-#
-#        if not user.is_superuser: # Info: superuser can automaticly access all sites
-#            site = Site.objects.get_current()
-#            userprofile.site.add(site)
-#            failsafe_message("Add site '%s' to '%s' UserProfile." % (site.name, user))
-
-signals.post_save.connect(create_user_profile, sender=User)
-
-
-#______________________________________________________________________________
-"""
-We make a Monkey-Patch and change the method set_password() from
-the model class django.contrib.auth.models.User.
-We need the raw plaintext password, this is IMHO not available via signals.
-"""
-
-# Save the original method
-orig_set_password = User.set_password
-
-
-def set_password(user, raw_password):
-    #print "set_password() debug:", user, raw_password
-    if user.id == None:
-        # It is a new user. We must save the django user accound first to get a
-        # existing user object with a ID and then the JS-SHA-Login Data can assign to it.
-        user.save()
-
-    # Use the original method to set the django User password:
-    orig_set_password(user, raw_password)
-
-    userprofile, created = UserProfile.objects.get_or_create(user=user)
-    if created:
-        failsafe_message("UserProfile entry for user '%s' created." % user)
-
-    # Save the password for the JS-SHA-Login:
-    userprofile.set_sha_login_password(raw_password)
-    userprofile.save()
-
-
-# replace the method
-User.set_password = set_password

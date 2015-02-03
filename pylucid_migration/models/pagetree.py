@@ -4,7 +4,7 @@
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -24,72 +24,27 @@ from django.template.defaultfilters import slugify
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
 from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.middlewares import ThreadLocal
 from django_tools.models import UpdateInfoBaseModel
 
-from pylucid_project.apps.pylucid.tree_model import BaseTreeModel, TreeGenerator
-from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
-from pylucid_project.base_models.permissions import PermissionsBase
+from pylucid_migration.base_models.tree_model import BaseTreeModel, TreeGenerator
+from pylucid_migration.base_models.base_models import BaseModel
+from pylucid_migration.base_models.permissions import PermissionsBase
 
 
-TAG_INPUT_HELP_URL = \
-"http://google.com/search?q=cache:django-tagging.googlecode.com/files/tagging-0.2-overview.html#tag-input"
-
-
-class PageTreeManager(BaseModelManager):
+class PageTreeManager(models.Manager):
     """
     Manager class for PageTree model
 
     inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """
-    def filter_accessible(self, queryset, user):
-        """
-        exclude form pagetree queryset all pages which the given user can't see
-        by checking PageTree.permitViewGroup
-        TODO: Check in unittests
-        """
-        if user.is_anonymous():
-            # Anonymous user are in no user group
-            return queryset.filter(permitViewGroup__isnull=True)
-
-        if user.is_superuser:
-            # Superuser can see everything ;)
-            return queryset
-
-        # filter pages for authenticated,normal users
-
-        user_groups = user.groups.values_list('pk', flat=True)
-
-        if not user_groups:
-            # User is in no group
-            return queryset.filter(permitViewGroup__isnull=True)
-
-        # Filter out all view group
-        return queryset.filter(
-            models.Q(permitViewGroup__isnull=True) | models.Q(permitViewGroup__in=user_groups)
-        )
-
-    def all_accessible(self, user=None, filter_showlinks=False):
-        """ returns a PageTree queryset with all items that the given user can access. """
-        if user == None:
-            user = ThreadLocal.get_current_user()
-
-        queryset = self.model.on_site.order_by("position")
-        queryset = self.filter_accessible(queryset, user)
-
-        if filter_showlinks:
-            # Filter PageTree.showlinks
-            queryset = queryset.filter(showlinks=True)
-
-        return queryset
-
     def get_tree(self, user=None, filter_showlinks=False, exclude_plugin_pages=False, exclude_extras=None):
-        """ return a TreeGenerator instance with all accessable page tree instance """
-        queryset = self.all_accessible(user, filter_showlinks)
+        queryset = self.model.on_site.order_by("position")
 
         if exclude_plugin_pages:
             queryset = queryset.exclude(page_type=PageTree.PLUGIN_TYPE)
@@ -99,14 +54,6 @@ class PageTreeManager(BaseModelManager):
         items = queryset.values("id", "parent", "slug")
         tree = TreeGenerator(items, skip_no_parent=True)
         return tree
-
-    def get_choices(self, user=None, exclude_extras=None):
-        """ returns a choices list for e.g. a forms select widget. """
-        tree = PageTree.objects.get_tree(user, exclude_plugin_pages=True, exclude_extras=exclude_extras)
-        choices = [("", "---------")] + [
-            (node.id, node.get_absolute_url()) for node in tree.iter_flat_list()
-        ]
-        return choices
 
     def get_root_page(self, user, filter_parent=True):
         """ returns the 'first' root page tree entry witch the user can access """
@@ -121,7 +68,7 @@ class PageTreeManager(BaseModelManager):
 
         try:
             return queryset[0]
-        except IndexError, err:
+        except IndexError as err:
             if self.model.on_site.count() == 0:
                 raise PageTree.DoesNotExist("There exist no PageTree items!")
             elif filter_parent == True:
@@ -144,7 +91,7 @@ class PageTreeManager(BaseModelManager):
         If show_lang_errors==True:
             create a page_msg if PageMeta doesn't exist in client favored language.
         """
-        from pylucid_project.apps.pylucid.models import PageMeta  # against import loops.      
+        from pylucid_migration.models.pagemeta import PageMeta  # against import loops.
 
         # client favored Language instance:
         lang_entry = request.PYLUCID.current_language
@@ -193,80 +140,6 @@ class PageTreeManager(BaseModelManager):
         # The user is anonymous or is authenticated but is not in the right user group
         raise PermissionDenied
 
-    def get_page_from_url(self, request, url_path):
-        """
-        returns a tuple the page tree instance from the given url_path
-        XXX: move it out from model?
-        """
-        if not request.user.is_superuser:
-            user_groups = request.user.groups.all()
-
-        path = url_path.strip("/").split("/")
-        page = None
-        for no, page_slug in enumerate(path):
-            if slugify(page_slug) != page_slug.lower():
-                raise PageTree.DoesNotExist("url part %r is not slugify" % page_slug)
-
-            try:
-                page = PageTree.on_site.get(parent=page, slug=page_slug)
-            except PageTree.DoesNotExist:
-                etype, evalue, etb = sys.exc_info()
-                evalue = etype("Wrong url %r: %s" % (page_slug, evalue))
-                raise etype, evalue, etb
-
-            page_view_group = page.permitViewGroup
-
-            # Check permissions only for PageTree
-            # Note: PageMeta.permitViewGroup would be checked in self.get_pagemeta()
-            # TODO: Check this in unittests!
-            if request.user.is_anonymous():
-                # Anonymous user are in no user group
-                if page_view_group != None:
-                    msg = "Permission deny"
-                    if settings.DEBUG:
-                        msg += " (url part: %s)" % escape(page_slug)
-                    raise PermissionDenied(msg)
-            elif not request.user.is_superuser: # Superuser can see everything ;)
-                if (page_view_group != None) and (page_view_group not in user_groups):
-                    msg = "Permission deny"
-                    if settings.DEBUG:
-                        msg += " (not in view group %r, url part: %r)" % (page_view_group, escape(page_slug))
-                    raise PermissionDenied(msg)
-
-            if page.page_type == PageTree.PLUGIN_TYPE:
-                # It's a plugin
-                prefix_url = "/".join(path[:no + 1])
-                rest_url = "/".join(path[no + 1:])
-#                if not rest_url.endswith("/"):
-#                    rest_url += "/"
-                return (page, prefix_url, rest_url)
-
-        return (page, None, None)
-
-    def get_backlist(self, request, pagetree=None):
-        """
-        Generate a list of backlinks, usefull for generating a "You are here" breadcrumb navigation.
-        TODO: filter showlinks and permit settings
-        TODO: filter current site
-        FIXME: Think this created many database requests
-        """
-        if pagetree == None:
-            pagetree = request.PYLUCID.pagetree
-
-        pagemeta = self.get_pagemeta(request, pagetree, show_lang_errors=False)
-        url = pagemeta.get_absolute_url()
-        page_name = pagemeta.get_name()
-        page_title = pagemeta.get_title()
-
-        backlist = [{"url": url, "name": page_name, "title": page_title}]
-
-        parent = pagetree.parent
-        if parent:
-            # insert parent links
-            backlist = self.get_backlist(request, parent) + backlist
-
-        return backlist
-
 
 class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
     """
@@ -304,7 +177,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
 
     page_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
-    design = models.ForeignKey("pylucid.Design", help_text="Page Template, CSS/JS files")
+    design = models.ForeignKey("pylucid_migration.Design", help_text="Page Template, CSS/JS files")
 
     showlinks = models.BooleanField(default=True,
         help_text="Accessable for all users, but don't put a Link to this page into menu/sitemap etc."
@@ -317,69 +190,6 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
         help_text="Usergroup how can edit this page.",
         null=True, blank=True,
     )
-
-    def clean_fields(self, exclude):
-        """
-        We must call clean_slug() here, because it needs a queryset. 
-        """
-        # check if parent is the same entry: child <-> parent loop:
-        super(PageTree, self).clean_fields(exclude)
-
-        message_dict = {}
-
-        # Check if slug exist in the same sub tree:
-        if "slug" not in exclude:
-            if self.parent == None: # parent is the tree root
-                if self.slug in settings.SLUG_BLACKLIST:
-                    # e.g. /media/ or /pylucid_admin/
-                    msg = (
-                        "Sorry, page slug '/<strong>%s</strong>/' is not usable!"
-                        " (Not usable slugs are: %s)"
-                    ) % (self.slug, ", ".join(settings.SLUG_BLACKLIST))
-                    message_dict["slug"] = (mark_safe(msg),)
-
-            queryset = PageTree.on_site.filter(slug=self.slug, parent=self.parent)
-
-            # Exclude the current object from the query if we are editing an
-            # instance (as opposed to creating a new one)
-            if self.pk is not None:
-                queryset = queryset.exclude(pk=self.pk)
-
-            exists = queryset.count()
-            if exists:
-                if self.parent == None: # parent is the tree root
-                    parent_url = "/"
-                else:
-                    parent_url = self.parent.get_absolute_url()
-
-                msg = "Page '%s<strong>%s</strong>/' exists already." % (parent_url, self.slug)
-                message_dict["slug"] = (mark_safe(msg),)
-
-        # Check if parent page is a ContentPage, a plugin page can't have any sub pages!
-        if "parent" not in exclude and self.parent is not None and self.parent.page_type != self.PAGE_TYPE:
-            parent_url = self.parent.get_absolute_url()
-            msg = _(
-                "Can't use the <strong>plugin</strong> page '%s' as parent page!"
-                " Please choose a <strong>content</strong> page."
-            ) % parent_url
-            message_dict["parent"] = (mark_safe(msg),)
-
-        # Prevents that a unprotected page created below a protected page.
-        # TODO: Check this in unittests
-        # validate_permit_group() method inherited from PermissionsBase
-        self.validate_permit_group("permitViewGroup", exclude, message_dict)
-        self.validate_permit_group("permitEditGroup", exclude, message_dict)
-
-        # Warn user if PageTree permissions mismatch with sub pages
-        # TODO: Check this in unittests
-        queryset = PageTree.objects.filter(parent=self)
-        self.check_sub_page_permissions(# method inherited from PermissionsBase
-            ("permitViewGroup", "permitEditGroup"),
-            exclude, message_dict, queryset
-        )
-
-        if message_dict:
-            raise ValidationError(message_dict)
 
     def recusive_attribute(self, attribute):
         """
@@ -400,20 +210,14 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
             # go down to root
             return parent.recusive_attribute(attribute)
 
-    _url_cache = LocalSyncCache(id="PageTree_absolute_url")
     def get_absolute_url(self):
         """ absolute url *without* language code (without domain/host part) """
-        try:
-            url = self._url_cache[self.pk]
-            #print "PageTree url cache len: %s, pk: %s" % (len(self._url_cache), self.pk)
-        except KeyError:
-            if self.parent:
-                parent_shortcut = self.parent.get_absolute_url()
-                url = parent_shortcut + self.slug + "/"
-            else:
-                url = "/" + self.slug + "/"
+        if self.parent:
+            parent_shortcut = self.parent.get_absolute_url()
+            url = parent_shortcut + self.slug + "/"
+        else:
+            url = "/" + self.slug + "/"
 
-            self._url_cache[self.pk] = url
         return url
 
     def get_absolute_uri(self):
@@ -421,23 +225,6 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
         absolute_url = self.get_absolute_url()
         domain = self.site.domain
         return "http://" + domain + absolute_url
-
-    def save(self, *args, **kwargs):
-        """ reset PageMeta and PageTree url cache """
-        from pagemeta import PageMeta # against import loops.
-
-        # Clean the local url cache dict
-        self._url_cache.clear()
-        PageMeta._url_cache.clear()
-
-        # FIXME: We must only update the cache for the current SITE not for all sites.
-        try:
-            cache.smooth_update() # Save "last change" timestamp in django-tools SmoothCacheBackend
-        except AttributeError:
-            # No SmoothCacheBackend used -> clean the complete cache
-            cache.clear()
-
-        return super(PageTree, self).save(*args, **kwargs)
 
     def get_site(self):
         """ used e.g. for self.get_absolute_uri() and the admin page """
@@ -449,7 +236,8 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
         )
 
     class Meta:
-        app_label = 'pylucid'
+        app_label = u'pylucid_migration'
+        db_table = u'pylucid_pagetree'
         verbose_name_plural = verbose_name = "PageTree"
         unique_together = (("site", "slug", "parent"),)
 
@@ -457,8 +245,5 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
 #        ordering = ("site", "id", "position")
         ordering = ("-lastupdatetime",)
 
-
-# Check Meta.unique_together manually
-model_utils.auto_add_check_unique_together(PageTree)
 
 
