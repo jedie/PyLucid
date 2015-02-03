@@ -47,10 +47,10 @@ ROOT_URLCONF = 'example_project.urls'
 WSGI_APPLICATION = 'example_project.wsgi.application'
 
 
-# Activate for PyLucid v1.x migration
-# INSTALLED_APPS += (
+# Activate for PyLucid v1.x migration (must be added before 'pylucid' ;)
+# INSTALLED_APPS = (
 #     "pylucid_migration",
-# )
+# ) + INSTALLED_APPS
 
 
 # Database
