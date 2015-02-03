@@ -1,45 +1,126 @@
 # coding: utf-8
 
+
 """
     PyLucid plugins
     ~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
-    :license: GNU GPL v3 or above, see LICENSE for more details.p
-
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
-import logging
 import os
 import pprint
 import sys
 
 from django.conf import settings
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls import patterns, include
 from django.core import urlresolvers
+from django.core.urlresolvers import RegexURLResolver, \
+    _resolver_cache, _ns_resolver_cache, _callable_cache
 from django.http import HttpResponse
 from django.utils.importlib import import_module
 from django.utils.log import getLogger
 from django.views.decorators.csrf import csrf_protect
 
+from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
+
 from pylucid_project.utils.python_tools import has_init_file
+from pylucid_project.utils.url_debug import log_urls, debug_log_urls
 
 
-logger = getLogger("pylucid.pylucid_plugins")
-#logger.setLevel(logging.DEBUG)
-#logger.addHandler(logging.StreamHandler())
+# see: http://www.pylucid.org/permalink/443/how-to-display-debug-information
+log = getLogger("pylucid.pylucid_plugins")
 
 
-#PYLUCID_PLUGINS = None
+# PYLUCID_PLUGINS = None
 
-_PLUGIN_OBJ_CACHE = {} # cache for PyLucidPlugin.get_plugin_object()
-_PLUGIN_URL_CACHE = {} # cache for PyLucidPlugin.get_prefix_urlpatterns()
+_PLUGIN_OBJ_CACHE = {}  # cache for PyLucidPlugin.get_plugin_object()
+_PLUGIN_URL_CACHE = LocalSyncCache(id="plugin_url_cache")  # cache for PyLucidPlugin.get_prefix_urlpatterns()
+
 
 
 class PluginNotOnSite(Exception):
     """ PluginPage doesn't exist on current page. """
     pass
+
+
+# Use django-tools local sync cache for sync the plugin urls in
+# a multi-threaded environment.
+PLUGIN_URLS_SYNC_DICT = LocalSyncCache(id="plugin url patterns")
+
+
+class PluginURLPattern(RegexURLResolver):
+    """
+    Handle all url patterns from PyLucid plugins.
+
+    All urls are in the current PageTree. It would be renew after a the
+    page tree would be changed by user. e.g.: Create/move a PluginPage.
+    """
+    def __init__(self):
+        # define __init__ because RegexURLResolver.__init__ takes arguments ;)
+        pass
+
+    def _get_plugin_patterns(self):
+        log.debug("PluginURLPattern._get_plugin_patterns")
+        from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
+        from pylucid_project.apps.pylucid.models.pagemeta import PageMeta
+        from pylucid_project.apps.pylucid.models.pagetree import PageTree
+
+        plugin_pages = PluginPage.objects.all()
+        all_page_metas = PageMeta.objects.filter(pagetree__page_type=PageTree.PLUGIN_TYPE)
+
+        pattern_list = []
+        for plugin_page in plugin_pages:
+            plugin_instance = plugin_page.get_plugin()
+
+            page_metas = all_page_metas.filter(pagetree=plugin_page.pagetree)
+            for page_meta in page_metas:
+                url_prefix = page_meta.get_absolute_url()
+                log.debug("add patterns for url prefix: %r" % url_prefix)
+
+                prefixed_urlpatterns = plugin_instance.get_prefix_urlpatterns(url_prefix, plugin_page.urls_filename)
+                log_urls(urlpatterns=prefixed_urlpatterns)
+                pattern_list += prefixed_urlpatterns
+
+        debug_log_urls(pattern_list)
+        log_urls(urlpatterns=pattern_list)
+        plugin_patterns = RegexURLResolver(r'', pattern_list)
+        return plugin_patterns
+
+    def __getattr__(self, name):
+        try:
+            plugin_patterns = PLUGIN_URLS_SYNC_DICT["plugin_patterns"]
+        except KeyError:
+            # First time started or django-tools local sync cache was cleared
+            # in this thread or in a other thread.
+
+            log.debug("Clear django.core.urlresolvers cache")
+            _resolver_cache.clear()  # Maps URLconf modules to RegexURLResolver instances.
+            _ns_resolver_cache.clear()  # Maps namespaces to RegexURLResolver instances.
+            _callable_cache.clear()  # Maps view and url pattern names to their view functions.
+
+            # get the plugin url patterns fresh
+            plugin_patterns = self._get_plugin_patterns()
+            PLUGIN_URLS_SYNC_DICT["plugin_patterns"] = plugin_patterns
+
+        return getattr(plugin_patterns, name)
+
+
+def clear_plugin_url_caches(sender, **kwargs):
+    """
+    signal handler for clear the plugin url caches.
+
+    connected in:
+        pylucid_project.apps.pylucid.signals.update_plugin_urls
+    """
+    # clear the django-tools local sync cache, that will be clear all
+    # caches for every thread in a multi-threaded environment
+    PLUGIN_URLS_SYNC_DICT.clear()
+
+
+#-------------------------------------------------------------------------------
 
 
 class PyLucidPlugin(object):
@@ -115,38 +196,43 @@ class PyLucidPlugin(object):
         mod = self.get_plugin_module(mod_name)
 
         try:
-            object = getattr(mod, obj_name)
+            plugin_object = getattr(mod, obj_name)
         except AttributeError, err:
             raise self.ObjectNotFound(err)
 
 #        print "put in _PLUGIN_OBJ_CACHE[%r]" % cache_key
-        _PLUGIN_OBJ_CACHE[cache_key] = object
+        _PLUGIN_OBJ_CACHE[cache_key] = plugin_object
 
-        return object
+        return plugin_object
 
     def get_callable(self, mod_name, func_name):
         """ returns the callable function. """
-        callable = self.get_plugin_object(mod_name, obj_name=func_name)
-        return callable
+        plugin_callable = self.get_plugin_object(mod_name, obj_name=func_name)
+        return plugin_callable
 
     def call_plugin_view(self, request, mod_name, func_name, method_kwargs):
         """
         Call a plugin view
-        used for pylucid-get-views and lucidTag calls 
+        used for pylucid-get-views and lucidTag calls
         """
-        callable = self.get_callable(mod_name, func_name)
+        plugin_callable = self.get_callable(mod_name, func_name)
 
         # Add info for pylucid_project.apps.pylucid.context_processors.pylucid
         request.plugin_name = self.name
         request.method_name = func_name
 
-        csrf_exempt = getattr(callable, 'csrf_exempt', False)
+        csrf_exempt = getattr(plugin_callable, 'csrf_exempt', False)
         if func_name == "http_get_view" and not csrf_exempt:
             # Use csrf_protect only in pylucid get views and not für lucidTag calls
-            callable = csrf_protect(callable)
+            plugin_callable = csrf_protect(plugin_callable)
 
         # call the plugin view method
-        response = callable(request, **method_kwargs)
+        response = plugin_callable(request, **method_kwargs)
+        if not (isinstance(response, (HttpResponse, basestring)) or response is None):
+            msg = "Plugin view '%s.%s.%s' must return None or basestring or HttpResponse! (returned: %r)" % (
+                self.pkg_string, mod_name, func_name, type(response)
+            )
+            raise TypeError(msg)
 
         if csrf_exempt and isinstance(response, HttpResponse):
             response.csrf_exempt = True
@@ -166,14 +252,16 @@ class PyLucidPlugin(object):
         raw_plugin_urlpatterns = self.get_plugin_object(mod_name=urls_filename, obj_name="urlpatterns")
         return raw_plugin_urlpatterns
 
-
     def get_prefix_urlpatterns(self, url_prefix, urls_filename):
         """ include the plugin urlpatterns with the url prefix """
-        url_prefix = url_prefix.rstrip("/") + "/"
+#         url_prefix = url_prefix.rstrip("/") + "/"
+        url_prefix = url_prefix.strip("/")
+        url_prefix = url_prefix + "/"
+
 
         cache_key = self.pkg_string + url_prefix
         if cache_key in _PLUGIN_URL_CACHE:
-            logger.debug("use _PLUGIN_URL_CACHE[%r]" % cache_key)
+            log.debug("use _PLUGIN_URL_CACHE[%r]" % cache_key)
             return _PLUGIN_URL_CACHE[cache_key]
 
         raw_plugin_urlpatterns = self.get_urlpatterns(urls_filename)
@@ -182,9 +270,9 @@ class PyLucidPlugin(object):
             (url_prefix, include(raw_plugin_urlpatterns)),
         )
 
-        logger.debug("url prefix: %r" % url_prefix)
-        logger.debug("raw_plugin_urlpatterns: %r" % raw_plugin_urlpatterns)
-        logger.debug("put in _PLUGIN_URL_CACHE[%r]" % cache_key)
+        log.debug("url prefix: %r" % url_prefix)
+        log.debug("raw_plugin_urlpatterns: %r" % raw_plugin_urlpatterns)
+        log.debug("put in _PLUGIN_URL_CACHE[%r]" % cache_key)
 
         _PLUGIN_URL_CACHE[cache_key] = plugin_urlpatterns
 
@@ -194,11 +282,11 @@ class PyLucidPlugin(object):
     def get_plugin_url_resolver(self, url_prefix, urls_filename="urls"):
         prefix_urlpatterns = self.get_prefix_urlpatterns(url_prefix, urls_filename)
 
-        logger.debug("prefix_urlpatterns: %r" % prefix_urlpatterns)
+        log.debug("prefix_urlpatterns: %r" % prefix_urlpatterns)
 
         plugin_url_resolver = urlresolvers.RegexURLResolver(r'^/', prefix_urlpatterns)
 
-        logger.debug("reverse_dict: %s" % pprint.pformat(plugin_url_resolver.reverse_dict))
+        log.debug("reverse_dict: %s" % pprint.pformat(plugin_url_resolver.reverse_dict))
 
         return plugin_url_resolver
 
@@ -210,8 +298,8 @@ class PyLucidPlugin(object):
         merged_urlpatterns = ROOT_URLCONF_PATTERNS + prefix_urlpatterns
 
         # Make a own url resolver
-#        merged_url_resolver = urlresolvers.RegexURLResolver(r'^/', merged_urlpatterns)
         merged_url_resolver = urlresolvers.RegexURLResolver(r'^/', merged_urlpatterns)
+        log.debug("merged_url_resolver: %r" % merged_url_resolver)
         return merged_url_resolver
 
 
@@ -265,11 +353,14 @@ class PyLucidPlugins(dict):
                     mod_name="admin_urls", obj_name="urlpatterns"
                 )
             except plugin_instance.ObjectNotFound, err:
-                continue
-
-            urls += patterns('',
-                (r"^%s/" % plugin_name, include(admin_urls)),
-            )
+                log.debug("plugin '%s' has no admin_urls: %s" % (plugin_name, err))
+                if "No module named admin_urls" not in err.message:
+                    raise
+            else:
+                urls += patterns('',
+                    (r"^%s/" % plugin_name, include(admin_urls)),
+                )
+                log.debug("Add admin_urls for plugin '%s'" % (plugin_name))
 
         return urls
 
@@ -293,16 +384,18 @@ class PyLucidPlugins(dict):
                     request, mod_name="views", func_name=method_name, method_kwargs={}
                 )
             except plugin_instance.ObjectNotFound, err:
-                # plugin or view doesn't exist
+                log.debug("plugin or view doesn't exist: %s" % err)
                 if settings.DEBUG:
-                    raise # Give a developer the full traceback page ;)
+                    raise  # Give a developer the full traceback page ;)
                 else:
                     # ignore the get parameter
                     continue
             except:
                 # insert more information into the traceback
                 etype, evalue, etb = sys.exc_info()
-                evalue = etype('Error rendering plugin view "%s.%s": %s' % (plugin_name, method_name, evalue))
+                msg = 'Error rendering plugin view "%s.%s": %s' % (plugin_name, method_name, evalue)
+                log.error(msg)
+                evalue = etype(msg)
                 raise etype, evalue, etb
 
             return response

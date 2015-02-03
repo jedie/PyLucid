@@ -8,19 +8,16 @@
     See also:
         django.utils.translation.trans_real.accept_language_re
 
-    Last commit info:
-    ~~~~~~~~~~~~~~~~~
-    $LastChangedDate$
-    $Rev$
-    $Author:$
-
-    :copyleft: 2009 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
+
 from django.conf import settings
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 from pylucid_project.apps.pylucid import views
+
 
 urlpatterns = patterns('',
     url(r'^$', views.root_page, name='PyLucid-root_page'),
@@ -33,15 +30,11 @@ urlpatterns = patterns('',
         name='PyLucid-send_head_file'
     ),
 
-    url(r'^(?P<url_lang_code>[A-Za-z]{1,8}(?:-[A-Za-z]{1,8})*)/$',
-        views.lang_root_page, name='PyLucid-lang_root_page'
+    # url_lang_code must match to all variantes of django.conf.global_settings.LANGUAGES
+    url(r'^(?P<url_lang_code>[A-Za-z]{2}(?:-[A-Za-z]{2,4})*)/(?P<url_path>.+?)$',
+        views.render_page, name='PyLucid-render_page'
     ),
-
-    url(r'^(?P<url_lang_code>[A-Za-z]{1,8}(?:-[A-Za-z]{1,8})*)/(?P<url_path>.+?)$',
-        views.resolve_url, name='PyLucid-resolve_url'
-    ),
-
-    url(r'^(?P<url_path>.+?)/$',
-        views.page_without_lang, name='PyLucid-page_without_lang'
+    url(r'^(?P<url_slugs>.+?)/$',
+        views.redirect_to_lang_url, name='PyLucid-redirect_to_lang_url'
     ),
 )

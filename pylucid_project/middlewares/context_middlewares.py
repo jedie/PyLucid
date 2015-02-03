@@ -8,7 +8,7 @@
     see:
         http://www.pylucid.org/permalink/134/new-v09-plugin-api#context-middleware
     
-    :copyleft: 2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2012-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -56,7 +56,9 @@ class PyLucidContextMiddlewares(object):
         """
         replace the context middleware tags in the response, with the plugin render output
         """
-        if not "html" in response._headers["content-type"][1]:
+        if (response.status_code != 200
+            or not isinstance(response, HttpResponse)
+            or "html" not in response["content-type"]):
             # No HTML Page -> do nothing
             return response
 

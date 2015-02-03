@@ -4,7 +4,7 @@
     urls for update section
 """
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 from pylucid_project.apps.pylucid_update import views
 from pylucid_project.apps.pylucid.decorators import superuser_only

@@ -2,7 +2,11 @@
 
 
 """
-setup some "static" variables
+    PyLucid context processor
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
@@ -15,12 +19,18 @@ except ImportError:
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.sites.models import Site
+from django.utils.log import getLogger
 from django.utils.safestring import mark_safe
 
 from dbtemplates.models import Template
 
 from pylucid_project import VERSION_STRING
 from pylucid_project.utils import slug
+
+
+
+# see: http://www.pylucid.org/permalink/443/how-to-display-debug-information
+log = getLogger("pylucid.context_processor")
 
 
 class NowUpdateInfo(object):
@@ -41,9 +51,10 @@ def add_plugin_info(view_function):
         context = view_function(request)
 
         if getattr(request, "plugin_name", None) != None:
-            # Add css anchor info
             plugin_name = request.plugin_name
             method_name = request.method_name
+
+            log.debug("Add css anchor info for plugin '%s.%s'" % (plugin_name, method_name))
 
             if not hasattr(request, "css_id_list"):
                 request.css_id_list = []
@@ -68,15 +79,15 @@ def pylucid(request):
     http://www.djangoproject.com/documentation/templates_python/#writing-your-own-context-processors
     """
     if hasattr(request.PYLUCID, "context"):
-        # reuse a exsiting context, so we save a few database requests
+        log.debug("reuse a existing context 'request.PYLUCID.context'")
         context = request.PYLUCID.context
     else:
-        # create a new context
+        log.debug("create a new context 'request.PYLUCID.context'")
         context = {
             "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % VERSION_STRING),
             # This value would be changed in index._render_cms_page(), if the
             # plugin manager or any plugin set request.anonymous_view = False
-            "robots": "index,follow", # TODO: remove in v0.9, see: ticket:161
+            "robots": "index,follow",  # TODO: remove in v0.9, see: ticket:161
 
             "CSS_PLUGIN_CLASS_NAME": settings.PYLUCID.CSS_PLUGIN_CLASS_NAME,
 
@@ -87,10 +98,13 @@ def pylucid(request):
         }
 
         pagetree = getattr(request.PYLUCID, "pagetree", None)
-        if pagetree:
+        if not pagetree:
+            log.debug("no request.PYLUCID.pagetree available.")
+        else:
+            log.debug("add info to context from 'request.PYLUCID.pagetree'")
             if "design_switch_pk" in request.session:
                 # The user has switch the design with pylucid_plugins.design
-                from pylucid_project.apps.pylucid.models import Design # import here, agains import loops
+                from pylucid_project.apps.pylucid.models import Design  # import here, agains import loops
 
                 design_id = request.session["design_switch_pk"]
                 try:
@@ -99,19 +113,23 @@ def pylucid(request):
                     messages.error(request, "Can't switch to design with ID %i: %s" % (design_id, err))
                     del(request.session["design_switch_pk"])
 
-            template_name = pagetree.design.template
-            # Used e.g.: in plugin templates: {% extends template_name %}
-            context["template_name"] = template_name
+            base_template_name = pagetree.design.template
+            # Used e.g.: in plugin templates: {% extends base_template_name %}
+            context["base_template_name"] = base_template_name
+            log.debug("base_template_name=%s" % base_template_name)
 
             # Add the dbtemplates entry.
             # Used in pylucid_admin_menu.html for generating the "edit page template" link
             try:
-                context["template"] = Template.on_site.get(name=template_name)
+                context["base_template"] = Template.on_site.get(name=base_template_name)
             except Template.DoesNotExist:
-                context["template"] = None
+                context["base_template"] = None
 
         pagemeta = getattr(request.PYLUCID, "pagemeta", None)
-        if pagemeta:
+        if not pagemeta:
+            log.debug("no request.PYLUCID.pagemeta available.")
+        else:
+            log.debug("add info to context from 'request.PYLUCID.pagemeta'")
             context.update({
                 "pagemeta": pagemeta,
                 "page_title": pagemeta.get_title(),
@@ -124,8 +142,12 @@ def pylucid(request):
             })
 
     # Update page updateinfo (a plugin can change it)
-    if hasattr(request.PYLUCID, "updateinfo_object"):
+    if not hasattr(request.PYLUCID, "updateinfo_object"):
+        log.debug("not request.PYLUCID.updateinfo_object available.")
+    else:
+        log.debug("add info to context from 'request.PYLUCID.updateinfo_object'")
         for itemname in ("createby", "lastupdateby", "createtime", "lastupdatetime"):
             context["page_%s" % itemname] = getattr(request.PYLUCID.updateinfo_object, itemname, None)
+
 
     return context

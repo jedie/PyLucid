@@ -111,7 +111,8 @@ class PluginPageForm(forms.ModelForm):
 
     class Meta:
         model = PluginPage
-        exclude = ("pagetree")
+        # https://docs.djangoproject.com/en/1.6/releases/1.6/#modelform-without-fields-or-exclude
+        # exclude = ("pagetree")
 
 
 class PageOderForm(forms.ModelForm):

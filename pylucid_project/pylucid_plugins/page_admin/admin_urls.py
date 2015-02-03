@@ -8,7 +8,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 from pylucid_project.apps.pylucid.markup.views import markup_preview
 
@@ -23,6 +23,7 @@ from admin_views.page_list import page_list
 from admin_views.markup_help import markup_help
 from admin_views.translate_page import translate_page
 
+print "JOOOOO"
 
 urlpatterns = patterns('',
     url(r'^new_content_page/$', new_content_page, name='PageAdmin-new_content_page'),

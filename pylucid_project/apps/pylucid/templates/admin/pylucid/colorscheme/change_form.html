@@ -17,7 +17,7 @@
             </a>
         </li>
         <li>
-            <a href="{% url Design-rename_colors object_id %}" title="{% trans 'Rename all colors based on the color value' %}" onclick="javascript:return confirm('{% trans 'Note:\nAll colors would be renamed!\nChanges in the form will be lost!' %}')">
+            <a href="{% url 'Design-rename_colors' object_id %}" title="{% trans 'Rename all colors based on the color value' %}" onclick="javascript:return confirm('{% trans 'Note:\nAll colors would be renamed!\nChanges in the form will be lost!' %}')">
             {% trans 'auto rename color names' %}
             </a>
         </li>

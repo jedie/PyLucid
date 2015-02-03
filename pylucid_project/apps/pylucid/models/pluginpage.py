@@ -1,12 +1,14 @@
 # coding: utf-8
 
+
 """
     PyLucid models
     ~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -14,17 +16,19 @@ from django.core import urlresolvers
 from django.core.cache import cache
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.db.models.signals import post_save, post_delete
 
 # http://code.google.com/p/django-tools/
 from django_tools import model_utils
+from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 from django_tools.models import UpdateInfoBaseModel
 from django_tools.utils import installed_apps_utils
 from django_tools.utils.messages import failsafe_message
 
 from pylucid_project.apps.pylucid.fields import RootAppChoiceField
+from pylucid_project.apps.pylucid.signals_handlers import update_plugin_urls
 from pylucid_project.base_models.base_models import BaseModelManager, BaseModel
 from pylucid_project.system.pylucid_plugins import PYLUCID_PLUGINS
-from django_tools.local_sync_cache.local_sync_cache import LocalSyncCache
 
 
 TAG_INPUT_HELP_URL = \
@@ -214,3 +218,5 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
 # Check Meta.unique_together manually
 model_utils.auto_add_check_unique_together(PluginPage)
 
+post_save.connect(update_plugin_urls, sender=PluginPage)
+post_delete.connect(update_plugin_urls, sender=PluginPage)

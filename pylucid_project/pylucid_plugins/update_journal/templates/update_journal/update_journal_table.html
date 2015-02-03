@@ -19,10 +19,10 @@
     {% if perms.update_journal.change_updatejournal or perms.update_journal.delete_updatejournal %}
     <td class="update_actions">
         {% if perms.update_journal.change_updatejournal %}
-            <a href="{% url admin:update_journal_updatejournal_change item.id %}" title="edit '{{ item.title|escape }}'">{% trans "edit" %}</a>
+            <a href="{% url 'admin:update_journal_updatejournal_change' item.id %}" title="edit '{{ item.title|escape }}'">{% trans "edit" %}</a>
         {% endif %}
         {% if perms.update_journal.delete_updatejournal %}
-            <a href="{% url admin:update_journal_updatejournal_delete item.id %}" title="Delete '{{ item.title|escape }}' from the list">{% trans "delete" %}</a>
+            <a href="{% url 'admin:update_journal_updatejournal_delete' item.id %}" title="Delete '{{ item.title|escape }}' from the list">{% trans "delete" %}</a>
         {% endif %}
     </td>
     {% endif %}

@@ -1,5 +1,15 @@
 # coding:utf-8
 
+
+"""
+    Update journal models
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details
+"""
+
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -35,7 +45,7 @@ class UpdateJournal(BaseModel):
     )
     object_url = URLModelField2(verbose_name=_('object url'),
         help_text="absolute url to the item. (without protocol/domain!)",
-        verify_exists=False, allow_schemes=None, allow_netloc=False,
+        allow_schemes=None, allow_netloc=False,
     )
 
     language = models.ForeignKey(Language)

@@ -7,7 +7,7 @@
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
       <li>
-        <a href="{% url PageAdmin-tag_list %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
+        <a href="{% url 'PageAdmin-tag_list' %}" class="openinwindow" title="{% trans 'List of all available PyLucid template tags' %}">
         {% trans 'tag list' %}
         </a>
     </li>

@@ -1,22 +1,21 @@
 # coding: utf-8
 
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 from pylucid_project.pylucid_plugins.blog import views
-
 
 urlpatterns = patterns('',
     url(r'^tags/(?P<tags>.+?)/$', views.tag_view, name='Blog-tag_view'),
 
     url(r'^(?P<year>\d{4})/$',
-        views.year_archive, name='Blog-year_archive'
+        views.BlogYearArchiveView.as_view(), name='Blog-year_archive'
     ),
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/$',
-        views.month_archive, name='Blog-month_archive'
+        views.BlogMonthArchiveView.as_view(), name='Blog-month_archive'
     ),
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/$',
-        views.day_archive, name='Blog-day_archive'
+        views.BlogDayArchiveView.as_view(), name='Blog-day_archive'
     ),
 
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<slug>[-\w]+)/$',

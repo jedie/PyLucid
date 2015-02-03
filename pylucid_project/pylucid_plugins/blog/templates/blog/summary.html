@@ -1,4 +1,4 @@
-{% extends template_name %}
+{% extends base_template_name %}
 {% load comments %}
 
 {% block content %}
@@ -21,9 +21,9 @@
 {% for filename in filenames %}
     <li>
         {% if tags %}
-            <a href="{% url Blog-tag_feed tags filename %}">{% url Blog-tag_feed tags filename %}</a>
+            <a href="{% url 'Blog-tag_feed' tags filename %}">{% url 'Blog-tag_feed' tags filename %}</a>
         {% else %}      
-            <a href="{% url Blog-feed filename %}">{% url Blog-feed filename %}</a>
+            <a href="{% url 'Blog-feed' filename %}">{% url 'Blog-feed' filename %}</a>
         {% endif %}
         <small>(
         {% if filename == "feed.rss" %}

@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-from pylucid_project.apps.i18n.utils.translate import translate, prefill
+# from pylucid_project.apps.i18n.utils.translate import translate, prefill
 from pylucid_project.apps.i18n.views import select_language
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 from pylucid_project.apps.pylucid.models import PageTree, PageMeta, PageContent, Language
@@ -98,38 +98,39 @@ def translate_page(request, pagemeta_id=None):
             )
 
         if "autotranslate" in request.POST:
-            if source_pagemeta_form.is_valid() and source_pagecontent_form.is_valid():
-                all_filled_fields = []
-                all_errors = []
-
-                # Translate PageContent
-                dest_pagecontent_form, filled_fields, errors = prefill(
-                    source_pagecontent_form, dest_pagecontent_form,
-                    source_pagemeta.language, dest_language,
-                    only_fields=("content",),
-                    #debug=True,
-                )
-                all_filled_fields += filled_fields
-                all_errors += errors
-
-                # Translate fields from PageMeta
-                dest_pagemeta_form, filled_fields, errors = prefill(
-                    source_pagemeta_form, dest_pagemeta_form,
-                    source_pagemeta.language, dest_language,
-                    only_fields=("name", "title", "description"),
-                    #debug=True,
-                )
-                all_filled_fields += filled_fields
-                all_errors += errors
-
-
-                if all_filled_fields:
-                    messages.success(request, "These fields are translated with google: %s" % ", ".join(all_filled_fields))
-                else:
-                    messages.info(request, "No fields translated with google, because all fields have been a translation.")
-                if all_errors:
-                    for error in all_errors:
-                        messages.error(request, error)
+            raise NotImplementedError("TODO: Must be reimplemented!")
+#             if source_pagemeta_form.is_valid() and source_pagecontent_form.is_valid():
+#                 all_filled_fields = []
+#                 all_errors = []
+#
+#                 # Translate PageContent
+#                 dest_pagecontent_form, filled_fields, errors = prefill(
+#                     source_pagecontent_form, dest_pagecontent_form,
+#                     source_pagemeta.language, dest_language,
+#                     only_fields=("content",),
+#                     #debug=True,
+#                 )
+#                 all_filled_fields += filled_fields
+#                 all_errors += errors
+#
+#                 # Translate fields from PageMeta
+#                 dest_pagemeta_form, filled_fields, errors = prefill(
+#                     source_pagemeta_form, dest_pagemeta_form,
+#                     source_pagemeta.language, dest_language,
+#                     only_fields=("name", "title", "description"),
+#                     #debug=True,
+#                 )
+#                 all_filled_fields += filled_fields
+#                 all_errors += errors
+#
+#
+#                 if all_filled_fields:
+#                     messages.success(request, "These fields are translated with google: %s" % ", ".join(all_filled_fields))
+#                 else:
+#                     messages.info(request, "No fields translated with google, because all fields have been a translation.")
+#                 if all_errors:
+#                     for error in all_errors:
+#                         messages.error(request, error)
         else:
             # don't translate -> save if valid
             if (source_pagemeta_form.is_valid() and source_pagecontent_form.is_valid() and

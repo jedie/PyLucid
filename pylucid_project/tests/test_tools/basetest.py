@@ -1,20 +1,35 @@
 # coding: utf-8
 
+
 """
     PyLucid unittest base class
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+
 import os
 import re
+import sys
 
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+
+#     tests = __file__
+    tests = "pylucid_plugins.auth.tests"
+#     tests = "pylucid_plugins.auth.tests.LoginTest.test_login_ajax_form"
+
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(tests,
+        verbosity=2,
+#        failfast=True,
+        failfast=False,
+    )
+    sys.exit()
+
 
 from django import forms
 from django.conf import settings
@@ -55,7 +70,7 @@ class BaseUnittest(BaseTestCase, TestCase):
 
         # Remove the real Pygments CSS content, because it contains the
         # String "Traceback" which used in many tests.
-        # If django-compressor not work or disabled, the CSS content would be insert inline. 
+        # If django-compressor not work or disabled, the CSS content would be insert inline.
         pygments_css = EditableHtmlHeadFile.objects.get(filepath="pygments.css")
         pygments_css.content = "Pygments CSS Content (removed by %s)" % __file__
         pygments_css.save()
@@ -99,7 +114,7 @@ class BaseUnittest(BaseTestCase, TestCase):
         )
         self.assertDOM(response,
             must_contain=(
-                '<input id="id_username" maxlength="30" name="username" type="text" />',
+                '<input id="id_username" maxlength="254" name="username" type="text" />',
                 '<input id="id_password" name="password" type="password" />',
                 '<input type="submit" value="Log in" />',
             )
@@ -213,7 +228,7 @@ class BaseLanguageTestCase(BaseUnittest):
         """ create some language related attributes """
         super(BaseLanguageTestCase, self)._pre_setup(*args, **kwargs)
 
-        self._system_preferences = None # used in enable_i18n_debug() and tearDown()
+        self._system_preferences = None  # used in enable_i18n_debug() and tearDown()
 
         # default language is defined with settings.LANGUAGE_CODE
         self.default_language = Language.objects._get_default_language()
@@ -268,7 +283,7 @@ class MarkupTestHelper(object):
         txt = unicode(txt)
         txt = txt.splitlines()
         assert txt[0] == "", "First must be empty!"
-        txt = txt[1:] # Skip the first line
+        txt = txt[1:]  # Skip the first line
 
         # get the indentation level from the first line
         count = False
@@ -281,15 +296,15 @@ class MarkupTestHelper(object):
         # remove indentation from all lines
         txt = [i[count:].rstrip(" ") for i in txt]
 
-        #~ txt = re.sub("\n {2,}", "\n", txt)
+        # ~ txt = re.sub("\n {2,}", "\n", txt)
         txt = "\n".join(txt)
 
         # strip *one* newline at the begining...
         if txt.startswith("\n"): txt = txt[1:]
         # and strip *one* newline at the end of the text
         if txt.endswith("\n"): txt = txt[:-1]
-        #~ print repr(txt)
-        #~ print "-"*79
+        # ~ print repr(txt)
+        # ~ print "-"*79
 
         return txt
 

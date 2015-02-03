@@ -6,16 +6,26 @@
     PyLucid unittests
     ~~~~~~~~~~~~~~~~~
     
-    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-
-import os
+import sys
 
 if __name__ == "__main__":
-    # run all unittest directly
-    os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
+    # Run all unittest directly
+
+    tests = __file__
+#    tests = "pylucid_project.pylucid_plugins.unittest_plugin.tests"
+#    tests = "pylucid_project.pylucid_plugins.unittest_plugin.tests.UnittestPluginCsrfTests"
+
+    from pylucid_project.tests import run_test_directly
+    run_test_directly(tests,
+        verbosity=2,
+#        failfast=True,
+        failfast=False,
+    )
+    sys.exit()
 
 from django.conf import settings
 from django.test.client import Client
@@ -85,7 +95,6 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/static/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
                 'Simulate only, no entry changed.',
                 '<legend class="pygments_code">Diff</legend>',
@@ -114,7 +123,6 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/static/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">- Welcome to your fesh PyLucid CMS installation ;)</span>',
@@ -152,7 +160,6 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         self.assertInputFields(response, find_string, replace_string)
         self.assertResponse(response,
             must_contain=(
-                '<link rel="stylesheet" type="text/css" href="/static/PyLucid_cache/pygments.css"',
                 '<form action="%s" method="post" id="find_and_replace' % url,
                 '<legend class="pygments_code">Diff</legend>',
                 '<span class="gd">-    page messages</span>',
@@ -165,14 +172,14 @@ class FindReplaceTest(basetest.BaseLanguageTestCase):
         )
 
 
-if __name__ == "__main__":
-    # Run all unittest directly
-    from django.core import management
-
-    tests = __file__
-#    tests = "pylucid_plugins.find_and_replace.tests.FindReplaceTest.test_Headfiles_replace"
-
-    management.call_command('test', tests,
-        verbosity=2,
-#        failfast=True
-    )
+# if __name__ == "__main__":
+#     # Run all unittest directly
+#     from django.core import management
+#
+#     tests = __file__
+# #    tests = "pylucid_plugins.find_and_replace.tests.FindReplaceTest.test_Headfiles_replace"
+#
+#     management.call_command('test', tests,
+#         verbosity=2,
+# #        failfast=True
+#     )

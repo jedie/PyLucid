@@ -24,11 +24,11 @@ import sys
 
 
 try:
-    #from django_tools.utils import info_print;info_print.redirect_stdout()
+    # from django_tools.utils import info_print;info_print.redirect_stdout()
     import django
-    import dbpreferences # http://code.google.com/p/django-dbpreferences/
-    import django_tools # http://code.google.com/p/django-tools/
-    import django_processinfo # https://github.com/jedie/django-processinfo
+    import dbpreferences  # http://code.google.com/p/django-dbpreferences/
+    import django_tools  # http://code.google.com/p/django-tools/
+    import django_processinfo  # https://github.com/jedie/django-processinfo
     import pylucid_project
     from pylucid_project.system.plugin_setup_info import PyLucidPluginSetupInfo
 except Exception, e:
@@ -47,14 +47,14 @@ RUN_WITH_DEV_SERVER = "runserver" in sys.argv
 def _pkg_path(obj):
     return os.path.abspath(os.path.dirname(obj.__file__))
 
-#PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+# PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
 PYLUCID_BASE_PATH = _pkg_path(pylucid_project)
 DJANGO_BASE_PATH = _pkg_path(django)
-#print "PYLUCID_BASE_PATH:", PYLUCID_BASE_PATH
-#print "DJANGO_BASE_PATH:", DJANGO_BASE_PATH
-#PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
+# print "PYLUCID_BASE_PATH:", PYLUCID_BASE_PATH
+# print "DJANGO_BASE_PATH:", DJANGO_BASE_PATH
+# PYLUCID_PLUGINS_ROOT = os.path.abspath(os.path.dirname(pylucid_plugins.__file__))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # SYS PATH SETUP
 
 _path_list = (
@@ -66,18 +66,18 @@ for path in _path_list:
     if path not in sys.path:
         sys.path.insert(0, path)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # DEBUGGING
 
 DEBUG = False
 
 # Append all SQL queries into the html page. (Works only if DEBUG==True)
-# Should allways be False. It's only for developing! 
+# Should allways be False. It's only for developing!
 SQL_DEBUG = False
 
 # See if request.PYLUCID attributes attached or changes (Works only if DEBUG==True)
 # See also: http://www.pylucid.org/permalink/133/pylucid-objects#DEBUG
-# Should allways be False. It's only for developing! 
+# Should allways be False. It's only for developing!
 PYLUCID_OBJECTS_DEBUG = False
 
 # We must set a default DB settings here, otherwise management commands doesn't work.
@@ -88,7 +88,7 @@ DATABASES = {
     }
 }
 
-SITE_ID = 1 # Can be changed in local_settings
+SITE_ID = 1  # Can be changed in local_settings
 
 
 ROOT_URLCONF = 'pylucid_project.urls'
@@ -135,7 +135,7 @@ MIDDLEWARE_CLASSES = (
     # Create request.user_settings at process_request() and save it on process_response():
     'dbpreferences.middleware.DBPreferencesMiddleware',
 
-    # Create request.PYLUCID and log process_exception(): 
+    # Create request.PYLUCID and log process_exception():
     'pylucid_project.middlewares.pylucid_objects.PyLucidMiddleware',
 
     # slow down the django developer server
@@ -144,7 +144,6 @@ MIDDLEWARE_CLASSES = (
 
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
 
-    'django.middleware.transaction.TransactionMiddleware',
     'reversion.middleware.RevisionMiddleware',
 
     # Insert a html link anchor to all headlines:
@@ -159,7 +158,7 @@ MIDDLEWARE_CLASSES = (
 
 # For django_tools.cache.site_cache_middleware
 # https://github.com/jedie/django-tools/blob/master/django_tools/cache/README.creole
-CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True # Don't use cache for authenticated users
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True  # Don't use cache for authenticated users
 
 # Add stack information to every messages, but only if..
 #     ...settings.DEBUG == True
@@ -171,7 +170,7 @@ MESSAGE_STORAGE = "django_tools.utils.messages.StackInfoStorage"
 # initialized all pylucid plugins
 PYLUCID_PLUGIN_SETUP_INFO = PyLucidPluginSetupInfo(
     plugin_package_list=(
-        (PYLUCID_BASE_PATH, "pylucid_project", "apps"), # base apps
+        (PYLUCID_BASE_PATH, "pylucid_project", "apps"),  # base apps
         (PYLUCID_BASE_PATH, "pylucid_project", "pylucid_plugins"),
         (PYLUCID_BASE_PATH, "pylucid_project", "external_plugins"),
     ),
@@ -191,7 +190,7 @@ TEMPLATE_DIRS += (
 
     os.path.join(_pkg_path(django), "contrib/admin/templates"),
 )
-#print "settings.TEMPLATE_DIRS:\n", "\n".join(TEMPLATE_DIRS)
+# print "settings.TEMPLATE_DIRS:\n", "\n".join(TEMPLATE_DIRS)
 
 
 TEMPLATE_LOADERS = (
@@ -206,9 +205,9 @@ TEMPLATE_LOADERS = (
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.i18n",
-    "django.core.context_processors.request", # Add request object to context
-    "django.core.context_processors.static", # Add STATIC_URL to context
-    "django.core.context_processors.media", # Add MEDIA_URL to context
+    "django.core.context_processors.request",  # Add request object to context
+    "django.core.context_processors.static",  # Add STATIC_URL to context
+    "django.core.context_processors.media",  # Add MEDIA_URL to context
     "django.contrib.messages.context_processors.messages",
     "pylucid_project.apps.pylucid.context_processors.pylucid",
 )
@@ -217,7 +216,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 # is in a lucidTag plugin view!
 # Note that Django only displays fancy error pages if DEBUG is True!
 TEMPLATE_DEBUG = False
-#TEMPLATE_DEBUG = True
+# TEMPLATE_DEBUG = True
 
 if DEBUG:
     # Display invalid (e.g. misspelled, unused) template variables
@@ -225,7 +224,7 @@ if DEBUG:
     # http://www.djangoproject.com/documentation/settings/#template-string-if-invalid
     # But note: Some django admin stuff is broken if TEMPLATE_STRING_IF_INVALID != ""
     # see also: http://code.djangoproject.com/ticket/3579
-    # A work-a-round for this lives in ./pylucid_project/apps/pylucid_admin/admin.py 
+    # A work-a-round for this lives in ./pylucid_project/apps/pylucid_admin/admin.py
     TEMPLATE_STRING_IF_INVALID = "XXX INVALID TEMPLATE STRING '%s' XXX"
 #    from django_tools.template import warn_invalid_template_vars
 #    warn_invalid_template_vars.add_warning()
@@ -245,18 +244,18 @@ INSTALLED_APPS = (
     # PyLucid own apps:
     'pylucid_project.apps.pylucid',
     'pylucid_project.apps.pylucid_admin',
-    'pylucid_project.apps.pylucid_update', # Only needed for v0.8 users
+    'pylucid_project.apps.pylucid_update',  # Only needed for v0.8 users
 
     # external apps shipped and used with PyLucid:
-	'django_tools.dynamic_site', # https://github.com/jedie/django-tools/blob/master/django_tools/dynamic_site/README.creole
-    'dbpreferences', # http://code.google.com/p/django-dbpreferences/
-    'dbtemplates', # http://code.google.com/p/django-dbtemplates/
-    'reversion', # http://code.google.com/p/django-reversion/
-    'reversion_compare', # https://github.com/jedie/django-reversion-compare
-    'tagging', # http://code.google.com/p/django-tagging/
-    'compressor', # https://github.com/jezdez/django_compressor
-    'south', # http://south.aeracode.org/
-    'django_processinfo', # https://github.com/jedie/django-processinfo
+	'django_tools.dynamic_site',  # https://github.com/jedie/django-tools/blob/master/django_tools/dynamic_site/README.creole
+    'dbpreferences',  # http://code.google.com/p/django-dbpreferences/
+    'dbtemplates',  # http://code.google.com/p/django-dbtemplates/
+    'reversion',  # http://code.google.com/p/django-reversion/
+    'reversion_compare',  # https://github.com/jedie/django-reversion-compare
+    'tagging',  # http://code.google.com/p/django-tagging/
+    'compressor',  # https://github.com/jezdez/django_compressor
+    'south',  # http://south.aeracode.org/
+    'django_processinfo',  # https://github.com/jedie/django-processinfo
 )
 
 # Temp. work-a-round for https://github.com/jezdez/django-dbtemplates/pull/31
@@ -265,12 +264,12 @@ DATABASE_ENGINE = "XXX"
 
 # Add all existing PyLucid apps + plugins
 INSTALLED_APPS += PYLUCID_PLUGIN_SETUP_INFO.installed_plugins
-#print "settings.INSTALLED_APPS:", "\n".join(INSTALLED_APPS)
+# print "settings.INSTALLED_APPS:", "\n".join(INSTALLED_APPS)
 
 COMMENTS_APP = "pylucid_project.pylucid_plugins.pylucid_comments"
 
-#http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
-#Default: 'django.test.simple.run_tests'
+# http://docs.djangoproject.com/en/dev/ref/settings/#setting-TEST_RUNNER
+# Default: 'django.test.simple.run_tests'
 TEST_RUNNER = 'pylucid_project.tests.test_tools.test_runner.PyLucidTestRunner'
 
 if RUN_WITH_DEV_SERVER:
@@ -280,7 +279,7 @@ if RUN_WITH_DEV_SERVER:
         ("test", "dev_server_test@example_domain.tld"),
     )
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # PyLucid own settings
 
 # Add app settings
@@ -302,7 +301,7 @@ AUTHENTICATION_BACKENDS = (
 # http://docs.djangoproject.com/en/dev/topics/auth/#storing-additional-information-about-users
 AUTH_PROFILE_MODULE = "pylucid.UserProfile"
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # STATIC FILES
 #
 # must be set in local_settings.py
@@ -316,7 +315,7 @@ MEDIA_URL = None
 # https://docs.djangoproject.com/en/1.4/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = ()
 
-# Set base path for include plugin: 
+# Set base path for include plugin:
 # http://www.pylucid.org/permalink/381/about-the-include-plugin
 PYLUCID_INCLUDE_BASEPATH = None
 
@@ -369,14 +368,14 @@ LOCALE_PATHS = (
 )
 USE_I18N = True
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
 # dbtemplates settings
 # http://packages.python.org/django-dbtemplates/overview.html#settings
 
 # dbtemplate should used django-reversion
 DBTEMPLATES_USE_REVERSION = True
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
 # settings for local_sync_cache from django-tools
 
 if DEBUG and RUN_WITH_DEV_SERVER:
@@ -386,10 +385,10 @@ else:
 
 LOCAL_SYNC_CACHE_BACKEND = "local_sync_cache"
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
 # Set the Django cache system.
 
-CACHE_MIDDLEWARE_SECONDS = 3600 # 1h
+CACHE_MIDDLEWARE_SECONDS = 3600  # 1h
 
 # The LocMemCache isn't memory-efficient. Should be changed in local_settings.py !
 _BACKEND = "django_tools.cache.smooth_cache_backends.SmoothLocMemCache"
@@ -399,19 +398,19 @@ CACHES = {
         'LOCATION': 'PyLucid-default-cache',
         'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
     },
-    'dbtemplates': { # http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
+    'dbtemplates': {  # http://django-dbtemplates.readthedocs.org/en/latest/advanced/#caching
         'BACKEND': _BACKEND,
         'LOCATION': 'PyLucid-dbtemplates-cache',
         'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
     },
-    LOCAL_SYNC_CACHE_BACKEND: { # https://github.com/jedie/django-tools/blob/master/django_tools/local_sync_cache/local_sync_cache.py
+    LOCAL_SYNC_CACHE_BACKEND: {  # https://github.com/jedie/django-tools/blob/master/django_tools/local_sync_cache/local_sync_cache.py
         'BACKEND': _BACKEND,
         'LOCATION': 'PyLucid-local_sync-cache',
         'TIMEOUT': CACHE_MIDDLEWARE_SECONDS,
     },
 }
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
 
 # unittest running?
 _IN_UNITTESTS = "PYLUCID_UNITTESTS" in os.environ or "test" in sys.argv
@@ -425,12 +424,12 @@ if _IN_UNITTESTS:
 # Must be set in local settings
 SECRET_KEY = None
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
 # include additional_settings from plugins
 
 PYLUCID_PLUGIN_SETUP_INFO.get_additional_settings(locals())
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
 # overwrite values from the local settings
 
 def _error(msg):
@@ -440,7 +439,7 @@ def _error(msg):
 LOCAL_SETTINGS_MODULE = os.environ.get("LOCAL_SETTINGS_MODULE", "local_settings")
 
 try:
-    # from local_settings import *    
+    # from local_settings import *
     _local_settings = __import__(LOCAL_SETTINGS_MODULE, globals(), locals(), ["*"])
 except ImportError, err:
     if str(err).startswith("No module named"):
@@ -463,7 +462,7 @@ for key in dir(_local_settings):
 del(_local_settings)
 
 
-#_______________________________________________________________________________
+# _______________________________________________________________________________
 # check some settings
 
 if not "create_instance" in sys.argv:
@@ -476,7 +475,7 @@ if not "create_instance" in sys.argv:
             if not os.path.isdir(dir):
                 _error("Directory in STATICFILES_DIRS doesn't exist: %r" % dir)
 
-    #__________________________________________________________________________
+    # __________________________________________________________________________
     # Check STATIC_* and MEDIA_*
 
     def _check_if_set(info, value):
@@ -497,7 +496,7 @@ if not "create_instance" in sys.argv:
     del(_check_path)
     del(_check_if_set)
 
-    #__________________________________________________________________________
+    # __________________________________________________________________________
     # expand SLUG_BLACKLIST
 
     SLUG_BLACKLIST = list(SLUG_BLACKLIST)

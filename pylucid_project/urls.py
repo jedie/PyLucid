@@ -4,17 +4,20 @@
     global url patterns
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2012 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
 
 import sys
 
 from django.conf import settings
-from django.conf.urls.defaults import patterns, url, include
+from django.conf.urls import patterns, url, include
 from django.contrib import admin
 from django.http import HttpResponse
 from django.views.defaults import server_error, page_not_found
+
+from pylucid_project.system.pylucid_plugins import PluginURLPattern
 
 
 # TODO: Use own error views?
@@ -26,11 +29,11 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-    #_____________________________________
+    # _____________________________________
     # PYLUCID UPDATE SECTION
     url('^%s/update/' % settings.ADMIN_URL_PREFIX, include('pylucid_update.urls')),
 
-    #_____________________________________
+    # _____________________________________
     # PYLUCID ADMIN
     url(r'^%s/' % settings.PYLUCID_ADMIN_URL_PREFIX, include('pylucid_admin.urls')),
 
@@ -40,7 +43,7 @@ urlpatterns = patterns('',
     # https://docs.djangoproject.com/en/1.4/topics/i18n/translation/#module-django.views.i18n
     url(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog'),
 
-    #_____________________________________
+    # _____________________________________
     # DJANGO ADMIN PANEL
     url(r'^%s/' % settings.ADMIN_URL_PREFIX, include(admin.site.urls)),
 )
@@ -50,7 +53,7 @@ urlpatterns = patterns('',
 # Default robots.txt content. If you want to use your own robots.txt, look into .htaccess
 # more information: http://www.pylucid.org/permalink/390/robots-txt
 if settings.DEBUG and not settings.RUN_WITH_DEV_SERVER:
-    # Disallow access to all pages in DEBUG mode. 
+    # Disallow access to all pages in DEBUG mode.
     urlpatterns += patterns("",
         url(
             "^robots.txt$",
@@ -89,11 +92,14 @@ if settings.RUN_WITH_DEV_SERVER and "--insecure" in sys.argv and "--nostatic" in
     )
 
 urlpatterns += patterns('',
+    # All PyLucid plugin urls. Would be dynamicly changed with information from database
+    PluginURLPattern(),
+
     url('^', include('pylucid.urls')),
 )
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # use the undocumented django function to add the "lucidTag" to the tag library.
-# 
+#
 from django.template import add_to_builtins
 add_to_builtins('pylucid_project.apps.pylucid.defaulttags')

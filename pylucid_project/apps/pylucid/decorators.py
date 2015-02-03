@@ -4,27 +4,32 @@
     PyLucid decorators
     ~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import sys
 import warnings
-from pylucid_project.apps.pylucid.shortcuts import bad_request
-try:
-    from functools import wraps
-except ImportError:
-    from django.utils.functional import wraps  # Python 2.3, 2.4 fallback.
+from functools import wraps
 
+from django.utils.log import getLogger
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
+from pylucid_project.apps.pylucid.shortcuts import bad_request
 from pylucid_project.apps.pylucid.models import LogEntry
+from pylucid_project.apps.pylucid.models.pagetree import PageTree
+from pylucid_project.apps.pylucid.models.pluginpage import PluginPage
+from pylucid_project.apps.pylucid.system.resolve_url import resolve_pagetree_url
+
+
+# see: http://www.pylucid.org/permalink/443/how-to-display-debug-information
+log = getLogger("pylucid.decorators")
 
 
 def check_permissions(superuser_only, permissions=(), must_staff=None):
@@ -194,3 +199,71 @@ def render_to(template_name=None, debug=False):
             return response
         return wrapper
     return renderer
+
+
+
+
+
+
+def pylucid_objects(view_function):
+    """
+    Add PyLucid objects to the request object
+    FIXME: merge / rename ???
+    """
+    @wraps(view_function)
+    def _inner(request, *args, **kwargs):
+        response = resolve_pagetree_url(request)
+        if response:
+            return response
+
+        # Create initial context object
+        request.PYLUCID.context = RequestContext(request)
+
+        return view_function(request, *args, **kwargs)
+    return _inner
+
+
+def class_based_pylucid_objects(view_function):
+    """
+    Add PyLucid objects to the request object
+    FIXME: merge / rename ???
+    """
+    @wraps(view_function)
+    def _inner(cls, request, *args, **kwargs):
+        response = resolve_pagetree_url(request)
+        if response:
+            return response
+
+        # Create initial context object
+        request.PYLUCID.context = RequestContext(request)
+
+        return view_function(cls, request, *args, **kwargs)
+    return _inner
+
+
+
+
+
+
+def auto_i18n_redirect(view_function):
+    """
+    redirect if language code is differend from pagemeta.language.code
+    """
+    @wraps(view_function)
+    def _inner(request, *args, **kwargs):
+        # Check the language code in the url, if exist
+        if url_lang_code and (not is_plugin_page) and (url_lang_code.lower() != pagemeta.language.code.lower()):
+            # The language code in the url is wrong. e.g.: The client followed a external url with was wrong.
+            # Note: The main_manu doesn't show links to not existing PageMeta entries!
+
+            # change only the lang code in the url:
+            new_url = i18n.change_url(request, new_lang_code=pagemeta.language.code)
+
+            if settings.DEBUG or settings.PYLUCID.I18N_DEBUG:
+                messages.error(request,
+                    "Language code in url %r is wrong! Redirect to %r." % (url_lang_code, new_url)
+                )
+            # redirect the client to the right url
+            return http.HttpResponsePermanentRedirect(new_url)
+        return view_function(request, *args, **kwargs)
+    return _inner
