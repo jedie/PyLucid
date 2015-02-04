@@ -21,8 +21,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-
-
+from pylucid_migration.markup.converter import convert
 
 
 def forwards_func(apps, schema_editor):
@@ -98,7 +97,13 @@ def forwards_func(apps, schema_editor):
             # placeholder = Placeholder(slot="content")
             # placeholder.save()
 
-            content = pagecontent.content
+            raw_content = pagecontent.content
+
+            content = convert(raw_content, pagecontent.markup)
+
+            # assembler = DjangoTagAssembler()
+            # raw_content2, cut_data = assembler.cut_out(content)
+
             markup = pagecontent.markup
 
             # TODO: Render and split!
