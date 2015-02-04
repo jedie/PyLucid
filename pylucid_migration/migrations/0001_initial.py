@@ -54,40 +54,49 @@ def forwards_func(apps, schema_editor):
             url = pagemeta.get_absolute_url()
             print("\t%s" % url)
 
-            if pagetree.parent:
-                # print("parent: %r" % pagetree.parent.get_absolute_url())
-                parent = pages[pagetree.parent.id]
+            if pagetree.id in pages:
+                # Was created before in other language
+                page = pages[pagetree.id]
+                print("\t * Add in language %r" % pagemeta.language.code)
+
+                create_title(pagemeta.language.code, pagemeta.title, page, slug=pagetree.slug)
+                page.rescan_placeholders()
+                page = page.reload()
             else:
-                parent = None
+                print("\t * Create in language %r" % pagemeta.language.code)
+                if pagetree.parent:
+                    # print("parent: %r" % pagetree.parent.get_absolute_url())
+                    parent = pages[pagetree.parent.id]
+                else:
+                    parent = None
 
-            # http://docs.django-cms.org/en/support-3.0.x/reference/api_references.html#cms.api.create_page
-            page = create_page(
-                title=pagemeta.title,
-                menu_title=pagemeta.name,
+                # http://docs.django-cms.org/en/support-3.0.x/reference/api_references.html#cms.api.create_page
+                page = create_page(
+                    title=pagemeta.title,
+                    menu_title=pagemeta.name,
 
-                template=cms.constants.TEMPLATE_INHERITANCE_MAGIC,
-                language=pagemeta.language.code,
-                slug=pagetree.slug,
-                # apphook=None, apphook_namespace=None, redirect=None,
-                meta_description=pagemeta.description,
-                created_by='pylucid_migration',
-                parent=parent,
-                # publication_date=None, publication_end_date=None,
-                in_navigation=pagetree.showlinks,
-                # soft_root=False, reverse_id=None,
-                # navigation_extenders=None,
-                published=False,
-                site=pagetree.site,
-                # login_required=False, limit_visibility_in_menu=VISIBILITY_ALL,
-                # position="last-child", overwrite_url=None, xframe_options=Page.X_FRAME_OPTIONS_INHERIT
-            )
-            pages[pagetree.id] = page
+                    template=cms.constants.TEMPLATE_INHERITANCE_MAGIC,
+                    language=pagemeta.language.code,
+                    slug=pagetree.slug,
+                    # apphook=None, apphook_namespace=None, redirect=None,
+                    meta_description=pagemeta.description,
+                    created_by='pylucid_migration',
+                    parent=parent,
+                    # publication_date=None, publication_end_date=None,
+                    in_navigation=pagetree.showlinks,
+                    # soft_root=False, reverse_id=None,
+                    # navigation_extenders=None,
+                    published=False,
+                    site=pagetree.site,
+                    # login_required=False, limit_visibility_in_menu=VISIBILITY_ALL,
+                    # position="last-child", overwrite_url=None, xframe_options=Page.X_FRAME_OPTIONS_INHERIT
+                )
+                pages[pagetree.id] = page
 
-            # placeholders = page.placeholders.all()
-            # print(placeholders)
-            # placeholder = page.placeholders.get(slot='body')
-            placeholder = Placeholder(slot="content")
-            placeholder.save()
+            placeholder = page.placeholders.all()[0]
+
+            # placeholder = Placeholder(slot="content")
+            # placeholder.save()
 
             content = pagecontent.content
             markup = pagecontent.markup
@@ -96,7 +105,7 @@ def forwards_func(apps, schema_editor):
 
             add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
 
-            publish_page(page, user, language=pagemeta.language.code)
+        publish_page(page, user, language=pagemeta.language.code)
 
 
     # print("\n\n+++++++++++++++++++++++++++++++++++++++++\n\n")
