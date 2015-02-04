@@ -26,11 +26,15 @@ from django.db import models, migrations
 
 
 def forwards_func(apps, schema_editor):
-    from cms.api import create_page, create_title
+    from cms.api import create_page, create_title, add_plugin, publish_page
     import cms
+    from cms.models.placeholdermodel import Placeholder
 
     #PageTree = apps.get_model(u'pylucid_migration', "PageTree")
     from pylucid_migration.models import PageTree, PageMeta, PageContent
+
+    from django.contrib.auth.models import User
+    user = User.objects.all().filter(is_superuser=True)[0]
 
     tree = PageTree.objects.get_tree()
 
@@ -42,6 +46,11 @@ def forwards_func(apps, schema_editor):
         print(url)
 
         for pagemeta in PageMeta.objects.filter(pagetree=pagetree):
+            try:
+                pagecontent = PageContent.objects.get(pagemeta=pagemeta)
+            except PageContent.DoesNotExist:
+                continue
+
             url = pagemeta.get_absolute_url()
             print("\t%s" % url)
 
@@ -64,14 +73,30 @@ def forwards_func(apps, schema_editor):
                 created_by='pylucid_migration',
                 parent=parent,
                 # publication_date=None, publication_end_date=None,
-                # in_navigation=False, soft_root=False, reverse_id=None,
-                # navigation_extenders=None, published=False,
+                in_navigation=pagetree.showlinks,
+                # soft_root=False, reverse_id=None,
+                # navigation_extenders=None,
+                published=False,
                 site=pagetree.site,
                 # login_required=False, limit_visibility_in_menu=VISIBILITY_ALL,
                 # position="last-child", overwrite_url=None, xframe_options=Page.X_FRAME_OPTIONS_INHERIT
             )
             pages[pagetree.id] = page
 
+            # placeholders = page.placeholders.all()
+            # print(placeholders)
+            # placeholder = page.placeholders.get(slot='body')
+            placeholder = Placeholder(slot="content")
+            placeholder.save()
+
+            content = pagecontent.content
+            markup = pagecontent.markup
+
+            # TODO: Render and split!
+
+            add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+
+            publish_page(page, user, language=pagemeta.language.code)
 
 
     # print("\n\n+++++++++++++++++++++++++++++++++++++++++\n\n")
