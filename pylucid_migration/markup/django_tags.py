@@ -28,11 +28,6 @@ RE_BLOCK=r'''
 RE_TAG=r'(?P<tag>\{% [^\{\}]*? %\})'
 RE_VAR=r'(?P<variable>\{\{ [^\{\}]*? \}\})'
 
-CUT_OUT_BLOCK_RE = re.compile(
-    # RE_BLOCK,
-    r"(P<pre>.*?)" + RE_BLOCK + "(P<post>.*?)",
-    re.VERBOSE | re.UNICODE | re.MULTILINE | re.IGNORECASE
-)
 
 # FIXME: How can we better match on creole image, without a list of known image extensions?
 CUT_OUT_RE = re.compile("|".join([
@@ -122,6 +117,8 @@ class DjangoTagAssembler(object):
                 no=placeholder_dict[part]
                 part = PartTag(content=cut_data[no])
             else:
+                if not part:
+                    continue
                 part = PartText(content=part)
 
             part.content = part.content.replace(ESCAPE[1], ESCAPE[0])
@@ -147,7 +144,10 @@ tag one B content 1
 tag one B content 2
 {% endTagOne %}
 the end text
+{% lucidTag SiteMap %}
     """
+
+    content="{% lucidTag SiteMap %}"
 
 
     assembler = DjangoTagAssembler()
