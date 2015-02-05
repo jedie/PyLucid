@@ -95,11 +95,13 @@ INSTALLED_APPS = (
     'djangocms_picture',
     # 'djangocms_teaser',
     'djangocms_video',
+    'cmsplugin_htmlsitemap', # https://github.com/raphaa/cmsplugin-htmlsitemap
 
     'reversion', # https://github.com/etianen/django-reversion
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'compressor', # https://github.com/django-compressor/django-compressor
     'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
+    'django_extensions', # https://github.com/django-extensions/django-extensions
 
     'django_info_panel',
     'pylucid',
