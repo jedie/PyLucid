@@ -108,9 +108,14 @@ def forwards_func(apps, schema_editor):
             for part in splitted_content:
                 content = part.content
                 if isinstance(part, PartTag):
-                    # TODO
-                    content = "TODO: %s" % content
-                    add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+                    print("\tTag content: %r" % content)
+                    if content=="{% lucidTag SiteMap %}":
+                        print("\t *** create 'HtmlSitemapPlugin' page ")
+                        add_plugin(placeholder, "HtmlSitemapPlugin", pagemeta.language.code)
+                    else:
+                        # TODO
+                        content = "TODO: %s" % content
+                        add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
                 else:
                     add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
 
