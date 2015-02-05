@@ -154,21 +154,13 @@ def convert(raw_content, markup_no):
 def apply_markup(raw_content, markup_no):
     """ render markup content to splitted parts list """
 
-    assemble_tags = markup_no not in (MARKUP_HTML, MARKUP_HTML_EDITOR)
-    if assemble_tags:
-        # cut out every Django tags from content
-        assembler = DjangoTagAssembler()
-        raw_content2, cut_data = assembler.cut_out(raw_content)
-    else:
-        raw_content2 = raw_content
+    assembler = DjangoTagAssembler()
+    raw_content2, cut_data = assembler.cut_out(raw_content)
 
     html_content = convert(raw_content2, markup_no)
 
-    if assemble_tags:
-        return assembler.reassembly_splitted(html_content, cut_data)
-    else:
-        # html "markup" used
-        return [PartText(content=html_content)]
+    return assembler.reassembly_splitted(html_content, cut_data)
+
 
 
 if __name__ == "__main__":
