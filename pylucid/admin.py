@@ -17,10 +17,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
+from django.utils.translation import ugettext_lazy as _
 
 from reversion.admin import VersionAdmin
 
-from cms.models import Page, Placeholder, CMSPlugin
+from cms.models import Page, Placeholder, CMSPlugin, Title
 
 from reversion_compare.helpers import patch_admin
 
@@ -92,8 +93,30 @@ if settings.DEBUG:
     
     class CMSPluginAdmin(admin.ModelAdmin):
         list_display = ("id", "placeholder", "language", "plugin_type")
-        list_filter = ("plugin_type",)
-    admin.site.register(CMSPlugin, CMSPluginAdmin)
+        list_filter = ("plugin_type","language")
+    admin.site.register(CMSPlugin, CMSPluginAdmin)  
+    
+    
+    class TitleAdmin(admin.ModelAdmin):
+        list_display = ("id", "language", "title", "page")
+        list_filter = ("language",)
+    admin.site.register(Title, TitleAdmin)    
+    
+    from djangocms_text_ckeditor.models import Text
+    class TextAdmin(admin.ModelAdmin):
+        def placeholder_info(self, obj):
+            #Page.objects.filter(placeholders)
+            placeholder = obj.placeholder
+            plugins = placeholder.get_plugins()
+            plugin_ids_str = ",".join([str(plugin.pk) for plugin in plugins])
+            return "CMSPlugin: %s" % plugin_ids_str
+
+        placeholder_info.short_description = _("placeholder info")
+        # placeholder_info.allow_tags = True
+
+        list_display = ("id", "placeholder", "placeholder_info", "language", "plugin_type", "body")
+        list_filter = ("language",)
+    admin.site.register(Text, TextAdmin)
 
 
 
