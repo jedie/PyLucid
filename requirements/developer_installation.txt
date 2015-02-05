@@ -11,6 +11,10 @@ docutils
 # For generating the bootstrap script
 virtualenv
 
+django-extensions
+werkzeug
+
+
 # clone PyLucid own projects with git push access
 #-------------------------------------------------
 
