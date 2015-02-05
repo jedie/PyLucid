@@ -24,7 +24,7 @@ from django_tools.utils.messages import FileLikeMessages
 from pylucid_migration.markup import MARKUP_TINYTEXTILE, \
     MARKUP_TEXTILE, MARKUP_MARKDOWN, MARKUP_REST, MARKUP_CREOLE, MARKUP_HTML, \
     MARKUP_HTML_EDITOR, MARKUP_DICT
-from pylucid_migration.markup.django_tags import DjangoTagAssembler
+from pylucid_migration.markup.django_tags import DjangoTagAssembler, PartText
 #from pylucid_project.utils.escape import escape_django_tags as escape_django_template_tags
 
 #______________________________________________________________________________
@@ -151,9 +151,8 @@ def convert(raw_content, markup_no):
     return html_content
 
 
-def apply_markup(raw_content, markup_no, request, escape_django_tags=False):
-    """ render markup content to html. """
-    page_msg = FileLikeMessages(request, messages.INFO)
+def apply_markup(raw_content, markup_no):
+    """ render markup content to splitted parts list """
 
     assemble_tags = markup_no not in (MARKUP_HTML, MARKUP_HTML_EDITOR)
     if assemble_tags:
@@ -163,60 +162,13 @@ def apply_markup(raw_content, markup_no, request, escape_django_tags=False):
     else:
         raw_content2 = raw_content
 
-    html_content = convert(raw_content2, markup_no, page_msg)
+    html_content = convert(raw_content2, markup_no)
 
     if assemble_tags:
-        # reassembly cut out django tags into text
-        html_content2 = assembler.reassembly(html_content, cut_data)
+        return assembler.reassembly_splitted(html_content, cut_data)
     else:
         # html "markup" used
-        html_content2 = raw_content
-
-    if escape_django_tags:
-        html_content2 = escape_django_template_tags(html_content2)
-
-    return mark_safe(html_content2) # turn Django auto-escaping off
-
-
-def convert_markup(raw_content, source_markup_no, dest_markup_no, request):
-    """
-    Convert one markup in a other.
-    """
-    page_msg = FileLikeMessages(request, messages.INFO)
-
-    html_source = source_markup_no in (MARKUP_HTML, MARKUP_HTML_EDITOR)
-    html_dest = dest_markup_no in (MARKUP_HTML, MARKUP_HTML_EDITOR)
-
-    if source_markup_no == dest_markup_no or (html_source and html_dest):
-        # Nothing to do ;)
-        return raw_content
-
-    if not html_dest and dest_markup_no != MARKUP_CREOLE:
-        raise NotImplementedError("Converting into %r not supported." % dest_markup_no)
-
-    if html_source: # Source markup is HTML
-        html_content = raw_content
-    else:
-        # cut out every Django tags from content
-        assembler = DjangoTagAssembler()
-        raw_content2, cut_data = assembler.cut_out(raw_content)
-
-        # convert to html
-        html_content = convert(raw_content2, source_markup_no, page_msg)
-
-    if html_dest: # Destination markup is HTML
-        new_content = html_content
-    else:
-        # Skip: if dest_markup_no == MARKUP_CREOLE: - only creole supported here
-        from creole import html2creole
-        new_content = html2creole(html_content)
-
-    if not html_source: # Source markup is not HTML
-        # reassembly cut out django tags into text
-        new_content = assembler.reassembly(new_content, cut_data)
-
-    return new_content
-
+        return [PartText(content=html_content)]
 
 
 if __name__ == "__main__":

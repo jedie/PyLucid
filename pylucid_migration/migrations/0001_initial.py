@@ -20,8 +20,11 @@
 
 from __future__ import unicode_literals
 
+from pprint import pprint
+
 from django.db import models, migrations
-from pylucid_migration.markup.converter import convert
+from pylucid_migration.markup.converter import apply_markup
+from pylucid_migration.markup.django_tags import PartTag
 
 
 def forwards_func(apps, schema_editor):
@@ -98,17 +101,18 @@ def forwards_func(apps, schema_editor):
             # placeholder.save()
 
             raw_content = pagecontent.content
-
-            content = convert(raw_content, pagecontent.markup)
-
-            # assembler = DjangoTagAssembler()
-            # raw_content2, cut_data = assembler.cut_out(content)
-
             markup = pagecontent.markup
 
-            # TODO: Render and split!
-
-            add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+            splitted_content = apply_markup(raw_content, markup)
+            pprint(splitted_content)
+            for part in splitted_content:
+                content = part.content
+                if isinstance(part, PartTag):
+                    # TODO
+                    content = "TODO: %s" % content
+                    add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+                else:
+                    add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
 
         publish_page(page, user, language=pagemeta.language.code)
 
