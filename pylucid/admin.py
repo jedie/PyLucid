@@ -20,7 +20,7 @@ from django.shortcuts import render_to_response
 
 from reversion.admin import VersionAdmin
 
-from cms.models.pagemodel import Page
+from cms.models import Page, Placeholder, CMSPlugin
 
 from reversion_compare.helpers import patch_admin
 
@@ -83,6 +83,19 @@ if settings.DEBUG:
         list_display = list_display_links = ("id", "app_label", "name", "model")
         list_filter = ("app_label",)
     admin.site.register(ContentType, ContentTypeAdmin)
+
+
+    class PlaceholderAdmin(admin.ModelAdmin):
+        list_display = ("id", "slot", "default_width", "cache_placeholder", "is_static", "is_editable")
+        list_filter = ("slot",)
+    admin.site.register(Placeholder, PlaceholderAdmin)
+    
+    class CMSPluginAdmin(admin.ModelAdmin):
+        list_display = ("id", "placeholder", "language", "plugin_type")
+        list_filter = ("plugin_type",)
+    admin.site.register(CMSPlugin, CMSPluginAdmin)
+
+
 
     auto_register_all()
 
