@@ -38,6 +38,12 @@ CUT_OUT_RE = re.compile("|".join([
     RE_VAR,
 ]), re.VERBOSE | re.UNICODE | re.MULTILINE | re.IGNORECASE)
 
+BLOCK_RE=re.compile(r'''
+    \{% \s* (?P<pass_block_start>.+?) (?P<args>.*?) %\}
+    (?P<content>(\n|.)*?)
+    \{% \s* end(?P=pass_block_start) \s* %\}
+''', re.VERBOSE | re.UNICODE | re.MULTILINE | re.IGNORECASE)
+
 # Ignore this re groups:
 LEAVE_KEYS = ("creole_image", "creole_pre_inline")
 
@@ -58,6 +64,7 @@ class PartBase(object):
     def __repr__(self):
         return self.__unicode__()
 
+
 class PartText(PartBase):
     kind="text"
     def __init__(self, content):
@@ -68,6 +75,16 @@ class PartTag(PartBase):
     kind="tag"
     def __init__(self, content):
         self.content = mark_for_escaping(content)
+
+
+class PartBlockTag(PartBase):
+    kind="blocktag"
+    def __init__(self, tag, args, content):
+        self.tag=tag
+        self.args=args
+        self.content = mark_for_escaping(content)
+    def __unicode__(self):
+        return u"<Part %s %r %r: %r>" % (self.kind, self.tag, self.args, self.content)
 
 
 class DjangoTagAssembler(object):
@@ -115,7 +132,18 @@ class DjangoTagAssembler(object):
         for part in data:
             if part in placeholder_dict:
                 no=placeholder_dict[part]
-                part = PartTag(content=cut_data[no])
+                content=cut_data[no]
+
+                match = BLOCK_RE.match(content)
+                if match:
+                    print(match.groupdict())
+                    part = PartBlockTag(
+                        tag=match.group("pass_block_start"),
+                        args=match.group("args").strip(),
+                        content=match.group("content")
+                    )
+                else:
+                    part = PartTag(content=content)
             else:
                 if not part:
                     continue
@@ -131,23 +159,32 @@ class DjangoTagAssembler(object):
 if __name__=="__main__":
     from pprint import pprint
 
+#     content="""
+# text 1
+# {% TagOne %}
+# tag one content 1
+# tag one content 2
+# {% endTagOne %}
+# text after block
+# here a {{ variable }} and a {% inline tag %} too...
+# {% TagOne %}
+# tag one B content 1
+# tag one B content 2
+# {% endTagOne %}
+# the end text
+# {% lucidTag SiteMap %}
+#     """
+
     content="""
-text 1
-{% TagOne %}
-tag one content 1
-tag one content 2
-{% endTagOne %}
-text after block
+pre text
+{% sourcecode ext=".py" %}
+print "Python is cool!"
+{% endsourcecode %}
+post text
 here a {{ variable }} and a {% inline tag %} too...
-{% TagOne %}
-tag one B content 1
-tag one B content 2
-{% endTagOne %}
-the end text
-{% lucidTag SiteMap %}
     """
 
-    content="{% lucidTag SiteMap %}"
+    # content="{% lucidTag SiteMap %}"
 
 
     assembler = DjangoTagAssembler()

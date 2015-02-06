@@ -23,11 +23,12 @@ from __future__ import unicode_literals
 from pprint import pprint
 import traceback
 import sys
+from pygments import lexers
 
 from django.db import models, migrations
 
 from pylucid_migration.markup.converter import apply_markup
-from pylucid_migration.markup.django_tags import PartTag
+from pylucid_migration.markup.django_tags import PartTag, PartBlockTag
 
 
 
@@ -113,13 +114,34 @@ def _migrate_pylucid(apps, schema_editor):
             pprint(",".join([part.kind for part in splitted_content]))
             for part in splitted_content:
                 content = part.content
+                if isinstance(part, PartBlockTag):
+                    tag=part.tag
+                    args=part.args
+
+                    print("\tBlockTag %r args: %r content: %r" % (tag, args, content))
+
+                    if tag=="sourcecode":
+                        print("\t *** create 'CMSPygmentsPlugin' page ")
+                        source_type=args.split('"')[1]
+                        print("source type: %r" % source_type)
+
+                        lexer = lexers.get_lexer_by_name(source_type.strip("."))
+
+                        add_plugin(placeholder, "CMSPygmentsPlugin", language=pagemeta.language.code,
+                            code_language=lexer.aliases[0],
+                            code=content.strip(),
+                            style="default"
+                        )
+                    else:
+                        # TODO
+                        content = "TODO: %s" % content
+                        add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+
                 if isinstance(part, PartTag):
                     print("\tTag content: %r" % content)
                     if content=="{% lucidTag SiteMap %}":
                         print("\t *** create 'HtmlSitemapPlugin' page ")
                         add_plugin(placeholder, "HtmlSitemapPlugin", pagemeta.language.code)
-                    elif content.startswith("{% sourcecode"):
-                        print("TODO: %s" % content)
                     else:
                         # TODO
                         content = "TODO: %s" % content
