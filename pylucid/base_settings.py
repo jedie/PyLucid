@@ -96,6 +96,7 @@ INSTALLED_APPS = (
     # 'djangocms_teaser',
     'djangocms_video',
     'cmsplugin_htmlsitemap', # https://github.com/raphaa/cmsplugin-htmlsitemap
+    'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
 
     'reversion', # https://github.com/etianen/django-reversion
     'reversion_compare', # https://github.com/jedie/django-reversion-compare

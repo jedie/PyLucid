@@ -45,3 +45,6 @@ werkzeug
 # http://www.pylucid.org/
 # https://pypi.python.org/pypi/PyLucid
 -e git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid
+
+# https://github.com/chrisglass/cmsplugin-pygments
+-e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
