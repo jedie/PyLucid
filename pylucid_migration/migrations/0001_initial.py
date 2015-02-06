@@ -25,14 +25,16 @@ import traceback
 import sys
 
 from django.db import models, migrations
+
 from pylucid_migration.markup.converter import apply_markup
 from pylucid_migration.markup.django_tags import PartTag
 
 
+
 def _migrate_pylucid(apps, schema_editor):
-    from cms.api import create_page, create_title, add_plugin, publish_page
+    from cms.api import create_page, create_title, add_plugin, get_page_draft
     import cms
-    from cms.models.placeholdermodel import Placeholder
+    from cms.models import Placeholder, Title, Page
 
     #PageTree = apps.get_model(u'pylucid_migration', "PageTree")
     from pylucid_migration.models import PageTree, PageMeta, PageContent
@@ -42,7 +44,6 @@ def _migrate_pylucid(apps, schema_editor):
 
     tree = PageTree.objects.get_tree()
 
-    to_publish=[]
     pages = {}
     for node in tree.iter_flat_list():
         pagetree = PageTree.objects.get(id=node.id)
@@ -97,16 +98,19 @@ def _migrate_pylucid(apps, schema_editor):
                 )
                 pages[pagetree.id] = page
 
-            placeholder = Placeholder.objects.create(slot="content")
-            placeholder.save()
-            page.placeholders.add(placeholder)
-            placeholder.page = page
+                placeholder = Placeholder.objects.create(slot="content")
+                placeholder.save()
+                page.placeholders.add(placeholder)
+                placeholder.page = page
+
+            page = get_page_draft(page)
 
             raw_content = pagecontent.content
             markup = pagecontent.markup
 
             splitted_content = apply_markup(raw_content, markup)
-            pprint(splitted_content)
+            # pprint(splitted_content)
+            pprint(",".join([part.kind for part in splitted_content]))
             for part in splitted_content:
                 content = part.content
                 if isinstance(part, PartTag):
@@ -121,16 +125,8 @@ def _migrate_pylucid(apps, schema_editor):
                 else:
                     add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
 
-            # page.rescan_placeholders()
-            # page = page.reload()
-            to_publish.append((page,pagemeta.language.code))
+            page.publish(pagemeta.language.code)
 
-    print("Publish all pages", end="")
-    for page, language in to_publish:
-        publish_page(page, user, language=language)
-        # publish_page(page, user, language=pagemeta.language.code)
-        print(".", end="", flush=True)
-    print("OK")
 
 
 
