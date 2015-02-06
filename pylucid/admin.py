@@ -98,7 +98,7 @@ if settings.DEBUG:
     
     
     class TitleAdmin(admin.ModelAdmin):
-        list_display = ("id", "language", "title", "page")
+        list_display = ("id", "language", "title", "page", "published", "publisher_is_draft", "publisher_public", "publisher_state")
         list_filter = ("language",)
     admin.site.register(Title, TitleAdmin)    
     
