@@ -145,7 +145,7 @@ def _migrate_pylucid(apps, schema_editor):
                         content = "TODO: %s" % content
                         add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
 
-                if isinstance(part, PartTag):
+                elif isinstance(part, PartTag):
                     print("\tTag content: %r" % content)
                     if content=="{% lucidTag SiteMap %}":
                         print("\t *** create 'HtmlSitemapPlugin' page ")
