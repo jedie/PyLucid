@@ -29,8 +29,7 @@ from django.db import models, migrations
 import pygments
 
 from pylucid_migration.markup.converter import apply_markup
-from pylucid_migration.markup.django_tags import PartTag, PartBlockTag
-
+from pylucid_migration.markup.django_tags import PartTag, PartBlockTag, PartLucidTag
 
 
 def _migrate_pylucid(apps, schema_editor):
@@ -115,16 +114,25 @@ def _migrate_pylucid(apps, schema_editor):
             pprint(",".join([part.kind for part in splitted_content]))
             for part in splitted_content:
                 content = part.content
-                if isinstance(part, PartBlockTag):
+                if isinstance(part, PartLucidTag):
+                    plugin_name=part.plugin_name
+                    method_name=part.method_name
+                    method_kwargs=part.method_kwargs
+                    content = "TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs)
+                    print("\t +++ %s" % content)
+                    add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+
+                elif isinstance(part, PartBlockTag):
                     tag=part.tag
                     args=part.args
 
-                    print("\tBlockTag %r args: %r content: %r" % (tag, args, content))
+                    print("\tBlockTag %r args: %r" % (tag, args))
+                    # print("\tBlockTag %r args: %r content: %r" % (tag, args, content))
 
                     if tag=="sourcecode":
-                        print("\t *** create 'CMSPygmentsPlugin' page ")
+                        print("\t\t *** create 'CMSPygmentsPlugin' page ")
                         source_type=args.split('"')[1]
-                        print("source type: %r" % source_type)
+                        # print("source type: %r" % source_type)
                         content = content.strip()
 
                         try:
@@ -140,7 +148,9 @@ def _migrate_pylucid(apps, schema_editor):
                             code=content,
                             style="default"
                         )
+                        print("\t\t *** created with %r" % lexer.aliases[0])
                     else:
+                        print("\t *** TODO: BlockTag %r !" % tag)
                         # TODO
                         content = "TODO: %s" % content
                         add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
@@ -151,8 +161,9 @@ def _migrate_pylucid(apps, schema_editor):
                         print("\t *** create 'HtmlSitemapPlugin' page ")
                         add_plugin(placeholder, "HtmlSitemapPlugin", pagemeta.language.code)
                     else:
-                        # TODO
-                        content = "TODO: %s" % content
+                        # TODO:
+                        content = "TODO PartTag: %s" % content
+                        print("\t *** %s" % content)
                         add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
                 else:
                     add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)

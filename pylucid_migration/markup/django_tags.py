@@ -15,6 +15,7 @@
 
 import re
 from django.utils.safestring import mark_safe, mark_for_escaping
+from pylucid_migration.markup.lucidTag import parse_lucidtag
 
 RE_CREOLE_IMAGE=r'(?P<creole_image> {{ .+?(.jpg|.jpeg|.gif|.png).*? }} )'
 RE_CREOLE_PRE_INLINE=r'(?P<creole_pre_inline> {{{ (\n|.)*? }}} )'
@@ -57,6 +58,7 @@ PLACEHOLDER_CUT_OUT = u"DjangoTag%iAssembly"
 
 
 class PartBase(object):
+    content=None
     def __unicode__(self):
         return u"<Part %s: %r>" % (self.kind, self.content)
     def __str__(self):
@@ -83,8 +85,19 @@ class PartBlockTag(PartBase):
         self.tag=tag
         self.args=args
         self.content = mark_for_escaping(content)
+
     def __unicode__(self):
-        return u"<Part %s %r %r: %r>" % (self.kind, self.tag, self.args, self.content)
+        return u"<PartBlockTag %s %r %r: %r>" % (self.kind, self.tag, self.args, self.content)
+
+class PartLucidTag(PartBase):
+    kind="lucidtag"
+    def __init__(self, plugin_name,method_name,method_kwargs):
+        self.plugin_name=plugin_name
+        self.method_name=method_name
+        self.method_kwargs=method_kwargs
+
+    def __unicode__(self):
+        return u"<PartLucidTag %r %r %r>" % (self.plugin_name,self.method_name,self.method_kwargs)
 
 
 class DjangoTagAssembler(object):
@@ -136,16 +149,27 @@ class DjangoTagAssembler(object):
                 no=placeholder_dict[part]
                 content=self.cut_data[no]
 
-                match = BLOCK_RE.match(content)
-                if match:
-                    print(match.groupdict())
-                    part = PartBlockTag(
-                        tag=match.group("pass_block_start"),
-                        args=match.group("args").strip(),
-                        content=match.group("content")
+                print(content)
+                if content.startswith("{% lucidTag"):
+                    plugin_name, method_name, method_kwargs = parse_lucidtag(content)
+                    part=PartLucidTag(
+                        plugin_name=plugin_name,
+                        method_name=method_name,
+                        method_kwargs=method_kwargs,
                     )
+                    splitted.append(part)
+                    continue
                 else:
-                    part = PartTag(content=content)
+                    match = BLOCK_RE.match(content)
+                    if match:
+                        print(match.groupdict())
+                        part = PartBlockTag(
+                            tag=match.group("pass_block_start"),
+                            args=match.group("args").strip(),
+                            content=match.group("content")
+                        )
+                    else:
+                        part = PartTag(content=content)
             else:
                 if not part:
                     continue
@@ -161,37 +185,39 @@ class DjangoTagAssembler(object):
 if __name__=="__main__":
     from pprint import pprint
 
-#     content="""
-# text 1
-# {% TagOne %}
-# tag one content 1
-# tag one content 2
-# {% endTagOne %}
-# text after block
-# here a {{ variable }} and a {% inline tag %} too...
-# {% TagOne %}
-# tag one B content 1
-# tag one B content 2
-# {% endTagOne %}
-# the end text
-# {% lucidTag SiteMap %}
-#     """
-
     content="""
-pre text
-{% sourcecode ext=".py" %}
-print "Python is cool!"
-{% endsourcecode %}
-post text
+text 1
+{% TagOne %}
+tag one content 1
+tag one content 2
+{% endTagOne %}
+text after block
 here a {{ variable }} and a {% inline tag %} too...
+{% TagOne %}
+tag one B content 1
+tag one B content 2
+{% endTagOne %}
+the end text
+{% lucidTag PluginName %}
+{% lucidTag PluginName kwarg1="value1" %}
+{% lucidTag PluginName.MethodName kwarg1="value1" kwarg2="value2" %}
     """
+
+#     content="""
+# pre text
+# {% sourcecode ext=".py" %}
+# print "Python is cool!"
+# {% endsourcecode %}
+# post text
+# here a {{ variable }} and a {% inline tag %} too...
+#     """
 
     # content="{% lucidTag SiteMap %}"
 
 
     assembler = DjangoTagAssembler()
-    text, cut_data = assembler.cut_out(content)
-    splitted = assembler.reassembly_splitted(text, cut_data)
+    text = assembler.cut_out(content, escape=True)
+    splitted = assembler.reassembly_splitted(text)
 
     pprint(splitted)
 
