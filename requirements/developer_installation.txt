@@ -47,4 +47,4 @@ werkzeug
 -e git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid
 
 # https://github.com/chrisglass/cmsplugin-pygments
--e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
+-e git+git@github.com:jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments
