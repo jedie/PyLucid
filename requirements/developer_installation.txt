@@ -42,9 +42,12 @@ werkzeug
 # https://pypi.python.org/pypi/django-reversion-compare/
 -e git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare
 
+# https://github.com/chrisglass/cmsplugin-pygments
+-e git+git@github.com:jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments
+
+# https://github.com/jedie/django-debug-toolbar-django-info
+-e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
+
 # http://www.pylucid.org/
 # https://pypi.python.org/pypi/PyLucid
 -e git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid
-
-# https://github.com/chrisglass/cmsplugin-pygments
--e git+git@github.com:jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments
