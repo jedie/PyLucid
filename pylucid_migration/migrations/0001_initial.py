@@ -26,6 +26,7 @@ import sys
 from pygments import lexers
 
 from django.db import models, migrations
+import pygments
 
 from pylucid_migration.markup.converter import apply_markup
 from pylucid_migration.markup.django_tags import PartTag, PartBlockTag
@@ -124,12 +125,19 @@ def _migrate_pylucid(apps, schema_editor):
                         print("\t *** create 'CMSPygmentsPlugin' page ")
                         source_type=args.split('"')[1]
                         print("source type: %r" % source_type)
+                        content = content.strip()
 
-                        lexer = lexers.get_lexer_by_name(source_type.strip("."))
+                        try:
+                            lexer = lexers.get_lexer_by_name(source_type.strip("."))
+                        except pygments.util.ClassNotFound:
+                            try:
+                                lexer = lexers.guess_lexer(content)
+                            except pygments.util.ClassNotFound:
+                                lexer = lexers.get_lexer_by_name("text")
 
                         add_plugin(placeholder, "CMSPygmentsPlugin", language=pagemeta.language.code,
                             code_language=lexer.aliases[0],
-                            code=content.strip(),
+                            code=content,
                             style="default"
                         )
                     else:

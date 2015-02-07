@@ -89,9 +89,10 @@ class PartBlockTag(PartBase):
 
 class DjangoTagAssembler(object):
 
-    def cut_out(self, text):
-        cut_data = []
+    def __init__(self):
+        self.cut_data = []
 
+    def cut_out(self, text, escape):
         def cut(match):
             groups = match.groupdict()
 
@@ -102,13 +103,14 @@ class DjangoTagAssembler(object):
                         # Don't replace this re match
                         return data
                     data = data.replace(ESCAPE[1], ESCAPE[0])
-                    cut_out_pos = len(cut_data)
-                    cut_data.append(data)
+                    cut_out_pos = len(self.cut_data)
+                    self.cut_data.append(data)
                     return PLACEHOLDER_CUT_OUT % cut_out_pos
 
-        text = text.replace(ESCAPE[0], ESCAPE[1])
+        if escape:
+            text = text.replace(ESCAPE[0], ESCAPE[1])
         text = CUT_OUT_RE.sub(cut, text)
-        return text, cut_data
+        return text
 
     def reassembly(self, text, cut_data):
         for no in range(len(cut_data) - 1, -1, -1):
@@ -118,9 +120,9 @@ class DjangoTagAssembler(object):
         text = text.replace(ESCAPE[1], ESCAPE[0])
         return text
 
-    def reassembly_splitted(self, text, cut_data):
+    def reassembly_splitted(self, text):
         placeholder_dict={}
-        for no in range(len(cut_data) - 1, -1, -1):
+        for no in range(len(self.cut_data) - 1, -1, -1):
             placeholder_dict[PLACEHOLDER_CUT_OUT % no] = no
 
         data = re.split(
@@ -132,7 +134,7 @@ class DjangoTagAssembler(object):
         for part in data:
             if part in placeholder_dict:
                 no=placeholder_dict[part]
-                content=cut_data[no]
+                content=self.cut_data[no]
 
                 match = BLOCK_RE.match(content)
                 if match:

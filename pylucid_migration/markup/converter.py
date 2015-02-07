@@ -122,11 +122,11 @@ def apply_creole(content, verbose = 2):
     into the generated page
     """
     from creole import creole2html
-    #from pylucid_migration.markup import PyLucid_creole_macros
+    from pylucid_migration.markup import PyLucid_creole_macros
 
     # new python-creole v1.0 API
     return creole2html(content,
-        #macros2=PyLucid_creole_macros, FIXME: code highligthing!
+        macros=PyLucid_creole_macros,
         stderr=sys.stderr, #verbose=verbose
     )
 
@@ -155,11 +155,14 @@ def apply_markup(raw_content, markup_no):
     """ render markup content to splitted parts list """
 
     assembler = DjangoTagAssembler()
-    raw_content2, cut_data = assembler.cut_out(raw_content)
+    raw_content2 = assembler.cut_out(raw_content, escape=True)
 
     html_content = convert(raw_content2, markup_no)
 
-    return assembler.reassembly_splitted(html_content, cut_data)
+    # Cutout again: e.g.: for creole <<code>>..<</code>> markup
+    html_content2 = assembler.cut_out(html_content, escape=False)
+
+    return assembler.reassembly_splitted(html_content2)
 
 
 

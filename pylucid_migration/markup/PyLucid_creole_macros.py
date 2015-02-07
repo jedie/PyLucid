@@ -3,7 +3,7 @@
 """
     PyLucid own creole2html macros
     
-    :copyleft: 2007-2011 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2007-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details
 """
 
@@ -16,9 +16,11 @@ except ImportError:
     # python-creole >= v0.6
     from creole.shared.example_macros import *
 
-
-from pylucid_migration.markup.hightlighter import make_html
-
+TEMPLATE="""
+{%% sourcecode ext="%s" %%}
+%s
+{%% endsourcecode %%}
+"""
 
 def code(ext, text):
     """
@@ -30,7 +32,5 @@ def code(ext, text):
     except (ValueError, IndexError):
         source_type = ""
 
-    source_html = make_html(
-        sourcecode=text, source_type=source_type, django_escape=True
-    )
-    return source_html
+    # return the django tag format, so we can parse it again in the same way ;)
+    return TEMPLATE % (source_type, text)
