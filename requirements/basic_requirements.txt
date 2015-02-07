@@ -78,5 +78,3 @@ djangocms-picture
 # https://github.com/divio/djangocms-video
 djangocms_video
 
-# https://github.com/raphaa/cmsplugin-htmlsitemap
-cmsplugin-htmlsitemap
