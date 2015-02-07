@@ -2,9 +2,17 @@
 # coding: utf-8
 
 """
+    PyLucid bootstrap creation
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     Create/update the virtualenv bootstrap script BOOTSTRAP_SCRIPT from
     the BOOTSTRAP_SOURCE file.
+
+    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+
+from __future__ import absolute_import, print_function
 
 import os
 import sys
@@ -12,51 +20,61 @@ import pprint
 
 try:
     import virtualenv
-except ImportError, err:
-    print "Import error:", err
-    print
-    print "Please install virtualenv!"
-    print "e.g.: easy_install virtualenv"
-    print "More info:"
-    print "http://pypi.python.org/pypi/virtualenv"
-    print
+except ImportError as err:
+    print("Import error: %s\n" % err)
+    print("Please install virtualenv!")
+    print("e.g.: easy_install virtualenv")
+    print("More info:")
+    print("\thttp://pypi.python.org/pypi/virtualenv\n")
     sys.exit(-1)
+
+# https://github.com/jedie/bootstrap_env
+from bootstrap_env import create_bootstrap
 
 try:
     import pylucid_project
-except ImportError, err:
-    print "Import error:", err
-    print
-    print "Not running in activated virtualenv?"
-    print
+except ImportError as err:
+    print("Import error: %s\n" % err)
+    print("Maybe, not running in activated virtualenv?\n")
     sys.exit(-1)
 
 
+CUT_MARK="# --- CUT here ---"
+
 PYLUCID_BASE_PATH = os.path.abspath(os.path.dirname(pylucid_project.__file__))
+print("PyLucid base path: %r" % PYLUCID_BASE_PATH)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-BOOTSTRAP_SCRIPT = os.path.join(ROOT, "pylucid-boot.py")
-BOOTSTRAP_SOURCE = os.path.join(ROOT, "source-pylucid-boot.py")
+BOOTSTRAP_SCRIPT = os.path.normpath(os.path.join(ROOT, "pylucid-boot.py"))
+
+SOURCE_PATH=os.path.join(ROOT, "sources")
+
+PREFIX_SCRIPT = os.path.join(SOURCE_PATH, "prefix_code.py")
+
+EXTEND_PARSER_SCRIPT = os.path.join(SOURCE_PATH, "extend_parser.py")
+ADJUST_OPTIONS_SCRIPT = os.path.join(SOURCE_PATH, "adjust_options.py")
+AFTER_INSTALL_SCRIPT = os.path.join(SOURCE_PATH, "after_install.py")
+
 
 
 def parse_requirements(filename):
     filepath = os.path.join(PYLUCID_BASE_PATH, "../requirements", filename)
-    f = file(filepath, "r")
-    entries = []
-    for line in f:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line.startswith("-r"):
-            recursive_filename = line.split("-r ")[1]
-            entries += parse_requirements(recursive_filename)
-            continue
-        if line.startswith("-e"):
-            url = line.split("-e ")[1]
-            entries.append("--editable=%s" % url)
-        else:
-            entries.append(line)
-    f.close()
+    with open(filepath, "r") as f:
+        entries = []
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("-r"):
+                recursive_filename = line.split("-r ")[1]
+                entries += parse_requirements(recursive_filename)
+                continue
+            if line.startswith("-e"):
+                url = line.split("-e ")[1]
+                entries.append("--editable=%s" % url)
+            else:
+                entries.append(line)
+
     return entries
 
 def requirements_definitions():
@@ -73,36 +91,20 @@ def requirements_definitions():
     return "\n".join(content)
 
 
-def create_bootstrap_script():
-    content = ""
+if __name__ == '__main__':
+    prefix_code = "\n".join([
+        requirements_definitions(),
+        create_bootstrap.get_code(PREFIX_SCRIPT, CUT_MARK),
+    ])
 
-    content += requirements_definitions()
+    # print(additional_code)
 
-    info = "source bootstrap script: %r" % BOOTSTRAP_SOURCE
-    print "read", info
-    content += "\n\n# %s\n" % info
-    f = file(BOOTSTRAP_SOURCE, "r")
-    content += f.read()
-    f.close()
-
-    print "Create/Update %r" % BOOTSTRAP_SCRIPT
-
-    output = virtualenv.create_bootstrap_script(content)
-
-    # Add info lines
-    output_lines = output.splitlines()
-    generator_filepath = "/PyLucid_env/" + __file__.split("/PyLucid_env/")[1]
-    output_lines.insert(2, "## Generated with %r" % generator_filepath)
-    output_lines.insert(2, "## using: %r v%s" % (virtualenv.__file__, virtualenv.virtualenv_version))
-    output_lines.insert(2, "## python v%s" % sys.version.replace("\n", " "))
-    output = "\n".join(output_lines)
-    #print output
-
-    f = file(BOOTSTRAP_SCRIPT, 'w')
-    f.write(output)
-    f.close()
-
-
-if __name__ == "__main__":
-    create_bootstrap_script()
-    print " -- END -- "
+    create_bootstrap.generate_bootstrap(
+        out_filename=BOOTSTRAP_SCRIPT,
+        add_extend_parser=EXTEND_PARSER_SCRIPT,
+        add_adjust_options=ADJUST_OPTIONS_SCRIPT,
+        add_after_install=AFTER_INSTALL_SCRIPT,
+        cut_mark=CUT_MARK,
+        prefix=prefix_code,
+        suffix=None,
+    )

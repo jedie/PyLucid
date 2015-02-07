@@ -37,5 +37,4 @@ docutils
 
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid
-#-e git+git@github.com:jedie/PyLucid.git#egg=pylucid
--e git+git@github.com:jedie/PyLucid.git@django1.6#egg=pylucid
+-e git+git@github.com:jedie/PyLucid.git#egg=pylucid
