@@ -61,6 +61,20 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='DBTemplate',
+            fields=[
+                ('id', models.IntegerField(serialize=False, primary_key=True)),
+                ('name', models.CharField(max_length=300)),
+                ('content', models.TextField()),
+                ('creation_date', models.DateTimeField()),
+                ('last_changed', models.DateTimeField()),
+            ],
+            options={
+                'db_table': 'django_template',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Design',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
