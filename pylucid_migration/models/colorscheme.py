@@ -32,6 +32,11 @@ class ColorScheme(UpdateInfoBaseModel):
     """
     name = models.CharField(max_length=255, help_text="The name of this color scheme.")
 
+    def get_color_dict(self):
+        queryset = Color.objects.filter(colorscheme=self)
+        color_list = queryset.values_list('name', 'value')
+        return dict(color_list)
+
     def __unicode__(self):
         return self.name
 

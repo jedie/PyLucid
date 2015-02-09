@@ -48,6 +48,7 @@ class Design(SiteM2M, UpdateInfoBaseModel):
     def __unicode__(self):
         sites = self.sites.values_list('name', flat=True)
         return u"Page design '%s' (on sites: %r)" % (self.name, sites)
+    __repr__ = __unicode__
 
     class Meta:
         db_table = u'pylucid_design'

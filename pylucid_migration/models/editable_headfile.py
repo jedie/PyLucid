@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 # http://code.google.com/p/django-tools/
 from django_tools.models import UpdateInfoBaseModel
+from django_tools.template import render
 
 
 class EditableHtmlHeadFile(UpdateInfoBaseModel):
@@ -39,6 +40,14 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
 
+    def get_rendered(self, colorscheme):
+        color_dict = colorscheme.get_color_dict()
+
+        for name, value in color_dict.items():
+            color_dict[name] = "#%s" % value
+
+        rendered_content = render.render_string_template(self.content, color_dict)
+        return rendered_content
 
     def __unicode__(self):
         return self.filepath
