@@ -172,7 +172,10 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
 
     slug = models.SlugField(unique=False, help_text="(for building URLs)")
 
-    site = models.ForeignKey(Site, default=Site.objects.get_current)
+    site = models.ForeignKey(Site,
+        #default=Site.objects.get_current
+        default=settings.SITE_ID,
+    )
     on_site = CurrentSiteManager()
 
     page_type = models.CharField(max_length=1, choices=TYPE_CHOICES)

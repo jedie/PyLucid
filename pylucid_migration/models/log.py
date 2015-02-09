@@ -40,7 +40,10 @@ class LogEntry(UpdateInfoBaseModel):
         createby       -> ForeignKey to user who creaded this entry
         lastupdateby   -> ForeignKey to user who has edited this entry
     """
-    site = models.ForeignKey(Site, default=Site.objects.get_current)
+    site = models.ForeignKey(Site,
+        #default=Site.objects.get_current
+        default=settings.SITE_ID,
+    )
     on_site = CurrentSiteManager()
 
     # Log information:
