@@ -231,3 +231,18 @@ class AfterInstall(object):
         except Exception as e:
             import traceback
             sys.stderr.write(traceback.format_exc())
+
+    def symlink_scripts(self):
+        """ symlink needfull scripts into env root directory """
+        def symlink_pylucid_script(filename):
+            source_path = os.path.join(self.abs_home_dir, "src", "pylucid", "scripts", filename)
+            dst_path = os.path.join(self.abs_home_dir, filename)
+            self.verbose_symlink(source_path, dst_path)
+
+        # symlink some PyLucid scripts from pylucid/scripts/ into virtualenv root
+        symlink_pylucid_script("create_page_instance.sh")
+
+        if self.dev_install:
+            symlink_pylucid_script("upgrade_pylucid_dev_env.sh")
+        else:
+            symlink_pylucid_script("upgrade_pylucid_env.sh")

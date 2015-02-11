@@ -21,6 +21,7 @@ def after_install(options, home_dir):
     """
     a = AfterInstall(options, home_dir)
     a.install_packages()
+    a.symlink_scripts()
 
     sys.stdout.write("\n")
     sys.stdout.write("PyLucid environment created in: %s\n" % c.colorize(home_dir, foreground="blue", opts=("bold",)))
