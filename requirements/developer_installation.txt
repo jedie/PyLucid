@@ -8,12 +8,18 @@
 # For rest2html from python-creole in setup.py
 docutils
 
+virtualenv
+
 # http://www.djangoproject.com/
 # Official Django git repository (readonly clone)
 -e git+git://github.com/django/django.git@stable/1.6.x#egg=django
 
 # clone PyLucid own projects with git push access
 #-------------------------------------------------
+
+# https://github.com/jedie/bootstrap_env
+# https://pypi.python.org/pypi/bootstrap_env/
+-e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
 
 # http://code.google.com/p/python-creole/
 # http://pypi.python.org/pypi/python-creole
@@ -33,7 +39,7 @@ docutils
 
 # https://github.com/jedie/django-reversion-compare
 # http://pypi.python.org/pypi/django-reversion-compare/
--e git+git@github.com:jedie/django-reversion-compare.git@django1.5#egg=django-reversion-compare
+-e git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare
 
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid

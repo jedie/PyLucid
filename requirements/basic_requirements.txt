@@ -19,7 +19,7 @@ flup>1.0.2,<1.1
 
 # https://github.com/etianen/django-reversion
 # http://pypi.python.org/pypi/django-reversion
-django-reversion>=1.8,<1.9
+django-reversion>=1.7,<1.8
 
 # https://github.com/jezdez/django-dbtemplates
 # http://pypi.python.org/pypi/django-dbtemplates
