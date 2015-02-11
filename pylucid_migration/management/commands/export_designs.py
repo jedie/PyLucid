@@ -8,7 +8,7 @@ from django.template import loader, TemplateDoesNotExist
 from django.template.loaders import app_directories
 
 from pylucid_migration.models import Design, PageTree, DBTemplate
-
+from pylucid_migration.template_changes import migrate_template
 
 
 PATH_EXPORTED=os.path.join(".", "design_exported")
@@ -42,6 +42,8 @@ class Command(BaseCommand):
                 return
         else:
             content = dbtemplate.content
+
+        content = migrate_template(content)
 
         filepath=os.path.join(base_out_path, template_filename)
         self._write_file(filepath, content)
