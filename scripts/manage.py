@@ -150,28 +150,15 @@ def _error(msg):
     sys.exit(1)
 
 try:
-    from django.core.management import setup_environ, execute_from_command_line
+    from django.core.management import execute_from_command_line
 except ImportError, msg:
     _error(msg)
 
-
-try:
-    import pylucid_project
-except ImportError, msg:
-    _error(msg)
-
-
-try:
-    import settings as settings_mod
-except ImportError:
-    _error("Error: Can't import settings.py\n")
-
-
-# setup the environment before we start accessing things in the settings.
-setup_environ(settings_mod)
 
 
 if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pylucid_project.settings")
+
     try:
         requirements = get_requirements()
         check_require(requirements)
@@ -181,4 +168,15 @@ if __name__ == "__main__":
 
         sys.stderr.write("Error while check requirements:")
         sys.stderr.write(traceback.format_exc())
-    execute_from_command_line()
+
+
+    try:
+        execute_from_command_line(sys.argv)
+    except Exception, err:
+        _error("Error execute command", err)
+    # except:
+    #     import pdb, traceback
+    #     print("-"*60)
+    #     traceback.print_exc()
+    #     print("-"*60)
+    #     pdb.post_mortem()

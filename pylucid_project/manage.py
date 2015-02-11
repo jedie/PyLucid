@@ -24,29 +24,21 @@ def _error(msg, err):
     sys.exit(1)
 
 try:
-    from django.core.management import setup_environ, execute_from_command_line
+    from django.core.management import execute_from_command_line
 except ImportError, err:
     _error("Can't import stuff from django", err)
 
-try:
-    import pylucid_project
-except ImportError, err:
-    _error("Can't import PyLucid", err)
-
-try:
-    import settings as settings_mod # Assumed to be in the same directory.
-except ImportError, err:
-    _error("Can't import 'settings.py'", err)
-
-try:
-    # setup the environment before we start accessing things in the settings.
-    setup_environ(settings_mod)
-except Exception, err:
-    _error("Can't setup the environment", err)
 
 if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pylucid_project.settings")
     try:
-        execute_from_command_line()
+        execute_from_command_line(sys.argv)
     except Exception, err:
         _error("Error execute command", err)
+    # except:
+    #     import pdb, traceback
+    #     print("-"*60)
+    #     traceback.print_exc()
+    #     print("-"*60)
+    #     pdb.post_mortem()
 
