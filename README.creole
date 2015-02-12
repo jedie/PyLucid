@@ -20,6 +20,7 @@ $ sudo apt-get install python3-dev libjpeg-dev libfreetype6-dev
 }}}
 more info here: https://pillow.readthedocs.org/en/latest/installation.html
 
+
 === bootstrap PyLucid
 
 {{{
@@ -46,6 +47,27 @@ more info here: https://pillow.readthedocs.org/en/latest/installation.html
 
 # run dev. server:
 (PyLucid_env) ~/page_instance $ ./manage.py runserver
+}}}
+
+
+=== PyLucid v1 migration
+
+add **pylucid_migration app, e.g.:
+{{{
+INSTALLED_APPS = (
+    ...
+    "pylucid_migration",
+    ...
+)
+}}}
+
+e.g. commands for migration:
+{{{
+# migrate old pages to django-cms:
+(PyLucid_env) ~/page_instance $ ./manage.py migrate_pylucid
+
+# export existing designs into filesystem
+(PyLucid_env) ~/page_instance $ ./manage.py export_designs
 }}}
 
 
