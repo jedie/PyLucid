@@ -2069,7 +2069,7 @@ class AfterInstall(object):
             assert isinstance(pip_line, str)
             cmd = [self.pip_cmd, "install", "--log=%s" % self.logfile, pip_line]
 
-            if "PyLucid.git" in pip_line or "django-processinfo" in pip_line:
+            if "PyLucid.git" in pip_line or "django-processinfo" in pip_line or "django-reversion-compare" in pip_line:
                 # FIXME: How to handle this better?
                 #
                 # PyLucid setup.py does contains all dependencies and it will
