@@ -7,7 +7,7 @@
     written with the help of the powerful
     Webframework Django.
 
-    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -17,7 +17,7 @@ import warnings
 import subprocess
 
 
-__version__ = (1, 6, 0, "dev")
+__version__ = (1, 6, 0)
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
