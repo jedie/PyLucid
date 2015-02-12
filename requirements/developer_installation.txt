@@ -27,7 +27,7 @@ virtualenv
 
 # http://code.google.com/p/django-dbpreferences/
 # http://pypi.python.org/pypi/django-dbpreferences
--e git+git@github.com:jedie/django-dbpreferences.git@django1.5#egg=django-dbpreferences
+-e git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences
 
 # http://code.google.com/p/django-tools/
 # http://pypi.python.org/pypi/django-tools

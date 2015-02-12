@@ -17,7 +17,7 @@ Django>=1.6,<1.7
 python-creole>=1.1.1
 
 # http://pypi.python.org/pypi/django-dbpreferences
-django-dbpreferences>=0.4.5
+django-dbpreferences>=0.5.0,<0.6
 
 # http://pypi.python.org/pypi/django-tools
 django-tools>=0.26,<0.27
