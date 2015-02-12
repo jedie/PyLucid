@@ -4,7 +4,7 @@
     PyLucid packages information plugin
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2010 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2010-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.p
 
 """
@@ -22,11 +22,10 @@ if __name__ == "__main__":
 
 import pkg_resources
 
+import django
 from django.conf import settings
 from django.contrib import messages
 from django.utils.safestring import mark_safe
-from django.utils.version import get_svn_revision
-import django
 
 from pylucid_project import VERSION_STRING, get_commit_timestamp
 from pylucid_project.apps.pylucid.decorators import render_to
@@ -182,17 +181,10 @@ class PackageInfo(dict):
     def _add_vcs_reversion(self):
         """ Add subversion/git reversion number to version string, if exist """
 
-        if "SVN" in self["version"] or "git" in self["version"]:
+        if "git" in self["version"]:
             return
 
         location = dict.get(self, "location")
-
-        svn_dir = os.path.join(location, ".svn")
-        if os.path.isdir(svn_dir):
-            svn_revision = get_svn_revision(location)
-            if svn_revision != "SVN-unknown":
-                self["version"] += " - SVN revision: %s" % svn_revision
-            return
 
         git_dir = os.path.join(location, ".git")
         if os.path.isdir(git_dir):
