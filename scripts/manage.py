@@ -173,7 +173,7 @@ if __name__ == "__main__":
     try:
         execute_from_command_line(sys.argv)
     except Exception, err:
-        _error("Error execute command", err)
+        _error("Error execute command: %s" % err)
     # except:
     #     import pdb, traceback
     #     print("-"*60)
