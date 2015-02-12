@@ -422,6 +422,9 @@ if _IN_UNITTESTS:
 
 
 # Must be set in local settings
+ALLOWED_HOSTS = None
+
+# Must be set in local settings
 SECRET_KEY = None
 
 # _______________________________________________________________________________
@@ -468,6 +471,9 @@ del(_local_settings)
 if not "create_instance" in sys.argv:
     if SECRET_KEY in (None, ""):
         _error("You must set a SECRET_KEY in your local_settings.py!")
+
+    if ALLOWED_HOSTS in (None, ""):
+        _error("You must set a ALLOWED_HOSTS in your local_settings.py!")
 
     if DEBUG or RUN_WITH_DEV_SERVER:
         # Check all STATICFILES_DIRS

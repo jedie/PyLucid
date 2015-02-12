@@ -48,6 +48,16 @@ INTERNAL_IPS = (
     # "123.456.789.012",
 )
 
+
+# Please insert your domains here:
+# https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = [
+    "*", # insert you domain and remove: "*"
+    # '.example.com', # Allow domain and subdomains
+    # '.example.com.', # Also allow FQDN and subdomains
+]
+
+
 # Database connection info.
 # http://docs.djangoproject.com/en/dev/intro/tutorial01/#database-setup
 # http://docs.djangoproject.com/en/dev/ref/settings/#setting-DATABASES
