@@ -12,23 +12,23 @@ Some PyLucid Features are:
 ** templates/styles/JS code online editable with CodeMirror highlighting
 ** compress styles/JS code via [[https://github.com/jezdez/django_compressor|Django-Compressor]]
 ** [[http://www.pylucid.org/permalink/279/how-to-change-a-plugin-template|easy overwrite templates]]
-* [[/permalink/343/howto-add-new-sites|Multi site support]] (Allows a single installation to serve multiple websites.)
+* [[http://www.pylucid.org/permalink/343/howto-add-new-sites|Multi site support]] (Allows a single installation to serve multiple websites.)
 * internationalization and localization support (Multilingual content)
 * Revision controlled content with [[http://github.com/etianen/django-reversion|django-reversion]] and include [[https://github.com/jedie/django-reversion-compare|django-reversion-compare]] for comparing two versions.
 * markup support: Creole, textile, markdown, ReStructuredText
 * [[http://www.pylucid.org/permalink/419/how-to-convert-the-pagecontent-markup|markup converter]]
 * expandable with plugins
-* [[/permalink/90/about-the-built-in-plugins|many built-in plugins]]:
+* [[http://www.pylucid.org/permalink/90/about-the-built-in-plugins|many built-in plugins]]:
 ** [[http://www.pylucid.org/permalink/42/secure-login-without-https|secure JS-SHA Login]] with [[http://www.pylucid.org/permalink/320/the-auth-plugin-js-sha1-login#honypot|a honypot]]
 ** content:
 *** [[http://www.pylucid.org/permalink/141/blog|weblog]] (Complete blogging solution)
 *** [[http://www.pylucid.org/permalink/351/the-comments-plugin-also-usefull-as-guestbook|comments / guestbook]] (comments for pages, blog articles, lexicon entries)
 *** [[http://www.pylucid.org/permalink/295/the-streetmap-plugin|StreetMap]] (insert OpenStreetmap / GoogleMaps)
 *** [[http://www.pylucid.org/permalink/301/the-lexicon-plugin|lexicon]] (explane words in content)
-*** [[/permalink/375/poll|poll]]
+*** [[http://www.pylucid.org/permalink/375/poll|poll]]
 *** [[http://www.pylucid.org/permalink/123/includes-rss-newsfeeds|RSS]] (include external feeds into a page)
 *** [[http://www.pylucid.org/permalink/309/highlight-source-code|source code]] (highlight source code into content)
-*** [[/permalink/381/about-the-include-plugin|include]] local/remote file content into page
+*** [[http://www.pylucid.org/permalink/381/about-the-include-plugin|include]] local/remote file content into page
 *** [[http://www.pylucid.org/permalink/340/pylucid-screenshots|simple picture gallery]]
 ** navigation:
 *** basics: main menu (split able), sub menu and sitemap
@@ -70,7 +70,7 @@ After run our script you have these files/directory:
 | ///var/www/YourSite///**index.fcgi**        | fastCGI dispatcher file
 | ///var/www/YourSite///**index.wsgi**        | mod_WSGI dispatcher file
 | ///var/www/YourSite///**index.cgi**         | CGI handler, should only used for debugging
-| ///var/www/YourSite///**local_settings.py** | [[/permalink/332/a-complete-local_settingspy-example|your own settings]]
+| ///var/www/YourSite///**local_settings.py** | [[http://www.pylucid.org/permalink/332/a-complete-local_settingspy-example|your own settings]]
 | ///var/www/YourSite///**manage.py**         | Access to django cli management
 | ///var/www/YourSite///**.htaccess**         | [[http://www.pylucid.org/permalink/136/change-between-fastcgi-mod_wsgi-and-cgi|prepared to use fast_CGI, mod_WSGI, CGI via mod_rewrite]]
 
@@ -101,8 +101,8 @@ To complete the installation follow the steps in [[http://www.pylucid.org/permal
 
 * [[https://flattr.com/thing/54709/PyLucid-CMS|Flattr this!]]
 * Send [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F|1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F]]
-* [[Paypal over SourceForge.net|http://sourceforge.net/donate/index.php?group_id=146328]]
-* [[Paypal over Pledgie|https://pledgie.com/campaigns/10140]]
+* [[http://sourceforge.net/donate/index.php?group_id=146328|Paypal over SourceForge.net]]
+* [[https://pledgie.com/campaigns/10140|Paypal over Pledgie]]
 
 
 = links
