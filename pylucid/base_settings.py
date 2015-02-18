@@ -106,8 +106,6 @@ INSTALLED_APPS = (
 
     'django_info_panel',
     'pylucid',
-
-    'example_project'
 )
 
 LANGUAGES = (
