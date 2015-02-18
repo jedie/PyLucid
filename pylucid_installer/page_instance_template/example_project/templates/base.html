@@ -34,7 +34,7 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">Project name</a>
+            <a class="navbar-brand" href="/">{% if site_settings.site.name %}{{ site_settings.site.name }}{% endif %}</a>
           </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
