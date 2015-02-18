@@ -1881,9 +1881,9 @@ NORMAL_INSTALLATION = ['click>=3.3,<4.0',
  'django-tools>=0.25,<0.26',
  'django-processinfo>=0.7.0,<0.8',
  'django-reversion-compare>=0.4,<0.5',
- 'git+https://github.com:jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments',
- 'git+https://github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
- 'git+https://github.com:jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap',
+ 'git+https://github.com/jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments',
+ 'git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
+ 'git+https://github.com/jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap',
  'git+https://github.com/jedie/PyLucid.git@django-cms#egg=pylucid']
 
 # requirements from developer_installation.txt
