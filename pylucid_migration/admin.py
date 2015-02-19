@@ -36,6 +36,14 @@ from reversion_compare.admin import CompareVersionAdmin
 from pylucid_migration import models
 
 
+def register(model_class, admin_class):
+    try:
+        admin.site.register(model_class, admin_class)
+    except admin.sites.AlreadyRegistered: # registered by pylucid.admin
+        admin.site.unregister(model_class)
+        admin.site.register(model_class, admin_class)
+
+
 class PageTreeAdmin(CompareVersionAdmin):
     #prepopulated_fields = {"slug": ("title",)}
     list_display = (
@@ -67,20 +75,20 @@ class PageTreeAdmin(CompareVersionAdmin):
 
         return response
 
-admin.site.register(models.PageTree, PageTreeAdmin)
+register(models.PageTree, PageTreeAdmin)
 
 
 class BanEntryAdmin(admin.ModelAdmin):
     list_display = list_display_links = ("ip_address", "createtime",)
     search_fields = ("ip_address",)
-admin.site.register(models.BanEntry, BanEntryAdmin)
+register(models.BanEntry, BanEntryAdmin)
 
 
 class LanguageAdmin(CompareVersionAdmin):
     list_display = ("code", "description", "site_info", "permitViewGroup")
     list_display_links = ("code", "description")
     list_filter = ("permitViewGroup",)
-admin.site.register(models.Language, LanguageAdmin)
+register(models.Language, LanguageAdmin)
 
 
 class LogEntryAdmin(admin.ModelAdmin):
@@ -98,7 +106,7 @@ class LogEntryAdmin(admin.ModelAdmin):
         "site", "app_label", "action", "createby", "remote_addr",
     )
     search_fields = ("app_label", "action", "message", "long_message", "data")
-admin.site.register(models.LogEntry, LogEntryAdmin)
+register(models.LogEntry, LogEntryAdmin)
 
 
 #class OnSitePageMeta(models.PageMeta):
@@ -117,7 +125,7 @@ class PageMetaAdmin(CompareVersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("description", "keywords")
 
-admin.site.register(models.PageMeta, PageMetaAdmin)
+register(models.PageMeta, PageMetaAdmin)
 
 
 class PageContentInline(admin.StackedInline):
@@ -130,7 +138,7 @@ class PageContentAdmin(CompareVersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("content",) # it would be great if we can add "get_title"
 
-admin.site.register(models.PageContent, PageContentAdmin)
+register(models.PageContent, PageContentAdmin)
 
 
 class PluginPageAdmin(CompareVersionAdmin):
@@ -143,7 +151,7 @@ class PluginPageAdmin(CompareVersionAdmin):
     date_hierarchy = 'lastupdatetime'
     search_fields = ("app_label",)
 
-admin.site.register(models.PluginPage, PluginPageAdmin)
+register(models.PluginPage, PluginPageAdmin)
 
 
 #------------------------------------------------------------------------------
@@ -166,7 +174,7 @@ class ColorAdmin(CompareVersionAdmin):
     list_display = ("id", "name", "value", "preview", "colorscheme")
     list_filter = ("colorscheme",)
 
-admin.site.register(models.Color, ColorAdmin)
+register(models.Color, ColorAdmin)
 
 class ColorInline(admin.TabularInline):
     model = models.Color
@@ -179,7 +187,7 @@ class ColorSchemeAdmin(CompareVersionAdmin):
     search_fields = ("name",)
     inlines = [ColorInline, ]
 
-admin.site.register(models.ColorScheme, ColorSchemeAdmin)
+register(models.ColorScheme, ColorSchemeAdmin)
 
 
 
@@ -190,7 +198,7 @@ class DesignAdmin(CompareVersionAdmin):
     list_filter = ("sites", "template", "colorscheme", "createby", "lastupdateby")
     search_fields = ("name", "template", "colorscheme")
 
-admin.site.register(models.Design, DesignAdmin)
+register(models.Design, DesignAdmin)
 
 
 #------------------------------------------------------------------------------
@@ -216,7 +224,7 @@ class EditableHtmlHeadFileAdmin(CompareVersionAdmin):
     list_display_links = ("filepath", "description")
     list_filter = ("render",)
 
-admin.site.register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
+register(models.EditableHtmlHeadFile, EditableHtmlHeadFileAdmin)
 
 
 #-----------------------------------------------------------------------------
@@ -228,5 +236,5 @@ class UserProfileAdmin(CompareVersionAdmin):
     list_filter = ("sites",)
     actions = ["set_site"]
 
-admin.site.register(models.UserProfile, UserProfileAdmin)
+register(models.UserProfile, UserProfileAdmin)
 
