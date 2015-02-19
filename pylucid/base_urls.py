@@ -12,8 +12,8 @@ urlpatterns = i18n_patterns('',
     url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
         {'sitemaps': {'cmspages': CMSSitemap}}),
 
+    # for djangocms-blog
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
-    #url(r'^blog/', include('djangocms_blog.urls', namespace='djangocms_blog')),
 
     url(r'^', include('cms.urls')),
 )
