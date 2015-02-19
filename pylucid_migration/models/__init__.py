@@ -20,3 +20,4 @@ from pylucid_migration.models.pagetree import PageTree
 from pylucid_migration.models.pluginpage import PluginPage
 from pylucid_migration.models.userprofile import UserProfile
 from pylucid_migration.models.dbtemplates import DBTemplate
+from pylucid_migration.models.blog import BlogEntryContent
