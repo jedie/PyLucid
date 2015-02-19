@@ -101,7 +101,6 @@ INSTALLED_APPS = (
     'reversion', # https://github.com/etianen/django-reversion
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'compressor', # https://github.com/django-compressor/django-compressor
-    'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
     'django_extensions', # https://github.com/django-extensions/django-extensions
 
     'django_info_panel',

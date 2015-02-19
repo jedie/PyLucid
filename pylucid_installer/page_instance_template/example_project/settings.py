@@ -51,6 +51,11 @@ INSTALLED_APPS += (
     'example_project',
 )
 
+# Activate for debugging:
+# INSTALLED_APPS += (
+#     'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
+# )
+
 # Activate for PyLucid v1.x migration (must be added before 'pylucid' ;)
 # INSTALLED_APPS += (
 #     "pylucid_migration",
