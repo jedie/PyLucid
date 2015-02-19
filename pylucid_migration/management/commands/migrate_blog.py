@@ -112,7 +112,7 @@ class Command(BaseCommand):
                 )
             except BlogCategory.DoesNotExist:
                 category = BlogCategory()
-                category.set_current_language(content_entry.language)
+                category.set_current_language(content_entry.language.code)
                 category.name = most_common_category
                 category.save()
             new_post.categories.add(category.pk)
