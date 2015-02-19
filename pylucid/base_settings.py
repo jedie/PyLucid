@@ -38,6 +38,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.doc.XViewMiddleware',
@@ -71,8 +72,6 @@ MEDIA_URL = '/media/'
 
 
 INSTALLED_APPS = (
-    'djangocms_admin_style',
-    'djangocms_text_ckeditor',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -82,6 +81,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.messages',
     'cms',
+    'djangocms_admin_style',
+    'djangocms_text_ckeditor',
     'menus',
     'sekizai',
     'mptt',
@@ -103,6 +104,20 @@ INSTALLED_APPS = (
     'compressor', # https://github.com/django-compressor/django-compressor
     'django_extensions', # https://github.com/django-extensions/django-extensions
 
+    # djangocms-blog
+    'filer',
+    'easy_thumbnails',
+    'cmsplugin_filer_image',
+    'parler',
+    'taggit',
+    'taggit_autosuggest',
+    'django_select2',
+    'meta',
+    'meta_mixin',
+    'admin_enhancer',
+    'djangocms_blog',
+
+    # own apps:
     'django_info_panel',
     'pylucid',
 )
@@ -163,7 +178,11 @@ MIGRATION_MODULES = {
     'djangocms_link': 'djangocms_link.migrations_django',
     'djangocms_picture': 'djangocms_picture.migrations_django',
     # 'djangocms_teaser': 'djangocms_teaser.migrations_django',
-    'djangocms_video': 'djangocms_video.migrations_django'
+    'djangocms_video': 'djangocms_video.migrations_django',
+
+    # for djangocms-blog:
+    'filer': 'filer.migrations_django',
+    'cmsplugin_filer_image': 'cmsplugin_filer_image.migrations_django',
 }
 
 
@@ -172,6 +191,7 @@ ADD_REVERSION_ADMIN=True # Add the reversion modes to admin interface
 
 
 # django-debug-toolbar settings:
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.versions.VersionsPanel',
     'debug_toolbar.panels.timer.TimerPanel',
@@ -190,3 +210,23 @@ DEBUG_TOOLBAR_PANELS = [
     'django_info_panel.panels.urlpatterns.UrlPatternsInfo',
 ]
 
+
+# https://github.com/nephila/djangocms-blog#quick-hint
+SOUTH_MIGRATION_MODULES = {
+    'easy_thumbnails': 'easy_thumbnails.south_migrations',
+    'taggit': 'taggit.south_migrations',
+}
+THUMBNAIL_PROCESSORS = (
+    'easy_thumbnails.processors.colorspace',
+    'easy_thumbnails.processors.autocrop',
+    'filer.thumbnail_processors.scale_and_crop_with_subject_location',
+    'easy_thumbnails.processors.filters',
+)
+META_SITE_PROTOCOL = 'http'
+META_USE_SITES = True
+PARLER_LANGUAGES = {
+    1: (
+        {'code': 'en',},
+        {'code': 'de',},
+    ),
+}
