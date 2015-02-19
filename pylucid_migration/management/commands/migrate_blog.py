@@ -20,16 +20,15 @@
 import collections
 
 from django.contrib.sites.models import Site
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.template.defaultfilters import truncatewords_html
-
-from pylucid_migration.models import BlogEntryContent
-from pylucid_migration.markup.converter import apply_markup
 
 from cms.api import add_plugin
 
 from djangocms_blog.models import Post, BlogCategory
 
+from pylucid_migration.models import BlogEntryContent
+from pylucid_migration.markup.converter import apply_markup
 
 
 class Command(BaseCommand):
