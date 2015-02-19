@@ -216,17 +216,39 @@ SOUTH_MIGRATION_MODULES = {
     'easy_thumbnails': 'easy_thumbnails.south_migrations',
     'taggit': 'taggit.south_migrations',
 }
+
+
+# http://django-filer.readthedocs.org/en/latest/installation.html#configuration
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
     'easy_thumbnails.processors.autocrop',
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
-META_SITE_PROTOCOL = 'http'
-META_USE_SITES = True
+
+
+# https://github.com/nephila/django-meta#configuration
+META_SITE_PROTOCOL = None # This should be set to either 'http' or 'https'. Default is None
+META_USE_SITES = True # use Django's sites contrib app
+
+
+# http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
+PARLER_DEFAULT_LANGUAGE_CODE = 'en'
 PARLER_LANGUAGES = {
-    1: (
+    None: (
         {'code': 'en',},
         {'code': 'de',},
     ),
+    # 1: ( # SITE_ID == 1
+    #     {'code': 'en',},
+    #     {'code': 'de',},
+    # ),
+    # 2: ( # SITE_ID == 2
+    #     {'code': 'en',},
+    #     {'code': 'de',},
+    # ),
+    'default': {
+        'fallback': PARLER_DEFAULT_LANGUAGE_CODE,
+        'hide_untranslated': False,   # the default; let .active_translations() return fallbacks too.
+    }
 }
