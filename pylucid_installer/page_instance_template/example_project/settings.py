@@ -52,9 +52,9 @@ INSTALLED_APPS += (
 )
 
 # Activate for PyLucid v1.x migration (must be added before 'pylucid' ;)
-# INSTALLED_APPS = (
+# INSTALLED_APPS += (
 #     "pylucid_migration",
-# ) + INSTALLED_APPS
+# )
 
 
 # Database
