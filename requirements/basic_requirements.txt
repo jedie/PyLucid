@@ -83,6 +83,7 @@ djangocms_video
 #-----------------
 # https://github.com/nephila/djangocms-blog/blob/develop/setup.py
 
+djangocms-blog>=0.3.2.a1
 django-parler>=1.2
 django-taggit
 django-select2-py3
