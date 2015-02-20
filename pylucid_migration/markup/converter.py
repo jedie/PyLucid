@@ -176,7 +176,7 @@ def markup2html(raw_content, markup_no):
         else:
             content = part.content
             html+=content
-    return html
+    return html, splitted_content
 
 
 if __name__ == "__main__":

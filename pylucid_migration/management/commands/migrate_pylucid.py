@@ -36,6 +36,7 @@ from cms.models import Placeholder
 from pylucid_migration.markup.converter import apply_markup
 from pylucid_migration.markup.django_tags import PartTag, PartBlockTag, PartLucidTag
 from pylucid_migration.models import PageTree, PageMeta, PageContent
+from pylucid_migration.split_content import content2plugins
 
 
 class Command(BaseCommand):
@@ -107,58 +108,60 @@ class Command(BaseCommand):
 
                 page = get_page_draft(page)
 
-                raw_content = pagecontent.content
-                markup = pagecontent.markup
+                content2plugins(placeholder, pagecontent.content, pagecontent.markup, pagemeta.language.code)
 
-                splitted_content = apply_markup(raw_content, markup)
-                # pself.stdout.write(splitted_content)
-                self.stdout.write(",".join([part.kind for part in splitted_content]))
-                for part in splitted_content:
-                    content = part.content
-                    if isinstance(part, PartLucidTag):
-                        plugin_name = part.plugin_name
-                        method_name = part.method_name
-                        method_kwargs = part.method_kwargs
-                        content = "TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs)
-                        self.stdout.write("\t +++ %s" % content)
-                        add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
-
-                    elif isinstance(part, PartBlockTag):
-                        tag = part.tag
-                        args = part.args
-
-                        self.stdout.write("\tBlockTag %r args: %r" % (tag, args))
-                        # self.stdout.write("\tBlockTag %r args: %r content: %r" % (tag, args, content))
-
-                        if tag == "sourcecode":
-                            self.stdout.write("\t\t *** create 'CMSPygmentsPlugin' page ")
-
-                            content, lexer = part.get_pygments_info()
-
-                            add_plugin(placeholder, "CMSPygmentsPlugin", language=pagemeta.language.code,
-                                code_language=lexer.aliases[0],
-                                code=content,
-                                style="default"
-                            )
-                            self.stdout.write("\t\t *** created with %r" % lexer.aliases[0])
-                        else:
-                            self.stdout.write("\t *** TODO: BlockTag %r !" % tag)
-                            # TODO
-                            content = "TODO: %s" % content
-                            add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
-
-                    elif isinstance(part, PartTag):
-                        self.stdout.write("\tTag content: %r" % content)
-                        if content == "{% lucidTag SiteMap %}":
-                            self.stdout.write("\t *** create 'HtmlSitemapPlugin' page ")
-                            add_plugin(placeholder, "HtmlSitemapPlugin", pagemeta.language.code)
-                        else:
-                            # TODO:
-                            content = "TODO PartTag: %s" % content
-                            self.stdout.write("\t *** %s" % content)
-                            add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
-                    else:
-                        add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+                # raw_content = pagecontent.content
+                # markup = pagecontent.markup
+                #
+                # splitted_content = apply_markup(raw_content, markup)
+                # # pself.stdout.write(splitted_content)
+                # self.stdout.write(",".join([part.kind for part in splitted_content]))
+                # for part in splitted_content:
+                #     content = part.content
+                #     if isinstance(part, PartLucidTag):
+                #         plugin_name = part.plugin_name
+                #         method_name = part.method_name
+                #         method_kwargs = part.method_kwargs
+                #         content = "TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs)
+                #         self.stdout.write("\t +++ %s" % content)
+                #         add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+                #
+                #     elif isinstance(part, PartBlockTag):
+                #         tag = part.tag
+                #         args = part.args
+                #
+                #         self.stdout.write("\tBlockTag %r args: %r" % (tag, args))
+                #         # self.stdout.write("\tBlockTag %r args: %r content: %r" % (tag, args, content))
+                #
+                #         if tag == "sourcecode":
+                #             self.stdout.write("\t\t *** create 'CMSPygmentsPlugin' page ")
+                #
+                #             content, lexer = part.get_pygments_info()
+                #
+                #             add_plugin(placeholder, "CMSPygmentsPlugin", language=pagemeta.language.code,
+                #                 code_language=lexer.aliases[0],
+                #                 code=content,
+                #                 style="default"
+                #             )
+                #             self.stdout.write("\t\t *** created with %r" % lexer.aliases[0])
+                #         else:
+                #             self.stdout.write("\t *** TODO: BlockTag %r !" % tag)
+                #             # TODO
+                #             content = "TODO: %s" % content
+                #             add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+                #
+                #     elif isinstance(part, PartTag):
+                #         self.stdout.write("\tTag content: %r" % content)
+                #         if content == "{% lucidTag SiteMap %}":
+                #             self.stdout.write("\t *** create 'HtmlSitemapPlugin' page ")
+                #             add_plugin(placeholder, "HtmlSitemapPlugin", pagemeta.language.code)
+                #         else:
+                #             # TODO:
+                #             content = "TODO PartTag: %s" % content
+                #             self.stdout.write("\t *** %s" % content)
+                #             add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
+                #     else:
+                #         add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
 
                 page.publish(pagemeta.language.code)
 

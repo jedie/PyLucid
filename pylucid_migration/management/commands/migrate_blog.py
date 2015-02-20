@@ -22,10 +22,14 @@ import collections
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.template.defaultfilters import truncatewords_html
+
 from cms.api import add_plugin
+
 from djangocms_blog.models import Post, BlogCategory
+
 from pylucid_migration.models import BlogEntryContent
 from pylucid_migration.markup.converter import markup2html
+from pylucid_migration.split_content import content2plugins
 
 
 def disable_auto_fields(model_instance):
@@ -72,6 +76,7 @@ class Command(BaseCommand):
             self.stdout.write("\n **** %s ****\n" % site.name)
 
         queryset = BlogEntryContent.objects.all().order_by("createtime")
+        queryset = queryset[453:456] # XXX: only test!
         for content_entry in queryset:
             self.stdout.write("\n")
             self.stdout.write(
@@ -81,9 +86,11 @@ class Command(BaseCommand):
 
             language = content_entry.language.code
 
-            # TODO:
-            content = content_entry.content
-            content = markup2html(content, content_entry.markup)
+            # # TODO:
+            # content = content_entry.content
+            # content = markup2html(content, content_entry.markup)
+            # # print(content)
+            # # continue
 
             # convert tags
             self.stdout.write("tags: %r" % content_entry.tags)
@@ -108,7 +115,6 @@ class Command(BaseCommand):
             new_post.set_current_language(language)
             new_post.title = content_entry.headline
             new_post.slug = content_entry.slug
-            new_post.abstract = truncatewords_html(content, 20)
 
             disable_auto_fields(new_post) # Disable django datetime auto_now and auto_now_add
             new_post.date_created = content_entry.createtime
@@ -119,7 +125,10 @@ class Command(BaseCommand):
                 new_post.date_published = content_entry.createtime
             new_post.save()
 
-            add_plugin(new_post.content, 'TextPlugin', language, body=content)
+            # add_plugin(new_post.content, 'TextPlugin', language, body=content)
+
+            html = content2plugins(new_post.content, content_entry.content, content_entry.markup, language)
+            new_post.abstract = truncatewords_html(html, 20)
 
             # add tags
             if tags:
@@ -139,6 +148,9 @@ class Command(BaseCommand):
 
             new_post.save()
 
-
+            self.stdout.write("Blog entry created: %r" % new_post)
+            self.stdout.write("pk: %r" % new_post.pk)
+            self.stdout.write("title: %r" % new_post.title)
+            self.stdout.write("content: %r" % new_post.content)
 
 
