@@ -35,11 +35,12 @@ class Command(BaseCommand):
     help = 'Migrate the PyLucid Blog to djangocms-blog'
 
     def _split_tags(self, tags):
+        tags=tags.lower()
         if "," in tags:
             tags = tags.split(",")
         else:
             tags = tags.split(" ")
-        return [tag.strip() for tag in tags if tag.strip()]
+        return set([tag.strip() for tag in tags if tag.strip()])
 
     def _get_tag_counter(self):
         all_tags = BlogEntryContent.objects.values_list("tags", flat=True)
@@ -63,12 +64,11 @@ class Command(BaseCommand):
 
         queryset = BlogEntryContent.objects.all().order_by("createtime")
         for content_entry in queryset:
+            self.stdout.write("\n")
             self.stdout.write(
                 "%s - %s" % (content_entry.url_date, content_entry.slug)
             )
             self.stdout.write(content_entry.headline)
-
-            self.stdout.write("\n")
 
             # TODO:
             content = content_entry.content
@@ -102,11 +102,14 @@ class Command(BaseCommand):
             # Use the most common tag as a category:
             categories = [(tag_counter[tag], tag) for tag in tags]
             # print(categories)
-            categories.sort()
-            most_common_category = categories[-1] or "Uncategorized"
+            categories.sort(reverse=True)
+            try:
+                most_common_category = categories[0]
+            except IndexError:
+                most_common_category = "Uncategorized"
 
             try:
-                category = BlogCategory.objects.language(content_entry.language).get(
+                category = BlogCategory.objects.language(content_entry.language.code).get(
                     translations__name=most_common_category
                 )
             except BlogCategory.DoesNotExist:
