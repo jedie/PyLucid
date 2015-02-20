@@ -3,26 +3,28 @@
 """
     PyLucid base settings
     ~~~~~~~~~~~~~~~~~~~~~
+
+    see also:
+    https://github.com/django/django/blob/master/django/conf/global_settings.py
+    https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 import os
 
-gettext = lambda s: s
+from django.utils.translation import ugettext_lazy as _
+# _ = lambda s: s
 
 
 ALLOWED_HOSTS = []
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.7/topics/i18n/
-
-LANGUAGE_CODE = 'en'
-
 TIME_ZONE = 'America/Chicago'
 
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+
+# If you set this to True, Django will use timezone-aware datetimes:
+USE_TZ = False
 
 
 
@@ -122,37 +124,6 @@ INSTALLED_APPS = (
     'pylucid',
 )
 
-LANGUAGES = (
-    ## Customize this
-    ('en', gettext('en')),
-    ('de', gettext('de')),
-)
-
-CMS_LANGUAGES = {
-    ## Customize this
-    'default': {
-        'redirect_on_fallback': True,
-        'public': True,
-        'hide_untranslated': False,
-    },
-    1: [
-        {
-            'redirect_on_fallback': True,
-            'public': True,
-            'hide_untranslated': False,
-            'code': 'en',
-            'name': gettext('en'),
-        },
-        {
-            'redirect_on_fallback': True,
-            'public': True,
-            'hide_untranslated': False,
-            'code': 'de',
-            'name': gettext('de'),
-        },
-    ],
-}
-
 CMS_TEMPLATES = (
     ('fullwidth.html', 'Full-width template'),
     ('sidebar_left.html', 'Sidebar left template'),
@@ -231,9 +202,54 @@ THUMBNAIL_PROCESSORS = (
 META_SITE_PROTOCOL = "http" # This should be set to either 'http' or 'https'
 META_USE_SITES = True # use Django's sites contrib app
 
+#----------------------------------------------------------
+# language setup
+# note there are three places for language related settings:
+#  * django
+#  * djangocms
+#  * django-parler (for djangocms-blog)
+#
+# see also: https://docs.djangoproject.com/en/1.7/topics/i18n/
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#languages
+LANGUAGES = (
+    ('en', _('English')),
+    ('de', _('German')),
+)
+
+# Language code for this installation. All choices can be found here:
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'en'
+
+# languages available in django CMS:
+# http://docs.django-cms.org/en/stable/reference/configuration.html#std:setting-CMS_LANGUAGES
+CMS_LANGUAGES = {
+    'default': { # all SITE_ID's
+        'fallbacks': ['en', 'de'],
+        'redirect_on_fallback': True,
+        'public': True,
+        'hide_untranslated': False,
+    },
+    # 1: [ # SITE_ID == 1
+    #     {
+    #         'redirect_on_fallback': True,
+    #         'public': True,
+    #         'hide_untranslated': False,
+    #         'code': 'en',
+    #         'name': _('English'),
+    #     },
+    #     {
+    #         'redirect_on_fallback': True,
+    #         'public': True,
+    #         'hide_untranslated': False,
+    #         'code': 'de',
+    #         'name': _('Deutsch'),
+    #     },
+    # ],
+}
 
 # http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
-PARLER_DEFAULT_LANGUAGE_CODE = 'en'
+PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
 PARLER_LANGUAGES = {
     None: (
         {'code': 'en',},
