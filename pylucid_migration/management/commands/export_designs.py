@@ -1,23 +1,27 @@
-import re
+# coding: utf-8
+
+"""
+    export pylucid v1 designs
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :created: 2015 by JensDiemer.de
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 import os
 import shutil
-import unicodedata
 
-from django.core.management.base import BaseCommand, CommandError
-from django.template import loader, TemplateDoesNotExist
+from django.core.management.base import BaseCommand
+from django.template import TemplateDoesNotExist
 from django.template.loaders import app_directories
 
 from pylucid_migration.models import Design, PageTree, DBTemplate
 from pylucid_migration.template_changes import migrate_template
+from pylucid_migration.utils import clean_string
 
 
 PATH_EXPORTED=os.path.join(".", "design_exported")
-
-
-def clean_string(value):
-    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
-    value = re.sub('[^\w\s]', ' ', value).strip()
-    return re.sub('[_\s]+', '_', value)
 
 
 class Loader(app_directories.Loader):

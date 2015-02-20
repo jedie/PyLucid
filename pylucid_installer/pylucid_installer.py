@@ -8,6 +8,7 @@
     CLI to create a page instance
 
     :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :created: 2015 by JensDiemer.de
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -19,6 +20,8 @@ import string
 
 # https://pypi.python.org/pypi/click/
 import click
+
+from pylucid_migration.utils import clean_string
 
 
 SRC_PROJECT_NAME="example_project"
@@ -97,6 +100,16 @@ def _mass_replace(replace_dict, files):
                 f.truncate()
                 f.write(content)
 
+def _clean_project_name(name):
+    clean_name = clean_string(name)
+    if clean_name == name:
+        return name
+
+    click.echo("\nERROR: The given project name is not useable!")
+    click.echo("Should i use:\n")
+    click.echo("\t%s\n" % clean_name)
+    click.confirm("Continue ?", abort=True)
+    return clean_name
 
 
 def _rename_project(dest, name):
@@ -125,6 +138,8 @@ def cli(dest, name, remove):
     """
     _check_activated_virtualenv()
 
+    name = _clean_project_name(name)
+
     click.echo("Create page instance here: %r" % dest)
     dest = _check_destination(dest, remove)
 
@@ -132,6 +147,10 @@ def cli(dest, name, remove):
 
     _rename_project(dest, name)
 
+    _mass_replace(
+        {SRC_PROJECT_NAME: name},
+        [os.path.join(dest, name, "templates", "base.html")]
+    )
     _mass_replace(
         {
             "#!/usr/bin/env python": "#!%s" % sys.executable,
