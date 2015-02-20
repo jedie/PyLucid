@@ -13,14 +13,10 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import activate
 from django.conf import settings
 
-from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
-from django.template.defaultfilters import truncatewords_html
 
 from cms.models import Placeholder
 from cms.api import create_page, create_title, add_plugin
-
-from djangocms_blog.models import Post, BlogCategory
 
 from cms.utils.i18n import get_language_list, get_default_language
 
