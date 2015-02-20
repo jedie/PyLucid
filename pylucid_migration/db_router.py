@@ -19,7 +19,7 @@ class LegacyRouter(object):
         """
         if old pylucid v1 model: read from legacy DB
         """
-        if model._meta.app_label == "pylucid_v1_migration":
+        if model._meta.app_label == "pylucid_migration":
             return "legacy"
         return "default"
 
@@ -33,8 +33,8 @@ class LegacyRouter(object):
         """
         Forbid relations from/to v1 models to/from new app models.
         """
-        obj1_is_legacy = (obj1._meta.app_label == "pylucid_v1_migration")
-        obj2_is_legacy = (obj2._meta.app_label == "pylucid_v1_migration")
+        obj1_is_legacy = (obj1._meta.app_label == "pylucid_migration")
+        obj2_is_legacy = (obj2._meta.app_label == "pylucid_migration")
         return obj1_is_legacy == obj2_is_legacy
 
     def allow_migrate(self, db, model):
@@ -43,6 +43,6 @@ class LegacyRouter(object):
         """
         if db == "legacy":
             return False
-        if model._meta.app_label == "pylucid_v1_migration":
+        if model._meta.app_label == "pylucid_migration":
             return False
         return True

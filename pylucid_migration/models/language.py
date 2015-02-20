@@ -45,6 +45,6 @@ class Language(AutoSiteM2M, UpdateInfoBaseModel):
         return u"Language %s - %s" % (self.code, self.description)
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'pylucid_language'
         ordering = ("code",)

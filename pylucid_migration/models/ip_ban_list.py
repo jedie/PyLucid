@@ -29,7 +29,7 @@ class BanEntry(models.Model):
         return u"BanEntry %s %s" % (self.ip_address, self.createtime)
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'pylucid_banentry'
         verbose_name = _('IP ban entry')
         verbose_name_plural = _('IP ban entries')

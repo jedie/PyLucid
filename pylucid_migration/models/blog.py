@@ -50,7 +50,7 @@ class BlogEntry(models.Model):
         return "Blog entry %i" % self.pk
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'blog_blogentry'
 
 
@@ -107,7 +107,7 @@ class BlogEntryContent(UpdateInfoBaseModel):
         ordering = ('-createtime', '-lastupdatetime')
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'blog_blogentrycontent'
 
 
@@ -116,7 +116,7 @@ class PylucidpluginsBlogentryTags(models.Model):
     blogentry_id = models.IntegerField(unique=True)
     blogtag_id = models.IntegerField()
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'PyLucidPlugins_blogentry_tags'
 
 class PylucidpluginsBlogtag(models.Model):
@@ -124,5 +124,5 @@ class PylucidpluginsBlogtag(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.CharField(max_length=255, unique=True)
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'PyLucidPlugins_blogtag'

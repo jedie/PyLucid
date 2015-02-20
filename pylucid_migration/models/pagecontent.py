@@ -65,7 +65,7 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
         )
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'pylucid_pagecontent'
         verbose_name_plural = verbose_name = "PageContent"
         ordering = ("-lastupdatetime",)

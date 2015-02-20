@@ -130,7 +130,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         )
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'pylucid_pagemeta'
         verbose_name_plural = verbose_name = "PageMeta"
         unique_together = (("pagetree", "language"),)

@@ -97,7 +97,7 @@ class LogEntry(UpdateInfoBaseModel):
         return u"LogEntry %s %s %s" % (self.createby, self.createtime, self.action)
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'pylucid_logentry'
         verbose_name = _('log entry')
         verbose_name_plural = _('log entries')

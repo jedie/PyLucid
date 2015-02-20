@@ -41,7 +41,7 @@ class ColorScheme(UpdateInfoBaseModel):
         return self.name
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'pylucid_colorscheme'
 
 
@@ -64,7 +64,7 @@ class Color(UpdateInfoBaseModel):
         return u"Color '%s' #%s (%s)" % (self.name, self.value, self.colorscheme)
 
     class Meta:
-        app_label = u'pylucid_v1_migration'
+        app_label = u'pylucid_migration'
         db_table = u'pylucid_color'
         unique_together = (("colorscheme", "name"),)
         ordering = ("colorscheme", "name")
