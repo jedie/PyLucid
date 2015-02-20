@@ -52,5 +52,5 @@ class Design(SiteM2M, UpdateInfoBaseModel):
 
     class Meta:
         db_table = u'pylucid_design'
-        app_label = u'pylucid_migration'
+        app_label = u'pylucid_v1_migration'
         ordering = ("template",)

@@ -10,4 +10,5 @@ class DBTemplate(models.Model):
     creation_date = models.DateTimeField()
     last_changed = models.DateTimeField()
     class Meta:
+        app_label = u'pylucid_v1_migration'
         db_table = u'django_template'

@@ -68,7 +68,7 @@ class PluginPage(BaseModel, UpdateInfoBaseModel):
         return u"PluginPage '%s' (pagetree: %r)" % (self.app_label, self.pagetree)
 
     class Meta:
-        app_label = u'pylucid_migration'
+        app_label = u'pylucid_v1_migration'
         db_table = u'pylucid_pluginpage'
         verbose_name_plural = verbose_name = "PluginPage"
         ordering = ("-lastupdatetime",)

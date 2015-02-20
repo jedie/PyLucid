@@ -66,7 +66,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
         return u"UserProfile for user '%s' (on sites: %r)" % (self.user.username, sites)
 
     class Meta:
-        app_label = u'pylucid_migration'
+        app_label = u'pylucid_v1_migration'
         db_table = u'pylucid_userprofile'
         ordering = ("user",)
 

@@ -69,4 +69,16 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'PORT': ''
     }
+    # Activate for PyLucid v1.x migration:
+    # 'legacy': {
+    #     'NAME': 'PyLucid_v1_Database',
+    #     'PASSWORD': '',
+    #     'HOST': 'localhost',
+    #     'USER': '',
+    #     # 'ENGINE': 'django.db.backends.mysql',
+    #     'ENGINE': 'mysql_cymysql', # https://pypi.python.org/pypi/django-cymysql/
+    #     'PORT': ''
+    # }
 }
+# Activate for PyLucid v1.x migration
+#DATABASE_ROUTERS = ['pylucid_migration.db_router.LegacyRouter']

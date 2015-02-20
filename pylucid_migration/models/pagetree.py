@@ -239,7 +239,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
         )
 
     class Meta:
-        app_label = u'pylucid_migration'
+        app_label = u'pylucid_v1_migration'
         db_table = u'pylucid_pagetree'
         verbose_name_plural = verbose_name = "PageTree"
         unique_together = (("site", "slug", "parent"),)

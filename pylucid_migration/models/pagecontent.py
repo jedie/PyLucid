@@ -17,7 +17,7 @@ from django_tools import model_utils
 from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_migration.base_models.base_models import BaseModel
-
+from pylucid_migration.models.pagemeta import PageMeta
 
 
 class PageContent(BaseModel, UpdateInfoBaseModel):
@@ -40,7 +40,7 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
     content = models.TextField()
     markup = models.IntegerField()
 
-    pagemeta = models.OneToOneField("pylucid_migration.PageMeta")
+    pagemeta = models.OneToOneField(PageMeta)
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """
@@ -65,7 +65,7 @@ class PageContent(BaseModel, UpdateInfoBaseModel):
         )
 
     class Meta:
-        app_label = u'pylucid_migration'
+        app_label = u'pylucid_v1_migration'
         db_table = u'pylucid_pagecontent'
         verbose_name_plural = verbose_name = "PageContent"
         ordering = ("-lastupdatetime",)

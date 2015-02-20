@@ -24,6 +24,8 @@ from django_tools.models import UpdateInfoBaseModel
 
 from pylucid_migration.base_models.base_models import BaseModel
 from pylucid_migration.base_models.permissions import PermissionsBase
+from pylucid_migration.models.pagetree import PageTree
+from pylucid_migration.models.language import Language
 
 
 class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
@@ -40,8 +42,8 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         validate_permit_group()
         check_sub_page_permissions()
     """
-    pagetree = models.ForeignKey("pylucid_migration.PageTree") # Should we add null=True, blank=True here? see clean_fields() below
-    language = models.ForeignKey("pylucid_migration.Language")
+    pagetree = models.ForeignKey(PageTree)
+    language = models.ForeignKey(Language)
 
     name = models.CharField(blank=True, max_length=150,
         help_text="Sort page name (for link text in e.g. menu)"
@@ -128,7 +130,7 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         )
 
     class Meta:
-        app_label = u'pylucid_migration'
+        app_label = u'pylucid_v1_migration'
         db_table = u'pylucid_pagemeta'
         verbose_name_plural = verbose_name = "PageMeta"
         unique_together = (("pagetree", "language"),)
