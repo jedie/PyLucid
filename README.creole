@@ -52,19 +52,35 @@ more info here: https://pillow.readthedocs.org/en/latest/installation.html
 
 === PyLucid v1 migration
 
-add **pylucid_migration app, e.g.:
+Use use the [[https://docs.djangoproject.com/en/1.7/topics/db/multi-db|Multiple databases]] feature to migrate a old v1 installation:
+e.g.:
 {{{
-INSTALLED_APPS = (
-    ...
-    "pylucid_migration",
-    ...
-)
+DATABASES = {
+    'default': { # New, empty database for PyLucid v2 data
+        ...
+    },
+    'legacy': { # Your old database with existing PyLucid v1 data
+        ...
+    }
+}
 }}}
 
-e.g. commands for migration:
+You must activate some settings:
+
+* add **pylucid_migration** to INSTALLED_APPS
+* Activate a **'legacy'** named second database with the old PyLucid v1 data
+* Activate **DATABASE_ROUTERS**
+
+(All parts exists in the example project settings ;) )
+
+
+commands for migration, e.g.:
 {{{
 # migrate old pages to django-cms:
 (PyLucid_env) ~/page_instance $ ./manage.py migrate_pylucid
+
+# migrate old blog entries to djangocms-blog:
+(PyLucid_env) ~/page_instance $ ./manage.py migrate_blog
 
 # export existing designs into filesystem
 (PyLucid_env) ~/page_instance $ ./manage.py export_designs
