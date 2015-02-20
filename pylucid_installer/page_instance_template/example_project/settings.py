@@ -18,8 +18,8 @@
 from pylucid.base_settings import *
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DATA_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATA_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -62,7 +62,7 @@ INSTALLED_APPS += (
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 DATABASES = {
     'default': {
-        'NAME': 'example_project.db',
+        'NAME': os.path.join(BASE_DIR, 'example_project.db'),
         'PASSWORD': '',
         'HOST': 'localhost',
         'USER': '',
