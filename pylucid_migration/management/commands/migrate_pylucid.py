@@ -132,17 +132,8 @@ class Command(BaseCommand):
 
                         if tag == "sourcecode":
                             self.stdout.write("\t\t *** create 'CMSPygmentsPlugin' page ")
-                            source_type = args.split('"')[1]
-                            # self.stdout.write("source type: %r" % source_type)
-                            content = content.strip()
 
-                            try:
-                                lexer = lexers.get_lexer_by_name(source_type.strip("."))
-                            except pygments.util.ClassNotFound:
-                                try:
-                                    lexer = lexers.guess_lexer(content)
-                                except pygments.util.ClassNotFound:
-                                    lexer = lexers.get_lexer_by_name("text")
+                            content, lexer = part.get_pygments_info()
 
                             add_plugin(placeholder, "CMSPygmentsPlugin", language=pagemeta.language.code,
                                 code_language=lexer.aliases[0],

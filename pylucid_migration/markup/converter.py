@@ -27,6 +27,8 @@ from pylucid_migration.markup import MARKUP_TINYTEXTILE, \
 from pylucid_migration.markup.django_tags import DjangoTagAssembler, PartText
 #from pylucid_project.utils.escape import escape_django_tags as escape_django_template_tags
 
+from pylucid_migration.markup.django_tags import PartTag, PartBlockTag, PartLucidTag
+
 #______________________________________________________________________________
 # MARKUP
 
@@ -164,6 +166,17 @@ def apply_markup(raw_content, markup_no):
 
     return assembler.reassembly_splitted(html_content2)
 
+def markup2html(raw_content, markup_no):
+    splitted_content = apply_markup(raw_content, markup_no)
+    html=""
+    for part in splitted_content:
+        print(part)
+        if isinstance(part, PartBlockTag):
+            html+=part.get_html()
+        else:
+            content = part.content
+            html+=content
+    return html
 
 
 if __name__ == "__main__":

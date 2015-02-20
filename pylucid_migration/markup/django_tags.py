@@ -14,8 +14,15 @@
 
 
 import re
+
+import pygments
+from pygments import lexers
+
 from django.utils.safestring import mark_safe, mark_for_escaping
+from django.utils.six import StringIO
+
 from pylucid_migration.markup.lucidTag import parse_lucidtag
+
 
 RE_CREOLE_IMAGE=r'(?P<creole_image> {{ .+?(.jpg|.jpeg|.gif|.png).*? }} )'
 RE_CREOLE_PRE_INLINE=r'(?P<creole_pre_inline> {{{ (\n|.)*? }}} )'
@@ -56,11 +63,18 @@ ALL_KEYS = LEAVE_KEYS + CUT_OUT_KEYS
 ESCAPE = ("Tag", "TagTag") # For mask existing placeholder
 PLACEHOLDER_CUT_OUT = u"DjangoTag%iAssembly"
 
+PYGMENTS_HTML = """
+<fieldset class="pygments_code">
+<legend class="pygments_code">%(lexer_name)s</legend>
+%(code_html)s
+</fieldset>
+"""
 
 class PartBase(object):
-    content=None
+    content=""
     def __unicode__(self):
         return u"<Part %s: %r>" % (self.kind, self.content)
+
     def __str__(self):
         return self.__unicode__()
     def __repr__(self):
@@ -86,8 +100,37 @@ class PartBlockTag(PartBase):
         self.args=args
         self.content = mark_for_escaping(content)
 
+    def get_pygments_info(self):
+        assert self.tag == "sourcecode"
+
+        source_type = self.args.split('"')[1]
+        # self.stdout.write("source type: %r" % source_type)
+        content = self.content.strip()
+
+        try:
+            lexer = lexers.get_lexer_by_name(source_type.strip("."))
+        except pygments.util.ClassNotFound:
+            try:
+                lexer = lexers.guess_lexer(content)
+            except pygments.util.ClassNotFound:
+                lexer = lexers.get_lexer_by_name("text")
+
+        return content, lexer
+
+    def get_html(self):
+        if self.tag == "sourcecode":
+            content, lexer = self.get_pygments_info()
+            formatter = pygments.formatters.HtmlFormatter(
+                linenos=True, style='colorful', cssclass="pygments",
+            )
+            code = pygments.highlight(content, lexer, formatter)
+            code = PYGMENTS_HTML % {"lexer_name": lexer.name, "code_html": code}
+            return code
+        return "<!-- TODO: %s -->" % self.content
+
     def __unicode__(self):
         return u"<PartBlockTag %s %r %r: %r>" % (self.kind, self.tag, self.args, self.content)
+
 
 class PartLucidTag(PartBase):
     kind="lucidtag"

@@ -22,20 +22,29 @@ import collections
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
 from django.template.defaultfilters import truncatewords_html
-
 from cms.api import add_plugin
-
 from djangocms_blog.models import Post, BlogCategory
-
 from pylucid_migration.models import BlogEntryContent
-from pylucid_migration.markup.converter import apply_markup
+from pylucid_migration.markup.converter import markup2html
+
+
+def disable_auto_fields(model_instance):
+    """
+    Disable django datetime auto_now and auto_now_add.
+    Otherwise the date can not be set.
+    """
+    ATTR_NAMES = ("auto_now", "auto_now_add")
+    for field in model_instance._meta.local_fields:
+        for attr_name in ATTR_NAMES:
+            if getattr(field, attr_name, False) == True:
+                setattr(field, attr_name, False)
 
 
 class Command(BaseCommand):
     help = 'Migrate the PyLucid Blog to djangocms-blog'
 
     def _split_tags(self, tags):
-        tags=tags.lower()
+        tags = tags.lower()
         if "," in tags:
             tags = tags.split(",")
         else:
@@ -70,51 +79,60 @@ class Command(BaseCommand):
             )
             self.stdout.write(content_entry.headline)
 
+            language = content_entry.language.code
+
             # TODO:
             content = content_entry.content
-            content = apply_markup(content, content_entry.markup)
+            content = markup2html(content, content_entry.markup)
 
-            new_post = Post()
-            new_post.author = content_entry.createby
-            new_post.set_current_language(content_entry.language.code)
-            new_post.title = content_entry.headline
-            new_post.slug =content_entry.slug
-            new_post.abstract = truncatewords_html(content, 20)
-            new_post.date_created = content_entry.createtime
-
-            # TODO: Check is_public !
-            new_post.date_published = content_entry.createtime
-
-            new_post.date_modified = content_entry.lastupdatetime
-            new_post.save()
-
-            add_plugin(new_post.content, 'TextPlugin', content_entry.language, body=content)
-
-            # add tags
+            # convert tags
             self.stdout.write("tags: %r" % content_entry.tags)
             tags = self._split_tags(content_entry.tags)
             self.stdout.write("tags: %r" % tags)
-
-            if tags:
-                for tag in tags:
-                    new_post.tags.add(tag)
 
             # Use the most common tag as a category:
             categories = [(tag_counter[tag], tag) for tag in tags]
             # print(categories)
             categories.sort(reverse=True)
             try:
-                most_common_category = categories[0]
+                most_common_category = categories[0][1]
             except IndexError:
                 most_common_category = "Uncategorized"
 
+            new_post, created = Post.objects.get_or_create(
+                author=content_entry.createby,
+                date_created=content_entry.createtime,
+                date_modified=content_entry.lastupdatetime,
+            )
+
+            new_post.set_current_language(language)
+            new_post.title = content_entry.headline
+            new_post.slug = content_entry.slug
+            new_post.abstract = truncatewords_html(content, 20)
+
+            disable_auto_fields(new_post) # Disable django datetime auto_now and auto_now_add
+            new_post.date_created = content_entry.createtime
+            new_post.date_modified = content_entry.lastupdatetime
+
+            if content_entry.is_public:
+                new_post.publish = True
+                new_post.date_published = content_entry.createtime
+            new_post.save()
+
+            add_plugin(new_post.content, 'TextPlugin', language, body=content)
+
+            # add tags
+            if tags:
+                for tag in tags:
+                    new_post.tags.add(tag)
+
             try:
-                category = BlogCategory.objects.language(content_entry.language.code).get(
+                category = BlogCategory.objects.language(language).get(
                     translations__name=most_common_category
                 )
             except BlogCategory.DoesNotExist:
                 category = BlogCategory()
-                category.set_current_language(content_entry.language.code)
+                category.set_current_language(language)
                 category.name = most_common_category
                 category.save()
             new_post.categories.add(category.pk)
