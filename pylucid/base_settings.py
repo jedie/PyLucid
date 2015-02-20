@@ -228,7 +228,7 @@ THUMBNAIL_PROCESSORS = (
 
 
 # https://github.com/nephila/django-meta#configuration
-META_SITE_PROTOCOL = None # This should be set to either 'http' or 'https'. Default is None
+META_SITE_PROTOCOL = "http" # This should be set to either 'http' or 'https'
 META_USE_SITES = True # use Django's sites contrib app
 
 
