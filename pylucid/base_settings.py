@@ -144,17 +144,17 @@ CMS_PLACEHOLDER_CONF = {
         'default_plugins':[
             {
                 'plugin_type':'TextPlugin',
-                'values':{'body':'<p></p>'},
+                'values':{'body':'<p>(There is no content, yet.)</p>'},
             },
         ]
     },
     'post_content': {
-        'name' : _('Content'),
+        'name' : _('Blog Content'),
         # list of default plugins which will be automagically added when the placeholder will be created:
         'default_plugins':[
             {
                 'plugin_type':'TextPlugin',
-                'values':{'body':'<p></p>'},
+                'values':{'body':'<p>(There is no content, yet.)</p>'},
             },
         ]
     },
