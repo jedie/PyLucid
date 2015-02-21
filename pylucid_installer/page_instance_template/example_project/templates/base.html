@@ -1,76 +1,70 @@
 {% load cms_tags sekizai_tags static menu_tags compress %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
-  <head>
+<head>
     {% block meta_tags %}
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<meta name="description" content="{% page_attribute "meta_description" %}" />
-	<meta name="keywords" content="{% page_attribute "meta_keywords" %}" />
-	<!--[if IEMobile]><meta http-equiv="cleartype" content="on" /><![endif]-->
-	{% endblock meta_tags %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="description" content="{% page_attribute 'meta_description' %}" />
+        <meta name="keywords" content="{% page_attribute 'meta_keywords' %}" />
+        <!--[if IEMobile]><meta http-equiv="cleartype" content="on"/><![endif]-->
+    {% endblock meta_tags %}
 
     <title>{% block title %}{% page_attribute page_title %}{% if site_settings.site.name %} - {{ site_settings.site.name }}{% endif %}{% endblock title %}</title>
 
     {% compress css %}
-        <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
-        <link href="{% static "css/styles.css" %}" rel="stylesheet">
+        <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet">
     {% endcompress %}
     {% render_block "css" %}
-  </head>
-
-  <body>
+</head>
+<body>
     {% cms_toolbar %}
     <div class="container">
+        <!-- Static navbar -->
+        <div class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">{% if site_settings.site.name %}{{ site_settings.site.name }}{% endif %}</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        {% show_menu 0 1 100 100 "includes/menu/navigation.html" %}
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% language_chooser "includes/menu/language_chooser.html" %}
+                    </ul>
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+            <!--/.container-fluid -->
+        </div>
 
-      <!-- Static navbar -->
-      <div class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-              <span class="sr-only"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">{% if site_settings.site.name %}{{ site_settings.site.name }}{% endif %}</a>
-          </div>
-          <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                {% show_menu 0 1 100 100 "includes/menu/navigation.html" %}
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                {% language_chooser "includes/menu/language_chooser.html" %}
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
-      </div>
+        {% block breadcrumb %}
+            <ol class="breadcrumb">
+                {% show_breadcrumb 0 "includes/menu/breadcrumb.html" %}
+            </ol>
+        {% endblock breadcrumb %}
 
-      {% block breadcrumb %}
-          <ol class="breadcrumb">
-            {% show_breadcrumb 0 "includes/menu/breadcrumb.html" %}
-          </ol>
-      {% endblock breadcrumb %}
+        {% block container %}
+            {% block content %}{% endblock %}
+        {% endblock %}
 
-      {% block container %}
-          {% block content %}{% endblock %}
-      {% endblock %}
-
-      <hr>
-      <footer>
-          {% block footer %}<p>© example_project</p>{% endblock %}
-      </footer>
-
-    </div> <!-- /container -->
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
+        <hr>
+        <footer>{% block footer %}<p>© example_project</p>{% endblock %}</footer>
+    </div>
+    {# Placed at the end of the document so the pages load faster #}
     {% compress js %}
-        <script src="{% static "js/jquery-2.1.3.min.js" %}"></script>
-        <script src="{% static "js/bootstrap.min.js" %}"></script>
+        <script src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
     {% endcompress %}
     {% render_block "js" %}
-  </body>
+</body>
 </html>
