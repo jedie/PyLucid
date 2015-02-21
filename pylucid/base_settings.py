@@ -132,7 +132,33 @@ CMS_TEMPLATES = (
 
 CMS_PERMISSION = True
 
-CMS_PLACEHOLDER_CONF = {}
+# http://django-cms.readthedocs.org/en/support-3.0.x/reference/configuration.html#cms-placeholder-conf
+CMS_PLACEHOLDER_CONF = {
+    'content': {
+        'name' : _('Content'),
+
+        # list of plugins that can be added to this placeholder. If not supplied, all plugins can be selected:
+        #'plugins': ['TextPlugin', 'LinkPlugin'],
+
+        # list of default plugins which will be automagically added when the placeholder will be created:
+        'default_plugins':[
+            {
+                'plugin_type':'TextPlugin',
+                'values':{'body':'<p></p>'},
+            },
+        ]
+    },
+    'post_content': {
+        'name' : _('Content'),
+        # list of default plugins which will be automagically added when the placeholder will be created:
+        'default_plugins':[
+            {
+                'plugin_type':'TextPlugin',
+                'values':{'body':'<p></p>'},
+            },
+        ]
+    },
+}
 
 
 
