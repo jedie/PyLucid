@@ -30,20 +30,22 @@ class Command(BaseCommand):
 
         activate(default_language)
 
-        blog_page = create_page(
+        blog_digest_page = create_page(
             title=_("blog"),
+            slug="blog",
+            template='sidebar_left.html',
+            language=settings.LANGUAGE_CODE,
+            in_navigation=True,
+        )
+
+        blog_detail_app = create_page(
+            title=_("blog detail"),
             template='fullwidth.html',
             language=settings.LANGUAGE_CODE,
             apphook="BlogApp",
             apphook_namespace="djangocms_blog",
-            in_navigation=True,
-        )
-
-        blog_digest_page = create_page(
-            title=_("blog digest"),
-            template='sidebar_left.html',
-            language=settings.LANGUAGE_CODE,
-            in_navigation=True,
+            in_navigation=False,
+            parent=blog_digest_page,
         )
 
         for language in languages:
@@ -51,25 +53,23 @@ class Command(BaseCommand):
             activate(language)
 
             if language != default_language:
-                create_title(language=language, title=_("blog"), page=blog_page)
-                create_title(language=language, title=_("blog digest"), page=blog_digest_page)
+                create_title(language=language, title=_("blog"), page=blog_digest_page)
+                create_title(language=language, title=_("blog detail"), page=blog_detail_app)
 
             placeholder_content = Placeholder.objects.create(slot="content")
             placeholder_content.save()
             blog_digest_page.placeholders.add(placeholder_content)
-            # placeholder.page = page
-            #
+
             add_plugin(placeholder_content, "BlogLatestEntriesPlugin", language=language)
 
             placeholder_sidebar = Placeholder.objects.create(slot="sidebar")
             placeholder_sidebar.save()
             blog_digest_page.placeholders.add(placeholder_sidebar)
-            # placeholder.page = page
 
             add_plugin(placeholder_sidebar, "BlogArchivePlugin", language=language)
             add_plugin(placeholder_sidebar, "BlogAuthorPostsPlugin", language=language)
             add_plugin(placeholder_sidebar, "BlogCategoryPlugin", language=language)
             add_plugin(placeholder_sidebar, "BlogTagsPlugin", language=language)
 
-            blog_page.publish(language)
             blog_digest_page.publish(language)
+            blog_detail_app.publish(language)
