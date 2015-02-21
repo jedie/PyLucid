@@ -205,6 +205,7 @@ DEBUG_TOOLBAR_PANELS = [
 
     'django_info_panel.panels.database.DatabaseInfo',
     'django_info_panel.panels.urlpatterns.UrlPatternsInfo',
+    'django_info_panel.panels.template.TemplateInfo',
 ]
 
 
