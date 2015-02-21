@@ -82,7 +82,11 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
     'django.contrib.messages',
+
     'cms',
+
+    'pylucid',
+
     'djangocms_admin_style',
     'djangocms_text_ckeditor',
     'menus',
@@ -119,9 +123,7 @@ INSTALLED_APPS = (
     'admin_enhancer',
     'djangocms_blog',
 
-    # own apps:
     'django_info_panel',
-    'pylucid',
 )
 
 CMS_TEMPLATES = (
