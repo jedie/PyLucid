@@ -52,7 +52,7 @@ django-reversion>=1.8.4,<1.9
 
 # http://www.django-cms.org/
 # https://pypi.python.org/pypi/django-cms/
-django-cms>=3.0.5,<3.1
+django-cms>=3.0.10,<3.1
 
 # https://github.com/SmileyChris/easy-thumbnails
 easy-thumbnails
