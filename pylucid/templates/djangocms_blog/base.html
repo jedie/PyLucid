@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load cms_tags %}
+
+{% block meta %}
+	{%  if meta %}
+		{% include "meta_mixin/meta.html" %}
+	{% endif %}
+{% endblock meta %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        {% static_placeholder "static_placeholder_blog" %}
+    </div>
+    <div class="col-md-9">
+        {% block content_blog %}{% endblock %}
+    </div>
+</div>
+{% endblock content %}
