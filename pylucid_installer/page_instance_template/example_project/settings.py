@@ -50,13 +50,19 @@ WSGI_APPLICATION = 'example_project.wsgi.application'
 INSTALLED_APPS += (
     'example_project',
 
-    # Activate for debugging:
-    # 'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
-
     # Activate for PyLucid v1.x migration (must be added before 'pylucid' ;)
     # "pylucid_migration",
+
+    # Activate for debugging:
+    # 'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
+    # 'pylucid_debug', # Must be the last App!
 )
 
+
+INTERNAL_IPS = (
+    '127.0.0.1',
+    '::1',
+)
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
