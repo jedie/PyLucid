@@ -26,14 +26,16 @@ MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
 (1) normal installation
-(2) developer installation
+(2) git installation (readonly)
+(3) developer installation (github write access needed!
 
 """
 
 INSTALL_NORMAL = "normal"
+INSTALL_READONLY = "readonly"
 INSTALL_DEV = "developer"
-CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_DEV}
-DEFAULT_MENU_CHOICE = CHOICES["1"]
+CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_READONLY, "3":INSTALL_DEV}
+DEFAULT_MENU_CHOICE = CHOICES["2"]
 
 
 PY2 = sys.version_info[0] == 2
@@ -163,14 +165,6 @@ class AfterInstall(object):
             }
         }
 
-        # NORMAL_INSTALLATION and DEVELOPER_INSTALLATION added by create_bootstrap_script.py!
-        if self.options.install_type == INSTALL_NORMAL:
-            self.dev_install = False
-        elif self.options.install_type == INSTALL_DEV:
-            self.dev_install = True
-        else:
-            raise ValueError
-
     def run_cmd(self, cmd):
         sys.stderr.write("\n")
         sys.stderr.write("_" * 79)
@@ -214,10 +208,17 @@ class AfterInstall(object):
         DEVELOPER_INSTALLATION and NORMAL_INSTALLATION would be inserted
         via create_bootstrap_script.py
         """
-        if self.dev_install:
-            install_data = DEVELOPER_INSTALLATION
-        else:
+        assert self.options.install_type in (INSTALL_NORMAL, INSTALL_READONLY, INSTALL_DEV)
+
+        if self.options.install_type == INSTALL_NORMAL:
             install_data = NORMAL_INSTALLATION
+        else:
+            install_data = DEVELOPER_INSTALLATION
+            if self.options.install_type == INSTALL_READONLY:
+                install_data = [
+                    entry.replace("git+git@github.com:", "git+https://github.com/")
+                    for entry in install_data
+                ]
 
         self.run_pip("install PyLucid projects", install_data)
 
