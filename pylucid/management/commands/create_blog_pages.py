@@ -49,7 +49,7 @@ class Command(BaseCommand):
         )
 
         for language in languages:
-            self.stdout.write("languages: %r" % language)
+            self.stdout.write("Create blog pages in languages: %r" % language)
             activate(language)
 
             if language != default_language:
