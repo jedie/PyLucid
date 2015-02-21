@@ -18,7 +18,7 @@
 from pylucid.base_settings import *
 
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+BASE_DIR = "/path/to/page_instance/"
 DATA_DIR = os.path.abspath(os.path.dirname(__file__))
 
 

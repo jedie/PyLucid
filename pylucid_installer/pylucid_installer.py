@@ -167,6 +167,7 @@ def cli(dest, name, remove):
     )
     _mass_replace(
         {
+            "/path/to/page_instance/": dest,
             SRC_PROJECT_NAME: name,
             'SECRET_KEY = "CHANGE ME!!!"': 'SECRET_KEY = "%s"' % secret_key,
         },
