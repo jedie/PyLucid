@@ -125,9 +125,9 @@ INSTALLED_APPS = (
 )
 
 CMS_TEMPLATES = (
-    ('fullwidth.html', 'Full-width template'),
-    ('sidebar_left.html', 'Sidebar left template'),
-    ('homepage.html', 'Homepage template'),
+    ('bootstrap/fullwidth.html', 'Full-width template'),
+    ('bootstrap/sidebar_left.html', 'Sidebar left template'),
+    ('bootstrap/homepage.html', 'Homepage template'),
 )
 
 CMS_PERMISSION = True
