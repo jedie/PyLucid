@@ -19,7 +19,7 @@ from pylucid.base_settings import *
 
 
 BASE_DIR = "/path/to/page_instance/"
-DATA_DIR = os.path.abspath(os.path.dirname(__file__))
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -30,15 +30,16 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 
-MEDIA_ROOT = os.path.join(DATA_DIR, 'media')
-STATIC_ROOT = os.path.join(DATA_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'example_project', 'static'),
+    # Activate this, if you have own static files:
+    #os.path.join(PROJECT_DIR, 'example_project', 'static'),
 )
-
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'example_project', 'templates'),
+    # Activate this, if you have own templates:
+    #os.path.join(PROJECT_DIR, 'example_project', 'templates'),
 )
 
 
