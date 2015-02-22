@@ -149,7 +149,10 @@ def cli(dest, name, remove):
 
     _mass_replace(
         {SRC_PROJECT_NAME: name},
-        [os.path.join(dest, name, "templates", "base.html")]
+        [
+            os.path.join(dest, name, "templates", "includes", "header.html"),
+            os.path.join(dest, name, "templates", "includes", "footer.html"),
+        ]
     )
     _mass_replace(
         {

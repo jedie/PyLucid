@@ -31,8 +31,7 @@ MEDIA_ROOT = os.path.join(DOC_ROOT, 'media')
 STATIC_ROOT = os.path.join(DOC_ROOT, 'static')
 
 STATICFILES_DIRS = (
-    # Activate this, if you have own static files:
-    #os.path.join(PROJECT_DIR, 'static'),
+    os.path.join(PROJECT_DIR, 'static'),
 )
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_DIR, 'templates'),

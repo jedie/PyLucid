@@ -1,0 +1,4 @@
+{% load cms_tags %}
+<p>
+    © example_project | {% page_attribute "changed_date" as date_changed %}{{ date_changed|date:"SHORT_DATE_FORMAT" }}
+</p>
