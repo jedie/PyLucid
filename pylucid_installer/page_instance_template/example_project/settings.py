@@ -49,10 +49,6 @@ INSTALLED_APPS += (
 
     # Activate for PyLucid v1.x migration (must be added before 'pylucid' ;)
     # "pylucid_migration",
-
-    # Activate for debugging:
-    # 'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
-    # 'pylucid_debug', # Must be the last App!
 )
 
 
@@ -179,6 +175,8 @@ INTERNAL_IPS = (
 # django-debug-toolbar - https://github.com/django-debug-toolbar/django-debug-toolbar
 # INSTALLED_APPS += (
 #     'debug_toolbar',
+#     # Activate for debugging:
+#     'pylucid_debug', # Must be the last App!
 # )
 # MIDDLEWARE_CLASSES = (
 #     'debug_toolbar.middleware.DebugToolbarMiddleware',
