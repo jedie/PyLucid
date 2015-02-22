@@ -17,9 +17,11 @@ from django.utils.translation import ugettext_lazy as _
 
 ALLOWED_HOSTS = []
 
-
 TIME_ZONE = 'America/Chicago'
-
+LANGUAGES = (
+    ('en', _('English')),
+)
+LANGUAGE_CODE = 'en'
 USE_I18N = True
 USE_L10N = True
 
