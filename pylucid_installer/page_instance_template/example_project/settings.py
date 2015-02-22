@@ -18,15 +18,15 @@
 from pylucid.base_settings import *
 
 
-BASE_DIR = "/path/to/page_instance/"
+DOC_ROOT = "/path/to/page_instance/" # Point this to webserver root directory
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "CHANGE ME!!!"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(DOC_ROOT, 'media')
+STATIC_ROOT = os.path.join(DOC_ROOT, 'static')
 
 STATICFILES_DIRS = (
     # Activate this, if you have own static files:
@@ -65,7 +65,7 @@ INTERNAL_IPS = (
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 DATABASES = {
     'default': {
-        'NAME': os.path.join(BASE_DIR, 'example_project.db'),
+        'NAME': os.path.join(PROJECT_DIR, 'example_project.db'),
         'PASSWORD': '',
         'HOST': 'localhost',
         'USER': '',
