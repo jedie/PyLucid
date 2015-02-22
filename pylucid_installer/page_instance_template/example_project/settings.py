@@ -157,8 +157,8 @@ ALLOWED_HOSTS = [
 #____________________________________________________________________
 # DEBUG
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# *** SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 TEMPLATE_DEBUG = False
 INTERNAL_IPS = (
     '127.0.0.1',
