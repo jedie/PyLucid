@@ -28,6 +28,10 @@ USE_TZ = False
 
 DEBUG = False
 TEMPLATE_DEBUG = False
+INTERNAL_IPS = (
+    '127.0.0.1',
+    '::1',
+)
 
 SITE_ID = 1
 
