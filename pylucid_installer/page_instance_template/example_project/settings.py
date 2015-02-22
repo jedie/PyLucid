@@ -25,21 +25,15 @@ PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "CHANGE ME!!!"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEMPLATE_DEBUG = True
-
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
     # Activate this, if you have own static files:
-    #os.path.join(PROJECT_DIR, 'example_project', 'static'),
+    #os.path.join(PROJECT_DIR, 'static'),
 )
 TEMPLATE_DIRS = (
-    # Activate this, if you have own templates:
-    #os.path.join(PROJECT_DIR, 'example_project', 'templates'),
+    os.path.join(PROJECT_DIR, 'templates'),
 )
 
 
@@ -65,6 +59,8 @@ INTERNAL_IPS = (
     '::1',
 )
 
+
+#____________________________________________________________________
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 DATABASES = {
@@ -89,6 +85,83 @@ DATABASES = {
 }
 # Activate for PyLucid v1.x migration
 #DATABASE_ROUTERS = ['pylucid_migration.db_router.LegacyRouter']
+
+
+#____________________________________________________________________
+# language setup
+# note there are three places for language related settings:
+#  * django
+#  * djangocms
+#  * django-parler (for djangocms-blog)
+#
+# see also: https://docs.djangoproject.com/en/1.7/topics/i18n/
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#languages
+LANGUAGES = (
+    ('en', _('English')),
+    ('de', _('German')),
+)
+
+# Language code for this installation. All choices can be found here:
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'en'
+
+# languages available in django CMS:
+# http://docs.django-cms.org/en/stable/reference/configuration.html#std:setting-CMS_LANGUAGES
+CMS_LANGUAGES = {
+    'default': { # all SITE_ID's
+        'fallbacks': ['en', 'de'],
+        'redirect_on_fallback': True,
+        'public': True,
+        'hide_untranslated': False,
+    },
+    # 1: [ # SITE_ID == 1
+    #     {
+    #         'redirect_on_fallback': True,
+    #         'public': True,
+    #         'hide_untranslated': False,
+    #         'code': 'en',
+    #         'name': _('English'),
+    #     },
+    #     {
+    #         'redirect_on_fallback': True,
+    #         'public': True,
+    #         'hide_untranslated': False,
+    #         'code': 'de',
+    #         'name': _('Deutsch'),
+    #     },
+    # ],
+}
+
+# http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
+PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
+PARLER_LANGUAGES = {
+    None: (
+        {'code': 'en',},
+        {'code': 'de',},
+    ),
+    # 1: ( # SITE_ID == 1
+    #     {'code': 'en',},
+    #     {'code': 'de',},
+    # ),
+    # 2: ( # SITE_ID == 2
+    #     {'code': 'en',},
+    #     {'code': 'de',},
+    # ),
+    'default': {
+        'fallback': PARLER_DEFAULT_LANGUAGE_CODE,
+        'hide_untranslated': False,   # the default; let .active_translations() return fallbacks too.
+    }
+}
+
+
+#____________________________________________________________________
+# DEBUG
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+TEMPLATE_DEBUG = False
+
 
 # Disable cache, for debugging:
 # CACHES = {

@@ -26,7 +26,8 @@ USE_L10N = True
 # If you set this to True, Django will use timezone-aware datetimes:
 USE_TZ = False
 
-
+DEBUG = False
+TEMPLATE_DEBUG = False
 
 SITE_ID = 1
 
@@ -230,69 +231,3 @@ THUMBNAIL_PROCESSORS = (
 META_SITE_PROTOCOL = "http" # This should be set to either 'http' or 'https'
 META_USE_SITES = True # use Django's sites contrib app
 
-#----------------------------------------------------------
-# language setup
-# note there are three places for language related settings:
-#  * django
-#  * djangocms
-#  * django-parler (for djangocms-blog)
-#
-# see also: https://docs.djangoproject.com/en/1.7/topics/i18n/
-
-# https://docs.djangoproject.com/en/1.7/ref/settings/#languages
-LANGUAGES = (
-    ('en', _('English')),
-    ('de', _('German')),
-)
-
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en'
-
-# languages available in django CMS:
-# http://docs.django-cms.org/en/stable/reference/configuration.html#std:setting-CMS_LANGUAGES
-CMS_LANGUAGES = {
-    'default': { # all SITE_ID's
-        'fallbacks': ['en', 'de'],
-        'redirect_on_fallback': True,
-        'public': True,
-        'hide_untranslated': False,
-    },
-    # 1: [ # SITE_ID == 1
-    #     {
-    #         'redirect_on_fallback': True,
-    #         'public': True,
-    #         'hide_untranslated': False,
-    #         'code': 'en',
-    #         'name': _('English'),
-    #     },
-    #     {
-    #         'redirect_on_fallback': True,
-    #         'public': True,
-    #         'hide_untranslated': False,
-    #         'code': 'de',
-    #         'name': _('Deutsch'),
-    #     },
-    # ],
-}
-
-# http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
-PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
-PARLER_LANGUAGES = {
-    None: (
-        {'code': 'en',},
-        {'code': 'de',},
-    ),
-    # 1: ( # SITE_ID == 1
-    #     {'code': 'en',},
-    #     {'code': 'de',},
-    # ),
-    # 2: ( # SITE_ID == 2
-    #     {'code': 'en',},
-    #     {'code': 'de',},
-    # ),
-    'default': {
-        'fallback': PARLER_DEFAULT_LANGUAGE_CODE,
-        'hide_untranslated': False,   # the default; let .active_translations() return fallbacks too.
-    }
-}
