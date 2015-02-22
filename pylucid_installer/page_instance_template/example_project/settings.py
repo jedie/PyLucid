@@ -14,6 +14,8 @@
         https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
+from django.utils.translation import ugettext_lazy as _
+
 # Load the PyLucid base settings
 from pylucid.base_settings import *
 
