@@ -56,12 +56,6 @@ INSTALLED_APPS += (
 )
 
 
-INTERNAL_IPS = (
-    '127.0.0.1',
-    '::1',
-)
-
-
 #____________________________________________________________________
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -170,7 +164,10 @@ ALLOWED_HOSTS = [
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 TEMPLATE_DEBUG = False
-
+INTERNAL_IPS = (
+    '127.0.0.1',
+    '::1',
+)
 
 # Disable cache, for debugging:
 # CACHES = {
