@@ -89,3 +89,18 @@ DATABASES = {
 }
 # Activate for PyLucid v1.x migration
 #DATABASE_ROUTERS = ['pylucid_migration.db_router.LegacyRouter']
+
+# Disable cache, for debugging:
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#     }
+# }
+
+# django-debug-toolbar - https://github.com/django-debug-toolbar/django-debug-toolbar
+# INSTALLED_APPS += (
+#     'debug_toolbar',
+# )
+# MIDDLEWARE_CLASSES = (
+#     'debug_toolbar.middleware.DebugToolbarMiddleware',
+# ) + MIDDLEWARE_CLASSES
