@@ -156,6 +156,13 @@ PARLER_LANGUAGES = {
     }
 }
 
+# https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = [
+    "*", # Allow any domain/subdomain
+    # 'www.example.tld',  # Allow domain
+    # '.example.tld',  # Allow domain and subdomains
+    # '.example.tld.',  # Also allow FQDN and subdomains
+]
 
 #____________________________________________________________________
 # DEBUG
