@@ -23,7 +23,7 @@
     {% cms_toolbar %}
     <div class="container">
         {% include "includes/header.html" %}
-        <!-- Static navbar -->
+        {% spaceless %}
         <div class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header">
@@ -37,7 +37,7 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        {% show_menu 0 1 100 100 "includes/menu/navigation.html" %}
+                        {% show_menu 0 100 100 100 "includes/menu/navigation.html" %}
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         {% language_chooser "includes/menu/language_chooser.html" %}
@@ -47,6 +47,7 @@
             </div>
             <!--/.container-fluid -->
         </div>
+        {% endspaceless %}
 
         {% block breadcrumb %}
             <ol class="breadcrumb">
