@@ -78,6 +78,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
+STATICFILES_FINDERS = (
+    "compressor.finders.CompressorFinder",
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
