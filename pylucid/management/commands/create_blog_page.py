@@ -9,57 +9,108 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+from optparse import make_option
+
+from django.db import transaction
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
 from django.utils.translation import activate
 from django.conf import settings
-
 from django.core.management.base import BaseCommand
-
-from cms.models import Placeholder, StaticPlaceholder
+from cms.models import Page, Title, Placeholder, CMSPlugin
 from cms.api import create_page, create_title, add_plugin
-from cms.constants import TEMPLATE_INHERITANCE_MAGIC
-
 from cms.utils.i18n import get_language_list, get_default_language
 
 
-# The name from pylucid/templates/djangocms_blog/base.html
-STATIC_PLACEHOLDER_BLOG = "static_placeholder_blog"
+PLUGIN_TYPES = ("BlogArchivePlugin", "BlogAuthorPostsPlugin", "BlogCategoryPlugin", "BlogTagsPlugin")
+BLOG_APP_HOOK = "BlogApp"
+APP_NAMESPACE = "djangocms_blog"
+
+BLOG_TEMPLATE = "bootstrap/sidebar_left.html"
+PLACEHOLDER_SLOT = "sidebar" # from 'BLOG_TEMPLATE' template!
 
 
 class Command(BaseCommand):
     help = 'Create djangocms-blog page'
 
-    def handle(self, *args, **options):
-        default_language= get_default_language()
+    option_list = BaseCommand.option_list + (
+        make_option('--delete',
+            action='store_true',
+            dest='delete',
+            default=False,
+            help='Delete blog page instead of create it'),
+    )
+
+    def _delete_blog(self):
+        queryset = Page.objects.filter(application_namespace=APP_NAMESPACE, site=self.site)
+        self.stdout.write("Delete %s blog page entries" % queryset.count())
+        queryset.delete()
+
+    def _create_blog(self):
+        default_language = get_default_language()
         languages = get_language_list()
 
         activate(default_language)
 
-        blog_page = create_page(
-            title=_("blog"),
-            template = TEMPLATE_INHERITANCE_MAGIC,
-            language=settings.LANGUAGE_CODE,
-            apphook="BlogApp",
-            apphook_namespace="djangocms_blog",
-            in_navigation=True,
-        )
+        try:
+            blog_page = Page.objects.get(
+                application_namespace=APP_NAMESPACE,
+                publisher_is_draft=True,
+                site=self.site,
+            )
+        except Page.DoesNotExist:
+            self.stdout.write("Create new blog AppHook page.")
+            blog_page = create_page(
+                title=_("blog"),
+                template=BLOG_TEMPLATE,
+                language=settings.LANGUAGE_CODE,
+                apphook=BLOG_APP_HOOK,
+                apphook_namespace=APP_NAMESPACE,
+                in_navigation=True,
+            )
+        else:
+            self.stdout.write("Use existing blog AppHook page.")
 
-        static_placeholder = StaticPlaceholder.objects.create(
-            name=STATIC_PLACEHOLDER_BLOG, code=STATIC_PLACEHOLDER_BLOG
-        )
-        static_placeholder.save()
+        placeholder, created = Placeholder.objects.get_or_create(slot=PLACEHOLDER_SLOT)
+        if created:
+            self.stdout.write("New placeholder for blog page created.")
+            placeholder.save()
+        else:
+            self.stdout.write("Use existing placeholder for blog page.")
 
         for language in languages:
-            self.stdout.write("Create blog pages in languages: %r" % language)
             activate(language)
 
             if language != default_language:
-                create_title(language=language, title=_("blog"), page=blog_page)
+                if Title.objects.filter(language=language, page=blog_page).exists():
+                    self.stdout.write("Use existing title in %r" % language)
+                else:
+                    self.stdout.write("Create title in %r" % language)
+                    create_title(language=language, title=_("blog"), page=blog_page)
 
-            add_plugin(static_placeholder.draft, "BlogArchivePlugin", language=language)
-            add_plugin(static_placeholder.draft, "BlogAuthorPostsPlugin", language=language)
-            add_plugin(static_placeholder.draft, "BlogCategoryPlugin", language=language)
-            add_plugin(static_placeholder.draft, "BlogTagsPlugin", language=language)
+            for plugin_type in PLUGIN_TYPES:
+                queryset = CMSPlugin.objects.filter(
+                    placeholder=placeholder,
+                    plugin_type=plugin_type,
+                    language=language
+                )
+                if queryset.exists():
+                    self.stdout.write("Use existing plugin %r in %r" % (plugin_type, language))
+                else:
+                    self.stdout.write("Create plugin %r in %r" % (plugin_type, language))
+                    add_plugin(placeholder, plugin_type, language=language)
 
-            static_placeholder.publish(request=None, language=language, force=True)
+            # self.stdout.write("publish placeholder in language: %r" % language)
+            # placeholder.publish(request=None, language=language, force=True)
+
+            self.stdout.write("publish blog page in language: %r" % language)
             blog_page.publish(language)
+
+    def handle(self, *args, **options):
+        self.site = Site.objects.get_current()
+
+        with transaction.atomic():
+            if options['delete']:
+                self._delete_blog()
+            else:
+                self._create_blog()
