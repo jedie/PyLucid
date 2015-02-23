@@ -10,6 +10,7 @@
 
 from pylucid_migration.models.colorscheme import ColorScheme, Color
 from pylucid_migration.models.design import Design
+from pylucid_migration.models.django_site import DjangoSite
 from pylucid_migration.models.editable_headfile import EditableHtmlHeadFile
 from pylucid_migration.models.ip_ban_list import BanEntry
 from pylucid_migration.models.language import Language

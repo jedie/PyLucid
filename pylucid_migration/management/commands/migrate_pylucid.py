@@ -12,7 +12,6 @@
     cp "fresh.db" example_project.db
     ./manage.py migrate_pylucid
 
-
     :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
     :created: 2015 by JensDiemer.de
     :license: GNU GPL v3 or above, see LICENSE for more details.
@@ -20,13 +19,10 @@
 
 from __future__ import unicode_literals
 
-from pprint import pprint
 import traceback
 
-import pygments
-from pygments import lexers
-
 from django.core.management.base import BaseCommand
+from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 
 import cms
@@ -35,14 +31,31 @@ from cms.models import Placeholder
 
 from pylucid_migration.markup.converter import apply_markup
 from pylucid_migration.markup.django_tags import PartTag, PartBlockTag, PartLucidTag
-from pylucid_migration.models import PageTree, PageMeta, PageContent
+from pylucid_migration.models import PageTree, PageMeta, PageContent, DjangoSite
 from pylucid_migration.split_content import content2plugins
 
 
 class Command(BaseCommand):
     help = 'Migrate PyLucid v1 to v2'
 
+    def _migrate_sites(self):
+        for site_old in DjangoSite.objects.all():
+            try:
+                site_new = Site.objects.get(pk=site_old.pk)
+            except Site.DoesNotExist:
+                site_new = Site.objects.create(
+                    pk=site_old.pk,
+                    domain = site_old.domain,
+                    name = site_old.name,
+                )
+                self.stdout.write("New site %r with ID %i created." % (site_new.name, site_new.id))
+            else:
+                self.stdout.write("Site %r with ID %i exists, ok." % (site_new.name, site_new.id))
+
+
     def _migrate_pylucid(self):
+        self._migrate_sites()
+
         user = User.objects.all().filter(is_superuser=True)[0]
 
         tree = PageTree.objects.get_tree()
@@ -109,59 +122,6 @@ class Command(BaseCommand):
                 page = get_page_draft(page)
 
                 content2plugins(placeholder, pagecontent.content, pagecontent.markup, pagemeta.language.code)
-
-                # raw_content = pagecontent.content
-                # markup = pagecontent.markup
-                #
-                # splitted_content = apply_markup(raw_content, markup)
-                # # pself.stdout.write(splitted_content)
-                # self.stdout.write(",".join([part.kind for part in splitted_content]))
-                # for part in splitted_content:
-                #     content = part.content
-                #     if isinstance(part, PartLucidTag):
-                #         plugin_name = part.plugin_name
-                #         method_name = part.method_name
-                #         method_kwargs = part.method_kwargs
-                #         content = "TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs)
-                #         self.stdout.write("\t +++ %s" % content)
-                #         add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
-                #
-                #     elif isinstance(part, PartBlockTag):
-                #         tag = part.tag
-                #         args = part.args
-                #
-                #         self.stdout.write("\tBlockTag %r args: %r" % (tag, args))
-                #         # self.stdout.write("\tBlockTag %r args: %r content: %r" % (tag, args, content))
-                #
-                #         if tag == "sourcecode":
-                #             self.stdout.write("\t\t *** create 'CMSPygmentsPlugin' page ")
-                #
-                #             content, lexer = part.get_pygments_info()
-                #
-                #             add_plugin(placeholder, "CMSPygmentsPlugin", language=pagemeta.language.code,
-                #                 code_language=lexer.aliases[0],
-                #                 code=content,
-                #                 style="default"
-                #             )
-                #             self.stdout.write("\t\t *** created with %r" % lexer.aliases[0])
-                #         else:
-                #             self.stdout.write("\t *** TODO: BlockTag %r !" % tag)
-                #             # TODO
-                #             content = "TODO: %s" % content
-                #             add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
-                #
-                #     elif isinstance(part, PartTag):
-                #         self.stdout.write("\tTag content: %r" % content)
-                #         if content == "{% lucidTag SiteMap %}":
-                #             self.stdout.write("\t *** create 'HtmlSitemapPlugin' page ")
-                #             add_plugin(placeholder, "HtmlSitemapPlugin", pagemeta.language.code)
-                #         else:
-                #             # TODO:
-                #             content = "TODO PartTag: %s" % content
-                #             self.stdout.write("\t *** %s" % content)
-                #             add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
-                #     else:
-                #         add_plugin(placeholder, "TextPlugin", pagemeta.language.code, body=content)
 
                 page.publish(pagemeta.language.code)
 
