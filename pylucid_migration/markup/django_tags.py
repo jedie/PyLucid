@@ -103,12 +103,14 @@ class PartBlockTag(PartBase):
     def get_pygments_info(self):
         assert self.tag == "sourcecode"
 
-        source_type = self.args.split('"')[1]
-        # self.stdout.write("source type: %r" % source_type)
+        source_type = self.args.split('=')[1]
+        source_type = self.args.strip(""" '".""")
+        print("source type: %r" % source_type)
+
         content = self.content.strip()
 
         try:
-            lexer = lexers.get_lexer_by_name(source_type.strip("."))
+            lexer = lexers.get_lexer_by_name(source_type)
         except pygments.util.ClassNotFound:
             try:
                 lexer = lexers.guess_lexer(content)
