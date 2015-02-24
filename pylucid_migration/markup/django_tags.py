@@ -30,6 +30,7 @@ RE_BLOCK = r'''
 '''
 RE_TAG = r'(?P<tag>\{% [^\{\}]*? %\})'
 RE_VAR = r'(?P<variable>\{\{ [^\{\}]*? \}\})'
+RE_COMMENT = r'(?P<comment>\{\# .*? \#\})'
 
 
 # FIXME: How can we better match on creole image, without a list of known image extensions?
@@ -39,6 +40,7 @@ CUT_OUT_RE = re.compile("|".join([
     RE_BLOCK,
     RE_TAG,
     RE_VAR,
+    RE_COMMENT,
 ]), re.VERBOSE | re.UNICODE | re.MULTILINE | re.IGNORECASE)
 
 BLOCK_RE = re.compile(r'''
@@ -51,7 +53,7 @@ BLOCK_RE = re.compile(r'''
 LEAVE_KEYS = ("creole_image", "creole_pre_inline")
 
 # Cut out this re groups:
-CUT_OUT_KEYS = ("block", "tag", "variable")
+CUT_OUT_KEYS = ("block", "tag", "variable", "comment")
 
 ALL_KEYS = LEAVE_KEYS + CUT_OUT_KEYS
 
@@ -88,6 +90,9 @@ class PartText(PartBase):
 
 class PartTag(PartText):
     kind = "tag"
+
+class PartDjangoComment(PartText):
+    kind = "django_comment"
 
 
 class PartBlockTag(PartTag):
@@ -153,6 +158,7 @@ class DjangoTagAssembler(object):
     def cut_out(self, text, escape):
         def cut(match):
             groups = match.groupdict()
+            # print(groups)
 
             for key in ALL_KEYS:
                 if groups[key] != None:
@@ -168,6 +174,7 @@ class DjangoTagAssembler(object):
         if escape:
             text = text.replace(ESCAPE[0], ESCAPE[1])
         text = CUT_OUT_RE.sub(cut, text)
+        # print(text)
         return text
 
     def reassembly(self, text, cut_data):
@@ -194,7 +201,12 @@ class DjangoTagAssembler(object):
                 no = placeholder_dict[part]
                 content = self.cut_data[no]
 
-                # print(content)
+                # print(no, content)
+                if content.startswith("{#") and content.endswith("#}"):
+                    part = PartDjangoComment(content=content)
+                    splitted.append(part)
+                    continue
+
                 if content.startswith("{% lucidTag"):
                     plugin_name, method_name, method_kwargs = parse_lucidtag(content)
                     part = PartLucidTag(
@@ -237,8 +249,9 @@ text 1
 tag one content 1
 tag one content 2
 {% endTagOne %}
-text after block
+text with {# django comment #} inside!
 here a {{ variable }} and a {% inline tag %} too...
+this is {# deactivated {{ variable }} and {% inline tag %} too #} isn't it?
 {% TagOne %}
 tag one B content 1
 tag one B content 2
@@ -259,6 +272,7 @@ the end text
     # """
 
     # content="{% lucidTag SiteMap %}"
+    content="this is {# deactivated {{ variable }} and {% inline tag %} too #} isn't it?"
 
 
     assembler = DjangoTagAssembler()

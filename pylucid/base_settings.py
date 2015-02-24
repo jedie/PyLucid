@@ -105,14 +105,22 @@ INSTALLED_APPS = (
     'mptt',
     # 'djangocms_style',
     # 'djangocms_column',
-    'djangocms_file',
     # 'djangocms_flash',
     # 'djangocms_googlemap',
     # 'djangocms_inherit',
-    'djangocms_link',
-    'djangocms_picture',
     # 'djangocms_teaser',
-    'djangocms_video',
+
+    # https://github.com/stefanfoulis/django-filer
+    'filer',
+    'easy_thumbnails',
+    # https://github.com/stefanfoulis/cmsplugin-filer
+    'cmsplugin_filer_file',
+    'cmsplugin_filer_folder',
+    'cmsplugin_filer_link',
+    'cmsplugin_filer_image',
+    'cmsplugin_filer_teaser',
+    'cmsplugin_filer_video',
+
     'cmsplugin_htmlsitemap', # https://github.com/raphaa/cmsplugin-htmlsitemap
     'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
 
@@ -122,9 +130,6 @@ INSTALLED_APPS = (
     'django_extensions', # https://github.com/django-extensions/django-extensions
 
     # djangocms-blog
-    'filer',
-    'easy_thumbnails',
-    'cmsplugin_filer_image',
     'parler',
     'taggit',
     'taggit_autosuggest',
@@ -184,15 +189,18 @@ MIGRATION_MODULES = {
     # 'djangocms_googlemap': 'djangocms_googlemap.migrations_django',
     # 'djangocms_inherit': 'djangocms_inherit.migrations_django',
     # 'djangocms_style': 'djangocms_style.migrations_django',
-    'djangocms_file': 'djangocms_file.migrations_django',
-    'djangocms_link': 'djangocms_link.migrations_django',
-    'djangocms_picture': 'djangocms_picture.migrations_django',
     # 'djangocms_teaser': 'djangocms_teaser.migrations_django',
-    'djangocms_video': 'djangocms_video.migrations_django',
+
+    # cmsplugin-filer:
+    'cmsplugin_filer_file': 'cmsplugin_filer_file.migrations_django',
+    'cmsplugin_filer_folder': 'cmsplugin_filer_folder.migrations_django',
+    'cmsplugin_filer_link': 'cmsplugin_filer_link.migrations_django',
+    'cmsplugin_filer_image': 'cmsplugin_filer_image.migrations_django',
+    'cmsplugin_filer_teaser': 'cmsplugin_filer_teaser.migrations_django',
+    'cmsplugin_filer_video': 'cmsplugin_filer_video.migrations_django',
 
     # for djangocms-blog:
     'filer': 'filer.migrations_django',
-    'cmsplugin_filer_image': 'cmsplugin_filer_image.migrations_django',
 }
 
 

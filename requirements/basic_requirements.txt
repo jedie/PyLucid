@@ -54,41 +54,19 @@ django-reversion>=1.8.4,<1.9
 # https://pypi.python.org/pypi/django-cms/
 django-cms>=3.0.10,<3.1
 
-# https://github.com/SmileyChris/easy-thumbnails
-easy-thumbnails
-
-# https://github.com/stefanfoulis/django-filer/
-django-filer
-
-# https://github.com/stefanfoulis/cmsplugin-filer
-cmsplugin-filer
-
-# https://github.com/divio/djangocms-file
-djangocms-file
-
-# https://github.com/divio/djangocms-link
-djangocms-link
-
 # https://github.com/divio/djangocms-text-ckeditor
 djangocms-text-ckeditor
 
-# https://github.com/divio/djangocms-picture
-djangocms-picture
 
-# https://github.com/divio/djangocms-video
-djangocms_video
+# django-filter
+#--------------
+# https://github.com/stefanfoulis/django-filer/
+# The 'cmsplugin-filer' will install, among other things:
+# django-filter, django-sekizai, easy_thumbnails
+cmsplugin-filer
 
 
 # Django-CMS-Blog
 #-----------------
 # https://github.com/nephila/djangocms-blog/blob/develop/setup.py
-
 djangocms-blog>=0.3.2.a1
-django-parler>=1.2
-django-taggit
-django-select2-py3
-django-taggit-templatetags
-django-taggit-autosuggest
-django-admin-enhancer
-django-meta>=0.2
-django-meta-mixin>=0.1.1

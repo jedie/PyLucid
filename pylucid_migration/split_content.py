@@ -16,8 +16,11 @@ from __future__ import unicode_literals
 
 from cms.api import add_plugin
 
+from cmsplugin_filer_video.cms_plugins import FilerVideoPlugin
+from cmsplugin_pygments.cms_plugins import CMSPygmentsPlugin
+
 from pylucid_migration.markup.converter import markup2html
-from pylucid_migration.markup.django_tags import PartText, PartTag, PartBlockTag, PartLucidTag
+from pylucid_migration.markup.django_tags import PartText, PartDjangoComment, PartTag, PartBlockTag, PartLucidTag
 
 
 def _add_todo(placeholder, language, content):
@@ -32,13 +35,25 @@ def content2plugins(placeholder, raw_content, markup, language):
 
     for part in splitted_content:
         content = part.content
-        if isinstance(part, PartLucidTag):
-            # plugin_name = part.plugin_name
-            # method_name = part.method_name
-            # method_kwargs = part.method_kwargs
-            # content = "TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs)
-            # html += content
+        if isinstance(part, PartDjangoComment):
             _add_todo(placeholder, language, content)
+        elif isinstance(part, (PartLucidTag, PartDjangoComment)):
+            plugin_name = part.plugin_name
+            method_name = part.method_name
+            method_kwargs = part.method_kwargs
+            # print(" *** TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs))
+            # html += content
+            #
+            if plugin_name=="generic" and method_name=="youtube":
+                print("\t\t *** Add 'FilerVideoPlugin'")
+                print(method_kwargs)
+                add_plugin(placeholder, FilerVideoPlugin, language=language,
+                    movie_url = "http://www.youtube.com/watch?v=%s" % method_kwargs["id"],
+                    width = method_kwargs["width"],
+                    height = method_kwargs["height"],
+                )
+            else:
+                _add_todo(placeholder, language, content)
 
         elif isinstance(part, PartBlockTag):
             tag = part.tag
@@ -52,7 +67,7 @@ def content2plugins(placeholder, raw_content, markup, language):
 
                 content, lexer = part.get_pygments_info()
 
-                add_plugin(placeholder, "CMSPygmentsPlugin", language=language,
+                add_plugin(placeholder, CMSPygmentsPlugin, language=language,
                     code_language=lexer.aliases[0],
                     code=content,
                     style="default"
