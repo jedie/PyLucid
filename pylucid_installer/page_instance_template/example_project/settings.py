@@ -46,8 +46,9 @@ WSGI_APPLICATION = 'example_project.wsgi.application'
 INSTALLED_APPS += (
     'example_project',
 
-    # Activate for PyLucid v1.x migration (must be added before 'pylucid' ;)
+    # Activate for PyLucid v1.x migration
     # "pylucid_migration",
+    # "pylucid_todo",
 )
 
 

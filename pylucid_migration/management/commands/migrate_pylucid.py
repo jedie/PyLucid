@@ -24,13 +24,9 @@ import traceback
 from django.core.management.base import BaseCommand
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
-
 import cms
-from cms.api import create_page, create_title, add_plugin, get_page_draft
+from cms.api import create_page, create_title, get_page_draft
 from cms.models import Placeholder
-
-from pylucid_migration.markup.converter import apply_markup
-from pylucid_migration.markup.django_tags import PartTag, PartBlockTag, PartLucidTag
 from pylucid_migration.models import PageTree, PageMeta, PageContent, DjangoSite
 from pylucid_migration.split_content import content2plugins
 
@@ -45,8 +41,8 @@ class Command(BaseCommand):
             except Site.DoesNotExist:
                 site_new = Site.objects.create(
                     pk=site_old.pk,
-                    domain = site_old.domain,
-                    name = site_old.name,
+                    domain=site_old.domain,
+                    name=site_old.name,
                 )
                 self.stdout.write("New site %r with ID %i created." % (site_new.name, site_new.id))
             else:
@@ -80,7 +76,13 @@ class Command(BaseCommand):
                     page = pages[pagetree.id]
                     self.stdout.write("\t * Add in language %r" % pagemeta.language.code)
 
-                    create_title(pagemeta.language.code, pagemeta.title, page, slug=pagetree.slug)
+                    create_title(
+                        language=pagemeta.language.code,
+                        title=pagemeta.title,
+                        page=page,
+                        slug=pagetree.slug,
+                        meta_description=pagemeta.description,
+                    )
                     # page.rescan_placeholders()
                     # page = page.reload()
                 else:

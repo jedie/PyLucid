@@ -170,7 +170,7 @@ def markup2html(raw_content, markup_no):
     splitted_content = apply_markup(raw_content, markup_no)
     html=""
     for part in splitted_content:
-        print(part)
+        # print(part)
         if isinstance(part, PartBlockTag):
             html+=part.get_html()
         else:

@@ -1,6 +1,5 @@
 # coding: utf-8
 
-
 """
     django tag assembler
     ~~~~~~~~~~~~~~~~~~~~
@@ -12,29 +11,25 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-
 import re
 
 import pygments
 from pygments import lexers
 
-from django.utils.safestring import mark_safe, mark_for_escaping
-from django.utils.six import StringIO
-
 from pylucid_migration.markup.lucidTag import parse_lucidtag
 
 
-RE_CREOLE_IMAGE=r'(?P<creole_image> {{ .+?(.jpg|.jpeg|.gif|.png).*? }} )'
-RE_CREOLE_PRE_INLINE=r'(?P<creole_pre_inline> {{{ (\n|.)*? }}} )'
-RE_BLOCK=r'''
+RE_CREOLE_IMAGE = r'(?P<creole_image> {{ .+?(.jpg|.jpeg|.gif|.png).*? }} )'
+RE_CREOLE_PRE_INLINE = r'(?P<creole_pre_inline> {{{ (\n|.)*? }}} )'
+RE_BLOCK = r'''
     (?P<block>
         \{% \s* (?P<pass_block_start>.+?) .*? %\}
         (\n|.)*?
         \{% \s* end(?P=pass_block_start) \s* %\}
     )
 '''
-RE_TAG=r'(?P<tag>\{% [^\{\}]*? %\})'
-RE_VAR=r'(?P<variable>\{\{ [^\{\}]*? \}\})'
+RE_TAG = r'(?P<tag>\{% [^\{\}]*? %\})'
+RE_VAR = r'(?P<variable>\{\{ [^\{\}]*? \}\})'
 
 
 # FIXME: How can we better match on creole image, without a list of known image extensions?
@@ -46,7 +41,7 @@ CUT_OUT_RE = re.compile("|".join([
     RE_VAR,
 ]), re.VERBOSE | re.UNICODE | re.MULTILINE | re.IGNORECASE)
 
-BLOCK_RE=re.compile(r'''
+BLOCK_RE = re.compile(r'''
     \{% \s* (?P<pass_block_start>.+?) (?P<args>.*?) %\}
     (?P<content>(\n|.)*?)
     \{% \s* end(?P=pass_block_start) \s* %\}
@@ -70,44 +65,48 @@ PYGMENTS_HTML = """
 </fieldset>
 """
 
+
 class PartBase(object):
-    content=""
+    content = ""
+
     def __unicode__(self):
         return u"<Part %s: %r>" % (self.kind, self.content)
 
     def __str__(self):
         return self.__unicode__()
+
     def __repr__(self):
         return self.__unicode__()
 
 
 class PartText(PartBase):
-    kind="text"
+    kind = "text"
+
     def __init__(self, content):
-        self.content = mark_safe(content)
+        self.content = content
 
 
-class PartTag(PartBase):
-    kind="tag"
-    def __init__(self, content):
-        self.content = mark_for_escaping(content)
+class PartTag(PartText):
+    kind = "tag"
 
 
-class PartBlockTag(PartBase):
-    kind="blocktag"
-    def __init__(self, tag, args, content):
-        self.tag=tag
-        self.args=args
-        self.content = mark_for_escaping(content)
+class PartBlockTag(PartTag):
+    kind = "blocktag"
+
+    def __init__(self, content, tag, args, block_content):
+        super(PartBlockTag, self).__init__(content)
+        self.tag = tag
+        self.args = args
+        self.block_content = block_content
 
     def get_pygments_info(self):
         assert self.tag == "sourcecode"
 
         source_type = self.args.split('=')[1]
         source_type = self.args.strip(""" '".""")
-        print("source type: %r" % source_type)
+        # print("source type: %r" % source_type)
 
-        content = self.content.strip()
+        content = self.block_content.strip()
 
         try:
             lexer = lexers.get_lexer_by_name(source_type)
@@ -134,19 +133,20 @@ class PartBlockTag(PartBase):
         return u"<PartBlockTag %s %r %r: %r>" % (self.kind, self.tag, self.args, self.content)
 
 
-class PartLucidTag(PartBase):
-    kind="lucidtag"
-    def __init__(self, plugin_name,method_name,method_kwargs):
-        self.plugin_name=plugin_name
-        self.method_name=method_name
-        self.method_kwargs=method_kwargs
+class PartLucidTag(PartTag):
+    kind = "lucidtag"
+
+    def __init__(self, content, plugin_name, method_name, method_kwargs):
+        super(PartLucidTag, self).__init__(content)
+        self.plugin_name = plugin_name
+        self.method_name = method_name
+        self.method_kwargs = method_kwargs
 
     def __unicode__(self):
-        return u"<PartLucidTag %r %r %r>" % (self.plugin_name,self.method_name,self.method_kwargs)
+        return u"<PartLucidTag %r %r %r>" % (self.plugin_name, self.method_name, self.method_kwargs)
 
 
 class DjangoTagAssembler(object):
-
     def __init__(self):
         self.cut_data = []
 
@@ -179,7 +179,7 @@ class DjangoTagAssembler(object):
         return text
 
     def reassembly_splitted(self, text):
-        placeholder_dict={}
+        placeholder_dict = {}
         for no in range(len(self.cut_data) - 1, -1, -1):
             placeholder_dict[PLACEHOLDER_CUT_OUT % no] = no
 
@@ -191,13 +191,14 @@ class DjangoTagAssembler(object):
         splitted = []
         for part in data:
             if part in placeholder_dict:
-                no=placeholder_dict[part]
-                content=self.cut_data[no]
+                no = placeholder_dict[part]
+                content = self.cut_data[no]
 
-                print(content)
+                # print(content)
                 if content.startswith("{% lucidTag"):
                     plugin_name, method_name, method_kwargs = parse_lucidtag(content)
-                    part=PartLucidTag(
+                    part = PartLucidTag(
+                        content=content,
                         plugin_name=plugin_name,
                         method_name=method_name,
                         method_kwargs=method_kwargs,
@@ -207,11 +208,12 @@ class DjangoTagAssembler(object):
                 else:
                     match = BLOCK_RE.match(content)
                     if match:
-                        print(match.groupdict())
+                        # print(match.groupdict())
                         part = PartBlockTag(
+                            content=content,
                             tag=match.group("pass_block_start"),
                             args=match.group("args").strip(),
-                            content=match.group("content")
+                            block_content=match.group("content")
                         )
                     else:
                         part = PartTag(content=content)
@@ -226,11 +228,10 @@ class DjangoTagAssembler(object):
         return splitted
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     from pprint import pprint
 
-    content="""
+    content = """
 text 1
 {% TagOne %}
 tag one content 1
@@ -248,14 +249,14 @@ the end text
 {% lucidTag PluginName.MethodName kwarg1="value1" kwarg2="value2" %}
     """
 
-#     content="""
-# pre text
-# {% sourcecode ext=".py" %}
-# print "Python is cool!"
-# {% endsourcecode %}
-# post text
-# here a {{ variable }} and a {% inline tag %} too...
-#     """
+    # content="""
+    # pre text
+    # {% sourcecode ext=".py" %}
+    # print "Python is cool!"
+    # {% endsourcecode %}
+    # post text
+    # here a {{ variable }} and a {% inline tag %} too...
+    # """
 
     # content="{% lucidTag SiteMap %}"
 
