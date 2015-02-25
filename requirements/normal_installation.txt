@@ -40,3 +40,6 @@ git+https://github.com/jedie/PyLucid.git@django-cms#egg=pylucid
 
 # https://github.com/raphaa/cmsplugin-htmlsitemap
 git+https://github.com/raphaa/cmsplugin-htmlsitemap.git#egg=cmsplugin-htmlsitemap
+
+# https://github.com/mitar/cmsplugin-markup
+git+https://github.com/jedie/cmsplugin-markup.git@CI#egg=cmsplugin-markup

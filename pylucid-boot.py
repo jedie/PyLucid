@@ -1878,7 +1878,8 @@ NORMAL_INSTALLATION = ['click>=3.3,<4.0',
  'git+https://github.com/jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments',
  'git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
  'git+https://github.com/jedie/PyLucid.git@django-cms#egg=pylucid',
- 'git+https://github.com/raphaa/cmsplugin-htmlsitemap.git#egg=cmsplugin-htmlsitemap']
+ 'git+https://github.com/raphaa/cmsplugin-htmlsitemap.git#egg=cmsplugin-htmlsitemap',
+ 'git+https://github.com/jedie/cmsplugin-markup.git@CI#egg=cmsplugin-markup']
 
 # requirements from developer_installation.txt
 DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
@@ -1905,7 +1906,8 @@ DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
  '--editable=git+git@github.com:jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments',
  '--editable=git+git@github.com:jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
- '--editable=git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid']
+ '--editable=git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid',
+ 'git+git@github.com:jedie/cmsplugin-markup.git@CI#egg=cmsplugin-markup']
 ###############################################################################
 ## '/home/jens/PyLucid_env/src/pylucid/bootstrap/sources/prefix_code.py' START
 MENU_TXT = """
