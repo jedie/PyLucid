@@ -10,6 +10,8 @@ Fork and contribute! ;)
 
 {{https://travis-ci.org/jedie/PyLucid.svg|Build Status on travis-ci.org}}
 
+see: [[https://travis-ci.org/jedie/PyLucid/|travis-ci.org/jedie/PyLucid]]
+
 == install
 
 === prepare
@@ -51,6 +53,18 @@ more info here: https://pillow.readthedocs.org/en/latest/installation.html
 (PyLucid_env) ~/page_instance $ ./manage.py runserver
 }}}
 
+
+=== unittests
+
+{{{
+# go to your virtual env and activate it:
+/home/FooBar$ cd ~/PyLucid_env
+~/PyLucid_env $ source bin/activate
+(PyLucid_env) ~/PyLucid_env $ cd src/pylucid/
+
+# run the tests:
+(PyLucid_env) ~/PyLucid_env/src/pylucid $ ./setup.py test
+}}}
 
 
 === PyLucid v1 migration
