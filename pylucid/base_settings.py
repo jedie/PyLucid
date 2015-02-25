@@ -128,7 +128,6 @@ INSTALLED_APPS = (
     'reversion', # https://github.com/etianen/django-reversion
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'compressor', # https://github.com/django-compressor/django-compressor
-    'django_extensions', # https://github.com/django-extensions/django-extensions
 
     # djangocms-blog
     'parler',
@@ -141,6 +140,9 @@ INSTALLED_APPS = (
     'djangocms_blog',
 
     'django_info_panel',
+
+    # Installed only in developer installation:
+    #'django_extensions', # https://github.com/django-extensions/django-extensions
 )
 
 CMS_TEMPLATES = (
