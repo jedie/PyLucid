@@ -34,19 +34,19 @@ sys.path.append(
     os.path.join(os.path.dirname(example_project.__file__), os.pardir)
 )
 
-def run_tests(test_args):
+def run_tests(test_labels=None):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
     django.setup()
 
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
 
-    if not test_args:
-        test_args = ['tests']
-    failures = test_runner.run_tests(test_args)
+    if test_labels is None:
+        test_labels = ['tests']
+    failures = test_runner.run_tests(test_labels)
 
     sys.exit(bool(failures))
 
 
 if __name__ == "__main__":
-    run_tests(sys.argv[1:])
+    run_tests(test_labels = sys.argv[1:])
