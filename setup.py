@@ -68,6 +68,7 @@ setup_info = dict(
         pylucid_installer=pylucid_installer.pylucid_installer:cli
     ''',
     install_requires=["Click",],
+    test_suite = "runtests.runtests",
     zip_safe=False,
     classifiers=[
        'Development Status :: 1 - Planning',

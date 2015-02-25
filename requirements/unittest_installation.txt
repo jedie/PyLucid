@@ -1,0 +1,3 @@
+coveralls
+
+-r normal_requirements.txt
