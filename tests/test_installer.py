@@ -98,8 +98,8 @@ class PyLucidInstallerCLITest(TestCase):
                 result.output
             )
             self.assertListEqual(
-                os.listdir(temp_path),
-                ['static', 'manage.py', 'unittest_project']
+                sorted(os.listdir(temp_path)),
+                ['manage.py', 'static', 'unittest_project']
             )
 
             # Check patched manage.py
