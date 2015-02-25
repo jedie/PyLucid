@@ -8,9 +8,8 @@ The current state of the Django-CMS branch is not useable :(
 
 Fork and contribute! ;)
 
-{{https://travis-ci.org/jedie/PyLucid.svg|Build Status on travis-ci.org}}
-
-see: [[https://travis-ci.org/jedie/PyLucid/|travis-ci.org/jedie/PyLucid]]
+| {{https://coveralls.io/repos/jedie/PyLucid/badge.svg|Coverage Status on coveralls.io}} | [[https://coveralls.io/r/jedie/PyLucid|coveralls.io/r/jedie/PyLucid]] |
+| {{https://travis-ci.org/jedie/PyLucid.svg|Build Status on travis-ci.org}} | [[https://travis-ci.org/jedie/PyLucid/|travis-ci.org/jedie/PyLucid]] |
 
 == install
 
