@@ -62,7 +62,10 @@ def _copytree(dest):
     src_base = os.path.abspath(os.path.dirname(__file__))
     src = os.path.join(src_base, "page_instance_template")
     click.echo("copytree %r to %r" % (src, dest))
-    shutil.copytree(src, dest)
+    shutil.copytree(
+        src, dest,
+        ignore=shutil.ignore_patterns("*.pyc", "__pycache__")
+    )
 
 
 def _patch_shebang(dest, *filepath):

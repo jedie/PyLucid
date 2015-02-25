@@ -1,4 +1,25 @@
 #!/usr/bin/env python
+# coding: utf-8
+
+"""
+    PyLucid
+    ~~~~~~~
+
+    run all tests:
+
+    (PyLucid_env) ~/PyLucid_env/src/pylucid $ ./runtests.py
+
+    run only some tests, e.g.:
+
+    (PyLucid_env) ~/PyLucid_env/src/pylucid $ ./runtests.py tests.test_file
+    (PyLucid_env) ~/PyLucid_env/src/pylucid $ ./runtests.py tests.test_file.test_class
+    (PyLucid_env) ~/PyLucid_env/src/pylucid $ ./runtests.py tests.test_file.test_class.test_method
+
+    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :created: 2015 by JensDiemer.de
+    :license: GNU GPL v3 or above, see LICENSE for more details.
+"""
+
 import os
 import sys
 
@@ -13,14 +34,19 @@ sys.path.append(
     os.path.join(os.path.dirname(example_project.__file__), os.pardir)
 )
 
-def runtests():
+def run_tests(test_args):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
     django.setup()
+
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
-    failures = test_runner.run_tests(["tests"])
+
+    if not test_args:
+        test_args = ['tests']
+    failures = test_runner.run_tests(test_args)
+
     sys.exit(bool(failures))
 
 
 if __name__ == "__main__":
-    runtests()
+    run_tests(sys.argv[1:])
