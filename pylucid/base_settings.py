@@ -123,6 +123,7 @@ INSTALLED_APPS = (
 
     'cmsplugin_htmlsitemap', # https://github.com/raphaa/cmsplugin-htmlsitemap
     'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
+    'cmsplugin_markup', # https://github.com/mitar/cmsplugin-markup
 
     'reversion', # https://github.com/etianen/django-reversion
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
@@ -201,6 +202,8 @@ MIGRATION_MODULES = {
 
     # for djangocms-blog:
     'filer': 'filer.migrations_django',
+
+    'cmsplugin_markup': 'cmsplugin_markup.migrations_django',
 }
 
 
@@ -250,3 +253,13 @@ THUMBNAIL_PROCESSORS = (
 META_SITE_PROTOCOL = "http" # This should be set to either 'http' or 'https'
 META_USE_SITES = True # use Django's sites contrib app
 
+
+# https://github.com/mitar/cmsplugin-markup
+CMS_MARKUP_OPTIONS = (
+    'cmsplugin_markup.plugins.creole',
+    'cmsplugin_markup.plugins.markdown',
+    'cmsplugin_markup.plugins.textile',
+    'cmsplugin_markup.plugins.restructuredtext',
+)
+CMS_MARKUP_RENDER_ALWAYS = True
+CMS_MARKDOWN_EXTENSIONS = ()
