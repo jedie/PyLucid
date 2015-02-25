@@ -97,7 +97,7 @@ class PyLucidInstallerCLITest(TestCase):
                 "Page instance created here: '%s'" % temp_path,
                 result.output
             )
-            self.assertEqual(
+            self.assertListEqual(
                 os.listdir(temp_path),
                 ['static', 'manage.py', 'unittest_project']
             )
