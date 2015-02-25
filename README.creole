@@ -8,6 +8,8 @@ The current state of the Django-CMS branch is not useable :(
 
 Fork and contribute! ;)
 
+{{https://travis-ci.org/jedie/PyLucid.svg|Build Status on travis-ci.org}}
+
 == install
 
 === prepare
@@ -48,6 +50,7 @@ more info here: https://pillow.readthedocs.org/en/latest/installation.html
 # run dev. server:
 (PyLucid_env) ~/page_instance $ ./manage.py runserver
 }}}
+
 
 
 === PyLucid v1 migration
