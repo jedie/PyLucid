@@ -18,6 +18,7 @@ def pylucid(request):
     A django TEMPLATE_CONTEXT_PROCESSORS
     """
     context = {
+        "pylucid_version": "v%s" % VERSION_STRING,
         "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % VERSION_STRING),
     }
     return context
