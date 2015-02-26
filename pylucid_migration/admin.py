@@ -204,21 +204,6 @@ register(models.Design, DesignAdmin)
 #------------------------------------------------------------------------------
 
 
-class EditableHtmlHeadFileAdminForm(forms.ModelForm):
-    class Meta:
-        model = models.EditableHtmlHeadFile
-    class Media:
-        js = (
-            settings.STATIC_URL + "PyLucid/codemirror_editable_headfile.js",
-        )
-
-    def __init__(self, *args, **kwargs):
-        super(EditableHtmlHeadFileAdminForm, self).__init__(*args, **kwargs)
-        # Make mimetype optinal, so the user can leave to empty and auto_mimetype
-        # would be used in model.clean_fields()
-        self.fields["mimetype"].required = False
-
-
 class EditableHtmlHeadFileAdmin(CompareVersionAdmin):
     list_display = ("id", "filepath", "render", "description", "lastupdatetime", "lastupdateby")
     list_display_links = ("filepath", "description")
