@@ -10,7 +10,7 @@
 
 # imports not really needed and just for the editor warning ;)
 import sys
-from bootstrap.sources.prefix_code import AfterInstall
+from bootstrap.sources.prefix_code import AfterInstall, c
 
 
 def after_install(options, home_dir):
@@ -25,6 +25,10 @@ def after_install(options, home_dir):
     sys.stdout.write("\n")
     sys.stdout.write("PyLucid environment created in: %s\n" % c.colorize(home_dir, foreground="blue", opts=("bold",)))
     sys.stdout.write("\n")
-    sys.stdout.write("Now you can create a new page instance, more info:\n")
-    sys.stdout.write("http://www.pylucid.org/permalink/355/create-a-new-page-instance\n")
+
+    sys.stdout.write("Now you can create a new page instance with %s\n" % c.colorize("pylucid_install", foreground="blue", opts=("bold",)))
+    sys.stdout.write("\n")
+
+    sys.stdout.write("More Info:\n")
+    sys.stdout.write("https://github.com/jedie/PyLucid#create-page-instance\n")
     sys.stdout.write("\n")

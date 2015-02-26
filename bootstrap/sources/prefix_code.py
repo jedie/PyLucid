@@ -25,9 +25,9 @@ NORMAL_INSTALLATION=None
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
-(1) normal installation
-(2) git installation (readonly)
-(3) developer installation (github write access needed!
+(1) normal PyPi installation    !!!Currently not supported!!!
+(2) git installation (readonly) <<--use this!
+(3) developer installation      !!!github write access needed!!!
 
 """
 
@@ -35,12 +35,14 @@ INSTALL_NORMAL = "normal"
 INSTALL_READONLY = "readonly"
 INSTALL_DEV = "developer"
 CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_READONLY, "3":INSTALL_DEV}
-DEFAULT_MENU_CHOICE = CHOICES["2"]
+DEFAULT_MENU_CHOICE_NO = "2"
+DEFAULT_MENU_CHOICE = CHOICES[DEFAULT_MENU_CHOICE_NO]
 
 
 PY2 = sys.version_info[0] == 2
 if PY2:
-    input=raw_input
+    # input=raw_input
+    raise NotImplementedError("Python 3 is currently not Supported! Please use Python 3 !!!")
 
 
 class SysPath(object):
@@ -126,7 +128,7 @@ def get_requirement_choice():
     input_msg = "%s (%s) (default: %s) " % (
         c.colorize("Please select:", opts=("bold",)),
         "/".join(choice_keys),
-        DEFAULT_MENU_CHOICE
+        DEFAULT_MENU_CHOICE_NO
     )
 
     sys.stderr.write(MENU_TXT)

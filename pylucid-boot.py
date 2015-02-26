@@ -1913,9 +1913,9 @@ DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
-(1) normal installation
-(2) git installation (readonly)
-(3) developer installation (github write access needed!
+(1) normal PyPi installation    !!!Currently not supported!!!
+(2) git installation (readonly) <<--use this!
+(3) developer installation      !!!github write access needed!!!
 
 """
 
@@ -1923,12 +1923,14 @@ INSTALL_NORMAL = "normal"
 INSTALL_READONLY = "readonly"
 INSTALL_DEV = "developer"
 CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_READONLY, "3":INSTALL_DEV}
-DEFAULT_MENU_CHOICE = CHOICES["2"]
+DEFAULT_MENU_CHOICE_NO = "2"
+DEFAULT_MENU_CHOICE = CHOICES[DEFAULT_MENU_CHOICE_NO]
 
 
 PY2 = sys.version_info[0] == 2
 if PY2:
-    input=raw_input
+    # input=raw_input
+    raise NotImplementedError("Python 3 is currently not Supported! Please use Python 3 !!!")
 
 
 class SysPath(object):
@@ -2014,7 +2016,7 @@ def get_requirement_choice():
     input_msg = "%s (%s) (default: %s) " % (
         c.colorize("Please select:", opts=("bold",)),
         "/".join(choice_keys),
-        DEFAULT_MENU_CHOICE
+        DEFAULT_MENU_CHOICE_NO
     )
 
     sys.stderr.write(MENU_TXT)
@@ -2263,8 +2265,12 @@ def after_install(options, home_dir):
     sys.stdout.write("\n")
     sys.stdout.write("PyLucid environment created in: %s\n" % c.colorize(home_dir, foreground="blue", opts=("bold",)))
     sys.stdout.write("\n")
-    sys.stdout.write("Now you can create a new page instance, more info:\n")
-    sys.stdout.write("http://www.pylucid.org/permalink/355/create-a-new-page-instance\n")
+
+    sys.stdout.write("Now you can create a new page instance with %s\n" % c.colorize("pylucid_install", foreground="blue", opts=("bold",)))
+    sys.stdout.write("\n")
+
+    sys.stdout.write("More Info:\n")
+    sys.stdout.write("https://github.com/jedie/PyLucid#create-page-instance\n")
     sys.stdout.write("\n")
     ## '/home/jens/PyLucid_env/src/pylucid/bootstrap/sources/after_install.py' END
     ###############################################################################
