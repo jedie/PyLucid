@@ -53,6 +53,29 @@ more info here: https://pillow.readthedocs.org/en/latest/installation.html
 }}}
 
 
+==== optional packages
+
+Before any pip install, go to your virtual env and activate it!
+e.g.:
+{{{
+/home/FooBar$ cd ~/PyLucid_env
+~/PyLucid_env $ source bin/activate
+}}}
+
+
+MySQL DB API Driver:
+{{{
+(PyLucid_env) ~/PyLucid_env $ pip install mysqlclient
+}}}
+see also: [[https://docs.djangoproject.com/en/1.7/ref/databases/#mysql-db-api-drivers|Django database docs]].
+
+FastCGI wrapper for WSGI applications:
+{{{
+(PyLucid_env) ~/PyLucid_env $ pip install flipflop
+}}}
+see also: https://pypi.python.org/pypi/flipflop
+
+
 === unittests
 
 {{{
