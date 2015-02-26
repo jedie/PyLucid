@@ -83,7 +83,7 @@ DATABASES = {
 
 You must activate some settings:
 
-* add **pylucid_migration** to INSTALLED_APPS
+* **pylucid_migration**, **pylucid_todo** in INSTALLED_APPS
 * Activate a **'legacy'** named second database with the old PyLucid v1 data
 * Activate **DATABASE_ROUTERS**
 
@@ -106,6 +106,9 @@ commands for migration, e.g.:
 With the argument **--inline_script** all {{{<script>}}} areas would be migrate to a
 **html**-markup entry. So all {{{<script>}}} areas are active after migration.
 Without **--inline_script** all {{{<script>}}} areas will be result in escaped text.
+
+All unsupported **lucidTag** entries will be migrate to the "ToDoPlugin". SO the origin code is not away, but
+will be not visible for anonymous users.
 
 
 === dev info
