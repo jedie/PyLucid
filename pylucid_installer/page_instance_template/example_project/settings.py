@@ -77,6 +77,30 @@ DATABASES = {
 # Activate for PyLucid v1.x migration
 #DATABASE_ROUTERS = ['pylucid_migration.db_router.LegacyRouter']
 
+#____________________________________________________________________
+# Please change email-/SMTP-Settings:
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#email-host
+EMAIL_HOST = "localhost"
+EMAIL_HOST_USER = "root@%s" % EMAIL_HOST
+EMAIL_HOST_PASSWORD = ""
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#default-from-email
+# email address to use for various automated correspondence from the site manager(s). Except error mails:
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#server-email
+# Email address that error messages come from:
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#managers
+# A tuple that lists people who get broken link notifications when BrokenLinkEmailsMiddleware is enabled:
+#MANAGERS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#admins
+# A tuple that lists people who get code error notifications:
+#ADMINS = MANAGERS
+
 
 #____________________________________________________________________
 # language setup
