@@ -79,7 +79,8 @@ class Command(MigrateBaseCommand):
             self.stdout.write("\n **** %s ****\n" % site.name)
 
         queryset = BlogEntryContent.objects.all().order_by("createtime")
-        queryset = queryset[453:456] # XXX: only test!
+        # queryset = queryset[453:456] # XXX: only test!
+        # queryset = queryset[453:] # XXX: only test!
         for content_entry in queryset:
             self.stdout.write("\n")
             self.stdout.write(
