@@ -69,4 +69,7 @@ cmsplugin-filer
 # Django-CMS-Blog
 #-----------------
 # https://github.com/nephila/djangocms-blog/blob/develop/setup.py
-djangocms-blog>=0.3.2.a1
+# djangocms-blog>=0.3.2.a1
+# use PyPi if new relase is available
+# see: https://github.com/nephila/djangocms-blog/issues/103
+git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog
