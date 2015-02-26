@@ -70,8 +70,7 @@ DATABASES = {
     #     'PASSWORD': '',
     #     'HOST': 'localhost',
     #     'USER': '',
-    #     # 'ENGINE': 'django.db.backends.mysql',
-    #     'ENGINE': 'mysql_cymysql', # https://pypi.python.org/pypi/django-cymysql/
+    #     'ENGINE': 'django.db.backends.mysql',
     #     'PORT': ''
     # }
 }
