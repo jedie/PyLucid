@@ -32,7 +32,14 @@ more info here: https://pillow.readthedocs.org/en/latest/installation.html
 
 # Create virtualenv with all needed packages:
 /home/FooBar$ python3 pylucid-boot.py ~/PyLucid_env
+}}}
 
+Now you have a virtual environment with all existing packages.
+
+=== create page instance
+
+You can create a new page instance with the **pylucid_installer** cli programm:
+{{{
 # Go into created virtualenv:
 /home/FooBar$ cd ~/PyLucid_env
 
@@ -51,6 +58,8 @@ more info here: https://pillow.readthedocs.org/en/latest/installation.html
 # run dev. server:
 (PyLucid_env) ~/page_instance $ ./manage.py runserver
 }}}
+
+Info: You can also create more than one page instance! All page instance will use the same environment.
 
 
 ==== optional packages
