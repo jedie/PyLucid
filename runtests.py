@@ -22,6 +22,7 @@
 
 import os
 import sys
+import shutil
 
 import django
 from django.conf import settings
@@ -34,6 +35,16 @@ sys.path.append(
     os.path.join(os.path.dirname(example_project.__file__), os.pardir)
 )
 
+def cleanup_temp(temp_dir):
+    print("\nCleanup %r: " % temp_dir, end="")
+    try:
+        shutil.rmtree(temp_dir)
+    except (OSError, IOError) as err:
+        print("Error: %s" % err)
+    else:
+        print("OK")
+
+
 def run_tests(test_labels=None):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
     django.setup()
@@ -45,8 +56,11 @@ def run_tests(test_labels=None):
         test_labels = ['tests']
     failures = test_runner.run_tests(test_labels)
 
+    cleanup_temp(settings.TEMP_DIR)
+
     sys.exit(bool(failures))
 
 
 if __name__ == "__main__":
     run_tests(test_labels = sys.argv[1:])
+

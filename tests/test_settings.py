@@ -14,9 +14,12 @@ import tempfile
 
 from pylucid_installer.page_instance_template.example_project.settings import *
 
+TEMP_DIR = tempfile.mkdtemp(prefix="pylucid_unittest_")
+print("Use temp dir: %r" % TEMP_DIR)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(tempfile.tempdir or ".", 'pylucid_unittest_database'),
+        'NAME': os.path.join(TEMP_DIR, 'pylucid_unittest_database'),
     }
 }
