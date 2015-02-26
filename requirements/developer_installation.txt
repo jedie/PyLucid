@@ -56,4 +56,4 @@ werkzeug
 -e git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid
 
 # https://github.com/mitar/cmsplugin-markup
-git+git@github.com:jedie/cmsplugin-markup.git@CI#egg=cmsplugin-markup
+git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup

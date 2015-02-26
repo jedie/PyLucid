@@ -259,6 +259,7 @@ META_USE_SITES = True # use Django's sites contrib app
 # https://github.com/mitar/cmsplugin-markup
 CMS_MARKUP_OPTIONS = (
     'cmsplugin_markup.plugins.creole',
+    'cmsplugin_markup.plugins.html',
     'cmsplugin_markup.plugins.markdown',
     'cmsplugin_markup.plugins.textile',
     'cmsplugin_markup.plugins.restructuredtext',
