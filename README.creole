@@ -93,14 +93,19 @@ You must activate some settings:
 commands for migration, e.g.:
 {{{
 # migrate old pages to django-cms:
-(PyLucid_env) ~/page_instance $ ./manage.py migrate_pylucid
+(PyLucid_env) ~/page_instance $ ./manage.py migrate_pylucid --inline_script
 
 # migrate old blog entries to djangocms-blog:
-(PyLucid_env) ~/page_instance $ ./manage.py migrate_blog
+(PyLucid_env) ~/page_instance $ ./manage.py migrate_blog --inline_script
 
 # export existing designs into filesystem
 (PyLucid_env) ~/page_instance $ ./manage.py export_designs
 }}}
+
+**NOTE:**
+With the argument **--inline_script** all {{{<script>}}} areas would be migrate to a
+**html**-markup entry. So all {{{<script>}}} areas are active after migration.
+Without **--inline_script** all {{{<script>}}} areas will be result in escaped text.
 
 
 === dev info

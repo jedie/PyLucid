@@ -21,6 +21,7 @@ from cmsplugin_pygments.cms_plugins import CMSPygmentsPlugin
 
 from pylucid_migration.markup.converter import markup2html
 from pylucid_migration.markup.django_tags import PartText, PartDjangoComment, PartTag, PartBlockTag, PartLucidTag
+from pylucid_migration.markup.utils import TYPE_SCRIPT, iter_html_and_script
 
 
 def _add_todo(placeholder, language, content):
@@ -28,7 +29,7 @@ def _add_todo(placeholder, language, content):
     add_plugin(placeholder, "ToDoPlugin", language, code=content)
 
 
-def content2plugins(placeholder, raw_content, markup, language):
+def content2plugins(options, placeholder, raw_content, markup, language):
     html, splitted_content = markup2html(raw_content, markup)
     # pprint(splitted_content)
     # print(",".join([part.kind for part in splitted_content]))
@@ -84,7 +85,18 @@ def content2plugins(placeholder, raw_content, markup, language):
             else:
                 _add_todo(placeholder, language, content)
         elif isinstance(part, PartText):
-            add_plugin(placeholder, "TextPlugin", language, body=content)
+
+            if not options["inline_script"]:
+                add_plugin(placeholder, "TextPlugin", language, body=content)
+            else:
+                # Extract JavaScript into MarkupPlugin
+                for kind, content in iter_html_and_script(content):
+                    if kind == TYPE_SCRIPT:
+                        print("\t *** create 'MarkupPlugin' html: %r" % content)
+                        add_plugin(placeholder, "MarkupPlugin", language, body=content, markup="html")
+                    else:
+                        add_plugin(placeholder, "TextPlugin", language, body=content)
+
         else:
             raise NotImplementedError(repr(part))
 

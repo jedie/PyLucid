@@ -27,6 +27,7 @@ from cms.api import add_plugin
 
 from djangocms_blog.models import Post, BlogCategory
 
+from pylucid_migration.management.migrate_base import MigrateBaseCommand
 from pylucid_migration.models import BlogEntryContent
 from pylucid_migration.markup.converter import markup2html
 from pylucid_migration.split_content import content2plugins
@@ -44,7 +45,7 @@ def disable_auto_fields(model_instance):
                 setattr(field, attr_name, False)
 
 
-class Command(BaseCommand):
+class Command(MigrateBaseCommand):
     help = 'Migrate the PyLucid Blog to djangocms-blog'
 
     def _split_tags(self, tags):
@@ -67,6 +68,8 @@ class Command(BaseCommand):
         return tag_counter
 
     def handle(self, *args, **options):
+        self._migrate_sites()
+
         count = BlogEntryContent.objects.count()
         self.stdout.write("There are %i Blog entries." % count)
 
@@ -125,9 +128,7 @@ class Command(BaseCommand):
                 new_post.date_published = content_entry.createtime
             new_post.save()
 
-            # add_plugin(new_post.content, 'TextPlugin', language, body=content)
-
-            html = content2plugins(new_post.content, content_entry.content, content_entry.markup, language)
+            html = content2plugins(options, new_post.content, content_entry.content, content_entry.markup, language)
             new_post.abstract = truncatewords_html(html, 20)
 
             # add tags

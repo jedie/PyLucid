@@ -24,34 +24,21 @@ import traceback
 from django.core.management.base import BaseCommand
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
+
 import cms
 from cms.api import create_page, create_title, get_page_draft
 from cms.models import Placeholder
-from pylucid_migration.models import PageTree, PageMeta, PageContent, DjangoSite
+
+from pylucid_migration.management.migrate_base import MigrateBaseCommand
+from pylucid_migration.models import PageTree, PageMeta, PageContent
 from pylucid_migration.split_content import content2plugins
 
 
-class Command(BaseCommand):
+class Command(MigrateBaseCommand):
     help = 'Migrate PyLucid v1 to v2'
 
-    def _migrate_sites(self):
-        for site_old in DjangoSite.objects.all():
-            try:
-                site_new = Site.objects.get(pk=site_old.pk)
-            except Site.DoesNotExist:
-                site_new = Site.objects.create(
-                    pk=site_old.pk,
-                    domain=site_old.domain,
-                    name=site_old.name,
-                )
-                self.stdout.write("New site %r with ID %i created." % (site_new.name, site_new.id))
-            else:
-                self.stdout.write("Site %r with ID %i exists, ok." % (site_new.name, site_new.id))
 
-
-    def _migrate_pylucid(self):
-        self._migrate_sites()
-
+    def _migrate_pylucid(self, options):
         user = User.objects.all().filter(is_superuser=True)[0]
 
         tree = PageTree.objects.get_tree()
@@ -123,14 +110,15 @@ class Command(BaseCommand):
 
                 page = get_page_draft(page)
 
-                content2plugins(placeholder, pagecontent.content, pagecontent.markup, pagemeta.language.code)
+                content2plugins(options, placeholder, pagecontent.content, pagecontent.markup, pagemeta.language.code)
 
                 page.publish(pagemeta.language.code)
 
 
     def handle(self, *args, **options):
         try:
-            self._migrate_pylucid()
+            self._migrate_sites()
+            self._migrate_pylucid(options)
         except Exception:
             traceback.print_exc(file=self.stderr)
 
