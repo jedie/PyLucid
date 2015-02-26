@@ -65,7 +65,7 @@ class Command(MigrateBaseCommand):
 
                     create_title(
                         language=pagemeta.language.code,
-                        title=pagemeta.title,
+                        title=pagemeta.get_title(),
                         page=page,
                         slug=pagetree.slug,
                         meta_description=pagemeta.description,
@@ -82,8 +82,8 @@ class Command(MigrateBaseCommand):
 
                     # http://docs.django-cms.org/en/support-3.0.x/reference/api_references.html#cms.api.create_page
                     page = create_page(
-                        title=pagemeta.title,
-                        menu_title=pagemeta.name,
+                        title=pagemeta.get_title(),
+                        menu_title=pagemeta.get_name(),
 
                         template=cms.constants.TEMPLATE_INHERITANCE_MAGIC,
                         language=pagemeta.language.code,
