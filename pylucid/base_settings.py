@@ -266,3 +266,8 @@ CMS_MARKUP_OPTIONS = (
 )
 CMS_MARKUP_RENDER_ALWAYS = True
 CMS_MARKDOWN_EXTENSIONS = ()
+
+# DEBUG_TOOLBAR_CONFIG = {
+#     # For local debugging: print information if IP address not in INTERNAL_IPS
+#     "SHOW_TOOLBAR_CALLBACK":"pylucid_debug.debug_toolbar_helper.show_toolbar",
+# }
