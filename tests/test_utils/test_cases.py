@@ -25,7 +25,7 @@ class IsolatedFilesystemTestCase(TestCase):
 
     def setUp(self):
         self._cwd = os.getcwd()
-        self.temp_path = tempfile.mkdtemp()
+        self.temp_path = tempfile.mkdtemp(prefix="pylucid_unittest_%s_" % self._testMethodName)
         os.chdir(self.temp_path)
 
     def tearDown(self):
