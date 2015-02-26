@@ -63,7 +63,7 @@ DATABASES = {
         'USER': '',
         'ENGINE': 'django.db.backends.sqlite3',
         'PORT': ''
-    }
+    },
     # Activate for PyLucid v1.x migration:
     # 'legacy': {
     #     'NAME': 'PyLucid_v1_Database',
