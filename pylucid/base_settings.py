@@ -69,7 +69,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'sekizai.context_processors.sekizai',
     'django.core.context_processors.static',
-    'cms.context_processors.cms_settings'
+    'cms.context_processors.cms_settings',
+    'pylucid.context_processors.pylucid',
 )
 
 # Static files (CSS, JavaScript, Images)
