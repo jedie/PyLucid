@@ -164,19 +164,21 @@ INTERNAL_IPS = (
     '::1',
 )
 
-# Disable cache, for debugging:
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+# if DEBUG:
+#     # Disable cache, for debugging:
+#     CACHES = {
+#         'default': {
+#             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#         }
 #     }
-# }
-
-# django-debug-toolbar - https://github.com/django-debug-toolbar/django-debug-toolbar
-# INSTALLED_APPS += (
-#     'debug_toolbar',
-#     # Activate for debugging:
-#     'pylucid_debug', # Must be the last App!
-# )
-# MIDDLEWARE_CLASSES = (
-#     'debug_toolbar.middleware.DebugToolbarMiddleware',
-# ) + MIDDLEWARE_CLASSES
+#
+#     # django-debug-toolbar - https://github.com/django-debug-toolbar/django-debug-toolbar
+#     INSTALLED_APPS += (
+#         'debug_toolbar',
+#
+#         # Add all models to django admin:
+#         'pylucid_debug', # Must be the last App!
+#     )
+#     MIDDLEWARE_CLASSES = (
+#         'debug_toolbar.middleware.DebugToolbarMiddleware',
+#     ) + MIDDLEWARE_CLASSES
