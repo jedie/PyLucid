@@ -16,3 +16,6 @@ script:
 
 after_success:
   coveralls
+
+notifications:
+  irc: "irc.freenode.org#pylucid"
