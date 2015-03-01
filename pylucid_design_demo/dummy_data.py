@@ -7,9 +7,10 @@
 """
 
 import os
+from cms import constants
 from django.contrib.auth.models import User
 from cms.models import Placeholder
-from cms.api import create_page, add_plugin
+from cms.api import create_page, add_plugin, get_page_draft
 from django.conf import settings
 
 SOURCE_DUMMY_TEXT = (
@@ -25,45 +26,51 @@ SOURCE_DUMMY_TEXT = SOURCE_DUMMY_TEXT * 3
 TEST_USERNAME="test"
 TEST_USERPASS="12345678"
 
-LEVEL1_COUNT=1
-LEVEL2_COUNT=1
+PAGE_COUNTS = [4,2,3]
 
-def create_dummy_page(title, template, dummy_text, parent=None):
+
+def create_placeholder(dummy_text):
+    placeholder = Placeholder.objects.create(slot="content")
+    placeholder.save()
+    add_plugin(placeholder, "DesignSwitchPlugin", settings.LANGUAGE_CODE)
+    add_plugin(placeholder, "TextPlugin", settings.LANGUAGE_CODE, body=dummy_text)
+    return placeholder
+
+
+def create_dummy_page(title, template, placeholder, parent=None):
     page = create_page(
         title, template,
         language=settings.LANGUAGE_CODE,
         parent=parent,
         in_navigation=True,
     )
-    placeholder = Placeholder.objects.create(slot="content")
-    placeholder.save()
+    page = get_page_draft(page)
     page.placeholders.add(placeholder)
-    placeholder.page = page
-
-    add_plugin(placeholder, "DesignSwitchPlugin", settings.LANGUAGE_CODE)
-
-    add_plugin(placeholder, "TextPlugin", settings.LANGUAGE_CODE, body=dummy_text)
-
     page.publish(settings.LANGUAGE_CODE)
 
     print("\t%s" % page.get_absolute_url(language=settings.LANGUAGE_CODE))
-
     return page
+
+def create_tree(placeholder, title="level", parent=None, level=1):
+    for no in range(1, PAGE_COUNTS[level-1]+1):
+        page_title = "%s %s" % (title, no)
+        page = create_dummy_page(page_title, constants.TEMPLATE_INHERITANCE_MAGIC, placeholder, parent)
+        if level<len(PAGE_COUNTS):
+            create_tree(placeholder, page_title, parent=page, level=level+1)
 
 
 def create_pages():
-    for template_path, template_name in settings.CMS_TEMPLATES:
-        print(" *** Create page %r *** " % template_name)
+    print(" *** Create pages *** ")
 
-        dummy_text = SOURCE_DUMMY_TEXT
-        parent = create_dummy_page(template_name, template_path, dummy_text)
+    placeholder = create_placeholder(SOURCE_DUMMY_TEXT)
 
-        for level1 in range(1, LEVEL1_COUNT+1):
-            for level2 in range(1, LEVEL2_COUNT+2):
-                title="level %i.%i" % (level1, level2)
-                dummy_text = "<h2>%s</h2>%s" % (title, SOURCE_DUMMY_TEXT)
-                page = create_dummy_page(title, template_path, dummy_text, parent)
-            parent=page
+    create_tree(placeholder)
+
+    # Add a sitemap page
+    placeholder = Placeholder.objects.create(slot="content")
+    placeholder.save()
+    add_plugin(placeholder, "HtmlSitemapPlugin", settings.LANGUAGE_CODE)
+    create_dummy_page("sitemap", constants.TEMPLATE_INHERITANCE_MAGIC, placeholder)
 
 
 def create_test_user():
