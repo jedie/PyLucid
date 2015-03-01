@@ -25,8 +25,8 @@ SOURCE_DUMMY_TEXT = SOURCE_DUMMY_TEXT * 3
 TEST_USERNAME="test"
 TEST_USERPASS="12345678"
 
-LEVEL1_COUNT=3
-LEVEL2_COUNT=2
+LEVEL1_COUNT=1
+LEVEL2_COUNT=1
 
 def create_dummy_page(title, template, dummy_text, parent=None):
     page = create_page(
@@ -39,6 +39,8 @@ def create_dummy_page(title, template, dummy_text, parent=None):
     placeholder.save()
     page.placeholders.add(placeholder)
     placeholder.page = page
+
+    add_plugin(placeholder, "DesignSwitchPlugin", settings.LANGUAGE_CODE)
 
     add_plugin(placeholder, "TextPlugin", settings.LANGUAGE_CODE, body=dummy_text)
 

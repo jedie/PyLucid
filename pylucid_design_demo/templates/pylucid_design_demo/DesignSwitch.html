@@ -1,0 +1,14 @@
+{% if request.user.is_staff %}
+    <div class="design_selection panel panel-default pull-right">
+        <div class="panel-heading">Existing Designs:</div>
+        <ul class="list-group">
+        {% for path, name in templates %}
+            <li class="list-group-item{% if path == CMS_TEMPLATE %}  list-group-item-info{% endif %}">
+                <a href="?template={{ path }}">
+                    <strong>{{ name }}</strong><br/>{{ path }}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endif %}
