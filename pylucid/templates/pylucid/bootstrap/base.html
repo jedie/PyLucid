@@ -1,0 +1,12 @@
+{% extends "pylucid/base.html" %}
+{% load cms_tags sekizai_tags static menu_tags compress %}
+
+{% block css %}
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+{% endblock css %}
+
+{% block js %}
+    <script src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+{% endblock %}
