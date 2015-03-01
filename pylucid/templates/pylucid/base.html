@@ -1,0 +1,35 @@
+{% load cms_tags sekizai_tags static menu_tags compress %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    {% block meta_tags %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="description" content="{% page_attribute 'meta_description' %}" />
+        <meta name="keywords" content="{% page_attribute 'meta_keywords' %}" />
+        <meta name="generator" content="PyLucid {{ pylucid_version }} - http://www.pylucid.org/" />
+        <!--[if IEMobile]><meta http-equiv="cleartype" content="on"/><![endif]-->
+    {% endblock meta_tags %}
+
+    <title>{% block title %}{% page_attribute page_title %}{% if site_settings.site.name %} - {{ site_settings.site.name }}{% endif %}{% endblock title %}</title>
+
+    {% compress css %}
+        {% block css %}{% endblock %}
+        <link href="{% static 'css/pylucid.css' %}" rel="stylesheet">
+    {% endcompress %}
+    {% render_block "css" %}
+</head>
+<body>
+    {% cms_toolbar %}
+    <div class="container">
+        {% block content %}{% endblock %}
+        <footer><p>{{ powered_by }} | {% block footer %}{% include "includes/footer.html" %}{% endblock %}</p></footer>
+    </div>
+    {% compress js %}
+        {# Placed at the end of the document so the pages load faster #}
+        {% block js %}{% endblock %}
+    {% endcompress %}
+    {% render_block "js" %}
+</body>
+</html>

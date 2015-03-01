@@ -1,9 +1,9 @@
-{% extends 'bootstrap/base.html' %}
+{% extends "pylucid/bootstrap/base_small_top_menu.html" %}
 {% load cms_tags %}
 
 {% block breadcrumb %}{% endblock %}
 
-{% block content %}
+{% block content %}{{ block.super }}
     <div class="jumbotron">
         {% placeholder jumbotron %}
     </div>
