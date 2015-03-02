@@ -27,7 +27,7 @@ TEST_USERNAME="test"
 TEST_USERPASS="12345678"
 
 # PAGE_COUNTS = [4,2,3]
-PAGE_COUNTS = [3]
+PAGE_COUNTS = [3,1]
 
 
 def create_placeholder(dummy_text):

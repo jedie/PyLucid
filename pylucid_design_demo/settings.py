@@ -1,5 +1,5 @@
-import tempfile
 from pylucid_installer.page_instance_template.example_project.settings import *
+import pylucid_design_demo
 
 DEBUG = True
 TEMPLATE_DEBUG = True
@@ -19,8 +19,11 @@ INSTALLED_APPS += (
     'pylucid_debug', # Must be the last App!
 )
 ROOT_URLCONF = 'pylucid.base_urls'
-
 WSGI_APPLICATION = 'pylucid_design_demo.wsgi.application'
+
+TEMPLATE_DIRS = (
+    os.path.join(os.path.dirname(pylucid_design_demo.__file__), 'templates'),
+) + TEMPLATE_DIRS
 
 DATABASES = {
     'default': {
