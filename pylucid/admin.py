@@ -13,11 +13,12 @@ import logging
 from django.contrib import admin
 from django.core import serializers
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 
 from cms.models import Page
 
 from reversion_compare.helpers import patch_admin
-
+from reversion_compare.admin import CompareVersionAdmin
 
 logger = logging.getLogger(__name__)
 
@@ -38,3 +39,19 @@ def export_as_json(modeladmin, request, queryset):
 # Make export actions available site-wide
 admin.site.add_action(export_as_json, 'export_selected_as_json')
 
+
+from djangocms_text_ckeditor.models import Text
+class TextAdmin(CompareVersionAdmin):
+    def placeholder_info(self, obj):
+        #Page.objects.filter(placeholders)
+        placeholder = obj.placeholder
+        plugins = placeholder.get_plugins()
+        plugin_ids_str = ",".join([str(plugin.pk) for plugin in plugins])
+        return "CMSPlugin: %s" % plugin_ids_str
+
+    placeholder_info.short_description = _("placeholder info")
+    # placeholder_info.allow_tags = True
+
+    list_display = ("id", "placeholder", "placeholder_info", "language", "plugin_type", "body")
+    list_filter = ("language",)
+admin.site.register(Text, TextAdmin)

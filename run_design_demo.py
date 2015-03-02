@@ -9,13 +9,7 @@
 
 from __future__ import unicode_literals, print_function
 
-import os
-
-import django
-from django.core.management import call_command
+from pylucid_design_demo.manage_design_demo import cli
 
 if __name__ == "__main__":
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'pylucid_design_demo.settings'
-    django.setup()
-
-    call_command("design_demo")
+    cli()

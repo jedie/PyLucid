@@ -80,23 +80,6 @@ if settings.DEBUG:
         list_filter = ("language",)
     admin.site.register(Title, TitleAdmin)
 
-    from djangocms_text_ckeditor.models import Text
-    class TextAdmin(admin.ModelAdmin):
-        def placeholder_info(self, obj):
-            #Page.objects.filter(placeholders)
-            placeholder = obj.placeholder
-            plugins = placeholder.get_plugins()
-            plugin_ids_str = ",".join([str(plugin.pk) for plugin in plugins])
-            return "CMSPlugin: %s" % plugin_ids_str
-
-        placeholder_info.short_description = _("placeholder info")
-        # placeholder_info.allow_tags = True
-
-        list_display = ("id", "placeholder", "placeholder_info", "language", "plugin_type", "body")
-        list_filter = ("language",)
-    admin.site.register(Text, TextAdmin)
-
-
 
     auto_register_all()
 
