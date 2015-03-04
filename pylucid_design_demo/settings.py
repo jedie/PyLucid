@@ -18,7 +18,7 @@ INSTALLED_APPS += (
     # Add all models to django admin:
     'pylucid_debug', # Must be the last App!
 )
-ROOT_URLCONF = 'pylucid.base_urls'
+ROOT_URLCONF = 'pylucid_design_demo.urls'
 WSGI_APPLICATION = 'pylucid_design_demo.wsgi.application'
 
 TEMPLATE_DIRS = (
