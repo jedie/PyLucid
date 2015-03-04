@@ -4,7 +4,7 @@
         <ul class="list-group">
         {% for path, name in templates %}
             <li class="list-group-item{% if path == CMS_TEMPLATE %}  list-group-item-info{% endif %}">
-                <a href="?template={{ path }}">
+                <a href="{% url 'switch_template' current_page.pk path %}">
                     <strong>{{ name }}</strong><br/>{{ path }}
                 </a>
             </li>
