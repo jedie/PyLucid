@@ -32,7 +32,7 @@ werkzeug
 
 # https://code.google.com/p/django-tools/
 # https://pypi.python.org/pypi/django-tools
--e git+git@github.com:jedie/django-tools.git@develope#egg=django-tools
+-e git+git@github.com:jedie/django-tools.git@develop#egg=django-tools
 
 # https://github.com/jedie/django-processinfo
 # https://pypi.python.org/pypi/django-processinfo
