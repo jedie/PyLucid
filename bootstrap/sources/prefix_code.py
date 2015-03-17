@@ -42,7 +42,7 @@ DEFAULT_MENU_CHOICE = CHOICES[DEFAULT_MENU_CHOICE_NO]
 PY2 = sys.version_info[0] == 2
 if PY2:
     # input=raw_input
-    raise NotImplementedError("Python 3 is currently not Supported! Please use Python 3 !!!")
+    raise NotImplementedError("Python 2 is currently not Supported! Please use Python 3 !!!")
 
 
 class SysPath(object):
