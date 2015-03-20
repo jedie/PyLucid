@@ -11,30 +11,18 @@
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.contrib import messages
 
 from cms.models import Page
-from cms.utils import get_language_from_request
-
 
 EXISTING_TEMPLATES = [t[0] for t in settings.CMS_TEMPLATES]
-
 
 def switch_template(request, page_id, template):
     assert template in EXISTING_TEMPLATES
     current_page = Page.objects.get(pk=int(page_id))
 
-    root_page = Page.objects.get_home()
-    if root_page.template != template:
-        # print("Save %r to %r" % (template, root_page.get_absolute_url()))
-        root_page.template = template
-        root_page.save()
-
-        if settings.USE_I18N:
-            language = get_language_from_request(request)
-        else:
-            language = settings.LANGUAGE_CODE
-
-        root_page.publish(language=language)
+    Page.objects.all().update(template=template)
+    messages.info(request, "Set template %r to all pages, ok." % template)
 
     redirect_url = current_page.get_absolute_url()
     return HttpResponseRedirect(redirect_url)
