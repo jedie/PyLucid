@@ -151,6 +151,7 @@ CMS_TEMPLATES = (
     ('pylucid/bootstrap/sidebar_left.html', 'Top menu with sidebar left'),
     ('pylucid/bootstrap/homepage.html', 'Homepage template'),
     ('pylucid/bootstrap/tree_menu_left.html', 'Tree menu left'),
+    ('pylucid/simple.html', 'Simple'),
 )
 
 CMS_PERMISSION = True
