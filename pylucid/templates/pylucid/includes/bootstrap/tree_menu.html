@@ -3,10 +3,7 @@
 <ul class="nav nav-pills">
 {% for child in children %}
     <li{% if child.selected %} class="active"{% endif %}>
-        <a href="{{ child.get_absolute_url }}">{{ child.get_menu_title }}
-            {% if child.ancestor %} ancestor{% endif %}{% if child.selected %} active{% endif %}{% if child.children %} dropdown{% endif %}
-            {% if child.sibling %} sibling{% endif %}{% if child.descendant %} descendant{% endif %}
-        </a>
+        <a href="{{ child.get_absolute_url }}">{{ child.get_menu_title }}</a>
         {% spaceless %}
         {% if child.children %}
             <ul>
