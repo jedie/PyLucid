@@ -20,6 +20,6 @@ def show_toolbar(request):
     """
     ip = request.META.get('REMOTE_ADDR', None)
     if ip not in settings.INTERNAL_IPS:
-        print("REMOTE_ADDR: %r not in settings.INTERNAL_IPS!" % ip)
+        print("REMOTE_ADDR: %r not in settings.INTERNAL_IPS: %r !" % (ip,settings.INTERNAL_IPS))
 
     return origin_show_toolbar(request)
