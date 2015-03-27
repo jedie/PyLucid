@@ -1,0 +1,79 @@
+{% load cms_tags static menu_tags sekizai_tags compress %}
+{# origin template from: http://www.djangocmsthemes.com/themes/simple/ #}
+<!DOCTYPE HTML>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta name="description" content="website description"/>
+    <meta name="keywords" content="website keywords, website keywords"/>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252"/>
+    <title>{% block title %}{% page_attribute page_title %} - {% if site_settings.site.name %}{{ site_settings.site.name }}{% else %}{{ request.get_host }}{% endif %}{% endblock title %}</title>
+    {% compress css %}
+        <link href="{% static 'css/simple.css' %}" rel="stylesheet">
+    {% endcompress %}{% render_block "css" %}
+</head>
+<body>
+{% cms_toolbar %}
+<div id="main">
+    <div id="header">
+        <div id="logo">
+            {% placeholder header %}
+        </div>
+        <div id="menubar">
+            <ul id="menu">
+                {% show_menu 0 0 0 0 %}
+            </ul>
+        </div>
+    </div>
+    <div id="site_content">
+        <div id="sidebar_container">
+            <div class="sidebar">
+                {% placeholder "sidebar" or %}
+                    <h3>Latest News</h3>
+                    <h4>What's the News?</h4>
+                    <p>
+                        Put your latest news item here, or anything else you would like in the sidebar!<br/>
+                        <a href="#">Read more</a>
+                    </p>
+                    <h3>Newsletter</h3>
+                    <p>If you would like to receive our newletter, please enter your email address and click 'Subscribe'.</p>
+                    <form method="post" action="#" id="subscribe">
+                        <p style="padding: 0 0 9px 0;">
+                            <input class="search" type="text" name="email_address" value="your email address" onclick="javascript: document.forms['subscribe'].email_address.value=''"/>
+                        </p>
+                        <p><input class="subscribe" name="subscribe" type="submit" value="Subscribe"/></p>
+                    </form>
+                    <h3>Latest Blog</h3>
+                    <h4>Website Goes Live</h4>
+                    <p>
+                        We have just launched our new website. Take a look around, we'd love to know what you think.....<br/>
+                        <a href="#">read more</a>
+                    </p>
+                {% endplaceholder %}
+            </div>
+        </div>
+        <div class="content" id="top">
+            {% placeholder content %}
+        </div>
+        <div class="content" id="left">
+            {% placeholder content-left %}
+        </div>
+        <div class="content" id="right">
+            {% placeholder content-right %}
+        </div>
+        <div style="clear: left;"></div>
+        <div class="content" id="bottom">
+            {% placeholder content-bottom %}
+        </div>
+    </div>
+    <div id="footer">
+        <p>
+            Copyright &copy; {% if site_settings.site.name %}{{ site_settings.site.name }}{% else %}{{ request.get_host }}{% endif %}
+            | <a href="http://validator.w3.org/check?uri=referer">HTML5</a>
+            | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a>
+            | <a href="http://www.html5webtemplates.co.uk">design from HTML5webtemplates.co.uk</a>
+        </p>
+    </div>
+</div>
+{% render_block "js" %}
+</body>
+</html>

@@ -147,9 +147,13 @@ INSTALLED_APPS = (
 )
 
 CMS_TEMPLATES = (
-    ('bootstrap/fullwidth.html', 'Full-width template'),
-    ('bootstrap/sidebar_left.html', 'Sidebar left template'),
-    ('bootstrap/homepage.html', 'Homepage template'),
+    ('pylucid/bootstrap/fullwidth.html', 'Top menu - full width'),
+    ('pylucid/bootstrap/sidebar_left.html', 'Top menu with sidebar left'),
+    ('pylucid/bootstrap/homepage.html', 'Homepage template'),
+    ('pylucid/bootstrap/tree_menu_left.html', 'Tree menu left'),
+    ('pylucid/bootstrap/tree_menu_right.html', 'Tree menu right'),
+    ('pylucid/bootstrap/split_tree_menu_left.html', 'Split tree menu left'),
+    ('pylucid/simple.html', 'Simple'),
 )
 
 CMS_PERMISSION = True

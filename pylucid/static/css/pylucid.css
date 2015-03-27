@@ -1,0 +1,12 @@
+.tree-menu li {
+    float: none;
+}
+.nav .ancestor {
+    background-color: #ddd;
+}
+.tree-menu * {
+    background-color: #eee;
+}
+.tree-menu .ancestor > a {
+    background-color: #ddd;
+}

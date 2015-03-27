@@ -1,0 +1,22 @@
+{% extends "pylucid/bootstrap/base.html" %}
+{% load cms_tags sekizai_tags static menu_tags %}
+
+{% block content %}{{ block.super }}
+    <div class="jumbotron">
+        <h1>
+            {% if site_settings.site.name %}{{ site_settings.site.name }}{% else %}{{ request.get_host }}{% endif %}
+        </h1>
+        <ul class="nav navbar-nav navbar-right">
+            {% language_chooser "pylucid/includes/bootstrap/language_chooser.html" %}
+        </ul>
+    </div>
+    <div class="row">
+        <div class="col-md-3 tree-menu">
+            {# from_level to_level extra_inactive extra_active template #}
+            {% show_menu 0 100 0 1 "pylucid/includes/bootstrap/tree_menu.html" %}
+        </div>
+        <div class="col-md-9">
+            {% placeholder content %}
+        </div>
+    </div>
+{% endblock content %}

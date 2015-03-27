@@ -1,0 +1,16 @@
+{% extends "pylucid/bootstrap/base_small_top_menu.html" %}
+{% load cms_tags menu_tags %}
+
+{% block content %}{{ block.super }}
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="nav nav-pills nav-stacked">
+                {% show_menu 1 5 0 1 "pylucid/includes/bootstrap/tree_menu.html" %}
+            </ul>
+            {% placeholder sidebar %}
+        </div>
+        <div class="col-md-9">
+            {% placeholder content %}
+        </div>
+    </div>
+{% endblock %}

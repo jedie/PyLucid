@@ -1,0 +1,26 @@
+{% load cms_tags sekizai_tags menu_tags %}
+
+{% spaceless %}
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">{% if site_settings.site.name %}{{ site_settings.site.name }}{% else %}{{ request.get_host }}{% endif %}</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    {# from_level to_level extra_inactive extra_active template #}
+                    {% show_menu 0 1 1 1 "pylucid/includes/bootstrap/dropdown_menu.html" %}
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% language_chooser "pylucid/includes/bootstrap/language_chooser.html" %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endspaceless %}
