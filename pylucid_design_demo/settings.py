@@ -4,6 +4,10 @@ import pylucid_design_demo
 DEBUG = True
 TEMPLATE_DEBUG = True
 
+from django_tools.settings_utils import InternalIps
+
+INTERNAL_IPS = InternalIps(["127.0.0.1", "::1", "192.168.*.*", "10.0.*.*"])
+
 UNITTEST_TEMP_PATH = os.environ["UNITTEST_TEMP_PATH"]
 print("Use temp dir: %r" % UNITTEST_TEMP_PATH)
 
