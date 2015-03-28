@@ -135,9 +135,16 @@ INSTALLED_APPS = (
     'djangocms_blog',
 
     'django_info_panel',
+    'djangocms_widgets',
+    'djangocms_widgets_socialshareprivacy',
 
     # Installed only in developer installation:
     #'django_extensions', # https://github.com/django-extensions/django-extensions
+)
+
+# djangocms_widgets
+WIDGET_TEMPLATES = (
+    ('socialshareprivacy.html', 'SocialSharePrivacy'), # djangocms_widgets_socialshareprivacy
 )
 
 CMS_TEMPLATES = (

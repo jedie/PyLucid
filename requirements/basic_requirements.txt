@@ -73,3 +73,7 @@ cmsplugin-filer
 # use PyPi if new relase is available
 # see: https://github.com/nephila/djangocms-blog/issues/103
 git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog
+
+# djangocms-widgets
+#------------------
+git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
