@@ -104,12 +104,6 @@ INSTALLED_APPS = (
     'menus',
     'sekizai',
     'mptt',
-    # 'djangocms_style',
-    # 'djangocms_column',
-    # 'djangocms_flash',
-    # 'djangocms_googlemap',
-    # 'djangocms_inherit',
-    # 'djangocms_teaser',
 
     # https://github.com/stefanfoulis/django-filer
     'filer',
