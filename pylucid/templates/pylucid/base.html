@@ -1,4 +1,4 @@
-{% load cms_tags sekizai_tags static menu_tags compress %}
+{% load i18n cms_tags sekizai_tags static menu_tags compress %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
@@ -24,7 +24,21 @@
     {% cms_toolbar %}
     <div class="container">
         {% block content %}{% endblock %}
-        <footer><p>{{ powered_by }} | {% block footer %}{% include "includes/footer.html" %}{% endblock %}</p></footer>
+        {% block base_footer %}{% spaceless %}
+        <footer><p>
+            {{ powered_by }}
+            |
+            {% if user.is_authenticated %}
+                {% trans 'Logged in as:' %} [{{ user.username }}]
+            {% else %}
+                <a href="?edit">{% trans 'Log in' %}</a>
+            {% endif %}
+            |
+            {% block footer %}
+                {% include "includes/footer.html" %}
+            {% endblock %}
+        </p></footer>
+        {% endspaceless %}{% endblock base_footer %}
     </div>
     {% compress js %}
         {# Placed at the end of the document so the pages load faster #}
