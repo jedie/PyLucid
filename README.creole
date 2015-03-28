@@ -71,7 +71,6 @@ e.g.:
 ~/PyLucid_env $ source bin/activate
 }}}
 
-
 MySQL DB API Driver:
 {{{
 (PyLucid_env) ~/PyLucid_env $ pip install mysqlclient
@@ -83,6 +82,25 @@ FastCGI wrapper for WSGI applications:
 (PyLucid_env) ~/PyLucid_env $ pip install flipflop
 }}}
 see also: https://pypi.python.org/pypi/flipflop
+
+
+=== DjangoCMS page permissions
+
+The default permission settings is [[http://docs.django-cms.org/en/support-3.0.x/reference/configuration.html#cms-permission|CMS_PERMISSION = True]]
+This settings enabled a fine permission system. To create a normal CMS user (and not a superuser) do the following steps:
+* create a superuser
+* create a user group and add add needed permission. e.g.: everything except models from the apps: //admin, auth, content_types, reversion, session, sites//
+* create a new user with staff rights and add the created user group
+* create a first page as superuser
+* from cms toolbar click on: //Page / **Permissions ...**//
+* under **Page permissions** add the created user group
+
+With this base setup you can add normal staff user which can create/edit/delete pages.
+
+An easier way is to disable **CMS_PERMISSION** but then you will lost some functionality.
+e.g.:
+* create pages that are only visibly for some users.
+* deny editing pages for some users.
 
 
 === unittests
