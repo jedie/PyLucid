@@ -1,7 +1,7 @@
 {% extends "pylucid/bootstrap/base.html" %}
 {% load cms_tags sekizai_tags static menu_tags %}
 
-{% block content %}
+{% block content_prefix %}
     {% include "includes/header.html" %}
 
     {% include "pylucid/includes/bootstrap/collapsed_navigation.html" %}
@@ -10,4 +10,4 @@
         {% show_breadcrumb 0 "pylucid/includes/bootstrap/breadcrumb.html" %}
     </ol>
     {% endspaceless %}
-{% endblock content %}
+{% endblock content_prefix %}

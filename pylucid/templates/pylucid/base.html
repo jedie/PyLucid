@@ -23,7 +23,10 @@
 <body>
     {% cms_toolbar %}
     <div class="container">
+        {% block content_prefix %}{% endblock %}
         {% block content %}{% endblock %}
+        {% block content_suffix %}{% endblock %}
+
         {% block base_footer %}{% spaceless %}
         <footer><p>
             {{ powered_by }}
