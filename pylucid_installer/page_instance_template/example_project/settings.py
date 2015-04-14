@@ -51,6 +51,10 @@ INSTALLED_APPS += (
     # "pylucid_todo",
 )
 
+# Your own djangocms-widgets templates:
+WIDGET_TEMPLATES += (
+    #('foo/bar.html', 'A foo bar example'),
+)
 
 #____________________________________________________________________
 # Database
