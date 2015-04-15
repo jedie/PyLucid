@@ -9,7 +9,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from optparse import make_option
+from optparse import make_option, OptionValueError
 
 from django.db import transaction
 from django.contrib.sites.models import Site
@@ -26,8 +26,13 @@ PLUGIN_TYPES = ("BlogArchivePlugin", "BlogAuthorPostsPlugin", "BlogCategoryPlugi
 BLOG_APP_HOOK = "BlogApp"
 APP_NAMESPACE = "djangocms_blog"
 
-BLOG_TEMPLATE = "bootstrap/sidebar_left.html"
+BLOG_TEMPLATE = "pylucid/bootstrap/sidebar_left.html"
 PLACEHOLDER_SLOT = "sidebar" # from 'BLOG_TEMPLATE' template!
+
+
+def check_template(option, opt, value, parser):
+    if parser.values.template not in [tpl[0] for tpl in settings.TEMPLATES]:
+        raise OptionValueError("--template %r not exists in settings.TEMPLATES!")
 
 
 class Command(BaseCommand):
@@ -38,7 +43,13 @@ class Command(BaseCommand):
             action='store_true',
             dest='delete',
             default=False,
-            help='Delete blog page instead of create it'),
+            help='Delete blog page instead of create it'
+        ),
+        make_option("--template",
+            dest="template", type="string", action="callback",
+            default=BLOG_TEMPLATE,
+            callback=check_template
+        ),
     )
 
     def _delete_blog(self):
@@ -46,7 +57,7 @@ class Command(BaseCommand):
         self.stdout.write("Delete %s blog page entries" % queryset.count())
         queryset.delete()
 
-    def _create_blog(self):
+    def _create_blog(self, options):
         default_language = get_default_language()
         languages = get_language_list()
 
@@ -60,9 +71,10 @@ class Command(BaseCommand):
             )
         except Page.DoesNotExist:
             self.stdout.write("Create new blog AppHook page.")
+
             blog_page = create_page(
                 title=_("blog"),
-                template=BLOG_TEMPLATE,
+                template=options["template"],
                 language=settings.LANGUAGE_CODE,
                 apphook=BLOG_APP_HOOK,
                 apphook_namespace=APP_NAMESPACE,
@@ -113,4 +125,4 @@ class Command(BaseCommand):
             if options['delete']:
                 self._delete_blog()
             else:
-                self._create_blog()
+                self._create_blog(options)
