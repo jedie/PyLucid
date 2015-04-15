@@ -43,8 +43,11 @@ class PageTreeManager(models.Manager):
     inherited from models.Manager:
         get_or_create() method, witch expected a request object as the first argument.
     """
-    def get_tree(self, user=None, filter_showlinks=False, exclude_plugin_pages=False, exclude_extras=None):
-        queryset = self.model.on_site.order_by("position")
+    def get_tree(self, user=None, filter_showlinks=False, exclude_plugin_pages=False, exclude_extras=None, site=None):
+        if site is None:
+            queryset = self.model.on_site.order_by("position")
+        else:
+            queryset = self.model.objects.all().filter(site=site).order_by("position")
 
         if exclude_plugin_pages:
             queryset = queryset.exclude(page_type=PageTree.PLUGIN_TYPE)
@@ -52,8 +55,9 @@ class PageTreeManager(models.Manager):
             queryset = queryset.exclude(**exclude_extras)
 
         items = queryset.values("id", "parent", "slug")
+        count=len(items)
         tree = TreeGenerator(items, skip_no_parent=True)
-        return tree
+        return count, tree
 
     def get_root_page(self, user, filter_parent=True):
         """ returns the 'first' root page tree entry witch the user can access """

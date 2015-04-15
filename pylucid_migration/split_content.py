@@ -14,6 +14,8 @@
 
 from __future__ import unicode_literals
 
+import logging
+
 from cms.api import add_plugin
 
 from cmsplugin_filer_video.cms_plugins import FilerVideoPlugin
@@ -24,15 +26,18 @@ from pylucid_migration.markup.django_tags import PartText, PartDjangoComment, Pa
 from pylucid_migration.markup.utils import TYPE_SCRIPT, iter_html_and_script
 
 
+LOG=logging.getLogger(name="PyLucidMigration")
+
+
 def _add_todo(placeholder, language, content):
-    print("\t +++ Add TODO Plugin for: %r" % content)
+    LOG.debug("\t +++ Add TODO Plugin for: %r" % content)
     add_plugin(placeholder, "ToDoPlugin", language, code=content)
 
 
 def content2plugins(options, placeholder, raw_content, markup, language):
     html, splitted_content = markup2html(raw_content, markup)
-    # pprint(splitted_content)
-    # print(",".join([part.kind for part in splitted_content]))
+    # pLOG.debug(splitted_content)
+    # LOG.debug(",".join([part.kind for part in splitted_content]))
 
     for part in splitted_content:
         content = part.content
@@ -42,16 +47,15 @@ def content2plugins(options, placeholder, raw_content, markup, language):
             plugin_name = part.plugin_name
             method_name = part.method_name
             method_kwargs = part.method_kwargs
-            # print(" *** TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs))
+            # LOG.debug(" *** TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs))
             # html += content
             #
             if plugin_name=="generic" and method_name=="youtube":
-                print("\t\t *** Add 'FilerVideoPlugin'")
-                print(method_kwargs)
+                LOG.debug("\t\t *** Add 'FilerVideoPlugin': %s" % repr(method_kwargs))
                 add_plugin(placeholder, FilerVideoPlugin, language=language,
                     movie_url = "http://www.youtube.com/watch?v=%s" % method_kwargs["id"],
-                    width = method_kwargs["width"],
-                    height = method_kwargs["height"],
+                    width = method_kwargs.get("width", 768),
+                    height = method_kwargs.get("height", 432),
                 )
             else:
                 _add_todo(placeholder, language, content)
@@ -60,11 +64,11 @@ def content2plugins(options, placeholder, raw_content, markup, language):
             tag = part.tag
             args = part.args
 
-            print("\tBlockTag %r args: %r" % (tag, args))
-            # print("\tBlockTag %r args: %r content: %r" % (tag, args, content))
+            LOG.debug("\tBlockTag %r args: %r" % (tag, args))
+            # LOG.debug("\tBlockTag %r args: %r content: %r" % (tag, args, content))
 
             if tag == "sourcecode":
-                print("\t\t *** create 'CMSPygmentsPlugin' page ")
+                LOG.debug("\t\t *** create 'CMSPygmentsPlugin' page ")
 
                 content, lexer = part.get_pygments_info()
 
@@ -73,15 +77,18 @@ def content2plugins(options, placeholder, raw_content, markup, language):
                     code=content,
                     style="default"
                 )
-                print("\t\t *** created with %r" % lexer.aliases[0])
+                LOG.debug("\t\t *** created with %r" % lexer.aliases[0])
             else:
                 _add_todo(placeholder, language, content)
 
         elif isinstance(part, PartTag):
-            print("\tTag content: %r" % content)
+            LOG.debug("\tTag content: %r" % content)
             if content == "{% lucidTag SiteMap %}":
-                print("\t *** create 'HtmlSitemapPlugin' page ")
+                LOG.debug("\t *** create 'HtmlSitemapPlugin' page ")
                 add_plugin(placeholder, "HtmlSitemapPlugin", language)
+            # elif content == "{{ page_title }}" or content.startswith("{{ page_title|"):
+                #{% page_attribute page_title %}
+
             else:
                 _add_todo(placeholder, language, content)
         elif isinstance(part, PartText):
@@ -92,7 +99,7 @@ def content2plugins(options, placeholder, raw_content, markup, language):
                 # Extract JavaScript into MarkupPlugin
                 for kind, content in iter_html_and_script(content):
                     if kind == TYPE_SCRIPT:
-                        print("\t *** create 'MarkupPlugin' html: %r" % content)
+                        LOG.debug("\t *** create 'MarkupPlugin' html: %r" % content)
                         add_plugin(placeholder, "MarkupPlugin", language, body=content, markup="html")
                     else:
                         add_plugin(placeholder, "TextPlugin", language, body=content)
