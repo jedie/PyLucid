@@ -26,6 +26,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from pylucid_migration.models import DjangoSite
+from pylucid_migration.utils import human_duration
 
 MIGRATE_ALL_SITES = "ALL"
 
@@ -45,7 +46,7 @@ def site_option(option, opt, value, parser):
 
     setattr(parser.values, option.dest, value)
 
-
+ESC_CLEAR = "\x1b[K"
 
 class StatusLine(object):
     """
@@ -64,13 +65,10 @@ class StatusLine(object):
         estimated = elapsed / no * self.total_count
         remain = estimated-elapsed
 
-        if remain>60:
-            time_info = "%.1fmin" % (remain/60)
-        else:
-            time_info = "%.1fsec" % remain
+        time_info = human_duration(remain)
 
         txt = "[%i/%i %s] %s" % (no, self.total_count, time_info, txt)
-        print('\r\x1b[K%s' % txt, end='', flush=True)
+        print('\r%s%s' % (ESC_CLEAR, txt), end='', flush=True)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         print()
@@ -84,14 +82,27 @@ class TeeOutput(object):
     e.g.:
         sys.stderr = TeeOutput(sys.stderr, self.my_logger.error)
     """
-    def __init__(self, origin, file_log_func):
+    def __init__(self, origin, logger, level):
         self.origin = origin
-        self.file_log_func = file_log_func
+        self.logger = logger
+        self.level = level
 
     def write(self, txt):
-        for line in txt.rstrip().splitlines():
-            self.file_log_func(line)
+        txt2 = txt.strip("\r\n")
+        if not txt2.startswith(ESC_CLEAR): # don't log status prints
+            txt2 = txt2.rstrip() # don't log emtpy lines
+            if txt2:
+                for line in txt2.splitlines():
+                    self.logger.log(self.level, line)
+
         self.origin.write(txt)
+        self.origin.flush()
+
+    def flush(self):
+        for handler in self.logger.handlers:
+            handler.flush()
+        self.origin.flush()
+
 
 
 class MigrateBaseCommand(BaseCommand):
@@ -153,30 +164,52 @@ class MigrateBaseCommand(BaseCommand):
 
         return sites
 
+    def run_from_argv(self, argv):
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+        self.file_log=logging.getLogger(name="PyLucidMigration")
+        logging.lastResort=None
+
+        self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M:%S")
+        # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M")
+        # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H")
+        # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d")
+        handler = logging.FileHandler(self.logfilename, mode="a", encoding="utf8")
+        # handler = logging.FileHandler(self.logfilename, mode="w", encoding="utf8")
+        handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)-6s %(message)s"))
+        self.file_log.addHandler(handler)
+
+        print("\nLog into %r" % self.logfilename)
+        self.file_log.debug("_"*79)
+        self.file_log.debug("Start logging for: %r" % " ".join(sys.argv))
+
+        sys.stderr = TeeOutput(sys.stderr, self.file_log, level=logging.ERROR)
+        sys.stdout = TeeOutput(sys.stdout, self.file_log, level=logging.INFO)
+
+        argv.append("--traceback")
+
+        try:
+            super(MigrateBaseCommand, self).run_from_argv(argv)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+        self.goodbye()
 
     def handle(self, *args, **options):
         if options["site_info"]:
             self._site_info()
             sys.exit()
 
-        self.file_log=logging.getLogger(name="PyLucidMigration")
-
-        # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M:%S")
-        self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M")
-        # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d")
-        handler = logging.FileHandler(self.logfilename, mode='w', encoding="utf8")
-        handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
-        self.file_log.addHandler(handler)
-        print("\nLog into %r" % self.logfilename)
-
-        self.file_log.debug("_"*79)
-        self.file_log.debug("Start logging for: %r" % " ".join(sys.argv))
-
-        atexit.register(self.goodbye)
-
-        sys.stderr = TeeOutput(sys.stderr, self.file_log.error)
+        # print("print ok?!?")
+        # sys.stderr.write("stderr write test!")
+        # raise RuntimeError("Test file logging!")
 
         self.sites = self._migrate_sites(options)
 
     def goodbye(self):
+        sys.stdout.flush()
+        sys.stderr.flush()
         print("\nPlease look into log file: %r" % self.logfilename)
+        logging.shutdown()
