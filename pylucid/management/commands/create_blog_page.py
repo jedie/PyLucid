@@ -10,6 +10,7 @@
 """
 
 from optparse import make_option, OptionValueError
+import sys
 
 from django.db import transaction
 from django.contrib.sites.models import Site
@@ -119,7 +120,12 @@ class Command(BaseCommand):
             blog_page.publish(language)
 
     def handle(self, *args, **options):
-        self.site = Site.objects.get_current()
+        try:
+            self.site = Site.objects.get_current()
+        except Site.DoesNotExist:
+            self.stderr.write("Error: SITE_ID %i doesn't exists!" % settings.SITE_ID)
+            self.stderr.write("Please check SITE_ID in your settings.py!")
+            sys.exit(-1)
 
         with transaction.atomic():
             if options['delete']:
