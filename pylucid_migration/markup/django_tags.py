@@ -11,6 +11,7 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
+import logging
 import re
 
 import pygments
@@ -18,6 +19,7 @@ from pygments import lexers
 
 from pylucid_migration.markup.lucidTag import parse_lucidtag
 
+LOG=logging.getLogger(name="PyLucidMigration")
 
 RE_CREOLE_IMAGE = r'(?P<creole_image> {{ .+?(.jpg|.jpeg|.gif|.png).*? }} )'
 RE_CREOLE_PRE_INLINE = r'(?P<creole_pre_inline> {{{ (\n|.)*? }}} )'
@@ -108,8 +110,8 @@ class PartBlockTag(PartTag):
         assert self.tag == "sourcecode"
 
         source_type = self.args.split('=')[1]
-        source_type = self.args.strip(""" '".""")
-        # print("source type: %r" % source_type)
+        source_type = source_type.strip(""" '".""")
+        # LOG.debug("\n\t\tsource type: %r -> %r", self.args, source_type)
 
         content = self.block_content.strip()
 
