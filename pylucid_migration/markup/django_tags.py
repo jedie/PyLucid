@@ -71,10 +71,14 @@ PYGMENTS_HTML = """
 
 
 class PartBase(object):
-    content = ""
+    content = None
+    kind = None
+
+    def __init__(self, content):
+        self.content = content
 
     def __unicode__(self):
-        return u"<Part %s: %r>" % (self.kind, self.content)
+        return u"<%s %s: %r>" % (self.__class__.__name__, self.kind, self.content)
 
     def __str__(self):
         return self.__unicode__()
@@ -86,18 +90,14 @@ class PartBase(object):
 class PartText(PartBase):
     kind = "text"
 
-    def __init__(self, content):
-        self.content = content
+class PartDjangoTag(PartBase):
+    kind = "django_tag"
 
-
-class PartTag(PartText):
-    kind = "tag"
-
-class PartDjangoComment(PartText):
+class PartDjangoComment(PartBase):
     kind = "django_comment"
 
 
-class PartBlockTag(PartTag):
+class PartBlockTag(PartBase):
     kind = "blocktag"
 
     def __init__(self, content, tag, args, block_content):
@@ -137,10 +137,10 @@ class PartBlockTag(PartTag):
         return "<!-- TODO: %s -->" % self.content
 
     def __unicode__(self):
-        return u"<PartBlockTag %s %r %r: %r>" % (self.kind, self.tag, self.args, self.content)
+        return u"<PartBlockTag tag:%r args:%r content:%r>" % (self.tag, self.args, self.content)
 
 
-class PartLucidTag(PartTag):
+class PartLucidTag(PartBase):
     kind = "lucidtag"
 
     def __init__(self, content, plugin_name, method_name, method_kwargs):
@@ -150,7 +150,9 @@ class PartLucidTag(PartTag):
         self.method_kwargs = method_kwargs
 
     def __unicode__(self):
-        return u"<PartLucidTag %r %r %r>" % (self.plugin_name, self.method_name, self.method_kwargs)
+        return u"<PartLucidTag plugin:%r method:%r kwargs:%r>" % (
+            self.plugin_name, self.method_name, self.method_kwargs
+        )
 
 
 class DjangoTagAssembler(object):
@@ -210,7 +212,15 @@ class DjangoTagAssembler(object):
                     continue
 
                 if content.startswith("{% lucidTag"):
-                    plugin_name, method_name, method_kwargs = parse_lucidtag(content)
+                    try:
+                        plugin_name, method_name, method_kwargs = parse_lucidtag(content)
+                    except Exception as e:
+                        print("ERROR parse lucidTag in line: %r" % content)
+                        import traceback
+                        traceback.print_exc()
+                        splitted.append(PartDjangoTag(content=content))
+                        continue
+
                     part = PartLucidTag(
                         content=content,
                         plugin_name=plugin_name,
@@ -230,7 +240,7 @@ class DjangoTagAssembler(object):
                             block_content=match.group("content")
                         )
                     else:
-                        part = PartTag(content=content)
+                        part = PartDjangoTag(content=content)
             else:
                 if not part:
                     continue
@@ -273,8 +283,8 @@ the end text
     # here a {{ variable }} and a {% inline tag %} too...
     # """
 
-    # content="{% lucidTag SiteMap %}"
-    content="this is {# deactivated {{ variable }} and {% inline tag %} too #} isn't it?"
+    content="{% lucidTag SiteMap %}"
+    # content="this is {# deactivated {{ variable }} and {% inline tag %} too #} isn't it?"
 
 
     assembler = DjangoTagAssembler()

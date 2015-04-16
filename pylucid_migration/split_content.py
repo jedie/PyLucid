@@ -22,16 +22,16 @@ from cmsplugin_filer_video.cms_plugins import FilerVideoPlugin
 from cmsplugin_pygments.cms_plugins import CMSPygmentsPlugin
 
 from pylucid_migration.markup.converter import markup2html
-from pylucid_migration.markup.django_tags import PartText, PartDjangoComment, PartTag, PartBlockTag, PartLucidTag
+from pylucid_migration.markup.django_tags import PartText, PartDjangoComment, PartDjangoTag, PartBlockTag, PartLucidTag
 from pylucid_migration.markup.utils import TYPE_SCRIPT, iter_html_and_script
 
 
 LOG=logging.getLogger(name="PyLucidMigration")
 
 
-def _add_todo(placeholder, language, content):
-    LOG.debug("\t +++ Add TODO Plugin for: %r" % content)
-    add_plugin(placeholder, "ToDoPlugin", language, code=content)
+def _add_todo(placeholder, language, part):
+    LOG.debug("\t +++ Add TODO Plugin for: %r" % part)
+    add_plugin(placeholder, "ToDoPlugin", language, code=part.content)
 
 
 def content2plugins(options, placeholder, raw_content, markup, language):
@@ -42,14 +42,13 @@ def content2plugins(options, placeholder, raw_content, markup, language):
     for part in splitted_content:
         content = part.content
         if isinstance(part, PartDjangoComment):
-            _add_todo(placeholder, language, content)
-        elif isinstance(part, (PartLucidTag, PartDjangoComment)):
+            _add_todo(placeholder, language, part)
+        elif isinstance(part, PartDjangoTag):
+            _add_todo(placeholder, language, part)
+        elif isinstance(part, PartLucidTag):
             plugin_name = part.plugin_name
             method_name = part.method_name
             method_kwargs = part.method_kwargs
-            # LOG.debug(" *** TODO: lucidTag: %r %r %r" % (plugin_name, method_name, method_kwargs))
-            # html += content
-            #
             if plugin_name=="generic" and method_name=="youtube":
                 LOG.debug("\t\t *** Add 'FilerVideoPlugin': %s" % repr(method_kwargs))
                 add_plugin(placeholder, FilerVideoPlugin, language=language,
@@ -57,8 +56,11 @@ def content2plugins(options, placeholder, raw_content, markup, language):
                     width = method_kwargs.get("width", 768),
                     height = method_kwargs.get("height", 432),
                 )
+            elif plugin_name=="SiteMap":
+                LOG.debug("\t *** create 'HtmlSitemapPlugin' page ")
+                add_plugin(placeholder, "HtmlSitemapPlugin", language)
             else:
-                _add_todo(placeholder, language, content)
+                _add_todo(placeholder, language, part)
 
         elif isinstance(part, PartBlockTag):
             tag = part.tag
@@ -79,20 +81,9 @@ def content2plugins(options, placeholder, raw_content, markup, language):
                 )
                 LOG.debug("\t\t *** created with %r" % lexer.aliases[0])
             else:
-                _add_todo(placeholder, language, content)
+                _add_todo(placeholder, language, part)
 
-        elif isinstance(part, PartTag):
-            LOG.debug("\tTag content: %r" % content)
-            if content == "{% lucidTag SiteMap %}":
-                LOG.debug("\t *** create 'HtmlSitemapPlugin' page ")
-                add_plugin(placeholder, "HtmlSitemapPlugin", language)
-            # elif content == "{{ page_title }}" or content.startswith("{{ page_title|"):
-                #{% page_attribute page_title %}
-
-            else:
-                _add_todo(placeholder, language, content)
         elif isinstance(part, PartText):
-
             if not options["inline_script"]:
                 add_plugin(placeholder, "TextPlugin", language, body=content)
             else:

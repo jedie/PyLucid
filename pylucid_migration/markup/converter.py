@@ -27,7 +27,7 @@ from pylucid_migration.markup import MARKUP_TINYTEXTILE, \
 from pylucid_migration.markup.django_tags import DjangoTagAssembler, PartText
 #from pylucid_project.utils.escape import escape_django_tags as escape_django_template_tags
 
-from pylucid_migration.markup.django_tags import PartTag, PartBlockTag, PartLucidTag
+from pylucid_migration.markup.django_tags import PartDjangoTag, PartBlockTag, PartLucidTag
 
 #______________________________________________________________________________
 # MARKUP
