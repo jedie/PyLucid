@@ -128,6 +128,12 @@ class MigrateBaseCommand(BaseCommand):
             default=False,
             help='Print a list of all existing sites and quit.'
         ),
+        make_option('--no_logfile',
+            action='store_true',
+            dest='no_logfile',
+            default=False,
+            help="Don't log into a file: Print all messages to stdout",
+        ),
     )
 
     def _site_info(self):
@@ -169,6 +175,12 @@ class MigrateBaseCommand(BaseCommand):
         sys.stderr.flush()
 
         self.file_log=logging.getLogger(name="PyLucidMigration")
+
+        if "--no_logfile" in argv:
+            # All output to stdout/stderr
+            self.file_log.addHandler(logging.StreamHandler())
+            return super(MigrateBaseCommand, self).run_from_argv(argv)
+
         logging.lastResort=None
 
         self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M:%S")
@@ -186,8 +198,6 @@ class MigrateBaseCommand(BaseCommand):
 
         sys.stderr = TeeOutput(sys.stderr, self.file_log, level=logging.ERROR)
         sys.stdout = TeeOutput(sys.stdout, self.file_log, level=logging.INFO)
-
-        argv.append("--traceback")
 
         try:
             super(MigrateBaseCommand, self).run_from_argv(argv)
