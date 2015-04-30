@@ -4,11 +4,11 @@
     WARNING: This file is generated with: bootstrap_env v0.4.4
     https://pypi.python.org/pypi/bootstrap_env/
     script file: 'create_bootstrap.py'
-    used '/home/jens/PyLucid_env/lib/python3.4/site-packages/virtualenv.py' v12.0.7
-    Python v3.4.0 (default, Apr 11 2014, 13:05:18)  [GCC 4.8.2]
+    used '/home/jens/PyLucid_env/lib/python3.4/site-packages/virtualenv.py' v12.1.1
+    Python v3.4.0 (default, Apr 11 2014, 13:05:11)  [GCC 4.8.2]
 """
 
-__version__ = "12.0.7"
+__version__ = "12.1.1"
 virtualenv_version = __version__  # legacy
 
 import base64
@@ -1910,7 +1910,7 @@ DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
  '--editable=git+git@github.com:jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
  '--editable=git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid',
- 'git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
+ '--editable=git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
 ###############################################################################
 ## '/home/jens/PyLucid_env/src/pylucid/bootstrap/sources/prefix_code.py' START
 MENU_TXT = """
