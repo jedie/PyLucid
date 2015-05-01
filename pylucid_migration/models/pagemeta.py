@@ -67,9 +67,6 @@ class PageMeta(BaseModel, UpdateInfoBaseModel, PermissionsBase):
         help_text="Limit viewable this page in this language to a user group?",
         null=True, blank=True,
     )
-    # FIXME: Add permitEditGroup, too.
-    # e.g.: allow only usergroup X to edit this page in language Y
-    # https://github.com/jedie/PyLucid/issues/57
 
     def get_absolute_url(self):
         """ absolute url *with* language code (without domain/host part) """

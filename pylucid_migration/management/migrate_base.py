@@ -218,6 +218,10 @@ class MigrateBaseCommand(BaseCommand):
 
         self.sites = self._migrate_sites(options)
 
+        # TODO:
+        # self._migrate_user(options)
+        # self._migrate_groups(options)
+
     def goodbye(self):
         sys.stdout.flush()
         sys.stderr.flush()

@@ -167,6 +167,13 @@ Currently the base files are a mix of:
 * https://github.com/nephila/djangocms-installer
 * https://github.com/bogdal/djangocms-example
 
+== TODO
+
+migration:
+* migrate User and User-Groups
+* migrate the information pagetree.permitViewGroup, pagemeta.permitViewGroup and pagetree.permitEditGroup
+
+
 = donation
 
 * [[https://flattr.com/thing/54709/PyLucid-CMS|Flattr this!]]

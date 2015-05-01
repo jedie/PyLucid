@@ -27,6 +27,7 @@ from django.contrib.auth.models import User
 import cms
 from cms.api import create_page, create_title, get_page_draft
 from cms.models import Placeholder
+from cms.models.permissionmodels import PagePermission,ACCESS_PAGE_AND_DESCENDANTS
 
 from pylucid_migration.management.migrate_base import MigrateBaseCommand, StatusLine
 from pylucid_migration.models import PageTree, PageMeta, PageContent
@@ -56,6 +57,12 @@ class Command(MigrateBaseCommand):
                         continue
 
                     url = pagemeta.get_absolute_url()
+
+                    # TODO: Activate after user/groups migration is implemented:
+                    # if pagemeta.permitViewGroup==None and pagetree.permitViewGroup==None:
+                    #     login_required=False
+                    # else:
+                    #     login_required=True
 
                     if pagetree.id in pages:
                         # Was created before in other language
@@ -92,14 +99,45 @@ class Command(MigrateBaseCommand):
                             created_by='pylucid_migration',
                             parent=parent,
                             # publication_date=None, publication_end_date=None,
+
+                            # Accessable for all users, but don't put a Link to this page into menu/sitemap etc.
                             in_navigation=pagetree.showlinks,
+
                             # soft_root=False, reverse_id=None,
                             # navigation_extenders=None,
                             published=False,
                             site=site,
-                            # login_required=False, limit_visibility_in_menu=VISIBILITY_ALL,
+                            # login_required=login_required,
+                            # limit_visibility_in_menu=VISIBILITY_ALL,
                             # position="last-child", overwrite_url=None, xframe_options=Page.X_FRAME_OPTIONS_INHERIT
                         )
+
+                        # TODO: after user/groups migration is implemented:
+                        # pagemeta.permitViewGroup # Limit viewable this page in this language to a user group?
+                        # pagetree.permitViewGroup # Limit viewable to a group?
+
+                        # print("XXX", pagetree.permitViewGroup)
+                        # print("YYY", pagemeta.permitViewGroup)
+
+                        # view_group = pagetree.permitViewGroup or pagemeta.permitViewGroup
+                        # edit_group = pagetree.permitEditGroup # Usergroup how can edit this page.
+
+                        # page_permission = PagePermission(
+                        #     page=page,
+                        #     user = None,
+                        #     group =
+                        #     grant_on=ACCESS_PAGE_AND_DESCENDANTS,
+                        #     # can_add=
+                        #     # can_change=
+                        #     # can_delete=
+                        #     # can_change_advanced_settings=
+                        #     # can_publish=
+                        #     # can_change_permissions=
+                        #     # can_move_page=
+                        #     # can_view=
+                        # )
+                        # page_permission.save()
+
                         pages[pagetree.id] = page
 
                         placeholder = Placeholder.objects.create(slot="content")
