@@ -236,6 +236,8 @@ class MigrateBaseCommand(BaseCommand):
         self._migrate_user(options)
         self._migrate_group(options)
 
+        # TODO: Migrate User-Profile data
+
     def goodbye(self):
         sys.stdout.flush()
         sys.stderr.flush()

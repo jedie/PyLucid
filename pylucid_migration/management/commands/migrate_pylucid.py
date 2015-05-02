@@ -23,17 +23,13 @@ import traceback
 
 from django.db import transaction
 from django.contrib.auth.models import User
-
 import cms
 from cms.api import create_page, create_title, get_page_draft
 from cms.models import Placeholder
-from cms.models.permissionmodels import PagePermission,ACCESS_PAGE_AND_DESCENDANTS
-
+from cms.models.permissionmodels import PagePermission, ACCESS_PAGE_AND_DESCENDANTS
 from pylucid_migration.management.migrate_base import MigrateBaseCommand, StatusLine
 from pylucid_migration.models import PageTree, PageMeta, PageContent
 from pylucid_migration.split_content import content2plugins
-
-
 
 
 class Command(MigrateBaseCommand):
@@ -58,11 +54,10 @@ class Command(MigrateBaseCommand):
 
                     url = pagemeta.get_absolute_url()
 
-                    # TODO: Activate after user/groups migration is implemented:
-                    # if pagemeta.permitViewGroup==None and pagetree.permitViewGroup==None:
-                    #     login_required=False
-                    # else:
-                    #     login_required=True
+                    if pagemeta.permitViewGroup == None and pagetree.permitViewGroup == None:
+                        login_required = False
+                    else:
+                        login_required = True
 
                     if pagetree.id in pages:
                         # Was created before in other language
@@ -107,36 +102,10 @@ class Command(MigrateBaseCommand):
                             # navigation_extenders=None,
                             published=False,
                             site=site,
-                            # login_required=login_required,
+                            login_required=login_required,
                             # limit_visibility_in_menu=VISIBILITY_ALL,
                             # position="last-child", overwrite_url=None, xframe_options=Page.X_FRAME_OPTIONS_INHERIT
                         )
-
-                        # TODO: after user/groups migration is implemented:
-                        # pagemeta.permitViewGroup # Limit viewable this page in this language to a user group?
-                        # pagetree.permitViewGroup # Limit viewable to a group?
-
-                        # print("XXX", pagetree.permitViewGroup)
-                        # print("YYY", pagemeta.permitViewGroup)
-
-                        # view_group = pagetree.permitViewGroup or pagemeta.permitViewGroup
-                        # edit_group = pagetree.permitEditGroup # Usergroup how can edit this page.
-
-                        # page_permission = PagePermission(
-                        #     page=page,
-                        #     user = None,
-                        #     group =
-                        #     grant_on=ACCESS_PAGE_AND_DESCENDANTS,
-                        #     # can_add=
-                        #     # can_change=
-                        #     # can_delete=
-                        #     # can_change_advanced_settings=
-                        #     # can_publish=
-                        #     # can_change_permissions=
-                        #     # can_move_page=
-                        #     # can_view=
-                        # )
-                        # page_permission.save()
 
                         pages[pagetree.id] = page
 
@@ -145,9 +114,67 @@ class Command(MigrateBaseCommand):
                         page.placeholders.add(placeholder)
                         placeholder.page = page
 
+                    # pagemeta.permitViewGroup # Limit viewable this page in this language to a user group?
+                    # pagetree.permitViewGroup # Limit viewable to a group?
+                    view_group = pagetree.permitViewGroup or pagemeta.permitViewGroup
+                    edit_group = pagetree.permitEditGroup  # Usergroup how can edit this page.
+                    # print("\nview:", view_group, "edit:", edit_group)
+
+                    if view_group and edit_group and view_group == edit_group:
+                        page_permission = PagePermission(
+                            page=page,
+                            user=None,
+                            group=edit_group,
+                            grant_on=ACCESS_PAGE_AND_DESCENDANTS,
+                            can_add=True,
+                            can_change=True,
+                            can_delete=True,
+                            can_change_advanced_settings=True,
+                            can_publish=True,
+                            can_change_permissions=True,
+                            can_move_page=True,
+                            can_view=True,
+                        )
+                        page_permission.save()
+                    else:
+                        if view_group:
+                            page_permission = PagePermission(
+                                page=page,
+                                user=None,
+                                group=view_group,
+                                grant_on=ACCESS_PAGE_AND_DESCENDANTS,
+                                can_add=False,
+                                can_change=False,
+                                can_delete=False,
+                                can_change_advanced_settings=False,
+                                can_publish=False,
+                                can_change_permissions=False,
+                                can_move_page=False,
+                                can_view=True,
+                            )
+                            page_permission.save()
+
+                        if edit_group:
+                            page_permission = PagePermission(
+                                page=page,
+                                user=None,
+                                group=view_group,
+                                grant_on=ACCESS_PAGE_AND_DESCENDANTS,
+                                can_add=True,
+                                can_change=True,
+                                can_delete=True,
+                                can_change_advanced_settings=True,
+                                can_publish=True,
+                                can_change_permissions=True,
+                                can_move_page=True,
+                                can_view=True,
+                            )
+                            page_permission.save()
+
                     page = get_page_draft(page)
 
-                    content2plugins(options, placeholder, pagecontent.content, pagecontent.markup, pagemeta.language.code)
+                    content2plugins(options, placeholder, pagecontent.content, pagecontent.markup,
+                                    pagemeta.language.code)
 
                     page.publish(pagemeta.language.code)
 
@@ -156,7 +183,7 @@ class Command(MigrateBaseCommand):
         user = User.objects.all().filter(is_superuser=True)[0]
 
         for site in self.sites:
-            self.file_log.debug("-"*79)
+            self.file_log.debug("-" * 79)
             self.file_log.debug(" *** migrate page content for site: %s ***" % site.name)
             with transaction.atomic():
                 count, tree = PageTree.objects.get_tree(site=site)
