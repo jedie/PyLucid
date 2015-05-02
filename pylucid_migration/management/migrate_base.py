@@ -18,7 +18,7 @@ import datetime
 import time
 import atexit
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import transaction
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
@@ -172,11 +172,18 @@ class MigrateBaseCommand(BaseCommand):
         return sites
 
     def _migrate_user(self, options):
-        self.stdout.write("Migrate users")
+        self.stdout.write("\nMigrate users:")
         for user in User.objects.using("legacy").all():
             self.stdout.write("\tUser: %s" % user.username)
             user.pk = None
             user.save(using="default")
+
+    def _migrate_group(self, options):
+        self.stdout.write("\nMigrate user group:")
+        for group in Group.objects.using("legacy").all():
+            self.stdout.write("\tGroup: %s" % group.name)
+            group.pk = None
+            group.save(using="default")
 
     def run_from_argv(self, argv):
         sys.stdout.flush()
@@ -226,9 +233,8 @@ class MigrateBaseCommand(BaseCommand):
 
         self.sites = self._migrate_sites(options)
 
-        # TODO:
         self._migrate_user(options)
-        # self._migrate_groups(options)
+        self._migrate_group(options)
 
     def goodbye(self):
         sys.stdout.flush()
