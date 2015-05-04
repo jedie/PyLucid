@@ -25,17 +25,21 @@ werkzeug
 # https://pypi.python.org/pypi/bootstrap_env/
 -e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
 
-# https://code.google.com/p/python-creole/
+# https://github.com/jedie/python-creole/
 # https://pypi.python.org/pypi/python-creole
 -e git+git@github.com:jedie/python-creole.git#egg=python-creole
 
-# https://code.google.com/p/django-dbpreferences/
+# https://github.com/jedie/django-dbpreferences/
 # https://pypi.python.org/pypi/django-dbpreferences
 #-e git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences
 
-# https://code.google.com/p/django-tools/
+# https://github.com/jedie/django-tools/
 # https://pypi.python.org/pypi/django-tools
 -e git+git@github.com:jedie/django-tools.git@develop#egg=django-tools
+
+# https://github.com/jedie/django-secure-js-login/
+# https://pypi.python.org/pypi/django-secure-js-login
+-e git+git@github.com:jedie/django-secure-js-login.git#egg=django-secure-js-login
 
 # https://github.com/jedie/django-processinfo
 # https://pypi.python.org/pypi/django-processinfo
