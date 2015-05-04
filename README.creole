@@ -160,6 +160,19 @@ Without **--inline_script** all {{{<script>}}} areas will be result in escaped t
 All unsupported **lucidTag** entries will be migrate to the "ToDoPlugin". SO the origin code is not away, but
 will be not visible for anonymous users.
 
+=== upgrade the environment
+
+{{{
+# go to your virtual env and activate it:
+/home/FooBar$ cd ~/PyLucid_env
+~/PyLucid_env $ source bin/activate
+
+# Upgrade pip:
+(PyLucid_env) ~/PyLucid_env $ pip install --upgrade pip
+
+# Upgrade all packages:
+(PyLucid_env) ~/PyLucid_env $ pip install --upgrade pip -r src/pylucid/requirements/normal_installation.txt
+}}}
 
 === dev info
 
@@ -172,7 +185,6 @@ Currently the base files are a mix of:
 migration:
 * migrate User Profile data
 * migrate the information pagetree.permitViewGroup, pagemeta.permitViewGroup and pagetree.permitEditGroup
-
 
 = donation
 
