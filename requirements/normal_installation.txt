@@ -20,7 +20,7 @@ django-tools>=0.28
 
 # https://github.com/jedie/django-secure-js-login/
 # https://pypi.python.org/pypi/django-secure-js-login
-git+https://github.com/jedie/django-secure-js-login.git#egg=django-secure-js-login
+django-secure-js-login>=0.2
 
 # http://pypi.python.org/pypi/django-processinfo
 #django-processinfo>=0.7.0,<0.8
