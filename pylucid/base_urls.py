@@ -5,9 +5,17 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from django.conf import settings
 
+# https://github.com/jedie/django-secure-js-login
+from secure_js_login.honypot.urls import urls as honypot_urls
+from secure_js_login.urls import urls as secure_js_login_urls
+
 admin.autodiscover()
 
 urlpatterns = i18n_patterns('',
+    url(r'^login/', include(honypot_urls)),
+    url(r'^secure_login/', include(secure_js_login_urls)),
+    url(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog'),
+
     url(r'^admin/', include(admin.site.urls)),  # NOQA
     url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap',
         {'sitemaps': {'cmspages': CMSSitemap}}),

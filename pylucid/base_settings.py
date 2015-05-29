@@ -123,6 +123,10 @@ INSTALLED_APPS = (
     'reversion', # https://github.com/etianen/django-reversion
     'reversion_compare', # https://github.com/jedie/django-reversion-compare
     'compressor', # https://github.com/django-compressor/django-compressor
+    
+    # https://github.com/jedie/django-secure-js-login
+    'secure_js_login.honypot',
+    'secure_js_login',
 
     # djangocms-blog
     'parler',
@@ -277,3 +281,19 @@ CMS_MARKDOWN_EXTENSIONS = ()
 #     # For local debugging: print information if IP address not in INTERNAL_IPS
 #     "SHOW_TOOLBAR_CALLBACK":"pylucid_debug.debug_toolbar_helper.show_toolbar",
 # }
+
+
+
+# django-secure-js-login settings:
+
+# use 'User.set_password' monkey-patch in models.py for create password hashes:
+AUTO_CREATE_PASSWORD_HASH = True
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#login-redirect-url
+LOGIN_REDIRECT_URL="/"
+
+# https://docs.djangoproject.com/en/1.7/ref/settings/#authentication-backends
+AUTHENTICATION_BACKENDS=(
+    'secure_js_login.auth_backends.SecureLoginAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)

@@ -31,10 +31,11 @@
         <footer><p>
             {{ powered_by }}
             |
+
             {% if user.is_authenticated %}
                 {% trans 'Logged in as:' %} [{{ user.username }}]
             {% else %}
-                <a href="?edit">{% trans 'Log in' %}</a>
+                <a href="{% url 'honypot-login:login' %}" rel="nofollow" onclick="window.location.href = '{% url 'secure-js-login:login' %}?next={{ request.path }}'; return false;">{% trans 'Log in' %}</a>
             {% endif %}
             |
             {% block footer %}
