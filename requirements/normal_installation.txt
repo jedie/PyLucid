@@ -16,7 +16,7 @@ python-creole>=1.2.1,<1.3.0
 #django-dbpreferences>=0.4.2,<0.5
 
 # http://pypi.python.org/pypi/django-tools
-django-tools>=0.28
+django-tools>=0.29
 
 # https://github.com/jedie/django-secure-js-login/
 # https://pypi.python.org/pypi/django-secure-js-login

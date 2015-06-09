@@ -35,7 +35,7 @@ werkzeug
 
 # https://github.com/jedie/django-tools/
 # https://pypi.python.org/pypi/django-tools
--e git+git@github.com:jedie/django-tools.git@develop#egg=django-tools
+-e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
 
 # https://github.com/jedie/django-secure-js-login/
 # https://pypi.python.org/pypi/django-secure-js-login
