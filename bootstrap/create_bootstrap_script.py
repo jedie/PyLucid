@@ -29,7 +29,7 @@ except ImportError as err:
     sys.exit(-1)
 
 # https://github.com/jedie/bootstrap_env
-from bootstrap_env import create_bootstrap
+from bootstrap_env import generate_bootstrap
 
 try:
     import pylucid
@@ -94,12 +94,12 @@ def requirements_definitions():
 if __name__ == '__main__':
     prefix_code = "\n".join([
         requirements_definitions(),
-        create_bootstrap.get_code(PREFIX_SCRIPT, CUT_MARK),
+        generate_bootstrap.get_code(PREFIX_SCRIPT, CUT_MARK),
     ])
 
     # print(additional_code)
 
-    create_bootstrap.generate_bootstrap(
+    generate_bootstrap.generate_bootstrap(
         out_filename=BOOTSTRAP_SCRIPT,
         add_extend_parser=EXTEND_PARSER_SCRIPT,
         add_adjust_options=ADJUST_OPTIONS_SCRIPT,
