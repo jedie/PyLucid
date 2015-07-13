@@ -10,7 +10,7 @@
 
 from django.utils.safestring import mark_safe
 
-from . import VERSION_STRING
+from . import __version__
 
 
 def pylucid(request):
@@ -18,7 +18,7 @@ def pylucid(request):
     A django TEMPLATE_CONTEXT_PROCESSORS
     """
     context = {
-        "pylucid_version": "v%s" % VERSION_STRING,
-        "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % VERSION_STRING),
+        "pylucid_version": "v%s" % __version__,
+        "powered_by": mark_safe('<a href="http://www.pylucid.org">PyLucid v%s</a>' % __version__),
     }
     return context
