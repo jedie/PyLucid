@@ -196,7 +196,7 @@ CMS_PLACEHOLDER_CONF = {
 MIGRATION_MODULES = {
     'cms': 'cms.migrations_django',
     'menus': 'menus.migrations_django',
-    'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations_django',
+    'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations',
     # 'djangocms_column': 'djangocms_column.migrations_django',
     # 'djangocms_flash': 'djangocms_flash.migrations_django',
     # 'djangocms_googlemap': 'djangocms_googlemap.migrations_django',
@@ -213,7 +213,7 @@ MIGRATION_MODULES = {
     'cmsplugin_filer_video': 'cmsplugin_filer_video.migrations_django',
 
     # for djangocms-blog:
-    'filer': 'filer.migrations_django',
+    'filer': 'filer.migrations',
 
     'cmsplugin_markup': 'cmsplugin_markup.migrations_django',
 }
