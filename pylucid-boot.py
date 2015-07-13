@@ -4,11 +4,11 @@
     WARNING: This file is generated with: bootstrap_env v0.5.0
     https://pypi.python.org/pypi/bootstrap_env/
     script file: 'generate_bootstrap.py'
-    used '.../PyLucid_env/lib/python3.4/site-packages/virtualenv.py' v13.0.3
-    Python v3.4.0 (default, Apr 11 2014, 13:05:11)  [GCC 4.8.2]
+    used '.../PyLucid_Py3_env/lib/python3.4/site-packages/virtualenv.py' v13.1.0
+    Python v3.4.3 (default, Mar 26 2015, 22:07:01)  [GCC 4.9.2]
 """
 
-__version__ = "13.0.3"
+__version__ = "13.1.0"
 virtualenv_version = __version__  # legacy
 
 import base64
@@ -1910,6 +1910,7 @@ DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
  'git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog',
  'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'wheel',
+ 'twine',
  'docutils',
  'virtualenv',
  'django-extensions',

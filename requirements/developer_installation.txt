@@ -8,6 +8,9 @@
 # the wheel project provides a bdist_wheel command for setuptools
 wheel
 
+# https://pypi.python.org/pypi/twine
+twine
+
 # For rest2html from python-creole in setup.py
 docutils
 
