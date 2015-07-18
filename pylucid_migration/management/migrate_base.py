@@ -171,12 +171,16 @@ class MigrateBaseCommand(BaseCommand):
 
         return sites
 
+    USER_MAP = None
     def _migrate_user(self, options):
         self.stdout.write("\nMigrate users:")
+        self.USER_MAP={}
         for user in User.objects.using("legacy").all():
             self.stdout.write("\tUser: %s" % user.username)
+            user_old_pk = user.pk
             user.pk = None
             user.save(using="default")
+            self.USER_MAP[user_old_pk] = user
 
     def _migrate_group(self, options):
         self.stdout.write("\nMigrate user group:")

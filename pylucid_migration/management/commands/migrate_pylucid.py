@@ -68,6 +68,9 @@ class Command(MigrateBaseCommand):
             else:
                 parent = None
 
+            old_user = pagemeta.createby
+            created_py = self.USER_MAP[old_user.pk]
+
             # http://docs.django-cms.org/en/support-3.0.x/reference/api_references.html#cms.api.create_page
             page = create_page(
                 title=pagemeta.get_title(),
@@ -78,7 +81,7 @@ class Command(MigrateBaseCommand):
                 slug=pagetree.slug,
                 # apphook=None, apphook_namespace=None, redirect=None,
                 meta_description=pagemeta.description,
-                created_by='pylucid_migration',
+                created_by=created_py,
                 parent=parent,
                 # publication_date=None, publication_end_date=None,
 
