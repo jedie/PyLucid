@@ -25,21 +25,42 @@ from django.db import transaction
 from django.contrib.auth.models import User
 
 import cms
-from cms.api import create_page, create_title, get_page_draft
+from cms.api import create_page, create_title, get_page_draft, publish_page
 from cms.models import Placeholder
 from cms.models.permissionmodels import PagePermission, ACCESS_PAGE_AND_DESCENDANTS
 
 from pylucid_migration.management.migrate_base import MigrateBaseCommand, StatusLine
-from pylucid_migration.models import PageTree, PageMeta, PageContent
+from pylucid_migration.models import PageTree, PageMeta, PageContent, PageProxyModel, PagePatchModel
 from pylucid_migration.split_content import content2plugins
+
+
+class PageMetaPatcher(object):
+    def __init__(self, created_by, creation_date, changed_by, changed_date):
+        self.created_by = created_by
+        self.creation_date = creation_date
+        self.changed_by = changed_by
+        self.changed_date = changed_date
+
+    def patch(self, page):
+        # print("Patch ID: %i - %s" % (page.pk, page))
+        patch_page = PagePatchModel.objects.get(pk=page.pk)
+        patch_page.created_by = self.created_by
+        patch_page.creation_date = self.creation_date
+        patch_page.changed_by = self.changed_by
+        patch_page.changed_date = self.changed_date
+        patch_page.save()
+        # print(patch_page.created_by, patch_page.creation_date, patch_page.changed_by, patch_page.changed_date)
 
 
 class Command(MigrateBaseCommand):
     help = 'Migrate PyLucid v1 to v2'
 
-    _PAGES={}
+    _PAGES = {}
+
     def _migrate_page(self, options, site, pagetree, pagemeta, pagecontent):
         url = pagemeta.get_absolute_url()
+        created_py = self.USER_MAP[pagemeta.createby.pk]
+        changed_by = self.USER_MAP[pagemeta.lastupdateby.pk]
 
         if pagemeta.permitViewGroup == None and pagetree.permitViewGroup == None:
             login_required = False
@@ -67,9 +88,6 @@ class Command(MigrateBaseCommand):
                 parent = self._PAGES[pagetree.parent.id]
             else:
                 parent = None
-
-            old_user = pagemeta.createby
-            created_py = self.USER_MAP[old_user.pk]
 
             # http://docs.django-cms.org/en/support-3.0.x/reference/api_references.html#cms.api.create_page
             page = create_page(
@@ -161,12 +179,27 @@ class Command(MigrateBaseCommand):
                 )
                 page_permission.save()
 
-        page = get_page_draft(page)
-
         content2plugins(options, placeholder, pagecontent.content, pagecontent.markup,
                         pagemeta.language.code)
 
-        page.publish(pagemeta.language.code)
+        page_meta_patcher = PageMetaPatcher(
+            created_by=created_py.username,
+            creation_date=pagemeta.createtime,
+            changed_by=changed_by.username,
+            changed_date=pagemeta.lastupdatetime,
+        )
+
+        draft_page = get_page_draft(page)
+
+        published_page = publish_page(draft_page, user=changed_by, language=pagemeta.language.code)
+        published_page = published_page.get_public_object()
+        published_page.save()
+
+        # print("\npatch draft version")
+        page_meta_patcher.patch(draft_page)  # patch the draft version
+        # print("patch the published version")
+        page_meta_patcher.patch(published_page)  # patch the published version
+        # print("patch done.")
 
     def _migrate_pagetree(self, options, count, tree, user, site):
         print("\nMigrate pages from site %s" % site.name)
@@ -187,6 +220,9 @@ class Command(MigrateBaseCommand):
 
                     self._migrate_page(options, site, pagetree, pagemeta, pagecontent)
 
+                # if no>8:
+                #     break
+
     def _migrate_pylucid(self, options):
         user = User.objects.all().filter(is_superuser=True)[0]
 
@@ -204,6 +240,3 @@ class Command(MigrateBaseCommand):
             self._migrate_pylucid(options)
         except Exception:
             traceback.print_exc(file=self.stderr)
-
-
-

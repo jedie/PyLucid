@@ -21,6 +21,7 @@ from django.contrib.admin.sites import AlreadyRegistered
 from cms.models import Page, Placeholder, CMSPlugin, Title
 
 from reversion_compare.helpers import patch_admin
+from pylucid_migration.models import PageProxyModel
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +80,20 @@ if settings.DEBUG:
         list_display = ("id", "language", "title", "page", "published", "publisher_is_draft", "publisher_public", "publisher_state")
         list_filter = ("language",)
     admin.site.register(Title, TitleAdmin)
+
+
+    class PageLowLevelAdmin(admin.ModelAdmin):
+        def url(self, obj):
+            return obj.get_absolute_url()
+
+        def title(self, obj):
+            return obj
+
+        list_display = ("url", "title", "publisher_is_draft", "created_by", "creation_date", "changed_by", "changed_date", "template", "site")
+        list_display_links = ("url", "title")
+        list_filter = ("publisher_is_draft", "created_by", "changed_by")
+
+    admin.site.register(PageProxyModel, PageLowLevelAdmin)
 
 
     auto_register_all()
