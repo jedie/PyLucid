@@ -89,9 +89,22 @@ if settings.DEBUG:
         def title(self, obj):
             return obj
 
-        list_display = ("url", "title", "publisher_is_draft", "created_by", "creation_date", "changed_by", "changed_date", "template", "site")
+        def template_info(self, obj):
+            return "<br />".join([
+                obj.template,
+                obj.get_template(),
+                obj.get_template_name(),
+            ])
+        template_info.allow_tags = True
+
+        def ancestors(self, obj):
+            ancestors = obj.get_ancestors(ascending=True)
+            return "<br />".join([ancestor.get_absolute_url() for ancestor in ancestors])
+        ancestors.allow_tags=True
+
+        list_display = ("url", "title", "publisher_is_draft", "created_by", "creation_date", "changed_by", "changed_date", "template_info", "ancestors", "site")
         list_display_links = ("url", "title")
-        list_filter = ("publisher_is_draft", "created_by", "changed_by")
+        list_filter = ("publisher_is_draft", "created_by", "changed_by", "site")
 
     admin.site.register(PageProxyModel, PageLowLevelAdmin)
 
