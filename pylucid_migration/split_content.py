@@ -36,7 +36,7 @@ def _add_todo(placeholder, language, part):
 
 def content2plugins(options, placeholder, raw_content, markup, language):
     html, splitted_content = markup2html(raw_content, markup)
-    # pLOG.debug(splitted_content)
+    # LOG.debug(splitted_content)
     # LOG.debug(",".join([part.kind for part in splitted_content]))
 
     for part in splitted_content:

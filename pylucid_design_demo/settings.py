@@ -4,6 +4,9 @@ import pylucid_design_demo
 DEBUG = True
 TEMPLATE_DEBUG = True
 
+TEST_USERNAME="test"
+TEST_USERPASS="12345678"
+
 from django_tools.settings_utils import InternalIps
 
 INTERNAL_IPS = InternalIps(["127.0.0.1", "::1", "192.168.*.*", "10.0.*.*"])

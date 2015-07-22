@@ -7,11 +7,14 @@
 """
 
 import os
-from cms import constants
+
 from django.contrib.auth.models import User
+from django.conf import settings
+
+from cms import constants
 from cms.models import Placeholder
 from cms.api import create_page, add_plugin, get_page_draft
-from django.conf import settings
+
 
 SOURCE_DUMMY_TEXT = (
     "<p>Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt"
@@ -23,10 +26,14 @@ SOURCE_DUMMY_TEXT = (
 )
 SOURCE_DUMMY_TEXT = SOURCE_DUMMY_TEXT * 3
 
-TEST_USERNAME="test"
-TEST_USERPASS="12345678"
 
-PAGE_COUNTS = [4,2,3,1]
+
+SOURCE_DUMMY_TEXT = "<p>Username: <strong>%s</strong> password: <strong>%s</strong>%s" % (
+    settings.TEST_USERNAME, settings.TEST_USERPASS, SOURCE_DUMMY_TEXT
+)
+
+# PAGE_COUNTS = [4,2,3,1]
+PAGE_COUNTS = [3,1]
 
 
 def create_placeholder(dummy_text):
@@ -44,8 +51,8 @@ def create_dummy_page(title, template, placeholder, parent=None):
         parent=parent,
         in_navigation=True,
     )
-    page = get_page_draft(page)
     page.placeholders.add(placeholder)
+    page = get_page_draft(page)
     page.publish(settings.LANGUAGE_CODE)
 
     print("\t%s" % page.get_absolute_url(language=settings.LANGUAGE_CODE))
@@ -74,10 +81,10 @@ def create_pages():
 
 
 def create_test_user():
-    user, created = User.objects.get_or_create(username=TEST_USERNAME)
+    user, created = User.objects.get_or_create(username=settings.TEST_USERNAME)
     user.is_staff=True
     user.is_superuser=True
-    user.set_password(TEST_USERPASS)
+    user.set_password(settings.TEST_USERPASS)
     user.save()
 
 
