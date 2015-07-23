@@ -17,7 +17,7 @@ import sys
 from django.conf import settings
 from django.contrib import messages
 from django.utils.safestring import mark_safe
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_str, force_text
 
 from django_tools.utils.messages import FileLikeMessages
 
@@ -94,7 +94,7 @@ def apply_markdown(content, page_msg):
         # unicode support only in markdown v1.7 or above.
         # version_info exist only in markdown v1.6.2rc-2 or above.
         if getattr(markdown, "version_info", None) < (1, 7):
-            return force_unicode(markdown.markdown(smart_str(content)))
+            return force_text(markdown.markdown(smart_str(content)))
         else:
             return markdown.markdown(content)
 
