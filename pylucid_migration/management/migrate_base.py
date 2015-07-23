@@ -107,6 +107,8 @@ class TeeOutput(object):
 
 
 class MigrateBaseCommand(BaseCommand):
+    requires_system_checks=False
+
     option_list = BaseCommand.option_list + (
         make_option('--inline_script',
             action='store_true',
@@ -176,16 +178,27 @@ class MigrateBaseCommand(BaseCommand):
         self.stdout.write("\nMigrate users:")
         self.USER_MAP={}
         for user in User.objects.using("legacy").all():
-            self.stdout.write("\tUser: %s" % user.username)
             user_old_pk = user.pk
-            user.pk = None
-            user.save(using="default")
+
+            try:
+                user = User.objects.using("default").get(username=user.username)
+            except User.DoesNotExist:
+                self.stdout.write("\tCreate user: %s" % user.username)
+                user.pk = None
+                user.save(using="default")
+            else:
+                self.stdout.write("\tUse existing user: %s" % user.username)
+
             self.USER_MAP[user_old_pk] = user
 
     def _migrate_group(self, options):
         self.stdout.write("\nMigrate user group:")
         for group in Group.objects.using("legacy").all():
-            self.stdout.write("\tGroup: %s" % group.name)
+            if Group.objects.using("default").filter(name=group.name):
+                self.stdout.write("\tSkip existing group: %s" % group.name)
+                continue
+
+            self.stdout.write("\tCreate group: %s" % group.name)
             group.pk = None
             group.save(using="default")
 
