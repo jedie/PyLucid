@@ -102,7 +102,7 @@ def apply_markdown(content, page_msg):
 def apply_restructuretext(content, page_msg):
     from creole.exceptions import DocutilsImportError
     try:
-        from creole.rest2html.clean_writer import rest2html
+        from creole.rest_tools.clean_writer import rest2html
     except DocutilsImportError:
         page_msg(
             "Markup error: The Python docutils library isn't installed."
