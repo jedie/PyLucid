@@ -145,6 +145,9 @@ class MigrateBaseCommand(BaseCommand):
             self.stdout.write("\tID: %i - name: %r - domain: %r" % (site.pk, site.name, site.domain))
 
     def _migrate_sites(self, options):
+
+        # TODO / FIXME: migrate all sites and then filter the given sites ?!?
+
         sites = []
 
         self.stdout.write("\nMigrate Sites (%s):" % repr(options["sites"]))
