@@ -178,6 +178,12 @@ class Command(MigrateBaseCommand):
         content2plugins(options, placeholder, pagecontent.content, pagecontent.markup,
                         pagemeta.language.code)
 
+        page.publish(pagemeta.language.code)
+
+        # using api.publish_page() will result in django.db.utils.IntegrityError:
+        #       UNIQUE constraint failed: cms_page.publisher_public_id
+        # published_page = publish_page(page, user=changed_by, language=pagemeta.language.code)
+
         page_meta_patcher = PageMetaPatcher(
             created_by=created_py.username,
             creation_date=pagemeta.createtime,
@@ -185,15 +191,12 @@ class Command(MigrateBaseCommand):
             changed_date=pagemeta.lastupdatetime,
         )
 
-        draft_page = get_page_draft(page)
-
-        published_page = publish_page(draft_page, user=changed_by, language=pagemeta.language.code)
-        published_page = published_page.get_public_object()
-        published_page.save()
-
         # print("\npatch draft version")
+        draft_page = page.get_draft_object()
         page_meta_patcher.patch(draft_page)  # patch the draft version
+
         # print("patch the published version")
+        published_page = page.get_public_object()
         page_meta_patcher.patch(published_page)  # patch the published version
         # print("patch done.")
 
