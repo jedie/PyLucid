@@ -200,11 +200,11 @@ class Command(MigrateBaseCommand):
     def _migrate_pagetree(self, options, count, tree, user, site):
         print("\nMigrate pages from site %s" % site.name)
         self._PAGES = {}
-        with StatusLine(count) as status_line:
+        with StatusLine(count) as status_line: # TODO: update status with pagemeta (include all translations)
             for no, node in enumerate(tree.iter_flat_list(), start=1):
                 pagetree = PageTree.objects.get(id=node.id)
                 url = pagetree.get_absolute_url()
-                status_line.write(no, url)
+                status_line.write(no, url) # TODO: update status with pagemeta (include all translations)
 
                 self.file_log.debug("%s - %s" % (site.name, url))
 

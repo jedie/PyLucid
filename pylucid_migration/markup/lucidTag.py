@@ -7,6 +7,14 @@
     the special PyLucid tag who starts a plugin with the plugin manager.
     e.g.: {% lucidTag plugin_name.method_name key1="value1" key2="value2" %}
 
+
+    FIXME: ERROR parse lucidTag in line: '{% lucidTag IncludeRemote url, title=None, preformat=None, escape=True %}':
+
+        File "/home/jens/PyLucid_env/src/pylucid/pylucid_migration/markup/lucidTag.py", line 33, in str2dict
+            key, value = part.split("=", 1)
+        ValueError: need more than 1 value to unpack
+
+
     :copyleft: 2007-2015 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
