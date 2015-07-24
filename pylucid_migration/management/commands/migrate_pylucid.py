@@ -117,11 +117,6 @@ class Command(MigrateBaseCommand):
 
             self._PAGES[pagetree.id] = page
 
-            placeholder = Placeholder.objects.create(slot="content")
-            placeholder.save()
-            page.placeholders.add(placeholder)
-            placeholder.page = page
-
         # pagemeta.permitViewGroup # Limit viewable this page in this language to a user group?
         # pagetree.permitViewGroup # Limit viewable to a group?
         view_group = pagetree.permitViewGroup or pagemeta.permitViewGroup
@@ -179,6 +174,7 @@ class Command(MigrateBaseCommand):
                 )
                 page_permission.save()
 
+        placeholder = page.placeholders.filter(slot="content")[0]
         content2plugins(options, placeholder, pagecontent.content, pagecontent.markup,
                         pagemeta.language.code)
 
