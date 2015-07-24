@@ -145,21 +145,35 @@ class MigrateBaseCommand(BaseCommand):
             self.stdout.write("\tID: %i - name: %r - domain: %r" % (site.pk, site.name, site.domain))
 
     def _migrate_sites(self, options):
-
-        # TODO / FIXME: migrate all sites and then filter the given sites ?!?
-
+        """
+        migrate all site entries, but return only the given options["sites"] for migration back.
+        """
         sites = []
 
-        self.stdout.write("\nMigrate Sites (%s):" % repr(options["sites"]))
-        
         if not options["sites"]:
-            old_sites = DjangoSite.objects.all().filter(pk=settings.SITE_ID)
+            # migrate only the current SITE
+            site_ids = [settings.SITE_ID]
+            self.stdout.write("\nMigrate only the current SITE_ID=%s" % site_ids[0])
         elif options["sites"] == MIGRATE_ALL_SITES:
-            old_sites = DjangoSite.objects.all()
+            site_ids = DjangoSite.objects.all().values_list("pk", flat=True)
+            self.stdout.write("\nMigrate all existing sites: %s" % repr(options["sites"]))
         else:
-            old_sites = DjangoSite.objects.all().filter(pk__in=options["sites"])
+            site_ids = options["sites"]
+            site_ids.sort()
+            self.stdout.write("\nMigrate only sites: %s" % repr(options["sites"]))
 
-        for site_old in old_sites:
+        temp_ids = DjangoSite.objects.all().filter(pk__in=site_ids).values_list("pk", flat=True).order_by("pk")
+        temp_ids = tuple(temp_ids)
+        site_ids = tuple(site_ids)
+        if site_ids != temp_ids:
+            sys.stderr.write("\nERROR: Given 'sites' doesn't all exists!\n")
+            sys.stderr.write("Existing IDs: %r vs. given IDs: %r\n" % (temp_ids, site_ids))
+            sys.exit(-1)
+
+        all_old_sites = DjangoSite.objects.all()
+        for site_old in all_old_sites:
+            txt = "\tSITE_ID: %i |" % site_old.pk
+
             try:
                 site_new = Site.objects.get(pk=site_old.pk)
             except Site.DoesNotExist:
@@ -168,11 +182,18 @@ class MigrateBaseCommand(BaseCommand):
                     domain=site_old.domain,
                     name=site_old.name,
                 )
-                self.stdout.write("\tNew site %r with ID %i created." % (site_new.name, site_new.id))
+                txt += " created "
             else:
-                self.stdout.write("\tSite %r with ID %i exists, ok." % (site_new.name, site_new.id))
+                txt += " exists  "
 
-            sites.append(site_new)
+            if site_old.pk in site_ids:
+                sites.append(site_new)
+                txt += "| **will be migrate** |"
+            else:
+                txt += "|  skip in migration  |"
+
+            txt += " domain: %r" % site_old.domain
+            print(txt)
 
         return sites
 
