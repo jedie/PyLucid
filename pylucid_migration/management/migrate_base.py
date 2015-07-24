@@ -232,28 +232,28 @@ class MigrateBaseCommand(BaseCommand):
 
         self.file_log=logging.getLogger(name="PyLucidMigration")
 
+        logging.lastResort=None
+
         if "--no_logfile" in argv:
             # All output to stdout/stderr
             self.file_log.addHandler(logging.StreamHandler())
             return super(MigrateBaseCommand, self).run_from_argv(argv)
+        else:
+            self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M:%S")
+            # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M")
+            # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H")
+            # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d")
+            handler = logging.FileHandler(self.logfilename, mode="a", encoding="utf8")
+            # handler = logging.FileHandler(self.logfilename, mode="w", encoding="utf8")
+            handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)-6s %(message)s"))
+            self.file_log.addHandler(handler)
+            print("\nLog into %r" % self.logfilename)
 
-        logging.lastResort=None
+            sys.stderr = TeeOutput(sys.stderr, self.file_log, level=logging.ERROR)
+            sys.stdout = TeeOutput(sys.stdout, self.file_log, level=logging.INFO)
 
-        self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M:%S")
-        # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H:%M")
-        # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d-%H")
-        # self.logfilename="%s-PyLucidMigration.log" % datetime.datetime.utcnow().strftime("%Y%m%d")
-        handler = logging.FileHandler(self.logfilename, mode="a", encoding="utf8")
-        # handler = logging.FileHandler(self.logfilename, mode="w", encoding="utf8")
-        handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)-6s %(message)s"))
-        self.file_log.addHandler(handler)
-
-        print("\nLog into %r" % self.logfilename)
         self.file_log.debug("_"*79)
         self.file_log.debug("Start logging for: %r" % " ".join(sys.argv))
-
-        sys.stderr = TeeOutput(sys.stderr, self.file_log, level=logging.ERROR)
-        sys.stdout = TeeOutput(sys.stdout, self.file_log, level=logging.INFO)
 
         try:
             super(MigrateBaseCommand, self).run_from_argv(argv)
