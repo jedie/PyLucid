@@ -103,15 +103,15 @@ def call_plugin(request, url_lang_code, prefix_url, rest_url):
         # e.g.: it's a django.contrib.syndication.views.Feed class instance
         request.method_name = view_func.__class__.__name__
 
-    csrf_exempt = getattr(view_func, 'csrf_exempt', False)
-    if not csrf_exempt:
-        view_func = csrf_protect(view_func)
+    # csrf_exempt = getattr(view_func, 'csrf_exempt', False)
+    # if not csrf_exempt:
+    #     view_func = csrf_protect(view_func)
 
     # Call the view
     response = view_func(request, *view_args, **view_kwargs)
 
-    if csrf_exempt and isinstance(response, HttpResponse):
-        response.csrf_exempt = True
+    # if csrf_exempt and isinstance(response, HttpResponse):
+    #     response.csrf_exempt = True
 
     request.plugin_name = None
     request.method_name = None
