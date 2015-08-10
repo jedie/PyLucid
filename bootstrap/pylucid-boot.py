@@ -3,7 +3,7 @@
 """
     WARNING: This file is generated with: bootstrap_env v0.5.2
     https://pypi.python.org/pypi/bootstrap_env/
-    script file: 'generate_bootstrap.pyc'
+    script file: 'generate_bootstrap.py'
     used '.../local/lib/python2.7/site-packages/virtualenv.pyc' v13.1.0
     Python v2.7.6 (default, Jun 22 2015, 18:00:18)  [GCC 4.8.2]
 """
@@ -1876,12 +1876,12 @@ NORMAL_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  'django-reversion>=1.7,<1.8',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor>=1.3,<1.4',
- 'django-tagging>=0.3.1,<0.4',
+ 'django-tagging==0.3.4',
  'South>=0.8.3,<0.9',
  'Django>=1.6,<1.7',
  'python-creole>=1.1.1',
  'django-dbpreferences>=0.5.0,<0.6',
- 'django-tools>=0.26,<0.27',
+ 'django-tools<0.30',
  'django-processinfo>=0.6.4',
  'django-reversion-compare>=0.4.0',
  '--editable=git+https://github.com/jedie/PyLucid.git@old_v1#egg=pylucid']
@@ -1893,7 +1893,7 @@ DEVELOPER_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  'django-reversion>=1.7,<1.8',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor>=1.3,<1.4',
- 'django-tagging>=0.3.1,<0.4',
+ 'django-tagging==0.3.4',
  'South>=0.8.3,<0.9',
  'docutils',
  'virtualenv',
@@ -2136,7 +2136,7 @@ class AfterInstall(object):
 ## 'prefix code' END
 ###############################################################################
 ###############################################################################
-## '.../src/bootstrap-env/bootstrap_env/utils/bootstrap_install_pip.py' START
+## '.../workspace/bootstrap-env/bootstrap_env/utils/bootstrap_install_pip.py' START
 INSTALL_PIP_OPTION="--install-pip"
 
 
@@ -2260,7 +2260,7 @@ def adjust_options(options, args):
 
 def after_install(options, home_dir):
     _install_pip(options, home_dir)
-## '.../src/bootstrap-env/bootstrap_env/utils/bootstrap_install_pip.py' END
+## '.../workspace/bootstrap-env/bootstrap_env/utils/bootstrap_install_pip.py' END
 ###############################################################################
     ###############################################################################
     ## '.../src/pylucid/bootstrap/sources/after_install.py' START
