@@ -3,7 +3,7 @@
 """
     WARNING: This file is generated with: bootstrap_env v0.5.2
     https://pypi.python.org/pypi/bootstrap_env/
-    script file: 'generate_bootstrap.py'
+    script file: 'generate_bootstrap.pyc'
     used '.../local/lib/python2.7/site-packages/virtualenv.pyc' v13.1.0
     Python v2.7.6 (default, Jun 22 2015, 18:00:18)  [GCC 4.8.2]
 """
@@ -1873,11 +1873,11 @@ def create_bootstrap_script(extra_text, python_version=''):
 NORMAL_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  'Pygments>=1.6,<1.7',
  'flup>1.0.2,<1.1',
- 'django-reversion>=1.7,<1.8',
+ 'django-reversion<1.9',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor>=1.3,<1.4',
  'django-tagging==0.3.4',
- 'South>=0.8.3,<0.9',
+ 'South<1.1',
  'Django>=1.6,<1.7',
  'python-creole>=1.1.1',
  'django-dbpreferences>=0.5.0,<0.6',
@@ -1890,11 +1890,11 @@ NORMAL_INSTALLATION = ['feedparser>=5.1.3,<5.2',
 DEVELOPER_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  'Pygments>=1.6,<1.7',
  'flup>1.0.2,<1.1',
- 'django-reversion>=1.7,<1.8',
+ 'django-reversion<1.9',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor>=1.3,<1.4',
  'django-tagging==0.3.4',
- 'South>=0.8.3,<0.9',
+ 'South<1.1',
  'docutils',
  'virtualenv',
  '--editable=git+git://github.com/django/django.git@stable/1.6.x#egg=django',

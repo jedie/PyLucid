@@ -19,7 +19,8 @@ flup>1.0.2,<1.1
 
 # https://github.com/etianen/django-reversion
 # http://pypi.python.org/pypi/django-reversion
-django-reversion>=1.7,<1.8
+# http://django-reversion.readthedocs.org/en/latest/django-versions.html
+django-reversion<1.9
 
 # https://github.com/jezdez/django-dbtemplates
 # http://pypi.python.org/pypi/django-dbtemplates
@@ -35,4 +36,4 @@ django-tagging==0.3.4
 
 # http://south.aeracode.org/
 # http://pypi.python.org/pypi/South
-South>=0.8.3,<0.9
+South<1.1
