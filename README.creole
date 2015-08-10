@@ -1,4 +1,6 @@
-**Note:** Current development is on [[https://github.com/jedie/PyLucid/tree/django-cms|django-cms branch]]!
+**Note:**
+This is the [[https://github.com/jedie/PyLucid/tree/old_v1|Old v1.x branch]].
+Current development is on [[https://github.com/jedie/PyLucid/tree/django-cms|django-cms branch]]!
 
 
 = about PyLucid
