@@ -12,3 +12,4 @@ local_settings.py
 /pylucid_project/external_plugins/**
 .pydevproject
 /.settings
+/.idea
