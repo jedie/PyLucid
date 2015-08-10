@@ -19,23 +19,23 @@ virtualenv
 
 # https://github.com/jedie/bootstrap_env
 # https://pypi.python.org/pypi/bootstrap_env/
--e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
+-e git+git@github.com:jedie/bootstrap_env.git@master#egg=bootstrap_env
 
 # http://code.google.com/p/python-creole/
 # http://pypi.python.org/pypi/python-creole
--e git+git@github.com:jedie/python-creole.git#egg=python-creole
+-e git+git@github.com:jedie/python-creole.git@master#egg=python-creole
 
 # http://code.google.com/p/django-dbpreferences/
 # http://pypi.python.org/pypi/django-dbpreferences
--e git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences
+-e git+git@github.com:jedie/django-dbpreferences.git@master#egg=django-dbpreferences
 
 # http://code.google.com/p/django-tools/
 # http://pypi.python.org/pypi/django-tools
--e git+git@github.com:jedie/django-tools.git#egg=django-tools
+-e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
 
 # https://github.com/jedie/django-processinfo
 # http://pypi.python.org/pypi/django-processinfo
--e git+git@github.com:jedie/django-processinfo.git@django1.5#egg=django-processinfo
+-e git+git@github.com:jedie/django-processinfo.git@master#egg=django-processinfo
 
 # https://github.com/jedie/django-reversion-compare
 # http://pypi.python.org/pypi/django-reversion-compare/
