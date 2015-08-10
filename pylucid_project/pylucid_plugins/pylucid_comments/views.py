@@ -32,7 +32,7 @@ from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
 from django_tools.cache.site_cache_middleware import delete_cache_item
 from django_tools.decorators import render_to
-from django_tools.utils.client_storage import ClientCookieStorageError, ClientCookieStorage
+from django_tools.utils.client_storage import SignedCookieStorage, SignedCookieStorageError
 
 from pylucid_project.apps.pylucid.models import LogEntry
 from pylucid_project.apps.pylucid.shortcuts import bad_request
@@ -172,10 +172,10 @@ def _get_form(request):
     data = {}
     if not request.user.is_authenticated() and COOKIE_KEY in request.COOKIES:
         # Get user data from secure cookie, set in the past, see _form_submission()
-        c = ClientCookieStorage(cookie_key=COOKIE_KEY)
+        c = SignedCookieStorage(cookie_key=COOKIE_KEY)
         try:
             data = c.get_data(request)
-        except ClientCookieStorageError, err:
+        except SignedCookieStorageError, err:
             LogEntry.objects.log_action(
                 app_label=APP_LABEL, action="wrong cookie data", message="%s" % err,
             )
@@ -204,7 +204,7 @@ def _form_submission(request):
                 "url": request.POST.get("url", ""),
             }
             # Store the user data with a security hash
-            c = ClientCookieStorage(cookie_key=COOKIE_KEY)
+            c = SignedCookieStorage(cookie_key=COOKIE_KEY)
             response = c.save_data(comments_data, response)
 
     return response
