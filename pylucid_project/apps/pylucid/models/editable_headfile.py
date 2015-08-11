@@ -79,6 +79,9 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
     description = models.TextField(null=True, blank=True)
     content = models.TextField()
 
+    def get_absolute_url(self, colorscheme=None):
+        return self.filepath
+
     def get_filename(self):
         """ returns only the filename """
         return os.path.split(self.filepath)[1]
