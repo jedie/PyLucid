@@ -222,7 +222,7 @@ class LogEntry(UpdateInfoBaseModel):
             output += "%-21s: %s\n" % (field.name, value)
         return output
 
-    def __unicode__(self):
+    def __str__(self):
         return u"LogEntry %s %s %s" % (self.createby, self.createtime, self.action)
 
     class Meta:

@@ -97,7 +97,7 @@ class Design(SiteM2M, UpdateInfoBaseModel):
         headfile_data = render_to_string("pylucid/headfile_data.html", context)
         return headfile_data
 
-    def __unicode__(self):
+    def __str__(self):
         sites = self.sites.values_list('name', flat=True)
         return u"Page design '%s' (on sites: %r)" % (self.name, sites)
 

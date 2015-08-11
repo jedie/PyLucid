@@ -100,7 +100,7 @@ class PageContent(BaseModel, MarkupBaseModel, UpdateInfoBaseModel):
 
         return super(PageContent, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"PageContent %r (lang: %s, site: %s)" % (
             self.pagemeta.pagetree.slug, self.pagemeta.language.code, self.get_site().domain
         )

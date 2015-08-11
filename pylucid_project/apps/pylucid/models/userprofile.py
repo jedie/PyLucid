@@ -66,7 +66,7 @@ class UserProfile(AutoSiteM2M, UpdateInfoBaseModel):
         self.sha_login_checksum = sha_checksum
         failsafe_message("SHA Login salt+checksum set for user '%s'." % self.user)
 
-    def __unicode__(self):
+    def __str__(self):
         sites = self.sites.values_list('name', flat=True)
         return u"UserProfile for user '%s' (on sites: %r)" % (self.user.username, sites)
 

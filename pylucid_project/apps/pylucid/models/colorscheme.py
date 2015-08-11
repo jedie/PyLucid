@@ -105,7 +105,7 @@ class ColorScheme(UpdateInfoBaseModel):
         color_list = queryset.values_list('name', flat=True)
         return color_list
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -223,7 +223,7 @@ class Color(UpdateInfoBaseModel):
 
         super(Color, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Color '%s' #%s (%s)" % (self.name, self.value, self.colorscheme)
 
     class Meta:

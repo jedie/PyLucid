@@ -396,7 +396,7 @@ class PageTree(BaseModel, BaseTreeModel, UpdateInfoBaseModel, PermissionsBase):
         """ used e.g. for self.get_absolute_uri() and the admin page """
         return self.site
 
-    def __unicode__(self):
+    def __str__(self):
         return u"PageTree %r (id: %i, site: %s, type: %s)" % (
             self.slug, self.id, self.site.domain, self.TYPE_DICT.get(self.page_type)
         )

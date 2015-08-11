@@ -115,7 +115,7 @@ class BanEntry(models.Model):
             self.createtime = now
         return super(BanEntry, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"BanEntry %s %s" % (self.ip_address, self.createtime)
 
     class Meta:

@@ -327,7 +327,7 @@ class Language(AutoSiteM2M, UpdateInfoBaseModel):
 
         super(Language, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Language %s - %s" % (self.code, self.description)
 
     class Meta:

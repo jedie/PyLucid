@@ -333,7 +333,7 @@ class EditableHtmlHeadFile(UpdateInfoBaseModel):
         self.update_colorscheme()
         super(EditableHtmlHeadFile, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.filepath
 
     class Meta:
