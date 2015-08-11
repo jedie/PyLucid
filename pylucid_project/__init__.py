@@ -17,10 +17,9 @@ import warnings
 import subprocess
 
 
-__version__ = (1, 6, 0)
+__version__ = "1.6.1"
 
-
-VERSION_STRING = '.'.join(str(part) for part in __version__)
+VERSION_STRING = __version__
 
 # VERBOSE = True
 VERBOSE = False
