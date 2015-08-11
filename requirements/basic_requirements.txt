@@ -12,7 +12,7 @@ Pygments>=1.6,<1.7
 # http://trac.saddi.com/flup
 # http://pypi.python.org/pypi/flup
 # needed, for fastCGI usage
-flup>1.0.2,<1.1
+flup<1.1
 
 # external Django apps
 #----------------------

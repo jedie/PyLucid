@@ -1872,7 +1872,7 @@ def create_bootstrap_script(extra_text, python_version=''):
 # requirements from normal_installation.txt
 NORMAL_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  'Pygments>=1.6,<1.7',
- 'flup>1.0.2,<1.1',
+ 'flup<1.1',
  'django-reversion<1.9',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor>=1.3,<1.4',
@@ -1889,7 +1889,7 @@ NORMAL_INSTALLATION = ['feedparser>=5.1.3,<5.2',
 # requirements from developer_installation.txt
 DEVELOPER_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  'Pygments>=1.6,<1.7',
- 'flup>1.0.2,<1.1',
+ 'flup<1.1',
  'django-reversion<1.9',
  'django-dbtemplates>=1.3,<1.4',
  'django_compressor>=1.3,<1.4',
@@ -1907,6 +1907,13 @@ DEVELOPER_INSTALLATION = ['feedparser>=5.1.3,<5.2',
  '--editable=git+git@github.com:jedie/PyLucid.git@old_v1#egg=pylucid']
 ###############################################################################
 ## '.../src/pylucid/bootstrap/sources/prefix_code.py' START
+NO_DEPS = (
+    "PyLucid.git",
+    "django-processinfo",
+    "django-reversion-compare",
+    "django-tools",
+)
+
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
@@ -1924,6 +1931,13 @@ DEFAULT_MENU_CHOICE = CHOICES["1"]
 PY2 = sys.version_info[0] == 2
 if PY2:
     input=raw_input
+
+
+def item_in(txt, items):
+    for item in items:
+        if item in txt:
+            return True
+    return False
 
 
 class SysPath(object):
@@ -2080,7 +2094,7 @@ class AfterInstall(object):
             assert isinstance(pip_line, str)
             cmd = [self.pip_cmd, "install", "--log=%s" % self.logfile, pip_line]
 
-            if "PyLucid.git" in pip_line or "django-processinfo" in pip_line or "django-reversion-compare" in pip_line:
+            if item_in(pip_line, NO_DEPS):
                 # FIXME: How to handle this better?
                 #
                 # PyLucid setup.py does contains all dependencies and it will
