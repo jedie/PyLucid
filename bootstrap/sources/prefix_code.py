@@ -21,6 +21,12 @@ NORMAL_INSTALLATION=None
 
 # --- CUT here ---
 
+NO_DEPS = (
+    "PyLucid.git",
+    "django-processinfo",
+    "django-reversion-compare",
+    "django-tools",
+)
 
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
@@ -39,6 +45,13 @@ DEFAULT_MENU_CHOICE = CHOICES["1"]
 PY2 = sys.version_info[0] == 2
 if PY2:
     input=raw_input
+
+
+def item_in(txt, items):
+    for item in items:
+        if item in txt:
+            return True
+    return False
 
 
 class SysPath(object):
@@ -195,7 +208,7 @@ class AfterInstall(object):
             assert isinstance(pip_line, str)
             cmd = [self.pip_cmd, "install", "--log=%s" % self.logfile, pip_line]
 
-            if "PyLucid.git" in pip_line or "django-processinfo" in pip_line or "django-reversion-compare" in pip_line:
+            if item_in(pip_line, NO_DEPS):
                 # FIXME: How to handle this better?
                 #
                 # PyLucid setup.py does contains all dependencies and it will
