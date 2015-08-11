@@ -1,4 +1,6 @@
-**Note:** Current development is on [[https://github.com/jedie/PyLucid/tree/django-cms|django-cms branch]]!
+**Note:**
+This is the [[https://github.com/jedie/PyLucid/tree/old_v1|Old v1.x branch]].
+Current development is on [[https://github.com/jedie/PyLucid/tree/django-cms|django-cms branch]]!
 
 
 = about PyLucid
@@ -54,14 +56,40 @@ Some PyLucid Features are:
 
 To create a [[http://www.pylucid.org/permalink/135/install-pylucid-in-a-virtual-environment|PyLucid virtual environment]], use our bootstrap script:
 {{{
-/home/FooBar$ wget https://raw.github.com/jedie/PyLucid/master/bootstrap/pylucid-boot.py
-/home/FooBar$ python pylucid-boot.py PyLucid_env
+/home/FooBar$ wget https://raw.github.com/jedie/PyLucid/old_v1/bootstrap/pylucid-boot.py -O pylucid1-boot.py
+/home/FooBar$ python2 pylucid1-boot.py PyLucid1_py2_env
 }}}
 
 [[http://www.pylucid.org/permalink/355/1a2-create-a-new-page-instance|create a new page instance]]:
 {{{
-/home/FooBar$ cd PyLucid_env
-/home/FooBar/PyLucid_env$ ./create_page_instance.sh /var/www/YourSite
+/home/FooBar$ cd PyLucid1_py2_env
+/home/FooBar/PyLucid1_py2_env$ ./create_page_instance.sh /var/www/YourSite
+}}}
+
+Setup a page instance:
+{{{
+~$ cd /var/www/YourSite
+
+# create all database tables (without creating a superuser at this time):
+/var/www/YourSite$ ./manage.py syncdb --all --noinput
+
+# Do faked south migrations
+/var/www/YourSite$ ./manage.py migrate --fake
+
+# Create a superuser:
+/var/www/YourSite$ ./manage.py createsuperuser
+
+# Load PyLucid base data into database:
+/var/www/YourSite$ ./manage.py loaddata pylucid.json
+
+# create initial revisions
+/var/www/YourSite$ ./manage.py createinitialrevisions
+
+# collect all static files as links
+/var/www/YourSite$ ./manage.py collectstatic
+
+# start local development server
+/var/www/YourSite$ ./manage.py runserver
 }}}
 
 After run our script you have these files/directory:
@@ -112,6 +140,4 @@ To complete the installation follow the steps in [[http://www.pylucid.org/permal
 | Forum               | [[http://forum.pylucid.org/]]
 | IRC                 | [[http://www.pylucid.org/permalink/304/irc-channel|#pylucid on freenode.net]]
 | Github              | [[http://github.com/jedie/PyLucid]]
-| Sourceforge         | [[http://sourceforge.net/projects/pylucid/]]
-| Google code         | [[http://code.google.com/p/pylucid/]]
 
