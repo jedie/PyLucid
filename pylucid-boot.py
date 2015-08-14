@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    WARNING: This file is generated with: bootstrap_env v0.5.0
+    WARNING: This file is generated with: bootstrap_env v0.5.2
     https://pypi.python.org/pypi/bootstrap_env/
     script file: 'generate_bootstrap.py'
     used '.../PyLucid_Py3_env/lib/python3.4/site-packages/virtualenv.py' v13.1.0
@@ -1880,8 +1880,9 @@ NORMAL_INSTALLATION = ['click>=3.3,<4.0',
  'django-compressor',
  'django-reversion>=1.8.4,<1.9',
  'django-cms>=3.0.10,<3.1',
- 'djangocms-text-ckeditor',
- 'cmsplugin-filer',
+ 'djangocms-text-ckeditor>=2.6.0',
+ 'cmsplugin-filer>=0.10.1',
+ 'django-filer>=0.9.12',
  'git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog',
  'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'python-creole>=1.2.1,<1.3.0',
@@ -1905,8 +1906,9 @@ DEVELOPER_INSTALLATION = ['click>=3.3,<4.0',
  'django-compressor',
  'django-reversion>=1.8.4,<1.9',
  'django-cms>=3.0.10,<3.1',
- 'djangocms-text-ckeditor',
- 'cmsplugin-filer',
+ 'djangocms-text-ckeditor>=2.6.0',
+ 'cmsplugin-filer>=0.10.1',
+ 'django-filer>=0.9.12',
  'git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog',
  'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'wheel',
@@ -2178,7 +2180,7 @@ class EnvSubprocess(object):
             pass
 
     def _subprocess(self, cmd):
-        print("call %r" % " ".join(cmd))
+        print("\ncall %r" % " ".join(cmd))
         subprocess.call(cmd, **self.subprocess_defaults)
 
     def call_env_python(self, cmd):
@@ -2189,7 +2191,7 @@ class EnvSubprocess(object):
 
 
 def _install_pip(options, home_dir):
-    print("Install pip...")
+    print("\nInstall pip...")
     bootstrap_file = os.path.abspath(sys.argv[0])
     assert os.path.isfile(bootstrap_file), "Path to self not found?!?! (%r not exists?!?!)" % bootstrap_file
 
@@ -2223,10 +2225,10 @@ def adjust_options(options, args):
     options.no_setuptools=True
 
     if options.install_pip:
-        print("install pip from self contained 'get_pip.py'")
+        print("\ninstall pip from self contained 'get_pip.py'")
         sys.argv = [sys.argv[0]]
         get_pip() # renamed main() from 'get_pip.py', it exists in the generated bootstrap file!
-        print("pip is installed.")
+        print("\npip is installed.\n")
         sys.exit(0)
 
 

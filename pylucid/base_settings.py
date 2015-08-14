@@ -193,8 +193,8 @@ CMS_PLACEHOLDER_CONF = {
 
 
 MIGRATION_MODULES = {
-    'cms': 'cms.migrations_django',
-    'menus': 'menus.migrations_django',
+    'cms': 'cms.migrations_django', # only for django CMS 3.0
+    'menus': 'menus.migrations_django', # only for django CMS 3.0
     'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations',
     # 'djangocms_column': 'djangocms_column.migrations_django',
     # 'djangocms_flash': 'djangocms_flash.migrations_django',
@@ -210,9 +210,6 @@ MIGRATION_MODULES = {
     'cmsplugin_filer_image': 'cmsplugin_filer_image.migrations_django',
     'cmsplugin_filer_teaser': 'cmsplugin_filer_teaser.migrations_django',
     'cmsplugin_filer_video': 'cmsplugin_filer_video.migrations_django',
-
-    # for djangocms-blog:
-    'filer': 'filer.migrations',
 
     'cmsplugin_markup': 'cmsplugin_markup.migrations_django',
 }
