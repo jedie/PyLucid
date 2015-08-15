@@ -2,8 +2,7 @@
 #-----------------
 
 # https://pypi.python.org/pypi/click/
-# TODO: update to 4.1!
-click>=3.3,<4.0
+click>=4.1,<4.2
 
 # http://python-pillow.github.io/
 # https://pypi.python.org/pypi/Pillow/
