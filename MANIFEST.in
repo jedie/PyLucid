@@ -1,4 +1,4 @@
-include AUTHORS README.creole MANIFEST.in
+include AUTHORS LICENSE README.creole MANIFEST.in
 recursive-include * *.html *.css *.js
 recursive-include requirements *
 recursive-include scripts *
