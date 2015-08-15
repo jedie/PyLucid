@@ -1,6 +1,7 @@
 # Config file for automatic testing at travis-ci.org
 
 language: python
+sudo: false
 
 python:
   #- "2.7"
@@ -8,15 +9,15 @@ python:
   - "3.4"
 
 install:
-  - "pip install --upgrade pip"
-  - "pip install ."
-  - "pip install -r requirements/unittest_installation.txt"
+  - pip install --upgrade pip
+  - pip install .
+  - pip install -r requirements/unittest_installation.txt
 
 script:
   - coverage run ./setup.py test
 
 after_success:
-  coveralls
+  - coveralls
 
 notifications:
   irc: "irc.freenode.org#pylucid"
