@@ -33,6 +33,7 @@ pytz
 
 # http://www.djangoproject.com/
 # http://pypi.python.org/pypi/Django
+# TODO: Update to 1.8 after migration to django-cms 3.1
 Django>=1.7,<1.8
 
 # https://github.com/django-debug-toolbar/django-debug-toolbar
@@ -76,6 +77,11 @@ django-filer>=0.9,<0.10
 # use PyPi if new relase is available
 # see: https://github.com/nephila/djangocms-blog/issues/103
 git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog
+
+# https://pypi.python.org/pypi/django-admin-enhancer/
+# TODO: Remove after update to django 1.8
+django-admin-enhancer
+
 
 # djangocms-widgets
 #------------------
