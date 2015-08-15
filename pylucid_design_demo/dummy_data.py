@@ -33,7 +33,7 @@ SOURCE_DUMMY_TEXT = "<p>Username: <strong>%s</strong> password: <strong>%s</stro
 )
 
 # PAGE_COUNTS = [4,2,3,1]
-PAGE_COUNTS = [3,1]
+PAGE_COUNTS = [3, 2, 1]
 
 
 def create_placeholder(dummy_text):
@@ -58,20 +58,24 @@ def create_dummy_page(title, template, placeholder, parent=None):
     print("\t%s" % page.get_absolute_url(language=settings.LANGUAGE_CODE))
     return page
 
-def create_tree(placeholder, title="level", parent=None, level=1):
+def create_tree(title=None, parent=None, level=1):
     for no in range(1, PAGE_COUNTS[level-1]+1):
-        page_title = "%s %s" % (title, no)
+        if title is None:
+            page_title = "level %s" % no
+        else:
+            page_title = "%s.%s" % (title, no)
+
+        placeholder = create_placeholder(
+            "<h2>Dummy page on %s</h2>%s" % (page_title, SOURCE_DUMMY_TEXT)
+        )
         page = create_dummy_page(page_title, constants.TEMPLATE_INHERITANCE_MAGIC, placeholder, parent)
         if level<len(PAGE_COUNTS):
-            create_tree(placeholder, page_title, parent=page, level=level+1)
+            create_tree(page_title, parent=page, level=level+1)
 
 
 def create_pages():
     print(" *** Create pages *** ")
-
-    placeholder = create_placeholder(SOURCE_DUMMY_TEXT)
-
-    create_tree(placeholder)
+    create_tree()
 
     # Add a sitemap page
     placeholder = Placeholder.objects.create(slot="content")
