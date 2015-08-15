@@ -19,14 +19,43 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import sys
+import subprocess
+import shutil
 
 from setuptools import setup, find_packages
 
 from pylucid import __version__
 
 
+PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+# convert creole to ReSt on-the-fly, see also:
+# https://code.google.com/p/python-creole/wiki/UseInSetup
+try:
+    from creole.setup_utils import get_long_description
+except ImportError as err:
+    if "check" in sys.argv or "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
+        raise ImportError("%s - Please install python-creole >= v0.8 - e.g.: pip install python-creole" % err)
+    long_description = None
+else:
+    long_description = get_long_description(PACKAGE_ROOT)
+
+
+def get_authors():
+    try:
+        with open(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r") as f:
+            authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
+    except Exception as err:
+        authors = "[Error: %s]" % err
+    return authors
+
+
+
 if "publish" in sys.argv:
     """
+    'publish' helper for setup.py
+
     Build and upload to PyPi, if...
         ... __version__ doesn't contains "dev"
         ... we are on git 'master' branch
@@ -37,10 +66,14 @@ if "publish" in sys.argv:
     The cli arguments will be pass to 'twine'. So this is possible:
      * Display 'twine' help page...: ./setup.py publish --help
      * use testpypi................: ./setup.py publish --repository=test
+
+    TODO: Look at: https://github.com/zestsoftware/zest.releaser
+
+    Source: https://github.com/jedie/python-code-snippets/blob/master/CodeSnippets/setup_publish.py
+    copyleft 2015 Jens Diemer - GNU GPL v2+
     """
-    # Imports here, so it's easier to copy&paste this complete code block ;)
-    import subprocess
-    import shutil
+    if sys.version_info[0] == 2:
+        input = raw_input
 
     try:
         # Test if wheel is installed, otherwise the user will only see:
@@ -106,14 +139,24 @@ if "publish" in sys.argv:
         print(output)
         sys.exit(-1)
 
-    print("\ngit tag version (will raise a error of tag already exists)")
-    verbose_check_call("git", "tag", "v%s" % __version__)
+    print("\ncheck if pull is needed")
+    verbose_check_call("git", "fetch", "--all")
+    call_info, output = verbose_check_output("git", "log", "HEAD..origin/master", "--oneline")
+    print("\t%s" % call_info)
+    if output == "":
+        print("OK")
+    else:
+        print("\n *** ERROR: git repro is not up-to-date:")
+        print(output)
+        sys.exit(-1)
+    verbose_check_call("git", "push")
 
     print("\nCleanup old builds:")
     def rmtree(path):
         path = os.path.abspath(path)
-        print("\tremove tree:", path)
-        shutil.rmtree(path)
+        if os.path.isdir(path):
+            print("\tremove tree:", path)
+            shutil.rmtree(path)
     rmtree("./dist")
     rmtree("./build")
 
@@ -129,6 +172,9 @@ if "publish" in sys.argv:
         log.write(output)
     print("Build output is in log file: %r" % log_filename)
 
+    print("\ngit tag version (will raise a error of tag already exists)")
+    verbose_check_call("git", "tag", "v%s" % __version__)
+
     print("\nUpload with twine:")
     twine_args = sys.argv[1:]
     twine_args.remove("publish")
@@ -137,36 +183,10 @@ if "publish" in sys.argv:
     from twine.commands.upload import main as twine_upload
     twine_upload(twine_args)
 
-    print("\ngit push to server")
-    verbose_check_call("git", "push")
+    print("\ngit push tag to server")
     verbose_check_call("git", "push", "--tags")
 
     sys.exit(0)
-
-
-PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
-
-
-# convert creole to ReSt on-the-fly, see also:
-# https://code.google.com/p/python-creole/wiki/UseInSetup
-try:
-    from creole.setup_utils import get_long_description
-except ImportError as err:
-    if "check" in sys.argv or "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
-        raise ImportError("%s - Please install python-creole >= v0.8 - e.g.: pip install python-creole" % err)
-    long_description = None
-else:
-    long_description = get_long_description(PACKAGE_ROOT)
-
-
-def get_authors():
-    try:
-        with open(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r") as f:
-            authors = [l.strip(" *\r\n") for l in f if l.strip().startswith("*")]
-    except Exception as err:
-        authors = "[Error: %s]" % err
-    return authors
-
 
 
 setup_info = dict(
@@ -190,10 +210,7 @@ setup_info = dict(
     test_suite = "runtests.run_tests",
     zip_safe=False,
     classifiers=[
-       'Development Status :: 1 - Planning',
-#        'Development Status :: 2 - Pre-Alpha',
-#        'Development Status :: 3 - Alpha',
-#         "Development Status :: 4 - Beta",
+        "Development Status :: 4 - Beta",
 #         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
