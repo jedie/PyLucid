@@ -9,6 +9,9 @@ TEMP_PATH_KEY="UNITTEST_TEMP_PATH"
 
 
 def cleanup(temp_dir):
+    if not os.path.isdir(temp_dir):
+        return
+
     print("\nCleanup %r: " % temp_dir, end="")
     try:
         shutil.rmtree(temp_dir)
