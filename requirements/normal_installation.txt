@@ -2,6 +2,9 @@
 # Normal installation requirements, using all packages from pypi.
 # This is for all normal PyLucid users.
 #
+# https://requires.io/github/jedie/PyLucid/requirements/
+#
+#
 
 # include the basic requirements
 -r basic_requirements.txt

@@ -1,8 +1,12 @@
+#
+# https://requires.io/github/jedie/PyLucid/requirements/
+#
+
 # Python packages
 #-----------------
 
 # https://pypi.python.org/pypi/click/
-click>=4.1,<4.2
+click==5.1
 
 # http://python-pillow.github.io/
 # https://pypi.python.org/pypi/Pillow/
