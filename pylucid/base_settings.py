@@ -103,7 +103,7 @@ INSTALLED_APPS = (
     'djangocms_text_ckeditor',
     'menus',
     'sekizai',
-    'mptt',
+    'treebeard',
 
     # https://github.com/stefanfoulis/django-filer
     'filer',
@@ -134,7 +134,6 @@ INSTALLED_APPS = (
     'taggit_autosuggest',
     'meta',
     'meta_mixin',
-    'admin_enhancer',
     'djangocms_blog',
 
     'django_info_panel',
