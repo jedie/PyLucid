@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 """
-    WARNING: This file is generated with: bootstrap_env v0.5.4
+    WARNING: This file is generated with: bootstrap_env v0.6.0
     https://pypi.python.org/pypi/bootstrap_env/
     script file: 'generate_bootstrap.py'
-    used '.../PyLucid_env/lib/python3.4/site-packages/virtualenv.py' v13.1.0
-    Python v3.4.0 (default, Apr 11 2014, 13:05:18)  [GCC 4.8.2]
+    used '.../PyLucid_env_py3/lib/python3.4/site-packages/virtualenv.py' v13.1.2
+    Python v3.4.3 (default, Oct 14 2015, 20:28:29)  [GCC 4.8.4]
 """
 
-__version__ = "13.1.0"
+__version__ = "13.1.2"
 virtualenv_version = __version__  # legacy
 
 import base64
@@ -1870,21 +1870,20 @@ def create_bootstrap_script(extra_text, python_version=''):
 ###############################################################################
 ## 'prefix code' START
 # requirements from normal_installation.txt
-NORMAL_INSTALLATION = ['click==5.1',
- 'pillow>=2.9,<2.10',
+NORMAL_INSTALLATION = ['click>=6.2,<6.3',
+ 'pillow>=3.0,<3.1',
  'Pygments>=2.0,<2.1',
  'pytz',
- 'Django>=1.7,<1.8',
- 'django-debug-toolbar>=1.3,<1.4',
+ 'Django>=1.8,<1.9',
+ 'django-debug-toolbar>=1.4,<1.5',
  'django-robots>=1.1,<1.2',
- 'django-compressor>=1.5,<1.6',
- 'django-reversion>=1.9,<2.0',
- 'django-cms>=3.0.10,<3.1',
- 'djangocms-text-ckeditor>=2.6,<2.7',
- 'cmsplugin-filer>=0.10,<0.11',
- 'django-filer>=0.9,<0.10',
- 'git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog',
- 'django-admin-enhancer',
+ 'django-compressor>=1.6,<1.7',
+ 'django-reversion>=1.10,<1.11',
+ 'django-cms>=3.2,<3.3',
+ 'djangocms-text-ckeditor>=2.8,<2.9',
+ 'cmsplugin-filer>=1.0,<1.1',
+ 'django-filer>=1.0,<1.1',
+ 'djangocms-blog>=0.6,<0.7',
  'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'python-creole>=1.3,<1.4',
  'django-tools>=0.29,<0.30',
@@ -1897,21 +1896,20 @@ NORMAL_INSTALLATION = ['click==5.1',
  'git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
 
 # requirements from developer_installation.txt
-DEVELOPER_INSTALLATION = ['click==5.1',
- 'pillow>=2.9,<2.10',
+DEVELOPER_INSTALLATION = ['click>=6.2,<6.3',
+ 'pillow>=3.0,<3.1',
  'Pygments>=2.0,<2.1',
  'pytz',
- 'Django>=1.7,<1.8',
- 'django-debug-toolbar>=1.3,<1.4',
+ 'Django>=1.8,<1.9',
+ 'django-debug-toolbar>=1.4,<1.5',
  'django-robots>=1.1,<1.2',
- 'django-compressor>=1.5,<1.6',
- 'django-reversion>=1.9,<2.0',
- 'django-cms>=3.0.10,<3.1',
- 'djangocms-text-ckeditor>=2.6,<2.7',
- 'cmsplugin-filer>=0.10,<0.11',
- 'django-filer>=0.9,<0.10',
- 'git+https://github.com/jedie/djangocms-blog.git#egg=djangocms-blog',
- 'django-admin-enhancer',
+ 'django-compressor>=1.6,<1.7',
+ 'django-reversion>=1.10,<1.11',
+ 'django-cms>=3.2,<3.3',
+ 'djangocms-text-ckeditor>=2.8,<2.9',
+ 'cmsplugin-filer>=1.0,<1.1',
+ 'django-filer>=1.0,<1.1',
+ 'djangocms-blog>=0.6,<0.7',
  'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'wheel',
  'twine',
@@ -1927,7 +1925,7 @@ DEVELOPER_INSTALLATION = ['click==5.1',
  '--editable=git+git@github.com:jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments',
  '--editable=git+git@github.com:jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
- '--editable=git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid',
+ '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid',
  '--editable=git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
 ###############################################################################
 ## '.../src/pylucid/bootstrap/sources/prefix_code.py' START
@@ -2148,7 +2146,7 @@ class AfterInstall(object):
 ## 'prefix code' END
 ###############################################################################
 ###############################################################################
-## '.../workspace/bootstrap-env/bootstrap_env/utils/bootstrap_install_pip.py' START
+## '.../src/bootstrap-env/bootstrap_env/utils/bootstrap_install_pip.py' START
 INSTALL_PIP_OPTION="--install-pip"
 
 
@@ -2309,7 +2307,7 @@ def adjust_options(options, args):
 
 def after_install(options, home_dir):
     _install_pip(options, home_dir)
-## '.../workspace/bootstrap-env/bootstrap_env/utils/bootstrap_install_pip.py' END
+## '.../src/bootstrap-env/bootstrap_env/utils/bootstrap_install_pip.py' END
 ###############################################################################
     ###############################################################################
     ## '.../src/pylucid/bootstrap/sources/after_install.py' START
@@ -20250,21 +20248,21 @@ AVijEPwfucjncQ==
 
 ##file activate.sh
 ACTIVATE_SH = convert("""
-eJytVVFvokAQfudXTLEPtTlLeo9tvMSmJpq02hSvl7u2wRUG2QR2DSxSe7n/frOACEVNLlceRHa+
-nfl25pvZDswCnoDPQ4QoTRQsENIEPci4CsBMZBq7CAsuLOYqvmYKTTj3YxnBgiXBudGBjUzBZUJI
-BXEqgCvweIyuCjeG4eF2F5x14bcB9KQiQQWrjSddI1/oQIx6SYYeoFjzWIoIhYI1izlbhJjkKO7D
-M/QEmKfO9O7WeRo/zr4P7pyHwWxkwitcgwpQ5Ej96OX+PmiFwLeVjFUOrNYKaq1Nud3nR2n8nI2m
-k9H0friPTGVsUdptaxGrTEfpNVFEskxpXtUkkCkl1UNF9cgLBkx48J4EXyALuBtAwNYIjF5kcmUU
-abMKmMq1ULoiRbgsDEkTSsKSGFCJ6Z8vY/2xYiSacmtyAfCDdCNTVZoVF8vSTQOoEwSnOrngBkws
-MYGMBMg8/bMBLSYKS7pYEXP0PqT+ZmBT0Xuy+Pplj5yn4aM9nk72JD8/Wi+Gr98sD9eWSMOwkapD
-BbUv91XSvmyVkICt2tmXR4tWmrcUCsjWOpw87YidEC8i0gdTSOFhouJUNxR+4NYBG0MftoCTD9F7
-2rTtxG3oPwY1b2HncYwhrlmj6Wq924xtGDWqfdNxap+OYxplEurnMVo9RWks+rH8qKEtx7kZT5zJ
-4H7oOFclrN6uFe+d+nW2aIUsSgs/42EIPuOhXq+jEo3S6tX6w2ilNkDnIpHCWdEQhFgwj9pkk7FN
-l/y5eQvRSIQ5+TrL05lewxWpt/Lbhes5cJF3mLET1MGhcKCF+40tNWnUulxrpojwDo2sObdje3Bz
-N3QeHqf3D7OjEXMVV8LN3ZlvuzoWHqiUcNKHtwNd0IbvPGKYYM31nPKCgkUILw3KL+Y8l7aO1ArS
-Ad37nIU0fCj5NE5gQCuC5sOSu+UdI2NeXg/lFkQIlFpdWVaWZRfvqGiirC9o6liJ9FXGYrSY9mI1
-D/Ncozgn13vJvsznr7DnkJWXsyMH7e42ljdJ+aqNDF1bFnKWFLdj31xtaJYK6EXFgqmV/ymD/ROG
-+n8O9H8f5vsGOWXsL1+1k3g=
+eJytVVFv2jAQfs+vuIY+lGo0Yo+tmEQ1JJBaqBrWaWurYJKDWAo2ShxSWvW/7+yEEAhl0tY8EOI7
+332++75zA8YhT2DGI4RFmiiYIqQJBpBxFYKdyDT2EaZcOMxXfMUU2nA+i+UCpiwJz60GrGUKPhNC
+KohTAVxBwGP0VbS2rAA3u+CsCW8W0JOKBBUs14H0LbPQgBj1kowCQLHisRQLFApWLOZsGmFivPgM
+HqElwD5980Y3372Hwf34R/fGu+uO+613G57hClSIwjjrRxs69mnN2S498GUpY2Ucy7UcXW2Tsc/4
+cSS/xv3RsD+67R3GU5prqEpLHVtpOopw14twFoU1vU1CmVJpA1TUFdM2YCKA1yT8AlnI/RBCtkJg
+9CKTLxcLbVYhU4YRRSjihc+iiJihJMwJATWa/s1krD+WjKhTbE0uAH4Se2SqCrPiYl6E2XHUBYJT
+XV/wQybmmEBGNGSB/lmDphSlJXYsCTkG+9W/7rqm9S1ZLPx2+95D794djIYHW2AO2Irh6zcnwJUj
+0ijaKdiHnXXbh1vqtmu9dNv1Jrrto90rzBsUucvG2hs+bLGdaGgGSwdsIUWAiYpTLTHcg9cAF6MZ
+bBxO9gC0tGmjzU32d4vknNt5HGOEK7Yjw4qad3NbVgVtx/a8yqfn2VZRh+qRrJrEqJK5PIuPirfj
+edeDoTfs3vY877Jwq6q3xL1Vgi4YrZBFaRFkPIpgxnik16teifbSTNZcxMVSrYHORYSFs1wc5DFl
+AUlmnbF1k+L5Rk40JGFCsc5MOdMruCQml3GbcDUBLozarAqtjsyIDxSty7I3H/aPamnm5EledZJq
+9b8P3O71Tc+7ux/d3o3/ktTQuWSwiWi/bLuZx6CGwkkHXj6QQ919GxGjBCuhJ1QdFGyB8LTT7id7
+YgiuM9WSNEBPA84iGkfUAhow0KUVQRNjzv3i7pExL66NYgsihEotLx0ny7KLV1Q0Y1YXNIecRM5U
+xmJ0mI7i7B7msQJxQqEPgn2aTJ7hwCHLKGdHDtrcbiyul+JVmR26vSziLMlvzY69XNN0FdBa5Au2
+5v+njPpPGPP/OeL/dbwfGu1Utz87Sp7q
 """)
 
 ##file activate.fish
