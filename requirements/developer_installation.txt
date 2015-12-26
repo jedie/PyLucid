@@ -63,7 +63,7 @@ werkzeug
 
 # http://www.pylucid.org/
 # https://pypi.python.org/pypi/PyLucid
--e git+git@github.com:jedie/PyLucid.git@django-cms#egg=pylucid
+-e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
 
 # https://github.com/mitar/cmsplugin-markup
 -e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
