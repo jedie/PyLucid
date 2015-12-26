@@ -49,29 +49,34 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.doc.XViewMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
-    'cms.middleware.language.LanguageCookieMiddleware'
+    'cms.middleware.language.LanguageCookieMiddleware',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.request',
-    'django.core.context_processors.media',
-    'django.core.context_processors.csrf',
-    'django.core.context_processors.tz',
-    'sekizai.context_processors.sekizai',
-    'django.core.context_processors.static',
-    'cms.context_processors.cms_settings',
-    'pylucid.context_processors.pylucid',
-)
+TEMPLATES = ({
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'APP_DIRS': True,
+    'OPTIONS': {
+        'context_processors': (
+            'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
+            'django.core.context_processors.i18n',
+            'django.core.context_processors.debug',
+            'django.core.context_processors.request',
+            'django.core.context_processors.media',
+            'django.core.context_processors.csrf',
+            'django.core.context_processors.tz',
+            'sekizai.context_processors.sekizai',
+            'django.core.context_processors.static',
+            'cms.context_processors.cms_settings',
+            'pylucid.context_processors.pylucid',
+        )
+    }
+},)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
@@ -114,6 +119,7 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_teaser',
+    'cmsplugin_filer_utils',
     'cmsplugin_filer_video',
 
     'cmsplugin_htmlsitemap', # https://github.com/raphaa/cmsplugin-htmlsitemap
