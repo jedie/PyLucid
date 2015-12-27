@@ -138,7 +138,7 @@ class ManageTest(PageInstanceTestCase):
         status, output = self.call_manage_py(["--help"])
         # print(output)
 
-        self.assertIn("Usage: manage.py subcommand [options] [args]", output)
+        self.assertIn("Type 'manage.py help <subcommand>' for help on a specific subcommand.", output)
         self.assertIn("[pylucid]", output)
         self.assertIn("create_blog_page", output)
         self.assertEqual(status, 0)
