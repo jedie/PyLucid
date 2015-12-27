@@ -37,12 +37,6 @@ INTERNAL_IPS = (
 
 SITE_ID = 1
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    'django.template.loaders.eggs.Loader'
-)
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -57,11 +51,12 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.language.LanguageCookieMiddleware',
 )
 
-TEMPLATES = ({
+TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [],
     'APP_DIRS': True,
     'OPTIONS': {
-        'context_processors': (
+        'context_processors': [
             'django.contrib.auth.context_processors.auth',
             'django.contrib.messages.context_processors.messages',
             'django.core.context_processors.i18n',
@@ -74,9 +69,11 @@ TEMPLATES = ({
             'django.core.context_processors.static',
             'cms.context_processors.cms_settings',
             'pylucid.context_processors.pylucid',
-        )
-    }
-},)
+        ],
+    },
+},]
+
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
