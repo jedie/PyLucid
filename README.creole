@@ -29,7 +29,7 @@ more info here: https://pillow.readthedocs.org/en/latest/installation.html
 
 {{{
 # download bootstrap file:
-/home/FooBar$ wget https://github.com/jedie/PyLucid/raw/django-cms/pylucid-boot.py
+/home/FooBar$ wget https://github.com/jedie/PyLucid/raw/develop/pylucid-boot.py
 
 # Create virtualenv with all needed packages:
 /home/FooBar$ python3 pylucid-boot.py ~/PyLucid_env
