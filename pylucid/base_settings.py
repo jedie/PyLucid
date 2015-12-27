@@ -198,8 +198,6 @@ CMS_PLACEHOLDER_CONF = {
 
 
 MIGRATION_MODULES = {
-    'cms': 'cms.migrations_django', # only for django CMS 3.0
-    'menus': 'menus.migrations_django', # only for django CMS 3.0
     'djangocms_text_ckeditor': 'djangocms_text_ckeditor.migrations',
     # 'djangocms_column': 'djangocms_column.migrations_django',
     # 'djangocms_flash': 'djangocms_flash.migrations_django',
