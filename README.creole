@@ -79,7 +79,7 @@ MySQL DB API Driver:
 {{{
 (PyLucid_env) ~/PyLucid_env $ pip install mysqlclient
 }}}
-see also: [[https://docs.djangoproject.com/en/1.7/ref/databases/#mysql-db-api-drivers|Django database docs]].
+see also: [[https://docs.djangoproject.com/en/1.8/ref/databases/#mysql-db-api-drivers|Django database docs]].
 
 FastCGI wrapper for WSGI applications:
 {{{
@@ -122,7 +122,7 @@ e.g.:
 
 === PyLucid v1 migration
 
-Use use the [[https://docs.djangoproject.com/en/1.7/topics/db/multi-db|Multiple databases]] feature to migrate a old v1 installation:
+Use use the [[https://docs.djangoproject.com/en/1.8/topics/db/multi-db|Multiple databases]] feature to migrate a old v1 installation:
 e.g.:
 {{{
 DATABASES = {

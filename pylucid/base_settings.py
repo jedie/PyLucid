@@ -6,7 +6,7 @@
 
     see also:
     https://github.com/django/django/blob/master/django/conf/global_settings.py
-    https://docs.djangoproject.com/en/1.7/ref/settings/
+    https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 import os
@@ -76,7 +76,7 @@ TEMPLATES = [{
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.7/howto/static-files/
+# https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'

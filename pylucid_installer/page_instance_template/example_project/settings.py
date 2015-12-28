@@ -5,13 +5,13 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Quick-start development settings - unsuitable for production:
-        https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
+        https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
     For more information on this file, see:
-        https://docs.djangoproject.com/en/1.7/topics/settings/
+        https://docs.djangoproject.com/en/1.8/topics/settings/
 
     For the full list of settings and their values, see:
-        https://docs.djangoproject.com/en/1.7/ref/settings/
+        https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 from django.utils.translation import ugettext_lazy as _
@@ -58,7 +58,7 @@ WIDGET_TEMPLATES += (
 
 #____________________________________________________________________
 # Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASES = {
     'default': {
         'NAME': os.path.join(PROJECT_DIR, 'example_project.db'),
@@ -84,24 +84,24 @@ DATABASES = {
 #____________________________________________________________________
 # Please change email-/SMTP-Settings:
 
-# https://docs.djangoproject.com/en/1.7/ref/settings/#email-host
+# https://docs.djangoproject.com/en/1.8/ref/settings/#email-host
 EMAIL_HOST = "localhost"
 EMAIL_HOST_USER = "root@%s" % EMAIL_HOST
 EMAIL_HOST_PASSWORD = ""
 
-# https://docs.djangoproject.com/en/1.7/ref/settings/#default-from-email
+# https://docs.djangoproject.com/en/1.8/ref/settings/#default-from-email
 # email address to use for various automated correspondence from the site manager(s). Except error mails:
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# https://docs.djangoproject.com/en/1.7/ref/settings/#server-email
+# https://docs.djangoproject.com/en/1.8/ref/settings/#server-email
 # Email address that error messages come from:
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-# https://docs.djangoproject.com/en/1.7/ref/settings/#managers
+# https://docs.djangoproject.com/en/1.8/ref/settings/#managers
 # A tuple that lists people who get broken link notifications when BrokenLinkEmailsMiddleware is enabled:
 #MANAGERS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
 
-# https://docs.djangoproject.com/en/1.7/ref/settings/#admins
+# https://docs.djangoproject.com/en/1.8/ref/settings/#admins
 # A tuple that lists people who get code error notifications:
 #ADMINS = MANAGERS
 
@@ -113,9 +113,9 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 #  * djangocms
 #  * django-parler (for djangocms-blog)
 #
-# see also: https://docs.djangoproject.com/en/1.7/topics/i18n/
+# see also: https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-# https://docs.djangoproject.com/en/1.7/ref/settings/#languages
+# https://docs.djangoproject.com/en/1.8/ref/settings/#languages
 LANGUAGES = (
     ('en', _('English')),
     ('de', _('German')),
@@ -173,7 +173,7 @@ PARLER_LANGUAGES = {
     }
 }
 
-# https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
+# https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [
     "*", # Allow any domain/subdomain
     # 'www.example.tld',  # Allow domain
