@@ -222,8 +222,6 @@ For older PyLucid history, look at:
 
 * [[https://flattr.com/submit/auto?uid=jedie&url=https%3A%2F%2Fgithub.com%2Fjedie%2FPyLucid%2F|Flattr This!]]
 * Send [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F|1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F]]
-* [[Paypal over SourceForge.net|http://sourceforge.net/donate/index.php?group_id=146328]]
-* [[Paypal over Pledgie|https://pledgie.com/campaigns/10140]]
 
 
 = links
