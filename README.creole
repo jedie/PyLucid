@@ -231,11 +231,9 @@ For older PyLucid history, look at:
 
 = links
 
-| Homepage            | [[http://www.pylucid.org]]
-| Development history | [[http://www.pylucid.org/blog/tags/development/|visible / backward-incompatible changes]]
-| Forum               | [[http://forum.pylucid.org/]]
-| IRC                 | [[http://www.pylucid.org/permalink/304/irc-channel|#pylucid on freenode.net]]
-| Github              | [[http://github.com/jedie/PyLucid]]
-| Sourceforge         | [[http://sourceforge.net/projects/pylucid/]]
-| Google code         | [[http://code.google.com/p/pylucid/]]
+| Homepage             | [[http://www.pylucid.org]]
+| Sourcecode @ GitHub  | [[https://github.com/jedie/PyLucid|github.com/jedie/PyLucid]]
+| Python Package Index | [[https://pypi.python.org/pypi/PyLucid|pypi.python.org/pypi/PyLucid]]
+| IRC                  | [[http://www.pylucid.org/permalink/304/irc-channel|#pylucid on freenode.net]]
+
 
