@@ -1,12 +1,17 @@
 = about PyLucid
 
-PyLucid is an Open Source web content management system written in Python.
+PyLucid is an Open Source web content management system written in Python using Django-CMS.
 
-This [[https://github.com/jedie/PyLucid/tree/django-cms|django-cms branch]] is a completely rewrite.
+Since the v2.0 rewrite, PyLucid is more a alternative for [[https://github.com/nephila/djangocms-installer|djangocms-installer]]
 
-The current state of the Django-CMS branch is not useable :(
+The goal is to simplify the Django-CMS setup:
 
-Fork and contribute! ;)
+* Just run the **bootstrap** file to get a working virtualenv with everything installed.
+* run **pylucid_installer** cli program to create a django-CMS page instance
+
+You should not use PyLucid in production, until v2.x is used on [[http://www.pylucid.org|pylucid.org]] ;)
+
+Try, fork and contribute! ;)
 
 | {{https://coveralls.io/repos/jedie/PyLucid/badge.svg|Coverage Status on coveralls.io}} | [[https://coveralls.io/r/jedie/PyLucid|coveralls.io/r/jedie/PyLucid]] |
 | {{https://travis-ci.org/jedie/PyLucid.svg|Build Status on travis-ci.org}} | [[https://travis-ci.org/jedie/PyLucid/|travis-ci.org/jedie/PyLucid]] |
@@ -189,6 +194,29 @@ Currently the base files are a mix of:
 migration:
 * migrate User Profile data
 * migrate the information pagetree.permitViewGroup, pagemeta.permitViewGroup and pagetree.permitEditGroup
+
+
+
+== Release History
+
+* [[https://github.com/jedie/PyLucid/compare/old/v1.6.x...old/v2.0.x|28.Dec.2015 - v2.0.x beta]]:
+** rewrite to use Django-CMS
+* [[https://github.com/jedie/PyLucid/compare/old/v1.5.x...old/v1.6.x|12.Feb.2015 - v1.6.x]]:
+** v1.6.x is the last PyLucid release that doesn't based on Django-CMS
+** switch from django 1.4 to 1.6
+* [[https://github.com/jedie/PyLucid/compare/old/v0.x...old/v1.0.x|18.Jun.2012 - v1.0.x]]:
+** switch from django 1.3 to 1.4
+* [[https://github.com/jedie/PyLucid/tree/626cc139f8cc162ce2338d62718064533dcf2cc2|22.Sep.2007 - v0.8.0.beta]]:
+** PyLucid.org used the first v0.8 Beta Version who used django
+* [[https://github.com/jedie/PyLucid/tree/9680c2611912ef06c33b1a4a92ea62654a7b8fb1|21.Apr.2005 - v0.0.1]]:
+** first Version, only CGI script ListOfNewSides for lucidCMS (PHP based)
+
+(Not all old releases are listed.)
+
+For older PyLucid history, look at:
+
+* http://www.pylucid.org/permalink/30/development-history#genesis
+
 
 = donation
 
