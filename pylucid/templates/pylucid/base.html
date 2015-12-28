@@ -33,9 +33,11 @@
             |
 
             {% if user.is_authenticated %}
-                {% trans 'Logged in as:' %} [{{ user.username }}]
+                <a href="{% url 'admin:logout' %}?next=/" title="{% trans 'Log out' %}">
+                    {% trans 'Logged in as:' %} [{{ user.username }}]
+                </a>
             {% else %}
-                <a href="{% url 'honypot-login:login' %}" rel="nofollow" onclick="window.location.href = '{% url 'secure-js-login:login' %}?next={{ request.path }}'; return false;">{% trans 'Log in' %}</a>
+                <a href="#login" rel="nofollow" onclick="window.location.href = '{% url "admin:login" %}?next={{ request.path }}&amp;{{ cms_edit_on }}&amp;cms-toolbar-login=1'; return false;">{% trans 'Log in' %}</a>
             {% endif %}
             |
             {% block footer %}
