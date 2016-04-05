@@ -151,6 +151,9 @@ You must activate some settings:
 
 commands for migration, e.g.:
 {{{
+# create missing models (e.g. todo app)
+(PyLucid_env) ~/page_instance $ ./manage.py migrate
+
 # migrate old pages to django-cms:
 (PyLucid_env) ~/page_instance $ ./manage.py migrate_pylucid --inline_script
 
