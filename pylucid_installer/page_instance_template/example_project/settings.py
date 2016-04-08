@@ -61,21 +61,21 @@ WIDGET_TEMPLATES += (
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASES = {
     'default': {
-        'NAME': os.path.join(PROJECT_DIR, 'example_project.db'),
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'USER': '',
         'ENGINE': 'django.db.backends.sqlite3',
-        'PORT': ''
+        'HOST': 'localhost',
+        'PORT': '',
+        'USER': '',
+        'PASSWORD': '',
+        'NAME': os.path.join(PROJECT_DIR, 'example_project.db'),
     },
     # Activate for PyLucid v1.x migration:
     # 'legacy': {
-    #     'NAME': 'PyLucid_v1_Database',
-    #     'PASSWORD': '',
-    #     'HOST': 'localhost',
-    #     'USER': '',
     #     'ENGINE': 'django.db.backends.mysql',
-    #     'PORT': ''
+    #     'HOST': 'localhost',
+    #     'PORT': '',
+    #     'USER': '',
+    #     'PASSWORD': '',
+    #     'NAME': 'PyLucid_v1_Database',
     # }
 }
 # Activate for PyLucid v1.x migration
