@@ -17,6 +17,10 @@ virtualenv
 django-extensions
 werkzeug
 
+# for ReSt README generation
+python-creole
+docutils
+
 
 # clone PyLucid own projects with git push access
 #-------------------------------------------------
