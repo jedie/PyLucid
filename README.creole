@@ -155,10 +155,10 @@ commands for migration, e.g.:
 (PyLucid_env) ~/page_instance $ ./manage.py migrate
 
 # migrate old pages to django-cms:
-(PyLucid_env) ~/page_instance $ ./manage.py migrate_pylucid --inline_script
+(PyLucid_env) ~/page_instance $ ./manage.py migrate_pylucid --inline_script --sites=ALL
 
 # migrate old blog entries to djangocms-blog:
-(PyLucid_env) ~/page_instance $ ./manage.py migrate_blog --inline_script
+(PyLucid_env) ~/page_instance $ ./manage.py migrate_blog --inline_script --sites=ALL
 
 # export existing designs into filesystem
 (PyLucid_env) ~/page_instance $ ./manage.py export_designs
