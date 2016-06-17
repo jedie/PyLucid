@@ -41,8 +41,5 @@ git+https://github.com/jedie/PyLucid.git@django-cms#egg=pylucid
 # external Django-CMS Addons
 #----------------------------
 
-# https://github.com/raphaa/cmsplugin-htmlsitemap
-git+https://github.com/raphaa/cmsplugin-htmlsitemap.git#egg=cmsplugin-htmlsitemap
-
 # https://github.com/mitar/cmsplugin-markup
 git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
