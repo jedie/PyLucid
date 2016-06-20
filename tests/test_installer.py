@@ -168,10 +168,6 @@ class ManageTest(PageInstanceTestCase):
             output
         )
         self.assertIn(
-            "STATICFILES_DIRS = ('%s/static',)" % self.project_path,
-            output
-        )
-        self.assertIn(
             "MEDIA_ROOT = '%s/media'" % self.temp_path,
             output
         )
