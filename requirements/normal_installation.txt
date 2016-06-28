@@ -36,7 +36,7 @@ git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-deb
 # git readonly clone of PyLucid
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid
-git+https://github.com/jedie/PyLucid.git@django-cms#egg=pylucid
+git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 
 # external Django-CMS Addons
 #----------------------------
