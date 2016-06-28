@@ -6,8 +6,8 @@ Since the v2.0 rewrite, PyLucid is more a alternative for [[https://github.com/n
 
 The goal is to simplify the Django-CMS setup:
 
-* Just run the **bootstrap** file to get a working virtualenv with everything installed.
-* run **pylucid_installer** cli program to create a django-CMS page instance
+# Just run the **bootstrap** file to get a working virtualenv with everything installed.
+# run **pylucid_installer** cli program to create a django-CMS page instance
 
 You should not use PyLucid in production, until v2.x is used on [[http://www.pylucid.org|pylucid.org]] ;)
 
