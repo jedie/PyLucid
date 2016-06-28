@@ -4,7 +4,7 @@
     PyLucid bootstrap
     ~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2014-2015 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2014-2016 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -22,6 +22,11 @@ NORMAL_INSTALLATION=None
 # --- CUT here ---
 
 
+if sys.version_info < (3, 4):
+    print("\nERROR: PyLucid requires Python 3.4 or greater!\n")
+    sys.exit(101)
+
+
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
@@ -37,13 +42,6 @@ INSTALL_DEV = "developer"
 CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_READONLY, "3":INSTALL_DEV}
 DEFAULT_MENU_CHOICE_NO = "2"
 DEFAULT_MENU_CHOICE = CHOICES[DEFAULT_MENU_CHOICE_NO]
-
-
-PY2 = sys.version_info[0] == 2
-if PY2:
-    # input=raw_input
-    raise NotImplementedError("Python 2 is currently not Supported! Please use Python 3 !!!")
-
 
 class SysPath(object):
     """

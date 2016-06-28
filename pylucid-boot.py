@@ -1877,6 +1877,11 @@ DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
  '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid']
 ###############################################################################
 ## '.../src/pylucid/bootstrap/sources/prefix_code.py' START
+if sys.version_info < (3, 4):
+    print("\nERROR: PyLucid requires Python 3.4 or greater!\n")
+    sys.exit(101)
+
+
 MENU_TXT = """
 Please select how the pylucid own projects should be checkout:
 
@@ -1892,13 +1897,6 @@ INSTALL_DEV = "developer"
 CHOICES = {"1":INSTALL_NORMAL, "2":INSTALL_READONLY, "3":INSTALL_DEV}
 DEFAULT_MENU_CHOICE_NO = "2"
 DEFAULT_MENU_CHOICE = CHOICES[DEFAULT_MENU_CHOICE_NO]
-
-
-PY2 = sys.version_info[0] == 2
-if PY2:
-    # input=raw_input
-    raise NotImplementedError("Python 2 is currently not Supported! Please use Python 3 !!!")
-
 
 class SysPath(object):
     """

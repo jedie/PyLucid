@@ -5,7 +5,6 @@ sudo: false
 
 python:
   # see: https://docs.djangoproject.com/en/dev/faq/install/#faq-python-version-support
-  - "2.7"
   - "3.4"
   - "3.5"
 

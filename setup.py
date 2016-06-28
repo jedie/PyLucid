@@ -10,17 +10,21 @@
     
     http://www.python-forum.de/viewtopic.php?f=21&t=26895 (de)
 
-    :copyleft: 2009-2015 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2016 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from __future__ import absolute_import, division, print_function
+from __future__ import print_function
 
 
 import os
 import sys
 import subprocess
 import shutil
+
+if sys.version_info < (3, 4):
+    print("\nERROR: PyLucid requires Python 3.4 or greater!\n")
+    sys.exit(101)
 
 from setuptools import setup, find_packages
 
@@ -217,11 +221,11 @@ setup_info = dict(
 #        "Intended Audience :: Education",
 #        "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Programming Language :: Python",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: JavaScript",
         "Framework :: Django",
-        "Framework :: Django :: 1.7",
+        "Framework :: Django :: 1.8",
         "Topic :: Database :: Front-Ends",
         "Topic :: Documentation",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
