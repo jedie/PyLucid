@@ -29,6 +29,8 @@ $ sudo apt-get install python3-dev libjpeg-dev libfreetype6-dev
 }}}
 more info here: https://pillow.readthedocs.org/en/latest/installation.html
 
+You also need the development packages of **libxml2** and **libxslt** for //lxml//
+
 
 === bootstrap PyLucid
 
