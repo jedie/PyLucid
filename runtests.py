@@ -54,14 +54,15 @@ def run_tests(test_labels=None):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
     django.setup()
 
-    TestRunner = get_runner(settings)
-    test_runner = TestRunner()
+    try:
+        TestRunner = get_runner(settings)
+        test_runner = TestRunner()
 
-    if test_labels is None:
-        test_labels = ['tests']
-    failures = test_runner.run_tests(test_labels)
-
-    cleanup_temp(settings.TEMP_DIR)
+        if test_labels is None:
+            test_labels = ['tests']
+        failures = test_runner.run_tests(test_labels)
+    finally:
+        cleanup_temp(settings.TEMP_DIR)
 
     sys.exit(bool(failures))
 
