@@ -1835,13 +1835,13 @@ NORMAL_INSTALLATION = ['click>=6.2,<6.3',
  'django-filer>=1.0,<1.1',
  'djangocms-blog>=0.6,<0.7',
  'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
+ 'git+https://github.com/raphaa/cmsplugin-htmlsitemap.git#egg=cmsplugin-htmlsitemap',
  'python-creole>=1.3,<1.4',
  'django-tools>=0.29,<0.30',
  'django-reversion-compare>=0.5,<0.6',
- 'git+https://github.com/jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments',
+ 'git+https://github.com/jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments',
  'git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
  'git+https://github.com/jedie/PyLucid.git@django-cms#egg=pylucid',
- 'git+https://github.com/raphaa/cmsplugin-htmlsitemap.git#egg=cmsplugin-htmlsitemap',
  'git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
 
 # requirements from developer_installation.txt
@@ -1860,21 +1860,22 @@ DEVELOPER_INSTALLATION = ['click>=6.2,<6.3',
  'django-filer>=1.0,<1.1',
  'djangocms-blog>=0.6,<0.7',
  'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
+ 'git+https://github.com/raphaa/cmsplugin-htmlsitemap.git#egg=cmsplugin-htmlsitemap',
  'wheel',
  'twine',
- 'docutils',
  'virtualenv',
  'django-extensions',
  'werkzeug',
+ 'python-creole',
+ 'docutils',
  '--editable=git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env',
  '--editable=git+git@github.com:jedie/python-creole.git#egg=python-creole',
  '--editable=git+git@github.com:jedie/django-tools.git@master#egg=django-tools',
  '--editable=git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare',
- '--editable=git+git@github.com:jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments',
+ '--editable=git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments',
  '--editable=git+git@github.com:jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
- '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid',
- '--editable=git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
+ '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid']
 ###############################################################################
 ## '.../src/pylucid/bootstrap/sources/prefix_code.py' START
 MENU_TXT = """

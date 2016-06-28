@@ -50,7 +50,7 @@ docutils
 -e git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare
 
 # https://github.com/chrisglass/cmsplugin-pygments
--e git+git@github.com:jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments
+-e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
 
 # https://github.com/raphaa/cmsplugin-htmlsitemap
 -e git+git@github.com:jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap

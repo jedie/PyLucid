@@ -28,7 +28,7 @@ django-tools>=0.29,<0.30
 django-reversion-compare>=0.5,<0.6
 
 # https://github.com/chrisglass/cmsplugin-pygments
-git+https://github.com/jedie/cmsplugin-pygments.git@django1.7#egg=cmsplugin-pygments
+git+https://github.com/jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
 
 # https://github.com/jedie/django-debug-toolbar-django-info
 git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
