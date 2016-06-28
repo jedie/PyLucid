@@ -60,4 +60,4 @@ docutils
 
 # http://www.pylucid.org/
 # https://pypi.python.org/pypi/PyLucid
--e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
+-e git+git@github.com:jedie/PyLucid.git@old/v2.0.x#egg=pylucid

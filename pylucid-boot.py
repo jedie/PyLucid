@@ -1841,7 +1841,7 @@ NORMAL_INSTALLATION = ['click>=6.2,<6.3',
  'django-reversion-compare>=0.5,<0.6',
  'git+https://github.com/jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments',
  'git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
- 'git+https://github.com/jedie/PyLucid.git@django-cms#egg=pylucid',
+ 'git+https://github.com/jedie/PyLucid.git@old/v2.0.x#egg=pylucid',
  'git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
 
 # requirements from developer_installation.txt
@@ -1875,7 +1875,7 @@ DEVELOPER_INSTALLATION = ['click>=6.2,<6.3',
  '--editable=git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments',
  '--editable=git+git@github.com:jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
- '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid']
+ '--editable=git+git@github.com:jedie/PyLucid.git@old/v2.0.x#egg=pylucid']
 ###############################################################################
 ## '.../src/pylucid/bootstrap/sources/prefix_code.py' START
 MENU_TXT = """
