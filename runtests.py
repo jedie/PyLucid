@@ -24,6 +24,7 @@ import os
 import sys
 import shutil
 
+import click
 import django
 from django.conf import settings
 from django.test.utils import get_runner
@@ -36,13 +37,13 @@ sys.path.append(
 )
 
 def cleanup_temp(temp_dir):
-    print("\nCleanup %r: " % temp_dir, end="")
+    click.secho("\nCleanup %r: " % temp_dir, fg="green", nl=False)
     try:
         shutil.rmtree(temp_dir)
     except (OSError, IOError) as err:
-        print("Error: %s" % err)
+        click.secho("Error: %s" % err, fg="red")
     else:
-        print("OK")
+        click.secho("OK", fg="green")
 
 
 def run_tests(test_labels=None):
