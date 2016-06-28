@@ -52,9 +52,6 @@ docutils
 # https://github.com/chrisglass/cmsplugin-pygments
 -e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
 
-# https://github.com/raphaa/cmsplugin-htmlsitemap
--e git+git@github.com:jedie/cmsplugin-htmlsitemap.git@django1.7#egg=cmsplugin-htmlsitemap
-
 # https://github.com/jedie/django-debug-toolbar-django-info
 -e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
 

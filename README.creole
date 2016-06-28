@@ -204,7 +204,8 @@ migration:
 == Compatible Matrix
 
 | PyLucid | Django-CMS | Django
-| v2.0    | v3.2       | v1.8
+| v2.1    | v3.3       | v1.8 LTS
+| v2.0    | v3.2       | v1.8 LTS
 | <=v1.6  | -          | v1.6
 
 == Release History
