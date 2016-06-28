@@ -210,6 +210,9 @@ migration:
 
 == Release History
 
+* v2.1.x beta
+** move from [[https://github.com/raphaa/cmsplugin-htmlsitemap|cmsplugin-htmlsitemap]] to [[https://github.com/kapt-labs/djangocms-htmlsitemap/|djangocms-htmlsitemap]]
+*** WARNING: A migration will not be done! You have to migrate by hand and delete the database table //cmsplugin_htmlsitemap_htmlsitemap// ;)
 * [[https://github.com/jedie/PyLucid/compare/old/v1.6.x...old/v2.0.x|28.Dec.2015 - v2.0.x beta]]:
 ** rewrite to use Django-CMS
 * [[https://github.com/jedie/PyLucid/compare/old/v1.5.x...old/v1.6.x|12.Feb.2015 - v1.6.x]]:

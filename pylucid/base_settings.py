@@ -119,7 +119,7 @@ INSTALLED_APPS = (
     'cmsplugin_filer_utils',
     'cmsplugin_filer_video',
 
-    'cmsplugin_htmlsitemap', # https://github.com/raphaa/cmsplugin-htmlsitemap
+    'djangocms_htmlsitemap', # https://github.com/kapt-labs/djangocms-htmlsitemap
     'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
     'cmsplugin_markup', # https://github.com/mitar/cmsplugin-markup
 

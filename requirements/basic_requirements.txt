@@ -87,5 +87,5 @@ git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 # external Django-CMS Addons
 #---------------------------
 
-# https://github.com/raphaa/cmsplugin-htmlsitemap
-git+https://github.com/raphaa/cmsplugin-htmlsitemap.git#egg=cmsplugin-htmlsitemap
+# https://github.com/kapt-labs/djangocms-htmlsitemap
+djangocms-htmlsitemap>=0.1,<0.2
