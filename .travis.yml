@@ -4,9 +4,10 @@ language: python
 sudo: false
 
 python:
-  #- "2.7"
-  #- "3.3"
+  # see: https://docs.djangoproject.com/en/dev/faq/install/#faq-python-version-support
+  - "2.7"
   - "3.4"
+  - "3.5"
 
 install:
   - pip install --upgrade pip
