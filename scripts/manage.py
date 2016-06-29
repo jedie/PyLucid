@@ -21,7 +21,7 @@
 
     origin code was borrowed from the pinax project.
     
-    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2016 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -44,11 +44,12 @@ RUN_WITH_DEV_SERVER = "runserver" in sys.argv
 os.environ['DJANGO_SETTINGS_MODULE'] = "pylucid_project.settings"
 
 PYLUCID_BASE_PATH = os.path.join(ROOT_DIR, "src/pylucid/pylucid_project")
+assert os.path.isdir(PYLUCID_BASE_PATH), "ROOT_DIR is wrong, %r doesn't exists!" % PYLUCID_BASE_PATH
 sys.path.insert(0, PYLUCID_BASE_PATH)
 
 sys.stderr = sys.stdout
 
-print "virtualenv activate...",
+print "virtualenv %r activate..." % ROOT_DIR,
 virtualenv_file = os.path.join(ROOT_DIR, "bin/activate_this.py")
 try:
     execfile(virtualenv_file, dict(__file__=virtualenv_file))
@@ -66,8 +67,8 @@ except Exception, err:
     print "Please check ROOT_DIR in this file (%s)" % __file__
     print
     sys.exit(1)
-
-print "OK"
+else:
+	print "OK"
 
 
 #------------------------------------------------------------------------------
@@ -148,6 +149,11 @@ def _error(msg):
     print "-" * 79
     print "Did you activate the virtualenv?"
     sys.exit(1)
+
+try:
+    import django
+except ImportError, msg:
+    _error(msg)
 
 try:
     from django.core.management import execute_from_command_line
