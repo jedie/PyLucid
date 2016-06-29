@@ -5,7 +5,7 @@
     PyLucid plugins
     ~~~~~~~~~~~~~~~
 
-    :copyleft: 2009-2013 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2009-2016 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -102,7 +102,12 @@ class PluginURLPattern(RegexURLResolver):
             _callable_cache.clear()  # Maps view and url pattern names to their view functions.
 
             # get the plugin url patterns fresh
-            plugin_patterns = self._get_plugin_patterns()
+            try:
+                plugin_patterns = self._get_plugin_patterns()
+            except KeyError:
+                from django.core.cache import cache
+                cache.clear()
+                raise
             PLUGIN_URLS_SYNC_DICT["plugin_patterns"] = plugin_patterns
 
         return getattr(plugin_patterns, name)
