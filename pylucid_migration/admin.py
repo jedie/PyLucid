@@ -11,7 +11,7 @@
             Add site to list_filter for e.g. PageMeta, PageContent etc.
         * split this file
     
-    :copyleft: 2008-2015 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2008-2016 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -22,7 +22,7 @@ from django.conf import settings
 from django.conf.urls import patterns, url
 from django.contrib import admin, messages
 from django.contrib.admin.sites import NotRegistered
-from django.contrib.admin.util import unquote
+from django.contrib.admin.utils import unquote
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
