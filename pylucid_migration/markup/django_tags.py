@@ -190,6 +190,11 @@ class DjangoTagAssembler(object):
         return text
 
     def reassembly_splitted(self, text):
+
+        if not self.cut_data:
+            part = PartText(content=text)
+            return [part]
+
         placeholder_dict = {}
         for no in range(len(self.cut_data) - 1, -1, -1):
             placeholder_dict[PLACEHOLDER_CUT_OUT % no] = no
