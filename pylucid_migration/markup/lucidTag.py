@@ -35,10 +35,16 @@ KEYWORD_MAP = {
     "None": None,
 }
 
-def str2dict(parts):
+def str2dict(content):
+    parts = shlex.split(content)
     result = {}
     for part in parts:
-        key, value = part.split("=", 1)
+        try:
+            key, value = part.split("=", 1)
+        except Exception as err:
+            print("Error splitting %r: %s" % (part, err))
+            raise
+
         value=value.strip("'\"")
 
         if value in KEYWORD_MAP:
@@ -66,23 +72,53 @@ def parse_lucidtag(raw_content):
         {% lucidTag PluginName kwarg1="value1" %}
         {% lucidTag PluginName.MethodName kwarg1="value1" kwarg2="value2" %}
     """
-    content = raw_content.split(" ")[1:-1]
-    method_name = content.pop(0)
+    assert raw_content.startswith("{%")
+    assert raw_content.endswith("%}")
+    content = raw_content[2:-2].strip()
+
+    try:
+        # e.g.: {% lucidTag PluginName kwarg="value" %}
+        method_name, plugin_name, content = content.split(" ", 2)
+    except ValueError:
+        # e.g.: {% lucidTag update_journal %}
+        method_name, plugin_name = content.split(" ")
+        method_kwargs = {}
+    else:
+        method_kwargs = str2dict(content)
+
     assert method_name=="lucidTag"
-    plugin_name = content.pop(0)
 
     if "." in plugin_name:
         plugin_name, method_name = plugin_name.split(".", 1)
-
-    if content:
-        method_kwargs = str2dict(content)
-    else:
-        method_kwargs = {}
 
     return plugin_name, method_name, method_kwargs
 
 
 
 if __name__ == "__main__":
+    content='{% lucidTag IncludeRemote url="http://members.ebay.de/aboutme/eBayUserName" title="eBay about me page" %}'
+    result = parse_lucidtag(content)
+    print(result)
+    assert result == (
+        'IncludeRemote', 'lucidTag',
+        {
+            'url': 'http://members.ebay.de/aboutme/eBayUserName',
+            'title': 'eBay about me page'
+        }
+    )
+
     content='{% lucidTag PluginName.MethodName kwarg1="value1" kwarg2="value2" %}'
-    print(parse_lucidtag(content))
+    result = parse_lucidtag(content)
+    print(result)
+    assert result == (
+        'PluginName', 'MethodName',
+        {
+            'kwarg1': 'value1',
+            'kwarg2': 'value2'
+        }
+    )
+
+    content ='{% lucidTag update_journal %}'
+    result = parse_lucidtag(content)
+    print(result)
+    assert result == ('update_journal', 'lucidTag', {})
