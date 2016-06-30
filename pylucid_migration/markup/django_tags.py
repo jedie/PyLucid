@@ -13,6 +13,7 @@
 
 import logging
 import re
+import traceback
 
 import pygments
 from pygments import lexers
@@ -221,7 +222,6 @@ class DjangoTagAssembler(object):
                         plugin_name, method_name, method_kwargs = parse_lucidtag(content)
                     except Exception as e:
                         print("ERROR parse lucidTag in line: %r" % content)
-                        import traceback
                         traceback.print_exc()
                         splitted.append(PartDjangoTag(content=content))
                         continue
