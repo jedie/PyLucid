@@ -30,9 +30,7 @@ SECRET_KEY = "CHANGE ME!!!"
 MEDIA_ROOT = os.path.join(DOC_ROOT, 'media')
 STATIC_ROOT = os.path.join(DOC_ROOT, 'static')
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, 'templates'),
-)
+TEMPLATES[0]["DIRS"].insert(0, os.path.join(PROJECT_DIR, 'templates'))
 
 
 ROOT_URLCONF = 'example_project.urls'
@@ -182,8 +180,7 @@ ALLOWED_HOSTS = [
 # DEBUG
 
 # *** SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEMPLATE_DEBUG = False
+DEBUG = False
 INTERNAL_IPS = (
     '127.0.0.1',
     '::1',
