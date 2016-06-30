@@ -82,11 +82,19 @@ e.g.:
 ~/PyLucid_env $ source bin/activate
 }}}
 
+
 MySQL DB API Driver:
 {{{
 (PyLucid_env) ~/PyLucid_env $ pip install mysqlclient
 }}}
 see also: [[https://docs.djangoproject.com/en/1.8/ref/databases/#mysql-db-api-drivers|Django database docs]].
+
+or use [[https://pypi.python.org/pypi/django-cymysql/|django-cymysql]]:
+{{{
+(PyLucid_env) ~/PyLucid_env $ pip install cymysql django-cymysql
+}}}
+and set **'ENGINE': 'mysql_cymysql'**
+
 
 FastCGI wrapper for WSGI applications:
 {{{
