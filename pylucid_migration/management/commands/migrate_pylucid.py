@@ -234,8 +234,4 @@ class Command(MigrateBaseCommand):
 
     def handle(self, *args, **options):
         super(Command, self).handle(*args, **options)
-
-        try:
-            self._migrate_pylucid(options)
-        except Exception:
-            traceback.print_exc(file=self.stderr)
+        self._migrate_pylucid(options)
