@@ -1873,6 +1873,7 @@ DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
  '--editable=git+git@github.com:jedie/django-tools.git@master#egg=django-tools',
  '--editable=git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare',
  '--editable=git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments',
+ '--editable=git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
  '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid']
 ###############################################################################
