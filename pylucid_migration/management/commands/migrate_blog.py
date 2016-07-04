@@ -29,6 +29,7 @@ from django.db import transaction
 
 from cms.api import add_plugin
 
+from djangocms_blog.cms_appconfig import BlogConfig
 from djangocms_blog.models import Post, BlogCategory
 
 from pylucid_migration.management.migrate_base import MigrateBaseCommand, StatusLine
@@ -84,6 +85,12 @@ class Command(MigrateBaseCommand):
         # queryset = queryset[453:456] # XXX: only test!
         # queryset = queryset[453:] # XXX: only test!
 
+        app_config, created = BlogConfig.objects.get_or_create(namespace=site.name)
+        if created:
+            print("App config for %r created." % site.name)
+        else:
+            print("Use existing %r app config." % site.name)
+
         with StatusLine(queryset.count()) as status_line:
             for no, content_entry in enumerate(queryset, start=1):
                 msg = "%s /%s/" % (content_entry.url_date, content_entry.slug)
@@ -116,6 +123,7 @@ class Command(MigrateBaseCommand):
                     author=content_entry.createby,
                     date_created=content_entry.createtime,
                     date_modified=content_entry.lastupdatetime,
+                    app_config=app_config,
                 )
 
                 new_post.sites.add(site)
@@ -146,7 +154,7 @@ class Command(MigrateBaseCommand):
                         translations__name=most_common_category
                     )
                 except BlogCategory.DoesNotExist:
-                    category = BlogCategory()
+                    category = BlogCategory(app_config=app_config)
                     category.set_current_language(language)
                     category.name = most_common_category
                     category.save()

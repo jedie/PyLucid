@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     'taggit_autosuggest',
     'meta',
     'meta_mixin',
+    'aldryn_apphooks_config',
     'djangocms_blog',
 
     'django_info_panel',
