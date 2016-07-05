@@ -184,7 +184,10 @@ class MigrateBaseCommand(BaseCommand):
                 )
                 txt += " created "
             else:
-                txt += " exists  "
+                site_new.domain=site_old.domain
+                site_new.name=site_old.name
+                site_new.save()
+                txt += " updated "
 
             if site_old.pk in site_ids:
                 sites.append(site_new)
