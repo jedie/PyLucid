@@ -75,6 +75,7 @@ class Command(MigrateBaseCommand):
             create_title(
                 language=pagemeta.language.code,
                 title=pagemeta.get_title(),
+                menu_title=pagemeta.name,
                 page=page,
                 slug=pagetree.slug,
                 meta_description=pagemeta.description,
