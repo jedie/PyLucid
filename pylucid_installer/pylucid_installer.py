@@ -41,11 +41,14 @@ def _check_activated_virtualenv():
         click.echo("Activated virtualenv detected: %r (%s)" % (sys.prefix, sys.executable))
 
 
-def _check_destination(dest, remove):
+def _check_destination(dest, remove, exist_ok):
     if not dest:
         raise click.BadParameter("Path needed!")
 
     dest = os.path.normpath(os.path.abspath(os.path.expanduser(dest)))
+
+    if exist_ok:
+        return dest
 
     if os.path.isdir(dest):
         if remove:
@@ -53,18 +56,54 @@ def _check_destination(dest, remove):
             click.echo("remove tree %r" % dest)
             shutil.rmtree(dest)
         else:
-            raise click.BadParameter("ERROR: Destination %r exist!" % dest)
+            raise click.BadParameter("ERROR: Destination %r exist! (Maybe use '--exist_ok')" % dest)
 
     return dest
 
+def copytree2(src, dst, ignore, exist_ok=False):
+    """
+    Similar to shutil.copytree, but has 'exist_ok'
+    """
+    names = os.listdir(src)
+    ignored_names = ignore(src, names)
 
-def _copytree(dest):
+    os.makedirs(dst, exist_ok=exist_ok)
+    errors = []
+    for name in names:
+        if name in ignored_names:
+            continue
+        srcname = os.path.join(src, name)
+        dstname = os.path.join(dst, name)
+        try:
+            if os.path.isdir(srcname):
+                copytree2(srcname, dstname, ignore, exist_ok=exist_ok)
+            else:
+                # Will raise a SpecialFileError for unsupported file types
+                shutil.copy2(srcname, dstname)
+        # catch the Error from the recursive copytree so that we can
+        # continue with other files
+        except OSError as why:
+            errors.append((srcname, dstname, str(why)))
+    try:
+        shutil.copystat(src, dst)
+    except OSError as why:
+        # Copying file access times may fail on Windows
+        if getattr(why, 'winerror', None) is None:
+            errors.append((src, dst, str(why)))
+
+    if errors:
+        raise OSError(errors)
+    return dst
+
+
+def _copytree(dest, exist_ok):
     src_base = os.path.abspath(os.path.dirname(__file__))
     src = os.path.join(src_base, "page_instance_template")
     click.echo("copytree %r to %r" % (src, dest))
-    shutil.copytree(
+    copytree2(
         src, dest,
-        ignore=shutil.ignore_patterns("*.pyc", "__pycache__")
+        ignore=shutil.ignore_patterns("*.pyc", "__pycache__"),
+        exist_ok=exist_ok
     )
 
 
@@ -119,7 +158,7 @@ def _rename_project(dest, name):
     src = os.path.join(dest, SRC_PROJECT_NAME)
     dst = os.path.join(dest, name)
     click.echo("Rename %r to %r" % (src, dst))
-    os.rename(src, dst)
+    shutil.move(src, dst)
 
 
 
@@ -135,7 +174,10 @@ def _rename_project(dest, name):
 @click.option("--remove", is_flag=True,
     help="Delete **all** existing files in destination before copy?",
 )
-def cli(dest, name, remove):
+@click.option("--exist_ok", is_flag=True,
+    help="Ignore existing destination?",
+)
+def cli(dest, name, remove, exist_ok):
     """
     CLI to create a page instance.
     """
@@ -144,9 +186,9 @@ def cli(dest, name, remove):
     name = _clean_project_name(name)
 
     click.echo("Create page instance here: %r" % dest)
-    dest = _check_destination(dest, remove)
+    dest = _check_destination(dest, remove, exist_ok)
 
-    _copytree(dest)
+    _copytree(dest, exist_ok)
 
     _rename_project(dest, name)
 
