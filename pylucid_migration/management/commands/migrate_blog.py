@@ -22,15 +22,15 @@ from __future__ import unicode_literals
 
 import collections
 
-from django.contrib.sites.models import Site
-from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.template.defaultfilters import truncatewords_html
 from django.db import transaction
+from django.utils import translation
 
-from cms.api import add_plugin
-
+from djangocms_blog.cms_app import BlogApp
 from djangocms_blog.cms_appconfig import BlogConfig
 from djangocms_blog.models import Post, BlogCategory
+from djangocms_blog.settings import get_setting as get_blog_settings
 
 from pylucid_migration.management.migrate_base import MigrateBaseCommand, StatusLine
 from pylucid_migration.models import BlogEntryContent
@@ -82,10 +82,15 @@ class Command(MigrateBaseCommand):
         tag_counter = self._get_tag_counter(site)
 
         queryset = BlogEntryContent.objects.all().filter(entry__sites=site).order_by("createtime")
-        # queryset = queryset[453:456] # XXX: only test!
-        # queryset = queryset[453:] # XXX: only test!
+        blog_count=queryset.count()
+        print("%i blog entries to migrate." % blog_count)
 
-        app_config, created = BlogConfig.objects.get_or_create(namespace=site.name)
+        if not blog_count:
+            print("Skip, because this site has no blog article.")
+            return
+
+        blog_namespace = get_blog_settings('AUTO_NAMESPACE')
+        app_config, created = BlogConfig.objects.get_or_create(namespace=blog_namespace)
         if created:
             print("App config for %r created." % site.name)
         else:
@@ -93,11 +98,13 @@ class Command(MigrateBaseCommand):
 
         with StatusLine(queryset.count()) as status_line:
             for no, content_entry in enumerate(queryset, start=1):
+
+                language = content_entry.language.code
+                translation.activate(language)
+
                 msg = "%s /%s/" % (content_entry.url_date, content_entry.slug)
                 status_line.write(no, msg)
                 self.file_log.debug(msg)
-
-                language = content_entry.language.code
 
                 # # TODO:
                 # content = content_entry.content
@@ -105,10 +112,39 @@ class Command(MigrateBaseCommand):
                 # # print(content)
                 # # continue
 
+                new_post, created = Post.objects.get_or_create(
+                    author=content_entry.createby,
+                    date_created=content_entry.createtime,
+                    date_modified=content_entry.lastupdatetime,
+                    app_config=app_config,
+                )
+
+                new_post.set_current_language(language, initialize=True)
+                new_post.title = content_entry.headline
+                new_post.slug = content_entry.slug
+
+                html = content2plugins(options, new_post.content, content_entry.content, content_entry.markup, language)
+                new_post.post_text = html
+                new_post.abstract = truncatewords_html(html, 20)
+
+                disable_auto_fields(new_post) # Disable django datetime auto_now and auto_now_add
+                new_post.date_created = content_entry.createtime
+                new_post.date_modified = content_entry.lastupdatetime
+
+                if content_entry.is_public:
+                    new_post.publish = True
+                    new_post.date_published = content_entry.createtime
+
+                new_post.save()
+                new_post.sites.add(site)
+
                 # convert tags
                 # self.file_log.debug("\ttags: %r" % content_entry.tags)
                 tags = self._split_tags(content_entry.tags)
-                # self.file_log.debug("\ttags: %r" % tags)
+                # add tags
+                if tags:
+                    for tag in tags:
+                        new_post.tags.add(tag)
 
                 # Use the most common tag as a category:
                 categories = [(tag_counter[tag], tag) for tag in tags]
@@ -119,53 +155,22 @@ class Command(MigrateBaseCommand):
                 except IndexError:
                     most_common_category = "Uncategorized"
 
-                new_post, created = Post.objects.get_or_create(
-                    author=content_entry.createby,
-                    date_created=content_entry.createtime,
-                    date_modified=content_entry.lastupdatetime,
-                    app_config=app_config,
-                )
-
-                new_post.sites.add(site)
-
-                new_post.set_current_language(language)
-                new_post.title = content_entry.headline
-                new_post.slug = content_entry.slug
-
-                disable_auto_fields(new_post) # Disable django datetime auto_now and auto_now_add
-                new_post.date_created = content_entry.createtime
-                new_post.date_modified = content_entry.lastupdatetime
-
-                if content_entry.is_public:
-                    new_post.publish = True
-                    new_post.date_published = content_entry.createtime
-                new_post.save()
-
-                html = content2plugins(options, new_post.content, content_entry.content, content_entry.markup, language)
-                new_post.abstract = truncatewords_html(html, 20)
-
-                # add tags
-                if tags:
-                    for tag in tags:
-                        new_post.tags.add(tag)
-
                 try:
                     category = BlogCategory.objects.language(language).get(
                         translations__name=most_common_category
                     )
                 except BlogCategory.DoesNotExist:
                     category = BlogCategory(app_config=app_config)
-                    category.set_current_language(language)
+                    category.set_current_language(language, initialize=True)
                     category.name = most_common_category
                     category.save()
                 new_post.categories.add(category.pk)
 
                 new_post.save()
 
-                if created:
-                    self.file_log.debug("\tBlog entry created: %r" % new_post)
-                else:
-                    self.file_log.debug("\t+++ Existing Blog entry updated: %r" % new_post)
+                print("\n%s" % new_post.get_absolute_url())
+
+                self.file_log.debug("\tBlog entry created: %r" % new_post)
 
                 self.file_log.debug("\t\texists on sites: %r" % ", ".join([s.name for s in new_post.sites.all()]))
                 # self.file_log.debug("\t\tpk: %r" % new_post.pk)
@@ -175,6 +180,8 @@ class Command(MigrateBaseCommand):
 
     def handle(self, *args, **options):
         super(Command, self).handle(*args, **options)
+
+        BlogApp.setup() # Call "autosetup" explicit
 
         for site in self.sites:
             with transaction.atomic():
