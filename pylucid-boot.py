@@ -1840,7 +1840,7 @@ NORMAL_INSTALLATION = ['click>=6.6,<6.7',
  'django-tools>=0.30,<0.31',
  'django-reversion-compare>=0.6,<0.7',
  'cmsplugin-pygments>=0.8.2,<0.9',
- 'git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
+ 'django-debug-toolbar-django-info>=0.3.0,<0.4',
  'git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid',
  'git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
 
