@@ -22,13 +22,11 @@
 
 import os
 import sys
-import shutil
 
 if sys.version_info < (3, 4):
     print("\nERROR: PyLucid requires Python 3.4 or greater!\n")
     sys.exit(101)
 
-import click
 import django
 from django.conf import settings
 from django.test.utils import get_runner
@@ -40,29 +38,17 @@ sys.path.append(
     os.path.join(os.path.dirname(example_project.__file__), os.pardir)
 )
 
-def cleanup_temp(temp_dir):
-    click.secho("\nCleanup %r: " % temp_dir, fg="green", nl=False)
-    try:
-        shutil.rmtree(temp_dir)
-    except (OSError, IOError) as err:
-        click.secho("Error: %s" % err, fg="red")
-    else:
-        click.secho("OK", fg="green")
-
 
 def run_tests(test_labels=None):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
     django.setup()
 
-    try:
-        TestRunner = get_runner(settings)
-        test_runner = TestRunner(verbosity=2)
+    TestRunner = get_runner(settings)
+    test_runner = TestRunner(verbosity=2)
 
-        if test_labels is None:
-            test_labels = ['tests']
-        failures = test_runner.run_tests(test_labels)
-    finally:
-        cleanup_temp(settings.TEMP_DIR)
+    if test_labels is None:
+        test_labels = ['tests']
+    failures = test_runner.run_tests(test_labels)
 
     sys.exit(bool(failures))
 
