@@ -56,7 +56,7 @@ def run_tests(test_labels=None):
 
     try:
         TestRunner = get_runner(settings)
-        test_runner = TestRunner()
+        test_runner = TestRunner(verbosity=2)
 
         if test_labels is None:
             test_labels = ['tests']
