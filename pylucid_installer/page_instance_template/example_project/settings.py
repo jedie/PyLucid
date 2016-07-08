@@ -194,9 +194,9 @@ INTERNAL_IPS = (
 #         }
 #     }
 #
-#     # django-debug-toolbar - https://github.com/django-debug-toolbar/django-debug-toolbar
 #     INSTALLED_APPS += (
-#         'debug_toolbar',
+#         'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
+#         'django_info_panel', # https://github.com/jedie/django-debug-toolbar-django-info
 #
 #         # Add all models to django admin:
 #         'pylucid_debug', # Must be the last App!

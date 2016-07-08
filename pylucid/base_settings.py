@@ -137,7 +137,6 @@ INSTALLED_APPS = (
     'aldryn_apphooks_config',
     'djangocms_blog',
 
-    'django_info_panel',
     'djangocms_widgets',
     'djangocms_widgets_socialshareprivacy',
 
@@ -218,6 +217,7 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.logging.LoggingPanel',
     'debug_toolbar.panels.redirects.RedirectsPanel',
 
+    # https://github.com/jedie/django-debug-toolbar-django-info
     'django_info_panel.panels.database.DatabaseInfo',
     'django_info_panel.panels.urlpatterns.UrlPatternsInfo',
     'django_info_panel.panels.template.TemplateInfo',
