@@ -52,12 +52,19 @@ docutils
 # https://github.com/chrisglass/cmsplugin-pygments
 -e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
 
-# https://github.com/mitar/cmsplugin-markup
--e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
-
 # https://github.com/jedie/django-debug-toolbar-django-info
 -e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
+
+# https://github.com/jedie/djangocms-widgets
+-e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
 
 # http://www.pylucid.org/
 # https://pypi.python.org/pypi/PyLucid
 -e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
+
+
+# external Django-CMS Addons
+#----------------------------
+
+# https://github.com/mitar/cmsplugin-markup
+-e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup

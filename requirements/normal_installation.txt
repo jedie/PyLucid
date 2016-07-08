@@ -33,6 +33,9 @@ cmsplugin-pygments>=0.8.2,<0.9
 # https://github.com/jedie/django-debug-toolbar-django-info
 django-debug-toolbar-django-info>=0.3.0,<0.4
 
+# https://github.com/jedie/djangocms-widgets
+git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
+
 # git readonly clone of PyLucid
 # http://www.pylucid.org/
 # http://pypi.python.org/pypi/PyLucid

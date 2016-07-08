@@ -1834,15 +1834,15 @@ NORMAL_INSTALLATION = ['click>=6.6,<6.7',
  'cmsplugin-filer>=1.1,<1.2',
  'django-filer>=1.2,<1.3',
  'djangocms-blog>=0.8,<0.9',
- 'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'djangocms-htmlsitemap>=0.1,<0.2',
  'python-creole>=1.3,<1.4',
  'django-tools>=0.30,<0.31',
  'django-reversion-compare>=0.6,<0.7',
  'cmsplugin-pygments>=0.8.2,<0.9',
  'django-debug-toolbar-django-info>=0.3.0,<0.4',
+ 'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid',
- 'git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
+ 'git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup',
 
 # requirements from developer_installation.txt
 DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
@@ -1859,7 +1859,6 @@ DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
  'cmsplugin-filer>=1.1,<1.2',
  'django-filer>=1.2,<1.3',
  'djangocms-blog>=0.8,<0.9',
- 'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'djangocms-htmlsitemap>=0.1,<0.2',
  'wheel',
  'twine',
@@ -1873,9 +1872,10 @@ DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
  '--editable=git+git@github.com:jedie/django-tools.git@master#egg=django-tools',
  '--editable=git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare',
  '--editable=git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments',
- '--editable=git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
- '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid']
+ '--editable=git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets',
+ '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid',
+ '--editable=git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup',
 ###############################################################################
 ## '.../src/pylucid/bootstrap/sources/prefix_code.py' START
 if sys.version_info < (3, 4):
