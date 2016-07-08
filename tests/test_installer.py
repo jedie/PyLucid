@@ -4,7 +4,7 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2015-2016 by the PyLucid team, see AUTHORS for more details.
     :created: 2015 by JensDiemer.de
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
@@ -16,7 +16,7 @@ import sys
 from click.testing import CliRunner
 
 from pylucid_installer.pylucid_installer import cli
-from tests.test_utils.test_cases import PageInstanceTestCase
+from .test_utils.test_cases import PageInstanceTestCase
 
 
 
