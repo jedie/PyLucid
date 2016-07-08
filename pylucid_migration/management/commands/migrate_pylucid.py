@@ -25,6 +25,7 @@ from django.db import transaction
 from django.contrib.auth.models import User
 
 import cms
+from cms import constants
 from cms.api import create_page, create_title, get_page_draft, publish_page
 from cms.models import Placeholder
 from cms.models.permissionmodels import PagePermission, ACCESS_PAGE_AND_DESCENDANTS
@@ -64,8 +65,10 @@ class Command(MigrateBaseCommand):
 
         if pagemeta.permitViewGroup == None and pagetree.permitViewGroup == None:
             login_required = False
+            visibility = constants.VISIBILITY_ALL
         else:
             login_required = True
+            visibility = constants.VISIBILITY_USERS
 
         if pagetree.id in self._PAGES:
             # Was created before in other language
@@ -111,8 +114,10 @@ class Command(MigrateBaseCommand):
                 # navigation_extenders=None,
                 published=False,
                 site=site,
+
                 login_required=login_required,
-                # limit_visibility_in_menu=VISIBILITY_ALL,
+                limit_visibility_in_menu=visibility,
+
                 # position="last-child", overwrite_url=None, xframe_options=Page.X_FRAME_OPTIONS_INHERIT
             )
 
