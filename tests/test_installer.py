@@ -139,8 +139,7 @@ class ManageTest(PageInstanceTestCase):
         # print(output)
 
         self.assertIn("Type 'manage.py help <subcommand>' for help on a specific subcommand.", output)
-        self.assertIn("[pylucid]", output)
-        self.assertIn("create_blog_page", output)
+        self.assertNotIn("Warning:", output)
         self.assertEqual(status, 0)
 
     def test_check(self):

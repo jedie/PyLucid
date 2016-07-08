@@ -4,7 +4,7 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2015-2016 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -14,7 +14,7 @@ from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.loading import get_apps, get_models
+from django.apps import apps
 from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
 
@@ -26,6 +26,12 @@ from pylucid_migration.models import PageProxyModel
 logger = logging.getLogger(__name__)
 
 
+def iter_models():
+    app_configs = apps.get_app_configs()
+    for app_config in app_configs:
+        models = app_config.get_models()
+        for model in models:
+            yield model
 
 
 def auto_register_all():
@@ -33,21 +39,19 @@ def auto_register_all():
     register all models with the admin interface.
     (Skip already registered models.)
     """
-    for app in get_apps():
-        for model in get_models(app):
-            try:
-                admin.site.register(model)
-            except AlreadyRegistered:
-                pass
+    for model in iter_models():
+        try:
+            admin.site.register(model)
+        except AlreadyRegistered:
+            pass
 
 
 def auto_patch_all():
-    for app in get_apps():
-        for model in get_models(app):
-            try:
-                patch_admin(model, skip_non_revision=True)
-            except Exception as err:
-                logging.warning("Can't patch admin for model %r: %s" % (model, err))
+    for model in iter_models():
+        try:
+            patch_admin(model, skip_non_revision=True)
+        except Exception as err:
+            logging.warning("Can't patch admin for model %r: %s" % (model, err))
 
 
 if settings.DEBUG:
