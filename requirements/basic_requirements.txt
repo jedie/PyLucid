@@ -83,4 +83,5 @@ djangocms-blog>=0.8,<0.9
 #---------------------------
 
 # https://github.com/kapt-labs/djangocms-htmlsitemap
-djangocms-htmlsitemap>=0.1,<0.2
+#djangocms-htmlsitemap>=0.1,<0.2
+# Use own repro until https://github.com/kapt-labs/djangocms-htmlsitemap/issues/1 is fixed!

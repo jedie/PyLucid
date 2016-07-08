@@ -46,3 +46,7 @@ git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 
 # https://github.com/mitar/cmsplugin-markup
 git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
+
+# https://github.com/kapt-labs/djangocms-htmlsitemap
+# Use own repro until https://github.com/kapt-labs/djangocms-htmlsitemap/issues/1 is fixed:
+git+https://github.com/jedie/djangocms-htmlsitemap.git#egg=djangocms-htmlsitemap
