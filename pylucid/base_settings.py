@@ -38,7 +38,6 @@ INTERNAL_IPS = (
 SITE_ID = 1
 
 MIDDLEWARE_CLASSES = (
-    'cms.middleware.utils.ApphookReloadMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
