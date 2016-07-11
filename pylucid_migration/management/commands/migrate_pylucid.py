@@ -93,7 +93,7 @@ class Command(MigrateBaseCommand):
             else:
                 parent = None
 
-            # http://docs.django-cms.org/en/support-3.0.x/reference/api_references.html#cms.api.create_page
+            # http://docs.django-cms.org/en/latest/reference/api_references.html#cms.api.create_page
             page = create_page(
                 title=pagemeta.get_title(),
                 menu_title=pagemeta.get_name(),

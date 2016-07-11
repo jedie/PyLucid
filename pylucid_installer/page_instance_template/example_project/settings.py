@@ -121,7 +121,7 @@ LANGUAGES = (
 LANGUAGE_CODE = 'en'
 
 # languages available in django CMS:
-# http://docs.django-cms.org/en/stable/reference/configuration.html#std:setting-CMS_LANGUAGES
+# http://docs.django-cms.org/en/latest/reference/configuration.html#std:setting-CMS_LANGUAGES
 CMS_LANGUAGES = {
     'default': { # all SITE_ID's
         'fallbacks': ['en', 'de'],

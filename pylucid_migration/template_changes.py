@@ -3,7 +3,7 @@
     migrate Templates
     ~~~~~~~~~~~~~~~~~
 
-    http://docs.django-cms.org/en/support-3.0.x/reference/templatetags.html
+    http://docs.django-cms.org/en/latest/reference/templatetags.html
 
     :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
     :created: 2015 by JensDiemer.de
