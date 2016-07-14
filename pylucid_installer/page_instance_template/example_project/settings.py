@@ -62,6 +62,7 @@ DATABASES = {
         'USER': '',
         'PASSWORD': '',
         'NAME': os.path.join(PROJECT_DIR, 'example_project.db'),
+        'ATOMIC_REQUESTS': True,
     },
     # Activate for PyLucid v1.x migration:
     # 'legacy': {
@@ -71,6 +72,7 @@ DATABASES = {
     #     'USER': '',
     #     'PASSWORD': '',
     #     'NAME': 'PyLucid_v1_Database',
+    #     'ATOMIC_REQUESTS': True,
     # }
 }
 # Activate for PyLucid v1.x migration
