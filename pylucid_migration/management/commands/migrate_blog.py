@@ -168,8 +168,6 @@ class Command(MigrateBaseCommand):
 
                 new_post.save()
 
-                print("\n%s" % new_post.get_absolute_url())
-
                 self.file_log.debug("\tBlog entry created: %r" % new_post)
 
                 self.file_log.debug("\t\texists on sites: %r" % ", ".join([s.name for s in new_post.sites.all()]))
