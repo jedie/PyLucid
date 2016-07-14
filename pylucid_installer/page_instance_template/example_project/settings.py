@@ -189,12 +189,6 @@ INTERNAL_IPS = (
 )
 
 
-# https://github.com/aldryn/aldryn-apphook-reload
-# MIDDLEWARE_CLASSES = (
-#     'cms.middleware.utils.ApphookReloadMiddleware',
-# ) + MIDDLEWARE_CLASSES
-
-
 # if DEBUG:
 #     # Disable cache, for debugging:
 #     CACHES = {
