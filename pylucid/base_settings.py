@@ -88,6 +88,8 @@ STATICFILES_FINDERS = (
 )
 
 INSTALLED_APPS = (
+    'djangocms_admin_style', # must be inserted before django.contrib.admin
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -101,7 +103,6 @@ INSTALLED_APPS = (
 
     'pylucid',
 
-    'djangocms_admin_style',
     'djangocms_text_ckeditor',
     'menus',
     'sekizai',
