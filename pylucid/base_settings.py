@@ -38,6 +38,8 @@ INTERNAL_IPS = (
 SITE_ID = 1
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.cache.UpdateCacheMiddleware',
+
     'cms.middleware.utils.ApphookReloadMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,6 +54,8 @@ MIDDLEWARE_CLASSES = (
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',
+
+    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 TEMPLATES = [{
