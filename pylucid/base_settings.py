@@ -278,3 +278,9 @@ CMS_MARKDOWN_EXTENSIONS = ()
 #     # For local debugging: print information if IP address not in INTERNAL_IPS
 #     "SHOW_TOOLBAR_CALLBACK":"pylucid_debug.debug_toolbar_helper.show_toolbar",
 # }
+
+
+
+LOGIN_REDIRECT_URL="/"
+LOGIN_URL="/admin/login/"
+LOGOUT_URL="/admin/logout/"
