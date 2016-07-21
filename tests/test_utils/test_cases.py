@@ -4,41 +4,26 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2015-2016 by the PyLucid team, see AUTHORS for more details.
     :created: 2015 by JensDiemer.de
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import os
+import pprint
 import shutil
 import subprocess
 import tempfile
 from unittest import TestCase
 
+import sys
 from click.testing import CliRunner
 
 from pylucid_installer.pylucid_installer import cli
+from pylucid_installer.page_instance_template import example_project
 
 
-class IsolatedFilesystemTestCase(TestCase):
-    dont_cleanup_temp=False # Don't remove the creates temp files, for debugging only!
-
-    def setUp(self):
-        self._cwd = os.getcwd()
-        self.temp_path = tempfile.mkdtemp(prefix="pylucid_unittest_%s_" % self._testMethodName)
-        os.chdir(self.temp_path)
-
-    def tearDown(self):
-        os.chdir(self._cwd)
-        if self.dont_cleanup_temp:
-            print("WARNING: temp files %r will be not removed!" % self.temp_path)
-            return
-
-        try:
-            shutil.rmtree(self.temp_path)
-        except (OSError, IOError):
-            pass
-
+class BaseTestCase(TestCase):
     def subprocess_getstatusoutput(self, cmd, debug=False, **kwargs):
         """
         Return (status, output) of executing cmd in a shell.
@@ -66,30 +51,75 @@ class IsolatedFilesystemTestCase(TestCase):
         kwargs["env"] = env
 
         cmd=" ".join(cmd) # FIXME: Why?!?
-        if debug:
-            print("DEBUG: Call %r with: %r" % (cmd, kwargs))
-
         try:
-            data = subprocess.check_output(cmd, **kwargs)
+            output = subprocess.check_output(cmd, **kwargs)
             status = 0
         except subprocess.CalledProcessError as ex:
-            data = ex.output
+            output = ex.output
             status = ex.returncode
 
-        if data[-1:] == '\n':
-            data = data[:-1]
+        if output[-1:] == '\n':
+            output = output[:-1]
 
         if status != 0 or debug:
-            print("subprocess exist status == %r" % status)
-            print("Output:")
-            print("-"*79)
-            print(data)
-            print("-"*79)
+            msg = (
+                "subprocess exist status == %(status)r\n"
+                "Call %(cmd)r with:\n"
+                "%(kwargs)s\n"
+                "subprocess output:\n"
+                "------------------------------------------------------------\n"
+                "%(output)s\n"
+                "------------------------------------------------------------\n"
+            ) % {
+                "status": status,
+                "cmd": cmd,
+                "kwargs": pprint.pformat(kwargs),
+                "output": output
+            }
+            if status != 0:
+                raise AssertionError(msg)
+            else:
+                print(msg)
 
-        return status, data
+        return output
+
+    def call_manage_py(self, cmd, **kwargs):
+        """
+        call manage.py from pylucid_installer.page_instance_template.example_project
+        """
+        cmd = [sys.executable, "manage.py"] + list(cmd)
+        kwargs.update({
+            "cwd": os.path.abspath(os.path.join(os.path.dirname(example_project.__file__), "..")),
+            #"debug": True,
+        })
+        return self.subprocess_getstatusoutput(cmd, **kwargs)
+
+
+class IsolatedFilesystemTestCase(BaseTestCase):
+    dont_cleanup_temp=False # Don't remove the creates temp files, for debugging only!
+
+    def setUp(self):
+        self._cwd = os.getcwd()
+        self.temp_path = tempfile.mkdtemp(prefix="pylucid_unittest_%s_" % self._testMethodName)
+        os.chdir(self.temp_path)
+
+    def tearDown(self):
+        os.chdir(self._cwd)
+        if self.dont_cleanup_temp:
+            print("WARNING: temp files %r will be not removed!" % self.temp_path)
+            return
+
+        try:
+            shutil.rmtree(self.temp_path)
+        except (OSError, IOError):
+            pass
 
 
 class PageInstanceTestCase(IsolatedFilesystemTestCase):
+    """
+    -Create a page instance with the pylucid_installer cli
+    -run the test in the created page instance
+    """
     def setUp(self):
         super(PageInstanceTestCase, self).setUp()
         runner = CliRunner()
@@ -120,10 +150,15 @@ class PageInstanceTestCase(IsolatedFilesystemTestCase):
         self.assertTrue(os.path.isdir(self.project_path))
 
     def call_manage_py(self, cmd, **kwargs):
+        """
+        Call manage.py from created page instance in temp dir.
+        """
         cmd = ["./manage.py"] + list(cmd)
-        kwargs.update({"cwd": self.temp_path})
+        kwargs.update({
+            "cwd": self.temp_path,
+            # "debug": True,
+        })
 
-        # kwargs["debug"] = True
         # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.project_path, "settings.py")], **kwargs)
         # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.temp_path, "manage.py")], **kwargs)
         # self.subprocess_getstatusoutput(['python -c "import sys,pprint;pprint.pprint(sys.path)"'], **kwargs)

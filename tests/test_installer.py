@@ -135,25 +135,23 @@ class ManageTest(PageInstanceTestCase):
     #         print(content)
 
     def test_help(self):
-        status, output = self.call_manage_py(["--help"])
+        output = self.call_manage_py(["--help"])
         # print(output)
 
         self.assertIn("Type 'manage.py help <subcommand>' for help on a specific subcommand.", output)
         self.assertNotIn("Warning:", output)
-        self.assertEqual(status, 0)
 
     def test_check(self):
-        status, output = self.call_manage_py(
+        output = self.call_manage_py(
             ["check"],
             # debug=True
         )
         self.assertNotIn("ImproperlyConfigured", output)
-        self.assertEqual(status, 0)
 
     def test_diffsettings(self):
         # self.dont_cleanup_temp=True
 
-        status, output = self.call_manage_py(
+        output = self.call_manage_py(
             ["diffsettings"],
             # debug=True
         )
@@ -170,10 +168,9 @@ class ManageTest(PageInstanceTestCase):
             "MEDIA_ROOT = '%s/media'" % self.temp_path,
             output
         )
-        self.assertEqual(status, 0)
 
     def test_migrate(self):
-        status, output = self.call_manage_py(
+        output = self.call_manage_py(
             ["migrate", "--noinput"],
             # debug=True
         )
@@ -181,4 +178,3 @@ class ManageTest(PageInstanceTestCase):
         self.assertIn("Applying auth.", output)
         self.assertIn("Applying cms.", output)
         self.assertIn("Applying djangocms_blog.", output)
-        self.assertEqual(status, 0)

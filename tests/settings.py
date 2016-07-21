@@ -17,3 +17,10 @@ DATABASES = {
         'NAME': ":memory:"
     }
 }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'default-cache',
+        'TIMEOUT': 60 * 60 * 24, # 24 hours
+    },
+}
