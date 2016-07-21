@@ -125,6 +125,24 @@ e.g.:
 * deny editing pages for some users.
 
 
+=== How to enable multisite support
+
+With multisite support you can use one Django app to serve multiple domains.
+
+It used the two projects:
+* [[https://github.com/nephila/djangocms-multisite|djangocms-multisite]]
+* [[https://github.com/ecometrica/django-multisite|django-multisite]]
+
+Install the needed packages:
+{{{
+/home/FooBar$ cd ~/PyLucid_env
+~/PyLucid_env $ source bin/activate
+(PyLucid_env) ~/PyLucid_env $ pip install djangocms-multisite
+}}}
+
+Un-comment the multisite lines at the end of your page instance settings file.
+
+
 === unittests
 
 {{{

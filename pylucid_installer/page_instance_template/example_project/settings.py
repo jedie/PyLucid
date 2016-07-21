@@ -216,3 +216,44 @@ import sys
 if "createcachetable" in sys.argv:
     INSTALLED_APPS = ()
 
+
+#____________________________________________________________________
+# multisite
+#
+# See PyLucid README for more details!
+#
+# INSTALLED_APPS += (
+#     'multisite',
+#     'djangocms_multisite',
+# )
+#
+# from multisite import SiteID
+# SITE_ID = SiteID(default=1)
+#
+# CACHE_MULTISITE_ALIAS = 'multisite'
+# CACHES[CACHE_MULTISITE_ALIAS]= {
+#     'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#     'TIMEOUT': 60 * 60 * 24,  # 24 hours
+# }
+#
+# MULTISITE_FALLBACK="pylucid.multisite_views.auto_create_alias"
+#
+#
+# MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
+# _idx = MIDDLEWARE_CLASSES.index('cms.middleware.utils.ApphookReloadMiddleware')
+# MIDDLEWARE_CLASSES.insert(_idx, 'multisite.middleware.DynamicSiteMiddleware')
+# MIDDLEWARE_CLASSES.insert(_idx+2, 'djangocms_multisite.middleware.CMSMultiSiteMiddleware')
+#
+#
+# MULTISITE_CMS_FALLBACK='www.example_project.com'
+# MULTISITE_CMS_URLS={
+#     MULTISITE_CMS_FALLBACK: ROOT_URLCONF,
+#     #'www.example2.com': 'tests.test_utils.urls2',
+# }
+# MULTISITE_CMS_ALIASES={
+#     MULTISITE_CMS_FALLBACK: (
+#         'alias1.example_project.com', 'alias2.example_project.com',
+#     ),
+#     'www.example2.com': ('alias1.example2.com', 'alias2.example2.com',),
+# }
+
