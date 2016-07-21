@@ -189,34 +189,6 @@ INTERNAL_IPS = (
 )
 
 
-# if DEBUG:
-#     # Disable cache, for debugging:
-#     CACHES = {
-#         'default': {
-#             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-#         }
-#     }
-#
-#     INSTALLED_APPS += (
-#         'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
-#         'django_info_panel', # https://github.com/jedie/django-debug-toolbar-django-info
-#
-#         # Add all models to django admin:
-#         'pylucid_debug', # Must be the last App!
-#     )
-#     MIDDLEWARE_CLASSES = (
-#         'debug_toolbar.middleware.DebugToolbarMiddleware',
-#     ) + MIDDLEWARE_CLASSES
-
-
-#____________________________________________________________________
-# Work-a-round for:
-# https://github.com/divio/django-cms/issues/5079
-import sys
-if "createcachetable" in sys.argv:
-    INSTALLED_APPS = ()
-
-
 #____________________________________________________________________
 # multisite
 #
@@ -257,3 +229,35 @@ if "createcachetable" in sys.argv:
 #     'www.example2.com': ('alias1.example2.com', 'alias2.example2.com',),
 # }
 
+
+
+#____________________________________________________________________
+# extra DEBUG
+#
+# if DEBUG:
+#     # Disable cache, for debugging:
+#     CACHES = {
+#         'default': {
+#             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#         }
+#     }
+#
+#     INSTALLED_APPS += (
+#         'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
+#         'django_info_panel', # https://github.com/jedie/django-debug-toolbar-django-info
+#
+#         # Add all models to django admin:
+#         'pylucid_debug', # Must be the last App!
+#     )
+#     MIDDLEWARE_CLASSES = (
+#         'debug_toolbar.middleware.DebugToolbarMiddleware',
+#     ) + MIDDLEWARE_CLASSES
+
+
+
+#____________________________________________________________________
+# Work-a-round for:
+# https://github.com/divio/django-cms/issues/5079
+import sys
+if "createcachetable" in sys.argv:
+    INSTALLED_APPS = ()
