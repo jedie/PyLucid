@@ -79,9 +79,12 @@ class IsolatedFilesystemTestCase(TestCase):
         if data[-1:] == '\n':
             data = data[:-1]
 
-        if debug:
-            print("DEBUG subprocess status: %r" % status)
-            print("DEBUG subprocess output:", data)
+        if status != 0 or debug:
+            print("subprocess exist status == %r" % status)
+            print("Output:")
+            print("-"*79)
+            print(data)
+            print("-"*79)
 
         return status, data
 
