@@ -35,7 +35,18 @@ INTERNAL_IPS = (
     '::1',
 )
 
+
+CACHES = {
+    'default': {
+        # https://docs.djangoproject.com/en/1.8/topics/cache/#database-caching
+        # manage.py createcachetable
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
+    },
+}
+
 SITE_ID = 1
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.cache.UpdateCacheMiddleware',
@@ -106,9 +117,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.messages',
 
-    'cms',
-
     'pylucid',
+
+    'cms',
 
     'djangocms_text_ckeditor',
     'menus',

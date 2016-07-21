@@ -207,3 +207,12 @@ INTERNAL_IPS = (
 #     MIDDLEWARE_CLASSES = (
 #         'debug_toolbar.middleware.DebugToolbarMiddleware',
 #     ) + MIDDLEWARE_CLASSES
+
+
+#____________________________________________________________________
+# Work-a-round for:
+# https://github.com/divio/django-cms/issues/5079
+import sys
+if "createcachetable" in sys.argv:
+    INSTALLED_APPS = ()
+

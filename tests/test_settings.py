@@ -8,6 +8,11 @@ class ExampleProjectSettingsTest(BaseTestCase):
         pylucid_installer.page_instance_template.example_project
     """
     def test_settings(self):
+        # 'createcachetable' is needed, because django-cms used the cache
+        # in init phase, see:
+        # https://github.com/divio/django-cms/issues/5079
+        self.call_manage_py(["createcachetable"])
+
         output = self.call_manage_py(
             ["diffsettings"],
             #debug=True

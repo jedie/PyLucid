@@ -60,6 +60,9 @@ You can create a new page instance with the **pylucid_installer** cli programm:
 # Go into created page instance
 (PyLucid_env) ~/PyLucid_env $ cd ~/page_instance/
 
+# Create cache tables
+(PyLucid_env) ~/page_instance $ ./manage.py createcachetable
+
 # init database
 (PyLucid_env) ~/page_instance $ ./manage.py migrate
 
