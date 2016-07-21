@@ -40,7 +40,7 @@ sys.path.append(
 
 
 def run_tests(test_labels=None):
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
     django.setup()
 
     TestRunner = get_runner(settings)
