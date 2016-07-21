@@ -55,6 +55,8 @@ def auto_register_all():
 
 def auto_patch_all():
     for model in iter_models():
+        if model.__name__ in SKIP_MODELS:
+            continue
         try:
             patch_admin(model, skip_non_revision=True)
         except Exception as err:
