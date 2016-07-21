@@ -26,6 +26,10 @@ from pylucid_migration.models import PageProxyModel
 logger = logging.getLogger(__name__)
 
 
+SKIP_MODELS=(
+    "Alias", # multisite.models.Alias
+)
+
 def iter_models():
     app_configs = apps.get_app_configs()
     for app_config in app_configs:
@@ -40,8 +44,11 @@ def auto_register_all():
     (Skip already registered models.)
     """
     for model in iter_models():
+        if model.__name__ in SKIP_MODELS:
+            continue
         try:
             admin.site.register(model)
+            # print("Register model %s in admin via 'pylucid_debug' app." % model)
         except AlreadyRegistered:
             pass
 
@@ -111,7 +118,6 @@ if settings.DEBUG:
         list_filter = ("publisher_is_draft", "created_by", "changed_by", "site")
 
     admin.site.register(PageProxyModel, PageLowLevelAdmin)
-
 
     auto_register_all()
 
