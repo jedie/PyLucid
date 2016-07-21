@@ -215,7 +215,7 @@ INTERNAL_IPS = (
 # _idx = MIDDLEWARE_CLASSES.index('cms.middleware.utils.ApphookReloadMiddleware')
 # MIDDLEWARE_CLASSES.insert(_idx, 'multisite.middleware.DynamicSiteMiddleware')
 # MIDDLEWARE_CLASSES.insert(_idx+2, 'djangocms_multisite.middleware.CMSMultiSiteMiddleware')
-#
+# MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
 #
 # MULTISITE_CMS_FALLBACK='www.example_project.com'
 # MULTISITE_CMS_URLS={
