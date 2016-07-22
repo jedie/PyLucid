@@ -1,7 +1,7 @@
 {% load cms_tags %}
 
 {% spaceless %}
-    © example_project |
+    © {{ request.META.SERVER_NAME }} |
     {% if post.date_published %}{# djangocms-blog #}
         {{ post.date_published|date:"SHORT_DATE_FORMAT" }}
     {% else %}
