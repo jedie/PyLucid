@@ -17,6 +17,7 @@
     {% compress css %}
         {% block css %}{% endblock %}
         <link href="{% static 'css/pylucid.css' %}" rel="stylesheet">
+        {% include "includes/css_links.html" %}
     {% endcompress %}
     {% render_block "css" %}
 </head>
