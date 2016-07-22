@@ -3,16 +3,16 @@
 
 {% block breadcrumb %}{% endblock %}
 
-{% block content %}{{ block.super }}
+{% block base_content %}
     <div class="row">
         <div class="col-lg-4">
-          {% placeholder col_1 %}
+          {% placeholder prefix_content %}
         </div>
         <div class="col-lg-4">
-          {% placeholder col_2 %}
+            {% block content %}{% placeholder content %}{% endblock content %}
        </div>
         <div class="col-lg-4">
-          {% placeholder col_3 %}
+          {% placeholder suffix_content %}
         </div>
     </div>
-{% endblock %}
+{% endblock base_content %}

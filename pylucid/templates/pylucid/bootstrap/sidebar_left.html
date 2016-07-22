@@ -1,7 +1,7 @@
 {% extends "pylucid/bootstrap/base_small_top_menu.html" %}
-{% load cms_tags menu_tags %}
+{% load cms_tags sekizai_tags static menu_tags %}
 
-{% block content %}{{ block.super }}
+{% block base_content %}
     <div class="row">
         <div class="col-md-3">
             <ul class="nav nav-pills nav-stacked">
@@ -10,7 +10,7 @@
             {% placeholder sidebar %}
         </div>
         <div class="col-md-9">
-            {% placeholder content %}
+            {% block content %}{% placeholder content %}{% endblock content %}
         </div>
     </div>
-{% endblock %}
+{% endblock base_content %}

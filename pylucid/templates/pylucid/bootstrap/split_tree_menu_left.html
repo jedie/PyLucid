@@ -1,7 +1,7 @@
 {% extends "pylucid/bootstrap/base.html" %}
 {% load cms_tags sekizai_tags static menu_tags %}
 
-{% block content %}{{ block.super }}
+{% block base_content %}
     <div class="jumbotron">
         {% placeholder header %}
         <div class="navbar navbar-default" role="navigation">
@@ -33,7 +33,7 @@
             {% show_menu 1 100 0 1 "pylucid/includes/bootstrap/tree_menu.html" %}
         </div>
         <div class="col-md-9">
-            {% placeholder content %}
+            {% block content %}{% placeholder content %}{% endblock content %}
         </div>
     </div>
-{% endblock content %}
+{% endblock base_content %}

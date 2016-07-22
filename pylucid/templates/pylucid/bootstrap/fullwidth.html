@@ -1,6 +1,6 @@
 {% extends "pylucid/bootstrap/base_small_top_menu.html" %}
 {% load cms_tags %}
 
-{% block content %}{{ block.super }}
-    {% placeholder content %}
-{% endblock %}
+{% block base_content %}
+    {% block content %}{% placeholder content %}{% endblock content %}
+{% endblock base_content %}

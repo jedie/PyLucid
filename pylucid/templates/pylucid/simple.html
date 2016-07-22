@@ -50,7 +50,7 @@
             </div>
         </div>
         <div class="content" id="top">
-            {% placeholder content %}
+            {% block content %}{% placeholder content %}{% endblock content %}
         </div>
         <div class="content" id="left">
             {% placeholder content-left %}
