@@ -4,7 +4,7 @@
     PyLucid DesignSwitch Plugin
     ~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2015 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2015-2016 by the PyLucid team, see AUTHORS for more details.
     :created: 2015 by JensDiemer.de
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
@@ -25,4 +25,5 @@ def switch_template(request, page_id, template):
     messages.info(request, "Set template %r to all pages, ok." % template)
 
     redirect_url = current_page.get_absolute_url()
+    redirect_url += "?edit_off" # always view the published page
     return HttpResponseRedirect(redirect_url)

@@ -39,8 +39,9 @@ PAGE_COUNTS = [3, 2, 1]
 def create_placeholder(dummy_text):
     placeholder = Placeholder.objects.create(slot="content")
     placeholder.save()
-    add_plugin(placeholder, "DesignSwitchPlugin", settings.LANGUAGE_CODE)
-    add_plugin(placeholder, "TextPlugin", settings.LANGUAGE_CODE, body=dummy_text)
+    for language in settings.LANGUAGES:
+        language_code = language[0]
+        add_plugin(placeholder, "TextPlugin", language_code, body=dummy_text)
     return placeholder
 
 
@@ -50,6 +51,7 @@ def create_dummy_page(title, template, placeholder, parent=None):
         language=settings.LANGUAGE_CODE,
         parent=parent,
         in_navigation=True,
+        with_revision=True
     )
     page.placeholders.add(placeholder)
     page = get_page_draft(page)
