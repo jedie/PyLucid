@@ -203,6 +203,7 @@ INTERNAL_IPS = (
 # SITE_ID = SiteID(default=1)
 #
 # CACHE_MULTISITE_ALIAS = 'multisite'
+# CACHE_SITES_ALIAS = CACHE_MULTISITE_ALIAS # https://github.com/ecometrica/django-multisite/pull/34
 # CACHES[CACHE_MULTISITE_ALIAS]= {
 #     'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
 #     'TIMEOUT': 60 * 60 * 24,  # 24 hours
