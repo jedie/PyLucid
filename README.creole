@@ -162,6 +162,10 @@ To start the development server, do this:
 (PyLucid_env) ~/PyLucid_env/src/pylucid$ ./run_design_demo.py
 }}}
 
+It looks like this:
+
+{{https://raw.githubusercontent.com/jedie/jedie.github.io/master/screenshots/PyLucid/20160722_PyLucidDesignDemoApp01.PNG|20160722_PyLucidDesignDemoApp01.PNG}}
+----
 
 === unittests
 
