@@ -28,9 +28,10 @@ INSTALLED_APPS += (
 ROOT_URLCONF = 'pylucid_design_demo.urls'
 WSGI_APPLICATION = 'pylucid_design_demo.wsgi.application'
 
-TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(pylucid_design_demo.__file__), 'templates'),
-) + TEMPLATE_DIRS
+TEMPLATES[0]["DIRS"].insert(0,
+    os.path.join(os.path.dirname(pylucid_design_demo.__file__), 'templates')
+)
+
 
 DATABASES = {
     'default': {
