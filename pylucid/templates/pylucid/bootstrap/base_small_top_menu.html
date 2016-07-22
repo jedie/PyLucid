@@ -2,8 +2,7 @@
 {% load cms_tags sekizai_tags static menu_tags %}
 
 {% block content_prefix %}
-    {% placeholder header %}
-
+    {% include "includes/header.html" %}
     {% include "pylucid/includes/bootstrap/collapsed_navigation.html" %}
     {% spaceless %}
     <ol class="breadcrumb">
