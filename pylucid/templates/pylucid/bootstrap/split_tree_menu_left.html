@@ -3,9 +3,7 @@
 
 {% block content %}{{ block.super }}
     <div class="jumbotron">
-        <h1>
-            {% if site_settings.site.name %}{{ site_settings.site.name }}{% else %}{{ request.get_host }}{% endif %}
-        </h1>
+        {% placeholder header %}
         <div class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header">

@@ -36,16 +36,17 @@ SOURCE_DUMMY_TEXT = "<p>Username: <strong>%s</strong> password: <strong>%s</stro
 PAGE_COUNTS = [3, 2, 1]
 
 
-def create_placeholder(dummy_text):
-    placeholder = Placeholder.objects.create(slot="content")
+def create_placeholder(dummy_text, slot="content"):
+    placeholder = Placeholder.objects.create(slot=slot)
     placeholder.save()
     for language in settings.LANGUAGES:
         language_code = language[0]
         add_plugin(placeholder, "TextPlugin", language_code, body=dummy_text)
+    placeholder.save()
     return placeholder
 
 
-def create_dummy_page(title, template, placeholder, parent=None):
+def create_dummy_page(title, template, placeholders, parent=None):
     page = create_page(
         title, template,
         language=settings.LANGUAGE_CODE,
@@ -53,37 +54,48 @@ def create_dummy_page(title, template, placeholder, parent=None):
         in_navigation=True,
         with_revision=True
     )
-    page.placeholders.add(placeholder)
+    for placeholder in placeholders:
+        page.placeholders.add(placeholder)
+
     page = get_page_draft(page)
     page.publish(settings.LANGUAGE_CODE)
 
     print("\t%s" % page.get_absolute_url(language=settings.LANGUAGE_CODE))
     return page
 
-def create_tree(title=None, parent=None, level=1):
+def create_tree(default_placeholders, title=None, parent=None, level=1):
+    pages=[]
     for no in range(1, PAGE_COUNTS[level-1]+1):
         if title is None:
             page_title = "level %s" % no
         else:
             page_title = "%s.%s" % (title, no)
 
-        placeholder = create_placeholder(
+        content_placeholder = create_placeholder(
             "<h2>Dummy page on %s</h2>%s" % (page_title, SOURCE_DUMMY_TEXT)
         )
-        page = create_dummy_page(page_title, constants.TEMPLATE_INHERITANCE_MAGIC, placeholder, parent)
+        placeholders = [content_placeholder] + default_placeholders
+        page = create_dummy_page(page_title, constants.TEMPLATE_INHERITANCE_MAGIC, placeholders, parent)
+        pages.append(page)
         if level<len(PAGE_COUNTS):
-            create_tree(page_title, parent=page, level=level+1)
+            create_tree(default_placeholders, page_title, parent=page, level=level+1)
+    return pages
 
 
 def create_pages():
+    header_praceholder = create_placeholder(
+        "<h1>PyLucid Design DEMO</h1>", slot="header"
+    )
+    default_placeholders = [header_praceholder]
+
     print(" *** Create pages *** ")
-    create_tree()
+    create_tree(default_placeholders)
 
     # Add a sitemap page
     placeholder = Placeholder.objects.create(slot="content")
     placeholder.save()
     add_plugin(placeholder, "HtmlSitemapPlugin", settings.LANGUAGE_CODE)
-    create_dummy_page("sitemap", constants.TEMPLATE_INHERITANCE_MAGIC, placeholder)
+    create_dummy_page("sitemap", constants.TEMPLATE_INHERITANCE_MAGIC, [placeholder])
 
 
 def create_test_user():
