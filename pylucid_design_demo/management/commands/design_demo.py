@@ -12,12 +12,12 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.utils import OperationalError
 
-from django.core.management import call_command#, BaseCommand
-from django.core.management.commands.runserver import Command as BaseCommand
+from django.core.management import call_command
+from django.core.management.commands.runserver import Command as RunServerCommand
 from pylucid_design_demo.dummy_data import create_pages, create_test_user
 
 
-class Command(BaseCommand):
+class Command(RunServerCommand):
     help = 'run dev server with in-memory design demo page'
     def check_migrations(self):
         try:
