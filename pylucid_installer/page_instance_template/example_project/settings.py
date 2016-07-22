@@ -236,10 +236,8 @@ INTERNAL_IPS = (
 #
 # if DEBUG:
 #     # Disable cache, for debugging:
-#     CACHES = {
-#         'default': {
-#             'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-#         }
+#     CACHES['default']= {
+#         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
 #     }
 #
 #     INSTALLED_APPS += (
