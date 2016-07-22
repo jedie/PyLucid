@@ -143,6 +143,26 @@ Install the needed packages:
 Un-comment the multisite lines at the end of your page instance settings file.
 
 
+=== How to start 'design demo'
+
+You can easy test existing [[http://docs.django-cms.org/en/stable/reference/settings-constants.html#cms-templates|settings.CMS_TEMPLATES]] with the included django app [[https://github.com/jedie/PyLucid/tree/develop/pylucid_design_demo|pylucid_design_demo]]
+
+The Features:
+* preconfigurated: Start the django development server without any setting changes
+* use a temp. SQLite database
+* predefined user/password
+* precreated dummy pages
+* easy switch between all {{{CMS_TEMPLATES}}} via menu
+
+To start the development server, do this:
+{{{
+/home/FooBar$ cd ~/PyLucid_env
+~/PyLucid_env $ source bin/activate
+(PyLucid_env) ~/PyLucid_env $ $ cd src/pylucid/
+(PyLucid_env) ~/PyLucid_env/src/pylucid$ ./run_design_demo.py
+}}}
+
+
 === unittests
 
 {{{
