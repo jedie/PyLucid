@@ -1,7 +1,7 @@
 .tree-menu li {
     float: none;
 }
-.nav .ancestor {
+.navbar-default .navbar-nav > .ancestor > a {
     background-color: #ddd;
 }
 .tree-menu * {
