@@ -237,8 +237,12 @@ will be not visible for anonymous users.
 # Upgrade pip:
 (PyLucid_env) ~/PyLucid_env $ pip install --upgrade pip
 
+# Update PyLucid
+(PyLucid_env) ~/PyLucid_env $ cd src/pylucid/
+(PyLucid_env) ~/PyLucid_env/src/pylucid/ $ git pull
+
 # Upgrade all packages:
-(PyLucid_env) ~/PyLucid_env $ pip install --upgrade -r src/pylucid/requirements/normal_installation.txt
+(PyLucid_env) ~/PyLucid_env/src/pylucid/ $  pip install --upgrade -r requirements/normal_installation.txt
 }}}
 
 === dev info
