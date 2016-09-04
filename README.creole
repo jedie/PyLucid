@@ -13,9 +13,9 @@ You should not use PyLucid in production, until v2.x is used on [[http://www.pyl
 
 Try, fork and contribute! ;)
 
-| {{https://coveralls.io/repos/jedie/PyLucid/badge.svg|Coverage Status on coveralls.io}} | [[https://coveralls.io/r/jedie/PyLucid|coveralls.io/r/jedie/PyLucid]] |
-| {{https://travis-ci.org/jedie/PyLucid.svg|Build Status on travis-ci.org}} | [[https://travis-ci.org/jedie/PyLucid/|travis-ci.org/jedie/PyLucid]] |
-| {{https://requires.io/github/jedie/PyLucid/requirements.svg?branch=develop|Requirements Status on requires.io}} | [[https://requires.io/github/jedie/PyLucid/requirements/|requires.io/github/jedie/PyLucid/requirements/]] |
+| {{https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_64.svg?branch=master|Coverage Status on coveralls.io}} | [[https://coveralls.io/r/jedie/PyLucid|coveralls.io/r/jedie/PyLucid]] |
+| {{https://travis-ci.org/jedie/PyLucid.svg?branch=master|Build Status on travis-ci.org}} | [[https://travis-ci.org/jedie/PyLucid/|travis-ci.org/jedie/PyLucid]] |
+| {{https://requires.io/github/jedie/PyLucid/requirements.svg?branch=master|Requirements Status on requires.io}} | [[https://requires.io/github/jedie/PyLucid/requirements/|requires.io/github/jedie/PyLucid/requirements/]] |
 
 == install
 
