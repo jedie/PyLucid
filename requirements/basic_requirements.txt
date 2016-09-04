@@ -42,9 +42,6 @@ Django>=1.8,<1.9
 # https://github.com/django-debug-toolbar/django-debug-toolbar
 django-debug-toolbar>=1.5,<1.6
 
-# https://github.com/jezdez/django-robots/
-django-robots>=2.0,<2.1
-
 # https://github.com/django-compressor/django-compressor
 # https://django-compressor.readthedocs.io/en/latest/changelog/
 django-compressor>=2.1,<2.2
