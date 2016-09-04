@@ -1,6 +1,7 @@
 local_settings.py
 *.log
 *.db3
+*.db
 /.settings
 
 
