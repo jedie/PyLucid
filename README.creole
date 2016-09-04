@@ -267,6 +267,8 @@ migration:
 
 == Release History
 
+* 04.Sep.2016 - v2.1.1
+** Update: pillow, django-debug-toolbar, django-compressor, sqlparse
 * [[https://github.com/jedie/PyLucid/compare/old/v2.0.x...develop|v2.1.x beta]]:
 ** switch from django-cms v3.2 to v3.3
 ** move from [[https://github.com/raphaa/cmsplugin-htmlsitemap|cmsplugin-htmlsitemap]] to [[https://github.com/kapt-labs/djangocms-htmlsitemap/|djangocms-htmlsitemap]]

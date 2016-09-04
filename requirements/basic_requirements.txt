@@ -8,9 +8,10 @@
 # https://pypi.python.org/pypi/click/
 click>=6.6,<6.7
 
-# http://python-pillow.github.io/
+# https://python-pillow.org/
 # https://pypi.python.org/pypi/Pillow/
-pillow>=3.2,<3.3
+# https://pillow.readthedocs.io/en/latest/releasenotes/index.html
+pillow>=3.3,<3.4
 
 # http://pygments.org/
 # http://pypi.python.org/pypi/Pygments
@@ -39,15 +40,17 @@ pytz
 Django>=1.8,<1.9
 
 # https://github.com/django-debug-toolbar/django-debug-toolbar
-django-debug-toolbar>=1.4,<1.5
+django-debug-toolbar>=1.5,<1.6
 
 # https://github.com/jezdez/django-robots/
 django-robots>=2.0,<2.1
 
 # https://github.com/django-compressor/django-compressor
-django-compressor>=2.0,<2.1
+# https://django-compressor.readthedocs.io/en/latest/changelog/
+django-compressor>=2.1,<2.2
 
 # https://github.com/etianen/django-reversion
+# v2 is not supported, see: https://github.com/divio/django-cms/issues/5441
 django-reversion>=1.10,<2.0
 
 
@@ -56,6 +59,7 @@ django-reversion>=1.10,<2.0
 
 # http://www.django-cms.org/
 # https://pypi.python.org/pypi/django-cms/
+# http://docs.django-cms.org/en/latest/upgrade/
 django-cms>=3.3,<3.4
 
 # https://github.com/divio/djangocms-text-ckeditor
@@ -85,9 +89,6 @@ djangocms-blog>=0.8,<0.9
 # https://github.com/kapt-labs/djangocms-htmlsitemap
 #djangocms-htmlsitemap>=0.1,<0.2
 # Use own repro until https://github.com/kapt-labs/djangocms-htmlsitemap/issues/1 is fixed!
-
-# https://github.com/django-debug-toolbar/django-debug-toolbar/issues/852
-sqlparse==0.1.19
 
 # https://github.com/divio/djangocms-text-ckeditor/issues/336
 html5lib==0.9999999

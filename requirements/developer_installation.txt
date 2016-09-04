@@ -47,7 +47,8 @@ docutils
 
 # https://github.com/jedie/django-reversion-compare
 # https://pypi.python.org/pypi/django-reversion-compare/
--e git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare
+# v2 is not supported, see: https://github.com/divio/django-cms/issues/5441
+-e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
 
 # https://github.com/chrisglass/cmsplugin-pygments
 -e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
