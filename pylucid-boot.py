@@ -4,8 +4,8 @@
     WARNING: This file is generated with: bootstrap_env v0.6.2
     https://pypi.python.org/pypi/bootstrap_env/
     script file: 'generate_bootstrap.py'
-    used '.../PyLucid_env_py3/lib/python3.4/site-packages/virtualenv.py' v15.0.2
-    Python v3.4.3+ (default, Oct 14 2015, 16:03:50)  [GCC 5.2.1 20151010]
+    used '.../PyLucid_env/lib/python3.5/site-packages/virtualenv.py' v15.0.3
+    Python v3.5.1+ (default, Mar 30 2016, 22:46:26)  [GCC 5.3.1 20160330]
 """
 
 import os
@@ -43,7 +43,7 @@ try:
 except ImportError:
     import configparser as ConfigParser
 
-__version__ = "15.0.2"
+__version__ = "15.0.3"
 virtualenv_version = __version__  # legacy
 
 if sys.version_info < (2, 6):
@@ -1074,14 +1074,14 @@ def copy_required_modules(dst_prefix, symlink):
 
 def copy_tcltk(src, dest, symlink):
     """ copy tcl/tk libraries on Windows (issue #93) """
-    if majver == 2:
-        libver = '8.5'
-    else:
-        libver = '8.6'
-    for name in ['tcl', 'tk']:
-        srcdir = src + '/tcl/' + name + libver
-        dstdir = dest + '/tcl/' + name + libver
-        copyfileordir(srcdir, dstdir, symlink)
+    for libversion in '8.5', '8.6':
+        for libname in 'tcl', 'tk':
+            srcdir = join(src, 'tcl', libname + libversion)
+            destdir = join(dest, 'tcl', libname + libversion)
+            # Only copy the dirs from the above combinations that exist
+            if os.path.exists(srcdir) and not os.path.exists(destdir):
+                copyfileordir(srcdir, destdir, symlink)
+
 
 def subst_path(prefix_path, prefix, home_dir):
     prefix_path = os.path.normpath(prefix_path)
@@ -1377,12 +1377,6 @@ def install_python(home_dir, lib_dir, inc_dir, bin_dir, site_packages, clear, sy
             else:
                 copyfile(py_executable, full_pth, symlink)
 
-    if is_win and ' ' in py_executable:
-        # There's a bug with subprocess on Windows when using a first
-        # argument that has a space in it.  Instead we have to quote
-        # the value:
-        py_executable = '"%s"' % py_executable
-    # NOTE: keep this check as one line, cmd.exe doesn't cope with line breaks
     cmd = [py_executable, '-c', 'import sys;out=sys.stdout;'
         'getattr(out, "buffer", out).write(sys.prefix.encode("utf-8"))']
     logger.info('Testing executable with %s %s "%s"' % tuple(cmd))
@@ -1560,6 +1554,7 @@ def resolve_interpreter(exe):
     """
     # If the "executable" is a version number, get the installed executable for
     # that version
+    orig_exe = exe
     python_versions = get_installed_pythons()
     if exe in python_versions:
         exe = python_versions[exe]
@@ -1571,16 +1566,16 @@ def resolve_interpreter(exe):
                 exe = join(path, exe)
                 break
     if not os.path.exists(exe):
-        logger.fatal('The executable %s (from --python=%s) does not exist' % (exe, exe))
+        logger.fatal('The path %s (from --python=%s) does not exist' % (exe, orig_exe))
         raise SystemExit(3)
     if not is_executable(exe):
-        logger.fatal('The executable %s (from --python=%s) is not executable' % (exe, exe))
+        logger.fatal('The path %s (from --python=%s) is not an executable file' % (exe, orig_exe))
         raise SystemExit(3)
     return exe
 
 def is_executable(exe):
     """Checks a file is executable"""
-    return os.access(exe, os.X_OK)
+    return os.path.isfile(exe) and os.access(exe, os.X_OK)
 
 ############################################################
 ## Relocating the environment:
@@ -1821,20 +1816,18 @@ def create_bootstrap_script(extra_text, python_version=''):
 ## 'prefix code' START
 # requirements from normal_installation.txt
 NORMAL_INSTALLATION = ['click>=6.6,<6.7',
- 'pillow>=3.2,<3.3',
+ 'pillow>=3.3,<3.4',
  'Pygments>=2.1,<2.2',
  'pytz',
  'Django>=1.8,<1.9',
- 'django-debug-toolbar>=1.4,<1.5',
- 'django-robots>=2.0,<2.1',
- 'django-compressor>=2.0,<2.1',
+ 'django-debug-toolbar>=1.5,<1.6',
+ 'django-compressor>=2.1,<2.2',
  'django-reversion>=1.10,<2.0',
  'django-cms>=3.3,<3.4',
  'djangocms-text-ckeditor>=3.0,<3.1',
  'cmsplugin-filer>=1.1,<1.2',
  'django-filer>=1.2,<1.3',
  'djangocms-blog>=0.8,<0.9',
- 'sqlparse==0.1.19',
  'html5lib==0.9999999',
  'python-creole>=1.3,<1.4',
  'django-tools>=0.30,<0.31',
@@ -1848,20 +1841,18 @@ NORMAL_INSTALLATION = ['click>=6.6,<6.7',
 
 # requirements from developer_installation.txt
 DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
- 'pillow>=3.2,<3.3',
+ 'pillow>=3.3,<3.4',
  'Pygments>=2.1,<2.2',
  'pytz',
  'Django>=1.8,<1.9',
- 'django-debug-toolbar>=1.4,<1.5',
- 'django-robots>=2.0,<2.1',
- 'django-compressor>=2.0,<2.1',
+ 'django-debug-toolbar>=1.5,<1.6',
+ 'django-compressor>=2.1,<2.2',
  'django-reversion>=1.10,<2.0',
  'django-cms>=3.3,<3.4',
  'djangocms-text-ckeditor>=3.0,<3.1',
  'cmsplugin-filer>=1.1,<1.2',
  'django-filer>=1.2,<1.3',
  'djangocms-blog>=0.8,<0.9',
- 'sqlparse==0.1.19',
  'html5lib==0.9999999',
  'wheel',
  'twine',
@@ -1873,7 +1864,7 @@ DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
  '--editable=git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env',
  '--editable=git+git@github.com:jedie/python-creole.git#egg=python-creole',
  '--editable=git+git@github.com:jedie/django-tools.git@master#egg=django-tools',
- '--editable=git+git@github.com:jedie/django-reversion-compare.git@master#egg=django-reversion-compare',
+ '--editable=git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare',
  '--editable=git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
  '--editable=git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets',
