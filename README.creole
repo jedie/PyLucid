@@ -267,9 +267,9 @@ migration:
 
 == Release History
 
-* 04.Sep.2016 - v2.1.1
+* [[https://github.com/jedie/PyLucid/compare/v2.1.0.beta.0...v2.1.1|04.Sep.2016 - v2.1.1]]:
 ** Update: pillow, django-debug-toolbar, django-compressor, sqlparse
-* [[https://github.com/jedie/PyLucid/compare/old/v2.0.x...develop|v2.1.x beta]]:
+* [[https://github.com/jedie/PyLucid/compare/old/v2.0.x...v2.1.0.beta.0|v2.1.0.beta.0]]:
 ** switch from django-cms v3.2 to v3.3
 ** move from [[https://github.com/raphaa/cmsplugin-htmlsitemap|cmsplugin-htmlsitemap]] to [[https://github.com/kapt-labs/djangocms-htmlsitemap/|djangocms-htmlsitemap]]
 *** WARNING: A migration will not be done! You have to migrate by hand and delete the database table //cmsplugin_htmlsitemap_htmlsitemap// ;)
