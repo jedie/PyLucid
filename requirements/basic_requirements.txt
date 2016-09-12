@@ -62,6 +62,9 @@ django-cms>=3.3,<3.4
 # https://github.com/divio/djangocms-text-ckeditor
 djangocms-text-ckeditor>=3.0,<3.1
 
+# https://github.com/kapt-labs/djangocms-htmlsitemap
+djangocms-htmlsitemap>=0.2,<0.3
+
 
 # django-filter
 #--------------
@@ -82,10 +85,6 @@ djangocms-blog>=0.8,<0.9
 
 # Temporary work-a-rounds
 #------------------------
-
-# https://github.com/kapt-labs/djangocms-htmlsitemap
-#djangocms-htmlsitemap>=0.1,<0.2
-# Use own repro until https://github.com/kapt-labs/djangocms-htmlsitemap/issues/1 is fixed!
 
 # https://github.com/divio/djangocms-text-ckeditor/issues/336
 html5lib==0.9999999
