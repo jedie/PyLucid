@@ -1825,6 +1825,7 @@ NORMAL_INSTALLATION = ['click>=6.6,<6.7',
  'django-reversion>=1.10,<2.0',
  'django-cms>=3.3,<3.4',
  'djangocms-text-ckeditor>=3.0,<3.1',
+ 'djangocms-htmlsitemap>=0.2,<0.3',
  'cmsplugin-filer>=1.1,<1.2',
  'django-filer>=1.2,<1.3',
  'djangocms-blog>=0.8,<0.9',
@@ -1836,8 +1837,7 @@ NORMAL_INSTALLATION = ['click>=6.6,<6.7',
  'django-debug-toolbar-django-info>=0.3.0,<0.4',
  'git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets',
  'git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid',
- 'git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup',
- 'git+https://github.com/jedie/djangocms-htmlsitemap.git#egg=djangocms-htmlsitemap']
+ 'git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
 
 # requirements from developer_installation.txt
 DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
@@ -1850,6 +1850,7 @@ DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
  'django-reversion>=1.10,<2.0',
  'django-cms>=3.3,<3.4',
  'djangocms-text-ckeditor>=3.0,<3.1',
+ 'djangocms-htmlsitemap>=0.2,<0.3',
  'cmsplugin-filer>=1.1,<1.2',
  'django-filer>=1.2,<1.3',
  'djangocms-blog>=0.8,<0.9',
@@ -1869,8 +1870,7 @@ DEVELOPER_INSTALLATION = ['click>=6.6,<6.7',
  '--editable=git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info',
  '--editable=git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets',
  '--editable=git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid',
- '--editable=git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup',
- '--editable=git+git@github.com:jedie/djangocms-htmlsitemap.git#egg=djangocms-htmlsitemap']
+ '--editable=git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup']
 ###############################################################################
 ## '.../src/pylucid/bootstrap/sources/prefix_code.py' START
 if sys.version_info < (3, 4):

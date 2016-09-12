@@ -69,7 +69,3 @@ docutils
 
 # https://github.com/mitar/cmsplugin-markup
 -e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
-
-# https://github.com/kapt-labs/djangocms-htmlsitemap
-# Use own repro until https://github.com/kapt-labs/djangocms-htmlsitemap/issues/1 is fixed:
--e git+git@github.com:jedie/djangocms-htmlsitemap.git#egg=djangocms-htmlsitemap
