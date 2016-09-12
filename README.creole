@@ -267,8 +267,8 @@ migration:
 
 == Release History
 
-* dev
-** Changed to official [[https://pypi.python.org/pypi/djangocms-htmlsitemap/|djangocms-htmlsitemap]] PyPi Package.
+* [[https://github.com/jedie/PyLucid/compare/v2.1.1...v2.1.2|12.Sep.2016 - v2.1.2]]:
+** Changed to official https://pypi.python.org/pypi/djangocms-htmlsitemap/ PyPi Package.
 * [[https://github.com/jedie/PyLucid/compare/v2.1.0.beta.0...v2.1.1|04.Sep.2016 - v2.1.1]]:
 ** Update: pillow, django-debug-toolbar, django-compressor, sqlparse
 * [[https://github.com/jedie/PyLucid/compare/old/v2.0.x...v2.1.0.beta.0|v2.1.0.beta.0]]:

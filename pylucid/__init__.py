@@ -7,4 +7,4 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-__version__ = "2.1.1"
+__version__ = "2.1.2"
