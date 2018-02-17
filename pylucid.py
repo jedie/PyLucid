@@ -122,7 +122,6 @@ class PyLucidShell(Cmd2):
             requirement_in = os.path.join("requirements", filename)
             requirement_out = requirement_in.replace(".in", ".txt")
 
-            print("TODO: %r -> %r" % (requirement_in, requirement_out))
             verbose_check_call("pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in)
 
     def _install(self, requirements_filename):
