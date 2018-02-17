@@ -45,16 +45,27 @@ class PyLucidShell(cmd.Cmd):
     intro = 'PyLucid shell.   Type help or ? to list commands.\n'
     prompt = 'PyLucid> '
 
-    def do_upgrade_requirements(self, arg):
-        "Update version information in requirements.txt via pip-compile"
-        print("TODO: upgrade_requirements")
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def complete_install_requirements(self, text, *args):
-        items = ["normal", "developer"]
-        for item in items:
-            if item.startswith(text):
-                return [item]
-        return items
+        # e.g.: $ ./pylucid.py upgrade_requirements -> run do_upgrade_requirements() on startup
+        self.cmdqueue = sys.argv[1:]
+
+    def do_upgrade_requirements(self, arg):
+        """
+        run pip-compile for all *.in files
+
+        Direct start with:
+            $ ./pylucid.py upgrade_requirements
+        """
+        for filename in os.listdir("requirements"):
+            if not filename.endswith(".in") or filename.startswith("basic"):
+                continue
+            requirement_in = os.path.join("requirements", filename)
+            requirement_out = requirement_in.replace(".in", ".txt")
+
+            print("TODO: %r -> %r" % (requirement_in, requirement_out))
+            verbose_check_call("pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in)
 
     def _install(self, requirements_filename):
         verbose_check_call("pip3", "install", "--upgrade", "pip")
@@ -93,10 +104,12 @@ class PyLucidShell(cmd.Cmd):
         except KeyError:
             return line
 
+    def postcmd(self, stop, line):
+        # stop if we are called with commandline arguments
+        if len(sys.argv)>1:
+            stop = True
+        return stop
 
-def parse(arg):
-    'Convert a series of zero or more numbers to an argument tuple'
-    return tuple(map(int, arg.split()))
 
 if __name__ == '__main__':
     PyLucidShell().cmdloop()
