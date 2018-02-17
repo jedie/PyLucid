@@ -25,6 +25,7 @@ if sys.version_info < (3, 5):
 
 log = logging.getLogger(__name__)
 
+SELF_FILENAME=os.path.basename(__file__)
 
 def verbose_check_call(*args):
     """ 'verbose' version of subprocess.check_output() """
@@ -37,13 +38,38 @@ def verbose_check_call(*args):
         raise
 
 
-
-class PyLucidShell(cmd.Cmd):
-    command_alias = {
+class Cmd2(cmd.Cmd):
+    """
+    Enhanced version of 'Cmd' class:
+        - command alias
+        - methods can be called directly from commandline: e.g.: ./foobar.py --help
+        - Display
+    """
+    command_alias = { # used in self.precmd()
         "q": "quit",
+        "--help": "help", "-h": "help", "-?": "help",
     }
-    intro = 'PyLucid shell.   Type help or ? to list commands.\n'
-    prompt = 'PyLucid> '
+
+    intro = (
+        '\n{filename} shell v{version}\n'
+        'Type help or ? to list commands.\n'
+    ).format(
+        filename=SELF_FILENAME,
+        version=__version__
+    )
+
+    prompt = '%s> ' % SELF_FILENAME
+
+    doc_leader = (
+        "\nHint: All commands can be called directly from commandline.\n"
+        "e.g.: $ ./{filename} pip_freeze\n"
+    ).format(
+        filename=SELF_FILENAME,
+    )
+
+    # Will be append to 'doc_leader' in self.do_help():
+    complete_hint="\nUse <{key}> to command completion.\n"
+    missing_complete="\n(Sorry, no command completion available.)\n" # if 'readline' not available
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -51,6 +77,38 @@ class PyLucidShell(cmd.Cmd):
         # e.g.: $ ./pylucid.py upgrade_requirements -> run do_upgrade_requirements() on startup
         self.cmdqueue = sys.argv[1:]
 
+    _complete_hint_added=False
+    def do_help(self, arg):
+        if not self._complete_hint_added:
+            try:
+                import readline
+            except ImportError:
+                self.doc_leader += self.missing_complete
+            else:
+                self.doc_leader += self.complete_hint.format(key=self.completekey)
+            self._complete_hint_added=True
+
+        return super().do_help(arg)
+
+    def do_quit(self, arg):
+        "Exit this interactiv shell"
+        print("\n\nbye")
+        return True
+
+    def precmd(self, line):
+        try:
+            return self.command_alias[line]
+        except KeyError:
+            return line
+
+    def postcmd(self, stop, line):
+        # stop if we are called with commandline arguments
+        if len(sys.argv)>1:
+            stop = True
+        return stop
+
+
+class PyLucidShell(Cmd2):
     def do_upgrade_requirements(self, arg):
         """
         run pip-compile for all *.in files
@@ -93,22 +151,6 @@ class PyLucidShell(cmd.Cmd):
         "run 'pip freeze': FOO"
         verbose_check_call("pip3", "freeze")
 
-    def do_quit(self, arg):
-        "Exit PyLucid shell"
-        print("\n\nbye")
-        return True
-
-    def precmd(self, line):
-        try:
-            return self.command_alias[line]
-        except KeyError:
-            return line
-
-    def postcmd(self, stop, line):
-        # stop if we are called with commandline arguments
-        if len(sys.argv)>1:
-            stop = True
-        return stop
 
 
 if __name__ == '__main__':
