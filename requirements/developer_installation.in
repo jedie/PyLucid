@@ -17,6 +17,9 @@ virtualenv
 # https://github.com/jazzband/pip-tools (pip-tools = pip-compile + pip-sync)
 pip-tools
 
+# https://github.com/sesh/piprot
+piprot
+
 django-extensions
 werkzeug
 

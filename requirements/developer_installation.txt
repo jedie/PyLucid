@@ -62,14 +62,16 @@ lxml==4.1.1               # via aldryn-search
 markdown==2.6.11
 pillow==5.0.0
 pip-tools==1.11.0
+piprot==0.9.7
 pkginfo==1.4.1            # via twine
 pygments==2.1.3
 pytz==2018.3
 rcssmin==1.0.6            # via django-compressor
+requests-futures==0.9.7   # via piprot
 requests-toolbelt==0.8.0  # via twine
-requests==2.18.4          # via requests-toolbelt, twine
+requests==2.18.4          # via piprot, requests-futures, requests-toolbelt, twine
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via aldryn-common, django-extensions, django-spurl, html5lib, pip-tools, textile
+six==1.11.0               # via aldryn-common, django-extensions, django-spurl, html5lib, pip-tools, piprot, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
 tqdm==4.19.5              # via twine
