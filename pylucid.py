@@ -172,20 +172,28 @@ class PyLucidShell(Cmd2):
 
     def do_install_normal(self, arg):
         """
-        Install requirements in "normal" mode.
-        Requirements file 'normal_installation.txt' will be used.
+        pip install -r normal_installation.txt
+
+        The "normal" way for all PyLucid users:
         Use PyPi packages and read-only sources from github.
         """
         self._install("normal_installation.txt")
 
     def do_install_developer(self, arg):
         """
-        Install requirements in "developer" mode.
-        Requirements file 'developer_installation.txt' will be used.
+        pip install -r developer_installation.txt
 
         **only usable for developer with github write access**
         """
         self._install("developer_installation.txt")
+
+    def do_install_ci(self, arg):
+        """
+        pip install -r ci_installation.txt
+
+        **only for Travis CI**
+        """
+        self._install("ci_installation.txt")
 
     def do_pip_freeze(self, arg):
         "run 'pip freeze': FOO"
