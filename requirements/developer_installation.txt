@@ -85,3 +85,19 @@ webencodings==0.5.1       # via html5lib
 werkzeug==0.14.1
 wheel==0.30.0
 yurl==0.13                # via aldryn-boilerplates
+
+#
+# list of out of date packages made with piprot:
+#
+# click (6.6) is 46 days out of date. Latest is 6.7
+# django-cms (3.4.5) is 110 days out of date. Latest is 3.5.0
+# django-compressor (2.1.1) is 195 days out of date. Latest is 2.2
+# django-debug-toolbar (1.5) is 482 days out of date. Latest is 1.9.1
+# django-filer (1.2.8) is 105 days out of date. Latest is 1.3.0
+# django-mptt (0.8.7) is 351 days out of date. Latest is 0.9.0
+# django-polymorphic (1.0.2) is 479 days out of date. Latest is 2.0.2
+# django-reversion (1.10.2) is 645 days out of date. Latest is 2.0.13
+# django (1.9.13) is 303 days out of date. Latest is 2.0.2
+# easy-thumbnails (2.3) is 690 days out of date. Latest is 2.5
+# pygments (2.1.3) is 326 days out of date. Latest is 2.2.0
+# Your requirements are 3732 days out of date
