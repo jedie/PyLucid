@@ -191,7 +191,7 @@ if "publish" in sys.argv:
     verbose_check_call("git", "push", "--tags")
 
     sys.exit(0)
-
+import django
 
 setup_info = dict(
     name='PyLucid',
@@ -206,11 +206,13 @@ setup_info = dict(
         #exclude=[".project", ".pydevproject", "pylucid_project.external_plugins.*"]
     ),
     include_package_data=True, # include package data under version control
-    entry_points='''
-        [console_scripts]
-        pylucid_installer=pylucid_installer.pylucid_installer:cli
-    ''',
-    install_requires=["Click",],
+
+    scripts=['pylucid/pylucid_admin.py'],
+    entry_points={'console_scripts': [
+        "pylucid_admin = pylucid.pylucid_admin:main",
+    ]},
+
+    install_requires=[],
     test_suite = "runtests.run_tests",
     zip_safe=False,
     classifiers=[
@@ -221,11 +223,11 @@ setup_info = dict(
 #        "Intended Audience :: Education",
 #        "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: JavaScript",
         "Framework :: Django",
-        "Framework :: Django :: 1.8",
+        "Framework :: Django :: 1.11",
         "Topic :: Database :: Front-Ends",
         "Topic :: Documentation",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",

@@ -1,22 +1,24 @@
 #!/usr/bin/python3
 
 """
-    PyLucid Manage CLI
-    ~~~~~~~~~~~~~~~~~~
+    PyLucid Admin
+    ~~~~~~~~~~~~~
+
+    A interactive admin for PyLucid.
 
     :created: 08.02.2018 by Jens Diemer, www.jensdiemer.de
     :copyleft: 2018 by the PyLucid team, see AUTHORS for more details.
     :license: GNU General Public License v3 or later (GPLv3+), see LICENSE for more details.
 """
-import argparse
+
 import cmd
 import glob
 import logging
 import os
 import subprocess
 import sys
-
-
+import traceback
+from pathlib import Path
 
 __version__ = "0.0.1"
 
@@ -60,6 +62,17 @@ def iter_subprocess_output(args):
     return iter(proc.stdout.readline,'')
 
 
+def display_errors(func):
+    def wrapped(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as err:
+            traceback.print_exc(file=sys.stderr)
+            return "%s: %s" % (err.__class__.__name__, err)
+
+    return wrapped
+
+
 class Cmd2(cmd.Cmd):
     """
     Enhanced version of 'Cmd' class:
@@ -99,6 +112,44 @@ class Cmd2(cmd.Cmd):
         # e.g.: $ ./pylucid.py upgrade_requirements -> run do_upgrade_requirements() on startup
         self.cmdqueue = sys.argv[1:]
 
+    @display_errors
+    def _complete_path(self, text, line, begidx, endidx):
+        """
+        complete a command argument with a existing path
+
+        usage e.g.:
+            class FooCmd(Cmd2):
+                def complete_foobar(self, text, line, begidx, endidx):
+                    return self._complete_path(text, line, begidx, endidx)
+
+                def do_foobar(self, path): # 'path' is type string!
+                    print("path:", path)
+        """
+        try:
+            destination = line.split(" ", 1)[1]
+        except IndexError:
+            destination = "."
+
+        if destination=="~":
+            return [os.sep]
+
+        destination = Path(destination).expanduser().resolve()
+
+        if not destination.is_dir():
+            destination = destination.parent.resolve()
+
+        if destination.is_dir():
+            complete_list = [x.stem + os.sep for x in destination.iterdir() if x.is_dir()]
+            if text:
+                if text in complete_list:
+                    return [text + os.sep]
+
+                complete_list = [x for x in complete_list if x.startswith(text)]
+        else:
+            complete_list = []
+
+        return complete_list
+
     _complete_hint_added=False
     def do_help(self, arg):
         if not self._complete_hint_added:
@@ -132,9 +183,35 @@ class Cmd2(cmd.Cmd):
 
 
 
-
-
 class PyLucidShell(Cmd2):
+
+    #_________________________________________________________________________
+    # Normal user commands:
+
+    def _resolve_path(self, path):
+        return Path(path).expanduser().resolve()
+
+    def complete_boot(self, text, line, begidx, endidx):
+        return self._complete_path(text, line, begidx, endidx)
+
+    def do_boot(self, destination):
+        """
+        usage:
+            > boot [path]
+
+        Create a PyLucid virtualenv in the given [path].
+        The destination path must not exist yet!
+        """
+        destination = Path(destination).expanduser().resolve()
+        if destination.exists():
+            self.stdout.write("\nERROR: Path '%s' already exists!\n" % destination)
+            return
+
+        print("TODO: boot install to: '%s'" % destination)
+
+    #_________________________________________________________________________
+    # Developer commands:
+
     def do_upgrade_requirements(self, arg):
         """
         Convert via 'pip-compile' *.in requirements files to *.txt
@@ -200,6 +277,9 @@ class PyLucidShell(Cmd2):
         verbose_check_call("pip3", "freeze")
 
 
+def main():
+    PyLucidShell().cmdloop()
+
 
 if __name__ == '__main__':
-    PyLucidShell().cmdloop()
+    main()
