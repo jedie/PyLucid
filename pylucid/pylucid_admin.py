@@ -81,7 +81,7 @@ class Cmd2(cmd.Cmd):
         - Display
     """
     command_alias = { # used in self.precmd()
-        "q": "quit",
+        "q": "quit", "EOF": "quit",
         "--help": "help", "-h": "help", "-?": "help",
     }
 
