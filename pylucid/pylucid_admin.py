@@ -574,11 +574,26 @@ class PyLucidShell(Cmd2):
         # print("line: %r" % line)
         return self._complete_path(text, line, begidx, endidx)
 
-    def _boot(self, destination, requirements):
+    def _parse_requirements(self, requirement_string):
+        requirements = []
+        for line in requirement_string.splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+
+                line = line.split("# ", 1)[0] # Remove pip-compile comments e.g.: "... # via foo"
+                line = line.rstrip()
+
+                if line.startswith("-e"): # split editables
+                    requirements += line.split(" ")
+                else:
+                    requirements.append(line)
+        return requirements
+
+    def _boot(self, destination, requirement_string):
         """
         Create a PyLucid virtualenv and install requirements.
         """
-        requirements = [line for line in requirements.splitlines() if line]
+        requirements = self._parse_requirements(requirement_string)
 
         destination = Path(destination).expanduser().resolve()
         if destination.exists():
@@ -612,7 +627,7 @@ class PyLucidShell(Cmd2):
 
         (used the requirements/normal_installation.txt)
         """
-        self._boot(destination, requirements=NORMAL_INSTALL_TXT)
+        self._boot(destination, requirement_string=NORMAL_INSTALL_TXT)
     complete_boot_normal = complete_boot
 
     def do_boot_developer(self, destination):
@@ -620,7 +635,7 @@ class PyLucidShell(Cmd2):
         **only usable for developer with github write access**
         (used the requirements/developer_installation.txt)
         """
-        self._boot(destination, requirements=DEVELOPER_INSTALL_TXT)
+        self._boot(destination, requirement_string=DEVELOPER_INSTALL_TXT)
     complete_boot_developer = complete_boot
 
     def do_boot_ci(self, destination):
@@ -628,7 +643,7 @@ class PyLucidShell(Cmd2):
         **only for Travis CI**
         (used the requirements/ci_installation.txt)
         """
-        self._boot(destination, requirements=CI_INSTALL_TXT)
+        self._boot(destination, requirement_string=CI_INSTALL_TXT)
 
     def do_pip_freeze(self, arg):
         "run 'pip freeze': FOO"
@@ -687,7 +702,9 @@ class PyLucidShell(Cmd2):
                 output.append("# %s" % line)
 
             self.stdout.write("\nUpdate file %r\n" % requirement_out)
-            with open(Path(requirements_path, requirement_out), "a") as f:
+            filepath = Path(requirements_path, requirement_out).resolve()
+            assert filepath.is_file(), "File not exists: %r" % filepath
+            with open(filepath, "a") as f:
                 f.writelines(output)
 
         self.do_insert_requirement(arg)
