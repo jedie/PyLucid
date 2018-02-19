@@ -52,21 +52,22 @@ if sys.version_info < (3, 5):
 
 log = logging.getLogger(__name__)
 
-SELF_FILENAME=os.path.basename(__file__)
-SELF_FILEPATH=Path(__file__).resolve()
+SELF_FILENAME=os.path.basename(__file__)            # .../src/pylucid/pylucid/pylucid_admin.py
+SELF_FILEPATH=Path(__file__).resolve()              # .../src/pylucid/pylucid/
+ROOT_PATH=Path(SELF_FILEPATH, "..", "..").resolve() # .../src/pylucid/
 
 # The following Variables CI_INSTALL_TXT, DEVELOPER_INSTALL_TXT and NORMAL_INSTALL_TXT are filled
 # automatically from the requirements files on:
 #   PyLucidShell.do_upgrade_requirements()
 # by
 #
-# $ ./pylucid.py upgrade_requirements
+# $ pylucid_admin upgrade_requirements
 
 # Helper to replace the content:
 INSERT_START_RE=re.compile(r'(?P<variable>.*?)=""" # insert \[(?P<filename>.*?)\]')
 INSERT_END = '"""'
 
-CI_INSTALL_TXT=""" # insert [../requirements/ci_installation.txt]
+CI_INSTALL_TXT=""" # insert [requirements/ci_installation.txt]
 -e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
 -e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
@@ -139,7 +140,7 @@ webencodings==0.5.1       # via html5lib
 yurl==0.13                # via aldryn-boilerplates
 """
 
-DEVELOPER_INSTALL_TXT=""" # insert [../requirements/developer_installation.txt]
+DEVELOPER_INSTALL_TXT=""" # insert [requirements/developer_installation.txt]
 -e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
 -e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
 -e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
@@ -223,32 +224,25 @@ wheel==0.30.0
 yurl==0.13                # via aldryn-boilerplates
 """
 
-NORMAL_INSTALL_TXT=""" # insert [../requirements/developer_installation.txt]
--e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
--e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
--e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
--e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
--e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
--e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
--e git+git@github.com:jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
--e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
--e git+git@github.com:jedie/PyLucid.git@pylucid_v3#egg=pylucid
--e git+git@github.com:jedie/python-creole.git#egg=python-creole
+NORMAL_INSTALL_TXT=""" # insert [requirements/normal_installation.txt]
+-e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
+-e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
+-e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
+-e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
 aldryn-boilerplates==0.7.5  # via aldryn-common
 aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
-certifi==2018.1.18        # via requests
-chardet==3.0.4            # via requests
 click==6.6
 cmsplugin-filer==1.1.3
+cmsplugin-pygments==0.8.2
 django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
 django-appdata==0.1.6     # via aldryn-apphooks-config
 django-classy-tags==0.8.0  # via django-cms, django-sekizai, django-standard-form
 django-cms==3.4.5
 django-compressor==2.1.1
+django-debug-toolbar-django-info==0.3.0
 django-debug-toolbar==1.5
-django-extensions==1.9.9
 django-filer==1.2.8
 django-formtools==2.1     # via django-cms
 django-haystack==2.7.0    # via aldryn-search
@@ -257,6 +251,7 @@ django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
 django-mptt==0.8.7        # via django-filer
 django-parler==1.9.2      # via djangocms-blog
 django-polymorphic==1.0.2  # via django-filer
+django-reversion-compare==0.6.3
 django-reversion==1.10.2
 django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
 django-sortedm2m==1.5.0   # via aldryn-common
@@ -266,6 +261,7 @@ django-taggit-autosuggest==0.3.2  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
+django-tools==0.30.4
 django-treebeard==4.2.0   # via django-cms
 django==1.9.13
 djangocms-admin-style==1.2.7  # via django-cms
@@ -275,35 +271,21 @@ djangocms-blog==0.8.13
 djangocms-htmlsitemap==0.2.0
 docutils==0.14
 easy-thumbnails==2.3      # via cmsplugin-filer, django-filer
-first==2.0.1              # via pip-tools
 html5lib==1.0.1           # via textile
-idna==2.6                 # via requests
 lxml==4.1.1               # via aldryn-search
 markdown==2.6.11
 pillow==5.0.0
-pip-tools==1.11.0
-piprot==0.9.7
-pkginfo==1.4.1            # via twine
 pygments==2.1.3
+python-creole==1.3.1
 pytz==2018.3
 rcssmin==1.0.6            # via django-compressor
-requests-futures==0.9.7   # via piprot
-requests-toolbelt==0.8.0  # via twine
-requests==2.18.4          # via piprot, requests-futures, requests-toolbelt, twine
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via aldryn-common, django-extensions, django-spurl, html5lib, pip-tools, piprot, textile
+six==1.11.0               # via aldryn-common, django-spurl, html5lib, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
-tqdm==4.19.5              # via twine
-twine==1.9.1
-typing==3.6.4             # via django-extensions
 unidecode==0.4.21         # via django-filer
-urllib3==1.22             # via requests
 urlobject==2.4.3          # via django-spurl
-virtualenv==15.1.0
 webencodings==0.5.1       # via html5lib
-werkzeug==0.14.1
-wheel==0.30.0
 yurl==0.13                # via aldryn-boilerplates
 """
 
@@ -318,7 +300,10 @@ class Requirement:
         Skip comments and emptry lines
         """
         lines = []
-        print("read %r..." % req_file)
+
+        req_file = Path(ROOT_PATH, req_file).resolve()
+
+        print("read %s..." % req_file)
         with open(req_file, "r") as f:
             for line in f:
                 line = line.strip()
@@ -367,31 +352,32 @@ class Requirement:
         SELF_FILEPATH.chmod(0o775)
 
 
-def verbose_check_call(*args):
+def verbose_check_call(*popenargs, **kwargs):
     """
     'verbose' version of subprocess.check_output()
     """
-    print("Call: %r" % " ".join(args))
+    print("Call: %r" % " ".join(popenargs))
     try:
-        subprocess.check_call(args, universal_newlines=True, stderr=subprocess.STDOUT)
+        subprocess.check_call(popenargs, universal_newlines=True, stderr=subprocess.STDOUT, **kwargs)
     except subprocess.CalledProcessError as err:
         print("\n***ERROR:")
         print(err.output)
         raise
 
 
-def iter_subprocess_output(args):
+def iter_subprocess_output(*popenargs, **kwargs):
     """
     A subprocess with tee ;)
     """
-    print("Call: %s" % " ".join(args))
+    print("Call: %s" % " ".join(popenargs))
 
     env = dict(os.environ)
     env["PYTHONUNBUFFERED"]="1" # If a python script called ;)
 
-    proc=subprocess.Popen(args,
+    proc=subprocess.Popen(popenargs,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         bufsize=1, env=env, universal_newlines=True,
+        **kwargs
     )
     return iter(proc.stdout.readline,'')
 
@@ -523,6 +509,10 @@ class Cmd2(cmd.Cmd):
 class PyLucidEnvBuilder(venv.EnvBuilder):
     verbose = True
 
+    def __init__(self, requirements):
+        super().__init__(with_pip=True)
+        self.requirements = requirements
+
     def ensure_directories(self, env_dir):
         print(" * Create the directories for the environment.")
         return super().ensure_directories(env_dir)
@@ -564,7 +554,9 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         context.pip3_path = str(pip3_path)
 
         verbose_check_call(context.pip3_path, "install", "--upgrade", "pip")
-        verbose_check_call(context.pip3_path, "install", "django<2.0")
+
+        args = [context.pip3_path, "install"] + self.requirements
+        verbose_check_call(*args)
 
 
 
@@ -578,16 +570,16 @@ class PyLucidShell(Cmd2):
         return Path(path).expanduser().resolve()
 
     def complete_boot(self, text, line, begidx, endidx):
+        # print("text: %r" % text)
+        # print("line: %r" % line)
         return self._complete_path(text, line, begidx, endidx)
 
-    def do_boot(self, destination):
+    def _boot(self, destination, requirements):
         """
-        usage:
-            > boot [path]
+        Create a PyLucid virtualenv and install requirements.
+        """
+        requirements = [line for line in requirements.splitlines() if line]
 
-        Create a PyLucid virtualenv in the given [path].
-        The destination path must not exist yet!
-        """
         destination = Path(destination).expanduser().resolve()
         if destination.exists():
             self.stdout.write("\nERROR: Path '%s' already exists!\n" % destination)
@@ -595,7 +587,7 @@ class PyLucidShell(Cmd2):
 
         self.stdout.write("Create virtualenv: '%s'...\n\n" % destination)
 
-        builder = PyLucidEnvBuilder(with_pip=True)
+        builder = PyLucidEnvBuilder(requirements)
         builder.create(destination)
 
         self.stdout.write("\n")
@@ -606,6 +598,42 @@ class PyLucidShell(Cmd2):
         else:
             self.stdout.write("virtualenv created at: '%s'\n" % destination)
 
+    def do_boot_normal(self, destination):
+        """
+        "normal" boot PyLucid
+
+        usage:
+            > boot_normal [path]
+
+        Create a PyLucid virtualenv in the given [path].
+        Install packages via PyPi and read-only sources from github.
+
+        The destination path must not exist yet!
+
+        (used the requirements/normal_installation.txt)
+        """
+        self._boot(destination, requirements=NORMAL_INSTALL_TXT)
+    complete_boot_normal = complete_boot
+
+    def do_boot_developer(self, destination):
+        """
+        **only usable for developer with github write access**
+        (used the requirements/developer_installation.txt)
+        """
+        self._boot(destination, requirements=DEVELOPER_INSTALL_TXT)
+    complete_boot_developer = complete_boot
+
+    def do_boot_ci(self, destination):
+        """
+        **only for Travis CI**
+        (used the requirements/ci_installation.txt)
+        """
+        self._boot(destination, requirements=CI_INSTALL_TXT)
+
+    def do_pip_freeze(self, arg):
+        "run 'pip freeze': FOO"
+        verbose_check_call("pip3", "freeze")
+
     #_________________________________________________________________________
     # Developer commands:
 
@@ -613,74 +641,57 @@ class PyLucidShell(Cmd2):
         """
         insert requirements/*_installation.txt files into pylucid/pylucid_admin.py
         This will be automaticly done by 'upgrade_requirements'!
+
+        Direct start with:
+            $ pylucid_admin insert_requirement
         """
         Requirement().update()
 
     def do_upgrade_requirements(self, arg):
         """
-        Convert via 'pip-compile' *.in requirements files to *.txt
-        Append 'piprot' informations to *.txt requirements.
+        1. Convert via 'pip-compile' *.in requirements files to *.txt
+        2. Append 'piprot' informations to *.txt requirements.
+        3. insert requirement content into pylucid_admin.py
 
         Direct start with:
-            $ ./pylucid.py upgrade_requirements
+            $ pylucid_admin upgrade_requirements
         """
-        for requirement_in in glob.glob(os.path.join("requirements", "*.in")):
+
+        requirements_path = Path(ROOT_PATH, "requirements").resolve()
+        assert requirements_path.is_dir(), "Path doesn't exists: %r" % requirements_path
+
+        for requirement_in in glob.glob(os.path.join(ROOT_PATH, "requirements", "*.in")):
             if "basic_" in requirement_in:
                 continue
+
+            requirement_in = Path(requirement_in).name
             requirement_out = requirement_in.replace(".in", ".txt")
 
             self.stdout.write("_"*79 + "\n")
-            verbose_check_call("pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in)
+
+            # We run pip-compile in ./requirements/ and add only the filenames as arguments
+            # So pip-compile add no path to comments ;)
+
+            verbose_check_call(
+                "pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in,
+                cwd=requirements_path
+            )
 
             self.stdout.write("_"*79 + "\n")
-            args = ["piprot", "--outdated", requirement_out]
             output = [
                 "\n#\n# list of out of date packages made with piprot:\n#\n"
             ]
-            for line in iter_subprocess_output(args):
+            for line in iter_subprocess_output("piprot", "--outdated", requirement_out, cwd=requirements_path):
                 self.stdout.write(line)
                 self.stdout.flush()
                 output.append("# %s" % line)
 
             self.stdout.write("\nUpdate file %r\n" % requirement_out)
-            with open(requirement_out, "a") as f:
+            with open(Path(requirements_path, requirement_out), "a") as f:
                 f.writelines(output)
 
         self.do_insert_requirement(arg)
 
-    def _install(self, requirements_filename):
-        verbose_check_call("pip3", "install", "--upgrade", "pip")
-        requirement = os.path.join("requirements", requirements_filename)
-        verbose_check_call("pip3", "install", "-r", requirement)
-
-    def do_install_normal(self, arg):
-        """
-        pip install -r normal_installation.txt
-
-        The "normal" way for all PyLucid users:
-        Use PyPi packages and read-only sources from github.
-        """
-        self._install("normal_installation.txt")
-
-    def do_install_developer(self, arg):
-        """
-        pip install -r developer_installation.txt
-
-        **only usable for developer with github write access**
-        """
-        self._install("developer_installation.txt")
-
-    def do_install_ci(self, arg):
-        """
-        pip install -r ci_installation.txt
-
-        **only for Travis CI**
-        """
-        self._install("ci_installation.txt")
-
-    def do_pip_freeze(self, arg):
-        "run 'pip freeze': FOO"
-        verbose_check_call("pip3", "freeze")
 
 
 def main():
