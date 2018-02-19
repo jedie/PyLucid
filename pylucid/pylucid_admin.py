@@ -23,6 +23,7 @@ import cmd
 import glob
 import logging
 import os
+import re
 import subprocess
 import sys
 import traceback
@@ -52,6 +53,318 @@ if sys.version_info < (3, 5):
 log = logging.getLogger(__name__)
 
 SELF_FILENAME=os.path.basename(__file__)
+SELF_FILEPATH=Path(__file__).resolve()
+
+# The following Variables CI_INSTALL_TXT, DEVELOPER_INSTALL_TXT and NORMAL_INSTALL_TXT are filled
+# automatically from the requirements files on:
+#   PyLucidShell.do_upgrade_requirements()
+# by
+#
+# $ ./pylucid.py upgrade_requirements
+
+# Helper to replace the content:
+INSERT_START_RE=re.compile(r'(?P<variable>.*?)=""" # insert \[(?P<filename>.*?)\]')
+INSERT_END = '"""'
+
+CI_INSTALL_TXT=""" # insert [../requirements/ci_installation.txt]
+-e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
+-e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
+-e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
+-e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
+aldryn-apphooks-config==0.3.3  # via djangocms-blog
+aldryn-boilerplates==0.7.5  # via aldryn-common
+aldryn-common==1.0.4      # via aldryn-search
+aldryn-search==0.4.1      # via djangocms-blog
+certifi==2018.1.18        # via requests
+chardet==3.0.4            # via requests
+click==6.6
+cmsplugin-filer==1.1.3
+cmsplugin-pygments==0.8.2
+coverage==4.5.1           # via coveralls
+coveralls==1.2.0
+django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
+django-appdata==0.1.6     # via aldryn-apphooks-config
+django-classy-tags==0.8.0  # via django-cms, django-sekizai, django-standard-form
+django-cms==3.4.5
+django-compressor==2.1.1
+django-debug-toolbar-django-info==0.3.0
+django-debug-toolbar==1.5
+django-filer==1.2.8
+django-formtools==2.1     # via django-cms
+django-haystack==2.7.0    # via aldryn-search
+django-meta-mixin==0.3.0  # via djangocms-blog
+django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
+django-mptt==0.8.7        # via django-filer
+django-parler==1.9.2      # via djangocms-blog
+django-polymorphic==1.0.2  # via django-filer
+django-reversion-compare==0.6.3
+django-reversion==1.10.2
+django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
+django-sortedm2m==1.5.0   # via aldryn-common
+django-spurl==0.6.4       # via aldryn-search
+django-standard-form==1.1.1  # via aldryn-search
+django-taggit-autosuggest==0.3.2  # via djangocms-blog
+django-taggit-templatetags==0.2.5  # via djangocms-blog
+django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
+django-templatetag-sugar==1.0  # via django-taggit-templatetags
+django-tools==0.30.4
+django-treebeard==4.2.0   # via django-cms
+django==1.9.13
+djangocms-admin-style==1.2.7  # via django-cms
+djangocms-apphook-setup==0.3.0  # via djangocms-blog
+djangocms-attributes-field==0.3.0  # via cmsplugin-filer
+djangocms-blog==0.8.13
+djangocms-htmlsitemap==0.2.0
+docopt==0.6.2             # via coveralls
+docutils==0.14
+easy-thumbnails==2.3      # via cmsplugin-filer, django-filer
+html5lib==1.0.1           # via textile
+idna==2.6                 # via requests
+lxml==4.1.1               # via aldryn-search
+markdown==2.6.11
+pillow==5.0.0
+pygments==2.1.3
+python-creole==1.3.1
+pytz==2018.3
+rcssmin==1.0.6            # via django-compressor
+requests==2.18.4          # via coveralls
+rjsmin==1.0.12            # via django-compressor
+six==1.11.0               # via aldryn-common, django-spurl, html5lib, textile
+sqlparse==0.2.4           # via django-debug-toolbar
+textile==3.0.0
+unidecode==0.4.21         # via django-filer
+urllib3==1.22             # via requests
+urlobject==2.4.3          # via django-spurl
+webencodings==0.5.1       # via html5lib
+yurl==0.13                # via aldryn-boilerplates
+"""
+
+DEVELOPER_INSTALL_TXT=""" # insert [../requirements/developer_installation.txt]
+-e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
+-e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
+-e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
+-e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
+-e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
+-e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
+-e git+git@github.com:jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
+-e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
+-e git+git@github.com:jedie/PyLucid.git@pylucid_v3#egg=pylucid
+-e git+git@github.com:jedie/python-creole.git#egg=python-creole
+aldryn-apphooks-config==0.3.3  # via djangocms-blog
+aldryn-boilerplates==0.7.5  # via aldryn-common
+aldryn-common==1.0.4      # via aldryn-search
+aldryn-search==0.4.1      # via djangocms-blog
+certifi==2018.1.18        # via requests
+chardet==3.0.4            # via requests
+click==6.6
+cmsplugin-filer==1.1.3
+django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
+django-appdata==0.1.6     # via aldryn-apphooks-config
+django-classy-tags==0.8.0  # via django-cms, django-sekizai, django-standard-form
+django-cms==3.4.5
+django-compressor==2.1.1
+django-debug-toolbar==1.5
+django-extensions==1.9.9
+django-filer==1.2.8
+django-formtools==2.1     # via django-cms
+django-haystack==2.7.0    # via aldryn-search
+django-meta-mixin==0.3.0  # via djangocms-blog
+django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
+django-mptt==0.8.7        # via django-filer
+django-parler==1.9.2      # via djangocms-blog
+django-polymorphic==1.0.2  # via django-filer
+django-reversion==1.10.2
+django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
+django-sortedm2m==1.5.0   # via aldryn-common
+django-spurl==0.6.4       # via aldryn-search
+django-standard-form==1.1.1  # via aldryn-search
+django-taggit-autosuggest==0.3.2  # via djangocms-blog
+django-taggit-templatetags==0.2.5  # via djangocms-blog
+django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
+django-templatetag-sugar==1.0  # via django-taggit-templatetags
+django-treebeard==4.2.0   # via django-cms
+django==1.9.13
+djangocms-admin-style==1.2.7  # via django-cms
+djangocms-apphook-setup==0.3.0  # via djangocms-blog
+djangocms-attributes-field==0.3.0  # via cmsplugin-filer
+djangocms-blog==0.8.13
+djangocms-htmlsitemap==0.2.0
+docutils==0.14
+easy-thumbnails==2.3      # via cmsplugin-filer, django-filer
+first==2.0.1              # via pip-tools
+html5lib==1.0.1           # via textile
+idna==2.6                 # via requests
+lxml==4.1.1               # via aldryn-search
+markdown==2.6.11
+pillow==5.0.0
+pip-tools==1.11.0
+piprot==0.9.7
+pkginfo==1.4.1            # via twine
+pygments==2.1.3
+pytz==2018.3
+rcssmin==1.0.6            # via django-compressor
+requests-futures==0.9.7   # via piprot
+requests-toolbelt==0.8.0  # via twine
+requests==2.18.4          # via piprot, requests-futures, requests-toolbelt, twine
+rjsmin==1.0.12            # via django-compressor
+six==1.11.0               # via aldryn-common, django-extensions, django-spurl, html5lib, pip-tools, piprot, textile
+sqlparse==0.2.4           # via django-debug-toolbar
+textile==3.0.0
+tqdm==4.19.5              # via twine
+twine==1.9.1
+typing==3.6.4             # via django-extensions
+unidecode==0.4.21         # via django-filer
+urllib3==1.22             # via requests
+urlobject==2.4.3          # via django-spurl
+virtualenv==15.1.0
+webencodings==0.5.1       # via html5lib
+werkzeug==0.14.1
+wheel==0.30.0
+yurl==0.13                # via aldryn-boilerplates
+"""
+
+NORMAL_INSTALL_TXT=""" # insert [../requirements/developer_installation.txt]
+-e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
+-e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
+-e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
+-e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
+-e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
+-e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
+-e git+git@github.com:jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
+-e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
+-e git+git@github.com:jedie/PyLucid.git@pylucid_v3#egg=pylucid
+-e git+git@github.com:jedie/python-creole.git#egg=python-creole
+aldryn-apphooks-config==0.3.3  # via djangocms-blog
+aldryn-boilerplates==0.7.5  # via aldryn-common
+aldryn-common==1.0.4      # via aldryn-search
+aldryn-search==0.4.1      # via djangocms-blog
+certifi==2018.1.18        # via requests
+chardet==3.0.4            # via requests
+click==6.6
+cmsplugin-filer==1.1.3
+django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
+django-appdata==0.1.6     # via aldryn-apphooks-config
+django-classy-tags==0.8.0  # via django-cms, django-sekizai, django-standard-form
+django-cms==3.4.5
+django-compressor==2.1.1
+django-debug-toolbar==1.5
+django-extensions==1.9.9
+django-filer==1.2.8
+django-formtools==2.1     # via django-cms
+django-haystack==2.7.0    # via aldryn-search
+django-meta-mixin==0.3.0  # via djangocms-blog
+django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
+django-mptt==0.8.7        # via django-filer
+django-parler==1.9.2      # via djangocms-blog
+django-polymorphic==1.0.2  # via django-filer
+django-reversion==1.10.2
+django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
+django-sortedm2m==1.5.0   # via aldryn-common
+django-spurl==0.6.4       # via aldryn-search
+django-standard-form==1.1.1  # via aldryn-search
+django-taggit-autosuggest==0.3.2  # via djangocms-blog
+django-taggit-templatetags==0.2.5  # via djangocms-blog
+django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
+django-templatetag-sugar==1.0  # via django-taggit-templatetags
+django-treebeard==4.2.0   # via django-cms
+django==1.9.13
+djangocms-admin-style==1.2.7  # via django-cms
+djangocms-apphook-setup==0.3.0  # via djangocms-blog
+djangocms-attributes-field==0.3.0  # via cmsplugin-filer
+djangocms-blog==0.8.13
+djangocms-htmlsitemap==0.2.0
+docutils==0.14
+easy-thumbnails==2.3      # via cmsplugin-filer, django-filer
+first==2.0.1              # via pip-tools
+html5lib==1.0.1           # via textile
+idna==2.6                 # via requests
+lxml==4.1.1               # via aldryn-search
+markdown==2.6.11
+pillow==5.0.0
+pip-tools==1.11.0
+piprot==0.9.7
+pkginfo==1.4.1            # via twine
+pygments==2.1.3
+pytz==2018.3
+rcssmin==1.0.6            # via django-compressor
+requests-futures==0.9.7   # via piprot
+requests-toolbelt==0.8.0  # via twine
+requests==2.18.4          # via piprot, requests-futures, requests-toolbelt, twine
+rjsmin==1.0.12            # via django-compressor
+six==1.11.0               # via aldryn-common, django-extensions, django-spurl, html5lib, pip-tools, piprot, textile
+sqlparse==0.2.4           # via django-debug-toolbar
+textile==3.0.0
+tqdm==4.19.5              # via twine
+twine==1.9.1
+typing==3.6.4             # via django-extensions
+unidecode==0.4.21         # via django-filer
+urllib3==1.22             # via requests
+urlobject==2.4.3          # via django-spurl
+virtualenv==15.1.0
+webencodings==0.5.1       # via html5lib
+werkzeug==0.14.1
+wheel==0.30.0
+yurl==0.13                # via aldryn-boilerplates
+"""
+
+
+class Requirement:
+    """
+    Helper class to insert requirements/*_installation.txt file content.
+    """
+    def parse_req_file(self, req_file):
+        """
+        returns the lines of a requirements/*_installation.txt file.
+        Skip comments and emptry lines
+        """
+        lines = []
+        print("read %r..." % req_file)
+        with open(req_file, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                assert not line.startswith("-r"), "'-r' not supported! Not the pip-compile output file?!?"
+                lines.append("%s\n" % line)
+
+        return lines
+
+    def update(self):
+        new_content = []
+        with open(SELF_FILEPATH, "r") as f:
+            in_insert_block=False
+            for line in f:
+                if not in_insert_block:
+                    new_content.append(line)
+
+                if in_insert_block:
+                    if line.strip() == INSERT_END:
+                        in_insert_block=False
+                        new_content.append(line)
+
+                else:
+                    m = INSERT_START_RE.match(line)
+                    if m:
+                        in_insert_block=True
+                        m = m.groupdict()
+                        variable = m["variable"]
+                        filename = m["filename"]
+                        print("Fill %r from %r..." % (variable, filename))
+                        new_content += self.parse_req_file(filename)
+
+
+        bak_filename=Path("%s.bak" % SELF_FILEPATH)
+        if bak_filename.is_file():
+            print("Remove old backup file: %s" % bak_filename)
+            bak_filename.unlink()
+
+        print("Create backup file: %r" % bak_filename)
+        SELF_FILEPATH.rename(bak_filename)
+
+        with open(SELF_FILEPATH, "w") as f:
+            f.writelines(new_content)
+
+        SELF_FILEPATH.chmod(0o775)
 
 
 def verbose_check_call(*args):
@@ -175,6 +488,9 @@ class Cmd2(cmd.Cmd):
 
     _complete_hint_added=False
     def do_help(self, arg):
+        """
+        List available commands with "help" or detailed help with "help cmd".
+        """
         if not self._complete_hint_added:
             try:
                 import readline
@@ -293,6 +609,13 @@ class PyLucidShell(Cmd2):
     #_________________________________________________________________________
     # Developer commands:
 
+    def do_insert_requirement(self, arg):
+        """
+        insert requirements/*_installation.txt files into pylucid/pylucid_admin.py
+        This will be automaticly done by 'upgrade_requirements'!
+        """
+        Requirement().update()
+
     def do_upgrade_requirements(self, arg):
         """
         Convert via 'pip-compile' *.in requirements files to *.txt
@@ -322,6 +645,8 @@ class PyLucidShell(Cmd2):
             self.stdout.write("\nUpdate file %r\n" % requirement_out)
             with open(requirement_out, "a") as f:
                 f.writelines(output)
+
+        self.do_insert_requirement(arg)
 
     def _install(self, requirements_filename):
         verbose_check_call("pip3", "install", "--upgrade", "pip")
