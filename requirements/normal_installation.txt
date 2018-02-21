@@ -9,7 +9,7 @@
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 -e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-aldryn-boilerplates==0.7.5  # via aldryn-common
+aldryn-boilerplates==0.7.7  # via aldryn-common
 aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
 click==6.6
@@ -81,6 +81,7 @@ yurl==0.13                # via aldryn-boilerplates
 # django-reversion (1.10.2) is 645 days out of date. Latest is 2.0.13
 # django-tools (0.30.4) is 465 days out of date. Latest is 0.38.9
 # django (1.9.13) is 303 days out of date. Latest is 2.0.2
+# djangocms-blog (0.8.13) is 209 days out of date. Latest is 0.9.0
 # easy-thumbnails (2.3) is 690 days out of date. Latest is 2.5
 # pygments (2.1.3) is 326 days out of date. Latest is 2.2.0
-# Your requirements are 4751 days out of date
+# Your requirements are 4960 days out of date

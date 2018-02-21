@@ -15,7 +15,7 @@
 -e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
 -e git+git@github.com:jedie/python-creole.git#egg=python-creole
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-aldryn-boilerplates==0.7.5  # via aldryn-common
+aldryn-boilerplates==0.7.7  # via aldryn-common
 aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
 certifi==2018.1.18        # via requests
@@ -98,6 +98,7 @@ yurl==0.13                # via aldryn-boilerplates
 # django-polymorphic (1.0.2) is 479 days out of date. Latest is 2.0.2
 # django-reversion (1.10.2) is 645 days out of date. Latest is 2.0.13
 # django (1.9.13) is 303 days out of date. Latest is 2.0.2
+# djangocms-blog (0.8.13) is 209 days out of date. Latest is 0.9.0
 # easy-thumbnails (2.3) is 690 days out of date. Latest is 2.5
 # pygments (2.1.3) is 326 days out of date. Latest is 2.2.0
-# Your requirements are 3732 days out of date
+# Your requirements are 3941 days out of date

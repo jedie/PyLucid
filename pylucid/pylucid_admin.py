@@ -73,7 +73,7 @@ CI_INSTALL_TXT=""" # insert [requirements/ci_installation.txt]
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 -e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-aldryn-boilerplates==0.7.5  # via aldryn-common
+aldryn-boilerplates==0.7.7  # via aldryn-common
 aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
 certifi==2018.1.18        # via requests
@@ -152,7 +152,7 @@ DEVELOPER_INSTALL_TXT=""" # insert [requirements/developer_installation.txt]
 -e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
 -e git+git@github.com:jedie/python-creole.git#egg=python-creole
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-aldryn-boilerplates==0.7.5  # via aldryn-common
+aldryn-boilerplates==0.7.7  # via aldryn-common
 aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
 certifi==2018.1.18        # via requests
@@ -230,7 +230,7 @@ NORMAL_INSTALL_TXT=""" # insert [requirements/normal_installation.txt]
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 -e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-aldryn-boilerplates==0.7.5  # via aldryn-common
+aldryn-boilerplates==0.7.7  # via aldryn-common
 aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
 click==6.6
