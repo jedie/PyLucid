@@ -4,7 +4,7 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2015-2016 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2015-2018 by the PyLucid team, see AUTHORS for more details.
     :created: 2015 by JensDiemer.de
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
@@ -17,10 +17,6 @@ import tempfile
 from unittest import TestCase
 
 import sys
-from click.testing import CliRunner
-
-from pylucid_installer.pylucid_installer import cli
-from pylucid_installer.page_instance_template import example_project
 
 
 class BaseTestCase(TestCase):
@@ -83,16 +79,16 @@ class BaseTestCase(TestCase):
 
         return output
 
-    def call_manage_py(self, cmd, **kwargs):
-        """
-        call manage.py from pylucid_installer.page_instance_template.example_project
-        """
-        cmd = [sys.executable, "manage.py"] + list(cmd)
-        kwargs.update({
-            "cwd": os.path.abspath(os.path.join(os.path.dirname(example_project.__file__), "..")),
-            #"debug": True,
-        })
-        return self.subprocess_getstatusoutput(cmd, **kwargs)
+    # def call_manage_py(self, cmd, **kwargs):
+    #     """
+    #     call manage.py from pylucid_installer.page_instance_template.example_project
+    #     """
+    #     cmd = [sys.executable, "manage.py"] + list(cmd)
+    #     kwargs.update({
+    #         "cwd": os.path.abspath(os.path.join(os.path.dirname(example_project.__file__), "..")),
+    #         #"debug": True,
+    #     })
+    #     return self.subprocess_getstatusoutput(cmd, **kwargs)
 
 
 class IsolatedFilesystemTestCase(BaseTestCase):
@@ -115,54 +111,54 @@ class IsolatedFilesystemTestCase(BaseTestCase):
             pass
 
 
-class PageInstanceTestCase(IsolatedFilesystemTestCase):
-    """
-    -Create a page instance with the pylucid_installer cli
-    -run the test in the created page instance
-    """
-    def setUp(self):
-        super(PageInstanceTestCase, self).setUp()
-        runner = CliRunner()
-        result = runner.invoke(cli, [
-            "--dest", self.temp_path,
-            "--name", self._testMethodName,
-            "--remove"
-        ],
-            input="y"
-        )
-        # print(result.output)
-        self.project_path = os.path.join(self.temp_path, self._testMethodName)
-
-        self.assertIn(
-            "Rename '%s/example_project' to '%s'" % (
-                self.temp_path, self.project_path
-            ),
-            result.output
-        )
-        self.assertIn(
-            "Page instance created here: '%s'" % self.temp_path,
-            result.output
-        )
-        self.assertNotIn("ERROR", result.output)
-        self.assertNotIn("The given project name is not useable!", result.output)
-        self.assertEqual(result.exit_code, 0)
-
-        self.assertTrue(os.path.isdir(self.project_path))
-
-        self.call_manage_py(["createcachetable"])
-
-    def call_manage_py(self, cmd, **kwargs):
-        """
-        Call manage.py from created page instance in temp dir.
-        """
-        cmd = ["./manage.py"] + list(cmd)
-        kwargs.update({
-            "cwd": self.temp_path,
-            # "debug": True,
-        })
-
-        # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.project_path, "settings.py")], **kwargs)
-        # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.temp_path, "manage.py")], **kwargs)
-        # self.subprocess_getstatusoutput(['python -c "import sys,pprint;pprint.pprint(sys.path)"'], **kwargs)
-
-        return self.subprocess_getstatusoutput(cmd, **kwargs)
+# class PageInstanceTestCase(IsolatedFilesystemTestCase):
+#     """
+#     -Create a page instance with the pylucid_installer cli
+#     -run the test in the created page instance
+#     """
+#     def setUp(self):
+#         super(PageInstanceTestCase, self).setUp()
+#         runner = CliRunner()
+#         result = runner.invoke(cli, [
+#             "--dest", self.temp_path,
+#             "--name", self._testMethodName,
+#             "--remove"
+#         ],
+#             input="y"
+#         )
+#         # print(result.output)
+#         self.project_path = os.path.join(self.temp_path, self._testMethodName)
+#
+#         self.assertIn(
+#             "Rename '%s/example_project' to '%s'" % (
+#                 self.temp_path, self.project_path
+#             ),
+#             result.output
+#         )
+#         self.assertIn(
+#             "Page instance created here: '%s'" % self.temp_path,
+#             result.output
+#         )
+#         self.assertNotIn("ERROR", result.output)
+#         self.assertNotIn("The given project name is not useable!", result.output)
+#         self.assertEqual(result.exit_code, 0)
+#
+#         self.assertTrue(os.path.isdir(self.project_path))
+#
+#         self.call_manage_py(["createcachetable"])
+#
+#     def call_manage_py(self, cmd, **kwargs):
+#         """
+#         Call manage.py from created page instance in temp dir.
+#         """
+#         cmd = ["./manage.py"] + list(cmd)
+#         kwargs.update({
+#             "cwd": self.temp_path,
+#             # "debug": True,
+#         })
+#
+#         # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.project_path, "settings.py")], **kwargs)
+#         # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.temp_path, "manage.py")], **kwargs)
+#         # self.subprocess_getstatusoutput(['python -c "import sys,pprint;pprint.pprint(sys.path)"'], **kwargs)
+#
+#         return self.subprocess_getstatusoutput(cmd, **kwargs)
