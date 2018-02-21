@@ -662,6 +662,11 @@ class PyLucidShell(Cmd2):
         verbose_check_call("pip3", "freeze")
 
     def do_update_env(self, arg):
+        """
+        Update all packages in virtualenv.
+
+        (Call this command only in a activated virtualenv.)
+        """
         if not in_virtualenv():
             self.stdout.write("\nERROR: Only allowed in activated virtualenv!\n\n")
             return
