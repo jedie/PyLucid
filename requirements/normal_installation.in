@@ -13,16 +13,19 @@
 #----------------------
 
 # https://pypi.org/project/python-creole
-python-creole>=1.3,<1.4
+python-creole
 
 # https://pypi.org/project/django-dbpreferences
 #django-dbpreferences>=0.4.2,<0.5
 
 # https://pypi.org/project/django-tools
-django-tools>=0.30,<0.31
+django-tools
+
+# https://pypi.org/project/django-cms-tools
+django-cms-tools
 
 # https://pypi.org/project/django-processinfo
-#django-processinfo>=0.7.0,<0.8
+#django-processinfo
 
 # https://pypi.org/project/django-reversion-compare/
 django-reversion-compare>=0.6,<0.7
@@ -31,7 +34,7 @@ django-reversion-compare>=0.6,<0.7
 cmsplugin-pygments>=0.8.2,<0.9
 
 # https://github.com/jedie/django-debug-toolbar-django-info
-django-debug-toolbar-django-info>=0.3.0,<0.4
+django-debug-toolbar-django-info
 
 # https://github.com/jedie/djangocms-widgets
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets

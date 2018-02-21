@@ -73,54 +73,49 @@ CI_INSTALL_TXT=""" # insert [requirements/ci_installation.txt]
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 -e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-aldryn-boilerplates==0.7.7  # via aldryn-common
-aldryn-common==1.0.4      # via aldryn-search
-aldryn-search==0.4.1      # via djangocms-blog
 certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
 cmsplugin-filer==1.1.3
 cmsplugin-pygments==0.8.2
 coverage==4.5.1           # via coveralls
 coveralls==1.2.0
-django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
+django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.1.6     # via aldryn-apphooks-config
-django-classy-tags==0.8.0  # via django-cms, django-sekizai, django-standard-form
+django-classy-tags==0.8.0  # via django-cms, django-sekizai
+django-cms-tools==0.6.0
 django-cms==3.4.5
 django-compressor==2.1.1
 django-debug-toolbar-django-info==0.3.0
-django-debug-toolbar==1.5
-django-filer==1.2.8
+django-debug-toolbar==1.9.1
+django-filer==1.3.0
 django-formtools==2.1     # via django-cms
-django-haystack==2.7.0    # via aldryn-search
 django-meta-mixin==0.3.0  # via djangocms-blog
 django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
 django-mptt==0.8.7        # via django-filer
 django-parler==1.9.2      # via djangocms-blog
-django-polymorphic==1.0.2  # via django-filer
+django-polymorphic==1.3   # via django-filer
 django-reversion-compare==0.6.3
 django-reversion==1.10.2
 django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
-django-sortedm2m==1.5.0   # via aldryn-common
-django-spurl==0.6.4       # via aldryn-search
-django-standard-form==1.1.1  # via aldryn-search
+django-sortedm2m==1.5.0   # via djangocms-blog
 django-taggit-autosuggest==0.3.2  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-tools==0.30.4
+django-tools==0.38.9
 django-treebeard==4.2.0   # via django-cms
 django==1.9.13
 djangocms-admin-style==1.2.7  # via django-cms
 djangocms-apphook-setup==0.3.0  # via djangocms-blog
 djangocms-attributes-field==0.3.0  # via cmsplugin-filer
-djangocms-blog==0.8.13
+djangocms-blog==0.9.0
 djangocms-htmlsitemap==0.2.0
 docopt==0.6.2             # via coveralls
 docutils==0.14
-easy-thumbnails==2.3      # via cmsplugin-filer, django-filer
+easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
 html5lib==1.0.1           # via textile
 idna==2.6                 # via requests
-lxml==4.1.1               # via aldryn-search
+lxml==4.1.1               # via django-tools
 markdown==2.6.11
 pillow==5.0.0
 pygments==2.1.3
@@ -129,20 +124,19 @@ pytz==2018.3              # via djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 requests==2.18.4          # via coveralls
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via aldryn-common, django-spurl, html5lib, textile
+six==1.11.0               # via html5lib, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
 unidecode==0.4.21         # via django-filer
 urllib3==1.22             # via requests
-urlobject==2.4.3          # via django-spurl
 webencodings==0.5.1       # via html5lib
-yurl==0.13                # via aldryn-boilerplates
 """
 
 DEVELOPER_INSTALL_TXT=""" # insert [requirements/developer_installation.txt]
 -e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
 -e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
 -e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
+-e git+git@github.com:jedie/django-cms-tools.git@master#egg=django-cms-tools
 -e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
 -e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
 -e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
@@ -151,33 +145,27 @@ DEVELOPER_INSTALL_TXT=""" # insert [requirements/developer_installation.txt]
 -e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
 -e git+git@github.com:jedie/python-creole.git#egg=python-creole
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-aldryn-boilerplates==0.7.7  # via aldryn-common
-aldryn-common==1.0.4      # via aldryn-search
-aldryn-search==0.4.1      # via djangocms-blog
 certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
 click==6.7                # via pip-tools
 cmsplugin-filer==1.1.3
-django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
+django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.1.6     # via aldryn-apphooks-config
-django-classy-tags==0.8.0  # via django-cms, django-sekizai, django-standard-form
+django-classy-tags==0.8.0  # via django-cms, django-sekizai
 django-cms==3.4.5
 django-compressor==2.1.1
-django-debug-toolbar==1.5
+django-debug-toolbar==1.9.1
 django-extensions==1.9.9
-django-filer==1.2.8
+django-filer==1.3.0
 django-formtools==2.1     # via django-cms
-django-haystack==2.7.0    # via aldryn-search
 django-meta-mixin==0.3.0  # via djangocms-blog
 django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
 django-mptt==0.8.7        # via django-filer
 django-parler==1.9.2      # via djangocms-blog
-django-polymorphic==1.0.2  # via django-filer
+django-polymorphic==1.3   # via django-filer
 django-reversion==1.10.2
 django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
-django-sortedm2m==1.5.0   # via aldryn-common
-django-spurl==0.6.4       # via aldryn-search
-django-standard-form==1.1.1  # via aldryn-search
+django-sortedm2m==1.5.0   # via djangocms-blog
 django-taggit-autosuggest==0.3.2  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
@@ -187,14 +175,14 @@ django==1.9.13
 djangocms-admin-style==1.2.7  # via django-cms
 djangocms-apphook-setup==0.3.0  # via djangocms-blog
 djangocms-attributes-field==0.3.0  # via cmsplugin-filer
-djangocms-blog==0.8.13
+djangocms-blog==0.9.0
 djangocms-htmlsitemap==0.2.0
 docutils==0.14
-easy-thumbnails==2.3      # via cmsplugin-filer, django-filer
+easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
 first==2.0.1              # via pip-tools
 html5lib==1.0.1           # via textile
 idna==2.6                 # via requests
-lxml==4.1.1               # via aldryn-search
+lxml==4.1.1
 markdown==2.6.11
 pillow==5.0.0
 pip-tools==1.11.0
@@ -207,7 +195,7 @@ requests-futures==0.9.7   # via piprot
 requests-toolbelt==0.8.0  # via twine
 requests==2.18.4          # via piprot, requests-futures, requests-toolbelt, twine
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via aldryn-common, django-extensions, django-spurl, html5lib, pip-tools, piprot, textile
+six==1.11.0               # via django-extensions, html5lib, pip-tools, piprot, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
 tqdm==4.19.5              # via twine
@@ -215,12 +203,10 @@ twine==1.9.1
 typing==3.6.4             # via django-extensions
 unidecode==0.4.21         # via django-filer
 urllib3==1.22             # via requests
-urlobject==2.4.3          # via django-spurl
 virtualenv==15.1.0
 webencodings==0.5.1       # via html5lib
 werkzeug==0.14.1
 wheel==0.30.0
-yurl==0.13                # via aldryn-boilerplates
 """
 
 NORMAL_INSTALL_TXT=""" # insert [requirements/normal_installation.txt]
@@ -229,48 +215,43 @@ NORMAL_INSTALL_TXT=""" # insert [requirements/normal_installation.txt]
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 -e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-aldryn-boilerplates==0.7.7  # via aldryn-common
-aldryn-common==1.0.4      # via aldryn-search
-aldryn-search==0.4.1      # via djangocms-blog
 cmsplugin-filer==1.1.3
 cmsplugin-pygments==0.8.2
-django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
+django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.1.6     # via aldryn-apphooks-config
-django-classy-tags==0.8.0  # via django-cms, django-sekizai, django-standard-form
+django-classy-tags==0.8.0  # via django-cms, django-sekizai
+django-cms-tools==0.6.0
 django-cms==3.4.5
 django-compressor==2.1.1
 django-debug-toolbar-django-info==0.3.0
-django-debug-toolbar==1.5
-django-filer==1.2.8
+django-debug-toolbar==1.9.1
+django-filer==1.3.0
 django-formtools==2.1     # via django-cms
-django-haystack==2.7.0    # via aldryn-search
 django-meta-mixin==0.3.0  # via djangocms-blog
 django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
 django-mptt==0.8.7        # via django-filer
 django-parler==1.9.2      # via djangocms-blog
-django-polymorphic==1.0.2  # via django-filer
+django-polymorphic==1.3   # via django-filer
 django-reversion-compare==0.6.3
 django-reversion==1.10.2
 django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
-django-sortedm2m==1.5.0   # via aldryn-common
-django-spurl==0.6.4       # via aldryn-search
-django-standard-form==1.1.1  # via aldryn-search
+django-sortedm2m==1.5.0   # via djangocms-blog
 django-taggit-autosuggest==0.3.2  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-tools==0.30.4
+django-tools==0.38.9
 django-treebeard==4.2.0   # via django-cms
 django==1.9.13
 djangocms-admin-style==1.2.7  # via django-cms
 djangocms-apphook-setup==0.3.0  # via djangocms-blog
 djangocms-attributes-field==0.3.0  # via cmsplugin-filer
-djangocms-blog==0.8.13
+djangocms-blog==0.9.0
 djangocms-htmlsitemap==0.2.0
 docutils==0.14
-easy-thumbnails==2.3      # via cmsplugin-filer, django-filer
+easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
 html5lib==1.0.1           # via textile
-lxml==4.1.1               # via aldryn-search
+lxml==4.1.1               # via django-tools
 markdown==2.6.11
 pillow==5.0.0
 pygments==2.1.3
@@ -278,13 +259,11 @@ python-creole==1.3.1
 pytz==2018.3              # via djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via aldryn-common, django-spurl, html5lib, textile
+six==1.11.0               # via html5lib, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
 unidecode==0.4.21         # via django-filer
-urlobject==2.4.3          # via django-spurl
 webencodings==0.5.1       # via html5lib
-yurl==0.13                # via aldryn-boilerplates
 """
 
 

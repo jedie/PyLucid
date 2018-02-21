@@ -49,7 +49,7 @@ docutils
 
 # https://github.com/jedie/django-cms-tools/
 # https://pypi.org/project/django-cms-tools
--e git+git@github.com:jedie/django-tools.git@master#egg=django-cms-tools
+-e git+git@github.com:jedie/django-cms-tools.git@master#egg=django-cms-tools
 
 # https://github.com/jedie/django-processinfo
 # https://pypi.org/project/django-processinfo
