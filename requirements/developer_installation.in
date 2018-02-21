@@ -67,7 +67,7 @@ docutils
 
 # http://www.pylucid.org/
 # https://pypi.python.org/pypi/PyLucid
--e git+git@github.com:jedie/PyLucid.git@pylucid_v3#egg=pylucid
+-e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
 
 
 # external Django-CMS Addons

@@ -149,7 +149,7 @@ DEVELOPER_INSTALL_TXT=""" # insert [requirements/developer_installation.txt]
 -e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
 -e git+git@github.com:jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
 -e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
--e git+git@github.com:jedie/PyLucid.git@pylucid_v3#egg=pylucid
+-e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
 -e git+git@github.com:jedie/python-creole.git#egg=python-creole
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
 aldryn-boilerplates==0.7.5  # via aldryn-common
