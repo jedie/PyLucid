@@ -1,18 +1,23 @@
 #!/usr/bin/python3
 
 """
-    PyLucid Admin
-    ~~~~~~~~~~~~~
+    PyLucid Boot Admin
+    ~~~~~~~~~~~~~~~~~~
 
-    A interactive admin for PyLucid.
+    A interactive shell for booting PyLucid.
+
+    Note:
+        - This file is "self contained".
+        - It used **only** stuff from Python lib.
+        - So it's "run able" on a bare python 3 installation
+        - On debian / ubuntu the 'python3-venv' package is needed!
 
     usage, e.g.:
 
-        $ wget https://raw.githubusercontent.com/jedie/PyLucid/pylucid_v3/pylucid/pylucid_admin.py
-        $ python3 pylucid_admin.py
+        $ wget https://raw.githubusercontent.com/jedie/PyLucid/pylucid_v3/pylucid/pylucid_boot.py
+        $ python3 pylucid_boot.py
 
-        pylucid_admin.py> boot ~/PyLucid_env
-
+        pylucid_boot.py> boot ~/PyLucid_env
 
     :created: 08.02.2018 by Jens Diemer, www.jensdiemer.de
     :copyleft: 2018 by the PyLucid team, see AUTHORS for more details.
@@ -20,10 +25,8 @@
 """
 
 import cmd
-import glob
 import logging
 import os
-import re
 import subprocess
 import sys
 import traceback
@@ -52,20 +55,20 @@ if sys.version_info < (3, 5):
 
 log = logging.getLogger(__name__)
 
-SELF_FILENAME=os.path.basename(__file__)            # .../src/pylucid/pylucid/pylucid_admin.py
-SELF_FILEPATH=Path(__file__).resolve()              # .../src/pylucid/pylucid/
-ROOT_PATH=Path(SELF_FILEPATH, "..", "..").resolve() # .../src/pylucid/
 
+OWN_FILENAME=os.path.basename(__file__) # .../src/pylucid/pylucid/pylucid_boot.py
+
+
+#
 # The following Variables CI_INSTALL_TXT, DEVELOPER_INSTALL_TXT and NORMAL_INSTALL_TXT are filled
-# automatically from the requirements files on:
-#   PyLucidShell.do_upgrade_requirements()
-# by
+# automatically from the requirements files by:
+#   pylucid.pylucid_admin.PyLucidShell.do_upgrade_requirements()
+#
+# e.g.:
 #
 # $ pylucid_admin upgrade_requirements
+#
 
-# Helper to replace the content:
-INSERT_START_RE=re.compile(r'(?P<variable>.*?)=""" # insert \[(?P<filename>.*?)\]')
-INSERT_END = '"""'
 
 CI_INSTALL_TXT=""" # insert [requirements/ci_installation.txt]
 -e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
@@ -131,6 +134,7 @@ unidecode==0.4.21         # via django-filer
 urllib3==1.22             # via requests
 webencodings==0.5.1       # via html5lib
 """
+
 
 DEVELOPER_INSTALL_TXT=""" # insert [requirements/developer_installation.txt]
 -e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
@@ -209,6 +213,7 @@ werkzeug==0.14.1
 wheel==0.30.0
 """
 
+
 NORMAL_INSTALL_TXT=""" # insert [requirements/normal_installation.txt]
 -e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
 -e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
@@ -278,68 +283,6 @@ else:
     print("We are not in a virtualenv, ok.")
 
 
-class Requirement:
-    """
-    Helper class to insert requirements/*_installation.txt file content.
-    """
-    def parse_req_file(self, req_file):
-        """
-        returns the lines of a requirements/*_installation.txt file.
-        Skip comments and emptry lines
-        """
-        lines = []
-
-        req_file = Path(ROOT_PATH, req_file).resolve()
-
-        print("read %s..." % req_file)
-        with open(req_file, "r") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                assert not line.startswith("-r"), "'-r' not supported! Not the pip-compile output file?!?"
-                lines.append("%s\n" % line)
-
-        return lines
-
-    def update(self):
-        new_content = []
-        with open(SELF_FILEPATH, "r") as f:
-            in_insert_block=False
-            for line in f:
-                if not in_insert_block:
-                    new_content.append(line)
-
-                if in_insert_block:
-                    if line.strip() == INSERT_END:
-                        in_insert_block=False
-                        new_content.append(line)
-
-                else:
-                    m = INSERT_START_RE.match(line)
-                    if m:
-                        in_insert_block=True
-                        m = m.groupdict()
-                        variable = m["variable"]
-                        filename = m["filename"]
-                        print("Fill %r from %r..." % (variable, filename))
-                        new_content += self.parse_req_file(filename)
-
-
-        bak_filename=Path("%s.bak" % SELF_FILEPATH)
-        if bak_filename.is_file():
-            print("Remove old backup file: %s" % bak_filename)
-            bak_filename.unlink()
-
-        print("Create backup file: %r" % bak_filename)
-        SELF_FILEPATH.rename(bak_filename)
-
-        with open(SELF_FILEPATH, "w") as f:
-            f.writelines(new_content)
-
-        SELF_FILEPATH.chmod(0o775)
-
-
 def verbose_check_call(*popenargs, **kwargs):
     """
     'verbose' version of subprocess.check_output()
@@ -352,23 +295,6 @@ def verbose_check_call(*popenargs, **kwargs):
         print(err.output)
         raise
     print("")
-
-
-def iter_subprocess_output(*popenargs, **kwargs):
-    """
-    A subprocess with tee ;)
-    """
-    print("Call: %s" % " ".join(popenargs))
-
-    env = dict(os.environ)
-    env["PYTHONUNBUFFERED"]="1" # If a python script called ;)
-
-    proc=subprocess.Popen(popenargs,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        bufsize=1, env=env, universal_newlines=True,
-        **kwargs
-    )
-    return iter(proc.stdout.readline,'')
 
 
 def display_errors(func):
@@ -389,27 +315,12 @@ class Cmd2(cmd.Cmd):
         - methods can be called directly from commandline: e.g.: ./foobar.py --help
         - Display
     """
+    own_filename = OWN_FILENAME
+
     command_alias = { # used in self.precmd()
         "q": "quit", "EOF": "quit",
         "--help": "help", "-h": "help", "-?": "help",
     }
-
-    intro = (
-        '\n{filename} shell v{version}\n'
-        'Type help or ? to list commands.\n'
-    ).format(
-        filename=SELF_FILENAME,
-        version=__version__
-    )
-
-    prompt = '%s> ' % SELF_FILENAME
-
-    doc_leader = (
-        "\nHint: All commands can be called directly from commandline.\n"
-        "e.g.: $ ./{filename} pip_freeze\n"
-    ).format(
-        filename=SELF_FILENAME,
-    )
 
     # Will be append to 'doc_leader' in self.do_help():
     complete_hint="\nUse <{key}> to command completion.\n"
@@ -417,6 +328,23 @@ class Cmd2(cmd.Cmd):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.intro = (
+            '\n{filename} shell v{version}\n'
+            'Type help or ? to list commands.\n'
+        ).format(
+            filename=self.own_filename,
+            version=__version__
+        )
+
+        self.prompt = '%s> ' % self.own_filename
+
+        self.doc_leader = (
+            "\nHint: All commands can be called directly from commandline.\n"
+            "e.g.: $ ./{filename} pip_freeze\n"
+        ).format(
+            filename=self.own_filename,
+        )
 
         # e.g.: $ pylucid_admin.py boot /tmp/PyLucid-env -> run self.do_boot("/tmp/PyLucid-env") on startup
         args = sys.argv[1:]
@@ -548,9 +476,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         verbose_check_call(*args)
 
 
-
-
-class PyLucidShell(Cmd2):
+class PyLucidBootShell(Cmd2):
 
     #_________________________________________________________________________
     # Normal user commands:
@@ -634,111 +560,9 @@ class PyLucidShell(Cmd2):
         """
         self._boot(destination, requirement_string=CI_INSTALL_TXT)
 
-    def do_pip_freeze(self, arg):
-        "run 'pip freeze': FOO"
-        verbose_check_call("pip3", "freeze")
-
-    def do_update_env(self, arg):
-        """
-        Update all packages in virtualenv.
-
-        (Call this command only in a activated virtualenv.)
-        """
-        if not in_virtualenv():
-            self.stdout.write("\nERROR: Only allowed in activated virtualenv!\n\n")
-            return
-
-        verbose_check_call("pip3", "install", "--upgrade", "pip")
-
-        src_requirement_path = Path(sys.prefix, "src", "pylucid", "requirements", "developer_installation.txt")
-        src_requirement_path = src_requirement_path.resolve()
-        if src_requirement_path.is_file():
-            self.stdout.write("Use: '%s'\n" % src_requirement_path)
-            verbose_check_call(
-                "pip3", "install",
-                "--exists-action", "b", # action when a path already exists: (b)ackup
-                "--upgrade",
-                "--requirement", str(src_requirement_path)
-            )
-        else:
-            self.stdout.write("(No developer installation: File doesn't exists: '%s')" % src_requirement_path)
-            # TODO: Implement "normal" update!
-            # Maybe, something like this:
-            #
-            #       pip3 install -U pip
-            #       pip3 install -U pylucid
-            #       pylucid_admin update_env stage2
-            #
-            self.stdout.write("TODO!")
-            return
-
-        self.stdout.write("Please restart %s" % SELF_FILENAME)
-        sys.exit(0)
-
-    #_________________________________________________________________________
-    # Developer commands:
-
-    def do_insert_requirement(self, arg):
-        """
-        insert requirements/*_installation.txt files into pylucid/pylucid_admin.py
-        This will be automaticly done by 'upgrade_requirements'!
-
-        Direct start with:
-            $ pylucid_admin insert_requirement
-        """
-        Requirement().update()
-
-    def do_upgrade_requirements(self, arg):
-        """
-        1. Convert via 'pip-compile' *.in requirements files to *.txt
-        2. Append 'piprot' informations to *.txt requirements.
-        3. insert requirement content into pylucid_admin.py
-
-        Direct start with:
-            $ pylucid_admin upgrade_requirements
-        """
-
-        requirements_path = Path(ROOT_PATH, "requirements").resolve()
-        assert requirements_path.is_dir(), "Path doesn't exists: %r" % requirements_path
-
-        for requirement_in in glob.glob(os.path.join(ROOT_PATH, "requirements", "*.in")):
-            if "basic_" in requirement_in:
-                continue
-
-            requirement_in = Path(requirement_in).name
-            requirement_out = requirement_in.replace(".in", ".txt")
-
-            self.stdout.write("_"*79 + "\n")
-
-            # We run pip-compile in ./requirements/ and add only the filenames as arguments
-            # So pip-compile add no path to comments ;)
-
-            verbose_check_call(
-                "pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in,
-                cwd=requirements_path
-            )
-
-            self.stdout.write("_"*79 + "\n")
-            output = [
-                "\n#\n# list of out of date packages made with piprot:\n#\n"
-            ]
-            for line in iter_subprocess_output("piprot", "--outdated", requirement_out, cwd=requirements_path):
-                self.stdout.write(line)
-                self.stdout.flush()
-                output.append("# %s" % line)
-
-            self.stdout.write("\nUpdate file %r\n" % requirement_out)
-            filepath = Path(requirements_path, requirement_out).resolve()
-            assert filepath.is_file(), "File not exists: %r" % filepath
-            with open(filepath, "a") as f:
-                f.writelines(output)
-
-        self.do_insert_requirement(arg)
-
-
 
 def main():
-    PyLucidShell().cmdloop()
+    PyLucidBootShell().cmdloop()
 
 
 if __name__ == '__main__':

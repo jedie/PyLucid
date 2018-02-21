@@ -273,8 +273,12 @@ setup(
     ),
     include_package_data=True, # include package data under version control
 
-    scripts=['pylucid/pylucid_admin.py'],
+    scripts=[
+        'pylucid/pylucid_boot.py',
+        'pylucid/pylucid_admin.py',
+    ],
     entry_points={'console_scripts': [
+        "pylucid_boot = pylucid.pylucid_boot:main",
         "pylucid_admin = pylucid.pylucid_admin:main",
     ]},
 
