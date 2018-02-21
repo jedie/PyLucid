@@ -78,7 +78,6 @@ aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
 certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
-click==6.6
 cmsplugin-filer==1.1.3
 cmsplugin-pygments==0.8.2
 coverage==4.5.1           # via coveralls
@@ -157,7 +156,7 @@ aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
 certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
-click==6.6
+click==6.7                # via pip-tools
 cmsplugin-filer==1.1.3
 django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
 django-appdata==0.1.6     # via aldryn-apphooks-config
@@ -233,7 +232,6 @@ aldryn-apphooks-config==0.3.3  # via djangocms-blog
 aldryn-boilerplates==0.7.7  # via aldryn-common
 aldryn-common==1.0.4      # via aldryn-search
 aldryn-search==0.4.1      # via djangocms-blog
-click==6.6
 cmsplugin-filer==1.1.3
 cmsplugin-pygments==0.8.2
 django-appconf==1.0.2     # via aldryn-boilerplates, aldryn-search, cmsplugin-filer, django-compressor
