@@ -290,6 +290,17 @@ yurl==0.13                # via aldryn-boilerplates
 """
 
 
+def in_virtualenv():
+    # Maybe this is not the best way?!?
+    return "VIRTUAL_ENV" in os.environ
+
+
+if in_virtualenv():
+    print("Activated virtualenv detected: %r (%s)" % (sys.prefix, sys.executable))
+else:
+    print("We are not in a virtualenv, ok.")
+
+
 class Requirement:
     """
     Helper class to insert requirements/*_installation.txt file content.
@@ -363,6 +374,7 @@ def verbose_check_call(*popenargs, **kwargs):
         print("\n***ERROR:")
         print(err.output)
         raise
+    print("")
 
 
 def iter_subprocess_output(*popenargs, **kwargs):
@@ -516,23 +528,23 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
     def ensure_directories(self, env_dir):
         print(" * Create the directories for the environment.")
         return super().ensure_directories(env_dir)
-    
+
     def create_configuration(self, context):
         print(" * Create 'pyvenv.cfg' configuration file.")
         return super().create_configuration(context)
-    
+
     def setup_python(self, context):
         print(" * Set up a Python executable in the environment.")
         return super().setup_python(context)
-    
+
     def _setup_pip(self, context):
         print(" * Installs or upgrades pip in a virtual environment.")
         return super()._setup_pip(context)
-    
+
     def setup_scripts(self, context):
         print(" * Set up scripts into the created environment.")
         return super().setup_scripts(context)
-        
+
     def post_setup(self, context):
         """
         Set up any packages which need to be pre-installed into the
@@ -648,6 +660,33 @@ class PyLucidShell(Cmd2):
     def do_pip_freeze(self, arg):
         "run 'pip freeze': FOO"
         verbose_check_call("pip3", "freeze")
+
+    def do_update_env(self, arg):
+        if not in_virtualenv():
+            self.stdout.write("\nERROR: Only allowed in activated virtualenv!\n\n")
+            return
+
+        verbose_check_call("pip3", "install", "--upgrade", "pip")
+
+        src_requirement_path = Path(sys.prefix, "src", "pylucid", "requirements", "developer_installation.txt")
+        src_requirement_path = src_requirement_path.resolve()
+        if src_requirement_path.is_file():
+            self.stdout.write("Use: '%s'\n" % src_requirement_path)
+            verbose_check_call("pip3", "install", "--upgrade", "--requirement", str(src_requirement_path))
+        else:
+            self.stdout.write("(No developer installation: File doesn't exists: '%s')" % src_requirement_path)
+            # TODO: Implement "normal" update!
+            # Maybe, something like this:
+            #
+            #       pip3 install -U pip
+            #       pip3 install -U pylucid
+            #       pylucid_admin update_env stage2
+            #
+            self.stdout.write("TODO!")
+            return
+
+        self.stdout.write("Please restart %s" % SELF_FILENAME)
+        sys.exit(0)
 
     #_________________________________________________________________________
     # Developer commands:
