@@ -1,22 +1,33 @@
-import re
-import subprocess
+
+import os  # isort:skip
+
+# pylucid.pylucid_boot.in_virtualenv
+assert "VIRTUAL_ENV" in os.environ, "ERROR: Call me only in a activated virtualenv!"  # isort:skip
+
+
 import glob
 import logging
-import os
+import re
+import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 # PyLucid
 from pylucid.pylucid_boot import Cmd2, in_virtualenv, verbose_check_call
 
 log = logging.getLogger(__name__)
 
+
 __version__ = "0.0.1"
+
 
 OWN_FILENAME=os.path.basename(__file__)              # .../src/pylucid/pylucid/pylucid_admin.py
 SELF_FILEPATH=Path(__file__).resolve()               # .../src/pylucid/pylucid/
 BOOT_FILEPATH=Path(SELF_FILEPATH, "pylucid_boot.py") # .../src/pylucid/pylucid/pylucid_boot.py
 ROOT_PATH=Path(SELF_FILEPATH, "..", "..").resolve()  # .../src/pylucid/
+
 
 # Helper to replace the content:
 INSERT_START_RE=re.compile(r'(?P<variable>.*?)=""" # insert \[(?P<filename>.*?)\]')
@@ -104,6 +115,12 @@ class Requirement:
 
 class PyLucidShell(Cmd2):
     own_filename = OWN_FILENAME
+
+    def do_pytest(self, arg):
+        """
+        Run tests via pytest
+        """
+        pytest.main()
 
     def do_pip_freeze(self, arg):
         "run 'pip freeze': FOO"
