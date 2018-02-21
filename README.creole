@@ -6,7 +6,7 @@ It's more a alternative for [[https://github.com/nephila/djangocms-installer|dja
 
 The goal is to simplify the Django-CMS setup.
 
-The current v3 branch is a rewrite and currently not useable!
+**The current 'develop' branch is a rewrite and currently not useable!**
 
 You should not use PyLucid in production, until v3.x is used on [[http://www.pylucid.org|pylucid.org]] ;)
 
@@ -17,6 +17,75 @@ Try, fork and contribute! ;)
 | {{https://requires.io/github/jedie/PyLucid/requirements.svg?branch=master|Requirements Status on requires.io}} | [[https://requires.io/github/jedie/PyLucid/requirements/|requires.io/github/jedie/PyLucid/requirements/]] |
 
 == install
+
+=== bootstrap PyLucid virtualenv
+
+{{{
+# download bootstrap file:
+/home/FooBar$ wget https://github.com/jedie/PyLucid/raw/develop/pylucid/pylucid_boot.py
+
+# Create virtualenv with all needed packages:
+/home/FooBar$ python3 pylucid_boot.py boot_normal ~/PyLucid-env
+}}}
+
+Note: pylucid_boot.py is a interactive shell with command completion.
+You can just start it and do this:
+{{{
+/home/FooBar$ python3 pylucid_boot.py 
+We are not in a virtualenv, ok.
+
+pylucid_boot.py shell v0.0.1
+
+pylucid_boot.py> boot_normal ~/PyLucid-env
+}}}
+
+Type help or ? to list commands:
+{{{
+pylucid_boot.py> ?
+
+Hint: All commands can be called directly from commandline.
+e.g.: $ ./pylucid_boot.py pip_freeze
+
+Use <tab> to command completion.
+
+Documented commands (type help <topic>):
+========================================
+boot_ci  boot_developer  boot_normal  help  quit
+}}}
+
+=== use a created PyLucid virtualenv
+
+{{{
+# Go into created virtualenv:
+/home/FooBar$ cd ~/PyLucid-env
+
+# activate the env:
+~/PyLucid-env $ source bin/activate
+
+# Use the commandline admin
+(PyLucid-env) ~/PyLucid-env $ pylucid_admin
+}}}
+
+The **pylucid_admin** is a interactive shell with command completion, e.g.:
+{{{
+(PyLucid_env) ~/PyLucid_env $ pylucid_admin
+Activated virtualenv detected: '/home/foobar/PyLucid-env' (/home/foobar/PyLucid-env/bin/python3)
+
+pylucid_admin.py shell v0.0.1
+Type help or ? to list commands.
+
+pylucid_admin.py> ?
+
+Hint: All commands can be called directly from commandline.
+e.g.: $ ./pylucid_admin.py pip_freeze
+
+Use <tab> to command completion.
+
+Documented commands (type help <topic>):
+========================================
+help                pip_freeze  quit        upgrade_requirements
+insert_requirement  pytest      update_env
+}}}
 
 
 tbd.
