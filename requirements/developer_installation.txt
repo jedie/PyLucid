@@ -65,7 +65,7 @@ pip-tools==1.11.0
 piprot==0.9.7
 pkginfo==1.4.1            # via twine
 pygments==2.1.3
-pytz==2018.3
+pytz==2018.3              # via djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 requests-futures==0.9.7   # via piprot
 requests-toolbelt==0.8.0  # via twine

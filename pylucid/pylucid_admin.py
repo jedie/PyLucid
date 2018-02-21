@@ -126,7 +126,7 @@ markdown==2.6.11
 pillow==5.0.0
 pygments==2.1.3
 python-creole==1.3.1
-pytz==2018.3
+pytz==2018.3              # via djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 requests==2.18.4          # via coveralls
 rjsmin==1.0.12            # via django-compressor
@@ -202,7 +202,7 @@ pip-tools==1.11.0
 piprot==0.9.7
 pkginfo==1.4.1            # via twine
 pygments==2.1.3
-pytz==2018.3
+pytz==2018.3              # via djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 requests-futures==0.9.7   # via piprot
 requests-toolbelt==0.8.0  # via twine
@@ -277,7 +277,7 @@ markdown==2.6.11
 pillow==5.0.0
 pygments==2.1.3
 python-creole==1.3.1
-pytz==2018.3
+pytz==2018.3              # via djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 rjsmin==1.0.12            # via django-compressor
 six==1.11.0               # via aldryn-common, django-spurl, html5lib, textile
