@@ -677,7 +677,12 @@ class PyLucidShell(Cmd2):
         src_requirement_path = src_requirement_path.resolve()
         if src_requirement_path.is_file():
             self.stdout.write("Use: '%s'\n" % src_requirement_path)
-            verbose_check_call("pip3", "install", "--upgrade", "--requirement", str(src_requirement_path))
+            verbose_check_call(
+                "pip3", "install",
+                "--exists-action", "b", # action when a path already exists: (b)ackup
+                "--upgrade",
+                "--requirement", str(src_requirement_path)
+            )
         else:
             self.stdout.write("(No developer installation: File doesn't exists: '%s')" % src_requirement_path)
             # TODO: Implement "normal" update!
