@@ -1,0 +1,22 @@
+{% load cms_tags menu_tags sekizai_tags meta %}
+
+<!DOCTYPE html>
+<html>
+    <head {% meta_namespaces %} >
+        <title>{% if meta.title %}{{ meta.title }}{% else %}{% page_attribute "page_title" %}{% endif %}</title>
+        {% include 'meta/meta.html' %}
+        <meta name="robots" content="{% block "meta_robots_content" %}noindex, nofollow{% endblock %}">
+        {% render_block "css" %}
+    </head>
+    <body>
+        {% cms_toolbar %}
+        <h1>PyLucid Test Project</h1>
+        <ul class="nav">
+            {% show_menu 0 100 100 100 %}
+        </ul>
+        {% block content %}
+            {% placeholder "content" %}
+        {% endblock content %}
+        {% render_block "js" %}
+    </body>
+</html>
