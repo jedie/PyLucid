@@ -1,0 +1,13 @@
+
+# packages for running tests
+#---------------------------
+
+pytest
+pytest-django
+pytest-cov
+
+tox
+
+#flake8
+#pydocstyle
+#pylint

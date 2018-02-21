@@ -76,12 +76,10 @@ CI_INSTALL_TXT=""" # insert [requirements/ci_installation.txt]
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 -e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
-certifi==2018.1.18        # via requests
-chardet==3.0.4            # via requests
+attrs==17.4.0             # via pytest
 cmsplugin-filer==1.1.3
 cmsplugin-pygments==0.8.2
-coverage==4.5.1           # via coveralls
-coveralls==1.2.0
+coverage==4.5.1           # via pytest-cov
 django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.1.6     # via aldryn-apphooks-config
 django-classy-tags==0.8.0  # via django-cms, django-sekizai
@@ -113,25 +111,28 @@ djangocms-apphook-setup==0.3.0  # via djangocms-blog
 djangocms-attributes-field==0.3.0  # via cmsplugin-filer
 djangocms-blog==0.9.0
 djangocms-htmlsitemap==0.2.0
-docopt==0.6.2             # via coveralls
 docutils==0.14
 easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
 html5lib==1.0.1           # via textile
-idna==2.6                 # via requests
 lxml==4.1.1               # via django-tools
 markdown==2.6.11
 pillow==5.0.0
+pluggy==0.6.0             # via pytest, tox
+py==1.5.2                 # via pytest, tox
 pygments==2.1.3
+pytest-cov==2.5.1
+pytest-django==3.1.2
+pytest==3.4.1
 python-creole==1.3.1
 pytz==2018.3              # via djangocms-blog
 rcssmin==1.0.6            # via django-compressor
-requests==2.18.4          # via coveralls
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via html5lib, textile
+six==1.11.0               # via html5lib, pytest, textile, tox
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
+tox==2.9.1
 unidecode==0.4.21         # via django-filer
-urllib3==1.22             # via requests
+virtualenv==15.1.0        # via tox
 webencodings==0.5.1       # via html5lib
 """
 
@@ -149,10 +150,12 @@ DEVELOPER_INSTALL_TXT=""" # insert [requirements/developer_installation.txt]
 -e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
 -e git+git@github.com:jedie/python-creole.git#egg=python-creole
 aldryn-apphooks-config==0.3.3  # via djangocms-blog
+attrs==17.4.0             # via pytest
 certifi==2018.1.18        # via requests
 chardet==3.0.4            # via requests
 click==6.7                # via pip-tools
 cmsplugin-filer==1.1.3
+coverage==4.5.1           # via pytest-cov
 django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.1.6     # via aldryn-apphooks-config
 django-classy-tags==0.8.0  # via django-cms, django-sekizai
@@ -192,16 +195,22 @@ pillow==5.0.0
 pip-tools==1.11.0
 piprot==0.9.7
 pkginfo==1.4.1            # via twine
+pluggy==0.6.0             # via pytest, tox
+py==1.5.2                 # via pytest, tox
 pygments==2.1.3
+pytest-cov==2.5.1
+pytest-django==3.1.2
+pytest==3.4.1
 pytz==2018.3              # via djangocms-blog
 rcssmin==1.0.6            # via django-compressor
 requests-futures==0.9.7   # via piprot
 requests-toolbelt==0.8.0  # via twine
 requests==2.18.4          # via piprot, requests-futures, requests-toolbelt, twine
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via django-extensions, html5lib, pip-tools, piprot, textile
+six==1.11.0               # via django-extensions, html5lib, pip-tools, piprot, pytest, textile, tox
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
+tox==2.9.1
 tqdm==4.19.5              # via twine
 twine==1.9.1
 typing==3.6.4             # via django-extensions

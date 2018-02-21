@@ -1,3 +1,2 @@
-coveralls
-
 -r normal_installation.in
+-r test_requirements.in
