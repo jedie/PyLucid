@@ -56,7 +56,7 @@ if sys.version_info < (3, 5):
 log = logging.getLogger(__name__)
 
 
-OWN_FILENAME=os.path.basename(__file__) # .../src/pylucid/pylucid/pylucid_boot.py
+OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
 
 
 #

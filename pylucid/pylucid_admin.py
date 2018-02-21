@@ -21,10 +21,15 @@ log = logging.getLogger(__name__)
 __version__ = "0.0.1"
 
 
-OWN_FILENAME=os.path.basename(__file__)              # .../src/pylucid/pylucid/pylucid_admin.py
-SELF_FILEPATH=Path(__file__).resolve()               # .../src/pylucid/pylucid/
-BOOT_FILEPATH=Path(SELF_FILEPATH, "pylucid_boot.py") # .../src/pylucid/pylucid/pylucid_boot.py
-ROOT_PATH=Path(SELF_FILEPATH, "..", "..").resolve()  # .../src/pylucid/
+SELF_FILEPATH=Path(__file__).resolve()                               # .../src/pylucid/pylucid/pylucid_admin.py
+BOOT_FILEPATH=Path(SELF_FILEPATH, "..", "pylucid_boot.py").resolve() # .../src/pylucid/pylucid/pylucid_boot.py
+ROOT_PATH=Path(SELF_FILEPATH, "..", "..").resolve()                  # .../src/pylucid/
+OWN_FILENAME=SELF_FILEPATH.name                                      # pylucid_admin.py
+
+# print("SELF_FILEPATH: %s" % SELF_FILEPATH)
+# print("BOOT_FILEPATH: %s" % BOOT_FILEPATH)
+# print("ROOT_PATH: %s" % ROOT_PATH)
+# print("OWN_FILENAME: %s" % OWN_FILENAME)
 
 
 # Helper to replace the content:
@@ -184,6 +189,7 @@ class PyLucidShell(Cmd2):
         Direct start with:
             $ pylucid_admin upgrade_requirements
         """
+        assert BOOT_FILEPATH.is_file(), "Bootfile not found here: %s" % BOOT_FILEPATH
 
         requirements_path = Path(ROOT_PATH, "requirements").resolve()
         assert requirements_path.is_dir(), "Path doesn't exists: %r" % requirements_path
