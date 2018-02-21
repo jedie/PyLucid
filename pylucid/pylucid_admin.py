@@ -12,8 +12,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 # PyLucid
 from pylucid.pylucid_boot import Cmd2, in_virtualenv, verbose_check_call
 
@@ -120,6 +118,7 @@ class PyLucidShell(Cmd2):
         """
         Run tests via pytest
         """
+        import pytest  # pytest is not installed, in normal installation
         pytest.main()
 
     def do_pip_freeze(self, arg):
