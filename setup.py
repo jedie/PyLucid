@@ -4,10 +4,10 @@
 """
     PyLucid distutils setup
     ~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     Links
     ~~~~~
-    
+
     http://www.python-forum.de/viewtopic.php?f=21&t=26895 (de)
 
     :copyleft: 2009-2016 by the PyLucid team, see AUTHORS for more details.
@@ -127,7 +127,7 @@ if "publish" in sys.argv:
         import wheel
     except ImportError as err:
         print("\nError: %s" % err)
-        print("\nMaybe https://pypi.python.org/pypi/wheel is not installed or virtualenv not activated?!?")
+        print("\nMaybe https://pypi.org/project/wheel is not installed or virtualenv not activated?!?")
         print("e.g.:")
         print("    ~/your/env/$ source bin/activate")
         print("    ~/your/env/$ pip install wheel")
@@ -137,7 +137,7 @@ if "publish" in sys.argv:
         import twine
     except ImportError as err:
         print("\nError: %s" % err)
-        print("\nMaybe https://pypi.python.org/pypi/twine is not installed or virtualenv not activated?!?")
+        print("\nMaybe https://pypi.org/project/twine is not installed or virtualenv not activated?!?")
         print("e.g.:")
         print("    ~/your/env/$ source bin/activate")
         print("    ~/your/env/$ pip install twine")

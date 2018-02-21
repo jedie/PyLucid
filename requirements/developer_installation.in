@@ -8,7 +8,7 @@
 # the wheel project provides a bdist_wheel command for setuptools
 wheel
 
-# https://pypi.python.org/pypi/twine
+# https://pypi.org/project/twine
 twine
 
 # For generating the bootstrap script
@@ -32,27 +32,31 @@ docutils
 #-------------------------------------------------
 
 # https://github.com/jedie/bootstrap_env
-# https://pypi.python.org/pypi/bootstrap_env/
+# https://pypi.org/project/bootstrap_env/
 -e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
 
 # https://github.com/jedie/python-creole/
-# https://pypi.python.org/pypi/python-creole
+# https://pypi.org/project/python-creole
 -e git+git@github.com:jedie/python-creole.git#egg=python-creole
 
 # https://github.com/jedie/django-dbpreferences/
-# https://pypi.python.org/pypi/django-dbpreferences
+# https://pypi.org/project/django-dbpreferences
 #-e git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences
 
 # https://github.com/jedie/django-tools/
-# https://pypi.python.org/pypi/django-tools
+# https://pypi.org/project/django-tools
 -e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
 
+# https://github.com/jedie/django-cms-tools/
+# https://pypi.org/project/django-cms-tools
+-e git+git@github.com:jedie/django-tools.git@master#egg=django-cms-tools
+
 # https://github.com/jedie/django-processinfo
-# https://pypi.python.org/pypi/django-processinfo
+# https://pypi.org/project/django-processinfo
 #-e git+git@github.com:jedie/django-processinfo.git#egg=django-processinfo
 
 # https://github.com/jedie/django-reversion-compare
-# https://pypi.python.org/pypi/django-reversion-compare/
+# https://pypi.org/project/django-reversion-compare/
 # v2 is not supported, see: https://github.com/divio/django-cms/issues/5441
 -e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
 
@@ -66,7 +70,7 @@ docutils
 -e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
 
 # http://www.pylucid.org/
-# https://pypi.python.org/pypi/PyLucid
+# https://pypi.org/project/PyLucid
 -e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
 
 
