@@ -22,6 +22,7 @@ import sys
 import subprocess
 import shutil
 
+
 if sys.version_info < (3, 4):
     print("\nERROR: PyLucid requires Python 3.4 or greater!\n")
     sys.exit(101)
@@ -29,10 +30,12 @@ if sys.version_info < (3, 4):
 from setuptools import setup, find_packages
 
 
+PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 __version__="<unknown>"
 
 def read(*args):
-    return open(os.path.join(os.path.dirname(__file__), *args)).read()
+    return open(os.path.join(PACKAGE_ROOT, *args)).read()
 
 exec(read('pylucid', 'version.py'))
 
@@ -63,10 +66,6 @@ class TestCommand(BaseCommand):
         sys.exit(returncode)
 
 
-PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
-
-
-
 def get_authors():
     try:
         with open(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r") as f:
@@ -74,10 +73,6 @@ def get_authors():
     except Exception as err:
         authors = "[Error: %s]" % err
     return authors
-
-
-
-PACKAGE_ROOT = os.path.os.path.dirname(os.path.abspath(__file__))
 
 
 #_____________________________________________________________________________
@@ -94,7 +89,6 @@ for arg in ("test", "check", "register", "sdist", "--long-description"):
             long_description = get_long_description(PACKAGE_ROOT)
         break
 #----------------------------------------------------------------------------
-
 
 
 if "publish" in sys.argv:
