@@ -82,7 +82,10 @@ def verbose_check_call(*popenargs, **kwargs):
     """
     'verbose' version of subprocess.check_output()
     """
-    print("Call: %r" % " ".join(popenargs))
+    txt = "Call: %r" % " ".join(popenargs)
+    if kwargs:
+        txt += " with: %s" % repr(kwargs)
+    print(txt)
     try:
         subprocess.check_call(popenargs, universal_newlines=True, stderr=subprocess.STDOUT, **kwargs)
     except subprocess.CalledProcessError as err:
