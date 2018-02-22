@@ -289,17 +289,20 @@ setup(
     #   - pylucid_admin update_env
     #
     zip_safe=False,
-    classifiers=[
-        "Development Status :: 4 - Beta",
-#         "Development Status :: 5 - Production/Stable",
+    classifiers=[ # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        "Development Status :: 2 - Pre-Alpha",
+        # "Development Status :: 3 - Alpha",
+        # "Development Status :: 4 - Beta",
+        # "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
-#        "Intended Audience :: Education",
-#        "Intended Audience :: End Users/Desktop",
+        # "Intended Audience :: Education",
+        # "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
-        "Programming Language :: JavaScript",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3 :: Only",
         "Framework :: Django",
         "Framework :: Django :: 1.11",
         "Topic :: Database :: Front-Ends",
