@@ -49,6 +49,34 @@ def iter_subprocess_output(*popenargs, **kwargs):
     return iter(proc.stdout.readline,'')
 
 
+class Requirements:
+    DEVELOPER_INSTALL="developer"
+    NORMAL_INSTALL="normal"
+    REQUIREMENTS = {
+        DEVELOPER_INSTALL: "developer_installation.txt",
+        NORMAL_INSTALL: "normal_installation.txt",
+    }
+
+    def __init__(self):
+        self.install_mode = self.get_install_mode()
+
+    def get_requirement_path(self):
+        filename = self.REQUIREMENTS[self.install_mode]
+        requirement_path = Path(ROOT_PATH, "pylucid", "requirements", filename).resolve()
+        if not requirement_path.is_file():
+            raise RuntimeError("File not found: %s" % requirement_path)
+        return requirement_path
+
+    def get_install_mode(self):
+        src_path = Path(sys.prefix, "src", "pylucid")
+        if src_path.is_dir():
+            print("PyLucid is installed as editable here: %s" % src_path)
+            return self.DEVELOPER_INSTALL
+        else:
+            print("PyLucid is installed as packages here: %s" % ROOT_PATH)
+            return self.NORMAL_INSTALL
+
+
 class PyLucidShell(Cmd2):
     own_filename = OWN_FILENAME
 
@@ -89,29 +117,18 @@ class PyLucidShell(Cmd2):
 
         verbose_check_call(pip3_path, "install", "--upgrade", "pip")
 
-        src_requirement_path = Path(sys.prefix, "src", "pylucid", "requirements", "developer_installation.txt")
-        src_requirement_path = src_requirement_path.resolve()
-        if src_requirement_path.is_file():
-            self.stdout.write("Use: '%s'\n" % src_requirement_path)
-            verbose_check_call(
-                "pip3", "install",
-                "--exists-action", "b", # action when a path already exists: (b)ackup
-                "--upgrade",
-                "--requirement", str(src_requirement_path)
-            )
-        else:
-            self.stdout.write("(No developer installation: File doesn't exists: '%s')" % src_requirement_path)
-            # TODO: Implement "normal" update!
-            # Maybe, something like this:
-            #
-            #       pip3 install -U pip
-            #       pip3 install -U pylucid
-            #       pylucid_admin update_env stage2
-            #
-            self.stdout.write("TODO!")
-            return
+        req = Requirements()
+        requirement_path = req.get_requirement_path()
 
-        self.stdout.write("Please restart %s" % self.own_filename)
+        self.stdout.write("Use: '%s'\n" % requirement_path)
+        verbose_check_call(
+            "pip3", "install",
+            "--exists-action", "b", # action when a path already exists: (b)ackup
+            "--upgrade",
+            "--requirement", str(requirement_path)
+        )
+
+        self.stdout.write("Please restart %s\n" % self.own_filename)
         sys.exit(0)
 
     #_________________________________________________________________________

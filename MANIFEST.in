@@ -1,7 +1,5 @@
 include AUTHORS LICENSE README.creole MANIFEST.in
 recursive-include * *.html *.css *.js
-recursive-include requirements *
-recursive-include scripts *
 recursive-include pylucid_installer *
 prune pylucid_project/pylucid_plugins/unittest_plugin
 recursive-exclude * *.py[co]

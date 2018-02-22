@@ -60,8 +60,6 @@ OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
 
 
 DEVELOPER_INSTALL=["-e", "git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid"]
-
-
 NORMAL_INSTALL=[
     # TODO: Remove "--pre" after v3 release
     "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
