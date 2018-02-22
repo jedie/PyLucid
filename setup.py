@@ -281,8 +281,13 @@ setup(
         "pylucid_boot = pylucid.pylucid_boot:main",
         "pylucid_admin = pylucid.pylucid_admin:main",
     ]},
-
-    install_requires=["django", "django-cms"],
+    #
+    # We don't set 'install_requires', because the requirements.txt files should be used!
+    # Bootstrap PyLucid works in this way:
+    #   - create virtualenv
+    #   - pip install pylucid
+    #   - pylucid_admin update_env
+    #
     zip_safe=False,
     classifiers=[
         "Development Status :: 4 - Beta",
