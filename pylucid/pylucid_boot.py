@@ -78,14 +78,23 @@ else:
     print("We are not in a virtualenv, ok.")
 
 
-def verbose_check_call(*popenargs, **kwargs):
+def verbose_check_call(*popenargs, env_updates=None, **kwargs):
     """
     'verbose' version of subprocess.check_output()
+    env_updates dict can be used to overwrite os.environ.
     """
     txt = "Call: %r" % " ".join(popenargs)
     if kwargs:
         txt += " with: %s" % repr(kwargs)
+
+    if env_updates is not None:
+        txt += " env: %s" % repr(env_updates)
+        env=os.environ.copy()
+        env.update(env_updates)
+        kwargs["env"] = env
+
     print(txt)
+
     try:
         subprocess.check_call(popenargs, universal_newlines=True, stderr=subprocess.STDOUT, **kwargs)
     except subprocess.CalledProcessError as err:
@@ -260,13 +269,14 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
 
         def call_new_python(*args):
             """
-            run <args> with new created python interpreter, e.g.:
-            .../new-env/bin$ .../new-env/bin/python3 <args>
+            Do the same as bin/activate so that <args> runs in a "activated" virtualenv.
             """
             verbose_check_call(
-                context.env_exe,
                 *args,
-                cwd=context.bin_path
+                env_updates={
+                    "VIRTUAL_ENV": context.env_dir,
+                    "PATH": "%s:%s" % (context.bin_path, os.environ["PATH"]),
+                },
             )
 
         call_new_python("pip", "install", "--upgrade", "pip")
