@@ -12,10 +12,6 @@
 # PyLucid own projects
 #----------------------
 
-# http://www.pylucid.org/
-# https://pypi.org/project/PyLucid
-pylucid>=3.0.0.dev2
-
 # https://pypi.org/project/python-creole
 python-creole
 

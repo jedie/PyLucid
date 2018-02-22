@@ -12,6 +12,7 @@ from pathlib import Path
 
 # PyLucid
 from pylucid.pylucid_boot import Cmd2, in_virtualenv, verbose_check_call
+from pylucid.version import __version__ as pylucid_version
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +25,10 @@ VERSION_PREFIXES = (
     "django==1.11.",
     "django-cms==3.4.",
 )
+
+# Used in PyLucidShell.do_update_env()
+PYLUCID_NORMAL_REQ=["pylucid>=%s" % pylucid_version]
+PYLUCID_DEV_REQ=["-e", "git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid"]
 
 
 SELF_FILEPATH=Path(__file__).resolve()                               # .../src/pylucid/pylucid/pylucid_admin.py
@@ -61,6 +66,10 @@ class Requirements:
         DEVELOPER_INSTALL: "developer_installation.txt",
         NORMAL_INSTALL: "normal_installation.txt",
     }
+    PYLUCID_REQUIREMENTS = {
+        DEVELOPER_INSTALL: PYLUCID_DEV_REQ,
+        NORMAL_INSTALL: PYLUCID_NORMAL_REQ,
+    }
 
     def get_requirement_path(self):
         """
@@ -95,6 +104,10 @@ class Requirements:
             print("PyLucid is installed as packages here: %s" % ROOT_PATH)
             return self.NORMAL_INSTALL
 
+    def get_pylucid_requirement(self):
+        install_mode = self.get_install_mode()
+        return self.PYLUCID_REQUIREMENTS[install_mode]
+
 
 class PyLucidShell(Cmd2):
     own_filename = OWN_FILENAME
@@ -120,6 +133,9 @@ class PyLucidShell(Cmd2):
         """
         Update all packages in virtualenv.
 
+        Direct start with:
+            $ pylucid_admin update_env
+
         (Call this command only in a activated virtualenv.)
         """
         if not in_virtualenv():
@@ -137,8 +153,13 @@ class PyLucidShell(Cmd2):
         verbose_check_call(pip3_path, "install", "--upgrade", "pip")
 
         req = Requirements()
-        requirement_file_path = req.get_requirement_file_path()
 
+        # Upgrade PyLucid first, so that the requirements files are also up-to-date:
+        pylucid_requirement = req.get_pylucid_requirement()
+        verbose_check_call(pip3_path, "install", "--upgrade", *pylucid_requirement)
+
+        # Update with requirements files:
+        requirement_file_path = req.get_requirement_file_path()
         self.stdout.write("Use: '%s'\n" % requirement_file_path)
         verbose_check_call(
             "pip3", "install",

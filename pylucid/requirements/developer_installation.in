@@ -71,10 +71,6 @@ docutils
 # https://github.com/jedie/djangocms-widgets
 -e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
 
-# http://www.pylucid.org/
-# https://pypi.org/project/PyLucid
--e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
-
 
 # external Django-CMS Addons
 #----------------------------
