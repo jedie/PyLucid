@@ -6,4 +6,4 @@
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-__version__ = "3.0.0.dev2"
+__version__ = "3.0.0.dev3"
