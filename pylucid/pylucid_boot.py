@@ -255,27 +255,32 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         """
         print(" * post-setup modification")
 
-        verbose_check_call(
-            "python3", "pip", "install", "--upgrade", "pip",
-            cwd=context.env_dir
-        )
+        def call_new_python(*args):
+            """
+            run <args> with new created python interpreter, e.g.:
+            .../new-env/bin$ .../new-env/bin/python3 <args>
+            """
+            verbose_check_call(
+                context.env_exe,
+                *args,
+                cwd=context.env_dir
+            )
+
+        call_new_python("pip", "install", "--upgrade", "pip")
 
         # Install PyLucid
         #   in normal mode as package from PyPi
         #   in dev. mode as editable from github
-        verbose_check_call(
-            "python3", "pip", "install", *self.requirements,
-            cwd=context.env_dir
-        )
+        call_new_python("pip", "install", *self.requirements)
 
-        # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
+        # Check if ".../bin/pylucid_admin" exists
         pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
         if not pylucid_admin_path.is_file():
             print("ERROR: pylucid_admin not found here: '%s'" % pylucid_admin_path)
             return
 
-        pylucid_admin_path = str(pylucid_admin_path)
-        verbose_check_call(pylucid_admin_path, "update_env")
+        # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
+        call_new_python("pylucid_admin", "update_env")
 
 
 class PyLucidBootShell(Cmd2):
