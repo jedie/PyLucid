@@ -11,17 +11,18 @@ wheel
 # https://pypi.org/project/twine
 twine
 
-# For generating the bootstrap script
-virtualenv
-
 # https://github.com/jazzband/pip-tools (pip-tools = pip-compile + pip-sync)
 pip-tools
 
 # https://github.com/sesh/piprot
 piprot
 
+# https://pypi.org/project/django-extensions/
+# https://github.com/django-extensions/django-extensions
+# Used for e.g.: runserver_plus
 django-extensions
-werkzeug
+
+werkzeug # django-extensions 'runserver_plus' command requires werkzeit
 
 # for ReSt README generation
 python-creole
@@ -58,7 +59,8 @@ docutils
 # https://github.com/jedie/django-reversion-compare
 # https://pypi.org/project/django-reversion-compare/
 # v2 is not supported, see: https://github.com/divio/django-cms/issues/5441
--e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
+# Maybe usable for djangocms-history ?!?
+#-e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
 
 # https://github.com/chrisglass/cmsplugin-pygments
 -e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments

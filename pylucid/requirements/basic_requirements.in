@@ -31,6 +31,7 @@ Pygments>=2.1,<2.2
 
 # http://www.djangoproject.com/
 # https://pypi.org/project/Django
+# Note: Version must also updated in pylucid.pylucid_admin.VERSION_PREFIXES !
 Django<2.0
 
 # https://github.com/django-debug-toolbar/django-debug-toolbar
@@ -42,7 +43,8 @@ django-compressor>=2.1,<2.2
 
 # https://github.com/etianen/django-reversion
 # v2 is not supported, see: https://github.com/divio/django-cms/issues/5441
-django-reversion>=1.10,<2.0
+# djangocms-history seems to be not a complete replacement :(
+#django-reversion>=1.10,<2.0
 
 
 # Django CMS packages
@@ -51,6 +53,7 @@ django-reversion>=1.10,<2.0
 # http://www.django-cms.org/
 # https://pypi.org/project/django-cms/
 # http://docs.django-cms.org/en/latest/upgrade/
+# Note: Version must also updated in pylucid.pylucid_admin.VERSION_PREFIXES !
 django-cms<3.5
 
 # https://pypi.org/project/djangocms-text-ckeditor/
@@ -61,16 +64,23 @@ django-cms<3.5
 
 
 # https://github.com/kapt-labs/djangocms-htmlsitemap
-djangocms-htmlsitemap>=0.2,<0.3
+# Not django 1.11 compatible: https://github.com/kapt-labs/djangocms-htmlsitemap/issues/4
+#djangocms-htmlsitemap
+
+
+# https://github.com/divio/djangocms-history
+# Seems to be not a complete replacement for django-reversion :(
+djangocms-history
 
 
 # django-filter
 #--------------
 # https://github.com/stefanfoulis/django-filer/
-# The 'cmsplugin-filer' will install, among other things:
-# django-filter, django-sekizai, easy_thumbnails
-cmsplugin-filer
 django-filer
+
+# TODO: Replace this with https://github.com/divio/djangocms-link
+# http://docs.django-cms.org/en/latest/topics/commonly_used_plugins.html#deprecated-addons
+cmsplugin-filer
 
 
 # Django-CMS-Blog
