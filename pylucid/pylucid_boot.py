@@ -266,7 +266,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
             verbose_check_call(
                 context.env_exe,
                 *args,
-                cwd=context.env_dir
+                cwd=context.bin_path
             )
 
         call_new_python("pip", "install", "--upgrade", "pip")
