@@ -45,7 +45,7 @@ except ImportError as err:
     print("\nERROR: 'ensurepip' not available: %s (Maybe 'python3-venv' package not installed?!?)" % err)
 
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
 
 if sys.version_info < (3, 5):
@@ -123,6 +123,7 @@ class Cmd2(cmd.Cmd):
         - Display
     """
     own_filename = OWN_FILENAME
+    version = __version__
 
     command_alias = { # used in self.precmd()
         "q": "quit", "EOF": "quit",
@@ -141,7 +142,7 @@ class Cmd2(cmd.Cmd):
             'Type help or ? to list commands.\n'
         ).format(
             filename=self.own_filename,
-            version=__version__
+            version=self.version
         )
 
         self.prompt = '%s> ' % self.own_filename

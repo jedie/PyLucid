@@ -12,12 +12,9 @@ from pathlib import Path
 
 # PyLucid
 from pylucid.pylucid_boot import Cmd2, in_virtualenv, verbose_check_call
-from pylucid.version import __version__ as pylucid_version
+from pylucid.version import __version__
 
 log = logging.getLogger(__name__)
-
-
-__version__ = "0.0.1"
 
 
 # Used to check if pip-compiles runs fine, see: PyLucidShell.do_upgrade_requirements()
@@ -27,7 +24,7 @@ VERSION_PREFIXES = (
 )
 
 # Used in PyLucidShell.do_update_env()
-PYLUCID_NORMAL_REQ=["pylucid>=%s" % pylucid_version]
+PYLUCID_NORMAL_REQ=["pylucid>=%s" % __version__]
 PYLUCID_DEV_REQ=["-e", "git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid"]
 
 
@@ -111,6 +108,7 @@ class Requirements:
 
 class PyLucidShell(Cmd2):
     own_filename = OWN_FILENAME
+    version = __version__
 
     def do_pytest(self, arg):
         """
