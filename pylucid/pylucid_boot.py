@@ -59,226 +59,14 @@ log = logging.getLogger(__name__)
 OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
 
 
-#
-# The following Variables CI_INSTALL_TXT, DEVELOPER_INSTALL_TXT and NORMAL_INSTALL_TXT are filled
-# automatically from the requirements files by:
-#   pylucid.pylucid_admin.PyLucidShell.do_upgrade_requirements()
-#
-# e.g.:
-#
-# $ pylucid_admin upgrade_requirements
-#
+DEVELOPER_INSTALL=["-e", "git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid"]
 
 
-CI_INSTALL_TXT=""" # insert [requirements/ci_installation.txt]
--e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
--e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
--e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
--e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
-aldryn-apphooks-config==0.3.3  # via djangocms-blog
-attrs==17.4.0             # via pytest
-cmsplugin-filer==1.1.3
-cmsplugin-pygments==0.8.2
-coverage==4.5.1           # via pytest-cov
-django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
-django-appdata==0.1.6     # via aldryn-apphooks-config
-django-classy-tags==0.8.0  # via django-cms, django-sekizai
-django-cms-tools==0.6.0
-django-cms==3.4.5
-django-compressor==2.1.1
-django-debug-toolbar-django-info==0.3.0
-django-debug-toolbar==1.9.1
-django-filer==1.3.0
-django-formtools==2.1     # via django-cms
-django-meta-mixin==0.3.0  # via djangocms-blog
-django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
-django-mptt==0.8.7        # via django-filer
-django-parler==1.9.2      # via djangocms-blog
-django-polymorphic==1.3   # via django-filer
-django-reversion-compare==0.6.3
-django-reversion==1.10.2
-django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
-django-sortedm2m==1.5.0   # via djangocms-blog
-django-taggit-autosuggest==0.3.2  # via djangocms-blog
-django-taggit-templatetags==0.2.5  # via djangocms-blog
-django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
-django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-tools==0.38.9
-django-treebeard==4.2.0   # via django-cms
-django==1.9.13
-djangocms-admin-style==1.2.7  # via django-cms
-djangocms-apphook-setup==0.3.0  # via djangocms-blog
-djangocms-attributes-field==0.3.0  # via cmsplugin-filer
-djangocms-blog==0.9.0
-djangocms-htmlsitemap==0.2.0
-docutils==0.14
-easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
-html5lib==1.0.1           # via textile
-lxml==4.1.1               # via django-tools
-markdown==2.6.11
-pillow==5.0.0
-pluggy==0.6.0             # via pytest, tox
-py==1.5.2                 # via pytest, tox
-pygments==2.1.3
-pytest-cov==2.5.1
-pytest-django==3.1.2
-pytest==3.4.1
-python-creole==1.3.1
-pytz==2018.3              # via djangocms-blog
-rcssmin==1.0.6            # via django-compressor
-rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via html5lib, pytest, textile, tox
-sqlparse==0.2.4           # via django-debug-toolbar
-textile==3.0.0
-tox==2.9.1
-unidecode==0.4.21         # via django-filer
-virtualenv==15.1.0        # via tox
-webencodings==0.5.1       # via html5lib
-"""
-
-
-DEVELOPER_INSTALL_TXT=""" # insert [requirements/developer_installation.txt]
--e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
--e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
--e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
--e git+git@github.com:jedie/django-cms-tools.git@master#egg=django-cms-tools
--e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
--e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
--e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
--e git+git@github.com:jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
--e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
--e git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid
--e git+git@github.com:jedie/python-creole.git#egg=python-creole
-aldryn-apphooks-config==0.3.3  # via djangocms-blog
-attrs==17.4.0             # via pytest
-certifi==2018.1.18        # via requests
-chardet==3.0.4            # via requests
-click==6.7                # via pip-tools
-cmsplugin-filer==1.1.3
-coverage==4.5.1           # via pytest-cov
-django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
-django-appdata==0.1.6     # via aldryn-apphooks-config
-django-classy-tags==0.8.0  # via django-cms, django-sekizai
-django-cms==3.4.5
-django-compressor==2.1.1
-django-debug-toolbar==1.9.1
-django-extensions==1.9.9
-django-filer==1.3.0
-django-formtools==2.1     # via django-cms
-django-meta-mixin==0.3.0  # via djangocms-blog
-django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
-django-mptt==0.8.7        # via django-filer
-django-parler==1.9.2      # via djangocms-blog
-django-polymorphic==1.3   # via django-filer
-django-reversion==1.10.2
-django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
-django-sortedm2m==1.5.0   # via djangocms-blog
-django-taggit-autosuggest==0.3.2  # via djangocms-blog
-django-taggit-templatetags==0.2.5  # via djangocms-blog
-django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
-django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-treebeard==4.2.0   # via django-cms
-django==1.9.13
-djangocms-admin-style==1.2.7  # via django-cms
-djangocms-apphook-setup==0.3.0  # via djangocms-blog
-djangocms-attributes-field==0.3.0  # via cmsplugin-filer
-djangocms-blog==0.9.0
-djangocms-htmlsitemap==0.2.0
-docutils==0.14
-easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
-first==2.0.1              # via pip-tools
-html5lib==1.0.1           # via textile
-idna==2.6                 # via requests
-lxml==4.1.1
-markdown==2.6.11
-pillow==5.0.0
-pip-tools==1.11.0
-piprot==0.9.7
-pkginfo==1.4.1            # via twine
-pluggy==0.6.0             # via pytest, tox
-py==1.5.2                 # via pytest, tox
-pygments==2.1.3
-pytest-cov==2.5.1
-pytest-django==3.1.2
-pytest==3.4.1
-pytz==2018.3              # via djangocms-blog
-rcssmin==1.0.6            # via django-compressor
-requests-futures==0.9.7   # via piprot
-requests-toolbelt==0.8.0  # via twine
-requests==2.18.4          # via piprot, requests-futures, requests-toolbelt, twine
-rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via django-extensions, html5lib, pip-tools, piprot, pytest, textile, tox
-sqlparse==0.2.4           # via django-debug-toolbar
-textile==3.0.0
-tox==2.9.1
-tqdm==4.19.5              # via twine
-twine==1.9.1
-typing==3.6.4             # via django-extensions
-unidecode==0.4.21         # via django-filer
-urllib3==1.22             # via requests
-virtualenv==15.1.0
-webencodings==0.5.1       # via html5lib
-werkzeug==0.14.1
-wheel==0.30.0
-"""
-
-
-NORMAL_INSTALL_TXT=""" # insert [requirements/normal_installation.txt]
--e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
--e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
--e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
--e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
-aldryn-apphooks-config==0.3.3  # via djangocms-blog
-cmsplugin-filer==1.1.3
-cmsplugin-pygments==0.8.2
-django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
-django-appdata==0.1.6     # via aldryn-apphooks-config
-django-classy-tags==0.8.0  # via django-cms, django-sekizai
-django-cms-tools==0.6.0
-django-cms==3.4.5
-django-compressor==2.1.1
-django-debug-toolbar-django-info==0.3.0
-django-debug-toolbar==1.9.1
-django-filer==1.3.0
-django-formtools==2.1     # via django-cms
-django-meta-mixin==0.3.0  # via djangocms-blog
-django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
-django-mptt==0.8.7        # via django-filer
-django-parler==1.9.2      # via djangocms-blog
-django-polymorphic==1.3   # via django-filer
-django-reversion-compare==0.6.3
-django-reversion==1.10.2
-django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin
-django-sortedm2m==1.5.0   # via djangocms-blog
-django-taggit-autosuggest==0.3.2  # via djangocms-blog
-django-taggit-templatetags==0.2.5  # via djangocms-blog
-django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
-django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-tools==0.38.9
-django-treebeard==4.2.0   # via django-cms
-django==1.9.13
-djangocms-admin-style==1.2.7  # via django-cms
-djangocms-apphook-setup==0.3.0  # via djangocms-blog
-djangocms-attributes-field==0.3.0  # via cmsplugin-filer
-djangocms-blog==0.9.0
-djangocms-htmlsitemap==0.2.0
-docutils==0.14
-easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
-html5lib==1.0.1           # via textile
-lxml==4.1.1               # via django-tools
-markdown==2.6.11
-pillow==5.0.0
-pygments==2.1.3
-python-creole==1.3.1
-pytz==2018.3              # via djangocms-blog
-rcssmin==1.0.6            # via django-compressor
-rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via html5lib, textile
-sqlparse==0.2.4           # via django-debug-toolbar
-textile==3.0.0
-unidecode==0.4.21         # via django-filer
-webencodings==0.5.1       # via html5lib
-"""
+NORMAL_INSTALL=[
+    # TODO: Remove "--pre" after v3 release
+    "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
+    "pylucid"
+]
 
 
 def in_virtualenv():
@@ -477,12 +265,23 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
             return
 
         print("pip found here: '%s'" % pip3_path)
-        context.pip3_path = str(pip3_path)
+        pip3_path = str(pip3_path)
 
-        verbose_check_call(context.pip3_path, "install", "--upgrade", "pip")
+        verbose_check_call(pip3_path, "install", "--upgrade", "pip")
 
-        args = [context.pip3_path, "install"] + self.requirements
-        verbose_check_call(*args)
+        # Install PyLucid
+        #   in normal mode as package from PyPi
+        #   in dev. mode as editable from github
+        verbose_check_call(pip3_path, "install", *self.requirements)
+
+        # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
+        pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
+        if not pylucid_admin_path.is_file():
+            print("ERROR: pylucid_admin not found here: '%s'" % pylucid_admin_path)
+            return
+
+        pylucid_admin_path = str(pylucid_admin_path)
+        verbose_check_call(pylucid_admin_path, "update_env")
 
 
 class PyLucidBootShell(Cmd2):
@@ -513,12 +312,10 @@ class PyLucidBootShell(Cmd2):
                     requirements.append(line)
         return requirements
 
-    def _boot(self, destination, requirement_string):
+    def _boot(self, destination, requirements):
         """
         Create a PyLucid virtualenv and install requirements.
         """
-        requirements = self._parse_requirements(requirement_string)
-
         destination = Path(destination).expanduser().resolve()
         if destination.exists():
             self.stdout.write("\nERROR: Path '%s' already exists!\n" % destination)
@@ -551,7 +348,7 @@ class PyLucidBootShell(Cmd2):
 
         (used the requirements/normal_installation.txt)
         """
-        self._boot(destination, requirement_string=NORMAL_INSTALL_TXT)
+        self._boot(destination, requirements=NORMAL_INSTALL)
     complete_boot_normal = complete_boot
 
     def do_boot_developer(self, destination):
@@ -559,15 +356,8 @@ class PyLucidBootShell(Cmd2):
         **only usable for developer with github write access**
         (used the requirements/developer_installation.txt)
         """
-        self._boot(destination, requirement_string=DEVELOPER_INSTALL_TXT)
+        self._boot(destination, requirements=DEVELOPER_INSTALL)
     complete_boot_developer = complete_boot
-
-    def do_boot_ci(self, destination):
-        """
-        **only for Travis CI**
-        (used the requirements/ci_installation.txt)
-        """
-        self._boot(destination, requirement_string=CI_INSTALL_TXT)
 
 
 def main():

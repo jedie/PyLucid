@@ -32,11 +32,6 @@ OWN_FILENAME=SELF_FILEPATH.name                                      # pylucid_a
 # print("OWN_FILENAME: %s" % OWN_FILENAME)
 
 
-# Helper to replace the content:
-INSERT_START_RE=re.compile(r'(?P<variable>.*?)=""" # insert \[(?P<filename>.*?)\]')
-INSERT_END = '"""'
-
-
 def iter_subprocess_output(*popenargs, **kwargs):
     """
     A subprocess with tee ;)
@@ -52,68 +47,6 @@ def iter_subprocess_output(*popenargs, **kwargs):
         **kwargs
     )
     return iter(proc.stdout.readline,'')
-
-
-class Requirement:
-    """
-    Helper class to insert requirements/*_installation.txt file content.
-    """
-    def parse_req_file(self, req_file):
-        """
-        returns the lines of a requirements/*_installation.txt file.
-        Skip comments and emptry lines
-        """
-        lines = []
-
-        req_file = Path(ROOT_PATH, req_file).resolve()
-
-        print("read %s..." % req_file)
-        with open(req_file, "r") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                assert not line.startswith("-r"), "'-r' not supported! Not the pip-compile output file?!?"
-                lines.append("%s\n" % line)
-
-        return lines
-
-    def update(self):
-        new_content = []
-        with open(BOOT_FILEPATH, "r") as f:
-            in_insert_block=False
-            for line in f:
-                if not in_insert_block:
-                    new_content.append(line)
-
-                if in_insert_block:
-                    if line.strip() == INSERT_END:
-                        in_insert_block=False
-                        new_content.append(line)
-
-                else:
-                    m = INSERT_START_RE.match(line)
-                    if m:
-                        in_insert_block=True
-                        m = m.groupdict()
-                        variable = m["variable"]
-                        filename = m["filename"]
-                        print("Fill %r from %r..." % (variable, filename))
-                        new_content += self.parse_req_file(filename)
-
-
-        bak_filename=Path("%s.bak" % BOOT_FILEPATH)
-        if bak_filename.is_file():
-            print("Remove old backup file: %s" % bak_filename)
-            bak_filename.unlink()
-
-        print("Create backup file: %r" % bak_filename)
-        BOOT_FILEPATH.rename(bak_filename)
-
-        with open(BOOT_FILEPATH, "w") as f:
-            f.writelines(new_content)
-
-        BOOT_FILEPATH.chmod(0o775)
 
 
 class PyLucidShell(Cmd2):
@@ -170,16 +103,6 @@ class PyLucidShell(Cmd2):
     #_________________________________________________________________________
     # Developer commands:
 
-    def do_insert_requirement(self, arg):
-        """
-        insert requirements/*_installation.txt files into pylucid/pylucid_admin.py
-        This will be automaticly done by 'upgrade_requirements'!
-
-        Direct start with:
-            $ pylucid_admin insert_requirement
-        """
-        Requirement().update()
-
     def do_upgrade_requirements(self, arg):
         """
         1. Convert via 'pip-compile' *.in requirements files to *.txt
@@ -225,8 +148,6 @@ class PyLucidShell(Cmd2):
             assert filepath.is_file(), "File not exists: %r" % filepath
             with open(filepath, "a") as f:
                 f.writelines(output)
-
-        self.do_insert_requirement(arg)
 
 
 def main():
