@@ -19,6 +19,13 @@ log = logging.getLogger(__name__)
 __version__ = "0.0.1"
 
 
+# Used to check if pip-compiles runs fine, see: PyLucidShell.do_upgrade_requirements()
+VERSION_PREFIXES = (
+    "django==1.11.",
+    "django-cms==3.4.",
+)
+
+
 SELF_FILEPATH=Path(__file__).resolve()                               # .../src/pylucid/pylucid/pylucid_admin.py
 BOOT_FILEPATH=Path(SELF_FILEPATH, "..", "pylucid_boot.py").resolve() # .../src/pylucid/pylucid/pylucid_boot.py
 ROOT_PATH=Path(SELF_FILEPATH, "..", "..").resolve()                  # .../src/pylucid/
@@ -177,6 +184,17 @@ class PyLucidShell(Cmd2):
                 "pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in,
                 cwd=requirements_path
             )
+
+            if requirement_in.startswith("ci_") or requirement_in.startswith("test_"):
+                print("Skip versions check, ok.")
+            else:
+                req_out = Path(requirements_path, requirement_out)
+                with req_out.open("r") as f:
+                    requirement_out_content = f.read()
+
+                for version_prefix in VERSION_PREFIXES:
+                    if not version_prefix in requirement_out_content:
+                        raise RuntimeError("ERROR: %r not found!" % version_prefix)
 
             self.stdout.write("_"*79 + "\n")
             output = [
