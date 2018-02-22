@@ -12,11 +12,15 @@
 # PyLucid own projects
 #----------------------
 
+# http://www.pylucid.org/
+# https://pypi.org/project/PyLucid
+pylucid>=3.0.0.dev2
+
 # https://pypi.org/project/python-creole
 python-creole
 
 # https://pypi.org/project/django-dbpreferences
-#django-dbpreferences>=0.4.2,<0.5
+#django-dbpreferences
 
 # https://pypi.org/project/django-tools
 django-tools
@@ -28,10 +32,10 @@ django-cms-tools
 #django-processinfo
 
 # https://pypi.org/project/django-reversion-compare/
-django-reversion-compare>=0.6,<0.7
+#django-reversion-compare>=0.6,<0.7
 
 # https://github.com/jedie/cmsplugin-pygments
-cmsplugin-pygments>=0.8.2,<0.9
+cmsplugin-pygments
 
 # https://github.com/jedie/django-debug-toolbar-django-info
 django-debug-toolbar-django-info
@@ -39,10 +43,6 @@ django-debug-toolbar-django-info
 # https://github.com/jedie/djangocms-widgets
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 
-# git readonly clone of PyLucid
-# http://www.pylucid.org/
-# https://pypi.org/project/PyLucid
--e git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid
 
 # external Django-CMS Addons
 #----------------------------

@@ -185,9 +185,7 @@ class PyLucidShell(Cmd2):
                 cwd=requirements_path
             )
 
-            if requirement_in.startswith("ci_") or requirement_in.startswith("test_"):
-                print("Skip versions check, ok.")
-            else:
+            if not requirement_in.startswith("test_"):
                 req_out = Path(requirements_path, requirement_out)
                 with req_out.open("r") as f:
                     requirement_out_content = f.read()
