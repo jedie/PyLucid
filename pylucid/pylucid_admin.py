@@ -5,9 +5,7 @@ import os  # isort:skip
 assert "VIRTUAL_ENV" in os.environ, "ERROR: Call me only in a activated virtualenv!"  # isort:skip
 
 
-import glob
 import logging
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -57,15 +55,29 @@ class Requirements:
         NORMAL_INSTALL: "normal_installation.txt",
     }
 
-    def __init__(self):
-        self.install_mode = self.get_install_mode()
-
     def get_requirement_path(self):
-        filename = self.REQUIREMENTS[self.install_mode]
-        requirement_path = Path(ROOT_PATH, "pylucid", "requirements", filename).resolve()
-        if not requirement_path.is_file():
-            raise RuntimeError("File not found: %s" % requirement_path)
+        """
+        :return: Path(.../pylucid/requirements/)
+        """
+        requirement_path = Path(ROOT_PATH, "pylucid", "requirements").resolve()
+        if not requirement_path.is_dir():
+            raise RuntimeError("Requirements directory not found here: %s" % requirement_path)
         return requirement_path
+
+    def get_requirement_file_path(self):
+        """
+        :return: Path(.../pylucid/requirements/<mode>_installation.txt)
+        """
+        requirement_path = self.get_requirement_path()
+
+        install_mode = self.get_install_mode()
+        filename = self.REQUIREMENTS[install_mode]
+
+        requirement_file_path = Path(requirement_path, filename).resolve()
+        if not requirement_file_path.is_file():
+            raise RuntimeError("Requirements file not found here: %s" % requirement_file_path)
+
+        return requirement_file_path
 
     def get_install_mode(self):
         src_path = Path(sys.prefix, "src", "pylucid")
@@ -118,14 +130,14 @@ class PyLucidShell(Cmd2):
         verbose_check_call(pip3_path, "install", "--upgrade", "pip")
 
         req = Requirements()
-        requirement_path = req.get_requirement_path()
+        requirement_file_path = req.get_requirement_file_path()
 
-        self.stdout.write("Use: '%s'\n" % requirement_path)
+        self.stdout.write("Use: '%s'\n" % requirement_file_path)
         verbose_check_call(
             "pip3", "install",
             "--exists-action", "b", # action when a path already exists: (b)ackup
             "--upgrade",
-            "--requirement", str(requirement_path)
+            "--requirement", str(requirement_file_path)
         )
 
         self.stdout.write("Please restart %s\n" % self.own_filename)
@@ -145,14 +157,15 @@ class PyLucidShell(Cmd2):
         """
         assert BOOT_FILEPATH.is_file(), "Bootfile not found here: %s" % BOOT_FILEPATH
 
-        requirements_path = Path(ROOT_PATH, "requirements").resolve()
-        assert requirements_path.is_dir(), "Path doesn't exists: %r" % requirements_path
+        req = Requirements()
+        requirements_path = req.get_requirement_path()
 
-        for requirement_in in glob.glob(os.path.join(ROOT_PATH, "requirements", "*.in")):
-            if "basic_" in requirement_in:
+        for requirement_in in requirements_path.glob("*.in"):
+            requirement_in = Path(requirement_in).name
+
+            if requirement_in.startswith("basic_"):
                 continue
 
-            requirement_in = Path(requirement_in).name
             requirement_out = requirement_in.replace(".in", ".txt")
 
             self.stdout.write("_"*79 + "\n")
