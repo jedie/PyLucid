@@ -56,11 +56,17 @@ class PyLucidShell(Cmd2):
         """
         Run tests via pytest
         """
-        import pytest  # pytest is not installed, in normal installation
-        pytest.main()
+        try:
+            import pytest
+        except ImportError as err:
+            print("ERROR: Can't import pytest: %s (pytest not installed, in normal installation!)")
+        else:
+            pytest.main()
 
     def do_pip_freeze(self, arg):
-        "run 'pip freeze': FOO"
+        """
+        Just run 'pip freeze'
+        """
         verbose_check_call("pip3", "freeze")
 
     def do_update_env(self, arg):
@@ -73,7 +79,15 @@ class PyLucidShell(Cmd2):
             self.stdout.write("\nERROR: Only allowed in activated virtualenv!\n\n")
             return
 
-        verbose_check_call("pip3", "install", "--upgrade", "pip")
+        pip3_path = Path(sys.prefix, "bin", "pip3")
+        if not pip3_path.is_file():
+            print("ERROR: pip not found here: '%s'" % pip3_path)
+            return
+
+        print("pip found here: '%s'" % pip3_path)
+        pip3_path = str(pip3_path)
+
+        verbose_check_call(pip3_path, "install", "--upgrade", "pip")
 
         src_requirement_path = Path(sys.prefix, "src", "pylucid", "requirements", "developer_installation.txt")
         src_requirement_path = src_requirement_path.resolve()
