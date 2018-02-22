@@ -255,22 +255,18 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         """
         print(" * post-setup modification")
 
-        os.environ['VIRTUAL_ENV'] = context.env_dir
-
-        pip3_path = Path(context.bin_path, "pip3")
-        if not pip3_path.is_file():
-            print("ERROR: pip not found here: '%s'" % pip3_path)
-            return
-
-        print("pip found here: '%s'" % pip3_path)
-        pip3_path = str(pip3_path)
-
-        verbose_check_call(pip3_path, "install", "--upgrade", "pip")
+        verbose_check_call(
+            "python3", "pip", "install", "--upgrade", "pip",
+            cwd=context.env_dir
+        )
 
         # Install PyLucid
         #   in normal mode as package from PyPi
         #   in dev. mode as editable from github
-        verbose_check_call(pip3_path, "install", *self.requirements)
+        verbose_check_call(
+            "python3", "pip", "install", *self.requirements,
+            cwd=context.env_dir
+        )
 
         # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
         pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
