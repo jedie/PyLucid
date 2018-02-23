@@ -1,6 +1,3 @@
-pylucid_page_instance/static
-!pylucid_page_instance/static/.gitkeep
-
 *.bak
 *.log
 *.db3
