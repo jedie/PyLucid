@@ -1,7 +1,6 @@
 
 import os  # isort:skip
 
-# pylucid.pylucid_boot.in_virtualenv
 assert "VIRTUAL_ENV" in os.environ, "ERROR: Call me only in a activated virtualenv!"  # isort:skip
 
 
@@ -10,9 +9,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+# pylucid.pylucid_boot.in_virtualenv
+from pylucid_installer.pylucid_installer import create_instance
+
 # PyLucid
 from pylucid.pylucid_boot import Cmd2, in_virtualenv, verbose_check_call
 from pylucid.version import __version__
+
+
+
+
 
 log = logging.getLogger(__name__)
 
@@ -106,6 +112,41 @@ class Requirements:
 class PyLucidShell(Cmd2):
     own_filename = OWN_FILENAME
     version = __version__
+
+    def complete_create_page_instance(self, text, line, begidx, endidx):
+        return self._complete_path(text, line, begidx, endidx)
+
+    def do_create_page_instance(self, arg):
+        """
+        Create a PyLucid page instance.
+        Needs two arguments:
+            - destination: filesystem point to create a new instance
+            - name: The project name (Should be ASCII without spaces)
+
+        Direct start with:
+            $ pylucid_admin create_page_instance [destination] [name]
+
+        tbd.
+        """
+        try:
+            destination, name = arg.split(" ")
+        except ValueError as err:
+            print("ERROR: %s" % err)
+            print("There are two arguments needed: [destination] [name]")
+            return
+
+        destination = destination.strip()
+        name = name.strip()
+
+        if not destination:
+            print("ERROR: destination is needed!")
+            return
+
+        if not name:
+            print("ERROR: name not given!")
+
+        print("TODO: Create instance with name %r at: %r" % (name, destination))
+        create_instance(dest=destination, name=name, remove=False, exist_ok=False)
 
     def do_pytest(self, arg):
         """

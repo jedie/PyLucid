@@ -160,27 +160,10 @@ def _rename_project(dest, name):
 
 
 
-@click.command()
-@click.option("dest", '--dest', type=click.Path(),
-    prompt="The destionation path for new page instance (You can use --dest=...)",
-    help="Destination path for new page instance."
-)
-@click.option("name", '--name',
-    prompt="The name of you project (You can use --name=...)",
-    help="Project name (No whitespace!)"
-)
-@click.option("--remove", is_flag=True,
-    help="Delete **all** existing files in destination before copy?",
-)
-@click.option("--exist_ok", is_flag=True,
-    help="Ignore existing destination?",
-)
-def cli(dest, name, remove, exist_ok):
+def create_instance(dest, name, remove, exist_ok):
     """
-    CLI to create a page instance.
+    create a page instance.
     """
-    _check_activated_virtualenv()
-
     name = _clean_project_name(name)
 
     print("Create page instance here: %r" % dest)
