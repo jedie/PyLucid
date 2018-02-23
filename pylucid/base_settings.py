@@ -10,9 +10,6 @@ from pathlib import Path
 from django.utils.translation import ugettext_lazy as _
 
 
-# For build paths inside the project:
-BASE_DIR = Path(__file__).resolve().parent
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -116,9 +113,6 @@ MIDDLEWARE = (
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            str(Path(BASE_DIR, "templates/")),
-        ],
         'OPTIONS': {
             'loaders': [
                 ('django.template.loaders.cached.Loader', (
@@ -151,7 +145,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(Path(BASE_DIR, '..', 'test_project_db.sqlite3').resolve()),
+        # Must be set in page instance settings:
         # 'NAME': ":memory:"
     }
 }
@@ -240,10 +234,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = str(Path(BASE_DIR, 'static'))
-
 MEDIA_URL = '/media/'
-MEDIA_ROOT = str(Path(BASE_DIR, 'media'))
+
+# Must be set in settings from page instance:
+# STATIC_ROOT =
+# MEDIA_ROOT =
 
 
 # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html#debug-toolbar-config

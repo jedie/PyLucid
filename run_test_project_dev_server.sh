@@ -4,6 +4,11 @@ set -e
 
 cd pylucid_page_instance
 
+(
+    set -x
+    ./manage.py createcachetable
+)
+
 while true
 do
 (
