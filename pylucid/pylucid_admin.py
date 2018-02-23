@@ -156,6 +156,7 @@ class PyLucidShell(Cmd2):
         else:
             # ... git pull pylucid sources
             verbose_check_call("git", "pull", "origin", cwd=ROOT_PATH)
+            verbose_check_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
 
         # Update with requirements files:
         requirement_file_path = req.get_requirement_file_path()
