@@ -12,10 +12,19 @@ from pylucid.base_settings import *
 BASE_DIR = Path(__file__).resolve().parent
 
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'Only for the tests ;)'
+
+
+DEBUG = True
+
+
 TEMPLATES[0]["DIRS"] = [str(Path(BASE_DIR, "templates/"))]
+
 
 STATIC_ROOT = str(Path(BASE_DIR, 'static'))
 MEDIA_ROOT = str(Path(BASE_DIR, 'media'))
+
 
 DATABASES = {
     'default': {
