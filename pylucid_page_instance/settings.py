@@ -49,6 +49,8 @@ INSTALLED_APPS = (
 
     'debug_toolbar', # https://github.com/jazzband/django-debug-toolbar/
 
+    'compressor', # https://github.com/django-compressor/django-compressor
+
     'cms', # https://github.com/divio/django-cms
     'menus', # Part of Django-CMS
 
@@ -64,6 +66,14 @@ INSTALLED_APPS = (
     # https://pypi.org/project/django-parler
     'parler',
 
+    'filer', # https://github.com/divio/django-filer
+
+    # TODO: remove if migration from 'cmsplugin_filer_link' to 'djangocms-link' is done:
+    # http://docs.django-cms.org/en/latest/topics/commonly_used_plugins.html#deprecated-addons
+    'cmsplugin_filer_link',
+
+    'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
+
     # https://github.com/jedie/django-cms-tools/
     'django_cms_tools',
     'django_cms_tools.filer_tools',
@@ -71,6 +81,7 @@ INSTALLED_APPS = (
     # 'django_cms_tools.plugin_landing_page', # TODO: Needs publisher!
 
     'pylucid',
+    # 'pylucid_todo', # Only needed for old migrated installations
 )
 
 ROOT_URLCONF = 'pylucid_page_instance.urls'
@@ -137,6 +148,19 @@ DATABASES = {
         # 'NAME': ":memory:"
     }
 }
+
+
+# https://django-compressor.readthedocs.io/en/latest/settings/
+#COMPRESS_ENABLED=False
+COMPRESS_ENABLED=True
+
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
+)
 
 
 # Internationalization
@@ -213,7 +237,9 @@ DEBUG_TOOLBAR_CONFIG["JQUERY_URL"] = STATIC_URL + "admin/js/vendor/jquery/jquery
 CMS_TEMPLATES = (
     ('base.html', 'Basic Page'),
 )
-CMS_PERMISSION = True
+
+# http://docs.django-cms.org/en/latest/reference/configuration.html#cms-permission
+CMS_PERMISSION = False
 
 # Basic Placeholder config
 
