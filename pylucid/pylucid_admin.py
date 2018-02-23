@@ -29,7 +29,6 @@ PYLUCID_NORMAL_REQ=[
     "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
     "pylucid>=%s" % __version__
 ]
-PYLUCID_DEV_REQ=["-e", "git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid"]
 
 
 SELF_FILEPATH=Path(__file__).resolve()                               # .../src/pylucid/pylucid/pylucid_admin.py
@@ -67,10 +66,18 @@ class Requirements:
         DEVELOPER_INSTALL: "developer_installation.txt",
         NORMAL_INSTALL: "normal_installation.txt",
     }
-    PYLUCID_REQUIREMENTS = {
-        DEVELOPER_INSTALL: PYLUCID_DEV_REQ,
-        NORMAL_INSTALL: PYLUCID_NORMAL_REQ,
-    }
+    def __init__(self):
+        src_path = Path(sys.prefix, "src", "pylucid")
+        if src_path.is_dir():
+            print("PyLucid is installed as editable here: %s" % src_path)
+            self.install_mode=self.DEVELOPER_INSTALL
+        else:
+            print("PyLucid is installed as packages here: %s" % ROOT_PATH)
+            self.install_mode=self.NORMAL_INSTALL
+
+    @property
+    def normal_mode(self):
+        return self.install_mode == self.NORMAL_INSTALL
 
     def get_requirement_path(self):
         """
@@ -86,9 +93,7 @@ class Requirements:
         :return: Path(.../pylucid/requirements/<mode>_installation.txt)
         """
         requirement_path = self.get_requirement_path()
-
-        install_mode = self.get_install_mode()
-        filename = self.REQUIREMENTS[install_mode]
+        filename = self.REQUIREMENTS[self.install_mode]
 
         requirement_file_path = Path(requirement_path, filename).resolve()
         if not requirement_file_path.is_file():
@@ -96,18 +101,6 @@ class Requirements:
 
         return requirement_file_path
 
-    def get_install_mode(self):
-        src_path = Path(sys.prefix, "src", "pylucid")
-        if src_path.is_dir():
-            print("PyLucid is installed as editable here: %s" % src_path)
-            return self.DEVELOPER_INSTALL
-        else:
-            print("PyLucid is installed as packages here: %s" % ROOT_PATH)
-            return self.NORMAL_INSTALL
-
-    def get_pylucid_requirement(self):
-        install_mode = self.get_install_mode()
-        return self.PYLUCID_REQUIREMENTS[install_mode]
 
 
 class PyLucidShell(Cmd2):
@@ -156,9 +149,13 @@ class PyLucidShell(Cmd2):
 
         req = Requirements()
 
-        # Upgrade PyLucid first, so that the requirements files are also up-to-date:
-        pylucid_requirement = req.get_pylucid_requirement()
-        verbose_check_call(pip3_path, "install", "--upgrade", *pylucid_requirement)
+        # Update the requirements files by...
+        if req.normal_mode:
+            # ... update 'pylucid' PyPi package
+            verbose_check_call(pip3_path, "install", "--upgrade", PYLUCID_NORMAL_REQ)
+        else:
+            # ... git pull pylucid sources
+            verbose_check_call("git", "pull", "origin", cwd=ROOT_PATH)
 
         # Update with requirements files:
         requirement_file_path = req.get_requirement_file_path()
