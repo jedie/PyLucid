@@ -39,7 +39,7 @@ django-debug-toolbar
 
 # https://github.com/django-compressor/django-compressor
 # https://django-compressor.readthedocs.io/en/latest/changelog/
-django-compressor>=2.1,<2.2
+django-compressor
 
 # https://github.com/etianen/django-reversion
 # v2 is not supported, see: https://github.com/divio/django-cms/issues/5441
