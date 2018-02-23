@@ -1,0 +1,10 @@
+{% load cms_tags %}
+
+{% spaceless %}
+    © {{ request.META.SERVER_NAME }} |
+    {% if post.date_published %}{# djangocms-blog #}
+        {{ post.date_published|date:"SHORT_DATE_FORMAT" }}
+    {% else %}
+        {% page_attribute "changed_date" as date_changed %}{{ date_changed|date:"SHORT_DATE_FORMAT" }}
+    {% endif %}
+{% endspaceless %}
