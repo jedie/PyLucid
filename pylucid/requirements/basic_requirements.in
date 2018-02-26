@@ -12,7 +12,7 @@ pillow
 
 # http://pygments.org/
 # https://pypi.org/project/Pygments
-Pygments>=2.1,<2.2
+Pygments
 
 # Flup is not Python 3 compatible.
 # http://trac.saddi.com/flup
