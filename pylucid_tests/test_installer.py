@@ -4,128 +4,115 @@
     PyLucid
     ~~~~~~~
 
-    :copyleft: 2015-2016 by the PyLucid team, see AUTHORS for more details.
+    :copyleft: 2015-2018 by the PyLucid team, see AUTHORS for more details.
     :created: 2015 by JensDiemer.de
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import os
-from unittest import TestCase
 import sys
+from unittest import TestCase
 
-from click.testing import CliRunner
+from django_tools.unittest_utils.stdout_redirect import StdoutStderrBuffer
 
-from pylucid_installer.pylucid_installer import cli
-from .test_utils.test_cases import PageInstanceTestCase
+from pylucid_installer.pylucid_installer import create_instance
+from pylucid_tests.test_utils.test_cases import PageInstanceTestCase, IsolatedFilesystemTestCase
 
 
-
-class PyLucidInstallerCLITest(TestCase):
-    def test_help(self):
-        runner = CliRunner()
-        result = runner.invoke(cli, ["--help"])
-        self.assertEqual(result.exit_code, 0)
-        self.assertIn("Usage: cli [OPTIONS]", result.output)
-        # print(result.output)
-
-    def test_dest_exists(self):
-        runner = CliRunner()
-        with runner.isolated_filesystem() as temp_path:
-            result = runner.invoke(cli, [
-                "--dest", temp_path,
-                "--name", "test_remove_question",
-            ])
-            # print(result.output)
-            self.assertIn("ERROR: Destination '%s' exist!" % temp_path, result.output)
-            self.assertEqual(result.exit_code, 2)
-            self.assertEqual(os.listdir(temp_path), [])
-
-    def test_remove_question(self):
-        runner = CliRunner()
-        with runner.isolated_filesystem() as temp_path:
-            result = runner.invoke(cli, [
-                "--dest", temp_path,
-                "--name", "test_remove_question",
-                "--remove"
-            ])
-            # print(result.output)
-            self.assertIn(
-                "Delete '%s' before copy? [y/N]:" % temp_path,
-                result.output
-            )
-            self.assertEqual(result.exit_code, 1)
-            self.assertEqual(os.listdir(temp_path), [])
-
-    def test_unuseable_name(self):
-        runner = CliRunner()
-        with runner.isolated_filesystem() as temp_path:
-            result = runner.invoke(cli, [
-                "--dest", temp_path,
-                "--name", "a unuseable name!",
-            ],
-            )
-            # print(result.output)
-
-            self.assertIn(
-                "ERROR: The given project name is not useable!",
-                result.output
-            )
-            self.assertIn(
-                "a_unuseable_name",
-                result.output
-            )
-            self.assertEqual(result.exit_code, 1)
+class PyLucidInstallerCLITest(IsolatedFilesystemTestCase):
+    # def test_dest_exists(self):
+    #     runner = CliRunner()
+    #     with runner.isolated_filesystem() as temp_path:
+    #         result = runner.invoke(cli, [
+    #             "--dest", temp_path,
+    #             "--name", "test_remove_question",
+    #         ])
+    #         # print(output)
+    #         self.assertIn("ERROR: Destination '%s' exist!" % temp_path, output)
+    #         self.assertEqual(result.exit_code, 2)
+    #         self.assertEqual(os.listdir(temp_path), [])
+    #
+    # def test_remove_question(self):
+    #     runner = CliRunner()
+    #     with runner.isolated_filesystem() as temp_path:
+    #         result = runner.invoke(cli, [
+    #             "--dest", temp_path,
+    #             "--name", "test_remove_question",
+    #             "--remove"
+    #         ])
+    #         # print(output)
+    #         self.assertIn(
+    #             "Delete '%s' before copy? [y/N]:" % temp_path,
+    #             output
+    #         )
+    #         self.assertEqual(result.exit_code, 1)
+    #         self.assertEqual(os.listdir(temp_path), [])
+    #
+    # def test_unuseable_name(self):
+    #     runner = CliRunner()
+    #     with runner.isolated_filesystem() as temp_path:
+    #         result = runner.invoke(cli, [
+    #             "--dest", temp_path,
+    #             "--name", "a unuseable name!",
+    #         ],
+    #         )
+    #         # print(output)
+    #
+    #         self.assertIn(
+    #             "ERROR: The given project name is not useable!",
+    #             output
+    #         )
+    #         self.assertIn(
+    #             "a_unuseable_name",
+    #             output
+    #         )
+    #         self.assertEqual(result.exit_code, 1)
 
     def test_create(self):
-        runner = CliRunner()
-        with runner.isolated_filesystem() as temp_path:
-            result = runner.invoke(cli, [
-                "--dest", temp_path,
-                "--name", "unittest_project",
-                "--remove"
-            ],
-                input="y"
+        with StdoutStderrBuffer() as buffer:
+            create_instance(
+                dest = self.temp_path,
+                name = self._testMethodName,
+                remove = True,
+                exist_ok = True,
             )
-            # print(result.output)
+
+        output = buffer.get_output()
+        # print(output)
+
+        self.assertIn(
+            "Page instance created here: '%s'" % self.temp_path,
+            output
+        )
+        self.assertListEqual(
+            sorted(os.listdir(self.temp_path)),
+            ['manage.py', 'media', 'static', 'unittest_project']
+        )
+
+        # Check patched manage.py
+        with open(os.path.join(self.temp_path, "manage.py"), "r") as f:
+            shebang = f.readlines(1)
+            self.assertEqual(shebang, ["#!%s\n" % sys.executable])
+
+            content = f.read()
+            # print(content)
             self.assertIn(
-                "Delete '%s' before copy? [y/N]:" % temp_path,
-                result.output
+                'os.environ.setdefault("DJANGO_SETTINGS_MODULE", "unittest_project.settings")',
+                content
             )
-            self.assertEqual(result.exit_code, 0)
 
+        # Check patched settings.py
+        with open(os.path.join(self.temp_path, "unittest_project", "settings.py"), "r") as f:
+            content = f.read()
+            # print(content)
             self.assertIn(
-                "Page instance created here: '%s'" % temp_path,
-                result.output
+                'DOC_ROOT = "%s"' % self.temp_path,
+                content
             )
-            self.assertListEqual(
-                sorted(os.listdir(temp_path)),
-                ['manage.py', 'media', 'static', 'unittest_project']
+            self.assertIn(
+                "ROOT_URLCONF = 'unittest_project.urls'",
+                content
             )
-
-            # Check patched manage.py
-            with open(os.path.join(temp_path, "manage.py"), "r") as f:
-                shebang = f.readlines(1)
-                self.assertEqual(shebang, ["#!%s\n" % sys.executable])
-
-                content = f.read()
-                # print(content)
-                self.assertIn(
-                    'os.environ.setdefault("DJANGO_SETTINGS_MODULE", "unittest_project.settings")',
-                    content
-                )
-
-            # Check patched settings.py
-            with open(os.path.join(temp_path, "unittest_project", "settings.py"), "r") as f:
-                content = f.read()
-                # print(content)
-                self.assertIn(
-                    'DOC_ROOT = "%s"' % temp_path,
-                    content
-                )
-                self.assertIn(
-                    "ROOT_URLCONF = 'unittest_project.urls'",
-                    content
-                )
 
 
 class ManageTest(PageInstanceTestCase):

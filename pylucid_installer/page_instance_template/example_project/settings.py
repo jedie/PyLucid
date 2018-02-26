@@ -19,18 +19,19 @@ from django.utils.translation import ugettext_lazy as _
 # Load the PyLucid base settings
 from pylucid.base_settings import *
 
-
 DOC_ROOT = "/path/to/page_instance/" # Point this to webserver root directory
-PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = Path(__file__).resolve().parent
+
+
+TEMPLATES[0]["DIRS"] = [str(Path(BASE_DIR, "templates/"))]
+STATIC_ROOT = str(Path(BASE_DIR, 'static'))
+MEDIA_ROOT = str(Path(BASE_DIR, 'media'))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "CHANGE ME!!!"
-
-MEDIA_ROOT = os.path.join(DOC_ROOT, 'media')
-STATIC_ROOT = os.path.join(DOC_ROOT, 'static')
-
-TEMPLATES[0]["DIRS"].insert(0, os.path.join(PROJECT_DIR, 'templates'))
 
 
 ROOT_URLCONF = 'example_project.urls'
@@ -46,10 +47,10 @@ INSTALLED_APPS += (
     # "pylucid_todo",
 )
 
-# Your own djangocms-widgets templates:
-WIDGET_TEMPLATES += (
-    #('foo/bar.html', 'A foo bar example'),
-)
+# # Your own djangocms-widgets templates:
+# WIDGET_TEMPLATES += (
+#     #('foo/bar.html', 'A foo bar example'),
+# )
 
 #____________________________________________________________________
 # Database
@@ -61,7 +62,7 @@ DATABASES = {
         'PORT': '',
         'USER': '',
         'PASSWORD': '',
-        'NAME': os.path.join(PROJECT_DIR, 'example_project.db'),
+        'NAME': str(Path(BASE_DIR, 'example_project.db')),
         'ATOMIC_REQUESTS': True,
     },
     # Activate for PyLucid v1.x migration:
