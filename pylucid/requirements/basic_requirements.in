@@ -80,6 +80,9 @@ django-filer
 
 # TODO: Replace this with https://github.com/divio/djangocms-link
 # http://docs.django-cms.org/en/latest/topics/commonly_used_plugins.html#deprecated-addons
+# see also:
+# https://github.com/nephila/djangocms-blog/issues/431
+# https://github.com/divio/django-cms/issues/6198#issuecomment-352729551
 cmsplugin-filer
 
 
