@@ -156,7 +156,7 @@ DATABASES = {
 
 # https://docs.djangoproject.com/en/1.11/topics/cache/#database-caching
 import sys
-if "pytest" in sys.argv or "test" in sys.argv:
+if sys.argv[0].endswith("test") or "pytest" in sys.argv or "test" in sys.argv:
     print("Use 'LocMemCache' CACHES in tests, because of:")
     print("https://github.com/divio/django-cms/issues/5079")
     CACHES = {
