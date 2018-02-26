@@ -188,37 +188,43 @@ STATICFILES_FINDERS = (
 # https://docs.djangoproject.com/en/1.11/ref/settings/#language-code
 LANGUAGE_CODE = "en"
 
-# http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
-PARLER_LANGUAGES = {
+# http://docs.django-cms.org/en/latest/reference/configuration.html#std:setting-CMS_LANGUAGES
+CMS_LANGUAGES = {
     1: [
-        {
-            "name": _("German"),
-            "code": "de",
-            "fallbacks": [LANGUAGE_CODE],
-            "hide_untranslated": False,
-        },
         {
             "name": _("English"),
             "code": "en",
             "fallbacks": ["de"],
+            "redirect_on_fallback":True,
+            "public": True,
+            "hide_untranslated": False,
+        },
+        {
+            "name": _("German"),
+            "code": "de",
+            "fallbacks": ["en"],
+            "redirect_on_fallback":True,
+            "public": True,
             "hide_untranslated": False,
         },
     ],
     "default": { # all SITE_ID"s
         "fallbacks": [LANGUAGE_CODE],
-        "redirect_on_fallback": False,
+        "redirect_on_fallback":True,
+        "public": True,
+        "hide_untranslated": False,
     },
 }
+
+# https://django-parler.readthedocs.io/en/latest/api/parler.utils.conf.html#parler.utils.conf.get_parler_languages_from_django_cms
+# PARLER_LANGUAGES will be generated from CMS_LANGUAGES since parler v1.6
 
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#languages
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGES = tuple([(d["code"], d["name"]) for d in PARLER_LANGUAGES[1]])
+LANGUAGES = tuple([(d["code"], d["name"]) for d in CMS_LANGUAGES[1]])
 
 LANGUAGE_DICT = dict(LANGUAGES) # useful to get translated name by language code
-
-# http://docs.django-cms.org/en/latest/reference/configuration.html#std:setting-CMS_LANGUAGES
-# CMS_LANGUAGES = PARLER_LANGUAGES
 
 # http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
 PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
