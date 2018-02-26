@@ -181,6 +181,7 @@ else:
     if "createcachetable" in sys.argv:
         INSTALLED_APPS = list(INSTALLED_APPS)
         INSTALLED_APPS.remove("cms")
+        INSTALLED_APPS.remove("djangocms_blog")
 
 
 # https://django-compressor.readthedocs.io/en/latest/settings/
@@ -282,7 +283,7 @@ CMS_TEMPLATES = (
     ('pylucid/bootstrap/tree_menu_left.html', 'Tree menu left'),
     ('pylucid/bootstrap/tree_menu_right.html', 'Tree menu right'),
     ('pylucid/simple.html', 'Simple'),
-    ('base.html', 'Basic Page'),
+    # ('base.html', 'Basic Page'),
 )
 
 # http://docs.django-cms.org/en/latest/reference/configuration.html#cms-permission

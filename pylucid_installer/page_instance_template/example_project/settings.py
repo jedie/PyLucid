@@ -19,15 +19,17 @@ from django.utils.translation import ugettext_lazy as _
 # Load the PyLucid base settings
 from pylucid.base_settings import *
 
-DOC_ROOT = "/path/to/page_instance/" # Point this to webserver root directory
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = Path(__file__).resolve().parent
+DOC_ROOT = "/path/to/page_instance/" # Point this to web server root directory
+
+STATIC_ROOT = str(Path(DOC_ROOT, 'static'))
+MEDIA_ROOT = str(Path(DOC_ROOT, 'media'))
 
 
-TEMPLATES[0]["DIRS"] = [str(Path(BASE_DIR, "templates/"))]
-STATIC_ROOT = str(Path(BASE_DIR, 'static'))
-MEDIA_ROOT = str(Path(BASE_DIR, 'media'))
+PROJECT_DIR = Path(__file__).resolve().parent # Filesystem path to this instance
+
+# Place for own templates:
+TEMPLATES[0]["DIRS"] = [str(Path(PROJECT_DIR, "templates/"))]
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -39,13 +41,12 @@ ROOT_URLCONF = 'example_project.urls'
 WSGI_APPLICATION = 'example_project.wsgi.application'
 
 
-INSTALLED_APPS += (
-    'example_project',
-
-    # Activate for PyLucid v1.x migration
-    # "pylucid_migration",
-    # "pylucid_todo",
-)
+# INSTALLED_APPS += (
+#     #'example_project',
+#
+#     # Activate if old PyLucid migration was executed
+#     # "pylucid_todo",
+# )
 
 # # Your own djangocms-widgets templates:
 # WIDGET_TEMPLATES += (
@@ -62,7 +63,7 @@ DATABASES = {
         'PORT': '',
         'USER': '',
         'PASSWORD': '',
-        'NAME': str(Path(BASE_DIR, 'example_project.db')),
+        'NAME': str(Path(PROJECT_DIR, 'example_project.db')),
         'ATOMIC_REQUESTS': True,
     },
     # Activate for PyLucid v1.x migration:
@@ -104,72 +105,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 #ADMINS = MANAGERS
 
 
-#____________________________________________________________________
-# language setup
-# note there are three places for language related settings:
-#  * django
-#  * djangocms
-#  * django-parler (for djangocms-blog)
-#
-# see also: https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-# https://docs.djangoproject.com/en/1.8/ref/settings/#languages
-LANGUAGES = (
-    ('en', _('English')),
-    ('de', _('German')),
-)
-
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en'
-
-# languages available in django CMS:
-# http://docs.django-cms.org/en/latest/reference/configuration.html#std:setting-CMS_LANGUAGES
-CMS_LANGUAGES = {
-    'default': { # all SITE_ID's
-        'fallbacks': ['en', 'de'],
-        'redirect_on_fallback': True,
-        'public': True,
-        'hide_untranslated': False,
-    },
-    # 1: [ # SITE_ID == 1
-    #     {
-    #         'redirect_on_fallback': True,
-    #         'public': True,
-    #         'hide_untranslated': False,
-    #         'code': 'en',
-    #         'name': _('English'),
-    #     },
-    #     {
-    #         'redirect_on_fallback': True,
-    #         'public': True,
-    #         'hide_untranslated': False,
-    #         'code': 'de',
-    #         'name': _('Deutsch'),
-    #     },
-    # ],
-}
-
-# http://django-parler.readthedocs.org/en/latest/quickstart.html#configuration
-PARLER_DEFAULT_LANGUAGE_CODE = LANGUAGE_CODE
-PARLER_LANGUAGES = {
-    None: (
-        {'code': 'en',},
-        {'code': 'de',},
-    ),
-    # 1: ( # SITE_ID == 1
-    #     {'code': 'en',},
-    #     {'code': 'de',},
-    # ),
-    # 2: ( # SITE_ID == 2
-    #     {'code': 'en',},
-    #     {'code': 'de',},
-    # ),
-    'default': {
-        'fallback': PARLER_DEFAULT_LANGUAGE_CODE,
-        'hide_untranslated': False,   # the default; let .active_translations() return fallbacks too.
-    }
-}
 
 # https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [
@@ -255,9 +191,4 @@ INTERNAL_IPS = InternalIps(["127.0.0.1", "::1", "192.168.*.*", "10.0.*.*"])
 
 
 
-#____________________________________________________________________
-# Work-a-round for:
-# https://github.com/divio/django-cms/issues/5079
-import sys
-if "createcachetable" in sys.argv:
-    INSTALLED_APPS = ()
+

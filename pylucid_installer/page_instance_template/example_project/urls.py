@@ -1,8 +1,8 @@
 
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from pylucid.base_urls import urlpatterns
 
-urlpatterns = patterns('',
+urlpatterns = [
     # url(r'^example/$', example.views.example),
-) + urlpatterns
+] + urlpatterns

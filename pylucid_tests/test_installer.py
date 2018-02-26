@@ -19,7 +19,7 @@ from pylucid_installer.pylucid_installer import create_instance
 from pylucid_tests.test_utils.test_cases import PageInstanceTestCase, IsolatedFilesystemTestCase
 
 
-class PyLucidInstallerCLITest(IsolatedFilesystemTestCase):
+class PyLucidInstallerTest(IsolatedFilesystemTestCase):
     # def test_dest_exists(self):
     #     runner = CliRunner()
     #     with runner.isolated_filesystem() as temp_path:
@@ -78,15 +78,15 @@ class PyLucidInstallerCLITest(IsolatedFilesystemTestCase):
             )
 
         output = buffer.get_output()
-        # print(output)
+        print(output)
 
         self.assertIn(
             "Page instance created here: '%s'" % self.temp_path,
             output
         )
-        self.assertListEqual(
-            sorted(os.listdir(self.temp_path)),
-            ['manage.py', 'media', 'static', 'unittest_project']
+        self.assertEqual(
+            set(os.listdir(self.temp_path)),
+            {'manage.py', 'media', 'static', self._testMethodName}
         )
 
         # Check patched manage.py
@@ -95,14 +95,14 @@ class PyLucidInstallerCLITest(IsolatedFilesystemTestCase):
             self.assertEqual(shebang, ["#!%s\n" % sys.executable])
 
             content = f.read()
-            # print(content)
+            print(content)
             self.assertIn(
-                'os.environ.setdefault("DJANGO_SETTINGS_MODULE", "unittest_project.settings")',
+                'os.environ.setdefault("DJANGO_SETTINGS_MODULE", "%s.settings")' % self._testMethodName,
                 content
             )
 
         # Check patched settings.py
-        with open(os.path.join(self.temp_path, "unittest_project", "settings.py"), "r") as f:
+        with open(os.path.join(self.temp_path, self._testMethodName, "settings.py"), "r") as f:
             content = f.read()
             # print(content)
             self.assertIn(
@@ -110,7 +110,7 @@ class PyLucidInstallerCLITest(IsolatedFilesystemTestCase):
                 content
             )
             self.assertIn(
-                "ROOT_URLCONF = 'unittest_project.urls'",
+                "ROOT_URLCONF = '%s.urls'" % self._testMethodName,
                 content
             )
 
@@ -142,11 +142,12 @@ class ManageTest(PageInstanceTestCase):
             ["diffsettings"],
             # debug=True
         )
+        print(output)
         self.assertNotIn("ImproperlyConfigured", output)
-        self.assertIn(
-            "PROJECT_DIR = '%s'" % self.project_path,
-            output
-        )
+        # self.assertIn(
+        #     "DOC_ROOT = '%s'" % self.project_path,
+        #     output
+        # )
         self.assertIn(
             "STATIC_ROOT = '%s/static'" % self.temp_path,
             output
@@ -161,6 +162,7 @@ class ManageTest(PageInstanceTestCase):
             ["migrate", "--noinput"],
             # debug=True
         )
+        print(output)
         self.assertIn("Running migrations:", output)
         self.assertIn("Applying auth.", output)
         self.assertIn("Applying cms.", output)

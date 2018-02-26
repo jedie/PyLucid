@@ -1,5 +1,5 @@
+from pylucid_tests.test_utils.test_cases import PageInstanceTestCase
 
-from .test_utils.test_cases import PageInstanceTestCase
 
 class CmsCheckTest(PageInstanceTestCase):
     def test_cms_check(self):

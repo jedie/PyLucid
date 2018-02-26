@@ -150,7 +150,7 @@ class PageInstanceTestCase(IsolatedFilesystemTestCase):
 
         self.assertTrue(os.path.isdir(self.project_path))
 
-        #self.call_manage_py(["createcachetable"])
+        self.call_manage_py(["createcachetable"])
 
     def call_manage_py(self, cmd, **kwargs):
         """
