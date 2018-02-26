@@ -49,23 +49,28 @@ INSTALLED_APPS = (
 
     'djangocms_history', # https://github.com/divio/djangocms-history
 
-    'meta', # https://github.com/nephila/django-meta
-
-    'easy_thumbnails', # https://github.com/SmileyChris/easy-thumbnails
     'treebeard', # https://github.com/django-treebeard/django-treebeard
     'sekizai', # https://github.com/ojii/django-sekizai
     'djangocms_text_ckeditor', # https://github.com/divio/djangocms-text-ckeditor
-
-    # https://pypi.org/project/django-parler
-    'parler',
-
-    'filer', # https://github.com/divio/django-filer
 
     # TODO: remove if migration from 'cmsplugin_filer_link' to 'djangocms-link' is done:
     # http://docs.django-cms.org/en/latest/topics/commonly_used_plugins.html#deprecated-addons
     'cmsplugin_filer_link',
 
     'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
+
+
+    # djangocms-blog dependencies, see: https://djangocms-blog.readthedocs.io/en/latest/installation.html
+    'filer', # https://github.com/divio/django-filer
+    'easy_thumbnails', # https://github.com/SmileyChris/easy-thumbnails
+    'aldryn_apphooks_config',
+    'cmsplugin_filer_image',
+    'parler', # https://pypi.org/project/django-parler
+    'taggit',
+    'taggit_autosuggest',
+    'meta', # https://github.com/nephila/django-meta
+    'djangocms_blog',
+
 
     # https://github.com/jedie/django-cms-tools/
     'django_cms_tools',
@@ -285,6 +290,10 @@ CMS_PLACEHOLDER_CONF = {
         ],
     },
 }
+
+# https://djangocms-blog.readthedocs.io/en/latest/installation.html#minimal-configuration
+META_SITE_PROTOCOL = 'http' # Should be changed to "https" in production!
+META_USE_SITES = True
 
 
 # http://django-filer.readthedocs.org/en/latest/installation.html#configuration
