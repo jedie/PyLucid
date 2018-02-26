@@ -281,6 +281,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
         if not pylucid_admin_path.is_file():
             print("ERROR: pylucid_admin not found here: '%s'" % pylucid_admin_path)
+            verbose_check_call("ls", "-la", str(Path(context.env_dir, "bin")))
             sys.exit(1)
 
         # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
