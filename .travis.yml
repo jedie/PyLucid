@@ -15,9 +15,10 @@ python:
 
 install:
   - ls /opt/python/
-  - python3.6 --version
+  - python3 --version
+  - /opt/python/3.6.3/bin/python --version
 
-  - python3.6 pylucid/pylucid_boot.py boot ~/PyLucid-env
+  - /opt/python/3.6.3/bin/python pylucid/pylucid_boot.py boot ~/PyLucid-env
 
   - cd ~/PyLucid-env
   - ls -la bin
