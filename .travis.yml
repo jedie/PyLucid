@@ -14,9 +14,9 @@ python:
   - "pypy3"
 
 install:
-  - python --version
+  - python3 --version
 
-  - python pylucid/pylucid_boot.py boot ~/PyLucid-env
+  - python3 pylucid/pylucid_boot.py boot ~/PyLucid-env
 
   - cd ~/PyLucid-env
   - ls -la bin
