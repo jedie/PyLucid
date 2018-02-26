@@ -67,17 +67,6 @@ NORMAL_INSTALL=[
 ]
 
 
-def in_virtualenv():
-    # Maybe this is not the best way?!?
-    return "VIRTUAL_ENV" in os.environ
-
-
-if in_virtualenv():
-    print("Activated virtualenv detected: %r (%s)" % (sys.prefix, sys.executable))
-else:
-    print("We are not in a virtualenv, ok.")
-
-
 def verbose_check_call(*popenargs, **kwargs):
     """
     'verbose' version of subprocess.check_output()
@@ -348,12 +337,12 @@ class PyLucidBootShell(Cmd2):
         else:
             self.stdout.write("virtualenv created at: '%s'\n" % destination)
 
-    def do_boot_normal(self, destination):
+    def do_boot(self, destination):
         """
         "normal" boot PyLucid
 
         usage:
-            > boot_normal [path]
+            > boot [path]
 
         Create a PyLucid virtualenv in the given [path].
         Install packages via PyPi and read-only sources from github.
@@ -363,7 +352,7 @@ class PyLucidBootShell(Cmd2):
         (used the requirements/normal_installation.txt)
         """
         self._boot(destination, requirements=NORMAL_INSTALL)
-    complete_boot_normal = complete_boot
+    complete_boot = complete_boot
 
     def do_boot_developer(self, destination):
         """

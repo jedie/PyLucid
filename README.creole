@@ -25,7 +25,7 @@ Try, fork and contribute! ;)
 /home/FooBar$ wget https://github.com/jedie/PyLucid/raw/develop/pylucid/pylucid_boot.py
 
 # Create virtualenv with all needed packages:
-/home/FooBar$ python3 pylucid_boot.py boot_normal ~/PyLucid-env
+/home/FooBar$ python3 pylucid_boot.py boot ~/PyLucid-env
 }}}
 
 Note: pylucid_boot.py is a interactive shell with command completion.
@@ -36,7 +36,7 @@ We are not in a virtualenv, ok.
 
 pylucid_boot.py shell v0.0.1
 
-pylucid_boot.py> boot_normal ~/PyLucid-env
+pylucid_boot.py> boot ~/PyLucid-env
 }}}
 
 Type help or ? to list commands:
@@ -50,7 +50,7 @@ Use <tab> to command completion.
 
 Documented commands (type help <topic>):
 ========================================
-boot_ci  boot_developer  boot_normal  help  quit
+boot_ci  boot_developer  boot  help  quit
 }}}
 
 === use a created PyLucid virtualenv
