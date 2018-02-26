@@ -46,16 +46,6 @@ class BaseCommand(distutils.cmd.Command):
     def finalize_options(self): pass
 
 
-class ToxTestCommand(BaseCommand):
-    """Distutils command to run tests via tox: 'python setup.py tox'."""
-    description = "Run tests via 'tox'."
-
-    def run(self):
-        self.announce("Running tests with 'tox'...", level=distutils.log.INFO)
-        returncode = subprocess.call(['tox'])
-        sys.exit(returncode)
-
-
 class TestCommand(BaseCommand):
     """Distutils command to run tests via py.test: 'python setup.py test'."""
     description = "Run tests via 'py.test'."
@@ -308,6 +298,5 @@ setup(
     ],
     cmdclass={
         'test': TestCommand,
-        'tox': ToxTestCommand,
     }
 )
