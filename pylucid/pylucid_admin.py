@@ -168,10 +168,11 @@ class PyLucidShell(Cmd2):
             root_path = str(ROOT_PATH)
             print("chdir %r" % root_path)
             os.chdir(root_path)
-            
+
             args = sys.argv[2:]
             print("Call Pytest with args: %s" % repr(args))
-            pytest.main(args=args)
+            exit_code = pytest.main(args=args)
+            sys.exit(exit_code)
 
     def do_pip_freeze(self, arg):
         """
