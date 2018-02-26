@@ -31,7 +31,7 @@ Try, fork and contribute! ;)
 Note: pylucid_boot.py is a interactive shell with command completion.
 You can just start it and do this:
 {{{
-/home/FooBar$ python3 pylucid_boot.py 
+/home/FooBar$ python3 pylucid_boot.py
 We are not in a virtualenv, ok.
 
 pylucid_boot.py shell v0.0.1
@@ -89,6 +89,22 @@ insert_requirement  pytest      update_env
 
 
 tbd.
+
+== External applications configuration
+
+Dependency applications may need configuration to work properly.
+
+Please, refer to each application documentation on details.
+
+* djangocms-blog: https://djangocms-blog.readthedocs.io/en/latest/installation.html#minimal-configuration
+* django-filer: https://django-filer.readthedocs.io
+* django-meta: https://github.com/nephila/django-meta#installation
+* django-meta-mixin: https://github.com/nephila/django-meta-mixin#installation
+* django-parler: https://django-parler.readthedocs.io/en/latest/quickstart.html#configuration
+* django-taggit-autosuggest: https://bitbucket.org/fabian/django-taggit-autosuggest
+* aldryn-search: https://github.com/aldryn/aldryn-search#usage>
+* haystack: http://django-haystack.readthedocs.io/en/stable/
+
 
 
 == Compatible Matrix
