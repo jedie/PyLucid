@@ -59,8 +59,8 @@ pillow==5.0.0
 pip-tools==1.11.0
 piprot==0.9.7
 pkginfo==1.4.1            # via twine
-pluggy==0.6.0             # via pytest, tox
-py==1.5.2                 # via pytest, tox
+pluggy==0.6.0             # via pytest
+py==1.5.2                 # via pytest
 pygments==2.2.0
 pytest-cov==2.5.1
 pytest-django==3.1.2
@@ -71,16 +71,15 @@ requests-futures==0.9.7   # via piprot
 requests-toolbelt==0.8.0  # via twine
 requests==2.18.4          # via piprot, requests-futures, requests-toolbelt, twine
 rjsmin==1.0.12            # via django-compressor
-six==1.11.0               # via django-extensions, html5lib, pip-tools, piprot, pytest, textile, tox
+six==1.11.0               # via django-extensions, html5lib, pip-tools, piprot, pytest, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
-tox==2.9.1
 tqdm==4.19.5              # via twine
 twine==1.9.1
 typing==3.6.4             # via django-extensions
 unidecode==0.4.21         # via django-filer
 urllib3==1.22             # via requests
-virtualenv==15.1.0        # via tox
+virtualenv==15.1.0
 webencodings==0.5.1       # via html5lib
 werkzeug==0.14.1
 wheel==0.30.0

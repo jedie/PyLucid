@@ -6,14 +6,12 @@
 #
 attrs==17.4.0             # via pytest
 coverage==4.5.1           # via pytest-cov
-pluggy==0.6.0             # via pytest, tox
-py==1.5.2                 # via pytest, tox
+pluggy==0.6.0             # via pytest
+py==1.5.2                 # via pytest
 pytest-cov==2.5.1
 pytest-django==3.1.2
 pytest==3.4.1
-six==1.11.0               # via pytest, tox
-tox==2.9.1
-virtualenv==15.1.0        # via tox
+six==1.11.0               # via pytest
 
 #
 # list of out of date packages made with piprot:
