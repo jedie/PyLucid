@@ -319,7 +319,7 @@ class PyLucidBootShell(Cmd2):
         """
         Create a PyLucid virtualenv and install requirements.
         """
-        destination = Path(destination).expanduser().resolve()
+        destination = Path(destination).expanduser()
         if destination.exists():
             self.stdout.write("\nERROR: Path '%s' already exists!\n" % destination)
             return
