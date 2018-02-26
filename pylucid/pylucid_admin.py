@@ -193,7 +193,7 @@ class PyLucidShell(Cmd2):
         # Update the requirements files by...
         if req.normal_mode:
             # ... update 'pylucid' PyPi package
-            verbose_check_call(pip3_path, "install", "--upgrade", PYLUCID_NORMAL_REQ)
+            verbose_check_call(pip3_path, "install", "--upgrade", *PYLUCID_NORMAL_REQ)
         else:
             # ... git pull pylucid sources
             verbose_check_call("git", "pull", "origin", cwd=ROOT_PATH)
