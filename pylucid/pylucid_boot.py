@@ -281,7 +281,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
         if not pylucid_admin_path.is_file():
             print("ERROR: pylucid_admin not found here: '%s'" % pylucid_admin_path)
-            return
+            sys.exit(1)
 
         # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
         call_new_python("pylucid_admin", "update_env")
@@ -322,7 +322,7 @@ class PyLucidBootShell(Cmd2):
         destination = Path(destination).expanduser()
         if destination.exists():
             self.stdout.write("\nERROR: Path '%s' already exists!\n" % destination)
-            return
+            sys.exit(1)
 
         self.stdout.write("Create virtualenv: '%s'...\n\n" % destination)
 
@@ -333,7 +333,7 @@ class PyLucidBootShell(Cmd2):
 
         if not destination.is_dir():
             self.stdout.write("ERROR: Creating virtualenv!\n")
-            return
+            sys.exit(1)
         else:
             self.stdout.write("virtualenv created at: '%s'\n" % destination)
 
