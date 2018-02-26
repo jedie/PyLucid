@@ -13,10 +13,7 @@ python:
 
 install:
   - python --version
-  - ls -la
-  - cd pylucid
-  - ./pylucid_boot.py boot_normal ../PyLucid-env
-  - cd ..
+  - python pylucid/pylucid_boot.py boot_normal PyLucid-env
   - cd PyLucid-env
   - source bin/activate
   - pylucid_admin pip_freeze
