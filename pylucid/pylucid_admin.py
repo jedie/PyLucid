@@ -199,15 +199,23 @@ class PyLucidShell(Cmd2):
             verbose_check_call("git", "pull", "origin", cwd=ROOT_PATH)
             verbose_check_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
 
+        requirement_file_path = str(req.get_requirement_file_path())
+
         # Update with requirements files:
-        requirement_file_path = req.get_requirement_file_path()
         self.stdout.write("Use: '%s'\n" % requirement_file_path)
         verbose_check_call(
             "pip3", "install",
             "--exists-action", "b", # action when a path already exists: (b)ackup
             "--upgrade",
-            "--requirement", str(requirement_file_path)
+            "--requirement", requirement_file_path
         )
+
+        if not req.normal_mode:
+            # Run pip-sync only in developer mode
+            verbose_check_call("pip-sync", requirement_file_path, cwd=ROOT_PATH)
+
+            # 'reinstall' pylucid editable, because it's not in 'requirement_file_path':
+            verbose_check_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
 
         self.stdout.write("Please restart %s\n" % self.own_filename)
         sys.exit(0)
