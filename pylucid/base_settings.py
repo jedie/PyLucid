@@ -59,6 +59,7 @@ INSTALLED_APPS = (
 
     'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
 
+    'djangocms_htmlsitemap', # https://github.com/kapt-labs/djangocms-htmlsitemap
 
     # djangocms-blog dependencies, see: https://djangocms-blog.readthedocs.io/en/latest/installation.html
     'filer', # https://github.com/divio/django-filer

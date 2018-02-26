@@ -41,6 +41,7 @@ djangocms-apphook-setup==0.3.0  # via djangocms-blog
 djangocms-attributes-field==0.3.0  # via cmsplugin-filer
 djangocms-blog==0.9.1
 djangocms-history==0.5.3
+djangocms-htmlsitemap==0.3.1
 docutils==0.14
 easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
 html5lib==1.0.1           # via textile

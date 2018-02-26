@@ -64,8 +64,7 @@ django-cms<3.5
 
 
 # https://github.com/kapt-labs/djangocms-htmlsitemap
-# Not django 1.11 compatible: https://github.com/kapt-labs/djangocms-htmlsitemap/issues/4
-#djangocms-htmlsitemap
+djangocms-htmlsitemap
 
 
 # https://github.com/divio/djangocms-history
