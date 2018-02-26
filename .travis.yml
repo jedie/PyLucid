@@ -13,8 +13,14 @@ python:
 
 install:
   - python --version
+
+  # pylucid_boot detects virtualenv by "VIRTUAL_ENV" in os.environ
+  - unset VIRTUAL_ENV
+
   - python pylucid/pylucid_boot.py boot_normal PyLucid-env
+
   - cd PyLucid-env
   - source bin/activate
+  
   - pylucid_admin pip_freeze
   - pylucid_admin pytest
