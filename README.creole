@@ -102,7 +102,7 @@ Please, refer to each application documentation on details.
 * django-meta-mixin: https://github.com/nephila/django-meta-mixin#installation
 * django-parler: https://django-parler.readthedocs.io/en/latest/quickstart.html#configuration
 * django-taggit-autosuggest: https://bitbucket.org/fabian/django-taggit-autosuggest
-* aldryn-search: https://github.com/aldryn/aldryn-search#usage>
+* aldryn-search: https://github.com/aldryn/aldryn-search#usage
 * haystack: http://django-haystack.readthedocs.io/en/stable/
 
 
