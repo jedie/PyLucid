@@ -159,7 +159,8 @@ CACHES = {
 # Hack needed, until https://github.com/divio/django-cms/issues/5079 is fixed:
 import sys
 if "createcachetable" in sys.argv:
-    INSTALLED_APPS = ()
+    INSTALLED_APPS = list(INSTALLED_APPS)
+    INSTALLED_APPS.remove("cms")
 
 
 # https://django-compressor.readthedocs.io/en/latest/settings/
