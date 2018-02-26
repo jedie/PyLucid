@@ -275,7 +275,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         # Install PyLucid
         #   in normal mode as package from PyPi
         #   in dev. mode as editable from github
-        call_new_python("pip", "install", *self.requirements)
+        call_new_python("pip", "install", "--verbose", *self.requirements)
 
         # Check if ".../bin/pylucid_admin" exists
         pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
