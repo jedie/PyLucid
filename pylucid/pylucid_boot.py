@@ -327,7 +327,7 @@ class PyLucidBootShell(Cmd2):
         self.stdout.write("Create virtualenv: '%s'...\n\n" % destination)
 
         builder = PyLucidEnvBuilder(requirements)
-        builder.create(destination)
+        builder.create(str(destination))
 
         self.stdout.write("\n")
 
