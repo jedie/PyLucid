@@ -24,11 +24,16 @@
     :license: GNU General Public License v3 or later (GPLv3+), see LICENSE for more details.
 """
 
+import sys  # isort:skip
+if sys.version_info < (3, 5):  # isort:skip
+    print("\nERROR: Python 3.5 or greater is required!")
+    print("(Current Python Verison is %s)\n" % sys.version.split(" ",1)[0])
+    sys.exit(101)
+
 import cmd
 import logging
 import os
 import subprocess
-import sys
 import traceback
 from pathlib import Path
 
@@ -46,11 +51,6 @@ except ImportError as err:
 
 
 __version__ = "0.1.0"
-
-
-if sys.version_info < (3, 5):
-    print("\nERROR: Python 3.5 or greater is required!\n")
-    sys.exit(101)
 
 
 log = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ else:
     print("We are not in a virtualenv, ok.")
 
 
-def verbose_check_call(*popenargs, env_updates=None, **kwargs):
+def verbose_check_call(*popenargs, **kwargs):
     """
     'verbose' version of subprocess.check_output()
     env_updates dict can be used to overwrite os.environ.
@@ -87,7 +87,8 @@ def verbose_check_call(*popenargs, env_updates=None, **kwargs):
     if kwargs:
         txt += " with: %s" % repr(kwargs)
 
-    if env_updates is not None:
+    if "env_updates" in kwargs:
+        env_updates = kwargs.pop("env_updates")
         txt += " env: %s" % repr(env_updates)
         env=os.environ.copy()
         env.update(env_updates)
@@ -272,13 +273,13 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
             """
             Do the same as bin/activate so that <args> runs in a "activated" virtualenv.
             """
-            verbose_check_call(
-                *args,
-                env_updates={
+            kwargs={
+                "env_updates": {
                     "VIRTUAL_ENV": context.env_dir,
                     "PATH": "%s:%s" % (context.bin_path, os.environ["PATH"]),
-                },
-            )
+                }
+            }
+            verbose_check_call(*args, **kwargs)
 
         call_new_python("pip", "install", "--upgrade", "pip")
 
