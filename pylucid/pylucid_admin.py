@@ -165,7 +165,9 @@ class PyLucidShell(Cmd2):
         except ImportError as err:
             print("ERROR: Can't import pytest: %s (pytest not installed, in normal installation!)")
         else:
-            pytest.main()
+            args = sys.argv[2:]
+            print("Call Pytest with args: %s" % repr(args))
+            pytest.main(args=args)
 
     def do_pip_freeze(self, arg):
         """
