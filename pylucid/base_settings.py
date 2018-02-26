@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'cmsplugin_filer_link',
 
     'cmsplugin_pygments', # https://github.com/chrisglass/cmsplugin-pygments
+    'cmsplugin_markup', # https://github.com/mitar/cmsplugin-markup
 
     'djangocms_htmlsitemap', # https://github.com/kapt-labs/djangocms-htmlsitemap
 
@@ -323,6 +324,19 @@ THUMBNAIL_PROCESSORS = (
     'filer.thumbnail_processors.scale_and_crop_with_subject_location',
     'easy_thumbnails.processors.filters',
 )
+
+
+#_____________________________________________________________________________
+# https://github.com/mitar/cmsplugin-markup
+CMS_MARKUP_OPTIONS = (
+    'cmsplugin_markup.plugins.creole',
+    'cmsplugin_markup.plugins.html',
+    'cmsplugin_markup.plugins.markdown',
+    'cmsplugin_markup.plugins.textile',
+    'cmsplugin_markup.plugins.restructuredtext',
+)
+CMS_MARKUP_RENDER_ALWAYS = True
+CMS_MARKDOWN_EXTENSIONS = ()
 
 
 #_____________________________________________________________________________
