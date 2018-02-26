@@ -13,11 +13,8 @@ from pathlib import Path
 from pylucid_installer.pylucid_installer import create_instance
 
 # PyLucid
-from pylucid.pylucid_boot import Cmd2, in_virtualenv, verbose_check_call
+from pylucid.pylucid_boot import Cmd2, verbose_check_call
 from pylucid.version import __version__
-
-
-
 
 
 log = logging.getLogger(__name__)
@@ -46,6 +43,17 @@ OWN_FILENAME=SELF_FILEPATH.name                                      # pylucid_a
 # print("BOOT_FILEPATH: %s" % BOOT_FILEPATH)
 # print("ROOT_PATH: %s" % ROOT_PATH)
 # print("OWN_FILENAME: %s" % OWN_FILENAME)
+
+
+def in_virtualenv():
+    # Maybe this is not the best way?!?
+    return "VIRTUAL_ENV" in os.environ
+
+
+if in_virtualenv():
+    print("Activated virtualenv detected: %r (%s)" % (sys.prefix, sys.executable))
+else:
+    print("We are not in a virtualenv, ok.")
 
 
 def iter_subprocess_output(*popenargs, **kwargs):
