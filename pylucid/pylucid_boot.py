@@ -83,7 +83,7 @@ def verbose_check_call(*popenargs, env_updates=None, **kwargs):
     'verbose' version of subprocess.check_output()
     env_updates dict can be used to overwrite os.environ.
     """
-    txt = "Call: %r" % " ".join(popenargs)
+    txt = "Call: %r" % " ".join([str(x) for x in popenargs])
     if kwargs:
         txt += " with: %s" % repr(kwargs)
 
