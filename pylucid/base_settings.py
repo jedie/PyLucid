@@ -155,18 +155,31 @@ DATABASES = {
 
 
 # https://docs.djangoproject.com/en/1.11/topics/cache/#database-caching
-# manage.py createcachetable
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'pylucid_cache_table',
-    },
-}
-# Hack needed, until https://github.com/divio/django-cms/issues/5079 is fixed:
 import sys
-if "createcachetable" in sys.argv:
-    INSTALLED_APPS = list(INSTALLED_APPS)
-    INSTALLED_APPS.remove("cms")
+if "pytest" in sys.argv or "test" in sys.argv:
+    print("Use 'LocMemCache' CACHES in tests, because of:")
+    print("https://github.com/divio/django-cms/issues/5079")
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }
+else:
+    #
+    # The cache tables must be created first, e.g.:
+    #   $ manage.py createcachetable
+    #
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'pylucid_cache_table',
+        },
+    }
+    # Hack needed, until https://github.com/divio/django-cms/issues/5079 is fixed:
+    if "createcachetable" in sys.argv:
+        INSTALLED_APPS = list(INSTALLED_APPS)
+        INSTALLED_APPS.remove("cms")
 
 
 # https://django-compressor.readthedocs.io/en/latest/settings/
