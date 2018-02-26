@@ -6,32 +6,30 @@
 #
 
 sudo: false
-#sudo: required
 dist: trusty
-# https://blog.travis-ci.com/2017-12-12-new-trusty-images-q4-launch
-#group: deprecated-2017Q4
 
 language: python
 
 python:
-  - "3.5"
   - "3.6"
-  - "pypy3"
 
 install:
   - 
   # Work-a-round for https://github.com/travis-ci/travis-ci/issues/8589
   - ls /opt/python/
+  - /opt/python/3.6/bin/python --version
+  - /opt/python/3.6.3/bin/python --version
+  
   - /opt/python/3.6.3/bin/python pylucid/pylucid_boot.py boot ~/PyLucid-env
 
   - cd ~/PyLucid-env
   - ls -la bin
   - source bin/activate
 
-  - cp -Rf ${TRAVIS_BUILD_DIR} ~/PyLucid-env/src/pylucid
+  - cp -Rfv ${TRAVIS_BUILD_DIR} ~/PyLucid-env/src/pylucid
   - cd ~/PyLucid-env/src/pylucid
   - pip install -e .
-  - pip install -r requirements/ci_installation.txt
+  - pip install -r pylucid/requirements/ci_installation.txt
 
   - pylucid_admin pip_freeze
   - pylucid_admin pytest
