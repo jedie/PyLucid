@@ -58,7 +58,7 @@ log = logging.getLogger(__name__)
 
 OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
 
-
+SUBPROCESS_TIMEOUT=60
 DEVELOPER_INSTALL=["-e", "git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid"]
 NORMAL_INSTALL=[
     # TODO: Remove "--pre" after v3 release
@@ -67,7 +67,36 @@ NORMAL_INSTALL=[
 ]
 
 
-def verbose_check_call(*popenargs, **kwargs):
+def verbose_call(*popenargs, **kwargs):
+    """
+    'verbose' version of subprocess.check_output()
+    env_updates dict can be used to overwrite os.environ.
+    """
+    args_str = " ".join([str(x) for x in popenargs])
+    txt = "Call: %r" % args_str
+    if kwargs:
+        txt += " with: %s" % repr(kwargs)
+
+    if "env_updates" in kwargs:
+        env_updates = kwargs.pop("env_updates")
+        txt += " env: %s" % repr(env_updates)
+        env=os.environ.copy()
+        env.update(env_updates)
+        kwargs["env"] = env
+
+    if not "timeout" in kwargs:
+        kwargs["timeout"] = SUBPROCESS_TIMEOUT
+
+    print("")
+    print("_"*79)
+    print(txt)
+    print("", flush=True)
+    return_code = subprocess.call(popenargs, universal_newlines=True, stderr=subprocess.STDOUT, **kwargs)
+    print("\nExit code %r from %r\n" % (return_code, args_str), flush=True)
+    sys.stderr.flush()
+
+
+def verbose_check_output(*popenargs, **kwargs):
     """
     'verbose' version of subprocess.check_output()
     env_updates dict can be used to overwrite os.environ.
@@ -83,15 +112,16 @@ def verbose_check_call(*popenargs, **kwargs):
         env.update(env_updates)
         kwargs["env"] = env
 
-    print(txt)
+    if not "timeout" in kwargs:
+        kwargs["timeout"] = SUBPROCESS_TIMEOUT
 
-    try:
-        subprocess.check_call(popenargs, universal_newlines=True, stderr=subprocess.STDOUT, **kwargs)
-    except subprocess.CalledProcessError as err:
-        print("\n***ERROR:")
-        print(err.output)
-        raise
+    txt += " timeout: %i" % kwargs["timeout"]
+
     print("")
+    print("_"*79)
+    print(txt)
+    print("", flush=True)
+    return subprocess.check_output(popenargs, **kwargs)
 
 
 def display_errors(func):
@@ -269,7 +299,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
                     "PATH": "%s:%s" % (context.bin_path, os.environ["PATH"]),
                 }
             }
-            verbose_check_call(*args, **kwargs)
+            verbose_call(*args, **kwargs)
 
         call_new_python("pip", "install", "--upgrade", "pip")
 
@@ -282,7 +312,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
         if not pylucid_admin_path.is_file():
             print("ERROR: pylucid_admin not found here: '%s'" % pylucid_admin_path)
-            verbose_check_call("ls", "-la", str(context.bin_path))
+            verbose_call("ls", "-la", str(context.bin_path))
             sys.exit(1)
 
         # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid

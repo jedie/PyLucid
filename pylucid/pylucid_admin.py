@@ -13,7 +13,7 @@ from pathlib import Path
 from pylucid_installer.pylucid_installer import create_instance
 
 # PyLucid
-from pylucid.pylucid_boot import Cmd2, verbose_check_call
+from pylucid.pylucid_boot import Cmd2, verbose_call
 from pylucid.version import __version__
 
 
@@ -178,7 +178,7 @@ class PyLucidShell(Cmd2):
         """
         Just run 'pip freeze'
         """
-        verbose_check_call("pip3", "freeze")
+        verbose_call("pip3", "freeze")
 
     def do_update_env(self, arg):
         """
@@ -201,24 +201,24 @@ class PyLucidShell(Cmd2):
         print("pip found here: '%s'" % pip3_path)
         pip3_path = str(pip3_path)
 
-        verbose_check_call(pip3_path, "install", "--upgrade", "pip")
+        verbose_call(pip3_path, "install", "--upgrade", "pip")
 
         req = Requirements()
 
         # Update the requirements files by...
         if req.normal_mode:
             # ... update 'pylucid' PyPi package
-            verbose_check_call(pip3_path, "install", "--upgrade", *PYLUCID_NORMAL_REQ)
+            verbose_call(pip3_path, "install", "--upgrade", *PYLUCID_NORMAL_REQ)
         else:
             # ... git pull pylucid sources
-            verbose_check_call("git", "pull", "origin", cwd=ROOT_PATH)
-            verbose_check_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
+            verbose_call("git", "pull", "origin", cwd=ROOT_PATH)
+            verbose_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
 
         requirement_file_path = str(req.get_requirement_file_path())
 
         # Update with requirements files:
         self.stdout.write("Use: '%s'\n" % requirement_file_path)
-        verbose_check_call(
+        verbose_call(
             "pip3", "install",
             "--exists-action", "b", # action when a path already exists: (b)ackup
             "--upgrade",
@@ -227,10 +227,10 @@ class PyLucidShell(Cmd2):
 
         if not req.normal_mode:
             # Run pip-sync only in developer mode
-            verbose_check_call("pip-sync", requirement_file_path, cwd=ROOT_PATH)
+            verbose_call("pip-sync", requirement_file_path, cwd=ROOT_PATH)
 
             # 'reinstall' pylucid editable, because it's not in 'requirement_file_path':
-            verbose_check_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
+            verbose_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
 
         self.stdout.write("Please restart %s\n" % self.own_filename)
         sys.exit(0)
@@ -264,7 +264,7 @@ class PyLucidShell(Cmd2):
             # We run pip-compile in ./requirements/ and add only the filenames as arguments
             # So pip-compile add no path to comments ;)
 
-            verbose_check_call(
+            verbose_call(
                 "pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in,
                 cwd=requirements_path
             )
