@@ -242,7 +242,6 @@ class PyLucidShell(Cmd2):
         """
         1. Convert via 'pip-compile' *.in requirements files to *.txt
         2. Append 'piprot' informations to *.txt requirements.
-        3. insert requirement content into pylucid_admin.py
 
         Direct start with:
             $ pylucid_admin upgrade_requirements
