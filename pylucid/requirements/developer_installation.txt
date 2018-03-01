@@ -45,9 +45,9 @@ django==1.11.10
 djangocms-admin-style==1.2.7  # via django-cms
 djangocms-apphook-setup==0.3.0  # via djangocms-blog
 djangocms-attributes-field==0.3.0  # via cmsplugin-filer
-djangocms-blog==0.9.1
+djangocms-blog==0.9.2
 djangocms-history==0.5.3
-djangocms-htmlsitemap==0.3.1
+djangocms-htmlsitemap==0.3.2
 docutils==0.14
 easy-thumbnails==2.4.2    # via cmsplugin-filer, django-filer, djangocms-blog
 first==2.0.1              # via pip-tools
@@ -74,7 +74,7 @@ rjsmin==1.0.12            # via django-compressor
 six==1.11.0               # via django-extensions, html5lib, pip-tools, piprot, pytest, textile
 sqlparse==0.2.4           # via django-debug-toolbar
 textile==3.0.0
-tqdm==4.19.5              # via twine
+tqdm==4.19.6              # via twine
 twine==1.9.1
 typing==3.6.4             # via django-extensions
 unidecode==0.4.21         # via django-filer
