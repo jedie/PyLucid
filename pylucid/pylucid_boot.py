@@ -117,6 +117,7 @@ class Cmd2(cmd.Cmd):
 
     command_alias = { # used in self.precmd()
         "q": "quit", "EOF": "quit",
+        "": "help", # If user just send a ENTER ;)
         "--help": "help", "-h": "help", "-?": "help",
     }
 
