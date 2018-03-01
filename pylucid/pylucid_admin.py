@@ -7,6 +7,7 @@ assert "VIRTUAL_ENV" in os.environ, "ERROR: Call me only in a activated virtuale
 import logging
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 # pylucid.pylucid_boot.in_virtualenv
@@ -155,6 +156,32 @@ class PyLucidShell(Cmd2):
 
         print("TODO: Create instance with name %r at: %r" % (name, destination))
         create_instance(dest=destination, name=name, remove=False, exist_ok=False)
+
+    def do_run_test_project_dev_server(self, arg):
+        """
+        run django development server with test project
+
+        Direct call:
+        $ ./pylucid_admin.py run_test_project_dev_server
+
+        Optional arguments are passed to ./manage.py
+
+        (We call pylucid.management.commands.run_test_project_dev_server.Command)
+        """
+        cwd = Path(ROOT_PATH, "pylucid_page_instance")
+        assert cwd.is_dir(), "Path not exists: %r" % cwd
+        args = arg.split(" ")
+
+        verbose_call("./manage.py", "createcachetable", cwd=cwd)
+
+        while True:
+            print("\n")
+            print("="*79)
+            print("="*79)
+            verbose_call("./manage.py", "run_test_project_dev_server", *args, cwd=cwd, timeout=None)
+            for x in range(3,0,-1):
+                print("Reload in %i sec..." % x)
+                time.sleep(1)
 
     def do_pytest(self, arg):
         """
