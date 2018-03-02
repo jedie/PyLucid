@@ -1,12 +1,16 @@
 
 import subprocess
 import unittest
+from pathlib import Path
+
+# https://github.com/jedie/django-tools
+from django_tools.unittest_utils.isolated_filesystem import isolated_filesystem
 
 # PyLucid
 from pylucid.pylucid_boot import VerboseSubprocess
 
 
-class TestPyLucidAdmin(unittest.TestCase):
+class TestPyLucidBoot(unittest.TestCase):
     """
     Tests for pylucid/pylucid_boot.py
 
@@ -19,6 +23,7 @@ class TestPyLucidAdmin(unittest.TestCase):
         try:
             return VerboseSubprocess(*args).verbose_output(check=False)
         except subprocess.CalledProcessError as err:
+            print(err.output)
             self.fail("Subprocess error: %s" % err)
 
     def test_help(self):
@@ -32,3 +37,16 @@ class TestPyLucidAdmin(unittest.TestCase):
 
         # If DocString is missing in do_<name>():
         self.assertNotIn("Undocumented commands", output)
+
+    def test_boot_into_existing_path(self):
+        with isolated_filesystem():
+            temp_path = Path().cwd() # isolated_filesystem does made a chdir to /tmp/...
+
+            with self.assertRaises(subprocess.CalledProcessError) as cm:
+                VerboseSubprocess("pylucid_boot", "boot", str(temp_path)).verbose_output(check=False)
+
+            caller_process_error = cm.exception
+            output = caller_process_error.output
+            print(output)
+
+            self.assertIn("ERROR: Path '%s' already exists!" % temp_path, output)
