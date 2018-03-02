@@ -33,16 +33,40 @@ class TestPyLucidAdmin(unittest.TestCase):
 
     @unittest.skipIf(Requirements().normal_mode, "Only available in 'developer' mode.")
     def test_change_editable_address(self):
+        """
+        All test runs on Travis-CI install PyLucid as editable!
+        See .travis.yml
+        """
         req = Requirements()
 
+        self.assertFalse(Requirements().normal_mode)
+
         pylucid_src_path = Path(req.src_path, "pylucid")
+        print("pylucid_src_path: %r" % pylucid_src_path)
+
         self.assertTrue(pylucid_src_path.is_dir())
+        self.assertTrue(str(pylucid_src_path).endswith("/src/pylucid"))
+
+        git_path = Path(pylucid_src_path, ".git")
+        print("git_path: %r" % git_path)
+
+        self.assertTrue(git_path.is_dir())
 
         # Needed while developing with github write access url ;)
         VerboseSubprocess(
             "git", "remote", "set-url", "origin", "https://github.com/jedie/PyLucid.git",
             cwd=str(pylucid_src_path)
         ).verbose_call(check=True)
+
+        # Check if change was ok:
+        output = VerboseSubprocess(
+            "git", "remote", "-v",
+            cwd=str(pylucid_src_path)
+        ).verbose_output(check=True)
+        print(output)
+        self.assertIn("origin	https://github.com/jedie/PyLucid.git (fetch)", output)
+        self.assertIn("origin	https://github.com/jedie/PyLucid.git (push)", output)
+        self.assertIn("Exit code 0 from 'git remote -v'", output)
 
         output = self.pylucid_admin_run("change_editable_address")
         print(output)
