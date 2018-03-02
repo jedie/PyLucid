@@ -31,7 +31,7 @@ django-taggit-autosuggest==0.3.2  # via djangocms-blog
 django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
-django-tools==0.38.9
+django-tools==0.39.0
 django-treebeard==4.2.0   # via django-cms
 django==1.11.10
 djangocms-admin-style==1.2.7  # via django-cms
