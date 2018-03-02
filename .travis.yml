@@ -38,6 +38,7 @@ before_install:
   - /opt/python/3.6/bin/python --version
 
 install:
+  - echo $BOOT_MODE
   - /opt/python/3.6/bin/python pylucid/pylucid_boot.py $BOOT_MODE ~/PyLucid-env
 
   - cd ~/PyLucid-env
@@ -47,12 +48,17 @@ install:
   - cp -Rfv ${TRAVIS_BUILD_DIR} ~/PyLucid-env/src/pylucid
   - cd ~/PyLucid-env/src/pylucid
   - pip install -e .
-  - pip install -r pylucid/requirements/ci_installation.txt
+  - pip install -r pylucid/requirements/test_requirements.txt
 
 script:
   - cd ~/PyLucid-env/src/pylucid
   - pylucid_admin pip_freeze
   - pylucid_admin pytest
+
+after_success:
+    # https://github.com/codecov/codecov-bash
+    - bash <(curl -s https://codecov.io/bash)
+    - coveralls
 
 after_script:
   - rm -Rf ~/PyLucid-env

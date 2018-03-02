@@ -1,2 +1,0 @@
--r normal_installation.txt
--r test_requirements.txt
