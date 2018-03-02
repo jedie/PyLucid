@@ -6,32 +6,97 @@ It's more a alternative for [[https://github.com/nephila/djangocms-installer|dja
 
 The goal is to simplify the Django-CMS setup.
 
-**The current 'develop' branch is a rewrite and currently not useable!**
-
-You should not use PyLucid in production, until v3.x is used on [[http://www.pylucid.org|pylucid.org]] ;)
+PyLucid is licensed under GNU General Public License v3 or later (GPLv3+)
 
 Try, fork and contribute! ;)
 
-| {{https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_64.svg?branch=master|Coverage Status on coveralls.io}} | [[https://coveralls.io/r/jedie/PyLucid|coveralls.io/r/jedie/PyLucid]] |
 | {{https://travis-ci.org/jedie/PyLucid.svg?branch=master|Build Status on travis-ci.org}} | [[https://travis-ci.org/jedie/PyLucid/|travis-ci.org/jedie/PyLucid]] |
+| {{https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_64.svg?branch=master|Coverage Status on coveralls.io}} | [[https://coveralls.io/r/jedie/PyLucid|coveralls.io/r/jedie/PyLucid]] |
 | {{https://requires.io/github/jedie/PyLucid/requirements.svg?branch=master|Requirements Status on requires.io}} | [[https://requires.io/github/jedie/PyLucid/requirements/|requires.io/github/jedie/PyLucid/requirements/]] |
 
 
 == install
 
 
-=== bootstrap PyLucid virtualenv
+=== 1. bootstrap PyLucid virtualenv
 
 {{{
 # download bootstrap file:
-/home/FooBar$ wget https://github.com/jedie/PyLucid/raw/develop/pylucid/pylucid_boot.py
+/home/FooBar$ wget https://github.com/jedie/PyLucid/raw/master/pylucid/pylucid_boot.py
 
 # Create virtualenv with all needed packages:
 /home/FooBar$ python3 pylucid_boot.py boot ~/PyLucid-env
 }}}
 
 
-Note: pylucid_boot.py is a interactive shell with command completion.
+=== 2. use the created PyLucid virtualenv
+
+{{{
+# Go into created virtualenv:
+/home/FooBar$ cd ~/PyLucid-env
+
+# activate the env:
+~/PyLucid-env $ source bin/activate
+
+# Start the interactive admin shell:
+(PyLucid-env) ~/PyLucid-env $ pylucid_admin
+
+pylucid_admin.py shell v3.0.0
+Type help or ? to list commands.
+
+pylucid_admin.py>
+}}}
+
+
+=== 3. create a page instance
+
+A page instance is a django project with own settings, for easy start a own web page.
+Create a page instance in the interactive admin shell:
+{{{
+pylucid_admin.py> create_page_instance ~/page_instance you_project_name
+...
+pylucid_admin.py> quit
+
+# Go into created page instance
+(PyLucid_env) ~/PyLucid_env $ cd ~/page_instance/
+
+# Create cache tables
+(PyLucid_env) ~/page_instance $ ./manage.py createcachetable
+
+# init database
+(PyLucid_env) ~/page_instance $ ./manage.py migrate
+
+# Create a super user
+(PyLucid_env) ~/page_instance $ ./manage.py createsuperuser
+
+# run developer server:
+(PyLucid_env) ~/page_instance $ ./manage.py runserver
+}}}
+
+
+== further information
+
+
+=== run test project
+
+You can run a test project with the django developer server:
+{{{
+(PyLucid-env) ~/PyLucid-env $ pylucid_admin run_test_project_dev_server
+}}}
+
+
+=== bootstrap manually
+
+Note: You can install PyLucid manually via PyPi package:
+
+* create virtualenv
+* install pylucid via pip from PyPi
+* run {{{pylucid_admin update_env}}}
+
+
+=== pylucid_boot.py - interactive shell
+
+{{{pylucid_boot.py}}} is a interactive shell with command completion.
 You can just start it and do this:
 {{{
 /home/FooBar$ python3 pylucid_boot.py
@@ -39,12 +104,6 @@ You can just start it and do this:
 pylucid_boot.py shell v0.2.0
 Type help or ? to list commands.
 
-pylucid_boot.py> boot ~/PyLucid-env
-}}}
-
-
-Type help or ? to list commands:
-{{{
 pylucid_boot.py> ?
 
 Hint: All commands can be called directly from commandline.
@@ -58,21 +117,9 @@ boot  boot_developer  help  quit
 }}}
 
 
-=== use a created PyLucid virtualenv
+=== pylucid_admin.py - interactive shell
 
-{{{
-# Go into created virtualenv:
-/home/FooBar$ cd ~/PyLucid-env
-
-# activate the env:
-~/PyLucid-env $ source bin/activate
-
-# Use the commandline admin
-(PyLucid-env) ~/PyLucid-env $ pylucid_admin
-}}}
-
-
-The **pylucid_admin** is a interactive shell with command completion, e.g.:
+{{{pylucid_admin.py}}} is a interactive shell with command completion, e.g.:
 {{{
 (PyLucid_env) ~/PyLucid_env $ pylucid_admin
 Activated virtualenv detected: '/home/foobar/PyLucid-env' (/home/foobar/PyLucid-env/bin/python3)
@@ -89,12 +136,11 @@ Use <tab> to command completion.
 
 Documented commands (type help <topic>):
 ========================================
-help                pip_freeze  quit        upgrade_requirements
-insert_requirement  pytest      update_env
+change_editable_address  pip_freeze  run_test_project_dev_server
+create_page_instance     pytest      update_env
+help                     quit        upgrade_requirements
 }}}
 
-
-tbd.
 
 == External applications configuration
 
@@ -112,20 +158,22 @@ Please, refer to each application documentation on details.
 * haystack: http://django-haystack.readthedocs.io/en/stable/
 
 
-
 == Compatible Matrix
 
 | PyLucid | Django-CMS | Django    | Python
-| V3      | V3.4       | V1.11 LTS | 3.5, 3.6
+| V3.0    | V3.4 LTS   | V1.11 LTS | 3.5, 3.6
 | v2.1    | v3.3       | v1.8 LTS  | 3.4, 3.5
 | v2.0    | v3.2       | v1.8 LTS  | 3.4, 3.5
 | <=v1.6  | -          | v1.6      | 2.6, 2.7
 
+
 == Release History
 
-* [[https://github.com/jedie/PyLucid/compare/v2.1.2...develop|??.03.2018 - v3.0.0]] **dev** not released, yet
+* [[https://github.com/jedie/PyLucid/compare/v3.0.0...master|compare v3.0.0...master]]
+* [[https://github.com/jedie/PyLucid/compare/v2.1.2...v3.0.0|03.03.2018 - v3.0.0]]:
 ** Update to Django-CMS v3.4.x LTS, Django v1.11 LTS
 ** rewrite bootstrap
+** NEW: interactive shell {{{pylucid_admin}}}
 * [[https://github.com/jedie/PyLucid/compare/v2.1.1...v2.1.2|12.Sep.2016 - v2.1.2]]:
 ** Changed to official https://pypi.org/project/djangocms-htmlsitemap/ PyPi Package.
 * [[https://github.com/jedie/PyLucid/compare/v2.1.0.beta.0...v2.1.1|04.Sep.2016 - v2.1.1]]:
