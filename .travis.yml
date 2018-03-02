@@ -25,8 +25,8 @@ python:
 
 matrix:
   include:
-    - env: BOOT_ARG=boot
-    - env: BOOT_ATG=boot_developer
+    - env: BOOT_MODE=boot
+    - env: BOOT_MODE=boot_developer
 
 branches:
   only:
@@ -36,10 +36,9 @@ before_install:
   # Work-a-round for https://github.com/travis-ci/travis-ci/issues/8589
   - ls /opt/python/
   - /opt/python/3.6/bin/python --version
-  - /opt/python/3.6.3/bin/python --version
 
 install:
-  - /opt/python/3.6.3/bin/python pylucid/pylucid_boot.py $BOOT_ARG ~/PyLucid-env
+  - /opt/python/3.6/bin/python pylucid/pylucid_boot.py $BOOT_MODE ~/PyLucid-env
 
   - cd ~/PyLucid-env
   - ls -la bin
