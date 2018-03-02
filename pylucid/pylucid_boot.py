@@ -341,7 +341,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
             sys.exit(-1)
 
         # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
-        call_new_python("pylucid_admin", "update_env", timeout=120)  # extended timeout for slow Travis ;)
+        call_new_python("pylucid_admin", "update_env", timeout=240)  # extended timeout for slow Travis ;)
 
 
 class PyLucidBootShell(Cmd2):
