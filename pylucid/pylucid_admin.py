@@ -403,8 +403,8 @@ class PyLucidShell(Cmd2):
                 print("ERROR: url not changed!")
                 continue
 
-            VerboseSubprocess("git", "remote", "set-url", name, new_url).verbose_call(check=False)
-            VerboseSubprocess("git", "remote", "-v").verbose_call(check=False)
+            VerboseSubprocess("git", "remote", "set-url", name, new_url, cwd=str(p)).verbose_call(check=False)
+            VerboseSubprocess("git", "remote", "-v", cwd=str(p)).verbose_call(check=False)
 
 
 def main():
