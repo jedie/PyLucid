@@ -22,8 +22,8 @@ from pylucid.base_settings import *
 
 DOC_ROOT = "/path/to/page_instance/" # Point this to web server root directory
 
-STATIC_ROOT = str(Path(DOC_ROOT, 'static'))
-MEDIA_ROOT = str(Path(DOC_ROOT, 'media'))
+STATIC_ROOT = str(Path(DOC_ROOT, "static"))
+MEDIA_ROOT = str(Path(DOC_ROOT, "media"))
 
 
 PROJECT_DIR = Path(__file__).resolve().parent # Filesystem path to this instance
@@ -36,13 +36,13 @@ TEMPLATES[0]["DIRS"] = [str(Path(PROJECT_DIR, "templates/"))]
 SECRET_KEY = "CHANGE ME!!!"
 
 
-ROOT_URLCONF = 'example_project.urls'
+ROOT_URLCONF = "example_project.urls"
 
-WSGI_APPLICATION = 'example_project.wsgi.application'
+WSGI_APPLICATION = "example_project.wsgi.application"
 
 
 # INSTALLED_APPS += (
-#     #'example_project',
+#     #"example_project",
 #
 #     # Activate if old PyLucid migration was executed
 #     # "pylucid_todo",
@@ -50,21 +50,21 @@ WSGI_APPLICATION = 'example_project.wsgi.application'
 
 # # Your own djangocms-widgets templates:
 # WIDGET_TEMPLATES += (
-#     #('foo/bar.html', 'A foo bar example'),
+#     #("foo/bar.html", "A foo bar example"),
 # )
 
 #____________________________________________________________________
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'HOST': 'localhost',
-        'PORT': '',
-        'USER': '',
-        'PASSWORD': '',
-        'NAME': str(Path(PROJECT_DIR, 'example_project.db')),
-        'ATOMIC_REQUESTS': True,
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "HOST": "localhost",
+        "PORT": "",
+        "USER": "",
+        "PASSWORD": "",
+        "NAME": str(Path(PROJECT_DIR, "example_project.db")),
+        "ATOMIC_REQUESTS": True,
     },
 }
 
@@ -86,7 +86,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#managers
 # A tuple that lists people who get broken link notifications when BrokenLinkEmailsMiddleware is enabled:
-#MANAGERS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
+#MANAGERS = (("John", "john@example.com"), ("Mary", "mary@example.com"))
 
 # https://docs.djangoproject.com/en/1.11/ref/settings/#admins
 # A tuple that lists people who get code error notifications:
@@ -98,15 +98,15 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # https://docs.djangoproject.com/en/1.11/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [
     "*", # Allow any domain/subdomain
-    # 'www.example.tld',  # Allow domain
-    # '.example.tld',  # Allow domain and subdomains
-    # '.example.tld.',  # Also allow FQDN and subdomains
+    # "www.example.tld",  # Allow domain
+    # ".example.tld",  # Allow domain and subdomains
+    # ".example.tld.",  # Also allow FQDN and subdomains
 ]
 
 #____________________________________________________________________
 # DEBUG
 
-# *** SECURITY WARNING: don't run with debug turned on in production!
+# *** SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = True
 
 # https://github.com/jedie/django-tools#internalips---unix-shell-style-wildcards-in-internal_ips
@@ -119,19 +119,19 @@ INTERNAL_IPS = InternalIps(["127.0.0.1", "::1", "192.168.*.*", "10.0.*.*"])
 #
 # if DEBUG:
 #     # Disable cache, for debugging:
-#     CACHES['default']= {
-#         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#     CACHES["default"]= {
+#         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
 #     }
 #
 #     INSTALLED_APPS += (
-#         'debug_toolbar', # https://github.com/django-debug-toolbar/django-debug-toolbar
-#         'django_info_panel', # https://github.com/jedie/django-debug-toolbar-django-info
+#         "debug_toolbar", # https://github.com/django-debug-toolbar/django-debug-toolbar
+#         "django_info_panel", # https://github.com/jedie/django-debug-toolbar-django-info
 #
 #         # Add all models to django admin:
-#         'pylucid_debug', # Must be the last App!
+#         "pylucid_debug", # Must be the last App!
 #     )
 #     MIDDLEWARE_CLASSES = (
-#         'debug_toolbar.middleware.DebugToolbarMiddleware',
+#         "debug_toolbar.middleware.DebugToolbarMiddleware",
 #     ) + MIDDLEWARE_CLASSES
 
 

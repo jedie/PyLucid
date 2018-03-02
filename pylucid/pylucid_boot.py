@@ -95,8 +95,6 @@ class VerboseSubprocess:
             env.update(env_updates)
             self.kwargs["env"] = env
 
-
-
     def print_call_info(self):
         print("")
         print("_"*79)
