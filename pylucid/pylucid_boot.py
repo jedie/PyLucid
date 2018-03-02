@@ -116,7 +116,7 @@ class VerboseSubprocess:
         self.print_call_info()
 
         try:
-            exit_code = subprocess.call(self.popenargs, universal_newlines=True, stderr=subprocess.STDOUT, **self.kwargs)
+            exit_code = subprocess.call(self.popenargs, stderr=subprocess.STDOUT, **self.kwargs)
         except KeyboardInterrupt:
             print("\nExit %r\n" % self.args_str, flush=True)
             exit_code=None # good idea?!?
