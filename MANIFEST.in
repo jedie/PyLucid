@@ -3,3 +3,6 @@ recursive-include * *.html *.css *.js
 recursive-include pylucid/requirements *
 prune pylucid_project/pylucid_plugins/unittest_plugin
 recursive-exclude * *.py[co]
+
+recursive-exclude pylucid_page_instance/static *
+include pylucid_page_instance/static/.gitignore
