@@ -86,8 +86,10 @@ class VerboseSubprocess:
 
         self.args_str = " ".join([str(x) for x in self.popenargs])
         self.txt = "Call: %r" % self.args_str
-        if kwargs:
-            self.txt += " with: %s" % repr(self.kwargs)
+        kwargs_txt=[]
+        for key, value in self.kwargs.items():
+            kwargs_txt.append("%s=%s" % (key, value))
+        self.txt += " with: %s" % ", ".join(kwargs_txt)
 
         if env_updates is not None:
             self.txt += " env: %s" % repr(env_updates)
