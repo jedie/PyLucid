@@ -66,12 +66,9 @@ class TestPyLucidAdmin(unittest.TestCase):
         print(output)
         self.assertIn("origin	https://github.com/jedie/PyLucid.git (fetch)", output)
         self.assertIn("origin	https://github.com/jedie/PyLucid.git (push)", output)
-        self.assertIn("Exit code 0 from 'git remote -v'", output)
 
         output = self.pylucid_admin_run("change_editable_address")
         print(output)
 
-        self.assertIn("Exit code 0 from 'git remote set-url origin git@github.com:jedie/PyLucid.git'", output)
         self.assertIn("origin	git@github.com:jedie/PyLucid.git (fetch)", output)
         self.assertIn("origin	git@github.com:jedie/PyLucid.git (push)", output)
-        self.assertIn("Exit code 0 from 'git remote -v'", output)
