@@ -1,6 +1,9 @@
-
+#
 # optional packages for running tests
-#------------------------------------
+#
+# this file is include in pylucid/requirements/developer_installation.in
+# and this file will be used in .travis.yml
+#
 
 pytest
 pytest-django
