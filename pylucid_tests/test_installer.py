@@ -11,88 +11,53 @@
 
 import os
 import sys
+from pathlib import Path
 from unittest import TestCase
 
+from pylucid_installer.pylucid_installer import create_instance, get_python3_executable
+from pylucid_tests.test_utils.test_cases import BaseTestCase, PageInstanceTestCase
+
+# https://github.com/jedie/django-tools
+from django_tools.unittest_utils.isolated_filesystem import isolated_filesystem
 from django_tools.unittest_utils.stdout_redirect import StdoutStderrBuffer
+from django_tools.unittest_utils.unittest_base import BaseUnittestCase
 
-from pylucid_installer.pylucid_installer import create_instance
-from pylucid_tests.test_utils.test_cases import PageInstanceTestCase, IsolatedFilesystemTestCase
+# PyLucid
+from pylucid.pylucid_boot import VerboseSubprocess
 
 
-class PyLucidInstallerTest(IsolatedFilesystemTestCase):
-    # def test_dest_exists(self):
-    #     runner = CliRunner()
-    #     with runner.isolated_filesystem() as temp_path:
-    #         result = runner.invoke(cli, [
-    #             "--dest", temp_path,
-    #             "--name", "test_remove_question",
-    #         ])
-    #         # print(output)
-    #         self.assertIn("ERROR: Destination '%s' exist!" % temp_path, output)
-    #         self.assertEqual(result.exit_code, 2)
-    #         self.assertEqual(os.listdir(temp_path), [])
-    #
-    # def test_remove_question(self):
-    #     runner = CliRunner()
-    #     with runner.isolated_filesystem() as temp_path:
-    #         result = runner.invoke(cli, [
-    #             "--dest", temp_path,
-    #             "--name", "test_remove_question",
-    #             "--remove"
-    #         ])
-    #         # print(output)
-    #         self.assertIn(
-    #             "Delete '%s' before copy? [y/N]:" % temp_path,
-    #             output
-    #         )
-    #         self.assertEqual(result.exit_code, 1)
-    #         self.assertEqual(os.listdir(temp_path), [])
-    #
-    # def test_unuseable_name(self):
-    #     runner = CliRunner()
-    #     with runner.isolated_filesystem() as temp_path:
-    #         result = runner.invoke(cli, [
-    #             "--dest", temp_path,
-    #             "--name", "a unuseable name!",
-    #         ],
-    #         )
-    #         # print(output)
-    #
-    #         self.assertIn(
-    #             "ERROR: The given project name is not useable!",
-    #             output
-    #         )
-    #         self.assertIn(
-    #             "a_unuseable_name",
-    #             output
-    #         )
-    #         self.assertEqual(result.exit_code, 1)
+@isolated_filesystem()
+class PyLucidInstallerTest(BaseUnittestCase):
+    def setUp(self):
+        super().setUp()
+        self.temp_path = Path().cwd()  # isolated_filesystem does made a chdir to /tmp/...
 
     def test_create(self):
-        with StdoutStderrBuffer() as buffer:
-            create_instance(
-                dest = self.temp_path,
-                name = self._testMethodName,
-                remove = True,
-                exist_ok = True,
-            )
+        destination = Path(self.temp_path, self._testMethodName)
+        self.assertFalse(destination.is_dir())
 
-        output = buffer.get_output()
+        output = VerboseSubprocess(
+            "pylucid_admin", "create_page_instance", str(destination), self._testMethodName
+        ).verbose_output(check=False)
+
         print(output)
 
         self.assertIn(
-            "Page instance created here: '%s'" % self.temp_path,
+            "Page instance created here: '%s'" % destination,
             output
         )
         self.assertEqual(
-            set(os.listdir(self.temp_path)),
+            set([p.name for p in destination.iterdir()]),
             {'manage.py', 'media', 'static', self._testMethodName}
         )
 
         # Check patched manage.py
-        with open(os.path.join(self.temp_path, "manage.py"), "r") as f:
+        with Path(destination, "manage.py").open("r") as f:
             shebang = f.readlines(1)
-            self.assertEqual(shebang, ["#!%s\n" % sys.executable])
+
+            executable = get_python3_executable()
+            self.assert_endswith(executable, "/bin/python3")
+            self.assertEqual(shebang, ["#!%s\n" % executable])
 
             content = f.read()
             print(content)
@@ -102,11 +67,11 @@ class PyLucidInstallerTest(IsolatedFilesystemTestCase):
             )
 
         # Check patched settings.py
-        with open(os.path.join(self.temp_path, self._testMethodName, "settings.py"), "r") as f:
+        with Path(destination, self._testMethodName, "settings.py").open("r") as f:
             content = f.read()
-            # print(content)
+            print(content)
             self.assertIn(
-                'DOC_ROOT = "%s"' % self.temp_path,
+                'DOC_ROOT = "%s"' % destination,
                 content
             )
             self.assertIn(

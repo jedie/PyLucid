@@ -17,46 +17,39 @@ import sys
 import shutil
 import random
 import string
-
+from pathlib import Path
 
 from pylucid.utils import clean_string
 
 
 SRC_PROJECT_NAME="example_project"
 
-
-def _check_activated_virtualenv():
-    """precheck if we in a activated virtualenv, but should never happen ;)"""
-    if not hasattr(sys, 'real_prefix'):
-        print("")
-        print("Error: It seems that we are not running in a activated virtualenv!")
-        print("")
-        print("Please activate your environment first, e.g:")
-        print("\t...my_env$ source bin/activate")
-        print("")
-        click.Abort()
-    else:
-        print("Activated virtualenv detected: %r (%s)" % (sys.prefix, sys.executable))
+def confirm(txt=None):
+    if txt is not None:
+        print("\n%s" % txt)
+    if input("\nContinue? (Y/N)").lower() not in ("y", "j"):
+        print("Bye.")
+        sys.exit(-1)
 
 
 def _check_destination(dest, remove, exist_ok):
     if not dest:
-        raise click.BadParameter("Path needed!")
+        raise RuntimeError("Path needed!")
 
-    dest = os.path.normpath(os.path.abspath(os.path.expanduser(dest)))
-
+    dest = Path(dest).expanduser().resolve() # Already done in pylucid.pylucid_boot.Cmd2()._complete_path()
     if exist_ok:
         return dest
 
-    if os.path.isdir(dest):
+    if dest.is_dir():
         if remove:
-            click.confirm("Delete %r before copy?" % dest, abort=True)
+            confirm("Delete %r before copy?" % dest)
             print("remove tree %r" % dest)
             shutil.rmtree(dest)
         else:
-            raise click.BadParameter("ERROR: Destination %r exist! (Maybe use '--exist_ok')" % dest)
+            raise RuntimeError("ERROR: Destination %r exist!" % dest)
 
     return dest
+
 
 def copytree2(src, dst, ignore, exist_ok=False):
     """
@@ -105,6 +98,12 @@ def _copytree(dest, exist_ok):
     )
 
 
+def get_python3_executable():
+    executable = sys.executable
+    if not executable.endswith("3"):
+        executable += "3" # .../bin/python -> .../bin/python3
+    return executable
+
 def _patch_shebang(dest, *filepath):
     filepath = os.path.join(dest, *filepath)
     print("Update shebang in %r" % filepath)
@@ -113,6 +112,8 @@ def _patch_shebang(dest, *filepath):
         content = f.read()
         f.seek(0)
 
+        executable = get_python3_executable()
+
         new_content=content.replace("#!/usr/bin/env python", "#!%s" % sys.executable)
 
         if new_content == content:
@@ -120,9 +121,10 @@ def _patch_shebang(dest, *filepath):
         else:
             f.write(new_content)
 
+
 def _mass_replace(replace_dict, files):
     for filepath in files:
-        print("Update filecontent %r" % filepath)
+        print("Update filecontent '%s'" % filepath)
         with open(filepath, "r+") as f:
             content = f.read()
 
@@ -131,7 +133,9 @@ def _mass_replace(replace_dict, files):
                 if old not in content:
                     print("WARNING: String %r not found!" % old)
                 else:
-                    content=content.replace(old, new)
+                    content=content.replace(
+                        str(old), str(new)  # use str() for pathlib.Path() instance
+                    )
 
             if content == old_content:
                 print("WARNING: File content not changed?!?")
@@ -148,7 +152,7 @@ def _clean_project_name(name):
     print("\nERROR: The given project name is not useable!")
     print("Should i use:\n")
     print("\t%s\n" % clean_name)
-    click.confirm("Continue ?", abort=True)
+    confirm()
     return clean_name
 
 
@@ -165,9 +169,9 @@ def create_instance(dest, name, remove, exist_ok):
     create a page instance.
     """
     name = _clean_project_name(name)
-
-    print("Create page instance here: %r" % dest)
     dest = _check_destination(dest, remove, exist_ok)
+
+    print("Create instance with name %r at: %s..." % (name, dest))
 
     _copytree(dest, exist_ok)
 
@@ -176,8 +180,8 @@ def create_instance(dest, name, remove, exist_ok):
     _mass_replace(
         {SRC_PROJECT_NAME: name},
         [
-            os.path.join(dest, name, "templates", "includes", "header.html"),
-            os.path.join(dest, name, "templates", "includes", "footer.html"),
+            Path(dest, name, "templates", "includes", "header.html"),
+            Path(dest, name, "templates", "includes", "footer.html"),
         ]
     )
     _mass_replace(
@@ -186,8 +190,8 @@ def create_instance(dest, name, remove, exist_ok):
             SRC_PROJECT_NAME: name,
         },
         [
-            os.path.join(dest, "manage.py"),
-            os.path.join(dest, name, "wsgi.py"),
+            Path(dest, "manage.py"),
+            Path(dest, name, "wsgi.py"),
         ]
     )
 
@@ -201,9 +205,9 @@ def create_instance(dest, name, remove, exist_ok):
             'SECRET_KEY = "CHANGE ME!!!"': 'SECRET_KEY = "%s"' % secret_key,
         },
         [
-            os.path.join(dest, name, "settings.py"),
+            Path(dest, name, "settings.py"),
         ]
     )
 
-    print("Page instance created here: %r" % dest)
+    print("Page instance created here: '%s'" % dest)
     print("Please change settings,templates etc. for you needs!")

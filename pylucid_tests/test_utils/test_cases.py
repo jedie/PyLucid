@@ -12,8 +12,10 @@
 import os
 import pprint
 import subprocess
+from pathlib import Path
 from unittest import TestCase
 
+from pylucid.pylucid_boot import VerboseSubprocess
 from pylucid_installer.pylucid_installer import create_instance
 
 # https://github.com/jedie/django-tools
@@ -106,7 +108,9 @@ class PageInstanceTestCase(BaseTestCase):
     -run the test in the created page instance
     """
     def setUp(self):
-        super(PageInstanceTestCase, self).setUp()
+        super().setUp()
+
+        self.temp_path = Path().cwd()  # isolated_filesystem does made a chdir to /tmp/...
 
         with StdoutStderrBuffer() as buffer:
             create_instance(
@@ -119,7 +123,7 @@ class PageInstanceTestCase(BaseTestCase):
         output = buffer.get_output()
 
         # print(output)
-        self.project_path = os.path.join(self.temp_path, self._testMethodName)
+        self.project_path = Path(self.temp_path, self._testMethodName)
 
         self.assertIn(
             "Rename '%s/example_project' to '%s'" % (
@@ -134,22 +138,27 @@ class PageInstanceTestCase(BaseTestCase):
         self.assertNotIn("ERROR", output)
         self.assertNotIn("The given project name is not useable!", output)
 
-        self.assertTrue(os.path.isdir(self.project_path))
+        self.assertTrue(self.project_path.is_dir())
 
-        self.call_manage_py(["createcachetable"])
+        self.createcachetable()
 
-    def call_manage_py(self, cmd, **kwargs):
+    def createcachetable(self):
+        output = self.call_manage_py("createcachetable", "--verbosity", "3")
+        print(output)
+        self.assertIn("Cache table 'pylucid_cache_table' created.", output)
+
+    def call_manage_py(self, *args, **kwargs):
         """
         Call manage.py from created page instance in temp dir.
         """
-        cmd = ["./manage.py"] + list(cmd)
+        args = ("./manage.py", ) + args
         kwargs.update({
-            "cwd": self.temp_path,
-            # "debug": True,
+            "cwd": str(self.temp_path),
         })
+        return VerboseSubprocess(*args, **kwargs).verbose_output(check=False)
 
         # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.project_path, "settings.py")], **kwargs)
         # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.temp_path, "manage.py")], **kwargs)
         # self.subprocess_getstatusoutput(['python -c "import sys,pprint;pprint.pprint(sys.path)"'], **kwargs)
 
-        return self.subprocess_getstatusoutput(cmd, **kwargs)
+

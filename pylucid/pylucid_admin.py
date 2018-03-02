@@ -155,8 +155,8 @@ class PyLucidShell(Cmd2):
 
         if not name:
             print("ERROR: name not given!")
+            return
 
-        print("TODO: Create instance with name %r at: %r" % (name, destination))
         create_instance(dest=destination, name=name, remove=False, exist_ok=False)
 
     def do_run_test_project_dev_server(self, arg):
