@@ -7,13 +7,13 @@
 # Note:
 # We currently can't check the boot process with different python versions :(
 # The created virtualenv doesn't work: see:
-# https://github.com/travis-ci/travis-ci/issues/8589
+#   https://github.com/travis-ci/travis-ci/issues/8589
 #
 # setup script will be created in /home/travis/virtualenv/python3.6.4/bin/
 # and not in created virtualenv in /home/travis/PyLucid-env/bin/
 # e.g.:
 # https://travis-ci.org/jedie/PyLucid/jobs/346286453#L580-L598
-
+#
 
 sudo: false
 dist: trusty
@@ -33,12 +33,14 @@ branches:
   - develop
 
 before_install:
-  # Work-a-round for https://github.com/travis-ci/travis-ci/issues/8589
   - ls /opt/python/
   - /opt/python/3.6/bin/python --version
 
 install:
   - echo $BOOT_MODE
+
+  # Work-a-round for #8589 (see above):
+  # We use '/opt/python/3.6/bin/python' and not the python from PATH.
   - /opt/python/3.6/bin/python pylucid/pylucid_boot.py $BOOT_MODE ~/PyLucid-env
 
   - cd ~/PyLucid-env
