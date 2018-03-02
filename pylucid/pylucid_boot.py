@@ -59,7 +59,7 @@ log = logging.getLogger(__name__)
 OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
 
 SUBPROCESS_TIMEOUT=60
-DEVELOPER_INSTALL=["-e", "git+git@github.com:jedie/PyLucid.git@develop#egg=pylucid"]
+DEVELOPER_INSTALL=["-e", "git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid"]
 NORMAL_INSTALL=[
     # TODO: Remove "--pre" after v3 release
     "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
@@ -371,7 +371,7 @@ class PyLucidBootShell(Cmd2):
 
     def do_boot(self, destination):
         """
-        "normal" boot PyLucid
+        bootstrap PyLucid virtualenv in "normal" mode.
 
         usage:
             > boot [path]
@@ -388,7 +388,19 @@ class PyLucidBootShell(Cmd2):
 
     def do_boot_developer(self, destination):
         """
-        **only usable for developer with github write access**
+        bootstrap PyLucid virtualenv in "developer" mode:
+        All own projects installed as editables via github HTTPS (readonly)
+
+        **Should be only used for developing/contributing. All others: Use normal 'boot' ;) **
+
+        usage:
+            > boot_developer [path]
+
+        Create a PyLucid virtualenv in the given [path].
+        Install packages via PyPi and read-only sources from github.
+
+        The destination path must not exist yet!
+               
         (used the requirements/developer_installation.txt)
         """
         self._boot(destination, requirements=DEVELOPER_INSTALL)

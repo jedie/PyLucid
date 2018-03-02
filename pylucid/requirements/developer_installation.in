@@ -34,49 +34,49 @@ docutils
 
 # https://github.com/jedie/bootstrap_env
 # https://pypi.org/project/bootstrap_env/
--e git+git@github.com:jedie/bootstrap_env.git#egg=bootstrap_env
+-e git+https://github.com/jedie/bootstrap_env.git#egg=bootstrap_env
 
 # https://github.com/jedie/python-creole/
 # https://pypi.org/project/python-creole
--e git+git@github.com:jedie/python-creole.git#egg=python-creole
+-e git+https://github.com/jedie/python-creole.git#egg=python-creole
 
 # https://github.com/jedie/django-dbpreferences/
 # https://pypi.org/project/django-dbpreferences
-#-e git+git@github.com:jedie/django-dbpreferences.git#egg=django-dbpreferences
+#-e git+https://github.com/jedie/django-dbpreferences.git#egg=django-dbpreferences
 
 # https://github.com/jedie/django-tools/
 # https://pypi.org/project/django-tools
--e git+git@github.com:jedie/django-tools.git@master#egg=django-tools
+-e git+https://github.com/jedie/django-tools.git@master#egg=django-tools
 
 # https://github.com/jedie/django-cms-tools/
 # https://pypi.org/project/django-cms-tools
--e git+git@github.com:jedie/django-cms-tools.git@master#egg=django-cms-tools
+-e git+https://github.com/jedie/django-cms-tools.git@master#egg=django-cms-tools
 
 # https://github.com/jedie/django-processinfo
 # https://pypi.org/project/django-processinfo
-#-e git+git@github.com:jedie/django-processinfo.git#egg=django-processinfo
+#-e git+https://github.com/jedie/django-processinfo.git#egg=django-processinfo
 
 # https://github.com/jedie/django-reversion-compare
 # https://pypi.org/project/django-reversion-compare/
 # v2 is not supported, see: https://github.com/divio/django-cms/issues/5441
 # Maybe usable for djangocms-history ?!?
-#-e git+git@github.com:jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
+#-e git+https://github.com/jedie/django-reversion-compare.git@stable/v0.6.x#egg=django-reversion-compare
 
 # https://github.com/chrisglass/cmsplugin-pygments
--e git+git@github.com:jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
+-e git+https://github.com/jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
 
 # https://github.com/jedie/django-debug-toolbar-django-info
--e git+git@github.com:jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
+-e git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
 
 # https://github.com/jedie/djangocms-widgets
--e git+git@github.com:jedie/djangocms-widgets.git#egg=djangocms-widgets
+-e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets
 
 
 # external Django-CMS Addons
 #----------------------------
 
 # https://github.com/mitar/cmsplugin-markup
--e git+git@github.com:jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
+-e git+https://github.com/jedie/cmsplugin-markup.git@develop#egg=cmsplugin-markup
 
 
 # Temporary work-a-rounds
@@ -85,4 +85,4 @@ docutils
 # https://github.com/jedie/djangocms-text-ckeditor/
 # Use own repro via "[normal|developer]_installation.in"
 # until https://github.com/divio/djangocms-text-ckeditor/pull/464 is in PyPi Release (maybe in >3.5.3)
--e git+git@github.com:jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
+-e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
