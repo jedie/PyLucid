@@ -1,9 +1,12 @@
 
-import unittest
-
 import subprocess
+import unittest
+from pathlib import Path
 
+# PyLucid
+from pylucid.pylucid_admin import Requirements
 from pylucid.pylucid_boot import VerboseSubprocess
+
 
 class TestPyLucidAdmin(unittest.TestCase):
     """
@@ -27,3 +30,24 @@ class TestPyLucidAdmin(unittest.TestCase):
 
         # If DocString is missing in do_<name>():
         self.assertNotIn("Undocumented commands", output)
+
+    @unittest.skipIf(Requirements().normal_mode, "Only available in 'developer' mode.")
+    def test_change_editable_address(self):
+        req = Requirements()
+
+        pylucid_src_path = Path(req.src_path, "pylucid")
+        self.assertTrue(pylucid_src_path.is_dir())
+
+        # Needed while developing with github write access url ;)
+        VerboseSubprocess(
+            "git", "remote", "set-url", "origin", "https://github.com/jedie/PyLucid.git",
+            cwd=str(pylucid_src_path)
+        ).verbose_call(check=True)
+
+        output = self.pylucid_admin_run("change_editable_address")
+        print(output)
+
+        self.assertIn("Exit code 0 from 'git remote set-url origin git@github.com:jedie/PyLucid.git'", output)
+        self.assertIn("origin	git@github.com:jedie/PyLucid.git (fetch)", output)
+        self.assertIn("origin	git@github.com:jedie/PyLucid.git (push)", output)
+        self.assertIn("Exit code 0 from 'git remote -v'", output)
