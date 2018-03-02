@@ -67,61 +67,81 @@ NORMAL_INSTALL=[
 ]
 
 
-def verbose_call(*popenargs, **kwargs):
+class VerboseSubprocess:
     """
-    'verbose' version of subprocess.check_output()
-    env_updates dict can be used to overwrite os.environ.
+    Verbose Subprocess
     """
-    args_str = " ".join([str(x) for x in popenargs])
-    txt = "Call: %r" % args_str
-    if kwargs:
-        txt += " with: %s" % repr(kwargs)
+    def __init__(self, *popenargs, env_updates=None, timeout=SUBPROCESS_TIMEOUT, **kwargs):
+        """
+        :param popenargs: 'args' for subprocess.Popen()
+        :param env_updates: dict to overwrite os.environ.
+        :param timeout: pass to subprocess.Popen()
+        :param kwargs: pass to subprocess.Popen()
+        """
+        self.popenargs = popenargs
+        self.kwargs = kwargs
 
-    if "env_updates" in kwargs:
-        env_updates = kwargs.pop("env_updates")
-        txt += " env: %s" % repr(env_updates)
-        env=os.environ.copy()
-        env.update(env_updates)
-        kwargs["env"] = env
+        self.args_str = " ".join([str(x) for x in self.popenargs])
+        self.txt = "Call: %r" % self.args_str
+        if kwargs:
+            self.txt += " with: %s" % repr(self.kwargs)
 
-    if not "timeout" in kwargs:
-        kwargs["timeout"] = SUBPROCESS_TIMEOUT
+        if env_updates is not None:
+            self.txt += " env: %s" % repr(env_updates)
+            env=os.environ.copy()
+            env.update(env_updates)
+            self.kwargs["env"] = env
 
-    print("")
-    print("_"*79)
-    print(txt)
-    print("", flush=True)
-    return_code = subprocess.call(popenargs, universal_newlines=True, stderr=subprocess.STDOUT, **kwargs)
-    print("\nExit code %r from %r\n" % (return_code, args_str), flush=True)
-    sys.stderr.flush()
+        self.kwargs["timeout"] = timeout
 
+    def print_call_info(self):
+        print("")
+        print("_"*79)
+        print(self.txt)
+        print("", flush=True)
 
-def verbose_check_output(*popenargs, **kwargs):
-    """
-    'verbose' version of subprocess.check_output()
-    env_updates dict can be used to overwrite os.environ.
-    """
-    txt = "Call: %r" % " ".join([str(x) for x in popenargs])
-    if kwargs:
-        txt += " with: %s" % repr(kwargs)
+    def print_exit_code(self, exit_code):
+        print("\nExit code %r from %r\n" % (exit_code, self.args_str), flush=True)
 
-    if "env_updates" in kwargs:
-        env_updates = kwargs.pop("env_updates")
-        txt += " env: %s" % repr(env_updates)
-        env=os.environ.copy()
-        env.update(env_updates)
-        kwargs["env"] = env
+    def verbose_call(self, check=True):
+        """
+        run subprocess.call()
 
-    if not "timeout" in kwargs:
-        kwargs["timeout"] = SUBPROCESS_TIMEOUT
+        :param check: if True and subprocess exit_code !=0: sys.exit(exit_code) after run.
+        :return: process exit code
+        """
+        self.print_call_info()
 
-    txt += " timeout: %i" % kwargs["timeout"]
+        try:
+            exit_code = subprocess.call(self.popenargs, universal_newlines=True, stderr=subprocess.STDOUT, **self.kwargs)
+        except KeyboardInterrupt:
+            print("\nExit %r\n" % self.args_str, flush=True)
+            exit_code=None # good idea?!?
 
-    print("")
-    print("_"*79)
-    print(txt)
-    print("", flush=True)
-    return subprocess.check_output(popenargs, **kwargs)
+        sys.stderr.flush()
+
+        self.print_exit_code(exit_code)
+        if check and exit_code:
+            sys.exit(exit_code)
+
+        return exit_code
+
+    def verbose_output(self, check=True):
+        """
+        run subprocess.check_output()
+
+        :param check: if True and subprocess exit_code !=0: sys.exit(exit_code) after run.
+        :return: process output
+        """
+        self.print_call_info()
+
+        try:
+            return subprocess.check_output(self.popenargs, **self.kwargs)
+        except subprocess.CalledProcessError as err:
+            print("\n%s" % err)
+            if check:
+                sys.exit(err.returncode)
+            return err.output
 
 
 def display_errors(func):
@@ -299,7 +319,9 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
                     "PATH": "%s:%s" % (context.bin_path, os.environ["PATH"]),
                 }
             })
-            verbose_call(*args, **kwargs)
+            VerboseSubprocess(*args, **kwargs).verbose_call(
+                check=True # sys.exit(return_code) if return_code != 0
+            )
 
         call_new_python("pip", "install", "--upgrade", "pip")
 
@@ -312,8 +334,8 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         pylucid_admin_path = Path(context.bin_path, "pylucid_admin")
         if not pylucid_admin_path.is_file():
             print("ERROR: pylucid_admin not found here: '%s'" % pylucid_admin_path)
-            verbose_call("ls", "-la", str(context.bin_path))
-            sys.exit(1)
+            VerboseSubprocess("ls", "-la", str(context.bin_path)).verbose_call()
+            sys.exit(-1)
 
         # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
         call_new_python("pylucid_admin", "update_env", timeout=120)  # extended timeout for slow Travis ;)

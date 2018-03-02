@@ -14,7 +14,7 @@ from pathlib import Path
 from pylucid_installer.pylucid_installer import create_instance
 
 # PyLucid
-from pylucid.pylucid_boot import Cmd2, verbose_call
+from pylucid.pylucid_boot import Cmd2, VerboseSubprocess
 from pylucid.version import __version__
 
 
@@ -172,16 +172,31 @@ class PyLucidShell(Cmd2):
         assert cwd.is_dir(), "Path not exists: %r" % cwd
         args = arg.split(" ")
 
-        verbose_call("./manage.py", "createcachetable", cwd=cwd)
+        VerboseSubprocess(
+            "./manage.py", "createcachetable", cwd=cwd
+        ).verbose_call(
+            check=True # sys.exit(return_code) if return_code != 0
+        )
 
+        run_dev_server = VerboseSubprocess(
+            "./manage.py", "run_test_project_dev_server", *args,
+            cwd=cwd,
+            timeout=None
+        )
         while True:
-            print("\n")
-            print("="*79)
-            print("="*79)
-            verbose_call("./manage.py", "run_test_project_dev_server", *args, cwd=cwd, timeout=None)
-            for x in range(3,0,-1):
-                print("Reload in %i sec..." % x)
-                time.sleep(1)
+            try:
+                print("\n")
+                print("="*79)
+                print("="*79)
+                return_code = run_dev_server.verbose_call(
+                    check=False # Don't sys.exit(return_code) if return_code != 0
+                )
+                for x in range(3,0,-1):
+                    print("Reload in %i sec..." % x)
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print("\n")
+                return  # return back to the cmd loop
 
     def do_pytest(self, arg):
         """
@@ -205,7 +220,7 @@ class PyLucidShell(Cmd2):
         """
         Just run 'pip freeze'
         """
-        verbose_call("pip3", "freeze")
+        return_code = VerboseSubprocess("pip3", "freeze").verbose_call(check=False)
 
     def do_update_env(self, arg):
         """
@@ -228,36 +243,54 @@ class PyLucidShell(Cmd2):
         print("pip found here: '%s'" % pip3_path)
         pip3_path = str(pip3_path)
 
-        verbose_call(pip3_path, "install", "--upgrade", "pip")
+        return_code = VerboseSubprocess(
+            pip3_path, "install", "--upgrade", "pip"
+        ).verbose_call(check=False)
 
         req = Requirements()
 
         # Update the requirements files by...
         if req.normal_mode:
             # ... update 'pylucid' PyPi package
-            verbose_call(pip3_path, "install", "--upgrade", *PYLUCID_NORMAL_REQ)
+            return_code = VerboseSubprocess(
+                pip3_path, "install", "--upgrade", *PYLUCID_NORMAL_REQ
+            ).verbose_call(check=False)
         else:
             # ... git pull pylucid sources
-            verbose_call("git", "pull", "origin", cwd=ROOT_PATH)
-            verbose_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
+            return_code = VerboseSubprocess(
+                "git", "pull", "origin",
+                cwd=ROOT_PATH
+            ).verbose_call(check=False)
+
+            return_code = VerboseSubprocess(
+                pip3_path, "install", "--editable", ".",
+                cwd=ROOT_PATH
+            ).verbose_call(check=False)
 
         requirement_file_path = str(req.get_requirement_file_path())
 
         # Update with requirements files:
         self.stdout.write("Use: '%s'\n" % requirement_file_path)
-        verbose_call(
+        return_code = VerboseSubprocess(
             "pip3", "install",
             "--exists-action", "b", # action when a path already exists: (b)ackup
             "--upgrade",
-            "--requirement", requirement_file_path
-        )
+            "--requirement", requirement_file_path,
+            timeout=120  # extended timeout for slow Travis ;)
+        ).verbose_call(check=False)
 
         if not req.normal_mode:
             # Run pip-sync only in developer mode
-            verbose_call("pip-sync", requirement_file_path, cwd=ROOT_PATH)
+            return_code = VerboseSubprocess(
+                "pip-sync", requirement_file_path,
+                cwd=ROOT_PATH
+            ).verbose_call(check=False)
 
             # 'reinstall' pylucid editable, because it's not in 'requirement_file_path':
-            verbose_call(pip3_path, "install", "--editable", ".", cwd=ROOT_PATH)
+            return_code = VerboseSubprocess(
+                pip3_path, "install", "--editable", ".",
+                cwd=ROOT_PATH
+            ).verbose_call(check=False)
 
         self.stdout.write("Please restart %s\n" % self.own_filename)
         sys.exit(0)
@@ -291,10 +324,10 @@ class PyLucidShell(Cmd2):
             # We run pip-compile in ./requirements/ and add only the filenames as arguments
             # So pip-compile add no path to comments ;)
 
-            verbose_call(
+            return_code = VerboseSubprocess(
                 "pip-compile", "--verbose", "--upgrade", "-o", requirement_out, requirement_in,
                 cwd=requirements_path
-            )
+            ).verbose_call(check=True)
 
             if not requirement_in.startswith("test_"):
                 req_out = Path(requirements_path, requirement_out)
@@ -310,8 +343,7 @@ class PyLucidShell(Cmd2):
                 "\n#\n# list of out of date packages made with piprot:\n#\n"
             ]
             for line in iter_subprocess_output("piprot", "--outdated", requirement_out, cwd=requirements_path):
-                self.stdout.write(line)
-                self.stdout.flush()
+                print(line, flush=True)
                 output.append("# %s" % line)
 
             self.stdout.write("\nUpdate file %r\n" % requirement_out)
