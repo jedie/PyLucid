@@ -15,12 +15,17 @@ import subprocess
 from pathlib import Path
 from unittest import TestCase
 
-from pylucid.pylucid_boot import VerboseSubprocess
-from pylucid_installer.pylucid_installer import create_instance
+from django.utils.version import get_main_version
+
+from pylucid_installer.pylucid_installer import create_instance, get_python3_shebang
 
 # https://github.com/jedie/django-tools
 from django_tools.unittest_utils.isolated_filesystem import isolated_filesystem
 from django_tools.unittest_utils.stdout_redirect import StdoutStderrBuffer
+
+# PyLucid
+from pylucid.pylucid_boot import VerboseSubprocess
+from pylucid.utils import clean_string
 
 
 class BaseTestCase(TestCase):
@@ -112,34 +117,56 @@ class PageInstanceTestCase(BaseTestCase):
 
         self.temp_path = Path().cwd()  # isolated_filesystem does made a chdir to /tmp/...
 
+        # We can't use the created temp path directly,
+        # because the installer will only use a not existing directory
+        self.instance_root = Path(self.temp_path, "instance")             # /tmp/TestClassNameXXX/instance
+
+        self.project_name = clean_string(self._testMethodName)            # "test_func_name"
+        self.instance_path = Path(self.instance_root, self.project_name)  # /tmp/TestClassNameXXX/instance/test_func_name
+
         with StdoutStderrBuffer() as buffer:
             create_instance(
-                dest = self.temp_path,
-                name = self._testMethodName,
-                remove = True,
-                exist_ok = True,
+                dest = self.instance_root,
+                name = self.project_name,
+                remove = False,
+                exist_ok = False,
             )
 
         output = buffer.get_output()
+        try:
+            self.assertIn(
+                "Create instance with name '%s' at: %s..." % (
+                    self.project_name, self.instance_root
+                ),
+                output
+            )
 
-        # print(output)
-        self.project_path = Path(self.temp_path, self._testMethodName)
+            self.manage_file_path = Path(self.instance_root, "manage.py")
+            shebang=get_python3_shebang()
+            self.assertIn("Update shebang in '%s' to '%s'" % (self.manage_file_path, shebang), output)
+            self.assertIn("Update filecontent '%s/settings.py'" % self.instance_path, output)
+            self.assertIn("Page instance created here: '%s'" % self.instance_root, output)
 
-        self.assertIn(
-            "Rename '%s/example_project' to '%s'" % (
-                self.temp_path, self.project_path
-            ),
-            output
-        )
-        self.assertIn(
-            "Page instance created here: '%s'" % self.temp_path,
-            output
-        )
-        self.assertNotIn("ERROR", output)
-        self.assertNotIn("The given project name is not useable!", output)
+            self.assertNotIn("ERROR", output)
+            self.assertTrue(self.instance_path.is_dir(), "Not a directory: '%s'" % self.instance_path)
 
-        self.assertTrue(self.project_path.is_dir())
+            self.assertTrue(self.manage_file_path.is_file(), "File not found: '%s'" % self.manage_file_path)
+            self.assertTrue(os.access(self.manage_file_path, os.X_OK), "File '%s' not executeable!" % self.manage_file_path)
 
+            with self.manage_file_path.open("r") as f:
+                manage_content=f.read()
+        except Exception:
+            print(output)
+            raise
+
+        try:
+            self.assertIn(shebang, manage_content)
+            self.assertIn("%s.settings" % self.project_name, manage_content)
+        except Exception:
+            print(manage_content)
+            raise
+
+        # Needed until https://github.com/divio/django-cms/issues/5079 is fixed:
         self.createcachetable()
 
     def createcachetable(self):
@@ -147,18 +174,27 @@ class PageInstanceTestCase(BaseTestCase):
         print(output)
         self.assertIn("Cache table 'pylucid_cache_table' created.", output)
 
-    def call_manage_py(self, *args, **kwargs):
+    def call_manage_py(self, *args, check=False, **kwargs):
         """
         Call manage.py from created page instance in temp dir.
         """
-        args = ("./manage.py", ) + args
+        args = ("./manage.py",) + args
+
+        # pylucid_page_instance/manage.py use os.environ.setdefault
+        # We must remove "DJANGO_SETTINGS_MODULE" from environ!
+        env=os.environ.copy()
+        del(env["DJANGO_SETTINGS_MODULE"])
+
         kwargs.update({
-            "cwd": str(self.temp_path),
+            "cwd": str(self.manage_file_path.parent),
+            "env": env,
         })
-        return VerboseSubprocess(*args, **kwargs).verbose_output(check=False)
+        try:
+            return VerboseSubprocess(*args, **kwargs).verbose_output(check=check)
+        except subprocess.CalledProcessError as err:
+            print(err.output)
+            self.fail(err)
 
         # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.project_path, "settings.py")], **kwargs)
         # self.subprocess_getstatusoutput(["cat %s" % os.path.join(self.temp_path, "manage.py")], **kwargs)
         # self.subprocess_getstatusoutput(['python -c "import sys,pprint;pprint.pprint(sys.path)"'], **kwargs)
-
-

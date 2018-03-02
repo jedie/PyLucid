@@ -98,26 +98,26 @@ def _copytree(dest, exist_ok):
     )
 
 
-def get_python3_executable():
+def get_python3_shebang():
     executable = sys.executable
     if not executable.endswith("3"):
         executable += "3" # .../bin/python -> .../bin/python3
-    return executable
 
-def _patch_shebang(dest, *filepath):
-    filepath = os.path.join(dest, *filepath)
-    print("Update shebang in %r" % filepath)
+    shebang="#!%s" % executable
+    return shebang
 
-    with open(filepath, "r+") as f:
+
+def _patch_shebang(filepath):
+    new_shebang=get_python3_shebang()
+    print("Update shebang in '%s' to %r" % (filepath, new_shebang))
+    with filepath.open("r+") as f:
         content = f.read()
         f.seek(0)
 
-        executable = get_python3_executable()
-
-        new_content=content.replace("#!/usr/bin/env python", "#!%s" % sys.executable)
+        new_content=content.replace("#!/usr/bin/env python", new_shebang)
 
         if new_content == content:
-            print("WARNING: Shebang not updated in %r!" % filepath)
+            print("WARNING: Shebang not updated in '%s'!" % filepath)
         else:
             f.write(new_content)
 
@@ -184,16 +184,11 @@ def create_instance(dest, name, remove, exist_ok):
     #         Path(dest, name, "templates", "includes", "footer.html"),
     #     ]
     # )
-    _mass_replace(
-        {
-            "#!/usr/bin/env python": "#!%s" % sys.executable,
-            SRC_PROJECT_NAME: name,
-        },
-        [
-            Path(dest, "manage.py"),
-            Path(dest, name, "wsgi.py"),
-        ]
-    )
+
+    manage_file_path = Path(dest, "manage.py")
+
+    _patch_shebang(filepath=manage_file_path)
+    _patch_shebang(filepath=Path(dest, name, "wsgi.py"))
 
     secret_key = ''.join(
         [random.choice(string.ascii_letters+string.digits+"!@#$%^&*(-_=+)") for i in range(64)]
@@ -206,6 +201,7 @@ def create_instance(dest, name, remove, exist_ok):
         },
         [
             Path(dest, name, "settings.py"),
+            manage_file_path
         ]
     )
 

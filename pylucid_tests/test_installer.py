@@ -14,7 +14,9 @@ import sys
 from pathlib import Path
 from unittest import TestCase
 
-from pylucid_installer.pylucid_installer import create_instance, get_python3_executable
+from django.utils.version import get_main_version
+
+from pylucid_installer.pylucid_installer import create_instance, get_python3_shebang
 from pylucid_tests.test_utils.test_cases import BaseTestCase, PageInstanceTestCase
 
 # https://github.com/jedie/django-tools
@@ -53,11 +55,9 @@ class PyLucidInstallerTest(BaseUnittestCase):
 
         # Check patched manage.py
         with Path(destination, "manage.py").open("r") as f:
-            shebang = f.readlines(1)
+            shebang = f.readlines(1)[0]
 
-            executable = get_python3_executable()
-            self.assert_endswith(executable, "/bin/python3")
-            self.assertEqual(shebang, ["#!%s\n" % executable])
+            self.assertEqual(shebang, "%s\n" % get_python3_shebang())
 
             content = f.read()
             print(content)
@@ -75,7 +75,7 @@ class PyLucidInstallerTest(BaseUnittestCase):
                 content
             )
             self.assertIn(
-                "ROOT_URLCONF = '%s.urls'" % self._testMethodName,
+                'ROOT_URLCONF = "%s.urls"' % self._testMethodName,
                 content
             )
 
@@ -87,26 +87,20 @@ class ManageTest(PageInstanceTestCase):
     #         print(content)
 
     def test_help(self):
-        output = self.call_manage_py(["--help"])
+        output = self.call_manage_py("--help")
         # print(output)
 
         self.assertIn("Type 'manage.py help <subcommand>' for help on a specific subcommand.", output)
         self.assertNotIn("Warning:", output)
 
     def test_check(self):
-        output = self.call_manage_py(
-            ["check"],
-            # debug=True
-        )
+        output = self.call_manage_py("check")
         self.assertNotIn("ImproperlyConfigured", output)
 
     def test_diffsettings(self):
         # self.dont_cleanup_temp=True
 
-        output = self.call_manage_py(
-            ["diffsettings"],
-            # debug=True
-        )
+        output = self.call_manage_py("diffsettings")
         print(output)
         self.assertNotIn("ImproperlyConfigured", output)
         # self.assertIn(
@@ -114,19 +108,16 @@ class ManageTest(PageInstanceTestCase):
         #     output
         # )
         self.assertIn(
-            "STATIC_ROOT = '%s/static'" % self.temp_path,
+            "STATIC_ROOT = '%s'" % Path(self.instance_root, "static"),
             output
         )
         self.assertIn(
-            "MEDIA_ROOT = '%s/media'" % self.temp_path,
+            "MEDIA_ROOT = '%s'" % Path(self.instance_root, "media"),
             output
         )
 
     def test_migrate(self):
-        output = self.call_manage_py(
-            ["migrate", "--noinput"],
-            # debug=True
-        )
+        output = self.call_manage_py("migrate", "--noinput")
         print(output)
         self.assertIn("Running migrations:", output)
         self.assertIn("Applying auth.", output)
