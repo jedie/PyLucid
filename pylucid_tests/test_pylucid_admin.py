@@ -53,22 +53,22 @@ class TestPyLucidAdmin(unittest.TestCase):
         self.assertTrue(git_path.is_dir())
 
         # Needed while developing with github write access url ;)
-        VerboseSubprocess(
+        output = VerboseSubprocess(
             "git", "remote", "set-url", "origin", "https://github.com/jedie/PyLucid.git",
             cwd=str(pylucid_src_path)
-        ).verbose_call(check=True)
+        ).verbose_output(check=True)
+        # print(output)
 
         # Check if change was ok:
         output = VerboseSubprocess(
             "git", "remote", "-v",
             cwd=str(pylucid_src_path)
         ).verbose_output(check=True)
-        print(output)
-        self.assertIn("origin	https://github.com/jedie/PyLucid.git (fetch)", output)
-        self.assertIn("origin	https://github.com/jedie/PyLucid.git (push)", output)
+        # print(output)
+        self.assertIn("https://github.com/jedie/PyLucid.git", output)
+        self.assertNotIn("git@github.com", output)
 
         output = self.pylucid_admin_run("change_editable_address")
         print(output)
 
-        self.assertIn("origin	git@github.com:jedie/PyLucid.git (fetch)", output)
-        self.assertIn("origin	git@github.com:jedie/PyLucid.git (push)", output)
+        self.assertIn("git@github.com:jedie/PyLucid.git", output)
