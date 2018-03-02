@@ -146,13 +146,8 @@ TEMPLATES = [
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        # Must be set in page instance settings:
-        # 'NAME': ":memory:"
-    }
-}
+# Must be set in page instance settings:
+DATABASES = {}
 
 
 # https://docs.djangoproject.com/en/1.11/topics/cache/#database-caching
