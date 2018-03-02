@@ -379,6 +379,9 @@ class PyLucidShell(Cmd2):
             if not p.is_dir():
                 continue
 
+            if str(p).endswith(".bak"):
+                continue
+
             print("\n")
             print("*"*79)
             print("Change: %s..." % p)
