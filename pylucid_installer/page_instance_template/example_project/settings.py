@@ -5,13 +5,13 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Quick-start development settings - unsuitable for production:
-        https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+        https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
     For more information on this file, see:
-        https://docs.djangoproject.com/en/1.8/topics/settings/
+        https://docs.djangoproject.com/en/1.11/topics/settings/
 
     For the full list of settings and their values, see:
-        https://docs.djangoproject.com/en/1.8/ref/settings/
+        https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 from django.utils.translation import ugettext_lazy as _
@@ -55,7 +55,7 @@ WSGI_APPLICATION = 'example_project.wsgi.application'
 
 #____________________________________________________________________
 # Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -66,48 +66,36 @@ DATABASES = {
         'NAME': str(Path(PROJECT_DIR, 'example_project.db')),
         'ATOMIC_REQUESTS': True,
     },
-    # Activate for PyLucid v1.x migration:
-    # 'legacy': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'HOST': 'localhost',
-    #     'PORT': '',
-    #     'USER': '',
-    #     'PASSWORD': '',
-    #     'NAME': 'PyLucid_v1_Database',
-    #     'ATOMIC_REQUESTS': True,
-    # }
 }
-# Activate for PyLucid v1.x migration
-#DATABASE_ROUTERS = ['pylucid_migration.db_router.LegacyRouter']
 
 #____________________________________________________________________
 # Please change email-/SMTP-Settings:
 
-# https://docs.djangoproject.com/en/1.8/ref/settings/#email-host
+# https://docs.djangoproject.com/en/1.11/ref/settings/#email-host
 EMAIL_HOST = "localhost"
 EMAIL_HOST_USER = "root@%s" % EMAIL_HOST
 EMAIL_HOST_PASSWORD = ""
 
-# https://docs.djangoproject.com/en/1.8/ref/settings/#default-from-email
+# https://docs.djangoproject.com/en/1.11/ref/settings/#default-from-email
 # email address to use for various automated correspondence from the site manager(s). Except error mails:
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# https://docs.djangoproject.com/en/1.8/ref/settings/#server-email
+# https://docs.djangoproject.com/en/1.11/ref/settings/#server-email
 # Email address that error messages come from:
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-# https://docs.djangoproject.com/en/1.8/ref/settings/#managers
+# https://docs.djangoproject.com/en/1.11/ref/settings/#managers
 # A tuple that lists people who get broken link notifications when BrokenLinkEmailsMiddleware is enabled:
 #MANAGERS = (('John', 'john@example.com'), ('Mary', 'mary@example.com'))
 
-# https://docs.djangoproject.com/en/1.8/ref/settings/#admins
+# https://docs.djangoproject.com/en/1.11/ref/settings/#admins
 # A tuple that lists people who get code error notifications:
 #ADMINS = MANAGERS
 
 
 
 
-# https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
+# https://docs.djangoproject.com/en/1.11/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [
     "*", # Allow any domain/subdomain
     # 'www.example.tld',  # Allow domain
@@ -124,49 +112,6 @@ DEBUG = True
 # https://github.com/jedie/django-tools#internalips---unix-shell-style-wildcards-in-internal_ips
 from django_tools.settings_utils import InternalIps
 INTERNAL_IPS = InternalIps(["127.0.0.1", "::1", "192.168.*.*", "10.0.*.*"])
-
-
-#____________________________________________________________________
-# multisite
-#
-# See PyLucid README for more details!
-#
-# INSTALLED_APPS += (
-#     'multisite',
-#     'djangocms_multisite',
-# )
-#
-# from multisite import SiteID
-# SITE_ID = SiteID(default=1)
-#
-# CACHE_MULTISITE_ALIAS = 'multisite'
-# CACHE_SITES_ALIAS = CACHE_MULTISITE_ALIAS # https://github.com/ecometrica/django-multisite/pull/34
-# CACHES[CACHE_MULTISITE_ALIAS]= {
-#     'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#     'TIMEOUT': 60 * 60 * 24,  # 24 hours
-# }
-#
-# MULTISITE_FALLBACK="pylucid.multisite_views.auto_create_alias"
-#
-#
-# MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
-# _idx = MIDDLEWARE_CLASSES.index('cms.middleware.utils.ApphookReloadMiddleware')
-# MIDDLEWARE_CLASSES.insert(_idx, 'multisite.middleware.DynamicSiteMiddleware')
-# MIDDLEWARE_CLASSES.insert(_idx+2, 'djangocms_multisite.middleware.CMSMultiSiteMiddleware')
-# MIDDLEWARE_CLASSES = tuple(MIDDLEWARE_CLASSES)
-#
-# MULTISITE_CMS_FALLBACK='www.example_project.com'
-# MULTISITE_CMS_URLS={
-#     MULTISITE_CMS_FALLBACK: ROOT_URLCONF,
-#     #'www.example2.com': 'tests.test_utils.urls2',
-# }
-# MULTISITE_CMS_ALIASES={
-#     MULTISITE_CMS_FALLBACK: (
-#         'alias1.example_project.com', 'alias2.example_project.com',
-#     ),
-#     'www.example2.com': ('alias1.example2.com', 'alias2.example2.com',),
-# }
-
 
 
 #____________________________________________________________________
