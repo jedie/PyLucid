@@ -177,13 +177,13 @@ def create_instance(dest, name, remove, exist_ok):
 
     _rename_project(dest, name)
 
-    _mass_replace(
-        {SRC_PROJECT_NAME: name},
-        [
-            Path(dest, name, "templates", "includes", "header.html"),
-            Path(dest, name, "templates", "includes", "footer.html"),
-        ]
-    )
+    # _mass_replace(
+    #     {SRC_PROJECT_NAME: name},
+    #     [
+    #         Path(dest, name, "templates", "includes", "header.html"),
+    #         Path(dest, name, "templates", "includes", "footer.html"),
+    #     ]
+    # )
     _mass_replace(
         {
             "#!/usr/bin/env python": "#!%s" % sys.executable,
