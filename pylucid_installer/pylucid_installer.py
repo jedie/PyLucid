@@ -88,9 +88,9 @@ def copytree2(src, dst, ignore, exist_ok=False):
 
 
 def _copytree(dest, exist_ok):
-    src_base = os.path.abspath(os.path.dirname(__file__))
-    src = os.path.join(src_base, "page_instance_template")
-    print("copytree %r to %r" % (src, dest))
+    src_base = Path(__file__).parent
+    src = Path(src_base, "page_instance_template")
+    print("copytree '%s' to '%s'" % (src, dest))
     copytree2(
         src, dest,
         ignore=shutil.ignore_patterns("*.pyc", "__pycache__"),
