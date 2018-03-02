@@ -8,4 +8,4 @@
 
 # https://pypi.org/project/PyLucid/#history
 
-__version__ = "3.0.0.dev15"
+__version__ = "3.0.0.dev16"
