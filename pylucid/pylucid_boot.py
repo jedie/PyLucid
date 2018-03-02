@@ -289,16 +289,16 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
         """
         print(" * post-setup modification")
 
-        def call_new_python(*args):
+        def call_new_python(*args, **kwargs):
             """
             Do the same as bin/activate so that <args> runs in a "activated" virtualenv.
             """
-            kwargs={
+            kwargs.update({
                 "env_updates": {
                     "VIRTUAL_ENV": context.env_dir,
                     "PATH": "%s:%s" % (context.bin_path, os.environ["PATH"]),
                 }
-            }
+            })
             verbose_call(*args, **kwargs)
 
         call_new_python("pip", "install", "--upgrade", "pip")
@@ -316,7 +316,7 @@ class PyLucidEnvBuilder(venv.EnvBuilder):
             sys.exit(1)
 
         # Install all requirements by call 'pylucid_admin update_env' from installed PyLucid
-        call_new_python("pylucid_admin", "update_env")
+        call_new_python("pylucid_admin", "update_env", timeout=120)  # extended timeout for slow Travis ;)
 
 
 class PyLucidBootShell(Cmd2):
