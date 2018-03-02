@@ -172,11 +172,12 @@ else:
             'LOCATION': 'pylucid_cache_table',
         },
     }
-    # Hack needed, until https://github.com/divio/django-cms/issues/5079 is fixed:
-    if "createcachetable" in sys.argv:
-        INSTALLED_APPS = list(INSTALLED_APPS)
-        INSTALLED_APPS.remove("cms")
-        INSTALLED_APPS.remove("djangocms_blog")
+
+# Hack needed, until https://github.com/divio/django-cms/issues/5079 is fixed:
+if "createcachetable" in sys.argv:
+    INSTALLED_APPS = list(INSTALLED_APPS)
+    INSTALLED_APPS.remove("cms")
+    INSTALLED_APPS.remove("djangocms_blog")
 
 
 # https://django-compressor.readthedocs.io/en/latest/settings/
