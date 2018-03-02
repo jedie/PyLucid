@@ -1,5 +1,6 @@
 
 import os  # isort:skip
+import re
 
 assert "VIRTUAL_ENV" in os.environ, "ERROR: Call me only in a activated virtualenv!"  # isort:skip
 
@@ -82,9 +83,10 @@ class Requirements:
         NORMAL_INSTALL: "normal_installation.txt",
     }
     def __init__(self):
-        src_path = Path(sys.prefix, "src", "pylucid")
-        if src_path.is_dir():
-            print("PyLucid is installed as editable here: %s" % src_path)
+        self.src_path = Path(sys.prefix, "src")
+        src_pylucid_path = Path(self.src_path, "pylucid")
+        if src_pylucid_path.is_dir():
+            print("PyLucid is installed as editable here: %s" % src_pylucid_path)
             self.install_mode=self.DEVELOPER_INSTALL
         else:
             print("PyLucid is installed as packages here: %s" % ROOT_PATH)
@@ -351,6 +353,55 @@ class PyLucidShell(Cmd2):
             assert filepath.is_file(), "File not exists: %r" % filepath
             with open(filepath, "a") as f:
                 f.writelines(output)
+
+    def do_change_editable_address(self, arg):
+        """
+        Replace git remote url from github read-only 'https' to 'git@'
+        e.g.:
+
+        OLD: https://github.com/jedie/PyLucid.git
+        NEW: git@github.com:jedie/PyLucid.git
+
+        **This is only developer with github write access ;)**
+
+        git remote set-url origin https://github.com/jedie/python-creole.git
+
+        Direct start with:
+            $ pylucid_admin change_editable_address
+        """
+        req = Requirements()
+        if req.normal_mode:
+            print("ERROR: Only available in 'developer' mode!")
+            return
+
+        src_path = req.src_path  # Path instance pointed to 'src' directory
+        for p in src_path.iterdir():
+            if not p.is_dir():
+                continue
+
+            print("\n")
+            print("*"*79)
+            print("Change: %s..." % p)
+
+            try:
+                output = VerboseSubprocess(
+                    "git", "remote", "-v",
+                    cwd=str(p),
+                ).verbose_output(check=False)
+            except subprocess.CalledProcessError:
+                print("Skip.")
+                continue
+
+            (name, url) = re.findall("(\w+?)\s+([^\s]*?)\s+", output)[0]
+            print("Change %r url: %r" % (name, url))
+
+            new_url=url.replace("https://github.com/", "git@github.com:")
+            if new_url == url:
+                print("ERROR: url not changed!")
+                continue
+
+            VerboseSubprocess("git", "remote", "set-url", name, new_url).verbose_call(check=False)
+            VerboseSubprocess("git", "remote", "-v").verbose_call(check=False)
 
 
 def main():

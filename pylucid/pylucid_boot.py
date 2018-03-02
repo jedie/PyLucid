@@ -71,7 +71,7 @@ class VerboseSubprocess:
     """
     Verbose Subprocess
     """
-    def __init__(self, *popenargs, env_updates=None, timeout=SUBPROCESS_TIMEOUT, **kwargs):
+    def __init__(self, *popenargs, env_updates=None, timeout=SUBPROCESS_TIMEOUT, universal_newlines=True, **kwargs):
         """
         :param popenargs: 'args' for subprocess.Popen()
         :param env_updates: dict to overwrite os.environ.
@@ -80,6 +80,9 @@ class VerboseSubprocess:
         """
         self.popenargs = popenargs
         self.kwargs = kwargs
+
+        self.kwargs["timeout"] = timeout
+        self.kwargs["universal_newlines"] = universal_newlines
 
         self.args_str = " ".join([str(x) for x in self.popenargs])
         self.txt = "Call: %r" % self.args_str
@@ -92,7 +95,7 @@ class VerboseSubprocess:
             env.update(env_updates)
             self.kwargs["env"] = env
 
-        self.kwargs["timeout"] = timeout
+
 
     def print_call_info(self):
         print("")
@@ -141,7 +144,7 @@ class VerboseSubprocess:
             print("\n%s" % err)
             if check:
                 sys.exit(err.returncode)
-            return err.output
+            raise
 
 
 def display_errors(func):
