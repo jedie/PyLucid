@@ -59,7 +59,7 @@ log = logging.getLogger(__name__)
 OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
 
 SUBPROCESS_TIMEOUT=60
-DEVELOPER_INSTALL=["-e", "git+https://github.com/jedie/PyLucid.git@develop#egg=pylucid"]
+DEVELOPER_INSTALL=["-e", "git+https://github.com/jedie/PyLucid.git@master#egg=pylucid"]
 NORMAL_INSTALL=[
     # TODO: Remove "--pre" after v3 release
     "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
