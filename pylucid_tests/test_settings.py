@@ -30,10 +30,7 @@ from .test_utils.test_cases import BaseTestCase, PageInstanceTestCase
 
 class PageInstanceSettingsTest(PageInstanceTestCase):
     def test_settings(self):
-        output = self.call_manage_py(
-            ["diffsettings"],
-            #debug=True
-        )
+        output = self.call_manage_py("diffsettings")
 
         self.assertNotIn("ERROR", output)
 
