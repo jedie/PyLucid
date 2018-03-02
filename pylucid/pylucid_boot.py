@@ -61,8 +61,7 @@ log = logging.getLogger(__name__)
 #
 DEVELOPER_INSTALL=["-e", "git+https://github.com/jedie/PyLucid.git@master#egg=pylucid"]
 NORMAL_INSTALL=[
-    # TODO: Remove "--pre" after v3 release
-    "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
+    # "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
     "pylucid"
 ]
 
