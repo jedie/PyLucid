@@ -16,7 +16,9 @@ Try, fork and contribute! ;)
 | {{https://travis-ci.org/jedie/PyLucid.svg?branch=master|Build Status on travis-ci.org}} | [[https://travis-ci.org/jedie/PyLucid/|travis-ci.org/jedie/PyLucid]] |
 | {{https://requires.io/github/jedie/PyLucid/requirements.svg?branch=master|Requirements Status on requires.io}} | [[https://requires.io/github/jedie/PyLucid/requirements/|requires.io/github/jedie/PyLucid/requirements/]] |
 
+
 == install
+
 
 === bootstrap PyLucid virtualenv
 
@@ -28,30 +30,33 @@ Try, fork and contribute! ;)
 /home/FooBar$ python3 pylucid_boot.py boot ~/PyLucid-env
 }}}
 
+
 Note: pylucid_boot.py is a interactive shell with command completion.
 You can just start it and do this:
 {{{
 /home/FooBar$ python3 pylucid_boot.py
-We are not in a virtualenv, ok.
 
-pylucid_boot.py shell v0.0.1
+pylucid_boot.py shell v0.2.0
+Type help or ? to list commands.
 
 pylucid_boot.py> boot ~/PyLucid-env
 }}}
+
 
 Type help or ? to list commands:
 {{{
 pylucid_boot.py> ?
 
 Hint: All commands can be called directly from commandline.
-e.g.: $ ./pylucid_boot.py pip_freeze
+e.g.: $ ./pylucid_boot.py help
 
 Use <tab> to command completion.
 
 Documented commands (type help <topic>):
 ========================================
-boot_ci  boot_developer  boot  help  quit
+boot  boot_developer  help  quit
 }}}
+
 
 === use a created PyLucid virtualenv
 
@@ -66,18 +71,19 @@ boot_ci  boot_developer  boot  help  quit
 (PyLucid-env) ~/PyLucid-env $ pylucid_admin
 }}}
 
+
 The **pylucid_admin** is a interactive shell with command completion, e.g.:
 {{{
 (PyLucid_env) ~/PyLucid_env $ pylucid_admin
 Activated virtualenv detected: '/home/foobar/PyLucid-env' (/home/foobar/PyLucid-env/bin/python3)
 
-pylucid_admin.py shell v0.0.1
+pylucid_admin.py shell v0.2.0
 Type help or ? to list commands.
 
 pylucid_admin.py> ?
 
 Hint: All commands can be called directly from commandline.
-e.g.: $ ./pylucid_admin.py pip_freeze
+e.g.: $ ./pylucid_admin.py help
 
 Use <tab> to command completion.
 

@@ -50,7 +50,7 @@ except ImportError as err:
     print("\nERROR: 'ensurepip' not available: %s (Maybe 'python3-venv' package not installed?!?)" % err)
 
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 log = logging.getLogger(__name__)
@@ -170,7 +170,7 @@ class Cmd2(cmd.Cmd):
 
         self.doc_leader = (
             "\nHint: All commands can be called directly from commandline.\n"
-            "e.g.: $ ./{filename} pip_freeze\n"
+            "e.g.: $ ./{filename} help\n"
         ).format(
             filename=self.own_filename,
         )
@@ -400,7 +400,7 @@ class PyLucidBootShell(Cmd2):
         Install packages via PyPi and read-only sources from github.
 
         The destination path must not exist yet!
-               
+
         (used the requirements/developer_installation.txt)
         """
         self._boot(destination, requirements=DEVELOPER_INSTALL)
