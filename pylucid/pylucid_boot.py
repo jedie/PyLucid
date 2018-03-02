@@ -55,16 +55,20 @@ __version__ = "0.2.0"
 
 log = logging.getLogger(__name__)
 
-
-OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
-
-SUBPROCESS_TIMEOUT=60
+# Note:
+#   on 'master' branch: '--pre' flag must not be set: So the last release on PyPi will be installed.
+#   on 'develop' branch: set the '--pre' flag and publish 'preview' versions on PyPi.
+#
 DEVELOPER_INSTALL=["-e", "git+https://github.com/jedie/PyLucid.git@master#egg=pylucid"]
 NORMAL_INSTALL=[
     # TODO: Remove "--pre" after v3 release
     "--pre", # https://pip.pypa.io/en/stable/reference/pip_install/#pre-release-versions
     "pylucid"
 ]
+
+OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
+
+SUBPROCESS_TIMEOUT=60  # default timeout for subprocess calls
 
 
 class VerboseSubprocess:

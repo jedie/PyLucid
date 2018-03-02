@@ -9,6 +9,12 @@
 # https://pypi.org/project/PyLucid/#history
 
 __version__ = "3.0.0.dev16"
+# Note:
+#
+# If pre-release should be publish to PyPi:
+#   * Set pip '--pre' flag in pylucid_boot.NORMAL_INSTALL
+#   * push not pre-releases on 'master' branch
+#
 
 
 # Just the first two parts of the version
