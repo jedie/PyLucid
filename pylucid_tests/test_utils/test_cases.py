@@ -11,15 +11,14 @@
 
 import os
 import pprint
-import shutil
 import subprocess
-import sys
-import tempfile
 from unittest import TestCase
 
-from django_tools.unittest_utils.stdout_redirect import StdoutStderrBuffer
-
 from pylucid_installer.pylucid_installer import create_instance
+
+# https://github.com/jedie/django-tools
+from django_tools.unittest_utils.isolated_filesystem import isolated_filesystem
+from django_tools.unittest_utils.stdout_redirect import StdoutStderrBuffer
 
 
 class BaseTestCase(TestCase):
@@ -29,6 +28,9 @@ class BaseTestCase(TestCase):
 
         similar to subprocess.getstatusoutput but pass though kwargs
         """
+
+        # TODO: Use pylucid.pylucid_boot.VerboseSubprocess !
+
         kwargs.update({
             "shell": True,
             "universal_newlines": True,
@@ -94,27 +96,11 @@ class BaseTestCase(TestCase):
     #     return self.subprocess_getstatusoutput(cmd, **kwargs)
 
 
-class IsolatedFilesystemTestCase(BaseTestCase):
-    dont_cleanup_temp=False # Don't remove the creates temp files, for debugging only!
-
-    def setUp(self):
-        self._cwd = os.getcwd()
-        self.temp_path = tempfile.mkdtemp(prefix="pylucid_unittest_%s_" % self._testMethodName)
-        os.chdir(self.temp_path)
-
-    def tearDown(self):
-        os.chdir(self._cwd)
-        if self.dont_cleanup_temp:
-            print("WARNING: temp files %r will be not removed!" % self.temp_path)
-            return
-
-        try:
-            shutil.rmtree(self.temp_path)
-        except (OSError, IOError):
-            pass
 
 
-class PageInstanceTestCase(IsolatedFilesystemTestCase):
+
+@isolated_filesystem()
+class PageInstanceTestCase(BaseTestCase):
     """
     -Create a page instance with the pylucid_installer cli
     -run the test in the created page instance
