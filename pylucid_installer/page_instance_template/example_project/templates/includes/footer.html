@@ -1,7 +1,7 @@
 {% load cms_tags %}
 
 {% spaceless %}
-    © {{ request.META.SERVER_NAME }} |
+    © {% if request.site.name %}{{ request.site.name }}{% else %}{{ request.META.SERVER_NAME }}{% endif %} |
     {% if post.date_published %}{# djangocms-blog #}
         {{ post.date_published|date:"SHORT_DATE_FORMAT" }}
     {% else %}
