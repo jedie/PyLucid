@@ -30,7 +30,7 @@ matrix:
 
 branches:
   only:
-  - develop
+  - master
 
 before_install:
   - ls /opt/python/
