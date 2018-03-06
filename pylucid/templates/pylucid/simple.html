@@ -7,9 +7,10 @@
     <meta name="keywords" content="website keywords, website keywords"/>
     <meta http-equiv="content-type" content="text/html; charset=windows-1252"/>
     <title>{% block title %}{% page_attribute page_title %} - {% if site_settings.site.name %}{{ site_settings.site.name }}{% else %}{{ request.get_host }}{% endif %}{% endblock title %}</title>
-    {% compress css %}
+    {% addtoblock "css" %}
         <link href="{% static 'css/simple.css' %}" rel="stylesheet">
-    {% endcompress %}{% render_block "css" %}
+    {% endaddtoblock %}
+    {% render_block "css" postprocessor "compressor.contrib.sekizai.compress" %}{# https://django-compressor.readthedocs.io/en/latest/django-sekizai/ #}
 </head>
 <body>
 {% cms_toolbar %}

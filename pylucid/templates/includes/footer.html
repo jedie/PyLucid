@@ -1,2 +1,19 @@
-{# dummy template, if page_instance/template/includes/footer.html not exist! #}
+{% load i18n static sekizai_tags %}
+
+{% addtoblock "js" %}
+    <script src="{% static 'js/cookie_consent.js' %}"></script>
+{% endaddtoblock %}
+
+{% spaceless %}
+
+{# fallback template, if page_instance/template/includes/footer.html not exist! #}
+
 © {% if request.site.name %}{{ request.site.name }}{% else %}{{ request.META.SERVER_NAME }}{% endif %}
+
+<p id="cookies-consent">
+    {% trans "This website uses cookies. By using our services, you agree that we may set cookies." %}
+    <button type="button" id="cookies-ok" class="btn btn-info">OK</button>
+</p>
+
+{% endspaceless %}
+
