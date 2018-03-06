@@ -257,7 +257,7 @@ class Cmd2(cmd.Cmd):
         If no DocString: return None
         """
         assert command.startswith("do_")
-        doc=getattr(self, command).__doc__
+        doc=getattr(self, command, None).__doc__
         if doc is not None:
             doc = doc.strip().split("\n",1)[0]
         return doc
