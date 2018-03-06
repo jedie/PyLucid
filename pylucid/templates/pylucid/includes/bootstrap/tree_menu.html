@@ -1,12 +1,68 @@
 {% load i18n menu_tags cache %}
 
-<ul class="nav nav-pills">
+
+<ul class="nav nav-list">
+    <li><label class="tree-toggler nav-header">Header 1</label>
+        <ul class="nav nav-list tree">
+            <li><a href="#">Link</a></li>
+            <li><a href="#">Link</a></li>
+            <li><label class="tree-toggler nav-header">Header 1.1</label>
+                <ul class="nav nav-list tree">
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                    <li><label class="tree-toggler nav-header">Header 1.1.1</label>
+                        <ul class="nav nav-list tree">
+                            <li><a href="#">Link</a></li>
+                            <li><a href="#">Link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li class="divider"></li>
+    <li><label class="tree-toggler nav-header">Header 2</label>
+        <ul class="nav nav-list tree">
+            <li><a href="#">Link</a></li>
+            <li><a href="#">Link</a></li>
+            <li><label class="tree-toggler nav-header">Header 2.1</label>
+                <ul class="nav nav-list tree">
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                    <li><label class="tree-toggler nav-header">Header 2.1.1</label>
+                        <ul class="nav nav-list tree">
+                            <li><a href="#">Link</a></li>
+                            <li><a href="#">Link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><label class="tree-toggler nav-header">Header 2.2</label>
+                <ul class="nav nav-list tree">
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                    <li><label class="tree-toggler nav-header">Header 2.2.1</label>
+                        <ul class="nav nav-list tree">
+                            <li><a href="#">Link</a></li>
+                            <li><a href="#">Link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+
+
+<ul class="nav flex-column">
 {% for child in children %}
-    <li class="child{% if child.ancestor %} ancestor{% endif %}{% if child.selected %} active{% endif %}{% if child.children %} dropdown{% endif %}">
-        <a href="{{ child.get_absolute_url }}">{{ child.get_menu_title }}</a>
+    <li class="nav-item child{% if child.ancestor %} ancestor{% endif %}{% if child.selected %} active{% endif %}{% if child.children %} dropdown{% endif %}">
+        <a class="nav-link" href="{{ child.get_absolute_url }}">{{ child.get_menu_title }}</a>
         {% spaceless %}
+        AAA{{ child.children }}BBB
         {% if child.children %}
-            <ul>
+            <ul class="nav nav-list tree">123123
                 {% show_menu from_level to_level extra_inactive extra_active template "" "" child %}
             </ul>
         {% endif %}

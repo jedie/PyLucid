@@ -1,14 +1,22 @@
 {% load i18n menu_tags cache %}
 
 {% for child in children %}
-    <li class="child{% if child.ancestor %} ancestor{% endif %}{% if child.selected %} active{% endif %}{% if child.children %} dropdown{% endif %}">
+    <li class="nav-item child{% if child.ancestor %} ancestor{% endif %}{% if child.selected %} active{% endif %}{% if child.children %} dropdown{% endif %}">
         {% if not child.children %}
             <a href="{{ child.get_absolute_url }}"><span>{{ child.get_menu_title }}</span></a>
         {% else %}
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ child.get_menu_title }} <span class="caret"></span></a>
-            <ul class="dropdown-menu">
+
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ child.get_menu_title }}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 {% show_menu from_level to_level extra_inactive extra_active template "" "" child %}
-            </ul>
+            </div>
         {% endif %}
     </li>
 {% endfor %}
+
+
+
+
+
