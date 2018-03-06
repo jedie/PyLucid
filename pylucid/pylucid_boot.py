@@ -194,6 +194,7 @@ class Cmd2(cmd.Cmd):
 
         self.prompt = '%s> ' % self.own_filename
 
+        self.doc_header = "Available commands (type help <topic>):\n"
         self.doc_leader = (
             "\nHint: All commands can be called directly from commandline.\n"
             "e.g.: $ ./{filename} help\n"
@@ -260,16 +261,31 @@ class Cmd2(cmd.Cmd):
         """
         List available commands with "help" or detailed help with "help cmd".
         """
-        if not self._complete_hint_added:
-            try:
-                import readline
-            except ImportError:
-                self.doc_leader += self.missing_complete
-            else:
-                self.doc_leader += self.complete_hint.format(key=self.completekey)
-            self._complete_hint_added=True
+        if arg:
+            # Help for one command
+            return super().do_help(arg)
 
-        return super().do_help(arg)
+        # List available commands:
+
+        self.stdout.write("%s\n" % self.doc_leader)
+        self.stdout.write("%s\n" % self.doc_header)
+
+        commands = [name for name in self.get_names() if name.startswith("do_")]
+        commands.sort()
+        max_length = max([len(name) for name in commands])
+
+        for command in commands:
+            doc_line = self.get_doc_line(command) or "(Undocumented command)"
+
+            command = command[3:] # remove "do_"
+
+            self.stdout.write(" {cmd:{width}} - {doc}\n".format(
+                cmd=command,
+                width=max_length,
+                doc=doc_line
+            ))
+
+        self.stdout.write("\n")
 
     def do_quit(self, arg):
         "Exit this interactiv shell"
@@ -425,7 +441,7 @@ class PyLucidBootShell(Cmd2):
 
     def do_boot(self, destination):
         """
-        bootstrap PyLucid virtualenv in "normal" mode.
+        Bootstrap PyLucid virtualenv in "normal" mode.
 
         usage:
             > boot [path]
@@ -442,7 +458,7 @@ class PyLucidBootShell(Cmd2):
 
     def do_boot_developer(self, destination):
         """
-        bootstrap PyLucid virtualenv in "developer" mode:
+        Bootstrap PyLucid virtualenv in "developer" mode.
         All own projects installed as editables via github HTTPS (readonly)
 
         **Should be only used for developing/contributing. All others: Use normal 'boot' ;) **
