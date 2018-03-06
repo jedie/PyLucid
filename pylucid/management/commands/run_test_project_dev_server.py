@@ -6,6 +6,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.management.commands.runserver import Command as RunServerCommand
 from django.core.management import call_command
 
+from cms.models import Page
+
 
 class Command(RunServerCommand):
     """
@@ -35,8 +37,11 @@ class Command(RunServerCommand):
             # django.contrib.staticfiles.management.commands.collectstatic.Command
             self.verbose_call("collectstatic", interactive=False, link=True)
 
-            # pylucid.management.commands.create_test_pages.Command
-            self.verbose_call("create_test_pages")
+            qs = Page.objects.all()
+            # qs.delete()
+            if qs.count() == 0:
+                # pylucid.management.commands.create_test_pages.Command
+                self.verbose_call("create_test_pages")
 
             User=get_user_model()
             qs = User.objects.filter(is_active = True, is_superuser=True)

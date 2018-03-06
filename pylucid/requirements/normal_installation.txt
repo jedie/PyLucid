@@ -13,7 +13,7 @@ cmsplugin-pygments==0.8.3
 django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.2.0     # via aldryn-apphooks-config
 django-classy-tags==0.8.0  # via django-cms, django-sekizai
-django-cms-tools==0.6.3
+django-cms-tools==0.6.4
 django-cms==3.4.5
 django-compressor==2.2
 django-debug-toolbar-django-info==0.3.0
