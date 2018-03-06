@@ -10,9 +10,8 @@
         <meta name="generator" content="PyLucid {{ pylucid_version }} - http://www.pylucid.org/" />
         <!--[if IEMobile]><meta http-equiv="cleartype" content="on"/><![endif]-->
     {% endblock meta_tags %}
-
     <title>{% block title %}{% page_attribute page_title %}{% if site_settings.site.name %} - {{ site_settings.site.name }}{% endif %}{% endblock title %}</title>
-
+    {% block js %}{% endblock %}
     {% block css %}{% endblock %}
     {% block extra_css %}{% endblock %}
     {% render_block "css" postprocessor "compressor.contrib.sekizai.compress" %}{# https://django-compressor.readthedocs.io/en/latest/django-sekizai/ #}
@@ -30,7 +29,6 @@
         <footer><p>
             {{ powered_by }}
             |
-
             {% if user.is_authenticated %}
                 <a href="{% url 'admin:logout' %}?next=/" title="{% trans 'Log out' %}">
                     {% trans 'Logged in as:' %} [{{ user.username }}]
@@ -46,7 +44,6 @@
         {% endspaceless %}{% endblock base_footer %}
     </div>
     {# Placed at the end of the document so the pages load faster #}
-    {% block js %}{% endblock %}
     {% render_block "js" postprocessor "compressor.contrib.sekizai.compress" %}{# https://django-compressor.readthedocs.io/en/latest/django-sekizai/ #}
 </body>
 </html>

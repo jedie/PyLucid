@@ -1,16 +1,18 @@
 {% extends "pylucid/base.html" %}
 {% load cms_tags sekizai_tags static menu_tags compress %}
 
-{% block css %}{{ block.super }}
+{% block css %}
     {% addtoblock "css" %}
         <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
         <link href="{% static 'css/pylucid.css' %}" rel="stylesheet">
+        {{ block.super }}
     {% endaddtoblock %}
 {% endblock %}
 
-{% block js %}{{ block.super }}
+{% block js %}
     {% addtoblock "js" %}
         <script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>{# jQuery from django ;) #}
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        {{ block.super }}
     {% endaddtoblock %}
 {% endblock %}
