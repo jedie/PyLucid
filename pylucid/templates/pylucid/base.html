@@ -1,5 +1,4 @@
-{% load i18n cms_tags sekizai_tags static menu_tags compress %}
-<!DOCTYPE html>
+{% load i18n cms_tags sekizai_tags static menu_tags compress %}<!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
     {% block meta_tags %}
@@ -11,15 +10,11 @@
         <meta name="generator" content="PyLucid {{ pylucid_version }} - http://www.pylucid.org/" />
         <!--[if IEMobile]><meta http-equiv="cleartype" content="on"/><![endif]-->
     {% endblock meta_tags %}
-
     <title>{% block title %}{% page_attribute page_title %}{% if site_settings.site.name %} - {{ site_settings.site.name }}{% endif %}{% endblock title %}</title>
-
-    {% compress css %}
-        {% block css %}{% endblock %}
-        <link href="{% static 'css/pylucid.css' %}" rel="stylesheet">
-        {% block extra_css %}{% endblock %}
-    {% endcompress %}
-    {% render_block "css" %}
+    {% block js %}{% endblock %}
+    {% block css %}{% endblock %}
+    {% block extra_css %}{% endblock %}
+    {% render_block "css" postprocessor "compressor.contrib.sekizai.compress" %}{# https://django-compressor.readthedocs.io/en/latest/django-sekizai/ #}
 </head>
 <body>
     {% cms_toolbar %}
@@ -31,28 +26,23 @@
         {% block content_suffix %}{% endblock %}
 
         {% block base_footer %}{% spaceless %}
-        <footer><p>
-            {{ powered_by }}
-            |
-
-            {% if user.is_authenticated %}
-                <a href="{% url 'admin:logout' %}?next=/" title="{% trans 'Log out' %}">
-                    {% trans 'Logged in as:' %} [{{ user.username }}]
-                </a>
-            {% else %}
-                <a href="#login" rel="nofollow" onclick="window.location.href = '{% url "admin:login" %}?next={{ request.path }}&amp;{{ cms_edit_on }}&amp;cms-toolbar-login=1'; return false;">{% trans 'Log in' %}</a>
-            {% endif %}
-            |
-            {% block footer %}
-                {% include "includes/footer.html" %}
-            {% endblock %}
-        </p></footer>
+        <footer><p>{% include "includes/footer_line.html" %}</p></footer>
         {% endspaceless %}{% endblock base_footer %}
+
+        <div class="card m-5 p-3 border-info" id="cookies-consent">
+            <div class="card-body">
+                <button type="button" class="cookies-ok close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <p class="card-text">
+                    <button type="button" class="cookies-ok btn btn-outline-success mr-3">OK</button>
+                    {% trans "This website uses cookies. By using our services, you agree that we may set cookies." %}
+                </p>
+            </div>
+        </div>
+        {% addtoblock "js" %}
+            <script src="{% static 'js/cookie_consent.js' %}"></script>
+        {% endaddtoblock %}
     </div>
-    {% compress js %}
-        {# Placed at the end of the document so the pages load faster #}
-        {% block js %}{% endblock %}
-    {% endcompress %}
-    {% render_block "js" %}
+    {# Placed at the end of the document so the pages load faster #}
+    {% render_block "js" postprocessor "compressor.contrib.sekizai.compress" %}{# https://django-compressor.readthedocs.io/en/latest/django-sekizai/ #}
 </body>
 </html>

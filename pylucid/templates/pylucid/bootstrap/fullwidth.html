@@ -1,6 +1,31 @@
-{% extends "pylucid/bootstrap/base_small_top_menu.html" %}
-{% load cms_tags %}
+{% extends "pylucid/bootstrap/base.html" %}
+{% load cms_tags sekizai_tags static menu_tags %}
 
 {% block base_content %}
-    {% block content %}{% placeholder content %}{% endblock content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">{% include "includes/header.html" %}</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                {# from_level to_level extra_inactive extra_active template #}
+                {% show_menu 0 0 0 0 "pylucid/includes/bootstrap/top_menu.html" %}
+            </ul>
+        </div>
+    </div>
+</nav>
+{% show_breadcrumb 0 "pylucid/includes/bootstrap/breadcrumb_with_language.html" %}
+<div class="row">
+    <div class="col-md-12">
+        {% block content %}{% placeholder content %}{% endblock content %}
+    </div>
+</div>
 {% endblock base_content %}
+
+{% block base_footer %}{% include "pylucid/includes/bootstrap/footer.html" %}{% endblock base_footer %}
+
+
+

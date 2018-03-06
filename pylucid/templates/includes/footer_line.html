@@ -1,0 +1,17 @@
+{% load i18n %}
+
+{% spaceless %}
+{{ powered_by }}
+|
+{% if user.is_authenticated %}
+    <a href="{% url 'admin:logout' %}?next=/" title="{% trans 'Log out' %}">
+        {% trans 'Logged in as:' %} [{{ user.username }}]
+    </a>
+{% else %}
+    <a href="#login" rel="nofollow" onclick="window.location.href = '{% url "admin:login" %}?next={{ request.path }}&amp;{{ cms_edit_on }}&amp;cms-toolbar-login=1'; return false;">{% trans 'Log in' %}</a>
+{% endif %}
+|
+{% block footer %}
+    {% include "includes/footer.html" %}
+{% endblock %}
+{% endspaceless %}

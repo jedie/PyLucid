@@ -6,13 +6,13 @@
 {% block base_content %}
     <div class="row">
         <div class="col-lg-4">
-          {% placeholder prefix_content %}
+            {% placeholder prefix_content or %}<p>Placeholder on the left size</p>{% lorem 2 p %}{% endplaceholder %}
         </div>
         <div class="col-lg-4">
             {% block content %}{% placeholder content %}{% endblock content %}
        </div>
         <div class="col-lg-4">
-          {% placeholder suffix_content %}
+            {% placeholder suffix_content or %}<p>Placeholder on the right size</p>{% lorem 2 p %}{% endplaceholder %}
         </div>
     </div>
 {% endblock base_content %}

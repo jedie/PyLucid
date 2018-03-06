@@ -1,0 +1,21 @@
+{% load i18n menu_tags %}
+{% spaceless %}
+<div class="bg-light m-0 p-0 clearfix">
+    <nav aria-label="breadcrumb" class="m-0 p-0 float-left">
+        <ol class="breadcrumb bg-light">
+            {% for ancestor in ancestors %}
+            {% if not forloop.last %}
+            <li class="breadcrumb-item"><a href="{{ ancestor.get_absolute_url }}">{{ ancestor.get_menu_title }}</a>
+            </li>
+            {% else %}
+            <li class="breadcrumb-item active" aria-current="page">{{ ancestor.get_menu_title }}</li>
+            {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+    <ul class="nav m-0 p-0 float-right justify-content-end">
+        {% language_chooser "pylucid/includes/bootstrap/language_chooser.html" %}
+    </ul>
+</div>
+{% endspaceless %}
+

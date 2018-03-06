@@ -2,38 +2,34 @@
 {% load cms_tags sekizai_tags static menu_tags %}
 
 {% block base_content %}
-    <div class="jumbotron">
-        {% include "includes/header.html" %}
-        <div class="navbar navbar-default" role="navigation">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="/">{% if site_settings.site.name %}{{ site_settings.site.name }}{% endif %}</a>
-                </div>
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        {# from_level to_level extra_inactive extra_active template #}
-                        {% show_menu 0 0 0 0 "pylucid/includes/bootstrap/dropdown_menu.html" %}
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        {% language_chooser "pylucid/includes/bootstrap/language_chooser.html" %}
-                    </ul>
-                </div>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">{% include "includes/header.html" %}</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                {# from_level to_level extra_inactive extra_active template #}
+                {% show_menu 0 0 0 0 "pylucid/includes/bootstrap/top_menu.html" %}
+            </ul>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-3 tree-menu">
-            {# from_level to_level extra_inactive extra_active template #}
-            {% show_menu 1 100 0 1 "pylucid/includes/bootstrap/tree_menu.html" %}
-        </div>
-        <div class="col-md-9">
-            {% block content %}{% placeholder content %}{% endblock content %}
-        </div>
+</nav>
+{% show_breadcrumb 0 "pylucid/includes/bootstrap/breadcrumb_with_language.html" %}
+<div class="row">
+    <div class="col-md-3 tree-menu">
+        {# from_level to_level extra_inactive extra_active template #}
+        {% show_menu 1 100 0 1 "pylucid/includes/bootstrap/tree_menu.html" %}
     </div>
+    <div class="col-md-9">
+        {% block content %}{% placeholder content %}{% endblock content %}
+    </div>
+</div>
 {% endblock base_content %}
+
+{% block base_footer %}{% include "pylucid/includes/bootstrap/footer.html" %}{% endblock base_footer %}
+
+
+

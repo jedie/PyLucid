@@ -7,9 +7,10 @@
     <meta name="keywords" content="website keywords, website keywords"/>
     <meta http-equiv="content-type" content="text/html; charset=windows-1252"/>
     <title>{% block title %}{% page_attribute page_title %} - {% if site_settings.site.name %}{{ site_settings.site.name }}{% else %}{{ request.get_host }}{% endif %}{% endblock title %}</title>
-    {% compress css %}
+    {% addtoblock "css" %}
         <link href="{% static 'css/simple.css' %}" rel="stylesheet">
-    {% endcompress %}{% render_block "css" %}
+    {% endaddtoblock %}
+    {% render_block "css" postprocessor "compressor.contrib.sekizai.compress" %}{# https://django-compressor.readthedocs.io/en/latest/django-sekizai/ #}
 </head>
 <body>
 {% cms_toolbar %}
@@ -28,12 +29,9 @@
                 {% placeholder "sidebar" or %}
                     <h3>Latest News</h3>
                     <h4>What's the News?</h4>
-                    <p>
-                        Put your latest news item here, or anything else you would like in the sidebar!<br/>
-                        <a href="#">Read more</a>
-                    </p>
+                    {% lorem 1 p %}
                     <h3>Newsletter</h3>
-                    <p>If you would like to receive our newletter, please enter your email address and click 'Subscribe'.</p>
+                    {% lorem 1 p %}
                     <form method="post" action="#" id="subscribe">
                         <p style="padding: 0 0 9px 0;">
                             <input class="search" type="text" name="email_address" value="your email address" onclick="javascript: document.forms['subscribe'].email_address.value=''"/>
@@ -42,10 +40,7 @@
                     </form>
                     <h3>Latest Blog</h3>
                     <h4>Website Goes Live</h4>
-                    <p>
-                        We have just launched our new website. Take a look around, we'd love to know what you think.....<br/>
-                        <a href="#">read more</a>
-                    </p>
+                    {% lorem 1 p %}
                 {% endplaceholder %}
             </div>
         </div>
@@ -53,14 +48,14 @@
             {% block content %}{% placeholder content %}{% endblock content %}
         </div>
         <div class="content" id="left">
-            {% placeholder content-left %}
+            {% placeholder content-left or %}<p>Placeholder content-left</p>{% lorem 2 p %}{% endplaceholder %}
         </div>
         <div class="content" id="right">
-            {% placeholder content-right %}
+            {% placeholder content-right or %}<p>Placeholder content-right</p>{% lorem 2 p %}{% endplaceholder %}
         </div>
         <div style="clear: left;"></div>
         <div class="content" id="bottom">
-            {% placeholder content-bottom %}
+            {% placeholder content-bottom or %}<p>Placeholder content-bottom</p>{% lorem 2 p %}{% endplaceholder %}
         </div>
     </div>
     <div id="footer">

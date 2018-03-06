@@ -1,7 +1,13 @@
-{% for ancestor in ancestors %}
-    {% if not forloop.last %}
-        <li><a href="{{ ancestor.get_absolute_url }}">{{ ancestor.get_menu_title }}</a></li>
-    {% else %}
-	    <li class="active">{{ ancestor.get_menu_title }}</li>
-	{% endif %}
-{% endfor %}
+{% spaceless %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    {% for ancestor in ancestors %}
+        {% if not forloop.last %}
+            <li class="breadcrumb-item"><a href="{{ ancestor.get_absolute_url }}">{{ ancestor.get_menu_title }}</a></li>
+        {% else %}
+            <li class="breadcrumb-item active" aria-current="page">{{ ancestor.get_menu_title }}</li>
+        {% endif %}
+    {% endfor %}
+  </ol>
+</nav>
+{% endspaceless %}

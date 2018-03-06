@@ -1,1 +1,1 @@
-<h2>{{ request.META.SERVER_NAME }}</h2>
+<h2>{% if request.site.name %}{{ request.site.name }}{% else %}{{ request.META.SERVER_NAME }}{% endif %}</h2>

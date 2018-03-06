@@ -2,11 +2,8 @@
 {% load cms_tags sekizai_tags static menu_tags %}
 
 {% block content_prefix %}
-    {% include "includes/header.html" %}
     {% include "pylucid/includes/bootstrap/collapsed_navigation.html" %}
-    {% spaceless %}
-    <ol class="breadcrumb">
-        {% show_breadcrumb 0 "pylucid/includes/bootstrap/breadcrumb.html" %}
-    </ol>
-    {% endspaceless %}
+    {% show_breadcrumb 0 "pylucid/includes/bootstrap/breadcrumb.html" %}
 {% endblock content_prefix %}
+
+{% block base_footer %}{% include "pylucid/includes/bootstrap/footer.html" %}{% endblock base_footer %}

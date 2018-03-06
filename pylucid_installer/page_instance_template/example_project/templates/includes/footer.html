@@ -1,4 +1,8 @@
-{% load cms_tags %}
+{% load i18n static cms_tags sekizai_tags %}
+
+{% addtoblock "js" %}
+    <script src="{% static 'js/cookie_consent.js' %}"></script>
+{% endaddtoblock %}
 
 {% spaceless %}
     © {% if request.site.name %}{{ request.site.name }}{% else %}{{ request.META.SERVER_NAME }}{% endif %} |
@@ -7,4 +11,9 @@
     {% else %}
         {% page_attribute "changed_date" as date_changed %}{{ date_changed|date:"SHORT_DATE_FORMAT" }}
     {% endif %}
+
+    <p id="cookies-consent">
+        {% trans "This website uses cookies. By using our services, you agree that we may set cookies." %}
+        <button type="button" id="cookies-ok" class="btn btn-info">OK</button>
+    </p>
 {% endspaceless %}

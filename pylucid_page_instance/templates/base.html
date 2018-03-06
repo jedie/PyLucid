@@ -15,7 +15,7 @@
             {% show_menu 0 100 100 100 %}
         </ul>
         {% block content %}
-            {% placeholder "content" %}
+            {% placeholder "content" or %}<p>Placeholder content</p>{% lorem 3 p %}{% endplaceholder %}
         {% endblock content %}
         {% render_block "js" %}
     </body>

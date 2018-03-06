@@ -275,12 +275,10 @@ DEBUG_TOOLBAR_CONFIG["JQUERY_URL"] = STATIC_URL + "admin/js/vendor/jquery/jquery
 CMS_TEMPLATES = (
     ('pylucid/bootstrap/split_tree_menu_left.html', 'Split tree menu left'),
     ('pylucid/bootstrap/fullwidth.html', 'Top menu - full width'),
-    ('pylucid/bootstrap/sidebar_left.html', 'Top menu with sidebar left'),
     ('pylucid/bootstrap/homepage.html', 'Homepage template'),
     ('pylucid/bootstrap/tree_menu_left.html', 'Tree menu left'),
     ('pylucid/bootstrap/tree_menu_right.html', 'Tree menu right'),
     ('pylucid/simple.html', 'Simple'),
-    # ('base.html', 'Basic Page'),
 )
 
 # http://docs.django-cms.org/en/latest/reference/configuration.html#cms-permission
@@ -300,12 +298,6 @@ CMS_PLACEHOLDER_CONF = {
             CKEDITOR,
             plugin_anchor_menu_constants.ANCHOR_PLUGIN_NAME,
             plugin_anchor_menu_constants.DROP_DOWN_ANCHOR_MENU_PLUGIN_NAME,
-        ],
-        'default_plugins': [
-            {
-                'plugin_type': CKEDITOR,
-                'values':{'body':'<p>(There is no content, yet.)</p>'},
-            },
         ],
     },
 }
