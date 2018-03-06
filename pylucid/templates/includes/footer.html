@@ -10,10 +10,10 @@
 
 © {% if request.site.name %}{{ request.site.name }}{% else %}{{ request.META.SERVER_NAME }}{% endif %}
 
-<p id="cookies-consent">
-    {% trans "This website uses cookies. By using our services, you agree that we may set cookies." %}
+<div class="alert alert-dark" role="alert" id="cookies-consent">
+    <p>{% trans "This website uses cookies. By using our services, you agree that we may set cookies." %}</p>
     <button type="button" id="cookies-ok" class="btn btn-info">OK</button>
-</p>
+</div>
 
 {% endspaceless %}
 
