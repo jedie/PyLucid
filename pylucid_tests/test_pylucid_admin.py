@@ -24,12 +24,23 @@ class TestPyLucidAdmin(unittest.TestCase):
         print(output)
 
         self.assertIn("pylucid_admin.py shell", output)
-        self.assertIn("Documented commands (type help <topic>):", output)
+        self.assertIn("Available commands (type help <topic>):", output)
+
         self.assertIn("create_page_instance", output)
+        self.assertIn("Create a PyLucid page instance.", output)
+
         self.assertIn("update_env", output)
+        self.assertIn("Update all packages in virtualenv.", output)
 
         # If DocString is missing in do_<name>():
-        self.assertNotIn("Undocumented commands", output)
+        self.assertNotIn("Undocumented", output)
+
+    def test_unknown_command(self):
+        output = self.pylucid_admin_run("foo bar is unknown ;)")
+        print(output)
+
+        self.assertIn("pylucid_admin.py shell", output)
+        self.assertIn("*** Unknown command: 'foo bar is unknown ;)' ***", output)
 
     @unittest.skipIf(Requirements().normal_mode, "Only available in 'developer' mode.")
     def test_change_editable_address(self):

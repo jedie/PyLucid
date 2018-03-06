@@ -31,12 +31,16 @@ class TestPyLucidBoot(unittest.TestCase):
         print(output)
 
         self.assertIn("pylucid_boot.py shell", output)
-        self.assertIn("Documented commands (type help <topic>):", output)
+        self.assertIn("Available commands (type help <topic>):", output)
+
         self.assertIn("boot", output)
+        self.assertIn('Bootstrap PyLucid virtualenv in "normal" mode.', output)
+
         self.assertIn("boot_developer", output)
+        self.assertIn('Bootstrap PyLucid virtualenv in "developer" mode.', output)
 
         # If DocString is missing in do_<name>():
-        self.assertNotIn("Undocumented commands", output)
+        self.assertNotIn("Undocumented", output)
 
     def test_boot_into_existing_path(self):
         with isolated_filesystem():
