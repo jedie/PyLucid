@@ -244,6 +244,17 @@ class Cmd2(cmd.Cmd):
 
         return complete_list
 
+    def get_doc_line(self, command):
+        """
+        return the first line of the DocString.
+        If no DocString: return None
+        """
+        assert command.startswith("do_")
+        doc=getattr(self, command).__doc__
+        if doc is not None:
+            doc = doc.strip().split("\n",1)[0]
+        return doc
+
     _complete_hint_added=False
     def do_help(self, arg):
         """
@@ -266,10 +277,21 @@ class Cmd2(cmd.Cmd):
         return True
 
     def precmd(self, line):
+        """
+        1. Apply alias list
+        2. print first DocString line (if exists), before start the command
+        """
         try:
-            return self.command_alias[line]
+            line=self.command_alias[line]
         except KeyError:
-            return line
+            pass
+
+        cmd = line.split(" ",1)[0]
+        doc_line = self.get_doc_line("do_%s" % cmd)
+        if doc_line:
+            self.stdout.write("\n\n *** %s ***\n\n" % doc_line)
+
+        return line
 
     def postcmd(self, stop, line):
         # stop if we are called with commandline arguments
