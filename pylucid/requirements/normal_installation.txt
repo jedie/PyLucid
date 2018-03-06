@@ -33,7 +33,7 @@ django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templat
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
 django-tools==0.39.0
 django-treebeard==4.2.0   # via django-cms
-django==1.11.10
+django==1.11.11
 djangocms-admin-style==1.2.7  # via django-cms
 djangocms-apphook-setup==0.3.0  # via djangocms-blog
 djangocms-attributes-field==0.3.0  # via cmsplugin-filer
@@ -60,9 +60,9 @@ webencodings==0.5.1       # via html5lib
 #
 # list of out of date packages made with piprot:
 #
-# django-cms (3.4.5) is 110 days out of date. Latest is 3.5.0
+# django-cms (3.4.5) is 143 days out of date. Latest is 3.5.1
 # django-mptt (0.8.7) is 351 days out of date. Latest is 0.9.0
 # django-polymorphic (1.3) is 188 days out of date. Latest is 2.0.2
-# django (1.11.10) is out of date. Latest is 2.0.2
+# django (1.11.11) is out of date. Latest is 2.0.3
 # easy-thumbnails (2.4.2) is 45 days out of date. Latest is 2.5
-# Your requirements are 693 days out of date
+# Your requirements are 726 days out of date
