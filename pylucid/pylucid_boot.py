@@ -177,6 +177,8 @@ class Cmd2(cmd.Cmd):
         "--help": "help", "-h": "help", "-?": "help",
     }
 
+    unknown_command="*** Unknown command: %r ***\n"
+
     # Will be append to 'doc_leader' in self.do_help():
     complete_hint="\nUse <{key}> to command completion.\n"
     missing_complete="\n(Sorry, no command completion available.)\n" # if 'readline' not available
@@ -206,6 +208,10 @@ class Cmd2(cmd.Cmd):
         args = sys.argv[1:]
         if args:
             self.cmdqueue = [" ".join(args)]
+
+    def default(self, line):
+        """ Called on an input line when the command prefix is not recognized. """
+        self.stdout.write(self.unknown_command % line)
 
     @display_errors
     def _complete_path(self, text, line, begidx, endidx):
