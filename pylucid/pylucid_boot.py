@@ -50,7 +50,7 @@ except ImportError as err:
     print("\nERROR: 'ensurepip' not available: %s (Maybe 'python3-venv' package not installed?!?)" % err)
 
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 
 log = logging.getLogger(__name__)
@@ -212,6 +212,13 @@ class Cmd2(cmd.Cmd):
     def default(self, line):
         """ Called on an input line when the command prefix is not recognized. """
         self.stdout.write(self.unknown_command % line)
+
+    @display_errors
+    def _complete_list(self, items, text, line, begidx, endidx):
+        if text:
+            return [x for x in items if x.startswith(text)]
+        else:
+            return items
 
     @display_errors
     def _complete_path(self, text, line, begidx, endidx):

@@ -35,6 +35,35 @@ PYLUCID_NORMAL_REQ=[
     "pylucid>=%s" % __version__
 ]
 
+MANAGE_COMMANDS=( # TODO: Create list dynamicly
+    "--help",
+
+    "changepassword",
+    "createsuperuser",
+
+    "cms",
+
+    "compress",
+    "mtime_cache",
+
+    "check",
+    "createcachetable",
+    "diffsettings",
+    "makemigrations",
+    "migrate",
+    "sendtestemail",
+    "showmigrations",
+    "collectstatic",
+
+    "cms_page_info",
+    "cms_plugin_info",
+    "template_info",
+
+    "image_info",
+    "replace_broken",
+
+    "collectstatic",
+)
 
 SELF_FILEPATH=Path(__file__).resolve()                               # .../src/pylucid/pylucid/pylucid_admin.py
 BOOT_FILEPATH=Path(SELF_FILEPATH, "..", "pylucid_boot.py").resolve() # .../src/pylucid/pylucid/pylucid_boot.py
@@ -124,9 +153,6 @@ class PyLucidShell(Cmd2):
     own_filename = OWN_FILENAME
     version = __version__
 
-    def complete_create_page_instance(self, text, line, begidx, endidx):
-        return self._complete_path(text, line, begidx, endidx)
-
     def do_create_page_instance(self, arg):
         """
         Create a PyLucid page instance.
@@ -159,6 +185,32 @@ class PyLucidShell(Cmd2):
 
         create_instance(dest=destination, name=name, remove=False, exist_ok=False)
 
+    def test_project_manage(self, *args, timeout=1000, check=False):
+        cwd = Path(ROOT_PATH, "pylucid_page_instance")
+        assert cwd.is_dir(), "ERROR: Path not exists: %r" % cwd
+
+        args=["./manage.py"] + list(args)
+
+        manage_path = Path(cwd, args[0])
+        assert manage_path.is_file(), "ERROR: File not found: '%s'" % manage_path
+
+        return VerboseSubprocess(*args, cwd=cwd, timeout=timeout).verbose_call(check=check)
+
+    def complete_test_project_manage(self, text, line, begidx, endidx):
+        return self._complete_list(MANAGE_COMMANDS, text, line, begidx, endidx)
+
+    def do_test_project_manage(self, arg):
+        """
+        call ./manage.py [args] from test project (*not* from your page instance!)
+
+        direct call, e.g.:
+        $ ./admin.py test_project_manage diffsettings
+        """
+        self.test_project_manage(*arg.split(" "))
+
+    def complete_create_page_instance(self, text, line, begidx, endidx):
+        return self._complete_path(text, line, begidx, endidx)
+
     def do_run_test_project_dev_server(self, arg):
         """
         run django development server with test project
@@ -170,28 +222,20 @@ class PyLucidShell(Cmd2):
 
         (We call pylucid.management.commands.run_test_project_dev_server.Command)
         """
-        cwd = Path(ROOT_PATH, "pylucid_page_instance")
-        assert cwd.is_dir(), "Path not exists: %r" % cwd
         args = arg.split(" ")
 
-        VerboseSubprocess(
-            "./manage.py", "createcachetable", cwd=cwd
-        ).verbose_call(
-            check=True # sys.exit(return_code) if return_code != 0
-        )
+        self.test_project_manage("createcachetable", check=True)
 
-        run_dev_server = VerboseSubprocess(
-            "./manage.py", "run_test_project_dev_server", *args,
-            cwd=cwd,
-            timeout=None
-        )
         while True:
             try:
                 print("\n")
                 print("="*79)
                 print("="*79)
-                return_code = run_dev_server.verbose_call(
-                    check=False # Don't sys.exit(return_code) if return_code != 0
+                return_code = self.test_project_manage(
+                    "run_test_project_dev_server",
+                    *args,
+                    timeout=None, # Run forever
+                    check=False, # Don't sys.exit(return_code) if return_code != 0
                 )
                 for x in range(3,0,-1):
                     print("Reload in %i sec..." % x)
