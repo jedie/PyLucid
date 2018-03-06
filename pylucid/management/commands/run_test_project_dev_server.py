@@ -35,6 +35,9 @@ class Command(RunServerCommand):
             # django.contrib.staticfiles.management.commands.collectstatic.Command
             self.verbose_call("collectstatic", interactive=False, link=True)
 
+            # pylucid.management.commands.create_test_pages.Command
+            self.verbose_call("create_test_pages")
+
             User=get_user_model()
             qs = User.objects.filter(is_active = True, is_superuser=True)
             if qs.count() == 0:

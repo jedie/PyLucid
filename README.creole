@@ -169,7 +169,10 @@ Please, refer to each application documentation on details.
 
 == Release History
 
-* [[https://github.com/jedie/PyLucid/compare/v3.0.1...master|compare v3.0.1...master]] **dev**
+* [[https://github.com/jedie/PyLucid/compare/v3.0.1...master|compare v3.0.2...master]] **dev**
+* [[https://github.com/jedie/PyLucid/compare/v3.0.1...v3.0.2|06.03.2018 - v3.0.2]]:
+** update requirements (django v1.11.11 and others)
+** pylucid boot/admin: Better 'help' list: print first DocString line, too.
 * [[https://github.com/jedie/PyLucid/compare/v3.0.0...v3.0.1|05.03.2018 - v3.0.1]]:
 ** Activate CurrentSiteMiddleware and use request.site.name in footer
 * [[https://github.com/jedie/PyLucid/compare/v2.1.2...v3.0.0|03.03.2018 - v3.0.0]]:
