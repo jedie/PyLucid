@@ -187,14 +187,9 @@ class VerboseSubprocess:
         self.kwargs["universal_newlines"] = universal_newlines
 
         self.args_str = " ".join([str(x) for x in self.popenargs])
-        self.txt = "Call: %r" % self.args_str
-        kwargs_txt=[]
-        for key, value in self.kwargs.items():
-            kwargs_txt.append("%s=%s" % (key, value))
-        self.txt += " with: %s" % ", ".join(kwargs_txt)
 
-        if env_updates is not None:
-            self.txt += " env: %s" % repr(env_updates)
+        self.env_updates = env_updates
+        if self.env_updates is not None:
             env=os.environ.copy()
             env.update(env_updates)
             self.kwargs["env"] = env
@@ -202,7 +197,25 @@ class VerboseSubprocess:
     def print_call_info(self):
         print("")
         print("_"*79)
-        colorizer.out(self.txt, foreground="cyan")
+
+        kwargs_txt=[]
+        for key, value in self.kwargs.items():
+            if key == "env":
+                continue
+            key = colorizer.colorize(key, foreground="magenta", opts=("bold",))
+            value = colorizer.colorize(value, foreground="green", opts=("bold",))
+            kwargs_txt.append("%s=%s" % (key, value))
+
+        txt = "Call: '{args}' with: {kwargs}".format(
+            args=colorizer.colorize(self.args_str, foreground="cyan", opts=("bold",)),
+            kwargs=", ".join(kwargs_txt)
+        )
+
+        if self.env_updates is not None:
+            txt += colorizer.colorize(" env:", foreground="magenta", opts=("bold",))
+            txt += colorizer.colorize(repr(self.env_updates), opts=("bold",))
+
+        print(txt)
         print("", flush=True)
 
     def print_exit_code(self, exit_code):
