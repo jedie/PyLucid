@@ -65,7 +65,7 @@ NORMAL_INSTALL=[
     "pylucid"
 ]
 
-OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
+SELF_FILE_PATH=Path(__file__)  # .../pylucid/pylucid_boot.py
 
 SUBPROCESS_TIMEOUT=60  # default timeout for subprocess calls
 
@@ -271,7 +271,7 @@ class Cmd2(cmd.Cmd):
         - methods can be called directly from commandline: e.g.: ./foobar.py --help
         - Display
     """
-    own_filename = OWN_FILENAME
+    own_filename = SELF_FILE_PATH.name  # Path(__file__).name ;)
     version = __version__
 
     command_alias = { # used in self.precmd()
