@@ -173,7 +173,7 @@ class VerboseSubprocess:
     """
     Verbose Subprocess
     """
-    def __init__(self, *popenargs, env_updates=None, timeout=SUBPROCESS_TIMEOUT, universal_newlines=True, **kwargs):
+    def __init__(self, *popenargs, env_updates=None, timeout=SUBPROCESS_TIMEOUT, universal_newlines=True, stderr=subprocess.STDOUT, **kwargs):
         """
         :param popenargs: 'args' for subprocess.Popen()
         :param env_updates: dict to overwrite os.environ.
@@ -185,6 +185,7 @@ class VerboseSubprocess:
 
         self.kwargs["timeout"] = timeout
         self.kwargs["universal_newlines"] = universal_newlines
+        self.kwargs["stderr"] = stderr
 
         self.args_str = " ".join([str(x) for x in self.popenargs])
 
@@ -235,7 +236,7 @@ class VerboseSubprocess:
         self.print_call_info()
 
         try:
-            exit_code = subprocess.call(self.popenargs, stderr=subprocess.STDOUT, **self.kwargs)
+            exit_code = subprocess.call(self.popenargs, **self.kwargs)
         except KeyboardInterrupt:
             print("\nExit %r\n" % self.args_str, flush=True)
             exit_code=None # good idea?!?
