@@ -169,7 +169,10 @@ Please, refer to each application documentation on details.
 
 == Release History
 
-* [[https://github.com/jedie/PyLucid/compare/v3.0.1...master|compare v3.0.2...master]] **dev**
+* [[https://github.com/jedie/PyLucid/compare/v3.0.2...master|compare v3.0.2...master]] **dev**
+** colorize pylucid boot/admin output
+** update twitter bootstrap v3 with v4
+** create dummy pages while running "run_test_project_dev_server"
 * [[https://github.com/jedie/PyLucid/compare/v3.0.1...v3.0.2|06.03.2018 - v3.0.2]]:
 ** update requirements (django v1.11.11 and others)
 ** pylucid boot/admin: Better 'help' list: print first DocString line, too.
