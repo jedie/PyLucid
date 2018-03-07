@@ -74,7 +74,7 @@ SUBPROCESS_TIMEOUT=60  # default timeout for subprocess calls
 class Colorizer:
     """
     Borrowed from Django:
-    http://code.djangoproject.com/browser/django/trunk/django/utils/termcolors.py
+    https://github.com/django/django/blob/master/django/utils/termcolors.py
 
     >>> c = Colorizer()
     >>> c.supports_colors()
