@@ -50,7 +50,7 @@ except ImportError as err:
     print("\nERROR: 'ensurepip' not available: %s (Maybe 'python3-venv' package not installed?!?)" % err)
 
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 
 log = logging.getLogger(__name__)
