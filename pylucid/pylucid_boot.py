@@ -70,12 +70,13 @@ OWN_FILENAME=Path(__file__).name  # pylucid_boot.py
 SUBPROCESS_TIMEOUT=60  # default timeout for subprocess calls
 
 
-class ColorOut(object):
+
+class Colorizer:
     """
     Borrowed from Django:
     http://code.djangoproject.com/browser/django/trunk/django/utils/termcolors.py
 
-    >>> c = ColorOut()
+    >>> c = Colorizer()
     >>> c.supports_colors()
     True
     >>> c.color_support = True
@@ -86,16 +87,19 @@ class ColorOut(object):
     >>> c.colorize("colors!", foreground="red", background="blue", opts=("bold", "blink"))
     '\\x1b[31;44;1;5mcolors!\\x1b[0m'
     """
-    def __init__(self):
+    def __init__(self, stdout=sys.stdout, stderr=sys.stderr):
+        self._stdout = stdout
+        self._stderr = stderr
+
         color_names = ('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white')
 
-        self.foreground_colors = dict([(color_names[x], '3%s' % x) for x in range(8)])
-        self.background_colors = dict([(color_names[x], '4%s' % x) for x in range(8)])
-        self.opt_dict = {'bold': '1', 'underscore': '4', 'blink': '5', 'reverse': '7', 'conceal': '8'}
+        self._foreground_colors = dict([(color_names[x], '3%s' % x) for x in range(8)])
+        self._background_colors = dict([(color_names[x], '4%s' % x) for x in range(8)])
+        self._opt_dict = {'bold': '1', 'underscore': '4', 'blink': '5', 'reverse': '7', 'conceal': '8'}
 
-        self.color_support = self.supports_colors()
+        self.color_support = self._supports_colors()
 
-    def supports_colors(self):
+    def _supports_colors(self):
         if sys.platform in ('win32', 'Pocket PC'):
             return False
 
@@ -115,18 +119,54 @@ class ColorOut(object):
         code_list = []
 
         if foreground:
-            code_list.append(self.foreground_colors[foreground])
+            code_list.append(self._foreground_colors[foreground])
         if background:
-            code_list.append(self.background_colors[background])
+            code_list.append(self._background_colors[background])
 
         for option in opts:
-            code_list.append(self.opt_dict[option])
+            code_list.append(self._opt_dict[option])
 
         if not code_list:
             return text
 
         return "\x1b[%sm%s\x1b[0m" % (';'.join(code_list), text)
-c = ColorOut()
+
+    def _out_err(self, func, *args, flush=False, **kwargs):
+        text = self.colorize(*args, **kwargs)
+        func.write("%s\n" % text)
+        if flush:
+            func.flush()
+
+    def out(self, *args, flush=False, **kwargs):
+        """ colorize and print to stdout """
+        self._out_err(self._stdout, *args, flush=flush, **kwargs)
+
+    def err(self, *args, flush=False, **kwargs):
+        """ colorize and print to stderr """
+        self._out_err(self._stderr, *args, flush=flush, **kwargs)
+
+    def demo(self):
+        for background_color in sorted(self._background_colors.keys()):
+            line = ["%10s:" % background_color]
+            for foreground_color in sorted(self._foreground_colors.keys()):
+                line.append(
+                    self.colorize("  %s  " % foreground_color,
+                        foreground=foreground_color, background=background_color
+                    )
+                )
+
+            for opt in sorted(self._opt_dict.keys()):
+                line.append(
+                    self.colorize("  %s  " % opt,
+                        background=background_color, opts=(opt,)
+                    )
+                )
+
+            self.out("".join(line), background=background_color)
+
+
+colorizer = Colorizer()
+# colorizer.demo()
 
 
 class VerboseSubprocess:
@@ -162,11 +202,15 @@ class VerboseSubprocess:
     def print_call_info(self):
         print("")
         print("_"*79)
-        print(self.txt)
+        colorizer.out(self.txt, foreground="cyan")
         print("", flush=True)
 
     def print_exit_code(self, exit_code):
-        print("\nExit code %r from %r\n" % (exit_code, self.args_str), flush=True)
+        txt = "\nExit code %r from %r\n" % (exit_code, self.args_str)
+        if exit_code:
+            colorizer.err(txt, foreground="red", flush=True)
+        else:
+            colorizer.out(txt, foreground="green", flush=True)
 
     def verbose_call(self, check=True):
         """
@@ -245,15 +289,19 @@ class Cmd2(cmd.Cmd):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.intro = (
-            '\n{filename} shell v{version}\n'
-            'Type help or ? to list commands.\n'
-        ).format(
+        intro_line = '{filename} shell v{version}'.format(
             filename=self.own_filename,
             version=self.version
         )
+        intro_line = colorizer.colorize(intro_line, foreground="blue", background="black", opts=("bold",))
 
-        self.prompt = '%s> ' % self.own_filename
+        self.intro = (
+            '\n{intro_line}\n'
+            'Type help or ? to list commands.\n'
+        ).format(intro_line=intro_line)
+
+        self.prompt = colorizer.colorize(self.own_filename, foreground="cyan")
+        self.prompt += colorizer.colorize("> ", opts=("bold",))
 
         self.doc_header = "Available commands (type help <topic>):\n"
         self.doc_leader = (
@@ -270,7 +318,7 @@ class Cmd2(cmd.Cmd):
 
     def default(self, line):
         """ Called on an input line when the command prefix is not recognized. """
-        self.stdout.write(self.unknown_command % line)
+        colorizer.err(self.unknown_command % line, foreground="red")
 
     @display_errors
     def _complete_list(self, items, text, line, begidx, endidx):
@@ -351,9 +399,11 @@ class Cmd2(cmd.Cmd):
 
             command = command[3:] # remove "do_"
 
-            self.stdout.write(" {cmd:{width}} - {doc}\n".format(
+            command = "{cmd:{width}}".format(cmd=command, width=max_length)
+            command = colorizer.colorize(command, opts=("bold",))
+
+            self.stdout.write(" {cmd} - {doc}\n".format(
                 cmd=command,
-                width=max_length,
                 doc=doc_line
             ))
 
@@ -377,7 +427,7 @@ class Cmd2(cmd.Cmd):
         cmd = line.split(" ",1)[0]
         doc_line = self.get_doc_line("do_%s" % cmd)
         if doc_line:
-            self.stdout.write("\n\n *** %s ***\n\n" % doc_line)
+            colorizer.out("\n\n *** %s ***\n" % doc_line, background="cyan", opts=("bold",))
 
         return line
 
