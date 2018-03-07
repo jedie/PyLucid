@@ -275,8 +275,8 @@ class Cmd2(cmd.Cmd):
     version = __version__
 
     command_alias = { # used in self.precmd()
-        "q": "quit", "EOF": "quit",
-        "": "help", # If user just send a ENTER ;)
+        "q": "quit", "EOF": "quit", "exit": "quit",
+        "": "help", # Just hit ENTER -> help
         "--help": "help", "-h": "help", "-?": "help",
     }
 
