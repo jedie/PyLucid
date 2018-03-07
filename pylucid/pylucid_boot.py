@@ -104,7 +104,7 @@ class Colorizer:
             return False
 
         # isatty is not always implemented!
-        if hasattr(sys.stdout, 'isatty') and sys.stdout.isatty():
+        if hasattr(self._stdout, 'isatty') and self._stdout.isatty():
             return True
         else:
             return False
