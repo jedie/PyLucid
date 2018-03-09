@@ -13,7 +13,7 @@ cmsplugin-pygments==0.8.3
 django-appconf==1.0.2     # via cmsplugin-filer, django-compressor
 django-appdata==0.2.0     # via aldryn-apphooks-config
 django-classy-tags==0.8.0  # via django-cms, django-sekizai
-django-cms-tools==0.6.4
+django-cms-tools==0.6.4.1
 django-cms==3.4.5
 django-compressor==2.2
 django-debug-toolbar-django-info==0.3.0
@@ -32,7 +32,7 @@ django-taggit-templatetags==0.2.5  # via djangocms-blog
 django-taggit==0.22.2     # via django-taggit-autosuggest, django-taggit-templatetags, djangocms-blog
 django-templatetag-sugar==1.0  # via django-taggit-templatetags
 django-tools==0.39.0
-django-treebeard==4.2.0   # via django-cms
+django-treebeard==4.2.1   # via django-cms
 django==1.11.11
 djangocms-admin-style==1.2.7  # via django-cms
 djangocms-apphook-setup==0.3.0  # via djangocms-blog
