@@ -77,6 +77,44 @@ pylucid_admin.py> quit
 }}}
 
 
+== update
+
+A general overview:
+
+* update environment
+* migrate database
+* collect static files
+* Update you own templates/styles (not always needed)
+
+Looks like this:
+{{{
+# Go into created virtualenv:
+/home/FooBar$ cd ~/PyLucid-env
+
+# activate the env:
+~/PyLucid-env $ source bin/activate
+
+# Start the interactive admin shell and update environment:
+(PyLucid-env) ~/PyLucid-env $ pylucid_admin
+
+pylucid_admin.py shell v3.0.0
+Type help or ? to list commands.
+
+pylucid_admin.py> update_env
+...
+pylucid_admin.py> quit
+
+# Go into created page instance
+(PyLucid_env) ~/PyLucid_env $ cd ~/page_instance/
+
+# init database
+(PyLucid_env) ~/page_instance $ ./manage.py migrate
+
+# Copies all static files together:
+(PyLucid_env) ~/page_instance $ ./manage.py collectstatic
+}}}
+
+
 == further information
 
 
