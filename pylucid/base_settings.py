@@ -73,6 +73,8 @@ INSTALLED_APPS = (
     'meta', # https://github.com/nephila/django-meta
     'djangocms_blog',
 
+    # https://github.com/jedie/django-processinfo
+    "django_processinfo",
 
     # https://github.com/jedie/django-cms-tools/
     'django_cms_tools',
@@ -91,6 +93,7 @@ ROOT_URLCONF = 'pylucid_page_instance.urls'
 WSGI_APPLICATION = 'pylucid_page_instance.wsgi.application'
 
 MIDDLEWARE = (
+    "django_processinfo.middlewares.ProcessInfoMiddleware",
     'django.middleware.cache.UpdateCacheMiddleware',
 
     # https://github.com/jazzband/django-debug-toolbar/
@@ -261,6 +264,10 @@ MEDIA_URL = '/media/'
 # Must be set in settings from page instance:
 # STATIC_ROOT =
 # MEDIA_ROOT =
+
+
+# https://github.com/jedie/django-processinfo
+from django_processinfo import app_settings as PROCESSINFO
 
 
 # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html#debug-toolbar-config

@@ -25,7 +25,7 @@ django-tools
 django-cms-tools
 
 # https://pypi.org/project/django-processinfo
-#django-processinfo
+django-processinfo
 
 # https://pypi.org/project/django-reversion-compare/
 #django-reversion-compare>=0.6,<0.7

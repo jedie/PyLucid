@@ -9,6 +9,7 @@
 -e git+https://github.com/jedie/cmsplugin-pygments.git#egg=cmsplugin-pygments
 -e git+https://github.com/jedie/django-cms-tools.git@master#egg=django-cms-tools
 -e git+https://github.com/jedie/django-debug-toolbar-django-info.git#egg=django-debug-toolbar-django-info
+-e git+https://github.com/jedie/django-processinfo.git#egg=django-processinfo
 -e git+https://github.com/jedie/django-tools.git@master#egg=django-tools
 -e git+https://github.com/jedie/djangocms-text-ckeditor.git@update_html5lib#egg=djangocms-text-ckeditor
 -e git+https://github.com/jedie/djangocms-widgets.git#egg=djangocms-widgets

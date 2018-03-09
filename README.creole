@@ -232,6 +232,8 @@ Older changes are here: https://www.pylucid.org/de/blog/tag/backward-incompatibl
 == Release History
 
 * [[https://github.com/jedie/PyLucid/compare/v3.1.0...master|compare v3.1.0...master]] **dev**
+* [[https://github.com/jedie/PyLucid/compare/v3.1.0...v3.1.1|09.03.2018 - v3.1.1]]:
+** reactivate [[https://github.com/jedie/django-processinfo/|django-processinfo]]
 * [[https://github.com/jedie/PyLucid/compare/v3.0.2...v3.1.0|09.03.2018 - v3.1.0]]:
 ** colorize pylucid boot/admin output
 ** update twitter bootstrap v3 with v4

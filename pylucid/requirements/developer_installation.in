@@ -54,7 +54,7 @@ docutils
 
 # https://github.com/jedie/django-processinfo
 # https://pypi.org/project/django-processinfo
-#-e git+https://github.com/jedie/django-processinfo.git#egg=django-processinfo
+-e git+https://github.com/jedie/django-processinfo.git#egg=django-processinfo
 
 # https://github.com/jedie/django-reversion-compare
 # https://pypi.org/project/django-reversion-compare/

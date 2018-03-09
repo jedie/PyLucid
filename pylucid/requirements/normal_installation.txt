@@ -25,6 +25,7 @@ django-meta==1.4.1        # via django-meta-mixin, djangocms-blog
 django-mptt==0.8.7        # via django-filer
 django-parler==1.9.2      # via djangocms-blog
 django-polymorphic==1.3   # via django-filer
+django-processinfo==0.8.0
 django-sekizai==0.10.0    # via cmsplugin-filer, django-cms, django-meta-mixin, djangocms-history
 django-sortedm2m==1.5.0   # via djangocms-blog
 django-taggit-autosuggest==0.3.2  # via djangocms-blog
