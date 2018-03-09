@@ -6,6 +6,8 @@ It's more a alternative for [[https://github.com/nephila/djangocms-installer|dja
 
 The goal is to simplify the Django-CMS setup.
 
+PyLucid delivers ready-to-use compiled Twitter Bootstrap v4 (Licensed under MIT) with some simple templates directly.
+
 PyLucid is licensed under GNU General Public License v3 or later (GPLv3+)
 
 Try, fork and contribute! ;)
@@ -198,6 +200,7 @@ Please, refer to each application documentation on details.
 * django-taggit-autosuggest: https://bitbucket.org/fabian/django-taggit-autosuggest
 * aldryn-search: https://github.com/aldryn/aldryn-search#usage
 * haystack: http://django-haystack.readthedocs.io/en/stable/
+* twitter bootstrap: https://getbootstrap.com/docs/
 
 == Backward-incompatible changes
 
