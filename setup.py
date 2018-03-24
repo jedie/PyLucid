@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 
 """
@@ -256,7 +256,7 @@ setup(
         #exclude=[".project", ".pydevproject", "pylucid_project.external_plugins.*"]
     ),
     include_package_data=True, # include package data under version control
-
+    python_requires='>=3.5',
     scripts=[
         'pylucid/pylucid_boot.py',
         'pylucid/pylucid_admin.py',
